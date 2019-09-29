@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84691C15AC
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:06:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18001C1506
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729851AbfI2OAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:00:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41542 "EHLO mail.kernel.org"
+        id S1729551AbfI2OAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729845AbfI2OAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:00:01 -0400
+        id S1729545AbfI2OAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:00:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D8B02082F;
-        Sun, 29 Sep 2019 13:59:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2E2E21835;
+        Sun, 29 Sep 2019 14:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765600;
-        bh=n2ZPc5mWVXvVlYy8in4aeJCAQhA1LUx8eA4rG19ZCVo=;
+        s=default; t=1569765603;
+        bh=wqdPdG1t5Mk1aHnax6epbpMt8if7rIZmNdAUg59W+/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LYP/TEzdcIl4o1ry+BwDUk3CryEhgvMBoihPkQonZeulzcHEPLtmgoOdXA9hIMo7K
-         Px4OAeWhvuyDh+iCl6Tv0Caa1wtNaCTvCNq5I12pmM9gJXOFFWLcrA7inXb3t7eOhJ
-         7eV5NHwVibsz2O8+qhaT4qFv3BLGBPeearMFRpPw=
+        b=fPcsS/gLrpB4sMf9Isc4CGvJkgNsyrAoXt87Ijpir7hMzkCQB5z582qA5ZRqjqkn+
+         ffn1z5c/uWvrjF9wiaaI/RCBhduV/55mSJXs5QCDGFU9pYb4eXTOpxqMEkF4YvuwCX
+         rDDCsibozdqYIteUyVbewLqbD5qgGyDoWdUmYRHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Kacper=20Piwi=C5=84ski?= <cosiekvfj@o2.pl>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Ilia Mirkin <imirkin@alum.mit.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 57/63] ACPI: video: Add new hw_changes_brightness quirk, set it on PB Easynote MZ35
-Date:   Sun, 29 Sep 2019 15:54:30 +0200
-Message-Id: <20190929135040.889718199@linuxfoundation.org>
+Subject: [PATCH 4.19 58/63] drm/nouveau/disp/nv50-: fix center/aspect-corrected scaling
+Date:   Sun, 29 Sep 2019 15:54:31 +0200
+Message-Id: <20190929135041.002602169@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -46,100 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ilia Mirkin <imirkin@alum.mit.edu>
 
-[ Upstream commit 4f7f96453b462b3de0fa18d18fe983960bb5ee7f ]
+[ Upstream commit 533f4752407543f488a9118d817b8c504352b6fb ]
 
-Some machines change the brightness themselves when a brightness hotkey
-gets pressed, despite us telling them not to. This causes the brightness to
-go two steps up / down when the hotkey is pressed. This is esp. a problem
-on older machines with only a few brightness levels.
+Previously center scaling would get scaling applied to it (when it was
+only supposed to center the image), and aspect-corrected scaling did not
+always correctly pick whether to reduce width or height for a particular
+combination of inputs/outputs.
 
-This commit adds a new hw_changes_brightness quirk which makes
-acpi_video_device_notify() only call backlight_force_update(...,
-BACKLIGHT_UPDATE_HOTKEY) and not do anything else, notifying userspace
-that the brightness was changed and leaving it at that fixing the dual
-step problem.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204077
-Reported-by: Kacper Piwiński <cosiekvfj@o2.pl>
-Tested-by: Kacper Piwiński <cosiekvfj@o2.pl>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110660
+Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/gpu/drm/nouveau/dispnv50/head.c | 28 +++++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index d73afb562ad95..1a23e7aa74df7 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -73,6 +73,12 @@ module_param(report_key_events, int, 0644);
- MODULE_PARM_DESC(report_key_events,
- 	"0: none, 1: output changes, 2: brightness changes, 3: all");
- 
-+static int hw_changes_brightness = -1;
-+module_param(hw_changes_brightness, int, 0644);
-+MODULE_PARM_DESC(hw_changes_brightness,
-+	"Set this to 1 on buggy hw which changes the brightness itself when "
-+	"a hotkey is pressed: -1: auto, 0: normal 1: hw-changes-brightness");
-+
- /*
-  * Whether the struct acpi_video_device_attrib::device_id_scheme bit should be
-  * assumed even if not actually set.
-@@ -418,6 +424,14 @@ static int video_set_report_key_events(const struct dmi_system_id *id)
- 	return 0;
- }
- 
-+static int video_hw_changes_brightness(
-+	const struct dmi_system_id *d)
-+{
-+	if (hw_changes_brightness == -1)
-+		hw_changes_brightness = 1;
-+	return 0;
-+}
-+
- static const struct dmi_system_id video_dmi_table[] = {
- 	/*
- 	 * Broken _BQC workaround http://bugzilla.kernel.org/show_bug.cgi?id=13121
-@@ -542,6 +556,21 @@ static const struct dmi_system_id video_dmi_table[] = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
- 		},
- 	},
-+	/*
-+	 * Some machines change the brightness themselves when a brightness
-+	 * hotkey gets pressed, despite us telling them not to. In this case
-+	 * acpi_video_device_notify() should only call backlight_force_update(
-+	 * BACKLIGHT_UPDATE_HOTKEY) and not do anything else.
-+	 */
-+	{
-+	 /* https://bugzilla.kernel.org/show_bug.cgi?id=204077 */
-+	 .callback = video_hw_changes_brightness,
-+	 .ident = "Packard Bell EasyNote MZ35",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "EasyNote MZ35"),
-+		},
-+	},
- 	{}
- };
- 
-@@ -1625,6 +1654,14 @@ static void acpi_video_device_notify(acpi_handle handle, u32 event, void *data)
- 	bus = video_device->video;
- 	input = bus->input;
- 
-+	if (hw_changes_brightness > 0) {
-+		if (video_device->backlight)
-+			backlight_force_update(video_device->backlight,
-+					       BACKLIGHT_UPDATE_HOTKEY);
-+		acpi_notifier_call_chain(device, event, 0);
-+		return;
-+	}
-+
- 	switch (event) {
- 	case ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS:	/* Cycle brightness */
- 		brightness_switch_event(video_device, event);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+index d81a99bb2ac31..b041ffb3af270 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -169,14 +169,34 @@ nv50_head_atomic_check_view(struct nv50_head_atom *armh,
+ 	 */
+ 	switch (mode) {
+ 	case DRM_MODE_SCALE_CENTER:
+-		asyh->view.oW = min((u16)umode->hdisplay, asyh->view.oW);
+-		asyh->view.oH = min((u16)umode_vdisplay, asyh->view.oH);
+-		/* fall-through */
++		/* NOTE: This will cause scaling when the input is
++		 * larger than the output.
++		 */
++		asyh->view.oW = min(asyh->view.iW, asyh->view.oW);
++		asyh->view.oH = min(asyh->view.iH, asyh->view.oH);
++		break;
+ 	case DRM_MODE_SCALE_ASPECT:
+-		if (asyh->view.oH < asyh->view.oW) {
++		/* Determine whether the scaling should be on width or on
++		 * height. This is done by comparing the aspect ratios of the
++		 * sizes. If the output AR is larger than input AR, that means
++		 * we want to change the width (letterboxed on the
++		 * left/right), otherwise on the height (letterboxed on the
++		 * top/bottom).
++		 *
++		 * E.g. 4:3 (1.333) AR image displayed on a 16:10 (1.6) AR
++		 * screen will have letterboxes on the left/right. However a
++		 * 16:9 (1.777) AR image on that same screen will have
++		 * letterboxes on the top/bottom.
++		 *
++		 * inputAR = iW / iH; outputAR = oW / oH
++		 * outputAR > inputAR is equivalent to oW * iH > iW * oH
++		 */
++		if (asyh->view.oW * asyh->view.iH > asyh->view.iW * asyh->view.oH) {
++			/* Recompute output width, i.e. left/right letterbox */
+ 			u32 r = (asyh->view.iW << 19) / asyh->view.iH;
+ 			asyh->view.oW = ((asyh->view.oH * r) + (r / 2)) >> 19;
+ 		} else {
++			/* Recompute output height, i.e. top/bottom letterbox */
+ 			u32 r = (asyh->view.iH << 19) / asyh->view.iW;
+ 			asyh->view.oH = ((asyh->view.oW * r) + (r / 2)) >> 19;
+ 		}
 -- 
 2.20.1
 
