@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 319C4C1535
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED7BC158A
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729450AbfI2OCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:02:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44412 "EHLO mail.kernel.org"
+        id S1729294AbfI2OCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730109AbfI2OCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:02:00 -0400
+        id S1730133AbfI2OCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94DF92082F;
-        Sun, 29 Sep 2019 14:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27DFA21835;
+        Sun, 29 Sep 2019 14:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765718;
-        bh=rg1m6UnFhcxOaDXtA3qfOIvCLZHYb3NhucEHI4MbCGM=;
+        s=default; t=1569765721;
+        bh=87zlzf+tQryHwKDeD7jX0p1gK1qQ5FkxsipXvxePW8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWhelMvTNtgyKBXv8DxyVNJywFaZlqHZfoBM8fHPIuCUyDwgUDsT/bRWJFM2ZQyhO
-         g5g9T+8QDEEsytTyLsNE93TUGrtvJvFZt/qej0J4r/muRbTCm+1tFquPL5xXPq24+w
-         60uHtW1feof1GJkMe9hF7i82M5m4iDeJ4PUIpxZA=
+        b=YHddjkTMZr2owWW7g+4XzouwpQspctIqcTr7s8SvFiRSyDGAILdBJG+spkb9uP1sN
+         KVaBH10NqM7XGxDUI3/gTw0nj956WDPdKGwZvzONezpvOjpdkaX+AZ+XnQfsb/9N1V
+         iLPOIFNyq75s7haD4TKzTD4t4t+iuMzAMBCeFWlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org,
+        "Shih-Yuan Lee (FourDollars)" <fourdollars@debian.org>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 25/45] ALSA: dice: fix wrong packet parameter for Alesis iO26
-Date:   Sun, 29 Sep 2019 15:55:53 +0200
-Message-Id: <20190929135031.279014406@linuxfoundation.org>
+Subject: [PATCH 5.2 26/45] ALSA: hda - Add laptop imic fixup for ASUS M9V laptop
+Date:   Sun, 29 Sep 2019 15:55:54 +0200
+Message-Id: <20190929135031.448652942@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -43,46 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
 
-commit 3a9236e97207f2469254b4098995159b80174d95 upstream.
+commit 7b485d175631be676424aedb8cd2f66d0c93da78 upstream.
 
-At higher sampling rate (e.g. 192.0 kHz), Alesis iO26 transfers 4 data
-channels per data block in CIP.
+The same fixup to enable laptop imic is needed for ASUS M9V with AD1986A
+codec like another HP machine.
 
-Both iO14 and iO26 have the same contents in their configuration ROM.
-For this reason, ALSA Dice driver attempts to distinguish them according
-to the value of TX0_AUDIO register at probe callback. Although the way is
-valid at lower and middle sampling rate, it's lastly invalid at higher
-sampling rate because because the two models returns the same value for
-read transaction to the register.
-
-In the most cases, users just plug-in the device and ALSA dice driver
-detects it. In the case, the device runs at lower sampling rate and
-the driver detects expectedly. For this reason, this commit leaves the
-way to detect as is.
-
-Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
-Cc: <stable@vger.kernel.org> # v4.18+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20190916101851.30409-1-o-takashi@sakamocchi.jp
+Signed-off-by: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190920134052.GA8035@localhost
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/dice/dice-alesis.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_analog.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/firewire/dice/dice-alesis.c
-+++ b/sound/firewire/dice/dice-alesis.c
-@@ -15,7 +15,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
+--- a/sound/pci/hda/patch_analog.c
++++ b/sound/pci/hda/patch_analog.c
+@@ -357,6 +357,7 @@ static const struct hda_fixup ad1986a_fi
  
- static const unsigned int
- alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
--	{10, 10, 8},	/* Tx0 = Analog + S/PDIF. */
-+	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
- 	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
- };
- 
+ static const struct snd_pci_quirk ad1986a_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x30af, "HP B2800", AD1986A_FIXUP_LAPTOP_IMIC),
++	SND_PCI_QUIRK(0x1043, 0x1153, "ASUS M9V", AD1986A_FIXUP_LAPTOP_IMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1443, "ASUS Z99He", AD1986A_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1043, 0x1447, "ASUS A8JN", AD1986A_FIXUP_EAPD),
+ 	SND_PCI_QUIRK_MASK(0x1043, 0xff00, 0x8100, "ASUS P5", AD1986A_FIXUP_3STACK),
 
 
