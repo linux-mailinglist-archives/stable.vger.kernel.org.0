@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 870A3C153F
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4108C1550
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:03:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbfI2OCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44908 "EHLO mail.kernel.org"
+        id S1729360AbfI2ODB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:03:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730172AbfI2OCU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:02:20 -0400
+        id S1729223AbfI2ODB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:03:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 857132082F;
-        Sun, 29 Sep 2019 14:02:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFDE62082F;
+        Sun, 29 Sep 2019 14:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765738;
-        bh=FmS9RSxkmpcM7EGZeoMX6FT8PZ2H3HMXCjeWmc83o0A=;
+        s=default; t=1569765779;
+        bh=+T1PPjQH2Nuw1jEtXiijYKSa4p8205QbCW+QFj3xMgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0eLajewpU0Bz1mHNxgASY85myK02DUWUpBPQLa58invLSGmB7kKc7ruUdwhSS810
-         LZjHhkfhUF539kUWaBno0lzaO/rMw4FuO+LqHEQj57EQHi/ZR/SK53GfwS64lrZXwm
-         VAaDBAgkng5zG8ucU6GlRhGyKo9p7Vh4V+ldRD6c=
+        b=T9Z190gEAsAUNl1VR/hSzYjJQybM5ZDBuNW+bvfnDUDvChYHAy2zD1F8L/A4npD6D
+         /7ty5zqhndC/iTguTzZqhmEvpQE6ve+L7yZQukbu++Hhaw5wbBguJ3eAMYbHUhM/Ly
+         dV+yVTvwyCdJXTVVzp3YC0MGyLY+zjxlWW1XeAqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+4b4f8163c2e246df3c4c@syzkaller.appspotmail.com,
-        Ka-Cheong Poon <ka-cheong.poon@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 45/45] net/rds: An rds_sock is added too early to the hash table
-Date:   Sun, 29 Sep 2019 15:56:13 +0200
-Message-Id: <20190929135035.016426398@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+Subject: [PATCH 5.3 11/25] HID: logitech: Fix general protection fault caused by Logitech driver
+Date:   Sun, 29 Sep 2019 15:56:14 +0200
+Message-Id: <20190929135013.276634385@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
-References: <20190929135024.387033930@linuxfoundation.org>
+In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
+References: <20190929135006.127269625@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,90 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit c5c1a030a7dbf8dd4e1fa4405ae9a89dc1d2a8db ]
+commit 5f9242775bb61f390f0885f23fc16397262c7538 upstream.
 
-In rds_bind(), an rds_sock is added to the RDS bind hash table before
-rs_transport is set.  This means that the socket can be found by the
-receive code path when rs_transport is NULL.  And the receive code
-path de-references rs_transport for congestion update check.  This can
-cause a panic.  An rds_sock should not be added to the bind hash table
-before all the needed fields are set.
+The syzbot fuzzer found a general protection fault in the HID subsystem:
 
-Reported-by: syzbot+4b4f8163c2e246df3c4c@syzkaller.appspotmail.com
-Signed-off-by: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 3715 Comm: syz-executor.3 Not tainted 5.2.0-rc6+ #15
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+RIP: 0010:__pm_runtime_resume+0x49/0x180 drivers/base/power/runtime.c:1069
+Code: ed 74 d5 fe 45 85 ed 0f 85 9a 00 00 00 e8 6f 73 d5 fe 48 8d bd c1 02
+00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 48
+89 fa 83 e2 07 38 d0 7f 08 84 c0 0f 85 fe 00 00 00
+RSP: 0018:ffff8881d99d78e0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000020 RCX: ffffc90003f3f000
+RDX: 0000000416d8686d RSI: ffffffff82676841 RDI: 00000020b6c3436a
+RBP: 00000020b6c340a9 R08: ffff8881c6d64800 R09: fffffbfff0e84c25
+R10: ffff8881d99d7940 R11: ffffffff87426127 R12: 0000000000000004
+R13: 0000000000000000 R14: ffff8881d9b94000 R15: ffffffff897f9048
+FS:  00007f047f542700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b30f21000 CR3: 00000001ca032000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  pm_runtime_get_sync include/linux/pm_runtime.h:226 [inline]
+  usb_autopm_get_interface+0x1b/0x50 drivers/usb/core/driver.c:1707
+  usbhid_power+0x7c/0xe0 drivers/hid/usbhid/hid-core.c:1234
+  hid_hw_power include/linux/hid.h:1038 [inline]
+  hidraw_open+0x20d/0x740 drivers/hid/hidraw.c:282
+  chrdev_open+0x219/0x5c0 fs/char_dev.c:413
+  do_dentry_open+0x497/0x1040 fs/open.c:778
+  do_last fs/namei.c:3416 [inline]
+  path_openat+0x1430/0x3ff0 fs/namei.c:3533
+  do_filp_open+0x1a1/0x280 fs/namei.c:3563
+  do_sys_open+0x3c0/0x580 fs/open.c:1070
+  do_syscall_64+0xb7/0x560 arch/x86/entry/common.c:301
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+It turns out the fault was caused by a bug in the HID Logitech driver,
+which violates the requirement that every pathway calling
+hid_hw_start() must also call hid_hw_stop().  This patch fixes the bug
+by making sure the requirement is met.
+
+Reported-and-tested-by: syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/rds/bind.c | 40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ drivers/hid/hid-lg.c    |   10 ++++++----
+ drivers/hid/hid-lg4ff.c |    1 -
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/rds/bind.c b/net/rds/bind.c
-index 0f4398e7f2a7a..05464fd7c17af 100644
---- a/net/rds/bind.c
-+++ b/net/rds/bind.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2006, 2018 Oracle and/or its affiliates. All rights reserved.
-+ * Copyright (c) 2006, 2019 Oracle and/or its affiliates. All rights reserved.
-  *
-  * This software is available to you under a choice of one of two
-  * licenses.  You may choose to be licensed under the terms of the GNU
-@@ -239,34 +239,30 @@ int rds_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
- 		goto out;
- 	}
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -818,7 +818,7 @@ static int lg_probe(struct hid_device *h
  
--	sock_set_flag(sk, SOCK_RCU_FREE);
--	ret = rds_add_bound(rs, binding_addr, &port, scope_id);
--	if (ret)
--		goto out;
--
--	if (rs->rs_transport) { /* previously bound */
-+	/* The transport can be set using SO_RDS_TRANSPORT option before the
-+	 * socket is bound.
-+	 */
-+	if (rs->rs_transport) {
- 		trans = rs->rs_transport;
- 		if (trans->laddr_check(sock_net(sock->sk),
- 				       binding_addr, scope_id) != 0) {
- 			ret = -ENOPROTOOPT;
--			rds_remove_bound(rs);
--		} else {
--			ret = 0;
-+			goto out;
+ 		if (!buf) {
+ 			ret = -ENOMEM;
+-			goto err_free;
++			goto err_stop;
  		}
--		goto out;
--	}
--	trans = rds_trans_get_preferred(sock_net(sock->sk), binding_addr,
--					scope_id);
--	if (!trans) {
--		ret = -EADDRNOTAVAIL;
--		rds_remove_bound(rs);
--		pr_info_ratelimited("RDS: %s could not find a transport for %pI6c, load rds_tcp or rds_rdma?\n",
--				    __func__, binding_addr);
--		goto out;
-+	} else {
-+		trans = rds_trans_get_preferred(sock_net(sock->sk),
-+						binding_addr, scope_id);
-+		if (!trans) {
-+			ret = -EADDRNOTAVAIL;
-+			pr_info_ratelimited("RDS: %s could not find a transport for %pI6c, load rds_tcp or rds_rdma?\n",
-+					    __func__, binding_addr);
-+			goto out;
-+		}
-+		rs->rs_transport = trans;
+ 
+ 		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
+@@ -850,9 +850,12 @@ static int lg_probe(struct hid_device *h
+ 		ret = lg4ff_init(hdev);
+ 
+ 	if (ret)
+-		goto err_free;
++		goto err_stop;
+ 
+ 	return 0;
++
++err_stop:
++	hid_hw_stop(hdev);
+ err_free:
+ 	kfree(drv_data);
+ 	return ret;
+@@ -863,8 +866,7 @@ static void lg_remove(struct hid_device
+ 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
+ 	if (drv_data->quirks & LG_FF4)
+ 		lg4ff_deinit(hdev);
+-	else
+-		hid_hw_stop(hdev);
++	hid_hw_stop(hdev);
+ 	kfree(drv_data);
+ }
+ 
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1477,7 +1477,6 @@ int lg4ff_deinit(struct hid_device *hid)
+ 		}
  	}
+ #endif
+-	hid_hw_stop(hid);
+ 	drv_data->device_props = NULL;
  
--	rs->rs_transport = trans;
--	ret = 0;
-+	sock_set_flag(sk, SOCK_RCU_FREE);
-+	ret = rds_add_bound(rs, binding_addr, &port, scope_id);
- 
- out:
- 	release_sock(sk);
--- 
-2.20.1
-
+ 	kfree(entry);
 
 
