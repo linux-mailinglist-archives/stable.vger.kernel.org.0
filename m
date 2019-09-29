@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C181C14BD
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A39C14BF
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 15:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbfI2N5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:57:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
+        id S1729336AbfI2N5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbfI2N5q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:57:46 -0400
+        id S1729294AbfI2N5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:57:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D66721882;
-        Sun, 29 Sep 2019 13:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF9D2082F;
+        Sun, 29 Sep 2019 13:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765465;
-        bh=mQF3ZLBvKy/B8A+TuTlycHnH+6XWoMZBepOttnC9Fd0=;
+        s=default; t=1569765469;
+        bh=rg1m6UnFhcxOaDXtA3qfOIvCLZHYb3NhucEHI4MbCGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUAg1QLZ2l6/YdwAhuT9LJvZryYARs8UKTqEszLnXIoOCpuKn4IydD4cmSFLvMyzc
-         zBAVDSsjmK10JBNB8xIOH6vIZrgi69E2tFSQxjwYwphpOF3fRAsXiHacwA1njhr7Xj
-         RBsUB0h+2xu18AWt29Mg8Xza56CMIpD+dD3FNdzI=
+        b=g1sANutfeq//BPcaW4NuU4UescoI451wxXPYOZ7dEFysYP60DuYclgaeW71zFT584
+         PRFixTuJAOIZtlroJz++JdMnCSsoPWXFn7llmYdRrKvA1DHUYiJNv2bbI/FwOn5xLM
+         RTGWWNdTOfY5e+UMdE/6OEqAtDOR6UwcS4deQBwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Laako <jussi@sonarnerd.net>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 28/63] ALSA: usb-audio: Add DSD support for EVGA NU Audio
-Date:   Sun, 29 Sep 2019 15:54:01 +0200
-Message-Id: <20190929135037.236768789@linuxfoundation.org>
+Subject: [PATCH 4.19 29/63] ALSA: dice: fix wrong packet parameter for Alesis iO26
+Date:   Sun, 29 Sep 2019 15:54:02 +0200
+Message-Id: <20190929135037.464204080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -43,32 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jussi Laako <jussi@sonarnerd.net>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit f41f900568d9ffd896cc941db7021eb14bd55910 upstream.
+commit 3a9236e97207f2469254b4098995159b80174d95 upstream.
 
-EVGA NU Audio is actually a USB audio device on a PCIexpress card,
-with it's own USB controller. It supports both PCM and DSD.
+At higher sampling rate (e.g. 192.0 kHz), Alesis iO26 transfers 4 data
+channels per data block in CIP.
 
-Signed-off-by: Jussi Laako <jussi@sonarnerd.net>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190924071143.30911-1-jussi@sonarnerd.net
+Both iO14 and iO26 have the same contents in their configuration ROM.
+For this reason, ALSA Dice driver attempts to distinguish them according
+to the value of TX0_AUDIO register at probe callback. Although the way is
+valid at lower and middle sampling rate, it's lastly invalid at higher
+sampling rate because because the two models returns the same value for
+read transaction to the register.
+
+In the most cases, users just plug-in the device and ALSA dice driver
+detects it. In the case, the device runs at lower sampling rate and
+the driver detects expectedly. For this reason, this commit leaves the
+way to detect as is.
+
+Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
+Cc: <stable@vger.kernel.org> # v4.18+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20190916101851.30409-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/firewire/dice/dice-alesis.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1449,6 +1449,7 @@ u64 snd_usb_interface_dsd_format_quirks(
- 	case 0x152a:  /* Thesycon devices */
- 	case 0x25ce:  /* Mytek devices */
- 	case 0x2ab6:  /* T+A devices */
-+	case 0x3842:  /* EVGA */
- 	case 0xc502:  /* HiBy devices */
- 		if (fp->dsd_raw)
- 			return SNDRV_PCM_FMTBIT_DSD_U32_BE;
+--- a/sound/firewire/dice/dice-alesis.c
++++ b/sound/firewire/dice/dice-alesis.c
+@@ -15,7 +15,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
+ 
+ static const unsigned int
+ alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
+-	{10, 10, 8},	/* Tx0 = Analog + S/PDIF. */
++	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
+ 	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
+ };
+ 
 
 
