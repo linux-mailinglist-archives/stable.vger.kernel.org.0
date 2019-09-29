@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DEEC159D
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EA7C1516
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729931AbfI2OAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:00:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+        id S1729050AbfI2OAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:00:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729925AbfI2OAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:00:34 -0400
+        id S1729945AbfI2OAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:00:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D44521925;
-        Sun, 29 Sep 2019 14:00:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E63121882;
+        Sun, 29 Sep 2019 14:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765633;
-        bh=+T1PPjQH2Nuw1jEtXiijYKSa4p8205QbCW+QFj3xMgE=;
+        s=default; t=1569765637;
+        bh=bkv8WL/OMDe9X8fnNu1VsEUUXBcvtSra2nO+h7coKGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUfDc/KEPs1/tRM+ImNtshY3fHFWM/4JNzzBK65LU+gpjVng6Sl90OVpyHNhDlmnM
-         o5N8uy9IEwo/gLlt9UxvFds49afccSMZnOZ7nw9zuJc9w4EzggtMstL/9zUD9sGh/W
-         ov1ikmnoQGVemXrz8rJuDAz29KN7tyAaTN1auD+w=
+        b=t6tnGsGgtMQLS7+/kl9rsW6FtFS9BchptbTggsEOrj6hHfOMSrclnLgzmmJkE/qYc
+         9nFI6ghGwofUXrl+ay5HYuM8mhrI6fyFl3zG2/2Rl/VKaVMK4NVyOWNuL3tANsHlVe
+         7GyW+MO7oYOyA3E2f+oX6GOja3wyRQaOSnocRlj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Jiri Kosina <jkosina@suse.cz>,
-        syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
-Subject: [PATCH 5.2 14/45] HID: logitech: Fix general protection fault caused by Logitech driver
-Date:   Sun, 29 Sep 2019 15:55:42 +0200
-Message-Id: <20190929135028.354392044@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.2 15/45] HID: logitech-dj: Fix crash when initial logi_dj_recv_query_paired_devices fails
+Date:   Sun, 29 Sep 2019 15:55:43 +0200
+Message-Id: <20190929135028.502269689@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -44,108 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 5f9242775bb61f390f0885f23fc16397262c7538 upstream.
+commit 8ccff2843fb4e6d9d26e5ae9ffe9840b38b92638 upstream.
 
-The syzbot fuzzer found a general protection fault in the HID subsystem:
+Before this commit dj_probe would exit with an error if the initial
+logi_dj_recv_query_paired_devices fails. The initial call may fail
+when the receiver is connected through a kvm and the focus is away.
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-CPU: 0 PID: 3715 Comm: syz-executor.3 Not tainted 5.2.0-rc6+ #15
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-RIP: 0010:__pm_runtime_resume+0x49/0x180 drivers/base/power/runtime.c:1069
-Code: ed 74 d5 fe 45 85 ed 0f 85 9a 00 00 00 e8 6f 73 d5 fe 48 8d bd c1 02
-00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 48
-89 fa 83 e2 07 38 d0 7f 08 84 c0 0f 85 fe 00 00 00
-RSP: 0018:ffff8881d99d78e0 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000020 RCX: ffffc90003f3f000
-RDX: 0000000416d8686d RSI: ffffffff82676841 RDI: 00000020b6c3436a
-RBP: 00000020b6c340a9 R08: ffff8881c6d64800 R09: fffffbfff0e84c25
-R10: ffff8881d99d7940 R11: ffffffff87426127 R12: 0000000000000004
-R13: 0000000000000000 R14: ffff8881d9b94000 R15: ffffffff897f9048
-FS:  00007f047f542700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b30f21000 CR3: 00000001ca032000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  pm_runtime_get_sync include/linux/pm_runtime.h:226 [inline]
-  usb_autopm_get_interface+0x1b/0x50 drivers/usb/core/driver.c:1707
-  usbhid_power+0x7c/0xe0 drivers/hid/usbhid/hid-core.c:1234
-  hid_hw_power include/linux/hid.h:1038 [inline]
-  hidraw_open+0x20d/0x740 drivers/hid/hidraw.c:282
-  chrdev_open+0x219/0x5c0 fs/char_dev.c:413
-  do_dentry_open+0x497/0x1040 fs/open.c:778
-  do_last fs/namei.c:3416 [inline]
-  path_openat+0x1430/0x3ff0 fs/namei.c:3533
-  do_filp_open+0x1a1/0x280 fs/namei.c:3563
-  do_sys_open+0x3c0/0x580 fs/open.c:1070
-  do_syscall_64+0xb7/0x560 arch/x86/entry/common.c:301
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+When the call fails this causes 2 problems:
 
-It turns out the fault was caused by a bug in the HID Logitech driver,
-which violates the requirement that every pathway calling
-hid_hw_start() must also call hid_hw_stop().  This patch fixes the bug
-by making sure the requirement is met.
+1) dj_probe calls logi_dj_recv_query_paired_devices after calling
+hid_device_io_start() so a HID report may have been received in between
+and our delayedwork_callback may be running. It seems that the initial
+logi_dj_recv_query_paired_devices failure happening with some KVMs triggers
+this exact scenario, causing the work-queue to run on free-ed memory,
+leading to:
 
-Reported-and-tested-by: syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+ BUG: unable to handle page fault for address: 0000000000001e88
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] SMP PTI
+ CPU: 3 PID: 257 Comm: kworker/3:3 Tainted: G           OE     5.3.0-rc5+ #100
+ Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M./B150M Pro4S/D3, BIOS P7.10 12/06/2016
+ Workqueue: events 0xffffffffc02ba200
+ RIP: 0010:0xffffffffc02ba1bd
+ Code: e8 e8 13 00 d8 48 89 c5 48 85 c0 74 4c 48 8b 7b 10 48 89 ea b9 07 00 00 00 41 b9 09 00 00 00 41 b8 01 00 00 00 be 10 00 00 00 <48> 8b 87 88 1e 00 00 48 8b 40 40 e8 b3 6b b4 d8 48 89 ef 41 89 c4
+ RSP: 0018:ffffb760c046bdb8 EFLAGS: 00010286
+ RAX: ffff935038ea4550 RBX: ffff935046778000 RCX: 0000000000000007
+ RDX: ffff935038ea4550 RSI: 0000000000000010 RDI: 0000000000000000
+ RBP: ffff935038ea4550 R08: 0000000000000001 R09: 0000000000000009
+ R10: 000000000000e011 R11: 0000000000000001 R12: ffff9350467780e8
+ R13: ffff935046778000 R14: 0000000000000000 R15: ffff935046778070
+ FS:  0000000000000000(0000) GS:ffff935054e00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000001e88 CR3: 000000075a612002 CR4: 00000000003606e0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  0xffffffffc02ba2f7
+  ? process_one_work+0x1b1/0x560
+  process_one_work+0x234/0x560
+  worker_thread+0x50/0x3b0
+  kthread+0x10a/0x140
+  ? process_one_work+0x560/0x560
+  ? kthread_park+0x80/0x80
+  ret_from_fork+0x3a/0x50
+ Modules linked in: vboxpci(O) vboxnetadp(O) vboxnetflt(O) vboxdrv(O) bnep vfat fat btusb btrtl btbcm btintel bluetooth intel_rapl_msr ecdh_generic rfkill ecc snd_usb_audio snd_usbmidi_lib intel_rapl_common snd_rawmidi mc x86_pkg_temp_thermal intel_powerclamp coretemp iTCO_wdt iTCO_vendor_support mei_wdt mei_hdcp ppdev kvm_intel kvm irqbypass crct10dif_pclmul crc32_generic crc32_pclmul snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio ghash_clmulni_intel intel_cstate snd_hda_intel snd_hda_codec intel_uncore snd_hda_core snd_hwdep intel_rapl_perf snd_seq snd_seq_device snd_pcm snd_timer intel_wmi_thunderbolt snd e1000e soundcore mxm_wmi i2c_i801 bfq mei_me mei intel_pch_thermal parport_pc parport acpi_pad binfmt_misc hid_lg_g15(E) hid_logitech_dj(E) i915 crc32c_intel i2c_algo_bit drm_kms_helper nvme nvme_core drm wmi video uas usb_storage i2c_dev
+ CR2: 0000000000001e88
+ ---[ end trace 1d3f8afdcfcbd842 ]---
+
+2) Even if we were to fix 1. by making sure the work is stopped before
+failing probe, failing probe is the wrong thing to do, we have
+logi_dj_recv_queue_unknown_work to deal with the initial
+logi_dj_recv_query_paired_devices failure.
+
+Rather then error-ing out of the probe, causing the receiver to not work at
+all we should rely on this, so that the attached devices will get properly
+enumerated once the KVM focus is switched back.
+
+Cc: stable@vger.kernel.org
+Fixes: 74808f9115ce ("HID: logitech-dj: add support for non unifying receivers")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-lg.c    |   10 ++++++----
- drivers/hid/hid-lg4ff.c |    1 -
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/hid/hid-logitech-dj.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -818,7 +818,7 @@ static int lg_probe(struct hid_device *h
- 
- 		if (!buf) {
- 			ret = -ENOMEM;
--			goto err_free;
-+			goto err_stop;
- 		}
- 
- 		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
-@@ -850,9 +850,12 @@ static int lg_probe(struct hid_device *h
- 		ret = lg4ff_init(hdev);
- 
- 	if (ret)
--		goto err_free;
-+		goto err_stop;
- 
- 	return 0;
-+
-+err_stop:
-+	hid_hw_stop(hdev);
- err_free:
- 	kfree(drv_data);
- 	return ret;
-@@ -863,8 +866,7 @@ static void lg_remove(struct hid_device
- 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
- 	if (drv_data->quirks & LG_FF4)
- 		lg4ff_deinit(hdev);
--	else
--		hid_hw_stop(hdev);
-+	hid_hw_stop(hdev);
- 	kfree(drv_data);
- }
- 
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -1477,7 +1477,6 @@ int lg4ff_deinit(struct hid_device *hid)
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -1732,14 +1732,14 @@ static int logi_dj_probe(struct hid_devi
+ 		if (retval < 0) {
+ 			hid_err(hdev, "%s: logi_dj_recv_query_paired_devices error:%d\n",
+ 				__func__, retval);
+-			goto logi_dj_recv_query_paired_devices_failed;
++			/*
++			 * This can happen with a KVM, let the probe succeed,
++			 * logi_dj_recv_queue_unknown_work will retry later.
++			 */
  		}
  	}
- #endif
--	hid_hw_stop(hid);
- 	drv_data->device_props = NULL;
  
- 	kfree(entry);
+-	return retval;
+-
+-logi_dj_recv_query_paired_devices_failed:
+-	hid_hw_close(hdev);
++	return 0;
+ 
+ llopen_failed:
+ switch_to_dj_mode_fail:
 
 
