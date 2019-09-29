@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2597BC1710
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C526C1712
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729712AbfI2Rfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:35:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47614 "EHLO mail.kernel.org"
+        id S1729728AbfI2Rfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730596AbfI2Rfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:35:30 -0400
+        id S1730605AbfI2Rfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:35:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CCB921925;
-        Sun, 29 Sep 2019 17:35:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDE3F21928;
+        Sun, 29 Sep 2019 17:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778529;
-        bh=lDQ0vRak90qAKBGgcQOhzIF+hJtm9oHmlBRzBXpF70A=;
+        s=default; t=1569778532;
+        bh=Rq5KCnNb5DcsX1r+Iur5At0kw9Uc65vXdmpWwLR0yhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PHretzD14Pb8cRSpZpg/8VZhObWYSJdtGiZFwYl7IPxnueSea9y+xfIk/WY+5Y2/0
-         9cEtGGcQgHFVNxVzuTdghkXHAKF1W3FPmKvSK8UaM0g2yhoFSWGEWmgisfxtrS18Cb
-         82s/veVUBWfPNh0DMWILqKGJDmtJoYEM6KojRj9E=
+        b=DGTXIzriZBYQ7lCcUwsiB5/dU0nVa3xwuPc+g2mpF/y6Up4MksFBmFMrECG68C4o9
+         Ii8DLuAFdmWNRK97QRUV1Db41H+3jyvwVKzdvEXGomjq309DZQkVhzyK1Hd1cdA2Pj
+         JLSpYGliprzbGHUct+LC1vLh8plAh6Tyt11pZ/xQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexandre Ghiti <alex@ghiti.fr>, Kees Cook <keescook@chromium.org>,
@@ -41,9 +41,9 @@ Cc:     Alexandre Ghiti <alex@ghiti.fr>, Kees Cook <keescook@chromium.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/33] arm: properly account for stack randomization and stack guard gap
-Date:   Sun, 29 Sep 2019 13:34:20 -0400
-Message-Id: <20190929173424.9361-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 33/33] arm: use STACK_TOP when computing mmap base address
+Date:   Sun, 29 Sep 2019 13:34:21 -0400
+Message-Id: <20190929173424.9361-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173424.9361-1-sashal@kernel.org>
 References: <20190929173424.9361-1-sashal@kernel.org>
@@ -58,14 +58,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexandre Ghiti <alex@ghiti.fr>
 
-[ Upstream commit af0f4297286f13a75edf93677b1fb2fc16c412a7 ]
+[ Upstream commit 86e568e9c0525fc40e76d827212d5e9721cf7504 ]
 
-This commit takes care of stack randomization and stack guard gap when
-computing mmap base address and checks if the task asked for
-randomization.  This fixes the problem uncovered and not fixed for arm
-here: https://lkml.kernel.org/r/20170622200033.25714-1-riel@redhat.com
+mmap base address must be computed wrt stack top address, using TASK_SIZE
+is wrong since STACK_TOP and TASK_SIZE are not equivalent.
 
-Link: http://lkml.kernel.org/r/20190730055113.23635-7-alex@ghiti.fr
+Link: http://lkml.kernel.org/r/20190730055113.23635-8-alex@ghiti.fr
 Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
 Acked-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
@@ -84,41 +82,31 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/mmap.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/arm/mm/mmap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mm/mmap.c b/arch/arm/mm/mmap.c
-index f866870db749c..bff3d00bda5be 100644
+index bff3d00bda5be..0b94b674aa91f 100644
 --- a/arch/arm/mm/mmap.c
 +++ b/arch/arm/mm/mmap.c
-@@ -18,8 +18,9 @@
- 	 (((pgoff)<<PAGE_SHIFT) & (SHMLBA-1)))
+@@ -19,7 +19,7 @@
  
  /* gap between mmap and stack */
--#define MIN_GAP (128*1024*1024UL)
--#define MAX_GAP ((TASK_SIZE)/6*5)
-+#define MIN_GAP		(128*1024*1024UL)
-+#define MAX_GAP		((TASK_SIZE)/6*5)
-+#define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
+ #define MIN_GAP		(128*1024*1024UL)
+-#define MAX_GAP		((TASK_SIZE)/6*5)
++#define MAX_GAP		((STACK_TOP)/6*5)
+ #define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
  
  static int mmap_is_legacy(struct rlimit *rlim_stack)
- {
-@@ -35,6 +36,15 @@ static int mmap_is_legacy(struct rlimit *rlim_stack)
- static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
- {
- 	unsigned long gap = rlim_stack->rlim_cur;
-+	unsigned long pad = stack_guard_gap;
-+
-+	/* Account for stack randomization if necessary */
-+	if (current->flags & PF_RANDOMIZE)
-+		pad += (STACK_RND_MASK << PAGE_SHIFT);
-+
-+	/* Values close to RLIM_INFINITY can overflow. */
-+	if (gap + pad > gap)
-+		gap += pad;
+@@ -51,7 +51,7 @@ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
+ 	else if (gap > MAX_GAP)
+ 		gap = MAX_GAP;
  
- 	if (gap < MIN_GAP)
- 		gap = MIN_GAP;
+-	return PAGE_ALIGN(TASK_SIZE - gap - rnd);
++	return PAGE_ALIGN(STACK_TOP - gap - rnd);
+ }
+ 
+ /*
 -- 
 2.20.1
 
