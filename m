@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE77EC1586
+	by mail.lfdr.de (Postfix) with ESMTP id 77485C1585
 	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730220AbfI2OCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 10:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
+        id S1730253AbfI2OCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 10:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730246AbfI2OCf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 10:02:35 -0400
+        id S1730260AbfI2OCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 10:02:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3530218DE;
-        Sun, 29 Sep 2019 14:02:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64AF0218DE;
+        Sun, 29 Sep 2019 14:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765754;
-        bh=u2leZk9+XL+R+jk69ue+zE6yJodzlmPNHZyk+UGg9oU=;
+        s=default; t=1569765758;
+        bh=2zC0+TUGKe2DUJPprr29ayJRiDT5XGW6PsxWCASiPwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5i4IX3Y4mFwMkmGq/tEU4PF/9MY/wCYEgnhS5pFEMm+94j8or2uWIZie7Ed+envc
-         EmzrzGgl5uP97aSkhU6or4oq0VG4u4+pSlk9FcsC1wgGW7JQIoSY8lcHNRmEu4m4Qt
-         1jGllU7B8cC7WYEZ05r08PNoeQqaTXjR9oU3zNMQ=
+        b=t1oHSB9i0V3L2+9omuSma3EtAoozBWZePyZP4y2+D2Gc2VLZxjrRWQXFOIZHuj8wT
+         vR1fcjYrlM3xUoqD7Zveweo1Q43eQ6wpjS3pSylqXeEvEDB/+mGU+eOY3Fmg4oq6sw
+         Ar16bW5Xb7mo28nZ+ppoENtpMqlZi+TWQSa7FZOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zorro Lang <zlang@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Bill ODonnell <billodo@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+8cc27ace5f6972910b31@syzkaller.appspotmail.com,
+        Florian Westphal <fw@strlen.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 40/45] xfs: dont crash on null attr fork xfs_bmapi_read
-Date:   Sun, 29 Sep 2019 15:56:08 +0200
-Message-Id: <20190929135033.287691542@linuxfoundation.org>
+Subject: [PATCH 5.2 41/45] xfrm: policy: avoid warning splat when merging nodes
+Date:   Sun, 29 Sep 2019 15:56:09 +0200
+Message-Id: <20190929135033.467279157@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
 References: <20190929135024.387033930@linuxfoundation.org>
@@ -45,97 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <darrick.wong@oracle.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 8612de3f7ba6e900465e340516b8313806d27b2d ]
+[ Upstream commit 769a807d0b41df4201dbeb01c22eaeb3e5905532 ]
 
-Zorro Lang reported a crash in generic/475 if we try to inactivate a
-corrupt inode with a NULL attr fork (stack trace shortened somewhat):
+syzbot reported a splat:
+ xfrm_policy_inexact_list_reinsert+0x625/0x6e0 net/xfrm/xfrm_policy.c:877
+ CPU: 1 PID: 6756 Comm: syz-executor.1 Not tainted 5.3.0-rc2+ #57
+ Call Trace:
+  xfrm_policy_inexact_node_reinsert net/xfrm/xfrm_policy.c:922 [inline]
+  xfrm_policy_inexact_node_merge net/xfrm/xfrm_policy.c:958 [inline]
+  xfrm_policy_inexact_insert_node+0x537/0xb50 net/xfrm/xfrm_policy.c:1023
+  xfrm_policy_inexact_alloc_chain+0x62b/0xbd0 net/xfrm/xfrm_policy.c:1139
+  xfrm_policy_inexact_insert+0xe8/0x1540 net/xfrm/xfrm_policy.c:1182
+  xfrm_policy_insert+0xdf/0xce0 net/xfrm/xfrm_policy.c:1574
+  xfrm_add_policy+0x4cf/0x9b0 net/xfrm/xfrm_user.c:1670
+  xfrm_user_rcv_msg+0x46b/0x720 net/xfrm/xfrm_user.c:2676
+  netlink_rcv_skb+0x1f0/0x460 net/netlink/af_netlink.c:2477
+  xfrm_netlink_rcv+0x74/0x90 net/xfrm/xfrm_user.c:2684
+  netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+  netlink_unicast+0x809/0x9a0 net/netlink/af_netlink.c:1328
+  netlink_sendmsg+0xa70/0xd30 net/netlink/af_netlink.c:1917
+  sock_sendmsg_nosec net/socket.c:637 [inline]
+  sock_sendmsg net/socket.c:657 [inline]
 
-RIP: 0010:xfs_bmapi_read+0x311/0xb00 [xfs]
-RSP: 0018:ffff888047f9ed68 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff888047f9f038 RCX: 1ffffffff5f99f51
-RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000012
-RBP: ffff888002a41f00 R08: ffffed10005483f0 R09: ffffed10005483ef
-R10: ffffed10005483ef R11: ffff888002a41f7f R12: 0000000000000004
-R13: ffffe8fff53b5768 R14: 0000000000000005 R15: 0000000000000001
-FS:  00007f11d44b5b80(0000) GS:ffff888114200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000ef6000 CR3: 000000002e176003 CR4: 00000000001606e0
-Call Trace:
- xfs_dabuf_map.constprop.18+0x696/0xe50 [xfs]
- xfs_da_read_buf+0xf5/0x2c0 [xfs]
- xfs_da3_node_read+0x1d/0x230 [xfs]
- xfs_attr_inactive+0x3cc/0x5e0 [xfs]
- xfs_inactive+0x4c8/0x5b0 [xfs]
- xfs_fs_destroy_inode+0x31b/0x8e0 [xfs]
- destroy_inode+0xbc/0x190
- xfs_bulkstat_one_int+0xa8c/0x1200 [xfs]
- xfs_bulkstat_one+0x16/0x20 [xfs]
- xfs_bulkstat+0x6fa/0xf20 [xfs]
- xfs_ioc_bulkstat+0x182/0x2b0 [xfs]
- xfs_file_ioctl+0xee0/0x12a0 [xfs]
- do_vfs_ioctl+0x193/0x1000
- ksys_ioctl+0x60/0x90
- __x64_sys_ioctl+0x6f/0xb0
- do_syscall_64+0x9f/0x4d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x7f11d39a3e5b
+There is no reproducer, however, the warning can be reproduced
+by adding rules with ever smaller prefixes.
 
-The "obvious" cause is that the attr ifork is null despite the inode
-claiming an attr fork having at least one extent, but it's not so
-obvious why we ended up with an inode in that state.
+The sanity check ("does the policy match the node") uses the prefix value
+of the node before its updated to the smaller value.
 
-Reported-by: Zorro Lang <zlang@redhat.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204031
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Bill O'Donnell <billodo@redhat.com>
+To fix this, update the prefix earlier.  The bug has no impact on tree
+correctness, this is only to prevent a false warning.
+
+Reported-by: syzbot+8cc27ace5f6972910b31@syzkaller.appspotmail.com
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ net/xfrm/xfrm_policy.c                     | 6 ++++--
+ tools/testing/selftests/net/xfrm_policy.sh | 7 +++++++
+ 2 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
-index 356ebd1cbe825..d6fbe487d91ad 100644
---- a/fs/xfs/libxfs/xfs_bmap.c
-+++ b/fs/xfs/libxfs/xfs_bmap.c
-@@ -3840,15 +3840,28 @@ xfs_bmapi_read(
- 	XFS_STATS_INC(mp, xs_blk_mapr);
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index d5342687fdcaa..7c2fa80b20bdf 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -915,6 +915,7 @@ static void xfrm_policy_inexact_node_reinsert(struct net *net,
+ 		} else if (delta > 0) {
+ 			p = &parent->rb_right;
+ 		} else {
++			bool same_prefixlen = node->prefixlen == n->prefixlen;
+ 			struct xfrm_policy *tmp;
  
- 	ifp = XFS_IFORK_PTR(ip, whichfork);
-+	if (!ifp) {
-+		/* No CoW fork?  Return a hole. */
-+		if (whichfork == XFS_COW_FORK) {
-+			mval->br_startoff = bno;
-+			mval->br_startblock = HOLESTARTBLOCK;
-+			mval->br_blockcount = len;
-+			mval->br_state = XFS_EXT_NORM;
-+			*nmap = 1;
-+			return 0;
-+		}
+ 			hlist_for_each_entry(tmp, &n->hhead, bydst) {
+@@ -922,9 +923,11 @@ static void xfrm_policy_inexact_node_reinsert(struct net *net,
+ 				hlist_del_rcu(&tmp->bydst);
+ 			}
  
--	/* No CoW fork?  Return a hole. */
--	if (whichfork == XFS_COW_FORK && !ifp) {
--		mval->br_startoff = bno;
--		mval->br_startblock = HOLESTARTBLOCK;
--		mval->br_blockcount = len;
--		mval->br_state = XFS_EXT_NORM;
--		*nmap = 1;
--		return 0;
-+		/*
-+		 * A missing attr ifork implies that the inode says we're in
-+		 * extents or btree format but failed to pass the inode fork
-+		 * verifier while trying to load it.  Treat that as a file
-+		 * corruption too.
-+		 */
-+#ifdef DEBUG
-+		xfs_alert(mp, "%s: inode %llu missing fork %d",
-+				__func__, ip->i_ino, whichfork);
-+#endif /* DEBUG */
-+		return -EFSCORRUPTED;
++			node->prefixlen = prefixlen;
++
+ 			xfrm_policy_inexact_list_reinsert(net, node, family);
+ 
+-			if (node->prefixlen == n->prefixlen) {
++			if (same_prefixlen) {
+ 				kfree_rcu(n, rcu);
+ 				return;
+ 			}
+@@ -932,7 +935,6 @@ static void xfrm_policy_inexact_node_reinsert(struct net *net,
+ 			rb_erase(*p, new);
+ 			kfree_rcu(n, rcu);
+ 			n = node;
+-			n->prefixlen = prefixlen;
+ 			goto restart;
+ 		}
  	}
+diff --git a/tools/testing/selftests/net/xfrm_policy.sh b/tools/testing/selftests/net/xfrm_policy.sh
+index 5445943bf07f2..7a1bf94c5bd38 100755
+--- a/tools/testing/selftests/net/xfrm_policy.sh
++++ b/tools/testing/selftests/net/xfrm_policy.sh
+@@ -106,6 +106,13 @@ do_overlap()
+     #
+     # 10.0.0.0/24 and 10.0.1.0/24 nodes have been merged as 10.0.0.0/23.
+     ip -net $ns xfrm policy add src 10.1.0.0/24 dst 10.0.0.0/23 dir fwd priority 200 action block
++
++    # similar to above: add policies (with partially random address), with shrinking prefixes.
++    for p in 29 28 27;do
++      for k in $(seq 1 32); do
++       ip -net $ns xfrm policy add src 10.253.1.$((RANDOM%255))/$p dst 10.254.1.$((RANDOM%255))/$p dir fwd priority $((200+k)) action block 2>/dev/null
++      done
++    done
+ }
  
- 	if (!(ifp->if_flags & XFS_IFEXTENTS)) {
+ do_esp_policy_get_check() {
 -- 
 2.20.1
 
