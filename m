@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F966C1765
+	by mail.lfdr.de (Postfix) with ESMTP id C3E26C1766
 	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 19:38:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730857AbfI2Rgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 13:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49126 "EHLO mail.kernel.org"
+        id S1729911AbfI2Rgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 13:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730851AbfI2Rgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:36:32 -0400
+        id S1729874AbfI2Rgf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 13:36:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9470521A4C;
-        Sun, 29 Sep 2019 17:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A8E621A4C;
+        Sun, 29 Sep 2019 17:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778592;
-        bh=Qdk2g6rFXA19O83ksX68LoEMe9e94G5/RP8eW++x/4U=;
+        s=default; t=1569778595;
+        bh=FQnyGHniUWZ8WUPvO966/aKiYAgXuWbjg5v6j5e9C98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejEVjfkgRTK9E4pSfIxHOHCt4bEV+uyOBKlBNfP/2M911ZJEV+ROM68j7Uv/gqcoc
-         XKfYOcCTZDSiCMT6eJTtP8rboAjfo5HgHoojlBtSa6GdOU9uSMd0wRgBBQIRPnpLpy
-         95gwSInuHKh2rNVgG7Ed9vvs+1zVliMHBWCB2FQw=
+        b=cJXYAW2RPtZD6GNWgWu63uWK6KqU5NjH1P4mynAHwJK4koaM/aTXnsjYkaEq7eVzT
+         SsGuNboTApwoUmjUximiMM0yw95euKisPXcRF1gIxuNxmBuZQ1wUPIB0BPMtE40Ev9
+         +jn3Q4JLYTyK0XXaeI32uaz2Kx0IxpWqXxSzla6s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 03/13] mfd: intel-lpss: Remove D3cold delay
-Date:   Sun, 29 Sep 2019 13:36:13 -0400
-Message-Id: <20190929173625.10003-3-sashal@kernel.org>
+Cc:     Nishka Dasgupta <nishkadg.linux@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/13] PCI: tegra: Fix OF node reference leak
+Date:   Sun, 29 Sep 2019 13:36:14 -0400
+Message-Id: <20190929173625.10003-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190929173625.10003-1-sashal@kernel.org>
 References: <20190929173625.10003-1-sashal@kernel.org>
@@ -44,45 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
-[ Upstream commit 76380a607ba0b28627c9b4b55cd47a079a59624b ]
+[ Upstream commit 9e38e690ace3e7a22a81fc02652fc101efb340cf ]
 
-Goodix touchpad may drop its first couple input events when
-i2c-designware-platdrv and intel-lpss it connects to took too long to
-runtime resume from runtime suspended state.
+Each iteration of for_each_child_of_node() executes of_node_put() on the
+previous node, but in some return paths in the middle of the loop
+of_node_put() is missing thus causing a reference leak.
 
-This issue happens becuase the touchpad has a rather small buffer to
-store up to 13 input events, so if the host doesn't read those events in
-time (i.e. runtime resume takes too long), events are dropped from the
-touchpad's buffer.
+Hence stash these mid-loop return values in a variable 'err' and add a
+new label err_node_put which executes of_node_put() on the previous node
+and returns 'err' on failure.
 
-The bottleneck is D3cold delay it waits when transitioning from D3cold
-to D0, hence remove the delay to make the resume faster. I've tested
-some systems with intel-lpss and haven't seen any regression.
+Change mid-loop return statements to point to jump to this label to
+fix the reference leak.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202683
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Issue found with Coccinelle.
+
+Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+[lorenzo.pieralisi@arm.com: rewrote commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/host/pci-tegra.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index 9ff243970e93e..5b41111e62fd1 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -39,6 +39,8 @@ static int intel_lpss_pci_probe(struct pci_dev *pdev,
- 	info->mem = &pdev->resource[0];
- 	info->irq = pdev->irq;
+diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+index 8dfccf7332411..8e101b19c4d6f 100644
+--- a/drivers/pci/host/pci-tegra.c
++++ b/drivers/pci/host/pci-tegra.c
+@@ -1898,14 +1898,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		err = of_pci_get_devfn(port);
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse address: %d\n", err);
+-			return err;
++			goto err_node_put;
+ 		}
  
-+	pdev->d3cold_delay = 0;
+ 		index = PCI_SLOT(err);
+ 
+ 		if (index < 1 || index > soc->num_ports) {
+ 			dev_err(dev, "invalid port number: %d\n", index);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto err_node_put;
+ 		}
+ 
+ 		index--;
+@@ -1914,12 +1915,13 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse # of lanes: %d\n",
+ 				err);
+-			return err;
++			goto err_node_put;
+ 		}
+ 
+ 		if (value > 16) {
+ 			dev_err(dev, "invalid # of lanes: %u\n", value);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto err_node_put;
+ 		}
+ 
+ 		lanes |= value << (index << 3);
+@@ -1933,13 +1935,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		lane += value;
+ 
+ 		rp = devm_kzalloc(dev, sizeof(*rp), GFP_KERNEL);
+-		if (!rp)
+-			return -ENOMEM;
++		if (!rp) {
++			err = -ENOMEM;
++			goto err_node_put;
++		}
+ 
+ 		err = of_address_to_resource(port, 0, &rp->regs);
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse address: %d\n", err);
+-			return err;
++			goto err_node_put;
+ 		}
+ 
+ 		INIT_LIST_HEAD(&rp->list);
+@@ -1966,6 +1970,10 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		return err;
+ 
+ 	return 0;
 +
- 	/* Probably it is enough to set this for iDMA capable devices only */
- 	pci_set_master(pdev);
++err_node_put:
++	of_node_put(port);
++	return err;
+ }
  
+ /*
 -- 
 2.20.1
 
