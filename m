@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D6BC1503
-	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45538C14DD
+	for <lists+stable@lfdr.de>; Sun, 29 Sep 2019 16:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729831AbfI2N76 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Sep 2019 09:59:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
+        id S1729533AbfI2N6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Sep 2019 09:58:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729503AbfI2N6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Sep 2019 09:58:36 -0400
+        id S1729567AbfI2N6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Sep 2019 09:58:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3EFF21835;
-        Sun, 29 Sep 2019 13:58:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A7422082F;
+        Sun, 29 Sep 2019 13:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569765515;
-        bh=fArfNnT5vFYjofUn+0euUGANcA1sp8AW4rWpRpsRnTw=;
+        s=default; t=1569765519;
+        bh=tMeytRh19/5JwBBfiNuzCT9ZIvcUn/hRqRtQ3c1g+Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/bbLoHaWfVeBl8Hl5LXrEAQqCJw0b8TPw7Jj1aBlT/4RMxYdG2iu6lzX8N850Ia+
-         c3YWQeOAUba7kZQJnycky7Tn4NxgRBAaplGe7ZaCNDCi1P2+R9dg12kURpB/p/2nKp
-         Bo3F+fbuHFXDL4fiq3UHFgw4XQr9nVlNVwvvZ1BM=
+        b=u8B2wJzYr+uu9vGpqGSG40obWIUUempDXzC/KgCwV2H7nVjtUZuX6FGk34r2xrI3X
+         uc2AmdejDvDQleDE5TsEKt2fts1e6VJcLr5zj1ah2PavunSD1w5s7xXlReMpor19Kh
+         EyN5+MAspi3GIUEYobw7wELvlJuTCO/8kF2m0oJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxing Luo <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 43/63] irqchip/gic-v3-its: Fix LPI release for Multi-MSI devices
-Date:   Sun, 29 Sep 2019 15:54:16 +0200
-Message-Id: <20190929135039.298788031@linuxfoundation.org>
+        stable@vger.kernel.org, Surbhi Palande <csurbhi@gmail.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 44/63] f2fs: check all the data segments against all node ones
+Date:   Sun, 29 Sep 2019 15:54:17 +0200
+Message-Id: <20190929135039.441288123@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20190929135031.382429403@linuxfoundation.org>
 References: <20190929135031.382429403@linuxfoundation.org>
@@ -44,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Surbhi Palande <f2fsnewbie@gmail.com>
 
-[ Upstream commit c9c96e30ecaa0aafa225aa1a5392cb7db17c7a82 ]
+[ Upstream commit 1166c1f2f69117ad254189ca781287afa6e550b6 ]
 
-When allocating a range of LPIs for a Multi-MSI capable device,
-this allocation extended to the closest power of 2.
+As a part of the sanity checking while mounting, distinct segment number
+assignment to data and node segments is verified. Fixing a small bug in
+this verification between node and data segments. We need to check all
+the data segments with all the node segments.
 
-But on the release path, the interrupts are released one by
-one. This results in not releasing the "extra" range, leaking
-the its_device. Trying to reprobe the device will then fail.
-
-Fix it by releasing the LPIs the same way we allocate them.
-
-Fixes: 8208d1708b88 ("irqchip/gic-v3-its: Align PCI Multi-MSI allocation on their size")
-Reported-by: Jiaxing Luo <luojiaxing@huawei.com>
-Tested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/f5e948aa-e32f-3f74-ae30-31fee06c2a74@huawei.com
+Fixes: 042be0f849e5f ("f2fs: fix to do sanity check with current segment number")
+Signed-off-by: Surbhi Palande <csurbhi@gmail.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ fs/f2fs/super.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 9ba73e11757d9..e7549a2b1482b 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2514,14 +2514,13 @@ static void its_irq_domain_free(struct irq_domain *domain, unsigned int virq,
- 	struct its_node *its = its_dev->its;
- 	int i;
- 
-+	bitmap_release_region(its_dev->event_map.lpi_map,
-+			      its_get_event_id(irq_domain_get_irq_data(domain, virq)),
-+			      get_count_order(nr_irqs));
-+
- 	for (i = 0; i < nr_irqs; i++) {
- 		struct irq_data *data = irq_domain_get_irq_data(domain,
- 								virq + i);
--		u32 event = its_get_event_id(data);
--
--		/* Mark interrupt index as unused */
--		clear_bit(event, its_dev->event_map.lpi_map);
--
- 		/* Nuke the entry in the domain */
- 		irq_domain_reset_irq_data(data);
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 1871031e2d5eb..e9ab4b39d4eef 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2413,11 +2413,11 @@ int f2fs_sanity_check_ckpt(struct f2fs_sb_info *sbi)
+ 		}
  	}
+ 	for (i = 0; i < NR_CURSEG_NODE_TYPE; i++) {
+-		for (j = i; j < NR_CURSEG_DATA_TYPE; j++) {
++		for (j = 0; j < NR_CURSEG_DATA_TYPE; j++) {
+ 			if (le32_to_cpu(ckpt->cur_node_segno[i]) ==
+ 				le32_to_cpu(ckpt->cur_data_segno[j])) {
+ 				f2fs_msg(sbi->sb, KERN_ERR,
+-					"Data segment (%u) and Data segment (%u)"
++					"Node segment (%u) and Data segment (%u)"
+ 					" has the same segno: %u", i, j,
+ 					le32_to_cpu(ckpt->cur_node_segno[i]));
+ 				return 1;
 -- 
 2.20.1
 
