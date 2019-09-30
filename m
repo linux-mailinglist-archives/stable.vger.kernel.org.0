@@ -2,124 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8A2C2331
-	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 16:26:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 266F5C23C8
+	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 16:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731635AbfI3OZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 10:25:47 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:37024 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731276AbfI3OZr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 10:25:47 -0400
-Received: by mail-ed1-f68.google.com with SMTP id r4so8839333edy.4;
-        Mon, 30 Sep 2019 07:25:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:reply-to:subject:to:cc:references:from
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=OpLZCxVJpBgsNbMjEaZfq3+E0DlE1NH8zVCBJHO9OVs=;
-        b=e72weoppf6JfZ53f85GsyiYVEjb0qN0KVtPSu5wOR+MJd3gDYLBEgzpv3kyewZ89Uz
-         ceSz7a85I7Zx2ddysvCOZZrZFzXGV/OyNk5rHecNVEGHJhLroPS0ClKmBCtRDhmuNycz
-         lRGwJwLV94qLLYmBPy1nL4p++OVGm+QdkQzGO/gMUCPUj/XHOo6lL5kN5KVEB34sArQJ
-         gCu9Tq95znJ0aZjRsY1boNoH9kU4upDcJWSNHIGarTuncVPUItCRoAThI2TNmCnU28gS
-         VDH//waQocRL3igXlIywGBs3pIxtSybOVX/2PiyjzRuC00LsMpjNqsXlRQ7PJfjGEODC
-         DdZA==
-X-Gm-Message-State: APjAAAVuiXDy5X1To067bx8tl6xB1shwY6Eib8pfy29nSyuECxTiLqq+
-        iRILhIpR/3YhQvxyRNtqpSs=
-X-Google-Smtp-Source: APXvYqwpxhHy2gun3EIxWoTehrjW4QdbA9X0fp1k2JMKaG57RiLYZFUHvA44EtXZdKvFBSaSgKIdEQ==
-X-Received: by 2002:a50:9e26:: with SMTP id z35mr19911245ede.265.1569853545116;
-        Mon, 30 Sep 2019 07:25:45 -0700 (PDT)
-Received: from [10.10.2.174] (bran.ispras.ru. [83.149.199.196])
-        by smtp.gmail.com with ESMTPSA id rl4sm1390000ejb.27.2019.09.30.07.25.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 Sep 2019 07:25:44 -0700 (PDT)
-Reply-To: efremov@linux.com
-Subject: Re: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
-To:     David Laight <David.Laight@ACULAB.COM>,
-        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Jes Sorensen <jes.sorensen@gmail.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>
-References: <20190930110141.29271-1-efremov@linux.com>
- <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
-From:   Denis Efremov <efremov@linux.com>
-Message-ID: <e4051dcb-10dc-ff17-ec0b-6f51dccdb5bf@linux.com>
-Date:   Mon, 30 Sep 2019 17:25:43 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S1731777AbfI3O6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Sep 2019 10:58:45 -0400
+Received: from relmlor2.renesas.com ([210.160.252.172]:21809 "EHLO
+        relmlie6.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731629AbfI3O6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 10:58:45 -0400
+X-IronPort-AV: E=Sophos;i="5.64,567,1559487600"; 
+   d="scan'208";a="27703171"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie6.idc.renesas.com with ESMTP; 30 Sep 2019 23:58:42 +0900
+Received: from rtamta01.rta.renesas.com (transport.eroom.renesas.com [143.103.48.75])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id BBC19423A9C2;
+        Mon, 30 Sep 2019 23:58:42 +0900 (JST)
+Received: from localhost.localdomain (unknown [172.27.18.241])
+        by rtamta01.rta.renesas.com (Postfix) with ESMTP id 4A12611A;
+        Mon, 30 Sep 2019 14:58:41 +0000 (UTC)
+From:   Chris Brandt <chris.brandt@renesas.com>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-gpio@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        Chris Brandt <chris.brandt@renesas.com>, stable@vger.kernel.org
+Subject: [PATCH] pinctrl: rza2: Fix gpio name typos
+Date:   Mon, 30 Sep 2019 09:58:04 -0500
+Message-Id: <20190930145804.30497-1-chris.brandt@renesas.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-In-Reply-To: <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 9/30/19 4:18 PM, David Laight wrote:
-> From: Denis Efremov
->> Sent: 30 September 2019 12:02
->> memcpy() in phy_ConfigBBWithParaFile() and PHY_ConfigRFWithParaFile() is
->> called with "src == NULL && len == 0". This is an undefined behavior.
-> 
-> I'm pretty certain it is well defined (to do nothing).
+Fix apparent copy/paste errors that were overlooked in the original driver.
+  "P0_4" -> "PF_4"
+  "P0_3" -> "PG_3"
 
-Well, technically you are right. However, UBSAN warns about passing NULL
-to memcpy and from the formal point of view this is an undefined behavior [1].
-There were a discussion [2] about interesting implication of assuming that
-memcpy with 0 size and NULL pointer is fine. This could result in that compiler
-assume that pointer is not NULL. However, this is not the case here since
-this "if then" branch is a dead code in it's current form. I just find this
-piece of code very funny regarding this patch [3].
+Fixes: b59d0e782706 ("pinctrl: Add RZ/A2 pin and gpio controller")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+---
+ drivers/pinctrl/pinctrl-rza2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-[1] https://stackoverflow.com/questions/5243012/is-it-guaranteed-to-be-safe-to-perform-memcpy0-0-0
-[2] https://groups.google.com/forum/#!msg/syzkaller-netbsd-bugs/8B4CIKN0Xz8/wRvIUWxiAgAJ
-[3] https://github.com/torvalds/linux/commit/8f884e76cae65af65c6bec759a17cb0527c54a15#diff-a476c238511f9374c2f1b947fdaffbbcL2339
-
-> 
->> Moreover this if pre-condition "pBufLen && (*pBufLen == 0) && !pBuf"
->> is constantly false because it is a nested if in the else brach, i.e.,
->> "if (cond) { ... } else { if (cond) {...} }". This patch alters the
->> if condition to check "pBufLen && pBuf" pointers are not NULL.
->>
-> ...
->> ---
->> Not tested. I don't have the hardware. The fix is based on my guess.
->>
->>  drivers/staging/rtl8723bs/hal/hal_com_phycfg.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c b/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
->> index 6539bee9b5ba..0902dc3c1825 100644
->> --- a/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
->> +++ b/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
->> @@ -2320,7 +2320,7 @@ int phy_ConfigBBWithParaFile(
->>  			}
->>  		}
->>  	} else {
->> -		if (pBufLen && (*pBufLen == 0) && !pBuf) {
->> +		if (pBufLen && pBuf) {
->>  			memcpy(pHalData->para_file_buf, pBuf, *pBufLen);
-> 
-> The existing code is clearly garbage.
-> It only ever does memcpy(tgt, NULL, 0).
-> 
-> Under the assumption that the code has been tested the copy clearly isn't needed at all
-> and can be deleted completely!
-> 
-> OTOH if the code hasn't been tested maybe the entire source file should be removed :-)
-> 
-> 	David
-> 
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
-> 
+diff --git a/drivers/pinctrl/pinctrl-rza2.c b/drivers/pinctrl/pinctrl-rza2.c
+index 3be1d833bf25..eda88cdf870d 100644
+--- a/drivers/pinctrl/pinctrl-rza2.c
++++ b/drivers/pinctrl/pinctrl-rza2.c
+@@ -213,8 +213,8 @@ static const char * const rza2_gpio_names[] = {
+ 	"PC_0", "PC_1", "PC_2", "PC_3", "PC_4", "PC_5", "PC_6", "PC_7",
+ 	"PD_0", "PD_1", "PD_2", "PD_3", "PD_4", "PD_5", "PD_6", "PD_7",
+ 	"PE_0", "PE_1", "PE_2", "PE_3", "PE_4", "PE_5", "PE_6", "PE_7",
+-	"PF_0", "PF_1", "PF_2", "PF_3", "P0_4", "PF_5", "PF_6", "PF_7",
+-	"PG_0", "PG_1", "PG_2", "P0_3", "PG_4", "PG_5", "PG_6", "PG_7",
++	"PF_0", "PF_1", "PF_2", "PF_3", "PF_4", "PF_5", "PF_6", "PF_7",
++	"PG_0", "PG_1", "PG_2", "PG_3", "PG_4", "PG_5", "PG_6", "PG_7",
+ 	"PH_0", "PH_1", "PH_2", "PH_3", "PH_4", "PH_5", "PH_6", "PH_7",
+ 	/* port I does not exist */
+ 	"PJ_0", "PJ_1", "PJ_2", "PJ_3", "PJ_4", "PJ_5", "PJ_6", "PJ_7",
+-- 
+2.23.0
 
