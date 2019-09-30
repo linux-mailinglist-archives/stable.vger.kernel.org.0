@@ -2,128 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C99C2946
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 00:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E45C2974
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 00:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726590AbfI3WFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 18:05:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59842 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726005AbfI3WFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Sep 2019 18:05:43 -0400
-Received: from localhost (unknown [69.71.4.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FC84215EA;
-        Mon, 30 Sep 2019 22:05:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569881143;
-        bh=9ivt8JrwB0PoO0cTjmVjhM38nkKnJ9SjG9vrPakQX/Q=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=FfOqq1QAS6m+LeJVl0uWQek2A80OQTNMQ9OHaeYpDSITloQtAzu8WLZNxfjBAWsWo
-         Kv2fD9Aof7Md0SG+Cb9nzUVGA+MxDlDEDYm32H4XxV5SPy/R3NXzj2VXGECB7/APn7
-         dtIFJ5v+GvJeqKOIx6++CaO6HnB+pVK9WFog0tmA=
-Date:   Mon, 30 Sep 2019 17:05:41 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     "Raj, Ashok" <ashok.raj@intel.com>
-Cc:     Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>,
-        linux-pci@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Murray <andrew.murray@arm.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH v2] PCI: quirks: Fix register location for UPDCR
-Message-ID: <20190930220541.GA209848@google.com>
+        id S1727508AbfI3W0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Sep 2019 18:26:14 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:33626 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726590AbfI3W0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 18:26:13 -0400
+Received: by mail-pl1-f195.google.com with SMTP id d22so4454462pls.0
+        for <stable@vger.kernel.org>; Mon, 30 Sep 2019 15:26:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=message-id:mime-version:content-transfer-encoding:in-reply-to
+         :references:from:to:cc:subject:user-agent:date;
+        bh=gNsbryt7zNBbao6S6XuAFO6RWtb7mB6GkwvJUITq7vM=;
+        b=FEXFmDSWmj9zN3ls+08cfHJNs9Lsa2F0tEzABAFOuqGbjQROJS6TNJU5LLLV8Qf6Yw
+         +kkcd6TuvfCWfghRPjvVmC458yCnJNKvq1bpGzjnfNSIZnaZ1Xc62B67lrYXSeW2vUp0
+         ZKyOdm+DwVGgaOV2BTZyedDwuc/YgjOZprM94=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:mime-version
+         :content-transfer-encoding:in-reply-to:references:from:to:cc:subject
+         :user-agent:date;
+        bh=gNsbryt7zNBbao6S6XuAFO6RWtb7mB6GkwvJUITq7vM=;
+        b=QnbZpuhIiWWwcYsN33QJX614pK6HlV6Eah4l+/y7hg287VFl+RAHWEGPi/WfWmINIy
+         HMDcq1shmFlAdXIcKgw667Q14uEj2x5w45fWLam1LR8gaw4DTLL6Y3CffuvZxmD97R0n
+         zuYQGn9+LmnRwkcptbRGwR/JwHlSM0MfVKeUjyiWyKjo7lrg9ggOImFPX/1+A7IUp+Qe
+         LcDWuOkBCuxUsdBGdScsv47PJ7XRMCoFFVo5VVYitYyR/PYItllczFTNAS/fwaIcFX1C
+         jZpQQ5oSB6grZ3d1wUMW0cz4WEXUy9DIXYLGNkCPPz1YDsxsV8Sg8iCF17RrOnngz+R1
+         YoIA==
+X-Gm-Message-State: APjAAAXKCD+9LkH/n37UlgTVivEAu2fjCJpRupGbwKQNPJ+/PMWsoO9X
+        nzJjrzn71fPwyBbVVNw9/ErOww==
+X-Google-Smtp-Source: APXvYqyvW7KnD4p6RRzMyQjVNhtlhTTZF+raYHO8fe9TpmKW4CBZvkZUT8KHrNro7nlOT/UpLtas9g==
+X-Received: by 2002:a17:902:aa04:: with SMTP id be4mr14295817plb.40.1569882373177;
+        Mon, 30 Sep 2019 15:26:13 -0700 (PDT)
+Received: from chromium.org ([2620:15c:202:1:fa53:7765:582b:82b9])
+        by smtp.gmail.com with ESMTPSA id l37sm8474089pgb.11.2019.09.30.15.26.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Sep 2019 15:26:12 -0700 (PDT)
+Message-ID: <5d928104.1c69fb81.29df9.6eef@mx.google.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190927152632.GA4261@otc-nc-03>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190930214522.240680-1-briannorris@chromium.org>
+References: <20190930214522.240680-1-briannorris@chromium.org>
+From:   Stephen Boyd <swboyd@chromium.org>
+To:     Brian Norris <briannorris@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Hung-Te Lin <hungte@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        stable@vger.kernel.org, Guenter Roeck <groeck@chromium.org>
+Subject: Re: [PATCH] firmware: google: increment VPD key_len properly
+User-Agent: alot/0.8.1
+Date:   Mon, 30 Sep 2019 15:26:11 -0700
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 27, 2019 at 08:26:32AM -0700, Raj, Ashok wrote:
-> On Fri, Sep 27, 2019 at 07:54:57AM -0500, Bjorn Helgaas wrote:
-> > [+cc Andrew, Alex, Ashok]
-> > 
-> > Please cc people who commented on previous versions of a patch.  I
-> > added them for you here.
-> > 
-> > This is probably fine, but I'm waiting to see if Ashok gets a response
-> > from the chipset folks.  Hopefully he can ack this as a simple typo
-> > fix.
-> > 
-> > On Wed, Sep 18, 2019 at 03:16:52PM +0200, Steffen Liebergeld wrote:
-> > > According to documentation [0] the correct offset for the
-> > > Upstream Peer Decode Configuration Register (UPDCR) is 0x1014.
-> > > It was previously defined as 0x1114.
-> 
-> Finally someone in the HW team was able to lookup the documentation and 
-> it has stayed at 0x1014 per internal documentation. Apparently the genesis
-> is about 10 years ago :-)... so it took some time to hunt this from the team.
-> 
-> that's the final answer :-)
+Quoting Brian Norris (2019-09-30 14:45:22)
+> Commit 4b708b7b1a2c ("firmware: google: check if size is valid when
+> decoding VPD data") adds length checks, but the new vpd_decode_entry()
+> function botched the logic -- it adds the key length twice, instead of
+> adding the key and value lengths separately.
+>=20
+> On my local system, this means vpd.c's vpd_section_create_attribs() hits
+> an error case after the first attribute it parses, since it's no longer
+> looking at the correct offset. With this patch, I'm back to seeing all
+> the correct attributes in /sys/firmware/vpd/...
+>=20
+> Fixes: 4b708b7b1a2c ("firmware: google: check if size is valid when decod=
+ing VPD data")
+> Cc: <stable@vger.kernel.org>
+> Cc: Hung-Te Lin <hungte@chromium.org>
+> Cc: Guenter Roeck <groeck@chromium.org>
+> Cc: Stephen Boyd <swboyd@chromium.org>
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
 
-So I *think* that's an ack for this patch, right?
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 
-> > > Commit d99321b63b1f intends to enforce isolation between PCI
-> > > devices allowing them to be put into separate IOMMU groups.
-> > > Due to the wrong register offset the intended isolation was not
-> > > fully enforced. This is fixed with this patch.
-> > > 
-> > > Please note that I did not test this patch because I have
-> > > no hardware that implements this register.
-> > > 
-> > > [0]
-> > > https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/4th-gen-core-family-mobile-i-o-datasheet.pdf
-> > > (page 325)
-> > > 
-> > > Fixes: d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
-> > > Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-> > > Signed-off-by: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-
-And I suppose this should have a stable tag.  d99321b63b1f appeared in
-v3.15.
-
-I applied this as below to pci/virtualization for v5.5, thanks!
-
-commit e50992e80279
-Author: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-Date:   Wed Sep 18 15:16:52 2019 +0200
-
-    PCI: Fix Intel ACS quirk UPDCR register address
-    
-    According to documentation [0] the correct offset for the Upstream Peer
-    Decode Configuration Register (UPDCR) is 0x1014.  It was previously defined
-    as 0x1114.
-    
-    d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
-    intended to enforce isolation between PCI devices allowing them to be put
-    into separate IOMMU groups.  Due to the wrong register offset the intended
-    isolation was not fully enforced.  This is fixed with this patch.
-    
-    Please note that I did not test this patch because I have no hardware that
-    implements this register.
-    
-    [0] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/4th-gen-core-family-mobile-i-o-datasheet.pdf (page 325)
-    Fixes: d99321b63b1f ("PCI: Enable quirks for PCIe ACS on Intel PCH root ports")
-    Link: https://lore.kernel.org/r/7a3505df-79ba-8a28-464c-88b83eefffa6@kernkonzept.com
-    Signed-off-by: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
-    Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-    Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-    Acked-by: Ashok Raj <ashok.raj@intel.com>
-    Cc: stable@vger.kernel.org      # v3.15+
-
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 4e5048cb5ec6..23508c359296 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4713,7 +4713,7 @@ int pci_dev_specific_acs_enabled(struct pci_dev *dev, u16 acs_flags)
- #define INTEL_BSPR_REG_BPPD  (1 << 9)
- 
- /* Upstream Peer Decode Configuration Register */
--#define INTEL_UPDCR_REG 0x1114
-+#define INTEL_UPDCR_REG 0x1014
- /* 5:0 Peer Decode Enable bits */
- #define INTEL_UPDCR_REG_MASK 0x3f
- 
