@@ -2,99 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A818C2001
-	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 13:36:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D9EC20BA
+	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 14:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729636AbfI3LgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 07:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38082 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727215AbfI3Lf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Sep 2019 07:35:59 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4C17206BB;
-        Mon, 30 Sep 2019 11:35:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569843359;
-        bh=9WEhA8JA+UBptPyxfyomZDl3eE0Son1at5a6dFCkZpA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bHxPk2ypvO+UY24J4mkRO/KKATPjdvWvN/rfnLCOSf35scy1gjE532dFE2JC0LvqA
-         BW//GlJwH8DzlwwfXAKUZ8P2Qk6BniW6WeiQHqYIC3UVTnNJlmrBrcLKp88EReX7Z8
-         a+nOWkYgM8MMhS4ZSeRlo4EHQzx/ACsmMpbdINeQ=
-Date:   Mon, 30 Sep 2019 07:35:57 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+53383ae265fb161ef488@syzkaller.appspotmail.com,
-        Waiman Long <longman@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH 4.19 36/63] locking/lockdep: Add debug_locks check in
- __lock_downgrade()
-Message-ID: <20190930113557.GR8171@sasha-vm>
-References: <20190929135031.382429403@linuxfoundation.org>
- <20190929135038.482721804@linuxfoundation.org>
- <801c81d2-ce72-8eb3-a18b-1b0943270fc4@i-love.sakura.ne.jp>
- <20190930002828.GQ8171@sasha-vm>
- <b0203141-297f-1138-5988-607e076cbcf0@i-love.sakura.ne.jp>
+        id S1730352AbfI3MkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Sep 2019 08:40:22 -0400
+Received: from 5.mo4.mail-out.ovh.net ([188.165.44.50]:53413 "EHLO
+        5.mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729649AbfI3MkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 08:40:22 -0400
+X-Greylist: delayed 1799 seconds by postgrey-1.27 at vger.kernel.org; Mon, 30 Sep 2019 08:40:20 EDT
+Received: from player799.ha.ovh.net (unknown [10.109.143.183])
+        by mo4.mail-out.ovh.net (Postfix) with ESMTP id A0E11208A9E
+        for <stable@vger.kernel.org>; Mon, 30 Sep 2019 14:02:11 +0200 (CEST)
+Received: from kaod.org (lfbn-1-2229-223.w90-76.abo.wanadoo.fr [90.76.50.223])
+        (Authenticated sender: clg@kaod.org)
+        by player799.ha.ovh.net (Postfix) with ESMTPSA id 6CFD2A5BCC03;
+        Mon, 30 Sep 2019 12:01:58 +0000 (UTC)
+Subject: Re: [PATCH v2 4/6] KVM: PPC: Book3S HV: XIVE: Compute the VP id in a
+ common helper
+To:     Greg Kurz <groug@kaod.org>, Paul Mackerras <paulus@ozlabs.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        kvm-ppc@vger.kernel.org, kvm@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
+ <156958523534.1503771.7854438316257986828.stgit@bahia.lan>
+From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
+Message-ID: <fb6accd0-f3fa-d441-5892-516ed4118d3b@kaod.org>
+Date:   Mon, 30 Sep 2019 14:01:56 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <b0203141-297f-1138-5988-607e076cbcf0@i-love.sakura.ne.jp>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <156958523534.1503771.7854438316257986828.stgit@bahia.lan>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 17204595004402535284
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrgedvgdeggecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 10:46:39AM +0900, Tetsuo Handa wrote:
->On 2019/09/30 9:28, Sasha Levin wrote:
->> On Sun, Sep 29, 2019 at 11:43:38PM +0900, Tetsuo Handa wrote:
->>> On 2019/09/29 22:54, Greg Kroah-Hartman wrote:
->>>> From: Waiman Long <longman@redhat.com>
->>>>
->>>> [ Upstream commit 513e1073d52e55b8024b4f238a48de7587c64ccf ]
->>>>
->>>> Tetsuo Handa had reported he saw an incorrect "downgrading a read lock"
->>>> warning right after a previous lockdep warning. It is likely that the
->>>> previous warning turned off lock debugging causing the lockdep to have
->>>> inconsistency states leading to the lock downgrade warning.
->>>>
->>>> Fix that by add a check for debug_locks at the beginning of
->>>> __lock_downgrade().
->>>
->>> Please drop "[PATCH 4.19 36/63] locking/lockdep: Add debug_locks check in __lock_downgrade()".
->>> We had a revert patch shown below in the past.
->>
->> We had a revert in the stable trees, but that revert was incorrect.
->>
->> Take a look at commit 513e1073d52e55 upstream, it patches
->> __lock_set_class() (even though the subject line says
->> __lock_downgrade()). So this is not a backporting error as the revert
->> said it is, but is rather the intended location to be patched.
->>
->> If this is actually wrong, then it should be addressed upstream first.
->>
->
->Hmm, upstream has two commits with same author, same date, same subject, different hash, different content.
->I couldn't find from https://lkml.kernel.org/r/1547093005-26085-1-git-send-email-longman@redhat.com that
->we want to patch both __lock_set_class() and __lock_downgrade(), but I found that the tip-bot has patched
->__lock_downgrade() on "2019-01-21 11:29" and __lock_set_class() on "2019-02-04  8:56".
->Seems that we by error patched both functions, though patching both functions should be harmless...
+On 27/09/2019 13:53, Greg Kurz wrote:
+> Reduce code duplication by consolidating the checking of vCPU ids and VP
+> ids to a common helper used by both legacy and native XIVE KVM devices.
+> And explain the magic with a comment.
+> 
+> Signed-off-by: Greg Kurz <groug@kaod.org>
 
-Right, there's a lot of confusion between the duplicate subject lines
-and what this patch actually does. My point was that this is an upstream
-issue rather than a stable issue, we're just aligning with upstream
-here.
+Looks fine. One question below,
 
---
-Thanks,
-Sasha
+> ---
+>  arch/powerpc/kvm/book3s_xive.c        |   42 ++++++++++++++++++++++++++-------
+>  arch/powerpc/kvm/book3s_xive.h        |    1 +
+>  arch/powerpc/kvm/book3s_xive_native.c |   11 ++-------
+>  3 files changed, 36 insertions(+), 18 deletions(-)
+> 
+> diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
+> index 0b7859e40f66..d84da9f6ee88 100644
+> --- a/arch/powerpc/kvm/book3s_xive.c
+> +++ b/arch/powerpc/kvm/book3s_xive.c
+> @@ -1211,6 +1211,37 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
+>  	vcpu->arch.xive_vcpu = NULL;
+>  }
+>  
+> +static bool kvmppc_xive_vcpu_id_valid(struct kvmppc_xive *xive, u32 cpu)
+> +{
+> +	/* We have a block of KVM_MAX_VCPUS VPs. We just need to check
+> +	 * raw vCPU ids are below the expected limit for this guest's
+> +	 * core stride ; kvmppc_pack_vcpu_id() will pack them down to an
+> +	 * index that can be safely used to compute a VP id that belongs
+> +	 * to the VP block.
+> +	 */
+> +	return cpu < KVM_MAX_VCPUS * xive->kvm->arch.emul_smt_mode;
+> +}
+> +
+> +int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp)
+> +{
+> +	u32 vp_id;
+> +
+> +	if (!kvmppc_xive_vcpu_id_valid(xive, cpu)) {
+> +		pr_devel("Out of bounds !\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	vp_id = kvmppc_xive_vp(xive, cpu);
+> +	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
+> +		pr_devel("Duplicate !\n");
+> +		return -EEXIST;
+> +	}
+> +
+> +	*vp = vp_id;
+> +
+> +	return 0;
+
+why not return vp_id ? and test for a negative value in callers.
+
+
+C.
+
+> +}
+> +
+>  int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
+>  			     struct kvm_vcpu *vcpu, u32 cpu)
+>  {
+> @@ -1229,20 +1260,13 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
+>  		return -EPERM;
+>  	if (vcpu->arch.irq_type != KVMPPC_IRQ_DEFAULT)
+>  		return -EBUSY;
+> -	if (cpu >= (KVM_MAX_VCPUS * vcpu->kvm->arch.emul_smt_mode)) {
+> -		pr_devel("Out of bounds !\n");
+> -		return -EINVAL;
+> -	}
+>  
+>  	/* We need to synchronize with queue provisioning */
+>  	mutex_lock(&xive->lock);
+>  
+> -	vp_id = kvmppc_xive_vp(xive, cpu);
+> -	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
+> -		pr_devel("Duplicate !\n");
+> -		r = -EEXIST;
+> +	r = kvmppc_xive_compute_vp_id(xive, cpu, &vp_id);
+> +	if (r)
+>  		goto bail;
+> -	}
+>  
+>  	xc = kzalloc(sizeof(*xc), GFP_KERNEL);
+>  	if (!xc) {
+> diff --git a/arch/powerpc/kvm/book3s_xive.h b/arch/powerpc/kvm/book3s_xive.h
+> index fe3ed50e0818..90cf6ec35a68 100644
+> --- a/arch/powerpc/kvm/book3s_xive.h
+> +++ b/arch/powerpc/kvm/book3s_xive.h
+> @@ -296,6 +296,7 @@ int kvmppc_xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio,
+>  struct kvmppc_xive *kvmppc_xive_get_device(struct kvm *kvm, u32 type);
+>  void xive_cleanup_single_escalation(struct kvm_vcpu *vcpu,
+>  				    struct kvmppc_xive_vcpu *xc, int irq);
+> +int kvmppc_xive_compute_vp_id(struct kvmppc_xive *xive, u32 cpu, u32 *vp);
+>  
+>  #endif /* CONFIG_KVM_XICS */
+>  #endif /* _KVM_PPC_BOOK3S_XICS_H */
+> diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
+> index 43a86858390a..5bb480b2aafd 100644
+> --- a/arch/powerpc/kvm/book3s_xive_native.c
+> +++ b/arch/powerpc/kvm/book3s_xive_native.c
+> @@ -118,19 +118,12 @@ int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
+>  		return -EPERM;
+>  	if (vcpu->arch.irq_type != KVMPPC_IRQ_DEFAULT)
+>  		return -EBUSY;
+> -	if (server_num >= (KVM_MAX_VCPUS * vcpu->kvm->arch.emul_smt_mode)) {
+> -		pr_devel("Out of bounds !\n");
+> -		return -EINVAL;
+> -	}
+>  
+>  	mutex_lock(&xive->lock);
+>  
+> -	vp_id = kvmppc_xive_vp(xive, server_num);
+> -	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
+> -		pr_devel("Duplicate !\n");
+> -		rc = -EEXIST;
+> +	rc = kvmppc_xive_compute_vp_id(xive, server_num, &vp_id);
+> +	if (rc)
+>  		goto bail;
+> -	}
+>  
+>  	xc = kzalloc(sizeof(*xc), GFP_KERNEL);
+>  	if (!xc) {
+> 
+
