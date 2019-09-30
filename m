@@ -2,87 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82894C2104
-	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 14:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F87C21B3
+	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 15:18:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730787AbfI3M5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 08:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730411AbfI3M5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Sep 2019 08:57:14 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 862CB2086A;
-        Mon, 30 Sep 2019 12:57:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569848233;
-        bh=cWkGctcZBpLzWUdydqZGbs8Z7ktCzDFl133cvL8ARuM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UpsYcYT2KIY+SdY5z5MJjzkmqf3RwPqHDOLd0YLJI2C9krfpDjOJbRW9DZRQOeaY9
-         xm0L0/TyEjtlsBy0yYOq4vx5VztMN5Y5370LXryk6mAL0ofcJqM8C5qk9yR4i/PZqS
-         cwgo/8w9Rfmb0CgeSX4Hb9KHrLCwrKyzjLcVGSKM=
-Date:   Mon, 30 Sep 2019 08:57:12 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Subject: Re: [PATCH 4.19 33/63] tpm: Fix TPM 1.2 Shutdown sequence to prevent
- future TPM operations
-Message-ID: <20190930125712.GS8171@sasha-vm>
-References: <20190929135031.382429403@linuxfoundation.org>
- <20190929135038.128262622@linuxfoundation.org>
- <20190930061346.GA22914@atrey.karlin.mff.cuni.cz>
+        id S1729738AbfI3NSg convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Sep 2019 09:18:36 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:49280 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731103AbfI3NSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 09:18:36 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-207-hnslXOvPO-C_5kCPTbZeHQ-1; Mon, 30 Sep 2019 14:18:32 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 30 Sep 2019 14:18:32 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 30 Sep 2019 14:18:32 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Denis Efremov' <efremov@linux.com>,
+        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Jes Sorensen <jes.sorensen@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Topic: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Index: AQHVd36LU5ikVLKK6EuvH5wLNYQtMKdEMyLw
+Date:   Mon, 30 Sep 2019 13:18:32 +0000
+Message-ID: <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
+References: <20190930110141.29271-1-efremov@linux.com>
+In-Reply-To: <20190930110141.29271-1-efremov@linux.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190930061346.GA22914@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-MC-Unique: hnslXOvPO-C_5kCPTbZeHQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 08:13:46AM +0200, Pavel Machek wrote:
->> From: Vadim Sukhomlinov <sukhomlinov@google.com>
->>
->> commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
->>
->> TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
->> future TPM operations. TPM 1.2 behavior was different, future TPM
->> operations weren't disabled, causing rare issues. This patch ensures
->> that future TPM operations are disabled.
->
->> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
->> index 46caadca916a0..dccc61af9ffab 100644
->> --- a/drivers/char/tpm/tpm-chip.c
->> +++ b/drivers/char/tpm/tpm-chip.c
->> @@ -187,12 +187,15 @@ static int tpm_class_shutdown(struct device *dev)
->>  {
->>  	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
->>
->> +	down_write(&chip->ops_sem);
->>  	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
->>  		down_write(&chip->ops_sem);
->>  		tpm2_shutdown(chip, TPM2_SU_CLEAR);
->>  		chip->ops = NULL;
->>  		up_write(&chip->ops_sem);
->>  	}
->> +	chip->ops = NULL;
->> +	up_write(&chip->ops_sem);
->
->This is wrong, it takes &chip->ops_sem twice, that can't be
->good. db4d8cb9c9f2af71c4d087817160d866ed572cc9 does not have that
->problem.
+From: Denis Efremov
+> Sent: 30 September 2019 12:02
+> memcpy() in phy_ConfigBBWithParaFile() and PHY_ConfigRFWithParaFile() is
+> called with "src == NULL && len == 0". This is an undefined behavior.
 
-I agree. I've dropped it from 4.19 and 4.14.
+I'm pretty certain it is well defined (to do nothing).
 
-Jarkko, can you take a look at this again please?
+> Moreover this if pre-condition "pBufLen && (*pBufLen == 0) && !pBuf"
+> is constantly false because it is a nested if in the else brach, i.e.,
+> "if (cond) { ... } else { if (cond) {...} }". This patch alters the
+> if condition to check "pBufLen && pBuf" pointers are not NULL.
+> 
+...
+> ---
+> Not tested. I don't have the hardware. The fix is based on my guess.
+> 
+>  drivers/staging/rtl8723bs/hal/hal_com_phycfg.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c b/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
+> index 6539bee9b5ba..0902dc3c1825 100644
+> --- a/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
+> +++ b/drivers/staging/rtl8723bs/hal/hal_com_phycfg.c
+> @@ -2320,7 +2320,7 @@ int phy_ConfigBBWithParaFile(
+>  			}
+>  		}
+>  	} else {
+> -		if (pBufLen && (*pBufLen == 0) && !pBuf) {
+> +		if (pBufLen && pBuf) {
+>  			memcpy(pHalData->para_file_buf, pBuf, *pBufLen);
 
---
-Thanks,
-Sasha
+The existing code is clearly garbage.
+It only ever does memcpy(tgt, NULL, 0).
+
+Under the assumption that the code has been tested the copy clearly isn't needed at all
+and can be deleted completely!
+
+OTOH if the code hasn't been tested maybe the entire source file should be removed :-)
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
