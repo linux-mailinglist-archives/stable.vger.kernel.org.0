@@ -2,75 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A17A2C1C22
-	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 09:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16955C1C71
+	for <lists+stable@lfdr.de>; Mon, 30 Sep 2019 09:59:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbfI3HgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 03:36:25 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3233 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725940AbfI3HgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Sep 2019 03:36:25 -0400
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id EC41A3B0846FBE479BC4;
-        Mon, 30 Sep 2019 15:36:22 +0800 (CST)
-Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
- (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.439.0; Mon, 30 Sep
- 2019 15:36:17 +0800
-Subject: Re: [PATCH 4.19 53/63] f2fs: fix to do sanity check on segment bitmap
- of LFS curseg
-To:     Pavel Machek <pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20190929135031.382429403@linuxfoundation.org>
- <20190929135040.450358370@linuxfoundation.org>
- <20190930072157.GB22914@atrey.karlin.mff.cuni.cz>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <43edc2f2-5b42-0cd7-1573-af77fd9e6678@huawei.com>
-Date:   Mon, 30 Sep 2019 15:36:16 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
-MIME-Version: 1.0
-In-Reply-To: <20190930072157.GB22914@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset="windows-1252"
+        id S1728573AbfI3H7B convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Sep 2019 03:59:01 -0400
+Received: from zixvpm02.lrhcares.org ([71.181.118.111]:38886 "EHLO
+        zixvpm02.lrhcares.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725767AbfI3H7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 03:59:01 -0400
+X-Greylist: delayed 1108 seconds by postgrey-1.27 at vger.kernel.org; Mon, 30 Sep 2019 03:59:00 EDT
+Received: from 127.0.0.1 (ZixVPM [127.0.0.1])
+        by Outbound.lrhcares.org (Proprietary) with SMTP id 5822E1CAE53
+        for <stable@vger.kernel.org>; Mon, 30 Sep 2019 03:40:31 -0400 (EDT)
+Received: from mail2.lrhcares.org (smg-2_out.lh.org [192.168.10.9])
+        by zixvpm02.lrhcares.org (Proprietary) with ESMTP id B608F1CAE23;
+        Mon, 30 Sep 2019 03:40:28 -0400 (EDT)
+X-AuditID: c0a80a08-333ff700000009ea-72-5d91b16c76db
+Received: from lrhexhubcas2.lh.org (lrhexhubcas2.lh.org [172.17.100.22])
+        by  (Mail Gateway) with SMTP id 1A.07.02538.C61B19D5; Mon, 30 Sep 2019 03:40:28 -0400 (EDT)
+To:     undisclosed-recipients:;
+Received: from LRHEXMBX1.lh.org ([fe80::18b6:d4b7:efe1:d052]) by
+ lrhexhubcas2.lh.org ([fe80::4087:8490:38b8:fe57%13]) with mapi id
+ 14.03.0468.000; Mon, 30 Sep 2019 03:40:27 -0400
+From:   Juergen Spagolla <jspagolla@lrhcares.org>
+Subject: 
+Thread-Index: AdV3YgR7Gi9kBcZSQcW+AwvtoV/SqA==
+Date:   Mon, 30 Sep 2019 07:40:27 +0000
+Message-ID: <AC4FE10B2D01D34FAA83E522A6335941EC8ADBB4@lrhexmbx1.lh.org>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.134.22.195]
-X-CFilter-Loop: Reflected
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [172.17.100.227]
+Content-Type: text/plain; charset="iso-8859-1"
+content-transfer-encoding: 8BIT
+MIME-Version: 1.0
+X-Brightmail-Tracker: H4sIAAAAAAAAA2WTf0wbZRjHfe+ud4VRPOqAC8FYL3N/jBUZuuTRwDQz6hlIRLe/VIKX9iyN
+        5dq0QMBEw5yLrkyhoTAoG2MFO8ANV2Q4foaVQWQs/FxYBwPHKFZh8mOsMNzGLG1MSHz/+ub9
+        fj9Pnifv+0hxeTsVI9WK2YJR5HUsGUqcj1BHKXVOS3rC04UXocE+S8I/P13E4falJgzaRi8g
+        cNZVkWC3jyCwrPlwGL26QsHkUiT8eu6+BDwzb8GjcTcBLTUEFD70SuDGyO8IpjzHMbhYMozD
+        XHM3CdXOuwiuD14mwPHDBILxJ4sEDJvLMGg/8TxYSv1AbW0vAQMDg350dYWEyvv1FEw8WCXg
+        dO8MCUcHj+PgrfoFg+auN+BEzwIGZd4U8CyN4bBiO0uCdzIGSlt9JEy0T2Pga/wEjvZpoHSp
+        CoObRxYpWCwooOCbjQsYjPS0YdBU3YHDrR8HMJi88QcG9b1WDIaaMVgutyP4rrTbT632SaDk
+        +0YCGk8mwEJnDpRPV5LQ9cDfjcvSSsGlTi8Otgblm2qud2hewj3++x7GlXicGOdqsyLONzeN
+        c5MbbYhr631IcX13rRTX8ngM4zbLpxDnHpujuOUWM8Yt9P2Jc0VHxgmu1TZFcU/riqk0+KgA
+        JfGiqM/mswWFWjCpktnUDznF21m8VqdIM2pzeVW+4tCWmyWI2axCq05mE1mFQcerAjfJLG8w
+        CKKaPRCq+N9J8se0okIQVXq1VtQks+8del8JsP815T72wOFMQaEVP9MbP31CZpoHOjDDSUne
+        8vVrZAFyEGYUImXoV5lh/zcwo1CpnHYgZq6wI2DspGOZ05WzkqDRghjnb03UlkHSLzOe4TK0
+        pZ+jpUzXlSosCMQznZ61gCbol5h117eBjIx+l3FVzAQ0oqOY9WvnAxmcjmYmPGewYBc0U9sx
+        hAd1JPPX7KYkqFnm1Kl6IpiPZ9ylVjKo4xjH2QU8WD+C6a/wEMUowratrG0bYtuG2LYh1Yho
+        QGGmLI0yMV6XGa83apqQf4W660Kll9HksSQXoqWIDZPdwS3pcgmfa8rPciFGirM7ZdHPFKfL
+        ZWo+/wvBqM8w5ugEkwvF+Qe34DE7VHr/QorZGa8kJLDRsrmvD38gpzX+1/1cEAyC8b80Jg2J
+        KUBZhmO2qJSDe1Z3NIT+7B5Uxub1v55zR6yen8+o0Vi7R1yR3UWxdt/HESshdXuH1sMd0yXm
+        hrTdu2SPmiRFybiVSlEl1vTfk02Pp17dLHSvhZOz/et58psZHi4sZUqz4bpy8J1zjqi4vT0O
+        77h711e5+0e/fOFW/LPho0vtu1MrbrOEKZPftwc3mvh/Aa9cldlOBAAA
+X-VPM-HOST: zixvpm02.lrhcares.org
+X-VPM-GROUP-ID: a967efad-d8c2-4632-b3c3-623a79499438
+X-VPM-MSG-ID: 42c7ed49-59e5-4999-939c-5d45703891a1
+X-VPM-ENC-REGIME: Plaintext
+X-VPM-IS-HYBRID: 0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Heeft u een persoonlijke lening, een zakelijke lening of projectfinanciering / investeringslening nodig.
+Wij bieden deze en nog veel meer financieringsdiensten tegen een vaste rentevoet van 3% per jaar.
+Neem voor meer informatie contact met ons op via e-mail: sigmafinancestg@gmail.com
+stuur e-mail alleen naar: sigmafinancestg@gmail.com
 
-On 2019/9/30 15:21, Pavel Machek wrote:
-> Hi!
-> 
-> 
->> +		for (blkofs += 1; blkofs < sbi->blocks_per_seg; blkofs++) {
->> +			if (!f2fs_test_bit(blkofs, se->cur_valid_map))
->> +				continue;
->> +out:
->> +			f2fs_msg(sbi->sb, KERN_ERR,
->> +				"Current segment's next free block offset is "
->> +				"inconsistent with bitmap, logtype:%u, "
->> +				"segno:%u, type:%u, next_blkoff:%u, blkofs:%u",
->> +				i, curseg->segno, curseg->alloc_type,
->> +				curseg->next_blkoff, blkofs);
->> +			return -EINVAL;
->> +		}
-> 
-> So this is detecting filesystem corruption, right? Should it be
-> -EUCLEAN?
+Do you need a personal loan, a business loan or project financing/investment loan.
+We offer these and many more financing services at a fixed interest rate of 3% per year.
+For more information, kindly contact us via Email: sigmafinancestg@gmail.com
+send email only to :  sigmafinancestg@gmail.com
 
-Was fixed in another commit 10f966bbf521 ("f2fs: use generic
-EFSBADCRC/EFSCORRUPTED"). :)
+The information contained in this message may be confidential and protected from disclosure under applicable law.  These materials are intended only for the use of the intended recipient.  If you are not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited.  If you have received this communication in error, please notify us immediately by replying to this message and then delete it from your computer.  All e-mail sent to this address will be received by the Littleton Regional Healthcare e-mail system and is subject to archiving and review by someone other than the intended recipient such as technical support and/or management personnel."
 
-Thanks,
 
-> 
-> 									Pavel
-> 
