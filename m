@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C83DC3D8B
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0759C3D7D
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730258AbfJAQkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
+        id S1729283AbfJAQkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730241AbfJAQko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:44 -0400
+        id S1730301AbfJAQkq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3E7421D79;
-        Tue,  1 Oct 2019 16:40:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 667BF21872;
+        Tue,  1 Oct 2019 16:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948043;
-        bh=8rXf1rcCw3zLras7kS4IMtEFY7Dv0pAdekM63Zo4p1g=;
+        s=default; t=1569948046;
+        bh=d1cwlKNt2mnCdzZ5RHbHyTPGEAf/7X1xqYU1nu09wHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hw0rp2UpCOnwwt+y7MLvTR0/AixA8DMxxoqItXLEpo8mN62bPcckG4dLPgwngg5sa
-         fAly+fz7licAcUa4bDyQbh5j7svzd2NDiSRVgveSwisIaGynvGm/TjlFalFjfB7jxe
-         9aOf+oiI/rE7GyTrF3sYpVLYl6ejHNffhzFPlfjE=
+        b=C0i5Myvr3iAwxCSVoc+fj657JLJFK5XPsG8NNa9pujL4l5K8T2Q1gvioYo1h/E2Ui
+         h5qLHSfAV3H/oWidbXpGZB3wpY4tdgbqyuAFROpaoNabdm9gIzBegpNKQ0s60yMJLS
+         q9Z+tEX3tjOqG3QZqMD4USWRZnmILR01XgUTyJHg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andriin@fb.com>, Alexei Starovoitov <ast@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.3 50/71] selftests/bpf: adjust strobemeta loop to satisfy latest clang
-Date:   Tue,  1 Oct 2019 12:39:00 -0400
-Message-Id: <20191001163922.14735-50-sashal@kernel.org>
+Cc:     Valdis Kletnieks <valdis.kletnieks@vt.edu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 51/71] kernel/elfcore.c: include proper prototypes
+Date:   Tue,  1 Oct 2019 12:39:01 -0400
+Message-Id: <20191001163922.14735-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -45,49 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Valdis Kletnieks <valdis.kletnieks@vt.edu>
 
-[ Upstream commit 4670d68b9254710fdeaf794cad54d8b2c9929e0a ]
+[ Upstream commit 0f74914071ab7e7b78731ed62bf350e3a344e0a5 ]
 
-Some recent changes in latest Clang started causing the following
-warning when unrolling strobemeta test case main loop:
+When building with W=1, gcc properly complains that there's no prototypes:
 
-  progs/strobemeta.h:416:2: warning: loop not unrolled: the optimizer was
-  unable to perform the requested transformation; the transformation might
-  be disabled or specified as part of an unsupported transformation
-  ordering [-Wpass-failed=transform-warning]
+  CC      kernel/elfcore.o
+kernel/elfcore.c:7:17: warning: no previous prototype for 'elf_core_extra_phdrs' [-Wmissing-prototypes]
+    7 | Elf_Half __weak elf_core_extra_phdrs(void)
+      |                 ^~~~~~~~~~~~~~~~~~~~
+kernel/elfcore.c:12:12: warning: no previous prototype for 'elf_core_write_extra_phdrs' [-Wmissing-prototypes]
+   12 | int __weak elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+kernel/elfcore.c:17:12: warning: no previous prototype for 'elf_core_write_extra_data' [-Wmissing-prototypes]
+   17 | int __weak elf_core_write_extra_data(struct coredump_params *cprm)
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~
+kernel/elfcore.c:22:15: warning: no previous prototype for 'elf_core_extra_data_size' [-Wmissing-prototypes]
+   22 | size_t __weak elf_core_extra_data_size(void)
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~
 
-This patch simplifies loop's exit condition to depend only on constant
-max iteration number (STROBE_MAX_MAP_ENTRIES), while moving early
-termination logic inside the loop body. The changes are equivalent from
-program logic standpoint, but fixes the warning. It also appears to
-improve generated BPF code, as it fixes previously failing non-unrolled
-strobemeta test cases.
+Provide the include file so gcc is happy, and we don't have potential code drift
 
-Cc: Alexei Starovoitov <ast@fb.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: http://lkml.kernel.org/r/29875.1565224705@turing-police
+Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/strobemeta.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ kernel/elfcore.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/testing/selftests/bpf/progs/strobemeta.h b/tools/testing/selftests/bpf/progs/strobemeta.h
-index 8a399bdfd9203..067eb625d01c5 100644
---- a/tools/testing/selftests/bpf/progs/strobemeta.h
-+++ b/tools/testing/selftests/bpf/progs/strobemeta.h
-@@ -413,7 +413,10 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
- #else
- #pragma unroll
- #endif
--	for (int i = 0; i < STROBE_MAX_MAP_ENTRIES && i < map.cnt; ++i) {
-+	for (int i = 0; i < STROBE_MAX_MAP_ENTRIES; ++i) {
-+		if (i >= map.cnt)
-+			break;
-+
- 		descr->key_lens[i] = 0;
- 		len = bpf_probe_read_str(payload, STROBE_MAX_STR_LEN,
- 					 map.entries[i].key);
+diff --git a/kernel/elfcore.c b/kernel/elfcore.c
+index fc482c8e0bd88..57fb4dcff4349 100644
+--- a/kernel/elfcore.c
++++ b/kernel/elfcore.c
+@@ -3,6 +3,7 @@
+ #include <linux/fs.h>
+ #include <linux/mm.h>
+ #include <linux/binfmts.h>
++#include <linux/elfcore.h>
+ 
+ Elf_Half __weak elf_core_extra_phdrs(void)
+ {
 -- 
 2.20.1
 
