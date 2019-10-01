@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A41BFC397C
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 17:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6CEC3985
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 17:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389735AbfJAPts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 11:49:48 -0400
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:8025 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727268AbfJAPts (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 11:49:48 -0400
+        id S1727268AbfJAPwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 11:52:07 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:32852 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727147AbfJAPwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 11:52:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1569944988; x=1601480988;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version;
-  bh=PgZ9aytk0j+S8TWOd0mGQ2grSS4ZIPx/rutqBSNX9jI=;
-  b=Vl5WOhqBnUarXg7QtiEDzMy7b+wfCE3iVKhM353m6fzubxfbvObwITFd
-   tF7gkSzIXEfzGCtsYalShBQ+tRs7X6YXP+siFgZjn7oe8sqjL8hypdRjz
-   XrQscHSWQMkjvE43AglTAezjFHcDmAuFfetlxEW40YcmdEXS/yljWf9ML
-   A=;
+  t=1569945126; x=1601481126;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=nLVYk2yIxDtYBWgS2GCvSmYfxdD9HmyEs1OoB1XIuSk=;
+  b=k/Cn5wxTcmfZYVxNfhQ1iXGTKcTkkESZAyiFKizGYHTGRQheJTNtih5K
+   oPyqHAPYq8nz60gufeIItGQfCl6geAhxfDhRiixplmKDRvuNgaCPS8oq4
+   yYYCIwQV+kR0jqlwgXuHiD/b/abSDGsEgYHLG/IGa33nLl9zdtMA+49Fv
+   o=;
 X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
-   d="scan'208";a="838434598"
-Received: from sea3-co-svc-lb6-vlan2.sea.amazon.com (HELO email-inbound-relay-2c-2225282c.us-west-2.amazon.com) ([10.47.22.34])
-  by smtp-border-fw-out-33001.sea14.amazon.com with ESMTP; 01 Oct 2019 15:47:16 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan3.pdx.amazon.com [10.170.41.166])
-        by email-inbound-relay-2c-2225282c.us-west-2.amazon.com (Postfix) with ESMTPS id 4D0D9A1EF5;
-        Tue,  1 Oct 2019 15:46:56 +0000 (UTC)
-Received: from EX13D02UWC004.ant.amazon.com (10.43.162.236) by
+   d="scan'208";a="754678097"
+Received: from iad6-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com) ([10.124.125.2])
+  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 01 Oct 2019 15:52:01 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
+        by email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com (Postfix) with ESMTPS id 9BA53A22D5;
+        Tue,  1 Oct 2019 15:52:00 +0000 (UTC)
+Received: from EX13D02UWC001.ant.amazon.com (10.43.162.243) by
  EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 1 Oct 2019 15:46:56 +0000
+ id 15.0.1367.3; Tue, 1 Oct 2019 15:52:00 +0000
 Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
- EX13D02UWC004.ant.amazon.com (10.43.162.236) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 1 Oct 2019 15:46:56 +0000
+ EX13D02UWC001.ant.amazon.com (10.43.162.243) with Microsoft SMTP Server (TLS)
+ id 15.0.1367.3; Tue, 1 Oct 2019 15:51:59 +0000
 Received: from 8c859006a84e.ant.amazon.com (172.26.203.30) by
  mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP Server id
- 15.0.1367.3 via Frontend Transport; Tue, 1 Oct 2019 15:46:55 +0000
+ 15.0.1367.3 via Frontend Transport; Tue, 1 Oct 2019 15:51:58 +0000
 From:   Patrick Williams <alpawi@amazon.com>
 CC:     Patrick Williams <alpawi@amazon.com>,
         Patrick Williams <patrick@stwcx.xyz>, <stable@vger.kernel.org>,
@@ -47,12 +46,10 @@ CC:     Patrick Williams <alpawi@amazon.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         <linux-arm-kernel@lists.infradead.org>,
         <linux-gpio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH v2] pinctrl: armada-37xx: fix control of pins 32 and up
-Date:   Tue, 1 Oct 2019 10:46:31 -0500
-Message-ID: <20191001154634.96165-1-alpawi@amazon.com>
+Subject: [PATCH] pinctrl: armada-37xx: swap polarity on LED group
+Date:   Tue, 1 Oct 2019 10:51:38 -0500
+Message-ID: <20191001155154.99710-1-alpawi@amazon.com>
 X-Mailer: git-send-email 2.17.2 (Apple Git-113)
-In-Reply-To: <20190618160105.26343-3-alpawi@amazon.com>
-References: <20190618160105.26343-3-alpawi@amazon.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 To:     unlisted-recipients:; (no To-header on input)
@@ -61,94 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 37xx configuration registers are only 32 bits long, so
-pins 32-35 spill over into the next register.  The calculation
-for the register address was done, but the bitmask was not, so
-any configuration to pin 32 or above resulted in a bitmask that
-overflowed and performed no action.
+The configuration registers for the LED group have inverted
+polarity, which puts the GPIO into open-drain state when used in
+GPIO mode.  Switch to '0' for GPIO and '1' for LED modes.
 
-Fix the register / offset calculation to also adjust the offset.
-
-Fixes: 5715092a458c ("pinctrl: armada-37xx: Add gpio support")
+Fixes: 87466ccd9401 ("pinctrl: armada-37xx: Add pin controller support for Armada 37xx")
 Signed-off-by: Patrick Williams <alpawi@amazon.com>
-Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Cc: <stable@vger.kernel.org>
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 6462d3ca7ceb..34c1fee52cbe 100644
+index 6462d3ca7ceb..6310963ce5f0 100644
 --- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
 +++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -221,11 +221,11 @@ static const struct armada_37xx_pin_data armada_37xx_pin_sb = {
+@@ -183,10 +183,10 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
+ 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+ 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+-	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
+-	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
+-	PIN_GRP_GPIO("led2_od", 13, 1, BIT(22), "led"),
+-	PIN_GRP_GPIO("led3_od", 14, 1, BIT(23), "led"),
++	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
++	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
++	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
++	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
+ 
  };
- 
- static inline void armada_37xx_update_reg(unsigned int *reg,
--					  unsigned int offset)
-+					  unsigned int *offset)
- {
- 	/* We never have more than 2 registers */
--	if (offset >= GPIO_PER_REG) {
--		offset -= GPIO_PER_REG;
-+	if (*offset >= GPIO_PER_REG) {
-+		*offset -= GPIO_PER_REG;
- 		*reg += sizeof(u32);
- 	}
- }
-@@ -376,7 +376,7 @@ static inline void armada_37xx_irq_update_reg(unsigned int *reg,
- {
- 	int offset = irqd_to_hwirq(d);
- 
--	armada_37xx_update_reg(reg, offset);
-+	armada_37xx_update_reg(reg, &offset);
- }
- 
- static int armada_37xx_gpio_direction_input(struct gpio_chip *chip,
-@@ -386,7 +386,7 @@ static int armada_37xx_gpio_direction_input(struct gpio_chip *chip,
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	return regmap_update_bits(info->regmap, reg, mask, 0);
-@@ -399,7 +399,7 @@ static int armada_37xx_gpio_get_direction(struct gpio_chip *chip,
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int val, mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 	regmap_read(info->regmap, reg, &val);
- 
-@@ -413,7 +413,7 @@ static int armada_37xx_gpio_direction_output(struct gpio_chip *chip,
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int mask, val, ret;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	ret = regmap_update_bits(info->regmap, reg, mask, mask);
-@@ -434,7 +434,7 @@ static int armada_37xx_gpio_get(struct gpio_chip *chip, unsigned int offset)
- 	unsigned int reg = INPUT_VAL;
- 	unsigned int val, mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	regmap_read(info->regmap, reg, &val);
-@@ -449,7 +449,7 @@ static void armada_37xx_gpio_set(struct gpio_chip *chip, unsigned int offset,
- 	unsigned int reg = OUTPUT_VAL;
- 	unsigned int mask, val;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 	val = value ? mask : 0;
  
 -- 
 2.17.2 (Apple Git-113)
