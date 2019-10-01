@@ -2,79 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E57DCC2B86
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 03:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF47C2B87
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 03:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727621AbfJABKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 21:10:06 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:32786 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726106AbfJABKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 21:10:06 -0400
-Received: by mail-io1-f66.google.com with SMTP id z19so43589526ior.0
-        for <stable@vger.kernel.org>; Mon, 30 Sep 2019 18:10:04 -0700 (PDT)
+        id S1727720AbfJABLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Sep 2019 21:11:39 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:34741 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726303AbfJABLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 21:11:39 -0400
+Received: by mail-io1-f67.google.com with SMTP id q1so43531625ion.1
+        for <stable@vger.kernel.org>; Mon, 30 Sep 2019 18:11:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=date:from:to:cc:subject:message-id:mail-followup-to:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to:user-agent;
-        bh=xFqMMrxKCXMcslhu2zfrfyc9kzsAj4fkLS/MuTxAVCg=;
-        b=GoCWqM+Zz28lLl7ajwAjgTEGFgbWcFOaTkW/9kfPzn3ZKMDKdFEwWUEgtVqEmW5+Pi
-         ErIPeoSxLdk0VNNMEgp7WCEpXgfIZ9Iu4xKFiPQX1Oaw6ZkXByS82++7SuP/f+MLNqXN
-         zDAOXw/ZpOoCVQkF1ZW1GC9lREvyrIOsRIsYUA4bdQtGE0OsJMZruuKEwqOJmuW6OEV9
-         Fwqi5J0yg/bWw8N5yoZlnOwYstfw+N6N49JWq0FpL0Zo1NGoM6ej1ILOQbFpgLGf/IaN
-         /r/a1fcjk3XZdTXwG1s+teX8GPGjc59nd4kBxlj9wpJpuLQmOLfPH25JDvplApc74V0E
-         J22g==
+        bh=yp8hB/Tts3x0Mfx+GqQZEiUscl3G6Z+j7ctgB40nM2k=;
+        b=XiMGyl13tRNgxDVThBQyMeQQ7e24icor+33bSiJMOVwOWmot1TtU+hChLwh9mqjq/G
+         rpgxgk1LtvI/fWXFsidbQtFmASDWWppOM9Eps3/1Hy9QLEyvCyCUkNCp/eoKH8+kJiwr
+         T7jf1iElCWG2vW7wF05UZBq9mlVBiTDxfdhQ6gm37h+UEXGGUcf2pnpOLm7Gk6X7VbjR
+         kNQocfdYprrzPZnNpDMgV193igJEvbKshDriYHyssBi2QXSGXMCq1AMHumCuuBEhMI0L
+         HuvJPZMB4z+kV1frlvS4OCwsit3PEQ0t275kL2z0/aaCz4cNNLcAp6bp+yjkymO12Cn8
+         W9VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id
          :mail-followup-to:references:mime-version:content-disposition
          :content-transfer-encoding:in-reply-to:user-agent;
-        bh=xFqMMrxKCXMcslhu2zfrfyc9kzsAj4fkLS/MuTxAVCg=;
-        b=A2Nv5hSjRgTLXZMD4xc2yaAcFF754EPkBVM++95/6HVpJYY73w2IETKNTum7yh4m78
-         InfLnf5apRFW2/Gx/OVBrOxEXvjKSjVKOeemtwgALZbRftWsofop76VBItGpTo6pfnUU
-         oPj1IX/lkKRFAZpYZ+rXEfjRLORY+oLhlf4Qpxv4iG+WFPpzl6EiuJsrXetTWQaGzn6V
-         sMehCZpshLSQIcMeGSX7PgLCc9vM3ENyJ0fyjvn8D+6kjEL4FgbMwKnZ7+w5JvfzO7c0
-         7yQvWyRo3KO0U1fQwDVl9BTynvNSaWexuLmkzsTMphlZIUB5tC5xcYg4rREeSRd0g7kL
-         Sf/Q==
-X-Gm-Message-State: APjAAAUrL/g5nCm6z7XafC0116n0QeyKiQXUf2FljabaEv0WtGg//p1B
-        exo/EHFDfTRcJ0zG2uFiYEwytMWdSGU=
-X-Google-Smtp-Source: APXvYqzBqe/7Btoa9l4E24FJ5bN7lZw5IRrcfs9ELCo59g1KOKAhywDl9om7oE3rrVuUuEPsKgVvIA==
-X-Received: by 2002:a6b:5002:: with SMTP id e2mr2357878iob.15.1569892203998;
-        Mon, 30 Sep 2019 18:10:03 -0700 (PDT)
+        bh=yp8hB/Tts3x0Mfx+GqQZEiUscl3G6Z+j7ctgB40nM2k=;
+        b=gDuSBLzvDWBUCsntAjenWakt1ODCW+oeXK/kDJNFIBu0PBPxHk1b0vbrWgByj/q4fw
+         /a0mdmvagm//0YK9PcVNDMxtQVpnMQWujiEIpvPTDcmnltikasHKha/6FlZ5Atgd2CCF
+         TYk5fY3+mmVH28T/9JST68ZfYh83WYNw4/UZdPZ/F2KaUJaRA2g5xzO1AMKmt7baZ1l0
+         Ip2j4KadAHlww4TcEC+Osvelk16pVg3g89hFXfU2RMLLoGYdCBGzL2QaEfXovEjZECW3
+         WzhxqUZ1HvYWdpCuurvUwZQw0jPH/9PBDBAi+fdWRPCWC0xdi2cfGlDgOFFo6eSQ9w9M
+         8t3A==
+X-Gm-Message-State: APjAAAVQsdoRaxCdVKHY2t16HXgfxFTwDh+I9z1sdZ9R1SKBdGrYPXs+
+        oNIJEXDucLX5+2vf+w/d/kx+wTQRLQo=
+X-Google-Smtp-Source: APXvYqz2+i2UkcVxbC/XWvFPYV1dsy8grc1Uv2JRRkDvv4r2bcKpnJAT+A1WVvx8rOAjhszJnuuS6w==
+X-Received: by 2002:a92:9fdb:: with SMTP id z88mr24888870ilk.38.1569892298658;
+        Mon, 30 Sep 2019 18:11:38 -0700 (PDT)
 Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
-        by smtp.gmail.com with ESMTPSA id i4sm4400169iop.6.2019.09.30.18.10.02
+        by smtp.gmail.com with ESMTPSA id l3sm6180657ioj.7.2019.09.30.18.11.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Sep 2019 18:10:03 -0700 (PDT)
-Date:   Mon, 30 Sep 2019 20:10:02 -0500
+        Mon, 30 Sep 2019 18:11:38 -0700 (PDT)
+Date:   Mon, 30 Sep 2019 20:11:37 -0500
 From:   Dan Rue <dan.rue@linaro.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.2 00/45] 5.2.18-stable review
-Message-ID: <20191001011002.jswwgiol6e24knvs@xps.therub.org>
+Subject: Re: [PATCH 5.3 00/25] 5.3.2-stable review
+Message-ID: <20191001011137.ec2ascntddpgkr2n@xps.therub.org>
 Mail-Followup-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, ben.hutchings@codethink.co.uk,
         lkft-triage@lists.linaro.org, stable@vger.kernel.org
-References: <20190929135024.387033930@linuxfoundation.org>
+References: <20190929135006.127269625@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+In-Reply-To: <20190929135006.127269625@linuxfoundation.org>
 User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 29, 2019 at 03:55:28PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.2.18 release.
-> There are 45 patches in this series, all will be posted as a response
+On Sun, Sep 29, 2019 at 03:56:03PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.2 release.
+> There are 25 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -87,18 +87,18 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.2.18-rc1
+kernel: 5.3.2-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-5.2.y
-git commit: 70cc0b99b90f823b81175b1f15f73ced86135c5b
-git describe: v5.2.17-46-g70cc0b99b90f
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.2-oe/build/v5.2.17-46-g70cc0b99b90f
+git branch: linux-5.3.y
+git commit: 5910f7ae17298c45fce24a2f314573bcb7a86284
+git describe: v5.3.1-26-g5910f7ae1729
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.1-26-g5910f7ae1729
 
-No regressions (compared to build v5.2.17)
+No regressions (compared to build v5.3.1)
 
-No fixes (compared to build v5.2.17)
+No fixes (compared to build v5.3.1)
 
-Ran 22166 total tests in the following environments and test suites.
+Ran 23295 total tests in the following environments and test suites.
 
 Environments
 --------------
@@ -127,6 +127,11 @@ Test Suites
 * ltp-cve-tests
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
 * ltp-hugetlb-tests
 * ltp-io-tests
 * ltp-ipc-tests
@@ -141,11 +146,6 @@ Test Suites
 * perf
 * spectre-meltdown-checker-test
 * v4l2-compliance
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
 * ltp-open-posix-tests
 * network-basic-tests
 * kvm-unit-tests
