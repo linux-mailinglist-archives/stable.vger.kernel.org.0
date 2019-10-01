@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10EEEC3DC3
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7577C3DC0
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729478AbfJAQkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51208 "EHLO mail.kernel.org"
+        id S1729541AbfJAQkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729449AbfJAQkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:03 -0400
+        id S1729530AbfJAQkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AA9421D81;
-        Tue,  1 Oct 2019 16:40:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 662CA21A4C;
+        Tue,  1 Oct 2019 16:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948003;
-        bh=X2SYTPGTDoHIb6gn2jO+JXqH1w3E4aXG6pzrtbaleio=;
+        s=default; t=1569948004;
+        bh=XUvMcZuHtDRI4BwWKfBCSDQZ3OMqlA23MkrdA8f8wb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yj/nT1YOTJSLW9RIYxJKd3CGiP6tLqfDCJto8b92RtWemYG8CzhvPzzajKcGg1Zp7
-         W2DsXZAf7fJka3W1ljy7qSw2R3G0crMIddEahSu0fD/D9tmiea67aj7oI4hZFiJ/1D
-         IQnCahvii+n1tkUI0taMh/8dwd8Sqq/hsJgGKGpk=
+        b=qmB4/mRsH6Li2xFef9YrMa70zcA1qjTe/GzBEkLnUvzdZwqv7EJ5jCA+XEkw2/aO+
+         1zPlvPM5Je5xQ1uz3xXEMySMsM4+G39hWsrsIhAEyeyZJ4hvrG9wNihXSWYNKDaJCH
+         0VMKzn3l0XOpQ6Js+eQdRI+VdNUG0amSTqvPuBas=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Mamonov <pmamonov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
+Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
+        syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        David Ahern <dsahern@gmail.com>,
+        Jiri Pirko <jiri@mellanox.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 28/71] net/phy: fix DP83865 10 Mbps HDX loopback disable function
-Date:   Tue,  1 Oct 2019 12:38:38 -0400
-Message-Id: <20191001163922.14735-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 29/71] net_sched: add max len check for TCA_KIND
+Date:   Tue,  1 Oct 2019 12:38:39 -0400
+Message-Id: <20191001163922.14735-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -43,48 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Mamonov <pmamonov@gmail.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
+[ Upstream commit 62794fc4fbf52f2209dc094ea255eaef760e7d01 ]
 
-According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
-disabled in the expanded memory register 0x1C0.1". The driver erroneously
-used bit 0 instead of bit 1.
+The TCA_KIND attribute is of NLA_STRING which does not check
+the NUL char. KMSAN reported an uninit-value of TCA_KIND which
+is likely caused by the lack of NUL.
 
-Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
-Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Change it to NLA_NUL_STRING and add a max len too.
+
+Fixes: 8b4c3cdd9dd8 ("net: sched: Add policy validation for tc attributes")
+Reported-and-tested-by: syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/national.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/sched/sch_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/national.c b/drivers/net/phy/national.c
-index a221dd552c3c6..a5bf0874c7d81 100644
---- a/drivers/net/phy/national.c
-+++ b/drivers/net/phy/national.c
-@@ -105,14 +105,17 @@ static void ns_giga_speed_fallback(struct phy_device *phydev, int mode)
- 
- static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
- {
-+	u16 lb_dis = BIT(1);
-+
- 	if (disable)
--		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
-+		ns_exp_write(phydev, 0x1c0,
-+			     ns_exp_read(phydev, 0x1c0) | lb_dis);
- 	else
- 		ns_exp_write(phydev, 0x1c0,
--			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
-+			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
- 
- 	pr_debug("10BASE-T HDX loopback %s\n",
--		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
-+		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 1047825d9f48d..81d58b2806122 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1390,7 +1390,8 @@ check_loop_fn(struct Qdisc *q, unsigned long cl, struct qdisc_walker *w)
  }
  
- static int ns_config_init(struct phy_device *phydev)
+ const struct nla_policy rtm_tca_policy[TCA_MAX + 1] = {
+-	[TCA_KIND]		= { .type = NLA_STRING },
++	[TCA_KIND]		= { .type = NLA_NUL_STRING,
++				    .len = IFNAMSIZ - 1 },
+ 	[TCA_RATE]		= { .type = NLA_BINARY,
+ 				    .len = sizeof(struct tc_estimator) },
+ 	[TCA_STAB]		= { .type = NLA_NESTED },
 -- 
 2.20.1
 
