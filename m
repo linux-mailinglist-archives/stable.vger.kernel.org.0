@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05085C40F0
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA94C40F1
 	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 21:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726911AbfJATUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726912AbfJATUa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 1 Oct 2019 15:20:30 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:39431 "EHLO
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:43073 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726010AbfJATU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 15:20:29 -0400
+        by vger.kernel.org with ESMTP id S1726010AbfJATUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 15:20:30 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 3810E224EE;
-        Tue,  1 Oct 2019 15:20:29 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 0C62E22237;
+        Tue,  1 Oct 2019 15:20:30 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 01 Oct 2019 15:20:29 -0400
+  by compute6.internal (MEProxy); Tue, 01 Oct 2019 15:20:30 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=l6nNdZ
-        ZM24Pkw5iL71ChNSglh+qjzyYS8aiVukaF1ZA=; b=mCCrTUdtjhyHooEZ5NA9+E
-        MfhAbNdDWk/JKCYxsGN9nGYikFUMc7BvjOHfY6nHqnlfmu35zO02C7r+ndaIP38Z
-        7mvwpw2Nm6S7sKHP9zAyAoJi2tJH4B8SxcScGjt4OC1IomynUkuARx/GlI/oKAJA
-        /2jq8gnN6TBxLP2945qeZ+apMob6LOoAW8nk1PKpOE62Z73bu9BBQK3CyDqG6gpu
-        ZcaMU5Vu7g7cNMoIhkg2rVbqSP0rTtc+HCEmMXNv2rQWC6/P/8FE3UVta7mTeewo
-        77j+2Bq643NMiiIol5Ze27HiZdT89dVeisPv8dfrUbPNaLuQHC2r8rrSIxJtmjRA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=O00gOj
+        sdKhbuKMCI1d5UvaRL7rRDnYcd2/9unqMPr3Q=; b=VaF4mrM4z1Jw4OjJ0Y2WTy
+        4qf7bqNat/ewFlW8K5+K8iOjO+dhugoYs3alaGBgsrgSyYJ4ZUG+BKA/UJ9o8RgO
+        QijdTr7RY75jWBJ8RRnEbtAiAmm6CYHmRPiYYYYrNK6TueO7FdcxOdIuDtK9i+0E
+        DB1FC/DnYvrNDt2YRVsPSyljenTVOY+valh1nCKlGOL/xntn8BWnD9WPxB+RmBzd
+        BGhc/VcxSRJWXQTahcrPqJyypoAX9VM6a5J2g+vBGAoJ7Iw1RHqeFxIC9/45Nuz0
+        ZbIgUNSE0JkZEL+Tgtxa+b3XREXSJuxcTvC+CPQO86k6xkFy1GX8kovyYKeiSK4Q
         ==
-X-ME-Sender: <xms:_KaTXVvIXdUxJQBoEYGy6K4iaXTuEbdQUt3R8CyPkhlzpwlKMVBb_Q>
+X-ME-Sender: <xms:_aaTXTc9nGofONOjHOQ8d-xr-TeKPOzc0JvxpSTbkNLlwzzPhkaTCQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeeggddufeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:_KaTXSeLHNHkZV1ACCpFgQsgRZkKgP2QeFXkdmVTsOmqIbobGsRQ8g>
-    <xmx:_KaTXX2AQcWqbIxJF4xcW-IMR7X-XRXSniqx6PJiRPTfc-31AUVEEQ>
-    <xmx:_KaTXd95ckoAQm0TOd1BDXh-QfaUgqEzB0x-4m8LMGEf97gn56wQTA>
-    <xmx:_aaTXS1SuOlLuxITzQxfLlv0rFNhCSX7j4mRGGCydF7QQBFUiOLCUQ>
+X-ME-Proxy: <xmx:_aaTXYaVBLQh2rhE1ed0uViuQ_5pdvHZ1mRjLYz_YEKbUtr5nL3DFQ>
+    <xmx:_aaTXfN4A42Er-p_a19DNja4Hlu3D7SKfiVRrtZst20pc1vCWGQ-Hw>
+    <xmx:_aaTXeUKeisaTx8dvGqs4wwrg61EQU1KTN_X9GUGFf_vgE-SuD3M3g>
+    <xmx:_qaTXUsQUdqr4OoWty7Nh6EtheqRNk1c02FWrZWvqXkxuM6lqP0q0Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CCA4B8006A;
-        Tue,  1 Oct 2019 15:20:27 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: implement .cleanup_rq callback" failed to apply to 5.3-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7B93F8005B;
+        Tue,  1 Oct 2019 15:20:29 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] scsi: implement .cleanup_rq callback" failed to apply to 5.2-stable tree
 To:     ming.lei@redhat.com, axboe@kernel.dk, bvanassche@acm.org,
         emilne@redhat.com, hare@suse.com, hch@lst.de, snitzer@redhat.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 01 Oct 2019 21:14:42 +0200
-Message-ID: <1569957282145249@kroah.com>
+Date:   Tue, 01 Oct 2019 21:14:44 +0200
+Message-ID: <156995728498230@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
