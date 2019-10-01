@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C1CC3D4D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:59:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C6BC3D52
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730961AbfJAQlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52902 "EHLO mail.kernel.org"
+        id S1727823AbfJAQ6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730941AbfJAQlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:41:24 -0400
+        id S1730941AbfJAQl3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:41:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C54CB205C9;
-        Tue,  1 Oct 2019 16:41:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1DB32168B;
+        Tue,  1 Oct 2019 16:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948083;
-        bh=NAi1+Bo0JVBgckqyAVTISXOYMwHPgSPKdbHxAFeiRps=;
+        s=default; t=1569948088;
+        bh=6vs+mxOj8LdnxQhig/ZrlnZJRypReXhz9Lk/p8RpLM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3LYVKxNJhpfXorbc7ajjvVgh5N0LVN9NhRsCp+YOPyp44LsFkDTq11Bn3FZm8tav
-         CUptZYGQcrmp8F50jDXe7SKJxKXyF3aTuE1VVwxciT50Szdq06VJFeLYzlVQfUMM/U
-         L3OO5/u8gO4qWigyeOCZYIrOdfNR7YEgpxR24Wwc=
+        b=qbfGs+npIO3cHCmu/sZF3MGlvzQ6LFbAjW91OpFuWCtHHw9jzaaSyORfWmBOp+hKl
+         zcJflDo8YglPt6bCt1Wqfr1XD3DplK171SeRucuM2vYUj3KBr9dKkQz2pckScYTkzm
+         c12DH/4sx3BCTZrdcHaHMeyNk0F/tD5SQD+GOLIQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 71/71] Btrfs: fix selftests failure due to uninitialized i_mode in test inodes
-Date:   Tue,  1 Oct 2019 12:39:21 -0400
-Message-Id: <20191001163922.14735-71-sashal@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 02/63] ima: always return negative code for error
+Date:   Tue,  1 Oct 2019 12:40:24 -0400
+Message-Id: <20191001164125.15398-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
-References: <20191001163922.14735-1-sashal@kernel.org>
+In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
+References: <20191001164125.15398-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,85 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 9f7fec0ba89108b9385f1b9fb167861224912a4a ]
+[ Upstream commit f5e1040196dbfe14c77ce3dfe3b7b08d2d961e88 ]
 
-Some of the self tests create a test inode, setup some extents and then do
-calls to btrfs_get_extent() to test that the corresponding extent maps
-exist and are correct. However btrfs_get_extent(), since the 5.2 merge
-window, now errors out when it finds a regular or prealloc extent for an
-inode that does not correspond to a regular file (its ->i_mode is not
-S_IFREG). This causes the self tests to fail sometimes, specially when
-KASAN, slub_debug and page poisoning are enabled:
+integrity_kernel_read() returns the number of bytes read. If this is
+a short read then this positive value is returned from
+ima_calc_file_hash_atfm(). Currently this is only indirectly called from
+ima_calc_file_hash() and this function only tests for the return value
+being zero or nonzero and also doesn't forward the return value.
+Nevertheless there's no point in returning a positive value as an error,
+so translate a short read into -EINVAL.
 
-  $ modprobe btrfs
-  modprobe: ERROR: could not insert 'btrfs': Invalid argument
-
-  $ dmesg
-  [ 9414.691648] Btrfs loaded, crc32c=crc32c-intel, debug=on, assert=on, integrity-checker=on, ref-verify=on
-  [ 9414.692655] BTRFS: selftest: sectorsize: 4096  nodesize: 4096
-  [ 9414.692658] BTRFS: selftest: running btrfs free space cache tests
-  [ 9414.692918] BTRFS: selftest: running extent only tests
-  [ 9414.693061] BTRFS: selftest: running bitmap only tests
-  [ 9414.693366] BTRFS: selftest: running bitmap and extent tests
-  [ 9414.696455] BTRFS: selftest: running space stealing from bitmap to extent tests
-  [ 9414.697131] BTRFS: selftest: running extent buffer operation tests
-  [ 9414.697133] BTRFS: selftest: running btrfs_split_item tests
-  [ 9414.697564] BTRFS: selftest: running extent I/O tests
-  [ 9414.697583] BTRFS: selftest: running find delalloc tests
-  [ 9415.081125] BTRFS: selftest: running find_first_clear_extent_bit test
-  [ 9415.081278] BTRFS: selftest: running extent buffer bitmap tests
-  [ 9415.124192] BTRFS: selftest: running inode tests
-  [ 9415.124195] BTRFS: selftest: running btrfs_get_extent tests
-  [ 9415.127909] BTRFS: selftest: running hole first btrfs_get_extent test
-  [ 9415.128343] BTRFS critical (device (efault)): regular/prealloc extent found for non-regular inode 256
-  [ 9415.131428] BTRFS: selftest: fs/btrfs/tests/inode-tests.c:904 expected a real extent, got 0
-
-This happens because the test inodes are created without ever initializing
-the i_mode field of the inode, and neither VFS's new_inode() nor the btrfs
-callback btrfs_alloc_inode() initialize the i_mode. Initialization of the
-i_mode is done through the various callbacks used by the VFS to create
-new inodes (regular files, directories, symlinks, tmpfiles, etc), which
-all call btrfs_new_inode() which in turn calls inode_init_owner(), which
-sets the inode's i_mode. Since the tests only uses new_inode() to create
-the test inodes, the i_mode was never initialized.
-
-This always happens on a VM I used with kasan, slub_debug and many other
-debug facilities enabled. It also happened to someone who reported this
-on bugzilla (on a 5.3-rc).
-
-Fix this by setting i_mode to S_IFREG at btrfs_new_test_inode().
-
-Fixes: 6bf9e4bd6a2778 ("btrfs: inode: Verify inode mode to avoid NULL pointer dereference")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204397
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tests/btrfs-tests.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ security/integrity/ima/ima_crypto.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tests/btrfs-tests.c b/fs/btrfs/tests/btrfs-tests.c
-index 1e3ba49493995..814a918998ece 100644
---- a/fs/btrfs/tests/btrfs-tests.c
-+++ b/fs/btrfs/tests/btrfs-tests.c
-@@ -51,7 +51,13 @@ static struct file_system_type test_type = {
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index d4c7b8e1b083d..7532b062be594 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -268,8 +268,11 @@ static int ima_calc_file_hash_atfm(struct file *file,
+ 		rbuf_len = min_t(loff_t, i_size - offset, rbuf_size[active]);
+ 		rc = integrity_kernel_read(file, offset, rbuf[active],
+ 					   rbuf_len);
+-		if (rc != rbuf_len)
++		if (rc != rbuf_len) {
++			if (rc >= 0)
++				rc = -EINVAL;
+ 			goto out3;
++		}
  
- struct inode *btrfs_new_test_inode(void)
- {
--	return new_inode(test_mnt->mnt_sb);
-+	struct inode *inode;
-+
-+	inode = new_inode(test_mnt->mnt_sb);
-+	if (inode)
-+		inode_init_owner(inode, NULL, S_IFREG);
-+
-+	return inode;
- }
- 
- static int btrfs_init_test_fs(void)
+ 		if (rbuf[1] && offset) {
+ 			/* Using two buffers, and it is not the first
 -- 
 2.20.1
 
