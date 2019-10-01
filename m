@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7538C3AC1
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:40:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE26C3AC3
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbfJAQjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S1728221AbfJAQjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:39:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727929AbfJAQje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:34 -0400
+        id S1727929AbfJAQjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C77A62168B;
-        Tue,  1 Oct 2019 16:39:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4235521855;
+        Tue,  1 Oct 2019 16:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947973;
-        bh=GvEPbDgQxapmgW0q9BULFA69h7ReMstEhRs3fqcCj8U=;
+        s=default; t=1569947978;
+        bh=RZ+WOcSOBvQdQXPYEN1ohKIQpxofeW8IA32kr+1bOQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smbYnncD5ADCGN0fI2uf9VQhN+TH+Tgk5OAr9N2l6SYquiZjvWultxJ2pq4/+Dc6S
-         tO8o1M85UcBzFxMJuxmTCzMsS9ywPiA8zMkZcLnu3XUboC0aky2bDY6jO93kRH5Mxb
-         cWvrPqwm1kiBtjmFxwveOMYj5/opwSgOy3o6SG7g=
+        b=V9Mu1ozBPB4Px8QjS+lSQFVGyKHWvCuEp1jIUlb/xrS97DCtMVt2GjxAJ3MuyvaEZ
+         A88cSNuR3Cp/Qc9COHfIp4MdWzICZZIU6rj5Vqbv3VMXPyNrZnQTaWvFuDg80xoUjv
+         QedyPrSzjwcOxkbfkUEfzN5XNlrttrw25WReAuUk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Eli Dorfman <eli@vastdata.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 06/71] xprtrdma: Send Queue size grows after a reconnect
-Date:   Tue,  1 Oct 2019 12:38:16 -0400
-Message-Id: <20191001163922.14735-6-sashal@kernel.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 11/71] fuse: fix request limit
+Date:   Tue,  1 Oct 2019 12:38:21 -0400
+Message-Id: <20191001163922.14735-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -45,120 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 98ef77d1aaa7a2f4e1b2a721faa084222021fda7 ]
+[ Upstream commit f22f812d5ce75a18b56073a7a63862e6ea764070 ]
 
-Eli Dorfman reports that after a series of idle disconnects, an
-RPC/RDMA transport becomes unusable (rdma_create_qp returns
--ENOMEM). Problem was tracked down to increasing Send Queue size
-after each reconnect.
+The size of struct fuse_req was reduced from 392B to 144B on a non-debug
+config, thus the sanitize_global_limit() helper was setting a larger
+default limit.  This doesn't really reflect reduction in the memory used by
+requests, since the fields removed from fuse_req were added to fuse_args
+derived structs; e.g. sizeof(struct fuse_writepages_args) is 248B, thus
+resulting in slightly more memory being used for writepage requests
+overalll (due to using 256B slabs).
 
-The rdma_create_qp() API does not promise to leave its @qp_init_attr
-parameter unaltered. In fact, some drivers do modify one or more of
-its fields. Thus our calls to rdma_create_qp must use a fresh copy
-of ib_qp_init_attr each time.
+Make the calculatation ignore the size of fuse_req and use the old 392B
+value.
 
-This fix is appropriate for kernels dating back to late 2007, though
-it will have to be adapted, as the connect code has changed over the
-years.
-
-Reported-by: Eli Dorfman <eli@vastdata.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ fs/fuse/inode.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 805b1f35e1caa..2bd9b4de0e325 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -605,10 +605,10 @@ void rpcrdma_ep_destroy(struct rpcrdma_xprt *r_xprt)
-  * Unlike a normal reconnection, a fresh PD and a new set
-  * of MRs and buffers is needed.
-  */
--static int
--rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
--			 struct rpcrdma_ep *ep, struct rpcrdma_ia *ia)
-+static int rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
-+				    struct ib_qp_init_attr *qp_init_attr)
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 4bb885b0f0322..04b10b3b8741b 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -822,9 +822,12 @@ static const struct super_operations fuse_super_operations = {
+ 
+ static void sanitize_global_limit(unsigned *limit)
  {
-+	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
- 	int rc, err;
++	/*
++	 * The default maximum number of async requests is calculated to consume
++	 * 1/2^13 of the total memory, assuming 392 bytes per request.
++	 */
+ 	if (*limit == 0)
+-		*limit = ((totalram_pages() << PAGE_SHIFT) >> 13) /
+-			 sizeof(struct fuse_req);
++		*limit = ((totalram_pages() << PAGE_SHIFT) >> 13) / 392;
  
- 	trace_xprtrdma_reinsert(r_xprt);
-@@ -625,7 +625,7 @@ rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
- 	}
- 
- 	rc = -ENETUNREACH;
--	err = rdma_create_qp(ia->ri_id, ia->ri_pd, &ep->rep_attr);
-+	err = rdma_create_qp(ia->ri_id, ia->ri_pd, qp_init_attr);
- 	if (err) {
- 		pr_err("rpcrdma: rdma_create_qp returned %d\n", err);
- 		goto out3;
-@@ -642,16 +642,16 @@ rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
- 	return rc;
- }
- 
--static int
--rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt, struct rpcrdma_ep *ep,
--		     struct rpcrdma_ia *ia)
-+static int rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt,
-+				struct ib_qp_init_attr *qp_init_attr)
- {
-+	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
- 	struct rdma_cm_id *id, *old;
- 	int err, rc;
- 
- 	trace_xprtrdma_reconnect(r_xprt);
- 
--	rpcrdma_ep_disconnect(ep, ia);
-+	rpcrdma_ep_disconnect(&r_xprt->rx_ep, ia);
- 
- 	rc = -EHOSTUNREACH;
- 	id = rpcrdma_create_id(r_xprt, ia);
-@@ -673,7 +673,7 @@ rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt, struct rpcrdma_ep *ep,
- 		goto out_destroy;
- 	}
- 
--	err = rdma_create_qp(id, ia->ri_pd, &ep->rep_attr);
-+	err = rdma_create_qp(id, ia->ri_pd, qp_init_attr);
- 	if (err)
- 		goto out_destroy;
- 
-@@ -698,25 +698,27 @@ rpcrdma_ep_connect(struct rpcrdma_ep *ep, struct rpcrdma_ia *ia)
- 	struct rpcrdma_xprt *r_xprt = container_of(ia, struct rpcrdma_xprt,
- 						   rx_ia);
- 	struct rpc_xprt *xprt = &r_xprt->rx_xprt;
-+	struct ib_qp_init_attr qp_init_attr;
- 	int rc;
- 
- retry:
-+	memcpy(&qp_init_attr, &ep->rep_attr, sizeof(qp_init_attr));
- 	switch (ep->rep_connected) {
- 	case 0:
- 		dprintk("RPC:       %s: connecting...\n", __func__);
--		rc = rdma_create_qp(ia->ri_id, ia->ri_pd, &ep->rep_attr);
-+		rc = rdma_create_qp(ia->ri_id, ia->ri_pd, &qp_init_attr);
- 		if (rc) {
- 			rc = -ENETUNREACH;
- 			goto out_noupdate;
- 		}
- 		break;
- 	case -ENODEV:
--		rc = rpcrdma_ep_recreate_xprt(r_xprt, ep, ia);
-+		rc = rpcrdma_ep_recreate_xprt(r_xprt, &qp_init_attr);
- 		if (rc)
- 			goto out_noupdate;
- 		break;
- 	default:
--		rc = rpcrdma_ep_reconnect(r_xprt, ep, ia);
-+		rc = rpcrdma_ep_reconnect(r_xprt, &qp_init_attr);
- 		if (rc)
- 			goto out;
- 	}
+ 	if (*limit >= 1 << 16)
+ 		*limit = (1 << 16) - 1;
 -- 
 2.20.1
 
