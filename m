@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A0EC3B73
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 235D2C3B76
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387701AbfJAQoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56458 "EHLO mail.kernel.org"
+        id S2387866AbfJAQoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:44:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726881AbfJAQoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:44:16 -0400
+        id S2387834AbfJAQoX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:44:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB9DE21855;
-        Tue,  1 Oct 2019 16:44:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A47DB21855;
+        Tue,  1 Oct 2019 16:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948255;
-        bh=N27q7NOfgceFo9b0NtkaQ5lqPWfXnY0W8qj859OqZo4=;
+        s=default; t=1569948262;
+        bh=wBX0BLKAxEJ4pgZQUvtIbB9dURc/CT3Dk0SqiZRMAMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIIsuzKGt/OGiMheOBgw50ACk09GcE9CPlHg1MziP2TTgFw3FK5YUPBB08MyPapJC
-         4oNropvZyDQ6lTAAiyvGROPcqP8vTRdjBwFYUtVEe1FW1ZeLV9e1MSDRnh9PGJP1LK
-         E4BWEG+eu5vcg95M6df2+cncblPMcawE76qCJFig=
+        b=0fzcS7jzpy9Z5p1a1FhP95m+8et6J8/wXwuJ4qZFX9uX4sol0twFuVOnSLX5U6uZt
+         2aUsXsZtBQHQ+qtGVDjseuJPewoDLCx2ci0Tmw0zhhJ4ETGgMayqnOocFTcVKYP+mN
+         WSbgVGKGGaN3wcQJ5k2olJvYOiVQkvq5d7lFJb7o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, oss-drivers@netronome.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 39/43] nfp: flower: fix memory leak in nfp_flower_spawn_vnic_reprs
-Date:   Tue,  1 Oct 2019 12:43:07 -0400
-Message-Id: <20191001164311.15993-39-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 43/43] sch_netem: fix a divide by zero in tabledist()
+Date:   Tue,  1 Oct 2019 12:43:11 -0400
+Message-Id: <20191001164311.15993-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164311.15993-1-sashal@kernel.org>
 References: <20191001164311.15993-1-sashal@kernel.org>
@@ -45,50 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8ce39eb5a67aee25d9f05b40b673c95b23502e3e ]
+[ Upstream commit b41d936b5ecfdb3a4abc525ce6402a6c49cffddc ]
 
-In nfp_flower_spawn_vnic_reprs in the loop if initialization or the
-allocations fail memory is leaked. Appropriate releases are added.
+syzbot managed to crash the kernel in tabledist() loading
+an empty distribution table.
 
-Fixes: b94524529741 ("nfp: flower: add per repr private data for LAG offload")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	t = dist->table[rnd % dist->size];
+
+Simply return an error when such load is attempted.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/flower/main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/sched/sch_netem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/main.c b/drivers/net/ethernet/netronome/nfp/flower/main.c
-index e57d23746585f..c197f3e058817 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/main.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
-@@ -259,6 +259,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		repr_priv = kzalloc(sizeof(*repr_priv), GFP_KERNEL);
- 		if (!repr_priv) {
- 			err = -ENOMEM;
-+			nfp_repr_free(repr);
- 			goto err_reprs_clean;
- 		}
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index 4dfe10b9f96c8..86350fe5cfc8f 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -749,7 +749,7 @@ static int get_dist_table(struct Qdisc *sch, struct disttable **tbl,
+ 	struct disttable *d;
+ 	int i;
  
-@@ -271,6 +272,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		port = nfp_port_alloc(app, port_type, repr);
- 		if (IS_ERR(port)) {
- 			err = PTR_ERR(port);
-+			kfree(repr_priv);
- 			nfp_repr_free(repr);
- 			goto err_reprs_clean;
- 		}
-@@ -291,6 +293,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		err = nfp_repr_init(app, repr,
- 				    port_id, port, priv->nn->dp.netdev);
- 		if (err) {
-+			kfree(repr_priv);
- 			nfp_port_free(port);
- 			nfp_repr_free(repr);
- 			goto err_reprs_clean;
+-	if (n > NETEM_DIST_MAX)
++	if (!n || n > NETEM_DIST_MAX)
+ 		return -EINVAL;
+ 
+ 	d = kvmalloc(sizeof(struct disttable) + n * sizeof(s16), GFP_KERNEL);
 -- 
 2.20.1
 
