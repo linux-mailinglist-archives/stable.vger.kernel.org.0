@@ -2,80 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FB8C4077
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 20:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE81AC4098
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 21:00:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfJASzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 14:55:22 -0400
-Received: from mail-wr1-f53.google.com ([209.85.221.53]:36430 "EHLO
-        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725875AbfJASzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 14:55:22 -0400
-Received: by mail-wr1-f53.google.com with SMTP id y19so16805424wrd.3
-        for <stable@vger.kernel.org>; Tue, 01 Oct 2019 11:55:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yFV1AKsyfk3K0QQwe5r12YoQOkOMd6fjwRXJoAK6NI0=;
-        b=RIw5RCdPYkngltcBw9YYOjWbDAs4nH4CjQXjZ7Ec0y7RziN4oaRPBuEqqpcA+VknYM
-         n/6ha3XtCgCK9khDKEEIBL7VForQh788jKIhoHTs2KTIXwdsqZe1PJ/EypcWWplPy1uV
-         wFcmtgmkBSniIoBffX5jesC0CUGfxLu41Cp8Cxb0Sojedz7V/fklnQSFDLmyvs432F3r
-         ekuahF6AmljgV3FnHLU32saV1JHoz2OmavgGv2KeNSXTcY/kXemRz+8x+MzOLnBuPXAj
-         grmfRcrs1IHsgKve21mKyIZwqCK2/NrRAsBnCsQ4NRJeXCK+KtEq6tH7o++Gpwqwezd7
-         1a4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yFV1AKsyfk3K0QQwe5r12YoQOkOMd6fjwRXJoAK6NI0=;
-        b=TjlBK/VN3/ey5on3VkwHyDL1XXkHL4MEU/KOW35zWriO//qXgGYp8FE7Qa+vUa3OnC
-         8m/KlPuAc2Ntj0OwMBJuSsvNZ7CqQiuRJQKjw2pturF8IwOnbJNaRNuXdVPQM8VphDoQ
-         +2Z0M+OxUCu9odi/owGbWs1JYLXbviWr00bTtv7pva7S+J8Y7tle7qH+QSGLv6zvbq1+
-         LvHFhmBzBxWGFKP1DMTz2Jlbznuy0z8lxwKoVKBhftKyn603tfvy3sUGTaxADTi/XqNp
-         E1TZYBN55YdbsH83GGnIlf+MJmdZyQQ1G2o94ASsOzwlkL2ahlncVof4rJ4EupjbmMNI
-         F7jA==
-X-Gm-Message-State: APjAAAU/42mAMZ5qhwIBj7nwnyjEz6vWW7APGgz0LvxY1Y/f3EoH3HcT
-        EUltpCcsu/VCAzM/ggOArSGtQsIjV03M6Q==
-X-Google-Smtp-Source: APXvYqx0WQdqysYuqcghz2gZTZv43ibvnincCzL6NKDPbCpJhGU1ZwQss1S+zZymvkHUZ0NSEuNDKQ==
-X-Received: by 2002:adf:f8cf:: with SMTP id f15mr18571528wrq.292.1569956119307;
-        Tue, 01 Oct 2019 11:55:19 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q3sm16633071wru.33.2019.10.01.11.55.18
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Oct 2019 11:55:18 -0700 (PDT)
-Message-ID: <5d93a116.1c69fb81.4ea2.cc4f@mx.google.com>
-Date:   Tue, 01 Oct 2019 11:55:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726216AbfJATAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 15:00:11 -0400
+Received: from userp2120.oracle.com ([156.151.31.85]:34414 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726151AbfJATAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 15:00:11 -0400
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x91IxYHo170955;
+        Tue, 1 Oct 2019 18:59:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2019-08-05;
+ bh=HUjdfKmYAiVYdwx/VKsfp7MDujfbx9y3CuLubHKJmJQ=;
+ b=OrmAYS24/I71CUnEQyZTUymcuiWq3LRWiTUg8n1+xpq6/U3nn9Nj4GocSxAnQMyUDQ6D
+ dVUMnqhzj9BpFlEoKrm7Q9JWe6SlBVCPOKeSeXXlrZ399R+A7mLrS/tWA2rCp+QjnNa2
+ TadeQG8HXt7813ftQ/1ijYxH9XH87l6KkA7kUYw7u35I/9i5+kxdeCTOOejmbUAxTQdI
+ 3UniJbFJMOLfy2sw3uQ7mrnTqaBRg+opbB30KCJDJhFfYSkRQLLvYr1o2CJx5IJSjJ/g
+ 6ch4FC0CY/h5kDj+KHdjqhPVqLVTeUD0bM6ibsT/uSWBfDpaxNltJk1JnyDoJEkajDYA +w== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by userp2120.oracle.com with ESMTP id 2va05rr5k1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 01 Oct 2019 18:59:38 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x91IxSHw114015;
+        Tue, 1 Oct 2019 18:59:38 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3030.oracle.com with ESMTP id 2vbsm2g30p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 01 Oct 2019 18:59:37 +0000
+Received: from abhmp0015.oracle.com (abhmp0015.oracle.com [141.146.116.21])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x91IxCMH006633;
+        Tue, 1 Oct 2019 18:59:13 GMT
+Received: from kadam (/41.57.98.10)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 01 Oct 2019 11:59:12 -0700
+Date:   Tue, 1 Oct 2019 21:58:55 +0300
+From:   Dan Carpenter <dan.carpenter@oracle.com>
+To:     Denis Efremov <efremov@linux.com>
+Cc:     David Laight <David.Laight@ACULAB.COM>,
+        "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        Jes Sorensen <jes.sorensen@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>
+Subject: Re: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Message-ID: <20191001185730.GM29696@kadam>
+References: <20190930110141.29271-1-efremov@linux.com>
+ <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
+ <e4051dcb-10dc-ff17-ec0b-6f51dccdb5bf@linux.com>
+ <20191001135649.GH22609@kadam>
+ <8d2e8196cae74ec4ae20e9c23e898207@AcuMS.aculab.com>
+ <a7c002f7-c6f2-a9ed-0100-acfbafea65c5@linux.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.76
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 81 boots: 0 failed, 81 passed (v4.19.76)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a7c002f7-c6f2-a9ed-0100-acfbafea65c5@linux.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9397 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1908290000 definitions=main-1910010152
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9397 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1910010152
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 81 boots: 0 failed, 81 passed (v4.19.76)
+On Tue, Oct 01, 2019 at 06:13:21PM +0300, Denis Efremov wrote:
+> Just found an official documentation to this issue:
+> https://gcc.gnu.org/gcc-4.9/porting_to.html
+> "Null pointer checks may be optimized away more aggressively
+> ...
+> The pointers passed to memmove (and similar functions in <string.h>) must be non-null
+> even when nbytes==0, so GCC can use that information to remove the check after the
+> memmove call. Calling copy(p, NULL, 0) can therefore deference a null pointer and crash."
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.76/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.76/
+Correct.  In glibc those functions are annotated as non-NULL.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.76
-Git Commit: 555161ee1b7a74e77ca70fd14ed8a5137c8108ac
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 16 SoC families, 14 builds out of 206
+extern void *memcpy (void *__restrict __dest, const void *__restrict __src,
+                     size_t __n) __THROW __nonnull ((1, 2));
 
----
-For more info write to <info@kernelci.org>
+We aren't going to do that in the kernel.  A second difference is that
+in the kernel we use -fno-delete-null-pointer-checks so it doesn't
+delete the NULL checks.
+
+regards,
+dan carpenter
+
