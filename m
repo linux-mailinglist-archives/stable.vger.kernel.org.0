@@ -2,264 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6209C2B6D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 02:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07E9C2B6F
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 02:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726425AbfJAAur convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 30 Sep 2019 20:50:47 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:52678 "EHLO mx1.redhat.com"
+        id S1726314AbfJAAxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Sep 2019 20:53:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726157AbfJAAur (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Sep 2019 20:50:47 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726106AbfJAAxh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Sep 2019 20:53:37 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 050CE18CB8EC
-        for <stable@vger.kernel.org>; Tue,  1 Oct 2019 00:50:47 +0000 (UTC)
-Received: from [172.54.18.13] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 688F06012A;
-        Tue,  1 Oct 2019 00:50:44 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 90C0120815;
+        Tue,  1 Oct 2019 00:53:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1569891217;
+        bh=77i6Dx2TQa6aIEbPIK9hT2kd3SmRZpilcJCRtAau8J0=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=YuI2cEsPCcELvZ8fXzwgkiXAy6TkHMnp5080OTTs0EZ4+VadiipO8WdbcYRUw/Vr4
+         qHGHcnlX0uFS4/ggTAnoit9Q15xR0BSCMryG38ETHCNb/HcTH78Mq5ArND3yaaoqeF
+         UTM/luVh+EuhPakfXo719EV52kELLT+yotP1Yugc=
+Subject: Re: [PATCH 5.2 00/45] 5.2.18-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20190929135024.387033930@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <df4d31b8-907d-1c69-78c5-c40092cf4654@kernel.org>
+Date:   Mon, 30 Sep 2019 18:53:35 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.0-228e44f.cki
- (stable-next)
-Message-ID: <cki.C779334AB2.5QEEI8AXZY@redhat.com>
-X-Gitlab-Pipeline-ID: 197637
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/197637
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.63]); Tue, 01 Oct 2019 00:50:47 +0000 (UTC)
-Date:   Mon, 30 Sep 2019 20:50:47 -0400
+In-Reply-To: <20190929135024.387033930@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 9/29/19 7:55 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.2.18 release.
+> There are 45 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Tue 01 Oct 2019 01:47:47 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.2.18-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.2.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Hello,
+Compiled and booted on my test system. No dmesg regressions.
 
-We ran automated tests on a recent commit from this kernel tree:
+thanks,
+-- Shuah
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
-            Commit: 228e44f00451 - fat: add nobarrier to workaround the strange behavior of device
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/197637
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-
-  x86_64:
-      Host 1:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ⚡⚡⚡ LTP lite
-         🚧 ⚡⚡⚡ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-      Host 3:
-         ✅ Boot test
-         🚧 ✅ IPMI driver test
-         🚧 ✅ IPMItool loop stress test
-
-      Host 4:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 5:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
