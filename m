@@ -2,96 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7159FC40D6
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 21:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05085C40F0
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 21:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726771AbfJATQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 15:16:30 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37703 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbfJATQa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 15:16:30 -0400
-Received: by mail-wr1-f68.google.com with SMTP id i1so16872721wro.4;
-        Tue, 01 Oct 2019 12:16:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=FltPPrn0RyJnptmNx0sxFImXuote0rVzpvmBZNIkzIk=;
-        b=N+wrM4aN61IeZLSaRbpcs2ekEhmW/HNKTl0eLR39O1818OCN/uvMoTJmuVZ3CCdcVo
-         zIDmnkV6/zzabMzJmOGFKuJ1vcbcitEH9w/Fw50RLcYEpM/tbKkWUOCYFrsM3Rux1P30
-         X/vpghWtYJV8ACYHnKA/yu223AMvSkiEf2QnMqZpfHPLyHom+Yfav9YrkVXLjv+PeA9F
-         JmXZjM3aaNJqXD0S5VPAFRuP6QYAtB41lQ0En9ZwiwcM811IEJyAtHo6HrF/Q6oAQXqS
-         feL/Tz/T7kyTB/2ZoSWhdbFlseoD/byboBq3y4zRx4AyO+pPgttHOPmIgcJTOsSfRfmq
-         dyIw==
-X-Gm-Message-State: APjAAAVlOgvb6RtIOfOosnt3OtyhBqGx0EDXCyWp+73uBdMkMEVwJ/vi
-        goixwhDngpk0gS/RZlThQ6s=
-X-Google-Smtp-Source: APXvYqwtq9OVu+i0azeVn4qOTObwJAZ150zoEL9CgLUhKYNQvdJH4iLNRbw4xX2CQvyebggTGD8G9g==
-X-Received: by 2002:a5d:670f:: with SMTP id o15mr13203989wru.242.1569957386592;
-        Tue, 01 Oct 2019 12:16:26 -0700 (PDT)
-Received: from kozik-lap ([194.230.155.145])
-        by smtp.googlemail.com with ESMTPSA id x2sm23725861wrn.81.2019.10.01.12.16.24
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 01 Oct 2019 12:16:25 -0700 (PDT)
-Date:   Tue, 1 Oct 2019 21:16:23 +0200
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-To:     Marek Szyprowski <m.szyprowski@samsung.com>
-Cc:     linux-samsung-soc@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: dts: exynos: Revert "Remove unneeded address
- space mapping for soc node"
-Message-ID: <20191001191623.GB30860@kozik-lap>
-References: <CGME20190912073608eucas1p1c2da86b1f85244a507b0f2ce96390ad3@eucas1p1.samsung.com>
- <20190912073602.22829-1-m.szyprowski@samsung.com>
+        id S1726911AbfJATUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 15:20:30 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:39431 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726010AbfJATU3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 15:20:29 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 3810E224EE;
+        Tue,  1 Oct 2019 15:20:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 01 Oct 2019 15:20:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=l6nNdZ
+        ZM24Pkw5iL71ChNSglh+qjzyYS8aiVukaF1ZA=; b=mCCrTUdtjhyHooEZ5NA9+E
+        MfhAbNdDWk/JKCYxsGN9nGYikFUMc7BvjOHfY6nHqnlfmu35zO02C7r+ndaIP38Z
+        7mvwpw2Nm6S7sKHP9zAyAoJi2tJH4B8SxcScGjt4OC1IomynUkuARx/GlI/oKAJA
+        /2jq8gnN6TBxLP2945qeZ+apMob6LOoAW8nk1PKpOE62Z73bu9BBQK3CyDqG6gpu
+        ZcaMU5Vu7g7cNMoIhkg2rVbqSP0rTtc+HCEmMXNv2rQWC6/P/8FE3UVta7mTeewo
+        77j+2Bq643NMiiIol5Ze27HiZdT89dVeisPv8dfrUbPNaLuQHC2r8rrSIxJtmjRA
+        ==
+X-ME-Sender: <xms:_KaTXVvIXdUxJQBoEYGy6K4iaXTuEbdQUt3R8CyPkhlzpwlKMVBb_Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeeggddufeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:_KaTXSeLHNHkZV1ACCpFgQsgRZkKgP2QeFXkdmVTsOmqIbobGsRQ8g>
+    <xmx:_KaTXX2AQcWqbIxJF4xcW-IMR7X-XRXSniqx6PJiRPTfc-31AUVEEQ>
+    <xmx:_KaTXd95ckoAQm0TOd1BDXh-QfaUgqEzB0x-4m8LMGEf97gn56wQTA>
+    <xmx:_aaTXS1SuOlLuxITzQxfLlv0rFNhCSX7j4mRGGCydF7QQBFUiOLCUQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CCA4B8006A;
+        Tue,  1 Oct 2019 15:20:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] scsi: implement .cleanup_rq callback" failed to apply to 5.3-stable tree
+To:     ming.lei@redhat.com, axboe@kernel.dk, bvanassche@acm.org,
+        emilne@redhat.com, hare@suse.com, hch@lst.de, snitzer@redhat.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 01 Oct 2019 21:14:42 +0200
+Message-ID: <1569957282145249@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20190912073602.22829-1-m.szyprowski@samsung.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 12, 2019 at 09:36:02AM +0200, Marek Szyprowski wrote:
-> Commit ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space
-> mapping for soc node") changed the address and size cells in root node from
-> 2 to 1, but /memory nodes for the affected boards were not updated. This
-> went unnoticed on Exynos5433-based TM2(e) boards, because they use u-boot,
-> which updates /memory node to the correct values. On the other hand, the
-> mentioned commit broke boot on Exynos7-based Espresso board, which
-> bootloader doesn't touch /memory node at all.
-> 
-> This patch reverts commit ef72171b3621, so Exynos5433 and Exynos7 SoCs
-> again matches other ARM64 platforms with 64bit mappings in root node.
-> 
-> Reported-by: Alim Akhtar <alim.akhtar@samsung.com>
-> Fixes: ef72171b3621 ("arm64: dts: exynos: Remove unneeded address space mapping for soc node")
-> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> Cc: <stable@vger.kernel.org>
-> Tested-by: Alim Akhtar <alim.akhtar@samsung.com>
-> ---
-> A few more comments:
-> 
-> 1. I've added 'tested-by' tag from Alim, as his original report pointed
-> that reverting the offending commit fixes the boot issue.
-> 
-> 2. This patch applies down to v4.18.
-> 
-> 3. For v5.3 release, two patches:
->    - "arm64: dts: exynos: Move GPU under /soc node for  Exynos5433"
->    - "arm64: dts: exynos: Move GPU under /soc node for Exynos7"
->    has to be applied first to ensure that GPU node will have correct 'reg'
->    property (nodes under /soc still use 32bit mappings). I'm not sure if
 
-Thanks, applied.
+The patch below does not apply to the 5.3-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I tried the cc-stable-with-prerequisites syntax. It looks like this:
-https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git/commit/?h=next/dt64&id=bed903167ae5b5532eda5d7db26de451bd232da5
+thanks,
 
-I hope it will work...
+greg k-h
 
-Best regards,
-Krzysztof
+------------------ original commit in Linus's tree ------------------
+
+From b7e9e1fb7a9227be34ad4a5e778022c3164494cf Mon Sep 17 00:00:00 2001
+From: Ming Lei <ming.lei@redhat.com>
+Date: Thu, 25 Jul 2019 10:05:00 +0800
+Subject: [PATCH] scsi: implement .cleanup_rq callback
+
+Implement .cleanup_rq() callback for freeing driver private part
+of the request. Then we can avoid to leak this part if the request isn't
+completed by SCSI, and freed by blk-mq or upper layer(such as dm-rq) finally.
+
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Mike Snitzer <snitzer@redhat.com>
+Cc: dm-devel@redhat.com
+Cc: <stable@vger.kernel.org>
+Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 11e64b50497f..4e88d7e9cf9a 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -1089,6 +1089,18 @@ static void scsi_initialize_rq(struct request *rq)
+ 	cmd->retries = 0;
+ }
+ 
++/*
++ * Only called when the request isn't completed by SCSI, and not freed by
++ * SCSI
++ */
++static void scsi_cleanup_rq(struct request *rq)
++{
++	if (rq->rq_flags & RQF_DONTPREP) {
++		scsi_mq_uninit_cmd(blk_mq_rq_to_pdu(rq));
++		rq->rq_flags &= ~RQF_DONTPREP;
++	}
++}
++
+ /* Add a command to the list used by the aacraid and dpt_i2o drivers */
+ void scsi_add_cmd_to_list(struct scsi_cmnd *cmd)
+ {
+@@ -1821,6 +1833,7 @@ static const struct blk_mq_ops scsi_mq_ops = {
+ 	.init_request	= scsi_mq_init_request,
+ 	.exit_request	= scsi_mq_exit_request,
+ 	.initialize_rq_fn = scsi_initialize_rq,
++	.cleanup_rq	= scsi_cleanup_rq,
+ 	.busy		= scsi_mq_lld_busy,
+ 	.map_queues	= scsi_map_queues,
+ };
 
