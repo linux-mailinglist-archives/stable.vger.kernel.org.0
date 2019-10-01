@@ -2,90 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 074E8C421F
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 22:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3BC4C425A
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 23:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726195AbfJAU5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 16:57:05 -0400
-Received: from mga12.intel.com ([192.55.52.136]:4377 "EHLO mga12.intel.com"
+        id S1726073AbfJAVNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 17:13:50 -0400
+Received: from mga09.intel.com ([134.134.136.24]:51794 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726073AbfJAU5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 16:57:05 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
+        id S1725941AbfJAVNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 17:13:50 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 01 Oct 2019 13:57:04 -0700
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 01 Oct 2019 14:13:49 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.64,572,1559545200"; 
-   d="scan'208";a="275120559"
-Received: from nbaca1-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.37.57])
-  by orsmga001.jf.intel.com with ESMTP; 01 Oct 2019 13:57:00 -0700
-Date:   Tue, 1 Oct 2019 23:56:58 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Pavel Machek <pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: Re: [PATCH 4.19 33/63] tpm: Fix TPM 1.2 Shutdown sequence to prevent
- future TPM operations
-Message-ID: <20191001205658.GE26709@linux.intel.com>
-References: <20190929135031.382429403@linuxfoundation.org>
- <20190929135038.128262622@linuxfoundation.org>
- <20190930061346.GA22914@atrey.karlin.mff.cuni.cz>
- <20190930125712.GS8171@sasha-vm>
+   d="scan'208";a="391339367"
+Received: from twinkler-lnx.jer.intel.com ([10.12.91.155])
+  by fmsmga005.fm.intel.com with ESMTP; 01 Oct 2019 14:13:47 -0700
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org,
+        Tomas Winkler <tomas.winkler@intel.com>, stable@vger.kernel.org
+Subject: [char-misc for 4.5-rc2 1/2] mei: me: add comet point (lake) LP device ids
+Date:   Wed,  2 Oct 2019 02:59:57 +0300
+Message-Id: <20191001235958.19979-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190930125712.GS8171@sasha-vm>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 08:57:12AM -0400, Sasha Levin wrote:
-> On Mon, Sep 30, 2019 at 08:13:46AM +0200, Pavel Machek wrote:
-> > > From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > > 
-> > > commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
-> > > 
-> > > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> > > future TPM operations. TPM 1.2 behavior was different, future TPM
-> > > operations weren't disabled, causing rare issues. This patch ensures
-> > > that future TPM operations are disabled.
-> > 
-> > > diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> > > index 46caadca916a0..dccc61af9ffab 100644
-> > > --- a/drivers/char/tpm/tpm-chip.c
-> > > +++ b/drivers/char/tpm/tpm-chip.c
-> > > @@ -187,12 +187,15 @@ static int tpm_class_shutdown(struct device *dev)
-> > >  {
-> > >  	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
-> > > 
-> > > +	down_write(&chip->ops_sem);
-> > >  	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
-> > >  		down_write(&chip->ops_sem);
-> > >  		tpm2_shutdown(chip, TPM2_SU_CLEAR);
-> > >  		chip->ops = NULL;
-> > >  		up_write(&chip->ops_sem);
-> > >  	}
-> > > +	chip->ops = NULL;
-> > > +	up_write(&chip->ops_sem);
-> > 
-> > This is wrong, it takes &chip->ops_sem twice, that can't be
-> > good. db4d8cb9c9f2af71c4d087817160d866ed572cc9 does not have that
-> > problem.
-> 
-> I agree. I've dropped it from 4.19 and 4.14.
-> 
-> Jarkko, can you take a look at this again please?
+Add Comet Point devices IDs for Comet Lake U platforms.
 
-Pavel, thank you for spotting that one, phew!
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+---
+ drivers/misc/mei/hw-me-regs.h | 3 +++
+ drivers/misc/mei/pci-me.c     | 3 +++
+ 2 files changed, 6 insertions(+)
 
-I'll do an update.
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index 77f7dff7098d..c09f8bb49495 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -79,6 +79,9 @@
+ #define MEI_DEV_ID_CNP_H      0xA360  /* Cannon Point H */
+ #define MEI_DEV_ID_CNP_H_4    0xA364  /* Cannon Point H 4 (iTouch) */
+ 
++#define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
++#define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
++
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 
+ #define MEI_DEV_ID_TGP_LP     0xA0E0  /* Tiger Lake Point LP */
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index d5a92c6eadb3..775a2090c2ac 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -96,6 +96,9 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H, MEI_ME_PCH12_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CNP_H_4, MEI_ME_PCH8_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
++
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_TGP_LP, MEI_ME_PCH12_CFG)},
+-- 
+2.21.0
 
-/Jarkko
