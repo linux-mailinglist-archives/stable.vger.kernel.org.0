@@ -2,87 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6718EC3ACB
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A29C3AAC
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728758AbfJAQj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728521AbfJAQj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:56 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E6C62190F;
-        Tue,  1 Oct 2019 16:39:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947996;
-        bh=sYY95Hr5Vx7uYLpkaAUKFT7rsKYr+ZKBrBYfbzCeno0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nNajo/9/AtRBIt5z2NxJmrX/Ot9ufPNXCJMndxQO8Y7YE0CSXEUOaGmqlaIlU0CP4
-         AWNFw0gd+iOyN/fmGe2DI/gjY4Dkj8kVGqqrdCjrySbr2q7UkbORa0FVGP9qXl9Aui
-         /B32Haas3/LSBF1wGnHyMIb7gmkXoMJ1xGKYl6aM=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 22/71] pNFS: Ensure we do clear the return-on-close layout stateid on fatal errors
-Date:   Tue,  1 Oct 2019 12:38:32 -0400
-Message-Id: <20191001163922.14735-22-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
-References: <20191001163922.14735-1-sashal@kernel.org>
+        id S1726691AbfJAQjL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:39:11 -0400
+Received: from mx2.suse.de ([195.135.220.15]:55574 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725747AbfJAQjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:11 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 07776B0C6;
+        Tue,  1 Oct 2019 16:39:10 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 5C4CDDA882; Tue,  1 Oct 2019 18:39:27 +0200 (CEST)
+Date:   Tue, 1 Oct 2019 18:39:27 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Josef Bacik <josef@toxicpanda.com>
+Cc:     linux-btrfs@vger.kernel.org, kernel-team@fb.com,
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>
+Subject: Re: [PATCH] btrfs: fix incorrect updating of log root tree
+Message-ID: <20191001163927.GD2751@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+Mail-Followup-To: dsterba@suse.cz, Josef Bacik <josef@toxicpanda.com>,
+        linux-btrfs@vger.kernel.org, kernel-team@fb.com,
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>
+References: <20190930202725.1317-1-josef@toxicpanda.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190930202725.1317-1-josef@toxicpanda.com>
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+On Mon, Sep 30, 2019 at 04:27:25PM -0400, Josef Bacik wrote:
+> We've historically had reports of being unable to mount file systems
+> because the tree log root couldn't be read.  Usually this is the "parent
+> transid failure", but could be any of the related errors, including
+> "fsid mismatch" or "bad tree block", depending on which block got
+> allocated.
+> 
+> The modification of the individual log root items are serialized on the
+> per-log root root_mutex.  This means that any modification to the
+> per-subvol log root_item is completely protected.
+> 
+> However we update the root item in the log root tree outside of the log
+> root tree log_mutex.  We do this in order to allow multiple subvolumes
+> to be updated in each log transaction.
+> 
+> This is problematic however because when we are writing the log root
+> tree out we update the super block with the _current_ log root node
+> information.  Since these two operations happen independently of each
+> other, you can end up updating the log root tree in between writing out
+> the dirty blocks and setting the super block to point at the current
+> root.
+> 
+> This means we'll point at the new root node that hasn't been written
+> out, instead of the one we should be pointing at.  Thus whatever garbage
+> or old block we end up pointing at complains when we mount the file
+> system later and try to replay the log.
+> 
+> Fix this by copying the log's root item into a local root item copy.
+> Then once we're safely under the log_root_tree->log_mutex we update the
+> root item in the log_root_tree.  This way we do not modify the
+> log_root_tree while we're committing it, fixing the problem.
+> 
+> cc: stable@vger.kernel.org
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> Reviewed-by: Chris Mason <clm@fb.com>
 
-[ Upstream commit 9c47b18cf722184f32148784189fca945a7d0561 ]
-
-IF the server rejected our layout return with a state error such as
-NFS4ERR_BAD_STATEID, or even a stale inode error, then we do want
-to clear out all the remaining layout segments and mark that stateid
-as invalid.
-
-Fixes: 1c5bd76d17cca ("pNFS: Enable layoutreturn operation for...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/nfs/pnfs.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 4525d5acae386..0418b198edd3e 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1449,10 +1449,15 @@ void pnfs_roc_release(struct nfs4_layoutreturn_args *args,
- 	const nfs4_stateid *res_stateid = NULL;
- 	struct nfs4_xdr_opaque_data *ld_private = args->ld_private;
- 
--	if (ret == 0) {
--		arg_stateid = &args->stateid;
-+	switch (ret) {
-+	case -NFS4ERR_NOMATCHING_LAYOUT:
-+		break;
-+	case 0:
- 		if (res->lrs_present)
- 			res_stateid = &res->stateid;
-+		/* Fallthrough */
-+	default:
-+		arg_stateid = &args->stateid;
- 	}
- 	pnfs_layoutreturn_free_lsegs(lo, arg_stateid, &args->range,
- 			res_stateid);
--- 
-2.20.1
-
+Added to 5.4 queue, thanks.
