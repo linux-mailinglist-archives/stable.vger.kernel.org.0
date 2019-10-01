@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9526C3D72
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE0CC3D66
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:59:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727477AbfJAQ74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
+        id S1730629AbfJAQlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:41:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730545AbfJAQlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:41:05 -0400
+        id S1730601AbfJAQlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:41:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FECF2168B;
-        Tue,  1 Oct 2019 16:41:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99A0421872;
+        Tue,  1 Oct 2019 16:41:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948064;
-        bh=lg4NZhD6aEiaPEorh6MHcLCVlbXhvN9IA9cMZA+xJcI=;
+        s=default; t=1569948065;
+        bh=+/GPWSjFANCOmijUlq3Ycvx8UhI7FFqWIqqYSVoJUU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5W2Jz99PPkHkl2IGDR0cf/R/2mwrc+Q9IIbfQ6SI0KDuLJBoz2VjYLWO0fUkSvzb
-         a5p5F7ODZAZ4MVAqFzhBov+MPiOsceOdvncLcYDOHmkGZVZ7rUEJxPvNq46dMfvzEz
-         6mbezP+KGxtSyBlbxxX/Bwk02fE3K25YCBV3i5EA=
+        b=CtONktcpgG7bHkRp8X8RUnfTlA9s6m3vgxNBnCLrO3JhcpZrELxsOOn1KRZu6QATW
+         dewQzkPFP8ingcCIVITfjLXcXdgNE+CCcujQP8KHeBankE5hQGhaLxUCEMbigTDuhv
+         ht/CaBpBGHGj4Sn7Jjk3sLQ5WH854GjSEirMnxHE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
+Cc:     Hans Andersson <hans.andersson@cellavision.se>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 61/71] net: stmmac: Fix page pool size
-Date:   Tue,  1 Oct 2019 12:39:11 -0400
-Message-Id: <20191001163922.14735-61-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 62/71] net: phy: micrel: add Asym Pause workaround for KSZ9021
+Date:   Tue,  1 Oct 2019 12:39:12 -0400
+Message-Id: <20191001163922.14735-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -43,48 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Hans Andersson <hans.andersson@cellavision.se>
 
-[ Upstream commit 4f28bd956e081fc018fe9b41ffa31573f17bfb61 ]
+[ Upstream commit 407d8098cb1ab338199f4753162799a488d87d23 ]
 
-The size of individual pages in the page pool in given by an order. The
-order is the binary logarithm of the number of pages that make up one of
-the pages in the pool. However, the driver currently passes the number
-of pages rather than the order, so it ends up wasting quite a bit of
-memory.
+The Micrel KSZ9031 PHY may fail to establish a link when the Asymmetric
+Pause capability is set. This issue is described in a Silicon Errata
+(DS80000691D or DS80000692D), which advises to always disable the
+capability.
 
-Fix this by taking the binary logarithm and passing that in the order
-field.
+Micrel KSZ9021 has no errata, but has the same issue with Asymmetric Pause.
+This patch apply the same workaround as the one for KSZ9031.
 
-Fixes: 2af6106ae949 ("net: stmmac: Introducing support for Page Pool")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: 3aed3e2a143c ("net: phy: micrel: add Asym Pause workaround")
+Signed-off-by: Hans Andersson <hans.andersson@cellavision.se>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/phy/micrel.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index b19ab09cb18f7..5c4408bdc843a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1532,13 +1532,15 @@ static int alloc_dma_rx_desc_resources(struct stmmac_priv *priv)
- 	for (queue = 0; queue < rx_count; queue++) {
- 		struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
- 		struct page_pool_params pp_params = { 0 };
-+		unsigned int num_pages;
- 
- 		rx_q->queue_index = queue;
- 		rx_q->priv_data = priv;
- 
- 		pp_params.flags = PP_FLAG_DMA_MAP;
- 		pp_params.pool_size = DMA_RX_SIZE;
--		pp_params.order = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
-+		num_pages = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
-+		pp_params.order = ilog2(num_pages);
- 		pp_params.nid = dev_to_node(priv->device);
- 		pp_params.dev = priv->device;
- 		pp_params.dma_dir = DMA_FROM_DEVICE;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 3c8186f269f9e..2fea5541c35a8 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -763,6 +763,8 @@ static int ksz9031_get_features(struct phy_device *phydev)
+ 	 * Whenever the device's Asymmetric Pause capability is set to 1,
+ 	 * link-up may fail after a link-up to link-down transition.
+ 	 *
++	 * The Errata Sheet is for ksz9031, but ksz9021 has the same issue
++	 *
+ 	 * Workaround:
+ 	 * Do not enable the Asymmetric Pause capability bit.
+ 	 */
+@@ -1076,6 +1078,7 @@ static struct phy_driver ksphy_driver[] = {
+ 	/* PHY_GBIT_FEATURES */
+ 	.driver_data	= &ksz9021_type,
+ 	.probe		= kszphy_probe,
++	.get_features	= ksz9031_get_features,
+ 	.config_init	= ksz9021_config_init,
+ 	.ack_interrupt	= kszphy_ack_interrupt,
+ 	.config_intr	= kszphy_config_intr,
 -- 
 2.20.1
 
