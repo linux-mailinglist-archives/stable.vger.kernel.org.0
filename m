@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7597C3BA6
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9526C3D72
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390441AbfJAQpz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:45:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
+        id S1727477AbfJAQ74 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:59:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390427AbfJAQpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:45:54 -0400
+        id S1730545AbfJAQlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:41:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C65082190F;
-        Tue,  1 Oct 2019 16:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FECF2168B;
+        Tue,  1 Oct 2019 16:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948353;
-        bh=lM3s+irMFNzqa9XyylWt6mj++/lJaQnnIA+xn6KRqk0=;
+        s=default; t=1569948064;
+        bh=lg4NZhD6aEiaPEorh6MHcLCVlbXhvN9IA9cMZA+xJcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jsc5DPKpe/5rMefHH48hNGk9gi1L++/Ta3q5hUBjl4CC47Y5yGUGtWCPdh4Nyr770
-         T2+mkywv13XCBNti2eegdKFUi0fbiOT1RYXIVMuVTn85L+lgNvbKYTYV7/1Se3UrWM
-         FKSwzEfT5LZADIdOBLYng8QduYIclfPzdovBvY9k=
+        b=W5W2Jz99PPkHkl2IGDR0cf/R/2mwrc+Q9IIbfQ6SI0KDuLJBoz2VjYLWO0fUkSvzb
+         a5p5F7ODZAZ4MVAqFzhBov+MPiOsceOdvncLcYDOHmkGZVZ7rUEJxPvNq46dMfvzEz
+         6mbezP+KGxtSyBlbxxX/Bwk02fE3K25YCBV3i5EA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+Cc:     Thierry Reding <treding@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 15/15] sch_netem: fix a divide by zero in tabledist()
-Date:   Tue,  1 Oct 2019 12:45:33 -0400
-Message-Id: <20191001164533.16915-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 61/71] net: stmmac: Fix page pool size
+Date:   Tue,  1 Oct 2019 12:39:11 -0400
+Message-Id: <20191001163922.14735-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001164533.16915-1-sashal@kernel.org>
-References: <20191001164533.16915-1-sashal@kernel.org>
+In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
+References: <20191001163922.14735-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,39 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit b41d936b5ecfdb3a4abc525ce6402a6c49cffddc ]
+[ Upstream commit 4f28bd956e081fc018fe9b41ffa31573f17bfb61 ]
 
-syzbot managed to crash the kernel in tabledist() loading
-an empty distribution table.
+The size of individual pages in the page pool in given by an order. The
+order is the binary logarithm of the number of pages that make up one of
+the pages in the pool. However, the driver currently passes the number
+of pages rather than the order, so it ends up wasting quite a bit of
+memory.
 
-	t = dist->table[rnd % dist->size];
+Fix this by taking the binary logarithm and passing that in the order
+field.
 
-Simply return an error when such load is attempted.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: 2af6106ae949 ("net: stmmac: Introducing support for Page Pool")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_netem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
-index 7acf1f2b8dfc3..2a431628af591 100644
---- a/net/sched/sch_netem.c
-+++ b/net/sched/sch_netem.c
-@@ -713,7 +713,7 @@ static int get_dist_table(struct Qdisc *sch, const struct nlattr *attr)
- 	int i;
- 	size_t s;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index b19ab09cb18f7..5c4408bdc843a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1532,13 +1532,15 @@ static int alloc_dma_rx_desc_resources(struct stmmac_priv *priv)
+ 	for (queue = 0; queue < rx_count; queue++) {
+ 		struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
+ 		struct page_pool_params pp_params = { 0 };
++		unsigned int num_pages;
  
--	if (n > NETEM_DIST_MAX)
-+	if (!n || n > NETEM_DIST_MAX)
- 		return -EINVAL;
+ 		rx_q->queue_index = queue;
+ 		rx_q->priv_data = priv;
  
- 	s = sizeof(struct disttable) + n * sizeof(s16);
+ 		pp_params.flags = PP_FLAG_DMA_MAP;
+ 		pp_params.pool_size = DMA_RX_SIZE;
+-		pp_params.order = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
++		num_pages = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
++		pp_params.order = ilog2(num_pages);
+ 		pp_params.nid = dev_to_node(priv->device);
+ 		pp_params.dev = priv->device;
+ 		pp_params.dma_dir = DMA_FROM_DEVICE;
 -- 
 2.20.1
 
