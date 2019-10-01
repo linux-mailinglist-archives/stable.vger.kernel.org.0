@@ -2,92 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6CEC3985
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 17:52:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC278C39B7
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727268AbfJAPwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 11:52:07 -0400
-Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:32852 "EHLO
-        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727147AbfJAPwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 11:52:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1569945126; x=1601481126;
-  h=from:to:cc:subject:date:message-id:mime-version;
-  bh=nLVYk2yIxDtYBWgS2GCvSmYfxdD9HmyEs1OoB1XIuSk=;
-  b=k/Cn5wxTcmfZYVxNfhQ1iXGTKcTkkESZAyiFKizGYHTGRQheJTNtih5K
-   oPyqHAPYq8nz60gufeIItGQfCl6geAhxfDhRiixplmKDRvuNgaCPS8oq4
-   yYYCIwQV+kR0jqlwgXuHiD/b/abSDGsEgYHLG/IGa33nLl9zdtMA+49Fv
-   o=;
-X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
-   d="scan'208";a="754678097"
-Received: from iad6-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com) ([10.124.125.2])
-  by smtp-border-fw-out-2101.iad2.amazon.com with ESMTP; 01 Oct 2019 15:52:01 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (pdx4-ws-svc-p6-lb7-vlan2.pdx.amazon.com [10.170.41.162])
-        by email-inbound-relay-2b-c7131dcf.us-west-2.amazon.com (Postfix) with ESMTPS id 9BA53A22D5;
-        Tue,  1 Oct 2019 15:52:00 +0000 (UTC)
-Received: from EX13D02UWC001.ant.amazon.com (10.43.162.243) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 1 Oct 2019 15:52:00 +0000
-Received: from EX13MTAUWA001.ant.amazon.com (10.43.160.58) by
- EX13D02UWC001.ant.amazon.com (10.43.162.243) with Microsoft SMTP Server (TLS)
- id 15.0.1367.3; Tue, 1 Oct 2019 15:51:59 +0000
-Received: from 8c859006a84e.ant.amazon.com (172.26.203.30) by
- mail-relay.amazon.com (10.43.160.118) with Microsoft SMTP Server id
- 15.0.1367.3 via Frontend Transport; Tue, 1 Oct 2019 15:51:58 +0000
-From:   Patrick Williams <alpawi@amazon.com>
-CC:     Patrick Williams <alpawi@amazon.com>,
-        Patrick Williams <patrick@stwcx.xyz>, <stable@vger.kernel.org>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-gpio@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pinctrl: armada-37xx: swap polarity on LED group
-Date:   Tue, 1 Oct 2019 10:51:38 -0500
-Message-ID: <20191001155154.99710-1-alpawi@amazon.com>
-X-Mailer: git-send-email 2.17.2 (Apple Git-113)
+        id S1727398AbfJAQA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:00:26 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:43183 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726050AbfJAQAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 12:00:25 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-164--oUOnduMO7u6T_CwoD2SuA-1; Tue, 01 Oct 2019 17:00:21 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Tue, 1 Oct 2019 17:00:21 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 1 Oct 2019 17:00:21 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     "'efremov@linux.com'" <efremov@linux.com>,
+        'Dan Carpenter' <dan.carpenter@oracle.com>
+CC:     "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        Jes Sorensen <jes.sorensen@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>
+Subject: RE: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Topic: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Index: AQHVd36LU5ikVLKK6EuvH5wLNYQtMKdEMyLwgAGeKE+AAAh2kP///AWAgAAc6lA=
+Date:   Tue, 1 Oct 2019 16:00:20 +0000
+Message-ID: <35c2d89987854fb8a42f04dc28ad4bc9@AcuMS.aculab.com>
+References: <20190930110141.29271-1-efremov@linux.com>
+ <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
+ <e4051dcb-10dc-ff17-ec0b-6f51dccdb5bf@linux.com>
+ <20191001135649.GH22609@kadam>
+ <8d2e8196cae74ec4ae20e9c23e898207@AcuMS.aculab.com>
+ <a7c002f7-c6f2-a9ed-0100-acfbafea65c5@linux.com>
+In-Reply-To: <a7c002f7-c6f2-a9ed-0100-acfbafea65c5@linux.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
-To:     unlisted-recipients:; (no To-header on input)
+X-MC-Unique: -oUOnduMO7u6T_CwoD2SuA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The configuration registers for the LED group have inverted
-polarity, which puts the GPIO into open-drain state when used in
-GPIO mode.  Switch to '0' for GPIO and '1' for LED modes.
-
-Fixes: 87466ccd9401 ("pinctrl: armada-37xx: Add pin controller support for Armada 37xx")
-Signed-off-by: Patrick Williams <alpawi@amazon.com>
-Cc: <stable@vger.kernel.org>
----
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 6462d3ca7ceb..6310963ce5f0 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -183,10 +183,10 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
- 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
- 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
- 		      18, 2, "gpio", "uart"),
--	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
--	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
--	PIN_GRP_GPIO("led2_od", 13, 1, BIT(22), "led"),
--	PIN_GRP_GPIO("led3_od", 14, 1, BIT(23), "led"),
-+	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
-+	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
-+	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
-+	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
- 
- };
- 
--- 
-2.17.2 (Apple Git-113)
+RnJvbTogRGVuaXMgRWZyZW1vdg0KPiBTZW50OiAwMSBPY3RvYmVyIDIwMTkgMTY6MTMNCi4uLg0K
+PiBKdXN0IGZvdW5kIGFuIG9mZmljaWFsIGRvY3VtZW50YXRpb24gdG8gdGhpcyBpc3N1ZToNCj4g
+aHR0cHM6Ly9nY2MuZ251Lm9yZy9nY2MtNC45L3BvcnRpbmdfdG8uaHRtbA0KPiAiTnVsbCBwb2lu
+dGVyIGNoZWNrcyBtYXkgYmUgb3B0aW1pemVkIGF3YXkgbW9yZSBhZ2dyZXNzaXZlbHkNCj4gLi4u
+DQo+IFRoZSBwb2ludGVycyBwYXNzZWQgdG8gbWVtbW92ZSAoYW5kIHNpbWlsYXIgZnVuY3Rpb25z
+IGluIDxzdHJpbmcuaD4pIG11c3QgYmUgbm9uLW51bGwNCj4gZXZlbiB3aGVuIG5ieXRlcz09MCwg
+c28gR0NDIGNhbiB1c2UgdGhhdCBpbmZvcm1hdGlvbiB0byByZW1vdmUgdGhlIGNoZWNrIGFmdGVy
+IHRoZQ0KPiBtZW1tb3ZlIGNhbGwuIENhbGxpbmcgY29weShwLCBOVUxMLCAwKSBjYW4gdGhlcmVm
+b3JlIGRlZmVyZW5jZSBhIG51bGwgcG9pbnRlciBhbmQgY3Jhc2guIg0KDQpSaWdodCwgc28ganVz
+dCBkb24ndCBjb2RlIGEgTlVMTCBwb2ludGVyIHRlc3QgYWZ0ZXIgYSBtZW1jcHkoKSBjYWxsLg0K
+VGhlcmUgaXMgbm8gbmVlZCB0byBhdm9pZCB0aGUgY2FsbCBpdHNlbGYuDQoNCj4gQnV0IGFnYWlu
+LCBJIHdvdWxkIHNheSB0aGF0IHRoZSBidWcgaW4gdGhpcyBjb2RlIGlzIGJlY2F1c2UgdGhlIGlm
+IGNvbmRpdGlvbiB3YXMgY29weS1wYXN0ZWQNCj4gYW5kIGl0IHNob3VsZCBiZSBpbnZlcnRlZC4N
+Cg0KT2gsIHRoZSBjb2RlIGlzIHF1ZXN0aW9uIGlzIGp1c3Qgc3R1cGlkbHkgYmFkLg0KSXQgc2Vl
+bWVkIHRvIGRvOg0KCWlmIChhKQ0KCQl4Ow0KCWVsc2UgaWYgKCFhKQ0KCQl5Ow0KCWVsc2UNCgkJ
+ZXJyb3IgKCJhbGwgYm9ya2VkIikNCg0KSWYgdGhlIHdob2xlIGRyaXZlciBpcyB3cml0dGVuIGxp
+a2UgdGhhdCBpdCBuZWVkcyBmaXhpbmcgYmVmb3JlIGFueW9uZSB0YWtlcyBhIHNlcmlvdXMgbG9v
+ayBhdCBpdC4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJh
+bWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0
+cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
 
