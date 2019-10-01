@@ -2,262 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD2E3C4200
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 22:52:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0A5C4219
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 22:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbfJAUwJ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 1 Oct 2019 16:52:09 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55232 "EHLO mx1.redhat.com"
+        id S1726242AbfJAUyv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 16:54:51 -0400
+Received: from mga17.intel.com ([192.55.52.151]:14871 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727436AbfJAUwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 16:52:09 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CB1512540
-        for <stable@vger.kernel.org>; Tue,  1 Oct 2019 20:52:08 +0000 (UTC)
-Received: from [172.54.27.244] (cpt-1007.paas.prod.upshift.rdu2.redhat.com [10.0.19.29])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6E5EB5D6D0;
-        Tue,  1 Oct 2019 20:52:03 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726195AbfJAUyv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 16:54:51 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 01 Oct 2019 13:54:50 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,571,1559545200"; 
+   d="scan'208";a="275119848"
+Received: from nbaca1-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.37.57])
+  by orsmga001.jf.intel.com with ESMTP; 01 Oct 2019 13:54:46 -0700
+Date:   Tue, 1 Oct 2019 23:54:45 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191001205445.GC26709@linux.intel.com>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+ <20190928180559.jivt5zlisr43fnva@cantor>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.3-9c30694.cki
- (stable)
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.ECF89BD220.LKQR1ETI6V@redhat.com>
-X-Gitlab-Pipeline-ID: 199450
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/199450
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.71]); Tue, 01 Oct 2019 20:52:08 +0000 (UTC)
-Date:   Tue, 1 Oct 2019 16:52:09 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190928180559.jivt5zlisr43fnva@cantor>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Sep 28, 2019 at 11:05:59AM -0700, Jerry Snitselaar wrote:
+> On Thu Sep 26 19, Jarkko Sakkinen wrote:
+> > Only the kernel random pool should be used for generating random numbers.
+> > TPM contributes to that pool among the other sources of entropy. In here it
+> > is not, agreed, absolutely critical because TPM is what is trusted anyway
+> > but in order to remove tpm_get_random() we need to first remove all the > > call sites.  > > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 0c36264aa1d5 ("KEYS: asym_tpm: Add loadkey2 and flushspecific [ver #2]")
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > ---
+> > crypto/asymmetric_keys/asym_tpm.c | 7 ++-----
+> > 1 file changed, 2 insertions(+), 5 deletions(-)
+> > 
+> > diff --git a/crypto/asymmetric_keys/asym_tpm.c b/crypto/asymmetric_keys/asym_tpm.c
+> > index 76d2ce3a1b5b..c14b8d186e93 100644
+> > --- a/crypto/asymmetric_keys/asym_tpm.c
+> > +++ b/crypto/asymmetric_keys/asym_tpm.c
+> > @@ -6,6 +6,7 @@
+> > #include <linux/kernel.h>
+> > #include <linux/seq_file.h>
+> > #include <linux/scatterlist.h>
+> > +#include <linux/random.h>
+> > #include <linux/tpm.h>
+> > #include <linux/tpm_command.h>
+> > #include <crypto/akcipher.h>
+> > @@ -54,11 +55,7 @@ static int tpm_loadkey2(struct tpm_buf *tb,
+> > 	}
+> > 
+> > 	/* generate odd nonce */
+> > -	ret = tpm_get_random(NULL, nonceodd, TPM_NONCE_SIZE);
+> > -	if (ret < 0) {
+> > -		pr_info("tpm_get_random failed (%d)\n", ret);
+> > -		return ret;
+> > -	}
+> > +	get_random_bytes(nonceodd, TPM_NONCE_SIZE);
+> > 
+> > 	/* calculate authorization HMAC value */
+> > 	ret = TSS_authhmac(authdata, keyauth, SHA1_DIGEST_SIZE, enonce,
+> > -- 
+> > 2.20.1
+> > 
+> 
+> Should tpm_unbind and tpm_sign in asym_tpm.c be switched as well then?
 
-Hello,
+Without doubt. Thanks. I'll send an update soon.
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 9c30694424ee - Linux 5.3.2
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/199450
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ❌ LTP lite
-         🚧 ⚡⚡⚡ CIFS Connectathon
-         🚧 ⚡⚡⚡ POSIX pjd-fstest suites
-         🚧 ⚡⚡⚡ Memory function: kaslr
-         🚧 ⚡⚡⚡ Networking bridge: sanity
-         🚧 ⚡⚡⚡ Networking MACsec: sanity
-         🚧 ⚡⚡⚡ Networking route: pmtu
-         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
-         🚧 ⚡⚡⚡ L2TP basic test
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
-         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
-         🚧 ⚡⚡⚡ ALSA PCM loopback test
-         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
-         🚧 ⚡⚡⚡ trace: ftrace/tracer
-         🚧 ⚡⚡⚡ Networking route_func: local
-         🚧 ⚡⚡⚡ Networking route_func: forward
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-      Host 2:
-         ✅ Boot test
-         🚧 ✅ IPMI driver test
-         🚧 ✅ IPMItool loop stress test
-
-      Host 3:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 4:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 5:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+/Jarkko
