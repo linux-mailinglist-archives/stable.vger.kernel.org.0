@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44097C3C76
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D7DC3C75
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:52:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733032AbfJAQns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:43:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55930 "EHLO mail.kernel.org"
+        id S1733070AbfJAQnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:43:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732996AbfJAQnr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:43:47 -0400
+        id S1733042AbfJAQnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:43:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9CBE21855;
-        Tue,  1 Oct 2019 16:43:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F286D2168B;
+        Tue,  1 Oct 2019 16:43:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948226;
-        bh=Gi9OCBf2zp9pYAtNqckJKhGKm64nq0WQybonBSa/r+s=;
+        s=default; t=1569948228;
+        bh=LbY8e0Zc9YsjxIv7bUW/Y9HmfDl94YIC5UR7YxW2k2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QQtM6/Jwe5G+H7/v3KbA9JuB8k2fInOnphmdBrzQymJQlyRyVicWGzfrGSFHaGlph
-         sTgY5sfE8kVwQxgUPDihNqeP4tc6na+VzCEUrX/Q48L50rlcGsRTii13zj9mV9FPK+
-         kt86EJSJbucBqhFBeBIJ8fbC7ElCNxsv0LDMbCjo=
+        b=O/f4SHDO9O3hgX56aH9ZxlEdqs8EjPGCtRp0Zji+Sgo4WYnEaAorsWjCdQBQgdDAq
+         Yf/JVESyriwpoAYSFPOYs/D4GMSw3NPkfqvcTk+c9pzg/XYEIEryOwdcDv9AtZ/IDF
+         ZHsLY83IKcdu2mD9Cc9ig5mvUvCk7c+DriuZUWSw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/43] thermal: Fix use-after-free when unregistering thermal zone device
-Date:   Tue,  1 Oct 2019 12:42:52 -0400
-Message-Id: <20191001164311.15993-24-sashal@kernel.org>
+Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 4.19 26/43] libnvdimm/region: Initialize bad block for volatile namespaces
+Date:   Tue,  1 Oct 2019 12:42:54 -0400
+Message-Id: <20191001164311.15993-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164311.15993-1-sashal@kernel.org>
 References: <20191001164311.15993-1-sashal@kernel.org>
@@ -43,132 +43,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 1851799e1d2978f68eea5d9dff322e121dcf59c1 ]
+[ Upstream commit c42adf87e4e7ed77f6ffe288dc90f980d07d68df ]
 
-thermal_zone_device_unregister() cancels the delayed work that polls the
-thermal zone, but it does not wait for it to finish. This is racy with
-respect to the freeing of the thermal zone device, which can result in a
-use-after-free [1].
+We do check for a bad block during namespace init and that use
+region bad block list. We need to initialize the bad block
+for volatile regions for this to work. We also observe a lockdep
+warning as below because the lock is not initialized correctly
+since we skip bad block init for volatile regions.
 
-Fix this by waiting for the delayed work to finish before freeing the
-thermal zone device. Note that thermal_zone_device_set_polling() is
-never invoked from an atomic context, so it is safe to call
-cancel_delayed_work_sync() that can block.
+ INFO: trying to register non-static key.
+ the code is fine but needs lockdep annotation.
+ turning off the locking correctness validator.
+ CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc1-15699-g3dee241c937e #149
+ Call Trace:
+ [c0000000f95cb250] [c00000000147dd84] dump_stack+0xe8/0x164 (unreliable)
+ [c0000000f95cb2a0] [c00000000022ccd8] register_lock_class+0x308/0xa60
+ [c0000000f95cb3a0] [c000000000229cc0] __lock_acquire+0x170/0x1ff0
+ [c0000000f95cb4c0] [c00000000022c740] lock_acquire+0x220/0x270
+ [c0000000f95cb580] [c000000000a93230] badblocks_check+0xc0/0x290
+ [c0000000f95cb5f0] [c000000000d97540] nd_pfn_validate+0x5c0/0x7f0
+ [c0000000f95cb6d0] [c000000000d98300] nd_dax_probe+0xd0/0x1f0
+ [c0000000f95cb760] [c000000000d9b66c] nd_pmem_probe+0x10c/0x160
+ [c0000000f95cb790] [c000000000d7f5ec] nvdimm_bus_probe+0x10c/0x240
+ [c0000000f95cb820] [c000000000d0f844] really_probe+0x254/0x4e0
+ [c0000000f95cb8b0] [c000000000d0fdfc] driver_probe_device+0x16c/0x1e0
+ [c0000000f95cb930] [c000000000d10238] device_driver_attach+0x68/0xa0
+ [c0000000f95cb970] [c000000000d1040c] __driver_attach+0x19c/0x1c0
+ [c0000000f95cb9f0] [c000000000d0c4c4] bus_for_each_dev+0x94/0x130
+ [c0000000f95cba50] [c000000000d0f014] driver_attach+0x34/0x50
+ [c0000000f95cba70] [c000000000d0e208] bus_add_driver+0x178/0x2f0
+ [c0000000f95cbb00] [c000000000d117c8] driver_register+0x108/0x170
+ [c0000000f95cbb70] [c000000000d7edb0] __nd_driver_register+0xe0/0x100
+ [c0000000f95cbbd0] [c000000001a6baa4] nd_pmem_driver_init+0x34/0x48
+ [c0000000f95cbbf0] [c0000000000106f4] do_one_initcall+0x1d4/0x4b0
+ [c0000000f95cbcd0] [c0000000019f499c] kernel_init_freeable+0x544/0x65c
+ [c0000000f95cbdb0] [c000000000010d6c] kernel_init+0x2c/0x180
+ [c0000000f95cbe20] [c00000000000b954] ret_from_kernel_thread+0x5c/0x68
 
-[1]
-[  +0.002221] ==================================================================
-[  +0.000064] BUG: KASAN: use-after-free in __mutex_lock+0x1076/0x11c0
-[  +0.000016] Read of size 8 at addr ffff8881e48e0450 by task kworker/1:0/17
-
-[  +0.000023] CPU: 1 PID: 17 Comm: kworker/1:0 Not tainted 5.2.0-rc6-custom-02495-g8e73ca3be4af #1701
-[  +0.000010] Hardware name: Mellanox Technologies Ltd. MSN2100-CB2FO/SA001017, BIOS 5.6.5 06/07/2016
-[  +0.000016] Workqueue: events_freezable_power_ thermal_zone_device_check
-[  +0.000012] Call Trace:
-[  +0.000021]  dump_stack+0xa9/0x10e
-[  +0.000020]  print_address_description.cold.2+0x9/0x25e
-[  +0.000018]  __kasan_report.cold.3+0x78/0x9d
-[  +0.000016]  kasan_report+0xe/0x20
-[  +0.000016]  __mutex_lock+0x1076/0x11c0
-[  +0.000014]  step_wise_throttle+0x72/0x150
-[  +0.000018]  handle_thermal_trip+0x167/0x760
-[  +0.000019]  thermal_zone_device_update+0x19e/0x5f0
-[  +0.000019]  process_one_work+0x969/0x16f0
-[  +0.000017]  worker_thread+0x91/0xc40
-[  +0.000014]  kthread+0x33d/0x400
-[  +0.000015]  ret_from_fork+0x3a/0x50
-
-[  +0.000020] Allocated by task 1:
-[  +0.000015]  save_stack+0x19/0x80
-[  +0.000015]  __kasan_kmalloc.constprop.4+0xc1/0xd0
-[  +0.000014]  kmem_cache_alloc_trace+0x152/0x320
-[  +0.000015]  thermal_zone_device_register+0x1b4/0x13a0
-[  +0.000015]  mlxsw_thermal_init+0xc92/0x23d0
-[  +0.000014]  __mlxsw_core_bus_device_register+0x659/0x11b0
-[  +0.000013]  mlxsw_core_bus_device_register+0x3d/0x90
-[  +0.000013]  mlxsw_pci_probe+0x355/0x4b0
-[  +0.000014]  local_pci_probe+0xc3/0x150
-[  +0.000013]  pci_device_probe+0x280/0x410
-[  +0.000013]  really_probe+0x26a/0xbb0
-[  +0.000013]  driver_probe_device+0x208/0x2e0
-[  +0.000013]  device_driver_attach+0xfe/0x140
-[  +0.000013]  __driver_attach+0x110/0x310
-[  +0.000013]  bus_for_each_dev+0x14b/0x1d0
-[  +0.000013]  driver_register+0x1c0/0x400
-[  +0.000015]  mlxsw_sp_module_init+0x5d/0xd3
-[  +0.000014]  do_one_initcall+0x239/0x4dd
-[  +0.000013]  kernel_init_freeable+0x42b/0x4e8
-[  +0.000012]  kernel_init+0x11/0x18b
-[  +0.000013]  ret_from_fork+0x3a/0x50
-
-[  +0.000015] Freed by task 581:
-[  +0.000013]  save_stack+0x19/0x80
-[  +0.000014]  __kasan_slab_free+0x125/0x170
-[  +0.000013]  kfree+0xf3/0x310
-[  +0.000013]  thermal_release+0xc7/0xf0
-[  +0.000014]  device_release+0x77/0x200
-[  +0.000014]  kobject_put+0x1a8/0x4c0
-[  +0.000014]  device_unregister+0x38/0xc0
-[  +0.000014]  thermal_zone_device_unregister+0x54e/0x6a0
-[  +0.000014]  mlxsw_thermal_fini+0x184/0x35a
-[  +0.000014]  mlxsw_core_bus_device_unregister+0x10a/0x640
-[  +0.000013]  mlxsw_devlink_core_bus_device_reload+0x92/0x210
-[  +0.000015]  devlink_nl_cmd_reload+0x113/0x1f0
-[  +0.000014]  genl_family_rcv_msg+0x700/0xee0
-[  +0.000013]  genl_rcv_msg+0xca/0x170
-[  +0.000013]  netlink_rcv_skb+0x137/0x3a0
-[  +0.000012]  genl_rcv+0x29/0x40
-[  +0.000013]  netlink_unicast+0x49b/0x660
-[  +0.000013]  netlink_sendmsg+0x755/0xc90
-[  +0.000013]  __sys_sendto+0x3de/0x430
-[  +0.000013]  __x64_sys_sendto+0xe2/0x1b0
-[  +0.000013]  do_syscall_64+0xa4/0x4d0
-[  +0.000013]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-[  +0.000017] The buggy address belongs to the object at ffff8881e48e0008
-               which belongs to the cache kmalloc-2k of size 2048
-[  +0.000012] The buggy address is located 1096 bytes inside of
-               2048-byte region [ffff8881e48e0008, ffff8881e48e0808)
-[  +0.000007] The buggy address belongs to the page:
-[  +0.000012] page:ffffea0007923800 refcount:1 mapcount:0 mapping:ffff88823680d0c0 index:0x0 compound_mapcount: 0
-[  +0.000020] flags: 0x200000000010200(slab|head)
-[  +0.000019] raw: 0200000000010200 ffffea0007682008 ffffea00076ab808 ffff88823680d0c0
-[  +0.000016] raw: 0000000000000000 00000000000d000d 00000001ffffffff 0000000000000000
-[  +0.000007] page dumped because: kasan: bad access detected
-
-[  +0.000012] Memory state around the buggy address:
-[  +0.000012]  ffff8881e48e0300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000012]  ffff8881e48e0380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000012] >ffff8881e48e0400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000008]                                                  ^
-[  +0.000012]  ffff8881e48e0480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000012]  ffff8881e48e0500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-[  +0.000007] ==================================================================
-
-Fixes: b1569e99c795 ("ACPI: move thermal trip handling to generic thermal layer")
-Reported-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20190919083355.26340-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvdimm/bus.c         | 2 +-
+ drivers/nvdimm/region.c      | 4 ++--
+ drivers/nvdimm/region_devs.c | 4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index bf9721fc2824e..be3eafc7682ba 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -296,7 +296,7 @@ static void thermal_zone_device_set_polling(struct thermal_zone_device *tz,
- 		mod_delayed_work(system_freezable_wq, &tz->poll_queue,
- 				 msecs_to_jiffies(delay));
- 	else
--		cancel_delayed_work(&tz->poll_queue);
-+		cancel_delayed_work_sync(&tz->poll_queue);
- }
+diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
+index 2ba22cd1331b0..54a633e8cb5d2 100644
+--- a/drivers/nvdimm/bus.c
++++ b/drivers/nvdimm/bus.c
+@@ -189,7 +189,7 @@ static int nvdimm_clear_badblocks_region(struct device *dev, void *data)
+ 	sector_t sector;
  
- static void monitor_thermal_zone(struct thermal_zone_device *tz)
+ 	/* make sure device is a region */
+-	if (!is_nd_pmem(dev))
++	if (!is_memory(dev))
+ 		return 0;
+ 
+ 	nd_region = to_nd_region(dev);
+diff --git a/drivers/nvdimm/region.c b/drivers/nvdimm/region.c
+index f9130cc157e83..22224b21c34df 100644
+--- a/drivers/nvdimm/region.c
++++ b/drivers/nvdimm/region.c
+@@ -42,7 +42,7 @@ static int nd_region_probe(struct device *dev)
+ 	if (rc)
+ 		return rc;
+ 
+-	if (is_nd_pmem(&nd_region->dev)) {
++	if (is_memory(&nd_region->dev)) {
+ 		struct resource ndr_res;
+ 
+ 		if (devm_init_badblocks(dev, &nd_region->bb))
+@@ -131,7 +131,7 @@ static void nd_region_notify(struct device *dev, enum nvdimm_event event)
+ 		struct nd_region *nd_region = to_nd_region(dev);
+ 		struct resource res;
+ 
+-		if (is_nd_pmem(&nd_region->dev)) {
++		if (is_memory(&nd_region->dev)) {
+ 			res.start = nd_region->ndr_start;
+ 			res.end = nd_region->ndr_start +
+ 				nd_region->ndr_size - 1;
+diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
+index 0303296e6d5b6..609fc450522a1 100644
+--- a/drivers/nvdimm/region_devs.c
++++ b/drivers/nvdimm/region_devs.c
+@@ -633,11 +633,11 @@ static umode_t region_visible(struct kobject *kobj, struct attribute *a, int n)
+ 	if (!is_memory(dev) && a == &dev_attr_dax_seed.attr)
+ 		return 0;
+ 
+-	if (!is_nd_pmem(dev) && a == &dev_attr_badblocks.attr)
++	if (!is_memory(dev) && a == &dev_attr_badblocks.attr)
+ 		return 0;
+ 
+ 	if (a == &dev_attr_resource.attr) {
+-		if (is_nd_pmem(dev))
++		if (is_memory(dev))
+ 			return 0400;
+ 		else
+ 			return 0;
 -- 
 2.20.1
 
