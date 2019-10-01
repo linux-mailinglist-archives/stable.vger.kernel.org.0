@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7103C3DDE
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CABAAC3E0E
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728581AbfJARCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 13:02:51 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:60713 "EHLO
+        id S1726983AbfJARE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:04:29 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:60653 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728546AbfJARCu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 13:02:50 -0400
+        by vger.kernel.org with ESMTP id S1729936AbfJAREO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 13:04:14 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id F187A576;
-        Tue,  1 Oct 2019 13:02:48 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id A5EFC6B2;
+        Tue,  1 Oct 2019 13:04:13 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 01 Oct 2019 13:02:49 -0400
+  by compute6.internal (MEProxy); Tue, 01 Oct 2019 13:04:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=mRo19F
-        G3YSfSqgOAl8k9vcYo/3luvuQ0dRH8sAMaLwM=; b=eVTces1aga8cLSGd2mgMVX
-        Z+tzx6v4FZOgYIGwKzX/mZDfZzsPUKeztb9t8lr+lmsNwe3QamIsrly4vWTKBlWm
-        tG3oY8aX+1h8pu+z/O0ZP4KbK/Q23lB0T2YodBJDKzt4RUYml8owTwliIgoXe230
-        Itl90MnrFcpek9KjDoxwj676rPsEFLivrICNvrs95622Rm/pYj53xbDMNuyq5sHu
-        Am39qKIu2TXHGGgp7XAWNWJyodIH5RQ4KfbqjiGoux1ZMm+GfBYyD7C/JmJKS+I0
-        UWk4rzeyCPevxv9wqt9VCurHEevfTRttBbaWFMrZwu5czcSUz7KKRZzN/I/RP8vg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=wKk4Do
+        YzAA1GNO0rvSi/zrY6c27r/ipcSYLRoihkYOQ=; b=UBPeccISuO7m8XDUht6Gaw
+        XmYJIaOu5C2L0C9ULqlZ7Ollso6bNG8KNyod1b8WEZmHDZjNgOQ5lH6dwe6bTGne
+        fh6Fpkwp+HRKnHcWw7ctZdwjRqqI8lXJgZ4VFSgzlQ60p4sjpzFHJtieFWQz1h4X
+        KwKtLEvul9tSMjlMU54Du8FfiKGH2aiGx/GN7VRDNhaOBQbHuZfp0PwfZj/Tty1X
+        E4z1qay8xQt7RvRCzpZGGsSU162jymI49FT1nFQ0kBc1Bzyap3APM16SGQYNGj+7
+        6lLm79V9dH1LLv5qBLvJXMmKrwHtktmBLEQy9/WWqUODah5ixckBAGzkJRaSnmIA
         ==
-X-ME-Sender: <xms:uIaTXbibZT8hlNbw-NKfcPG5is97JncH7qLRE9VBnebDe8XKay_YnQ>
+X-ME-Sender: <xms:DIeTXT-YhNFl-R_VWXuSbvg7k23oSGdTFaMDQsUuNwrMD0UCw_42ig>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeeggddutdejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:uIaTXdgzVaziVgrn9LYrJi_wh8sWeV_sTscNw-zwe6KCXX1Jyj1gpg>
-    <xmx:uIaTXaL0-TIOA-mtyUcjZzfKWiRskW55dbN-DQgVShlGOA8HxP0Fqg>
-    <xmx:uIaTXcnCJxFRnU56XAFwUk9iCnOe6IT9RepK24Ch_m_5-8srU6c55g>
-    <xmx:uIaTXbGOj89puIhPcdQsAqvTBkksQP9dU4gc_P9fd93E46M3r-55Pg>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:DIeTXX6_GSE-shc43SMCxAxI5J_MJxFlwArLHFT2c8jsIbpg9b5tTA>
+    <xmx:DIeTXYXOcgWBjB6hnU2huCi0ICxHUxoc0J9sAftqGzEgcST_nNlvww>
+    <xmx:DIeTXdKS-n-Kf2db8xTsASzXSsaQJJmfXQ7_Ha5mgi5O2iBr0YEznw>
+    <xmx:DYeTXRD8UnELmnfvNGGYgCWKDLzGPVpy0yEQvUmDfRKokwAomyWwXw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4C5818005C;
-        Tue,  1 Oct 2019 13:02:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] scsi: implement .cleanup_rq callback" failed to apply to 4.19-stable tree
-To:     ming.lei@redhat.com, axboe@kernel.dk, bvanassche@acm.org,
-        emilne@redhat.com, hare@suse.com, hch@lst.de, snitzer@redhat.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 17FBF80065;
+        Tue,  1 Oct 2019 13:04:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] printk: Do not lose last line in kmsg buffer dump" failed to apply to 4.4-stable tree
+To:     vincent.whitchurch@axis.com, pmladek@suse.com,
+        sergey.senozhatsky@gmail.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 01 Oct 2019 19:02:45 +0200
-Message-ID: <1569949365193105@kroah.com>
+Date:   Tue, 01 Oct 2019 19:04:10 +0200
+Message-ID: <156994945054229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,55 +69,67 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b7e9e1fb7a9227be34ad4a5e778022c3164494cf Mon Sep 17 00:00:00 2001
-From: Ming Lei <ming.lei@redhat.com>
-Date: Thu, 25 Jul 2019 10:05:00 +0800
-Subject: [PATCH] scsi: implement .cleanup_rq callback
+From c9dccacfccc72c32692eedff4a27a4b0833a2afd Mon Sep 17 00:00:00 2001
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Date: Thu, 11 Jul 2019 16:29:37 +0200
+Subject: [PATCH] printk: Do not lose last line in kmsg buffer dump
 
-Implement .cleanup_rq() callback for freeing driver private part
-of the request. Then we can avoid to leak this part if the request isn't
-completed by SCSI, and freed by blk-mq or upper layer(such as dm-rq) finally.
+kmsg_dump_get_buffer() is supposed to select all the youngest log
+messages which fit into the provided buffer.  It determines the correct
+start index by using msg_print_text() with a NULL buffer to calculate
+the size of each entry.  However, when performing the actual writes,
+msg_print_text() only writes the entry to the buffer if the written len
+is lesser than the size of the buffer.  So if the lengths of the
+selected youngest log messages happen to precisely fill up the provided
+buffer, the last log message is not included.
 
-Cc: Ewan D. Milne <emilne@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Mike Snitzer <snitzer@redhat.com>
-Cc: dm-devel@redhat.com
-Cc: <stable@vger.kernel.org>
-Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+We don't want to modify msg_print_text() to fill up the buffer and start
+returning a length which is equal to the size of the buffer, since
+callers of its other users, such as kmsg_dump_get_line(), depend upon
+the current behaviour.
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 11e64b50497f..4e88d7e9cf9a 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1089,6 +1089,18 @@ static void scsi_initialize_rq(struct request *rq)
- 	cmd->retries = 0;
- }
+Instead, fix kmsg_dump_get_buffer() to compensate for this.
+
+For example, with the following two final prints:
+
+[    6.427502] AAAAAAAAAAAAA
+[    6.427769] BBBBBBBB12345
+
+A dump of a 64-byte buffer filled by kmsg_dump_get_buffer(), before this
+patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 35 32 32 31 39 37  <0>[    6.522197
+ 00000010: 5d 20 41 41 41 41 41 41 41 41 41 41 41 41 41 0a  ] AAAAAAAAAAAAA.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+After this patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 34 35 36 36 37 38  <0>[    6.456678
+ 00000010: 5d 20 42 42 42 42 42 42 42 42 31 32 33 34 35 0a  ] BBBBBBBB12345.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+Link: http://lkml.kernel.org/r/20190711142937.4083-1-vincent.whitchurch@axis.com
+Fixes: e2ae715d66bf4bec ("kmsg - kmsg_dump() use iterator to receive log buffer content")
+To: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v3.5+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 1888f6a3b694..424abf802f02 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3274,7 +3274,7 @@ bool kmsg_dump_get_buffer(struct kmsg_dumper *dumper, bool syslog,
+ 	/* move first record forward until length fits into the buffer */
+ 	seq = dumper->cur_seq;
+ 	idx = dumper->cur_idx;
+-	while (l > size && seq < dumper->next_seq) {
++	while (l >= size && seq < dumper->next_seq) {
+ 		struct printk_log *msg = log_from_idx(idx);
  
-+/*
-+ * Only called when the request isn't completed by SCSI, and not freed by
-+ * SCSI
-+ */
-+static void scsi_cleanup_rq(struct request *rq)
-+{
-+	if (rq->rq_flags & RQF_DONTPREP) {
-+		scsi_mq_uninit_cmd(blk_mq_rq_to_pdu(rq));
-+		rq->rq_flags &= ~RQF_DONTPREP;
-+	}
-+}
-+
- /* Add a command to the list used by the aacraid and dpt_i2o drivers */
- void scsi_add_cmd_to_list(struct scsi_cmnd *cmd)
- {
-@@ -1821,6 +1833,7 @@ static const struct blk_mq_ops scsi_mq_ops = {
- 	.init_request	= scsi_mq_init_request,
- 	.exit_request	= scsi_mq_exit_request,
- 	.initialize_rq_fn = scsi_initialize_rq,
-+	.cleanup_rq	= scsi_cleanup_rq,
- 	.busy		= scsi_mq_lld_busy,
- 	.map_queues	= scsi_map_queues,
- };
+ 		l -= msg_print_text(msg, true, time, NULL, 0);
 
