@@ -2,136 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4129FC2AB1
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 01:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6209C2B6D
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 02:50:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727118AbfI3XRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Sep 2019 19:17:22 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:33322 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729057AbfI3XRW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Sep 2019 19:17:22 -0400
-Received: by mail-pg1-f194.google.com with SMTP id q1so219118pgb.0;
-        Mon, 30 Sep 2019 16:17:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ocb0Btdcve+bO+wvymS9VkmrTcFGK8V6696tRMbHc+k=;
-        b=BhCKdjvdhTBZ69uqLHX2rGhrP36s1pp3LebDq630hlx5pZd1TJU2aRe3anlZwZiRp/
-         dPE5Qs3uUSvt9BIhLynmIdZR+pcKG3bzSPL96tfKysMZkP9kwMc+rjXh4ToFiNqvT6NC
-         iUGtYjJaiOilU71VexFOrjk5qiBbq9Q2P4XIgLZ3FP6FMG7KhT1eoTkxXuO1GH0aKM11
-         wHUJY0b0Z8MDl7ScLdgRp/XoAAJ8HtsxhgSpRyGhXGN9gsYWdiF+CmNVw0Me5tJGSKSj
-         1q9BYcosEACI0JScPOzFtV+gPDlX0AC9P9frw2XCieCHmFOByFFtVuCrPq8zksVnMdco
-         9+Wg==
-X-Gm-Message-State: APjAAAVy29WaWbqZ+2ptOMnkFdkcoKZKZsLePPDWHUl6tYW81YnCyQj8
-        yul+f2I1mPmEKje7oPzVe9k=
-X-Google-Smtp-Source: APXvYqxqlWVNGWrOUIUEPZcvOX2yzzKdpmHAFcs908qNTdxO1EMIqimea5iYW00BRDuKt2JUsKyy1g==
-X-Received: by 2002:aa7:9104:: with SMTP id 4mr24407619pfh.176.1569885441335;
-        Mon, 30 Sep 2019 16:17:21 -0700 (PDT)
-Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
-        by smtp.gmail.com with ESMTPSA id l7sm585406pjy.12.2019.09.30.16.17.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Sep 2019 16:17:20 -0700 (PDT)
-From:   Bart Van Assche <bvanassche@acm.org>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Or Gerlitz <gerlitz.or@gmail.com>,
-        Steve Wise <larrystevenwise@gmail.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Bernard Metzler <BMT@zurich.ibm.com>,
-        Krishnamraju Eraparaju <krishna2@chelsio.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 02/15] RDMA/iwcm: Fix a lock inversion issue
-Date:   Mon, 30 Sep 2019 16:16:54 -0700
-Message-Id: <20190930231707.48259-3-bvanassche@acm.org>
-X-Mailer: git-send-email 2.23.0.444.g18eeb5a265-goog
-In-Reply-To: <20190930231707.48259-1-bvanassche@acm.org>
-References: <20190930231707.48259-1-bvanassche@acm.org>
+        id S1726425AbfJAAur convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Sep 2019 20:50:47 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:52678 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726157AbfJAAur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Sep 2019 20:50:47 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 050CE18CB8EC
+        for <stable@vger.kernel.org>; Tue,  1 Oct 2019 00:50:47 +0000 (UTC)
+Received: from [172.54.18.13] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 688F06012A;
+        Tue,  1 Oct 2019 00:50:44 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.0-228e44f.cki
+ (stable-next)
+Message-ID: <cki.C779334AB2.5QEEI8AXZY@redhat.com>
+X-Gitlab-Pipeline-ID: 197637
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/197637
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.63]); Tue, 01 Oct 2019 00:50:47 +0000 (UTC)
+Date:   Mon, 30 Sep 2019 20:50:47 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch fixes the lock inversion complaint:
 
-============================================
-WARNING: possible recursive locking detected
-5.3.0-rc7-dbg+ #1 Not tainted
---------------------------------------------
-kworker/u16:6/171 is trying to acquire lock:
-00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+Hello,
 
-but task is already holding lock:
-00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+We ran automated tests on a recent commit from this kernel tree:
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
+            Commit: 228e44f00451 - fat: add nobarrier to workaround the strange behavior of device
 
-       CPU0
-       ----
-  lock(&id_priv->handler_mutex);
-  lock(&id_priv->handler_mutex);
+The results of these automated tests are provided below.
 
- *** DEADLOCK ***
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
- May be due to missing lock nesting notation
+All kernel binaries, config files, and logs are available for download here:
 
-3 locks held by kworker/u16:6/171:
- #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
- #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
- #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+  https://artifacts.cki-project.org/pipelines/197637
 
-stack backtrace:
-CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
-Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-Workqueue: iw_cm_wq cm_work_handler [iw_cm]
-Call Trace:
- dump_stack+0x8a/0xd6
- __lock_acquire.cold+0xe1/0x24d
- lock_acquire+0x106/0x240
- __mutex_lock+0x12e/0xcb0
- mutex_lock_nested+0x1f/0x30
- rdma_destroy_id+0x78/0x4a0 [rdma_cm]
- iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
- cm_work_handler+0xe62/0x1100 [iw_cm]
- process_one_work+0x56d/0xac0
- worker_thread+0x7a/0x5d0
- kthread+0x1bc/0x210
- ret_from_fork+0x24/0x30
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-Cc: Or Gerlitz <gerlitz.or@gmail.com>
-Cc: Steve Wise <larrystevenwise@gmail.com>
-Cc: Sagi Grimberg <sagi@grimberg.me>
-Cc: Bernard Metzler <BMT@zurich.ibm.com>
-Cc: Krishnamraju Eraparaju <krishna2@chelsio.com>
-Cc: <stable@vger.kernel.org>
-Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks"; v2.6.27).
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- drivers/infiniband/core/cma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 0e3cf3461999..d78f67623f24 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2396,9 +2396,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
- 		conn_id->cm_id.iw = NULL;
- 		cma_exch(conn_id, RDMA_CM_DESTROYING);
- 		mutex_unlock(&conn_id->handler_mutex);
-+		mutex_unlock(&listen_id->handler_mutex);
- 		cma_deref_id(conn_id);
- 		rdma_destroy_id(&conn_id->id);
--		goto out;
-+		return ret;
- 	}
- 
- 	mutex_unlock(&conn_id->handler_mutex);
--- 
-2.23.0.444.g18eeb5a265-goog
+Compile testing
+---------------
 
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+  x86_64:
+      Host 1:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ⚡⚡⚡ LTP lite
+         🚧 ⚡⚡⚡ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 2:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+      Host 3:
+         ✅ Boot test
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+
+      Host 4:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 5:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ IOMMU boot test
+         🚧 ✅ Storage blktests
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
