@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22FFFC3AED
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0349C3AF1
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729899AbfJAQkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51570 "EHLO mail.kernel.org"
+        id S1730114AbfJAQke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:40:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729738AbfJAQkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:20 -0400
+        id S1730083AbfJAQkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DA7921906;
-        Tue,  1 Oct 2019 16:40:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEF2F21920;
+        Tue,  1 Oct 2019 16:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948020;
-        bh=POELVahFGz2TRENm/GYsKvf3/fYvIuvcaqdZ7Lh4NPo=;
+        s=default; t=1569948032;
+        bh=qlxmAtTHBY2Jxhkg5c2LCJRmKMxnmaEWEOJEF1otS4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHBtlBIZH2n5tdeXqHZM46iPrOq2idH/KAen6VAwRyw0G3M8fHdC8JfCa16Wo1KTv
-         OKPFsR28ZCQn3TM2n7Xbpb+B+KDSUDok2+Z1CHaxBrhB93aLZkiCi2UxjEU1xVqRQH
-         5p18BaQMYbLOVMCGif3zMPBYkynWKcV9B7ubjL7E=
+        b=F3oxs39SIMC+DqtWoXaBc9mlWOS7aWXdMOw93cS3hATCIJhG9a7lPnZQfCfA5huh5
+         aKH6OF+hgUX6/9344bYjZbDlkD8ug6VtwYSJPAmBz+toNytipUycfl5Si2yODQch9+
+         Wl2gdTbRT4BF8Ah+gpJanp4FSvGmegRE7vkAW3kI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.3 40/71] =?UTF-8?q?libnvdimm:=20Fix=20endian=20c?= =?UTF-8?q?onversion=20issues=C2=A0?=
-Date:   Tue,  1 Oct 2019 12:38:50 -0400
-Message-Id: <20191001163922.14735-40-sashal@kernel.org>
+Cc:     KeMeng Shi <shikemeng@huawei.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 47/71] sched/core: Fix migration to invalid CPU in __set_cpus_allowed_ptr()
+Date:   Tue,  1 Oct 2019 12:38:57 -0400
+Message-Id: <20191001163922.14735-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,78 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+From: KeMeng Shi <shikemeng@huawei.com>
 
-[ Upstream commit 86aa66687442ef45909ff9814b82b4d2bb892294 ]
+[ Upstream commit 714e501e16cd473538b609b3e351b2cc9f7f09ed ]
 
-nd_label->dpa issue was observed when trying to enable the namespace created
-with little-endian kernel on a big-endian kernel. That made me run
-`sparse` on the rest of the code and other changes are the result of that.
+An oops can be triggered in the scheduler when running qemu on arm64:
 
-Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
-Fixes: 9dedc73a4658 ("libnvdimm/btt: Fix LBA masking during 'free list' population")
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Link: https://lore.kernel.org/r/20190809074726.27815-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+ Unable to handle kernel paging request at virtual address ffff000008effe40
+ Internal error: Oops: 96000007 [#1] SMP
+ Process migration/0 (pid: 12, stack limit = 0x00000000084e3736)
+ pstate: 20000085 (nzCv daIf -PAN -UAO)
+ pc : __ll_sc___cmpxchg_case_acq_4+0x4/0x20
+ lr : move_queued_task.isra.21+0x124/0x298
+ ...
+ Call trace:
+  __ll_sc___cmpxchg_case_acq_4+0x4/0x20
+  __migrate_task+0xc8/0xe0
+  migration_cpu_stop+0x170/0x180
+  cpu_stopper_thread+0xec/0x178
+  smpboot_thread_fn+0x1ac/0x1e8
+  kthread+0x134/0x138
+  ret_from_fork+0x10/0x18
+
+__set_cpus_allowed_ptr() will choose an active dest_cpu in affinity mask to
+migrage the process if process is not currently running on any one of the
+CPUs specified in affinity mask. __set_cpus_allowed_ptr() will choose an
+invalid dest_cpu (dest_cpu >= nr_cpu_ids, 1024 in my virtual machine) if
+CPUS in an affinity mask are deactived by cpu_down after cpumask_intersects
+check. cpumask_test_cpu() of dest_cpu afterwards is overflown and may pass if
+corresponding bit is coincidentally set. As a consequence, kernel will
+access an invalid rq address associate with the invalid CPU in
+migration_cpu_stop->__migrate_task->move_queued_task and the Oops occurs.
+
+The reproduce the crash:
+
+  1) A process repeatedly binds itself to cpu0 and cpu1 in turn by calling
+  sched_setaffinity.
+
+  2) A shell script repeatedly does "echo 0 > /sys/devices/system/cpu/cpu1/online"
+  and "echo 1 > /sys/devices/system/cpu/cpu1/online" in turn.
+
+  3) Oops appears if the invalid CPU is set in memory after tested cpumask.
+
+Signed-off-by: KeMeng Shi <shikemeng@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1568616808-16808-1-git-send-email-shikemeng@huawei.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/btt.c            | 8 ++++----
- drivers/nvdimm/namespace_devs.c | 7 ++++---
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ kernel/sched/core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index a8d56887ec881..3e9f45aec8d18 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -392,9 +392,9 @@ static int btt_flog_write(struct arena_info *arena, u32 lane, u32 sub,
- 	arena->freelist[lane].sub = 1 - arena->freelist[lane].sub;
- 	if (++(arena->freelist[lane].seq) == 4)
- 		arena->freelist[lane].seq = 1;
--	if (ent_e_flag(ent->old_map))
-+	if (ent_e_flag(le32_to_cpu(ent->old_map)))
- 		arena->freelist[lane].has_err = 1;
--	arena->freelist[lane].block = le32_to_cpu(ent_lba(ent->old_map));
-+	arena->freelist[lane].block = ent_lba(le32_to_cpu(ent->old_map));
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index df9f1fe5689b0..7dc620dfd8baf 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1537,7 +1537,8 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+ 	if (cpumask_equal(p->cpus_ptr, new_mask))
+ 		goto out;
  
- 	return ret;
- }
-@@ -560,8 +560,8 @@ static int btt_freelist_init(struct arena_info *arena)
- 		 * FIXME: if error clearing fails during init, we want to make
- 		 * the BTT read-only
- 		 */
--		if (ent_e_flag(log_new.old_map) &&
--				!ent_normal(log_new.old_map)) {
-+		if (ent_e_flag(le32_to_cpu(log_new.old_map)) &&
-+		    !ent_normal(le32_to_cpu(log_new.old_map))) {
- 			arena->freelist[i].has_err = 1;
- 			ret = arena_clear_freelist_error(arena, i);
- 			if (ret)
-diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
-index a16e52251a305..102c9d5141ee8 100644
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -1987,7 +1987,7 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
- 		nd_mapping = &nd_region->mapping[i];
- 		label_ent = list_first_entry_or_null(&nd_mapping->labels,
- 				typeof(*label_ent), list);
--		label0 = label_ent ? label_ent->label : 0;
-+		label0 = label_ent ? label_ent->label : NULL;
+-	if (!cpumask_intersects(new_mask, cpu_valid_mask)) {
++	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
++	if (dest_cpu >= nr_cpu_ids) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -1558,7 +1559,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
+ 	if (cpumask_test_cpu(task_cpu(p), new_mask))
+ 		goto out;
  
- 		if (!label0) {
- 			WARN_ON(1);
-@@ -2322,8 +2322,9 @@ static struct device **scan_labels(struct nd_region *nd_region)
- 			continue;
- 
- 		/* skip labels that describe extents outside of the region */
--		if (nd_label->dpa < nd_mapping->start || nd_label->dpa > map_end)
--			continue;
-+		if (__le64_to_cpu(nd_label->dpa) < nd_mapping->start ||
-+		    __le64_to_cpu(nd_label->dpa) > map_end)
-+				continue;
- 
- 		i = add_namespace_resource(nd_region, nd_label, devs, count);
- 		if (i < 0)
+-	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
+ 	if (task_running(rq, p) || p->state == TASK_WAKING) {
+ 		struct migration_arg arg = { p, dest_cpu };
+ 		/* Need help from migration thread: drop lock and wait. */
 -- 
 2.20.1
 
