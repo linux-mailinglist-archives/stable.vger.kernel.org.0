@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 454BCC3E0F
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC41C3E0D
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727811AbfJAQjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50494 "EHLO mail.kernel.org"
+        id S1731323AbfJAREP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:04:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727789AbfJAQjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:31 -0400
+        id S1727789AbfJAQjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7776E21872;
-        Tue,  1 Oct 2019 16:39:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05DDD21872;
+        Tue,  1 Oct 2019 16:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947971;
-        bh=Hi/MFaaJ5GWhVSa+IqBly6KzXkJMtUWh1MbotqnxbIg=;
+        s=default; t=1569947974;
+        bh=K4JtO4D3ApZQ4fgFUps0vrNW1aXpYkqjHX4RDmNYVX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gnxjCo5oRc33g960RY4lMtGdQkUI96OYCH+XV4qi5zFOEQpmQwPJXPquw9EFraFpJ
-         Dy7IT8NEzeb/wNAEcwvfxDHitiQSSAZ/e+gRyIkeMVPaWzvjKK5H/VojacXU2WqHLu
-         lz1ivhRomBB4y1FwijEmFPXcdByl8ij3uoZ92IPk=
+        b=P4D2NIICQJCSPVlaxxPMR34YACt4hvVpb7tpju57hvucIZotag/wf1P56WkSKcXuL
+         W/yCW9WaiGu7q9c4F/KOqxiQD9Ir4/B+oD+SC84z130T3ufCWlS5m8sdsmfE6ADkIW
+         U3N45bV8ZpdPiOUDpm6BvU/G7iDdVACmZjb4Vo6Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 05/71] xprtrdma: Toggle XPRT_CONGESTED in xprtrdma's slot methods
-Date:   Tue,  1 Oct 2019 12:38:15 -0400
-Message-Id: <20191001163922.14735-5-sashal@kernel.org>
+Cc:     Lu Shuaibing <shuaibinglu@126.com>,
+        Dominique Martinet <dominique.martinet@cea.fr>,
+        Sasha Levin <sashal@kernel.org>,
+        v9fs-developer@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 07/71] 9p: Transport error uninitialized
+Date:   Tue,  1 Oct 2019 12:38:17 -0400
+Message-Id: <20191001163922.14735-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -44,48 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Lu Shuaibing <shuaibinglu@126.com>
 
-[ Upstream commit 395790566eec37706dedeb94779045adc3a7581e ]
+[ Upstream commit 0ce772fe79b68f83df40f07f28207b292785c677 ]
 
-Commit 48be539dd44a ("xprtrdma: Introduce ->alloc_slot call-out for
-xprtrdma") added a separate alloc_slot and free_slot to the RPC/RDMA
-transport. Later, commit 75891f502f5f ("SUNRPC: Support for
-congestion control when queuing is enabled") modified the generic
-alloc/free_slot methods, but neglected the methods in xprtrdma.
+The p9_tag_alloc() does not initialize the transport error t_err field.
+The struct p9_req_t *req is allocated and stored in a struct p9_client
+variable. The field t_err is never initialized before p9_conn_cancel()
+checks its value.
 
-Found via code review.
+KUMSAN(KernelUninitializedMemorySantizer, a new error detection tool)
+reports this bug.
 
-Fixes: 75891f502f5f ("SUNRPC: Support for congestion control ... ")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+==================================================================
+BUG: KUMSAN: use of uninitialized memory in p9_conn_cancel+0x2d9/0x3b0
+Read of size 4 at addr ffff88805f9b600c by task kworker/1:2/1216
+
+CPU: 1 PID: 1216 Comm: kworker/1:2 Not tainted 5.2.0-rc4+ #28
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
+Workqueue: events p9_write_work
+Call Trace:
+ dump_stack+0x75/0xae
+ __kumsan_report+0x17c/0x3e6
+ kumsan_report+0xe/0x20
+ p9_conn_cancel+0x2d9/0x3b0
+ p9_write_work+0x183/0x4a0
+ process_one_work+0x4d1/0x8c0
+ worker_thread+0x6e/0x780
+ kthread+0x1ca/0x1f0
+ ret_from_fork+0x35/0x40
+
+Allocated by task 1979:
+ save_stack+0x19/0x80
+ __kumsan_kmalloc.constprop.3+0xbc/0x120
+ kmem_cache_alloc+0xa7/0x170
+ p9_client_prepare_req.part.9+0x3b/0x380
+ p9_client_rpc+0x15e/0x880
+ p9_client_create+0x3d0/0xac0
+ v9fs_session_init+0x192/0xc80
+ v9fs_mount+0x67/0x470
+ legacy_get_tree+0x70/0xd0
+ vfs_get_tree+0x4a/0x1c0
+ do_mount+0xba9/0xf90
+ ksys_mount+0xa8/0x120
+ __x64_sys_mount+0x62/0x70
+ do_syscall_64+0x6d/0x1e0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Freed by task 0:
+(stack is not available)
+
+The buggy address belongs to the object at ffff88805f9b6008
+ which belongs to the cache p9_req_t of size 144
+The buggy address is located 4 bytes inside of
+ 144-byte region [ffff88805f9b6008, ffff88805f9b6098)
+The buggy address belongs to the page:
+page:ffffea00017e6d80 refcount:1 mapcount:0 mapping:ffff888068b63740 index:0xffff88805f9b7d90 compound_mapcount: 0
+flags: 0x100000000010200(slab|head)
+raw: 0100000000010200 ffff888068b66450 ffff888068b66450 ffff888068b63740
+raw: ffff88805f9b7d90 0000000000100001 00000001ffffffff 0000000000000000
+page dumped because: kumsan: bad access detected
+==================================================================
+
+Link: http://lkml.kernel.org/r/20190613070854.10434-1-shuaibinglu@126.com
+Signed-off-by: Lu Shuaibing <shuaibinglu@126.com>
+[dominique.martinet@cea.fr: grouped the added init with the others]
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/transport.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/9p/client.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index 2ec349ed47702..f4763e8a67617 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -571,6 +571,7 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
- 	return;
+diff --git a/net/9p/client.c b/net/9p/client.c
+index 9622f3e469f67..1d48afc7033ca 100644
+--- a/net/9p/client.c
++++ b/net/9p/client.c
+@@ -281,6 +281,7 @@ p9_tag_alloc(struct p9_client *c, int8_t type, unsigned int max_size)
  
- out_sleep:
-+	set_bit(XPRT_CONGESTED, &xprt->state);
- 	rpc_sleep_on(&xprt->backlog, task, NULL);
- 	task->tk_status = -EAGAIN;
- }
-@@ -589,7 +590,8 @@ xprt_rdma_free_slot(struct rpc_xprt *xprt, struct rpc_rqst *rqst)
- 
- 	memset(rqst, 0, sizeof(*rqst));
- 	rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
--	rpc_wake_up_next(&xprt->backlog);
-+	if (unlikely(!rpc_wake_up_next(&xprt->backlog)))
-+		clear_bit(XPRT_CONGESTED, &xprt->state);
- }
- 
- static bool rpcrdma_check_regbuf(struct rpcrdma_xprt *r_xprt,
+ 	p9pdu_reset(&req->tc);
+ 	p9pdu_reset(&req->rc);
++	req->t_err = 0;
+ 	req->status = REQ_STATUS_ALLOC;
+ 	init_waitqueue_head(&req->wq);
+ 	INIT_LIST_HEAD(&req->req_list);
 -- 
 2.20.1
 
