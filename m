@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 065D3C3DE7
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC13C3DE2
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728347AbfJARDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 13:03:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50774 "EHLO mail.kernel.org"
+        id S1726837AbfJARDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727929AbfJAQjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:45 -0400
+        id S1728347AbfJAQjq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C999421920;
-        Tue,  1 Oct 2019 16:39:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E18121D79;
+        Tue,  1 Oct 2019 16:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947984;
-        bh=6wgNZmsOgbRgn0aUaKX9yXUl7VTpU4/3/nmkC16hG4s=;
+        s=default; t=1569947985;
+        bh=mxI74ZPxEKKZVu9DJn031+gWGvc4derrOM7DPZKYr6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/ZZ9Z3L4x83zsG9JA88HTUFBYSK1EBAhnOWw5Dz2pxUhUNe6VsJ8ak8DB/lM447V
-         aDR418+4yNiMOOg/m2I5IABWu6lqdFqjviAdO9boWIkYiBqzZvCfhyDzySzpGoAcDY
-         Qxy5kYT3rUB3NsO1EOvCTuj5j+t2AX3lgA+zTcec=
+        b=dyTHYAvBNFXRDFhWb8fD9KIJ2HeuTnZ9UC193KBIcSZMvpgKiqFMFM9HoqEJCdCQq
+         AZ/z1MZzc7PdciSUwm6WWPSOoJw8z6hiOM7q685JfgdjS8KY6ya9+/0LHqEICfpmfl
+         3RZeOHrrKbGmquIoQ8vNNnB6FHWDFygp583Ee+W4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trond Myklebust <trondmy@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 16/71] SUNRPC: RPC level errors should always set task->tk_rpc_status
-Date:   Tue,  1 Oct 2019 12:38:26 -0400
-Message-Id: <20191001163922.14735-16-sashal@kernel.org>
+Cc:     Ryan Chen <ryan_chen@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 17/71] watchdog: aspeed: Add support for AST2600
+Date:   Tue,  1 Oct 2019 12:38:27 -0400
+Message-Id: <20191001163922.14735-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -45,76 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Ryan Chen <ryan_chen@aspeedtech.com>
 
-[ Upstream commit 714fbc73888f59321854e7f6c2f224213923bcad ]
+[ Upstream commit b3528b4874480818e38e4da019d655413c233e6a ]
 
-Ensure that we set task->tk_rpc_status for all RPC level errors so that
-the caller can distinguish between those and server reply status errors.
+The ast2600 can be supported by the same code as the ast2500.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20190819051738.17370-3-joel@jms.id.au
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c  | 6 +++---
- net/sunrpc/sched.c | 5 ++++-
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/watchdog/aspeed_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index a07b516e503a0..76e745ff78138 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1837,7 +1837,7 @@ call_allocate(struct rpc_task *task)
- 		return;
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index cc71861e033a5..5b64bc2e87888 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -34,6 +34,7 @@ static const struct aspeed_wdt_config ast2500_config = {
+ static const struct of_device_id aspeed_wdt_of_table[] = {
+ 	{ .compatible = "aspeed,ast2400-wdt", .data = &ast2400_config },
+ 	{ .compatible = "aspeed,ast2500-wdt", .data = &ast2500_config },
++	{ .compatible = "aspeed,ast2600-wdt", .data = &ast2500_config },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
+@@ -259,7 +260,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
  	}
  
--	rpc_exit(task, -ERESTARTSYS);
-+	rpc_call_rpcerror(task, -ERESTARTSYS);
- }
+-	if (of_device_is_compatible(np, "aspeed,ast2500-wdt")) {
++	if ((of_device_is_compatible(np, "aspeed,ast2500-wdt")) ||
++		(of_device_is_compatible(np, "aspeed,ast2600-wdt"))) {
+ 		u32 reg = readl(wdt->base + WDT_RESET_WIDTH);
  
- static int
-@@ -2561,7 +2561,7 @@ rpc_encode_header(struct rpc_task *task, struct xdr_stream *xdr)
- 	return 0;
- out_fail:
- 	trace_rpc_bad_callhdr(task);
--	rpc_exit(task, error);
-+	rpc_call_rpcerror(task, error);
- 	return error;
- }
- 
-@@ -2628,7 +2628,7 @@ rpc_decode_header(struct rpc_task *task, struct xdr_stream *xdr)
- 		return -EAGAIN;
- 	}
- out_err:
--	rpc_exit(task, error);
-+	rpc_call_rpcerror(task, error);
- 	return error;
- 
- out_unparsable:
-diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
-index 1f275aba786fc..53934fe73a9db 100644
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -930,8 +930,10 @@ static void __rpc_execute(struct rpc_task *task)
- 		/*
- 		 * Signalled tasks should exit rather than sleep.
- 		 */
--		if (RPC_SIGNALLED(task))
-+		if (RPC_SIGNALLED(task)) {
-+			task->tk_rpc_status = -ERESTARTSYS;
- 			rpc_exit(task, -ERESTARTSYS);
-+		}
- 
- 		/*
- 		 * The queue->lock protects against races with
-@@ -967,6 +969,7 @@ static void __rpc_execute(struct rpc_task *task)
- 			 */
- 			dprintk("RPC: %5u got signal\n", task->tk_pid);
- 			set_bit(RPC_TASK_SIGNALLED, &task->tk_runstate);
-+			task->tk_rpc_status = -ERESTARTSYS;
- 			rpc_exit(task, -ERESTARTSYS);
- 		}
- 		dprintk("RPC: %5u sync task resuming\n", task->tk_pid);
+ 		reg &= config->ext_pulse_width_mask;
 -- 
 2.20.1
 
