@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 382E4C3C1A
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5029FC3C18
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727149AbfJAQtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:49:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57594 "EHLO mail.kernel.org"
+        id S1727181AbfJAQs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:48:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390184AbfJAQpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:45:10 -0400
+        id S2390191AbfJAQpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:45:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F4C72190F;
-        Tue,  1 Oct 2019 16:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85CCB21920;
+        Tue,  1 Oct 2019 16:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948309;
-        bh=2i8+d2TT3yX8/1+HhuIWKqY7fbcAmg4UD+/uh4pIKuY=;
+        s=default; t=1569948310;
+        bh=6EyxsEqBJ2oOZtJcJw9OqpnSifZ1fmKpzk8Q4zKakk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2cst86dE3KW9QpoKzrlIpGI68YGySdgr/IMAIK2T6y/Bgwxb4uSMDibRMvfjtPag
-         4TbQszZIRW+1JfLTV9BHQbxTAtj2IE5vNrLBXR1qYZlojX/Lk+93l5yaovl9ibuHVW
-         AhBUBC7qcH5P8nFmwqA51qqxlKp9ZRJNEA17GsZw=
+        b=Jh/nGozf2xZ+3bl8px80Nen5boAH4hf5hBxkiWiLeBC0lYNaIZthEa6+1Q6oysM/d
+         AEto7HSYSjrUw6fJW4ZK63y3YJ6qhKh/RZ9Xobx61IzDOYaMih/GXGZR2a/WcxMWSJ
+         3CQ4cq3c7NjyuJdFvYcoAR7pUZ97WlzH5PKrLx4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@zoho.com.cn>,
-        Dominique Martinet <dominique.martinet@cea.fr>,
-        Sasha Levin <sashal@kernel.org>,
-        v9fs-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 03/19] 9p: avoid attaching writeback_fid on mmap with type PRIVATE
-Date:   Tue,  1 Oct 2019 12:44:49 -0400
-Message-Id: <20191001164505.16708-3-sashal@kernel.org>
+Cc:     Igor Druzhinin <igor.druzhinin@citrix.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 04/19] xen/pci: reserve MCFG areas earlier
+Date:   Tue,  1 Oct 2019 12:44:50 -0400
+Message-Id: <20191001164505.16708-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164505.16708-1-sashal@kernel.org>
 References: <20191001164505.16708-1-sashal@kernel.org>
@@ -44,45 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@zoho.com.cn>
+From: Igor Druzhinin <igor.druzhinin@citrix.com>
 
-[ Upstream commit c87a37ebd40b889178664c2c09cc187334146292 ]
+[ Upstream commit a4098bc6eed5e31e0391bcc068e61804c98138df ]
 
-Currently on mmap cache policy, we always attach writeback_fid
-whether mmap type is SHARED or PRIVATE. However, in the use case
-of kata-container which combines 9p(Guest OS) with overlayfs(Host OS),
-this behavior will trigger overlayfs' copy-up when excute command
-inside container.
+If MCFG area is not reserved in E820, Xen by default will defer its usage
+until Dom0 registers it explicitly after ACPI parser recognizes it as
+a reserved resource in DSDT. Having it reserved in E820 is not
+mandatory according to "PCI Firmware Specification, rev 3.2" (par. 4.1.2)
+and firmware is free to keep a hole in E820 in that place. Xen doesn't know
+what exactly is inside this hole since it lacks full ACPI view of the
+platform therefore it's potentially harmful to access MCFG region
+without additional checks as some machines are known to provide
+inconsistent information on the size of the region.
 
-Link: http://lkml.kernel.org/r/20190820100325.10313-1-cgxu519@zoho.com.cn
-Signed-off-by: Chengguang Xu <cgxu519@zoho.com.cn>
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Now xen_mcfg_late() runs after acpi_init() which is too late as some basic
+PCI enumeration starts exactly there as well. Trying to register a device
+prior to MCFG reservation causes multiple problems with PCIe extended
+capability initializations in Xen (e.g. SR-IOV VF BAR sizing). There are
+no convenient hooks for us to subscribe to so register MCFG areas earlier
+upon the first invocation of xen_add_device(). It should be safe to do once
+since all the boot time buses must have their MCFG areas in MCFG table
+already and we don't support PCI bus hot-plug.
+
+Signed-off-by: Igor Druzhinin <igor.druzhinin@citrix.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/9p/vfs_file.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/xen/pci.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-index 79ff727254bb6..e963b83afc717 100644
---- a/fs/9p/vfs_file.c
-+++ b/fs/9p/vfs_file.c
-@@ -528,6 +528,7 @@ v9fs_mmap_file_mmap(struct file *filp, struct vm_area_struct *vma)
- 	v9inode = V9FS_I(inode);
- 	mutex_lock(&v9inode->v_mutex);
- 	if (!v9inode->writeback_fid &&
-+	    (vma->vm_flags & VM_SHARED) &&
- 	    (vma->vm_flags & VM_WRITE)) {
- 		/*
- 		 * clone a fid and add it to writeback_fid
-@@ -629,6 +630,8 @@ static void v9fs_mmap_vm_close(struct vm_area_struct *vma)
- 			(vma->vm_end - vma->vm_start - 1),
- 	};
+diff --git a/drivers/xen/pci.c b/drivers/xen/pci.c
+index 7494dbeb4409c..db58aaa4dc598 100644
+--- a/drivers/xen/pci.c
++++ b/drivers/xen/pci.c
+@@ -29,6 +29,8 @@
+ #include "../pci/pci.h"
+ #ifdef CONFIG_PCI_MMCONFIG
+ #include <asm/pci_x86.h>
++
++static int xen_mcfg_late(void);
+ #endif
  
-+	if (!(vma->vm_flags & VM_SHARED))
-+		return;
+ static bool __read_mostly pci_seg_supported = true;
+@@ -40,7 +42,18 @@ static int xen_add_device(struct device *dev)
+ #ifdef CONFIG_PCI_IOV
+ 	struct pci_dev *physfn = pci_dev->physfn;
+ #endif
+-
++#ifdef CONFIG_PCI_MMCONFIG
++	static bool pci_mcfg_reserved = false;
++	/*
++	 * Reserve MCFG areas in Xen on first invocation due to this being
++	 * potentially called from inside of acpi_init immediately after
++	 * MCFG table has been finally parsed.
++	 */
++	if (!pci_mcfg_reserved) {
++		xen_mcfg_late();
++		pci_mcfg_reserved = true;
++	}
++#endif
+ 	if (pci_seg_supported) {
+ 		struct {
+ 			struct physdev_pci_device_add add;
+@@ -213,7 +226,7 @@ static int __init register_xen_pci_notifier(void)
+ arch_initcall(register_xen_pci_notifier);
  
- 	p9_debug(P9_DEBUG_VFS, "9p VMA close, %p, flushing", vma);
- 
+ #ifdef CONFIG_PCI_MMCONFIG
+-static int __init xen_mcfg_late(void)
++static int xen_mcfg_late(void)
+ {
+ 	struct pci_mmcfg_region *cfg;
+ 	int rc;
+@@ -252,8 +265,4 @@ static int __init xen_mcfg_late(void)
+ 	}
+ 	return 0;
+ }
+-/*
+- * Needs to be done after acpi_init which are subsys_initcall.
+- */
+-subsys_initcall_sync(xen_mcfg_late);
+ #endif
 -- 
 2.20.1
 
