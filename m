@@ -2,93 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 115E3C3D76
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD88C3D79
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730557AbfJAQlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52486 "EHLO mail.kernel.org"
+        id S1727190AbfJARAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:00:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730536AbfJAQlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:41:03 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1727283AbfJAQ74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:59:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 612A020B7C;
-        Tue,  1 Oct 2019 16:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73CD02168B;
+        Tue,  1 Oct 2019 16:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948063;
-        bh=H1nrnkt44PLeur88B5tlQvgD/Hp4H1avEpbWadrLVH0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1XZhlkC0SLpNY2nIR/Z3UEwdBOoFN/KyBW0FOZeK2faXSzAwEF7vwlTp6xOfQI8/
-         VVuv4SWwnkugolxAXr12Vtc9i76PsFaqV8VyCWQFLulDVVXv/e/jTVDgsbmgVTJBT8
-         Y7pxfr2Z5lH8PU3rnnMGJj+/dFG/PCNJVMn2i5Ik=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, oss-drivers@netronome.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 60/71] nfp: flower: fix memory leak in nfp_flower_spawn_vnic_reprs
-Date:   Tue,  1 Oct 2019 12:39:10 -0400
-Message-Id: <20191001163922.14735-60-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
-References: <20191001163922.14735-1-sashal@kernel.org>
+        s=default; t=1569949196;
+        bh=Hx7m5OdIpys0QsugrbkIJbTrZ0dFqGn5jXjlF+SX1Js=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SWBN/pBbD2o1S6NIjHpADoADN7TLftfv+C5JX1CA4UavizlY0xTJMEeZtYfn0sNgq
+         kUd6Fk3aZ7RbwatKOVoAG0eESlfWxzYCIoIc07WnA4pYz7PxhalVURhcI13PBdfwgv
+         3+O/ZOZ0+MQlQ3IiLCp09DT8Nu4AR1ih+n2lpYOY=
+Date:   Tue, 1 Oct 2019 18:59:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.3 00/25] 5.3.2-stable review
+Message-ID: <20191001165953.GA3542610@kroah.com>
+References: <20190929135006.127269625@linuxfoundation.org>
+ <97a5107b-9b90-53be-47d3-dc5167013fd6@nvidia.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <97a5107b-9b90-53be-47d3-dc5167013fd6@nvidia.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+On Tue, Oct 01, 2019 at 03:59:06PM +0100, Jon Hunter wrote:
+> 
+> On 29/09/2019 14:56, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.3.2 release.
+> > There are 25 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Tue 01 Oct 2019 01:47:47 PM UTC.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.2-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.3:
+>     12 builds:	12 pass, 0 fail
+>     22 boots:	22 pass, 0 fail
+>     38 tests:	38 pass, 0 fail
+> 
+> Linux version:	5.3.2-rc1-g5910f7ae1729
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra30-cardhu-a04
 
-[ Upstream commit 8ce39eb5a67aee25d9f05b40b673c95b23502e3e ]
+Thanks for testing these and letting me know.
 
-In nfp_flower_spawn_vnic_reprs in the loop if initialization or the
-allocations fail memory is leaked. Appropriate releases are added.
-
-Fixes: b94524529741 ("nfp: flower: add per repr private data for LAG offload")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/netronome/nfp/flower/main.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/net/ethernet/netronome/nfp/flower/main.c b/drivers/net/ethernet/netronome/nfp/flower/main.c
-index eb846133943b2..5331e01f373e0 100644
---- a/drivers/net/ethernet/netronome/nfp/flower/main.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
-@@ -400,6 +400,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		repr_priv = kzalloc(sizeof(*repr_priv), GFP_KERNEL);
- 		if (!repr_priv) {
- 			err = -ENOMEM;
-+			nfp_repr_free(repr);
- 			goto err_reprs_clean;
- 		}
- 
-@@ -413,6 +414,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		port = nfp_port_alloc(app, port_type, repr);
- 		if (IS_ERR(port)) {
- 			err = PTR_ERR(port);
-+			kfree(repr_priv);
- 			nfp_repr_free(repr);
- 			goto err_reprs_clean;
- 		}
-@@ -433,6 +435,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_app *app,
- 		err = nfp_repr_init(app, repr,
- 				    port_id, port, priv->nn->dp.netdev);
- 		if (err) {
-+			kfree(repr_priv);
- 			nfp_port_free(port);
- 			nfp_repr_free(repr);
- 			goto err_reprs_clean;
--- 
-2.20.1
-
+greg k-h
