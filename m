@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EF4C3CCF
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DB8C3CC1
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:55:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730214AbfJAQyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:54:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54894 "EHLO mail.kernel.org"
+        id S1726744AbfJAQmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732239AbfJAQmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:42:54 -0400
+        id S1732274AbfJAQmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:42:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79E9E2168B;
-        Tue,  1 Oct 2019 16:42:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B682720B7C;
+        Tue,  1 Oct 2019 16:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948173;
-        bh=/9/aMWttHsVjoz7AtQoEnuhw9IY82C4nqkSpLrTWbSo=;
+        s=default; t=1569948174;
+        bh=s9bI3RQyQ7ZpumkjuFDT8yh/T4vi+2jONkZP6sqpKjg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ir/I0k69WobuEjqX4ukG5B9A3HV/BYz91VHmGBoWXpV0tgmZm2Nw/ftqFdx0iTxz5
-         2FkPzx15FY4UxjJppG1LTr7TJfudS0POwkB/dtRd5RRr8fgqDPJm+wXHj09Xga37lm
-         NjdXQGeOwQc9nk4BEY/Hn4tri7Tz2fKRFwD6S5zQ=
+        b=PGfRhhNAEPYd1A+jqMkhOxKSdIkbrc9RDP8ofbpi2IOSdQo7DonY6gsvKBTkGd9Gd
+         7egm0mbvgkJW8JfwhNOXTQ6iU24Ig6uOfPNKtBkNUKwSb4GsvMOAOAtz1fQBf2u7dx
+         WvmQLuXilA3jjOWHqISZb8quIhPEwTNuj9F0lv4Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Danielle Ratson <danieller@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+Cc:     David Ahern <dsahern@gmail.com>,
+        Patrick Ruddy <pruddy@vyatta.att-mail.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 55/63] mlxsw: spectrum_flower: Fail in case user specifies multiple mirror actions
-Date:   Tue,  1 Oct 2019 12:41:17 -0400
-Message-Id: <20191001164125.15398-55-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 56/63] vrf: Do not attempt to create IPv6 mcast rule if IPv6 is disabled
+Date:   Tue,  1 Oct 2019 12:41:18 -0400
+Message-Id: <20191001164125.15398-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
 References: <20191001164125.15398-1-sashal@kernel.org>
@@ -45,50 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@mellanox.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit 52feb8b588f6d23673dd7cc2b44b203493b627f6 ]
+[ Upstream commit dac91170f8e9c73784af5fad6225e954b795601c ]
 
-The ASIC can only mirror a packet to one port, but when user is trying
-to set more than one mirror action, it doesn't fail.
+A user reported that vrf create fails when IPv6 is disabled at boot using
+'ipv6.disable=1':
+   https://bugzilla.kernel.org/show_bug.cgi?id=204903
 
-Add a check if more than one mirror action was specified per rule and if so,
-fail for not being supported.
+The failure is adding fib rules at create time. Add RTNL_FAMILY_IP6MR to
+the check in vrf_fib_rule if ipv6_mod_enabled is disabled.
 
-Fixes: d0d13c1858a11 ("mlxsw: spectrum_acl: Add support for mirror action")
-Signed-off-by: Danielle Ratson <danieller@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Fixes: e4a38c0c4b27 ("ipv6: add vrf table handling code for ipv6 mcast")
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Cc: Patrick Ruddy <pruddy@vyatta.att-mail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/vrf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-index 96b23c856f4de..ca31c26e98c1e 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_flower.c
-@@ -21,6 +21,7 @@ static int mlxsw_sp_flower_parse_actions(struct mlxsw_sp *mlxsw_sp,
- 					 struct netlink_ext_ack *extack)
- {
- 	const struct flow_action_entry *act;
-+	int mirror_act_count = 0;
- 	int err, i;
+diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
+index 97fb0cb1b97ab..1a22165afb393 100644
+--- a/drivers/net/vrf.c
++++ b/drivers/net/vrf.c
+@@ -1153,7 +1153,8 @@ static int vrf_fib_rule(const struct net_device *dev, __u8 family, bool add_it)
+ 	struct sk_buff *skb;
+ 	int err;
  
- 	if (!flow_action_has_entries(flow_action))
-@@ -95,6 +96,11 @@ static int mlxsw_sp_flower_parse_actions(struct mlxsw_sp *mlxsw_sp,
- 		case FLOW_ACTION_MIRRED: {
- 			struct net_device *out_dev = act->dev;
+-	if (family == AF_INET6 && !ipv6_mod_enabled())
++	if ((family == AF_INET6 || family == RTNL_FAMILY_IP6MR) &&
++	    !ipv6_mod_enabled())
+ 		return 0;
  
-+			if (mirror_act_count++) {
-+				NL_SET_ERR_MSG_MOD(extack, "Multiple mirror actions per rule are not supported");
-+				return -EOPNOTSUPP;
-+			}
-+
- 			err = mlxsw_sp_acl_rulei_act_mirror(mlxsw_sp, rulei,
- 							    block, out_dev,
- 							    extack);
+ 	skb = nlmsg_new(vrf_fib_rule_nl_size(), GFP_KERNEL);
 -- 
 2.20.1
 
