@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A29AAC3B4F
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF3BC3B69
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732894AbfJAQnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:43:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
+        id S1733019AbfJAQns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732865AbfJAQnj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:43:39 -0400
+        id S1733011AbfJAQns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:43:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6BA12190F;
-        Tue,  1 Oct 2019 16:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB9D121A4A;
+        Tue,  1 Oct 2019 16:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948218;
-        bh=tmXa0FEQRJPapT/YfBJ9PRkdDGPkucied7VAktKeJSI=;
+        s=default; t=1569948227;
+        bh=lLf2g9KCQK5PoHP2qYZDVggikNw887AYHXv+3PO2oMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NddOCQEd0GVsTOw1WnVMll2CJLrS8gwJmbwtDzIR+CA+5733Lw9KuFdrwAzCuYQcj
-         prerDrP2B2bmQBwWj7++w3Ql4XJ48h7ZSdHmYbFkCrUxTRgjf1I1UiLTOkxnpJPJcG
-         TdfQu4/RcQqHsCFr7iJkDSi5must5Z+s7bQmcz+U=
+        b=M6CN8BUq7BafHLop4DpVE05CTlNG/0scDLLiTmcM4tUQPtRTXT/SuXTdRmdLR+qWa
+         lyMhTGyHSyWTNbMOUFCr0wmzIss8dAc0SbFNg0wqdYn9jYOrrPGYGXw39TRl3IPz90
+         FtbC7MRtIRFpBduvwo9Tmxk+CdMGiWHzxfM/oMJc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Mamonov <pmamonov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 20/43] net/phy: fix DP83865 10 Mbps HDX loopback disable function
-Date:   Tue,  1 Oct 2019 12:42:48 -0400
-Message-Id: <20191001164311.15993-20-sashal@kernel.org>
+Cc:     Stefan Mavrodiev <stefan@olimex.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 25/43] thermal_hwmon: Sanitize thermal_zone type
+Date:   Tue,  1 Oct 2019 12:42:53 -0400
+Message-Id: <20191001164311.15993-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164311.15993-1-sashal@kernel.org>
 References: <20191001164311.15993-1-sashal@kernel.org>
@@ -43,48 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Mamonov <pmamonov@gmail.com>
+From: Stefan Mavrodiev <stefan@olimex.com>
 
-[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
+[ Upstream commit 8c7aa184281c01fc26f319059efb94725012921d ]
 
-According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
-disabled in the expanded memory register 0x1C0.1". The driver erroneously
-used bit 0 instead of bit 1.
+When calling thermal_add_hwmon_sysfs(), the device type is sanitized by
+replacing '-' with '_'. However tz->type remains unsanitized. Thus
+calling thermal_hwmon_lookup_by_type() returns no device. And if there is
+no device, thermal_remove_hwmon_sysfs() fails with "hwmon device lookup
+failed!".
 
-Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
-Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+The result is unregisted hwmon devices in the sysfs.
+
+Fixes: 409ef0bacacf ("thermal_hwmon: Sanitize attribute name passed to hwmon")
+
+Signed-off-by: Stefan Mavrodiev <stefan@olimex.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/national.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/thermal/thermal_hwmon.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/national.c b/drivers/net/phy/national.c
-index 2b1e336961f9c..bf4070ef6b84f 100644
---- a/drivers/net/phy/national.c
-+++ b/drivers/net/phy/national.c
-@@ -110,14 +110,17 @@ static void ns_giga_speed_fallback(struct phy_device *phydev, int mode)
- 
- static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
+diff --git a/drivers/thermal/thermal_hwmon.c b/drivers/thermal/thermal_hwmon.c
+index 40c69a533b240..dd5d8ee379287 100644
+--- a/drivers/thermal/thermal_hwmon.c
++++ b/drivers/thermal/thermal_hwmon.c
+@@ -87,13 +87,17 @@ static struct thermal_hwmon_device *
+ thermal_hwmon_lookup_by_type(const struct thermal_zone_device *tz)
  {
-+	u16 lb_dis = BIT(1);
-+
- 	if (disable)
--		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
-+		ns_exp_write(phydev, 0x1c0,
-+			     ns_exp_read(phydev, 0x1c0) | lb_dis);
- 	else
- 		ns_exp_write(phydev, 0x1c0,
--			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
-+			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
+ 	struct thermal_hwmon_device *hwmon;
++	char type[THERMAL_NAME_LENGTH];
  
- 	pr_debug("10BASE-T HDX loopback %s\n",
--		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
-+		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
- }
+ 	mutex_lock(&thermal_hwmon_list_lock);
+-	list_for_each_entry(hwmon, &thermal_hwmon_list, node)
+-		if (!strcmp(hwmon->type, tz->type)) {
++	list_for_each_entry(hwmon, &thermal_hwmon_list, node) {
++		strcpy(type, tz->type);
++		strreplace(type, '-', '_');
++		if (!strcmp(hwmon->type, type)) {
+ 			mutex_unlock(&thermal_hwmon_list_lock);
+ 			return hwmon;
+ 		}
++	}
+ 	mutex_unlock(&thermal_hwmon_list_lock);
  
- static int ns_config_init(struct phy_device *phydev)
+ 	return NULL;
 -- 
 2.20.1
 
