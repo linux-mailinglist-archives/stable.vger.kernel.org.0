@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30923C3AB0
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7538C3AC1
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:40:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727572AbfJAQjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
+        id S1728048AbfJAQjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:39:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725747AbfJAQjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:25 -0400
+        id S1727929AbfJAQje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58B532168B;
-        Tue,  1 Oct 2019 16:39:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C77A62168B;
+        Tue,  1 Oct 2019 16:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947964;
-        bh=sdWjKc7950Ix1oAlzn3Bdm8pbL63ww+3W/0cLP/FqRI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=lcMSEn1iwSYiXpzEX/NXKetKJPHm1YTvbJ/HdTCfJnJ5kJbveV4SsHzjVEZQppWg7
-         yvMf48oSC1BomSPh+Ksi4NTScQRl8Fz/99VlSMP94QeWtiQ8LqfnIKWnpPLj6YPvfb
-         R254JFg47OUEZzBEYC5fS/9UwYb4HPSvQ1Ihu1rQ=
+        s=default; t=1569947973;
+        bh=GvEPbDgQxapmgW0q9BULFA69h7ReMstEhRs3fqcCj8U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=smbYnncD5ADCGN0fI2uf9VQhN+TH+Tgk5OAr9N2l6SYquiZjvWultxJ2pq4/+Dc6S
+         tO8o1M85UcBzFxMJuxmTCzMsS9ywPiA8zMkZcLnu3XUboC0aky2bDY6jO93kRH5Mxb
+         cWvrPqwm1kiBtjmFxwveOMYj5/opwSgOy3o6SG7g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 01/71] drivers: thermal: qcom: tsens: Fix memory leak from qfprom read
-Date:   Tue,  1 Oct 2019 12:38:11 -0400
-Message-Id: <20191001163922.14735-1-sashal@kernel.org>
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
+        Eli Dorfman <eli@vastdata.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 06/71] xprtrdma: Send Queue size grows after a reconnect
+Date:   Tue,  1 Oct 2019 12:38:16 -0400
+Message-Id: <20191001163922.14735-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
+References: <20191001163922.14735-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,126 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 6b8249abb093551ef173d13a25ed0044d5dd33e0 ]
+[ Upstream commit 98ef77d1aaa7a2f4e1b2a721faa084222021fda7 ]
 
-memory returned as part of nvmem_read via qfprom_read should be
-freed by the consumer once done.
-Existing code is not doing it so fix it.
+Eli Dorfman reports that after a series of idle disconnects, an
+RPC/RDMA transport becomes unusable (rdma_create_qp returns
+-ENOMEM). Problem was tracked down to increasing Send Queue size
+after each reconnect.
 
-Below memory leak detected by kmemleak
-   [<ffffff80088b7658>] kmemleak_alloc+0x50/0x84
-    [<ffffff80081df120>] __kmalloc+0xe8/0x168
-    [<ffffff80086db350>] nvmem_cell_read+0x30/0x80
-    [<ffffff8008632790>] qfprom_read+0x4c/0x7c
-    [<ffffff80086335a4>] calibrate_v1+0x34/0x204
-    [<ffffff8008632518>] tsens_probe+0x164/0x258
-    [<ffffff80084e0a1c>] platform_drv_probe+0x80/0xa0
-    [<ffffff80084de4f4>] really_probe+0x208/0x248
-    [<ffffff80084de2c4>] driver_probe_device+0x98/0xc0
-    [<ffffff80084dec54>] __device_attach_driver+0x9c/0xac
-    [<ffffff80084dca74>] bus_for_each_drv+0x60/0x8c
-    [<ffffff80084de634>] __device_attach+0x8c/0x100
-    [<ffffff80084de6c8>] device_initial_probe+0x20/0x28
-    [<ffffff80084dcbb8>] bus_probe_device+0x34/0x7c
-    [<ffffff80084deb08>] deferred_probe_work_func+0x6c/0x98
-    [<ffffff80080c3da8>] process_one_work+0x160/0x2f8
+The rdma_create_qp() API does not promise to leave its @qp_init_attr
+parameter unaltered. In fact, some drivers do modify one or more of
+its fields. Thus our calls to rdma_create_qp must use a fresh copy
+of ib_qp_init_attr each time.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+This fix is appropriate for kernels dating back to late 2007, though
+it will have to be adapted, as the connect code has changed over the
+years.
+
+Reported-by: Eli Dorfman <eli@vastdata.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens-8960.c |  2 ++
- drivers/thermal/qcom/tsens-v0_1.c | 12 ++++++++++--
- drivers/thermal/qcom/tsens-v1.c   |  1 +
- drivers/thermal/qcom/tsens.h      |  1 +
- 4 files changed, 14 insertions(+), 2 deletions(-)
+ net/sunrpc/xprtrdma/verbs.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/thermal/qcom/tsens-8960.c b/drivers/thermal/qcom/tsens-8960.c
-index 8d9b721dadb65..e46a4e3f25c42 100644
---- a/drivers/thermal/qcom/tsens-8960.c
-+++ b/drivers/thermal/qcom/tsens-8960.c
-@@ -229,6 +229,8 @@ static int calibrate_8960(struct tsens_priv *priv)
- 	for (i = 0; i < num_read; i++, s++)
- 		s->offset = data[i];
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 805b1f35e1caa..2bd9b4de0e325 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -605,10 +605,10 @@ void rpcrdma_ep_destroy(struct rpcrdma_xprt *r_xprt)
+  * Unlike a normal reconnection, a fresh PD and a new set
+  * of MRs and buffers is needed.
+  */
+-static int
+-rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
+-			 struct rpcrdma_ep *ep, struct rpcrdma_ia *ia)
++static int rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
++				    struct ib_qp_init_attr *qp_init_attr)
+ {
++	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
+ 	int rc, err;
  
-+	kfree(data);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
-index 6f26fadf4c279..055647bcee67d 100644
---- a/drivers/thermal/qcom/tsens-v0_1.c
-+++ b/drivers/thermal/qcom/tsens-v0_1.c
-@@ -145,8 +145,10 @@ static int calibrate_8916(struct tsens_priv *priv)
- 		return PTR_ERR(qfprom_cdata);
- 
- 	qfprom_csel = (u32 *)qfprom_read(priv->dev, "calib_sel");
--	if (IS_ERR(qfprom_csel))
-+	if (IS_ERR(qfprom_csel)) {
-+		kfree(qfprom_cdata);
- 		return PTR_ERR(qfprom_csel);
-+	}
- 
- 	mode = (qfprom_csel[0] & MSM8916_CAL_SEL_MASK) >> MSM8916_CAL_SEL_SHIFT;
- 	dev_dbg(priv->dev, "calibration mode is %d\n", mode);
-@@ -181,6 +183,8 @@ static int calibrate_8916(struct tsens_priv *priv)
+ 	trace_xprtrdma_reinsert(r_xprt);
+@@ -625,7 +625,7 @@ rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
  	}
  
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(qfprom_cdata);
-+	kfree(qfprom_csel);
- 
- 	return 0;
+ 	rc = -ENETUNREACH;
+-	err = rdma_create_qp(ia->ri_id, ia->ri_pd, &ep->rep_attr);
++	err = rdma_create_qp(ia->ri_id, ia->ri_pd, qp_init_attr);
+ 	if (err) {
+ 		pr_err("rpcrdma: rdma_create_qp returned %d\n", err);
+ 		goto out3;
+@@ -642,16 +642,16 @@ rpcrdma_ep_recreate_xprt(struct rpcrdma_xprt *r_xprt,
+ 	return rc;
  }
-@@ -198,8 +202,10 @@ static int calibrate_8974(struct tsens_priv *priv)
- 		return PTR_ERR(calib);
  
- 	bkp = (u32 *)qfprom_read(priv->dev, "calib_backup");
--	if (IS_ERR(bkp))
-+	if (IS_ERR(bkp)) {
-+		kfree(calib);
- 		return PTR_ERR(bkp);
-+	}
+-static int
+-rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt, struct rpcrdma_ep *ep,
+-		     struct rpcrdma_ia *ia)
++static int rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt,
++				struct ib_qp_init_attr *qp_init_attr)
+ {
++	struct rpcrdma_ia *ia = &r_xprt->rx_ia;
+ 	struct rdma_cm_id *id, *old;
+ 	int err, rc;
  
- 	calib_redun_sel =  bkp[1] & BKP_REDUN_SEL;
- 	calib_redun_sel >>= BKP_REDUN_SHIFT;
-@@ -313,6 +319,8 @@ static int calibrate_8974(struct tsens_priv *priv)
+ 	trace_xprtrdma_reconnect(r_xprt);
+ 
+-	rpcrdma_ep_disconnect(ep, ia);
++	rpcrdma_ep_disconnect(&r_xprt->rx_ep, ia);
+ 
+ 	rc = -EHOSTUNREACH;
+ 	id = rpcrdma_create_id(r_xprt, ia);
+@@ -673,7 +673,7 @@ rpcrdma_ep_reconnect(struct rpcrdma_xprt *r_xprt, struct rpcrdma_ep *ep,
+ 		goto out_destroy;
  	}
  
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(calib);
-+	kfree(bkp);
+-	err = rdma_create_qp(id, ia->ri_pd, &ep->rep_attr);
++	err = rdma_create_qp(id, ia->ri_pd, qp_init_attr);
+ 	if (err)
+ 		goto out_destroy;
  
- 	return 0;
- }
-diff --git a/drivers/thermal/qcom/tsens-v1.c b/drivers/thermal/qcom/tsens-v1.c
-index 10b595d4f6199..870f502f2cb6c 100644
---- a/drivers/thermal/qcom/tsens-v1.c
-+++ b/drivers/thermal/qcom/tsens-v1.c
-@@ -138,6 +138,7 @@ static int calibrate_v1(struct tsens_priv *priv)
+@@ -698,25 +698,27 @@ rpcrdma_ep_connect(struct rpcrdma_ep *ep, struct rpcrdma_ia *ia)
+ 	struct rpcrdma_xprt *r_xprt = container_of(ia, struct rpcrdma_xprt,
+ 						   rx_ia);
+ 	struct rpc_xprt *xprt = &r_xprt->rx_xprt;
++	struct ib_qp_init_attr qp_init_attr;
+ 	int rc;
+ 
+ retry:
++	memcpy(&qp_init_attr, &ep->rep_attr, sizeof(qp_init_attr));
+ 	switch (ep->rep_connected) {
+ 	case 0:
+ 		dprintk("RPC:       %s: connecting...\n", __func__);
+-		rc = rdma_create_qp(ia->ri_id, ia->ri_pd, &ep->rep_attr);
++		rc = rdma_create_qp(ia->ri_id, ia->ri_pd, &qp_init_attr);
+ 		if (rc) {
+ 			rc = -ENETUNREACH;
+ 			goto out_noupdate;
+ 		}
+ 		break;
+ 	case -ENODEV:
+-		rc = rpcrdma_ep_recreate_xprt(r_xprt, ep, ia);
++		rc = rpcrdma_ep_recreate_xprt(r_xprt, &qp_init_attr);
+ 		if (rc)
+ 			goto out_noupdate;
+ 		break;
+ 	default:
+-		rc = rpcrdma_ep_reconnect(r_xprt, ep, ia);
++		rc = rpcrdma_ep_reconnect(r_xprt, &qp_init_attr);
+ 		if (rc)
+ 			goto out;
  	}
- 
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(qfprom_cdata);
- 
- 	return 0;
- }
-diff --git a/drivers/thermal/qcom/tsens.h b/drivers/thermal/qcom/tsens.h
-index 2fd94997245bf..b89083b61c383 100644
---- a/drivers/thermal/qcom/tsens.h
-+++ b/drivers/thermal/qcom/tsens.h
-@@ -17,6 +17,7 @@
- 
- #include <linux/thermal.h>
- #include <linux/regmap.h>
-+#include <linux/slab.h>
- 
- struct tsens_priv;
- 
 -- 
 2.20.1
 
