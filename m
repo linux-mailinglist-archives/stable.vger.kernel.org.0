@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F40ACC3CFC
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64641C3CF6
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:56:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727481AbfJAQ4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54118 "EHLO mail.kernel.org"
+        id S1731837AbfJAQmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731801AbfJAQmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:42:16 -0400
+        id S1731734AbfJAQmR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:42:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A0E021855;
-        Tue,  1 Oct 2019 16:42:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE34A21924;
+        Tue,  1 Oct 2019 16:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948135;
-        bh=TCP7dajGRAJRe3aycXPdbSr6pAIYTBVA4U0rkCcawpM=;
+        s=default; t=1569948136;
+        bh=Efk7544LTQxXE1lxJo1fUKGpeEZvCEgZA8NP4JthTw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRFELVzAQP5FS+U3vfTmV8g3VhDIgyid6SU+n5db/3MGrNJMQmn18Ht17pu/z8DgY
-         +Pe6TZze2t93i6DU3xsEqc4PJjcrCTxHLwbINy4t4n1ed6KieVaauMtmUNloiOmmC3
-         JwZpsgCqXXXrfW4KVKkTJhNYZJmcPkjMTAAO0px4=
+        b=pZrCKHiOuOZ5iNomBYy1uzX5TDh8oA5SGZ5jNr/of2xJTim/lYCVleJ7FsvACwVY3
+         QoFitvDiXU2uMuiiz3YaKI9W20C8LJMxkNA6przsk4gTKwBj5bTXEOAh/M8IopldRx
+         ZyTldQVGOb8RQiB5NVvg03fptNDMlnBk+B9Ag5d0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wanpeng Li <wanpengli@tencent.com>,
-        syzbot+dff25ee91f0c7d5c1695@syzkaller.appspotmail.com,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.2 35/63] KVM: hyperv: Fix Direct Synthetic timers assert an interrupt w/o lapic_in_kernel
-Date:   Tue,  1 Oct 2019 12:40:57 -0400
-Message-Id: <20191001164125.15398-35-sashal@kernel.org>
+Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
+Subject: [PATCH AUTOSEL 5.2 36/63] =?UTF-8?q?libnvdimm:=20Fix=20endian=20c?= =?UTF-8?q?onversion=20issues=C2=A0?=
+Date:   Tue,  1 Oct 2019 12:40:58 -0400
+Message-Id: <20191001164125.15398-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
 References: <20191001164125.15398-1-sashal@kernel.org>
@@ -47,75 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit a073d7e3ad687a7ef32b65affe80faa7ce89bf92 ]
+[ Upstream commit 86aa66687442ef45909ff9814b82b4d2bb892294 ]
 
-Reported by syzkaller:
+nd_label->dpa issue was observed when trying to enable the namespace created
+with little-endian kernel on a big-endian kernel. That made me run
+`sparse` on the rest of the code and other changes are the result of that.
 
-	kasan: GPF could be caused by NULL-ptr deref or user memory access
-	general protection fault: 0000 [#1] PREEMPT SMP KASAN
-	RIP: 0010:__apic_accept_irq+0x46/0x740 arch/x86/kvm/lapic.c:1029
-	Call Trace:
-	kvm_apic_set_irq+0xb4/0x140 arch/x86/kvm/lapic.c:558
-	stimer_notify_direct arch/x86/kvm/hyperv.c:648 [inline]
-	stimer_expiration arch/x86/kvm/hyperv.c:659 [inline]
-	kvm_hv_process_stimers+0x594/0x1650 arch/x86/kvm/hyperv.c:686
-	vcpu_enter_guest+0x2b2a/0x54b0 arch/x86/kvm/x86.c:7896
-	vcpu_run+0x393/0xd40 arch/x86/kvm/x86.c:8152
-	kvm_arch_vcpu_ioctl_run+0x636/0x900 arch/x86/kvm/x86.c:8360
-	kvm_vcpu_ioctl+0x6cf/0xaf0 arch/x86/kvm/../../../virt/kvm/kvm_main.c:2765
-
-The testcase programs HV_X64_MSR_STIMERn_CONFIG/HV_X64_MSR_STIMERn_COUNT,
-in addition, there is no lapic in the kernel, the counters value are small
-enough in order that kvm_hv_process_stimers() inject this already-expired
-timer interrupt into the guest through lapic in the kernel which triggers
-the NULL deferencing. This patch fixes it by don't advertise direct mode
-synthetic timers and discarding the inject when lapic is not in kernel.
-
-syzkaller source: https://syzkaller.appspot.com/x/repro.c?x=1752fe0a600000
-
-Reported-by: syzbot+dff25ee91f0c7d5c1695@syzkaller.appspotmail.com
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
+Fixes: 9dedc73a4658 ("libnvdimm/btt: Fix LBA masking during 'free list' population")
+Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20190809074726.27815-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/hyperv.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/nvdimm/btt.c            | 8 ++++----
+ drivers/nvdimm/namespace_devs.c | 7 ++++---
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index 742ecf5b6c009..72200998687cd 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -645,7 +645,9 @@ static int stimer_notify_direct(struct kvm_vcpu_hv_stimer *stimer)
- 		.vector = stimer->config.apic_vector
- 	};
+diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
+index a8d56887ec881..3e9f45aec8d18 100644
+--- a/drivers/nvdimm/btt.c
++++ b/drivers/nvdimm/btt.c
+@@ -392,9 +392,9 @@ static int btt_flog_write(struct arena_info *arena, u32 lane, u32 sub,
+ 	arena->freelist[lane].sub = 1 - arena->freelist[lane].sub;
+ 	if (++(arena->freelist[lane].seq) == 4)
+ 		arena->freelist[lane].seq = 1;
+-	if (ent_e_flag(ent->old_map))
++	if (ent_e_flag(le32_to_cpu(ent->old_map)))
+ 		arena->freelist[lane].has_err = 1;
+-	arena->freelist[lane].block = le32_to_cpu(ent_lba(ent->old_map));
++	arena->freelist[lane].block = ent_lba(le32_to_cpu(ent->old_map));
  
--	return !kvm_apic_set_irq(vcpu, &irq, NULL);
-+	if (lapic_in_kernel(vcpu))
-+		return !kvm_apic_set_irq(vcpu, &irq, NULL);
-+	return 0;
+ 	return ret;
  }
+@@ -560,8 +560,8 @@ static int btt_freelist_init(struct arena_info *arena)
+ 		 * FIXME: if error clearing fails during init, we want to make
+ 		 * the BTT read-only
+ 		 */
+-		if (ent_e_flag(log_new.old_map) &&
+-				!ent_normal(log_new.old_map)) {
++		if (ent_e_flag(le32_to_cpu(log_new.old_map)) &&
++		    !ent_normal(le32_to_cpu(log_new.old_map))) {
+ 			arena->freelist[i].has_err = 1;
+ 			ret = arena_clear_freelist_error(arena, i);
+ 			if (ret)
+diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
+index a434a5964cb93..d1a062d6ff705 100644
+--- a/drivers/nvdimm/namespace_devs.c
++++ b/drivers/nvdimm/namespace_devs.c
+@@ -1987,7 +1987,7 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
+ 		nd_mapping = &nd_region->mapping[i];
+ 		label_ent = list_first_entry_or_null(&nd_mapping->labels,
+ 				typeof(*label_ent), list);
+-		label0 = label_ent ? label_ent->label : 0;
++		label0 = label_ent ? label_ent->label : NULL;
  
- static void stimer_expiration(struct kvm_vcpu_hv_stimer *stimer)
-@@ -1854,7 +1856,13 @@ int kvm_vcpu_ioctl_get_hv_cpuid(struct kvm_vcpu *vcpu, struct kvm_cpuid2 *cpuid,
+ 		if (!label0) {
+ 			WARN_ON(1);
+@@ -2322,8 +2322,9 @@ static struct device **scan_labels(struct nd_region *nd_region)
+ 			continue;
  
- 			ent->edx |= HV_FEATURE_FREQUENCY_MSRS_AVAILABLE;
- 			ent->edx |= HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE;
--			ent->edx |= HV_STIMER_DIRECT_MODE_AVAILABLE;
-+
-+			/*
-+			 * Direct Synthetic timers only make sense with in-kernel
-+			 * LAPIC
-+			 */
-+			if (lapic_in_kernel(vcpu))
-+				ent->edx |= HV_STIMER_DIRECT_MODE_AVAILABLE;
+ 		/* skip labels that describe extents outside of the region */
+-		if (nd_label->dpa < nd_mapping->start || nd_label->dpa > map_end)
+-			continue;
++		if (__le64_to_cpu(nd_label->dpa) < nd_mapping->start ||
++		    __le64_to_cpu(nd_label->dpa) > map_end)
++				continue;
  
- 			break;
- 
+ 		i = add_namespace_resource(nd_region, nd_label, devs, count);
+ 		if (i < 0)
 -- 
 2.20.1
 
