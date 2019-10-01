@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0759C3D7D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DF8C3D86
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729283AbfJAQkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
+        id S1727389AbfJARAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730301AbfJAQkq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:46 -0400
+        id S1730241AbfJAQkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 667BF21872;
-        Tue,  1 Oct 2019 16:40:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B87E21A4A;
+        Tue,  1 Oct 2019 16:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948046;
-        bh=d1cwlKNt2mnCdzZ5RHbHyTPGEAf/7X1xqYU1nu09wHU=;
+        s=default; t=1569948047;
+        bh=AFahc8G12K7WvzeCEERC3mW1Z1th2gs47ouNqmHB0wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0i5Myvr3iAwxCSVoc+fj657JLJFK5XPsG8NNa9pujL4l5K8T2Q1gvioYo1h/E2Ui
-         h5qLHSfAV3H/oWidbXpGZB3wpY4tdgbqyuAFROpaoNabdm9gIzBegpNKQ0s60yMJLS
-         q9Z+tEX3tjOqG3QZqMD4USWRZnmILR01XgUTyJHg=
+        b=PPiOLtLZtsPXzedIqFHTNWvPncwW1qkdB2L/UDaCacxr8FARikNWCww+ScfXlMmFx
+         5xmqvDN9tqzhuMtNZof0iPCZ+ThMvAmEvzqKg8foM331tDWXPdY/7hDYYfaCjtDuEy
+         a0+NqT8cMq9t1THTZeViQYVnl9z4XA4k3dLNXZBY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 51/71] kernel/elfcore.c: include proper prototypes
-Date:   Tue,  1 Oct 2019 12:39:01 -0400
-Message-Id: <20191001163922.14735-51-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andriin@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 52/71] libbpf: fix false uninitialized variable warning
+Date:   Tue,  1 Oct 2019 12:39:02 -0400
+Message-Id: <20191001163922.14735-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -44,49 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+From: Andrii Nakryiko <andriin@fb.com>
 
-[ Upstream commit 0f74914071ab7e7b78731ed62bf350e3a344e0a5 ]
+[ Upstream commit aef70a1f44c0b570e6345c02c2d240471859f0a4 ]
 
-When building with W=1, gcc properly complains that there's no prototypes:
+Some compilers emit warning for potential uninitialized next_id usage.
+The code is correct, but control flow is too complicated for some
+compilers to figure this out. Re-initialize next_id to satisfy
+compiler.
 
-  CC      kernel/elfcore.o
-kernel/elfcore.c:7:17: warning: no previous prototype for 'elf_core_extra_phdrs' [-Wmissing-prototypes]
-    7 | Elf_Half __weak elf_core_extra_phdrs(void)
-      |                 ^~~~~~~~~~~~~~~~~~~~
-kernel/elfcore.c:12:12: warning: no previous prototype for 'elf_core_write_extra_phdrs' [-Wmissing-prototypes]
-   12 | int __weak elf_core_write_extra_phdrs(struct coredump_params *cprm, loff_t offset)
-      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~
-kernel/elfcore.c:17:12: warning: no previous prototype for 'elf_core_write_extra_data' [-Wmissing-prototypes]
-   17 | int __weak elf_core_write_extra_data(struct coredump_params *cprm)
-      |            ^~~~~~~~~~~~~~~~~~~~~~~~~
-kernel/elfcore.c:22:15: warning: no previous prototype for 'elf_core_extra_data_size' [-Wmissing-prototypes]
-   22 | size_t __weak elf_core_extra_data_size(void)
-      |               ^~~~~~~~~~~~~~~~~~~~~~~~
-
-Provide the include file so gcc is happy, and we don't have potential code drift
-
-Link: http://lkml.kernel.org/r/29875.1565224705@turing-police
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Andrii Nakryiko <andriin@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/elfcore.c | 1 +
+ tools/lib/bpf/btf_dump.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/kernel/elfcore.c b/kernel/elfcore.c
-index fc482c8e0bd88..57fb4dcff4349 100644
---- a/kernel/elfcore.c
-+++ b/kernel/elfcore.c
-@@ -3,6 +3,7 @@
- #include <linux/fs.h>
- #include <linux/mm.h>
- #include <linux/binfmts.h>
-+#include <linux/elfcore.h>
+diff --git a/tools/lib/bpf/btf_dump.c b/tools/lib/bpf/btf_dump.c
+index 7065bb5b27525..e1357dbb16c24 100644
+--- a/tools/lib/bpf/btf_dump.c
++++ b/tools/lib/bpf/btf_dump.c
+@@ -1213,6 +1213,7 @@ static void btf_dump_emit_type_chain(struct btf_dump *d,
+ 				return;
+ 			}
  
- Elf_Half __weak elf_core_extra_phdrs(void)
- {
++			next_id = decls->ids[decls->cnt - 1];
+ 			next_t = btf__type_by_id(d->btf, next_id);
+ 			multidim = btf_kind_of(next_t) == BTF_KIND_ARRAY;
+ 			/* we need space if we have named non-pointer */
 -- 
 2.20.1
 
