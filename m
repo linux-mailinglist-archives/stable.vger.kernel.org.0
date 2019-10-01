@@ -2,96 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 946C4C327D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 13:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2BEC3342
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 13:48:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726062AbfJALao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 07:30:44 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:45409 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725844AbfJALao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 07:30:44 -0400
-Received: by mail-wr1-f65.google.com with SMTP id r5so15005060wrm.12
-        for <stable@vger.kernel.org>; Tue, 01 Oct 2019 04:30:42 -0700 (PDT)
+        id S1731234AbfJALqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 07:46:50 -0400
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:38397 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725839AbfJALqu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 07:46:50 -0400
+Received: by mail-vs1-f68.google.com with SMTP id b123so9111657vsb.5;
+        Tue, 01 Oct 2019 04:46:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MUU/1m5I5lEPteHDny9On722tmN+uwvwqTWhcZBdumg=;
-        b=0yl3ZK8YQJ4V7RMY7U3556M3UKFd5n4fQkCy3LWz8api9RMf6Ce5yq6Ee1TLwWKKF8
-         0MfQU0JAGojmgLmjgkMLkxZISoRjRokoxbn91e6I5RQXUW7Odzc+KZIKCUbPJ77xAFJL
-         sA+xVxC+nF1Pfi0c7i1JqdB+vumUBqyWqw3C4v5h/RNycgV3QS8aLdTmEdPu4FZbf89g
-         2TgJ9AbSMl/M1frs/61HPUlD7/Zifq9hkGJccvkK5eleweXkd8pbHIJt8a1S95OtxREz
-         1YOZe4K1NXypN5h9He6dlgRt/2LDyDi5gZXCpdxXy99y4IFIwT5lIYHwi+YlhBpkK50o
-         JT9Q==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc:content-transfer-encoding;
+        bh=3IIVJGpufy9CYobEbO211vdFNuEq+mTO0jolseDiF1A=;
+        b=QHvTHsynGaaF1bDxUJUUY3JkA0oMoeqOUsPcZjTey+weSKK+6Uj2idXVEYCe2UzOtS
+         hKwkMMAHlrtulRD5xHCSELEbjRJze+jjIUXUgkBHXKlUxroJHtcvdO8LpJFJPlnaOMHO
+         najvRlFfE/Y1/9LXvIPs6k4sYU3Gm0a3DcRNBvNh4+BpOkLazTiexnnuwVYjoETQmg9K
+         XteDzfoNSvDTiIJpfHmV922bapGCFTONVxxBMIu8FgRZ9VsM5q3EykYdaCY/Y7MMIMSg
+         EwO0W55Yzkn8X0ePNcWW7j80f7xuaNnybsT7OvkRAy5gkvjr0JWitlvBFzzg9Jv5pQqf
+         Aslg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MUU/1m5I5lEPteHDny9On722tmN+uwvwqTWhcZBdumg=;
-        b=YWXl//+aWY9js8QAPOQUZc2t07/BSP3xZWJb/s4BB8KAV8mIriw9ZC8W4tyVLJwZUa
-         Vq7WRSqKJvfK1BBsMKmVdcsaCiCUXOhi01P2zI/0YQ4cuYg2sam10A584DkokPBBl1KR
-         PSkOZ0q799F9tIYDCFfmxoUEpxgxEDmoiDk9/3uc1f0Xf/iHZtCP3HaAg5hrdAAunWv4
-         8aqLbOqDqKzdaCR9SvaPnFAibizHtLJJp3kiKfQlllu+IOv8sj6oojn6lsLl9dahtHrz
-         +xr1/g46/+/Mw1YTfDvx0jdiaIqalWikvFBIKlG1DvHLiLhoVmqLse5MkaMroCYgBQ5W
-         /vxA==
-X-Gm-Message-State: APjAAAV+a0lfoQEnryyo0VCOD6vc7/rXJkqPMcAndeD6nedLm54UF0rq
-        KJtr/o16h4p5mxhR484yMNU/EFmdw+GCAQ==
-X-Google-Smtp-Source: APXvYqyTJZimlkH0rWqB6+nlXy8EJkUZ1ZMqshRh5bGDiSLZq0iEugZ8QReTf4YFTj5kAzLkqWImzg==
-X-Received: by 2002:adf:fa10:: with SMTP id m16mr17062036wrr.322.1569929442090;
-        Tue, 01 Oct 2019 04:30:42 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a6sm14976001wrr.85.2019.10.01.04.30.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 01 Oct 2019 04:30:41 -0700 (PDT)
-Message-ID: <5d9338e1.1c69fb81.e2e71.42c7@mx.google.com>
-Date:   Tue, 01 Oct 2019 04:30:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc:content-transfer-encoding;
+        bh=3IIVJGpufy9CYobEbO211vdFNuEq+mTO0jolseDiF1A=;
+        b=QqZZM2jv2ifzGS4L+Xv9dFHf3xiNclpV/FnEKjzWPAAlJQW5sdHHf5vbnHQYmgPIjA
+         ljLg8bz3xy3rG//7OuV+hs/Yxu1w3SYai6NBtluXozNISSrh/rnm08KuQ4Dcy0agqrdb
+         aqvOFlvmHCio48GoEyu+KBz0OjT+qSGQOc/SCuUfp5DLAX9l8eF3eNFt1WjEf8OM68jZ
+         9gmtJ1tFoJGtPqM85Hta7//3QNXaGawsy3sVvsPNootIdJMepgd/aU4xe5SWWfRgZAxB
+         Pf2sRee7QqWoEPnGs8vbjHUs+KZOf6FT+cJTv4R+pvlWg8xbXOA5iUxg5iWRA73STt+5
+         OWOg==
+X-Gm-Message-State: APjAAAWveD0dauAJV3Zy0yLMSUNfRotvOewykmMDNaT7HqafzobD8H+p
+        nMho0CT/4YIHk1A8zYfRtvnon6bi4K5Gds2onmk=
+X-Google-Smtp-Source: APXvYqwih+nIYH2qiGTlL64AeXL3cYz1WTsEqSJ/pVatoJd/veMXYC3GaoqERc2YBxIy/Gq1LBOfgL/WoLBuHUc1NQI=
+X-Received: by 2002:a67:6044:: with SMTP id u65mr1249997vsb.95.1569930408617;
+ Tue, 01 Oct 2019 04:46:48 -0700 (PDT)
 MIME-Version: 1.0
+References: <20190930202725.1317-1-josef@toxicpanda.com>
+In-Reply-To: <20190930202725.1317-1-josef@toxicpanda.com>
+Reply-To: fdmanana@gmail.com
+From:   Filipe Manana <fdmanana@gmail.com>
+Date:   Tue, 1 Oct 2019 12:46:36 +0100
+Message-ID: <CAL3q7H5WOOoskDS2728079PJVYJa37ZPiQ5ES8eYuu6p-PS+Lg@mail.gmail.com>
+Subject: Re: [PATCH] btrfs: fix incorrect updating of log root tree
+To:     Josef Bacik <josef@toxicpanda.com>
+Cc:     linux-btrfs <linux-btrfs@vger.kernel.org>, kernel-team@fb.com,
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.76
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.19.y boot: 84 boots: 1 failed, 83 passed (v4.19.76)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 84 boots: 1 failed, 83 passed (v4.19.76)
+On Mon, Sep 30, 2019 at 11:25 PM Josef Bacik <josef@toxicpanda.com> wrote:
+>
+> We've historically had reports of being unable to mount file systems
+> because the tree log root couldn't be read.  Usually this is the "parent
+> transid failure", but could be any of the related errors, including
+> "fsid mismatch" or "bad tree block", depending on which block got
+> allocated.
+>
+> The modification of the individual log root items are serialized on the
+> per-log root root_mutex.  This means that any modification to the
+> per-subvol log root_item is completely protected.
+>
+> However we update the root item in the log root tree outside of the log
+> root tree log_mutex.  We do this in order to allow multiple subvolumes
+> to be updated in each log transaction.
+>
+> This is problematic however because when we are writing the log root
+> tree out we update the super block with the _current_ log root node
+> information.  Since these two operations happen independently of each
+> other, you can end up updating the log root tree in between writing out
+> the dirty blocks and setting the super block to point at the current
+> root.
+>
+> This means we'll point at the new root node that hasn't been written
+> out, instead of the one we should be pointing at.  Thus whatever garbage
+> or old block we end up pointing at complains when we mount the file
+> system later and try to replay the log.
+>
+> Fix this by copying the log's root item into a local root item copy.
+> Then once we're safely under the log_root_tree->log_mutex we update the
+> root item in the log_root_tree.  This way we do not modify the
+> log_root_tree while we're committing it, fixing the problem.
+>
+> cc: stable@vger.kernel.org
+> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+> Reviewed-by: Chris Mason <clm@fb.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.76/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.76/
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.76
-Git Commit: 555161ee1b7a74e77ca70fd14ed8a5137c8108ac
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 47 unique boards, 17 SoC families, 15 builds out of 206
+Looks good to me, great catch!
+Thanks.
 
-Boot Regressions Detected:
+> ---
+>  fs/btrfs/tree-log.c | 36 +++++++++++++++++++++++++++---------
+>  1 file changed, 27 insertions(+), 9 deletions(-)
+>
+> diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+> index 7cac09a6f007..1d7f22951ef2 100644
+> --- a/fs/btrfs/tree-log.c
+> +++ b/fs/btrfs/tree-log.c
+> @@ -2908,7 +2908,8 @@ static int walk_log_tree(struct btrfs_trans_handle =
+*trans,
+>   * in the tree of log roots
+>   */
+>  static int update_log_root(struct btrfs_trans_handle *trans,
+> -                          struct btrfs_root *log)
+> +                          struct btrfs_root *log,
+> +                          struct btrfs_root_item *root_item)
+>  {
+>         struct btrfs_fs_info *fs_info =3D log->fs_info;
+>         int ret;
+> @@ -2916,10 +2917,10 @@ static int update_log_root(struct btrfs_trans_han=
+dle *trans,
+>         if (log->log_transid =3D=3D 1) {
+>                 /* insert root item on the first sync */
+>                 ret =3D btrfs_insert_root(trans, fs_info->log_root_tree,
+> -                               &log->root_key, &log->root_item);
+> +                               &log->root_key, root_item);
+>         } else {
+>                 ret =3D btrfs_update_root(trans, fs_info->log_root_tree,
+> -                               &log->root_key, &log->root_item);
+> +                               &log->root_key, root_item);
+>         }
+>         return ret;
+>  }
+> @@ -3017,6 +3018,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans=
+,
+>         struct btrfs_fs_info *fs_info =3D root->fs_info;
+>         struct btrfs_root *log =3D root->log_root;
+>         struct btrfs_root *log_root_tree =3D fs_info->log_root_tree;
+> +       struct btrfs_root_item new_root_item;
+>         int log_transid =3D 0;
+>         struct btrfs_log_ctx root_log_ctx;
+>         struct blk_plug plug;
+> @@ -3080,17 +3082,25 @@ int btrfs_sync_log(struct btrfs_trans_handle *tra=
+ns,
+>                 goto out;
+>         }
+>
+> +       /*
+> +        * We _must_ update under the root->log_mutex in order to make su=
+re we
+> +        * have a consistent view of the log root we are trying to commit=
+ at
+> +        * this moment.
+> +        *
+> +        * We _must_ copy this into a local copy, because we are not hold=
+ing the
+> +        * log_root_tree->log_mutex yet.  This is important because when =
+we
+> +        * commit the log_root_tree we must have a consistent view of the
+> +        * log_root_tree when we update the super block to point at the
+> +        * log_root_tree bytenr.  If we update the log_root_tree here we'=
+ll race
+> +        * with the commit and possibly point at the new block which we m=
+ay not
+> +        * have written out.
+> +        */
+>         btrfs_set_root_node(&log->root_item, log->node);
+> +       memcpy(&new_root_item, &log->root_item, sizeof(new_root_item));
+>
+>         root->log_transid++;
+>         log->log_transid =3D root->log_transid;
+>         root->log_start_pid =3D 0;
+> -       /*
+> -        * Update or create log root item under the root's log_mutex to p=
+revent
+> -        * races with concurrent log syncs that can lead to failure to up=
+date
+> -        * log root item because it was not created yet.
+> -        */
+> -       ret =3D update_log_root(trans, log);
+>         /*
+>          * IO has been started, blocks of the log tree have WRITTEN flag =
+set
+>          * in their headers. new modifications of the log will be written=
+ to
+> @@ -3111,6 +3121,14 @@ int btrfs_sync_log(struct btrfs_trans_handle *tran=
+s,
+>         mutex_unlock(&log_root_tree->log_mutex);
+>
+>         mutex_lock(&log_root_tree->log_mutex);
+> +
+> +       /*
+> +        * Now we are safe to update the log_root_tree because we're unde=
+r the
+> +        * log_mutex, and we're a current writer so we're holding the com=
+mit
+> +        * open until we drop the log_mutex.
+> +        */
+> +       ret =3D update_log_root(trans, log, &new_root_item);
+> +
+>         if (atomic_dec_and_test(&log_root_tree->log_writers)) {
+>                 /* atomic_dec_and_test implies a barrier */
+>                 cond_wake_up_nomb(&log_root_tree->log_writer_wait);
+> --
+> 2.21.0
+>
 
-arm:
 
-    sunxi_defconfig:
-        gcc-8:
-          sun7i-a20-cubieboard2:
-              lab-baylibre: new failure (last pass: v4.19.75)
+--=20
+Filipe David Manana,
 
-Boot Failure Detected:
-
-arm:
-    sunxi_defconfig:
-        gcc-8:
-            sun7i-a20-cubieboard2: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+=E2=80=9CWhether you think you can, or you think you can't =E2=80=94 you're=
+ right.=E2=80=9D
