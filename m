@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F89FC3E11
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454BCC3E0F
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbfJAQj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50394 "EHLO mail.kernel.org"
+        id S1727811AbfJAQjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:39:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727699AbfJAQj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:28 -0400
+        id S1727789AbfJAQjb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3A8421855;
-        Tue,  1 Oct 2019 16:39:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7776E21872;
+        Tue,  1 Oct 2019 16:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947967;
-        bh=iqzG08jXsqIalfCrOb0Aw/LP+MoyhvRy0gqBfWrP+Q8=;
+        s=default; t=1569947971;
+        bh=Hi/MFaaJ5GWhVSa+IqBly6KzXkJMtUWh1MbotqnxbIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SawGvhNVGtufu3UYqHgwlmGYOX2MECmUbeDPBoQJY2UJSJ5B/xyQaI2g1c6OF2H1x
-         OpxihZcOFPcNV9Z5d8Qk5yA9bhPLuQ4ACC7sfYp5XGi3M0FsOkAT/+FCOh2P2X4QJV
-         Nnj/8JVeZ+aoeMkXeklVx1AM7kciLTPRd3mTkiCM=
+        b=gnxjCo5oRc33g960RY4lMtGdQkUI96OYCH+XV4qi5zFOEQpmQwPJXPquw9EFraFpJ
+         Dy7IT8NEzeb/wNAEcwvfxDHitiQSSAZ/e+gRyIkeMVPaWzvjKK5H/VojacXU2WqHLu
+         lz1ivhRomBB4y1FwijEmFPXcdByl8ij3uoZ92IPk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+Cc:     Chuck Lever <chuck.lever@oracle.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 04/71] fs: nfs: Fix possible null-pointer dereferences in encode_attrs()
-Date:   Tue,  1 Oct 2019 12:38:14 -0400
-Message-Id: <20191001163922.14735-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 05/71] xprtrdma: Toggle XPRT_CONGESTED in xprtrdma's slot methods
+Date:   Tue,  1 Oct 2019 12:38:15 -0400
+Message-Id: <20191001163922.14735-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -43,44 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit e2751463eaa6f9fec8fea80abbdc62dbc487b3c5 ]
+[ Upstream commit 395790566eec37706dedeb94779045adc3a7581e ]
 
-In encode_attrs(), there is an if statement on line 1145 to check
-whether label is NULL:
-    if (label && (attrmask[2] & FATTR4_WORD2_SECURITY_LABEL))
+Commit 48be539dd44a ("xprtrdma: Introduce ->alloc_slot call-out for
+xprtrdma") added a separate alloc_slot and free_slot to the RPC/RDMA
+transport. Later, commit 75891f502f5f ("SUNRPC: Support for
+congestion control when queuing is enabled") modified the generic
+alloc/free_slot methods, but neglected the methods in xprtrdma.
 
-When label is NULL, it is used on lines 1178-1181:
-    *p++ = cpu_to_be32(label->lfs);
-    *p++ = cpu_to_be32(label->pi);
-    *p++ = cpu_to_be32(label->len);
-    p = xdr_encode_opaque_fixed(p, label->label, label->len);
+Found via code review.
 
-To fix these bugs, label is checked before being used.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Fixes: 75891f502f5f ("SUNRPC: Support for congestion control ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4xdr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprtrdma/transport.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 46a8d636d151e..ab07db0f07cde 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -1174,7 +1174,7 @@ static void encode_attrs(struct xdr_stream *xdr, const struct iattr *iap,
- 		} else
- 			*p++ = cpu_to_be32(NFS4_SET_TO_SERVER_TIME);
- 	}
--	if (bmval[2] & FATTR4_WORD2_SECURITY_LABEL) {
-+	if (label && (bmval[2] & FATTR4_WORD2_SECURITY_LABEL)) {
- 		*p++ = cpu_to_be32(label->lfs);
- 		*p++ = cpu_to_be32(label->pi);
- 		*p++ = cpu_to_be32(label->len);
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 2ec349ed47702..f4763e8a67617 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -571,6 +571,7 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	return;
+ 
+ out_sleep:
++	set_bit(XPRT_CONGESTED, &xprt->state);
+ 	rpc_sleep_on(&xprt->backlog, task, NULL);
+ 	task->tk_status = -EAGAIN;
+ }
+@@ -589,7 +590,8 @@ xprt_rdma_free_slot(struct rpc_xprt *xprt, struct rpc_rqst *rqst)
+ 
+ 	memset(rqst, 0, sizeof(*rqst));
+ 	rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
+-	rpc_wake_up_next(&xprt->backlog);
++	if (unlikely(!rpc_wake_up_next(&xprt->backlog)))
++		clear_bit(XPRT_CONGESTED, &xprt->state);
+ }
+ 
+ static bool rpcrdma_check_regbuf(struct rpcrdma_xprt *r_xprt,
 -- 
 2.20.1
 
