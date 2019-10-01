@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64641C3CF6
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4372C3CF5
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731837AbfJAQmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1731847AbfJAQmS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 1 Oct 2019 12:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731734AbfJAQmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:42:17 -0400
+        id S1731834AbfJAQmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:42:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE34A21924;
-        Tue,  1 Oct 2019 16:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0640120B7C;
+        Tue,  1 Oct 2019 16:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948136;
-        bh=Efk7544LTQxXE1lxJo1fUKGpeEZvCEgZA8NP4JthTw0=;
+        s=default; t=1569948137;
+        bh=Vw4I1uOKtDXm4m/EQIyjHXit44q63Ut92gP2vIDrNS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZrCKHiOuOZ5iNomBYy1uzX5TDh8oA5SGZ5jNr/of2xJTim/lYCVleJ7FsvACwVY3
-         QoFitvDiXU2uMuiiz3YaKI9W20C8LJMxkNA6przsk4gTKwBj5bTXEOAh/M8IopldRx
-         ZyTldQVGOb8RQiB5NVvg03fptNDMlnBk+B9Ag5d0=
+        b=BSaLzsLQ/15Tbz1sUSPIMZFzs9oNth0moX56AbUB2PLQ+68Jpu2g2yCxKVQsNjzCh
+         sX98pDoX37sZJfr4UjkI6JfNgt53Bdst30vMbEyYrhT/E+0/eRf58MeJBUPeawxZ67
+         hjV80g7+dM1tSPIgimuZLi4k5G1k7GdOZKgUQCk8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nvdimm@lists.01.org
-Subject: [PATCH AUTOSEL 5.2 36/63] =?UTF-8?q?libnvdimm:=20Fix=20endian=20c?= =?UTF-8?q?onversion=20issues=C2=A0?=
-Date:   Tue,  1 Oct 2019 12:40:58 -0400
-Message-Id: <20191001164125.15398-36-sashal@kernel.org>
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.2 37/63] fuse: fix memleak in cuse_channel_open
+Date:   Tue,  1 Oct 2019 12:40:59 -0400
+Message-Id: <20191001164125.15398-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164125.15398-1-sashal@kernel.org>
 References: <20191001164125.15398-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,78 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 86aa66687442ef45909ff9814b82b4d2bb892294 ]
+[ Upstream commit 9ad09b1976c562061636ff1e01bfc3a57aebe56b ]
 
-nd_label->dpa issue was observed when trying to enable the namespace created
-with little-endian kernel on a big-endian kernel. That made me run
-`sparse` on the rest of the code and other changes are the result of that.
+If cuse_send_init fails, need to fuse_conn_put cc->fc.
 
-Fixes: d9b83c756953 ("libnvdimm, btt: rework error clearing")
-Fixes: 9dedc73a4658 ("libnvdimm/btt: Fix LBA masking during 'free list' population")
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Link: https://lore.kernel.org/r/20190809074726.27815-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+cuse_channel_open->fuse_conn_init->refcount_set(&fc->count, 1)
+                 ->fuse_dev_alloc->fuse_conn_get
+                 ->fuse_dev_free->fuse_conn_put
+
+Fixes: cc080e9e9be1 ("fuse: introduce per-instance fuse_dev structure")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/btt.c            | 8 ++++----
- drivers/nvdimm/namespace_devs.c | 7 ++++---
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ fs/fuse/cuse.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvdimm/btt.c b/drivers/nvdimm/btt.c
-index a8d56887ec881..3e9f45aec8d18 100644
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -392,9 +392,9 @@ static int btt_flog_write(struct arena_info *arena, u32 lane, u32 sub,
- 	arena->freelist[lane].sub = 1 - arena->freelist[lane].sub;
- 	if (++(arena->freelist[lane].seq) == 4)
- 		arena->freelist[lane].seq = 1;
--	if (ent_e_flag(ent->old_map))
-+	if (ent_e_flag(le32_to_cpu(ent->old_map)))
- 		arena->freelist[lane].has_err = 1;
--	arena->freelist[lane].block = le32_to_cpu(ent_lba(ent->old_map));
-+	arena->freelist[lane].block = ent_lba(le32_to_cpu(ent->old_map));
- 
- 	return ret;
- }
-@@ -560,8 +560,8 @@ static int btt_freelist_init(struct arena_info *arena)
- 		 * FIXME: if error clearing fails during init, we want to make
- 		 * the BTT read-only
- 		 */
--		if (ent_e_flag(log_new.old_map) &&
--				!ent_normal(log_new.old_map)) {
-+		if (ent_e_flag(le32_to_cpu(log_new.old_map)) &&
-+		    !ent_normal(le32_to_cpu(log_new.old_map))) {
- 			arena->freelist[i].has_err = 1;
- 			ret = arena_clear_freelist_error(arena, i);
- 			if (ret)
-diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
-index a434a5964cb93..d1a062d6ff705 100644
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -1987,7 +1987,7 @@ static struct device *create_namespace_pmem(struct nd_region *nd_region,
- 		nd_mapping = &nd_region->mapping[i];
- 		label_ent = list_first_entry_or_null(&nd_mapping->labels,
- 				typeof(*label_ent), list);
--		label0 = label_ent ? label_ent->label : 0;
-+		label0 = label_ent ? label_ent->label : NULL;
- 
- 		if (!label0) {
- 			WARN_ON(1);
-@@ -2322,8 +2322,9 @@ static struct device **scan_labels(struct nd_region *nd_region)
- 			continue;
- 
- 		/* skip labels that describe extents outside of the region */
--		if (nd_label->dpa < nd_mapping->start || nd_label->dpa > map_end)
--			continue;
-+		if (__le64_to_cpu(nd_label->dpa) < nd_mapping->start ||
-+		    __le64_to_cpu(nd_label->dpa) > map_end)
-+				continue;
- 
- 		i = add_namespace_resource(nd_region, nd_label, devs, count);
- 		if (i < 0)
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index bab7a0db81dd4..f3b7208846506 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -519,6 +519,7 @@ static int cuse_channel_open(struct inode *inode, struct file *file)
+ 	rc = cuse_send_init(cc);
+ 	if (rc) {
+ 		fuse_dev_free(fud);
++		fuse_conn_put(&cc->fc);
+ 		return rc;
+ 	}
+ 	file->private_data = fud;
 -- 
 2.20.1
 
