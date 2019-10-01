@@ -2,76 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D934CC376C
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 16:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1933EC378F
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 16:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388968AbfJAOah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 10:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39420 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388891AbfJAOah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 10:30:37 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 247152086A;
-        Tue,  1 Oct 2019 14:30:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569940236;
-        bh=tP7RCvEbzIaJlmJdGGsTmP87zeFxDfN1vsHcqjIyPqk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lZvD4CnX8ONT4otE5cDFdiaurTDkXerUxA0fiPduF44DCg0bvnCsjNkGU0XT72XTo
-         /EXwMZyWn45/h+cQ2YPzvsd0SCbbCacA60bopujwzjcpfIa3CyDGyiakSyL1Jzo3CK
-         QG7ozMk8Ux9eVQx6k3v4uxJvXUHc/z3Y4kdVFejc=
-Date:   Tue, 1 Oct 2019 10:30:35 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sakari Ailus <sakari.ailus@iki.fi>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        linux-media@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.3 084/203] media: omap3isp: Don't set streaming
- state on random subdevs
-Message-ID: <20191001143035.GV8171@sasha-vm>
-References: <20190922184350.30563-1-sashal@kernel.org>
- <20190922184350.30563-84-sashal@kernel.org>
- <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
+        id S2388925AbfJAOgO convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 1 Oct 2019 10:36:14 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:40099 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387781AbfJAOgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 10:36:13 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-217-OO_eyhEkOW2W7nALFS7WXw-1; Tue, 01 Oct 2019 15:36:10 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Tue, 1 Oct 2019 15:36:09 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 1 Oct 2019 15:36:09 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Dan Carpenter' <dan.carpenter@oracle.com>,
+        Denis Efremov <efremov@linux.com>
+CC:     "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+        Jes Sorensen <jes.sorensen@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>
+Subject: RE: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Topic: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+Thread-Index: AQHVd36LU5ikVLKK6EuvH5wLNYQtMKdEMyLwgAGeKE+AAAh2kA==
+Date:   Tue, 1 Oct 2019 14:36:09 +0000
+Message-ID: <8d2e8196cae74ec4ae20e9c23e898207@AcuMS.aculab.com>
+References: <20190930110141.29271-1-efremov@linux.com>
+ <37b195b700394e95aa8329afc9f60431@AcuMS.aculab.com>
+ <e4051dcb-10dc-ff17-ec0b-6f51dccdb5bf@linux.com>
+ <20191001135649.GH22609@kadam>
+In-Reply-To: <20191001135649.GH22609@kadam>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190923071942.GJ5525@valkosipuli.retiisi.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-MC-Unique: OO_eyhEkOW2W7nALFS7WXw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 10:19:42AM +0300, Sakari Ailus wrote:
->Hi Sasha,
->
->On Sun, Sep 22, 2019 at 02:41:50PM -0400, Sasha Levin wrote:
->> From: Sakari Ailus <sakari.ailus@linux.intel.com>
->>
->> [ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
->>
->> The streaming state should be set to the first upstream sub-device only,
->> not everywhere, for a sub-device driver itself knows how to best control
->> the streaming state of its own upstream sub-devices.
->>
->> Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
->> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
->> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->I don't disagree with this going to the stable trees as well, but in that
->case it *must* be accompanied by commit e9eb103f0277 ("media: omap3isp: Set
->device on omap3isp subdevs") or the driver will mostly cease to work.
->
->Could you pick that up as well?
+> From: Dan Carpenter
+> Sent: 01 October 2019 14:57
+> Subject: Re: [PATCH] staging: rtl8723bs: hal: Fix memcpy calls
+...
+> That's true for glibc memcpy() but not for the kernel memcpy().  In the
+> kernel there are lots of places which do a zero size memcpy().
 
-Sure, I've queued it as well, thank you.
+And probably from NULL (or even garbage) pointers.
 
---
-Thanks,
-Sasha
+After all a pointer to the end of an array (a + ARRAY_SIZE(a)) is valid
+but must not be dereferenced - so memcpy() can't dereference it's
+source address when the length is zero.
+
+> The glibc attitude is "the standard allows us to put knives here" so
+> let's put knives everywhere in the path.  And the GCC attitude is let's
+> silently remove NULL checks instead of just printing a warning that the
+> NULL check isn't required...  It could really make someone despondent.
+
+gcc is the one that add knives...
+
+This reminds me of me of a compiler that decided to optimise away
+checks for function addresses being NULL.
+At almost exactly the same time that ELF allowed for undefined weak symbols.
+Checking whether a function was actually present was non-trivial.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
