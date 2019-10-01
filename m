@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA3CC3BD5
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBA0C3BD2
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390160AbfJAQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:45:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57444 "EHLO mail.kernel.org"
+        id S2390159AbfJAQpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388017AbfJAQpC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:45:02 -0400
+        id S2390154AbfJAQpE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:45:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1360D205C9;
-        Tue,  1 Oct 2019 16:45:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A18C520B7C;
+        Tue,  1 Oct 2019 16:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948302;
-        bh=kgzfr/vRrO0hm5BZsVAdICd2cayTt5lbLSD11QS0AvY=;
+        s=default; t=1569948303;
+        bh=DdStZYFpYZrqCK5j5UIujWCDEOKqjXsCIKOn23cHrNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7dm1OTpEHlSwvkjsBsEXZIYXVrouBBn52Y1KrUKZQyP0smZ9WVLXRhcmQmRAnNpT
-         tEYdd/BiNuhPQTLPBFtTzTWYIWKGrx2tyPRV5YtULH8b7Hnl8nAbo13dz+KTZtR1IL
-         wNPYjIpMZcgLGvWHNzHahLjESt3CY9uGvZ1jDO8w=
+        b=bcP3hhzaVAM4UOFTdEIy1LojEvaog28ogA5U2UHjWmYzNV1Va+U4PoKGdTRH4W/ad
+         Zy699cdYVZMKL2Nhmq0VSQY8Z0iNoEf0qvO1GJgysTam0EC3WE3hun0Yh5D4ONxFC9
+         K8EpJZ/cMjeyOfQKJrTjRSd80Fs7oZ13HDEfwFgk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 27/29] perf unwind: Fix libunwind build failure on i386 systems
-Date:   Tue,  1 Oct 2019 12:44:21 -0400
-Message-Id: <20191001164423.16406-27-sashal@kernel.org>
+Cc:     Oliver Neukum <oneukum@suse.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 28/29] usbnet: sanity checking of packet sizes and device mtu
+Date:   Tue,  1 Oct 2019 12:44:22 -0400
+Message-Id: <20191001164423.16406-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164423.16406-1-sashal@kernel.org>
 References: <20191001164423.16406-1-sashal@kernel.org>
@@ -48,49 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 26acf400d2dcc72c7e713e1f55db47ad92010cc2 ]
+[ Upstream commit 280ceaed79f18db930c0cc8bb21f6493490bf29c ]
 
-Naresh Kamboju reported, that on the i386 build pr_err()
-doesn't get defined properly due to header ordering:
+After a reset packet sizes and device mtu can change and need
+to be reevaluated to calculate queue sizes.
+Malicious devices can set this to zero and we divide by it.
+Introduce sanity checking.
 
-  perf-in.o: In function `libunwind__x86_reg_id':
-  tools/perf/util/libunwind/../../arch/x86/util/unwind-libunwind.c:109:
-  undefined reference to `pr_err'
-
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reported-and-tested-by:  syzbot+6102c120be558c885f04@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/x86/util/unwind-libunwind.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/usbnet.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/arch/x86/util/unwind-libunwind.c b/tools/perf/arch/x86/util/unwind-libunwind.c
-index 05920e3edf7a7..47357973b55b2 100644
---- a/tools/perf/arch/x86/util/unwind-libunwind.c
-+++ b/tools/perf/arch/x86/util/unwind-libunwind.c
-@@ -1,11 +1,11 @@
- // SPDX-License-Identifier: GPL-2.0
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index 42e3244d3a705..cb9a18eda798f 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -356,6 +356,8 @@ void usbnet_update_max_qlen(struct usbnet *dev)
+ {
+ 	enum usb_device_speed speed = dev->udev->speed;
  
- #include <errno.h>
-+#include "../../util/debug.h"
- #ifndef REMOTE_UNWIND_LIBUNWIND
- #include <libunwind.h>
- #include "perf_regs.h"
- #include "../../util/unwind.h"
--#include "../../util/debug.h"
- #endif
- 
- #ifdef HAVE_ARCH_X86_64_SUPPORT
++	if (!dev->rx_urb_size || !dev->hard_mtu)
++		goto insanity;
+ 	switch (speed) {
+ 	case USB_SPEED_HIGH:
+ 		dev->rx_qlen = MAX_QUEUE_MEMORY / dev->rx_urb_size;
+@@ -372,6 +374,7 @@ void usbnet_update_max_qlen(struct usbnet *dev)
+ 		dev->tx_qlen = 5 * MAX_QUEUE_MEMORY / dev->hard_mtu;
+ 		break;
+ 	default:
++insanity:
+ 		dev->rx_qlen = dev->tx_qlen = 4;
+ 	}
+ }
 -- 
 2.20.1
 
