@@ -2,131 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32752C3E5D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:16:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C4EC3EB9
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727481AbfJARPx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 13:15:53 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:46480 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726473AbfJARPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 13:15:53 -0400
-Received: by mail-io1-f65.google.com with SMTP id c6so49800009ioo.13;
-        Tue, 01 Oct 2019 10:15:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xu9mIUeG8Hcz0lOqfBLA1+CwCuPD3jFNmQ7iOIYU3x4=;
-        b=FRMVxcBHcd1+N35DHWMGKKjOHcKURbQ98/5g7YKFf07zDDazVS2zJVkHkjmS2CA0X7
-         kWbZrrl+jvEkxkrhNegf+buiEwcLYglZKmyEpxxebxrvIOO7l69dlNTzwB9yKeKr992C
-         ahFwsU/tbsPGZ5fiCOs+CTeKmlYZtuvCT7emqm5cTuKawgvvZLaKOzyjdk9smk+T+31J
-         n5+Gy3QnFvXSzvYq6jK4AwoUY6LWSm3C5TLt6d7dFFe0Gsoe7tBisdd52Dd9lp4Vb1HZ
-         U2tM/Y8mX8rsfCiIcoC51K65jx3b5tD4eJ1ztwY3mfO39V0vddOwSbOcWDMt8ZrXObYh
-         9yiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xu9mIUeG8Hcz0lOqfBLA1+CwCuPD3jFNmQ7iOIYU3x4=;
-        b=L8/RZtufBzi4Jq0MdXROHbK0VkfnntlA0uIbQa9lK8j9Fc/Fzewqv3MyRiwR7hNpIV
-         +l56buhP7h1cGHOcbJRdmG0LsyUxaXW+SxS7weN2p9Q09RM1kYfnghOU1TJPcKDhFrJR
-         e5otFR1GPWYCbI3331ovJ7RPhAR+8ofvG5tMwcHDMgTA3wZIBcXMNop5HC6aa5vY70Xg
-         5RX4lBgY2vdE8G/sxku9xn12QSX4axRBpnYFnD1lVlcCCTtZU6+u/6CH3R8WugN0E4ds
-         rvQJbu0RazudFEz0BM6OyaHSCsNEb6QPOvj8+HTE13InwwwdwKVxBoI6fQGFm9q7sIyL
-         0yjw==
-X-Gm-Message-State: APjAAAVXuQ4PVaSpXMlB5Oq3k2ZdOxHxFla9g+2xZimvYAR0DBFuU8N1
-        J6hD8mmcBP9rwinl1VFz4/Ln3PohzOAqOvcbZezEG8M4
-X-Google-Smtp-Source: APXvYqwhVLhDPHdY3pVTIpmWCKtEk5hURjUQDpU3+51kVAPkGw4SME8F7rmmPHJ1iDSkth3/EfR+W2roF1UyG07MNbg=
-X-Received: by 2002:a02:ba12:: with SMTP id z18mr24979721jan.16.1569950151370;
- Tue, 01 Oct 2019 10:15:51 -0700 (PDT)
+        id S1727372AbfJARhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:37:42 -0400
+Received: from userp2130.oracle.com ([156.151.31.86]:35548 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727177AbfJARhl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 13:37:41 -0400
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x91HY0jo097184;
+        Tue, 1 Oct 2019 17:37:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2019-08-05;
+ bh=GRi32tn2XB/AepE2g/iJJPpxb7t/b1ZRobgj4f6uCX4=;
+ b=hmOCIkH0m8mf2WDePl4BC+pHlHqCiFZ7ZmtSt648JYzj2lSdJuY0jQTzL3CylcC+r0+I
+ GnPcSMd6xvyVe4oeoyNkaOkfnGlb/LJ8n+1aHYAe67PiYeGs9zmx6fLhEqGXt7aUGFno
+ aYxRxCxE9W496mR4hZJWiCDYUGJmQ/zjjePZFQ/ajZY7muUHuR82oZ4GR2Y+DbZlZOoC
+ d2LLRJQG4cKZO0fkFh6+uPBk9w/be1lttSz7Bz+JlhZ+fi8gIEUnLuoQJSqSRE9l4KI5
+ d4mPYPR/55jg+axwMPaRtRK065Aioj9IiYCEZ29TGYgAJfBITDemt1v62FxEO4sPcifM rA== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by userp2130.oracle.com with ESMTP id 2v9xxuqr1r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 01 Oct 2019 17:37:31 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x91HXhd9182775;
+        Tue, 1 Oct 2019 17:37:30 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3020.oracle.com with ESMTP id 2vbqd18d8u-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 01 Oct 2019 17:37:30 +0000
+Received: from abhmp0019.oracle.com (abhmp0019.oracle.com [141.146.116.25])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x91HbREV028665;
+        Tue, 1 Oct 2019 17:37:28 GMT
+Received: from bostrovs-us.us.oracle.com (/10.152.32.65)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 01 Oct 2019 10:37:27 -0700
+Subject: Re: [PATCH] xen/xenbus: fix self-deadlock after killing user process
+To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
+        linux-kernel@vger.kernel.org
+Cc:     Stefano Stabellini <sstabellini@kernel.org>,
+        James Dingwall <james@dingwall.me.uk>, stable@vger.kernel.org
+References: <20191001150355.25365-1-jgross@suse.com>
+From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=boris.ostrovsky@oracle.com; prefer-encrypt=mutual; keydata=
+ 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
+ Jg6OxFYd01z+a+oL
+Message-ID: <547479f7-bbb3-609c-fcc7-4e2e609823ae@oracle.com>
+Date:   Tue, 1 Oct 2019 13:37:24 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-References: <20191001163922.14735-1-sashal@kernel.org> <20191001163922.14735-15-sashal@kernel.org>
-In-Reply-To: <20191001163922.14735-15-sashal@kernel.org>
-From:   Ilya Dryomov <idryomov@gmail.com>
-Date:   Tue, 1 Oct 2019 19:15:49 +0200
-Message-ID: <CAOi1vP-2iSHxJVOabN05+NCiSZ0DxBC9fGN=5cx98mk5RvaDZA@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.3 15/71] rbd: fix response length parameter for
- encoded strings
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Dongsheng Yang <dongsheng.yang@easystack.cn>,
-        Ceph Development <ceph-devel@vger.kernel.org>,
-        linux-block <linux-block@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191001150355.25365-1-jgross@suse.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9397 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1908290000 definitions=main-1910010144
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9397 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1910010144
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 1, 2019 at 6:39 PM Sasha Levin <sashal@kernel.org> wrote:
+On 10/1/19 11:03 AM, Juergen Gross wrote:
+> In case a user process using xenbus has open transactions and is killed
+> e.g. via ctrl-C the following cleanup of the allocated resources might
+> result in a deadlock due to trying to end a transaction in the xenbus
+> worker thread:
 >
-> From: Dongsheng Yang <dongsheng.yang@easystack.cn>
+> [ 2551.474706] INFO: task xenbus:37 blocked for more than 120 seconds.
+> [ 2551.492215]       Tainted: P           OE     5.0.0-29-generic #5
+> [ 2551.510263] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> [ 2551.528585] xenbus          D    0    37      2 0x80000080
+> [ 2551.528590] Call Trace:
+> [ 2551.528603]  __schedule+0x2c0/0x870
+> [ 2551.528606]  ? _cond_resched+0x19/0x40
+> [ 2551.528632]  schedule+0x2c/0x70
+> [ 2551.528637]  xs_talkv+0x1ec/0x2b0
+> [ 2551.528642]  ? wait_woken+0x80/0x80
+> [ 2551.528645]  xs_single+0x53/0x80
+> [ 2551.528648]  xenbus_transaction_end+0x3b/0x70
+> [ 2551.528651]  xenbus_file_free+0x5a/0x160
+> [ 2551.528654]  xenbus_dev_queue_reply+0xc4/0x220
+> [ 2551.528657]  xenbus_thread+0x7de/0x880
+> [ 2551.528660]  ? wait_woken+0x80/0x80
+> [ 2551.528665]  kthread+0x121/0x140
+> [ 2551.528667]  ? xb_read+0x1d0/0x1d0
+> [ 2551.528670]  ? kthread_park+0x90/0x90
+> [ 2551.528673]  ret_from_fork+0x35/0x40
 >
-> [ Upstream commit 5435d2069503e2aa89c34a94154f4f2fa4a0c9c4 ]
+> Fix this by doing the cleanup via a workqueue instead.
 >
-> rbd_dev_image_id() allocates space for length but passes a smaller
-> value to rbd_obj_method_sync().  rbd_dev_v2_object_prefix() doesn't
-> allocate space for length.  Fix both to be consistent.
->
-> Signed-off-by: Dongsheng Yang <dongsheng.yang@easystack.cn>
-> Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-> Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/block/rbd.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-> index c8fb886aebd4e..69db7385c8df5 100644
-> --- a/drivers/block/rbd.c
-> +++ b/drivers/block/rbd.c
-> @@ -5669,17 +5669,20 @@ static int rbd_dev_v2_image_size(struct rbd_device *rbd_dev)
->
->  static int rbd_dev_v2_object_prefix(struct rbd_device *rbd_dev)
->  {
-> +       size_t size;
->         void *reply_buf;
->         int ret;
->         void *p;
->
-> -       reply_buf = kzalloc(RBD_OBJ_PREFIX_LEN_MAX, GFP_KERNEL);
-> +       /* Response will be an encoded string, which includes a length */
-> +       size = sizeof(__le32) + RBD_OBJ_PREFIX_LEN_MAX;
-> +       reply_buf = kzalloc(size, GFP_KERNEL);
->         if (!reply_buf)
->                 return -ENOMEM;
->
->         ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
->                                   &rbd_dev->header_oloc, "get_object_prefix",
-> -                                 NULL, 0, reply_buf, RBD_OBJ_PREFIX_LEN_MAX);
-> +                                 NULL, 0, reply_buf, size);
->         dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
->         if (ret < 0)
->                 goto out;
-> @@ -6696,7 +6699,6 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
->         dout("rbd id object name is %s\n", oid.name);
->
->         /* Response will be an encoded string, which includes a length */
-> -
->         size = sizeof (__le32) + RBD_IMAGE_ID_LEN_MAX;
->         response = kzalloc(size, GFP_NOIO);
->         if (!response) {
-> @@ -6708,7 +6710,7 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
->
->         ret = rbd_obj_method_sync(rbd_dev, &oid, &rbd_dev->header_oloc,
->                                   "get_id", NULL, 0,
-> -                                 response, RBD_IMAGE_ID_LEN_MAX);
-> +                                 response, size);
->         dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
->         if (ret == -ENOENT) {
->                 image_id = kstrdup("", GFP_KERNEL);
+> Reported-by: James Dingwall <james@dingwall.me.uk>
+> Fixes: fd8aa9095a95c ("xen: optimize xenbus driver for multiple concurrent xenstore accesses")
+> Cc: <stable@vger.kernel.org> # 4.11
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-Hi Sasha,
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
-This patch just made things consistent, there was no bug here.  I don't
-think it should be backported.
 
-Thanks,
-
-                Ilya
