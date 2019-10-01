@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91241C3B02
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DAFC3B0B
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730508AbfJAQlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52402 "EHLO mail.kernel.org"
+        id S1730813AbfJAQlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730503AbfJAQlA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:41:00 -0400
+        id S1730733AbfJAQlR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:41:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0875205C9;
-        Tue,  1 Oct 2019 16:40:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62F32205C9;
+        Tue,  1 Oct 2019 16:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948060;
-        bh=kgzfr/vRrO0hm5BZsVAdICd2cayTt5lbLSD11QS0AvY=;
+        s=default; t=1569948076;
+        bh=o8YQWDq9izhWPzGb6JCcR7h6l1EMb//vReFY9UK3M6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0ivQ6sx74z70wmqZ5/5DERn38fIJkPL0OfLTz/gp1y2lLH2D2k9GJo4UzI0dumBq
-         Zd3V/WDe2GLztSwXySitnQQBDpApvFmVhHw2EZw0bdxdWT6tYegLEaGnDs5r5H4jyt
-         DTSpiM3DcgQ81HBCkXvLLDk/ApDKtuOHTy4VZwfk=
+        b=kcGQTTahDSfpTnSq8sL5U2NJjxymvre8GZoZxG2+erfKLYyfH8TTlado07qtvIdVS
+         QyWXdSdR9fIqA7Jt+NIfwUnSqTeNpSYbDqTfKgLZspA6Cuqa4CtqWKtGLyfEI/1xOH
+         nOfJijDTDn6d8KiAqysNL2B+Voajbk7iDh4izpek=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 59/71] perf unwind: Fix libunwind build failure on i386 systems
-Date:   Tue,  1 Oct 2019 12:39:09 -0400
-Message-Id: <20191001163922.14735-59-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, oss-drivers@netronome.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 66/71] nfp: abm: fix memory leak in nfp_abm_u32_knode_replace
+Date:   Tue,  1 Oct 2019 12:39:16 -0400
+Message-Id: <20191001163922.14735-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -48,49 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 26acf400d2dcc72c7e713e1f55db47ad92010cc2 ]
+[ Upstream commit 78beef629fd95be4ed853b2d37b832f766bd96ca ]
 
-Naresh Kamboju reported, that on the i386 build pr_err()
-doesn't get defined properly due to header ordering:
+In nfp_abm_u32_knode_replace if the allocation for match fails it should
+go to the error handling instead of returning. Updated other gotos to
+have correct errno returned, too.
 
-  perf-in.o: In function `libunwind__x86_reg_id':
-  tools/perf/util/libunwind/../../arch/x86/util/unwind-libunwind.c:109:
-  undefined reference to `pr_err'
-
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/x86/util/unwind-libunwind.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/abm/cls.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/arch/x86/util/unwind-libunwind.c b/tools/perf/arch/x86/util/unwind-libunwind.c
-index 05920e3edf7a7..47357973b55b2 100644
---- a/tools/perf/arch/x86/util/unwind-libunwind.c
-+++ b/tools/perf/arch/x86/util/unwind-libunwind.c
-@@ -1,11 +1,11 @@
- // SPDX-License-Identifier: GPL-2.0
+diff --git a/drivers/net/ethernet/netronome/nfp/abm/cls.c b/drivers/net/ethernet/netronome/nfp/abm/cls.c
+index 23ebddfb95325..9f8a1f69c0c4c 100644
+--- a/drivers/net/ethernet/netronome/nfp/abm/cls.c
++++ b/drivers/net/ethernet/netronome/nfp/abm/cls.c
+@@ -176,8 +176,10 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 	u8 mask, val;
+ 	int err;
  
- #include <errno.h>
-+#include "../../util/debug.h"
- #ifndef REMOTE_UNWIND_LIBUNWIND
- #include <libunwind.h>
- #include "perf_regs.h"
- #include "../../util/unwind.h"
--#include "../../util/debug.h"
- #endif
+-	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack))
++	if (!nfp_abm_u32_check_knode(alink->abm, knode, proto, extack)) {
++		err = -EOPNOTSUPP;
+ 		goto err_delete;
++	}
  
- #ifdef HAVE_ARCH_X86_64_SUPPORT
+ 	tos_off = proto == htons(ETH_P_IP) ? 16 : 20;
+ 
+@@ -198,14 +200,18 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 		if ((iter->val & cmask) == (val & cmask) &&
+ 		    iter->band != knode->res->classid) {
+ 			NL_SET_ERR_MSG_MOD(extack, "conflict with already offloaded filter");
++			err = -EOPNOTSUPP;
+ 			goto err_delete;
+ 		}
+ 	}
+ 
+ 	if (!match) {
+ 		match = kzalloc(sizeof(*match), GFP_KERNEL);
+-		if (!match)
+-			return -ENOMEM;
++		if (!match) {
++			err = -ENOMEM;
++			goto err_delete;
++		}
++
+ 		list_add(&match->list, &alink->dscp_map);
+ 	}
+ 	match->handle = knode->handle;
+@@ -221,7 +227,7 @@ nfp_abm_u32_knode_replace(struct nfp_abm_link *alink,
+ 
+ err_delete:
+ 	nfp_abm_u32_knode_delete(alink, knode);
+-	return -EOPNOTSUPP;
++	return err;
+ }
+ 
+ static int nfp_abm_setup_tc_block_cb(enum tc_setup_type type,
 -- 
 2.20.1
 
