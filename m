@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4F0C3C25
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4774AC3C23
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390068AbfJAQoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
+        id S2388905AbfJAQtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390061AbfJAQop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:44:45 -0400
+        id S1726813AbfJAQos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:44:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BC9121924;
-        Tue,  1 Oct 2019 16:44:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0DB720B7C;
+        Tue,  1 Oct 2019 16:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948285;
-        bh=nuXD4wbneSMpDhykuG26b2NJCMcSOTmYL3uTk8bs/B4=;
+        s=default; t=1569948287;
+        bh=dlc0JlRrIOsnSsI/+Cz3XpuH095SGIxEnhFSsQV/UwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mR7ADidclbVp4XmykTuSIEhv2Je7U2BKuu4E+cJGQp/q7Tc3f2SVil+oIz7T+c1n+
-         gviQf7yMzU5kxZw0Mt7Mng8ZWFQxXDqV6OlTBQauJMK3I/dyJicwEIXo+poDVr6QaG
-         YPdwOhuF/yXwDa/PerBVGpscnM4rJ6+JOs4zArGI=
+        b=1x2NLKDdLADFk93yLCsGh9sJp+6pf2vHQ5H/wJGk7O/rFxH+4/LYtwdWl/R1YLXeE
+         IbKlxLnlRagwruSS6ofdOA0MfjhI4xH00lJzKdOYF0aKzpmk3jvWXcQRNUFKuNeLSH
+         7gc29VY4lRclmQvNSiCHYOuTwyTzRIlIgD0YMHEc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
-        syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        David Ahern <dsahern@gmail.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 17/29] net_sched: add max len check for TCA_KIND
-Date:   Tue,  1 Oct 2019 12:44:11 -0400
-Message-Id: <20191001164423.16406-17-sashal@kernel.org>
+Cc:     zhengbin <zhengbin13@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/29] fuse: fix memleak in cuse_channel_open
+Date:   Tue,  1 Oct 2019 12:44:13 -0400
+Message-Id: <20191001164423.16406-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164423.16406-1-sashal@kernel.org>
 References: <20191001164423.16406-1-sashal@kernel.org>
@@ -47,42 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 62794fc4fbf52f2209dc094ea255eaef760e7d01 ]
+[ Upstream commit 9ad09b1976c562061636ff1e01bfc3a57aebe56b ]
 
-The TCA_KIND attribute is of NLA_STRING which does not check
-the NUL char. KMSAN reported an uninit-value of TCA_KIND which
-is likely caused by the lack of NUL.
+If cuse_send_init fails, need to fuse_conn_put cc->fc.
 
-Change it to NLA_NUL_STRING and add a max len too.
+cuse_channel_open->fuse_conn_init->refcount_set(&fc->count, 1)
+                 ->fuse_dev_alloc->fuse_conn_get
+                 ->fuse_dev_free->fuse_conn_put
 
-Fixes: 8b4c3cdd9dd8 ("net: sched: Add policy validation for tc attributes")
-Reported-and-tested-by: syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: cc080e9e9be1 ("fuse: introduce per-instance fuse_dev structure")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/fuse/cuse.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 7b4270987ac16..637949b576c63 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1217,7 +1217,8 @@ check_loop_fn(struct Qdisc *q, unsigned long cl, struct qdisc_walker *w)
-  */
- 
- const struct nla_policy rtm_tca_policy[TCA_MAX + 1] = {
--	[TCA_KIND]		= { .type = NLA_STRING },
-+	[TCA_KIND]		= { .type = NLA_NUL_STRING,
-+				    .len = IFNAMSIZ - 1 },
- 	[TCA_RATE]		= { .type = NLA_BINARY,
- 				    .len = sizeof(struct tc_estimator) },
- 	[TCA_STAB]		= { .type = NLA_NESTED },
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index e9e97803442a6..55db06c7c587e 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -513,6 +513,7 @@ static int cuse_channel_open(struct inode *inode, struct file *file)
+ 	rc = cuse_send_init(cc);
+ 	if (rc) {
+ 		fuse_dev_free(fud);
++		fuse_conn_put(&cc->fc);
+ 		return rc;
+ 	}
+ 	file->private_data = fud;
 -- 
 2.20.1
 
