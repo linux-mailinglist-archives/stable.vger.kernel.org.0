@@ -2,94 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 581FEC323D
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 13:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946C4C327D
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 13:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731252AbfJALTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 07:19:14 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:58570 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725900AbfJALTN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 07:19:13 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id A75D36014B; Tue,  1 Oct 2019 11:19:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1569928752;
-        bh=TBrp107vqvrm5nw0Dhs+vhjDes58fG5CBnoGfgq8iXI=;
-        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
-        b=VlXmjYoFUICdyB08W+dyJtvJIibcEmbJeznAgp567xSEcSHFhVFqh4kgmyHKDFnZX
-         aapgFOwWYW3SHtISGkJVVB3HA3/CAFoA3a4c3IfiDeOLvaYZUqpX/2pmEcEVxh+h1X
-         mK63UvmTF4CAszgawXTW41g90305LNcpCQHdNRY8=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 18BE8601D4;
-        Tue,  1 Oct 2019 11:19:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1569928751;
-        bh=TBrp107vqvrm5nw0Dhs+vhjDes58fG5CBnoGfgq8iXI=;
-        h=Subject:From:In-Reply-To:References:To:Cc:From;
-        b=i/277xzREeUwLrLvgJRl7K3i3RaG8xSFWuw2pL4BELv8bKW64Bf5YlJiykvAyIN2v
-         csY63r99jCRCIWjYLYKavWg0j2RJQXAiYWpsw1vnPrxjLI1vwT+3gWPfs2cknQKJKZ
-         +fHDdkV/vJl4LcUyNEfncdNOZ7qKE1/u3eEjedxg=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 18BE8601D4
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+        id S1726062AbfJALao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 07:30:44 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:45409 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725844AbfJALao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 07:30:44 -0400
+Received: by mail-wr1-f65.google.com with SMTP id r5so15005060wrm.12
+        for <stable@vger.kernel.org>; Tue, 01 Oct 2019 04:30:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MUU/1m5I5lEPteHDny9On722tmN+uwvwqTWhcZBdumg=;
+        b=0yl3ZK8YQJ4V7RMY7U3556M3UKFd5n4fQkCy3LWz8api9RMf6Ce5yq6Ee1TLwWKKF8
+         0MfQU0JAGojmgLmjgkMLkxZISoRjRokoxbn91e6I5RQXUW7Odzc+KZIKCUbPJ77xAFJL
+         sA+xVxC+nF1Pfi0c7i1JqdB+vumUBqyWqw3C4v5h/RNycgV3QS8aLdTmEdPu4FZbf89g
+         2TgJ9AbSMl/M1frs/61HPUlD7/Zifq9hkGJccvkK5eleweXkd8pbHIJt8a1S95OtxREz
+         1YOZe4K1NXypN5h9He6dlgRt/2LDyDi5gZXCpdxXy99y4IFIwT5lIYHwi+YlhBpkK50o
+         JT9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MUU/1m5I5lEPteHDny9On722tmN+uwvwqTWhcZBdumg=;
+        b=YWXl//+aWY9js8QAPOQUZc2t07/BSP3xZWJb/s4BB8KAV8mIriw9ZC8W4tyVLJwZUa
+         Vq7WRSqKJvfK1BBsMKmVdcsaCiCUXOhi01P2zI/0YQ4cuYg2sam10A584DkokPBBl1KR
+         PSkOZ0q799F9tIYDCFfmxoUEpxgxEDmoiDk9/3uc1f0Xf/iHZtCP3HaAg5hrdAAunWv4
+         8aqLbOqDqKzdaCR9SvaPnFAibizHtLJJp3kiKfQlllu+IOv8sj6oojn6lsLl9dahtHrz
+         +xr1/g46/+/Mw1YTfDvx0jdiaIqalWikvFBIKlG1DvHLiLhoVmqLse5MkaMroCYgBQ5W
+         /vxA==
+X-Gm-Message-State: APjAAAV+a0lfoQEnryyo0VCOD6vc7/rXJkqPMcAndeD6nedLm54UF0rq
+        KJtr/o16h4p5mxhR484yMNU/EFmdw+GCAQ==
+X-Google-Smtp-Source: APXvYqyTJZimlkH0rWqB6+nlXy8EJkUZ1ZMqshRh5bGDiSLZq0iEugZ8QReTf4YFTj5kAzLkqWImzg==
+X-Received: by 2002:adf:fa10:: with SMTP id m16mr17062036wrr.322.1569929442090;
+        Tue, 01 Oct 2019 04:30:42 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a6sm14976001wrr.85.2019.10.01.04.30.41
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 01 Oct 2019 04:30:41 -0700 (PDT)
+Message-ID: <5d9338e1.1c69fb81.e2e71.42c7@mx.google.com>
+Date:   Tue, 01 Oct 2019 04:30:41 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] ath9k_hw: fix uninitialized variable data
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20190926225604.9342-1-efremov@linux.com>
-References: <20190926225604.9342-1-efremov@linux.com>
-To:     Denis Efremov <efremov@linux.com>
-Cc:     unlisted-recipients:; (no To-header on input)
-        Denis Efremov <efremov@linux.com>,
-        ath9k-devel@qca.qualcomm.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Rajkumar Manoharan <rmanohar@qca.qualcomm.com>,
-        "John W . Linville" <linville@tuxdriver.com>,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-        Cc:     unlisted-recipients:; (no To-header on input)Denis Efremov <efremov@linux.com>
-                                                                     ^-missing end of address
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-Id: <20191001111912.A75D36014B@smtp.codeaurora.org>
-Date:   Tue,  1 Oct 2019 11:19:12 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.76
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.19.y boot: 84 boots: 1 failed, 83 passed (v4.19.76)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Denis Efremov <efremov@linux.com> wrote:
+stable/linux-4.19.y boot: 84 boots: 1 failed, 83 passed (v4.19.76)
 
-> Currently, data variable in ar9003_hw_thermo_cal_apply() could be
-> uninitialized if ar9300_otp_read_word() will fail to read the value.
-> Initialize data variable with 0 to prevent an undefined behavior. This
-> will be enough to handle error case when ar9300_otp_read_word() fails.
-> 
-> Fixes: 80fe43f2bbd5 ("ath9k_hw: Read and configure thermocal for AR9462")
-> Cc: Rajkumar Manoharan <rmanohar@qca.qualcomm.com>
-> Cc: John W. Linville <linville@tuxdriver.com>
-> Cc: Kalle Valo <kvalo@codeaurora.org>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Denis Efremov <efremov@linux.com>
-> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.76/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.76/
 
-Patch applied to ath-next branch of ath.git, thanks.
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.76
+Git Commit: 555161ee1b7a74e77ca70fd14ed8a5137c8108ac
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 47 unique boards, 17 SoC families, 15 builds out of 206
 
-80e84f36412e ath9k_hw: fix uninitialized variable data
+Boot Regressions Detected:
 
--- 
-https://patchwork.kernel.org/patch/11163437/
+arm:
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+    sunxi_defconfig:
+        gcc-8:
+          sun7i-a20-cubieboard2:
+              lab-baylibre: new failure (last pass: v4.19.75)
 
+Boot Failure Detected:
+
+arm:
+    sunxi_defconfig:
+        gcc-8:
+            sun7i-a20-cubieboard2: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
