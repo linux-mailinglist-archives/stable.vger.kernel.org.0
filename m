@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB63BC3C2B
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D425C3C26
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390045AbfJAQoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:44:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57036 "EHLO mail.kernel.org"
+        id S1727282AbfJAQt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390039AbfJAQon (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:44:43 -0400
+        id S2387963AbfJAQoo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:44:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D06D92168B;
-        Tue,  1 Oct 2019 16:44:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00611222BE;
+        Tue,  1 Oct 2019 16:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948282;
-        bh=NPxWEqizqtLzG93Y2C2C6VM1BXQQqeCGs5qHflWBBw0=;
+        s=default; t=1569948283;
+        bh=fs1kXOuMAZDK0RFCV/7w0Tm3PE2ZQmsW58TUgfoIP+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c00nD6DtMoaRg/qt1fUuVOHKuZuczGfdDT6XieeYsOLtl7LUUZFocb3qVa6/HbDtm
-         TqkBz5ilP9Rw12BTpmu9Ln758zRliCksjtVi92f/f0evyBp/E8aKqnrRoWxwKzNGar
-         ZBy/Kt/Bt51uK+stGONFWzFluOzwEmM7v2+thHBY=
+        b=u+cgwDUaRfLDzG6ya7MGYA+4Ux6iOjcgHj3mhlaBzaoGF17PvgDt7DChlEt++Sf7y
+         +EVluZ6rMWIs0EjkPBAWEv9EHNAjKA696oyfKG1bbmkpCq3Nahacj/6kpG1JdGx5NR
+         pqMkudrf8HLPun/okIlVGfig74LUUsvnUUYQ2gGw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+Cc:     Peter Mamonov <pmamonov@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 15/29] usbnet: ignore endpoints with invalid wMaxPacketSize
-Date:   Tue,  1 Oct 2019 12:44:09 -0400
-Message-Id: <20191001164423.16406-15-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/29] net/phy: fix DP83865 10 Mbps HDX loopback disable function
+Date:   Tue,  1 Oct 2019 12:44:10 -0400
+Message-Id: <20191001164423.16406-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164423.16406-1-sashal@kernel.org>
 References: <20191001164423.16406-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,42 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjørn Mork <bjorn@mork.no>
+From: Peter Mamonov <pmamonov@gmail.com>
 
-[ Upstream commit 8d3d7c2029c1b360f1a6b0a2fca470b57eb575c0 ]
+[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
 
-Endpoints with zero wMaxPacketSize are not usable for transferring
-data. Ignore such endpoints when looking for valid in, out and
-status pipes, to make the drivers more robust against invalid and
-meaningless descriptors.
+According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
+disabled in the expanded memory register 0x1C0.1". The driver erroneously
+used bit 0 instead of bit 1.
 
-The wMaxPacketSize of these endpoints are used for memory allocations
-and as divisors in many usbnet minidrivers. Avoiding zero is therefore
-critical.
-
-Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
+Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/phy/national.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 831a9cec700ca..42e3244d3a705 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -112,6 +112,11 @@ int usbnet_get_endpoints(struct usbnet *dev, struct usb_interface *intf)
- 			int				intr = 0;
+diff --git a/drivers/net/phy/national.c b/drivers/net/phy/national.c
+index 2addf1d3f619e..3aa910b3dc89b 100644
+--- a/drivers/net/phy/national.c
++++ b/drivers/net/phy/national.c
+@@ -110,14 +110,17 @@ static void ns_giga_speed_fallback(struct phy_device *phydev, int mode)
  
- 			e = alt->endpoint + ep;
+ static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
+ {
++	u16 lb_dis = BIT(1);
 +
-+			/* ignore endpoints which cannot transfer data */
-+			if (!usb_endpoint_maxp(&e->desc))
-+				continue;
-+
- 			switch (e->desc.bmAttributes) {
- 			case USB_ENDPOINT_XFER_INT:
- 				if (!usb_endpoint_dir_in(&e->desc))
+ 	if (disable)
+-		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
++		ns_exp_write(phydev, 0x1c0,
++			     ns_exp_read(phydev, 0x1c0) | lb_dis);
+ 	else
+ 		ns_exp_write(phydev, 0x1c0,
+-			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
++			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
+ 
+ 	pr_debug("10BASE-T HDX loopback %s\n",
+-		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
++		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
+ }
+ 
+ static int ns_config_init(struct phy_device *phydev)
 -- 
 2.20.1
 
