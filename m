@@ -2,214 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A2BEC3342
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 13:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D7CBC33DE
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 14:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731234AbfJALqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 07:46:50 -0400
-Received: from mail-vs1-f68.google.com ([209.85.217.68]:38397 "EHLO
-        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbfJALqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 07:46:50 -0400
-Received: by mail-vs1-f68.google.com with SMTP id b123so9111657vsb.5;
-        Tue, 01 Oct 2019 04:46:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc:content-transfer-encoding;
-        bh=3IIVJGpufy9CYobEbO211vdFNuEq+mTO0jolseDiF1A=;
-        b=QHvTHsynGaaF1bDxUJUUY3JkA0oMoeqOUsPcZjTey+weSKK+6Uj2idXVEYCe2UzOtS
-         hKwkMMAHlrtulRD5xHCSELEbjRJze+jjIUXUgkBHXKlUxroJHtcvdO8LpJFJPlnaOMHO
-         najvRlFfE/Y1/9LXvIPs6k4sYU3Gm0a3DcRNBvNh4+BpOkLazTiexnnuwVYjoETQmg9K
-         XteDzfoNSvDTiIJpfHmV922bapGCFTONVxxBMIu8FgRZ9VsM5q3EykYdaCY/Y7MMIMSg
-         EwO0W55Yzkn8X0ePNcWW7j80f7xuaNnybsT7OvkRAy5gkvjr0JWitlvBFzzg9Jv5pQqf
-         Aslg==
+        id S1732555AbfJAMIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 08:08:41 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:33088 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725821AbfJAMIl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Oct 2019 08:08:41 -0400
+Received: by mail-wr1-f65.google.com with SMTP id b9so15220403wrs.0;
+        Tue, 01 Oct 2019 05:08:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc:content-transfer-encoding;
-        bh=3IIVJGpufy9CYobEbO211vdFNuEq+mTO0jolseDiF1A=;
-        b=QqZZM2jv2ifzGS4L+Xv9dFHf3xiNclpV/FnEKjzWPAAlJQW5sdHHf5vbnHQYmgPIjA
-         ljLg8bz3xy3rG//7OuV+hs/Yxu1w3SYai6NBtluXozNISSrh/rnm08KuQ4Dcy0agqrdb
-         aqvOFlvmHCio48GoEyu+KBz0OjT+qSGQOc/SCuUfp5DLAX9l8eF3eNFt1WjEf8OM68jZ
-         9gmtJ1tFoJGtPqM85Hta7//3QNXaGawsy3sVvsPNootIdJMepgd/aU4xe5SWWfRgZAxB
-         Pf2sRee7QqWoEPnGs8vbjHUs+KZOf6FT+cJTv4R+pvlWg8xbXOA5iUxg5iWRA73STt+5
-         OWOg==
-X-Gm-Message-State: APjAAAWveD0dauAJV3Zy0yLMSUNfRotvOewykmMDNaT7HqafzobD8H+p
-        nMho0CT/4YIHk1A8zYfRtvnon6bi4K5Gds2onmk=
-X-Google-Smtp-Source: APXvYqwih+nIYH2qiGTlL64AeXL3cYz1WTsEqSJ/pVatoJd/veMXYC3GaoqERc2YBxIy/Gq1LBOfgL/WoLBuHUc1NQI=
-X-Received: by 2002:a67:6044:: with SMTP id u65mr1249997vsb.95.1569930408617;
- Tue, 01 Oct 2019 04:46:48 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vDFY4l7ObdzMDLTWvSUTkZyMTjDs2NyWYY8Kts57jhs=;
+        b=LQWkubhsu5JfOHnNRgZxHIVVqCwzlzmLuZ9RHk9QImzDX+0MV/CkXvsOatJ8tZrmXe
+         piAW/kJ612Zz75+s/zPNZ3jGgdtNmrHKAM1JfokLdSUAtFQAhU32AoKvMfarbTjWdPzT
+         SQEMxn+a2+nL4iNSRZbq09+EhJfByQ6UrXxaZnqSMks+OEgjXFSfc6OBquesTes2NQ07
+         XXtnlwoC9mcSE7WTBZ0Wc4mCa8Tl7iMcFslMY65KqGDhNWT055fwAULryP9LZae5dd3I
+         mat6PHk4RoNhs1du92YxKWZnnunloWSOpEJ2+V26Jqr0NWc1ao+HMTW1Z+Evw7XFEXCd
+         kCuQ==
+X-Gm-Message-State: APjAAAXRGfOqKC1GUjsfAFk1rBo27bvu7FrqiRlgpNcgHKyCXKXKHzSU
+        HbztSGXtCP1h6vE50Pxg9cdagF++
+X-Google-Smtp-Source: APXvYqyujIGI2hIGh/lUB8MFy3vCutJPJw+lMg4NWy6Jo7f9gI9ynwIJ+NcNgdPUNqFXXaJHDo5zCQ==
+X-Received: by 2002:a5d:540c:: with SMTP id g12mr17579546wrv.207.1569931718832;
+        Tue, 01 Oct 2019 05:08:38 -0700 (PDT)
+Received: from green.intra.ispras.ru (bran.ispras.ru. [83.149.199.196])
+        by smtp.googlemail.com with ESMTPSA id f18sm2600683wmh.43.2019.10.01.05.08.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Oct 2019 05:08:38 -0700 (PDT)
+From:   Denis Efremov <efremov@linux.com>
+To:     linux-wireless@vger.kernel.org
+Cc:     Denis Efremov <efremov@linux.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, wil6210@qti.qualcomm.com,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
+Subject: [PATCH] wil6210: check len before memcpy() calls
+Date:   Tue,  1 Oct 2019 15:08:23 +0300
+Message-Id: <20191001120823.29853-1-efremov@linux.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20190930202725.1317-1-josef@toxicpanda.com>
-In-Reply-To: <20190930202725.1317-1-josef@toxicpanda.com>
-Reply-To: fdmanana@gmail.com
-From:   Filipe Manana <fdmanana@gmail.com>
-Date:   Tue, 1 Oct 2019 12:46:36 +0100
-Message-ID: <CAL3q7H5WOOoskDS2728079PJVYJa37ZPiQ5ES8eYuu6p-PS+Lg@mail.gmail.com>
-Subject: Re: [PATCH] btrfs: fix incorrect updating of log root tree
-To:     Josef Bacik <josef@toxicpanda.com>
-Cc:     linux-btrfs <linux-btrfs@vger.kernel.org>, kernel-team@fb.com,
-        stable@vger.kernel.org, Chris Mason <clm@fb.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 11:25 PM Josef Bacik <josef@toxicpanda.com> wrote:
->
-> We've historically had reports of being unable to mount file systems
-> because the tree log root couldn't be read.  Usually this is the "parent
-> transid failure", but could be any of the related errors, including
-> "fsid mismatch" or "bad tree block", depending on which block got
-> allocated.
->
-> The modification of the individual log root items are serialized on the
-> per-log root root_mutex.  This means that any modification to the
-> per-subvol log root_item is completely protected.
->
-> However we update the root item in the log root tree outside of the log
-> root tree log_mutex.  We do this in order to allow multiple subvolumes
-> to be updated in each log transaction.
->
-> This is problematic however because when we are writing the log root
-> tree out we update the super block with the _current_ log root node
-> information.  Since these two operations happen independently of each
-> other, you can end up updating the log root tree in between writing out
-> the dirty blocks and setting the super block to point at the current
-> root.
->
-> This means we'll point at the new root node that hasn't been written
-> out, instead of the one we should be pointing at.  Thus whatever garbage
-> or old block we end up pointing at complains when we mount the file
-> system later and try to replay the log.
->
-> Fix this by copying the log's root item into a local root item copy.
-> Then once we're safely under the log_root_tree->log_mutex we update the
-> root item in the log_root_tree.  This way we do not modify the
-> log_root_tree while we're committing it, fixing the problem.
->
-> cc: stable@vger.kernel.org
-> Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-> Reviewed-by: Chris Mason <clm@fb.com>
+memcpy() in wmi_set_ie() and wmi_update_ft_ies() is called with
+src == NULL and len == 0. This is an undefined behavior. Fix it
+by checking "ie_len > 0" before the memcpy() calls.
 
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
+As suggested by GCC documentation:
+"The pointers passed to memmove (and similar functions in <string.h>)
+must be non-null even when nbytes==0, so GCC can use that information
+to remove the check after the memmove call." [1]
 
-Looks good to me, great catch!
-Thanks.
+[1] https://gcc.gnu.org/gcc-4.9/porting_to.html
 
-> ---
->  fs/btrfs/tree-log.c | 36 +++++++++++++++++++++++++++---------
->  1 file changed, 27 insertions(+), 9 deletions(-)
->
-> diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-> index 7cac09a6f007..1d7f22951ef2 100644
-> --- a/fs/btrfs/tree-log.c
-> +++ b/fs/btrfs/tree-log.c
-> @@ -2908,7 +2908,8 @@ static int walk_log_tree(struct btrfs_trans_handle =
-*trans,
->   * in the tree of log roots
->   */
->  static int update_log_root(struct btrfs_trans_handle *trans,
-> -                          struct btrfs_root *log)
-> +                          struct btrfs_root *log,
-> +                          struct btrfs_root_item *root_item)
->  {
->         struct btrfs_fs_info *fs_info =3D log->fs_info;
->         int ret;
-> @@ -2916,10 +2917,10 @@ static int update_log_root(struct btrfs_trans_han=
-dle *trans,
->         if (log->log_transid =3D=3D 1) {
->                 /* insert root item on the first sync */
->                 ret =3D btrfs_insert_root(trans, fs_info->log_root_tree,
-> -                               &log->root_key, &log->root_item);
-> +                               &log->root_key, root_item);
->         } else {
->                 ret =3D btrfs_update_root(trans, fs_info->log_root_tree,
-> -                               &log->root_key, &log->root_item);
-> +                               &log->root_key, root_item);
->         }
->         return ret;
->  }
-> @@ -3017,6 +3018,7 @@ int btrfs_sync_log(struct btrfs_trans_handle *trans=
-,
->         struct btrfs_fs_info *fs_info =3D root->fs_info;
->         struct btrfs_root *log =3D root->log_root;
->         struct btrfs_root *log_root_tree =3D fs_info->log_root_tree;
-> +       struct btrfs_root_item new_root_item;
->         int log_transid =3D 0;
->         struct btrfs_log_ctx root_log_ctx;
->         struct blk_plug plug;
-> @@ -3080,17 +3082,25 @@ int btrfs_sync_log(struct btrfs_trans_handle *tra=
-ns,
->                 goto out;
->         }
->
-> +       /*
-> +        * We _must_ update under the root->log_mutex in order to make su=
-re we
-> +        * have a consistent view of the log root we are trying to commit=
- at
-> +        * this moment.
-> +        *
-> +        * We _must_ copy this into a local copy, because we are not hold=
-ing the
-> +        * log_root_tree->log_mutex yet.  This is important because when =
-we
-> +        * commit the log_root_tree we must have a consistent view of the
-> +        * log_root_tree when we update the super block to point at the
-> +        * log_root_tree bytenr.  If we update the log_root_tree here we'=
-ll race
-> +        * with the commit and possibly point at the new block which we m=
-ay not
-> +        * have written out.
-> +        */
->         btrfs_set_root_node(&log->root_item, log->node);
-> +       memcpy(&new_root_item, &log->root_item, sizeof(new_root_item));
->
->         root->log_transid++;
->         log->log_transid =3D root->log_transid;
->         root->log_start_pid =3D 0;
-> -       /*
-> -        * Update or create log root item under the root's log_mutex to p=
-revent
-> -        * races with concurrent log syncs that can lead to failure to up=
-date
-> -        * log root item because it was not created yet.
-> -        */
-> -       ret =3D update_log_root(trans, log);
->         /*
->          * IO has been started, blocks of the log tree have WRITTEN flag =
-set
->          * in their headers. new modifications of the log will be written=
- to
-> @@ -3111,6 +3121,14 @@ int btrfs_sync_log(struct btrfs_trans_handle *tran=
-s,
->         mutex_unlock(&log_root_tree->log_mutex);
->
->         mutex_lock(&log_root_tree->log_mutex);
-> +
-> +       /*
-> +        * Now we are safe to update the log_root_tree because we're unde=
-r the
-> +        * log_mutex, and we're a current writer so we're holding the com=
-mit
-> +        * open until we drop the log_mutex.
-> +        */
-> +       ret =3D update_log_root(trans, log, &new_root_item);
-> +
->         if (atomic_dec_and_test(&log_root_tree->log_writers)) {
->                 /* atomic_dec_and_test implies a barrier */
->                 cond_wake_up_nomb(&log_root_tree->log_writer_wait);
-> --
-> 2.21.0
->
+Cc: Maya Erez <merez@codeaurora.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Denis Efremov <efremov@linux.com>
+---
+ drivers/net/wireless/ath/wil6210/wmi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index 153b84447e40..41389c1eb252 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -2505,7 +2505,8 @@ int wmi_set_ie(struct wil6210_vif *vif, u8 type, u16 ie_len, const void *ie)
+ 	cmd->mgmt_frm_type = type;
+ 	/* BUG: FW API define ieLen as u8. Will fix FW */
+ 	cmd->ie_len = cpu_to_le16(ie_len);
+-	memcpy(cmd->ie_info, ie, ie_len);
++	if (ie_len)
++		memcpy(cmd->ie_info, ie, ie_len);
+ 	rc = wmi_send(wil, WMI_SET_APPIE_CMDID, vif->mid, cmd, len);
+ 	kfree(cmd);
+ out:
+@@ -2541,7 +2542,8 @@ int wmi_update_ft_ies(struct wil6210_vif *vif, u16 ie_len, const void *ie)
+ 	}
+ 
+ 	cmd->ie_len = cpu_to_le16(ie_len);
+-	memcpy(cmd->ie_info, ie, ie_len);
++	if (ie_len)
++		memcpy(cmd->ie_info, ie, ie_len);
+ 	rc = wmi_send(wil, WMI_UPDATE_FT_IES_CMDID, vif->mid, cmd, len);
+ 	kfree(cmd);
+ 
+-- 
+2.21.0
 
---=20
-Filipe David Manana,
-
-=E2=80=9CWhether you think you can, or you think you can't =E2=80=94 you're=
- right.=E2=80=9D
