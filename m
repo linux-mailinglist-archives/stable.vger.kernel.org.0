@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0936C3E0C
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4446C3DFD
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:04:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731423AbfJAREP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 13:04:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50586 "EHLO mail.kernel.org"
+        id S1730036AbfJAREC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727990AbfJAQjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:36 -0400
+        id S1728061AbfJAQjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 296502190F;
-        Tue,  1 Oct 2019 16:39:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3379E2168B;
+        Tue,  1 Oct 2019 16:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947975;
-        bh=kjBBx1owjHoHOHK+PfnP7vwaB5MJ/Cp+vuwoeSfQum4=;
+        s=default; t=1569947976;
+        bh=Kk6XxuN59+qbkbLJtVxcjtqKExqw2JI0CVGdOUTiFQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AdJQU+T9JxKuvpvuLWcYpr+hRCeQiBPtrolxiaDdCkE1YQ3DDGZvLMJ3H6tW6W1I8
-         4Dq8e15lD0C2GElZtqEpXrFkisdNMpciJFUcb2MrEaUObeoY8kNzRIm2qMTSnNY9NZ
-         FPvpMu3fQVzV8V7Pbd8NjtScZYiq+6XhTvB2D7kw=
+        b=xHC3a5aaFE0DoHdowBpbtVras53K1YvO0V1EhB5FHMn6uBnlrLl6KSpjXgFlgNBsG
+         SHTIV89AjHY5y8k0SYCnyIaSRUqUcxmkQT+5tP7VbBWgivCsDhGLcrDgJHpgoVZyDZ
+         pUfxDK/TfUGHn6ZtVhrhImE8G70T9KhSCiJzQVD0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@zoho.com.cn>,
+Cc:     Bharath Vedartham <linux.bhar@gmail.com>,
+        syzbot+3a030a73b6c1e9833815@syzkaller.appspotmail.com,
         Dominique Martinet <dominique.martinet@cea.fr>,
         Sasha Levin <sashal@kernel.org>,
         v9fs-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.3 08/71] 9p: avoid attaching writeback_fid on mmap with type PRIVATE
-Date:   Tue,  1 Oct 2019 12:38:18 -0400
-Message-Id: <20191001163922.14735-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 09/71] 9p/cache.c: Fix memory leak in v9fs_cache_session_get_cookie
+Date:   Tue,  1 Oct 2019 12:38:19 -0400
+Message-Id: <20191001163922.14735-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -44,45 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@zoho.com.cn>
+From: Bharath Vedartham <linux.bhar@gmail.com>
 
-[ Upstream commit c87a37ebd40b889178664c2c09cc187334146292 ]
+[ Upstream commit 962a991c5de18452d6c429d99f3039387cf5cbb0 ]
 
-Currently on mmap cache policy, we always attach writeback_fid
-whether mmap type is SHARED or PRIVATE. However, in the use case
-of kata-container which combines 9p(Guest OS) with overlayfs(Host OS),
-this behavior will trigger overlayfs' copy-up when excute command
-inside container.
+v9fs_cache_session_get_cookie assigns a random cachetag to v9ses->cachetag,
+if the cachetag is not assigned previously.
 
-Link: http://lkml.kernel.org/r/20190820100325.10313-1-cgxu519@zoho.com.cn
-Signed-off-by: Chengguang Xu <cgxu519@zoho.com.cn>
+v9fs_random_cachetag allocates memory to v9ses->cachetag with kmalloc and uses
+scnprintf to fill it up with a cachetag.
+
+But if scnprintf fails, v9ses->cachetag is not freed in the current
+code causing a memory leak.
+
+Fix this by freeing v9ses->cachetag it v9fs_random_cachetag fails.
+
+This was reported by syzbot, the link to the report is below:
+https://syzkaller.appspot.com/bug?id=f012bdf297a7a4c860c38a88b44fbee43fd9bbf3
+
+Link: http://lkml.kernel.org/r/20190522194519.GA5313@bharath12345-Inspiron-5559
+Reported-by: syzbot+3a030a73b6c1e9833815@syzkaller.appspotmail.com
+Signed-off-by: Bharath Vedartham <linux.bhar@gmail.com>
 Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/9p/vfs_file.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/9p/cache.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
-index 4cc966a31cb37..fe7f0bd2048e4 100644
---- a/fs/9p/vfs_file.c
-+++ b/fs/9p/vfs_file.c
-@@ -513,6 +513,7 @@ v9fs_mmap_file_mmap(struct file *filp, struct vm_area_struct *vma)
- 	v9inode = V9FS_I(inode);
- 	mutex_lock(&v9inode->v_mutex);
- 	if (!v9inode->writeback_fid &&
-+	    (vma->vm_flags & VM_SHARED) &&
- 	    (vma->vm_flags & VM_WRITE)) {
- 		/*
- 		 * clone a fid and add it to writeback_fid
-@@ -614,6 +615,8 @@ static void v9fs_mmap_vm_close(struct vm_area_struct *vma)
- 			(vma->vm_end - vma->vm_start - 1),
- 	};
- 
-+	if (!(vma->vm_flags & VM_SHARED))
-+		return;
- 
- 	p9_debug(P9_DEBUG_VFS, "9p VMA close, %p, flushing", vma);
- 
+diff --git a/fs/9p/cache.c b/fs/9p/cache.c
+index 995e332eee5c0..eb2151fb60494 100644
+--- a/fs/9p/cache.c
++++ b/fs/9p/cache.c
+@@ -51,6 +51,8 @@ void v9fs_cache_session_get_cookie(struct v9fs_session_info *v9ses)
+ 	if (!v9ses->cachetag) {
+ 		if (v9fs_random_cachetag(v9ses) < 0) {
+ 			v9ses->fscache = NULL;
++			kfree(v9ses->cachetag);
++			v9ses->cachetag = NULL;
+ 			return;
+ 		}
+ 	}
 -- 
 2.20.1
 
