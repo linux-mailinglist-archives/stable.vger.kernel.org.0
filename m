@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE505C3C56
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0317C3C61
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387847AbfJAQoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:44:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56582 "EHLO mail.kernel.org"
+        id S2387808AbfJAQu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726638AbfJAQoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:44:21 -0400
+        id S2387946AbfJAQoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:44:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8579A21D7B;
-        Tue,  1 Oct 2019 16:44:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 638D82168B;
+        Tue,  1 Oct 2019 16:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948261;
-        bh=hiFuDKgtlYWDahlMcqfHbIgMre7xw1LSAcAbW469eu0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSGbzpGyndwV+wLzA42fqzzIRh0qBRbFZdBDcWi32hERzoNWFhKzhWkqEXrIW7KDc
-         gODraB06LSoFF9rEzlpp2kUXHVR0A5muoApcGMC92aud0AqAGXvU0dDjdS0RP5HvBJ
-         OKYFxNOAgUpu/p6nZuWZyX9vsciYs1K/9EHwgJUo=
+        s=default; t=1569948265;
+        bh=LZt8K+pFKJyJFvN9uH562Rpkc7q8eYhurxMZU2lrw3c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=KQicYPU7tCpO6RgyukFheSM3oBPMY4a8QotJ4F4hNFQPlaZ5BDOHRdisvsGFzqXgt
+         NkFdRDj9o/hj9aEyPd2cwrh3b0+ISiZvwozdK/O4LPl6+T8arr3iJysp6aPdykfMKG
+         MRo5pOlzfMknMr3HlSkzw47w5sIihVxHjpdw0hvc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Neukum <oneukum@suse.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 42/43] usbnet: sanity checking of packet sizes and device mtu
-Date:   Tue,  1 Oct 2019 12:43:10 -0400
-Message-Id: <20191001164311.15993-42-sashal@kernel.org>
+Cc:     Sascha Hauer <s.hauer@pengutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 01/29] ima: always return negative code for error
+Date:   Tue,  1 Oct 2019 12:43:55 -0400
+Message-Id: <20191001164423.16406-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191001164311.15993-1-sashal@kernel.org>
-References: <20191001164311.15993-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,44 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-[ Upstream commit 280ceaed79f18db930c0cc8bb21f6493490bf29c ]
+[ Upstream commit f5e1040196dbfe14c77ce3dfe3b7b08d2d961e88 ]
 
-After a reset packet sizes and device mtu can change and need
-to be reevaluated to calculate queue sizes.
-Malicious devices can set this to zero and we divide by it.
-Introduce sanity checking.
+integrity_kernel_read() returns the number of bytes read. If this is
+a short read then this positive value is returned from
+ima_calc_file_hash_atfm(). Currently this is only indirectly called from
+ima_calc_file_hash() and this function only tests for the return value
+being zero or nonzero and also doesn't forward the return value.
+Nevertheless there's no point in returning a positive value as an error,
+so translate a short read into -EINVAL.
 
-Reported-and-tested-by:  syzbot+6102c120be558c885f04@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/integrity/ima/ima_crypto.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index 52ffb2360cc90..84b354f76dea8 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -356,6 +356,8 @@ void usbnet_update_max_qlen(struct usbnet *dev)
- {
- 	enum usb_device_speed speed = dev->udev->speed;
+diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
+index af680b5b678a4..06b0ee75f34fb 100644
+--- a/security/integrity/ima/ima_crypto.c
++++ b/security/integrity/ima/ima_crypto.c
+@@ -293,8 +293,11 @@ static int ima_calc_file_hash_atfm(struct file *file,
+ 		rbuf_len = min_t(loff_t, i_size - offset, rbuf_size[active]);
+ 		rc = integrity_kernel_read(file, offset, rbuf[active],
+ 					   rbuf_len);
+-		if (rc != rbuf_len)
++		if (rc != rbuf_len) {
++			if (rc >= 0)
++				rc = -EINVAL;
+ 			goto out3;
++		}
  
-+	if (!dev->rx_urb_size || !dev->hard_mtu)
-+		goto insanity;
- 	switch (speed) {
- 	case USB_SPEED_HIGH:
- 		dev->rx_qlen = MAX_QUEUE_MEMORY / dev->rx_urb_size;
-@@ -372,6 +374,7 @@ void usbnet_update_max_qlen(struct usbnet *dev)
- 		dev->tx_qlen = 5 * MAX_QUEUE_MEMORY / dev->hard_mtu;
- 		break;
- 	default:
-+insanity:
- 		dev->rx_qlen = dev->tx_qlen = 4;
- 	}
- }
+ 		if (rbuf[1] && offset) {
+ 			/* Using two buffers, and it is not the first
 -- 
 2.20.1
 
