@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 465B8C3AFD
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7093AC3B04
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730374AbfJAQkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52194 "EHLO mail.kernel.org"
+        id S1730520AbfJAQlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730326AbfJAQkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:49 -0400
+        id S1730481AbfJAQk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81BE021906;
-        Tue,  1 Oct 2019 16:40:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49DDD2070B;
+        Tue,  1 Oct 2019 16:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948048;
-        bh=ri0y+tcaOShXS+LvXq26MlFByM5jdC+qr44td80hKS4=;
+        s=default; t=1569948057;
+        bh=aH6ctXhIndO4xFNADjyeEW+RHGG7RRX4yg9ZHsOaVNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1q4M/6eJ8WSU6kRlti/gsiXyyGMEt8VZ4V2zG9DZ/6d4xMACmdCPU1t4OcQLUT61
-         SjoJS8v73B3MeISf+NiTufUI8dVAQNRtnRjGaBunlDPwYxAsMNjNNCS8PEtR9UzGB0
-         e2B8PKzXwZwCnxcJJ7WKRf0DSAkjo6a/1UmF7CXo=
+        b=rHIKX/z1jd2pgw/lcnulGZQn65TrsM/IkOUxt9b4r3mgK/oEE0/Qb8+iOYngC65bh
+         Vnc0JtnOq8cP5lqwy77JyCLUFsHHhQ0aOc1SjUNqQU2pAlZi527yw2plN7A29MsiAY
+         r2+KMvAzGZ5eobSpzu4/dJreF8V8RK/T8QScqToA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, kexec@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 53/71] kexec: bail out upon SIGKILL when allocating memory.
-Date:   Tue,  1 Oct 2019 12:39:03 -0400
-Message-Id: <20191001163922.14735-53-sashal@kernel.org>
+Cc:     Lee Jones <lee.jones@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 58/71] i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
+Date:   Tue,  1 Oct 2019 12:39:08 -0400
+Message-Id: <20191001163922.14735-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -46,43 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 7c3a6aedcd6aae0a32a527e68669f7dd667492d1 ]
+[ Upstream commit 127068abe85bf3dee50df51cb039a5a987a4a666 ]
 
-syzbot found that a thread can stall for minutes inside kexec_load() after
-that thread was killed by SIGKILL [1].  It turned out that the reproducer
-was trying to allocate 2408MB of memory using kimage_alloc_page() from
-kimage_load_normal_segment().  Let's check for SIGKILL before doing memory
-allocation.
+We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
+a rather horrific bug.  When I2C HID devices are being scanned for at
+boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
+When it does, the laptop reboots and the user never sees the OS.
 
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
+Attempts are being made to debug the reason for the spontaneous reboot.
+No luck so far, hence the requirement for this hot-fix.  This workaround
+will be removed once we have a viable fix.
 
-Link: http://lkml.kernel.org/r/993c9185-d324-2640-d061-bed2dd18b1f7@I-love.SAKURA.ne.jp
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kexec_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
-index d5870723b8ada..15d70a90b50dc 100644
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -300,6 +300,8 @@ static struct page *kimage_alloc_pages(gfp_t gfp_mask, unsigned int order)
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index a89bfce5388ee..17abf60c94aeb 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
  {
- 	struct page *pages;
+ 	dma_addr_t rx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
  
-+	if (fatal_signal_pending(current))
-+		return NULL;
- 	pages = alloc_pages(gfp_mask & ~__GFP_ZERO, order);
- 	if (pages) {
- 		unsigned int count, i;
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
+@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t tx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
 -- 
 2.20.1
 
