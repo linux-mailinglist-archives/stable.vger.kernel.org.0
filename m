@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4703C3DC6
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 065D3C3DE7
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728338AbfJAQjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:39:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50766 "EHLO mail.kernel.org"
+        id S1728347AbfJARDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:03:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728316AbfJAQjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:44 -0400
+        id S1727929AbfJAQjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7D7C21924;
-        Tue,  1 Oct 2019 16:39:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C999421920;
+        Tue,  1 Oct 2019 16:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947983;
-        bh=pj9nPbu8OCxceS12YwPlHpb0aSqTImsM0akfpQMHB4I=;
+        s=default; t=1569947984;
+        bh=6wgNZmsOgbRgn0aUaKX9yXUl7VTpU4/3/nmkC16hG4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWDbhJ0u6IkW7v/133VA4CUF+J0uonSCLr58Ut5y0VwSSr37v7vWIGVlvffXfybad
-         H5xvHJexIwlMMbUenkVUbpw+DE/EMoW8Euj8HrG6P75fxZdW64OVJqrJjMQCUQHl/2
-         jyxJE/Y7mpdfTCDBz5MVQfL9AzfosXCwD/qCkXTc=
+        b=k/ZZ9Z3L4x83zsG9JA88HTUFBYSK1EBAhnOWw5Dz2pxUhUNe6VsJ8ak8DB/lM447V
+         aDR418+4yNiMOOg/m2I5IABWu6lqdFqjviAdO9boWIkYiBqzZvCfhyDzySzpGoAcDY
+         Qxy5kYT3rUB3NsO1EOvCTuj5j+t2AX3lgA+zTcec=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongsheng Yang <dongsheng.yang@easystack.cn>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 15/71] rbd: fix response length parameter for encoded strings
-Date:   Tue,  1 Oct 2019 12:38:25 -0400
-Message-Id: <20191001163922.14735-15-sashal@kernel.org>
+Cc:     Trond Myklebust <trondmy@gmail.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 16/71] SUNRPC: RPC level errors should always set task->tk_rpc_status
+Date:   Tue,  1 Oct 2019 12:38:26 -0400
+Message-Id: <20191001163922.14735-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -44,66 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongsheng Yang <dongsheng.yang@easystack.cn>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 5435d2069503e2aa89c34a94154f4f2fa4a0c9c4 ]
+[ Upstream commit 714fbc73888f59321854e7f6c2f224213923bcad ]
 
-rbd_dev_image_id() allocates space for length but passes a smaller
-value to rbd_obj_method_sync().  rbd_dev_v2_object_prefix() doesn't
-allocate space for length.  Fix both to be consistent.
+Ensure that we set task->tk_rpc_status for all RPC level errors so that
+the caller can distinguish between those and server reply status errors.
 
-Signed-off-by: Dongsheng Yang <dongsheng.yang@easystack.cn>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rbd.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/sunrpc/clnt.c  | 6 +++---
+ net/sunrpc/sched.c | 5 ++++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index c8fb886aebd4e..69db7385c8df5 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -5669,17 +5669,20 @@ static int rbd_dev_v2_image_size(struct rbd_device *rbd_dev)
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index a07b516e503a0..76e745ff78138 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1837,7 +1837,7 @@ call_allocate(struct rpc_task *task)
+ 		return;
+ 	}
  
- static int rbd_dev_v2_object_prefix(struct rbd_device *rbd_dev)
- {
-+	size_t size;
- 	void *reply_buf;
- 	int ret;
- 	void *p;
+-	rpc_exit(task, -ERESTARTSYS);
++	rpc_call_rpcerror(task, -ERESTARTSYS);
+ }
  
--	reply_buf = kzalloc(RBD_OBJ_PREFIX_LEN_MAX, GFP_KERNEL);
-+	/* Response will be an encoded string, which includes a length */
-+	size = sizeof(__le32) + RBD_OBJ_PREFIX_LEN_MAX;
-+	reply_buf = kzalloc(size, GFP_KERNEL);
- 	if (!reply_buf)
- 		return -ENOMEM;
+ static int
+@@ -2561,7 +2561,7 @@ rpc_encode_header(struct rpc_task *task, struct xdr_stream *xdr)
+ 	return 0;
+ out_fail:
+ 	trace_rpc_bad_callhdr(task);
+-	rpc_exit(task, error);
++	rpc_call_rpcerror(task, error);
+ 	return error;
+ }
  
- 	ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
- 				  &rbd_dev->header_oloc, "get_object_prefix",
--				  NULL, 0, reply_buf, RBD_OBJ_PREFIX_LEN_MAX);
-+				  NULL, 0, reply_buf, size);
- 	dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
- 	if (ret < 0)
- 		goto out;
-@@ -6696,7 +6699,6 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
- 	dout("rbd id object name is %s\n", oid.name);
+@@ -2628,7 +2628,7 @@ rpc_decode_header(struct rpc_task *task, struct xdr_stream *xdr)
+ 		return -EAGAIN;
+ 	}
+ out_err:
+-	rpc_exit(task, error);
++	rpc_call_rpcerror(task, error);
+ 	return error;
  
- 	/* Response will be an encoded string, which includes a length */
--
- 	size = sizeof (__le32) + RBD_IMAGE_ID_LEN_MAX;
- 	response = kzalloc(size, GFP_NOIO);
- 	if (!response) {
-@@ -6708,7 +6710,7 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
+ out_unparsable:
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index 1f275aba786fc..53934fe73a9db 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -930,8 +930,10 @@ static void __rpc_execute(struct rpc_task *task)
+ 		/*
+ 		 * Signalled tasks should exit rather than sleep.
+ 		 */
+-		if (RPC_SIGNALLED(task))
++		if (RPC_SIGNALLED(task)) {
++			task->tk_rpc_status = -ERESTARTSYS;
+ 			rpc_exit(task, -ERESTARTSYS);
++		}
  
- 	ret = rbd_obj_method_sync(rbd_dev, &oid, &rbd_dev->header_oloc,
- 				  "get_id", NULL, 0,
--				  response, RBD_IMAGE_ID_LEN_MAX);
-+				  response, size);
- 	dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
- 	if (ret == -ENOENT) {
- 		image_id = kstrdup("", GFP_KERNEL);
+ 		/*
+ 		 * The queue->lock protects against races with
+@@ -967,6 +969,7 @@ static void __rpc_execute(struct rpc_task *task)
+ 			 */
+ 			dprintk("RPC: %5u got signal\n", task->tk_pid);
+ 			set_bit(RPC_TASK_SIGNALLED, &task->tk_runstate);
++			task->tk_rpc_status = -ERESTARTSYS;
+ 			rpc_exit(task, -ERESTARTSYS);
+ 		}
+ 		dprintk("RPC: %5u sync task resuming\n", task->tk_pid);
 -- 
 2.20.1
 
