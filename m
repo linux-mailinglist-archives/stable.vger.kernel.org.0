@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7577C3DC0
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:02:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C4AC3DBC
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729541AbfJAQkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
+        id S1729933AbfJARCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 13:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729530AbfJAQkE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:40:04 -0400
+        id S1729570AbfJAQkG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:40:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 662CA21A4C;
-        Tue,  1 Oct 2019 16:40:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4A8F21906;
+        Tue,  1 Oct 2019 16:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948004;
-        bh=XUvMcZuHtDRI4BwWKfBCSDQZ3OMqlA23MkrdA8f8wb8=;
+        s=default; t=1569948005;
+        bh=KeGk7ekKKZHY2R8nLwGcjBusx9sdG8nRc9xvnHtfSGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmB4/mRsH6Li2xFef9YrMa70zcA1qjTe/GzBEkLnUvzdZwqv7EJ5jCA+XEkw2/aO+
-         1zPlvPM5Je5xQ1uz3xXEMySMsM4+G39hWsrsIhAEyeyZJ4hvrG9wNihXSWYNKDaJCH
-         0VMKzn3l0XOpQ6Js+eQdRI+VdNUG0amSTqvPuBas=
+        b=U5mo18adlS3mD7VBqclMZ84gx4heR8sBcuMoUb+3Lx7x8ZLT3mkdjaehkK71CbFh/
+         B9a2m1gh2cNrgFq7ra2dyFVrPTA37T+FTzTzwXLup93AXJojEiWMWw8OspFxXXbXs+
+         IiVUAWSkLvsWUNhBIA/moK2dByXWWDWI5C8Td7yo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
-        syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        David Ahern <dsahern@gmail.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 29/71] net_sched: add max len check for TCA_KIND
-Date:   Tue,  1 Oct 2019 12:38:39 -0400
-Message-Id: <20191001163922.14735-29-sashal@kernel.org>
+Cc:     Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 30/71] selftests/seccomp: fix build on older kernels
+Date:   Tue,  1 Oct 2019 12:38:40 -0400
+Message-Id: <20191001163922.14735-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,42 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Tycho Andersen <tycho@tycho.ws>
 
-[ Upstream commit 62794fc4fbf52f2209dc094ea255eaef760e7d01 ]
+[ Upstream commit 88282297fff00796e81f5e67734a6afdfb31fbc4 ]
 
-The TCA_KIND attribute is of NLA_STRING which does not check
-the NUL char. KMSAN reported an uninit-value of TCA_KIND which
-is likely caused by the lack of NUL.
+The seccomp selftest goes to some length to build against older kernel
+headers, viz. all the #ifdefs at the beginning of the file.
 
-Change it to NLA_NUL_STRING and add a max len too.
+Commit 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
+introduces some additional macros, but doesn't do the #ifdef dance.
+Let's add that dance here to avoid:
 
-Fixes: 8b4c3cdd9dd8 ("net: sched: Add policy validation for tc attributes")
-Reported-and-tested-by: syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+gcc -Wl,-no-as-needed -Wall  seccomp_bpf.c -lpthread -o seccomp_bpf
+In file included from seccomp_bpf.c:51:
+seccomp_bpf.c: In function ‘tracer_ptrace’:
+seccomp_bpf.c:1787:20: error: ‘PTRACE_EVENTMSG_SYSCALL_ENTRY’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_CLONE’?
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1787:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
+seccomp_bpf.c:1787:20: note: each undeclared identifier is reported only once for each function it appears in
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1787:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
+seccomp_bpf.c:1788:6: error: ‘PTRACE_EVENTMSG_SYSCALL_EXIT’ undeclared (first use in this function); did you mean ‘PTRACE_EVENT_EXIT’?
+    : PTRACE_EVENTMSG_SYSCALL_EXIT, msg);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../kselftest_harness.h:608:13: note: in definition of macro ‘__EXPECT’
+  __typeof__(_expected) __exp = (_expected); \
+             ^~~~~~~~~
+seccomp_bpf.c:1787:2: note: in expansion of macro ‘EXPECT_EQ’
+  EXPECT_EQ(entry ? PTRACE_EVENTMSG_SYSCALL_ENTRY
+  ^~~~~~~~~
+make: *** [Makefile:12: seccomp_bpf] Error 1
+
+[skhan@linuxfoundation.org: Fix checkpatch error in commit log]
+Signed-off-by: Tycho Andersen <tycho@tycho.ws>
+Fixes: 201766a20e30 ("ptrace: add PTRACE_GET_SYSCALL_INFO request")
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/seccomp/seccomp_bpf.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 1047825d9f48d..81d58b2806122 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1390,7 +1390,8 @@ check_loop_fn(struct Qdisc *q, unsigned long cl, struct qdisc_walker *w)
- }
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 6ef7f16c4cf52..7f8b5c8982e3b 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -199,6 +199,11 @@ struct seccomp_notif_sizes {
+ };
+ #endif
  
- const struct nla_policy rtm_tca_policy[TCA_MAX + 1] = {
--	[TCA_KIND]		= { .type = NLA_STRING },
-+	[TCA_KIND]		= { .type = NLA_NUL_STRING,
-+				    .len = IFNAMSIZ - 1 },
- 	[TCA_RATE]		= { .type = NLA_BINARY,
- 				    .len = sizeof(struct tc_estimator) },
- 	[TCA_STAB]		= { .type = NLA_NESTED },
++#ifndef PTRACE_EVENTMSG_SYSCALL_ENTRY
++#define PTRACE_EVENTMSG_SYSCALL_ENTRY	1
++#define PTRACE_EVENTMSG_SYSCALL_EXIT	2
++#endif
++
+ #ifndef seccomp
+ int seccomp(unsigned int op, unsigned int flags, void *args)
+ {
 -- 
 2.20.1
 
