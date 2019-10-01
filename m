@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A35C3BB9
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF49AC3B98
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 18:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725988AbfJAQqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Oct 2019 12:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58280 "EHLO mail.kernel.org"
+        id S2390381AbfJAQpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Oct 2019 12:45:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390370AbfJAQpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:45:42 -0400
+        id S2390375AbfJAQpn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:45:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D10220B7C;
-        Tue,  1 Oct 2019 16:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3889A21A4A;
+        Tue,  1 Oct 2019 16:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569948341;
-        bh=gOxfJOCLf60/pIqvNXNUkBT5bw2/Po247341M7g2E6k=;
+        s=default; t=1569948343;
+        bh=1ee7sxbn4JjLSbLQY0Vh4Xq0lJhiXg73E44qe5nVG98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgMm5IH5eLW4pnGxmdgJTNAL6UqmHEnyJLbWs8Pp307w6Wk4B6K1Cqu5Ko4EXxOqe
-         1IsNraRHE/4acnkJ9yGs0WCGBNb/N6xzQ3CyA8Lu/AaU4H589KEh/G5/h5vnNk33Ky
-         Y284QML/ZNImaHFqLapEJcGJItVm+ZfhW8fy2oTM=
+        b=ADAkyvYmqWbnJ0Fjcg/Ltam8m6OsMXIYaCXO/QcsnPL+BB4bkEbPEvZ/6rwZd/jOj
+         KgpZ6shaGlG+1IjRVdmgweoIV1SRAF9/9I8vDfk8y8qYpIkuCyVPe4AFNmjW/iWtV7
+         Iq3UcQjugGxERtOjIBkyy41Ch5l2vQxoJ1Xcr6/I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trek <trek00@inbox.ru>, Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 06/15] drm/amdgpu: Check for valid number of registers to read
-Date:   Tue,  1 Oct 2019 12:45:24 -0400
-Message-Id: <20191001164533.16915-6-sashal@kernel.org>
+Cc:     =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        syzbot+ce366e2b8296e25d84f5@syzkaller.appspotmail.com,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/15] cdc_ncm: fix divide-by-zero caused by invalid wMaxPacketSize
+Date:   Tue,  1 Oct 2019 12:45:25 -0400
+Message-Id: <20191001164533.16915-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001164533.16915-1-sashal@kernel.org>
 References: <20191001164533.16915-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,37 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trek <trek00@inbox.ru>
+From: Bjørn Mork <bjorn@mork.no>
 
-[ Upstream commit 73d8e6c7b841d9bf298c8928f228fb433676635c ]
+[ Upstream commit 3fe4b3351301660653a2bc73f2226da0ebd2b95e ]
 
-Do not try to allocate any amount of memory requested by the user.
-Instead limit it to 128 registers. Actually the longest series of
-consecutive allowed registers are 48, mmGB_TILE_MODE0-31 and
-mmGB_MACROTILE_MODE0-15 (0x2644-0x2673).
+Endpoints with zero wMaxPacketSize are not usable for transferring
+data. Ignore such endpoints when looking for valid in, out and
+status pipes, to make the driver more robust against invalid and
+meaningless descriptors.
 
-Bug: https://bugs.freedesktop.org/show_bug.cgi?id=111273
-Signed-off-by: Trek <trek00@inbox.ru>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The wMaxPacketSize of the out pipe is used as divisor. So this change
+fixes a divide-by-zero bug.
+
+Reported-by: syzbot+ce366e2b8296e25d84f5@syzkaller.appspotmail.com
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/usb/cdc_ncm.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index a5c8240784726..e35e603710b4d 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -406,6 +406,9 @@ static int amdgpu_info_ioctl(struct drm_device *dev, void *data, struct drm_file
- 		if (sh_num == AMDGPU_INFO_MMR_SH_INDEX_MASK)
- 			sh_num = 0xffffffff;
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index 1e921e5eddc7f..442efbccd0051 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -636,8 +636,12 @@ cdc_ncm_find_endpoints(struct usbnet *dev, struct usb_interface *intf)
+ 	u8 ep;
  
-+		if (info->read_mmr_reg.count > 128)
-+			return -EINVAL;
+ 	for (ep = 0; ep < intf->cur_altsetting->desc.bNumEndpoints; ep++) {
+-
+ 		e = intf->cur_altsetting->endpoint + ep;
 +
- 		regs = kmalloc_array(info->read_mmr_reg.count, sizeof(*regs), GFP_KERNEL);
- 		if (!regs)
- 			return -ENOMEM;
++		/* ignore endpoints which cannot transfer data */
++		if (!usb_endpoint_maxp(&e->desc))
++			continue;
++
+ 		switch (e->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) {
+ 		case USB_ENDPOINT_XFER_INT:
+ 			if (usb_endpoint_dir_in(&e->desc)) {
 -- 
 2.20.1
 
