@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C13C3DCB
-	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D00CC3DCD
+	for <lists+stable@lfdr.de>; Tue,  1 Oct 2019 19:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbfJAQj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728635AbfJAQj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 1 Oct 2019 12:39:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50988 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726773AbfJAQjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Oct 2019 12:39:52 -0400
+        id S1728595AbfJAQjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Oct 2019 12:39:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7AD32168B;
-        Tue,  1 Oct 2019 16:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E17921920;
+        Tue,  1 Oct 2019 16:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569947992;
-        bh=67alXanO7YCIs4Cnpue3J69QNuYSm8158GPO0Zhsjto=;
+        s=default; t=1569947995;
+        bh=NuHhHXw4QZBdglT0kxOOBHpNOn1XLOOMc9cyecLOYBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Na4SmSdlGExWLC0aVFMOVaIwILSYtpwfpuPz0ApmnlC9ziQjzlZ6SJeX/UKGhMu67
-         1yvijPRR9F4iDp21KCf54IdstMkC0pAMbLjB50xZzA54HtBNJYsfwp7675Vso3jDOi
-         f+uUZLZaD8fZKsoyiE4Ua0NYCjIfhikQEdphYm/8=
+        b=KFlQ0fe81+Fa8eDae6cTPtZ3TXN5IjIKlTipmtZAqLD+ceBYENQDxSciZyd5oGIOX
+         5/Pb1J/P/aUugBkn7YY4bW9BFN82ZHf1le/1UJnt5sgoqGcV/Y9SreEB2CZdklgqfY
+         7wFGsz9wZ/WdY3iDf1E6R07C7V5xht0A8GMeueIc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trek <trek00@inbox.ru>, Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 20/71] drm/amdgpu: Check for valid number of registers to read
-Date:   Tue,  1 Oct 2019 12:38:30 -0400
-Message-Id: <20191001163922.14735-20-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 21/71] perf probe: Fix to clear tev->nargs in clear_probe_trace_event()
+Date:   Tue,  1 Oct 2019 12:38:31 -0400
+Message-Id: <20191001163922.14735-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191001163922.14735-1-sashal@kernel.org>
 References: <20191001163922.14735-1-sashal@kernel.org>
@@ -43,37 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trek <trek00@inbox.ru>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 73d8e6c7b841d9bf298c8928f228fb433676635c ]
+[ Upstream commit 9e6124d9d635957b56717f85219a88701617253f ]
 
-Do not try to allocate any amount of memory requested by the user.
-Instead limit it to 128 registers. Actually the longest series of
-consecutive allowed registers are 48, mmGB_TILE_MODE0-31 and
-mmGB_MACROTILE_MODE0-15 (0x2644-0x2673).
+Since add_probe_trace_event() can reuse tf->tevs[i] after calling
+clear_probe_trace_event(), this can make perf-probe crash if the 1st
+attempt of probe event finding fails to find an event argument, and the
+2nd attempt fails to find probe point.
 
-Bug: https://bugs.freedesktop.org/show_bug.cgi?id=111273
-Signed-off-by: Trek <trek00@inbox.ru>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+E.g.
+  $ perf probe -D "task_pid_nr tsk"
+  Failed to find 'tsk' in this function.
+  Failed to get entry address of warn_bad_vsyscall
+  Segmentation fault (core dumped)
+
+Committer testing:
+
+After the patch:
+
+  $ perf probe -D "task_pid_nr tsk"
+  Failed to find 'tsk' in this function.
+  Failed to get entry address of warn_bad_vsyscall
+  Failed to get entry address of signal_fault
+  Failed to get entry address of show_signal
+  Failed to get entry address of umip_printk
+  Failed to get entry address of __bad_area_nosemaphore
+  <SNIP>
+  Failed to get entry address of sock_set_timeout
+  Failed to get entry address of tcp_recvmsg
+  Probe point 'task_pid_nr' not found.
+    Error: Failed to add events.
+  $
+
+Fixes: 092b1f0b5f9f ("perf probe: Clear probe_trace_event when add_probe_trace_event() fails")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/156856587999.25775.5145779959474477595.stgit@devnote2
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/probe-event.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index 0cf7e8606fd3d..00beba533582c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -662,6 +662,9 @@ static int amdgpu_info_ioctl(struct drm_device *dev, void *data, struct drm_file
- 		if (sh_num == AMDGPU_INFO_MMR_SH_INDEX_MASK)
- 			sh_num = 0xffffffff;
+diff --git a/tools/perf/util/probe-event.c b/tools/perf/util/probe-event.c
+index 8394d48f8b32e..3355c445abedf 100644
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -2329,6 +2329,7 @@ void clear_probe_trace_event(struct probe_trace_event *tev)
+ 		}
+ 	}
+ 	zfree(&tev->args);
++	tev->nargs = 0;
+ }
  
-+		if (info->read_mmr_reg.count > 128)
-+			return -EINVAL;
-+
- 		regs = kmalloc_array(info->read_mmr_reg.count, sizeof(*regs), GFP_KERNEL);
- 		if (!regs)
- 			return -ENOMEM;
+ struct kprobe_blacklist_node {
 -- 
 2.20.1
 
