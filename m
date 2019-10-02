@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D74C91FB
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFC5C91DD
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729097AbfJBTNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:13:14 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35364 "EHLO
+        id S1730049AbfJBTME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:12:04 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35604 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729093AbfJBTIJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:09 -0400
+        by vger.kernel.org with ESMTP id S1729207AbfJBTIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:12 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyn-00035S-M1; Wed, 02 Oct 2019 20:08:05 +0100
+        id 1iFjyr-00036L-UV; Wed, 02 Oct 2019 20:08:10 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyn-0003au-9T; Wed, 02 Oct 2019 20:08:05 +0100
+        id 1iFjyp-0003eV-09; Wed, 02 Oct 2019 20:08:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jan Stancek" <jstancek@redhat.com>,
-        "Michael Ellerman" <mpe@ellerman.id.au>
+        "Ronnie Sahlberg" <lsahlber@redhat.com>,
+        "Steve French" <stfrench@microsoft.com>,
+        "Pavel Shilovsky" <pshilov@microsoft.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.926004973@decadent.org.uk>
+Message-ID: <lsq.1570043211.844466427@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 14/87] powerpc/perf: add missing put_cpu_var in
- power_pmu_event_init
+Subject: [PATCH 3.16 58/87] cifs: add spinlock for the openFileList to
+ cifsInodeInfo
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,89 +48,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jan Stancek <jstancek@redhat.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit 68de8867ea5d99127e836c23f6bccf4d44859623 upstream.
+commit 487317c99477d00f22370625d53be3239febabbe upstream.
 
-One path in power_pmu_event_init() calls get_cpu_var(), but is
-missing matching call to put_cpu_var(), which causes preemption
-imbalance and crash in user-space:
+We can not depend on the tcon->open_file_lock here since in multiuser mode
+we may have the same file/inode open via multiple different tcons.
 
-  Page fault in user mode with in_atomic() = 1 mm = c000001fefa5a280
-  NIP = 3fff9bf2cae0  MSR = 900000014280f032
-  Oops: Weird page fault, sig: 11 [#23]
-  SMP NR_CPUS=2048 NUMA PowerNV
-  Modules linked in: <snip>
-  CPU: 43 PID: 10285 Comm: a.out Tainted: G      D         4.0.0-rc5+ #1
-  task: c000001fe82c9200 ti: c000001fe835c000 task.ti: c000001fe835c000
-  NIP: 00003fff9bf2cae0 LR: 00003fff9bee4898 CTR: 00003fff9bf2cae0
-  REGS: c000001fe835fea0 TRAP: 0401   Tainted: G      D          (4.0.0-rc5+)
-  MSR: 900000014280f032 <SF,HV,VEC,VSX,EE,PR,FP,ME,IR,DR,RI>  CR: 22000028  XER: 00000000
-  CFAR: 00003fff9bee4894 SOFTE: 1
-   GPR00: 00003fff9bee494c 00003fffe01c2ee0 00003fff9c084410 0000000010020068
-   GPR04: 0000000000000000 0000000000000002 0000000000000008 0000000000000001
-   GPR08: 0000000000000001 00003fff9c074a30 00003fff9bf2cae0 00003fff9bf2cd70
-   GPR12: 0000000052000022 00003fff9c10b700
-  NIP [00003fff9bf2cae0] 0x3fff9bf2cae0
-  LR [00003fff9bee4898] 0x3fff9bee4898
-  Call Trace:
-  ---[ end trace 5d3d952b5d4185d4 ]---
+The current code is race prone and will crash if one user deletes a file
+at the same time a different user opens/create the file.
 
-  BUG: sleeping function called from invalid context at kernel/locking/rwsem.c:41
-  in_atomic(): 1, irqs_disabled(): 0, pid: 10285, name: a.out
-  INFO: lockdep is turned off.
-  CPU: 43 PID: 10285 Comm: a.out Tainted: G      D         4.0.0-rc5+ #1
-  Call Trace:
-  [c000001fe835f990] [c00000000089c014] .dump_stack+0x98/0xd4 (unreliable)
-  [c000001fe835fa10] [c0000000000e4138] .___might_sleep+0x1d8/0x2e0
-  [c000001fe835faa0] [c000000000888da8] .down_read+0x38/0x110
-  [c000001fe835fb30] [c0000000000bf2f4] .exit_signals+0x24/0x160
-  [c000001fe835fbc0] [c0000000000abde0] .do_exit+0xd0/0xe70
-  [c000001fe835fcb0] [c00000000001f4c4] .die+0x304/0x450
-  [c000001fe835fd60] [c00000000088e1f4] .do_page_fault+0x2d4/0x900
-  [c000001fe835fe30] [c000000000008664] handle_page_fault+0x10/0x30
-  note: a.out[10285] exited with preempt_count 1
+To avoid this we need to have a spinlock attached to the inode and not the tcon.
 
-Reproducer:
-  #include <stdio.h>
-  #include <unistd.h>
-  #include <syscall.h>
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <linux/perf_event.h>
-  #include <linux/hw_breakpoint.h>
+RHBZ:  1580165
 
-  static struct perf_event_attr event = {
-          .type = PERF_TYPE_RAW,
-          .size = sizeof(struct perf_event_attr),
-          .sample_type = PERF_SAMPLE_BRANCH_STACK,
-          .branch_sample_type = PERF_SAMPLE_BRANCH_ANY_RETURN,
-  };
-
-  int main()
-  {
-          syscall(__NR_perf_event_open, &event, 0, -1, -1, 0);
-  }
-
-Signed-off-by: Jan Stancek <jstancek@redhat.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+[bwh: Backported to 3.16: adjust context, indentation]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/powerpc/perf/core-book3s.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/cifs/cifsfs.c   | 1 +
+ fs/cifs/cifsglob.h | 5 +++++
+ fs/cifs/file.c     | 8 ++++++--
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -1825,8 +1825,10 @@ static int power_pmu_event_init(struct p
- 		cpuhw->bhrb_filter = ppmu->bhrb_filter_map(
- 					event->attr.branch_sample_type);
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -260,6 +260,7 @@ cifs_alloc_inode(struct super_block *sb)
+ 	cifs_inode->uniqueid = 0;
+ 	cifs_inode->createtime = 0;
+ 	cifs_inode->epoch = 0;
++	spin_lock_init(&cifs_inode->open_file_lock);
+ #ifdef CONFIG_CIFS_SMB2
+ 	generate_random_uuid(cifs_inode->lease_key);
+ #endif
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1116,6 +1116,7 @@ struct cifsInodeInfo {
+ 	struct rw_semaphore lock_sem;	/* protect the fields above */
+ 	/* BB add in lists for dirty pages i.e. write caching info for oplock */
+ 	struct list_head openFileList;
++	spinlock_t	open_file_lock;	/* protects openFileList */
+ 	__u32 cifsAttrs; /* e.g. DOS archive bit, sparse, compressed, system */
+ 	unsigned int oplock;		/* oplock/lease level we have */
+ 	unsigned int epoch;		/* used to track lease state changes */
+@@ -1485,10 +1486,14 @@ require use of the stronger protocol */
+  *  tcp_ses_lock protects:
+  *	list operations on tcp and SMB session lists
+  *  tcon->open_file_lock protects the list of open files hanging off the tcon
++ *  inode->open_file_lock protects the openFileList hanging off the inode
+  *  cfile->file_info_lock protects counters and fields in cifs file struct
+  *  f_owner.lock protects certain per file struct operations
+  *  mapping->page_lock protects certain per page operations
+  *
++ *  Note that the cifs_tcon.open_file_lock should be taken before
++ *  not after the cifsInodeInfo.open_file_lock
++ *
+  *  Semaphores
+  *  ----------
+  *  sesSem     operations on smb session
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -337,10 +337,12 @@ cifs_new_fileinfo(struct cifs_fid *fid,
+ 	list_add(&cfile->tlist, &tcon->openFileList);
  
--		if(cpuhw->bhrb_filter == -1)
-+		if (cpuhw->bhrb_filter == -1) {
-+			put_cpu_var(cpu_hw_events);
- 			return -EOPNOTSUPP;
-+		}
- 	}
+ 	/* if readable file instance put first in list*/
++	spin_lock(&cinode->open_file_lock);
+ 	if (file->f_mode & FMODE_READ)
+ 		list_add(&cfile->flist, &cinode->openFileList);
+ 	else
+ 		list_add_tail(&cfile->flist, &cinode->openFileList);
++	spin_unlock(&cinode->open_file_lock);
+ 	spin_unlock(&tcon->open_file_lock);
  
- 	put_cpu_var(cpu_hw_events);
+ 	if (fid->purge_cache)
+@@ -412,7 +414,9 @@ void _cifsFileInfo_put(struct cifsFileIn
+ 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
+ 
+ 	/* remove it from the lists */
++	spin_lock(&cifsi->open_file_lock);
+ 	list_del(&cifs_file->flist);
++	spin_unlock(&cifsi->open_file_lock);
+ 	list_del(&cifs_file->tlist);
+ 
+ 	if (list_empty(&cifsi->openFileList)) {
+@@ -1850,10 +1854,10 @@ refind_writable:
+ 		if (!rc)
+ 			return inv_file;
+ 		else {
+-			spin_lock(&tcon->open_file_lock);
++			spin_lock(&cifs_inode->open_file_lock);
+ 			list_move_tail(&inv_file->flist,
+ 					&cifs_inode->openFileList);
+-			spin_unlock(&tcon->open_file_lock);
++			spin_unlock(&cifs_inode->open_file_lock);
+ 			cifsFileInfo_put(inv_file);
+ 			++refind;
+ 			inv_file = NULL;
 
