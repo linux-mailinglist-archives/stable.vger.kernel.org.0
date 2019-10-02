@@ -2,91 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56C83C9105
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 20:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F79C9137
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 20:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728858AbfJBSmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 14:42:31 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:46246 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726669AbfJBSmb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 14:42:31 -0400
-Received: by mail-qt1-f194.google.com with SMTP id u22so27674245qtq.13
-        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 11:42:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=jDEfyJe/+Xzb1tTUypU7kCnECbzCT53z4V2HxbRyVPk=;
-        b=tLk7LiDA/ohqrF/e5hFobD5L6Pi4wH7uK9u41P9b3L827Iyxur0G9KNCuwQfyEOBz0
-         dcWGyQPkRipTTUneLQqQPCeIZMuz67F94jdNoyHXEctSp3XOlgrPrKsVXs3p6Ke+KUSp
-         K1VOG8lyTOpF/3pwe5TI2Iq683TSXXuofK4HGNIFcp0TdIwc1bmjO4a53qQKIfkRDzc1
-         1qo6vZfZcCk+vpEyvW7H7w8gGPA6OEhORCsPrVAuM34u/lbC8rofFF0UpqqbdAvghyCI
-         pun5do8q7S63Q5Q5rxDvZ9fqi58oWnD2r87PebRtHX201E7c9eU14K5lwiwfanI8IgmD
-         +BUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=jDEfyJe/+Xzb1tTUypU7kCnECbzCT53z4V2HxbRyVPk=;
-        b=Uo98ZPlT9NnWpxDyy8plHNnULEZmIld4Q8n/xlPTRCXETyYhMEYy97cq6ZzlbPZuO3
-         Z2AynqGQ9RdaMRrVu38f/by2Sln5Sj+nK6iW3lVSuAq+fVIextKe8k/OgrHY8DEf9KCf
-         jyK2esUoDmqpwebMSOZtWSj0YUhrpF0JcqZghI77VP4ZYUlFKtK3slWhSW7xkVM917bP
-         L5Nc7c4NPIG3eHyq5zoyEh79K3Hb+KCUQ9q228H+XZi9IeT69+ugzVLKUwEGrpboE246
-         QxMRY4tOv2/KoH5YUb8w/dKrYiln3n1fV/WyNoJDtyW15tmPSvUybCWOLbPnirzNjjUc
-         1pkQ==
-X-Gm-Message-State: APjAAAWqhzpavDjNfdtfW9t5ZRhmBXAFp4+QZAE6dBPrI53qypfUPJu3
-        rk5cf1PmhvBQiDL7OdUgAlsvvALv
-X-Google-Smtp-Source: APXvYqy4CvmcjUhpOEahi2I/R1ZcYWdrDhI2IWD7Rka27TSVPEvVmk7etbatDE4AJjT3Dgj0Pu1N8g==
-X-Received: by 2002:ac8:3512:: with SMTP id y18mr5710797qtb.12.1570041750128;
-        Wed, 02 Oct 2019 11:42:30 -0700 (PDT)
-Received: from localhost.localdomain ([71.219.73.178])
-        by smtp.gmail.com with ESMTPSA id n125sm1178qkn.129.2019.10.02.11.42.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Oct 2019 11:42:29 -0700 (PDT)
-From:   Alex Deucher <alexdeucher@gmail.com>
-X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
-To:     stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>
-Subject: [PATCH 3/3] drm/amdgpu/display: fix 64 bit divide
-Date:   Wed,  2 Oct 2019 13:42:19 -0500
-Message-Id: <20191002184219.4011-4-alexander.deucher@amd.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191002184219.4011-1-alexander.deucher@amd.com>
-References: <20191002184219.4011-1-alexander.deucher@amd.com>
+        id S1727685AbfJBS4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 14:56:21 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:38490 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726669AbfJBS4U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 14:56:20 -0400
+Received: from pendragon.ideasonboard.com (unknown [132.205.229.212])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 5EFB72BB;
+        Wed,  2 Oct 2019 20:56:17 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1570042577;
+        bh=PbWtfJfT3AWYLkOwJItUMiaSDU3tjjAskp4aOSEpGOQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gJqpqcIy/Ynox93mO7HvGxTuyrOys4VaUqnoHi1rZFK1hsgiQV/ACZkRapmTILkXi
+         wiMpzGtpraFthrkAfi22sMtR6n/fNUlbwwo83aPbWTfJqdQOUiABhm+n4YP4WHnO8t
+         KustgNeyUlNXd85nXeh7sChLFAPD+n9zji2X3nog=
+Date:   Wed, 2 Oct 2019 21:56:04 +0300
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        andreyknvl@google.com, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] media: uvc: Avoid cyclic entity chains due to malformed
+ USB descriptors
+Message-ID: <20191002185604.GF5262@pendragon.ideasonboard.com>
+References: <20191002112753.21630-1-will@kernel.org>
+ <20191002130913.GA5262@pendragon.ideasonboard.com>
+ <20191002131928.yp5r4tyvtvwvuoba@willie-the-truck>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20191002131928.yp5r4tyvtvwvuoba@willie-the-truck>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use proper helper for 32 bit.
+Hi Will,
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-(cherry picked from commit dd9212a885ca4a95443905c7c3781122a4d664e8)
-cc: stable@vger.kernel.org # 5.3.x
----
- .../gpu/drm/amd/display/dc/clk_mgr/dce110/dce110_clk_mgr.c    | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On Wed, Oct 02, 2019 at 02:19:29PM +0100, Will Deacon wrote:
+> On Wed, Oct 02, 2019 at 04:09:13PM +0300, Laurent Pinchart wrote:
+> > Thank you for the patch.
+> 
+> And thank you for the quick response.
+> 
+> > On Wed, Oct 02, 2019 at 12:27:53PM +0100, Will Deacon wrote:
+> > > I don't have a way to reproduce the original issue, so this change is
+> > > based purely on inspection. Considering I'm not familiar with USB nor
+> > > UVC, I may well have missed something!
+> > 
+> > I may also be missing something, I haven't touched this code for a long
+> > time :-)
+> 
+> Actually, that is pretty helpful because it will make backporting easier
+> if we get to that :)
+> 
+> > uvc_scan_chain_entity(), at the end of the function, adds the entity to
+> > the list of entities in the chain with
+> > 
+> > 	list_add_tail(&entity->chain, &chain->entities);
+> 
+> Yes.
+> 
+> > uvc_scan_chain_forward() is then called (from uvc_scan_chain()), and
+> > iterates over all entities connected to the entity being scanned.
+> > 
+> > 	while (1) {
+> > 		forward = uvc_entity_by_reference(chain->dev, entity->id,
+> > 			forward);
+> 
+> Yes.
+> 
+> > At this point forward may be equal to entity, if entity references
+> > itself.
+> 
+> Correct -- that's indicative of a malformed entity which we want to reject,
+> right?
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dce110/dce110_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dce110/dce110_clk_mgr.c
-index 36277bca0326..b1e657e137a9 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dce110/dce110_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dce110/dce110_clk_mgr.c
-@@ -197,7 +197,9 @@ void dce11_pplib_apply_display_requirements(
- 	 */
- 	if (ASICREV_IS_VEGA20_P(dc->ctx->asic_id.hw_internal_rev) && (context->stream_count >= 2)) {
- 		pp_display_cfg->min_memory_clock_khz = max(pp_display_cfg->min_memory_clock_khz,
--			(uint32_t) (dc->bw_vbios->high_yclk.value / memory_type_multiplier / 10000));
-+							   (uint32_t) div64_s64(
-+								   div64_s64(dc->bw_vbios->high_yclk.value,
-+									     memory_type_multiplier), 10000));
- 	} else {
- 		pp_display_cfg->min_memory_clock_khz = context->bw_ctx.bw.dce.yclk_khz
- 			/ memory_type_multiplier;
+Right. We can reject the whole chain in that case. There's one case
+where we still want to succeed though, which is handled by
+uvc_scan_fallback().
+
+Looking at the code, uvc_scan_device() does
+
+                if (uvc_scan_chain(chain, term) < 0) {
+                        kfree(chain);
+                        continue;
+                }
+
+It seems that's missing removal of all entities that would have been
+successfully added to the chain. This prevents, I think,
+uvc_scan_fallback() from working properly in some cases.
+
+> > 		if (forward == NULL)
+> > 			break;
+> > 		if (forward == prev)
+> > 			continue;
+> > 		if (forward->chain.next || forward->chain.prev) {
+> > 			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
+> > 				"entity %d already in chain.\n", forward->id);
+> > 			return -EINVAL;
+> > 		}
+> > 
+> > But then this check should trigger, as forward == entity and entity is
+> > in the chain's list of entities.
+> 
+> Right, but this code is added by my patch, no? In mainline, the code only
+> has the first two checks, which both end up comparing against NULL the first
+> time around:
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/media/usb/uvc/uvc_driver.c#n1489
+> 
+> Or are you referring to somewhere else?
+
+Oops. This is embarassing... :-) You're of course right. The second hunk
+seems fine too, even if I would have preferred centralising the check in
+a single place. That should be possible, but it would involve
+refactoring that isn't worth it at the moment.
+
 -- 
-2.20.1
+Regards,
 
+Laurent Pinchart
