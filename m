@@ -2,94 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F421C9177
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9C3C9228
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728979AbfJBTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:09:07 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36114 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729383AbfJBTIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:22 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyu-000366-ES; Wed, 02 Oct 2019 20:08:12 +0100
-Received: from ben by deadeye with local (Exim 4.92.1)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyq-0003gC-6b; Wed, 02 Oct 2019 20:08:08 +0100
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1729054AbfJBTQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:16:50 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:47399 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726669AbfJBTQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:16:50 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id D84DF80300; Wed,  2 Oct 2019 21:16:33 +0200 (CEST)
+Date:   Wed, 2 Oct 2019 21:16:47 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dan Murphy <dmurphy@ti.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        linux-leds@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.2 121/185] leds: lm3532: Fixes for the driver
+ for stability
+Message-ID: <20191002191647.GE13492@amd>
+References: <20190922184924.32534-1-sashal@kernel.org>
+ <20190922184924.32534-121-sashal@kernel.org>
 MIME-Version: 1.0
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Jiri Kosina" <jkosina@suse.cz>,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Geert Uytterhoeven" <geert@linux-m68k.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.254999440@decadent.org.uk>
-X-Mailer: LinuxStableQueue (scripts by bwh)
-X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 79/87] cpu/speculation: Warn on unsupported
- mitigations= parameter
-In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="zjcmjzIkjQU2rmur"
+Content-Disposition: inline
+In-Reply-To: <20190922184924.32534-121-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-3.16.75-rc1 review patch.  If anyone has any objections, please let me know.
 
-------------------
+--zjcmjzIkjQU2rmur
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+Hi!
 
-commit 1bf72720281770162c87990697eae1ba2f1d917a upstream.
+> From: Dan Murphy <dmurphy@ti.com>
+>=20
+> [ Upstream commit 6559ac32998248182572e1ccae79dc2eb40ac7c6 ]
+>=20
+> Fixed misspelled words, added error check during probe
+> on the init of the registers, and fixed ALS/I2C control
+> mode.
 
-Currently, if the user specifies an unsupported mitigation strategy on the
-kernel command line, it will be ignored silently.  The code will fall back
-to the default strategy, possibly leaving the system more vulnerable than
-expected.
+lm3532 is under development, and this will not make it fully
+usable. There are no users at the moment. I don't think we need to fix
+it.
 
-This may happen due to e.g. a simple typo, or, for a stable kernel release,
-because not all mitigation strategies have been backported.
+Best regards,
+								Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-Inform the user by printing a message.
+--zjcmjzIkjQU2rmur
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Fixes: 98af8452945c5565 ("cpu/speculation: Add 'mitigations=' cmdline option")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Ben Hutchings <ben@decadent.org.uk>
-Link: https://lkml.kernel.org/r/20190516070935.22546-1-geert@linux-m68k.org
-[bwh: Backported to 3.16: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- kernel/cpu.c | 3 +++
- 1 file changed, 3 insertions(+)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -804,6 +804,9 @@ static int __init mitigations_parse_cmdl
- 		cpu_mitigations = CPU_MITIGATIONS_OFF;
- 	else if (!strcmp(arg, "auto"))
- 		cpu_mitigations = CPU_MITIGATIONS_AUTO;
-+	else
-+		pr_crit("Unsupported mitigations=%s, system may still be vulnerable\n",
-+			arg);
- 
- 	return 0;
- }
+iEYEARECAAYFAl2U958ACgkQMOfwapXb+vLidgCgk4Q7O2562NN7oCzfA/rNOS8v
+QmMAoJ/dlhQjAmnkUHSFjCm+N/Un7SM2
+=o/KP
+-----END PGP SIGNATURE-----
 
+--zjcmjzIkjQU2rmur--
