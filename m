@@ -2,82 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C0AC4ADE
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 11:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E28BCC8755
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 13:28:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726933AbfJBJz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 05:55:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50350 "EHLO mx1.redhat.com"
+        id S1728154AbfJBL2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 07:28:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726297AbfJBJz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Oct 2019 05:55:59 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726069AbfJBL17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Oct 2019 07:27:59 -0400
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id D406710CC20A;
-        Wed,  2 Oct 2019 09:55:58 +0000 (UTC)
-Received: from jra-laptop (unknown [10.40.205.107])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 824535D717;
-        Wed,  2 Oct 2019 09:55:55 +0000 (UTC)
-Date:   Wed, 2 Oct 2019 11:55:54 +0200
-From:   Jakub Racek <jracek@redhat.com>
-To:     Greg KH <greg@kroah.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: ? FAIL: Test report for kernel 5.4.0-rc1-643b3a0.cki
- (stable-next)
-Message-ID: <20191002095554.thdfgwnxg5rgwxcr@jra-laptop>
-References: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
- <20191002053202.GA1450924@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191002053202.GA1450924@kroah.com>
-X-OS:   Linux jra-laptop 3.10.0-1062.el7.x86_64 x86_64
-User-Agent: NeoMutt/20180716
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.65]); Wed, 02 Oct 2019 09:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F75521783;
+        Wed,  2 Oct 2019 11:27:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570015678;
+        bh=CaHmIq7vPjwe7nHbx34JvcVJQqWo4bw3l2Epb8/j/CA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ur9Q+s0aiLvLcQ3WVgmxUPDAd5FE1YJGyqRs6WujXwFrxOSIjIVvXA+IHie5bO9V0
+         829KhGw6x552j5D9T6hhzYRJUu0ULUmEZ/7drddS8N04NoMrz1lpLH8wHVZPvlWj5M
+         3fH+5462Gf0dCKnJcAC343Hyq+p/WMvVQ8Ihj3uQ=
+From:   Will Deacon <will@kernel.org>
+To:     linux-media@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, andreyknvl@google.com,
+        Will Deacon <will@kernel.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>, stable@vger.kernel.org
+Subject: [PATCH] media: uvc: Avoid cyclic entity chains due to malformed USB descriptors
+Date:   Wed,  2 Oct 2019 12:27:53 +0100
+Message-Id: <20191002112753.21630-1-will@kernel.org>
+X-Mailer: git-send-email 2.11.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+++ Greg KH [02/10/19 07:32 +0200]:
->On Wed, Oct 02, 2019 at 12:27:24AM -0400, CKI Project wrote:
->> 
->> Hello,
->> 
->> We ran automated tests on a recent commit from this kernel tree:
->> 
->>        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
->>             Commit: 643b3a097f86 - selftests: pidfd: Fix undefined reference to pthread_create()
->
->That is 5.4-rc1?
+Way back in 2017, fuzzing the 4.14-rc2 USB stack with syzkaller kicked
+up the following WARNING from the UVC chain scanning code:
 
-I think so. The makefile says:
+  | list_add double add: new=ffff880069084010, prev=ffff880069084010,
+  | next=ffff880067d22298.
+  | ------------[ cut here ]------------
+  | WARNING: CPU: 1 PID: 1846 at lib/list_debug.c:31 __list_add_valid+0xbd/0xf0
+  | Modules linked in:
+  | CPU: 1 PID: 1846 Comm: kworker/1:2 Not tainted
+  | 4.14.0-rc2-42613-g1488251d1a98 #238
+  | Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+  | Workqueue: usb_hub_wq hub_event
+  | task: ffff88006b01ca40 task.stack: ffff880064358000
+  | RIP: 0010:__list_add_valid+0xbd/0xf0 lib/list_debug.c:29
+  | RSP: 0018:ffff88006435ddd0 EFLAGS: 00010286
+  | RAX: 0000000000000058 RBX: ffff880067d22298 RCX: 0000000000000000
+  | RDX: 0000000000000058 RSI: ffffffff85a58800 RDI: ffffed000c86bbac
+  | RBP: ffff88006435dde8 R08: 1ffff1000c86ba52 R09: 0000000000000000
+  | R10: 0000000000000002 R11: 0000000000000000 R12: ffff880069084010
+  | R13: ffff880067d22298 R14: ffff880069084010 R15: ffff880067d222a0
+  | FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+  | CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  | CR2: 0000000020004ff2 CR3: 000000006b447000 CR4: 00000000000006e0
+  | Call Trace:
+  |  __list_add ./include/linux/list.h:59
+  |  list_add_tail+0x8c/0x1b0 ./include/linux/list.h:92
+  |  uvc_scan_chain_forward.isra.8+0x373/0x416
+  | drivers/media/usb/uvc/uvc_driver.c:1471
+  |  uvc_scan_chain drivers/media/usb/uvc/uvc_driver.c:1585
+  |  uvc_scan_device drivers/media/usb/uvc/uvc_driver.c:1769
+  |  uvc_probe+0x77f2/0x8f00 drivers/media/usb/uvc/uvc_driver.c:2104
 
-VERSION = 5                                                                         
-PATCHLEVEL = 4                                                                      
-SUBLEVEL = 0                                                                        
-EXTRAVERSION = -rc1                                                                 
-NAME = Bobtail Squid    
+Looking into the output from usbmon, the interesting part is the
+following data packet:
 
-Is the kernel repo above (branch stable-next) supposed to send results
-to a different mailing list than stable@vger.kernel.org?
+  ffff880069c63e00 30710169 C Ci:1:002:0 0 143 = 09028f00 01030080
+  00090403 00000e01 00000924 03000103 7c003328 010204db
 
-I'm not the one who usually deals with triggers/adding trees, but at
-least I can confirm details until Veronika shows up.
+If we drop the lead configuration and interface descriptors, we're left
+with an output terminal descriptor describing a generic display:
 
->
->Why are you sending those results to the stable list?
->
->confused,
->
->greg k-h
->
+  /* Output terminal descriptor */
+  buf[0]	09
+  buf[1]	24
+  buf[2]	03	/* UVC_VC_OUTPUT_TERMINAL */
+  buf[3]	00	/* ID */
+  buf[4]	01	/* type == 0x0301 (UVC_OTT_DISPLAY) */
+  buf[5]	03
+  buf[6]	7c
+  buf[7]	00	/* source ID refers to self! */
+  buf[8]	33
 
+The problem with this descriptor is that it is self-referential: the
+source ID of 0 matches itself! This causes the 'struct uvc_entity'
+representing the display to be added to its chain list twice during
+'uvc_scan_chain()': once via 'uvc_scan_chain_entity()' when it is
+processed directly from the 'dev->entities' list and then again
+immediately afterwards when trying to follow the source ID in
+'uvc_scan_chain_forward()'
+
+Add a check before adding an entity to a chain list to ensure that the
+entity is not already part of a chain.
+
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Kostya Serebryany <kcc@google.com>
+Cc: <stable@vger.kernel.org>
+Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Link: https://lore.kernel.org/linux-media/CAAeHK+z+Si69jUR+N-SjN9q4O+o5KFiNManqEa-PjUta7EOb7A@mail.gmail.com/
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+
+I don't have a way to reproduce the original issue, so this change is
+based purely on inspection. Considering I'm not familiar with USB nor
+UVC, I may well have missed something!
+
+ drivers/media/usb/uvc/uvc_driver.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 66ee168ddc7e..e24420b1750a 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -1493,6 +1493,11 @@ static int uvc_scan_chain_forward(struct uvc_video_chain *chain,
+ 			break;
+ 		if (forward == prev)
+ 			continue;
++		if (forward->chain.next || forward->chain.prev) {
++			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++				"entity %d already in chain.\n", forward->id);
++			return -EINVAL;
++		}
+ 
+ 		switch (UVC_ENTITY_TYPE(forward)) {
+ 		case UVC_VC_EXTENSION_UNIT:
+@@ -1574,6 +1579,13 @@ static int uvc_scan_chain_backward(struct uvc_video_chain *chain,
+ 				return -1;
+ 			}
+ 
++			if (term->chain.next || term->chain.prev) {
++				uvc_trace(UVC_TRACE_DESCR, "Found reference to "
++					"entity %d already in chain.\n",
++					term->id);
++				return -EINVAL;
++			}
++
+ 			if (uvc_trace_param & UVC_TRACE_PROBE)
+ 				printk(KERN_CONT " %d", term->id);
+ 
 -- 
-Best regards,
+2.23.0.444.g18eeb5a265-goog
 
-Jakub Racek
-ARK
