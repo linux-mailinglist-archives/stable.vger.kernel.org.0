@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D459C918E
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B67C91B6
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729709AbfJBTJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:09:53 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35990 "EHLO
+        id S1729302AbfJBTLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:11:05 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35768 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729346AbfJBTIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:18 -0400
+        by vger.kernel.org with ESMTP id S1729295AbfJBTIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:15 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyx-00036H-Rj; Wed, 02 Oct 2019 20:08:16 +0100
+        id 1iFjyu-00035x-EP; Wed, 02 Oct 2019 20:08:12 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyp-0003el-6W; Wed, 02 Oct 2019 20:08:07 +0100
+        id 1iFjyq-0003gR-Dh; Wed, 02 Oct 2019 20:08:08 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com,
-        "Johannes Berg" <johannes.berg@intel.com>,
-        "Eric Biggers" <ebiggers@google.com>
+        "Neil Horman" <nhorman@redhat.com>,
+        "Xin Long" <lucien.xin@gmail.com>,
+        syzbot+afabda3890cc2f765041@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+276ca1c77a19977c0130@syzkaller.appspotmail.com
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.166355228@decadent.org.uk>
+Message-ID: <lsq.1570043211.95333315@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 61/87] cfg80211: fix memory leak of wiphy device name
+Subject: [PATCH 3.16 82/87] sctp: change to hold sk after auth shkey is
+ created successfully
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,32 +50,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Biggers <ebiggers@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4f488fbca2a86cc7714a128952eead92cac279ab upstream.
+commit 25bff6d5478b2a02368097015b7d8eb727c87e16 upstream.
 
-In wiphy_new_nm(), if an error occurs after dev_set_name() and
-device_initialize() have already been called, it's necessary to call
-put_device() (via wiphy_free()) to avoid a memory leak.
+Now in sctp_endpoint_init(), it holds the sk then creates auth
+shkey. But when the creation fails, it doesn't release the sk,
+which causes a sk defcnf leak,
 
-Reported-by: syzbot+7fddca22578bc67c3fe4@syzkaller.appspotmail.com
-Fixes: 1f87f7d3a3b4 ("cfg80211: add rfkill support")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Here to fix it by only holding the sk when auth shkey is created
+successfully.
+
+Fixes: a29a5bd4f5c3 ("[SCTP]: Implement SCTP-AUTH initializations.")
+Reported-by: syzbot+afabda3890cc2f765041@syzkaller.appspotmail.com
+Reported-by: syzbot+276ca1c77a19977c0130@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Neil Horman <nhorman@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/wireless/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/endpointola.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/wireless/core.c
-+++ b/net/wireless/core.c
-@@ -386,7 +386,7 @@ struct wiphy *wiphy_new(const struct cfg
- 				   &rdev->rfkill_ops, rdev);
+--- a/net/sctp/endpointola.c
++++ b/net/sctp/endpointola.c
+@@ -126,10 +126,6 @@ static struct sctp_endpoint *sctp_endpoi
+ 	/* Initialize the bind addr area */
+ 	sctp_bind_addr_init(&ep->base.bind_addr, 0);
  
- 	if (!rdev->rfkill) {
--		kfree(rdev);
-+		wiphy_free(&rdev->wiphy);
- 		return NULL;
- 	}
+-	/* Remember who we are attached to.  */
+-	ep->base.sk = sk;
+-	sock_hold(ep->base.sk);
+-
+ 	/* Create the lists of associations.  */
+ 	INIT_LIST_HEAD(&ep->asocs);
  
+@@ -165,6 +161,10 @@ static struct sctp_endpoint *sctp_endpoi
+ 	ep->auth_hmacs_list = auth_hmacs;
+ 	ep->auth_chunk_list = auth_chunks;
+ 
++	/* Remember who we are attached to.  */
++	ep->base.sk = sk;
++	sock_hold(ep->base.sk);
++
+ 	return ep;
+ 
+ nomem_hmacs:
 
