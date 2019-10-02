@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A80DC91E5
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01D90C9205
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbfJBTMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:12:20 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35436 "EHLO
+        id S1729310AbfJBTNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:13:33 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35304 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729131AbfJBTIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:10 -0400
+        by vger.kernel.org with ESMTP id S1728918AbfJBTIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:09 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-00036F-W7; Wed, 02 Oct 2019 20:08:07 +0100
+        id 1iFjyn-00035Y-Qa; Wed, 02 Oct 2019 20:08:05 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-0003cz-4V; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyn-0003b3-Af; Wed, 02 Oct 2019 20:08:05 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "Andrei Vagin" <avagin@gmail.com>,
-        syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com
+        "Carsten Schmid" <carsten_schmid@mentor.com>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Mathias Nyman" <mathias.nyman@linux.intel.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.591039887@decadent.org.uk>
+Message-ID: <lsq.1570043211.260163381@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 39/87] signal/ptrace: Don't leak unitialized kernel
- memory with PTRACE_PEEK_SIGINFO
+Subject: [PATCH 3.16 16/87] usb: xhci: avoid null pointer deref when bos
+ field is NULL
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,74 +48,105 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Carsten Schmid <carsten_schmid@mentor.com>
 
-commit f6e2aa91a46d2bc79fce9b93a988dbe7655c90c0 upstream.
+commit 7aa1bb2ffd84d6b9b5f546b079bb15cd0ab6e76e upstream.
 
-Recently syzbot in conjunction with KMSAN reported that
-ptrace_peek_siginfo can copy an uninitialized siginfo to userspace.
-Inspecting ptrace_peek_siginfo confirms this.
+With defective USB sticks we see the following error happen:
+usb 1-3: new high-speed USB device number 6 using xhci_hcd
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: new high-speed USB device number 7 using xhci_hcd
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: unable to get BOS descriptor set
+usb 1-3: New USB device found, idVendor=0781, idProduct=5581
+usb 1-3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+...
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
 
-The problem is that off when initialized from args.off can be
-initialized to a negaive value.  At which point the "if (off >= 0)"
-test to see if off became negative fails because off started off
-negative.
+This comes from the following place:
+[ 1660.215380] IP: xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd]
+[ 1660.222092] PGD 0 P4D 0
+[ 1660.224918] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 1660.425520] CPU: 1 PID: 38 Comm: kworker/1:1 Tainted: P     U  W  O    4.14.67-apl #1
+[ 1660.434277] Workqueue: usb_hub_wq hub_event [usbcore]
+[ 1660.439918] task: ffffa295b6ae4c80 task.stack: ffffad4580150000
+[ 1660.446532] RIP: 0010:xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd]
+[ 1660.453821] RSP: 0018:ffffad4580153c70 EFLAGS: 00010046
+[ 1660.459655] RAX: 0000000000000000 RBX: ffffa295b4d7c000 RCX: 0000000000000002
+[ 1660.467625] RDX: 0000000000000002 RSI: ffffffff984a55b2 RDI: ffffffff984a55b2
+[ 1660.475586] RBP: ffffad4580153cc8 R08: 0000000000d6520a R09: 0000000000000001
+[ 1660.483556] R10: ffffad4580a004a0 R11: 0000000000000286 R12: ffffa295b4d7c000
+[ 1660.491525] R13: 0000000000010648 R14: ffffa295a84e1800 R15: 0000000000000000
+[ 1660.499494] FS:  0000000000000000(0000) GS:ffffa295bfc80000(0000) knlGS:0000000000000000
+[ 1660.508530] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1660.514947] CR2: 0000000000000008 CR3: 000000025a114000 CR4: 00000000003406a0
+[ 1660.522917] Call Trace:
+[ 1660.525657]  usb_set_usb2_hardware_lpm+0x3d/0x70 [usbcore]
+[ 1660.531792]  usb_disable_device+0x242/0x260 [usbcore]
+[ 1660.537439]  usb_disconnect+0xc1/0x2b0 [usbcore]
+[ 1660.542600]  hub_event+0x596/0x18f0 [usbcore]
+[ 1660.547467]  ? trace_preempt_on+0xdf/0x100
+[ 1660.552040]  ? process_one_work+0x1c1/0x410
+[ 1660.556708]  process_one_work+0x1d2/0x410
+[ 1660.561184]  ? preempt_count_add.part.3+0x21/0x60
+[ 1660.566436]  worker_thread+0x2d/0x3f0
+[ 1660.570522]  kthread+0x122/0x140
+[ 1660.574123]  ? process_one_work+0x410/0x410
+[ 1660.578792]  ? kthread_create_on_node+0x60/0x60
+[ 1660.583849]  ret_from_fork+0x3a/0x50
+[ 1660.587839] Code: 00 49 89 c3 49 8b 84 24 50 16 00 00 8d 4a ff 48 8d 04 c8 48 89 ca 4c 8b 10 45 8b 6a 04 48 8b 00 48 89 45 c0 49 8b 86 80 03 00 00 <48> 8b 40 08 8b 40 03 0f 1f 44 00 00 45 85 ff 0f 84 81 01 00 00
+[ 1660.608980] RIP: xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd] RSP: ffffad4580153c70
+[ 1660.617921] CR2: 0000000000000008
 
-Prevent the core problem by adding a variable found that is only true
-if a siginfo is found and copied to a temporary in preparation for
-being copied to userspace.
+Tracking this down shows that udev->bos is NULL in the following code:
+(xhci.c, in xhci_set_usb2_hardware_lpm)
+	field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);  <<<<<<< here
 
-Prevent args.off from being truncated when being assigned to off by
-testing that off is <= the maximum possible value of off.  Convert off
-to an unsigned long so that we should not have to truncate args.off,
-we have well defined overflow behavior so if we add another check we
-won't risk fighting undefined compiler behavior, and so that we have a
-type whose maximum value is easy to test for.
+	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
+			enable ? "enable" : "disable", port_num + 1);
 
-Cc: Andrei Vagin <avagin@gmail.com>
-Reported-by: syzbot+0d602a1b0d8c95bdf299@syzkaller.appspotmail.com
-Fixes: 84c751bd4aeb ("ptrace: add ability to retrieve signals without removing from a queue (v4)")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+	if (enable) {
+		/* Host supports BESL timeout instead of HIRD */
+		if (udev->usb2_hw_lpm_besl_capable) {
+			/* if device doesn't have a preferred BESL value use a
+			 * default one which works with mixed HIRD and BESL
+			 * systems. See XHCI_DEFAULT_BESL definition in xhci.h
+			 */
+			if ((field & USB_BESL_SUPPORT) &&
+			    (field & USB_BESL_BASELINE_VALID))
+				hird = USB_GET_BESL_BASELINE(field);
+			else
+				hird = udev->l1_params.besl;
+
+The failing case is when disabling LPM. So it is sufficient to avoid
+access to udev->bos by moving the instruction into the "enable" clause.
+
+Signed-off-by: Carsten Schmid <carsten_schmid@mentor.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 [bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/ptrace.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -711,6 +711,10 @@ static int ptrace_peek_siginfo(struct ta
- 	if (arg.nr < 0)
- 		return -EINVAL;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4178,7 +4178,6 @@ int xhci_set_usb2_hardware_lpm(struct us
+ 	pm_addr = port_array[port_num] + PORTPMSC;
+ 	pm_val = readl(pm_addr);
+ 	hlpm_addr = port_array[port_num] + PORTHLPMC;
+-	field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);
  
-+	/* Ensure arg.off fits in an unsigned long */
-+	if (arg.off > ULONG_MAX)
-+		return 0;
-+
- 	if (arg.flags & PTRACE_PEEKSIGINFO_SHARED)
- 		pending = &child->signal->shared_pending;
- 	else
-@@ -718,18 +722,20 @@ static int ptrace_peek_siginfo(struct ta
- 
- 	for (i = 0; i < arg.nr; ) {
- 		siginfo_t info;
--		s32 off = arg.off + i;
-+		unsigned long off = arg.off + i;
-+		bool found = false;
- 
- 		spin_lock_irq(&child->sighand->siglock);
- 		list_for_each_entry(q, &pending->list, list) {
- 			if (!off--) {
-+				found = true;
- 				copy_siginfo(&info, &q->info);
- 				break;
- 			}
- 		}
- 		spin_unlock_irq(&child->sighand->siglock);
- 
--		if (off >= 0) /* beyond the end of the list */
-+		if (!found) /* beyond the end of the list */
- 			break;
- 
- #ifdef CONFIG_COMPAT
+ 	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
+ 			enable ? "enable" : "disable", port_num + 1);
+@@ -4190,6 +4189,7 @@ int xhci_set_usb2_hardware_lpm(struct us
+ 			 * default one which works with mixed HIRD and BESL
+ 			 * systems. See XHCI_DEFAULT_BESL definition in xhci.h
+ 			 */
++			field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);
+ 			if ((field & USB_BESL_SUPPORT) &&
+ 			    (field & USB_BESL_BASELINE_VALID))
+ 				hird = USB_GET_BESL_BASELINE(field);
 
