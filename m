@@ -2,98 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F015C8DE9
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 18:10:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450F4C8FC3
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 19:22:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725893AbfJBQJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 12:09:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37950 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725852AbfJBQJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Oct 2019 12:09:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1728478AbfJBRWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 13:22:10 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:33318 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726076AbfJBRWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 13:22:10 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 78D4C6115A; Wed,  2 Oct 2019 17:22:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570036928;
+        bh=TrWb8Fbioz6upn5xSdi+3JyfA5DvFcdH33sJ3PxDMIA=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=A0eFcc4c31vZRvniV6sds8pzG5AnZnVZBiacLnbolW6/egD1aPVBxrhe51m+4W662
+         pe5TEnd1U/jeCRUvHVSGxBXdTykcy1tLVHBIlWFRhEtwu+wzjN6wBElgDJgCOgFu/T
+         QGnGaMD4jjg5KUlsm0ITDWAV057HU7PvnW/SFDCw=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
+        autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2640F21D81;
-        Wed,  2 Oct 2019 16:09:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570032596;
-        bh=qqbcqGXc5C/kil7EDQLVNG0WxVmn4bKkQ5z1qtVBH2Q=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=I6Tr4280cvka5hVIZcRHW0xfbBZqsZG1Qv4fWPzJErLIMSTdtN3sg09PYTobRNTpJ
-         uG6Ux1/2OcAQhPgBjPo13j/m+qtZuksaJp3rF9M61F61UV7lLU5vAWPlIpDyH463+L
-         X2AihfONiDEc+WCDM+0WeEW51joqoGyaHdZ39OJY=
-Date:   Wed, 2 Oct 2019 18:09:54 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-stabley@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-        "open list:TPM DEVICE DRIVER" <linux-integrity@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future
- TPM operations
-Message-ID: <20191002160954.GA1754224@kroah.com>
-References: <20191002131445.7793-1-jarkko.sakkinen@linux.intel.com>
- <20191002131445.7793-4-jarkko.sakkinen@linux.intel.com>
- <20191002135758.GA1738718@kroah.com>
- <20191002151751.GP17454@sasha-vm>
- <20191002153123.wcguist4okoxckis@cantor>
- <20191002154204.me4lzgx2l4r6zkpy@cantor>
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 78B4360A78;
+        Wed,  2 Oct 2019 17:22:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570036927;
+        bh=TrWb8Fbioz6upn5xSdi+3JyfA5DvFcdH33sJ3PxDMIA=;
+        h=Subject:From:In-Reply-To:References:To:Cc:From;
+        b=Ae5RY74G4FY1UPUbQGjBiYnCV8MzaVZALr1ODv/dTgZEKOgq25LfnNAvTdu4n5ZWc
+         LLFkBfPQIvrF9w4YhjxzIFZFE3hz7L1dnURzrQ6a8zfoYNQW+s+67WJU4GaoSKWocQ
+         gzvxsxYnr1SG/cv0MzstK28tE0jA9zdxsKY+rsi0=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 78B4360A78
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191002154204.me4lzgx2l4r6zkpy@cantor>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH v2] ar5523: check NULL before memcpy() in ar5523_cmd()
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20190930203147.10140-1-efremov@linux.com>
+References: <20190930203147.10140-1-efremov@linux.com>
+To:     Denis Efremov <efremov@linux.com>
+Cc:     linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Denis Efremov <efremov@linux.com>,
+        Pontus Fuchs <pontus.fuchs@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Laight <David.Laight@ACULAB.COM>, stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20191002172208.78D4C6115A@smtp.codeaurora.org>
+Date:   Wed,  2 Oct 2019 17:22:08 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 02, 2019 at 08:42:04AM -0700, Jerry Snitselaar wrote:
-> On Wed Oct 02 19, Jerry Snitselaar wrote:
-> > On Wed Oct 02 19, Sasha Levin wrote:
-> > > On Wed, Oct 02, 2019 at 03:57:58PM +0200, Greg KH wrote:
-> > > > On Wed, Oct 02, 2019 at 04:14:44PM +0300, Jarkko Sakkinen wrote:
-> > > > > From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > > > > 
-> > > > > commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
-> > > > > 
-> > > > > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> > > > > future TPM operations. TPM 1.2 behavior was different, future TPM
-> > > > > operations weren't disabled, causing rare issues. This patch ensures
-> > > > > that future TPM operations are disabled.
-> > > > > 
-> > > > > Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-> > > > > [dianders: resolved merge conflicts with mainline]
-> > > > > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > > > > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > > > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> > > > > ---
-> > > > > drivers/char/tpm/tpm-chip.c | 5 +++--
-> > > > > 1 file changed, 3 insertions(+), 2 deletions(-)
-> > > > 
-> > > > What kernel version(s) is this for?
-> > > 
-> > > It would go to 4.19, we've recently reverted an incorrect backport of
-> > > this patch.
-> > > 
-> > > Jarkko, why is this patch 3/3? We haven't seen the first two on the
-> > > mailing list, do we need anything besides this patch?
-> > > 
-> > > --
-> > > Thanks,
-> > > Sasha
-> > 
-> > It looks like there was a problem mailing the earlier patchset, and patches 1 and 2
-> > weren't cc'd to stable, but patch 3 was.
-> 
-> Is linux-stabley@vger.kernel.org a valid address?
-> 
+Denis Efremov <efremov@linux.com> wrote:
 
-Heh, no :)
+> memcpy() call with "idata == NULL && ilen == 0" results in undefined
+> behavior in ar5523_cmd(). For example, NULL is passed in callchain
+> "ar5523_stat_work() -> ar5523_cmd_write() -> ar5523_cmd()". This patch
+> adds ilen check before memcpy() call in ar5523_cmd() to prevent an
+> undefined behavior.
+> 
+> Cc: Pontus Fuchs <pontus.fuchs@gmail.com>
+> Cc: Kalle Valo <kvalo@codeaurora.org>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: David Laight <David.Laight@ACULAB.COM>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Denis Efremov <efremov@linux.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+
+Patch applied to ath-next branch of ath.git, thanks.
+
+315cee426f87 ar5523: check NULL before memcpy() in ar5523_cmd()
+
+-- 
+https://patchwork.kernel.org/patch/11167401/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+
