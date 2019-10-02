@@ -2,75 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4FDC8A55
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 15:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F4D6C8A67
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 16:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbfJBN6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 09:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56604 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725917AbfJBN6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Oct 2019 09:58:01 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CFF821783;
-        Wed,  2 Oct 2019 13:57:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570024680;
-        bh=hsQC6o71ybFmccqFc2OdD/0cntqTXO/+R3g0oF5wrIo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MP93ep4PEeCoVB8M7Bp6DhF7bZ2t5zKmQvmHd+npc4tzxZwucONmILipwmt/ZYxf3
-         Yd0F3Qb3YchV5ISjDJ2W2nknpkAr9Vlx7JaIr6ki2QhFIup1CfXaW+QSW25mEbB6HZ
-         7SwGFZQU1K85uO1scv4oX3rxW60qeuz6fYaSDi64=
-Date:   Wed, 2 Oct 2019 15:57:58 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     linux-stabley@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-        "open list:TPM DEVICE DRIVER" <linux-integrity@vger.kernel.org>,
+        id S1726087AbfJBOAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 10:00:32 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4222 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726200AbfJBOA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 10:00:28 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x92DvZIH114215
+        for <stable@vger.kernel.org>; Wed, 2 Oct 2019 10:00:28 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vcsupxyf5-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 10:00:27 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Wed, 2 Oct 2019 15:00:25 +0100
+Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Wed, 2 Oct 2019 15:00:22 +0100
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x92E0Lx824183122
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 2 Oct 2019 14:00:21 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 48A62A4067;
+        Wed,  2 Oct 2019 14:00:21 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D0B2DA4054;
+        Wed,  2 Oct 2019 14:00:19 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.80.234.231])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed,  2 Oct 2019 14:00:19 +0000 (GMT)
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        linux-integrity@vger.kernel.org
+Cc:     stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future
- TPM operations
-Message-ID: <20191002135758.GA1738718@kroah.com>
-References: <20191002131445.7793-1-jarkko.sakkinen@linux.intel.com>
- <20191002131445.7793-4-jarkko.sakkinen@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191002131445.7793-4-jarkko.sakkinen@linux.intel.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Date:   Wed, 02 Oct 2019 10:00:19 -0400
+In-Reply-To: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19100214-0012-0000-0000-000003535F73
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19100214-0013-0000-0000-0000218E6336
+Message-Id: <1570024819.4999.119.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-02_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=585 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1910020135
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 02, 2019 at 04:14:44PM +0300, Jarkko Sakkinen wrote:
-> From: Vadim Sukhomlinov <sukhomlinov@google.com>
-> 
-> commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
-> 
-> TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> future TPM operations. TPM 1.2 behavior was different, future TPM
-> operations weren't disabled, causing rare issues. This patch ensures
-> that future TPM operations are disabled.
-> 
-> Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-> [dianders: resolved merge conflicts with mainline]
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-> ---
->  drivers/char/tpm/tpm-chip.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+On Thu, 2019-09-26 at 20:16 +0300, Jarkko Sakkinen wrote:
+> Only the kernel random pool should be used for generating random numbers.
+> TPM contributes to that pool among the other sources of entropy. In here it
+> is not, agreed, absolutely critical because TPM is what is trusted anyway
+> but in order to remove tpm_get_random() we need to first remove all the
+> call sites.
 
-What kernel version(s) is this for?
+At what point during boot is the kernel random pool available?  Does
+this imply that you're planning on changing trusted keys as well?
 
-thanks,
+Mimi
 
-greg k-h
