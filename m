@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6103BC91D3
+	by mail.lfdr.de (Postfix) with ESMTP id CA4CDC91D4
 	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730001AbfJBTLo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729215AbfJBTLo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 2 Oct 2019 15:11:44 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35596 "EHLO
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35598 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729202AbfJBTIM (ORCPT
+        by vger.kernel.org with ESMTP id S1729212AbfJBTIM (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:12 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyr-00035v-D5; Wed, 02 Oct 2019 20:08:09 +0100
+        id 1iFjyr-000366-G9; Wed, 02 Oct 2019 20:08:09 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-0003dd-Ey; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyo-0003dx-Lc; Wed, 02 Oct 2019 20:08:06 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Santosh Shilimkar" <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Zhu Yanjun" <yanjun.zhu@oracle.com>
+        "Willem de Bruijn" <willemb@google.com>,
+        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
+        "Marc Kleine-Budde" <mkl@pengutronix.de>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.436412731@decadent.org.uk>
+Message-ID: <lsq.1570043211.899264280@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 47/87] net: rds: fix memory leak in rds_ib_flush_mr_pool
+Subject: [PATCH 3.16 51/87] can: purge socket error queue on sock destruct
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,89 +47,30 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 85cb928787eab6a2f4ca9d2a798b6f3bed53ced1 upstream.
+commit fd704bd5ee749d560e86c4f1fd2ef486d8abf7cf upstream.
 
-When the following tests last for several hours, the problem will occur.
+CAN supports software tx timestamps as of the below commit. Purge
+any queued timestamp packets on socket destroy.
 
-Server:
-    rds-stress -r 1.1.1.16 -D 1M
-Client:
-    rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M -T 30
-
-The following will occur.
-
-"
-Starting up....
-tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu
-%
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-"
->From vmcore, we can find that clean_list is NULL.
-
->From the source code, rds_mr_flushd calls rds_ib_mr_pool_flush_worker.
-Then rds_ib_mr_pool_flush_worker calls
-"
- rds_ib_flush_mr_pool(pool, 0, NULL);
-"
-Then in function
-"
-int rds_ib_flush_mr_pool(struct rds_ib_mr_pool *pool,
-                         int free_all, struct rds_ib_mr **ibmr_ret)
-"
-ibmr_ret is NULL.
-
-In the source code,
-"
-...
-list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
-if (ibmr_ret)
-        *ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
-
-/* more than one entry in llist nodes */
-if (clean_nodes->next)
-        llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-...
-"
-When ibmr_ret is NULL, llist_entry is not executed. clean_nodes->next
-instead of clean_nodes is added in clean_list.
-So clean_nodes is discarded. It can not be used again.
-The workqueue is executed periodically. So more and more clean_nodes are
-discarded. Finally the clean_list is NULL.
-Then this problem will occur.
-
-Fixes: 1bc144b62524 ("net, rds, Replace xlist in net/rds/xlist.h with llist")
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
+Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/rds/ib_rdma.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/can/af_can.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/rds/ib_rdma.c
-+++ b/net/rds/ib_rdma.c
-@@ -663,12 +663,14 @@ static int rds_ib_flush_mr_pool(struct r
- 		wait_clean_list_grace();
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -114,6 +114,7 @@ EXPORT_SYMBOL(can_ioctl);
+ static void can_sock_destruct(struct sock *sk)
+ {
+ 	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_error_queue);
+ }
  
- 		list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
--		if (ibmr_ret)
-+		if (ibmr_ret) {
- 			*ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
--
-+			clean_nodes = clean_nodes->next;
-+		}
- 		/* more than one entry in llist nodes */
--		if (clean_nodes->next)
--			llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-+		if (clean_nodes)
-+			llist_add_batch(clean_nodes, clean_tail,
-+					&pool->clean_list);
- 
- 	}
- 
+ static const struct can_proto *can_get_proto(int protocol)
 
