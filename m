@@ -2,273 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76A92C4696
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 06:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEF9C46FB
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 07:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726722AbfJBE1Y convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 2 Oct 2019 00:27:24 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55354 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726046AbfJBE1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Oct 2019 00:27:24 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 07FB15AFF8
-        for <stable@vger.kernel.org>; Wed,  2 Oct 2019 04:27:24 +0000 (UTC)
-Received: from [172.54.27.244] (cpt-1007.paas.prod.upshift.rdu2.redhat.com [10.0.19.29])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7C9486013A;
-        Wed,  2 Oct 2019 04:27:21 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727024AbfJBFcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 01:32:09 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:54887 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726910AbfJBFcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 01:32:08 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 9CAE44A8;
+        Wed,  2 Oct 2019 01:32:07 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 02 Oct 2019 01:32:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=2ae/lnHSgT/krjDtV4hDIFs2kdL
+        Gh9JksUk23N47I8M=; b=DzSdpJcq2ErRfG1wezit5v3+Akl1Y9znso634I0MErJ
+        PMZKtTtLUgvfsMfoGlKiCIHKAOuI422drJzeoy4WL5adklBdZDg/N2kZpAvH/7QU
+        iawk5EvJAXYv0500mgiZGC79elCRRNS9aAbMAi0uZ37cnUR1IJw8cJYrzmF5saOT
+        nb7jUxNlNwYywufhiPFyMb/UPWMC5wpf/QoO4EqrJYHSSVLlu5D3HNSTOp3miEM2
+        ktTf9t4RUKJUfoUV3QoCMp88aVRf7IyUsehQ1Kzr6vO4UTKcG+oVDrPxUWSnTCRy
+        JnpcbWg8gLwg2+exgVHR7aOLz2p5qkOtoWLNgGrJzDA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=2ae/ln
+        HSgT/krjDtV4hDIFs2kdLGh9JksUk23N47I8M=; b=yyGauRQ70+bV340+G0CcWP
+        waTHGhU7J5vaRddC0Xt0LyE0a8akCDzwbYYYZQ/qqinnydgErb+NshFS/BczirXS
+        zpk25WIZk5sAEpcHYQvxQbJrnu+sJShv69DdwHJJnswyFsWzzXndbUhTpXhFyuOF
+        xWnrNpPj7FHrfClkL+sW3ndb5wjorypF73x+kMcwesHfkMPA2KFCPM3JLl7Dx7d5
+        8M/EYCLfyhtN1hg0TN0bvtp87O5DLuHKF8SWRULpO3mLmD2WCZMVstyWES1odVUM
+        zxViR/8TnsME37q3OEUI+3EoZflTO4xrG4qQXc7oynYOVPyECgs7KFqk0Nl93NZA
+        ==
+X-ME-Sender: <xms:VjaUXetVCkvUR-0bcac3m6lJyQsvHz83MUQFa-RoUYH96ka676ZWfw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeehgdelhecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrd
+    horhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhho
+    mhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:VjaUXUY1dHcHaWb7Mvt5_VshJYXO9h4hYr0Ekr2rw0uErOYPdJypUA>
+    <xmx:VjaUXaGYjPO-iQVSN6cItUpfPZf7htUs4_8Vu2_YkOKabbxsFInuOg>
+    <xmx:VjaUXXps6wM3lSwvF7x06FU5tBiRyZujtVK4Rc5jdRcEWRpjtFKSoA>
+    <xmx:VzaUXZ5c1TCBqQ4Xhu8sw9rgcA6643yDyQpZec7xY_e4Jbk_-l6H5A>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A2172D6005E;
+        Wed,  2 Oct 2019 01:32:06 -0400 (EDT)
+Date:   Wed, 2 Oct 2019 07:32:02 +0200
+From:   Greg KH <greg@kroah.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>,
+        Xiong Zhou <xzhou@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.4.0-rc1-643b3a0.cki (stable-next)
+Message-ID: <20191002053202.GA1450924@kroah.com>
+References: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.0-rc1-643b3a0.cki
- (stable-next)
-CC:     Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
-X-Gitlab-Pipeline-ID: 200069
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/200069
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 02 Oct 2019 04:27:24 +0000 (UTC)
-Date:   Wed, 2 Oct 2019 00:27:24 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Oct 02, 2019 at 12:27:24AM -0400, CKI Project wrote:
+> 
+> Hello,
+> 
+> We ran automated tests on a recent commit from this kernel tree:
+> 
+>        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
+>             Commit: 643b3a097f86 - selftests: pidfd: Fix undefined reference to pthread_create()
 
-Hello,
+That is 5.4-rc1?
 
-We ran automated tests on a recent commit from this kernel tree:
+Why are you sending those results to the stable list?
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
-            Commit: 643b3a097f86 - selftests: pidfd: Fix undefined reference to pthread_create()
+confused,
 
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/200069
-
-One or more kernel tests failed:
-
-    ppc64le:
-      ❌ xfstests: xfs
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ❌ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 3:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-      Host 4:
-
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ⚡⚡⚡ trace: ftrace/tracer
-         🚧 ⚡⚡⚡ Networking route_func: local
-         🚧 ⚡⚡⚡ Networking route_func: forward
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
-
-      Host 5:
-         ✅ Boot test
-         🚧 ✅ IPMI driver test
-         🚧 ✅ IPMItool loop stress test
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
+greg k-h
