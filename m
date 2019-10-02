@@ -2,128 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D114C8A95
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 16:08:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0080CC8AB4
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 16:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727662AbfJBOI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 10:08:28 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37725 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726200AbfJBOI2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 10:08:28 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0344B21FE9;
-        Wed,  2 Oct 2019 10:08:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 02 Oct 2019 10:08:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=S
-        4Y84XgwoSx4BWPKsd3lQggQKfTwq4swaYPybPi9ZwI=; b=U2BxenuNhxVPJKZp3
-        34hV3r8FMY6NuLAUc+Bxt+bXem/SGqtwS1jZhXU2oYTL5y/SYU03SaK7i5KTZ9UW
-        CNNjxym13fEUew5e16vMqemA67oE0gxtLP3X5GpkKRV7G0afcNrwQv/pSVADgrGC
-        JdDspBQTWpLSmjx0Wib59Vsw+aZwTNmJdflyhWlE13NbtdweCZZK5QL2dsADKFxS
-        aJ1Fi8L2VyyyVQWo824c5aOMBLQUagXaqU/9KLBcbstpNV0TzQhWAvc8D/z/uX2G
-        ptt5IwuRD9gaBO+TfCeyRgkEsSsxYtuQGpp/cRseVPQRSKthOOOwCsUTMLWxAycS
-        PMF0g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=S4Y84XgwoSx4BWPKsd3lQggQKfTwq4swaYPybPi9Z
-        wI=; b=sXxjg+ID2B+3GGqGKkxfxQJ9uDYax6zFjEWCSJ5GVZGmpQnw7+JjePSFa
-        YbzKeIaZCp1nGNDK/MSrq/+F5EAHh95As00ty/L/FH+Z8sggBO+xRUgOG7W75wQ5
-        WoIxf5xPjNE+o6nERMDKvs19221JG37FXnrufiPd+59exR5TBWXr42GnbavCWbF3
-        35xyRyAeMqinyYaFYjZg/Euz3bL8YZoqrviR5BDzW3EboPEZqtQy5P5qcPe4bInA
-        5HiGnnOkt0fGJxNgwwbuA/ILn66FcqtDobjOeVy+1XrriHcRheQNlyhShtMBvHeX
-        c8mduaM5t7YFvHLFUvLpoMzGcLOFw==
-X-ME-Sender: <xms:Wq-UXWTe0cLYT5Uw8G3AX1v59Y22TC2yT6zcs-DFY_jdTnwpi6c59A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeeigdejfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
-    drohhrghdpghhithhlrggsrdgtohhmnecukfhppeekfedrkeeirdekledruddtjeenucfr
-    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsth
-    gvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Wq-UXWmJrAHhgrfo5zfPhMNbMvO5t41JvQr5tLrTwLQYGMfpedMRmw>
-    <xmx:Wq-UXYUSms0n6dA0BWD5iw_89B1d7jrgUHTbApDp9a_WsZOwYnyShQ>
-    <xmx:Wq-UXVwI7gMpRnHh7LaDqhdCSXMyvtbWzjJJn3HxAAxv80_Y9XlfBQ>
-    <xmx:Wq-UXUUB18oCyHJdeS3WqNJLG3DPanG8hyCV28gtxfRqMdGdA0md6g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4C416D6005E;
-        Wed,  2 Oct 2019 10:08:26 -0400 (EDT)
-Date:   Wed, 2 Oct 2019 16:08:24 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Veronika Kabatova <vkabatov@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for
- kernel?5.4.0-rc1-643b3a0.cki (stable-next)
-Message-ID: <20191002140824.GA1741376@kroah.com>
-References: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
- <20191002053202.GA1450924@kroah.com>
- <1062039737.2099822.1570016073892.JavaMail.zimbra@redhat.com>
- <20191002135627.GN17454@sasha-vm>
+        id S1727610AbfJBORJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 10:17:09 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:36655 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726830AbfJBORI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 10:17:08 -0400
+Received: by mail-ot1-f68.google.com with SMTP id 67so14816055oto.3
+        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 07:17:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
+        b=OZj9ohE+akr2x+B75XzlE1E8roCK/W3BasioCZPNQvdAjBtMO17QpOuu+icjT4u6eu
+         wBEJrZQcPnP9bSb5StCvf73xWWgZV3ktAGHeZNRNkfFarMsqtttguirjdaXlsGVBhFwY
+         kx4D2BEzsefAgnBQorAykfooXwjxlLmMDqdwG5EO8OPQr+BUiODH+DA7l0Pr1RhHtSJf
+         ZRReovgm5an2ijjXKBrEKpDhgsKdvy0VecPrKEC6ZbRkFbY7hQN63ud0lUlOu6nNfC3M
+         7vJpR61TSu/bNe05HolsI++oX9mrDZp1iE/jnKxjQSn+VY9+aedP9GeMTx8VaJfG+JEY
+         OUTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
+        b=Y9RiRPuHdHObbkT61iGg94vq+RyTsIDzSotrtvuaxoG8256m+CbxHcdeTmXHOysVc5
+         OWVLrd3KoTJkF/O/82wvZCCGn5T1kreUW8ZoJMqEmWVO9mlulXSFgB89kJEX305A1YLX
+         ueB6mzqDDWHlqvA/85EQ4P62Iytmwo6DhcLBHE7lx2vP2FNAnYMiuzKQT/MRAr3GSlig
+         ZctwKC8AHdd+bmjHPk4KIEqBQTDN3+Hftw2S5ITN3jnQVVPC+uqxRIO+mOh5EzGxwBmM
+         9noQlHxH8+Kbwt7atJccE/TTx6xfBGIvHXCzV78Frk+ng32imMTkAhQtFujvtOR30AzY
+         JGZw==
+X-Gm-Message-State: APjAAAXDg7c5jU37Wg68qs6A7+Xpj8vaQGFP3RmHrPWFputSEkqcWPkz
+        E4pYg1vx3PSfd9lRH4aYE0n1HkFFJt7b+fAYHD4=
+X-Google-Smtp-Source: APXvYqyHVRA8IE2SUEuPQqP3Ehv7M0Zzr+9542+hXRQmPnaKRBhRBzp7WY46rmQ8tzVUqOffzCbxyKtgik/kY0VN/l8=
+X-Received: by 2002:a9d:2ae9:: with SMTP id e96mr2751289otb.10.1570025827613;
+ Wed, 02 Oct 2019 07:17:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191002135627.GN17454@sasha-vm>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Received: by 2002:a4a:956e:0:0:0:0:0 with HTTP; Wed, 2 Oct 2019 07:17:05 -0700 (PDT)
+Reply-To: kylieelizabethwatson2019@gmail.com
+From:   "Sgt. Kylie Elizabeth Watson" <redcrosssocietybf@gmail.com>
+Date:   Wed, 2 Oct 2019 18:47:05 +0430
+Message-ID: <CA+351qPySa_5YjytqtYpASf+S9yUkM38raJZ7fHB+FU4Rtsctg@mail.gmail.com>
+Subject: Assist Request From You
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 02, 2019 at 09:56:27AM -0400, Sasha Levin wrote:
-> On Wed, Oct 02, 2019 at 07:34:33AM -0400, Veronika Kabatova wrote:
-> > 
-> > 
-> > ----- Original Message -----
-> > > From: "Greg KH" <greg@kroah.com>
-> > > To: "CKI Project" <cki-project@redhat.com>
-> > > Cc: "Linux Stable maillist" <stable@vger.kernel.org>
-> > > Sent: Wednesday, October 2, 2019 7:32:02 AM
-> > > Subject: Re: ❌ FAIL: Test report for kernel	5.4.0-rc1-643b3a0.cki (stable-next)
-> > > 
-> > > On Wed, Oct 02, 2019 at 12:27:24AM -0400, CKI Project wrote:
-> > > >
-> > > > Hello,
-> > > >
-> > > > We ran automated tests on a recent commit from this kernel tree:
-> > > >
-> > > >        Kernel repo:
-> > > >        git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
-> > > >             Commit: 643b3a097f86 - selftests: pidfd: Fix undefined
-> > > >             reference to pthread_create()
-> > > 
-> > > That is 5.4-rc1?
-> > > 
-> > > Why are you sending those results to the stable list?
-> > > 
-> > > confused,
-> > > 
-> > 
-> > Hi,
-> > 
-> > Sasha has requested to have stable-next tested and results sent to this list:
-> > 
-> > https://gitlab.com/cki-project/pipeline-data/commit/16e0c06addbe62c689782357673f69bb7dff4d9a
-> 
-> Greg, this is the stable-next thing we talked about at LPC; it's just a
-> subset of linux-next of stable tagged commits to help us identify issues
-> before it actually hits upstream.
-> 
-> I can drop the mails to stable@ if you'd like, but ideally it should
-> only be one mail a day.
+-- 
+Accept my greetings to you
 
-Ah, ok, I was thinking CKI was testing Linus's tree for some reason and
-sending the results only to the stable list, which would be odd.  If
-this is your stuff, and you get use out of it, that's fine with me, I'll
-be quiet :)
+Assist Request From You
 
-thanks,
+I am 28 years old single an orphan my parents died when I am five
+years old nobody to help me,I send you my business proposal with tears
+and sorrow,Please let this not be a surprised message to you because I
+decided to contact you on this magnitude and lucrative transaction for
+our present and future survival in life. Moreover, I have laid all the
+solemn trust in you before i decided to disclose this successful and
+confidential transaction to you.
 
-greg k-h
+I am  Kylie Elizabeth Watson ,I hope all is well with you? I am female
+soldier working as United Nations peace keeping troop in Afghanistan
+on war against terrorism. I have in my possession the sum of
+$3.5million USD Which I made here in Afghanistan 2014,I deposited this
+money with a Red Cross agent. I want you to stand as my beneficiary
+and receive the fund And keep it safe so that as soon as am through
+with my mission here in Afghanistan.
+
+You will assist me to invest it in a good profitable Venture or you
+keep it for me until I arrive your country, I will give You 40% of the
+total money for your assistance after you have receive The money.
+Please reply back to me if you are willing to work with me so that I
+can send you the information where the money is been deposited, your
+urgent reply is needed in my email address below
+(kylieelizabethwatson2019@gmail.com) so i can send you more details.
+
+Thank Yours
+Sgt,Kylie Elizabeth Watson
