@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5B3C9180
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 488CBC919C
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729617AbfJBTJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:09:28 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35950 "EHLO
+        id S1728612AbfJBTKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:10:24 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35902 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729336AbfJBTIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:18 -0400
+        by vger.kernel.org with ESMTP id S1729321AbfJBTIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:17 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyx-00035n-Qc; Wed, 02 Oct 2019 20:08:15 +0100
+        id 1iFjyx-000365-MX; Wed, 02 Oct 2019 20:08:15 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyp-0003fe-Q6; Wed, 02 Oct 2019 20:08:07 +0100
+        id 1iFjyp-0003eu-9A; Wed, 02 Oct 2019 20:08:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ursula Braun" <ubraun@linux.ibm.com>,
-        "Julian Wiedmann" <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
+        "Naohiro Aota" <naohiro.aota@wdc.com>,
+        "David Sterba" <dsterba@suse.com>,
+        "Filipe Manana" <fdmanana@suse.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.930203351@decadent.org.uk>
+Message-ID: <lsq.1570043211.469797181@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 72/87] net/af_iucv: always register net_device notifier
+Subject: [PATCH 3.16 63/87] btrfs: start readahead also in seed devices
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,78 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Naohiro Aota <naohiro.aota@wdc.com>
 
-commit 06996c1d4088a0d5f3e7789d7f96b4653cc947cc upstream.
+commit c4e0540d0ad49c8ceab06cceed1de27c4fe29f6e upstream.
 
-Even when running as VM guest (ie pr_iucv != NULL), af_iucv can still
-open HiperTransport-based connections. For robust operation these
-connections require the af_iucv_netdev_notifier, so register it
-unconditionally.
+Currently, btrfs does not consult seed devices to start readahead. As a
+result, if readahead zone is added to the seed devices, btrfs_reada_wait()
+indefinitely wait for the reada_ctl to finish.
 
-Also handle any error that register_netdevice_notifier() returns.
+You can reproduce the hung by modifying btrfs/163 to have larger initial
+file size (e.g. xfs_io pwrite 4M instead of current 256K).
 
-Fixes: 9fbd87d41392 ("af_iucv: handle netdev events")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Fixes: 7414a03fbf9e ("btrfs: initial readahead code and prototypes")
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 ---
- net/iucv/af_iucv.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ fs/btrfs/reada.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2399,6 +2399,13 @@ out:
- 	return err;
- }
+--- a/fs/btrfs/reada.c
++++ b/fs/btrfs/reada.c
+@@ -764,6 +764,7 @@ static void __reada_start_machine(struct
+ 	u64 total = 0;
+ 	int i;
  
-+static void afiucv_iucv_exit(void)
-+{
-+	device_unregister(af_iucv_dev);
-+	driver_unregister(&af_iucv_driver);
-+	pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+}
-+
- static int __init afiucv_init(void)
- {
- 	int err;
-@@ -2432,11 +2439,18 @@ static int __init afiucv_init(void)
- 		err = afiucv_iucv_init();
- 		if (err)
- 			goto out_sock;
--	} else
--		register_netdevice_notifier(&afiucv_netdev_notifier);
++again:
+ 	do {
+ 		enqueued = 0;
+ 		mutex_lock(&fs_devices->device_list_mutex);
+@@ -776,6 +777,10 @@ static void __reada_start_machine(struct
+ 		mutex_unlock(&fs_devices->device_list_mutex);
+ 		total += enqueued;
+ 	} while (enqueued && total < 10000);
++	if (fs_devices->seed) {
++		fs_devices = fs_devices->seed;
++		goto again;
 +	}
-+
-+	err = register_netdevice_notifier(&afiucv_netdev_notifier);
-+	if (err)
-+		goto out_notifier;
-+
- 	dev_add_pack(&iucv_packet_type);
- 	return 0;
  
-+out_notifier:
-+	if (pr_iucv)
-+		afiucv_iucv_exit();
- out_sock:
- 	sock_unregister(PF_IUCV);
- out_proto:
-@@ -2450,12 +2464,11 @@ out:
- static void __exit afiucv_exit(void)
- {
- 	if (pr_iucv) {
--		device_unregister(af_iucv_dev);
--		driver_unregister(&af_iucv_driver);
--		pr_iucv->iucv_unregister(&af_iucv_handler, 0);
-+		afiucv_iucv_exit();
- 		symbol_put(iucv_if);
--	} else
--		unregister_netdevice_notifier(&afiucv_netdev_notifier);
-+	}
-+
-+	unregister_netdevice_notifier(&afiucv_netdev_notifier);
- 	dev_remove_pack(&iucv_packet_type);
- 	sock_unregister(PF_IUCV);
- 	proto_unregister(&iucv_proto);
+ 	if (enqueued == 0)
+ 		return;
 
