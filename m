@@ -2,86 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BFE4C8963
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 15:15:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4403AC896B
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 15:16:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727134AbfJBNPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 09:15:18 -0400
-Received: from mga03.intel.com ([134.134.136.65]:30344 "EHLO mga03.intel.com"
+        id S1727107AbfJBNQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 09:16:53 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:37136 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726295AbfJBNPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Oct 2019 09:15:18 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Oct 2019 06:15:06 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,574,1559545200"; 
-   d="scan'208";a="203589840"
-Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.158])
-  by orsmga002.jf.intel.com with ESMTP; 02 Oct 2019 06:15:03 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-stabley@vger.kernel.org
-Cc:     Vadim Sukhomlinov <sukhomlinov@google.com>, stable@vger.kernel.org,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgunthorpe@obsidianresearch.com>,
-        linux-integrity@vger.kernel.org (open list:TPM DEVICE DRIVER),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent future TPM operations
-Date:   Wed,  2 Oct 2019 16:14:44 +0300
-Message-Id: <20191002131445.7793-4-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191002131445.7793-1-jarkko.sakkinen@linux.intel.com>
-References: <20191002131445.7793-1-jarkko.sakkinen@linux.intel.com>
+        id S1726781AbfJBNQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Oct 2019 09:16:53 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9972E3090FD6;
+        Wed,  2 Oct 2019 13:16:52 +0000 (UTC)
+Received: from llong.remote.csb (dhcp-17-160.bos.redhat.com [10.18.17.160])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A53EF60BF4;
+        Wed,  2 Oct 2019 13:16:50 +0000 (UTC)
+Subject: Re: [PATCH 4.19 36/63] locking/lockdep: Add debug_locks check in
+ __lock_downgrade()
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+53383ae265fb161ef488@syzkaller.appspotmail.com,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Will Deacon <will.deacon@arm.com>,
+        Ingo Molnar <mingo@kernel.org>
+References: <20190929135031.382429403@linuxfoundation.org>
+ <20190929135038.482721804@linuxfoundation.org>
+ <801c81d2-ce72-8eb3-a18b-1b0943270fc4@i-love.sakura.ne.jp>
+ <20190930002828.GQ8171@sasha-vm>
+ <b0203141-297f-1138-5988-607e076cbcf0@i-love.sakura.ne.jp>
+ <b4e4de80-cabc-3de5-9fa7-8366a8582ba9@redhat.com>
+ <20191001222038.GD17454@sasha-vm>
+From:   Waiman Long <longman@redhat.com>
+Organization: Red Hat
+Message-ID: <dbb9d78b-b374-167b-affa-bc3be9837b4a@redhat.com>
+Date:   Wed, 2 Oct 2019 09:16:50 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
+In-Reply-To: <20191001222038.GD17454@sasha-vm>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Wed, 02 Oct 2019 13:16:52 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Sukhomlinov <sukhomlinov@google.com>
+On 10/1/19 6:20 PM, Sasha Levin wrote:
+> On Mon, Sep 30, 2019 at 10:00:35AM -0400, Waiman Long wrote:
+>> On 9/29/19 9:46 PM, Tetsuo Handa wrote:
+>>> On 2019/09/30 9:28, Sasha Levin wrote:
+>>>> On Sun, Sep 29, 2019 at 11:43:38PM +0900, Tetsuo Handa wrote:
+>>>>> On 2019/09/29 22:54, Greg Kroah-Hartman wrote:
+>>>>>> From: Waiman Long <longman@redhat.com>
+>>>>>>
+>>>>>> [ Upstream commit 513e1073d52e55b8024b4f238a48de7587c64ccf ]
+>>>>>>
+>>>>>> Tetsuo Handa had reported he saw an incorrect "downgrading a read
+>>>>>> lock"
+>>>>>> warning right after a previous lockdep warning. It is likely that
+>>>>>> the
+>>>>>> previous warning turned off lock debugging causing the lockdep to
+>>>>>> have
+>>>>>> inconsistency states leading to the lock downgrade warning.
+>>>>>>
+>>>>>> Fix that by add a check for debug_locks at the beginning of
+>>>>>> __lock_downgrade().
+>>>>> Please drop "[PATCH 4.19 36/63] locking/lockdep: Add debug_locks
+>>>>> check in __lock_downgrade()".
+>>>>> We had a revert patch shown below in the past.
+>>>> We had a revert in the stable trees, but that revert was incorrect.
+>>>>
+>>>> Take a look at commit 513e1073d52e55 upstream, it patches
+>>>> __lock_set_class() (even though the subject line says
+>>>> __lock_downgrade()). So this is not a backporting error as the revert
+>>>> said it is, but is rather the intended location to be patched.
+>>>>
+>>>> If this is actually wrong, then it should be addressed upstream first.
+>>>>
+>>> Hmm, upstream has two commits with same author, same date, same
+>>> subject, different hash, different content.
+>>> I couldn't find from
+>>> https://lkml.kernel.org/r/1547093005-26085-1-git-send-email-longman@redhat.com
+>>> that
+>>> we want to patch both __lock_set_class() and __lock_downgrade(), but
+>>> I found that the tip-bot has patched
+>>> __lock_downgrade() on "2019-01-21 11:29" and __lock_set_class() on
+>>> "2019-02-04  8:56".
+>>> Seems that we by error patched both functions, though patching both
+>>> functions should be harmless...
+>>>
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4115) static int
+>>> 00ef9f734 kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-12-04 09:00:17 +0100 4116) __lock_set_class(struct lockdep_map
+>>> *lock, const char *name,
+>>> 00ef9f734 kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-12-04 09:00:17 +0100 4117)            struct lock_class_key
+>>> *key, unsigned int subclass,
+>>> 00ef9f734 kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-12-04 09:00:17 +0100 4118)            unsigned long ip)
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4119) {
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4120)   struct task_struct *curr = current;
+>>> 8c8889d8e kernel/locking/lockdep.c (Imre Deak                
+>>> 2019-05-24 23:15:08 +0300 4121)   unsigned int depth, merged = 0;
+>>> 41c2c5b86 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:15 +0900 4122)   struct held_lock *hlock;
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4123)   struct lock_class *class;
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4124)   int i;
+>>> 64aa348ed kernel/lockdep.c         (Peter Zijlstra           
+>>> 2008-08-11 09:30:21 +0200 4125)
+>>> 513e1073d kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4126)   if (unlikely(!debug_locks))
+>>> 513e1073d kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4127)           return 0;
+>>> 513e1073d kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4128)
+>>>
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4162) static int __lock_downgrade(struct
+>>> lockdep_map *lock, unsigned long ip)
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4163) {
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4164)   struct task_struct *curr = current;
+>>> 8c8889d8e kernel/locking/lockdep.c (Imre Deak                
+>>> 2019-05-24 23:15:08 +0300 4165)   unsigned int depth, merged = 0;
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4166)   struct held_lock *hlock;
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4167)   int i;
+>>> 6419c4af7 kernel/locking/lockdep.c (J. R. Okajima            
+>>> 2017-02-03 01:38:17 +0900 4168)
+>>> 714925805 kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4169)   if (unlikely(!debug_locks))
+>>> 714925805 kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4170)           return 0;
+>>> 714925805 kernel/locking/lockdep.c (Waiman Long              
+>>> 2019-01-09 23:03:25 -0500 4171)
+>>>
+>>> commit 513e1073d52e55b8024b4f238a48de7587c64ccf
+>>> Author: Waiman Long <longman@redhat.com>
+>>> Date:   Wed Jan 9 23:03:25 2019 -0500
+>>>
+>>>     locking/lockdep: Add debug_locks check in __lock_downgrade()
+>>>
+>>> commit 71492580571467fb7177aade19c18ce7486267f5
+>>> Author: Waiman Long <longman@redhat.com>
+>>> Date:   Wed Jan 9 23:03:25 2019 -0500
+>>>
+>>>     locking/lockdep: Add debug_locks check in __lock_downgrade()
+>>>
+>> As I had said before, it looks like the git-apply mixed up the location
+>> due to the fact that the hunks are exactly the same for both locations.
+>> So if the patch to be applied does not have the right line number, it
+>> will get applied to the wrong location first.
+>
+> I very much agree, my point is that *both* patches are upstream right
+> now, and if one of those patches is wrong then it should be reverted
+> upstream, and we'd be happy to take the revert. 
 
-commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+The patch itself shouldn't do any harm even if it is applied to the
+wrong function. So there is no urgency to revert it.
 
-TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-future TPM operations. TPM 1.2 behavior was different, future TPM
-operations weren't disabled, causing rare issues. This patch ensures
-that future TPM operations are disabled.
-
-Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
-[dianders: resolved merge conflicts with mainline]
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
- drivers/char/tpm/tpm-chip.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-index 0eca20c5a80c..dcf5bb153495 100644
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -158,12 +158,13 @@ static int tpm_class_shutdown(struct device *dev)
- {
- 	struct tpm_chip *chip = container_of(dev, struct tpm_chip, dev);
- 
-+	down_write(&chip->ops_sem);
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
--		down_write(&chip->ops_sem);
- 		tpm2_shutdown(chip, TPM2_SU_CLEAR);
- 		chip->ops = NULL;
--		up_write(&chip->ops_sem);
- 	}
-+	chip->ops = NULL;
-+	up_write(&chip->ops_sem);
- 
- 	return 0;
- }
--- 
-2.20.1
+Cheers,
+Longman
 
