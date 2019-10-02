@@ -2,46 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51493C9011
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 19:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2996C9103
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 20:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728303AbfJBRlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 13:41:14 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:40853 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727721AbfJBRlO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 13:41:14 -0400
-Received: by mail-wr1-f65.google.com with SMTP id l3so20635392wru.7;
-        Wed, 02 Oct 2019 10:41:12 -0700 (PDT)
+        id S1726076AbfJBSma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 14:42:30 -0400
+Received: from mail-qt1-f194.google.com ([209.85.160.194]:40414 "EHLO
+        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726669AbfJBSm3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 14:42:29 -0400
+Received: by mail-qt1-f194.google.com with SMTP id f7so27717564qtq.7
+        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 11:42:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=g1b91VmMiL2dDCBLT6JYdBj2IBTRwJuzgoJIwLvpnl0=;
+        b=MnKIWpWB85Jzf5sM7DHkCM8CV2XyApzLRvUxLgXrJT5UQK+AM9xH/Y32XwffjxASXy
+         nlWpx9YWyUyKPdH1GTn0RtFwacJn+VffnMiKkiQxuOOj/IHj87+xIgPjqpJipgfuADS3
+         VnuxMqno1aNpK+xxT8/dBQtWgo0JNMcZX91kmUEGtuEQoRbTgWxpDf7IDyuX9LfmcMHa
+         WhjadOUb5vWnc88IWXBQ3CfSliXrqfh3TTLSe0jctN5y7epCOcukS5yAVcus6atn/Clk
+         Bi7sdJk71pjA01/GxDL0TzreJJLPM+N45mvTyt77CToWkDuIwSeGnN1TAJCKwcXx3Olb
+         lFyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=mUZyNZheTJw4GC5851yKEfVpxUBc4f7pMP1DSM9q8jg=;
-        b=TxqaMUzCDK4ovLkDJMl/hpwV9fisOrEBcq8rG7EFqfIoZeFC4i4T1p2HigugaA7msj
-         cctE6s7h9qSHrtGNYOxs8FEUeqK+Fq4Z7iMWIlrhymawCSg7eo+2M2k8ejJfQKJ/ENO1
-         grQwjgkUuJE4gV+WWodrZV+Y63EhFrKD8nqUt/zep7YJ8UHpAyrgN+0cP8NcYObZy0L8
-         AjZtiO3U/8TFtSFzSxVWoio8/fLOXKImCw96MdNJOMf2/QyFjVRN485GVuMsqtaQzcGM
-         8kzKfuslP92PB/irvSi4CPg3XcjF88w6yFIcUpQjS3GXRoG6K5E7LALUVJy2CBCaf5BB
-         QJhQ==
-X-Gm-Message-State: APjAAAV3cokkqB/SUKK45mKjxZm+tvMU3bxuNQ8hJjUdXk13bVD/mk1l
-        XbyHUyEhXoHYQnqhvaK9jAg=
-X-Google-Smtp-Source: APXvYqzWaLLj84b5DPgMGqOH66TFh2UVD9sMvffhg/6fPjFOWddMdm6yky7HGz0wVtcCSZ6uiKB5pg==
-X-Received: by 2002:adf:e689:: with SMTP id r9mr3970235wrm.62.1570038072117;
-        Wed, 02 Oct 2019 10:41:12 -0700 (PDT)
-Received: from green.intra.ispras.ru (bran.ispras.ru. [83.149.199.196])
-        by smtp.googlemail.com with ESMTPSA id f186sm7879628wmg.21.2019.10.02.10.41.10
+        bh=g1b91VmMiL2dDCBLT6JYdBj2IBTRwJuzgoJIwLvpnl0=;
+        b=DPZNcrLEImT6wjNBrkOx8Cadp4nWYFpoOs4O+2TUrvgGjxiBMlkiViDueMmyg48tEo
+         fDEtAvQfG3Dbwp2AEOVBye/ZKUMgjcYu5jvFlRstY/iz23pRxTPIgpITNekuuVDS/SB+
+         pALKQRxR6p6Iv+LtW1CrXQF8tytqR0ra3Vp3sqcyC4UHe/a2aXc85/6MYzNOxxC+hzK5
+         HeD0fgmQ2lkk+bSzyfo2xEF+hKPYYFbu1GLNG5hInQNtnP1347+qEh8qn/zQpK2ySLMF
+         dza0Xo/kkgDjf1JI25AHn+Ltt1/3zgnFQZSz22rvC2ansFywBr5gPGt/tjWQ5Aw/vYZu
+         p2lQ==
+X-Gm-Message-State: APjAAAWjoTkIHQXMWUBUIZg26V6J1YBdXDp0ugMP7zKm0wnsDY08VArS
+        YsGeRSwG8QzqBXvp5ZpCljMiNLAy
+X-Google-Smtp-Source: APXvYqxG36UsWLA4vIua0XGcDoguy3VTwZF1+FgvvPHFPQ8NmZHj2WhKKEYtZcoGQcUr0fz6baJYNA==
+X-Received: by 2002:ac8:3f4c:: with SMTP id w12mr5787735qtk.168.1570041747137;
+        Wed, 02 Oct 2019 11:42:27 -0700 (PDT)
+Received: from localhost.localdomain ([71.219.73.178])
+        by smtp.gmail.com with ESMTPSA id n125sm1178qkn.129.2019.10.02.11.42.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Oct 2019 10:41:11 -0700 (PDT)
-From:   Denis Efremov <efremov@linux.com>
-To:     devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
-Cc:     Denis Efremov <efremov@linux.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] staging: wlan-ng: fix uninitialized variable
-Date:   Wed,  2 Oct 2019 20:41:03 +0300
-Message-Id: <20191002174103.1274-1-efremov@linux.com>
-X-Mailer: git-send-email 2.21.0
+        Wed, 02 Oct 2019 11:42:26 -0700 (PDT)
+From:   Alex Deucher <alexdeucher@gmail.com>
+X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
+To:     stable@vger.kernel.org
+Cc:     Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 0/3] amdgpu display fixes for 5.3
+Date:   Wed,  2 Oct 2019 13:42:16 -0500
+Message-Id: <20191002184219.4011-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -49,30 +59,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The result variable in prism2_connect() can be used uninitialized on path
-!channel --> ... --> is_wep --> sme->key --> sme->key_idx >= NUM_WEPKEYS.
-This patch initializes result with 0.
+Some display fixes for vega20 for stable.  Fixes
+stability issues with certain combinations of monitors.
+Cherry-picked from master.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Efremov <efremov@linux.com>
----
- drivers/staging/wlan-ng/cfg80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Alex Deucher (1):
+  drm/amdgpu/display: fix 64 bit divide
 
-diff --git a/drivers/staging/wlan-ng/cfg80211.c b/drivers/staging/wlan-ng/cfg80211.c
-index eee1998c4b18..d426905e187e 100644
---- a/drivers/staging/wlan-ng/cfg80211.c
-+++ b/drivers/staging/wlan-ng/cfg80211.c
-@@ -441,7 +441,7 @@ static int prism2_connect(struct wiphy *wiphy, struct net_device *dev,
- 	int chan = -1;
- 	int is_wep = (sme->crypto.cipher_group == WLAN_CIPHER_SUITE_WEP40) ||
- 	    (sme->crypto.cipher_group == WLAN_CIPHER_SUITE_WEP104);
--	int result;
-+	int result = 0;
- 	int err = 0;
- 
- 	/* Set the channel */
+Charlene Liu (1):
+  drm/amd/display: dce11.x /dce12 update formula input
+
+Zhan Liu (1):
+  drm/amd/display: Add missing HBM support and raise Vega20's uclk.
+
+ .../dc/clk_mgr/dce110/dce110_clk_mgr.c        | 27 ++++++++++++++++---
+ .../drm/amd/display/dc/dce/dce_mem_input.c    |  4 +--
+ .../amd/display/dc/dce112/dce112_resource.c   | 16 ++++++-----
+ .../amd/display/dc/dce120/dce120_resource.c   | 11 +++++---
+ drivers/gpu/drm/amd/display/dc/inc/resource.h |  2 ++
+ 5 files changed, 45 insertions(+), 15 deletions(-)
+
 -- 
-2.21.0
+2.20.1
 
