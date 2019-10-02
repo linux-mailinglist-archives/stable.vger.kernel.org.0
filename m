@@ -2,94 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A4EC938D
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 23:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9514C939C
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 23:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729313AbfJBVgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 17:36:36 -0400
-Received: from smtprelay0175.hostedemail.com ([216.40.44.175]:48736 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729042AbfJBVgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 17:36:36 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay05.hostedemail.com (Postfix) with ESMTP id 18FDF18024AE5;
-        Wed,  2 Oct 2019 21:36:35 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,:::::::::::::,RULES_HIT:41:69:355:379:599:800:960:968:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2393:2559:2562:2828:2911:3138:3139:3140:3141:3142:3353:3622:3865:3866:3871:3872:4321:4425:5007:7514:7576:10004:10400:11026:11232:11473:11657:11658:11914:12043:12297:12438:12555:12740:12760:12895:13069:13255:13311:13357:13439:14096:14097:14181:14659:14721:14877:21080:21451:21611:21627:21939:30012:30054:30091,0,RBL:47.151.152.152:@perches.com:.lbl8.mailshell.net-62.8.0.100 64.201.201.201,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:fn,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:29,LUA_SUMMARY:none
-X-HE-Tag: cake40_1c3454dfe8209
-X-Filterd-Recvd-Size: 2626
-Received: from XPS-9350.home (unknown [47.151.152.152])
-        (Authenticated sender: joe@perches.com)
-        by omf16.hostedemail.com (Postfix) with ESMTPA;
-        Wed,  2 Oct 2019 21:36:33 +0000 (UTC)
-Message-ID: <6436567dd141e5528a5363dd3aaad21815a1c111.camel@perches.com>
-Subject: Re: [PATCH 3.16 29/87] staging: iio: cdc: Don't put an else right
- after a return
-From:   Joe Perches <joe@perches.com>
-To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Catalina Mocanu <catalina.mocanu@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Date:   Wed, 02 Oct 2019 14:36:32 -0700
-In-Reply-To: <lsq.1570043211.136218297@decadent.org.uk>
-References: <lsq.1570043211.136218297@decadent.org.uk>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.32.1-2 
-MIME-Version: 1.0
+        id S1727900AbfJBVqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 17:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727832AbfJBVqA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Oct 2019 17:46:00 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D25B7217D7;
+        Wed,  2 Oct 2019 21:45:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570052759;
+        bh=O7NvbZugYvMLZ/+OzzjuvSo6dEQ9WQ3OuCN4ONY0600=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=IoJhq4Pv0UhAVg1ket7V7IvKUNoWBUnQpaVqvxZCay/k28RCXEZQxTzXpCbrPbPME
+         cgkeE7CWmXA8qmksbohVGhqJPnTg7I3v9HBgfbHffqP5+Ygdrbzc8YDtX+LZlPMol+
+         KmZyg78A51sNcAs9ORccMZAsCuWoBGBtM3/Z25FY=
+Date:   Wed, 2 Oct 2019 14:45:58 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        contact@xogium.me, Russell King <linux@armlinux.org.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Kees Cook <keescook@chromium.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
+Message-Id: <20191002144558.87531ea9f68b535453fedd3e@linux-foundation.org>
+In-Reply-To: <20191002123538.22609-1-will@kernel.org>
+References: <20191002123538.22609-1-will@kernel.org>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-10-02 at 20:06 +0100, Ben Hutchings wrote:
-> 3.16.75-rc1 review patch.  If anyone has any objections, please let me know.
+On Wed,  2 Oct 2019 13:35:38 +0100 Will Deacon <will@kernel.org> wrote:
 
-This doesn't look necessary.
+> Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
+> calling CPU in an infinite loop, but with interrupts and preemption
+> enabled. From this state, userspace can continue to be scheduled,
+> despite the system being "dead" as far as the kernel is concerned. This
+> is easily reproducible on arm64 when booting with "nosmp" on the command
+> line; a couple of shell scripts print out a periodic "Ping" message
+> whilst another triggers a crash by writing to /proc/sysrq-trigger:
+> 
+>   | sysrq: Trigger a crash
+>   | Kernel panic - not syncing: sysrq triggered crash
+>   | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
+>   | Hardware name: linux,dummy-virt (DT)
+>   | Call trace:
+>   |  dump_backtrace+0x0/0x148
+>   |  show_stack+0x14/0x20
+>   |  dump_stack+0xa0/0xc4
+>   |  panic+0x140/0x32c
+>   |  sysrq_handle_reboot+0x0/0x20
+>   |  __handle_sysrq+0x124/0x190
+>   |  write_sysrq_trigger+0x64/0x88
+>   |  proc_reg_write+0x60/0xa8
+>   |  __vfs_write+0x18/0x40
+>   |  vfs_write+0xa4/0x1b8
+>   |  ksys_write+0x64/0xf0
+>   |  __arm64_sys_write+0x14/0x20
+>   |  el0_svc_common.constprop.0+0xb0/0x168
+>   |  el0_svc_handler+0x28/0x78
+>   |  el0_svc+0x8/0xc
+>   | Kernel Offset: disabled
+>   | CPU features: 0x0002,24002004
+>   | Memory Limit: none
+>   | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
+>   |  Ping 2!
+>   |  Ping 1!
+>   |  Ping 1!
+>   |  Ping 2!
+> 
+> The issue can also be triggered on x86 kernels if CONFIG_SMP=n, otherwise
+> local interrupts are disabled in 'smp_send_stop()'.
+> 
+> Disable preemption in 'panic()' before re-enabling interrupts.
+> 
+> ...
+>
+> --- a/kernel/panic.c
+> +++ b/kernel/panic.c
+> @@ -180,6 +180,7 @@ void panic(const char *fmt, ...)
+>  	 * after setting panic_cpu) from invoking panic() again.
+>  	 */
+>  	local_irq_disable();
+> +	preempt_disable_notrace();
+>  
+>  	/*
+>  	 * It's possible to come here directly from a panic-assertion and
 
-> ------------------
-> 
-> From: Catalina Mocanu <catalina.mocanu@gmail.com>
-> 
-> commit 288903f6b91e759b0a813219acd376426cbb8f14 upstream.
-> 
-> This fixes the following checkpatch.pl warning:
-> WARNING: else is not generally useful after a break or return.
-> 
-> While at it, remove new line for symmetry with the rest of the code.
-> 
-> Signed-off-by: Catalina Mocanu <catalina.mocanu@gmail.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> ---
->  drivers/staging/iio/cdc/ad7150.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
-> 
-> --- a/drivers/staging/iio/cdc/ad7150.c
-> +++ b/drivers/staging/iio/cdc/ad7150.c
-> @@ -143,19 +143,15 @@ static int ad7150_read_event_config(stru
->  	case IIO_EV_TYPE_MAG_ADAPTIVE:
->  		if (dir == IIO_EV_DIR_RISING)
->  			return adaptive && (threshtype == 0x1);
-> -		else
-> -			return adaptive && (threshtype == 0x0);
-> +		return adaptive && (threshtype == 0x0);
->  	case IIO_EV_TYPE_THRESH_ADAPTIVE:
->  		if (dir == IIO_EV_DIR_RISING)
->  			return adaptive && (threshtype == 0x3);
-> -		else
-> -			return adaptive && (threshtype == 0x2);
-> -
-> +		return adaptive && (threshtype == 0x2);
->  	case IIO_EV_TYPE_THRESH:
->  		if (dir == IIO_EV_DIR_RISING)
->  			return !adaptive && (threshtype == 0x1);
-> -		else
-> -			return !adaptive && (threshtype == 0x0);
-> +		return !adaptive && (threshtype == 0x0);
->  	default:
->  		break;
->  	}
-> 
+We still do a lot of stuff (kexec, kgdb, etc) after this
+preempt_disable() and I worry that something in there will now trigger
+a might_sleep() warning as a result?
 
