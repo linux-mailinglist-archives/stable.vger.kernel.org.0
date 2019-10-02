@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CFDDC91B4
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD9CC91EB
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729958AbfJBTLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:11:05 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35766 "EHLO
+        id S1728954AbfJBTMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:12:39 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35412 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729293AbfJBTIP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:15 -0400
+        by vger.kernel.org with ESMTP id S1729119AbfJBTIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:10 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyu-00035r-3B; Wed, 02 Oct 2019 20:08:12 +0100
+        id 1iFjyo-00036B-OO; Wed, 02 Oct 2019 20:08:06 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyq-0003gX-I6; Wed, 02 Oct 2019 20:08:08 +0100
+        id 1iFjyo-0003cp-1r; Wed, 02 Oct 2019 20:08:06 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Colin Ian King" <colin.king@canonical.com>,
-        "Takashi Iwai" <tiwai@suse.de>
+        "Jens Remus" <jremus@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Benjamin Block" <bblock@linux.ibm.com>,
+        "Steffen Maier" <maier@linux.ibm.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.234142557@decadent.org.uk>
+Message-ID: <lsq.1570043211.916971204@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 83/87] ALSA: seq: fix incorrect order of
- dest_client/dest_ports arguments
+Subject: [PATCH 3.16 37/87] scsi: zfcp: fix missing zfcp_port reference
+ put on -EBUSY from port_remove
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,43 +49,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit c3ea60c231446663afd6ea1054da6b7f830855ca upstream.
+commit d27e5e07f9c49bf2a6a4ef254ce531c1b4fb5a38 upstream.
 
-There are two occurrances of a call to snd_seq_oss_fill_addr where
-the dest_client and dest_port arguments are in the wrong order. Fix
-this by swapping them around.
+With this early return due to zfcp_unit child(ren), we don't use the
+zfcp_port reference from the earlier zfcp_get_port_by_wwpn() anymore and
+need to put it.
 
-Addresses-Coverity: ("Arguments in wrong order")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove")
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/core/seq/oss/seq_oss_ioctl.c | 2 +-
- sound/core/seq/oss/seq_oss_rw.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/scsi/zfcp_sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/core/seq/oss/seq_oss_ioctl.c
-+++ b/sound/core/seq/oss/seq_oss_ioctl.c
-@@ -62,7 +62,7 @@ static int snd_seq_oss_oob_user(struct s
- 	if (copy_from_user(ev, arg, 8))
- 		return -EFAULT;
- 	memset(&tmpev, 0, sizeof(tmpev));
--	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.port, dp->addr.client);
-+	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.client, dp->addr.port);
- 	tmpev.time.tick = 0;
- 	if (! snd_seq_oss_process_event(dp, (union evrec *)ev, &tmpev)) {
- 		snd_seq_oss_dispatch(dp, &tmpev, 0, 0);
---- a/sound/core/seq/oss/seq_oss_rw.c
-+++ b/sound/core/seq/oss/seq_oss_rw.c
-@@ -174,7 +174,7 @@ insert_queue(struct seq_oss_devinfo *dp,
- 	memset(&event, 0, sizeof(event));
- 	/* set dummy -- to be sure */
- 	event.type = SNDRV_SEQ_EVENT_NOTEOFF;
--	snd_seq_oss_fill_addr(dp, &event, dp->addr.port, dp->addr.client);
-+	snd_seq_oss_fill_addr(dp, &event, dp->addr.client, dp->addr.port);
- 
- 	if (snd_seq_oss_process_event(dp, rec, &event))
- 		return 0; /* invalid event - no need to insert queue */
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -261,6 +261,7 @@ static ssize_t zfcp_sysfs_port_remove_st
+ 	if (atomic_read(&port->units) > 0) {
+ 		retval = -EBUSY;
+ 		mutex_unlock(&zfcp_sysfs_port_units_mutex);
++		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
+ 		goto out;
+ 	}
+ 	/* port is about to be removed, so no more unit_add */
 
