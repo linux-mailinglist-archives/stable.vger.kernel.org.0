@@ -2,86 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F4D6C8A67
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 16:00:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D114C8A95
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 16:08:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726087AbfJBOAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 10:00:32 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4222 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726200AbfJBOA2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 10:00:28 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x92DvZIH114215
-        for <stable@vger.kernel.org>; Wed, 2 Oct 2019 10:00:28 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vcsupxyf5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 10:00:27 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Wed, 2 Oct 2019 15:00:25 +0100
-Received: from b06avi18878370.portsmouth.uk.ibm.com (9.149.26.194)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Wed, 2 Oct 2019 15:00:22 +0100
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x92E0Lx824183122
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 2 Oct 2019 14:00:21 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 48A62A4067;
-        Wed,  2 Oct 2019 14:00:21 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D0B2DA4054;
-        Wed,  2 Oct 2019 14:00:19 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.234.231])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Wed,  2 Oct 2019 14:00:19 +0000 (GMT)
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-integrity@vger.kernel.org
-Cc:     stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Date:   Wed, 02 Oct 2019 10:00:19 -0400
-In-Reply-To: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
-References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
+        id S1727662AbfJBOI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 10:08:28 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37725 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726200AbfJBOI2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 10:08:28 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0344B21FE9;
+        Wed,  2 Oct 2019 10:08:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 02 Oct 2019 10:08:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=S
+        4Y84XgwoSx4BWPKsd3lQggQKfTwq4swaYPybPi9ZwI=; b=U2BxenuNhxVPJKZp3
+        34hV3r8FMY6NuLAUc+Bxt+bXem/SGqtwS1jZhXU2oYTL5y/SYU03SaK7i5KTZ9UW
+        CNNjxym13fEUew5e16vMqemA67oE0gxtLP3X5GpkKRV7G0afcNrwQv/pSVADgrGC
+        JdDspBQTWpLSmjx0Wib59Vsw+aZwTNmJdflyhWlE13NbtdweCZZK5QL2dsADKFxS
+        aJ1Fi8L2VyyyVQWo824c5aOMBLQUagXaqU/9KLBcbstpNV0TzQhWAvc8D/z/uX2G
+        ptt5IwuRD9gaBO+TfCeyRgkEsSsxYtuQGpp/cRseVPQRSKthOOOwCsUTMLWxAycS
+        PMF0g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=S4Y84XgwoSx4BWPKsd3lQggQKfTwq4swaYPybPi9Z
+        wI=; b=sXxjg+ID2B+3GGqGKkxfxQJ9uDYax6zFjEWCSJ5GVZGmpQnw7+JjePSFa
+        YbzKeIaZCp1nGNDK/MSrq/+F5EAHh95As00ty/L/FH+Z8sggBO+xRUgOG7W75wQ5
+        WoIxf5xPjNE+o6nERMDKvs19221JG37FXnrufiPd+59exR5TBWXr42GnbavCWbF3
+        35xyRyAeMqinyYaFYjZg/Euz3bL8YZoqrviR5BDzW3EboPEZqtQy5P5qcPe4bInA
+        5HiGnnOkt0fGJxNgwwbuA/ILn66FcqtDobjOeVy+1XrriHcRheQNlyhShtMBvHeX
+        c8mduaM5t7YFvHLFUvLpoMzGcLOFw==
+X-ME-Sender: <xms:Wq-UXWTe0cLYT5Uw8G3AX1v59Y22TC2yT6zcs-DFY_jdTnwpi6c59A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeeigdejfecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghdpghhithhlrggsrdgtohhmnecukfhppeekfedrkeeirdekledruddtjeenucfr
+    rghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsth
+    gvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Wq-UXWmJrAHhgrfo5zfPhMNbMvO5t41JvQr5tLrTwLQYGMfpedMRmw>
+    <xmx:Wq-UXYUSms0n6dA0BWD5iw_89B1d7jrgUHTbApDp9a_WsZOwYnyShQ>
+    <xmx:Wq-UXVwI7gMpRnHh7LaDqhdCSXMyvtbWzjJJn3HxAAxv80_Y9XlfBQ>
+    <xmx:Wq-UXUUB18oCyHJdeS3WqNJLG3DPanG8hyCV28gtxfRqMdGdA0md6g>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4C416D6005E;
+        Wed,  2 Oct 2019 10:08:26 -0400 (EDT)
+Date:   Wed, 2 Oct 2019 16:08:24 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Veronika Kabatova <vkabatov@redhat.com>,
+        CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for
+ kernel?5.4.0-rc1-643b3a0.cki (stable-next)
+Message-ID: <20191002140824.GA1741376@kroah.com>
+References: <cki.7E7289C905.6I9MGQOO2V@redhat.com>
+ <20191002053202.GA1450924@kroah.com>
+ <1062039737.2099822.1570016073892.JavaMail.zimbra@redhat.com>
+ <20191002135627.GN17454@sasha-vm>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19100214-0012-0000-0000-000003535F73
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19100214-0013-0000-0000-0000218E6336
-Message-Id: <1570024819.4999.119.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-02_06:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=585 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1910020135
+In-Reply-To: <20191002135627.GN17454@sasha-vm>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2019-09-26 at 20:16 +0300, Jarkko Sakkinen wrote:
-> Only the kernel random pool should be used for generating random numbers.
-> TPM contributes to that pool among the other sources of entropy. In here it
-> is not, agreed, absolutely critical because TPM is what is trusted anyway
-> but in order to remove tpm_get_random() we need to first remove all the
-> call sites.
+On Wed, Oct 02, 2019 at 09:56:27AM -0400, Sasha Levin wrote:
+> On Wed, Oct 02, 2019 at 07:34:33AM -0400, Veronika Kabatova wrote:
+> > 
+> > 
+> > ----- Original Message -----
+> > > From: "Greg KH" <greg@kroah.com>
+> > > To: "CKI Project" <cki-project@redhat.com>
+> > > Cc: "Linux Stable maillist" <stable@vger.kernel.org>
+> > > Sent: Wednesday, October 2, 2019 7:32:02 AM
+> > > Subject: Re: ❌ FAIL: Test report for kernel	5.4.0-rc1-643b3a0.cki (stable-next)
+> > > 
+> > > On Wed, Oct 02, 2019 at 12:27:24AM -0400, CKI Project wrote:
+> > > >
+> > > > Hello,
+> > > >
+> > > > We ran automated tests on a recent commit from this kernel tree:
+> > > >
+> > > >        Kernel repo:
+> > > >        git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
+> > > >             Commit: 643b3a097f86 - selftests: pidfd: Fix undefined
+> > > >             reference to pthread_create()
+> > > 
+> > > That is 5.4-rc1?
+> > > 
+> > > Why are you sending those results to the stable list?
+> > > 
+> > > confused,
+> > > 
+> > 
+> > Hi,
+> > 
+> > Sasha has requested to have stable-next tested and results sent to this list:
+> > 
+> > https://gitlab.com/cki-project/pipeline-data/commit/16e0c06addbe62c689782357673f69bb7dff4d9a
+> 
+> Greg, this is the stable-next thing we talked about at LPC; it's just a
+> subset of linux-next of stable tagged commits to help us identify issues
+> before it actually hits upstream.
+> 
+> I can drop the mails to stable@ if you'd like, but ideally it should
+> only be one mail a day.
 
-At what point during boot is the kernel random pool available?  Does
-this imply that you're planning on changing trusted keys as well?
+Ah, ok, I was thinking CKI was testing Linus's tree for some reason and
+sending the results only to the stable list, which would be odd.  If
+this is your stuff, and you get use out of it, that's fine with me, I'll
+be quiet :)
 
-Mimi
+thanks,
 
+greg k-h
