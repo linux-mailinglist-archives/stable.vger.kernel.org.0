@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8134C9178
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B95C9168
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbfJBTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:09:07 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36120 "EHLO
+        id S1729325AbfJBTIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:08:16 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35780 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729382AbfJBTIW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:22 -0400
+        by vger.kernel.org with ESMTP id S1729301AbfJBTIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:16 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-00035t-BQ; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyu-00035y-8H; Wed, 02 Oct 2019 20:08:12 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyn-0003br-NA; Wed, 02 Oct 2019 20:08:05 +0100
+        id 1iFjyq-0003gt-OJ; Wed, 02 Oct 2019 20:08:08 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,22 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
-        "Vince Weaver" <vincent.weaver@maine.edu>, namhyung@kernel.org,
-        acme@kernel.org, "Jiri Olsa" <jolsa@redhat.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Arnaldo Carvalho de Melo" <acme@redhat.com>,
-        "Stephane Eranian" <eranian@google.com>,
-        "Ingo Molnar" <mingo@kernel.org>, mark.rutland@arm.com,
-        "Peter Zijlstra" <peterz@infradead.org>,
-        "Yabin Cui" <yabinc@google.com>
+        "Roman Bolshakov" <r.bolshakov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Bart Van Assche" <bvanassche@acm.org>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.419547842@decadent.org.uk>
+Message-ID: <lsq.1570043211.378304899@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 25/87] perf/ring_buffer: Add ordering to rb->nest
- increment
+Subject: [PATCH 3.16 85/87] scsi: target/iblock: Fix overrun in WRITE SAME
+ emulation
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -55,56 +48,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Roman Bolshakov <r.bolshakov@yadro.com>
 
-commit 3f9fbe9bd86c534eba2faf5d840fd44c6049f50e upstream.
+commit 5676234f20fef02f6ca9bd66c63a8860fce62645 upstream.
 
-Similar to how decrementing rb->next too early can cause data_head to
-(temporarily) be observed to go backward, so too can this happen when
-we increment too late.
+WRITE SAME corrupts data on the block device behind iblock if the command
+is emulated. The emulation code issues (M - 1) * N times more bios than
+requested, where M is the number of 512 blocks per real block size and N is
+the NUMBER OF LOGICAL BLOCKS specified in WRITE SAME command. So, for a
+device with 4k blocks, 7 * N more LBAs gets written after the requested
+range.
 
-This barrier() ensures the rb->head load happens after the increment,
-both the one in the 'goto again' path, as the one from
-perf_output_get_handle() -- albeit very unlikely to matter for the
-latter.
+The issue happens because the number of 512 byte sectors to be written is
+decreased one by one while the real bios are typically from 1 to 8 512 byte
+sectors per bio.
 
-Suggested-by: Yabin Cui <yabinc@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: mark.rutland@arm.com
-Cc: namhyung@kernel.org
-Fixes: ef60777c9abd ("perf: Optimize the perf_output() path by removing IRQ-disables")
-Link: http://lkml.kernel.org/r/20190517115418.309516009@infradead.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: c66ac9db8d4a ("[SCSI] target: Add LIO target core v4.0.0-rc6")
+Signed-off-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[bwh: Backported to 3.16: use IBLOCK_LBA_SHIFT instead of SECTOR_SHIFT]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- kernel/events/ring_buffer.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/target/target_core_iblock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -47,6 +47,15 @@ static void perf_output_put_handle(struc
- 	unsigned long head;
+--- a/drivers/target/target_core_iblock.c
++++ b/drivers/target/target_core_iblock.c
+@@ -490,7 +490,7 @@ iblock_execute_write_same(struct se_cmd
  
- again:
-+	/*
-+	 * In order to avoid publishing a head value that goes backwards,
-+	 * we must ensure the load of @rb->head happens after we've
-+	 * incremented @rb->nest.
-+	 *
-+	 * Otherwise we can observe a @rb->head value before one published
-+	 * by an IRQ/NMI happening between the load and the increment.
-+	 */
-+	barrier();
- 	head = local_read(&rb->head);
+ 		/* Always in 512 byte units for Linux/Block */
+ 		block_lba += sg->length >> IBLOCK_LBA_SHIFT;
+-		sectors -= 1;
++		sectors -= sg->length >> IBLOCK_LBA_SHIFT;
+ 	}
  
- 	/*
+ 	iblock_submit_bios(&list, WRITE);
 
