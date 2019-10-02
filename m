@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24D21C91AC
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CFDDC91B4
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729923AbfJBTKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:10:53 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35784 "EHLO
+        id S1729958AbfJBTLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:11:05 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35766 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729302AbfJBTIP (ORCPT
+        by vger.kernel.org with ESMTP id S1729293AbfJBTIP (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:15 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyu-000364-EQ; Wed, 02 Oct 2019 20:08:12 +0100
+        id 1iFjyu-00035r-3B; Wed, 02 Oct 2019 20:08:12 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyq-0003gI-94; Wed, 02 Oct 2019 20:08:08 +0100
+        id 1iFjyq-0003gX-I6; Wed, 02 Oct 2019 20:08:08 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Jiri Pirko" <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Jiri Pirko" <jiri@mellanox.com>,
-        "YueHaibing" <yuehaibing@huawei.com>
+        "Colin Ian King" <colin.king@canonical.com>,
+        "Takashi Iwai" <tiwai@suse.de>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.524954219@decadent.org.uk>
+Message-ID: <lsq.1570043211.234142557@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 80/87] bonding: Always enable vlan tx offload
+Subject: [PATCH 3.16 83/87] ALSA: seq: fix incorrect order of
+ dest_client/dest_ports arguments
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,51 +47,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 30d8177e8ac776d89d387fad547af6a0f599210e upstream.
+commit c3ea60c231446663afd6ea1054da6b7f830855ca upstream.
 
-We build vlan on top of bonding interface, which vlan offload
-is off, bond mode is 802.3ad (LACP) and xmit_hash_policy is
-BOND_XMIT_POLICY_ENCAP34.
+There are two occurrances of a call to snd_seq_oss_fill_addr where
+the dest_client and dest_port arguments are in the wrong order. Fix
+this by swapping them around.
 
-Because vlan tx offload is off, vlan tci is cleared and skb push
-the vlan header in validate_xmit_vlan() while sending from vlan
-devices. Then in bond_xmit_hash, __skb_flow_dissect() fails to
-get information from protocol headers encapsulated within vlan,
-because 'nhoff' is points to IP header, so bond hashing is based
-on layer 2 info, which fails to distribute packets across slaves.
-
-This patch always enable bonding's vlan tx offload, pass the vlan
-packets to the slave devices with vlan tci, let them to handle
-vlan implementation.
-
-Fixes: 278339a42a1b ("bonding: propogate vlan_features to bonding master")
-Suggested-by: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 3.16: adjust context]
+Addresses-Coverity: ("Arguments in wrong order")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/net/bonding/bond_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/seq/oss/seq_oss_ioctl.c | 2 +-
+ sound/core/seq/oss/seq_oss_rw.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4038,13 +4038,13 @@ void bond_setup(struct net_device *bond_
- 	bond_dev->features |= NETIF_F_NETNS_LOCAL;
+--- a/sound/core/seq/oss/seq_oss_ioctl.c
++++ b/sound/core/seq/oss/seq_oss_ioctl.c
+@@ -62,7 +62,7 @@ static int snd_seq_oss_oob_user(struct s
+ 	if (copy_from_user(ev, arg, 8))
+ 		return -EFAULT;
+ 	memset(&tmpev, 0, sizeof(tmpev));
+-	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &tmpev, dp->addr.client, dp->addr.port);
+ 	tmpev.time.tick = 0;
+ 	if (! snd_seq_oss_process_event(dp, (union evrec *)ev, &tmpev)) {
+ 		snd_seq_oss_dispatch(dp, &tmpev, 0, 0);
+--- a/sound/core/seq/oss/seq_oss_rw.c
++++ b/sound/core/seq/oss/seq_oss_rw.c
+@@ -174,7 +174,7 @@ insert_queue(struct seq_oss_devinfo *dp,
+ 	memset(&event, 0, sizeof(event));
+ 	/* set dummy -- to be sure */
+ 	event.type = SNDRV_SEQ_EVENT_NOTEOFF;
+-	snd_seq_oss_fill_addr(dp, &event, dp->addr.port, dp->addr.client);
++	snd_seq_oss_fill_addr(dp, &event, dp->addr.client, dp->addr.port);
  
- 	bond_dev->hw_features = BOND_VLAN_FEATURES |
--				NETIF_F_HW_VLAN_CTAG_TX |
- 				NETIF_F_HW_VLAN_CTAG_RX |
- 				NETIF_F_HW_VLAN_CTAG_FILTER;
- 
- 	bond_dev->hw_features &= ~(NETIF_F_ALL_CSUM & ~NETIF_F_HW_CSUM);
- 	bond_dev->hw_features |= NETIF_F_GSO_UDP_TUNNEL;
- 	bond_dev->features |= bond_dev->hw_features;
-+	bond_dev->features |= NETIF_F_HW_VLAN_CTAG_TX | NETIF_F_HW_VLAN_STAG_TX;
- }
- 
- /*
+ 	if (snd_seq_oss_process_event(dp, rec, &event))
+ 		return 0; /* invalid event - no need to insert queue */
 
