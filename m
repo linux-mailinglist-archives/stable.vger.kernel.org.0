@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A413C91EF
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAF8CC9176
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729101AbfJBTMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:12:50 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35396 "EHLO
+        id S1729435AbfJBTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:09:07 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:36118 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729102AbfJBTIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:10 -0400
+        by vger.kernel.org with ESMTP id S1729380AbfJBTIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:22 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyp-00036K-1g; Wed, 02 Oct 2019 20:08:07 +0100
+        id 1iFjyo-00035r-Eq; Wed, 02 Oct 2019 20:08:06 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-0003dE-6t; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyn-0003bm-MR; Wed, 02 Oct 2019 20:08:05 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,13 +26,24 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Kai-Heng Feng" <kai.heng.feng@canonical.com>
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Jiri Olsa" <jolsa@redhat.com>,
+        "Namhyung Kim" <namhyung@kernel.org>,
+        "Vince Weaver" <vincent.weaver@maine.edu>,
+        "Arnaldo Carvalho de Melo" <acme@kernel.org>,
+        "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
+        "Yabin Cui" <yabinc@google.com>, mark.rutland@arm.com,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Ingo Molnar" <mingo@kernel.org>,
+        "Stephane Eranian" <eranian@google.com>,
+        "Arnaldo Carvalho de Melo" <acme@redhat.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.784782308@decadent.org.uk>
+Message-ID: <lsq.1570043211.57813200@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 42/87] USB: usb-storage: Add new ID to ums-realtek
+Subject: [PATCH 3.16 24/87] perf/ring_buffer: Fix exposing a temporarily
+ decreased data_head
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -46,34 +57,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Yabin Cui <yabinc@google.com>
 
-commit 1a6dd3fea131276a4fc44ae77b0f471b0b473577 upstream.
+commit 1b038c6e05ff70a1e66e3e571c2e6106bdb75f53 upstream.
 
-There is one more Realtek card reader requires ums-realtek to work
-correctly.
+In perf_output_put_handle(), an IRQ/NMI can happen in below location and
+write records to the same ring buffer:
 
-Add the device ID to support it.
+	...
+	local_dec_and_test(&rb->nest)
+	...                          <-- an IRQ/NMI can happen here
+	rb->user_page->data_head = head;
+	...
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In this case, a value A is written to data_head in the IRQ, then a value
+B is written to data_head after the IRQ. And A > B. As a result,
+data_head is temporarily decreased from A to B. And a reader may see
+data_head < data_tail if it read the buffer frequently enough, which
+creates unexpected behaviors.
+
+This can be fixed by moving dec(&rb->nest) to after updating data_head,
+which prevents the IRQ/NMI above from updating data_head.
+
+[ Split up by peterz. ]
+
+Signed-off-by: Yabin Cui <yabinc@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: mark.rutland@arm.com
+Fixes: ef60777c9abd ("perf: Optimize the perf_output() path by removing IRQ-disables")
+Link: http://lkml.kernel.org/r/20190517115418.224478157@infradead.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/usb/storage/unusual_realtek.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/events/ring_buffer.c | 24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/storage/unusual_realtek.h
-+++ b/drivers/usb/storage/unusual_realtek.h
-@@ -28,6 +28,11 @@ UNUSUAL_DEV(0x0bda, 0x0138, 0x0000, 0x99
- 		"USB Card Reader",
- 		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
+--- a/kernel/events/ring_buffer.c
++++ b/kernel/events/ring_buffer.c
+@@ -50,11 +50,18 @@ again:
+ 	head = local_read(&rb->head);
  
-+UNUSUAL_DEV(0x0bda, 0x0153, 0x0000, 0x9999,
-+		"Realtek",
-+		"USB Card Reader",
-+		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
+ 	/*
+-	 * IRQ/NMI can happen here, which means we can miss a head update.
++	 * IRQ/NMI can happen here and advance @rb->head, causing our
++	 * load above to be stale.
+ 	 */
+ 
+-	if (!local_dec_and_test(&rb->nest))
++	/*
++	 * If this isn't the outermost nesting, we don't have to update
++	 * @rb->user_page->data_head.
++	 */
++	if (local_read(&rb->nest) > 1) {
++		local_dec(&rb->nest);
+ 		goto out;
++	}
+ 
+ 	/*
+ 	 * Since the mmap() consumer (userspace) can run on a different CPU:
+@@ -86,9 +93,18 @@ again:
+ 	rb->user_page->data_head = head;
+ 
+ 	/*
+-	 * Now check if we missed an update -- rely on previous implied
+-	 * compiler barriers to force a re-read.
++	 * We must publish the head before decrementing the nest count,
++	 * otherwise an IRQ/NMI can publish a more recent head value and our
++	 * write will (temporarily) publish a stale value.
++	 */
++	barrier();
++	local_set(&rb->nest, 0);
 +
- UNUSUAL_DEV(0x0bda, 0x0158, 0x0000, 0x9999,
- 		"Realtek",
- 		"USB Card Reader",
++	/*
++	 * Ensure we decrement @rb->nest before we validate the @rb->head.
++	 * Otherwise we cannot be sure we caught the 'last' nested update.
+ 	 */
++	barrier();
+ 	if (unlikely(head != local_read(&rb->head))) {
+ 		local_inc(&rb->nest);
+ 		goto again;
 
