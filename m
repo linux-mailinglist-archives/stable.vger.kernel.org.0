@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 386FAC91C8
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FD6C919D
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729031AbfJBTII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:08:08 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35206 "EHLO
+        id S1729832AbfJBTKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:10:24 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35882 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726669AbfJBTIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:07 -0400
+        by vger.kernel.org with ESMTP id S1729315AbfJBTIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:16 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyn-000357-29; Wed, 02 Oct 2019 20:08:05 +0100
+        id 1iFjyx-00035r-HB; Wed, 02 Oct 2019 20:08:15 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjym-0003Zw-Qw; Wed, 02 Oct 2019 20:08:04 +0100
+        id 1iFjyp-0003fK-I4; Wed, 02 Oct 2019 20:08:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "YueHaibing" <yuehaibing@huawei.com>,
-        "Mark Brown" <broonie@kernel.org>,
-        "Mukesh Ojha" <mojha@codeaurora.org>,
-        "Axel Lin" <axel.lin@ingics.com>,
-        "Geert Uytterhoeven" <geert+renesas@glider.be>,
-        "Hulk Robot" <hulkci@huawei.com>
+        "John Johansen" <john.johansen@canonical.com>,
+        "Jann Horn" <jannh@google.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.344502621@decadent.org.uk>
+Message-ID: <lsq.1570043211.513144298@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 02/87] spi: bitbang: Fix NULL pointer dereference in
- spi_unregister_master
+Subject: [PATCH 3.16 68/87] apparmor: enforce nullbyte at end of tag string
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,82 +46,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Jann Horn <jannh@google.com>
 
-commit 5caaf29af5ca82d5da8bc1d0ad07d9e664ccf1d8 upstream.
+commit 8404d7a674c49278607d19726e0acc0cae299357 upstream.
 
-If spi_register_master fails in spi_bitbang_start
-because device_add failure, We should return the
-error code other than 0, otherwise calling
-spi_bitbang_stop may trigger NULL pointer dereference
-like this:
+A packed AppArmor policy contains null-terminated tag strings that are read
+by unpack_nameX(). However, unpack_nameX() uses string functions on them
+without ensuring that they are actually null-terminated, potentially
+leading to out-of-bounds accesses.
 
-BUG: KASAN: null-ptr-deref in __list_del_entry_valid+0x45/0xd0
-Read of size 8 at addr 0000000000000000 by task syz-executor.0/3661
+Make sure that the tag string is null-terminated before passing it to
+strcmp().
 
-CPU: 0 PID: 3661 Comm: syz-executor.0 Not tainted 5.1.0+ #28
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-Call Trace:
- dump_stack+0xa9/0x10e
- ? __list_del_entry_valid+0x45/0xd0
- ? __list_del_entry_valid+0x45/0xd0
- __kasan_report+0x171/0x18d
- ? __list_del_entry_valid+0x45/0xd0
- kasan_report+0xe/0x20
- __list_del_entry_valid+0x45/0xd0
- spi_unregister_controller+0x99/0x1b0
- spi_lm70llp_attach+0x3ae/0x4b0 [spi_lm70llp]
- ? 0xffffffffc1128000
- ? klist_next+0x131/0x1e0
- ? driver_detach+0x40/0x40 [parport]
- port_check+0x3b/0x50 [parport]
- bus_for_each_dev+0x115/0x180
- ? subsys_dev_iter_exit+0x20/0x20
- __parport_register_driver+0x1f0/0x210 [parport]
- ? 0xffffffffc1150000
- do_one_initcall+0xb9/0x3b5
- ? perf_trace_initcall_level+0x270/0x270
- ? kasan_unpoison_shadow+0x30/0x40
- ? kasan_unpoison_shadow+0x30/0x40
- do_init_module+0xe0/0x330
- load_module+0x38eb/0x4270
- ? module_frob_arch_sections+0x20/0x20
- ? kernel_read_file+0x188/0x3f0
- ? find_held_lock+0x6d/0xd0
- ? fput_many+0x1a/0xe0
- ? __do_sys_finit_module+0x162/0x190
- __do_sys_finit_module+0x162/0x190
- ? __ia32_sys_init_module+0x40/0x40
- ? __mutex_unlock_slowpath+0xb4/0x3f0
- ? wait_for_completion+0x240/0x240
- ? vfs_write+0x160/0x2a0
- ? lockdep_hardirqs_off+0xb5/0x100
- ? mark_held_locks+0x1a/0x90
- ? do_syscall_64+0x14/0x2a0
- do_syscall_64+0x72/0x2a0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 702a4879ec33 ("spi: bitbang: Let spi_bitbang_start() take a reference to master")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Axel Lin <axel.lin@ingics.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 736ec752d95e ("AppArmor: policy routines for loading and unpacking policy")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/spi/spi-bitbang.c | 2 +-
+ security/apparmor/policy_unpack.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/spi/spi-bitbang.c
-+++ b/drivers/spi/spi-bitbang.c
-@@ -462,7 +462,7 @@ int spi_bitbang_start(struct spi_bitbang
- 	if (ret)
- 		spi_master_put(master);
- 
--	return 0;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(spi_bitbang_start);
- 
+--- a/security/apparmor/policy_unpack.c
++++ b/security/apparmor/policy_unpack.c
+@@ -177,7 +177,7 @@ static bool unpack_nameX(struct aa_ext *
+ 		char *tag = NULL;
+ 		size_t size = unpack_u16_chunk(e, &tag);
+ 		/* if a name is specified it must match. otherwise skip tag */
+-		if (name && (!size || strcmp(name, tag)))
++		if (name && (!size || tag[size-1] != '\0' || strcmp(name, tag)))
+ 			goto fail;
+ 	} else if (name) {
+ 		/* if a name is specified and there is no name tag fail */
 
