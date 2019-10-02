@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86932C91FD
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 873DEC9188
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730169AbfJBTNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:13:14 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35328 "EHLO
+        id S1729662AbfJBTJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:09:41 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35954 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729080AbfJBTIJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:09 -0400
+        by vger.kernel.org with ESMTP id S1729337AbfJBTIS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:18 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-000366-LK; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyx-00036B-Rk; Wed, 02 Oct 2019 20:08:16 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyn-0003cV-Us; Wed, 02 Oct 2019 20:08:05 +0100
+        id 1iFjyp-0003ee-4V; Wed, 02 Oct 2019 20:08:07 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,23 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "syzbot" <syzkaller@googlegroups.com>,
-        "Eric Dumazet" <edumazet@google.com>
+        "Hugh Dickins" <hughd@google.com>,
+        "Andrea Arcangeli" <aarcange@redhat.com>,
+        "Peter Xu" <peterx@redhat.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Mike Kravetz" <mike.kravetz@oracle.com>,
+        "Michal Hocko" <mhocko@suse.com>,
+        "Jason Gunthorpe" <jgg@mellanox.com>,
+        "Mike Rapoport" <rppt@linux.vnet.ibm.com>,
+        "Oleg Nesterov" <oleg@redhat.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        "Jann Horn" <jannh@google.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.857104088@decadent.org.uk>
+Message-ID: <lsq.1570043211.584670199@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 33/87] llc: fix skb leak in llc_build_and_send_ui_pkt()
+Subject: [PATCH 3.16 60/87] coredump: fix race condition between
+ collapse_huge_page() and core dumping
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,83 +56,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-commit 8fb44d60d4142cd2a440620cd291d346e23c131e upstream.
+commit 59ea6d06cfa9247b586a695c21f94afa7183af74 upstream.
 
-If llc_mac_hdr_init() returns an error, we must drop the skb
-since no llc_build_and_send_ui_pkt() caller will take care of this.
+When fixing the race conditions between the coredump and the mmap_sem
+holders outside the context of the process, we focused on
+mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
+race condition between mmget_not_zero()/get_task_mm() and core
+dumping"), but those aren't the only cases where the mmap_sem can be
+taken outside of the context of the process as Michal Hocko noticed
+while backporting that commit to older -stable kernels.
 
-BUG: memory leak
-unreferenced object 0xffff8881202b6800 (size 2048):
-  comm "syz-executor907", pid 7074, jiffies 4294943781 (age 8.590s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    1a 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
-  backtrace:
-    [<00000000e25b5abe>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<00000000e25b5abe>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000e25b5abe>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000e25b5abe>] __do_kmalloc mm/slab.c:3658 [inline]
-    [<00000000e25b5abe>] __kmalloc+0x161/0x2c0 mm/slab.c:3669
-    [<00000000a1ae188a>] kmalloc include/linux/slab.h:552 [inline]
-    [<00000000a1ae188a>] sk_prot_alloc+0xd6/0x170 net/core/sock.c:1608
-    [<00000000ded25bbe>] sk_alloc+0x35/0x2f0 net/core/sock.c:1662
-    [<000000002ecae075>] llc_sk_alloc+0x35/0x170 net/llc/llc_conn.c:950
-    [<00000000551f7c47>] llc_ui_create+0x7b/0x140 net/llc/af_llc.c:173
-    [<0000000029027f0e>] __sock_create+0x164/0x250 net/socket.c:1430
-    [<000000008bdec225>] sock_create net/socket.c:1481 [inline]
-    [<000000008bdec225>] __sys_socket+0x69/0x110 net/socket.c:1523
-    [<00000000b6439228>] __do_sys_socket net/socket.c:1532 [inline]
-    [<00000000b6439228>] __se_sys_socket net/socket.c:1530 [inline]
-    [<00000000b6439228>] __x64_sys_socket+0x1e/0x30 net/socket.c:1530
-    [<00000000cec820c1>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<000000000c32554f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+If mmgrab() is called in the context of the process, but then the
+mm_count reference is transferred outside the context of the process,
+that can also be a problem if the mmap_sem has to be taken for writing
+through that mm_count reference.
 
-BUG: memory leak
-unreferenced object 0xffff88811d750d00 (size 224):
-  comm "syz-executor907", pid 7074, jiffies 4294943781 (age 8.600s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 f0 0c 24 81 88 ff ff 00 68 2b 20 81 88 ff ff  ...$.....h+ ....
-  backtrace:
-    [<0000000053026172>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<0000000053026172>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<0000000053026172>] slab_alloc_node mm/slab.c:3269 [inline]
-    [<0000000053026172>] kmem_cache_alloc_node+0x153/0x2a0 mm/slab.c:3579
-    [<00000000fa8f3c30>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:198
-    [<00000000d96fdafb>] alloc_skb include/linux/skbuff.h:1058 [inline]
-    [<00000000d96fdafb>] alloc_skb_with_frags+0x5f/0x250 net/core/skbuff.c:5327
-    [<000000000a34a2e7>] sock_alloc_send_pskb+0x269/0x2a0 net/core/sock.c:2225
-    [<00000000ee39999b>] sock_alloc_send_skb+0x32/0x40 net/core/sock.c:2242
-    [<00000000e034d810>] llc_ui_sendmsg+0x10a/0x540 net/llc/af_llc.c:933
-    [<00000000c0bc8445>] sock_sendmsg_nosec net/socket.c:652 [inline]
-    [<00000000c0bc8445>] sock_sendmsg+0x54/0x70 net/socket.c:671
-    [<000000003b687167>] __sys_sendto+0x148/0x1f0 net/socket.c:1964
-    [<00000000922d78d9>] __do_sys_sendto net/socket.c:1976 [inline]
-    [<00000000922d78d9>] __se_sys_sendto net/socket.c:1972 [inline]
-    [<00000000922d78d9>] __x64_sys_sendto+0x2a/0x30 net/socket.c:1972
-    [<00000000cec820c1>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<000000000c32554f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+khugepaged registration calls mmgrab() in the context of the process,
+but the mmap_sem for writing is taken later in the context of the
+khugepaged kernel thread.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+collapse_huge_page() after taking the mmap_sem for writing doesn't
+modify any vma, so it's not obvious that it could cause a problem to the
+coredump, but it happens to modify the pmd in a way that breaks an
+invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
+needs the mmap_sem for writing just to block concurrent page faults that
+call pmd_trans_huge_lock().
+
+Specifically the invariant that "!pmd_trans_huge()" cannot become a
+"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
+
+The coredump will call __get_user_pages() without mmap_sem for reading,
+which eventually can invoke a lockless page fault which will need a
+functional pmd_trans_huge_lock().
+
+So collapse_huge_page() needs to use mmget_still_valid() to check it's
+not running concurrently with the coredump...  as long as the coredump
+can invoke page faults without holding the mmap_sem for reading.
+
+This has "Fixes: khugepaged" to facilitate backporting, but in my view
+it's more a bug in the coredump code that will eventually have to be
+rewritten to stop invoking page faults without the mmap_sem for reading.
+So the long term plan is still to drop all mmget_still_valid().
+
+Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reported-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 3.16:
+ - Don't set result variable; collapse_huge_range() returns void
+ - Adjust filenames]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/llc/llc_output.c | 2 ++
- 1 file changed, 2 insertions(+)
-
---- a/net/llc/llc_output.c
-+++ b/net/llc/llc_output.c
-@@ -72,6 +72,8 @@ int llc_build_and_send_ui_pkt(struct llc
- 	rc = llc_mac_hdr_init(skb, skb->dev->dev_addr, dmac);
- 	if (likely(!rc))
- 		rc = dev_queue_xmit(skb);
-+	else
-+		kfree_skb(skb);
- 	return rc;
- }
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -2439,6 +2439,10 @@ static inline void mmdrop(struct mm_stru
+  * followed by taking the mmap_sem for writing before modifying the
+  * vmas or anything the coredump pretends not to change from under it.
+  *
++ * It also has to be called when mmgrab() is used in the context of
++ * the process, but then the mm_count refcount is transferred outside
++ * the context of the process to run down_write() on that pinned mm.
++ *
+  * NOTE: find_extend_vma() called from GUP context is the only place
+  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
+  * for reading and outside the context of the process, so it is also
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -2428,6 +2428,8 @@ static void collapse_huge_page(struct mm
+ 	 * handled by the anon_vma lock + PG_lock.
+ 	 */
+ 	down_write(&mm->mmap_sem);
++	if (!mmget_still_valid(mm))
++		goto out;
+ 	if (unlikely(khugepaged_test_exit(mm)))
+ 		goto out;
  
 
