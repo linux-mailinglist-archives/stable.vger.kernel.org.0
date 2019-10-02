@@ -2,61 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D35CC880F
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 14:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0449C885D
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 14:26:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726231AbfJBMPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 08:15:08 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:41130 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725766AbfJBMPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 08:15:08 -0400
-Received: by mail-ot1-f67.google.com with SMTP id g13so14441481otp.8
-        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 05:15:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=ceMejDySQezUsPD0WahCXnuhdZmK27/NaCcHAQKCOio=;
-        b=O88kP7KLCR4LyOtfmdXnTp5JUuWK8/omtHAvl8+yRHNdSlGLoSH5G2ATNBfo+c7h1f
-         q2Lo8THoZZHlF3Uykkpf21u1QoejvkN/NnO6MNft8QV7UMnp95OjKCtN9dNwnCgEzvgT
-         JvSqLGG7cAQrP74WHCZ6mRO9JUpG9Dw3euPgmaGCS4ffv8PmR3ZHgp18lFOotqeZ9H+X
-         BRZQL/IZTJ18EWimRJ/PzxN9utphE03n2JfXi/Ww7jCHvHUoA2sEV6/N0/F+vD1QubUn
-         VcZ41LENezGmFnnq+Q0oU2wTqHSdAQxLmVnSL4SMvlmVZVxTzOY4Ls0fsrRm97oeOaqe
-         eLPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=ceMejDySQezUsPD0WahCXnuhdZmK27/NaCcHAQKCOio=;
-        b=Bxfqpj0CgljwRA6Hn1WK2GiO3BnmCnYl5ZMQEWjVIxpFk17A3Oy/s+xj7me0+LXV35
-         JH1XDwBwlFIXBA4uG3IWmsDuviBUox4vlCjoRyID/GYTQD2Hf+eagn579JmANSQLcUwx
-         Ws/1QqkarBEoJ/ByO0vGYkhxnAqlaNt+zr3vMQTetzbgI9j9h16f7lQsXP5mCSFUAvB0
-         EUcv5uXpSTOXcrlM6v81rpTirfESB/P5dtNLJ0m7/NsKp0vYE+gWrXbIHeU/MZ2THjdE
-         oESX9PkKzqGKN8rWzVXK/X+jK+Z+8YwcGZEatr6pMDSzDOz4XQIH4culj9q1LHo//pJq
-         Pzng==
-X-Gm-Message-State: APjAAAUyNkiELshsUhhlc8ijBgoBrqLuBgy7PRdWqTFBE1o7zDlUywt9
-        WFJf/hVZHm+ij3x9zF8vveViat2EM/1t9nX/
-X-Google-Smtp-Source: APXvYqwtfueukHt57dAbm6bMKHUoHOBKISgsZwpCI4ngnYxoBccETUDjJf9gN1xjslQHcrlS2aTbvTMJiqpsPQs6D+A=
-X-Received: by 2002:a05:6830:22f7:: with SMTP id t23mr2504988otc.258.1570018507562;
- Wed, 02 Oct 2019 05:15:07 -0700 (PDT)
+        id S1726635AbfJBM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 08:26:13 -0400
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:33190 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725875AbfJBM0M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 08:26:12 -0400
+Received: from lelv0265.itg.ti.com ([10.180.67.224])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id x92CPxJx073005;
+        Wed, 2 Oct 2019 07:25:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1570019159;
+        bh=EDYFrWfYHk5McenIprwnW2MZAkgJrfgPI50SZBwt2Ak=;
+        h=From:To:CC:Subject:Date;
+        b=B0sleF8CLZS8WkFm0/QCECxFDGUTuy+0CYJ6QkvIiCQI+y/WMvo/RQLKn6JSGc2Bu
+         W2KhAmDmai4/1lbVQkO38S3Ige5V4doXMW1HzyUZTUmSN7hbgArWkOSMij49khBchf
+         OvAzJeBOV4fLagmSw+dzlnGnvLxERnX5XeGg4B+w=
+Received: from DLEE102.ent.ti.com (dlee102.ent.ti.com [157.170.170.32])
+        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x92CPxgN120509
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Wed, 2 Oct 2019 07:25:59 -0500
+Received: from DLEE109.ent.ti.com (157.170.170.41) by DLEE102.ent.ti.com
+ (157.170.170.32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Wed, 2 Oct
+ 2019 07:25:47 -0500
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE109.ent.ti.com
+ (157.170.170.41) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Wed, 2 Oct 2019 07:25:47 -0500
+Received: from deskari.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id x92CPu7F109850;
+        Wed, 2 Oct 2019 07:25:56 -0500
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+To:     <dri-devel@lists.freedesktop.org>
+CC:     <linux-omap@vger.kernel.org>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Adam Ford <aford173@gmail.com>, <stable@vger.kernel.org>
+Subject: [PATCH] drm/omap: fix max fclk divider for omap36xx
+Date:   Wed, 2 Oct 2019 15:25:42 +0300
+Message-ID: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Received: by 2002:ac9:395a:0:0:0:0:0 with HTTP; Wed, 2 Oct 2019 05:15:07 -0700 (PDT)
-Reply-To: edithbrown0257@gmail.com
-From:   Edith Brown <tinaeevan@gmail.com>
-Date:   Wed, 2 Oct 2019 13:15:07 +0100
-Message-ID: <CADEuEs9G0HBkSQHnpPjGW+6ef9+2vo1ByGEZme9j6s7T-6y9ew@mail.gmail.com>
-Subject: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
+(in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
+correct, and using divider of 32 breaks DSS with a flood or underflows
+and sync losts. Dividers up to 31 seem to work fine.
+
+There is another patch to the DT files to limit the divider correctly,
+but as the DSS driver also needs to know the maximum divider to be able
+to iteratively find good rates, we also need to do the fix in the DSS
+driver.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Adam Ford <aford173@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/omapdrm/dss/dss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+index e226324adb69..4bdd63b57100 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dss.c
++++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+@@ -1083,7 +1083,7 @@ static const struct dss_features omap34xx_dss_feats = {
+ 
+ static const struct dss_features omap3630_dss_feats = {
+ 	.model			=	DSS_MODEL_OMAP3,
+-	.fck_div_max		=	32,
++	.fck_div_max		=	31,
+ 	.fck_freq_max		=	173000000,
+ 	.dss_fck_multiplier	=	1,
+ 	.parent_clk_name	=	"dpll4_ck",
 -- 
-Hello dear
-how are you?
-my name is Edith Brown
-i am a U.S military woman
-i will like to know you more better and to be your friend
-thank you
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+
