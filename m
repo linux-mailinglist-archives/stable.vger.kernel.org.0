@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32218C91EC
-	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7385FC91BD
+	for <lists+stable@lfdr.de>; Wed,  2 Oct 2019 21:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729398AbfJBTMk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Oct 2019 15:12:40 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35388 "EHLO
+        id S1729193AbfJBTLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Oct 2019 15:11:34 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:35612 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729101AbfJBTIK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:10 -0400
+        by vger.kernel.org with ESMTP id S1729214AbfJBTIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Oct 2019 15:08:12 -0400
 Received: from [192.168.4.242] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-00036A-Mq; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyr-00036H-Pg; Wed, 02 Oct 2019 20:08:09 +0100
 Received: from ben by deadeye with local (Exim 4.92.1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iFjyo-0003ck-17; Wed, 02 Oct 2019 20:08:06 +0100
+        id 1iFjyo-0003eG-RI; Wed, 02 Oct 2019 20:08:06 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Shuah Khan" <skhan@linuxfoundation.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+        "Marc Zyngier" <marc.zyngier@arm.com>,
+        "Dave Martin" <Dave.Martin@arm.com>,
+        "Andrew Jones" <drjones@redhat.com>
 Date:   Wed, 02 Oct 2019 20:06:51 +0100
-Message-ID: <lsq.1570043211.199315098@decadent.org.uk>
+Message-ID: <lsq.1570043211.182854195@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 36/87] usbip: usbip_host: fix stub_dev lock context
- imbalance regression
+Subject: [PATCH 3.16 55/87] KVM: arm64: Filter out invalid core register
+ IDs in KVM_GET_REG_LIST
 In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
 X-SA-Exim-Connect-IP: 192.168.4.242
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,150 +48,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Dave Martin <Dave.Martin@arm.com>
 
-commit 3ea3091f1bd8586125848c62be295910e9802af0 upstream.
+commit df205b5c63281e4f32caac22adda18fd68795e80 upstream.
 
-Fix the following sparse context imbalance regression introduced in
-a patch that fixed sleeping function called from invalid context bug.
+Since commit d26c25a9d19b ("arm64: KVM: Tighten guest core register
+access from userspace"), KVM_{GET,SET}_ONE_REG rejects register IDs
+that do not correspond to a single underlying architectural register.
 
-kbuild test robot reported on:
+KVM_GET_REG_LIST was not changed to match however: instead, it
+simply yields a list of 32-bit register IDs that together cover the
+whole kvm_regs struct.  This means that if userspace tries to use
+the resulting list of IDs directly to drive calls to KVM_*_ONE_REG,
+some of those calls will now fail.
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git  usb-linus
+This was not the intention.  Instead, iterating KVM_*_ONE_REG over
+the list of IDs returned by KVM_GET_REG_LIST should be guaranteed
+to work.
 
-Regressions in current branch:
+This patch fixes the problem by splitting validate_core_offset()
+into a backend core_reg_size_from_offset() which does all of the
+work except for checking that the size field in the register ID
+matches, and kvm_arm_copy_reg_indices() and num_core_regs() are
+converted to use this to enumerate the valid offsets.
 
-drivers/usb/usbip/stub_dev.c:399:9: sparse: sparse: context imbalance in 'stub_probe' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:418:13: sparse: sparse: context imbalance in 'stub_disconnect' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:464:1-10: second lock on line 476
+kvm_arm_copy_reg_indices() now also sets the register ID size field
+appropriately based on the value returned, so the register ID
+supplied to userspace is fully qualified for use with the register
+access ioctls.
 
-Error ids grouped by kconfigs:
-
-recent_errors
-├── i386-allmodconfig
-│   └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
-├── x86_64-allmodconfig
-│   ├── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_disconnect-different-lock-contexts-for-basic-block
-│   └── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_probe-different-lock-contexts-for-basic-block
-└── x86_64-allyesconfig
-    └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
-
-This is a real problem in an error leg where spin_lock() is called on an
-already held lock.
-
-Fix the imbalance in stub_probe() and stub_disconnect().
-
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Fixes: 0c9e8b3cad65 ("usbip: usbip_host: fix BUG: sleeping function called from invalid context")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 3.16: adjust filename]
+Fixes: d26c25a9d19b ("arm64: KVM: Tighten guest core register access from userspace")
+Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Tested-by: Andrew Jones <drjones@redhat.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+[bwh: Backported to 3.16:
+ - Don't add unused vcpu parameter
+ - Adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/staging/usbip/stub_dev.c | 36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
-
---- a/drivers/staging/usbip/stub_dev.c
-+++ b/drivers/staging/usbip/stub_dev.c
-@@ -367,14 +367,17 @@ static int stub_probe(struct usb_device
- 		 * See driver_probe_device() in driver/base/dd.c
- 		 */
- 		rc = -ENODEV;
--		goto sdev_free;
-+		if (!busid_priv)
-+			goto sdev_free;
+--- a/arch/arm64/kvm/guest.c
++++ b/arch/arm64/kvm/guest.c
+@@ -46,9 +46,8 @@ static u64 core_reg_offset_from_id(u64 i
+ 	return id & ~(KVM_REG_ARCH_MASK | KVM_REG_SIZE_MASK | KVM_REG_ARM_CORE);
+ }
+ 
+-static int validate_core_offset(const struct kvm_one_reg *reg)
++static int core_reg_size_from_offset(u64 off)
+ {
+-	u64 off = core_reg_offset_from_id(reg->id);
+ 	int size;
+ 
+ 	switch (off) {
+@@ -78,13 +77,26 @@ static int validate_core_offset(const st
+ 		return -EINVAL;
+ 	}
+ 
+-	if (KVM_REG_SIZE(reg->id) == size &&
+-	    IS_ALIGNED(off, size / sizeof(__u32)))
+-		return 0;
++	if (IS_ALIGNED(off, size / sizeof(__u32)))
++		return size;
+ 
+ 	return -EINVAL;
+ }
+ 
++static int validate_core_offset(const struct kvm_one_reg *reg)
++{
++	u64 off = core_reg_offset_from_id(reg->id);
++	int size = core_reg_size_from_offset(off);
 +
-+		goto call_put_busid_priv;
- 	}
- 
- 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB) {
- 		dev_dbg(&udev->dev, "%s is a usb hub device... skip!\n",
- 			 udev_busid);
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
- 
- 	if (!strcmp(udev->bus->bus_name, "vhci_hcd")) {
-@@ -383,7 +386,7 @@ static int stub_probe(struct usb_device
- 			udev_busid);
- 
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
- 
- 
-@@ -402,6 +405,9 @@ static int stub_probe(struct usb_device
- 	save_status = busid_priv->status;
- 	busid_priv->status = STUB_BUSID_ALLOC;
- 
-+	/* release the busid_lock */
-+	put_busid_priv(busid_priv);
++	if (size < 0)
++		return -EINVAL;
 +
++	if (KVM_REG_SIZE(reg->id) != size)
++		return -EINVAL;
++
++	return 0;
++}
++
+ static int get_core_reg(struct kvm_vcpu *vcpu, const struct kvm_one_reg *reg)
+ {
  	/*
- 	 * Claim this hub port.
- 	 * It doesn't matter what value we pass as owner
-@@ -414,9 +420,6 @@ static int stub_probe(struct usb_device
- 		goto err_port;
- 	}
+@@ -197,10 +209,33 @@ unsigned long kvm_arm_num_regs(struct kv
+ int kvm_arm_copy_reg_indices(struct kvm_vcpu *vcpu, u64 __user *uindices)
+ {
+ 	unsigned int i;
+-	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
  
--	/* release the busid_lock */
--	put_busid_priv(busid_priv);
--
- 	rc = stub_add_files(&udev->dev);
- 	if (rc) {
- 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
-@@ -437,11 +440,17 @@ err_port:
- 	spin_lock(&busid_priv->busid_lock);
- 	busid_priv->sdev = NULL;
- 	busid_priv->status = save_status;
--sdev_free:
--	stub_device_free(sdev);
-+	spin_unlock(&busid_priv->busid_lock);
-+	/* lock is released - go to free */
-+	goto sdev_free;
+ 	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
+-		if (put_user(core_reg | i, uindices))
++		u64 reg = KVM_REG_ARM64 | KVM_REG_ARM_CORE | i;
++		int size = core_reg_size_from_offset(i);
 +
-+call_put_busid_priv:
- 	/* release the busid_lock */
- 	put_busid_priv(busid_priv);
- 
-+sdev_free:
-+	stub_device_free(sdev);
++		if (size < 0)
++			continue;
 +
- 	return rc;
- }
- 
-@@ -477,7 +486,9 @@ static void stub_disconnect(struct usb_d
- 	/* get stub_device */
- 	if (!sdev) {
- 		dev_err(&udev->dev, "could not get device");
--		goto call_put_busid_priv;
-+		/* release busid_lock */
-+		put_busid_priv(busid_priv);
-+		return;
++		switch (size) {
++		case sizeof(__u32):
++			reg |= KVM_REG_SIZE_U32;
++			break;
++
++		case sizeof(__u64):
++			reg |= KVM_REG_SIZE_U64;
++			break;
++
++		case sizeof(__uint128_t):
++			reg |= KVM_REG_SIZE_U128;
++			break;
++
++		default:
++			WARN_ON(1);
++			continue;
++		}
++
++		if (put_user(reg, uindices))
+ 			return -EFAULT;
+ 		uindices++;
  	}
- 
- 	dev_set_drvdata(&udev->dev, NULL);
-@@ -507,7 +518,7 @@ static void stub_disconnect(struct usb_d
- 	if (!busid_priv->shutdown_busid)
- 		busid_priv->shutdown_busid = 1;
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
- 
- 	/* shutdown the current connection */
- 	shutdown_busid(busid_priv);
-@@ -522,10 +533,9 @@ static void stub_disconnect(struct usb_d
- 
- 	if (busid_priv->status == STUB_BUSID_ALLOC)
- 		busid_priv->status = STUB_BUSID_ADDED;
--
--call_put_busid_priv:
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
-+	return;
- }
- 
- #ifdef CONFIG_PM
 
