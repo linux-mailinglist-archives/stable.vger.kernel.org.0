@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D39ACA460
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E064CA452
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389904AbfJCQYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:24:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53710 "EHLO mail.kernel.org"
+        id S2389791AbfJCQXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389858AbfJCQYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:24:11 -0400
+        id S2389355AbfJCQXi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:23:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0631F215EA;
-        Thu,  3 Oct 2019 16:24:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9CBA222BE;
+        Thu,  3 Oct 2019 16:23:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119850;
-        bh=uAVntkjPLgHA5UmSzzCWhj6ohpZsu17PsT4M5wIMo7M=;
+        s=default; t=1570119818;
+        bh=qvdiACbPD+9kE/AR44QPMyH4ycwkChBkxIkwGFZfNfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSiIGekBanSXUHB449aio/o/7IItvJrgWuiX66M20Inu0zBu+GweLJw2d2T0rewmF
-         Da248k405GX+i193G0e2qNAr75cG1sGbo97CrJFLD8glgOkdiI1+ieuk8CKM4qj/b3
-         kyl7IytL8QWToalUVOtR9ojOXY0pZbobL8JFj0tQ=
+        b=VVAK34sI8S26qudXij7RD930DG62bPLW6YNQzL/d6KU9fiOszR4SzAjXz+nxI0YTC
+         VGa66HJh/AOMO1UpJMlyoD35A2Wgc2g/vSZG2OIehgw+9AyVus8TgOWHgCrIjHRZ75
+         IqitFMzPRuFtTGQ756S90al6etFmfbCu7eYaq/rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Subject: [PATCH 4.19 200/211] /dev/mem: Bail out upon SIGKILL.
-Date:   Thu,  3 Oct 2019 17:54:26 +0200
-Message-Id: <20191003154529.667679035@linuxfoundation.org>
+        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.19 205/211] i2c: riic: Clear NACK in tend isr
+Date:   Thu,  3 Oct 2019 17:54:31 +0200
+Message-Id: <20191003154530.219914681@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -44,112 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Chris Brandt <chris.brandt@renesas.com>
 
-commit 8619e5bdeee8b2c685d686281f2d2a6017c4bc15 upstream.
+commit a71e2ac1f32097fbb2beab098687a7a95c84543e upstream.
 
-syzbot found that a thread can stall for minutes inside read_mem() or
-write_mem() after that thread was killed by SIGKILL [1]. Reading from
-iomem areas of /dev/mem can be slow, depending on the hardware.
-While reading 2GB at one read() is legal, delaying termination of killed
-thread for minutes is bad. Thus, allow reading/writing /dev/mem and
-/dev/kmem to be preemptible and killable.
+The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+description in HW manual.
 
-  [ 1335.912419][T20577] read_mem: sz=4096 count=2134565632
-  [ 1335.943194][T20577] read_mem: sz=4096 count=2134561536
-  [ 1335.978280][T20577] read_mem: sz=4096 count=2134557440
-  [ 1336.011147][T20577] read_mem: sz=4096 count=2134553344
-  [ 1336.041897][T20577] read_mem: sz=4096 count=2134549248
+This issue shows up quickly when PREEMPT_RT is applied and a device is
+probed that is not plugged in (like a touchscreen controller). The result
+is endless interrupts that halt system boot.
 
-Theoretically, reading/writing /dev/mem and /dev/kmem can become
-"interruptible". But this patch chose "killable". Future patch will make
-them "interruptible" so that we can revert to "killable" if some program
-regressed.
-
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Link: https://lore.kernel.org/r/1566825205-10703-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 310c18a41450 ("i2c: riic: add driver")
+Cc: stable@vger.kernel.org
+Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/mem.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/i2c/busses/i2c-riic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -97,6 +97,13 @@ void __weak unxlate_dev_mem_ptr(phys_add
- }
- #endif
- 
-+static inline bool should_stop_iteration(void)
-+{
-+	if (need_resched())
-+		cond_resched();
-+	return fatal_signal_pending(current);
-+}
-+
- /*
-  * This funcion reads the *physical* memory. The f_pos points directly to the
-  * memory location.
-@@ -175,6 +182,8 @@ static ssize_t read_mem(struct file *fil
- 		p += sz;
- 		count -= sz;
- 		read += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 	kfree(bounce);
- 
-@@ -251,6 +260,8 @@ static ssize_t write_mem(struct file *fi
- 		p += sz;
- 		count -= sz;
- 		written += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 
- 	*ppos += written;
-@@ -468,6 +479,10 @@ static ssize_t read_kmem(struct file *fi
- 			read += sz;
- 			low_count -= sz;
- 			count -= sz;
-+			if (should_stop_iteration()) {
-+				count = 0;
-+				break;
-+			}
- 		}
- 	}
- 
-@@ -492,6 +507,8 @@ static ssize_t read_kmem(struct file *fi
- 			buf += sz;
- 			read += sz;
- 			p += sz;
-+			if (should_stop_iteration())
-+				break;
- 		}
- 		free_page((unsigned long)kbuf);
- 	}
-@@ -544,6 +561,8 @@ static ssize_t do_write_kmem(unsigned lo
- 		p += sz;
- 		count -= sz;
- 		written += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 
- 	*ppos += written;
-@@ -595,6 +614,8 @@ static ssize_t write_kmem(struct file *f
- 			buf += sz;
- 			virtr += sz;
- 			p += sz;
-+			if (should_stop_iteration())
-+				break;
- 		}
- 		free_page((unsigned long)kbuf);
- 	}
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -203,6 +203,7 @@ static irqreturn_t riic_tend_isr(int irq
+ 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
+ 		/* We got a NACKIE */
+ 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
++		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
+ 		riic->err = -ENXIO;
+ 	} else if (riic->bytes_left) {
+ 		return IRQ_NONE;
 
 
