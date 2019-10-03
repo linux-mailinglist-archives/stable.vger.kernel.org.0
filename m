@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2804DCA9A9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4538CAB4B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392863AbfJCQp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58718 "EHLO mail.kernel.org"
+        id S2390601AbfJCRUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392855AbfJCQpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:45:55 -0400
+        id S2388806AbfJCQSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:18:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A14B820830;
-        Thu,  3 Oct 2019 16:45:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F66D215EA;
+        Thu,  3 Oct 2019 16:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121154;
-        bh=JEDXQxD7XcF4gs8ZtNZblO3H6KrpbU4PtWGtaMIjRu0=;
+        s=default; t=1570119533;
+        bh=d4ncFyiCsd77a457JAwmaPtaDLK0wuqOVsHZty0nllA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrBkK1+VnlZxUgsrAOvxcDk59ESHG9r4/yfbWw4NuYCgjnhFxU1D5RfSlqXLdMiaC
-         y6Kyvu7kjKVhhmqWDPJqz5V7zFQ+377sRStrNC2y98MQPI51co/i5t1wHUQ0kp+IoS
-         XhM3SAvN+px0qDdDSb9T5JL9AciybgQbDjMkqkVk=
+        b=cl3iIDIPzWye/+hBgRNcbeDGIbey5WPY1IpVDqseQdnH2swkTGHNtjlNDt7zxtVrY
+         XfNOfvecHs/BosCu5K5zqITLJzT2G2UPqjYTpghtxyP66RzZn6SdCJswp2C+2VaJph
+         ePexUnVBNnAA9GacgCKUNyjg8iwhTHlCRgfJttX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Murray <andrew.murray@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 173/344] arm64: Use correct ll/sc atomic constraints
-Date:   Thu,  3 Oct 2019 17:52:18 +0200
-Message-Id: <20191003154557.294518177@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 073/211] dmaengine: iop-adma: use correct printk format strings
+Date:   Thu,  3 Oct 2019 17:52:19 +0200
+Message-Id: <20191003154504.592616869@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,254 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 580fa1b874711d633f9b145b7777b0e83ebf3787 ]
+[ Upstream commit 00c9755524fbaa28117be774d7c92fddb5ca02f3 ]
 
-The A64 ISA accepts distinct (but overlapping) ranges of immediates for:
+When compile-testing on other architectures, we get lots of warnings
+about incorrect format strings, like:
 
- * add arithmetic instructions ('I' machine constraint)
- * sub arithmetic instructions ('J' machine constraint)
- * 32-bit logical instructions ('K' machine constraint)
- * 64-bit logical instructions ('L' machine constraint)
+   drivers/dma/iop-adma.c: In function 'iop_adma_alloc_slots':
+   drivers/dma/iop-adma.c:307:6: warning: format '%x' expects argument of type 'unsigned int', but argument 6 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
 
-... but we currently use the 'I' constraint for many atomic operations
-using sub or logical instructions, which is not always valid.
+   drivers/dma/iop-adma.c: In function 'iop_adma_prep_dma_memcpy':
+>> drivers/dma/iop-adma.c:518:40: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t {aka long unsigned int}' [-Wformat=]
 
-When CONFIG_ARM64_LSE_ATOMICS is not set, this allows invalid immediates
-to be passed to instructions, potentially resulting in a build failure.
-When CONFIG_ARM64_LSE_ATOMICS is selected the out-of-line ll/sc atomics
-always use a register as they have no visibility of the value passed by
-the caller.
+Use %zu for printing size_t as required, and cast the dma_addr_t
+arguments to 'u64' for printing with %llx. Ideally this should use
+the %pad format string, but that requires an lvalue argument that
+doesn't work here.
 
-This patch adds a constraint parameter to the ATOMIC_xx and
-__CMPXCHG_CASE macros so that we can pass appropriate constraints for
-each case, with uses updated accordingly.
-
-Unfortunately prior to GCC 8.1.0 the 'K' constraint erroneously accepted
-'4294967295', so we must instead force the use of a register.
-
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20190809163334.489360-3-arnd@arndb.de
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h | 89 ++++++++++++++-------------
- 1 file changed, 47 insertions(+), 42 deletions(-)
+ drivers/dma/iop-adma.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/atomic_ll_sc.h b/arch/arm64/include/asm/atomic_ll_sc.h
-index c8c850bc3dfb0..6dd011e0b434a 100644
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -26,7 +26,7 @@
-  * (the optimize attribute silently ignores these options).
-  */
+diff --git a/drivers/dma/iop-adma.c b/drivers/dma/iop-adma.c
+index a410657f7bcd6..012584cf3c17b 100644
+--- a/drivers/dma/iop-adma.c
++++ b/drivers/dma/iop-adma.c
+@@ -125,9 +125,9 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
+ 	list_for_each_entry_safe(iter, _iter, &iop_chan->chain,
+ 					chain_node) {
+ 		pr_debug("\tcookie: %d slot: %d busy: %d "
+-			"this_desc: %#x next_desc: %#x ack: %d\n",
++			"this_desc: %#x next_desc: %#llx ack: %d\n",
+ 			iter->async_tx.cookie, iter->idx, busy,
+-			iter->async_tx.phys, iop_desc_get_next_desc(iter),
++			iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
+ 			async_tx_test_ack(&iter->async_tx));
+ 		prefetch(_iter);
+ 		prefetch(&_iter->async_tx);
+@@ -315,9 +315,9 @@ iop_adma_alloc_slots(struct iop_adma_chan *iop_chan, int num_slots,
+ 				int i;
+ 				dev_dbg(iop_chan->device->common.dev,
+ 					"allocated slot: %d "
+-					"(desc %p phys: %#x) slots_per_op %d\n",
++					"(desc %p phys: %#llx) slots_per_op %d\n",
+ 					iter->idx, iter->hw_desc,
+-					iter->async_tx.phys, slots_per_op);
++					(u64)iter->async_tx.phys, slots_per_op);
  
--#define ATOMIC_OP(op, asm_op)						\
-+#define ATOMIC_OP(op, asm_op, constraint)				\
- __LL_SC_INLINE void							\
- __LL_SC_PREFIX(arch_atomic_##op(int i, atomic_t *v))			\
- {									\
-@@ -40,11 +40,11 @@ __LL_SC_PREFIX(arch_atomic_##op(int i, atomic_t *v))			\
- "	stxr	%w1, %w0, %2\n"						\
- "	cbnz	%w1, 1b"						\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i));							\
-+	: #constraint "r" (i));						\
- }									\
- __LL_SC_EXPORT(arch_atomic_##op);
+ 				/* pre-ack all but the last descriptor */
+ 				if (num_slots != slots_per_op)
+@@ -525,7 +525,7 @@ iop_adma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dma_dest,
+ 		return NULL;
+ 	BUG_ON(len > IOP_ADMA_MAX_BYTE_COUNT);
  
--#define ATOMIC_OP_RETURN(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC_OP_RETURN(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE int							\
- __LL_SC_PREFIX(arch_atomic_##op##_return##name(int i, atomic_t *v))	\
- {									\
-@@ -59,14 +59,14 @@ __LL_SC_PREFIX(arch_atomic_##op##_return##name(int i, atomic_t *v))	\
- "	cbnz	%w1, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
- }									\
- __LL_SC_EXPORT(arch_atomic_##op##_return##name);
+-	dev_dbg(iop_chan->device->common.dev, "%s len: %u\n",
++	dev_dbg(iop_chan->device->common.dev, "%s len: %zu\n",
+ 		__func__, len);
  
--#define ATOMIC_FETCH_OP(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)	\
- __LL_SC_INLINE int							\
- __LL_SC_PREFIX(arch_atomic_fetch_##op##name(int i, atomic_t *v))	\
- {									\
-@@ -81,7 +81,7 @@ __LL_SC_PREFIX(arch_atomic_fetch_##op##name(int i, atomic_t *v))	\
- "	cbnz	%w2, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
-@@ -99,8 +99,8 @@ __LL_SC_EXPORT(arch_atomic_fetch_##op##name);
- 	ATOMIC_FETCH_OP (_acquire,        , a,  , "memory", __VA_ARGS__)\
- 	ATOMIC_FETCH_OP (_release,        ,  , l, "memory", __VA_ARGS__)
+ 	spin_lock_bh(&iop_chan->lock);
+@@ -558,7 +558,7 @@ iop_adma_prep_dma_xor(struct dma_chan *chan, dma_addr_t dma_dest,
+ 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
  
--ATOMIC_OPS(add, add)
--ATOMIC_OPS(sub, sub)
-+ATOMIC_OPS(add, add, I)
-+ATOMIC_OPS(sub, sub, J)
+ 	dev_dbg(iop_chan->device->common.dev,
+-		"%s src_cnt: %d len: %u flags: %lx\n",
++		"%s src_cnt: %d len: %zu flags: %lx\n",
+ 		__func__, src_cnt, len, flags);
  
- #undef ATOMIC_OPS
- #define ATOMIC_OPS(...)							\
-@@ -110,17 +110,17 @@ ATOMIC_OPS(sub, sub)
- 	ATOMIC_FETCH_OP (_acquire,        , a,  , "memory", __VA_ARGS__)\
- 	ATOMIC_FETCH_OP (_release,        ,  , l, "memory", __VA_ARGS__)
+ 	spin_lock_bh(&iop_chan->lock);
+@@ -591,7 +591,7 @@ iop_adma_prep_dma_xor_val(struct dma_chan *chan, dma_addr_t *dma_src,
+ 	if (unlikely(!len))
+ 		return NULL;
  
--ATOMIC_OPS(and, and)
--ATOMIC_OPS(andnot, bic)
--ATOMIC_OPS(or, orr)
--ATOMIC_OPS(xor, eor)
-+ATOMIC_OPS(and, and, )
-+ATOMIC_OPS(andnot, bic, )
-+ATOMIC_OPS(or, orr, )
-+ATOMIC_OPS(xor, eor, )
+-	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
++	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
+ 		__func__, src_cnt, len);
  
- #undef ATOMIC_OPS
- #undef ATOMIC_FETCH_OP
- #undef ATOMIC_OP_RETURN
- #undef ATOMIC_OP
+ 	spin_lock_bh(&iop_chan->lock);
+@@ -629,7 +629,7 @@ iop_adma_prep_dma_pq(struct dma_chan *chan, dma_addr_t *dst, dma_addr_t *src,
+ 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
  
--#define ATOMIC64_OP(op, asm_op)						\
-+#define ATOMIC64_OP(op, asm_op, constraint)				\
- __LL_SC_INLINE void							\
- __LL_SC_PREFIX(arch_atomic64_##op(s64 i, atomic64_t *v))		\
- {									\
-@@ -134,11 +134,11 @@ __LL_SC_PREFIX(arch_atomic64_##op(s64 i, atomic64_t *v))		\
- "	stxr	%w1, %0, %2\n"						\
- "	cbnz	%w1, 1b"						\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i));							\
-+	: #constraint "r" (i));						\
- }									\
- __LL_SC_EXPORT(arch_atomic64_##op);
+ 	dev_dbg(iop_chan->device->common.dev,
+-		"%s src_cnt: %d len: %u flags: %lx\n",
++		"%s src_cnt: %d len: %zu flags: %lx\n",
+ 		__func__, src_cnt, len, flags);
  
--#define ATOMIC64_OP_RETURN(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC64_OP_RETURN(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE s64							\
- __LL_SC_PREFIX(arch_atomic64_##op##_return##name(s64 i, atomic64_t *v))\
- {									\
-@@ -153,14 +153,14 @@ __LL_SC_PREFIX(arch_atomic64_##op##_return##name(s64 i, atomic64_t *v))\
- "	cbnz	%w1, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
- }									\
- __LL_SC_EXPORT(arch_atomic64_##op##_return##name);
+ 	if (dmaf_p_disabled_continue(flags))
+@@ -692,7 +692,7 @@ iop_adma_prep_dma_pq_val(struct dma_chan *chan, dma_addr_t *pq, dma_addr_t *src,
+ 		return NULL;
+ 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
  
--#define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE s64							\
- __LL_SC_PREFIX(arch_atomic64_fetch_##op##name(s64 i, atomic64_t *v))	\
- {									\
-@@ -175,7 +175,7 @@ __LL_SC_PREFIX(arch_atomic64_fetch_##op##name(s64 i, atomic64_t *v))	\
- "	cbnz	%w2, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
-@@ -193,8 +193,8 @@ __LL_SC_EXPORT(arch_atomic64_fetch_##op##name);
- 	ATOMIC64_FETCH_OP (_acquire,, a,  , "memory", __VA_ARGS__)	\
- 	ATOMIC64_FETCH_OP (_release,,  , l, "memory", __VA_ARGS__)
+-	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
++	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
+ 		__func__, src_cnt, len);
  
--ATOMIC64_OPS(add, add)
--ATOMIC64_OPS(sub, sub)
-+ATOMIC64_OPS(add, add, I)
-+ATOMIC64_OPS(sub, sub, J)
- 
- #undef ATOMIC64_OPS
- #define ATOMIC64_OPS(...)						\
-@@ -204,10 +204,10 @@ ATOMIC64_OPS(sub, sub)
- 	ATOMIC64_FETCH_OP (_acquire,, a,  , "memory", __VA_ARGS__)	\
- 	ATOMIC64_FETCH_OP (_release,,  , l, "memory", __VA_ARGS__)
- 
--ATOMIC64_OPS(and, and)
--ATOMIC64_OPS(andnot, bic)
--ATOMIC64_OPS(or, orr)
--ATOMIC64_OPS(xor, eor)
-+ATOMIC64_OPS(and, and, L)
-+ATOMIC64_OPS(andnot, bic, )
-+ATOMIC64_OPS(or, orr, L)
-+ATOMIC64_OPS(xor, eor, L)
- 
- #undef ATOMIC64_OPS
- #undef ATOMIC64_FETCH_OP
-@@ -237,7 +237,7 @@ __LL_SC_PREFIX(arch_atomic64_dec_if_positive(atomic64_t *v))
- }
- __LL_SC_EXPORT(arch_atomic64_dec_if_positive);
- 
--#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl)		\
-+#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl, constraint)	\
- __LL_SC_INLINE u##sz							\
- __LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
- 					 unsigned long old,		\
-@@ -265,29 +265,34 @@ __LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
- 	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
- 	  [v] "+Q" (*(u##sz *)ptr)					\
--	: [old] "Kr" (old), [new] "r" (new)				\
-+	: [old] #constraint "r" (old), [new] "r" (new)			\
- 	: cl);								\
- 									\
- 	return oldval;							\
- }									\
- __LL_SC_EXPORT(__cmpxchg_case_##name##sz);
- 
--__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         )
--__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         )
--__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         )
--__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         )
--__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory")
--__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory")
--__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory")
--__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory")
--__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory")
--__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory")
--__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory")
--__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory")
--__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory")
--__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory")
-+/*
-+ * Earlier versions of GCC (no later than 8.1.0) appear to incorrectly
-+ * handle the 'K' constraint for the value 4294967295 - thus we use no
-+ * constraint for 32 bit operations.
-+ */
-+__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         , )
-+__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         , )
-+__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         , )
-+__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         , L)
-+__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory", )
-+__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory", )
-+__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory", )
-+__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory", L)
-+__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory", )
-+__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory", )
-+__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory", )
-+__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory", L)
-+__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory", L)
- 
- #undef __CMPXCHG_CASE
- 
+ 	spin_lock_bh(&iop_chan->lock);
 -- 
 2.20.1
 
