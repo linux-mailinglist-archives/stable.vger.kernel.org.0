@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6077CAAE7
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC65CA978
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389802AbfJCRPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:15:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57106 "EHLO mail.kernel.org"
+        id S2404727AbfJCQnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391032AbfJCQ0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:26:12 -0400
+        id S2405207AbfJCQnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EA4720700;
-        Thu,  3 Oct 2019 16:26:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4A6B2054F;
+        Thu,  3 Oct 2019 16:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119971;
-        bh=1gu4rf+5VEszUoONBv6+5oClhIK+BZ/7dqRQHE6quhM=;
+        s=default; t=1570120982;
+        bh=zZTgHccHDWS/buFoyAmnZgUe+Dc+MY2IQTRiMP7Y4oY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4Far0rOJNQMqMpHlfXGOjMAaepn0sYBDtvth+vrg//rvIKt9MGNeJsFmHxpVY3dj
-         DVbI1fE/lhCZdv/jSX0yBAtCbs9zQtRRAlfeR53PiYKhGIsPOdjquEBzVGeSkOKLsd
-         3xB6gO5Ja1mCMZ+gwMxfCYlxkVJcgYDlQy31ctc0=
+        b=zeN+iL7ZnroGNyLrylw5vzoDv6tFL8KrED4L/2dYc7GUj60vLl/5T+4K9184lx9vT
+         dzllYXMsBI68R1eyQgR13P+7YNPpIl/d6QEqG4UvB97BkRcwJ+ypa9ABbp1chCY1Z7
+         rp38te26km2kjP0MAFSmwJOHQtlMYkkLUqGjUhXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 050/313] media: vivid: work around high stack usage with clang
-Date:   Thu,  3 Oct 2019 17:50:28 +0200
-Message-Id: <20191003154538.033733798@linuxfoundation.org>
+Subject: [PATCH 5.3 064/344] x86/apic: Make apic_pending_intr_clear() more robust
+Date:   Thu,  3 Oct 2019 17:50:29 +0200
+Message-Id: <20191003154546.420245051@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +44,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 1a03f91c2c2419c3709c4554952c66695575e91c ]
+[ Upstream commit cc8bf191378c1da8ad2b99cf470ee70193ace84e ]
 
-Building a KASAN-enabled kernel with clang ends up in a case where too
-much is inlined into vivid_thread_vid_cap() and the stack usage grows
-a lot, possibly when the register allocation fails to produce efficient
-code and spills a lot of temporaries to the stack. This uses more
-than twice the amount of stack than the sum of the individual functions
-when they are not inlined:
+In course of developing shorthand based IPI support issues with the
+function which tries to clear eventually pending ISR bits in the local APIC
+were observed.
 
-drivers/media/platform/vivid/vivid-kthread-cap.c:766:12: error: stack frame size of 2208 bytes in function 'vivid_thread_vid_cap' [-Werror,-Wframe-larger-than=]
+  1) O-day testing triggered the WARN_ON() in apic_pending_intr_clear().
 
-Marking two of the key functions in here as 'noinline_for_stack' avoids
-the pathological case in clang without any apparent downside for gcc.
+     This warning is emitted when the function fails to clear pending ISR
+     bits or observes pending IRR bits which are not delivered to the CPU
+     after the stale ISR bit(s) are ACK'ed.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+     Unfortunately the function only emits a WARN_ON() and fails to dump
+     the IRR/ISR content. That's useless for debugging.
+
+     Feng added spot on debug printk's which revealed that the stale IRR
+     bit belonged to the APIC timer interrupt vector, but adding ad hoc
+     debug code does not help with sporadic failures in the field.
+
+     Rework the loop so the full IRR/ISR contents are saved and on failure
+     dumped.
+
+  2) The loop termination logic is interesting at best.
+
+     If the machine has no TSC or cpu_khz is not known yet it tries 1
+     million times to ack stale IRR/ISR bits. What?
+
+     With TSC it uses the TSC to calculate the loop termination. It takes a
+     timestamp at entry and terminates the loop when:
+
+     	  (rdtsc() - start_timestamp) >= (cpu_hkz << 10)
+
+     That's roughly one second.
+
+     Both methods are problematic. The APIC has 256 vectors, which means
+     that in theory max. 256 IRR/ISR bits can be set. In practice this is
+     impossible and the chance that more than a few bits are set is close
+     to zero.
+
+     With the pure loop based approach the 1 million retries are complete
+     overkill.
+
+     With TSC this can terminate too early in a guest which is running on a
+     heavily loaded host even with only a couple of IRR/ISR bits set. The
+     reason is that after acknowledging the highest priority ISR bit,
+     pending IRRs must get serviced first before the next round of
+     acknowledge can take place as the APIC (real and virtualized) does not
+     honour EOI without a preceeding interrupt on the CPU. And every APIC
+     read/write takes a VMEXIT if the APIC is virtualized. While trying to
+     reproduce the issue 0-day reported it was observed that the guest was
+     scheduled out long enough under heavy load that it terminated after 8
+     iterations.
+
+     Make the loop terminate after 512 iterations. That's plenty enough
+     in any case and does not take endless time to complete.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190722105219.158847694@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-kthread-cap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/kernel/apic/apic.c | 107 +++++++++++++++++++++---------------
+ 1 file changed, 63 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
-index cf6dfecf879f7..96d85cd8839f3 100644
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -232,8 +232,8 @@ static void *plane_vaddr(struct tpg_data *tpg, struct vivid_buffer *buf,
- 	return vbuf;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 08fb79f377936..436d462dde715 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1495,54 +1495,72 @@ static void lapic_setup_esr(void)
+ 			oldvalue, value);
  }
  
--static int vivid_copy_buffer(struct vivid_dev *dev, unsigned p, u8 *vcapbuf,
--		struct vivid_buffer *vid_cap_buf)
-+static noinline_for_stack int vivid_copy_buffer(struct vivid_dev *dev, unsigned p,
-+		u8 *vcapbuf, struct vivid_buffer *vid_cap_buf)
+-static void apic_pending_intr_clear(void)
++#define APIC_IR_REGS		APIC_ISR_NR
++#define APIC_IR_BITS		(APIC_IR_REGS * 32)
++#define APIC_IR_MAPSIZE		(APIC_IR_BITS / BITS_PER_LONG)
++
++union apic_ir {
++	unsigned long	map[APIC_IR_MAPSIZE];
++	u32		regs[APIC_IR_REGS];
++};
++
++static bool apic_check_and_ack(union apic_ir *irr, union apic_ir *isr)
  {
- 	bool blank = dev->must_blank[vid_cap_buf->vb.vb2_buf.index];
- 	struct tpg_data *tpg = &dev->tpg;
-@@ -672,7 +672,8 @@ static void vivid_cap_update_frame_period(struct vivid_dev *dev)
- 	dev->cap_frame_period = f_period;
+-	long long max_loops = cpu_khz ? cpu_khz : 1000000;
+-	unsigned long long tsc = 0, ntsc;
+-	unsigned int queued;
+-	unsigned long value;
+-	int i, j, acked = 0;
++	int i, bit;
++
++	/* Read the IRRs */
++	for (i = 0; i < APIC_IR_REGS; i++)
++		irr->regs[i] = apic_read(APIC_IRR + i * 0x10);
++
++	/* Read the ISRs */
++	for (i = 0; i < APIC_IR_REGS; i++)
++		isr->regs[i] = apic_read(APIC_ISR + i * 0x10);
+ 
+-	if (boot_cpu_has(X86_FEATURE_TSC))
+-		tsc = rdtsc();
+ 	/*
+-	 * After a crash, we no longer service the interrupts and a pending
+-	 * interrupt from previous kernel might still have ISR bit set.
+-	 *
+-	 * Most probably by now CPU has serviced that pending interrupt and
+-	 * it might not have done the ack_APIC_irq() because it thought,
+-	 * interrupt came from i8259 as ExtInt. LAPIC did not get EOI so it
+-	 * does not clear the ISR bit and cpu thinks it has already serivced
+-	 * the interrupt. Hence a vector might get locked. It was noticed
+-	 * for timer irq (vector 0x31). Issue an extra EOI to clear ISR.
++	 * If the ISR map is not empty. ACK the APIC and run another round
++	 * to verify whether a pending IRR has been unblocked and turned
++	 * into a ISR.
+ 	 */
+-	do {
+-		queued = 0;
+-		for (i = APIC_ISR_NR - 1; i >= 0; i--)
+-			queued |= apic_read(APIC_IRR + i*0x10);
+-
+-		for (i = APIC_ISR_NR - 1; i >= 0; i--) {
+-			value = apic_read(APIC_ISR + i*0x10);
+-			for_each_set_bit(j, &value, 32) {
+-				ack_APIC_irq();
+-				acked++;
+-			}
+-		}
+-		if (acked > 256) {
+-			pr_err("LAPIC pending interrupts after %d EOI\n", acked);
+-			break;
+-		}
+-		if (queued) {
+-			if (boot_cpu_has(X86_FEATURE_TSC) && cpu_khz) {
+-				ntsc = rdtsc();
+-				max_loops = (long long)cpu_khz << 10;
+-				max_loops -= ntsc - tsc;
+-			} else {
+-				max_loops--;
+-			}
+-		}
+-	} while (queued && max_loops > 0);
+-	WARN_ON(max_loops <= 0);
++	if (!bitmap_empty(isr->map, APIC_IR_BITS)) {
++		/*
++		 * There can be multiple ISR bits set when a high priority
++		 * interrupt preempted a lower priority one. Issue an ACK
++		 * per set bit.
++		 */
++		for_each_set_bit(bit, isr->map, APIC_IR_BITS)
++			ack_APIC_irq();
++		return true;
++	}
++
++	return !bitmap_empty(irr->map, APIC_IR_BITS);
++}
++
++/*
++ * After a crash, we no longer service the interrupts and a pending
++ * interrupt from previous kernel might still have ISR bit set.
++ *
++ * Most probably by now the CPU has serviced that pending interrupt and it
++ * might not have done the ack_APIC_irq() because it thought, interrupt
++ * came from i8259 as ExtInt. LAPIC did not get EOI so it does not clear
++ * the ISR bit and cpu thinks it has already serivced the interrupt. Hence
++ * a vector might get locked. It was noticed for timer irq (vector
++ * 0x31). Issue an extra EOI to clear ISR.
++ *
++ * If there are pending IRR bits they turn into ISR bits after a higher
++ * priority ISR bit has been acked.
++ */
++static void apic_pending_intr_clear(void)
++{
++	union apic_ir irr, isr;
++	unsigned int i;
++
++	/* 512 loops are way oversized and give the APIC a chance to obey. */
++	for (i = 0; i < 512; i++) {
++		if (!apic_check_and_ack(&irr, &isr))
++			return;
++	}
++	/* Dump the IRR/ISR content if that failed */
++	pr_warn("APIC: Stale IRR: %256pb ISR: %256pb\n", irr.map, isr.map);
  }
  
--static void vivid_thread_vid_cap_tick(struct vivid_dev *dev, int dropped_bufs)
-+static noinline_for_stack void vivid_thread_vid_cap_tick(struct vivid_dev *dev,
-+							 int dropped_bufs)
- {
- 	struct vivid_buffer *vid_cap_buf = NULL;
- 	struct vivid_buffer *vbi_cap_buf = NULL;
+ /**
+@@ -1610,6 +1628,7 @@ static void setup_local_APIC(void)
+ 	value &= ~APIC_TPRI_MASK;
+ 	apic_write(APIC_TASKPRI, value);
+ 
++	/* Clear eventually stale ISR/IRR bits */
+ 	apic_pending_intr_clear();
+ 
+ 	/*
 -- 
 2.20.1
 
