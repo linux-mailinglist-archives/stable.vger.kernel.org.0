@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1464DCA8CD
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E43CCCA8BB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391970AbfJCQdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
+        id S2403880AbfJCQbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391965AbfJCQdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:13 -0400
+        id S2403874AbfJCQbf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:31:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE5A82070B;
-        Thu,  3 Oct 2019 16:33:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3CB220867;
+        Thu,  3 Oct 2019 16:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120392;
-        bh=gDoMJ/kb/DKmiZLAj1iPf+wvICmVlOUmxNJiEv9/iT8=;
+        s=default; t=1570120295;
+        bh=almqlEgrShZjlwAf+YmnkiSQmi+dQpvSMs4EOo+e5No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=neNk76OvEx8VyHydzwhKBjR0i+e09MFZkw0hCYPgJgCfo5MN3/8Y30yFHgrHeDM+N
-         +Zzd912en8h1io/pWinTNqKDmXWxAir6UzLq75sIpo8GLOXtEA6aVV7uQCtX95paOV
-         oaMmfvkat3GHdvmC7GOsVJqrGmF1HxeA7KPiTmEc=
+        b=XM6exgv+fSeDHTuLXY3nLH7BndK2iJ+KwVUEOgSci1qxYWsJU4x1WLjK1/mTXAY8M
+         2Sk6UG50fQYewGO3YbW48wXKYQRStNHKijzmJDxcQ96gEM6TiesgNad5dTE6h9sXKS
+         bCNEfV1bPtlCaw7/MottZZGruprWmJ/A08hkPUzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick McLean <chutzpah@gentoo.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-trace-devel@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 167/313] libtraceevent: Change users plugin directory
-Date:   Thu,  3 Oct 2019 17:52:25 +0200
-Message-Id: <20191003154549.424121554@linuxfoundation.org>
+Subject: [PATCH 5.2 170/313] ACPI: custom_method: fix memory leaks
+Date:   Thu,  3 Oct 2019 17:52:28 +0200
+Message-Id: <20191003154549.729370674@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -50,68 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
+[ Upstream commit 03d1571d9513369c17e6848476763ebbd10ec2cb ]
 
-To be compliant with XDG user directory layout, the user's plugin
-directory is changed from ~/.traceevent/plugins to
-~/.local/lib/traceevent/plugins/
+In cm_write(), 'buf' is allocated through kzalloc(). In the following
+execution, if an error occurs, 'buf' is not deallocated, leading to memory
+leaks. To fix this issue, free 'buf' before returning the error.
 
-Suggested-by: Patrick McLean <chutzpah@gentoo.org>
-Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Patrick McLean <chutzpah@gentoo.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
-Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
-Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 526b4af47f44 ("ACPI: Split out custom_method functionality into an own driver")
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile       | 6 +++---
- tools/lib/traceevent/event-plugin.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/acpi/custom_method.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index 3292c290654f6..86ce17a1f7fb6 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -62,15 +62,15 @@ set_plugin_dir := 1
+diff --git a/drivers/acpi/custom_method.c b/drivers/acpi/custom_method.c
+index b2ef4c2ec955d..fd66a736621cf 100644
+--- a/drivers/acpi/custom_method.c
++++ b/drivers/acpi/custom_method.c
+@@ -49,8 +49,10 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
+ 	if ((*ppos > max_size) ||
+ 	    (*ppos + count > max_size) ||
+ 	    (*ppos + count < count) ||
+-	    (count > uncopied_bytes))
++	    (count > uncopied_bytes)) {
++		kfree(buf);
+ 		return -EINVAL;
++	}
  
- # Set plugin_dir to preffered global plugin location
- # If we install under $HOME directory we go under
--# $(HOME)/.traceevent/plugins
-+# $(HOME)/.local/lib/traceevent/plugins
- #
- # We dont set PLUGIN_DIR in case we install under $HOME
- # directory, because by default the code looks under:
--# $(HOME)/.traceevent/plugins by default.
-+# $(HOME)/.local/lib/traceevent/plugins by default.
- #
- ifeq ($(plugin_dir),)
- ifeq ($(prefix),$(HOME))
--override plugin_dir = $(HOME)/.traceevent/plugins
-+override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
- set_plugin_dir := 0
- else
- override plugin_dir = $(libdir)/traceevent/plugins
-diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
-index 8ca28de9337a5..e1f7ddd5a6cf0 100644
---- a/tools/lib/traceevent/event-plugin.c
-+++ b/tools/lib/traceevent/event-plugin.c
-@@ -18,7 +18,7 @@
- #include "event-utils.h"
- #include "trace-seq.h"
+ 	if (copy_from_user(buf + (*ppos), user_buf, count)) {
+ 		kfree(buf);
+@@ -70,6 +72,7 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
+ 		add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
+ 	}
  
--#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
-+#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
++	kfree(buf);
+ 	return count;
+ }
  
- static struct registered_plugin_options {
- 	struct registered_plugin_options	*next;
 -- 
 2.20.1
 
