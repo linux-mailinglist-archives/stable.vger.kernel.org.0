@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 262CBCA751
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF74CA789
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406263AbfJCQwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40700 "EHLO mail.kernel.org"
+        id S2405134AbfJCQxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406256AbfJCQwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:53 -0400
+        id S2406276AbfJCQw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ADB420867;
-        Thu,  3 Oct 2019 16:52:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E541620862;
+        Thu,  3 Oct 2019 16:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121572;
-        bh=NJRqgMFb42gdLNeJHVaCND2GhjGKkjOwcp7MoysuOtY=;
+        s=default; t=1570121577;
+        bh=K5G7GDXtJXR1rzhqJ97858eW1SGJB8eZI708dTwNU90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPaeI+xxlp8whK4lQAQhJIgkBI1uoH9rkaMx3cvpbGWpqJqrp5kLPJfj88JS9yVmK
-         GeeHobPr1MbRD86RKOTomHvEfDzWTXorplpXLrQ1jx/9M1BV2J33gJ1FeZ4QDByIMn
-         d9cEG7as7xpgmep0W8PGt/jvXzmVb/VFs9kZj4cc=
+        b=L1gr+i/tEDlUL9GnG9fmo0NVhBsLKfwpi5+EuD443Wk1WU/s/nc5DM79uxcUJpvEr
+         WgRk3qbYwDRo8vlmJBzdzPD05heqqvVUkKu1dup+TccZOMiMmHvhS1cEy0K+gdknH0
+         dS74ivCwuTWvsPeAq4Wv9aorAgbeMs4rzRrEYLh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Camuso <tcamuso@redhat.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.3 328/344] ipmi: move message error checking to avoid deadlock
-Date:   Thu,  3 Oct 2019 17:54:53 +0200
-Message-Id: <20191003154611.188543007@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Kerello <christophe.kerello@st.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.3 329/344] mtd: rawnand: stm32_fmc2: avoid warnings when building with W=1 option
+Date:   Thu,  3 Oct 2019 17:54:54 +0200
+Message-Id: <20191003154611.260887093@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,191 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Camuso <tcamuso@redhat.com>
+From: Christophe Kerello <christophe.kerello@st.com>
 
-commit 383035211c79d4d98481a09ad429b31c7dbf22bd upstream.
+commit b410f4eb01a1950ed73ae40859d0978b1a924380 upstream.
 
-V1->V2: in handle_one_rcv_msg, if data_size > 2, set requeue to zero and
-        goto out instead of calling ipmi_free_msg.
-        Kosuke Tatsukawa <tatsu@ab.jp.nec.com>
+This patch solves warnings detected by setting W=1 when building.
 
-In the source stack trace below, function set_need_watch tries to
-take out the same si_lock that was taken earlier by ipmi_thread.
+Warnings type detected:
+drivers/mtd/nand/raw/stm32_fmc2_nand.c: In function ‘stm32_fmc2_calc_timings’:
+drivers/mtd/nand/raw/stm32_fmc2_nand.c:1417:23: warning: comparison is
+always false due to limited range of data type [-Wtype-limits]
+  else if (tims->twait > FMC2_PMEM_PATT_TIMING_MASK)
 
-ipmi_thread() [drivers/char/ipmi/ipmi_si_intf.c:995]
- smi_event_handler() [drivers/char/ipmi/ipmi_si_intf.c:765]
-  handle_transaction_done() [drivers/char/ipmi/ipmi_si_intf.c:555]
-   deliver_recv_msg() [drivers/char/ipmi/ipmi_si_intf.c:283]
-    ipmi_smi_msg_received() [drivers/char/ipmi/ipmi_msghandler.c:4503]
-     intf_err_seq() [drivers/char/ipmi/ipmi_msghandler.c:1149]
-      smi_remove_watch() [drivers/char/ipmi/ipmi_msghandler.c:999]
-       set_need_watch() [drivers/char/ipmi/ipmi_si_intf.c:1066]
-
-Upstream commit e1891cffd4c4896a899337a243273f0e23c028df adds code to
-ipmi_smi_msg_received() to call smi_remove_watch() via intf_err_seq()
-and this seems to be causing the deadlock.
-
-commit e1891cffd4c4896a899337a243273f0e23c028df
-Author: Corey Minyard <cminyard@mvista.com>
-Date:   Wed Oct 24 15:17:04 2018 -0500
-    ipmi: Make the smi watcher be disabled immediately when not needed
-
-The fix is to put all messages in the queue and move the message
-checking code out of ipmi_smi_msg_received and into handle_one_recv_msg,
-which processes the message checking after ipmi_thread releases its
-locks.
-
-Additionally,Kosuke Tatsukawa <tatsu@ab.jp.nec.com> reported that
-handle_new_recv_msgs calls ipmi_free_msg when handle_one_rcv_msg returns
-zero, so that the call to ipmi_free_msg in handle_one_rcv_msg introduced
-another panic when "ipmitool sensor list" was run in a loop. He
-submitted this part of the patch.
-
-+free_msg:
-+               requeue = 0;
-+               goto out;
-
-Reported by: Osamu Samukawa <osa-samukawa@tg.jp.nec.com>
-Characterized by: Kosuke Tatsukawa <tatsu@ab.jp.nec.com>
-Signed-off-by: Tony Camuso <tcamuso@redhat.com>
-Fixes: e1891cffd4c4 ("ipmi: Make the smi watcher be disabled immediately when not needed")
-Cc: stable@vger.kernel.org # 5.1
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Signed-off-by: Christophe Kerello <christophe.kerello@st.com>
+Cc: stable@vger.kernel.org
+Fixes: 2cd457f328c1 ("mtd: rawnand: stm32_fmc2: add STM32 FMC2 NAND flash controller driver")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_msghandler.c |  114 ++++++++++++++++++------------------
- 1 file changed, 57 insertions(+), 57 deletions(-)
+ drivers/mtd/nand/raw/stm32_fmc2_nand.c |   88 ++++++++++-----------------------
+ 1 file changed, 28 insertions(+), 60 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -4215,7 +4215,53 @@ static int handle_one_recv_msg(struct ip
- 	int chan;
+--- a/drivers/mtd/nand/raw/stm32_fmc2_nand.c
++++ b/drivers/mtd/nand/raw/stm32_fmc2_nand.c
+@@ -1427,21 +1427,16 @@ static void stm32_fmc2_calc_timings(stru
+ 	struct stm32_fmc2_timings *tims = &nand->timings;
+ 	unsigned long hclk = clk_get_rate(fmc2->clk);
+ 	unsigned long hclkp = NSEC_PER_SEC / (hclk / 1000);
+-	int tar, tclr, thiz, twait, tset_mem, tset_att, thold_mem, thold_att;
++	unsigned long timing, tar, tclr, thiz, twait;
++	unsigned long tset_mem, tset_att, thold_mem, thold_att;
  
- 	ipmi_debug_msg("Recv:", msg->rsp, msg->rsp_size);
--	if (msg->rsp_size < 2) {
+-	tar = hclkp;
+-	if (tar < sdrt->tAR_min)
+-		tar = sdrt->tAR_min;
+-	tims->tar = DIV_ROUND_UP(tar, hclkp) - 1;
+-	if (tims->tar > FMC2_PCR_TIMING_MASK)
+-		tims->tar = FMC2_PCR_TIMING_MASK;
+-
+-	tclr = hclkp;
+-	if (tclr < sdrt->tCLR_min)
+-		tclr = sdrt->tCLR_min;
+-	tims->tclr = DIV_ROUND_UP(tclr, hclkp) - 1;
+-	if (tims->tclr > FMC2_PCR_TIMING_MASK)
+-		tims->tclr = FMC2_PCR_TIMING_MASK;
++	tar = max_t(unsigned long, hclkp, sdrt->tAR_min);
++	timing = DIV_ROUND_UP(tar, hclkp) - 1;
++	tims->tar = min_t(unsigned long, timing, FMC2_PCR_TIMING_MASK);
 +
-+	if ((msg->data_size >= 2)
-+	    && (msg->data[0] == (IPMI_NETFN_APP_REQUEST << 2))
-+	    && (msg->data[1] == IPMI_SEND_MSG_CMD)
-+	    && (msg->user_data == NULL)) {
-+
-+		if (intf->in_shutdown)
-+			goto free_msg;
-+
-+		/*
-+		 * This is the local response to a command send, start
-+		 * the timer for these.  The user_data will not be
-+		 * NULL if this is a response send, and we will let
-+		 * response sends just go through.
-+		 */
-+
-+		/*
-+		 * Check for errors, if we get certain errors (ones
-+		 * that mean basically we can try again later), we
-+		 * ignore them and start the timer.  Otherwise we
-+		 * report the error immediately.
-+		 */
-+		if ((msg->rsp_size >= 3) && (msg->rsp[2] != 0)
-+		    && (msg->rsp[2] != IPMI_NODE_BUSY_ERR)
-+		    && (msg->rsp[2] != IPMI_LOST_ARBITRATION_ERR)
-+		    && (msg->rsp[2] != IPMI_BUS_ERR)
-+		    && (msg->rsp[2] != IPMI_NAK_ON_WRITE_ERR)) {
-+			int ch = msg->rsp[3] & 0xf;
-+			struct ipmi_channel *chans;
-+
-+			/* Got an error sending the message, handle it. */
-+
-+			chans = READ_ONCE(intf->channel_list)->c;
-+			if ((chans[ch].medium == IPMI_CHANNEL_MEDIUM_8023LAN)
-+			    || (chans[ch].medium == IPMI_CHANNEL_MEDIUM_ASYNC))
-+				ipmi_inc_stat(intf, sent_lan_command_errs);
-+			else
-+				ipmi_inc_stat(intf, sent_ipmb_command_errs);
-+			intf_err_seq(intf, msg->msgid, msg->rsp[2]);
-+		} else
-+			/* The message was sent, start the timer. */
-+			intf_start_seq_timer(intf, msg->msgid);
-+free_msg:
-+		requeue = 0;
-+		goto out;
-+
-+	} else if (msg->rsp_size < 2) {
- 		/* Message is too small to be correct. */
- 		dev_warn(intf->si_dev,
- 			 "BMC returned too small a message for netfn %x cmd %x, got %d bytes\n",
-@@ -4472,62 +4518,16 @@ void ipmi_smi_msg_received(struct ipmi_s
- 	unsigned long flags = 0; /* keep us warning-free. */
- 	int run_to_completion = intf->run_to_completion;
++	tclr = max_t(unsigned long, hclkp, sdrt->tCLR_min);
++	timing = DIV_ROUND_UP(tclr, hclkp) - 1;
++	tims->tclr = min_t(unsigned long, timing, FMC2_PCR_TIMING_MASK);
  
--	if ((msg->data_size >= 2)
--	    && (msg->data[0] == (IPMI_NETFN_APP_REQUEST << 2))
--	    && (msg->data[1] == IPMI_SEND_MSG_CMD)
--	    && (msg->user_data == NULL)) {
--
--		if (intf->in_shutdown)
--			goto free_msg;
--
--		/*
--		 * This is the local response to a command send, start
--		 * the timer for these.  The user_data will not be
--		 * NULL if this is a response send, and we will let
--		 * response sends just go through.
--		 */
--
--		/*
--		 * Check for errors, if we get certain errors (ones
--		 * that mean basically we can try again later), we
--		 * ignore them and start the timer.  Otherwise we
--		 * report the error immediately.
--		 */
--		if ((msg->rsp_size >= 3) && (msg->rsp[2] != 0)
--		    && (msg->rsp[2] != IPMI_NODE_BUSY_ERR)
--		    && (msg->rsp[2] != IPMI_LOST_ARBITRATION_ERR)
--		    && (msg->rsp[2] != IPMI_BUS_ERR)
--		    && (msg->rsp[2] != IPMI_NAK_ON_WRITE_ERR)) {
--			int ch = msg->rsp[3] & 0xf;
--			struct ipmi_channel *chans;
--
--			/* Got an error sending the message, handle it. */
--
--			chans = READ_ONCE(intf->channel_list)->c;
--			if ((chans[ch].medium == IPMI_CHANNEL_MEDIUM_8023LAN)
--			    || (chans[ch].medium == IPMI_CHANNEL_MEDIUM_ASYNC))
--				ipmi_inc_stat(intf, sent_lan_command_errs);
--			else
--				ipmi_inc_stat(intf, sent_ipmb_command_errs);
--			intf_err_seq(intf, msg->msgid, msg->rsp[2]);
--		} else
--			/* The message was sent, start the timer. */
--			intf_start_seq_timer(intf, msg->msgid);
--
--free_msg:
--		ipmi_free_smi_msg(msg);
--	} else {
--		/*
--		 * To preserve message order, we keep a queue and deliver from
--		 * a tasklet.
--		 */
--		if (!run_to_completion)
--			spin_lock_irqsave(&intf->waiting_rcv_msgs_lock, flags);
--		list_add_tail(&msg->link, &intf->waiting_rcv_msgs);
--		if (!run_to_completion)
--			spin_unlock_irqrestore(&intf->waiting_rcv_msgs_lock,
--					       flags);
--	}
-+	/*
-+	 * To preserve message order, we keep a queue and deliver from
-+	 * a tasklet.
-+	 */
-+	if (!run_to_completion)
-+		spin_lock_irqsave(&intf->waiting_rcv_msgs_lock, flags);
-+	list_add_tail(&msg->link, &intf->waiting_rcv_msgs);
-+	if (!run_to_completion)
-+		spin_unlock_irqrestore(&intf->waiting_rcv_msgs_lock,
-+				       flags);
+ 	tims->thiz = FMC2_THIZ;
+ 	thiz = (tims->thiz + 1) * hclkp;
+@@ -1451,18 +1446,11 @@ static void stm32_fmc2_calc_timings(stru
+ 	 * tWAIT > tWP
+ 	 * tWAIT > tREA + tIO
+ 	 */
+-	twait = hclkp;
+-	if (twait < sdrt->tRP_min)
+-		twait = sdrt->tRP_min;
+-	if (twait < sdrt->tWP_min)
+-		twait = sdrt->tWP_min;
+-	if (twait < sdrt->tREA_max + FMC2_TIO)
+-		twait = sdrt->tREA_max + FMC2_TIO;
+-	tims->twait = DIV_ROUND_UP(twait, hclkp);
+-	if (tims->twait == 0)
+-		tims->twait = 1;
+-	else if (tims->twait > FMC2_PMEM_PATT_TIMING_MASK)
+-		tims->twait = FMC2_PMEM_PATT_TIMING_MASK;
++	twait = max_t(unsigned long, hclkp, sdrt->tRP_min);
++	twait = max_t(unsigned long, twait, sdrt->tWP_min);
++	twait = max_t(unsigned long, twait, sdrt->tREA_max + FMC2_TIO);
++	timing = DIV_ROUND_UP(twait, hclkp);
++	tims->twait = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
  
- 	if (!run_to_completion)
- 		spin_lock_irqsave(&intf->xmit_msgs_lock, flags);
+ 	/*
+ 	 * tSETUP_MEM > tCS - tWAIT
+@@ -1477,20 +1465,15 @@ static void stm32_fmc2_calc_timings(stru
+ 	if (twait > thiz && (sdrt->tDS_min > twait - thiz) &&
+ 	    (tset_mem < sdrt->tDS_min - (twait - thiz)))
+ 		tset_mem = sdrt->tDS_min - (twait - thiz);
+-	tims->tset_mem = DIV_ROUND_UP(tset_mem, hclkp);
+-	if (tims->tset_mem == 0)
+-		tims->tset_mem = 1;
+-	else if (tims->tset_mem > FMC2_PMEM_PATT_TIMING_MASK)
+-		tims->tset_mem = FMC2_PMEM_PATT_TIMING_MASK;
++	timing = DIV_ROUND_UP(tset_mem, hclkp);
++	tims->tset_mem = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
+ 
+ 	/*
+ 	 * tHOLD_MEM > tCH
+ 	 * tHOLD_MEM > tREH - tSETUP_MEM
+ 	 * tHOLD_MEM > max(tRC, tWC) - (tSETUP_MEM + tWAIT)
+ 	 */
+-	thold_mem = hclkp;
+-	if (thold_mem < sdrt->tCH_min)
+-		thold_mem = sdrt->tCH_min;
++	thold_mem = max_t(unsigned long, hclkp, sdrt->tCH_min);
+ 	if (sdrt->tREH_min > tset_mem &&
+ 	    (thold_mem < sdrt->tREH_min - tset_mem))
+ 		thold_mem = sdrt->tREH_min - tset_mem;
+@@ -1500,11 +1483,8 @@ static void stm32_fmc2_calc_timings(stru
+ 	if ((sdrt->tWC_min > tset_mem + twait) &&
+ 	    (thold_mem < sdrt->tWC_min - (tset_mem + twait)))
+ 		thold_mem = sdrt->tWC_min - (tset_mem + twait);
+-	tims->thold_mem = DIV_ROUND_UP(thold_mem, hclkp);
+-	if (tims->thold_mem == 0)
+-		tims->thold_mem = 1;
+-	else if (tims->thold_mem > FMC2_PMEM_PATT_TIMING_MASK)
+-		tims->thold_mem = FMC2_PMEM_PATT_TIMING_MASK;
++	timing = DIV_ROUND_UP(thold_mem, hclkp);
++	tims->thold_mem = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
+ 
+ 	/*
+ 	 * tSETUP_ATT > tCS - tWAIT
+@@ -1526,11 +1506,8 @@ static void stm32_fmc2_calc_timings(stru
+ 	if (twait > thiz && (sdrt->tDS_min > twait - thiz) &&
+ 	    (tset_att < sdrt->tDS_min - (twait - thiz)))
+ 		tset_att = sdrt->tDS_min - (twait - thiz);
+-	tims->tset_att = DIV_ROUND_UP(tset_att, hclkp);
+-	if (tims->tset_att == 0)
+-		tims->tset_att = 1;
+-	else if (tims->tset_att > FMC2_PMEM_PATT_TIMING_MASK)
+-		tims->tset_att = FMC2_PMEM_PATT_TIMING_MASK;
++	timing = DIV_ROUND_UP(tset_att, hclkp);
++	tims->tset_att = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
+ 
+ 	/*
+ 	 * tHOLD_ATT > tALH
+@@ -1545,17 +1522,11 @@ static void stm32_fmc2_calc_timings(stru
+ 	 * tHOLD_ATT > tRC - (tSETUP_ATT + tWAIT)
+ 	 * tHOLD_ATT > tWC - (tSETUP_ATT + tWAIT)
+ 	 */
+-	thold_att = hclkp;
+-	if (thold_att < sdrt->tALH_min)
+-		thold_att = sdrt->tALH_min;
+-	if (thold_att < sdrt->tCH_min)
+-		thold_att = sdrt->tCH_min;
+-	if (thold_att < sdrt->tCLH_min)
+-		thold_att = sdrt->tCLH_min;
+-	if (thold_att < sdrt->tCOH_min)
+-		thold_att = sdrt->tCOH_min;
+-	if (thold_att < sdrt->tDH_min)
+-		thold_att = sdrt->tDH_min;
++	thold_att = max_t(unsigned long, hclkp, sdrt->tALH_min);
++	thold_att = max_t(unsigned long, thold_att, sdrt->tCH_min);
++	thold_att = max_t(unsigned long, thold_att, sdrt->tCLH_min);
++	thold_att = max_t(unsigned long, thold_att, sdrt->tCOH_min);
++	thold_att = max_t(unsigned long, thold_att, sdrt->tDH_min);
+ 	if ((sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC > tset_mem) &&
+ 	    (thold_att < sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC - tset_mem))
+ 		thold_att = sdrt->tWB_max + FMC2_TIO + FMC2_TSYNC - tset_mem;
+@@ -1574,11 +1545,8 @@ static void stm32_fmc2_calc_timings(stru
+ 	if ((sdrt->tWC_min > tset_att + twait) &&
+ 	    (thold_att < sdrt->tWC_min - (tset_att + twait)))
+ 		thold_att = sdrt->tWC_min - (tset_att + twait);
+-	tims->thold_att = DIV_ROUND_UP(thold_att, hclkp);
+-	if (tims->thold_att == 0)
+-		tims->thold_att = 1;
+-	else if (tims->thold_att > FMC2_PMEM_PATT_TIMING_MASK)
+-		tims->thold_att = FMC2_PMEM_PATT_TIMING_MASK;
++	timing = DIV_ROUND_UP(thold_att, hclkp);
++	tims->thold_att = clamp_val(timing, 1, FMC2_PMEM_PATT_TIMING_MASK);
+ }
+ 
+ static int stm32_fmc2_setup_interface(struct nand_chip *chip, int chipnr,
 
 
