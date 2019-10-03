@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED853CA57A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B9FCA581
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403825AbfJCQeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
+        id S2391070AbfJCQfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730354AbfJCQeu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:50 -0400
+        id S2392182AbfJCQfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:35:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF5E02070B;
-        Thu,  3 Oct 2019 16:34:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BADFF215EA;
+        Thu,  3 Oct 2019 16:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120489;
-        bh=q1F/PL9JH2Pgit/X0ETfmM9LtIBLM1x7XmdLoELO7aU=;
+        s=default; t=1570120500;
+        bh=BfTwByiLBOEtLAiKrDFm0+a1C2cPRfgHJQH9uMU+AJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgYjORCoYUHPX4fjHCnBvrQC7fIIa/fMJ5F4cg8/BndyzLHqWu3FOSJGWqtSPG0bg
-         SslXTI8tZk1U43Tcd4Dst/sQsWChhJWi3D8XP+LLt4hO1MTFWIYDa0jUgyPvr02XtU
-         Nc8aXGP4nie7zhv7By1i8wKjqCqjFjIAM02R6gxE=
+        b=pgjrIsC850x8vGQIQydt8JWvnQLLCzFrcoZwtlTWQKdztQu+Ol7pz8vzROXM287p0
+         LDIhcmendBiDlgjU2QTHDdvaOf2w10vztqG8iBXZN632SficUYvpVskj2JAeaDQLcL
+         nAwQUXvd3CROzoi1BMUmQh4Oo8V9ndTyjMOwVB9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 204/313] iommu/amd: Override wrong IVRS IOAPIC on Raven Ridge systems
-Date:   Thu,  3 Oct 2019 17:53:02 +0200
-Message-Id: <20191003154553.097789121@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 206/313] btrfs: delayed-inode: Kill the BUG_ON() in btrfs_delete_delayed_dir_index()
+Date:   Thu,  3 Oct 2019 17:53:04 +0200
+Message-Id: <20191003154553.282845831@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,192 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 93d051550ee02eaff9a2541d825605a7bd778027 ]
+[ Upstream commit 933c22a7512c5c09b1fdc46b557384efe8d03233 ]
 
-Raven Ridge systems may have malfunction touchpad or hang at boot if
-incorrect IVRS IOAPIC is provided by BIOS.
+There is one report of fuzzed image which leads to BUG_ON() in
+btrfs_delete_delayed_dir_index().
 
-Users already found correct "ivrs_ioapic=" values, let's put them inside
-kernel to workaround buggy BIOS.
+Although that fuzzed image can already be addressed by enhanced
+extent-tree error handler, it's still better to hunt down more BUG_ON().
 
-BugLink: https://bugs.launchpad.net/bugs/1795292
-BugLink: https://bugs.launchpad.net/bugs/1837688
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This patch will hunt down two BUG_ON()s in
+btrfs_delete_delayed_dir_index():
+- One for error from btrfs_delayed_item_reserve_metadata()
+  Instead of BUG_ON(), we output an error message and free the item.
+  And return the error.
+  All callers of this function handles the error by aborting current
+  trasaction.
+
+- One for possible EEXIST from __btrfs_add_delayed_deletion_item()
+  That function can return -EEXIST.
+  We already have a good enough error message for that, only need to
+  clean up the reserved metadata space and allocated item.
+
+To help above cleanup, also modifiy __btrfs_remove_delayed_item() called
+in btrfs_release_delayed_item(), to skip unassociated item.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203253
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/Makefile           |  2 +-
- drivers/iommu/amd_iommu.h        | 14 +++++
- drivers/iommu/amd_iommu_init.c   |  5 +-
- drivers/iommu/amd_iommu_quirks.c | 92 ++++++++++++++++++++++++++++++++
- 4 files changed, 111 insertions(+), 2 deletions(-)
- create mode 100644 drivers/iommu/amd_iommu.h
- create mode 100644 drivers/iommu/amd_iommu_quirks.c
+ fs/btrfs/delayed-inode.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
-index 8c71a15e986b5..826a5bbe0d09b 100644
---- a/drivers/iommu/Makefile
-+++ b/drivers/iommu/Makefile
-@@ -10,7 +10,7 @@ obj-$(CONFIG_IOMMU_IO_PGTABLE_LPAE) += io-pgtable-arm.o
- obj-$(CONFIG_IOMMU_IOVA) += iova.o
- obj-$(CONFIG_OF_IOMMU)	+= of_iommu.o
- obj-$(CONFIG_MSM_IOMMU) += msm_iommu.o
--obj-$(CONFIG_AMD_IOMMU) += amd_iommu.o amd_iommu_init.o
-+obj-$(CONFIG_AMD_IOMMU) += amd_iommu.o amd_iommu_init.o amd_iommu_quirks.o
- obj-$(CONFIG_AMD_IOMMU_DEBUGFS) += amd_iommu_debugfs.o
- obj-$(CONFIG_AMD_IOMMU_V2) += amd_iommu_v2.o
- obj-$(CONFIG_ARM_SMMU) += arm-smmu.o
-diff --git a/drivers/iommu/amd_iommu.h b/drivers/iommu/amd_iommu.h
-new file mode 100644
-index 0000000000000..12d540d9b59b0
---- /dev/null
-+++ b/drivers/iommu/amd_iommu.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifndef AMD_IOMMU_H
-+#define AMD_IOMMU_H
-+
-+int __init add_special_device(u8 type, u8 id, u16 *devid, bool cmd_line);
-+
-+#ifdef CONFIG_DMI
-+void amd_iommu_apply_ivrs_quirks(void);
-+#else
-+static void amd_iommu_apply_ivrs_quirks(void) { }
-+#endif
-+
-+#endif
-diff --git a/drivers/iommu/amd_iommu_init.c b/drivers/iommu/amd_iommu_init.c
-index 07d84dbab564e..6469f51282427 100644
---- a/drivers/iommu/amd_iommu_init.c
-+++ b/drivers/iommu/amd_iommu_init.c
-@@ -30,6 +30,7 @@
- #include <asm/irq_remapping.h>
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index 43fdb2992956a..6858a05606dd3 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -474,6 +474,9 @@ static void __btrfs_remove_delayed_item(struct btrfs_delayed_item *delayed_item)
+ 	struct rb_root_cached *root;
+ 	struct btrfs_delayed_root *delayed_root;
  
- #include <linux/crash_dump.h>
-+#include "amd_iommu.h"
- #include "amd_iommu_proto.h"
- #include "amd_iommu_types.h"
- #include "irq_remapping.h"
-@@ -997,7 +998,7 @@ static void __init set_dev_entry_from_acpi(struct amd_iommu *iommu,
- 	set_iommu_for_device(iommu, devid);
- }
++	/* Not associated with any delayed_node */
++	if (!delayed_item->delayed_node)
++		return;
+ 	delayed_root = delayed_item->delayed_node->root->fs_info->delayed_root;
  
--static int __init add_special_device(u8 type, u8 id, u16 *devid, bool cmd_line)
-+int __init add_special_device(u8 type, u8 id, u16 *devid, bool cmd_line)
- {
- 	struct devid_map *entry;
- 	struct list_head *list;
-@@ -1148,6 +1149,8 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
- 	if (ret)
- 		return ret;
- 
-+	amd_iommu_apply_ivrs_quirks();
-+
- 	/*
- 	 * First save the recommended feature enable bits from ACPI
+ 	BUG_ON(!delayed_root);
+@@ -1525,7 +1528,12 @@ int btrfs_delete_delayed_dir_index(struct btrfs_trans_handle *trans,
+ 	 * we have reserved enough space when we start a new transaction,
+ 	 * so reserving metadata failure is impossible.
  	 */
-diff --git a/drivers/iommu/amd_iommu_quirks.c b/drivers/iommu/amd_iommu_quirks.c
-new file mode 100644
-index 0000000000000..c235f79b7a200
---- /dev/null
-+++ b/drivers/iommu/amd_iommu_quirks.c
-@@ -0,0 +1,92 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+/*
-+ * Quirks for AMD IOMMU
-+ *
-+ * Copyright (C) 2019 Kai-Heng Feng <kai.heng.feng@canonical.com>
-+ */
-+
-+#ifdef CONFIG_DMI
-+#include <linux/dmi.h>
-+
-+#include "amd_iommu.h"
-+
-+#define IVHD_SPECIAL_IOAPIC		1
-+
-+struct ivrs_quirk_entry {
-+	u8 id;
-+	u16 devid;
-+};
-+
-+enum {
-+	DELL_INSPIRON_7375 = 0,
-+	DELL_LATITUDE_5495,
-+	LENOVO_IDEAPAD_330S_15ARR,
-+};
-+
-+static const struct ivrs_quirk_entry ivrs_ioapic_quirks[][3] __initconst = {
-+	/* ivrs_ioapic[4]=00:14.0 ivrs_ioapic[5]=00:00.2 */
-+	[DELL_INSPIRON_7375] = {
-+		{ .id = 4, .devid = 0xa0 },
-+		{ .id = 5, .devid = 0x2 },
-+		{}
-+	},
-+	/* ivrs_ioapic[4]=00:14.0 */
-+	[DELL_LATITUDE_5495] = {
-+		{ .id = 4, .devid = 0xa0 },
-+		{}
-+	},
-+	/* ivrs_ioapic[32]=00:14.0 */
-+	[LENOVO_IDEAPAD_330S_15ARR] = {
-+		{ .id = 32, .devid = 0xa0 },
-+		{}
-+	},
-+	{}
-+};
-+
-+static int __init ivrs_ioapic_quirk_cb(const struct dmi_system_id *d)
-+{
-+	const struct ivrs_quirk_entry *i;
-+
-+	for (i = d->driver_data; i->id != 0 && i->devid != 0; i++)
-+		add_special_device(IVHD_SPECIAL_IOAPIC, i->id, (u16 *)&i->devid, 0);
-+
-+	return 0;
-+}
-+
-+static const struct dmi_system_id ivrs_quirks[] __initconst = {
-+	{
-+		.callback = ivrs_ioapic_quirk_cb,
-+		.ident = "Dell Inspiron 7375",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Inspiron 7375"),
-+		},
-+		.driver_data = (void *)&ivrs_ioapic_quirks[DELL_INSPIRON_7375],
-+	},
-+	{
-+		.callback = ivrs_ioapic_quirk_cb,
-+		.ident = "Dell Latitude 5495",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Latitude 5495"),
-+		},
-+		.driver_data = (void *)&ivrs_ioapic_quirks[DELL_LATITUDE_5495],
-+	},
-+	{
-+		.callback = ivrs_ioapic_quirk_cb,
-+		.ident = "Lenovo ideapad 330S-15ARR",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "81FB"),
-+		},
-+		.driver_data = (void *)&ivrs_ioapic_quirks[LENOVO_IDEAPAD_330S_15ARR],
-+	},
-+	{}
-+};
-+
-+void __init amd_iommu_apply_ivrs_quirks(void)
-+{
-+	dmi_check_system(ivrs_quirks);
-+}
-+#endif
+-	BUG_ON(ret);
++	if (ret < 0) {
++		btrfs_err(trans->fs_info,
++"metadata reservation failed for delayed dir item deltiona, should have been reserved");
++		btrfs_release_delayed_item(item);
++		goto end;
++	}
+ 
+ 	mutex_lock(&node->mutex);
+ 	ret = __btrfs_add_delayed_deletion_item(node, item);
+@@ -1534,7 +1542,8 @@ int btrfs_delete_delayed_dir_index(struct btrfs_trans_handle *trans,
+ 			  "err add delayed dir index item(index: %llu) into the deletion tree of the delayed node(root id: %llu, inode id: %llu, errno: %d)",
+ 			  index, node->root->root_key.objectid,
+ 			  node->inode_id, ret);
+-		BUG();
++		btrfs_delayed_item_release_metadata(dir->root, item);
++		btrfs_release_delayed_item(item);
+ 	}
+ 	mutex_unlock(&node->mutex);
+ end:
 -- 
 2.20.1
 
