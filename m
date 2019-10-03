@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B5BCCAC1E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3822ECACB4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732632AbfJCQFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:05:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S2388656AbfJCQOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731745AbfJCQFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:51 -0400
+        id S1727451AbfJCQOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA1EC21A4C;
-        Thu,  3 Oct 2019 16:05:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F1152054F;
+        Thu,  3 Oct 2019 16:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118750;
-        bh=Zm2B1F/uU1HKxIqJj3bpcXBykbAxzVxXbPe7Q9uwm8U=;
+        s=default; t=1570119276;
+        bh=Cq9/10KQj+NH/Bx5YWM63Er78hKvm6bwpuORR7T5TSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aw/He6unCjByQoQzh3AbBNh9nZa1GJOProczkaGtWwKy1D9GUGocQiRi2qAuuGq0r
-         PwD8YQRo5uZpA7daG98TelyfL9rIYUO7zUR1awIPmQUWCyRFn1ycQCTW++uHhSdKFy
-         XAQd3nS95MT945AVnVhuB5j+hYLXRgiTfBs1ApRs=
+        b=p5ndArMpc9/kczkA81osY65pfO1eEQNNz/KxpP74ofOzr5b+91+wC4NgH//x1b7Mi
+         L/jwkywkInMq0vFSSuMgkQzHSiVosAb/bjVnkO7xbSthWexrghhfYtIShccAEMIA5W
+         XFPWCgndl44ekkvZAx2bMRvEInoVRlCfvAFjqvZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Murphy Zhou <jencce.kernel@gmail.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.9 126/129] CIFS: fix max ea value size
-Date:   Thu,  3 Oct 2019 17:54:09 +0200
-Message-Id: <20191003154416.814706442@linuxfoundation.org>
+        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
+        Song Liu <songliubraving@fb.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [PATCH 4.14 172/185] md: only call set_in_sync() when it is expected to succeed.
+Date:   Thu,  3 Oct 2019 17:54:10 +0200
+Message-Id: <20191003154519.575402106@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murphy Zhou <jencce.kernel@gmail.com>
+From: NeilBrown <neilb@suse.com>
 
-commit 63d37fb4ce5ae7bf1e58f906d1bf25f036fe79b2 upstream.
+commit 480523feae581ab714ba6610388a3b4619a2f695 upstream.
 
-It should not be larger then the slab max buf size. If user
-specifies a larger size, it passes this check and goes
-straightly to SMB2_set_info_init performing an insecure memcpy.
+Since commit 4ad23a976413 ("MD: use per-cpu counter for
+writes_pending"), set_in_sync() is substantially more expensive: it
+can wait for a full RCU grace period which can be 10s of milliseconds.
 
-Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+So we should only call it when the cost is justified.
+
+md_check_recovery() currently calls set_in_sync() every time it finds
+anything to do (on non-external active arrays).  For an array
+performing resync or recovery, this will be quite often.
+Each call will introduce a delay to the md thread, which can noticeable
+affect IO submission latency.
+
+In md_check_recovery() we only need to call set_in_sync() if
+'safemode' was non-zero at entry, meaning that there has been not
+recent IO.  So we save this "safemode was nonzero" state, and only
+call set_in_sync() if it was non-zero.
+
+This measurably reduces mean and maximum IO submission latency during
+resync/recovery.
+
+Reported-and-tested-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Fixes: 4ad23a976413 ("MD: use per-cpu counter for writes_pending")
+Cc: stable@vger.kernel.org (v4.12+)
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/xattr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/md.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/xattr.c
-+++ b/fs/cifs/xattr.c
-@@ -31,7 +31,7 @@
- #include "cifs_fs_sb.h"
- #include "cifs_unicode.h"
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -8765,6 +8765,7 @@ void md_check_recovery(struct mddev *mdd
  
--#define MAX_EA_VALUE_SIZE 65535
-+#define MAX_EA_VALUE_SIZE CIFSMaxBufSize
- #define CIFS_XATTR_CIFS_ACL "system.cifs_acl"
- #define CIFS_XATTR_ATTRIB "cifs.dosattrib"  /* full name: user.cifs.dosattrib */
- #define CIFS_XATTR_CREATETIME "cifs.creationtime"  /* user.cifs.creationtime */
+ 	if (mddev_trylock(mddev)) {
+ 		int spares = 0;
++		bool try_set_sync = mddev->safemode != 0;
+ 
+ 		if (!mddev->external && mddev->safemode == 1)
+ 			mddev->safemode = 0;
+@@ -8810,7 +8811,7 @@ void md_check_recovery(struct mddev *mdd
+ 			}
+ 		}
+ 
+-		if (!mddev->external && !mddev->in_sync) {
++		if (try_set_sync && !mddev->external && !mddev->in_sync) {
+ 			spin_lock(&mddev->lock);
+ 			set_in_sync(mddev);
+ 			spin_unlock(&mddev->lock);
 
 
