@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 867D1CA62C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7028DCA62E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404937AbfJCQkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50818 "EHLO mail.kernel.org"
+        id S2404957AbfJCQkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404929AbfJCQkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:40:35 -0400
+        id S2404950AbfJCQkr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:40:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC6712070B;
-        Thu,  3 Oct 2019 16:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD0872070B;
+        Thu,  3 Oct 2019 16:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120835;
-        bh=DLP1AqzXPyQo7RTgACGq4bqkMEbMnow28zR6YnRP12o=;
+        s=default; t=1570120846;
+        bh=CKOJhoQWKwRHugdFdAlJKtgD9dw0sIWNrDvnzJWLrKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEh0SEFEWz4TrMZFiWSb3uuq+tMT+doNEZBO6DC8hMMX6vregmg+cD/k3diK7DEWm
-         P2J2WEiDq8O5U+Nzhs4ZkiZDWby1Xi5KGmOP1TfLNyNRxoumISZJAbHnFbm6Kqj/3K
-         tD7H2yKHIBu6S5rzOXMlk05KSef7VpoG8dD3Ozis=
+        b=UE2lttBddwxvIOCXE5IWG3P2TCZLNX83wUpwqg6RcGK3jdyOhcUj04JZQ3KDSqQy6
+         26Mf9atrk+bD+ze+dFgJQyVSA8W4vphjdkZTu7mqWwUFZlF+yirNizdWOQbrdV2OnW
+         83oyucdbg8/VerRL1kOcIc8JTIBB5wFxKzRQ4fWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 055/344] media: exynos4-is: fix leaked of_node references
-Date:   Thu,  3 Oct 2019 17:50:20 +0200
-Message-Id: <20191003154545.585089283@linuxfoundation.org>
+Subject: [PATCH 5.3 058/344] media: vivid: work around high stack usage with clang
+Date:   Thu,  3 Oct 2019 17:50:23 +0200
+Message-Id: <20191003154545.857596867@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,63 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wen.yang99@zte.com.cn>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit da79bf41a4d170ca93cc8f3881a70d734a071c37 ]
+[ Upstream commit 1a03f91c2c2419c3709c4554952c66695575e91c ]
 
-The call to of_get_child_by_name returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+Building a KASAN-enabled kernel with clang ends up in a case where too
+much is inlined into vivid_thread_vid_cap() and the stack usage grows
+a lot, possibly when the register allocation fails to produce efficient
+code and spills a lot of temporaries to the stack. This uses more
+than twice the amount of stack than the sum of the individual functions
+when they are not inlined:
 
-Detected by coccinelle with the following warnings:
-drivers/media/platform/exynos4-is/fimc-is.c:813:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
-drivers/media/platform/exynos4-is/fimc-is.c:870:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
-drivers/media/platform/exynos4-is/fimc-is.c:885:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
-drivers/media/platform/exynos4-is/media-dev.c:545:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 541, but without a corresponding object release within this function.
-drivers/media/platform/exynos4-is/media-dev.c:528:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
-drivers/media/platform/exynos4-is/media-dev.c:534:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
+drivers/media/platform/vivid/vivid-kthread-cap.c:766:12: error: stack frame size of 2208 bytes in function 'vivid_thread_vid_cap' [-Werror,-Wframe-larger-than=]
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Marking two of the key functions in here as 'noinline_for_stack' avoids
+the pathological case in clang without any apparent downside for gcc.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/exynos4-is/fimc-is.c   | 1 +
- drivers/media/platform/exynos4-is/media-dev.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/media/platform/vivid/vivid-kthread-cap.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
-index e043d55133a31..b7cc8e651e327 100644
---- a/drivers/media/platform/exynos4-is/fimc-is.c
-+++ b/drivers/media/platform/exynos4-is/fimc-is.c
-@@ -806,6 +806,7 @@ static int fimc_is_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 
- 	is->pmu_regs = of_iomap(node, 0);
-+	of_node_put(node);
- 	if (!is->pmu_regs)
- 		return -ENOMEM;
- 
-diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
-index d53427a8db11d..a838189d44902 100644
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -501,6 +501,7 @@ static int fimc_md_register_sensor_entities(struct fimc_md *fmd)
- 			continue;
- 
- 		ret = fimc_md_parse_port_node(fmd, port, index);
-+		of_node_put(port);
- 		if (ret < 0) {
- 			of_node_put(node);
- 			goto cleanup;
-@@ -542,6 +543,7 @@ static int __of_get_csis_id(struct device_node *np)
- 	if (!np)
- 		return -EINVAL;
- 	of_property_read_u32(np, "reg", &reg);
-+	of_node_put(np);
- 	return reg - FIMC_INPUT_MIPI_CSI2_0;
+diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
+index ed466d737a90d..003319d7816d7 100644
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -232,8 +232,8 @@ static void *plane_vaddr(struct tpg_data *tpg, struct vivid_buffer *buf,
+ 	return vbuf;
  }
  
+-static int vivid_copy_buffer(struct vivid_dev *dev, unsigned p, u8 *vcapbuf,
+-		struct vivid_buffer *vid_cap_buf)
++static noinline_for_stack int vivid_copy_buffer(struct vivid_dev *dev, unsigned p,
++		u8 *vcapbuf, struct vivid_buffer *vid_cap_buf)
+ {
+ 	bool blank = dev->must_blank[vid_cap_buf->vb.vb2_buf.index];
+ 	struct tpg_data *tpg = &dev->tpg;
+@@ -672,7 +672,8 @@ static void vivid_cap_update_frame_period(struct vivid_dev *dev)
+ 	dev->cap_frame_period = f_period;
+ }
+ 
+-static void vivid_thread_vid_cap_tick(struct vivid_dev *dev, int dropped_bufs)
++static noinline_for_stack void vivid_thread_vid_cap_tick(struct vivid_dev *dev,
++							 int dropped_bufs)
+ {
+ 	struct vivid_buffer *vid_cap_buf = NULL;
+ 	struct vivid_buffer *vbi_cap_buf = NULL;
 -- 
 2.20.1
 
