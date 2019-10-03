@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E04BCA6CB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 579AECA6CD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405173AbfJCQr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60986 "EHLO mail.kernel.org"
+        id S2392220AbfJCQr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405164AbfJCQr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:47:26 -0400
+        id S2405180AbfJCQr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:47:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6066420865;
-        Thu,  3 Oct 2019 16:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28A6220867;
+        Thu,  3 Oct 2019 16:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121245;
-        bh=qzhzxhxwZtPw9WUK7gM1IqcV5+m1vRHorMTFT6SbNOo=;
+        s=default; t=1570121248;
+        bh=SSaj6SjOpAnKNqQCHy7fYhMvKgjaL7iwdNhua4vxOJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IohfoyjEKZy/Sc97zUKiV0G1pBB9l8M58MAvTgy9fBcN3Y+u3nfR7fWWpZSYB7Tjf
-         3H8NMiyU3MpvcmPI8EbKH2h5sjc2J4CmuPnGsIVkjtW2l8OhfMsXZWnOFADWEUWvAS
-         IOyuv5Cgi1ltDLAcL+pCpKuMvVHZryyE8S9l3Ha0=
+        b=MshQKUxkK5iFU9pa+r+O66z/c8pOnE0Z7U4icDEAC8zXVsKRBIuUgxxIDjSy5GkIU
+         TqE+wXxND0lnw/MnlYphk04Iu2dF6tzHxEHBTmsB4KPb4wy2JX64sQZQHjP8CgBwgp
+         WoEDfKYSjQgbNW9clbRJ8qJZi0kSe65EdavyLOqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jackie Liu <liuyun01@kylinos.cn>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 208/344] io_uring: fix wrong sequence setting logic
-Date:   Thu,  3 Oct 2019 17:52:53 +0200
-Message-Id: <20191003154600.783669292@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Hou Tao <houtao1@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 209/344] block: make rq sector size accessible for block stats
+Date:   Thu,  3 Oct 2019 17:52:54 +0200
+Message-Id: <20191003154600.901705699@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,52 +44,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 8776f3fa15a5cd213c4dfab7ddaf557983374ea6 ]
+[ Upstream commit 3d24430694077313c75c6b89f618db09943621e4 ]
 
-Sqo_thread will get sqring in batches, which will cause
-ctx->cached_sq_head to be added in batches. if one of these
-sqes is set with the DRAIN flag, then he will never get a
-chance to process, and finally sqo_thread will not exit.
+Currently rq->data_len will be decreased by partial completion or
+zeroed by completion, so when blk_stat_add() is invoked, data_len
+will be zero and there will never be samples in poll_cb because
+blk_mq_poll_stats_bkt() will return -1 if data_len is zero.
 
-Fixes: de0617e4671 ("io_uring: add support for marking commands as draining")
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+We could move blk_stat_add() back to __blk_mq_complete_request(),
+but that would make the effort of trying to call ktime_get_ns()
+once in vain. Instead we can reuse throtl_size field, and use
+it for both block stats and block throttle, and adjust the
+logic in blk_mq_poll_stats_bkt() accordingly.
+
+Fixes: 4bc6339a583c ("block: move blk_stat_add() to __blk_mq_end_request()")
+Tested-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/blk-mq.c         | 11 +++++------
+ block/blk-throttle.c   |  3 ++-
+ include/linux/blkdev.h | 15 ++++++++++++---
+ 3 files changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cfb48bd088e12..06d048341fa41 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -288,6 +288,7 @@ struct io_ring_ctx {
- struct sqe_submit {
- 	const struct io_uring_sqe	*sqe;
- 	unsigned short			index;
-+	u32				sequence;
- 	bool				has_user;
- 	bool				needs_lock;
- 	bool				needs_fixed_file;
-@@ -2040,7 +2041,7 @@ static int io_req_set_file(struct io_ring_ctx *ctx, const struct sqe_submit *s,
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index a38ebb2a380c2..9b56428cad0e7 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -44,12 +44,12 @@ static void blk_mq_poll_stats_fn(struct blk_stat_callback *cb);
  
- 	if (flags & IOSQE_IO_DRAIN) {
- 		req->flags |= REQ_F_IO_DRAIN;
--		req->sequence = ctx->cached_sq_head - 1;
-+		req->sequence = s->sequence;
- 	}
+ static int blk_mq_poll_stats_bkt(const struct request *rq)
+ {
+-	int ddir, bytes, bucket;
++	int ddir, sectors, bucket;
  
- 	if (!io_op_needs_file(s->sqe))
-@@ -2247,6 +2248,7 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct sqe_submit *s)
- 	if (head < ctx->sq_entries) {
- 		s->index = head;
- 		s->sqe = &ctx->sq_sqes[head];
-+		s->sequence = ctx->cached_sq_head;
- 		ctx->cached_sq_head++;
- 		return true;
+ 	ddir = rq_data_dir(rq);
+-	bytes = blk_rq_bytes(rq);
++	sectors = blk_rq_stats_sectors(rq);
+ 
+-	bucket = ddir + 2*(ilog2(bytes) - 9);
++	bucket = ddir + 2 * ilog2(sectors);
+ 
+ 	if (bucket < 0)
+ 		return -1;
+@@ -330,6 +330,7 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
+ 	else
+ 		rq->start_time_ns = 0;
+ 	rq->io_start_time_ns = 0;
++	rq->stats_sectors = 0;
+ 	rq->nr_phys_segments = 0;
+ #if defined(CONFIG_BLK_DEV_INTEGRITY)
+ 	rq->nr_integrity_segments = 0;
+@@ -673,9 +674,7 @@ void blk_mq_start_request(struct request *rq)
+ 
+ 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
+ 		rq->io_start_time_ns = ktime_get_ns();
+-#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
+-		rq->throtl_size = blk_rq_sectors(rq);
+-#endif
++		rq->stats_sectors = blk_rq_sectors(rq);
+ 		rq->rq_flags |= RQF_STATS;
+ 		rq_qos_issue(q, rq);
  	}
+diff --git a/block/blk-throttle.c b/block/blk-throttle.c
+index 8ab6c81532236..ee74bffe3504d 100644
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -2246,7 +2246,8 @@ void blk_throtl_stat_add(struct request *rq, u64 time_ns)
+ 	struct request_queue *q = rq->q;
+ 	struct throtl_data *td = q->td;
+ 
+-	throtl_track_latency(td, rq->throtl_size, req_op(rq), time_ns >> 10);
++	throtl_track_latency(td, blk_rq_stats_sectors(rq), req_op(rq),
++			     time_ns >> 10);
+ }
+ 
+ void blk_throtl_bio_endio(struct bio *bio)
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 1ef375dafb1c1..ae51050c50949 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -202,9 +202,12 @@ struct request {
+ #ifdef CONFIG_BLK_WBT
+ 	unsigned short wbt_flags;
+ #endif
+-#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
+-	unsigned short throtl_size;
+-#endif
++	/*
++	 * rq sectors used for blk stats. It has the same value
++	 * with blk_rq_sectors(rq), except that it never be zeroed
++	 * by completion.
++	 */
++	unsigned short stats_sectors;
+ 
+ 	/*
+ 	 * Number of scatter-gather DMA addr+len pairs after
+@@ -903,6 +906,7 @@ static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
+  * blk_rq_err_bytes()		: bytes left till the next error boundary
+  * blk_rq_sectors()		: sectors left in the entire request
+  * blk_rq_cur_sectors()		: sectors left in the current segment
++ * blk_rq_stats_sectors()	: sectors of the entire request used for stats
+  */
+ static inline sector_t blk_rq_pos(const struct request *rq)
+ {
+@@ -931,6 +935,11 @@ static inline unsigned int blk_rq_cur_sectors(const struct request *rq)
+ 	return blk_rq_cur_bytes(rq) >> SECTOR_SHIFT;
+ }
+ 
++static inline unsigned int blk_rq_stats_sectors(const struct request *rq)
++{
++	return rq->stats_sectors;
++}
++
+ #ifdef CONFIG_BLK_DEV_ZONED
+ static inline unsigned int blk_rq_zone_no(struct request *rq)
+ {
 -- 
 2.20.1
 
