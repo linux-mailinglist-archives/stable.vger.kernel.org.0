@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D16DCAABE
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE5DBCAAFA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387420AbfJCRMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
+        id S2389016AbfJCQQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391647AbfJCQaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:30:01 -0400
+        id S2389013AbfJCQQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49031222C4;
-        Thu,  3 Oct 2019 16:30:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0937D2054F;
+        Thu,  3 Oct 2019 16:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120200;
-        bh=WytRyuAeD8r+lZci6Ro91yBin+ytXB3SZAzTOmA8unM=;
+        s=default; t=1570119392;
+        bh=xKTppu/GDfJLMQWpfzwwiblwXnUW9uwticGihbh1hF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eX1NDbqmbj7AqakPwX1jNEQP7b0DQDdpoKez0sAoeNeIUJ5jKtvPet4NhJ7bZ4Ndr
-         BbJw5Ulk0G+jP7o7QMFu5Vp+KzqCfQ+HRKDYpR6osWzpkyfMBIicMqefWvCQ6GRyD5
-         1GMTHFl3G4rky3nGij5YVJe3aWv02wQ+s8dSmVgw=
+        b=pe4NTrjuXVzmX6QmPq3lfp8gNsJ5O6QLK1wUA7jRL23cQV4iYstawmgQ0msn1dL6F
+         kf7TT6Oz5/8GOCTJmbKKQdvxlFvQwneynazc2vfHiB2y7BUOvIRsm35Iibzz4AocMJ
+         6W4njwH1DdEp3j8yBL00x0rP8h3lYAp0DWaVqdtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 135/313] soc: renesas: rmobile-sysc: Set GENPD_FLAG_ALWAYS_ON for always-on domain
-Date:   Thu,  3 Oct 2019 17:51:53 +0200
-Message-Id: <20191003154546.185363470@linuxfoundation.org>
+Subject: [PATCH 4.19 048/211] base: soc: Export soc_device_register/unregister APIs
+Date:   Thu,  3 Oct 2019 17:51:54 +0200
+Message-Id: <20191003154458.978461649@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,98 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit af0bc634728c0bc6a3f66f911f227d5c6396db88 ]
+[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
 
-Currently the R-Mobile "always-on" PM Domain is implemented by returning
--EBUSY from the generic_pm_domain.power_off() callback, and doing
-nothing in the generic_pm_domain.power_on() callback.  However, this
-means the PM Domain core code is not aware of the semantics of this
-special domain, leading to boot warnings like the following on
-SH/R-Mobile SoCs:
+Qcom Socinfo driver can be built as a module, so
+export these two APIs.
 
-    sh_cmt e6130000.timer: PM domain c5 will not be powered off
-
-Fix this by making the always-on nature of the domain explicit instead,
-by setting the GENPD_FLAG_ALWAYS_ON flag.  This removes the need for the
-domain to provide power control callbacks.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Tested-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/renesas/rmobile-sysc.c | 31 +++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/base/soc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/soc/renesas/rmobile-sysc.c b/drivers/soc/renesas/rmobile-sysc.c
-index 421ae1c887d82..54b616ad4a62a 100644
---- a/drivers/soc/renesas/rmobile-sysc.c
-+++ b/drivers/soc/renesas/rmobile-sysc.c
-@@ -48,12 +48,8 @@ struct rmobile_pm_domain *to_rmobile_pd(struct generic_pm_domain *d)
- static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
- {
- 	struct rmobile_pm_domain *rmobile_pd = to_rmobile_pd(genpd);
--	unsigned int mask;
-+	unsigned int mask = BIT(rmobile_pd->bit_shift);
- 
--	if (rmobile_pd->bit_shift == ~0)
--		return -EBUSY;
--
--	mask = BIT(rmobile_pd->bit_shift);
- 	if (rmobile_pd->suspend) {
- 		int ret = rmobile_pd->suspend();
- 
-@@ -80,14 +76,10 @@ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
- 
- static int __rmobile_pd_power_up(struct rmobile_pm_domain *rmobile_pd)
- {
--	unsigned int mask;
-+	unsigned int mask = BIT(rmobile_pd->bit_shift);
- 	unsigned int retry_count;
- 	int ret = 0;
- 
--	if (rmobile_pd->bit_shift == ~0)
--		return 0;
--
--	mask = BIT(rmobile_pd->bit_shift);
- 	if (__raw_readl(rmobile_pd->base + PSTR) & mask)
- 		return ret;
- 
-@@ -122,11 +114,15 @@ static void rmobile_init_pm_domain(struct rmobile_pm_domain *rmobile_pd)
- 	struct dev_power_governor *gov = rmobile_pd->gov;
- 
- 	genpd->flags |= GENPD_FLAG_PM_CLK | GENPD_FLAG_ACTIVE_WAKEUP;
--	genpd->power_off		= rmobile_pd_power_down;
--	genpd->power_on			= rmobile_pd_power_up;
--	genpd->attach_dev		= cpg_mstp_attach_dev;
--	genpd->detach_dev		= cpg_mstp_detach_dev;
--	__rmobile_pd_power_up(rmobile_pd);
-+	genpd->attach_dev = cpg_mstp_attach_dev;
-+	genpd->detach_dev = cpg_mstp_detach_dev;
-+
-+	if (!(genpd->flags & GENPD_FLAG_ALWAYS_ON)) {
-+		genpd->power_off = rmobile_pd_power_down;
-+		genpd->power_on = rmobile_pd_power_up;
-+		__rmobile_pd_power_up(rmobile_pd);
-+	}
-+
- 	pm_genpd_init(genpd, gov ? : &simple_qos_governor, false);
+diff --git a/drivers/base/soc.c b/drivers/base/soc.c
+index 10b280f30217b..7e91894a380b5 100644
+--- a/drivers/base/soc.c
++++ b/drivers/base/soc.c
+@@ -157,6 +157,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
+ out1:
+ 	return ERR_PTR(ret);
  }
++EXPORT_SYMBOL_GPL(soc_device_register);
  
-@@ -270,6 +266,11 @@ static void __init rmobile_setup_pm_domain(struct device_node *np,
- 		break;
+ /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
+ void soc_device_unregister(struct soc_device *soc_dev)
+@@ -166,6 +167,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
+ 	device_unregister(&soc_dev->dev);
+ 	early_soc_dev_attr = NULL;
+ }
++EXPORT_SYMBOL_GPL(soc_device_unregister);
  
- 	case PD_NORMAL:
-+		if (pd->bit_shift == ~0) {
-+			/* Top-level always-on domain */
-+			pr_debug("PM domain %s is always-on domain\n", name);
-+			pd->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
-+		}
- 		break;
- 	}
- 
+ static int __init soc_bus_register(void)
+ {
 -- 
 2.20.1
 
