@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E879FCAB56
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A8ACA97B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388783AbfJCQPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:15:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38816 "EHLO mail.kernel.org"
+        id S2405217AbfJCQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388770AbfJCQPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:02 -0400
+        id S2404861AbfJCQnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5856420700;
-        Thu,  3 Oct 2019 16:15:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4D1820865;
+        Thu,  3 Oct 2019 16:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119300;
-        bh=WqMEXr3WLrWyWaK6Cq1JyEiT1hv2oun49bhJwGXYrdo=;
+        s=default; t=1570120998;
+        bh=jKwoBq+Gu6aMJLrH40ZDGEDu3NwN+bC42hFxiIttA+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUTkG/5aQb0XyGdpgeW/1ftqmvAVKAvBMiYNECubSyOQHEgJFpj7wbxKBbSbvakK/
-         OHRBSzsEBGPhLXrxhYq3uj1Z4hkgIk4m4HEP66nurCNDccHhMJPCnCxtp9TRyOo5Pf
-         p316BraOEAQJN1N9+LQNi4Em/bZcLYXZNEHzDBu8=
+        b=Ap+lU1ztgYA0z/b7j1KOMIKA9YqBL34yBFl7NFRPG5MwwOvmmR/VA5nJsWuNnlyOB
+         m3kgMmPvY3Zrtsn6QmFdhMKJKmolMVelzjTqjVv3/dHK5BUr2yPY8YgyU7IoxFFkXm
+         d7VpNLKYt9BuU11/bkpfYo6zE29cc2E2T3w+NjUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Vlad Buslov <vladbu@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 015/211] net: sched: fix possible crash in tcf_action_destroy()
-Date:   Thu,  3 Oct 2019 17:51:21 +0200
-Message-Id: <20191003154450.323116782@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Jacopo Mondi <jacopo@jmondi.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 117/344] media: i2c: ov5645: Fix power sequence
+Date:   Thu,  3 Oct 2019 17:51:22 +0200
+Message-Id: <20191003154551.749112881@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +48,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 3d66b89c30f9220a72e92847768fc8ba4d027d88 ]
+[ Upstream commit 092e8eb90a7dc7dd210cd4e2ea36075d0a7f96af ]
 
-If the allocation done in tcf_exts_init() failed,
-we end up with a NULL pointer in exts->actions.
+This is mostly a port of Jacopo's fix:
 
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 8198 Comm: syz-executor.3 Not tainted 5.3.0-rc8+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:tcf_action_destroy+0x71/0x160 net/sched/act_api.c:705
-Code: c3 08 44 89 ee e8 4f cb bb fb 41 83 fd 20 0f 84 c9 00 00 00 e8 c0 c9 bb fb 48 89 d8 48 b9 00 00 00 00 00 fc ff df 48 c1 e8 03 <80> 3c 08 00 0f 85 c0 00 00 00 4c 8b 33 4d 85 f6 0f 84 9d 00 00 00
-RSP: 0018:ffff888096e16ff0 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: dffffc0000000000
-RDX: 0000000000040000 RSI: ffffffff85b6ab30 RDI: 0000000000000000
-RBP: ffff888096e17020 R08: ffff8880993f6140 R09: fffffbfff11cae67
-R10: fffffbfff11cae66 R11: ffffffff88e57333 R12: 0000000000000000
-R13: 0000000000000000 R14: ffff888096e177a0 R15: 0000000000000001
-FS:  00007f62bc84a700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000758040 CR3: 0000000088b64000 CR4: 00000000001426e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- tcf_exts_destroy+0x38/0xb0 net/sched/cls_api.c:3030
- tcindex_set_parms+0xf7f/0x1e50 net/sched/cls_tcindex.c:488
- tcindex_change+0x230/0x318 net/sched/cls_tcindex.c:519
- tc_new_tfilter+0xa4b/0x1c70 net/sched/cls_api.c:2152
- rtnetlink_rcv_msg+0x838/0xb00 net/core/rtnetlink.c:5214
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
- __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
- __do_sys_sendmmsg net/socket.c:2442 [inline]
+  commit aa4bb8b8838ffcc776a79f49a4d7476b82405349
+  Author: Jacopo Mondi <jacopo@jmondi.org>
+  Date:   Fri Jul 6 05:51:52 2018 -0400
 
-Fixes: 90b73b77d08e ("net: sched: change action API to use array of pointers to actions")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Vlad Buslov <vladbu@mellanox.com>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  media: ov5640: Re-work MIPI startup sequence
+
+In the OV5645 case, the changes are:
+
+- At set_power(1) time power up MIPI Tx/Rx and set data and clock lanes in
+  LP11 during 'sleep' and 'idle' with MIPI clock in non-continuous mode.
+- At set_power(0) time power down MIPI Tx/Rx (in addition to the current
+  power down of regulators and clock gating).
+- At s_stream time enable/disable the MIPI interface output.
+
+With this commit the sensor is able to enter LP-11 mode during power up,
+as expected by some CSI-2 controllers.
+
+Many thanks to Fabio Estevam for his help debugging this issue.
+
+Tested-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Reviewed-by: Jacopo Mondi <jacopo@jmondi.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov5645.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -2038,8 +2038,10 @@ out:
- void tcf_exts_destroy(struct tcf_exts *exts)
- {
- #ifdef CONFIG_NET_CLS_ACT
--	tcf_action_destroy(exts->actions, TCA_ACT_UNBIND);
--	kfree(exts->actions);
-+	if (exts->actions) {
-+		tcf_action_destroy(exts->actions, TCA_ACT_UNBIND);
-+		kfree(exts->actions);
-+	}
- 	exts->nr_actions = 0;
- #endif
- }
+diff --git a/drivers/media/i2c/ov5645.c b/drivers/media/i2c/ov5645.c
+index 124c8df046337..58972c884705c 100644
+--- a/drivers/media/i2c/ov5645.c
++++ b/drivers/media/i2c/ov5645.c
+@@ -45,6 +45,8 @@
+ #define		OV5645_CHIP_ID_HIGH_BYTE	0x56
+ #define OV5645_CHIP_ID_LOW		0x300b
+ #define		OV5645_CHIP_ID_LOW_BYTE		0x45
++#define OV5645_IO_MIPI_CTRL00		0x300e
++#define OV5645_PAD_OUTPUT00		0x3019
+ #define OV5645_AWB_MANUAL_CONTROL	0x3406
+ #define		OV5645_AWB_MANUAL_ENABLE	BIT(0)
+ #define OV5645_AEC_PK_MANUAL		0x3503
+@@ -55,6 +57,7 @@
+ #define		OV5645_ISP_VFLIP		BIT(2)
+ #define OV5645_TIMING_TC_REG21		0x3821
+ #define		OV5645_SENSOR_MIRROR		BIT(1)
++#define OV5645_MIPI_CTRL00		0x4800
+ #define OV5645_PRE_ISP_TEST_SETTING_1	0x503d
+ #define		OV5645_TEST_PATTERN_MASK	0x3
+ #define		OV5645_SET_TEST_PATTERN(x)	((x) & OV5645_TEST_PATTERN_MASK)
+@@ -121,7 +124,6 @@ static const struct reg_value ov5645_global_init_setting[] = {
+ 	{ 0x3503, 0x07 },
+ 	{ 0x3002, 0x1c },
+ 	{ 0x3006, 0xc3 },
+-	{ 0x300e, 0x45 },
+ 	{ 0x3017, 0x00 },
+ 	{ 0x3018, 0x00 },
+ 	{ 0x302e, 0x0b },
+@@ -350,7 +352,10 @@ static const struct reg_value ov5645_global_init_setting[] = {
+ 	{ 0x3a1f, 0x14 },
+ 	{ 0x0601, 0x02 },
+ 	{ 0x3008, 0x42 },
+-	{ 0x3008, 0x02 }
++	{ 0x3008, 0x02 },
++	{ OV5645_IO_MIPI_CTRL00, 0x40 },
++	{ OV5645_MIPI_CTRL00, 0x24 },
++	{ OV5645_PAD_OUTPUT00, 0x70 }
+ };
+ 
+ static const struct reg_value ov5645_setting_sxga[] = {
+@@ -737,13 +742,9 @@ static int ov5645_s_power(struct v4l2_subdev *sd, int on)
+ 				goto exit;
+ 			}
+ 
+-			ret = ov5645_write_reg(ov5645, OV5645_SYSTEM_CTRL0,
+-					       OV5645_SYSTEM_CTRL0_STOP);
+-			if (ret < 0) {
+-				ov5645_set_power_off(ov5645);
+-				goto exit;
+-			}
++			usleep_range(500, 1000);
+ 		} else {
++			ov5645_write_reg(ov5645, OV5645_IO_MIPI_CTRL00, 0x58);
+ 			ov5645_set_power_off(ov5645);
+ 		}
+ 	}
+@@ -1049,11 +1050,20 @@ static int ov5645_s_stream(struct v4l2_subdev *subdev, int enable)
+ 			dev_err(ov5645->dev, "could not sync v4l2 controls\n");
+ 			return ret;
+ 		}
++
++		ret = ov5645_write_reg(ov5645, OV5645_IO_MIPI_CTRL00, 0x45);
++		if (ret < 0)
++			return ret;
++
+ 		ret = ov5645_write_reg(ov5645, OV5645_SYSTEM_CTRL0,
+ 				       OV5645_SYSTEM_CTRL0_START);
+ 		if (ret < 0)
+ 			return ret;
+ 	} else {
++		ret = ov5645_write_reg(ov5645, OV5645_IO_MIPI_CTRL00, 0x40);
++		if (ret < 0)
++			return ret;
++
+ 		ret = ov5645_write_reg(ov5645, OV5645_SYSTEM_CTRL0,
+ 				       OV5645_SYSTEM_CTRL0_STOP);
+ 		if (ret < 0)
+-- 
+2.20.1
+
 
 
