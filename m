@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D270CCA652
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 666ABCA667
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392688AbfJCQml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53742 "EHLO mail.kernel.org"
+        id S2403841AbfJCQng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391394AbfJCQmj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:42:39 -0400
+        id S2388237AbfJCQnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A801120867;
-        Thu,  3 Oct 2019 16:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1008D2070B;
+        Thu,  3 Oct 2019 16:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120958;
-        bh=Oe369tPZ5whZDrheTC9pmJV5JCCU/mBGbbOVzTKFx4E=;
+        s=default; t=1570121014;
+        bh=PTRFg5H0sd1NZhrgVLIr+LKoLtrbbh9JgfEOdGjhTC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFH5LEwbyjA9uEqyRAzthyRVUJTBirEkoe2SnJkcjORS4+FR6ial5YBadvcNCwu2/
-         4/mH2Q6DS9YB+ZTACz580tD8h0RZjJywKKN5a6M+FVvs77QSpUzj8gaVJV5CWqshSD
-         8RmqDTKRTAem1YKGD7cj9ru+6TCJz5jtJr1D9A+0=
+        b=nu5quJeOXotzKdW+nInZCJHvtERvK8rVMcdh4fTQLHuQEEFMuSmQRvKfU0HIfILId
+         xyRJYNa53SL9z6cO3uGa3t9vT9vpHzCOFGNjGhDoE+K5beiH/5js+xFcn7CKtC72tH
+         pRElxTAEzlUEClSakadu/X+h/Jugy3vlq5QYnIAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 100/344] sched/fair: Use rq_lock/unlock in online_fair_sched_group
-Date:   Thu,  3 Oct 2019 17:51:05 +0200
-Message-Id: <20191003154550.056034618@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
+        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
+        Taeung Song <treeze.taeung@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 105/344] perf test vfs_getname: Disable ~/.perfconfig to get default output
+Date:   Thu,  3 Oct 2019 17:51:10 +0200
+Message-Id: <20191003154550.583401971@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -47,72 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit a46d14eca7b75fffe35603aa8b81df654353d80f ]
+[ Upstream commit 4fe94ce1c6ba678b5f12b94bb9996eea4fc99e85 ]
 
-Enabling WARN_DOUBLE_CLOCK in /sys/kernel/debug/sched_features causes
-warning to fire in update_rq_clock. This seems to be caused by onlining
-a new fair sched group not using the rq lock wrappers.
+To get the expected output we have to ignore whatever changes the user
+has in its ~/.perfconfig file, so set PERF_CONFIG to /dev/null to
+achieve that.
 
-  [] rq->clock_update_flags & RQCF_UPDATED
-  [] WARNING: CPU: 5 PID: 54385 at kernel/sched/core.c:210 update_rq_clock+0xec/0x150
+Before:
 
-  [] Call Trace:
-  []  online_fair_sched_group+0x53/0x100
-  []  cpu_cgroup_css_online+0x16/0x20
-  []  online_css+0x1c/0x60
-  []  cgroup_apply_control_enable+0x231/0x3b0
-  []  cgroup_mkdir+0x41b/0x530
-  []  kernfs_iop_mkdir+0x61/0xa0
-  []  vfs_mkdir+0x108/0x1a0
-  []  do_mkdirat+0x77/0xe0
-  []  do_syscall_64+0x55/0x1d0
-  []  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  # egrep 'trace|show_' ~/.perfconfig
+  [trace]
+  	show_zeros = yes
+  	show_duration = no
+  	show_timestamp = no
+  	show_arg_names = no
+  	show_prefix = yes
+  # echo $PERF_CONFIG
 
-Using the wrappers in online_fair_sched_group instead of the raw locking
-removes this warning.
+  # perf test "trace + vfs_getname"
+  70: Check open filename arg using perf trace + vfs_getname: FAILED!
+  # export PERF_CONFIG=/dev/null
+  # perf test "trace + vfs_getname"
+  70: Check open filename arg using perf trace + vfs_getname: Ok
+  #
 
-[ tglx: Use rq_*lock_irq() ]
+After:
 
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20190801133749.11033-1-pauld@redhat.com
+  # egrep 'trace|show_' ~/.perfconfig
+  [trace]
+  	show_zeros = yes
+  	show_duration = no
+  	show_timestamp = no
+  	show_arg_names = no
+  	show_prefix = yes
+  # echo $PERF_CONFIG
+
+  # perf test "trace + vfs_getname"
+  70: Check open filename arg using perf trace + vfs_getname: Ok
+  #
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Taeung Song <treeze.taeung@gmail.com>
+Link: https://lkml.kernel.org/n/tip-3up27pexg5i3exuzqrvt4m8u@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/tests/shell/trace+probe_vfs_getname.sh | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 105b1aead0c3a..86cfc5d5129ce 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -10301,18 +10301,18 @@ int alloc_fair_sched_group(struct task_group *tg, struct task_group *parent)
- void online_fair_sched_group(struct task_group *tg)
- {
- 	struct sched_entity *se;
-+	struct rq_flags rf;
- 	struct rq *rq;
- 	int i;
+diff --git a/tools/perf/tests/shell/trace+probe_vfs_getname.sh b/tools/perf/tests/shell/trace+probe_vfs_getname.sh
+index 45d269b0157eb..11cc2af13f2bb 100755
+--- a/tools/perf/tests/shell/trace+probe_vfs_getname.sh
++++ b/tools/perf/tests/shell/trace+probe_vfs_getname.sh
+@@ -32,6 +32,10 @@ if [ $err -ne 0 ] ; then
+ 	exit $err
+ fi
  
- 	for_each_possible_cpu(i) {
- 		rq = cpu_rq(i);
- 		se = tg->se[i];
--
--		raw_spin_lock_irq(&rq->lock);
-+		rq_lock_irq(rq, &rf);
- 		update_rq_clock(rq);
- 		attach_entity_cfs_rq(se);
- 		sync_throttle(tg, i);
--		raw_spin_unlock_irq(&rq->lock);
-+		rq_unlock_irq(rq, &rf);
- 	}
- }
- 
++# Do not use whatever ~/.perfconfig file, it may change the output
++# via trace.{show_timestamp,show_prefix,etc}
++export PERF_CONFIG=/dev/null
++
+ trace_open_vfs_getname
+ err=$?
+ rm -f ${file}
 -- 
 2.20.1
 
