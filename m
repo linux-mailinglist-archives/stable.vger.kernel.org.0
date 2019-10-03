@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EACCA748
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13B80CA797
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406194AbfJCQwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40176 "EHLO mail.kernel.org"
+        id S2406287AbfJCQzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:55:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406184AbfJCQw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:28 -0400
+        id S2405726AbfJCQwa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EB6020867;
-        Thu,  3 Oct 2019 16:52:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C14562070B;
+        Thu,  3 Oct 2019 16:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121547;
-        bh=AVrR9+tsKYdOfYBrPs/yN9cRUzxjuwMAG5sQEM8OOFY=;
+        s=default; t=1570121550;
+        bh=apEfD4q9zyhxqB3xsHAa2NQ+UoWoYJIDYz+hdQ4OCN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDQHhVDHmysfAYUumR9sV/P4w1sVg/e3WvqU3eqPpXSRFa+VzGIOwrVbaXMvmJVOY
-         WW/m9eTHS2mA8Ogh0DDL9VWTPpTIXUg+6dkcreBejKz6SdM3sbM/8pMcYXwA6HLfnL
-         NbzbfB6w/8yk53HOJhnqnO1znYaOgDtuM8daixQE=
+        b=QICHaWrEgNBa2ev5gmMicvrzGHqQ3CmzQaegkeXvF7B5J/0QxvtkEICXcevRWFAhT
+         ZF4jEQtDqEgeBNrpnLNJ8BfEEzWM6zeoC39sNAWxp4F7LmR/waaOuUcW7lk3LiRBWt
+         lnOqNnrZI4/gCBDDA4ItJcg8kgVG3Lp4A4tdUJV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.3 319/344] ACPI / LPSS: Save/restore LPSS private registers also on Lynxpoint
-Date:   Thu,  3 Oct 2019 17:54:44 +0200
-Message-Id: <20191003154610.524307055@linuxfoundation.org>
+        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.3 320/344] md/raid6: Set R5_ReadError when there is read failure on parity disk
+Date:   Thu,  3 Oct 2019 17:54:45 +0200
+Message-Id: <20191003154610.601867235@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,64 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit 57b3006492a4c11b2d4a772b5b2905d544a32037 upstream.
+commit 143f6e733b73051cd22dcb80951c6c929da413ce upstream.
 
-My assumption in commit b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private
-register restoring during resume") that Intel Lynxpoint and compatible
-based chipsets may not need LPSS private registers saving and restoring
-over suspend/resume cycle turned out to be false on Intel Broadwell.
+7471fb77ce4d ("md/raid6: Fix anomily when recovering a single device in
+RAID6.") avoids rereading P when it can be computed from other members.
+However, this misses the chance to re-write the right data to P. This
+patch sets R5_ReadError if the re-read fails.
 
-Curtis Malainey sent a patch bringing above change back and reported the
-LPSS SPI Chip Select control was lost over suspend/resume cycle on
-Broadwell machine.
+Also, when re-read is skipped, we also missed the chance to reset
+rdev->read_errors to 0. It can fail the disk when there are many read
+errors on P member disk (other disks don't have read error)
 
-Instead of reverting above commit lets add LPSS private register
-saving/restoring also for all LPSS SPI, I2C and UART controllers on
-Lynxpoint and compatible chipset to make sure context is not lost in
-case nothing else preserves it like firmware or if LPSS is always on.
+V2: upper layer read request don't read parity/Q data. So there is no
+need to consider such situation.
 
-Fixes: b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private register restoring during resume")
-Reported-by: Curtis Malainey <cujomalainey@chromium.org>
-Tested-by: Curtis Malainey <cujomalainey@chromium.org>
-Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This is Reported-by: kbuild test robot <lkp@intel.com>
+
+Fixes: 7471fb77ce4d ("md/raid6: Fix anomily when recovering a single device in RAID6.")
+Cc: <stable@vger.kernel.org> #4.4+
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_lpss.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/md/raid5.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -219,12 +219,13 @@ static void bsw_pwm_setup(struct lpss_pr
- }
- 
- static const struct lpss_device_desc lpt_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
-+			| LPSS_SAVE_CTX,
- 	.prv_offset = 0x800,
- };
- 
- static const struct lpss_device_desc lpt_i2c_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR | LPSS_SAVE_CTX,
- 	.prv_offset = 0x800,
- };
- 
-@@ -236,7 +237,8 @@ static struct property_entry uart_proper
- };
- 
- static const struct lpss_device_desc lpt_uart_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
-+			| LPSS_SAVE_CTX,
- 	.clk_con_id = "baudclk",
- 	.prv_offset = 0x800,
- 	.setup = lpss_uart_setup,
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2559,7 +2559,9 @@ static void raid5_end_read_request(struc
+ 		    && !test_bit(R5_ReadNoMerge, &sh->dev[i].flags))
+ 			retry = 1;
+ 		if (retry)
+-			if (test_bit(R5_ReadNoMerge, &sh->dev[i].flags)) {
++			if (sh->qd_idx >= 0 && sh->pd_idx == i)
++				set_bit(R5_ReadError, &sh->dev[i].flags);
++			else if (test_bit(R5_ReadNoMerge, &sh->dev[i].flags)) {
+ 				set_bit(R5_ReadError, &sh->dev[i].flags);
+ 				clear_bit(R5_ReadNoMerge, &sh->dev[i].flags);
+ 			} else
 
 
