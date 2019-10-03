@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B79CA533
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E87BCA541
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403934AbfJCQcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39338 "EHLO mail.kernel.org"
+        id S2391535AbfJCQcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403927AbfJCQcA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:00 -0400
+        id S2391930AbfJCQca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C20320830;
-        Thu,  3 Oct 2019 16:31:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3B9F215EA;
+        Thu,  3 Oct 2019 16:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120319;
-        bh=KqDLmtdUKBEwEgCmLxElOgvKZQwQkg4iinUvA4Igcok=;
+        s=default; t=1570120349;
+        bh=XhKIrUahQlqk4SXDAope8+7LBJRm3FUya3fBd/Mo1FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyLqIQJUN1iW6P6EoNkjGFKRMVa9Wj7prc5x26J+csQ1effH1ESqiI4NKe8QuGVGR
-         GDtO+Z6qjLmZ7ohQoc2tonROpmrZulh4huASNyQwCcbRxyVOS9u5AOKnX5solmMgEC
-         gfkq7Mso4DtLJW+90S4vFdi+4X7oUalu5SGUfu1s=
+        b=LsR/IUhTfpJ/E58ECpIjgHDyFXY5qXvsHTq2CroXrYJUVr0/76jyXCyvEmkY9t7fe
+         omvT8xC6fs4Ei/EpGrKs8OtmXM+Lg0wElie5IQdCWES4S5IHyxbt7StahB2Kp6AecN
+         A+Z/AK3JAPujthpvhDXic9eM9f8KFKcgkFSexJFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        James Smart <james.smart@broadcom.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 161/313] nvme-multipath: fix ana log nsid lookup when nsid is not found
-Date:   Thu,  3 Oct 2019 17:52:19 +0200
-Message-Id: <20191003154548.795139311@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 162/313] ALSA: firewire-motu: add support for MOTU 4pre
+Date:   Thu,  3 Oct 2019 17:52:20 +0200
+Message-Id: <20191003154548.898994506@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -47,80 +43,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton@lightbitslabs.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit e01f91dff91c7b16a6e3faf2565017d497a73f83 ]
+[ Upstream commit 6af86bdb8ad41f4cf1292d3b10857dc322758328 ]
 
-ANA log parsing invokes nvme_update_ana_state() per ANA group desc.
-This updates the state of namespaces with nsids in desc->nsids[].
+MOTU 4pre was launched in 2012 by MOTU, Inc. This commit allows userspace
+applications can transmit and receive PCM frames and MIDI messages for
+this model via ALSA PCM interface and RawMidi/Sequencer interfaces.
 
-Both ctrl->namespaces list and desc->nsids[] array are sorted by nsid.
-Hence nvme_update_ana_state() performs a single walk over ctrl->namespaces:
-- if current namespace matches the current desc->nsids[n],
-  this namespace is updated, and n is incremented.
-- the process stops when it encounters the end of either
-  ctrl->namespaces end or desc->nsids[]
+The device supports MOTU protocol version 3. Unlike the other devices, the
+device is simply designed. The size of data block is fixed to 10 quadlets
+during available sampling rates (44.1 - 96.0 kHz). Each data block
+includes 1 source packet header, 2 data chunks for messages, 8 data chunks
+for PCM samples and 2 data chunks for padding to quadlet alignment. The
+device has no MIDI, optical, BNC and AES/EBU interfaces.
 
-In case desc->nsids[n] does not match any of ctrl->namespaces,
-the remaining nsids following desc->nsids[n] will not be updated.
-Such situation was considered abnormal and generated WARN_ON_ONCE.
+Like support for the other MOTU devices, the quality of playback sound
+is not enough good with periodical noise yet.
 
-However ANA log MAY contain nsids not (yet) found in ctrl->namespaces.
-For example, lets consider the following scenario:
-- nvme0 exposes namespaces with nsids = [2, 3] to the host
-- a new namespace nsid = 1 is added dynamically
-- also, a ANA topology change is triggered
-- NS_CHANGED aen is generated and triggers scan_work
-- before scan_work discovers nsid=1 and creates a namespace, a NOTICE_ANA
-  aen was issues and ana_work receives ANA log with nsids=[1, 2, 3]
+$ python2 crpp < ~/git/am-config-rom/motu/motu-4pre.img
+               ROM header and bus information block
+               -----------------------------------------------------------------
+400  041078cc  bus_info_length 4, crc_length 16, crc 30924
+404  31333934  bus_name "1394"
+408  20ff7000  irmc 0, cmc 0, isc 1, bmc 0, cyc_clk_acc 255, max_rec 7 (256)
+40c  0001f200  company_id 0001f2     |
+410  000a41c5  device_id 00000a41c5  | EUI-64 0001f200000a41c5
 
-Result: ana_work fails to update ANA state on existing namespaces [2, 3]
+               root directory
+               -----------------------------------------------------------------
+414  0004ef04  directory_length 4, crc 61188
+418  030001f2  vendor
+41c  0c0083c0  node capabilities per IEEE 1394
+420  d1000002  --> unit directory at 428
+424  8d000005  --> eui-64 leaf at 438
 
-Solution:
-Change the way nvme_update_ana_state() namespace list walk
-checks the current namespace against desc->nsids[n] as follows:
-a) ns->head->ns_id < desc->nsids[n]: keep walking ctrl->namespaces.
-b) ns->head->ns_id == desc->nsids[n]: match, update the namespace
-c) ns->head->ns_id >= desc->nsids[n]: skip to desc->nsids[n+1]
+               unit directory at 428
+               -----------------------------------------------------------------
+428  0003ceda  directory_length 3, crc 52954
+42c  120001f2  specifier id
+430  13000045  version
+434  17103800  model
 
-This enables correct operation in the scenario described above.
-This also allows ANA log to contain nsids currently invisible
-to the host, i.e. inactive nsids.
+               eui-64 leaf at 438
+               -----------------------------------------------------------------
+438  0002d248  leaf_length 2, crc 53832
+43c  0001f200  company_id 0001f2     |
+440  000a41c5  device_id 00000a41c5  | EUI-64 0001f200000a41c5
 
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Reviewed-by:   James Smart <james.smart@broadcom.com>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/firewire/motu/motu.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 304aa8a65f2f8..f928bcfc57b5b 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -501,14 +501,16 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
+diff --git a/sound/firewire/motu/motu.c b/sound/firewire/motu/motu.c
+index 03cda2166ea3d..72908b4de77c0 100644
+--- a/sound/firewire/motu/motu.c
++++ b/sound/firewire/motu/motu.c
+@@ -247,6 +247,17 @@ static const struct snd_motu_spec motu_audio_express = {
+ 	.analog_out_ports = 4,
+ };
  
- 	down_write(&ctrl->namespaces_rwsem);
- 	list_for_each_entry(ns, &ctrl->namespaces, list) {
--		if (ns->head->ns_id != le32_to_cpu(desc->nsids[n]))
-+		unsigned nsid = le32_to_cpu(desc->nsids[n]);
++static const struct snd_motu_spec motu_4pre = {
++	.name = "4pre",
++	.protocol = &snd_motu_protocol_v3,
++	.flags = SND_MOTU_SPEC_SUPPORT_CLOCK_X2 |
++		 SND_MOTU_SPEC_TX_MICINST_CHUNK |
++		 SND_MOTU_SPEC_TX_RETURN_CHUNK |
++		 SND_MOTU_SPEC_RX_SEPARETED_MAIN,
++	.analog_in_ports = 2,
++	.analog_out_ports = 2,
++};
 +
-+		if (ns->head->ns_id < nsid)
- 			continue;
--		nvme_update_ns_ana_state(desc, ns);
-+		if (ns->head->ns_id == nsid)
-+			nvme_update_ns_ana_state(desc, ns);
- 		if (++n == nr_nsids)
- 			break;
- 	}
- 	up_write(&ctrl->namespaces_rwsem);
--	WARN_ON_ONCE(n < nr_nsids);
- 	return 0;
- }
- 
+ #define SND_MOTU_DEV_ENTRY(model, data)			\
+ {							\
+ 	.match_flags	= IEEE1394_MATCH_VENDOR_ID |	\
+@@ -265,6 +276,7 @@ static const struct ieee1394_device_id motu_id_table[] = {
+ 	SND_MOTU_DEV_ENTRY(0x000015, &motu_828mk3),	/* FireWire only. */
+ 	SND_MOTU_DEV_ENTRY(0x000035, &motu_828mk3),	/* Hybrid. */
+ 	SND_MOTU_DEV_ENTRY(0x000033, &motu_audio_express),
++	SND_MOTU_DEV_ENTRY(0x000045, &motu_4pre),
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(ieee1394, motu_id_table);
 -- 
 2.20.1
 
