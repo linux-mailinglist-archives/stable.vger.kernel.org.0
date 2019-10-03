@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7218CC9DED
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF362C9E11
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725907AbfJCMAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 08:00:46 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55791 "EHLO
+        id S1727410AbfJCMKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 08:10:09 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58865 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725892AbfJCMAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 08:00:46 -0400
+        by vger.kernel.org with ESMTP id S1726523AbfJCMKJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 08:10:09 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E668421D25;
-        Thu,  3 Oct 2019 08:00:45 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 1E08021C28;
+        Thu,  3 Oct 2019 08:10:08 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 08:00:45 -0400
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 08:10:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=15wCOg
-        Z6+Wn1fFG2nF3E8M39gWWvuaOUqEzH/C7XCWY=; b=ENenr/OPQBFZTLRkrTLUhW
-        qR7CjW/eIuKyedRlwya+40UTUKAx+JxYKCFp5twO/HtWM+iW8ocIjy3Sikv0tUlD
-        qDt4OIu6alJxEsXJPovjQkFW6cbjuOcGKeIQrFuOLTQY8FgyyFnOPmMlU3xQqlG1
-        ycwE7A5c7U/fZG9wTqD7+36fIF5yJb/WDWZH1tqXDomDRwqEbvXctRD9NZUxrlzh
-        nu59bpycBu1WffXHbjiIiqAjmjG9PfJ2R/quM0f3DfHfGPM3zd/Fbe9+/0hrlPld
-        0YyZy3jIXy+cdcrDd/hDjospotgiwxW5t0wb/zITYmKTaTjXhRg7ZhaIS+1sHswA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1PoJxO
+        DID3RTQhAwI1MFprIlFF/0SnbeMc5GIrJALAg=; b=G6keLlifg8xocPrxxLEb6e
+        +Df2hvYL2bjjhETwlLOWLcMJBKhdshE/AaB+P+fF/O/+JvQZCRA+yI8eDaNYzh6R
+        4BnVxcM4vKlWQDLN0ob9c4o4J58qBol3ZdMZTyKehzsSR21prn4DPSwsMcAQrCB8
+        NvogBHZPvS7SDRzFkvko+Gng19TYm1xBYbC7/E+TplWaQbMhtzV5WAlh1l78Zk4G
+        8+0B3swhAoZk/yvCoPB9tJ/LQpKAxaFjtMHQ/yhVCF5TNGZmBYYKV9R1sv5q09ZJ
+        bGQiJef6mKaEeFd6A1EyYRzdcsZE0A40QY4Hs3OpN6cWu12CsNMh32ZU4tbf6KSA
         ==
-X-ME-Sender: <xms:7eKVXat3kQpZ3LuMGHntG987h7jxXoHJK6F5QPsDBtF--FJ_2uOX3g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdegkecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:H-WVXbFuDKBS_MncIXQZ7iInX28xmfBLAjie9h_IvF_NuHGCejmqbw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:7eKVXWwrPwLR65J_HbMug6Pukb5YYY6VKrH4zYAmFJOQK8VwUoKH4g>
-    <xmx:7eKVXYb0Pa8scJStvdSc2dSCXixMEJq2so4m27k5_GqDGJbJFRRERg>
-    <xmx:7eKVXfSlu04YeSnFGqeZy-iLcxUyJ7bWJrdn3NRj3ObtuGvC8V4ScA>
-    <xmx:7eKVXcJlpZWNo5Dex0SJLomkG7jS-sL9tFwgjNXqyUv_2smUSVW8Xg>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:H-WVXSnaqeYKnuFF0Vph_IFIBZL0LNPQZpEuQDDQ_Pn2W_wRXCXQQQ>
+    <xmx:H-WVXSlVRxmDtp6UGR7BJQaBjMI5foox7XVPO22_kEMn0HB-vT7c9Q>
+    <xmx:H-WVXfU3TTRn5-glsaYBuHFrKfmw8xFU0OqdO8gKIqliO2pqQykWJQ>
+    <xmx:IOWVXQAlGFeQ9vmH-04NCteEDVukfbAiRRwxkeRSWRKsnXa_XXHoAQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5CEF580061;
-        Thu,  3 Oct 2019 08:00:45 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] i40e: check __I40E_VF_DISABLE bit in" failed to apply to 4.14-stable tree
-To:     sassmann@kpanic.de, andrewx.bowers@intel.com,
-        jeffrey.t.kirsher@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 89C5D8005C;
+        Thu,  3 Oct 2019 08:10:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] platform/chrome: cros_ec_rpmsg: Fix race with host command" failed to apply to 5.3-stable tree
+To:     pihsun@chromium.org, enric.balletbo@collabora.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 14:00:29 +0200
-Message-ID: <15701040298252@kroah.com>
+Date:   Thu, 03 Oct 2019 14:10:05 +0200
+Message-ID: <157010460554182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,72 +67,120 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a7542b87607560d0b89e7ff81d870bd6ff8835cb Mon Sep 17 00:00:00 2001
-From: Stefan Assmann <sassmann@kpanic.de>
-Date: Wed, 21 Aug 2019 16:09:29 +0200
-Subject: [PATCH] i40e: check __I40E_VF_DISABLE bit in
- i40e_sync_filters_subtask
+From 71cddb7097e2b0feb855d7fd7d59afd12cbee4bb Mon Sep 17 00:00:00 2001
+From: Pi-Hsun Shih <pihsun@chromium.org>
+Date: Wed, 4 Sep 2019 14:26:13 +0800
+Subject: [PATCH] platform/chrome: cros_ec_rpmsg: Fix race with host command
+ when probe failed
 
-While testing VF spawn/destroy the following panic occurred.
+Since the rpmsg_endpoint is created before probe is called, it's
+possible that a host event is received during cros_ec_register, and
+there would be some pending work in the host_event_work workqueue while
+cros_ec_register is called.
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000029
-[...]
-Workqueue: i40e i40e_service_task [i40e]
-RIP: 0010:i40e_sync_vsi_filters+0x6fd/0xc60 [i40e]
-[...]
-Call Trace:
- ? __switch_to_asm+0x35/0x70
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x35/0x70
- ? _cond_resched+0x15/0x30
- i40e_sync_filters_subtask+0x56/0x70 [i40e]
- i40e_service_task+0x382/0x11b0 [i40e]
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x41/0x70
- process_one_work+0x1a7/0x3b0
- worker_thread+0x30/0x390
- ? create_worker+0x1a0/0x1a0
- kthread+0x112/0x130
- ? kthread_bind+0x30/0x30
- ret_from_fork+0x35/0x40
+If cros_ec_register fails, when the leftover work in host_event_work
+run, the ec_dev from the drvdata of the rpdev could be already set to
+NULL, causing kernel crash when trying to run cros_ec_get_next_event.
 
-Investigation revealed a race where pf->vf[vsi->vf_id].trusted may get
-accessed by the watchdog via i40e_sync_filters_subtask() although
-i40e_free_vfs() already free'd pf->vf.
-To avoid this the call to i40e_sync_vsi_filters() in
-i40e_sync_filters_subtask() needs to be guarded by __I40E_VF_DISABLE,
-which is also used by i40e_free_vfs().
+Fix this by creating the rpmsg_endpoint by ourself, and when
+cros_ec_register fails (or on remove), destroy the endpoint first (to
+make sure there's no more new calls to cros_ec_rpmsg_callback), and then
+cancel all works in the host_event_work workqueue.
 
-Note: put the __I40E_VF_DISABLE check after the
-__I40E_MACVLAN_SYNC_PENDING check as the latter is more likely to
-trigger.
+Cc: stable@vger.kernel.org
+Fixes: 2de89fd98958 ("platform/chrome: cros_ec: Add EC host command support using rpmsg")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-CC: stable@vger.kernel.org
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index e9f2f276bf27..3e2e465f43f9 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2592,6 +2592,10 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
- 		return;
- 	if (!test_and_clear_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state))
- 		return;
-+	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state)) {
-+		set_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state);
-+		return;
-+	}
- 
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
- 		if (pf->vsi[v] &&
-@@ -2606,6 +2610,7 @@ static void i40e_sync_filters_subtask(struct i40e_pf *pf)
- 			}
- 		}
- 	}
-+	clear_bit(__I40E_VF_DISABLE, pf->state);
- }
+diff --git a/drivers/platform/chrome/cros_ec_rpmsg.c b/drivers/platform/chrome/cros_ec_rpmsg.c
+index 8b6bd775cc9a..0c3738c3244d 100644
+--- a/drivers/platform/chrome/cros_ec_rpmsg.c
++++ b/drivers/platform/chrome/cros_ec_rpmsg.c
+@@ -41,6 +41,7 @@ struct cros_ec_rpmsg {
+ 	struct rpmsg_device *rpdev;
+ 	struct completion xfer_ack;
+ 	struct work_struct host_event_work;
++	struct rpmsg_endpoint *ept;
+ };
  
  /**
+@@ -72,7 +73,6 @@ static int cros_ec_pkt_xfer_rpmsg(struct cros_ec_device *ec_dev,
+ 				  struct cros_ec_command *ec_msg)
+ {
+ 	struct cros_ec_rpmsg *ec_rpmsg = ec_dev->priv;
+-	struct rpmsg_device *rpdev = ec_rpmsg->rpdev;
+ 	struct ec_host_response *response;
+ 	unsigned long timeout;
+ 	int len;
+@@ -85,7 +85,7 @@ static int cros_ec_pkt_xfer_rpmsg(struct cros_ec_device *ec_dev,
+ 	dev_dbg(ec_dev->dev, "prepared, len=%d\n", len);
+ 
+ 	reinit_completion(&ec_rpmsg->xfer_ack);
+-	ret = rpmsg_send(rpdev->ept, ec_dev->dout, len);
++	ret = rpmsg_send(ec_rpmsg->ept, ec_dev->dout, len);
+ 	if (ret) {
+ 		dev_err(ec_dev->dev, "rpmsg send failed\n");
+ 		return ret;
+@@ -196,11 +196,24 @@ static int cros_ec_rpmsg_callback(struct rpmsg_device *rpdev, void *data,
+ 	return 0;
+ }
+ 
++static struct rpmsg_endpoint *
++cros_ec_rpmsg_create_ept(struct rpmsg_device *rpdev)
++{
++	struct rpmsg_channel_info chinfo = {};
++
++	strscpy(chinfo.name, rpdev->id.name, RPMSG_NAME_SIZE);
++	chinfo.src = rpdev->src;
++	chinfo.dst = RPMSG_ADDR_ANY;
++
++	return rpmsg_create_ept(rpdev, cros_ec_rpmsg_callback, NULL, chinfo);
++}
++
+ static int cros_ec_rpmsg_probe(struct rpmsg_device *rpdev)
+ {
+ 	struct device *dev = &rpdev->dev;
+ 	struct cros_ec_rpmsg *ec_rpmsg;
+ 	struct cros_ec_device *ec_dev;
++	int ret;
+ 
+ 	ec_dev = devm_kzalloc(dev, sizeof(*ec_dev), GFP_KERNEL);
+ 	if (!ec_dev)
+@@ -225,7 +238,18 @@ static int cros_ec_rpmsg_probe(struct rpmsg_device *rpdev)
+ 	INIT_WORK(&ec_rpmsg->host_event_work,
+ 		  cros_ec_rpmsg_host_event_function);
+ 
+-	return cros_ec_register(ec_dev);
++	ec_rpmsg->ept = cros_ec_rpmsg_create_ept(rpdev);
++	if (!ec_rpmsg->ept)
++		return -ENOMEM;
++
++	ret = cros_ec_register(ec_dev);
++	if (ret < 0) {
++		rpmsg_destroy_ept(ec_rpmsg->ept);
++		cancel_work_sync(&ec_rpmsg->host_event_work);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static void cros_ec_rpmsg_remove(struct rpmsg_device *rpdev)
+@@ -234,7 +258,7 @@ static void cros_ec_rpmsg_remove(struct rpmsg_device *rpdev)
+ 	struct cros_ec_rpmsg *ec_rpmsg = ec_dev->priv;
+ 
+ 	cros_ec_unregister(ec_dev);
+-
++	rpmsg_destroy_ept(ec_rpmsg->ept);
+ 	cancel_work_sync(&ec_rpmsg->host_event_work);
+ }
+ 
+@@ -271,7 +295,6 @@ static struct rpmsg_driver cros_ec_driver_rpmsg = {
+ 	},
+ 	.probe		= cros_ec_rpmsg_probe,
+ 	.remove		= cros_ec_rpmsg_remove,
+-	.callback	= cros_ec_rpmsg_callback,
+ };
+ 
+ module_rpmsg_driver(cros_ec_driver_rpmsg);
 
