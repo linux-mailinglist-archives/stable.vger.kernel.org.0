@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E815CA345
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F88ECA347
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388491AbfJCQOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37018 "EHLO mail.kernel.org"
+        id S2388508AbfJCQOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388488AbfJCQN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:59 -0400
+        id S2388504AbfJCQOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DDF1222C2;
-        Thu,  3 Oct 2019 16:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07A8A20700;
+        Thu,  3 Oct 2019 16:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119238;
-        bh=UGqMufujAPeYf8XfJuRbDlboz+r/vDuLTwr5F1tDuSA=;
+        s=default; t=1570119241;
+        bh=nv5tyfbfrOt8/5M/vZRl8GRVLkrUHUar+IwteF0cp3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7l5BQj4oUFFbp7+jtEcXcDohsnaGQaAECBoGrHBnbEj7GSqHkSgKu0skOlOmWZkg
-         8w08KqeKY7N+fZdgUiTFvEIRNM5nnrv/wNknVG3dkMhYhrG+XhC6CBTUhzg75x/CYc
-         sIG9Eog4/cSx1SHMwySxXSUJinlQDy/qmxUWDA3A=
+        b=VEJuvm4ZwJkIXNsNdkE7ncE5lydUyDunX2A7g1WyqNb8Xp8X6whl+V1SeZ/amBs1o
+         waAUaJGEc5dHhgwrRHgQBCN/ixQD3t0H7h9v8yB+niSnPqBHBBQgS86PgrvxGutpXz
+         7LSkeB39oIJnerqfNmOqiBa/Ie69lvFNTAgww4ck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 178/185] hwrng: core - dont wait on add_early_randomness()
-Date:   Thu,  3 Oct 2019 17:54:16 +0200
-Message-Id: <20191003154521.457073485@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.14 179/185] i2c: riic: Clear NACK in tend isr
+Date:   Thu,  3 Oct 2019 17:54:17 +0200
+Message-Id: <20191003154521.694500080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,55 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Chris Brandt <chris.brandt@renesas.com>
 
-commit 78887832e76541f77169a24ac238fccb51059b63 upstream.
+commit a71e2ac1f32097fbb2beab098687a7a95c84543e upstream.
 
-add_early_randomness() is called by hwrng_register() when the
-hardware is added. If this hardware and its module are present
-at boot, and if there is no data available the boot hangs until
-data are available and can't be interrupted.
+The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+description in HW manual.
 
-For instance, in the case of virtio-rng, in some cases the host can be
-not able to provide enough entropy for all the guests.
+This issue shows up quickly when PREEMPT_RT is applied and a device is
+probed that is not plugged in (like a touchscreen controller). The result
+is endless interrupts that halt system boot.
 
-We can have two easy ways to reproduce the problem but they rely on
-misconfiguration of the hypervisor or the egd daemon:
-
-- if virtio-rng device is configured to connect to the egd daemon of the
-host but when the virtio-rng driver asks for data the daemon is not
-connected,
-
-- if virtio-rng device is configured to connect to the egd daemon of the
-host but the egd daemon doesn't provide data.
-
-The guest kernel will hang at boot until the virtio-rng driver provides
-enough data.
-
-To avoid that, call rng_get_data() in non-blocking mode (wait=0)
-from add_early_randomness().
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Fixes: d9e797261933 ("hwrng: add randomness to system from rng...")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 310c18a41450 ("i2c: riic: add driver")
+Cc: stable@vger.kernel.org
+Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hw_random/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-riic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -67,7 +67,7 @@ static void add_early_randomness(struct
- 	size_t size = min_t(size_t, 16, rng_buffer_size());
- 
- 	mutex_lock(&reading_mutex);
--	bytes_read = rng_get_data(rng, rng_buffer, size, 1);
-+	bytes_read = rng_get_data(rng, rng_buffer, size, 0);
- 	mutex_unlock(&reading_mutex);
- 	if (bytes_read > 0)
- 		add_device_randomness(rng_buffer, bytes_read);
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -212,6 +212,7 @@ static irqreturn_t riic_tend_isr(int irq
+ 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
+ 		/* We got a NACKIE */
+ 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
++		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
+ 		riic->err = -ENXIO;
+ 	} else if (riic->bytes_left) {
+ 		return IRQ_NONE;
 
 
