@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75260CA5C4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BBA1CA7BB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404411AbfJCQg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:36:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45670 "EHLO mail.kernel.org"
+        id S2405766AbfJCQ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404384AbfJCQg1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:36:27 -0400
+        id S2406002AbfJCQvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:51:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DE9420830;
-        Thu,  3 Oct 2019 16:36:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1B902054F;
+        Thu,  3 Oct 2019 16:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120586;
-        bh=uz0yh/ZK6cChfUY3IqA6SxiaK6OQKPgqLLWkm4NAiSA=;
+        s=default; t=1570121472;
+        bh=2eMJ2l8qWQ1/4zuJ/PsQJVBDWOTLvCvCePq5IOn9/hQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQMfZNJ5Cus48FVw6//qKktYY4kvK663U0wmgS6A06ZSa8eEjE2cJOO0DQvnEjOAN
-         HLRrDFu5FEJXXkkuja/lpdiWPDKeC6onkNN2YfukZdORLvkZMUi1irH/ii9rhfdHlV
-         0q3Yl0e6WIAvPB8qEZqm2L3juFVMMyf2duN844L8=
+        b=0yK0W6DhACqBme5paXYqmJrpAAS2TniCEhaNINT4FMIj44+DSYp2WeBRtCJYD3m9d
+         xJhX/B3cYmvAPj9e08gbDxL0WSNxgJaiMCAiE4nvPgzMlz+HZWajOh5keM59/YEMbD
+         cjaf2OIg5Dv9nlpfDBT2FPwZo6GNd3InSlvfnzmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Holmberg <Hans.Holmberg@wdc.com>,
-        Hans Holmberg <hans.holmberg@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.2 276/313] block: mq-deadline: Fix queue restart handling
-Date:   Thu,  3 Oct 2019 17:54:14 +0200
-Message-Id: <20191003154600.232127235@linuxfoundation.org>
+        stable@vger.kernel.org, Vitaly Wool <vitalywool@gmail.com>,
+        Markus Linnala <markus.linnala@gmail.com>,
+        Chris Murphy <bugzilla@colorremedies.com>,
+        Agustin DallAlba <agustin@dallalba.com.ar>,
+        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
+        Shakeel Butt <shakeelb@google.com>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 290/344] z3fold: fix retry mechanism in page reclaim
+Date:   Thu,  3 Oct 2019 17:54:15 +0200
+Message-Id: <20191003154608.368109669@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +50,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Vitaly Wool <vitalywool@gmail.com>
 
-commit cb8acabbe33b110157955a7425ee876fb81e6bbc upstream.
+commit 3f9d2b5766aea06042630ac60b7316fd0cebf06f upstream.
 
-Commit 7211aef86f79 ("block: mq-deadline: Fix write completion
-handling") added a call to blk_mq_sched_mark_restart_hctx() in
-dd_dispatch_request() to make sure that write request dispatching does
-not stall when all target zones are locked. This fix left a subtle race
-when a write completion happens during a dispatch execution on another
-CPU:
+z3fold_page_reclaim()'s retry mechanism is broken: on a second iteration
+it will have zhdr from the first one so that zhdr is no longer in line
+with struct page.  That leads to crashes when the system is stressed.
 
-CPU 0: Dispatch			CPU1: write completion
+Fix that by moving zhdr assignment up.
 
-dd_dispatch_request()
-    lock(&dd->lock);
-    ...
-    lock(&dd->zone_lock);	dd_finish_request()
-    rq = find request		lock(&dd->zone_lock);
-    unlock(&dd->zone_lock);
-    				zone write unlock
-				unlock(&dd->zone_lock);
-				...
-				__blk_mq_free_request
-                                      check restart flag (not set)
-				      -> queue not run
-    ...
-    if (!rq && have writes)
-        blk_mq_sched_mark_restart_hctx()
-    unlock(&dd->lock)
+While at it, protect against using already freed handles by using own
+local slots structure in z3fold_page_reclaim().
 
-Since the dispatch context finishes after the write request completion
-handling, marking the queue as needing a restart is not seen from
-__blk_mq_free_request() and blk_mq_sched_restart() not executed leading
-to the dispatch stall under 100% write workloads.
-
-Fix this by moving the call to blk_mq_sched_mark_restart_hctx() from
-dd_dispatch_request() into dd_finish_request() under the zone lock to
-ensure full mutual exclusion between write request dispatch selection
-and zone unlock on write request completion.
-
-Fixes: 7211aef86f79 ("block: mq-deadline: Fix write completion handling")
-Cc: stable@vger.kernel.org
-Reported-by: Hans Holmberg <Hans.Holmberg@wdc.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: http://lkml.kernel.org/r/20190908162919.830388dc7404d1e2c80f4095@gmail.com
+Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
+Reported-by: Markus Linnala <markus.linnala@gmail.com>
+Reported-by: Chris Murphy <bugzilla@colorremedies.com>
+Reported-by: Agustin Dall'Alba <agustin@dallalba.com.ar>
+Cc: "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/mq-deadline.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ mm/z3fold.c |   49 ++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -377,13 +377,6 @@ done:
-  * hardware queue, but we may return a request that is for a
-  * different hardware queue. This is because mq-deadline has shared
-  * state for all hardware queues, in terms of sorting, FIFOs, etc.
-- *
-- * For a zoned block device, __dd_dispatch_request() may return NULL
-- * if all the queued write requests are directed at zones that are already
-- * locked due to on-going write requests. In this case, make sure to mark
-- * the queue as needing a restart to ensure that the queue is run again
-- * and the pending writes dispatched once the target zones for the ongoing
-- * write requests are unlocked in dd_finish_request().
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -366,9 +366,10 @@ static inline int __idx(struct z3fold_he
+  * Encodes the handle of a particular buddy within a z3fold page
+  * Pool lock should be held as this function accesses first_num
   */
- static struct request *dd_dispatch_request(struct blk_mq_hw_ctx *hctx)
+-static unsigned long encode_handle(struct z3fold_header *zhdr, enum buddy bud)
++static unsigned long __encode_handle(struct z3fold_header *zhdr,
++				struct z3fold_buddy_slots *slots,
++				enum buddy bud)
  {
-@@ -392,9 +385,6 @@ static struct request *dd_dispatch_reque
+-	struct z3fold_buddy_slots *slots;
+ 	unsigned long h = (unsigned long)zhdr;
+ 	int idx = 0;
  
- 	spin_lock(&dd->lock);
- 	rq = __dd_dispatch_request(dd);
--	if (!rq && blk_queue_is_zoned(hctx->queue) &&
--	    !list_empty(&dd->fifo_list[WRITE]))
--		blk_mq_sched_mark_restart_hctx(hctx);
- 	spin_unlock(&dd->lock);
+@@ -385,11 +386,15 @@ static unsigned long encode_handle(struc
+ 	if (bud == LAST)
+ 		h |= (zhdr->last_chunks << BUDDY_SHIFT);
  
- 	return rq;
-@@ -560,6 +550,13 @@ static void dd_prepare_request(struct re
-  * spinlock so that the zone is never unlocked while deadline_fifo_request()
-  * or deadline_next_request() are executing. This function is called for
-  * all requests, whether or not these requests complete successfully.
-+ *
-+ * For a zoned block device, __dd_dispatch_request() may have stopped
-+ * dispatching requests if all the queued requests are write requests directed
-+ * at zones that are already locked due to on-going write requests. To ensure
-+ * write request dispatch progress in this case, mark the queue as needing a
-+ * restart to ensure that the queue is run again after completion of the
-+ * request and zones being unlocked.
-  */
- static void dd_finish_request(struct request *rq)
- {
-@@ -571,6 +568,8 @@ static void dd_finish_request(struct req
- 
- 		spin_lock_irqsave(&dd->zone_lock, flags);
- 		blk_req_zone_write_unlock(rq);
-+		if (!list_empty(&dd->fifo_list[WRITE]))
-+			blk_mq_sched_mark_restart_hctx(rq->mq_hctx);
- 		spin_unlock_irqrestore(&dd->zone_lock, flags);
- 	}
+-	slots = zhdr->slots;
+ 	slots->slot[idx] = h;
+ 	return (unsigned long)&slots->slot[idx];
  }
+ 
++static unsigned long encode_handle(struct z3fold_header *zhdr, enum buddy bud)
++{
++	return __encode_handle(zhdr, zhdr->slots, bud);
++}
++
+ /* Returns the z3fold page where a given handle is stored */
+ static inline struct z3fold_header *handle_to_z3fold_header(unsigned long h)
+ {
+@@ -624,6 +629,7 @@ static void do_compact_page(struct z3fol
+ 	}
+ 
+ 	if (unlikely(PageIsolated(page) ||
++		     test_bit(PAGE_CLAIMED, &page->private) ||
+ 		     test_bit(PAGE_STALE, &page->private))) {
+ 		z3fold_page_unlock(zhdr);
+ 		return;
+@@ -1100,6 +1106,7 @@ static int z3fold_reclaim_page(struct z3
+ 	struct z3fold_header *zhdr = NULL;
+ 	struct page *page = NULL;
+ 	struct list_head *pos;
++	struct z3fold_buddy_slots slots;
+ 	unsigned long first_handle = 0, middle_handle = 0, last_handle = 0;
+ 
+ 	spin_lock(&pool->lock);
+@@ -1118,16 +1125,22 @@ static int z3fold_reclaim_page(struct z3
+ 			/* this bit could have been set by free, in which case
+ 			 * we pass over to the next page in the pool.
+ 			 */
+-			if (test_and_set_bit(PAGE_CLAIMED, &page->private))
++			if (test_and_set_bit(PAGE_CLAIMED, &page->private)) {
++				page = NULL;
+ 				continue;
++			}
+ 
+-			if (unlikely(PageIsolated(page)))
++			if (unlikely(PageIsolated(page))) {
++				clear_bit(PAGE_CLAIMED, &page->private);
++				page = NULL;
+ 				continue;
++			}
++			zhdr = page_address(page);
+ 			if (test_bit(PAGE_HEADLESS, &page->private))
+ 				break;
+ 
+-			zhdr = page_address(page);
+ 			if (!z3fold_page_trylock(zhdr)) {
++				clear_bit(PAGE_CLAIMED, &page->private);
+ 				zhdr = NULL;
+ 				continue; /* can't evict at this point */
+ 			}
+@@ -1145,26 +1158,30 @@ static int z3fold_reclaim_page(struct z3
+ 
+ 		if (!test_bit(PAGE_HEADLESS, &page->private)) {
+ 			/*
+-			 * We need encode the handles before unlocking, since
+-			 * we can race with free that will set
+-			 * (first|last)_chunks to 0
++			 * We need encode the handles before unlocking, and
++			 * use our local slots structure because z3fold_free
++			 * can zero out zhdr->slots and we can't do much
++			 * about that
+ 			 */
+ 			first_handle = 0;
+ 			last_handle = 0;
+ 			middle_handle = 0;
+ 			if (zhdr->first_chunks)
+-				first_handle = encode_handle(zhdr, FIRST);
++				first_handle = __encode_handle(zhdr, &slots,
++								FIRST);
+ 			if (zhdr->middle_chunks)
+-				middle_handle = encode_handle(zhdr, MIDDLE);
++				middle_handle = __encode_handle(zhdr, &slots,
++								MIDDLE);
+ 			if (zhdr->last_chunks)
+-				last_handle = encode_handle(zhdr, LAST);
++				last_handle = __encode_handle(zhdr, &slots,
++								LAST);
+ 			/*
+ 			 * it's safe to unlock here because we hold a
+ 			 * reference to this page
+ 			 */
+ 			z3fold_page_unlock(zhdr);
+ 		} else {
+-			first_handle = encode_handle(zhdr, HEADLESS);
++			first_handle = __encode_handle(zhdr, &slots, HEADLESS);
+ 			last_handle = middle_handle = 0;
+ 		}
+ 
+@@ -1194,9 +1211,9 @@ next:
+ 			spin_lock(&pool->lock);
+ 			list_add(&page->lru, &pool->lru);
+ 			spin_unlock(&pool->lock);
++			clear_bit(PAGE_CLAIMED, &page->private);
+ 		} else {
+ 			z3fold_page_lock(zhdr);
+-			clear_bit(PAGE_CLAIMED, &page->private);
+ 			if (kref_put(&zhdr->refcount,
+ 					release_z3fold_page_locked)) {
+ 				atomic64_dec(&pool->pages_nr);
+@@ -1211,6 +1228,7 @@ next:
+ 			list_add(&page->lru, &pool->lru);
+ 			spin_unlock(&pool->lock);
+ 			z3fold_page_unlock(zhdr);
++			clear_bit(PAGE_CLAIMED, &page->private);
+ 		}
+ 
+ 		/* We started off locked to we need to lock the pool back */
+@@ -1315,7 +1333,8 @@ static bool z3fold_page_isolate(struct p
+ 	VM_BUG_ON_PAGE(!PageMovable(page), page);
+ 	VM_BUG_ON_PAGE(PageIsolated(page), page);
+ 
+-	if (test_bit(PAGE_HEADLESS, &page->private))
++	if (test_bit(PAGE_HEADLESS, &page->private) ||
++	    test_bit(PAGE_CLAIMED, &page->private))
+ 		return false;
+ 
+ 	zhdr = page_address(page);
 
 
