@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C8CCABD3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F55CAC4D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729838AbfJCQAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44606 "EHLO mail.kernel.org"
+        id S1733252AbfJCQIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730115AbfJCQAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:44 -0400
+        id S1731955AbfJCQIm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:08:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D6AD20700;
-        Thu,  3 Oct 2019 16:00:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63C8320865;
+        Thu,  3 Oct 2019 16:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118443;
-        bh=s0VKegK65BOo4RZtUtGMJWSPHCFObkHhF0ExV3MMKUE=;
+        s=default; t=1570118921;
+        bh=nE9nz5evbkAO8wmG0ixscqvwNdd1KDUNZZz1Dyjbub8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8BntorKKjuD3T3OQlevLHc2QkQiOOt7HjcHZKESsBzXOaBGiSMpEuG4bmLKHQRNv
-         SnS37s8+nk6ol6arIoGazsR3M5qXNv1rxGVFOx0UlxeN34/477Hc8kv0DqhRKuEP47
-         u8XzgKxE00x0owdndAhO9aUL0n1yv2G44Z1D0/ng=
+        b=VhHC7CmKJ8p5sihzHmURyILHjzcesM1C0WoYC7DokDPxhdgwhDXRIAeUToVy8WOhR
+         OVO1sNKeNkGC2Vk4/pTAJLuP4ERMGXvcU+RJ14KygtzNVXKJuSLgLFqV522D23K9pw
+         5NYSB0HcEV822atJsluqSKkhrqPAgc0EYPzc8UMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Lechner <david@lechnology.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Sean Wang <sean.wang@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 014/129] power: supply: sysfs: ratelimit property read error message
+Subject: [PATCH 4.14 059/185] media: mtk-cir: lower de-glitch counter for rc-mm protocol
 Date:   Thu,  3 Oct 2019 17:52:17 +0200
-Message-Id: <20191003154325.595664911@linuxfoundation.org>
+Message-Id: <20191003154450.607953431@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Lechner <david@lechnology.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 87a2b65fc855e6be50f791c2ebbb492541896827 ]
+[ Upstream commit 5dd4b89dc098bf22cd13e82a308f42a02c102b2b ]
 
-This adds rate limiting to the message that is printed when reading a
-power supply property via sysfs returns an error. This will prevent
-userspace applications from unintentionally dDOSing the system by
-continuously reading a property that returns an error.
+The rc-mm protocol can't be decoded by the mtk-cir since the de-glitch
+filter removes pulses/spaces shorter than 294 microseconds.
 
-Signed-off-by: David Lechner <david@lechnology.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested on a BananaPi R2.
+
+Signed-off-by: Sean Young <sean@mess.org>
+Acked-by: Sean Wang <sean.wang@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/power_supply_sysfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/rc/mtk-cir.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
-index c0fc98e03c912..85cb5b9c1b6f0 100644
---- a/drivers/power/supply/power_supply_sysfs.c
-+++ b/drivers/power/supply/power_supply_sysfs.c
-@@ -84,7 +84,8 @@ static ssize_t power_supply_show_property(struct device *dev,
- 				dev_dbg(dev, "driver has no data for `%s' property\n",
- 					attr->attr.name);
- 			else if (ret != -ENODEV && ret != -EAGAIN)
--				dev_err(dev, "driver failed to report `%s' property: %zd\n",
-+				dev_err_ratelimited(dev,
-+					"driver failed to report `%s' property: %zd\n",
- 					attr->attr.name, ret);
- 			return ret;
- 		}
+diff --git a/drivers/media/rc/mtk-cir.c b/drivers/media/rc/mtk-cir.c
+index e88eb64e8e693..00a4a0dfcab87 100644
+--- a/drivers/media/rc/mtk-cir.c
++++ b/drivers/media/rc/mtk-cir.c
+@@ -44,6 +44,11 @@
+ /* Fields containing pulse width data */
+ #define MTK_WIDTH_MASK		  (GENMASK(7, 0))
+ 
++/* IR threshold */
++#define MTK_IRTHD		 0x14
++#define MTK_DG_CNT_MASK		 (GENMASK(12, 8))
++#define MTK_DG_CNT(x)		 ((x) << 8)
++
+ /* Bit to enable interrupt */
+ #define MTK_IRINT_EN		  BIT(0)
+ 
+@@ -411,6 +416,9 @@ static int mtk_ir_probe(struct platform_device *pdev)
+ 	mtk_w32_mask(ir, val, ir->data->fields[MTK_HW_PERIOD].mask,
+ 		     ir->data->fields[MTK_HW_PERIOD].reg);
+ 
++	/* Set de-glitch counter */
++	mtk_w32_mask(ir, MTK_DG_CNT(1), MTK_DG_CNT_MASK, MTK_IRTHD);
++
+ 	/* Enable IR and PWM */
+ 	val = mtk_r32(ir, MTK_CONFIG_HIGH_REG);
+ 	val |= MTK_OK_COUNT(ir->data->ok_count) |  MTK_PWM_EN | MTK_IR_EN;
 -- 
 2.20.1
 
