@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65D4ACA944
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63756CAAEF
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404362AbfJCQjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        id S2387835AbfJCRPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:15:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404882AbfJCQjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:39:46 -0400
+        id S2390897AbfJCQZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:25:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 809822133F;
-        Thu,  3 Oct 2019 16:39:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DD8F215EA;
+        Thu,  3 Oct 2019 16:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120786;
-        bh=HOfqFDsrLTJ8ud4gOxDMMhRWi7IuVErtucYTFJ0PUvM=;
+        s=default; t=1570119909;
+        bh=L+xO4ZeH3EGqd3+aM/8Rncwq+bXfmP+b1hrydvIjwyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXFKnX7ytkq+I+1ijWnxOH6GJLHb68RpQBpIzNigPENfiV7WQmF4kgD9ZN1+iN9gM
-         K7c9E7cGQe5C6EoeQOnMfFunIK+Gs/jLeIUANT95gw4LyB5w7yGalSEEdfQAdUaRC3
-         0aol2H6XWwm72X+E5J0MPiURdRD4747UBJyifK58=
+        b=1J82OM2adwVIRS57rkRGVn6y9BtukyB/IO8FX63G/8NEKnucYJvAiOp7Tr8PA7qY3
+         o+ZFWpVY7eqr9xM/mgimje9dlNvSv/0QWYfTxfnwJaPtYIiZjtkxWGxAfWQX/DZ67h
+         kJaAmXLj4wZCrTZ18/qsGgdtioy6O3KIlH/dIXN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 038/344] ALSA: hda: Flush interrupts on disabling
-Date:   Thu,  3 Oct 2019 17:50:03 +0200
-Message-Id: <20191003154543.817900320@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Marek Majkowski <marek@cloudflare.com>,
+        Jon Maxwell <jmaxwell37@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 026/313] tcp: better handle TCP_USER_TIMEOUT in SYN_SENT state
+Date:   Thu,  3 Oct 2019 17:50:04 +0200
+Message-Id: <20191003154535.920127454@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,77 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit caa8422d01e983782548648e125fd617cadcec3f ]
+[ Upstream commit a66b10c05ee2d744189e9a2130394b070883d289 ]
 
-I was looking at
+Yuchung Cheng and Marek Majkowski independently reported a weird
+behavior of TCP_USER_TIMEOUT option when used at connect() time.
 
-<4> [241.835158] general protection fault: 0000 [#1] PREEMPT SMP PTI
-<4> [241.835181] CPU: 1 PID: 214 Comm: kworker/1:3 Tainted: G     U            5.2.0-CI-CI_DRM_6509+ #1
-<4> [241.835199] Hardware name: Dell Inc.                 OptiPlex 745                 /0GW726, BIOS 2.3.1  05/21/2007
-<4> [241.835234] Workqueue: events snd_hdac_bus_process_unsol_events [snd_hda_core]
-<4> [241.835256] RIP: 0010:input_handle_event+0x16d/0x5e0
-<4> [241.835270] Code: 48 8b 93 58 01 00 00 8b 52 08 89 50 04 8b 83 f8 06 00 00 48 8b 93 00 07 00 00 8d 70 01 48 8d 04 c2 83 e1 08 89 b3 f8 06 00 00 <66> 89 28 66 44 89 60 02 44 89 68 04 8b 93 f8 06 00 00 0f 84 fd fe
-<4> [241.835304] RSP: 0018:ffffc9000019fda0 EFLAGS: 00010046
-<4> [241.835317] RAX: 6b6b6b6ec6c6c6c3 RBX: ffff8880290fefc8 RCX: 0000000000000000
-<4> [241.835332] RDX: 000000006b6b6b6b RSI: 000000006b6b6b6c RDI: 0000000000000046
-<4> [241.835347] RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000001
-<4> [241.835362] R10: ffffc9000019faa0 R11: 0000000000000000 R12: 0000000000000004
-<4> [241.835377] R13: 0000000000000000 R14: ffff8880290ff1d0 R15: 0000000000000293
-<4> [241.835392] FS:  0000000000000000(0000) GS:ffff88803de80000(0000) knlGS:0000000000000000
-<4> [241.835409] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [241.835422] CR2: 00007ffe9a99e9b7 CR3: 000000002f588000 CR4: 00000000000006e0
-<4> [241.835436] Call Trace:
-<4> [241.835449]  input_event+0x45/0x70
-<4> [241.835464]  snd_jack_report+0xdc/0x100
-<4> [241.835490]  snd_hda_jack_report_sync+0x83/0xc0 [snd_hda_codec]
-<4> [241.835512]  snd_hdac_bus_process_unsol_events+0x5a/0x70 [snd_hda_core]
-<4> [241.835530]  process_one_work+0x245/0x610
+When the TCP_USER_TIMEOUT is reached, tcp_write_timeout()
+believes the flow should live, and the following condition
+in tcp_clamp_rto_to_user_timeout() programs one jiffie timers :
 
-which has the hallmarks of a worker queued from interrupt after it was
-supposedly cancelled (note the POISON_FREE), and I could not see where
-the interrupt would be flushed on shutdown so added the likely suspects.
+    remaining = icsk->icsk_user_timeout - elapsed;
+    if (remaining <= 0)
+        return 1; /* user timeout has passed; fire ASAP */
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111174
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This silly situation ends when the max syn rtx count is reached.
+
+This patch makes sure we honor both TCP_SYNCNT and TCP_USER_TIMEOUT,
+avoiding these spurious SYN packets.
+
+Fixes: b701a99e431d ("tcp: Add tcp_clamp_rto_to_user_timeout() helper to improve accuracy")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Yuchung Cheng <ycheng@google.com>
+Reported-by: Marek Majkowski <marek@cloudflare.com>
+Cc: Jon Maxwell <jmaxwell37@gmail.com>
+Link: https://marc.info/?l=linux-netdev&m=156940118307949&w=2
+Acked-by: Jon Maxwell <jmaxwell37@gmail.com>
+Tested-by: Marek Majkowski <marek@cloudflare.com>
+Signed-off-by: Marek Majkowski <marek@cloudflare.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/hda/hdac_controller.c | 2 ++
- sound/pci/hda/hda_intel.c   | 2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_timer.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
-index 3b0110545070a..196bbc85699e5 100644
---- a/sound/hda/hdac_controller.c
-+++ b/sound/hda/hdac_controller.c
-@@ -447,6 +447,8 @@ static void azx_int_disable(struct hdac_bus *bus)
- 	list_for_each_entry(azx_dev, &bus->stream_list, list)
- 		snd_hdac_stream_updateb(azx_dev, SD_CTL, SD_INT_MASK, 0);
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -210,7 +210,7 @@ static int tcp_write_timeout(struct sock
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct net *net = sock_net(sk);
+-	bool expired, do_reset;
++	bool expired = false, do_reset;
+ 	int retry_until;
  
-+	synchronize_irq(bus->irq);
-+
- 	/* disable SIE for all streams */
- 	snd_hdac_chip_writeb(bus, INTCTL, 0);
+ 	if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV)) {
+@@ -242,9 +242,10 @@ static int tcp_write_timeout(struct sock
+ 			if (tcp_out_of_resources(sk, do_reset))
+ 				return 1;
+ 		}
++	}
++	if (!expired)
+ 		expired = retransmits_timed_out(sk, retry_until,
+ 						icsk->icsk_user_timeout);
+-	}
+ 	tcp_fastopen_active_detect_blackhole(sk, expired);
  
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index b0de3e3b33e5c..783f9a9c40ecd 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -1349,9 +1349,9 @@ static int azx_free(struct azx *chip)
- 	}
- 
- 	if (bus->chip_init) {
-+		azx_stop_chip(chip);
- 		azx_clear_irq_pending(chip);
- 		azx_stop_all_streams(chip);
--		azx_stop_chip(chip);
- 	}
- 
- 	if (bus->irq >= 0)
--- 
-2.20.1
-
+ 	if (BPF_SOCK_OPS_TEST_FLAG(tp, BPF_SOCK_OPS_RTO_CB_FLAG))
 
 
