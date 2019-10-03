@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24CFDCA39A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D314ACA39E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389158AbfJCQRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:17:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
+        id S2389193AbfJCQRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:17:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbfJCQRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:04 -0400
+        id S2389143AbfJCQRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C169720700;
-        Thu,  3 Oct 2019 16:17:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C312120700;
+        Thu,  3 Oct 2019 16:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119423;
-        bh=i5xIGvAmJ611D+9rinA4VEpsJYMNIu3CSB0dALNOkD8=;
+        s=default; t=1570119431;
+        bh=pqNJ8pNu97tfTX6kEisVmJXTZF0n5AhEugcUW9k3lp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WgB5l1iLP0HuF/FNGYCUrc5S7NMKATNUijs0vXfz0nazGGVOKe9dHpziS3pSPfMN8
-         fbQeuOGJObFCg9l1/x89ZV4ojOYlzxNSt4uk/EZ8B5IEEcjXLaf7hLqmqXzqzQfhn+
-         YrZcOMkOG2Boi3+m924Y+ciDL6krAQRBuGMN8nEA=
+        b=nK3Ufs2xO+io3JVZUw20QG0yVYzBOcNUv+aJNN1dH6EqjEYHqJgGhK6CDiFrz6JWN
+         Z2L1P3rGE9klxMBe/LOfdBOcP0dFAsuk9oUoOucpPS8euagZs9jXuyVvF9XqNNGOIx
+         kLVnuhfWTAuaWTjKstz0ARHWQoOpeGMgEUPD/eng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        linux-edac@vger.kernel.org, x86@kernel.org,
+        stable@vger.kernel.org, Stephen Douthit <stephend@silicom-usa.com>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/211] RAS: Fix prototype warnings
-Date:   Thu,  3 Oct 2019 17:52:04 +0200
-Message-Id: <20191003154501.432687344@linuxfoundation.org>
+Subject: [PATCH 4.19 061/211] EDAC, pnd2: Fix ioremap() size in dnv_rd_reg()
+Date:   Thu,  3 Oct 2019 17:52:07 +0200
+Message-Id: <20191003154502.401660435@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,67 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valdis Klētnieks <valdis.kletnieks@vt.edu>
+From: Stephen Douthit <stephend@silicom-usa.com>
 
-[ Upstream commit 0a54b809a3a2c31e1055b45b03708eb730222be1 ]
+[ Upstream commit 29a3388bfcce7a6d087051376ea02bf8326a957b ]
 
-When building with C=2 and/or W=1, legitimate warnings are issued about
-missing prototypes:
+Depending on how BIOS has marked the reserved region containing the 32KB
+MCHBAR you can get warnings like:
 
-    CHECK   drivers/ras/debugfs.c
-  drivers/ras/debugfs.c:4:15: warning: symbol 'ras_debugfs_dir' was not declared. Should it be static?
-  drivers/ras/debugfs.c:8:5: warning: symbol 'ras_userspace_consumers' was not declared. Should it be static?
-  drivers/ras/debugfs.c:38:12: warning: symbol 'ras_add_daemon_trace' was not declared. Should it be static?
-  drivers/ras/debugfs.c:54:13: warning: symbol 'ras_debugfs_init' was not declared. Should it be static?
-    CC      drivers/ras/debugfs.o
-  drivers/ras/debugfs.c:8:5: warning: no previous prototype for 'ras_userspace_consumers' [-Wmissing-prototypes]
-      8 | int ras_userspace_consumers(void)
-        |     ^~~~~~~~~~~~~~~~~~~~~~~
-  drivers/ras/debugfs.c:38:12: warning: no previous prototype for 'ras_add_daemon_trace' [-Wmissing-prototypes]
-     38 | int __init ras_add_daemon_trace(void)
-        |            ^~~~~~~~~~~~~~~~~~~~
-  drivers/ras/debugfs.c:54:13: warning: no previous prototype for 'ras_debugfs_init' [-Wmissing-prototypes]
-     54 | void __init ras_debugfs_init(void)
-        |             ^~~~~~~~~~~~~~~~
+resource sanity check: requesting [mem 0xfed10000-0xfed1ffff], which spans more than reserved [mem 0xfed10000-0xfed17fff]
+caller dnv_rd_reg+0xc8/0x240 [pnd2_edac] mapping multiple BARs
 
-Provide the proper includes.
+Not all of the mmio regions used in dnv_rd_reg() are the same size.  The
+MCHBAR window is 32KB and the sideband ports are 64KB.  Pass the correct
+size to ioremap() depending on which resource we're reading from.
 
- [ bp: Take care of the same warnings for cec.c too. ]
-
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: linux-edac@vger.kernel.org
-Cc: x86@kernel.org
-Link: http://lkml.kernel.org/r/7168.1565218769@turing-police
+Signed-off-by: Stephen Douthit <stephend@silicom-usa.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ras/cec.c     | 1 +
- drivers/ras/debugfs.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/edac/pnd2_edac.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ras/cec.c b/drivers/ras/cec.c
-index 5d2b2c02cbbec..0c719787876a5 100644
---- a/drivers/ras/cec.c
-+++ b/drivers/ras/cec.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <linux/mm.h>
- #include <linux/gfp.h>
-+#include <linux/ras.h>
- #include <linux/kernel.h>
- #include <linux/workqueue.h>
+diff --git a/drivers/edac/pnd2_edac.c b/drivers/edac/pnd2_edac.c
+index 903a4f1fadcc3..0153c730750e5 100644
+--- a/drivers/edac/pnd2_edac.c
++++ b/drivers/edac/pnd2_edac.c
+@@ -268,11 +268,14 @@ static u64 get_sideband_reg_base_addr(void)
+ 	}
+ }
  
-diff --git a/drivers/ras/debugfs.c b/drivers/ras/debugfs.c
-index 501603057dffe..12a161377f4f8 100644
---- a/drivers/ras/debugfs.c
-+++ b/drivers/ras/debugfs.c
-@@ -1,4 +1,6 @@
- #include <linux/debugfs.h>
-+#include <linux/ras.h>
-+#include "debugfs.h"
++#define DNV_MCHBAR_SIZE  0x8000
++#define DNV_SB_PORT_SIZE 0x10000
+ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *name)
+ {
+ 	struct pci_dev *pdev;
+ 	char *base;
+ 	u64 addr;
++	unsigned long size;
  
- struct dentry *ras_debugfs_dir;
+ 	if (op == 4) {
+ 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL, 0x1980, NULL);
+@@ -287,15 +290,17 @@ static int dnv_rd_reg(int port, int off, int op, void *data, size_t sz, char *na
+ 			addr = get_mem_ctrl_hub_base_addr();
+ 			if (!addr)
+ 				return -ENODEV;
++			size = DNV_MCHBAR_SIZE;
+ 		} else {
+ 			/* MMIO via sideband register base address */
+ 			addr = get_sideband_reg_base_addr();
+ 			if (!addr)
+ 				return -ENODEV;
+ 			addr += (port << 16);
++			size = DNV_SB_PORT_SIZE;
+ 		}
+ 
+-		base = ioremap((resource_size_t)addr, 0x10000);
++		base = ioremap((resource_size_t)addr, size);
+ 		if (!base)
+ 			return -ENODEV;
  
 -- 
 2.20.1
