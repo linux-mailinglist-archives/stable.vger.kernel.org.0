@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBB9CA564
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7609DCA56B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392057AbfJCQd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
+        id S2391714AbfJCQeK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:34:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391473AbfJCQd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:56 -0400
+        id S2404148AbfJCQeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:34:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3C8B2086A;
-        Thu,  3 Oct 2019 16:33:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F3DE222BE;
+        Thu,  3 Oct 2019 16:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120435;
-        bh=WaXkzYUQZiX+6yr6ucA7h70yZZ/D3f1BdAj3GtAl+L8=;
+        s=default; t=1570120448;
+        bh=Wb/Buv17l28cIMxrABBRC99pWTC6SdHgYan1rcQ+RPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i17LURVD6np+kbg4gs+2A5LcfigoIDbbqryLzhjv571dRaYv5Wvdm6W/DnKWRRNWb
-         3QFMhZto06QZqJkoT+pg4dQAHxdOAHGpSiCdCZ9LBsLjg2+A95R6uzU4bhxXHyVF0J
-         E/3o0KcoOGVH5PUoNunZ1UQ10BnmTlfloLnk0wXE=
+        b=ymUGuRwpovVASmhEuchxpbIggIR4nkiuN98DTwivkZ5NFIlqBwC7w3ShiSx/NUVED
+         Xvqp/GWDnYeK90eiUnrsVPkB1Yjucn/NGeQ4QZG4ngxLzfhWpgHAkSydB7MiHR0hY5
+         UEfwhGhW2HLluXhrBL5b58q0Ov41KFAIUteDFZ/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danit Goldberg <danitg@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 5.2 221/313] IB/mlx5: Free mpi in mp_slave mode
-Date:   Thu,  3 Oct 2019 17:53:19 +0200
-Message-Id: <20191003154554.800537477@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.2 226/313] ARM: dts: am3517-evm: Fix missing video
+Date:   Thu,  3 Oct 2019 17:53:24 +0200
+Message-Id: <20191003154555.278275805@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,34 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danit Goldberg <danitg@mellanox.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 5d44adebbb7e785939df3db36ac360f5e8b73e44 upstream.
+commit 24cf23276a54dd2825d3e3965c1b1b453e2a113d upstream.
 
-ib_add_slave_port() allocates a multiport struct but never frees it.
-Don't leak memory, free the allocated mpi struct during driver unload.
+A previous commit removed the panel-dpi driver, which made the
+video on the AM3517-evm stop working because it relied on the dpi
+driver for setting video timings.  Now that the simple-panel driver
+is available in omap2plus, this patch migrates the am3517-evm
+to use a similar panel and remove the manual timing requirements.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 32f69e4be269 ("{net, IB}/mlx5: Manage port association for multiport RoCE")
-Link: https://lore.kernel.org/r/20190916064818.19823-3-leon@kernel.org
-Signed-off-by: Danit Goldberg <danitg@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/am3517-evm.dts |   23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -6829,6 +6829,7 @@ static void mlx5_ib_remove(struct mlx5_c
- 			mlx5_ib_unbind_slave_port(mpi->ibdev, mpi);
- 		list_del(&mpi->list);
- 		mutex_unlock(&mlx5_ib_multiport_mutex);
-+		kfree(mpi);
- 		return;
- 	}
+--- a/arch/arm/boot/dts/am3517-evm.dts
++++ b/arch/arm/boot/dts/am3517-evm.dts
+@@ -124,10 +124,11 @@
+ 	};
  
+ 	lcd0: display@0 {
+-		compatible = "panel-dpi";
++		/* This isn't the exact LCD, but the timings meet spec */
++		/* To make it work, set CONFIG_OMAP2_DSS_MIN_FCK_PER_PCK=4 */
++		compatible = "newhaven,nhd-4.3-480272ef-atxl";
+ 		label = "15";
+-		status = "okay";
+-		pinctrl-names = "default";
++		backlight = <&bl>;
+ 		enable-gpios = <&gpio6 16 GPIO_ACTIVE_HIGH>;	/* gpio176, lcd INI */
+ 		vcc-supply = <&vdd_io_reg>;
+ 
+@@ -136,22 +137,6 @@
+ 				remote-endpoint = <&dpi_out>;
+ 			};
+ 		};
+-
+-		panel-timing {
+-			clock-frequency = <9000000>;
+-			hactive = <480>;
+-			vactive = <272>;
+-			hfront-porch = <3>;
+-			hback-porch = <2>;
+-			hsync-len = <42>;
+-			vback-porch = <3>;
+-			vfront-porch = <4>;
+-			vsync-len = <11>;
+-			hsync-active = <0>;
+-			vsync-active = <0>;
+-			de-active = <1>;
+-			pixelclk-active = <1>;
+-		};
+ 	};
+ 
+ 	bl: backlight {
 
 
