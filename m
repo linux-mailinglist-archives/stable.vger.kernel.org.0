@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE93CAB15
+	by mail.lfdr.de (Postfix) with ESMTP id 1A783CAB11
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389827AbfJCRR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51326 "EHLO mail.kernel.org"
+        id S1732388AbfJCRRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:17:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390340AbfJCQWg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:36 -0400
+        id S2390373AbfJCQWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:22:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C55C20659;
-        Thu,  3 Oct 2019 16:22:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 321E0215EA;
+        Thu,  3 Oct 2019 16:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119756;
-        bh=OSDbZ+qnZK1aTfBoQCDkx4FU7CwedCYXzK82/thGqPc=;
+        s=default; t=1570119766;
+        bh=czvX1wbkCejc6EHOLQVri//U8JXIKpvlnKwm/gt/y24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzXbGme0g1mLg+Clcwpwt4WEMTrlccZ6P614o5aUO5xHfEN0wHXly+B8PBiT1PCgv
-         8Hrr+0AGaPJR/g1WvNxEz7dJCSxTH97Bp0pm2shxUb4kxYBPrpqOIIhW7TdHH02K1r
-         TtPvVFUp7icKue+nIwcvC8EUdZ1oeBHTV8iuDHwQ=
+        b=eULCaA7EabYZazFhFsGDK/DfolhGZrIAfnxbANKncX8bFGYFcFSpe2GHh5XxtjR4c
+         MbdSjWhGkrbn+5z36zOnru9mfLYgb6oYB4YocFETf2ZDUHVtIxa1Pso+wCq59uHMGe
+         VmFvdRk1fntHWqmQe8lCXFLrsFw91JY5YOSCOEG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Peter Jones <pjones@redhat.com>
-Subject: [PATCH 4.19 181/211] efifb: BGRT: Improve efifb_bgrt_sanity_check
-Date:   Thu,  3 Oct 2019 17:54:07 +0200
-Message-Id: <20191003154527.420265838@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Thomas Lindroth <thomas.lindroth@gmail.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: [PATCH 4.19 184/211] memcg, kmem: do not fail __GFP_NOFAIL charges
+Date:   Thu,  3 Oct 2019 17:54:10 +0200
+Message-Id: <20191003154527.764396117@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -44,71 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Michal Hocko <mhocko@suse.com>
 
-commit 51677dfcc17f88ed754143df670ff064eae67f84 upstream.
+commit e55d9d9bfb69405bd7615c0f8d229d8fafb3e9b8 upstream.
 
-For various reasons, at least with x86 EFI firmwares, the xoffset and
-yoffset in the BGRT info are not always reliable.
+Thomas has noticed the following NULL ptr dereference when using cgroup
+v1 kmem limit:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 0
+P4D 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
+Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
+RIP: 0010:create_empty_buffers+0x24/0x100
+Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
+RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
+RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
+RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
+FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
+Call Trace:
+ create_page_buffers+0x4d/0x60
+ __block_write_begin_int+0x8e/0x5a0
+ ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
+ ? jbd2__journal_start+0xd7/0x1f0
+ ext4_da_write_begin+0x112/0x3d0
+ generic_perform_write+0xf1/0x1b0
+ ? file_update_time+0x70/0x140
+ __generic_file_write_iter+0x141/0x1a0
+ ext4_file_write_iter+0xef/0x3b0
+ __vfs_write+0x17e/0x1e0
+ vfs_write+0xa5/0x1a0
+ ksys_write+0x57/0xd0
+ do_syscall_64+0x55/0x160
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Extensive testing has shown that when the info is correct, the
-BGRT image is always exactly centered horizontally (the yoffset variable
-is more variable and not always predictable).
+Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
+fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
+behavior because nofail allocations are not allowed to fail.  Normal
+charge path simply forces the charge even if that means to cross the
+limit.  Kmem accounting should be doing the same.
 
-This commit simplifies / improves the bgrt_sanity_check to simply
-check that the BGRT image is exactly centered horizontally and skips
-(re)drawing it when it is not.
-
-This fixes the BGRT image sometimes being drawn in the wrong place.
-
-Cc: stable@vger.kernel.org
-Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Peter Jones <pjones@redhat.com>,
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190721131918.10115-1-hdegoede@redhat.com
+Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
+Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/efifb.c |   27 ++++++---------------------
- 1 file changed, 6 insertions(+), 21 deletions(-)
+ mm/memcontrol.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32
-  */
- static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
- {
--	static const int default_resolutions[][2] = {
--		{  800,  600 },
--		{ 1024,  768 },
--		{ 1280, 1024 },
--	};
--	u32 i, right_margin;
-+	/*
-+	 * All x86 firmwares horizontally center the image (the yoffset
-+	 * calculations differ between boards, but xoffset is predictable).
-+	 */
-+	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -2637,6 +2637,16 @@ int memcg_kmem_charge_memcg(struct page
  
--	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
--		if (default_resolutions[i][0] == si->lfb_width &&
--		    default_resolutions[i][1] == si->lfb_height)
--			break;
--	}
--	/* If not a default resolution used for textmode, this should be fine */
--	if (i >= ARRAY_SIZE(default_resolutions))
--		return true;
--
--	/* If the right margin is 5 times smaller then the left one, reject */
--	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
--	if (right_margin < (bgrt_tab.image_offset_x / 5))
--		return false;
--
--	return true;
-+	return bgrt_tab.image_offset_x == expected_xoffset;
- }
- #else
- static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+ 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
+ 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
++
++		/*
++		 * Enforce __GFP_NOFAIL allocation because callers are not
++		 * prepared to see failures and likely do not have any failure
++		 * handling code.
++		 */
++		if (gfp & __GFP_NOFAIL) {
++			page_counter_charge(&memcg->kmem, nr_pages);
++			return 0;
++		}
+ 		cancel_charge(memcg, nr_pages);
+ 		return -ENOMEM;
+ 	}
 
 
