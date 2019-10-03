@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FD7BCA95F
+	by mail.lfdr.de (Postfix) with ESMTP id ADEF4CA960
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392273AbfJCQlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
+        id S2392530AbfJCQl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391437AbfJCQls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:41:48 -0400
+        id S2392526AbfJCQl4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:41:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C59520865;
-        Thu,  3 Oct 2019 16:41:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39AFC2086A;
+        Thu,  3 Oct 2019 16:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120907;
-        bh=P73YqyByfJFfD7IeMva3s/Jr+ys9xdTCvSZ1/zaZIYE=;
+        s=default; t=1570120915;
+        bh=qC7Ybr1PEtdazV9SfUC9Px5bD8UortLRXWtE3Aen14o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFWVBrBPo+KfSeptxcMmjXbZMzs651QHDvQnFOjkzYtRlV+LLH+cQeVWMOMC6aPWV
-         tcimskPA/pa5cU6phBpnNF3IobbzqKYWwyRENM4PGane07jcLilZjMZIBydVOunefM
-         bT3EDYiKKatBqM4wqw/3n9TuFPMhbHTWNPw0olLA=
+        b=kSeQKYKUOojijkx532qSUGnHfrVkmCqfjVQ9r9r+7X/KPwaxIjcUTONjASHIaAp1T
+         GSpNRdRk2g3zkJgCPpK+06MzLbfFMooYNcENAm1dBiRCfD/jtVcLFGQz4+2eC1jv73
+         MZAdso/P+l8ceMNbnE5v4gDRfSAEf3bl1TYurIyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Borislav Petkov <bp@suse.de>,
-        Thor Thayer <thor.thayer@linux.intel.com>,
-        James Morse <james.morse@arm.com>,
-        kernel-janitors@vger.kernel.org,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 083/344] EDAC/altera: Use the proper type for the IRQ status bits
-Date:   Thu,  3 Oct 2019 17:50:48 +0200
-Message-Id: <20191003154548.364674925@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 085/344] arm64/prefetch: fix a -Wtype-limits warning
+Date:   Thu,  3 Oct 2019 17:50:50 +0200
+Message-Id: <20191003154548.562433725@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -50,57 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 8faa1cf6ed82f33009f63986c3776cc48af1b7b2 ]
+[ Upstream commit b99286b088ea843b935dcfb29f187697359fe5cd ]
 
-Smatch complains about the cast of a u32 pointer to unsigned long:
+The commit d5370f754875 ("arm64: prefetch: add alternative pattern for
+CPUs without a prefetcher") introduced MIDR_IS_CPU_MODEL_RANGE() to be
+used in has_no_hw_prefetch() with rv_min=0 which generates a compilation
+warning from GCC,
 
-  drivers/edac/altera_edac.c:1878 altr_edac_a10_irq_handler()
-  warn: passing casted pointer '&irq_status' to 'find_first_bit()'
+In file included from ./arch/arm64/include/asm/cache.h:8,
+               from ./include/linux/cache.h:6,
+               from ./include/linux/printk.h:9,
+               from ./include/linux/kernel.h:15,
+               from ./include/linux/cpumask.h:10,
+               from arch/arm64/kernel/cpufeature.c:11:
+arch/arm64/kernel/cpufeature.c: In function 'has_no_hw_prefetch':
+./arch/arm64/include/asm/cputype.h:59:26: warning: comparison of
+unsigned expression >= 0 is always true [-Wtype-limits]
+_model == (model) && rv >= (rv_min) && rv <= (rv_max);  \
+                        ^~
+arch/arm64/kernel/cpufeature.c:889:9: note: in expansion of macro
+'MIDR_IS_CPU_MODEL_RANGE'
+return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
+       ^~~~~~~~~~~~~~~~~~~~~~~
 
-This code wouldn't work on a 64 bit big endian system because it would
-read past the end of &irq_status.
+Fix it by converting MIDR_IS_CPU_MODEL_RANGE to a static inline
+function.
 
- [ bp: massage. ]
-
-Fixes: 13ab8448d2c9 ("EDAC, altera: Add ECC Manager IRQ controller support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: kernel-janitors@vger.kernel.org
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20190624134717.GA1754@mwanda
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/altera_edac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/cputype.h | 21 +++++++++++----------
+ arch/arm64/kernel/cpufeature.c   |  2 +-
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
-index c2e693e34d434..bf024ec0116c7 100644
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -1866,6 +1866,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
- 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	int irq = irq_desc_get_irq(desc);
-+	unsigned long bits;
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index e7d46631cc42b..b1454d117cd2c 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -51,14 +51,6 @@
+ #define MIDR_CPU_MODEL_MASK (MIDR_IMPLEMENTOR_MASK | MIDR_PARTNUM_MASK | \
+ 			     MIDR_ARCHITECTURE_MASK)
  
- 	dberr = (irq == edac->db_irq) ? 1 : 0;
- 	sm_offset = dberr ? A10_SYSMGR_ECC_INTSTAT_DERR_OFST :
-@@ -1875,7 +1876,8 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
+-#define MIDR_IS_CPU_MODEL_RANGE(midr, model, rv_min, rv_max)		\
+-({									\
+-	u32 _model = (midr) & MIDR_CPU_MODEL_MASK;			\
+-	u32 rv = (midr) & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);	\
+-									\
+-	_model == (model) && rv >= (rv_min) && rv <= (rv_max);		\
+- })
+-
+ #define ARM_CPU_IMP_ARM			0x41
+ #define ARM_CPU_IMP_APM			0x50
+ #define ARM_CPU_IMP_CAVIUM		0x43
+@@ -159,10 +151,19 @@ struct midr_range {
+ #define MIDR_REV(m, v, r) MIDR_RANGE(m, v, r, v, r)
+ #define MIDR_ALL_VERSIONS(m) MIDR_RANGE(m, 0, 0, 0xf, 0xf)
  
- 	regmap_read(edac->ecc_mgr_map, sm_offset, &irq_status);
++static inline bool midr_is_cpu_model_range(u32 midr, u32 model, u32 rv_min,
++					   u32 rv_max)
++{
++	u32 _model = midr & MIDR_CPU_MODEL_MASK;
++	u32 rv = midr & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);
++
++	return _model == model && rv >= rv_min && rv <= rv_max;
++}
++
+ static inline bool is_midr_in_range(u32 midr, struct midr_range const *range)
+ {
+-	return MIDR_IS_CPU_MODEL_RANGE(midr, range->model,
+-				 range->rv_min, range->rv_max);
++	return midr_is_cpu_model_range(midr, range->model,
++				       range->rv_min, range->rv_max);
+ }
  
--	for_each_set_bit(bit, (unsigned long *)&irq_status, 32) {
-+	bits = irq_status;
-+	for_each_set_bit(bit, &bits, 32) {
- 		irq = irq_linear_revmap(edac->domain, dberr * 32 + bit);
- 		if (irq)
- 			generic_handle_irq(irq);
+ static inline bool
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index b1fdc486aed82..9323bcc40a58a 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -894,7 +894,7 @@ static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int _
+ 	u32 midr = read_cpuid_id();
+ 
+ 	/* Cavium ThunderX pass 1.x and 2.x */
+-	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
++	return midr_is_cpu_model_range(midr, MIDR_THUNDERX,
+ 		MIDR_CPU_VAR_REV(0, 0),
+ 		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
+ }
 -- 
 2.20.1
 
