@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7032CA29E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E32CA2A0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729488AbfJCQHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
+        id S1732361AbfJCQH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:07:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732921AbfJCQHR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:07:17 -0400
+        id S1732953AbfJCQH2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:07:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EDAF20865;
-        Thu,  3 Oct 2019 16:07:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF36721783;
+        Thu,  3 Oct 2019 16:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118836;
-        bh=x4+W6bHjTUJYagozGShM5+2PnGm2+3w1B4z1RcOCLWg=;
+        s=default; t=1570118847;
+        bh=r0NyGKfVp7kWPQ7tIqsR5FE0KOaG9y5lxXoDbToXw3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyHWBULI+QEMHsUPHC33AkIGytHuNQqKDy1cz/u+jW66+/CkjwfoJmtTjjJrKSHlT
-         M7Vok4f30PNh6gY39X62v40MSHfcbvHBoBC6dZIFeSrVd+SOAPyS17jKmygw63G8Js
-         NQ0eVKIPdkQJsnnMWTwP1T0YgQeHP1S523kV2jVI=
+        b=hAEoFtJWHBFXNHL38o//vJD87U/AaBhIonW5ETelc9KObl0CTlgzanteHhU13HNX1
+         p4sRfUc2vO6M7JJuaenpiogJGLITz6DLqntnPSe2WolTBntMWTHn9O0pO2xgZ7gcok
+         IPrJj/VKdqJezv+7Nw+hUHKPXkt96CyrL2gNPEuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Kacper=20Piwi=C5=84ski?= <cosiekvfj@o2.pl>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 027/185] f2fs: fix to do sanity check on segment bitmap of LFS curseg
-Date:   Thu,  3 Oct 2019 17:51:45 +0200
-Message-Id: <20191003154443.767401442@linuxfoundation.org>
+Subject: [PATCH 4.14 030/185] ACPI: video: Add new hw_changes_brightness quirk, set it on PB Easynote MZ35
+Date:   Thu,  3 Oct 2019 17:51:48 +0200
+Message-Id: <20191003154444.571196923@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,108 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c854f4d681365498f53ba07843a16423625aa7e9 ]
+[ Upstream commit 4f7f96453b462b3de0fa18d18fe983960bb5ee7f ]
 
-As Jungyeon Reported in bugzilla:
+Some machines change the brightness themselves when a brightness hotkey
+gets pressed, despite us telling them not to. This causes the brightness to
+go two steps up / down when the hotkey is pressed. This is esp. a problem
+on older machines with only a few brightness levels.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203233
+This commit adds a new hw_changes_brightness quirk which makes
+acpi_video_device_notify() only call backlight_force_update(...,
+BACKLIGHT_UPDATE_HOTKEY) and not do anything else, notifying userspace
+that the brightness was changed and leaving it at that fixing the dual
+step problem.
 
-- Reproduces
-gcc poc_13.c
-./run.sh f2fs
-
-- Kernel messages
- F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
- kernel BUG at fs/f2fs/segment.c:2133!
- RIP: 0010:update_sit_entry+0x35d/0x3e0
- Call Trace:
-  f2fs_allocate_data_block+0x16c/0x5a0
-  do_write_page+0x57/0x100
-  f2fs_do_write_node_page+0x33/0xa0
-  __write_node_page+0x270/0x4e0
-  f2fs_sync_node_pages+0x5df/0x670
-  f2fs_write_checkpoint+0x364/0x13a0
-  f2fs_sync_fs+0xa3/0x130
-  f2fs_do_sync_file+0x1a6/0x810
-  do_fsync+0x33/0x60
-  __x64_sys_fsync+0xb/0x10
-  do_syscall_64+0x43/0x110
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The testcase fails because that, in fuzzed image, current segment was
-allocated with LFS type, its .next_blkoff should point to an unused
-block address, but actually, its bitmap shows it's not. So during
-allocation, f2fs crash when setting bitmap.
-
-Introducing sanity_check_curseg() to check such inconsistence of
-current in-used segment.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204077
+Reported-by: Kacper Piwiński <cosiekvfj@o2.pl>
+Tested-by: Kacper Piwiński <cosiekvfj@o2.pl>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
+ drivers/acpi/acpi_video.c | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 70bd15cadb44e..294fdb1b22137 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -3439,6 +3439,41 @@ static int build_dirty_segmap(struct f2fs_sb_info *sbi)
- 	return init_victim_secmap(sbi);
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index e39a1489cc729..7df7abde1fcb7 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -73,6 +73,12 @@ module_param(report_key_events, int, 0644);
+ MODULE_PARM_DESC(report_key_events,
+ 	"0: none, 1: output changes, 2: brightness changes, 3: all");
+ 
++static int hw_changes_brightness = -1;
++module_param(hw_changes_brightness, int, 0644);
++MODULE_PARM_DESC(hw_changes_brightness,
++	"Set this to 1 on buggy hw which changes the brightness itself when "
++	"a hotkey is pressed: -1: auto, 0: normal 1: hw-changes-brightness");
++
+ /*
+  * Whether the struct acpi_video_device_attrib::device_id_scheme bit should be
+  * assumed even if not actually set.
+@@ -418,6 +424,14 @@ static int video_set_report_key_events(const struct dmi_system_id *id)
+ 	return 0;
  }
  
-+static int sanity_check_curseg(struct f2fs_sb_info *sbi)
++static int video_hw_changes_brightness(
++	const struct dmi_system_id *d)
 +{
-+	int i;
-+
-+	/*
-+	 * In LFS/SSR curseg, .next_blkoff should point to an unused blkaddr;
-+	 * In LFS curseg, all blkaddr after .next_blkoff should be unused.
-+	 */
-+	for (i = 0; i < NO_CHECK_TYPE; i++) {
-+		struct curseg_info *curseg = CURSEG_I(sbi, i);
-+		struct seg_entry *se = get_seg_entry(sbi, curseg->segno);
-+		unsigned int blkofs = curseg->next_blkoff;
-+
-+		if (f2fs_test_bit(blkofs, se->cur_valid_map))
-+			goto out;
-+
-+		if (curseg->alloc_type == SSR)
-+			continue;
-+
-+		for (blkofs += 1; blkofs < sbi->blocks_per_seg; blkofs++) {
-+			if (!f2fs_test_bit(blkofs, se->cur_valid_map))
-+				continue;
-+out:
-+			f2fs_msg(sbi->sb, KERN_ERR,
-+				"Current segment's next free block offset is "
-+				"inconsistent with bitmap, logtype:%u, "
-+				"segno:%u, type:%u, next_blkoff:%u, blkofs:%u",
-+				i, curseg->segno, curseg->alloc_type,
-+				curseg->next_blkoff, blkofs);
-+			return -EINVAL;
-+		}
-+	}
++	if (hw_changes_brightness == -1)
++		hw_changes_brightness = 1;
 +	return 0;
 +}
 +
- /*
-  * Update min, max modified time for cost-benefit GC algorithm
-  */
-@@ -3532,6 +3567,10 @@ int build_segment_manager(struct f2fs_sb_info *sbi)
- 	if (err)
- 		return err;
+ static const struct dmi_system_id video_dmi_table[] = {
+ 	/*
+ 	 * Broken _BQC workaround http://bugzilla.kernel.org/show_bug.cgi?id=13121
+@@ -542,6 +556,21 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
+ 		},
+ 	},
++	/*
++	 * Some machines change the brightness themselves when a brightness
++	 * hotkey gets pressed, despite us telling them not to. In this case
++	 * acpi_video_device_notify() should only call backlight_force_update(
++	 * BACKLIGHT_UPDATE_HOTKEY) and not do anything else.
++	 */
++	{
++	 /* https://bugzilla.kernel.org/show_bug.cgi?id=204077 */
++	 .callback = video_hw_changes_brightness,
++	 .ident = "Packard Bell EasyNote MZ35",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Packard Bell"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "EasyNote MZ35"),
++		},
++	},
+ 	{}
+ };
  
-+	err = sanity_check_curseg(sbi);
-+	if (err)
-+		return err;
+@@ -1624,6 +1653,14 @@ static void acpi_video_device_notify(acpi_handle handle, u32 event, void *data)
+ 	bus = video_device->video;
+ 	input = bus->input;
+ 
++	if (hw_changes_brightness > 0) {
++		if (video_device->backlight)
++			backlight_force_update(video_device->backlight,
++					       BACKLIGHT_UPDATE_HOTKEY);
++		acpi_notifier_call_chain(device, event, 0);
++		return;
++	}
 +
- 	init_min_max_mtime(sbi);
- 	return 0;
- }
+ 	switch (event) {
+ 	case ACPI_VIDEO_NOTIFY_CYCLE_BRIGHTNESS:	/* Cycle brightness */
+ 		brightness_switch_event(video_device, event);
 -- 
 2.20.1
 
