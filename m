@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2B2CA5D8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0FBCA765
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404530AbfJCQhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:37:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46562 "EHLO mail.kernel.org"
+        id S2393206AbfJCQxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:53:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404529AbfJCQhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:37:13 -0400
+        id S1732255AbfJCQxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:53:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6068222BE;
-        Thu,  3 Oct 2019 16:37:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C50620862;
+        Thu,  3 Oct 2019 16:53:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120632;
-        bh=fWEaeGtp2H7l4xjNjdh86W44KFTLhlpFqGa86ZHBHj0=;
+        s=default; t=1570121617;
+        bh=ppvgryPXoAV87FTYKqBMl7LfUlYuP5FSY5V3yCvro1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uCNB6TYVFovHazISQt0W9USC1O3O0r3BKL8MlkKVqL06CQNwpx3Jp1B46eu67Zjj
-         E2lWESAK4s+VDiVoXNGZ0i9CPh9vJNEx/doJSV818/rtY9X5DiDZ1cHWlzZ9r7ceNz
-         /Y8txOaZyeDGHdvkbFUDeffPId+LHzbal7VOk17k=
+        b=f71YjRlFTpy3K74cONVnCxRD2XOvbRPELlFdIgHtaoN+Q4l7XxJGQAXNv/5iiE9Hk
+         xDURYDrQ72LhJ9dNvyK4sQQCGWsUIhoDdHsXcNkiE8BkeXXAU4Pb/RRcHn4T7G5hPN
+         A4mPc8vlvBmwoQLKstvEO/wsQwF2g6mrUJzOHi3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.2 295/313] cfg80211: Purge frame registrations on iftype change
+        stable@vger.kernel.org, Mark Salyzyn <salyzyn@android.com>,
+        linux-security-module@vger.kernel.org, kernel-team@android.com,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.3 308/344] ovl: filter of trusted xattr results in audit
 Date:   Thu,  3 Oct 2019 17:54:33 +0200
-Message-Id: <20191003154602.228571062@linuxfoundation.org>
+Message-Id: <20191003154609.636796606@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kenzior <denkenz@gmail.com>
+From: Mark Salyzyn <salyzyn@android.com>
 
-commit c1d3ad84eae35414b6b334790048406bd6301b12 upstream.
+commit 5c2e9f346b815841f9bed6029ebcb06415caf640 upstream.
 
-Currently frame registrations are not purged, even when changing the
-interface type.  This can lead to potentially weird situations where
-frames possibly not allowed on a given interface type remain registered
-due to the type switching happening after registration.
+When filtering xattr list for reading, presence of trusted xattr
+results in a security audit log.  However, if there is other content
+no errno will be set, and if there isn't, the errno will be -ENODATA
+and not -EPERM as is usually associated with a lack of capability.
+The check does not block the request to list the xattrs present.
 
-The kernel currently relies on userspace apps to actually purge the
-registrations themselves, this is not something that the kernel should
-rely on.
+Switch to ns_capable_noaudit to reflect a more appropriate check.
 
-Add a call to cfg80211_mlme_purge_registrations() to forcefully remove
-any registrations left over prior to switching the iftype.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Link: https://lore.kernel.org/r/20190828211110.15005-1-denkenz@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: kernel-team@android.com
+Cc: stable@vger.kernel.org # v3.18+
+Fixes: a082c6f680da ("ovl: filter trusted xattr for non-admin")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/overlayfs/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -960,6 +960,7 @@ int cfg80211_change_iface(struct cfg8021
- 		}
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -383,7 +383,8 @@ static bool ovl_can_list(const char *s)
+ 		return true;
  
- 		cfg80211_process_rdev_events(rdev);
-+		cfg80211_mlme_purge_registrations(dev->ieee80211_ptr);
- 	}
+ 	/* Never list trusted.overlay, list other trusted for superuser only */
+-	return !ovl_is_private_xattr(s) && capable(CAP_SYS_ADMIN);
++	return !ovl_is_private_xattr(s) &&
++	       ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
+ }
  
- 	err = rdev_change_virtual_intf(rdev, dev, ntype, params);
+ ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
 
 
