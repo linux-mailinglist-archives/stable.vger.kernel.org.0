@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8744ACA8C3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7058CCA8C5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391943AbfJCQcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40128 "EHLO mail.kernel.org"
+        id S2403950AbfJCQcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391939AbfJCQcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:33 -0400
+        id S2403948AbfJCQcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 642632070B;
-        Thu,  3 Oct 2019 16:32:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E488D2070B;
+        Thu,  3 Oct 2019 16:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120351;
-        bh=fP7mtkBeozDd3ru7q/dWJl8QsplEw+feOxj/O/dCgDs=;
+        s=default; t=1570120354;
+        bh=/F0eqdyJKABuAv6cUV90z+rRaHqrSXh+R+pUYfvNIeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfdRg5Ui+Ww+HB2GCKVPd8+n/lJL7IN2s5TeiVIC/kPHR8zRIcWGuvHWwgfCyEpon
-         QJkZOIxO/wKvBTPsTJKEyIXAm4wB4uKQlkVoYeYayQgn2F90UQSgkTnD3sVuWvbOYQ
-         evsLOMB2/6caTdkODXlBdLU13DtbY/DmSqj7sOBU=
+        b=hyNrsDJgzeSVqV6TdvRrCxXScZT3Q8jO8Vatj1nTf1bwpNcbN62HgEal4or264Azw
+         zEKi8L6ea0GaiUM24pSggDpcPq0T+zA3FFYJNOkPCcL1zBwfDP9fwIXyGKiYMgIwK4
+         I3FJUe3EniqmBhMduaJ1DYYlM+1og2iwop2TdpAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 189/313] mmc: core: Clarify sdio_irq_pending flag for MMC_CAP2_SDIO_IRQ_NOTHREAD
-Date:   Thu,  3 Oct 2019 17:52:47 +0200
-Message-Id: <20191003154551.610578633@linuxfoundation.org>
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        linux-mediatek@lists.infradead.org, wsd_upstream@mediatek.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 190/313] sched/psi: Correct overly pessimistic size calculation
+Date:   Thu,  3 Oct 2019 17:52:48 +0200
+Message-Id: <20191003154551.693711288@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,100 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 36d57efb4af534dd6b442ea0b9a04aa6dfa37abe ]
+[ Upstream commit 4adcdcea717cb2d8436bef00dd689aa5bc76f11b ]
 
-The sdio_irq_pending flag is used to let host drivers indicate that it has
-signaled an IRQ. If that is the case and we only have a single SDIO func
-that have claimed an SDIO IRQ, our assumption is that we can avoid reading
-the SDIO_CCCR_INTx register and just call the SDIO func irq handler
-immediately. This makes sense, but the flag is set/cleared in a somewhat
-messy order, let's fix that up according to below.
+When passing a equal or more then 32 bytes long string to psi_write(),
+psi_write() copies 31 bytes to its buf and overwrites buf[30]
+with '\0'. Which makes the input string 1 byte shorter than
+it should be.
 
-First, the flag is currently set in sdio_run_irqs(), which is executed as a
-work that was scheduled from sdio_signal_irq(). To make it more implicit
-that the host have signaled an IRQ, let's instead immediately set the flag
-in sdio_signal_irq(). This also makes the behavior consistent with host
-drivers that uses the legacy, mmc_signal_sdio_irq() API. This have no
-functional impact, because we don't expect host drivers to call
-sdio_signal_irq() until after the work (sdio_run_irqs()) have been executed
-anyways.
+Fix it by copying sizeof(buf) bytes when nbytes >= sizeof(buf).
 
-Second, currently we never clears the flag when using the sdio_run_irqs()
-work, but only when using the sdio_irq_thread(). Let make the behavior
-consistent, by moving the flag to be cleared inside the common
-process_sdio_pending_irqs() function. Additionally, tweak the behavior of
-the flag slightly, by avoiding to clear it unless we processed the SDIO
-IRQ. The purpose with this at this point, is to keep the information about
-whether there have been an SDIO IRQ signaled by the host, so at system
-resume we can decide to process it without reading the SDIO_CCCR_INTx
-register.
+This does not cause problems in normal use case like:
+"some 500000 10000000" or "full 500000 10000000" because they
+are less than 32 bytes in length.
 
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+	/* assuming nbytes == 35 */
+	char buf[32];
+
+	buf_size = min(nbytes, (sizeof(buf) - 1)); /* buf_size = 31 */
+	if (copy_from_user(buf, user_buf, buf_size))
+		return -EFAULT;
+
+	buf[buf_size - 1] = '\0'; /* buf[30] = '\0' */
+
+Before:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [   22.473497] nbytes=35,buf_size=31
+ [   22.473775] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [   64.916162] nbytes=32,buf_size=31
+ [   64.916331] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+After:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [  254.837863] nbytes=35,buf_size=32
+ [  254.838541] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [ 9965.714935] nbytes=32,buf_size=32
+ [ 9965.715096] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+Also remove the superfluous parentheses.
+
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Cc: <linux-mediatek@lists.infradead.org>
+Cc: <wsd_upstream@mediatek.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190912103452.13281-1-miles.chen@mediatek.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_irq.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/sched/psi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/core/sdio_irq.c b/drivers/mmc/core/sdio_irq.c
-index 9f54a259a1b36..e4823ef0a0de9 100644
---- a/drivers/mmc/core/sdio_irq.c
-+++ b/drivers/mmc/core/sdio_irq.c
-@@ -31,6 +31,7 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
- {
- 	struct mmc_card *card = host->card;
- 	int i, ret, count;
-+	bool sdio_irq_pending = host->sdio_irq_pending;
- 	unsigned char pending;
- 	struct sdio_func *func;
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 6e52b67b420e7..517e3719027e6 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1198,7 +1198,7 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
+ 	if (static_branch_likely(&psi_disabled))
+ 		return -EOPNOTSUPP;
  
-@@ -38,13 +39,16 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
- 	if (mmc_card_suspended(card))
- 		return 0;
+-	buf_size = min(nbytes, (sizeof(buf) - 1));
++	buf_size = min(nbytes, sizeof(buf));
+ 	if (copy_from_user(buf, user_buf, buf_size))
+ 		return -EFAULT;
  
-+	/* Clear the flag to indicate that we have processed the IRQ. */
-+	host->sdio_irq_pending = false;
-+
- 	/*
- 	 * Optimization, if there is only 1 function interrupt registered
- 	 * and we know an IRQ was signaled then call irq handler directly.
- 	 * Otherwise do the full probe.
- 	 */
- 	func = card->sdio_single_irq;
--	if (func && host->sdio_irq_pending) {
-+	if (func && sdio_irq_pending) {
- 		func->irq_handler(func);
- 		return 1;
- 	}
-@@ -96,7 +100,6 @@ void sdio_run_irqs(struct mmc_host *host)
- {
- 	mmc_claim_host(host);
- 	if (host->sdio_irqs) {
--		host->sdio_irq_pending = true;
- 		process_sdio_pending_irqs(host);
- 		if (host->ops->ack_sdio_irq)
- 			host->ops->ack_sdio_irq(host);
-@@ -115,6 +118,7 @@ void sdio_irq_work(struct work_struct *work)
- 
- void sdio_signal_irq(struct mmc_host *host)
- {
-+	host->sdio_irq_pending = true;
- 	queue_delayed_work(system_wq, &host->sdio_irq_work, 0);
- }
- EXPORT_SYMBOL_GPL(sdio_signal_irq);
-@@ -160,7 +164,6 @@ static int sdio_irq_thread(void *_host)
- 		if (ret)
- 			break;
- 		ret = process_sdio_pending_irqs(host);
--		host->sdio_irq_pending = false;
- 		mmc_release_host(host);
- 
- 		/*
 -- 
 2.20.1
 
