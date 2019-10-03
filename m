@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F21DC9DD1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FE5C9DD5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729580AbfJCLwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 07:52:19 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:34529 "EHLO
+        id S1729914AbfJCLyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 07:54:50 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:37115 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729578AbfJCLwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:52:18 -0400
+        by vger.kernel.org with ESMTP id S1729366AbfJCLyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:54:49 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id C17D52026A;
-        Thu,  3 Oct 2019 07:52:17 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:52:17 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 3530921AEF;
+        Thu,  3 Oct 2019 07:54:48 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:54:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FCRAc7
-        DqSZuB9HyhcHDkoccfIg8v1uspVKw9OU1TlK4=; b=Ssy0kIY//rjiiWQpL4Xjc2
-        uJeJ5lpUriK5Iv9+c6GjLdQWZni6q+fQ2eTk2wcGiGeXtsXWR4D7jZsKXO4q+osa
-        JMD5eT+g5NJKxY/u2T3V1Mr4UrVbcTEYRfJim5U3QnYqqx5T6fXvSb39eOpTk5UZ
-        x/pYU+xU5hmqjxGLervNe5JP/40DCKXnfavWiOKsMF1BoVVVL/U0S5rImtrb+FZb
-        6vR0nt1eitzTlp+aveLXBHcBkK0tfIoJFqKkdECSyKn5naRlspgHFFHhLOD9tJfU
-        0kViI8YtPRPy9FUCWOKUNGlH/Xy4ZyxKyEzRdjUPDx5xf6cqmIoSP3abop9cnLrg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=dYMo6e
+        ZbsYE2QS1pe44grI7ojlHiaVZJkW+DhEi09Uo=; b=ib0WJkX7T5u+D19ukGpjCF
+        ZqKXdss9eFeySeGyqbJMtozlIP7m9WQR8RUuZyXa8q6QkW3ZOtjr2Ks3b9lxWofs
+        dLOcFwrTKZLhlV8GSQrVqYiOcqE3B+QOnbIUw2PwR2GjmPL3TIReIHtfAvd7nmqv
+        HJ5F0lFxpS2UAGo7vk6tikapv4EZrAL2Oi1uvq1/9dAWyxVT0H6zfDcO5TUqSb97
+        KkkMxOLIU0B0T6xfl//2j1vdMjhbJqlq9p0bkGl3INi1urxMUHwe7T+j/xmj8nmC
+        2s0DxLEsu8UhR6MJhlSwKLByYbhN/iEnXeOXjJmR0zCn6Ps9MWaOwsQPHJ6fHHgw
         ==
-X-ME-Sender: <xms:8eCVXdhqaaNqNIw-l2j1zKS-wAWS-cteDH8FeUgXJMufue6dDPGBQg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdegiecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:h-GVXZHGf2I8NCPHff3NonoQJCaTjorygC3t-CQtQk61e5-Scfo5Hg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdegjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:8eCVXRtQe6KcQGyyrwoZfZWlYjHKSck-rNvWrpo2gxCPcZE_H8FLbA>
-    <xmx:8eCVXYvj1Z2Ouu_8czJn9S83kKPE6_cM13wOmbndXoFL-QtuFGQKeA>
-    <xmx:8eCVXeEH86MZd6RKvtV8xr6Y7oBilfBfebC99rFTPRzJVmoXq_vY6g>
-    <xmx:8eCVXabWfz_NhGAcKiWB5ojGK57oVUm3SUvVPjTzorfFY-4WfODtbA>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:h-GVXUEXoHOrlEMzAFQ9cSaRg7wvsgA09lsxsR1EvnRYRPBDmmEu3g>
+    <xmx:h-GVXR_uKFNOiAy86l7a5AcHlY2IgVD1RecXqj8JYuc5TaFoKJm9Bg>
+    <xmx:h-GVXWTUgVCXRWJPLEYsIxvUvOoIBVFTrB7INlrV9yE4Iu8ClaP4GQ>
+    <xmx:iOGVXT83IedacgV1okmHiJKzaCyvpTqnbbsdfI034BA9a8hXTSwBmg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3B4468005B;
-        Thu,  3 Oct 2019 07:52:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: Fix reserved data space leak if we have" failed to apply to 4.9-stable tree
-To:     wqu@suse.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5E7E4D60057;
+        Thu,  3 Oct 2019 07:54:47 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix race setting up and completing qgroup rescan" failed to apply to 4.4-stable tree
+To:     fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 13:52:07 +0200
-Message-ID: <1570103527255251@kroah.com>
+Date:   Thu, 03 Oct 2019 13:54:45 +0200
+Message-ID: <157010368567255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,90 +67,200 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d4e204948fe3e0dc8e1fbf3f8f3290c9c2823be3 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Mon, 16 Sep 2019 20:02:39 +0800
-Subject: [PATCH] btrfs: qgroup: Fix reserved data space leak if we have
- multiple reserve calls
+From 13fc1d271a2e3ab8a02071e711add01fab9271f6 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Tue, 24 Sep 2019 10:49:54 +0100
+Subject: [PATCH] Btrfs: fix race setting up and completing qgroup rescan
+ workers
 
-[BUG]
-The following script can cause btrfs qgroup data space leak:
+There is a race between setting up a qgroup rescan worker and completing
+a qgroup rescan worker that can lead to callers of the qgroup rescan wait
+ioctl to either not wait for the rescan worker to complete or to hang
+forever due to missing wake ups. The following diagram shows a sequence
+of steps that illustrates the race.
 
-  mkfs.btrfs -f $dev
-  mount $dev -o nospace_cache $mnt
+        CPU 1                                                         CPU 2                                  CPU 3
 
-  btrfs subv create $mnt/subv
-  btrfs quota en $mnt
-  btrfs quota rescan -w $mnt
-  btrfs qgroup limit 128m $mnt/subv
+ btrfs_ioctl_quota_rescan()
+  btrfs_qgroup_rescan()
+   qgroup_rescan_init()
+    mutex_lock(&fs_info->qgroup_rescan_lock)
+    spin_lock(&fs_info->qgroup_lock)
 
-  for (( i = 0; i < 3; i++)); do
-          # Create 3 64M holes for latter fallocate to fail
-          truncate -s 192m $mnt/subv/file
-          xfs_io -c "pwrite 64m 4k" $mnt/subv/file > /dev/null
-          xfs_io -c "pwrite 128m 4k" $mnt/subv/file > /dev/null
-          sync
+    fs_info->qgroup_flags |=
+      BTRFS_QGROUP_STATUS_FLAG_RESCAN
 
-          # it's supposed to fail, and each failure will leak at least 64M
-          # data space
-          xfs_io -f -c "falloc 0 192m" $mnt/subv/file &> /dev/null
-          rm $mnt/subv/file
-          sync
-  done
+    init_completion(
+      &fs_info->qgroup_rescan_completion)
 
-  # Shouldn't fail after we removed the file
-  xfs_io -f -c "falloc 0 64m" $mnt/subv/file
+    fs_info->qgroup_rescan_running = true
 
-[CAUSE]
-Btrfs qgroup data reserve code allow multiple reservations to happen on
-a single extent_changeset:
-E.g:
-	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_1M);
-	btrfs_qgroup_reserve_data(inode, &data_reserved, SZ_1M, SZ_2M);
-	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_4M);
+    mutex_unlock(&fs_info->qgroup_rescan_lock)
+    spin_unlock(&fs_info->qgroup_lock)
 
-Btrfs qgroup code has its internal tracking to make sure we don't
-double-reserve in above example.
+    btrfs_init_work()
+     --> starts the worker
 
-The only pattern utilizing this feature is in the main while loop of
-btrfs_fallocate() function.
+                                                        btrfs_qgroup_rescan_worker()
+                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
 
-However btrfs_qgroup_reserve_data()'s error handling has a bug in that
-on error it clears all ranges in the io_tree with EXTENT_QGROUP_RESERVED
-flag but doesn't free previously reserved bytes.
+                                                         fs_info->qgroup_flags &=
+                                                           ~BTRFS_QGROUP_STATUS_FLAG_RESCAN
 
-This bug has a two fold effect:
-- Clearing EXTENT_QGROUP_RESERVED ranges
-  This is the correct behavior, but it prevents
-  btrfs_qgroup_check_reserved_leak() to catch the leakage as the
-  detector is purely EXTENT_QGROUP_RESERVED flag based.
+                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
 
-- Leak the previously reserved data bytes.
+                                                         starts transaction, updates qgroup status
+                                                         item, etc
 
-The bug manifests when N calls to btrfs_qgroup_reserve_data are made and
-the last one fails, leaking space reserved in the previous ones.
+                                                                                                           btrfs_ioctl_quota_rescan()
+                                                                                                            btrfs_qgroup_rescan()
+                                                                                                             qgroup_rescan_init()
+                                                                                                              mutex_lock(&fs_info->qgroup_rescan_lock)
+                                                                                                              spin_lock(&fs_info->qgroup_lock)
 
-[FIX]
-Also free previously reserved data bytes when btrfs_qgroup_reserve_data
-fails.
+                                                                                                              fs_info->qgroup_flags |=
+                                                                                                                BTRFS_QGROUP_STATUS_FLAG_RESCAN
 
-Fixes: 524725537023 ("btrfs: qgroup: Introduce btrfs_qgroup_reserve_data function")
+                                                                                                              init_completion(
+                                                                                                                &fs_info->qgroup_rescan_completion)
+
+                                                                                                              fs_info->qgroup_rescan_running = true
+
+                                                                                                              mutex_unlock(&fs_info->qgroup_rescan_lock)
+                                                                                                              spin_unlock(&fs_info->qgroup_lock)
+
+                                                                                                              btrfs_init_work()
+                                                                                                               --> starts another worker
+
+                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
+
+                                                         fs_info->qgroup_rescan_running = false
+
+                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
+
+							 complete_all(&fs_info->qgroup_rescan_completion)
+
+Before the rescan worker started by the task at CPU 3 completes, if
+another task calls btrfs_ioctl_quota_rescan(), it will get -EINPROGRESS
+because the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN is set at
+fs_info->qgroup_flags, which is expected and correct behaviour.
+
+However if other task calls btrfs_ioctl_quota_rescan_wait() before the
+rescan worker started by the task at CPU 3 completes, it will return
+immediately without waiting for the new rescan worker to complete,
+because fs_info->qgroup_rescan_running is set to false by CPU 2.
+
+This race is making test case btrfs/171 (from fstests) to fail often:
+
+  btrfs/171 9s ... - output mismatch (see /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad)
+      --- tests/btrfs/171.out     2018-09-16 21:30:48.505104287 +0100
+      +++ /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad      2019-09-19 02:01:36.938486039 +0100
+      @@ -1,2 +1,3 @@
+       QA output created by 171
+      +ERROR: quota rescan failed: Operation now in progress
+       Silence is golden
+      ...
+      (Run 'diff -u /home/fdmanana/git/hub/xfstests/tests/btrfs/171.out /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad'  to see the entire diff)
+
+That is because the test calls the btrfs-progs commands "qgroup quota
+rescan -w", "qgroup assign" and "qgroup remove" in a sequence that makes
+calls to the rescan start ioctl fail with -EINPROGRESS (note the "btrfs"
+commands 'qgroup assign' and 'qgroup remove' often call the rescan start
+ioctl after calling the qgroup assign ioctl,
+btrfs_ioctl_qgroup_assign()), since previous waits didn't actually wait
+for a rescan worker to complete.
+
+Another problem the race can cause is missing wake ups for waiters,
+since the call to complete_all() happens outside a critical section and
+after clearing the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN. In the sequence
+diagram above, if we have a waiter for the first rescan task (executed
+by CPU 2), then fs_info->qgroup_rescan_completion.wait is not empty, and
+if after the rescan worker clears BTRFS_QGROUP_STATUS_FLAG_RESCAN and
+before it calls complete_all() against
+fs_info->qgroup_rescan_completion, the task at CPU 3 calls
+init_completion() against fs_info->qgroup_rescan_completion which
+re-initilizes its wait queue to an empty queue, therefore causing the
+rescan worker at CPU 2 to call complete_all() against an empty queue,
+never waking up the task waiting for that rescan worker.
+
+Fix this by clearing BTRFS_QGROUP_STATUS_FLAG_RESCAN and setting
+fs_info->qgroup_rescan_running to false in the same critical section,
+delimited by the mutex fs_info->qgroup_rescan_lock, as well as doing the
+call to complete_all() in that same critical section. This gives the
+protection needed to avoid rescan wait ioctl callers not waiting for a
+running rescan worker and the lost wake ups problem, since setting that
+rescan flag and boolean as well as initializing the wait queue is done
+already in a critical section delimited by that mutex (at
+qgroup_rescan_init()).
+
+Fixes: 57254b6ebce4ce ("Btrfs: add ioctl to wait for qgroup rescan completion")
+Fixes: d2c609b834d62f ("btrfs: properly track when rescan worker is running")
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
 diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
-index 4ab85555a947..c4bb69941c77 100644
+index 8d3bd799ac7d..52701c1be109 100644
 --- a/fs/btrfs/qgroup.c
 +++ b/fs/btrfs/qgroup.c
-@@ -3442,6 +3442,9 @@ int btrfs_qgroup_reserve_data(struct inode *inode,
- 	while ((unode = ulist_next(&reserved->range_changed, &uiter)))
- 		clear_extent_bit(&BTRFS_I(inode)->io_tree, unode->val,
- 				 unode->aux, EXTENT_QGROUP_RESERVED, 0, 0, NULL);
-+	/* Also free data bytes of already reserved one */
-+	btrfs_qgroup_free_refroot(root->fs_info, root->root_key.objectid,
-+				  orig_reserved, BTRFS_QGROUP_RSV_DATA);
- 	extent_changeset_release(reserved);
- 	return ret;
+@@ -3166,9 +3166,6 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 	btrfs_free_path(path);
+ 
+ 	mutex_lock(&fs_info->qgroup_rescan_lock);
+-	if (!btrfs_fs_closing(fs_info))
+-		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_RESCAN;
+-
+ 	if (err > 0 &&
+ 	    fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT) {
+ 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+@@ -3184,16 +3181,30 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 	trans = btrfs_start_transaction(fs_info->quota_root, 1);
+ 	if (IS_ERR(trans)) {
+ 		err = PTR_ERR(trans);
++		trans = NULL;
+ 		btrfs_err(fs_info,
+ 			  "fail to start transaction for status update: %d",
+ 			  err);
+-		goto done;
+ 	}
+-	ret = update_qgroup_status_item(trans);
+-	if (ret < 0) {
+-		err = ret;
+-		btrfs_err(fs_info, "fail to update qgroup status: %d", err);
++
++	mutex_lock(&fs_info->qgroup_rescan_lock);
++	if (!btrfs_fs_closing(fs_info))
++		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_RESCAN;
++	if (trans) {
++		ret = update_qgroup_status_item(trans);
++		if (ret < 0) {
++			err = ret;
++			btrfs_err(fs_info, "fail to update qgroup status: %d",
++				  err);
++		}
+ 	}
++	fs_info->qgroup_rescan_running = false;
++	complete_all(&fs_info->qgroup_rescan_completion);
++	mutex_unlock(&fs_info->qgroup_rescan_lock);
++
++	if (!trans)
++		return;
++
+ 	btrfs_end_transaction(trans);
+ 
+ 	if (btrfs_fs_closing(fs_info)) {
+@@ -3204,12 +3215,6 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 	} else {
+ 		btrfs_err(fs_info, "qgroup scan failed with %d", err);
+ 	}
+-
+-done:
+-	mutex_lock(&fs_info->qgroup_rescan_lock);
+-	fs_info->qgroup_rescan_running = false;
+-	mutex_unlock(&fs_info->qgroup_rescan_lock);
+-	complete_all(&fs_info->qgroup_rescan_completion);
  }
+ 
+ /*
 
