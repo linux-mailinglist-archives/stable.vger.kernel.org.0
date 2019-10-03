@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E55CCA493
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F8BCA4A6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388893AbfJCQZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:25:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56552 "EHLO mail.kernel.org"
+        id S2391139AbfJCQ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:26:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388188AbfJCQZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:25:56 -0400
+        id S2391162AbfJCQ0z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 360FA20700;
-        Thu,  3 Oct 2019 16:25:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549F32133F;
+        Thu,  3 Oct 2019 16:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119955;
-        bh=yXWj2bvR3dpUriiGdOgoiAtmGWjIFSMW48e8OMrrxdQ=;
+        s=default; t=1570120014;
+        bh=csEuR0I3jvQUqVfdCrUe0yTO9jh+m3SBF9finvCv31s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ugmK5W3W5ZixdE5iorl5QBEX1NH0HCM7t+3l23a9gsCJHu7pBtnv7RfWn1W+kUoai
-         Vk19b2facf95j7SDSH/t8qvfUdRNiB/mGLqxvpIeMFkK6fUQ5OFFPLRMLE6FRYRzs1
-         c+EWDgx4EdlvU0c9Pb5/IMlTQnvrxQlforXd+cMo=
+        b=HmYrFFXUuLhsIv1PRX0H4EGnUQk/8CR4KeBLc/mFECXEqEn6YYDtab/W2Iiiki5hW
+         22Egt40nM85ePItcY/MjyA+J35kyNbFLrAOiKlcwFbO3mhLdpruvDRel1FlOyEd6hn
+         NvZQ82J0GCsuoIILYbmV3WaWakpGHi9nvhnH76Is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 036/313] regulator: lm363x: Fix off-by-one n_voltages for lm3632 ldo_vpos/ldo_vneg
-Date:   Thu,  3 Oct 2019 17:50:14 +0200
-Message-Id: <20191003154536.806606667@linuxfoundation.org>
+Subject: [PATCH 5.2 038/313] ASoC: tlv320aic31xx: suppress error message for EPROBE_DEFER
+Date:   Thu,  3 Oct 2019 17:50:16 +0200
+Message-Id: <20191003154536.990503538@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,49 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 1e2cc8c5e0745b545d4974788dc606d678b6e564 ]
+[ Upstream commit b7e814deae33eb30f8f8c6528e8e69b107978d88 ]
 
-According to the datasheet https://www.ti.com/lit/ds/symlink/lm3632a.pdf
-Table 20. VPOS Bias Register Field Descriptions VPOS[5:0]
-Sets the Positive Display Bias (LDO) Voltage (50 mV per step)
-000000: 4 V
-000001: 4.05 V
-000010: 4.1 V
-....................
-011101: 5.45 V
-011110: 5.5 V (Default)
-011111: 5.55 V
-....................
-100111: 5.95 V
-101000: 6 V
-Note: Codes 101001 to 111111 map to 6 V
+Both the supplies and reset GPIO might need a probe deferral for the
+resource to be available. Don't print a error message in that case, as
+it is a normal operating condition.
 
-The LM3632_LDO_VSEL_MAX should be 0b101000 (0x28), so the maximum voltage
-can match the datasheet.
-
-Fixes: 3a8d1a73a037 ("regulator: add LM363X driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20190626132632.32629-1-axel.lin@ingics.com
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Andrew F. Davis <afd@ti.com>
+Link: https://lore.kernel.org/r/20190719143637.2018-1-l.stach@pengutronix.de
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/lm363x-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tlv320aic31xx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/lm363x-regulator.c b/drivers/regulator/lm363x-regulator.c
-index 60f15a7227607..7e2ea8c76f6ea 100644
---- a/drivers/regulator/lm363x-regulator.c
-+++ b/drivers/regulator/lm363x-regulator.c
-@@ -30,7 +30,7 @@
+diff --git a/sound/soc/codecs/tlv320aic31xx.c b/sound/soc/codecs/tlv320aic31xx.c
+index 9b37e98da0db1..26a4f6cd32883 100644
+--- a/sound/soc/codecs/tlv320aic31xx.c
++++ b/sound/soc/codecs/tlv320aic31xx.c
+@@ -1553,7 +1553,8 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
+ 	aic31xx->gpio_reset = devm_gpiod_get_optional(aic31xx->dev, "reset",
+ 						      GPIOD_OUT_LOW);
+ 	if (IS_ERR(aic31xx->gpio_reset)) {
+-		dev_err(aic31xx->dev, "not able to acquire gpio\n");
++		if (PTR_ERR(aic31xx->gpio_reset) != -EPROBE_DEFER)
++			dev_err(aic31xx->dev, "not able to acquire gpio\n");
+ 		return PTR_ERR(aic31xx->gpio_reset);
+ 	}
  
- /* LM3632 */
- #define LM3632_BOOST_VSEL_MAX		0x26
--#define LM3632_LDO_VSEL_MAX		0x29
-+#define LM3632_LDO_VSEL_MAX		0x28
- #define LM3632_VBOOST_MIN		4500000
- #define LM3632_VLDO_MIN			4000000
+@@ -1564,7 +1565,9 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
+ 				      ARRAY_SIZE(aic31xx->supplies),
+ 				      aic31xx->supplies);
+ 	if (ret) {
+-		dev_err(aic31xx->dev, "Failed to request supplies: %d\n", ret);
++		if (ret != -EPROBE_DEFER)
++			dev_err(aic31xx->dev,
++				"Failed to request supplies: %d\n", ret);
+ 		return ret;
+ 	}
  
 -- 
 2.20.1
