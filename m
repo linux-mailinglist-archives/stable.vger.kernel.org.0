@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F8BCA4A6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CB7ACA495
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391139AbfJCQ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:26:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58418 "EHLO mail.kernel.org"
+        id S2389341AbfJCQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391162AbfJCQ0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:26:55 -0400
+        id S2391000AbfJCQ0B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 549F32133F;
-        Thu,  3 Oct 2019 16:26:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A933222CD;
+        Thu,  3 Oct 2019 16:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120014;
-        bh=csEuR0I3jvQUqVfdCrUe0yTO9jh+m3SBF9finvCv31s=;
+        s=default; t=1570119961;
+        bh=dFcVQl6E0c+wU1d5wfNevRmUe9k+SvO0hOvFIQK6V7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmYrFFXUuLhsIv1PRX0H4EGnUQk/8CR4KeBLc/mFECXEqEn6YYDtab/W2Iiiki5hW
-         22Egt40nM85ePItcY/MjyA+J35kyNbFLrAOiKlcwFbO3mhLdpruvDRel1FlOyEd6hn
-         NvZQ82J0GCsuoIILYbmV3WaWakpGHi9nvhnH76Is=
+        b=BuFBqs+pLET0XO1N1HJhhHJXdG9ZeMPMYGzRtrJoCA98ogxrPiJO8fiLXMBeizpm6
+         RKNpaRj7B8zwTg8oxL4lFsm77HI+uTjbonnlnl+dDJc51iwdNEK4n5gxUcD5/Tf7Gt
+         kUobC/e2cCHGOy+9EmHr477cqr1SN4xBjrtkfGeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Pan Xiuli <xiuli.pan@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 038/313] ASoC: tlv320aic31xx: suppress error message for EPROBE_DEFER
-Date:   Thu,  3 Oct 2019 17:50:16 +0200
-Message-Id: <20191003154536.990503538@linuxfoundation.org>
+Subject: [PATCH 5.2 046/313] ASoC: SOF: pci: mark last_busy value at runtime PM init
+Date:   Thu,  3 Oct 2019 17:50:24 +0200
+Message-Id: <20191003154537.681403696@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,48 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Pan Xiuli <xiuli.pan@linux.intel.com>
 
-[ Upstream commit b7e814deae33eb30f8f8c6528e8e69b107978d88 ]
+[ Upstream commit f1b1b9b136827915624136624ff54aba5890a15b ]
 
-Both the supplies and reset GPIO might need a probe deferral for the
-resource to be available. Don't print a error message in that case, as
-it is a normal operating condition.
+If last_busy value is not set at runtime PM enable, the device will be
+suspend immediately after usage counter is 0. Set the last_busy value to
+make sure delay is working at first boot up.
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Andrew F. Davis <afd@ti.com>
-Link: https://lore.kernel.org/r/20190719143637.2018-1-l.stach@pengutronix.de
+Signed-off-by: Pan Xiuli <xiuli.pan@linux.intel.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190722141402.7194-2-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320aic31xx.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/sof/sof-pci-dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/tlv320aic31xx.c b/sound/soc/codecs/tlv320aic31xx.c
-index 9b37e98da0db1..26a4f6cd32883 100644
---- a/sound/soc/codecs/tlv320aic31xx.c
-+++ b/sound/soc/codecs/tlv320aic31xx.c
-@@ -1553,7 +1553,8 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
- 	aic31xx->gpio_reset = devm_gpiod_get_optional(aic31xx->dev, "reset",
- 						      GPIOD_OUT_LOW);
- 	if (IS_ERR(aic31xx->gpio_reset)) {
--		dev_err(aic31xx->dev, "not able to acquire gpio\n");
-+		if (PTR_ERR(aic31xx->gpio_reset) != -EPROBE_DEFER)
-+			dev_err(aic31xx->dev, "not able to acquire gpio\n");
- 		return PTR_ERR(aic31xx->gpio_reset);
- 	}
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index b778dffb2d25c..49daf1390dac0 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -203,6 +203,9 @@ static void sof_pci_probe_complete(struct device *dev)
+ 	 */
+ 	pm_runtime_allow(dev);
  
-@@ -1564,7 +1565,9 @@ static int aic31xx_i2c_probe(struct i2c_client *i2c,
- 				      ARRAY_SIZE(aic31xx->supplies),
- 				      aic31xx->supplies);
- 	if (ret) {
--		dev_err(aic31xx->dev, "Failed to request supplies: %d\n", ret);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(aic31xx->dev,
-+				"Failed to request supplies: %d\n", ret);
- 		return ret;
- 	}
- 
++	/* mark last_busy for pm_runtime to make sure not suspend immediately */
++	pm_runtime_mark_last_busy(dev);
++
+ 	/* follow recommendation in pci-driver.c to decrement usage counter */
+ 	pm_runtime_put_noidle(dev);
+ }
 -- 
 2.20.1
 
