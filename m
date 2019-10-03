@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A3BCAA62
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9025CA955
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392518AbfJCREV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:04:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51506 "EHLO mail.kernel.org"
+        id S2392505AbfJCQlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392181AbfJCQlI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:41:08 -0400
+        id S2392502AbfJCQlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:41:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 963EC206BB;
-        Thu,  3 Oct 2019 16:41:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4521B207FF;
+        Thu,  3 Oct 2019 16:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120868;
-        bh=QpJnKHFPgpxos84+p/mFe97V7DiFatCPgCd4XKYrJVo=;
+        s=default; t=1570120870;
+        bh=TVLXiu/Wu0XFZ4nGnunWANHINoWqCjOOWL8M5FUu7eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSlgCgqbdsvHDI66d/TYpHgbimWjLq7t8/YbsbTKnfC2tG+0rPfM/JARZKHIpUVAa
-         R7sIWjr0IsyK/jCVIIiYRJl3ZfIghO6fkBT5iM0ewRU4dY0A+7pLo/624U1wjat2Do
-         cWpTvzHA/rGc9Rpgpw13xwdgxfCNBjMO6X7vL7ec=
+        b=HZ1C2YJaVkSDj+CMYSIKNG43PQ4jqOeICLKbjOT1/ZlNa216KHyZuxUnzMR+DndKL
+         Iinf3YPtnjJ5rEnVYkk0Y3AY3PjZqsbiERlPHBgf3FXxZtgSs8PcCS4xHOllpieFSf
+         DaTLFfv+hbJrGT2F6zCQFGnx4pSWHJu5mgrDKhis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodong Wang <bodong@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.3 032/344] net/mlx5: Add device ID of upcoming BlueField-2
-Date:   Thu,  3 Oct 2019 17:49:57 +0200
-Message-Id: <20191003154543.259907936@linuxfoundation.org>
+        stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 033/344] mISDN: enforce CAP_NET_RAW for raw sockets
+Date:   Thu,  3 Oct 2019 17:49:58 +0200
+Message-Id: <20191003154543.345992136@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,31 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodong Wang <bodong@mellanox.com>
+From: Ori Nimron <orinimron123@gmail.com>
 
-[ Upstream commit d19a79ee38c8fda6d297e4227e80db8bf51c71a6 ]
+[ Upstream commit b91ee4aa2a2199ba4d4650706c272985a5a32d80 ]
 
-Add the device ID of upcoming BlueField-2 integrated ConnectX-6 Dx
-network controller. Its VFs will be using the generic VF device ID:
-0x101e "ConnectX Family mlx5Gen Virtual Function".
+When creating a raw AF_ISDN socket, CAP_NET_RAW needs to be checked
+first.
 
-Fixes: 2e9d3e83ab82 ("net/mlx5: Update the list of the PCI supported devices")
-Signed-off-by: Bodong Wang <bodong@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Ori Nimron <orinimron123@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/isdn/mISDN/socket.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1554,6 +1554,7 @@ static const struct pci_device_id mlx5_c
- 	{ PCI_VDEVICE(MELLANOX, 0x101e), MLX5_PCI_DEV_IS_VF},	/* ConnectX Family mlx5Gen Virtual Function */
- 	{ PCI_VDEVICE(MELLANOX, 0xa2d2) },			/* BlueField integrated ConnectX-5 network controller */
- 	{ PCI_VDEVICE(MELLANOX, 0xa2d3), MLX5_PCI_DEV_IS_VF},	/* BlueField integrated ConnectX-5 network controller VF */
-+	{ PCI_VDEVICE(MELLANOX, 0xa2d6) },			/* BlueField-2 integrated ConnectX-6 Dx network controller */
- 	{ 0, }
- };
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -754,6 +754,8 @@ base_sock_create(struct net *net, struct
  
+ 	if (sock->type != SOCK_RAW)
+ 		return -ESOCKTNOSUPPORT;
++	if (!capable(CAP_NET_RAW))
++		return -EPERM;
+ 
+ 	sk = sk_alloc(net, PF_ISDN, GFP_KERNEL, &mISDN_proto, kern);
+ 	if (!sk)
 
 
