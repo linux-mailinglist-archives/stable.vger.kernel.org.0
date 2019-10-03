@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 375ACCA660
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D59A3CA668
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405120AbfJCQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54582 "EHLO mail.kernel.org"
+        id S2403879AbfJCQng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405140AbfJCQnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:43:13 -0400
+        id S2392708AbfJCQnd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D7692070B;
-        Thu,  3 Oct 2019 16:43:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 612A620830;
+        Thu,  3 Oct 2019 16:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120992;
-        bh=6wQX0xJ/q3Ed4fG+/mE1pswdwSLXVm2+9rffNMTgyZM=;
+        s=default; t=1570121011;
+        bh=uYufKrDpTA1A5HijS+YC1Ff7fl9umsInfHim8PACkIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7KejlMLMT3DxqKyeAjZr/z5HpDbRQZtJDMsUvLOnU9aIJjQcGWThdTUcxGHydLhf
-         8EXl2q5aVT0uh0wFX2nE2tZQSpC6Tof1NMVs8Qsjc81FE+DMd9/H2Jt78w9ic3Nkb0
-         3OAYDlxZ1Wy5e2Zk27z/uOnz48eyCzsaTEr7rW6k=
+        b=eSX43I2RRaQaDZeGTMy5FIcqh0bxXWKI5gnv8JCZCo2U3J8bpPjZdM5mkhdsLfbJZ
+         dcWc6Fq0N1P9yTM2ifOBqFFdYGBWZLdg6Rqt5kqp/5W/joKMHKIkBl2liKsdS51H5h
+         w5QFYDO9TnbCxXLX9NjvENfS8YNyfMN6UryQ0qWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tan Xiaojun <tanxiaojun@huawei.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Greg Ungerer <gerg@linux-m68k.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 115/344] perf record: Support aarch64 random socket_id assignment
-Date:   Thu,  3 Oct 2019 17:51:20 +0200
-Message-Id: <20191003154551.554233113@linuxfoundation.org>
+Subject: [PATCH 5.3 122/344] m68k: Prevent some compiler warnings in Coldfire builds
+Date:   Thu,  3 Oct 2019 17:51:27 +0200
+Message-Id: <20191003154552.239201470@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -53,78 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Xiaojun <tanxiaojun@huawei.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-[ Upstream commit 0a4d8fb229dd78f9e0752817339e19e903b37a60 ]
+[ Upstream commit 94c04390225bcd8283103fd0c04be20cc30cc979 ]
 
-Same as in the commit 01766229533f ("perf record: Support s390 random
-socket_id assignment"), aarch64 also have this problem.
+Since commit d3b41b6bb49e ("m68k: Dispatch nvram_ops calls to Atari or
+Mac functions"), Coldfire builds generate compiler warnings due to the
+unconditional inclusion of asm/atarihw.h and asm/macintosh.h.
 
-Without this fix:
+The inclusion of asm/atarihw.h causes warnings like this:
 
-  [root@localhost perf]# ./perf report --header -I -v
-  ...
-  socket_id number is too big.You may need to upgrade the perf tool.
+In file included from ./arch/m68k/include/asm/atarihw.h:25:0,
+                 from arch/m68k/kernel/setup_mm.c:41,
+                 from arch/m68k/kernel/setup.c:3:
+./arch/m68k/include/asm/raw_io.h:39:0: warning: "__raw_readb" redefined
+ #define __raw_readb in_8
 
-  # ========
-  # captured on    : Thu Aug  1 22:58:38 2019
-  # header version : 1
-  ...
-  # Core ID and Socket ID information is not available
-  ...
+In file included from ./arch/m68k/include/asm/io.h:6:0,
+                 from arch/m68k/kernel/setup_mm.c:36,
+                 from arch/m68k/kernel/setup.c:3:
+./arch/m68k/include/asm/io_no.h:16:0: note: this is the location of the previous definition
+ #define __raw_readb(addr) \
+...
 
-With this fix:
-  [root@localhost perf]# ./perf report --header -I -v
-  ...
-  cpumask list: 0-31
-  cpumask list: 32-63
-  cpumask list: 64-95
-  cpumask list: 96-127
+This issue is resolved by dropping the asm/raw_io.h include. It turns out
+that asm/io_mm.h already includes that header file.
 
-  # ========
-  # captured on    : Thu Aug  1 22:58:38 2019
-  # header version : 1
-  ...
-  # CPU 0: Core ID 0, Socket ID 36
-  # CPU 1: Core ID 1, Socket ID 36
-  ...
-  # CPU 126: Core ID 126, Socket ID 8442
-  # CPU 127: Core ID 127, Socket ID 8442
-  ...
+Moving the relevant macro definitions helps to clarify this dependency
+and make it safe to include asm/atarihw.h.
 
-Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Tzvetomir Stoyanov (VMware) <tz.stoyanov@gmail.com>
-Link: http://lkml.kernel.org/r/1564717737-21602-1-git-send-email-tanxiaojun@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+The other warnings look like this:
+
+In file included from arch/m68k/kernel/setup_mm.c:48:0,
+                 from arch/m68k/kernel/setup.c:3:
+./arch/m68k/include/asm/macintosh.h:19:35: warning: 'struct irq_data' declared inside parameter list will not be visible outside of this definition or declaration
+ extern void mac_irq_enable(struct irq_data *data);
+                                   ^~~~~~~~
+...
+
+This issue is resolved by adding the missing linux/irq.h include.
+
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Acked-by: Greg Ungerer <gerg@linux-m68k.org>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/header.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/m68k/include/asm/atarihw.h   | 9 ---------
+ arch/m68k/include/asm/io_mm.h     | 6 +++++-
+ arch/m68k/include/asm/macintosh.h | 1 +
+ 3 files changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
-index 1903d7ec97976..bf7cf12495539 100644
---- a/tools/perf/util/header.c
-+++ b/tools/perf/util/header.c
-@@ -2251,8 +2251,10 @@ static int process_cpu_topology(struct feat_fd *ff, void *data __maybe_unused)
- 	/* On s390 the socket_id number is not related to the numbers of cpus.
- 	 * The socket_id number might be higher than the numbers of cpus.
- 	 * This depends on the configuration.
-+	 * AArch64 is the same.
- 	 */
--	if (ph->env.arch && !strncmp(ph->env.arch, "s390", 4))
-+	if (ph->env.arch && (!strncmp(ph->env.arch, "s390", 4)
-+			  || !strncmp(ph->env.arch, "aarch64", 7)))
- 		do_core_id_test = false;
+diff --git a/arch/m68k/include/asm/atarihw.h b/arch/m68k/include/asm/atarihw.h
+index 533008262b691..5e5601c382b80 100644
+--- a/arch/m68k/include/asm/atarihw.h
++++ b/arch/m68k/include/asm/atarihw.h
+@@ -22,7 +22,6 @@
  
- 	for (i = 0; i < (u32)cpu_nr; i++) {
+ #include <linux/types.h>
+ #include <asm/bootinfo-atari.h>
+-#include <asm/raw_io.h>
+ #include <asm/kmap.h>
+ 
+ extern u_long atari_mch_cookie;
+@@ -132,14 +131,6 @@ extern struct atari_hw_present atari_hw_present;
+  */
+ 
+ 
+-#define atari_readb   raw_inb
+-#define atari_writeb  raw_outb
+-
+-#define atari_inb_p   raw_inb
+-#define atari_outb_p  raw_outb
+-
+-
+-
+ #include <linux/mm.h>
+ #include <asm/cacheflush.h>
+ 
+diff --git a/arch/m68k/include/asm/io_mm.h b/arch/m68k/include/asm/io_mm.h
+index 6c03ca5bc4365..819f611dccf28 100644
+--- a/arch/m68k/include/asm/io_mm.h
++++ b/arch/m68k/include/asm/io_mm.h
+@@ -29,7 +29,11 @@
+ #include <asm-generic/iomap.h>
+ 
+ #ifdef CONFIG_ATARI
+-#include <asm/atarihw.h>
++#define atari_readb   raw_inb
++#define atari_writeb  raw_outb
++
++#define atari_inb_p   raw_inb
++#define atari_outb_p  raw_outb
+ #endif
+ 
+ 
+diff --git a/arch/m68k/include/asm/macintosh.h b/arch/m68k/include/asm/macintosh.h
+index d9a08bed4b128..f653b60f2afcf 100644
+--- a/arch/m68k/include/asm/macintosh.h
++++ b/arch/m68k/include/asm/macintosh.h
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/seq_file.h>
+ #include <linux/interrupt.h>
++#include <linux/irq.h>
+ 
+ #include <asm/bootinfo-mac.h>
+ 
 -- 
 2.20.1
 
