@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3FB7CA90D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A44ACAA84
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404426AbfJCQgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45810 "EHLO mail.kernel.org"
+        id S2393395AbfJCRH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404421AbfJCQgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:36:32 -0400
+        id S2404445AbfJCQgh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 515E420830;
-        Thu,  3 Oct 2019 16:36:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C41D92133F;
+        Thu,  3 Oct 2019 16:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120591;
-        bh=LqUUEeoKYvkkjTMu9gUBe9IHfdDmeTnpBYJ6rUhGGkg=;
+        s=default; t=1570120597;
+        bh=1/khuy4O3zZHpw9LAei40BNaPZ3LL9+GHfckPbkNiRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IeuQboi9JYOO/ZyJWpmdoiJmqke/LwmYfTg/oKqXv3IELSuifOJaCAwLpkqu0kqKd
-         AE6IK8v/XwxWcmekLyj3uSXfUCBINm5qvDQ3CurbvoMXKhZXxsyt427Fo+7snSxxbR
-         ou05MyvOI7ygpC7MHcfz3xEFIXOvrT+vGaU0le74=
+        b=0Gc/bclxCzp/rOOf6On8di02KCoUAxT6Yk9055nXaUhNIoTc9IyZQtE9VL8nBB3K2
+         UvqKUL4CJjXJSFMAeuDI95UvwBzqrgOKQFDyw5VfH/hHFDP3OJKh5oyFSzsdQPBNoL
+         EaVoizOgVI6jQ7Iqvxr5QsB1YHOZFD65LUa9QmVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 5.2 278/313] smb3: allow disabling requesting leases
-Date:   Thu,  3 Oct 2019 17:54:16 +0200
-Message-Id: <20191003154600.435971176@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ding Xiang <dingxiang@cmss.chinamobile.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.2 280/313] ovl: Fix dereferencing possible ERR_PTR()
+Date:   Thu,  3 Oct 2019 17:54:18 +0200
+Message-Id: <20191003154600.644755235@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,118 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Ding Xiang <dingxiang@cmss.chinamobile.com>
 
-commit 3e7a02d47872081f4b6234a9f72500f1d10f060c upstream.
+commit 97f024b9171e74c4443bbe8a8dce31b917f97ac5 upstream.
 
-In some cases to work around server bugs or performance
-problems it can be helpful to be able to disable requesting
-SMB2.1/SMB3 leases on a particular mount (not to all servers
-and all shares we are mounted to). Add new mount parm
-"nolease" which turns off requesting leases on directory
-or file opens.  Currently the only way to disable leases is
-globally through a module load parameter. This is more
-granular.
+if ovl_encode_real_fh() fails, no memory was allocated
+and the error in the error-valued pointer should be returned.
 
-Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Fixes: 9b6faee07470 ("ovl: check ERR_PTR() return value from ovl_encode_fh()")
+Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
+Cc: <stable@vger.kernel.org> # v4.16+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/cifsfs.c   |    2 ++
- fs/cifs/cifsglob.h |    2 ++
- fs/cifs/connect.c  |    9 ++++++++-
- fs/cifs/smb2pdu.c  |    2 +-
- 4 files changed, 13 insertions(+), 2 deletions(-)
+ fs/overlayfs/export.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -433,6 +433,8 @@ cifs_show_options(struct seq_file *s, st
- 	cifs_show_security(s, tcon->ses);
- 	cifs_show_cache_flavor(s, cifs_sb);
+--- a/fs/overlayfs/export.c
++++ b/fs/overlayfs/export.c
+@@ -227,9 +227,8 @@ static int ovl_d_to_fh(struct dentry *de
+ 	/* Encode an upper or lower file handle */
+ 	fh = ovl_encode_real_fh(enc_lower ? ovl_dentry_lower(dentry) :
+ 				ovl_dentry_upper(dentry), !enc_lower);
+-	err = PTR_ERR(fh);
+ 	if (IS_ERR(fh))
+-		goto fail;
++		return PTR_ERR(fh);
  
-+	if (tcon->no_lease)
-+		seq_puts(s, ",nolease");
- 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER)
- 		seq_puts(s, ",multiuser");
- 	else if (tcon->ses->user_name)
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -575,6 +575,7 @@ struct smb_vol {
- 	bool noblocksnd:1;
- 	bool noautotune:1;
- 	bool nostrictsync:1; /* do not force expensive SMBflush on every sync */
-+	bool no_lease:1;     /* disable requesting leases */
- 	bool fsc:1;	/* enable fscache */
- 	bool mfsymlinks:1; /* use Minshall+French Symlinks */
- 	bool multiuser:1;
-@@ -1079,6 +1080,7 @@ struct cifs_tcon {
- 	bool need_reopen_files:1; /* need to reopen tcon file handles */
- 	bool use_resilient:1; /* use resilient instead of durable handles */
- 	bool use_persistent:1; /* use persistent instead of durable handles */
-+	bool no_lease:1;    /* Do not request leases on files or directories */
- 	__le32 capabilities;
- 	__u32 share_flags;
- 	__u32 maximal_access;
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -74,7 +74,7 @@ enum {
- 	Opt_user_xattr, Opt_nouser_xattr,
- 	Opt_forceuid, Opt_noforceuid,
- 	Opt_forcegid, Opt_noforcegid,
--	Opt_noblocksend, Opt_noautotune,
-+	Opt_noblocksend, Opt_noautotune, Opt_nolease,
- 	Opt_hard, Opt_soft, Opt_perm, Opt_noperm,
- 	Opt_mapposix, Opt_nomapposix,
- 	Opt_mapchars, Opt_nomapchars, Opt_sfu,
-@@ -133,6 +133,7 @@ static const match_table_t cifs_mount_op
- 	{ Opt_noforcegid, "noforcegid" },
- 	{ Opt_noblocksend, "noblocksend" },
- 	{ Opt_noautotune, "noautotune" },
-+	{ Opt_nolease, "nolease" },
- 	{ Opt_hard, "hard" },
- 	{ Opt_soft, "soft" },
- 	{ Opt_perm, "perm" },
-@@ -1709,6 +1710,9 @@ cifs_parse_mount_options(const char *mou
- 		case Opt_noautotune:
- 			vol->noautotune = 1;
- 			break;
-+		case Opt_nolease:
-+			vol->no_lease = 1;
-+			break;
- 		case Opt_hard:
- 			vol->retry = 1;
- 			break;
-@@ -3230,6 +3234,8 @@ static int match_tcon(struct cifs_tcon *
- 		return 0;
- 	if (tcon->handle_timeout != volume_info->handle_timeout)
- 		return 0;
-+	if (tcon->no_lease != volume_info->no_lease)
-+		return 0;
- 	return 1;
- }
- 
-@@ -3444,6 +3450,7 @@ cifs_get_tcon(struct cifs_ses *ses, stru
- 	tcon->nocase = volume_info->nocase;
- 	tcon->nohandlecache = volume_info->nohandlecache;
- 	tcon->local_lease = volume_info->local_lease;
-+	tcon->no_lease = volume_info->no_lease;
- 	INIT_LIST_HEAD(&tcon->pending_opens);
- 
- 	spin_lock(&cifs_tcp_ses_lock);
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2370,7 +2370,7 @@ SMB2_open_init(struct cifs_tcon *tcon, s
- 	iov[1].iov_len = uni_path_len;
- 	iov[1].iov_base = path;
- 
--	if (!server->oplocks)
-+	if ((!server->oplocks) || (tcon->no_lease))
- 		*oplock = SMB2_OPLOCK_LEVEL_NONE;
- 
- 	if (!(server->capabilities & SMB2_GLOBAL_CAP_LEASING) ||
+ 	err = -EOVERFLOW;
+ 	if (fh->len > buflen)
 
 
