@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A02D5CA8E2
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0A5CA8E4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392109AbfJCQeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42626 "EHLO mail.kernel.org"
+        id S2391440AbfJCQeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392104AbfJCQeM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:12 -0400
+        id S2404152AbfJCQeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:34:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33E4321A4C;
-        Thu,  3 Oct 2019 16:34:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D859F215EA;
+        Thu,  3 Oct 2019 16:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120451;
-        bh=QClqtPxb64q0UWSVUfcPO9zkNVeRgt5dt0wiCLmm0X8=;
+        s=default; t=1570120454;
+        bh=hg7cnCXjeGWahhxiH2BWq0tRZool+GN4nN36HueKydU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mThRL0GJi3Uqi+/CHQFCppF8iNNJJYzZPUhNsonERIb+XkkcYqYzgCB5dDW19y5cs
-         9+7hNS27Jw3yANRtkMAbcTv0x0qv5p8l/BcpG9/rkaj2wePQiwGtHYo+/OHP+lPmp0
-         T/0Te4KPIiWsMxIQBeFmnSojCcu2A+uH+euNNQqg=
+        b=H8NK+EuFQF+BoD6qhy2DkkjrSwjOm2CtB20KUbMdijL10gVQVemFxrbB/0jeMbVo3
+         lkD6x6zafOzaPPpJUmpO2Je08lKvFFa8mZkKuownVWkFUA7AKFz/M4h02qUsrJDsvq
+         QquXyWy8V9m8wa0d9WHqS7Mp+uHCwsm17ceOxQvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 227/313] rcu/tree: Fix SCHED_FIFO params
-Date:   Thu,  3 Oct 2019 17:53:25 +0200
-Message-Id: <20191003154555.383362319@linuxfoundation.org>
+        stable@vger.kernel.org, Jan-Marek Glogowski <glogow@fbihome.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 228/313] ALSA: hda/realtek - PCI quirk for Medion E4254
+Date:   Thu,  3 Oct 2019 17:53:26 +0200
+Message-Id: <20191003154555.468959729@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,43 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jan-Marek Glogowski <glogow@fbihome.de>
 
-[ Upstream commit 130d9c331bc59a8733b47c58ef197a2b1fa3ed43 ]
+[ Upstream commit bd9c10bc663dd2eaac8fe39dad0f18cd21527446 ]
 
-A rather embarrasing mistake had us call sched_setscheduler() before
-initializing the parameters passed to it.
+The laptop has a combined jack to attach headsets on the right.
+The BIOS encodes them as two different colored jacks at the front,
+but otherwise it seems to be configured ok. But any adaption of
+the pins config on its own doesn't fix the jack detection to work
+in Linux. Still Windows works correct.
 
-Fixes: 1a763fd7c633 ("rcu/tree: Call setschedule() gp ktread to SCHED_FIFO outside of atomic region")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
+This is somehow fixed by chaining ALC256_FIXUP_ASUS_HEADSET_MODE,
+which seems to register the microphone jack as a headset part and
+also results in fixing jack sensing, visible in dmesg as:
+
+-snd_hda_codec_realtek hdaudioC0D0:      Mic=0x19
++snd_hda_codec_realtek hdaudioC0D0:      Headset Mic=0x19
+
+[ Actually the essential change is the location of the jack; the
+  driver created "Front Mic Jack" without the matching volume / mute
+  control element due to its jack location, which confused PA.
+  -- tiwai ]
+
+Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/8f4f9b20-0aeb-f8f1-c02f-fd53c09679f1@fbihome.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 32ea75acba144..affa7aae758f3 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3123,13 +3123,13 @@ static int __init rcu_spawn_gp_kthread(void)
- 	t = kthread_create(rcu_gp_kthread, NULL, "%s", rcu_state.name);
- 	if (WARN_ONCE(IS_ERR(t), "%s: Could not start grace-period kthread, OOM is now expected behavior\n", __func__))
- 		return 0;
--	if (kthread_prio)
-+	if (kthread_prio) {
-+		sp.sched_priority = kthread_prio;
- 		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
-+	}
- 	rnp = rcu_get_root();
- 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
- 	rcu_state.gp_kthread = t;
--	if (kthread_prio)
--		sp.sched_priority = kthread_prio;
- 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 	wake_up_process(t);
- 	rcu_spawn_nocb_kthreads();
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index d223a79ac934f..36aee8ad20547 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5870,6 +5870,7 @@ enum {
+ 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC299_FIXUP_PREDATOR_SPK,
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
++	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -6926,6 +6927,16 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
+ 	},
++	[ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x04a11040 },
++			{ 0x21, 0x04211020 },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -7189,6 +7200,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
+ 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
++	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ 
+ #if 0
+ 	/* Below is a quirk table taken from the old code.
+@@ -7357,6 +7369,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
+ 	{.id = ALC295_FIXUP_CHROME_BOOK, .name = "alc-chrome-book"},
+ 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
+ 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
++	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
+ 	{}
+ };
+ #define ALC225_STANDARD_PINS \
 -- 
 2.20.1
 
