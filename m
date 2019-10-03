@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CE63CA96E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6853CAADF
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392634AbfJCQmV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53292 "EHLO mail.kernel.org"
+        id S2403887AbfJCRPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:15:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392630AbfJCQmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:42:20 -0400
+        id S2391063AbfJCQ0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A7F2245A;
-        Thu,  3 Oct 2019 16:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2D120867;
+        Thu,  3 Oct 2019 16:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120939;
-        bh=Xyvrre4X+S8jYk7Ug49uysaicfimb21oXHG48XhPxd0=;
+        s=default; t=1570119982;
+        bh=VR7Qr2sSZDvvWUGGowSu7a6WGDqx1uqcGdlqRG8+qwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piniOYVvDXvemu50yb0Y429V22xi5/dHpO+JS2hPE6VYNItq6ZCSoM+GCL8TDaFPT
-         UuN7V8JfTQtNDg02oRhMCEmNLYZo1I4j40mQZ3hTO23DF4ZsMYTvCUJjKGFQNuwjaV
-         VhhIkS0z/nj5uE10uSWaqLCEXMllAKPiwVZT11+A=
+        b=U+//bAofW5n3o0eTLRKEah11ljQrVsLxl+VtdIQz9T1sezcxCiM29VBU/2n6GSICN
+         UHT6eGzZR4Zk0p2mj6y7eTKwV63T96QsMqerQu6HvCnRFcPwxC9sJ2IVVgzPnbhsrA
+         QV1n2zsn9OFx5Kk2G1hpxBeJl/tJ9En/nfHhe3sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
+        stable@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, bristot@redhat.com,
-        claudio@evidence.eu.com, lizefan@huawei.com, longman@redhat.com,
-        luca.abeni@santannapisa.it, mathieu.poirier@linaro.org,
-        rostedt@goodmis.org, tj@kernel.org,
-        tommaso.cucinotta@santannapisa.it, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 067/344] rcu/tree: Call setschedule() gp ktread to SCHED_FIFO outside of atomic region
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 054/313] sched/fair: Fix imbalance due to CPU affinity
 Date:   Thu,  3 Oct 2019 17:50:32 +0200
-Message-Id: <20191003154546.721434354@linuxfoundation.org>
+Message-Id: <20191003154538.389857532@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,60 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit 1a763fd7c6335e3122c1cc09576ef6c99ada4267 ]
+[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
 
-sched_setscheduler() needs to acquire cpuset_rwsem, but it is currently
-called from an invalid (atomic) context by rcu_spawn_gp_kthread().
+The load_balance() has a dedicated mecanism to detect when an imbalance
+is due to CPU affinity and must be handled at parent level. In this case,
+the imbalance field of the parent's sched_group is set.
 
-Fix that by simply moving sched_setscheduler_nocheck() call outside of
-the atomic region, as it doesn't actually require to be guarded by
-rcu_node lock.
+The description of sg_imbalanced() gives a typical example of two groups
+of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
+group and 3 CPUs of the second group. Something like:
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+	{ 0 1 2 3 } { 4 5 6 7 }
+	        *     * * *
+
+But the load_balance fails to fix this UC on my octo cores system
+made of 2 clusters of quad cores.
+
+Whereas the load_balance is able to detect that the imbalanced is due to
+CPU affinity, it fails to fix it because the imbalance field is cleared
+before letting parent level a chance to run. In fact, when the imbalance is
+detected, the load_balance reruns without the CPU with pinned tasks. But
+there is no other running tasks in the situation described above and
+everything looks balanced this time so the imbalance field is immediately
+cleared.
+
+The imbalance field should not be cleared if there is no other task to move
+when the imbalance is detected.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: bristot@redhat.com
-Cc: claudio@evidence.eu.com
-Cc: lizefan@huawei.com
-Cc: longman@redhat.com
-Cc: luca.abeni@santannapisa.it
-Cc: mathieu.poirier@linaro.org
-Cc: rostedt@goodmis.org
-Cc: tj@kernel.org
-Cc: tommaso.cucinotta@santannapisa.it
-Link: https://lkml.kernel.org/r/20190719140000.31694-8-juri.lelli@redhat.com
+Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index a14e5fbbea467..eb764c24bc4d4 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -3234,13 +3234,13 @@ static int __init rcu_spawn_gp_kthread(void)
- 	t = kthread_create(rcu_gp_kthread, NULL, "%s", rcu_state.name);
- 	if (WARN_ONCE(IS_ERR(t), "%s: Could not start grace-period kthread, OOM is now expected behavior\n", __func__))
- 		return 0;
-+	if (kthread_prio)
-+		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
- 	rnp = rcu_get_root();
- 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
- 	rcu_state.gp_kthread = t;
--	if (kthread_prio) {
-+	if (kthread_prio)
- 		sp.sched_priority = kthread_prio;
--		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
--	}
- 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 	wake_up_process(t);
- 	rcu_spawn_nocb_kthreads();
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index b07672e793a81..f72bf8122fe4e 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9319,9 +9319,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ out_balanced:
+ 	/*
+ 	 * We reach balance although we may have faced some affinity
+-	 * constraints. Clear the imbalance flag if it was set.
++	 * constraints. Clear the imbalance flag only if other tasks got
++	 * a chance to move and fix the imbalance.
+ 	 */
+-	if (sd_parent) {
++	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
+ 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
+ 
+ 		if (*group_imbalance)
 -- 
 2.20.1
 
