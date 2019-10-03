@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A809CA5C1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BAFCA7BD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392237AbfJCQgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
+        id S2405223AbfJCQvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392233AbfJCQgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:36:24 -0400
+        id S2405182AbfJCQvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:51:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60B6E2070B;
-        Thu,  3 Oct 2019 16:36:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC8EA2054F;
+        Thu,  3 Oct 2019 16:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120583;
-        bh=cbbUuwtBYjhOyA1uyjDaX4FUa7H3n8tt7l1MRUduojs=;
+        s=default; t=1570121467;
+        bh=OSDbZ+qnZK1aTfBoQCDkx4FU7CwedCYXzK82/thGqPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=njBHleoPPfTXjFNlNEgPVKHf56o/RJkXDitVtIcn+u8HRiMVEBWZzXeF+VEs4j367
-         4lgz14j+b/gnx1N7EMkv1zSpUlqkm2PK8jumtwWT2ZzEe3/S+nLmA8B82naYEzhHYn
-         rlmNFadW2TD9SJJvcYYOsOSnZoJhrb3czz+LCCQQ=
+        b=SVxXFvyWKEaOU7dapxkbpx4qcEGHKl5bEFRD0yTtl9wf5Ux58GN7G28PirqEo34be
+         16dncNx5AxqQGdwf+bFAlAIAOYggKbDBl28A1NuVpEe5E5tXOE9MZX05GCtD1QqTFP
+         SaXEQgVCT5F4EER91qPPItAp2Zmdd0RsS8lOYeWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: [PATCH 5.2 275/313] i40e: check __I40E_VF_DISABLE bit in i40e_sync_filters_subtask
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Peter Jones <pjones@redhat.com>
+Subject: [PATCH 5.3 288/344] efifb: BGRT: Improve efifb_bgrt_sanity_check
 Date:   Thu,  3 Oct 2019 17:54:13 +0200
-Message-Id: <20191003154600.124184166@linuxfoundation.org>
+Message-Id: <20191003154608.221655861@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit a7542b87607560d0b89e7ff81d870bd6ff8835cb upstream.
+commit 51677dfcc17f88ed754143df670ff064eae67f84 upstream.
 
-While testing VF spawn/destroy the following panic occurred.
+For various reasons, at least with x86 EFI firmwares, the xoffset and
+yoffset in the BGRT info are not always reliable.
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000029
-[...]
-Workqueue: i40e i40e_service_task [i40e]
-RIP: 0010:i40e_sync_vsi_filters+0x6fd/0xc60 [i40e]
-[...]
-Call Trace:
- ? __switch_to_asm+0x35/0x70
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x35/0x70
- ? _cond_resched+0x15/0x30
- i40e_sync_filters_subtask+0x56/0x70 [i40e]
- i40e_service_task+0x382/0x11b0 [i40e]
- ? __switch_to_asm+0x41/0x70
- ? __switch_to_asm+0x41/0x70
- process_one_work+0x1a7/0x3b0
- worker_thread+0x30/0x390
- ? create_worker+0x1a0/0x1a0
- kthread+0x112/0x130
- ? kthread_bind+0x30/0x30
- ret_from_fork+0x35/0x40
+Extensive testing has shown that when the info is correct, the
+BGRT image is always exactly centered horizontally (the yoffset variable
+is more variable and not always predictable).
 
-Investigation revealed a race where pf->vf[vsi->vf_id].trusted may get
-accessed by the watchdog via i40e_sync_filters_subtask() although
-i40e_free_vfs() already free'd pf->vf.
-To avoid this the call to i40e_sync_vsi_filters() in
-i40e_sync_filters_subtask() needs to be guarded by __I40E_VF_DISABLE,
-which is also used by i40e_free_vfs().
+This commit simplifies / improves the bgrt_sanity_check to simply
+check that the BGRT image is exactly centered horizontally and skips
+(re)drawing it when it is not.
 
-Note: put the __I40E_VF_DISABLE check after the
-__I40E_MACVLAN_SYNC_PENDING check as the latter is more likely to
-trigger.
+This fixes the BGRT image sometimes being drawn in the wrong place.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Peter Jones <pjones@redhat.com>,
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190721131918.10115-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/video/fbdev/efifb.c |   27 ++++++---------------------
+ 1 file changed, 6 insertions(+), 21 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2586,6 +2586,10 @@ static void i40e_sync_filters_subtask(st
- 		return;
- 	if (!test_and_clear_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state))
- 		return;
-+	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state)) {
-+		set_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state);
-+		return;
-+	}
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32
+  */
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+ {
+-	static const int default_resolutions[][2] = {
+-		{  800,  600 },
+-		{ 1024,  768 },
+-		{ 1280, 1024 },
+-	};
+-	u32 i, right_margin;
++	/*
++	 * All x86 firmwares horizontally center the image (the yoffset
++	 * calculations differ between boards, but xoffset is predictable).
++	 */
++	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
  
- 	for (v = 0; v < pf->num_alloc_vsi; v++) {
- 		if (pf->vsi[v] &&
-@@ -2600,6 +2604,7 @@ static void i40e_sync_filters_subtask(st
- 			}
- 		}
- 	}
-+	clear_bit(__I40E_VF_DISABLE, pf->state);
+-	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
+-		if (default_resolutions[i][0] == si->lfb_width &&
+-		    default_resolutions[i][1] == si->lfb_height)
+-			break;
+-	}
+-	/* If not a default resolution used for textmode, this should be fine */
+-	if (i >= ARRAY_SIZE(default_resolutions))
+-		return true;
+-
+-	/* If the right margin is 5 times smaller then the left one, reject */
+-	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
+-	if (right_margin < (bgrt_tab.image_offset_x / 5))
+-		return false;
+-
+-	return true;
++	return bgrt_tab.image_offset_x == expected_xoffset;
  }
- 
- /**
+ #else
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
 
 
