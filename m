@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7406ACACA9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCDC3CACAC
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387636AbfJCQOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37304 "EHLO mail.kernel.org"
+        id S2387458AbfJCQOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729087AbfJCQOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:11 -0400
+        id S2388541AbfJCQON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 386B02054F;
-        Thu,  3 Oct 2019 16:14:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B351520865;
+        Thu,  3 Oct 2019 16:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119249;
-        bh=3WwguDc4N+jwyxYyr5VZivaM+c7eenyCQ0XBChLpn1w=;
+        s=default; t=1570119252;
+        bh=jCpjBMoXOqDB2adKnl5Oq4QiFrn57XrTTlkr3kExZes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQClggXd2zhLRfgImsun7oIM0XWouO4gK7zdteDk/7a77DFEyxliokq+Q50LhoB5P
-         aPhfV2OK8g2kGhMMq3JSQJyQiNUskDFYUAB549h+Kv/OuBNCvmHiy6j4PjJImGGZeD
-         g2I0gg8St4LKsWAftCcV4OvcL08T3taxsXAU9Yro=
+        b=iUgeEbP4zVg0R0FWs8Nh2FoUdZveyoXmEt54HgxVCiAEqQYOSmnrso+c2s1qsIzAR
+         5SOgpEhK6Nv2HyHMeU6pmkYXqeWK4NBgbowYlrCqPpgatrenMsYO3osGFDpdu0hlZ7
+         vs9kUL7eT5nYSeeQsq14c2jGyEzwUj/VlshglPaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        NeilBrown <neilb@suse.de>, Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Rientjes <rientjes@google.com>,
+        Yafang Shao <shaoyafang@didiglobal.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 182/185] md/raid0: avoid RAID0 data corruption due to layout confusion.
-Date:   Thu,  3 Oct 2019 17:54:20 +0200
-Message-Id: <20191003154522.204761992@linuxfoundation.org>
+Subject: [PATCH 4.14 183/185] mm/compaction.c: clear total_{migrate,free}_scanned before scanning a new zone
+Date:   Thu,  3 Oct 2019 17:54:21 +0200
+Message-Id: <20191003154522.282309670@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -45,138 +50,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-[ Upstream commit c84a1372df929033cb1a0441fb57bd3932f39ac9 ]
+[ Upstream commit a94b525241c0fff3598809131d7cfcfe1d572d8c ]
 
-If the drives in a RAID0 are not all the same size, the array is
-divided into zones.
-The first zone covers all drives, to the size of the smallest.
-The second zone covers all drives larger than the smallest, up to
-the size of the second smallest - etc.
+total_{migrate,free}_scanned will be added to COMPACTMIGRATE_SCANNED and
+COMPACTFREE_SCANNED in compact_zone().  We should clear them before
+scanning a new zone.  In the proc triggered compaction, we forgot clearing
+them.
 
-A change in Linux 3.14 unintentionally changed the layout for the
-second and subsequent zones.  All the correct data is still stored, but
-each chunk may be assigned to a different device than in pre-3.14 kernels.
-This can lead to data corruption.
-
-It is not possible to determine what layout to use - it depends which
-kernel the data was written by.
-So we add a module parameter to allow the old (0) or new (1) layout to be
-specified, and refused to assemble an affected array if that parameter is
-not set.
-
-Fixes: 20d0189b1012 ("block: Introduce new bio_split()")
-cc: stable@vger.kernel.org (3.14+)
-Acked-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+[laoar.shao@gmail.com: introduce a helper compact_zone_counters_init()]
+  Link: http://lkml.kernel.org/r/1563869295-25748-1-git-send-email-laoar.shao@gmail.com
+[akpm@linux-foundation.org: expand compact_zone_counters_init() into its single callsite, per mhocko]
+[vbabka@suse.cz: squash compact_zone() list_head init as well]
+  Link: http://lkml.kernel.org/r/1fb6f7da-f776-9e42-22f8-bbb79b030b98@suse.cz
+[akpm@linux-foundation.org: kcompactd_do_work(): avoid unnecessary initialization of cc.zone]
+Link: http://lkml.kernel.org/r/1563789275-9639-1-git-send-email-laoar.shao@gmail.com
+Fixes: 7f354a548d1c ("mm, compaction: add vmstats for kcompactd work")
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Yafang Shao <shaoyafang@didiglobal.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c | 33 ++++++++++++++++++++++++++++++++-
- drivers/md/raid0.h | 14 ++++++++++++++
- 2 files changed, 46 insertions(+), 1 deletion(-)
+ mm/compaction.c | 35 +++++++++++++----------------------
+ 1 file changed, 13 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 5ecba9eef441f..28fb717217706 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -26,6 +26,9 @@
- #include "raid0.h"
- #include "raid5.h"
+diff --git a/mm/compaction.c b/mm/compaction.c
+index 85395dc6eb137..eb8e7f5d3a08e 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1517,6 +1517,17 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
+ 	unsigned long end_pfn = zone_end_pfn(zone);
+ 	const bool sync = cc->mode != MIGRATE_ASYNC;
  
-+static int default_layout = 0;
-+module_param(default_layout, int, 0644);
++	/*
++	 * These counters track activities during zone compaction.  Initialize
++	 * them before compacting a new zone.
++	 */
++	cc->total_migrate_scanned = 0;
++	cc->total_free_scanned = 0;
++	cc->nr_migratepages = 0;
++	cc->nr_freepages = 0;
++	INIT_LIST_HEAD(&cc->freepages);
++	INIT_LIST_HEAD(&cc->migratepages);
 +
- #define UNSUPPORTED_MDDEV_FLAGS		\
- 	((1L << MD_HAS_JOURNAL) |	\
- 	 (1L << MD_JOURNAL_CLEAN) |	\
-@@ -146,6 +149,19 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
- 	}
- 	pr_debug("md/raid0:%s: FINAL %d zones\n",
- 		 mdname(mddev), conf->nr_strip_zones);
-+
-+	if (conf->nr_strip_zones == 1) {
-+		conf->layout = RAID0_ORIG_LAYOUT;
-+	} else if (default_layout == RAID0_ORIG_LAYOUT ||
-+		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = default_layout;
-+	} else {
-+		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
-+		       mdname(mddev));
-+		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
-+		err = -ENOTSUPP;
-+		goto abort;
-+	}
- 	/*
- 	 * now since we have the hard sector sizes, we can make sure
- 	 * chunk size is a multiple of that sector size
-@@ -552,10 +568,12 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
- 
- static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
+ 	cc->migratetype = gfpflags_to_migratetype(cc->gfp_mask);
+ 	ret = compaction_suitable(zone, cc->order, cc->alloc_flags,
+ 							cc->classzone_idx);
+@@ -1680,10 +1691,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
  {
-+	struct r0conf *conf = mddev->private;
- 	struct strip_zone *zone;
- 	struct md_rdev *tmp_dev;
- 	sector_t bio_sector;
- 	sector_t sector;
-+	sector_t orig_sector;
- 	unsigned chunk_sects;
- 	unsigned sectors;
+ 	enum compact_result ret;
+ 	struct compact_control cc = {
+-		.nr_freepages = 0,
+-		.nr_migratepages = 0,
+-		.total_migrate_scanned = 0,
+-		.total_free_scanned = 0,
+ 		.order = order,
+ 		.gfp_mask = gfp_mask,
+ 		.zone = zone,
+@@ -1696,8 +1703,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
+ 		.ignore_skip_hint = (prio == MIN_COMPACT_PRIORITY),
+ 		.ignore_block_suitable = (prio == MIN_COMPACT_PRIORITY)
+ 	};
+-	INIT_LIST_HEAD(&cc.freepages);
+-	INIT_LIST_HEAD(&cc.migratepages);
  
-@@ -588,8 +606,21 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
- 		bio = split;
- 	}
+ 	ret = compact_zone(zone, &cc);
  
-+	orig_sector = sector;
- 	zone = find_zone(mddev->private, &sector);
--	tmp_dev = map_sector(mddev, zone, sector, &sector);
-+	switch (conf->layout) {
-+	case RAID0_ORIG_LAYOUT:
-+		tmp_dev = map_sector(mddev, zone, orig_sector, &sector);
-+		break;
-+	case RAID0_ALT_MULTIZONE_LAYOUT:
-+		tmp_dev = map_sector(mddev, zone, sector, &sector);
-+		break;
-+	default:
-+		WARN("md/raid0:%s: Invalid layout\n", mdname(mddev));
-+		bio_io_error(bio);
-+		return true;
-+	}
+@@ -1796,8 +1801,6 @@ static void compact_node(int nid)
+ 	struct zone *zone;
+ 	struct compact_control cc = {
+ 		.order = -1,
+-		.total_migrate_scanned = 0,
+-		.total_free_scanned = 0,
+ 		.mode = MIGRATE_SYNC,
+ 		.ignore_skip_hint = true,
+ 		.whole_zone = true,
+@@ -1811,11 +1814,7 @@ static void compact_node(int nid)
+ 		if (!populated_zone(zone))
+ 			continue;
+ 
+-		cc.nr_freepages = 0;
+-		cc.nr_migratepages = 0;
+ 		cc.zone = zone;
+-		INIT_LIST_HEAD(&cc.freepages);
+-		INIT_LIST_HEAD(&cc.migratepages);
+ 
+ 		compact_zone(zone, &cc);
+ 
+@@ -1924,8 +1923,6 @@ static void kcompactd_do_work(pg_data_t *pgdat)
+ 	struct zone *zone;
+ 	struct compact_control cc = {
+ 		.order = pgdat->kcompactd_max_order,
+-		.total_migrate_scanned = 0,
+-		.total_free_scanned = 0,
+ 		.classzone_idx = pgdat->kcompactd_classzone_idx,
+ 		.mode = MIGRATE_SYNC_LIGHT,
+ 		.ignore_skip_hint = true,
+@@ -1950,16 +1947,10 @@ static void kcompactd_do_work(pg_data_t *pgdat)
+ 							COMPACT_CONTINUE)
+ 			continue;
+ 
+-		cc.nr_freepages = 0;
+-		cc.nr_migratepages = 0;
+-		cc.total_migrate_scanned = 0;
+-		cc.total_free_scanned = 0;
+-		cc.zone = zone;
+-		INIT_LIST_HEAD(&cc.freepages);
+-		INIT_LIST_HEAD(&cc.migratepages);
+-
+ 		if (kthread_should_stop())
+ 			return;
 +
- 	bio_set_dev(bio, tmp_dev->bdev);
- 	bio->bi_iter.bi_sector = sector + zone->dev_start +
- 		tmp_dev->data_offset;
-diff --git a/drivers/md/raid0.h b/drivers/md/raid0.h
-index 540e65d92642d..3816e5477db1e 100644
---- a/drivers/md/raid0.h
-+++ b/drivers/md/raid0.h
-@@ -8,11 +8,25 @@ struct strip_zone {
- 	int	 nb_dev;	/* # of devices attached to the zone */
- };
++		cc.zone = zone;
+ 		status = compact_zone(zone, &cc);
  
-+/* Linux 3.14 (20d0189b101) made an unintended change to
-+ * the RAID0 layout for multi-zone arrays (where devices aren't all
-+ * the same size.
-+ * RAID0_ORIG_LAYOUT restores the original layout
-+ * RAID0_ALT_MULTIZONE_LAYOUT uses the altered layout
-+ * The layouts are identical when there is only one zone (all
-+ * devices the same size).
-+ */
-+
-+enum r0layout {
-+	RAID0_ORIG_LAYOUT = 1,
-+	RAID0_ALT_MULTIZONE_LAYOUT = 2,
-+};
- struct r0conf {
- 	struct strip_zone	*strip_zone;
- 	struct md_rdev		**devlist; /* lists of rdevs, pointed to
- 					    * by strip_zone->dev */
- 	int			nr_strip_zones;
-+	enum r0layout		layout;
- };
- 
- #endif
+ 		if (status == COMPACT_SUCCESS) {
 -- 
 2.20.1
 
