@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75A3ECA929
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6418CAB0B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404698AbfJCQiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:38:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
+        id S2391646AbfJCRQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:16:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733111AbfJCQiU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:38:20 -0400
+        id S2390588AbfJCQXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:23:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3782221783;
-        Thu,  3 Oct 2019 16:38:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BB0C2054F;
+        Thu,  3 Oct 2019 16:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120699;
-        bh=AVrR9+tsKYdOfYBrPs/yN9cRUzxjuwMAG5sQEM8OOFY=;
+        s=default; t=1570119812;
+        bh=TJDCL/OzCzUm1R6VioSOIvxqDHPnNF2nC0aYF3S27Po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fhz1XJ/9MNv4CoE6k3DwV7ZPmCi0FYU9T0EU9oiYBdICUbiKJGePCYpOzoxJMLDvp
-         0/O3nvUgBgsfUiUJYASXK0kVP6pk0d0+mCbaGT938FeZWMW44ZwX0PSpweqMoZeNH/
-         bXCIGE4ujJQDYFPk13GUW55gj8RE4ZLBsKcBV1uo=
+        b=Kk0keye6z0j0yOCYSAF4LPHasJMrr7kpKAUVkgc+a4YeQ2+8QI6BFxfaVe54glYcw
+         z6j5CZfVE3XGHC6AGU6VIMRPy8crp4kN5ipz8v7+ZCaa5iOse6cBUoPEr1rYir6vwT
+         xF5zcQkIqmKZHb0U3h0VpH21yxyAPKfEuGUZkSH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.2 291/313] ACPI / LPSS: Save/restore LPSS private registers also on Lynxpoint
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.19 203/211] quota: fix wrong condition in is_quota_modification()
 Date:   Thu,  3 Oct 2019 17:54:29 +0200
-Message-Id: <20191003154601.784501883@linuxfoundation.org>
+Message-Id: <20191003154530.006484306@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 57b3006492a4c11b2d4a772b5b2905d544a32037 upstream.
+commit 6565c182094f69e4ffdece337d395eb7ec760efc upstream.
 
-My assumption in commit b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private
-register restoring during resume") that Intel Lynxpoint and compatible
-based chipsets may not need LPSS private registers saving and restoring
-over suspend/resume cycle turned out to be false on Intel Broadwell.
+Quoted from
+commit 3da40c7b0898 ("ext4: only call ext4_truncate when size <= isize")
 
-Curtis Malainey sent a patch bringing above change back and reported the
-LPSS SPI Chip Select control was lost over suspend/resume cycle on
-Broadwell machine.
+" At LSF we decided that if we truncate up from isize we shouldn't trim
+  fallocated blocks that were fallocated with KEEP_SIZE and are past the
+ new i_size.  This patch fixes ext4 to do this. "
 
-Instead of reverting above commit lets add LPSS private register
-saving/restoring also for all LPSS SPI, I2C and UART controllers on
-Lynxpoint and compatible chipset to make sure context is not lost in
-case nothing else preserves it like firmware or if LPSS is always on.
+And generic/092 of fstest have covered this case for long time, however
+is_quota_modification() didn't adjust based on that rule, so that in
+below condition, we will lose to quota block change:
+- fallocate blocks beyond EOF
+- remount
+- truncate(file_path, file_size)
 
-Fixes: b53548f9d9e4 ("spi: pxa2xx: Remove LPSS private register restoring during resume")
-Reported-by: Curtis Malainey <cujomalainey@chromium.org>
-Tested-by: Curtis Malainey <cujomalainey@chromium.org>
-Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fix it.
+
+Link: https://lore.kernel.org/r/20190911093650.35329-1-yuchao0@huawei.com
+Fixes: 3da40c7b0898 ("ext4: only call ext4_truncate when size <= isize")
+CC: stable@vger.kernel.org
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/acpi/acpi_lpss.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ include/linux/quotaops.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -219,12 +219,13 @@ static void bsw_pwm_setup(struct lpss_pr
+--- a/include/linux/quotaops.h
++++ b/include/linux/quotaops.h
+@@ -22,7 +22,7 @@ static inline struct quota_info *sb_dqop
+ /* i_mutex must being held */
+ static inline bool is_quota_modification(struct inode *inode, struct iattr *ia)
+ {
+-	return (ia->ia_valid & ATTR_SIZE && ia->ia_size != inode->i_size) ||
++	return (ia->ia_valid & ATTR_SIZE) ||
+ 		(ia->ia_valid & ATTR_UID && !uid_eq(ia->ia_uid, inode->i_uid)) ||
+ 		(ia->ia_valid & ATTR_GID && !gid_eq(ia->ia_gid, inode->i_gid));
  }
- 
- static const struct lpss_device_desc lpt_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
-+			| LPSS_SAVE_CTX,
- 	.prv_offset = 0x800,
- };
- 
- static const struct lpss_device_desc lpt_i2c_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_LTR | LPSS_SAVE_CTX,
- 	.prv_offset = 0x800,
- };
- 
-@@ -236,7 +237,8 @@ static struct property_entry uart_proper
- };
- 
- static const struct lpss_device_desc lpt_uart_dev_desc = {
--	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR,
-+	.flags = LPSS_CLK | LPSS_CLK_GATE | LPSS_CLK_DIVIDER | LPSS_LTR
-+			| LPSS_SAVE_CTX,
- 	.clk_con_id = "baudclk",
- 	.prv_offset = 0x800,
- 	.setup = lpss_uart_setup,
 
 
