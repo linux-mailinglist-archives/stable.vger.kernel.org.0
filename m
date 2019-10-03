@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC41ECA49D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AFCFCA49F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391083AbfJCQ0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:26:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
+        id S2389997AbfJCQ0l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:26:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389945AbfJCQ02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:26:28 -0400
+        id S2391100AbfJCQ0j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E7252133F;
-        Thu,  3 Oct 2019 16:26:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2BF720867;
+        Thu,  3 Oct 2019 16:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119987;
-        bh=B3jORLsZU6SGFcivwU1E9QJ9P/q6jWck3+hwfy6zCA0=;
+        s=default; t=1570119998;
+        bh=R6nvQTWWdY2hSuO8CYz1sdOi8H89MTYKjyyPSd3VUKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKm1JO2QxRpTXq8PLELXkFb2DAQc5HTkZfMVZiSbuJBci3DbFuS23juT3/e5m5VSV
-         6N7Xi6tcPEk5xQb5gloGj24d551fpAOO5bkU1ahScKRZlUw+EY9ut5K3+bm3+nhDIY
-         jnvAJIeDQvXrumKvuPhwZ1V8FHJLLDISru8ACnV4=
+        b=WMIckvtJTvoR39oLsgJfRz/m18daZBrACFkN3C69ZAL8CDPo6hWErgKwWUdXfzenq
+         l/D5dAges3CS0tcqXnUm5jCSj+77Sdk5plim2SSB5beDqv3k85JvViVZGBjfeZUpLe
+         KYNgBQXArmF56cx5q0OC5xMC0yFBw0VcFKxDfh9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Tejun Heo <tj@kernel.org>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, lizefan@huawei.com,
-        longman@redhat.com, luca.abeni@santannapisa.it,
-        rostedt@goodmis.org, Ingo Molnar <mingo@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, bristot@redhat.com,
+        claudio@evidence.eu.com, lizefan@huawei.com, longman@redhat.com,
+        luca.abeni@santannapisa.it, mathieu.poirier@linaro.org,
+        rostedt@goodmis.org, tj@kernel.org,
+        tommaso.cucinotta@santannapisa.it, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 055/313] sched/core: Fix CPU controller for !RT_GROUP_SCHED
-Date:   Thu,  3 Oct 2019 17:50:33 +0200
-Message-Id: <20191003154538.487851087@linuxfoundation.org>
+Subject: [PATCH 5.2 059/313] rcu/tree: Call setschedule() gp ktread to SCHED_FIFO outside of atomic region
+Date:   Thu,  3 Oct 2019 17:50:37 +0200
+Message-Id: <20191003154538.830790877@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -53,77 +53,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit a07db5c0865799ebed1f88be0df50c581fb65029 ]
+[ Upstream commit 1a763fd7c6335e3122c1cc09576ef6c99ada4267 ]
 
-On !CONFIG_RT_GROUP_SCHED configurations it is currently not possible to
-move RT tasks between cgroups to which CPU controller has been attached;
-but it is oddly possible to first move tasks around and then make them
-RT (setschedule to FIFO/RR).
+sched_setscheduler() needs to acquire cpuset_rwsem, but it is currently
+called from an invalid (atomic) context by rcu_spawn_gp_kthread().
 
-E.g.:
+Fix that by simply moving sched_setscheduler_nocheck() call outside of
+the atomic region, as it doesn't actually require to be guarded by
+rcu_node lock.
 
-  # mkdir /sys/fs/cgroup/cpu,cpuacct/group1
-  # chrt -fp 10 $$
-  # echo $$ > /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  bash: echo: write error: Invalid argument
-  # chrt -op 0 $$
-  # echo $$ > /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  # chrt -fp 10 $$
-  # cat /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  2345
-  2598
-  # chrt -p 2345
-  pid 2345's current scheduling policy: SCHED_FIFO
-  pid 2345's current scheduling priority: 10
-
-Also, as Michal noted, it is currently not possible to enable CPU
-controller on unified hierarchy with !CONFIG_RT_GROUP_SCHED (if there
-are any kernel RT threads in root cgroup, they can't be migrated to the
-newly created CPU controller's root in cgroup_update_dfl_csses()).
-
-Existing code comes with a comment saying the "we don't support RT-tasks
-being in separate groups". Such comment is however stale and belongs to
-pre-RT_GROUP_SCHED times. Also, it doesn't make much sense for
-!RT_GROUP_ SCHED configurations, since checks related to RT bandwidth
-are not performed at all in these cases.
-
-Make moving RT tasks between CPU controller groups viable by removing
-special case check for RT (and DEADLINE) tasks.
-
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
 Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Acked-by: Tejun Heo <tj@kernel.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: bristot@redhat.com
+Cc: claudio@evidence.eu.com
 Cc: lizefan@huawei.com
 Cc: longman@redhat.com
 Cc: luca.abeni@santannapisa.it
+Cc: mathieu.poirier@linaro.org
 Cc: rostedt@goodmis.org
-Link: https://lkml.kernel.org/r/20190719063455.27328-1-juri.lelli@redhat.com
+Cc: tj@kernel.org
+Cc: tommaso.cucinotta@santannapisa.it
+Link: https://lkml.kernel.org/r/20190719140000.31694-8-juri.lelli@redhat.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 4 ----
- 1 file changed, 4 deletions(-)
+ kernel/rcu/tree.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 275f470812440..b78986ce1f6b0 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6513,10 +6513,6 @@ static int cpu_cgroup_can_attach(struct cgroup_taskset *tset)
- #ifdef CONFIG_RT_GROUP_SCHED
- 		if (!sched_rt_can_attach(css_tg(css), task))
- 			return -EINVAL;
--#else
--		/* We don't support RT-tasks being in separate groups */
--		if (task->sched_class != &fair_sched_class)
--			return -EINVAL;
- #endif
- 		/*
- 		 * Serialize against wake_up_new_task() such that if its
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 980ca3ca643fb..32ea75acba144 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -3123,13 +3123,13 @@ static int __init rcu_spawn_gp_kthread(void)
+ 	t = kthread_create(rcu_gp_kthread, NULL, "%s", rcu_state.name);
+ 	if (WARN_ONCE(IS_ERR(t), "%s: Could not start grace-period kthread, OOM is now expected behavior\n", __func__))
+ 		return 0;
++	if (kthread_prio)
++		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
+ 	rnp = rcu_get_root();
+ 	raw_spin_lock_irqsave_rcu_node(rnp, flags);
+ 	rcu_state.gp_kthread = t;
+-	if (kthread_prio) {
++	if (kthread_prio)
+ 		sp.sched_priority = kthread_prio;
+-		sched_setscheduler_nocheck(t, SCHED_FIFO, &sp);
+-	}
+ 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+ 	wake_up_process(t);
+ 	rcu_spawn_nocb_kthreads();
 -- 
 2.20.1
 
