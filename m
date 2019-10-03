@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9025CA955
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23292CA956
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392505AbfJCQlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51546 "EHLO mail.kernel.org"
+        id S2404541AbfJCQlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:41:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392502AbfJCQlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:41:11 -0400
+        id S2404538AbfJCQlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:41:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4521B207FF;
-        Thu,  3 Oct 2019 16:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED261206BB;
+        Thu,  3 Oct 2019 16:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120870;
-        bh=TVLXiu/Wu0XFZ4nGnunWANHINoWqCjOOWL8M5FUu7eA=;
+        s=default; t=1570120873;
+        bh=W0T+0m0P2SGl5GUNMUD4zXhYLqP9P+xj8Epf7hhfNdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZ1C2YJaVkSDj+CMYSIKNG43PQ4jqOeICLKbjOT1/ZlNa216KHyZuxUnzMR+DndKL
-         Iinf3YPtnjJ5rEnVYkk0Y3AY3PjZqsbiERlPHBgf3FXxZtgSs8PcCS4xHOllpieFSf
-         DaTLFfv+hbJrGT2F6zCQFGnx4pSWHJu5mgrDKhis=
+        b=NyQCaOZiSLVykxPyG0WLXYVRHUGHIKCOgI6OP0ql/RM3Kq9YwpGwrBNWJqu17ogog
+         y7CnNoXcGS+j+OSmgyPJdYjCpiPLfQ0RPMeipBepYTnhsJ2GCIxj8YFiWwtAntqJn/
+         u+x9/ZZZgiGuwS2iSA3FhdeERMO4tkPCgIjzcWUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 033/344] mISDN: enforce CAP_NET_RAW for raw sockets
-Date:   Thu,  3 Oct 2019 17:49:58 +0200
-Message-Id: <20191003154543.345992136@linuxfoundation.org>
+Subject: [PATCH 5.3 034/344] appletalk: enforce CAP_NET_RAW for raw sockets
+Date:   Thu,  3 Oct 2019 17:49:59 +0200
+Message-Id: <20191003154543.445016933@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,9 +45,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ori Nimron <orinimron123@gmail.com>
 
-[ Upstream commit b91ee4aa2a2199ba4d4650706c272985a5a32d80 ]
+[ Upstream commit 6cc03e8aa36c51f3b26a0d21a3c4ce2809c842ac ]
 
-When creating a raw AF_ISDN socket, CAP_NET_RAW needs to be checked
+When creating a raw AF_APPLETALK socket, CAP_NET_RAW needs to be checked
 first.
 
 Signed-off-by: Ori Nimron <orinimron123@gmail.com>
@@ -55,19 +55,22 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/isdn/mISDN/socket.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/appletalk/ddp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/isdn/mISDN/socket.c
-+++ b/drivers/isdn/mISDN/socket.c
-@@ -754,6 +754,8 @@ base_sock_create(struct net *net, struct
- 
- 	if (sock->type != SOCK_RAW)
- 		return -ESOCKTNOSUPPORT;
-+	if (!capable(CAP_NET_RAW))
-+		return -EPERM;
- 
- 	sk = sk_alloc(net, PF_ISDN, GFP_KERNEL, &mISDN_proto, kern);
+--- a/net/appletalk/ddp.c
++++ b/net/appletalk/ddp.c
+@@ -1023,6 +1023,11 @@ static int atalk_create(struct net *net,
+ 	 */
+ 	if (sock->type != SOCK_RAW && sock->type != SOCK_DGRAM)
+ 		goto out;
++
++	rc = -EPERM;
++	if (sock->type == SOCK_RAW && !kern && !capable(CAP_NET_RAW))
++		goto out;
++
+ 	rc = -ENOMEM;
+ 	sk = sk_alloc(net, PF_APPLETALK, GFP_KERNEL, &ddp_proto, kern);
  	if (!sk)
 
 
