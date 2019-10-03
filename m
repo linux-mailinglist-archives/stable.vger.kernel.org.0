@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEAB6CAC08
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338B4CAC8F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727611AbfJCQEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50668 "EHLO mail.kernel.org"
+        id S2388020AbfJCQMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732417AbfJCQEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:33 -0400
+        id S2388014AbfJCQMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:12:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4152B207FF;
-        Thu,  3 Oct 2019 16:04:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C66D120700;
+        Thu,  3 Oct 2019 16:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118671;
-        bh=OZiQOQK6GRMgvpkM/jHIACWmpTyy1Vs+E5l8pYuqDfA=;
+        s=default; t=1570119139;
+        bh=fik+i5HOycM4aEtSccDBSMO6kukqh4PeAR2iNgi49dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UyNspbRxr83O63aaPXp58bvqwUj/BBwUSmXvz7KWmGI+PP5aecQ55eoV7juEnnofa
-         8MCJ3Ldf1vsXqBtFqIJsyLuwb+WUpi48leqyIuTKbevrtQrDR/EZ1WZ6gS4EG9pyFL
-         P3hyd1++PE9dRHIfDYc4vrZVViX4BlECQOJx7S78=
+        b=zp8PkfR/05S/vGoz8TUKN0IV67t/3U2XQ5zPTz847KgKJWm7KiU1cyTvk0Xa5pA6O
+         I7VKtjlxJuB5hiQKLV6LiBsuRgEFV+W6gpyPyYAIWu/jLP6s+CN2yH2e96kvqo5Z5r
+         PvJaNgnW4X8J5m0Cux2ypTYxT7IM+bE24jbYFCTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 096/129] media: omap3isp: Set device on omap3isp subdevs
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 141/185] ALSA: firewire-tascam: check intermediate state of clock status and retry
 Date:   Thu,  3 Oct 2019 17:53:39 +0200
-Message-Id: <20191003154403.586416212@linuxfoundation.org>
+Message-Id: <20191003154509.448533373@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,101 +43,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit e9eb103f027725053a4b02f93d7f2858b56747ce ]
+commit e1a00b5b253a4f97216b9a33199a863987075162 upstream.
 
-The omap3isp driver registered subdevs without the dev field being set. Do
-that now.
+2 bytes in MSB of register for clock status is zero during intermediate
+state after changing status of sampling clock in models of TASCAM FireWire
+series. The duration of this state differs depending on cases. During the
+state, it's better to retry reading the register for current status of
+the clock.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In current implementation, the intermediate state is checked only when
+getting current sampling transmission frequency, then retry reading.
+This care is required for the other operations to read the register.
+
+This commit moves the codes of check and retry into helper function
+commonly used for operations to read the register.
+
+Fixes: e453df44f0d6 ("ALSA: firewire-tascam: add PCM functionality")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20190910135152.29800-3-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/omap3isp/ispccdc.c    | 1 +
- drivers/media/platform/omap3isp/ispccp2.c    | 1 +
- drivers/media/platform/omap3isp/ispcsi2.c    | 1 +
- drivers/media/platform/omap3isp/isppreview.c | 1 +
- drivers/media/platform/omap3isp/ispresizer.c | 1 +
- drivers/media/platform/omap3isp/ispstat.c    | 2 ++
- 6 files changed, 7 insertions(+)
+ sound/firewire/tascam/tascam-stream.c |   42 ++++++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/platform/omap3isp/ispccdc.c b/drivers/media/platform/omap3isp/ispccdc.c
-index 882310eb45ccf..fe16fbd95221f 100644
---- a/drivers/media/platform/omap3isp/ispccdc.c
-+++ b/drivers/media/platform/omap3isp/ispccdc.c
-@@ -2608,6 +2608,7 @@ int omap3isp_ccdc_register_entities(struct isp_ccdc_device *ccdc,
- 	int ret;
+--- a/sound/firewire/tascam/tascam-stream.c
++++ b/sound/firewire/tascam/tascam-stream.c
+@@ -9,20 +9,37 @@
+ #include <linux/delay.h>
+ #include "tascam.h"
  
- 	/* Register the subdev and video node. */
-+	ccdc->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &ccdc->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispccp2.c b/drivers/media/platform/omap3isp/ispccp2.c
-index ca095238510d5..b64e218eaea6e 100644
---- a/drivers/media/platform/omap3isp/ispccp2.c
-+++ b/drivers/media/platform/omap3isp/ispccp2.c
-@@ -1030,6 +1030,7 @@ int omap3isp_ccp2_register_entities(struct isp_ccp2_device *ccp2,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	ccp2->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &ccp2->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispcsi2.c b/drivers/media/platform/omap3isp/ispcsi2.c
-index f75a1be29d84a..27a2913363b62 100644
---- a/drivers/media/platform/omap3isp/ispcsi2.c
-+++ b/drivers/media/platform/omap3isp/ispcsi2.c
-@@ -1206,6 +1206,7 @@ int omap3isp_csi2_register_entities(struct isp_csi2_device *csi2,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	csi2->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &csi2->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/isppreview.c b/drivers/media/platform/omap3isp/isppreview.c
-index ac30a0f837801..e981eb2330f18 100644
---- a/drivers/media/platform/omap3isp/isppreview.c
-+++ b/drivers/media/platform/omap3isp/isppreview.c
-@@ -2228,6 +2228,7 @@ int omap3isp_preview_register_entities(struct isp_prev_device *prev,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	prev->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &prev->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispresizer.c b/drivers/media/platform/omap3isp/ispresizer.c
-index 0b6a87508584f..2035e3c6a9dee 100644
---- a/drivers/media/platform/omap3isp/ispresizer.c
-+++ b/drivers/media/platform/omap3isp/ispresizer.c
-@@ -1684,6 +1684,7 @@ int omap3isp_resizer_register_entities(struct isp_res_device *res,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	res->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &res->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispstat.c b/drivers/media/platform/omap3isp/ispstat.c
-index 1b9217d3b1b6a..4a4ae637655ba 100644
---- a/drivers/media/platform/omap3isp/ispstat.c
-+++ b/drivers/media/platform/omap3isp/ispstat.c
-@@ -1010,6 +1010,8 @@ void omap3isp_stat_unregister_entities(struct ispstat *stat)
- int omap3isp_stat_register_entities(struct ispstat *stat,
- 				    struct v4l2_device *vdev)
- {
-+	stat->subdev.dev = vdev->mdev->dev;
++#define CLOCK_STATUS_MASK      0xffff0000
++#define CLOCK_CONFIG_MASK      0x0000ffff
 +
- 	return v4l2_device_register_subdev(vdev, &stat->subdev);
+ #define CALLBACK_TIMEOUT 500
+ 
+ static int get_clock(struct snd_tscm *tscm, u32 *data)
+ {
++	int trial = 0;
+ 	__be32 reg;
+ 	int err;
+ 
+-	err = snd_fw_transaction(tscm->unit, TCODE_READ_QUADLET_REQUEST,
+-				 TSCM_ADDR_BASE + TSCM_OFFSET_CLOCK_STATUS,
+-				 &reg, sizeof(reg), 0);
+-	if (err >= 0)
++	while (trial++ < 5) {
++		err = snd_fw_transaction(tscm->unit, TCODE_READ_QUADLET_REQUEST,
++				TSCM_ADDR_BASE + TSCM_OFFSET_CLOCK_STATUS,
++				&reg, sizeof(reg), 0);
++		if (err < 0)
++			return err;
++
+ 		*data = be32_to_cpu(reg);
++		if (*data & CLOCK_STATUS_MASK)
++			break;
++
++		// In intermediate state after changing clock status.
++		msleep(50);
++	}
+ 
+-	return err;
++	// Still in the intermediate state.
++	if (trial >= 5)
++		return -EAGAIN;
++
++	return 0;
  }
  
--- 
-2.20.1
-
+ static int set_clock(struct snd_tscm *tscm, unsigned int rate,
+@@ -35,7 +52,7 @@ static int set_clock(struct snd_tscm *ts
+ 	err = get_clock(tscm, &data);
+ 	if (err < 0)
+ 		return err;
+-	data &= 0x0000ffff;
++	data &= CLOCK_CONFIG_MASK;
+ 
+ 	if (rate > 0) {
+ 		data &= 0x000000ff;
+@@ -80,17 +97,14 @@ static int set_clock(struct snd_tscm *ts
+ 
+ int snd_tscm_stream_get_rate(struct snd_tscm *tscm, unsigned int *rate)
+ {
+-	u32 data = 0x0;
+-	unsigned int trials = 0;
++	u32 data;
+ 	int err;
+ 
+-	while (data == 0x0 || trials++ < 5) {
+-		err = get_clock(tscm, &data);
+-		if (err < 0)
+-			return err;
++	err = get_clock(tscm, &data);
++	if (err < 0)
++		return err;
+ 
+-		data = (data & 0xff000000) >> 24;
+-	}
++	data = (data & 0xff000000) >> 24;
+ 
+ 	/* Check base rate. */
+ 	if ((data & 0x0f) == 0x01)
 
 
