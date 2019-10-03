@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC311CAA89
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE93CAB15
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392581AbfJCRH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:07:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
+        id S2389827AbfJCRR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391316AbfJCQfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:35:54 -0400
+        id S2390340AbfJCQWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:22:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CA2320830;
-        Thu,  3 Oct 2019 16:35:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C55C20659;
+        Thu,  3 Oct 2019 16:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120554;
-        bh=a2JF6c9MZwJJTWBKErrc3IokanYEbZZ3ei7ZxHE1edg=;
+        s=default; t=1570119756;
+        bh=OSDbZ+qnZK1aTfBoQCDkx4FU7CwedCYXzK82/thGqPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAhSEnY/YBY+xs6xzViO4TYd4Vr4seDsLM5DeBqZABAzLRQwvhcmUT6Cf2XFvD7xn
-         xEMfzWoGaxpobJZEx1c9w5VixU/BWLBgKIeoSpjCVXFNY/rrofVk5krgF6S0XQJrqP
-         m/60Dfl/WK4XK4WOjOTQRyo0wGFv1dfbVMYpK+jo=
+        b=TzXbGme0g1mLg+Clcwpwt4WEMTrlccZ6P614o5aUO5xHfEN0wHXly+B8PBiT1PCgv
+         8Hrr+0AGaPJR/g1WvNxEz7dJCSxTH97Bp0pm2shxUb4kxYBPrpqOIIhW7TdHH02K1r
+         TtPvVFUp7icKue+nIwcvC8EUdZ1oeBHTV8iuDHwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Wool <vitalywool@gmail.com>,
-        Markus Linnala <markus.linnala@gmail.com>,
-        Dan Streetman <ddstreet@ieee.org>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 265/313] z3fold: fix memory leak in kmem cache
-Date:   Thu,  3 Oct 2019 17:54:03 +0200
-Message-Id: <20191003154559.153678471@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Peter Jones <pjones@redhat.com>
+Subject: [PATCH 4.19 181/211] efifb: BGRT: Improve efifb_bgrt_sanity_check
+Date:   Thu,  3 Oct 2019 17:54:07 +0200
+Message-Id: <20191003154527.420265838@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,72 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Wool <vitalywool@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 63398413c00c7836ea87a1fa205c91d2199b25cf upstream.
+commit 51677dfcc17f88ed754143df670ff064eae67f84 upstream.
 
-Currently there is a leak in init_z3fold_page() -- it allocates handles
-from kmem cache even for headless pages, but then they are never used and
-never freed, so eventually kmem cache may get exhausted.  This patch
-provides a fix for that.
+For various reasons, at least with x86 EFI firmwares, the xoffset and
+yoffset in the BGRT info are not always reliable.
 
-Link: http://lkml.kernel.org/r/20190917185352.44cf285d3ebd9e64548de5de@gmail.com
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Reported-by: Markus Linnala <markus.linnala@gmail.com>
-Tested-by: Markus Linnala <markus.linnala@gmail.com>
-Cc: Dan Streetman <ddstreet@ieee.org>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Extensive testing has shown that when the info is correct, the
+BGRT image is always exactly centered horizontally (the yoffset variable
+is more variable and not always predictable).
+
+This commit simplifies / improves the bgrt_sanity_check to simply
+check that the BGRT image is exactly centered horizontally and skips
+(re)drawing it when it is not.
+
+This fixes the BGRT image sometimes being drawn in the wrong place.
+
+Cc: stable@vger.kernel.org
+Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: Peter Jones <pjones@redhat.com>,
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190721131918.10115-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/z3fold.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/efifb.c |   27 ++++++---------------------
+ 1 file changed, 6 insertions(+), 21 deletions(-)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -297,14 +297,11 @@ static void z3fold_unregister_migration(
-  }
- 
- /* Initializes the z3fold header of a newly allocated z3fold page */
--static struct z3fold_header *init_z3fold_page(struct page *page,
-+static struct z3fold_header *init_z3fold_page(struct page *page, bool headless,
- 					struct z3fold_pool *pool, gfp_t gfp)
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32
+  */
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
  {
- 	struct z3fold_header *zhdr = page_address(page);
--	struct z3fold_buddy_slots *slots = alloc_slots(pool, gfp);
+-	static const int default_resolutions[][2] = {
+-		{  800,  600 },
+-		{ 1024,  768 },
+-		{ 1280, 1024 },
+-	};
+-	u32 i, right_margin;
++	/*
++	 * All x86 firmwares horizontally center the image (the yoffset
++	 * calculations differ between boards, but xoffset is predictable).
++	 */
++	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
+ 
+-	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
+-		if (default_resolutions[i][0] == si->lfb_width &&
+-		    default_resolutions[i][1] == si->lfb_height)
+-			break;
+-	}
+-	/* If not a default resolution used for textmode, this should be fine */
+-	if (i >= ARRAY_SIZE(default_resolutions))
+-		return true;
 -
--	if (!slots)
--		return NULL;
-+	struct z3fold_buddy_slots *slots;
- 
- 	INIT_LIST_HEAD(&page->lru);
- 	clear_bit(PAGE_HEADLESS, &page->private);
-@@ -312,6 +309,12 @@ static struct z3fold_header *init_z3fold
- 	clear_bit(NEEDS_COMPACTING, &page->private);
- 	clear_bit(PAGE_STALE, &page->private);
- 	clear_bit(PAGE_CLAIMED, &page->private);
-+	if (headless)
-+		return zhdr;
-+
-+	slots = alloc_slots(pool, gfp);
-+	if (!slots)
-+		return NULL;
- 
- 	spin_lock_init(&zhdr->page_lock);
- 	kref_init(&zhdr->refcount);
-@@ -932,7 +935,7 @@ retry:
- 	if (!page)
- 		return -ENOMEM;
- 
--	zhdr = init_z3fold_page(page, pool, gfp);
-+	zhdr = init_z3fold_page(page, bud == HEADLESS, pool, gfp);
- 	if (!zhdr) {
- 		__free_page(page);
- 		return -ENOMEM;
+-	/* If the right margin is 5 times smaller then the left one, reject */
+-	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
+-	if (right_margin < (bgrt_tab.image_offset_x / 5))
+-		return false;
+-
+-	return true;
++	return bgrt_tab.image_offset_x == expected_xoffset;
+ }
+ #else
+ static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
 
 
