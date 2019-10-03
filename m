@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D63CA375
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9777ACA378
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:21:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732374AbfJCQPX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:15:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39468 "EHLO mail.kernel.org"
+        id S2388257AbfJCQP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:15:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387847AbfJCQPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:23 -0400
+        id S2388246AbfJCQPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:15:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 03956215EA;
-        Thu,  3 Oct 2019 16:15:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5E7B20865;
+        Thu,  3 Oct 2019 16:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119322;
-        bh=3D7JlMLXuSw8WycHbvY81UgjIJZwL4MmJMz3WIxlpkI=;
+        s=default; t=1570119325;
+        bh=oC1urmdw4QoCX5MWmgFlKQJ7lWgAiWRCofIv0yEI+vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7mzv9ygmQaAIITIbkOXsuKnWyaQ80kPRZnUmm3TcwFZdHwQSrILQ/ZZhWXVq4a7c
-         v2gb7JVhEps04E8/wkWBPMg8urKcvEQZRDAJph1sXDR9+5s2ARAL0k7EDOhPRv5tWY
-         vr88JHsfBExCTis9oTKLtlFd6+YI0iT+R7un/ucE=
+        b=msPW4/27RYCidrIqn9aavqu/4gUIjPcXGcTMLcrhvZGCvVeJqfaWjw6PWe1yi/KPp
+         ene9h+0DitmtvTS+YNmj4Quv2HLlGvA9AaYW1tLNNIpXo18mKPtRvWSJDhLw8kEIFt
+         BDl5553OvWmyavAXyCznb20M5TS451bTqsNEvyIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 022/211] nfc: enforce CAP_NET_RAW for raw sockets
-Date:   Thu,  3 Oct 2019 17:51:28 +0200
-Message-Id: <20191003154452.134676115@linuxfoundation.org>
+Subject: [PATCH 4.19 023/211] nfp: flower: prevent memory leak in nfp_flower_spawn_phy_reprs
+Date:   Thu,  3 Oct 2019 17:51:29 +0200
+Message-Id: <20191003154452.365145518@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -43,38 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ori Nimron <orinimron123@gmail.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 3a359798b176183ef09efb7a3dc59abad1cc7104 ]
+[ Upstream commit 8572cea1461a006bce1d06c0c4b0575869125fa4 ]
 
-When creating a raw AF_NFC socket, CAP_NET_RAW needs to be checked
-first.
+In nfp_flower_spawn_phy_reprs, in the for loop over eth_tbl if any of
+intermediate allocations or initializations fail memory is leaked.
+requiered releases are added.
 
-Signed-off-by: Ori Nimron <orinimron123@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b94524529741 ("nfp: flower: add per repr private data for LAG offload")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/netronome/nfp/flower/main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -1011,10 +1011,13 @@ static int llcp_sock_create(struct net *
- 	    sock->type != SOCK_RAW)
- 		return -ESOCKTNOSUPPORT;
+--- a/drivers/net/ethernet/netronome/nfp/flower/main.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
+@@ -259,6 +259,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_a
+ 		repr_priv = kzalloc(sizeof(*repr_priv), GFP_KERNEL);
+ 		if (!repr_priv) {
+ 			err = -ENOMEM;
++			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+ 		}
  
--	if (sock->type == SOCK_RAW)
-+	if (sock->type == SOCK_RAW) {
-+		if (!capable(CAP_NET_RAW))
-+			return -EPERM;
- 		sock->ops = &llcp_rawsock_ops;
--	else
-+	} else {
- 		sock->ops = &llcp_sock_ops;
-+	}
- 
- 	sk = nfc_llcp_sock_alloc(sock, sock->type, GFP_ATOMIC, kern);
- 	if (sk == NULL)
+@@ -291,6 +292,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_a
+ 		err = nfp_repr_init(app, repr,
+ 				    port_id, port, priv->nn->dp.netdev);
+ 		if (err) {
++			kfree(repr_priv);
+ 			nfp_port_free(port);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+@@ -389,6 +391,7 @@ nfp_flower_spawn_phy_reprs(struct nfp_ap
+ 		}
+ 		err = nfp_port_init_phy_port(app->pf, app, port, i);
+ 		if (err) {
++			kfree(repr_priv);
+ 			nfp_port_free(port);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
 
 
