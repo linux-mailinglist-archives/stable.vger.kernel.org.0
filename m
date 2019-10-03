@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8336CA3F5
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB7A5CA3FA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389928AbfJCQUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48298 "EHLO mail.kernel.org"
+        id S2389102AbfJCQUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:20:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731517AbfJCQUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:20:33 -0400
+        id S2389982AbfJCQUq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:20:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90DB720865;
-        Thu,  3 Oct 2019 16:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AF452054F;
+        Thu,  3 Oct 2019 16:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119633;
-        bh=+hiAlNfbSBPF8qKfDkfN4sNImtyxNSb/HIggk7vL2UE=;
+        s=default; t=1570119644;
+        bh=zBxVPzYCD7UuRRjQOdsujnRC9GxFPolPRqm3UoNedZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBH6riL5/qd/BA9nrJf1OjUpZAune74uhhx5DzC0qoPVx/us5Eaj/aXg/q+ch1xkV
-         iGexVsgvcCQRaJs6AkLekpgQM+fFUto3lAqzf+KjljNJJK+ddGvugo48lZ2q5FSQlB
-         JB57GzYXeESN6iFQUrOB82LpGJ1wR6cWNkvYbnio=
+        b=BhSapKyojx+TWIr6eHqiOCQQ4zC/9Z6BrHNB50H2KKF+GZAQJFTluO1FpOWjKlFfz
+         /vV07nNkmHNzKIzj+463W0VhZkQFccFldZhw7sri5c9IYeqvNeoST4ZXx4BZaMVIWV
+         9pv7nDudrZ0I/f/8nvAy9F16aNnNEwnZ7vx2rpt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/211] mmc: dw_mmc: Re-store SDIO IRQs mask at system resume
-Date:   Thu,  3 Oct 2019 17:53:22 +0200
-Message-Id: <20191003154518.185905298@linuxfoundation.org>
+Subject: [PATCH 4.19 140/211] ALSA: hda - Drop unsol event handler for Intel HDMI codecs
+Date:   Thu,  3 Oct 2019 17:53:26 +0200
+Message-Id: <20191003154519.222129595@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,46 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 7c526608d5afb62cbc967225e2ccaacfdd142e9d ]
+[ Upstream commit f2dbe87c5ac1f88e6007ba1f1374f4bd8a197fb6 ]
 
-In cases when SDIO IRQs have been enabled, runtime suspend is prevented by
-the driver. However, this still means dw_mci_runtime_suspend|resume() gets
-called during system suspend/resume, via pm_runtime_force_suspend|resume().
-This means during system suspend/resume, the register context of the dw_mmc
-device most likely loses its register context, even in cases when SDIO IRQs
-have been enabled.
+We don't need to deal with the unsol events for Intel chips that are
+tied with the graphics via audio component notifier.  Although the
+presence of the audio component is checked at the beginning of
+hdmi_unsol_event(), better to short cut by dropping unsol_event ops.
 
-To re-enable the SDIO IRQs during system resume, the dw_mmc driver
-currently relies on the mmc core to re-enable the SDIO IRQs when it resumes
-the SDIO card, but this isn't the recommended solution. Instead, it's
-better to deal with this locally in the dw_mmc driver, so let's do that.
-
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/pci/hda/patch_hdmi.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index 942da07c9eb87..22c454c7aaca6 100644
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -3486,6 +3486,10 @@ int dw_mci_runtime_resume(struct device *dev)
- 	/* Force setup bus to guarantee available clock output */
- 	dw_mci_setup_bus(host->slot, true);
- 
-+	/* Re-enable SDIO interrupts. */
-+	if (sdio_irq_claimed(host->slot->mmc))
-+		__dw_mci_enable_sdio_irq(host->slot, 1);
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index e4fbfb5557ab7..107ec7f3e2214 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2583,6 +2583,8 @@ static void i915_pin_cvt_fixup(struct hda_codec *codec,
+ /* precondition and allocation for Intel codecs */
+ static int alloc_intel_hdmi(struct hda_codec *codec)
+ {
++	int err;
 +
- 	/* Now that slots are all setup, we can enable card detect */
- 	dw_mci_enable_cd(host);
+ 	/* requires i915 binding */
+ 	if (!codec->bus->core.audio_component) {
+ 		codec_info(codec, "No i915 binding for Intel HDMI/DP codec\n");
+@@ -2591,7 +2593,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
+ 		return -ENODEV;
+ 	}
  
+-	return alloc_generic_hdmi(codec);
++	err = alloc_generic_hdmi(codec);
++	if (err < 0)
++		return err;
++	/* no need to handle unsol events */
++	codec->patch_ops.unsol_event = NULL;
++	return 0;
+ }
+ 
+ /* parse and post-process for Intel codecs */
 -- 
 2.20.1
 
