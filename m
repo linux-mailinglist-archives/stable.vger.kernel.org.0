@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E958CA9FD
+	by mail.lfdr.de (Postfix) with ESMTP id 77FFCCA9FE
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389312AbfJCQRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:17:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43794 "EHLO mail.kernel.org"
+        id S2389323AbfJCQRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:17:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387588AbfJCQRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:44 -0400
+        id S2389315AbfJCQRq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEC0620865;
-        Thu,  3 Oct 2019 16:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 881F12133F;
+        Thu,  3 Oct 2019 16:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119463;
-        bh=v/u1Iz8T80+S4fVd/NZlnqqp6RZbt6F/93nimMQN/fQ=;
+        s=default; t=1570119466;
+        bh=vJKFOdMHhMYIRmfZn3Kky3KbozDQMjZPWqMyn6/4Bbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUuyKS/fa1tBNutk7fppZ/GO6aHMsS/w99uVgf2VtGF4PCViMTo5czgN/pb4/s3Ck
-         cgQYrnPVhKlZkx786bFKCJN3TQcBatTyLrNCOjhMQglZ65Tc64CmuBXzmFwqMFGpf5
-         5I671j1OGCDkT23Xb+zY51N2W46Lke1rCdW67DIA=
+        b=gaw6vlqFAk8cNrLL9gxLzABoQwD/QELfSyKXLUGROjgBHWOLWdOWR+++cnPfBlFOJ
+         w1iO0BZ7S1U4wyrFIieRRB0Il3or+8Kifm9QHAsBF6krMm7+lbUDnJndSl/LUpQyqp
+         hSsNR3cpXBHcl0mYEwh0lrA1UQTGM7fApu6ACax8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 035/211] media: hdpvr: Add device num check and handling
-Date:   Thu,  3 Oct 2019 17:51:41 +0200
-Message-Id: <20191003154455.088580037@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 036/211] media: i2c: ov5640: Check for devm_gpiod_get_optional() error
+Date:   Thu,  3 Oct 2019 17:51:42 +0200
+Message-Id: <20191003154455.341506213@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -47,57 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit d4a6a9537bc32811486282206ecfb7c53754b74d ]
+[ Upstream commit 8791a102ce579346cea9d2f911afef1c1985213c ]
 
-Add hdpvr device num check and error handling
+The power down and reset GPIO are optional, but the return value
+from devm_gpiod_get_optional() needs to be checked and propagated
+in the case of error, so that probe deferral can work.
 
-We need to increment the device count atomically before we checkout a
-device to make sure that we do not reach the max count, otherwise we get
-out-of-bounds errors as reported by syzbot.
-
-Reported-and-tested-by: syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
-
-Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-core.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/media/i2c/ov5640.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
-index 29ac7fc5b039f..46adee95f89d5 100644
---- a/drivers/media/usb/hdpvr/hdpvr-core.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-core.c
-@@ -275,6 +275,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- #endif
- 	size_t buffer_size;
- 	int i;
-+	int dev_num;
- 	int retval = -ENOMEM;
- 
- 	/* allocate memory for our device state and initialize it */
-@@ -372,8 +373,17 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	}
- #endif
- 
-+	dev_num = atomic_inc_return(&dev_nr);
-+	if (dev_num >= HDPVR_MAX) {
-+		v4l2_err(&dev->v4l2_dev,
-+			 "max device number reached, device register failed\n");
-+		atomic_dec(&dev_nr);
-+		retval = -ENODEV;
-+		goto reg_fail;
-+	}
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index d5c0ffc55d46a..a3bbef682fb8e 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2787,9 +2787,14 @@ static int ov5640_probe(struct i2c_client *client,
+ 	/* request optional power down pin */
+ 	sensor->pwdn_gpio = devm_gpiod_get_optional(dev, "powerdown",
+ 						    GPIOD_OUT_HIGH);
++	if (IS_ERR(sensor->pwdn_gpio))
++		return PTR_ERR(sensor->pwdn_gpio);
 +
- 	retval = hdpvr_register_videodev(dev, &interface->dev,
--				    video_nr[atomic_inc_return(&dev_nr)]);
-+				    video_nr[dev_num]);
- 	if (retval < 0) {
- 		v4l2_err(&dev->v4l2_dev, "registering videodev failed\n");
- 		goto reg_fail;
+ 	/* request optional reset pin */
+ 	sensor->reset_gpio = devm_gpiod_get_optional(dev, "reset",
+ 						     GPIOD_OUT_HIGH);
++	if (IS_ERR(sensor->reset_gpio))
++		return PTR_ERR(sensor->reset_gpio);
+ 
+ 	v4l2_i2c_subdev_init(&sensor->sd, client, &ov5640_subdev_ops);
+ 
 -- 
 2.20.1
 
