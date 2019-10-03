@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 317F6CA829
+	by mail.lfdr.de (Postfix) with ESMTP id 9F65ECA82A
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390293AbfJCQWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50948 "EHLO mail.kernel.org"
+        id S2388045AbfJCQWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:22:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390284AbfJCQWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:21 -0400
+        id S2389604AbfJCQWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:22:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CFC420659;
-        Thu,  3 Oct 2019 16:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 277AE2054F;
+        Thu,  3 Oct 2019 16:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119739;
-        bh=gAU5FFtkt4JrXlIGSESoZ5d/KBuNhSLtdre5Bf76G9s=;
+        s=default; t=1570119742;
+        bh=5+gaino9OOA9X8Xne5BCealAkcfuaOmUJ83C6CllR6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7Qg/JfhYVcpDHf7B7FtqNKFCzgRV8y8glaJwMPRAml8tQAPN5YX7XYPH/HHvrxew
-         P/G9eqnpMi/nBF27S8EZiJslJPrOWr03Qdr1v1+/8yUkME4aLzME+a/g2AMcGkBbyR
-         ofblsqPslcYce3oa7ybtvCips09/jffiNJQG3m6M=
+        b=XevJ1U8jX+3MlqmUGVR/vBJamnHsR7BwdYaD4hrNEyKhnsvGNM1xCiEIbq1UmWumH
+         jGvYc4rvRy0d2NjGqWmgCZCJ8jcynb43Zkq+EPoT2sMZV5sDVNH2iaVfUy2kTypxwe
+         aK6XV5/BIWjtgiz7oUg4UVXbZFh+8rtRCR4eaZhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Araneda <luaraneda@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 4.19 175/211] ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
-Date:   Thu,  3 Oct 2019 17:54:01 +0200
-Message-Id: <20191003154526.758348819@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 176/211] Revert "arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}"
+Date:   Thu,  3 Oct 2019 17:54:02 +0200
+Message-Id: <20191003154526.871065283@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -43,48 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Araneda <luaraneda@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-commit b7005d4ef4f3aa2dc24019ffba03a322557ac43d upstream.
+commit d0b7a302d58abe24ed0f32a0672dd4c356bb73db upstream.
 
-This fixes a kernel panic on memcpy when
-FORTIFY_SOURCE is enabled.
+This reverts commit 24fe1b0efad4fcdd32ce46cffeab297f22581707.
 
-The initial smp implementation on commit aa7eb2bb4e4a
-("arm: zynq: Add smp support")
-used memcpy, which worked fine until commit ee333554fed5
-("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
-enabled overflow checks at runtime, producing a read
-overflow panic.
+Commit 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from
+set_{pte,pmd,pud}") removed ISB instructions immediately following updates
+to the page table, on the grounds that they are not required by the
+architecture and a DSB alone is sufficient to ensure that subsequent data
+accesses use the new translation:
 
-The computed size of memcpy args are:
-- p_size (dst): 4294967295 = (size_t) -1
-- q_size (src): 1
-- size (len): 8
+  DDI0487E_a, B2-128:
 
-Additionally, the memory is marked as __iomem, so one of
-the memcpy_* functions should be used for read/write.
+  | ... no instruction that appears in program order after the DSB
+  | instruction can alter any state of the system or perform any part of
+  | its functionality until the DSB completes other than:
+  |
+  | * Being fetched from memory and decoded
+  | * Reading the general-purpose, SIMD and floating-point,
+  |   Special-purpose, or System registers that are directly or indirectly
+  |   read without causing side-effects.
 
-Fixes: aa7eb2bb4e4a ("arm: zynq: Add smp support")
-Signed-off-by: Luis Araneda <luaraneda@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+However, the same document also states the following:
+
+  DDI0487E_a, B2-125:
+
+  | DMB and DSB instructions affect reads and writes to the memory system
+  | generated by Load/Store instructions and data or unified cache
+  | maintenance instructions being executed by the PE. Instruction fetches
+  | or accesses caused by a hardware translation table access are not
+  | explicit accesses.
+
+which appears to claim that the DSB alone is insufficient.  Unfortunately,
+some CPU designers have followed the second clause above, whereas in Linux
+we've been relying on the first. This means that our mapping sequence:
+
+	MOV	X0, <valid pte>
+	STR	X0, [Xptep]	// Store new PTE to page table
+	DSB	ISHST
+	LDR	X1, [X2]	// Translates using the new PTE
+
+can actually raise a translation fault on the load instruction because the
+translation can be performed speculatively before the page table update and
+then marked as "faulting" by the CPU. For user PTEs, this is ok because we
+can handle the spurious fault, but for kernel PTEs and intermediate table
+entries this results in a panic().
+
+Revert the offending commit to reintroduce the missing barriers.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 24fe1b0efad4fcdd ("arm64: Remove unnecessary ISBs from set_{pte,pmd,pud}")
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-zynq/platsmp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/pgtable.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mach-zynq/platsmp.c
-+++ b/arch/arm/mach-zynq/platsmp.c
-@@ -65,7 +65,7 @@ int zynq_cpun_start(u32 address, int cpu
- 			* 0x4: Jump by mov instruction
- 			* 0x8: Jumping address
- 			*/
--			memcpy((__force void *)zero, &zynq_secondary_trampoline,
-+			memcpy_toio(zero, &zynq_secondary_trampoline,
- 							trampoline_size);
- 			writel(address, zero + trampoline_size);
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -224,8 +224,10 @@ static inline void set_pte(pte_t *ptep,
+ 	 * Only if the new pte is valid and kernel, otherwise TLB maintenance
+ 	 * or update_mmu_cache() have the necessary barriers.
+ 	 */
+-	if (pte_valid_not_user(pte))
++	if (pte_valid_not_user(pte)) {
+ 		dsb(ishst);
++		isb();
++	}
+ }
  
+ extern void __sync_icache_dcache(pte_t pteval);
+@@ -432,6 +434,7 @@ static inline void set_pmd(pmd_t *pmdp,
+ {
+ 	WRITE_ONCE(*pmdp, pmd);
+ 	dsb(ishst);
++	isb();
+ }
+ 
+ static inline void pmd_clear(pmd_t *pmdp)
+@@ -483,6 +486,7 @@ static inline void set_pud(pud_t *pudp,
+ {
+ 	WRITE_ONCE(*pudp, pud);
+ 	dsb(ishst);
++	isb();
+ }
+ 
+ static inline void pud_clear(pud_t *pudp)
 
 
