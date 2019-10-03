@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5944CA793
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D0ECA78E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405649AbfJCQzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:55:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
+        id S2405160AbfJCQws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:52:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405787AbfJCQwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:42 -0400
+        id S2390216AbfJCQwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1DAC2054F;
-        Thu,  3 Oct 2019 16:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98BCE2070B;
+        Thu,  3 Oct 2019 16:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121561;
-        bh=uAVntkjPLgHA5UmSzzCWhj6ohpZsu17PsT4M5wIMo7M=;
+        s=default; t=1570121564;
+        bh=XdThSglTyTf2p/nzZ3yWXHPyxKufsiDO1o2/6UNXVzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZuNhSek81yHeT4dXZNQAxO+o8ULvGfdRGjMUorrpr4BpuxrMT4/ceWxV5XNOPUwVD
-         f5ylN9+vE4rLO16GsZITt5fEpWaWXfnaMaQtUH0wGK6pjoVsm2xdUQ1qEGcnUk7UYa
-         gAOm5B6f+rcbUaFBup1Y/ixew3VT95SZYwwAsJog=
+        b=i6ZHpPYPXOdBOu7OIpJml8uPkRzYvqdXQm6Za8g5JLxgQvoTLd+D2uIkYzzyc6W+Y
+         UqGob/xMbngO2Q6XkQxNgwOZxpl8jKGcLMKdHzx7mH8EuNkU5SnyQt2HvsDbVGO0Bt
+         OAhjUJqNrU00izCKeQRMX9My0IyxOSpO8aEKc09g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Subject: [PATCH 5.3 324/344] /dev/mem: Bail out upon SIGKILL.
-Date:   Thu,  3 Oct 2019 17:54:49 +0200
-Message-Id: <20191003154610.907994070@linuxfoundation.org>
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.3 325/344] fs: Export generic_fadvise()
+Date:   Thu,  3 Oct 2019 17:54:50 +0200
+Message-Id: <20191003154610.980892908@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,112 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Jan Kara <jack@suse.cz>
 
-commit 8619e5bdeee8b2c685d686281f2d2a6017c4bc15 upstream.
+commit cf1ea0592dbf109e7e7935b7d5b1a47a1ba04174 upstream.
 
-syzbot found that a thread can stall for minutes inside read_mem() or
-write_mem() after that thread was killed by SIGKILL [1]. Reading from
-iomem areas of /dev/mem can be slow, depending on the hardware.
-While reading 2GB at one read() is legal, delaying termination of killed
-thread for minutes is bad. Thus, allow reading/writing /dev/mem and
-/dev/kmem to be preemptible and killable.
+Filesystems will need to call this function from their fadvise handlers.
 
-  [ 1335.912419][T20577] read_mem: sz=4096 count=2134565632
-  [ 1335.943194][T20577] read_mem: sz=4096 count=2134561536
-  [ 1335.978280][T20577] read_mem: sz=4096 count=2134557440
-  [ 1336.011147][T20577] read_mem: sz=4096 count=2134553344
-  [ 1336.041897][T20577] read_mem: sz=4096 count=2134549248
-
-Theoretically, reading/writing /dev/mem and /dev/kmem can become
-"interruptible". But this patch chose "killable". Future patch will make
-them "interruptible" so that we can revert to "killable" if some program
-regressed.
-
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
-
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Link: https://lore.kernel.org/r/1566825205-10703-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: stable@vger.kernel.org
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/mem.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ include/linux/fs.h |    2 ++
+ mm/fadvise.c       |    4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -97,6 +97,13 @@ void __weak unxlate_dev_mem_ptr(phys_add
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -3531,6 +3531,8 @@ extern void inode_nohighmem(struct inode
+ /* mm/fadvise.c */
+ extern int vfs_fadvise(struct file *file, loff_t offset, loff_t len,
+ 		       int advice);
++extern int generic_fadvise(struct file *file, loff_t offset, loff_t len,
++			   int advice);
+ 
+ #if defined(CONFIG_IO_URING)
+ extern struct sock *io_uring_get_socket(struct file *file);
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -27,8 +27,7 @@
+  * deactivate the pages and clear PG_Referenced.
+  */
+ 
+-static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
+-			   int advice)
++int generic_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
+ {
+ 	struct inode *inode;
+ 	struct address_space *mapping;
+@@ -178,6 +177,7 @@ static int generic_fadvise(struct file *
+ 	}
+ 	return 0;
  }
- #endif
++EXPORT_SYMBOL(generic_fadvise);
  
-+static inline bool should_stop_iteration(void)
-+{
-+	if (need_resched())
-+		cond_resched();
-+	return fatal_signal_pending(current);
-+}
-+
- /*
-  * This funcion reads the *physical* memory. The f_pos points directly to the
-  * memory location.
-@@ -175,6 +182,8 @@ static ssize_t read_mem(struct file *fil
- 		p += sz;
- 		count -= sz;
- 		read += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 	kfree(bounce);
- 
-@@ -251,6 +260,8 @@ static ssize_t write_mem(struct file *fi
- 		p += sz;
- 		count -= sz;
- 		written += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 
- 	*ppos += written;
-@@ -468,6 +479,10 @@ static ssize_t read_kmem(struct file *fi
- 			read += sz;
- 			low_count -= sz;
- 			count -= sz;
-+			if (should_stop_iteration()) {
-+				count = 0;
-+				break;
-+			}
- 		}
- 	}
- 
-@@ -492,6 +507,8 @@ static ssize_t read_kmem(struct file *fi
- 			buf += sz;
- 			read += sz;
- 			p += sz;
-+			if (should_stop_iteration())
-+				break;
- 		}
- 		free_page((unsigned long)kbuf);
- 	}
-@@ -544,6 +561,8 @@ static ssize_t do_write_kmem(unsigned lo
- 		p += sz;
- 		count -= sz;
- 		written += sz;
-+		if (should_stop_iteration())
-+			break;
- 	}
- 
- 	*ppos += written;
-@@ -595,6 +614,8 @@ static ssize_t write_kmem(struct file *f
- 			buf += sz;
- 			virtr += sz;
- 			p += sz;
-+			if (should_stop_iteration())
-+				break;
- 		}
- 		free_page((unsigned long)kbuf);
- 	}
+ int vfs_fadvise(struct file *file, loff_t offset, loff_t len, int advice)
+ {
 
 
