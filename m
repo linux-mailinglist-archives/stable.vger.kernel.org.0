@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B06CA75E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D8F4CA778
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406427AbfJCQxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41472 "EHLO mail.kernel.org"
+        id S2405701AbfJCQyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405232AbfJCQx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:53:28 -0400
+        id S2406415AbfJCQxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:53:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B23B20862;
-        Thu,  3 Oct 2019 16:53:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 080FE20862;
+        Thu,  3 Oct 2019 16:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121606;
-        bh=2r6Gcn4ynoi7nHE5VY0dGQ3H1kKpKuws4yoTIyKcVZA=;
+        s=default; t=1570121609;
+        bh=Tek2S5ozdBKs5F5n9CWzI7W0uvZebdyiHH8VgKUx6vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeKvKGf0DCzPSbRL1VlbLNeoXjHJGQwt8s6binPMFbMqVRLQxmscu3rXCxoYf7t9v
-         ajJKEbRB77z9d6JJ+hkN0sWao35jvMTsHdqxR/bgeUvCmjyC1555kU2K/Le2bh0wwG
-         PcfG0AneC+Tokso+QHlIfoPIMy3mysRv7Rua05lg=
+        b=Oc2QdUuNHHtExiv1wQzV0esZxyfMV7sQHg9EDiPEcqGHGp/rHVq8BBgwvCHSWJWYP
+         G3bj7NRg/XAoqVXuvfb8VAA82uTIFrVr5Dp4OC+jJyaOdALNBbI1KKw+9g78H+2WKC
+         M3+OBt07/4pKrHigeU1dUz8z/gdpufVcyh5QWqHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
         Steve French <stfrench@microsoft.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>
-Subject: [PATCH 5.3 304/344] smb3: allow disabling requesting leases
-Date:   Thu,  3 Oct 2019 17:54:29 +0200
-Message-Id: <20191003154609.355782187@linuxfoundation.org>
+        Aurelien Aptel <aaptel@suse.com>
+Subject: [PATCH 5.3 305/344] smb3: fix unmount hang in open_shroot
+Date:   Thu,  3 Oct 2019 17:54:30 +0200
+Message-Id: <20191003154609.431149924@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,116 +48,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steve French <stfrench@microsoft.com>
 
-commit 3e7a02d47872081f4b6234a9f72500f1d10f060c upstream.
+commit 96d9f7ed00b86104bf03adeffc8980897e9694ab upstream.
 
-In some cases to work around server bugs or performance
-problems it can be helpful to be able to disable requesting
-SMB2.1/SMB3 leases on a particular mount (not to all servers
-and all shares we are mounted to). Add new mount parm
-"nolease" which turns off requesting leases on directory
-or file opens.  Currently the only way to disable leases is
-globally through a module load parameter. This is more
-granular.
+An earlier patch "CIFS: fix deadlock in cached root handling"
+did not completely address the deadlock in open_shroot. This
+patch addresses the deadlock.
+
+In testing the recent patch:
+  smb3: improve handling of share deleted (and share recreated)
+we were able to reproduce the open_shroot deadlock to one
+of the target servers in unmount in a delete share scenario.
+
+Fixes: 7e5a70ad88b1e ("CIFS: fix deadlock in cached root handling")
+
+This is version 2 of this patch. An earlier version of this
+patch "smb3: fix unmount hang in open_shroot" had a problem
+found by Dan.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
 
 Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Aurelien Aptel <aaptel@suse.com>
 CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/cifsfs.c   |    2 ++
- fs/cifs/cifsglob.h |    2 ++
- fs/cifs/connect.c  |    9 ++++++++-
- fs/cifs/smb2pdu.c  |    2 +-
- 4 files changed, 13 insertions(+), 2 deletions(-)
+ fs/cifs/smb2ops.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -433,6 +433,8 @@ cifs_show_options(struct seq_file *s, st
- 	cifs_show_security(s, tcon->ses);
- 	cifs_show_cache_flavor(s, cifs_sb);
- 
-+	if (tcon->no_lease)
-+		seq_puts(s, ",nolease");
- 	if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER)
- 		seq_puts(s, ",multiuser");
- 	else if (tcon->ses->user_name)
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -576,6 +576,7 @@ struct smb_vol {
- 	bool noblocksnd:1;
- 	bool noautotune:1;
- 	bool nostrictsync:1; /* do not force expensive SMBflush on every sync */
-+	bool no_lease:1;     /* disable requesting leases */
- 	bool fsc:1;	/* enable fscache */
- 	bool mfsymlinks:1; /* use Minshall+French Symlinks */
- 	bool multiuser:1;
-@@ -1082,6 +1083,7 @@ struct cifs_tcon {
- 	bool need_reopen_files:1; /* need to reopen tcon file handles */
- 	bool use_resilient:1; /* use resilient instead of durable handles */
- 	bool use_persistent:1; /* use persistent instead of durable handles */
-+	bool no_lease:1;    /* Do not request leases on files or directories */
- 	__le32 capabilities;
- 	__u32 share_flags;
- 	__u32 maximal_access;
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -74,7 +74,7 @@ enum {
- 	Opt_user_xattr, Opt_nouser_xattr,
- 	Opt_forceuid, Opt_noforceuid,
- 	Opt_forcegid, Opt_noforcegid,
--	Opt_noblocksend, Opt_noautotune,
-+	Opt_noblocksend, Opt_noautotune, Opt_nolease,
- 	Opt_hard, Opt_soft, Opt_perm, Opt_noperm,
- 	Opt_mapposix, Opt_nomapposix,
- 	Opt_mapchars, Opt_nomapchars, Opt_sfu,
-@@ -134,6 +134,7 @@ static const match_table_t cifs_mount_op
- 	{ Opt_noforcegid, "noforcegid" },
- 	{ Opt_noblocksend, "noblocksend" },
- 	{ Opt_noautotune, "noautotune" },
-+	{ Opt_nolease, "nolease" },
- 	{ Opt_hard, "hard" },
- 	{ Opt_soft, "soft" },
- 	{ Opt_perm, "perm" },
-@@ -1713,6 +1714,9 @@ cifs_parse_mount_options(const char *mou
- 		case Opt_noautotune:
- 			vol->noautotune = 1;
- 			break;
-+		case Opt_nolease:
-+			vol->no_lease = 1;
-+			break;
- 		case Opt_hard:
- 			vol->retry = 1;
- 			break;
-@@ -3250,6 +3254,8 @@ static int match_tcon(struct cifs_tcon *
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -656,6 +656,15 @@ int open_shroot(unsigned int xid, struct
  		return 0;
- 	if (tcon->handle_timeout != volume_info->handle_timeout)
- 		return 0;
-+	if (tcon->no_lease != volume_info->no_lease)
-+		return 0;
- 	return 1;
- }
+ 	}
  
-@@ -3464,6 +3470,7 @@ cifs_get_tcon(struct cifs_ses *ses, stru
- 	tcon->nocase = volume_info->nocase;
- 	tcon->nohandlecache = volume_info->nohandlecache;
- 	tcon->local_lease = volume_info->local_lease;
-+	tcon->no_lease = volume_info->no_lease;
- 	INIT_LIST_HEAD(&tcon->pending_opens);
++	/*
++	 * We do not hold the lock for the open because in case
++	 * SMB2_open needs to reconnect, it will end up calling
++	 * cifs_mark_open_files_invalid() which takes the lock again
++	 * thus causing a deadlock
++	 */
++
++	mutex_unlock(&tcon->crfid.fid_mutex);
++
+ 	if (smb3_encryption_required(tcon))
+ 		flags |= CIFS_TRANSFORM_REQ;
  
- 	spin_lock(&cifs_tcp_ses_lock);
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -2458,7 +2458,7 @@ SMB2_open_init(struct cifs_tcon *tcon, s
- 	iov[1].iov_len = uni_path_len;
- 	iov[1].iov_base = path;
+@@ -677,7 +686,7 @@ int open_shroot(unsigned int xid, struct
  
--	if (!server->oplocks)
-+	if ((!server->oplocks) || (tcon->no_lease))
- 		*oplock = SMB2_OPLOCK_LEVEL_NONE;
+ 	rc = SMB2_open_init(tcon, &rqst[0], &oplock, &oparms, &utf16_path);
+ 	if (rc)
+-		goto oshr_exit;
++		goto oshr_free;
+ 	smb2_set_next_command(tcon, &rqst[0]);
  
- 	if (!(server->capabilities & SMB2_GLOBAL_CAP_LEASING) ||
+ 	memset(&qi_iov, 0, sizeof(qi_iov));
+@@ -690,18 +699,10 @@ int open_shroot(unsigned int xid, struct
+ 				  sizeof(struct smb2_file_all_info) +
+ 				  PATH_MAX * 2, 0, NULL);
+ 	if (rc)
+-		goto oshr_exit;
++		goto oshr_free;
+ 
+ 	smb2_set_related(&rqst[1]);
+ 
+-	/*
+-	 * We do not hold the lock for the open because in case
+-	 * SMB2_open needs to reconnect, it will end up calling
+-	 * cifs_mark_open_files_invalid() which takes the lock again
+-	 * thus causing a deadlock
+-	 */
+-
+-	mutex_unlock(&tcon->crfid.fid_mutex);
+ 	rc = compound_send_recv(xid, ses, flags, 2, rqst,
+ 				resp_buftype, rsp_iov);
+ 	mutex_lock(&tcon->crfid.fid_mutex);
 
 
