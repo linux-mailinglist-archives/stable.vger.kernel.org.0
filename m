@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A0A5CA8E4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04020CA8E5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391440AbfJCQeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42722 "EHLO mail.kernel.org"
+        id S2391384AbfJCQeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:34:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404152AbfJCQeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:15 -0400
+        id S2392114AbfJCQeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:34:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D859F215EA;
-        Thu,  3 Oct 2019 16:34:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6714B20830;
+        Thu,  3 Oct 2019 16:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120454;
-        bh=hg7cnCXjeGWahhxiH2BWq0tRZool+GN4nN36HueKydU=;
+        s=default; t=1570120456;
+        bh=VvGjkM71cReN6WoRHeK5WYV1LuRx+NhLHQO/EKPu3xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8NK+EuFQF+BoD6qhy2DkkjrSwjOm2CtB20KUbMdijL10gVQVemFxrbB/0jeMbVo3
-         lkD6x6zafOzaPPpJUmpO2Je08lKvFFa8mZkKuownVWkFUA7AKFz/M4h02qUsrJDsvq
-         QquXyWy8V9m8wa0d9WHqS7Mp+uHCwsm17ceOxQvs=
+        b=Xk6HIYlwR9YgUwZ1l41VgLnRMUW0necqFEJYuXsMcYosDnHU99b+8m27U74Ym0fdW
+         L++bQ/wXgFzrikhKwNl5Y9+fj4wx7a74TtdjGX2chaLDOVRMxYbnob5uCu5zTlGlAO
+         JyzCLW1HbamN7ZktPqrkiCf6fNF6CmDTqzzP1qJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan-Marek Glogowski <glogow@fbihome.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 228/313] ALSA: hda/realtek - PCI quirk for Medion E4254
-Date:   Thu,  3 Oct 2019 17:53:26 +0200
-Message-Id: <20191003154555.468959729@linuxfoundation.org>
+        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 229/313] blk-mq: add callback of .cleanup_rq
+Date:   Thu,  3 Oct 2019 17:53:27 +0200
+Message-Id: <20191003154555.556015268@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,82 +48,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan-Marek Glogowski <glogow@fbihome.de>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit bd9c10bc663dd2eaac8fe39dad0f18cd21527446 ]
+[ Upstream commit 226b4fc75c78f9c497c5182d939101b260cfb9f3 ]
 
-The laptop has a combined jack to attach headsets on the right.
-The BIOS encodes them as two different colored jacks at the front,
-but otherwise it seems to be configured ok. But any adaption of
-the pins config on its own doesn't fix the jack detection to work
-in Linux. Still Windows works correct.
+SCSI maintains its own driver private data hooked off of each SCSI
+request, and the pridate data won't be freed after scsi_queue_rq()
+returns BLK_STS_RESOURCE or BLK_STS_DEV_RESOURCE. An upper layer driver
+(e.g. dm-rq) may need to retry these SCSI requests, before SCSI has
+fully dispatched them, due to a lower level SCSI driver's resource
+limitation identified in scsi_queue_rq(). Currently SCSI's per-request
+private data is leaked when the upper layer driver (dm-rq) frees and
+then retries these requests in response to BLK_STS_RESOURCE or
+BLK_STS_DEV_RESOURCE returns from scsi_queue_rq().
 
-This is somehow fixed by chaining ALC256_FIXUP_ASUS_HEADSET_MODE,
-which seems to register the microphone jack as a headset part and
-also results in fixing jack sensing, visible in dmesg as:
+This usecase is so specialized that it doesn't warrant training an
+existing blk-mq interface (e.g. blk_mq_free_request) to allow SCSI to
+account for freeing its driver private data -- doing so would add an
+extra branch for handling a special case that all other consumers of
+SCSI (and blk-mq) won't ever need to worry about.
 
--snd_hda_codec_realtek hdaudioC0D0:      Mic=0x19
-+snd_hda_codec_realtek hdaudioC0D0:      Headset Mic=0x19
+So the most pragmatic way forward is to delegate freeing SCSI driver
+private data to the upper layer driver (dm-rq).  Do so by adding
+new .cleanup_rq callback and calling a new blk_mq_cleanup_rq() method
+from dm-rq.  A following commit will implement the .cleanup_rq() hook
+in scsi_mq_ops.
 
-[ Actually the essential change is the location of the jack; the
-  driver created "Front Mic Jack" without the matching volume / mute
-  control element due to its jack location, which confused PA.
-  -- tiwai ]
-
-Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Mike Snitzer <snitzer@redhat.com>
+Cc: dm-devel@redhat.com
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/8f4f9b20-0aeb-f8f1-c02f-fd53c09679f1@fbihome.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/md/dm-rq.c     |  1 +
+ include/linux/blk-mq.h | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index d223a79ac934f..36aee8ad20547 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5870,6 +5870,7 @@ enum {
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
- 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
-+	ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE,
- };
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 5f7063f05ae07..b41ecb451c784 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -408,6 +408,7 @@ static int map_request(struct dm_rq_target_io *tio)
+ 		ret = dm_dispatch_clone_request(clone, rq);
+ 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
+ 			blk_rq_unprep_clone(clone);
++			blk_mq_cleanup_rq(clone);
+ 			tio->ti->type->release_clone_rq(clone, &tio->info);
+ 			tio->clone = NULL;
+ 			return DM_MAPIO_REQUEUE;
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index 15d1aa53d96c4..a5a99b43f68e8 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -140,6 +140,7 @@ typedef int (poll_fn)(struct blk_mq_hw_ctx *);
+ typedef int (map_queues_fn)(struct blk_mq_tag_set *set);
+ typedef bool (busy_fn)(struct request_queue *);
+ typedef void (complete_fn)(struct request *);
++typedef void (cleanup_rq_fn)(struct request *);
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -6926,6 +6927,16 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
- 	},
-+	[ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x04a11040 },
-+			{ 0x21, 0x04211020 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
-+	},
- };
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -7189,6 +7200,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
- 	SND_PCI_QUIRK(0x19e5, 0x3204, "Huawei MACH-WX9", ALC256_FIXUP_HUAWEI_MACH_WX9_PINS),
- 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
-+	SND_PCI_QUIRK(0x10ec, 0x118c, "Medion EE4254 MD62100", ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE),
+ struct blk_mq_ops {
+@@ -200,6 +201,12 @@ struct blk_mq_ops {
+ 	/* Called from inside blk_get_request() */
+ 	void (*initialize_rq_fn)(struct request *rq);
  
- #if 0
- 	/* Below is a quirk table taken from the old code.
-@@ -7357,6 +7369,7 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
- 	{.id = ALC295_FIXUP_CHROME_BOOK, .name = "alc-chrome-book"},
- 	{.id = ALC299_FIXUP_PREDATOR_SPK, .name = "predator-spk"},
- 	{.id = ALC298_FIXUP_HUAWEI_MBX_STEREO, .name = "huawei-mbx-stereo"},
-+	{.id = ALC256_FIXUP_MEDION_HEADSET_NO_PRESENCE, .name = "alc256-medion-headset"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
++	/*
++	 * Called before freeing one request which isn't completed yet,
++	 * and usually for freeing the driver private data
++	 */
++	cleanup_rq_fn		*cleanup_rq;
++
+ 	/*
+ 	 * If set, returns whether or not this queue currently is busy
+ 	 */
+@@ -366,4 +373,10 @@ static inline blk_qc_t request_to_qc_t(struct blk_mq_hw_ctx *hctx,
+ 			BLK_QC_T_INTERNAL;
+ }
+ 
++static inline void blk_mq_cleanup_rq(struct request *rq)
++{
++	if (rq->q->mq_ops->cleanup_rq)
++		rq->q->mq_ops->cleanup_rq(rq);
++}
++
+ #endif
 -- 
 2.20.1
 
