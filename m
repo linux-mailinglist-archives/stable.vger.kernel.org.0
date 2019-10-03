@@ -2,96 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A515CAE3F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 20:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF15ECAE4B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 20:36:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389133AbfJCSeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 14:34:13 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:42758 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729993AbfJCSeN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 14:34:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=l7lg82rRQaQDVfeOcm7Rfr/SwqkkoNP3HHRQDP2RzwA=; b=rdHcT+kn7cFovw6rm0OfSTKCS
-        KDwDt+68dvvvK0nEwAp1CE5O0vibScB+1y5mauwSu7U9vyyN0snsFE6rnXamMw81w5ovB2KRSgE1F
-        Ms9pOKjNeCi75rnVVNfYuXCApsQcZ0F4DkAxfVK3RuJSKOwVLgQTEFG+c1Uk7zZpCSy8A=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iG5vQ-0006CL-C9; Thu, 03 Oct 2019 18:34:04 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 837CD2740210; Thu,  3 Oct 2019 19:34:03 +0100 (BST)
-Date:   Thu, 3 Oct 2019 19:34:03 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Libin Yang <libin.yang@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.3 039/344] ASoC: SOF: Intel: hda: Make hdac_device
- device-managed
-Message-ID: <20191003183403.GD6090@sirena.co.uk>
-References: <20191003154540.062170222@linuxfoundation.org>
- <20191003154543.920067214@linuxfoundation.org>
- <20191003172617.GA6090@sirena.co.uk>
- <20191003181937.GC3457141@kroah.com>
+        id S1730883AbfJCSfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 14:35:44 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:44710 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388309AbfJCSfo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 14:35:44 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: bbrezillon)
+        with ESMTPSA id DD9C028ECEA
+Date:   Thu, 3 Oct 2019 20:35:36 +0200
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Vitor Soares <Vitor.Soares@synopsys.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>,
+        "bbrezillon@kernel.org" <bbrezillon@kernel.org>,
+        "robh+dt@kernel.org" <robh+dt@kernel.org>,
+        "mark.rutland@arm.com" <mark.rutland@arm.com>,
+        "pgaj@cadence.com" <pgaj@cadence.com>,
+        "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v3 2/5] i3c: master: make sure ->boardinfo is
+ initialized in add_i3c_dev_locked()
+Message-ID: <20191003203536.218a3cd8@collabora.com>
+In-Reply-To: <CH2PR12MB42162C4459E31D85FD60FB79AE9F0@CH2PR12MB4216.namprd12.prod.outlook.com>
+References: <cover.1567608245.git.vitor.soares@synopsys.com>
+        <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
+        <20191003162943.4a0d0274@collabora.com>
+        <CH2PR12MB42162C4459E31D85FD60FB79AE9F0@CH2PR12MB4216.namprd12.prod.outlook.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6Nae48J/T25AfBN4"
-Content-Disposition: inline
-In-Reply-To: <20191003181937.GC3457141@kroah.com>
-X-Cookie: Reactor error - core dumped!
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 3 Oct 2019 17:37:40 +0000
+Vitor Soares <Vitor.Soares@synopsys.com> wrote:
 
---6Nae48J/T25AfBN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Oct 03, 2019 at 08:19:37PM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Oct 03, 2019 at 06:26:17PM +0100, Mark Brown wrote:
-> > On Thu, Oct 03, 2019 at 05:50:04PM +0200, Greg Kroah-Hartman wrote:
-
-> > > Signed-off-by: Libin Yang <libin.yang@intel.com>
-> > > Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-> > > Reviewed-by: Takashi Iwai <tiwai@suse.de>
-> > > Link: https://lore.kernel.org/r/20190626070450.7229-1-ranjani.sridharan@linux.intel.com
-> > > Signed-off-by: Mark Brown <broonie@kernel.org>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> Hi Boris,
+> 
+> From: Boris Brezillon <boris.brezillon@collabora.com>
+> Date: Thu, Oct 03, 2019 at 15:29:43
+> 
+> > On Thu,  5 Sep 2019 12:00:35 +0200
+> > Vitor Soares <Vitor.Soares@synopsys.com> wrote:
+> >   
+> > > The newdev->boardinfo assignment was missing in
+> > > i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
+> > > propagated to i3c_dev_desc.
+> > > 
+> > > Fix this by trying to initialize device i3c_dev_boardinfo if available.
+> > > 
+> > > Cc: <stable@vger.kernel.org>
+> > > Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+> > > Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
 > > > ---
+> > > Change in v3:
+> > >   - None
+> > > 
+> > > Changes in v2:
+> > >   - Change commit message
+> > >   - Change i3c_master_search_i3c_boardinfo(newdev) to
+> > >   i3c_master_init_i3c_dev_boardinfo(newdev)
+> > >   - Add fixes, stable tags
+> > > 
+> > >  /**
+> > >   * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
+> > >   * @master: master used to send frames on the bus
+> > > @@ -1818,8 +1834,9 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+> > >  				  u8 addr)
+> > >  {
+> > >  	struct i3c_device_info info = { .dyn_addr = addr };
+> > > -	struct i3c_dev_desc *newdev, *olddev;
+> > >  	u8 old_dyn_addr = addr, expected_dyn_addr;
+> > > +	enum i3c_addr_slot_status addrstatus;
+> > > +	struct i3c_dev_desc *newdev, *olddev;
+> > >  	struct i3c_ibi_setup ibireq = { };
+> > >  	bool enable_ibi = false;
+> > >  	int ret;
+> > > @@ -1878,6 +1895,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+> > >  	if (ret)
+> > >  		goto err_detach_dev;
+> > >  
+> > > +	i3c_master_init_i3c_dev_boardinfo(newdev);
+> > > +
+> > >  	/*
+> > >  	 * Depending on our previous state, the expected dynamic address might
+> > >  	 * differ:
+> > > @@ -1895,7 +1914,11 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+> > >  	else
+> > >  		expected_dyn_addr = newdev->info.dyn_addr;
+> > >  
+> > > -	if (newdev->info.dyn_addr != expected_dyn_addr) {
+> > > +	addrstatus = i3c_bus_get_addr_slot_status(&master->bus,
+> > > +						  expected_dyn_addr);
+> > > +
+> > > +	if (newdev->info.dyn_addr != expected_dyn_addr &&
+> > > +	    addrstatus == I3C_ADDR_SLOT_FREE) {  
+> > 
+> > First, this change shouldn't be part of this patch, since the commit
+> > message only mentions the boardinfo init stuff,  
+> 
+> This is not an issue, I can create a patch just for boardinfo init fix.
+> 
+> > not the extra 'is slot
+> > free check'.  
+> 
+> Even ignoring patch 1, it is necessary to check if the slot is free 
+> because if SETDASA fails the boardinfo->init_dyn_addr can be assigned to 
+> another device. That's why we need to check if expected_dyn_addr is free.
 
-> > Looks like you're missing your own signoff on this (and quite a few of
-> > the others)?
+Correct. I thought we were already pre-reserving the init_addr (as
+described here [1]), but it looks like the code is buggy. That's
+probably something we should fix  (we should reserve ->init_i3c_addr
+here [2], not ->dyn_addr).
 
-> Sasha signs off on these, I didn't, as he is the one that queues them
-> up.
+> 
+> > Plus, I want the fix to be backported so we should avoid
+> > any unneeded deps.
+> > 
+> > But even with those 2 things addressed, I'm still convinced the
+> > 'free desc when device is not reachable' change you do in patch 1 is
+> > not that great,   
+> 
+> If I'm doing wrong I really appreciate you tell me the reason.
 
-It seems off when they go out as e-mail with you as the sender - it'll
-be OK in git if he's the committer of course but it's weird here.
+I just think it's easier to keep track of things (like reserved
+addresses) if the descriptor stays around even if the device is not yet
+accessible.
 
---6Nae48J/T25AfBN4
-Content-Type: application/pgp-signature; name="signature.asc"
+> 
+> > and the fact that you can't pre-reserve the address to
+> > make sure no one uses it until the device had a chance to show up tends
+> > to prove me right.  
+> 
+> This is a different corner case and I though we agreed that the framework 
+> doesn't provide guarantees to assign boardinfo->init_dyn_addr [1].
 
------BEGIN PGP SIGNATURE-----
+Well, it doesn't, but we should try hard to not use addresses that
+have been requested by a device.
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2WPxoACgkQJNaLcl1U
-h9AxNwf+I1RACj7QAv9TLm9jlzO6uYlsr+zdnMrG+0ZOunWrliY1KLheoRB6M0xi
-mDqEJNimfEyhB4TddvIehWrbEA64IBq78XefzDknQnbyI/m/v6Lsd8F9ZWf9tbSQ
-sxwN4eh66bPap7YmACtltDh7TV0QVdo8u+y1zzVczQ/UBYUFDN+sfCfxBDL1GtAo
-w+AG6SBVAwl4pYBLwzB5DMpnk6s2MJOi1x9icmoBf/6jv4uGlUjDJN0DxGI8WMcE
-5K97j3661Y1IPLp9sBnXr4dJxd0u88b2qYTyoIuohv6ZCAjCh5ZXLh6mF0zOztW6
-PociXsKyM44Ze2Bp3P1docJMulodZA==
-=k2RV
------END PGP SIGNATURE-----
+> 
+> Yet, I don't disagree with the idea of pre-reserve the 
+> boardinfo->init_dyn_addr.
+> I can do this but we need to align how it should be done.
 
---6Nae48J/T25AfBN4--
+Keep the device around even if SETDASA fails and make sure the
+->init_dyn_addr is reserved. It's how it was supposed to work, there's
+just a bug in the logic.
+
+> 
+> > 
+> > Can we please do what I suggest and solve the "not enough dev slots"
+> > problem later on (if we really have to).  
+> 
+> I have this use case where the HC has only 4 slot for 4 devices. 
+> Sometimes the one or more devices can be sleeping and when they trigger 
+> HJ there is no space in HC.
+
+Let's address that separately please. I want to solve one problem at a
+time.
+
+[1]https://elixir.bootlin.com/linux/latest/source/drivers/i3c/master.c#L1330
+[2]https://elixir.bootlin.com/linux/latest/source/drivers/i3c/master.c#L1307
