@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D546CAC90
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E6BCAD6F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388028AbfJCQMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:12:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34524 "EHLO mail.kernel.org"
+        id S1731205AbfJCRln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387990AbfJCQMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:12:22 -0400
+        id S1731195AbfJCP6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:58:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 602FB20865;
-        Thu,  3 Oct 2019 16:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C749207FF;
+        Thu,  3 Oct 2019 15:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119141;
-        bh=lw8qQB2XdoKBsbDUtcWe7KhHVToJ6iBMTQBYsvMtJCE=;
+        s=default; t=1570118292;
+        bh=NSukmqKx85zf26wnhrsuHIwKRjUlm+nK4EgIzbL9UfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JWI9A3sukhjhbGb/evMMhZ0LlMq23xIeGmrq/f3dBgytLH57eXMaWL+WJZT3fQEk2
-         ckxvls247w6NBx/MgGNngQ2YhuSqbX587FZ1jFpUETitFbDb42K7i7ELkAoy+fjklw
-         QuyjgyvBCQSt8D9lzN9ILIV0pzekKZmxHzCHbzEQ=
+        b=2R3W/Rf8LQFSQawsAHsseL1PPjJAP5ldZSktG3PowwCc/6iL9uGwI810XnjvU/TTj
+         A2Bfu+EB0EnewcbsbeBFbc9wA4XsXeCTIJCBqRKlh1igyznXNQwQOf6Ny1BulJLGrq
+         Ec4LJ/sGmuPQtpSmVOZ5eJa5UuU5Z2nMjISoLsSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/185] kprobes: Prohibit probing on BUG() and WARN() address
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 59/99] media: cpia2_usb: fix memory leaks
 Date:   Thu,  3 Oct 2019 17:53:22 +0200
-Message-Id: <20191003154505.846550065@linuxfoundation.org>
+Message-Id: <20191003154325.545969001@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,68 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit e336b4027775cb458dc713745e526fa1a1996b2a ]
+[ Upstream commit 1c770f0f52dca1a2323c594f01f5ec6f1dddc97f ]
 
-Since BUG() and WARN() may use a trap (e.g. UD2 on x86) to
-get the address where the BUG() has occurred, kprobes can not
-do single-step out-of-line that instruction. So prohibit
-probing on such address.
+In submit_urbs(), 'cam->sbuf[i].data' is allocated through kmalloc_array().
+However, it is not deallocated if the following allocation for urbs fails.
+To fix this issue, free 'cam->sbuf[i].data' if usb_alloc_urb() fails.
 
-Without this fix, if someone put a kprobe on WARN(), the
-kernel will crash with invalid opcode error instead of
-outputing warning message, because kernel can not find
-correct bug address.
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S . Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N . Rao <naveen.n.rao@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/156750890133.19112.3393666300746167111.stgit@devnote2
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bug.h | 5 +++++
- kernel/kprobes.c    | 3 ++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/usb/cpia2/cpia2_usb.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/bug.h b/include/linux/bug.h
-index da4231c905c85..f485974177914 100644
---- a/include/linux/bug.h
-+++ b/include/linux/bug.h
-@@ -45,6 +45,11 @@ int is_valid_bugaddr(unsigned long addr);
+diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
+index 41ea00ac3a873..76b9cb940b871 100644
+--- a/drivers/media/usb/cpia2/cpia2_usb.c
++++ b/drivers/media/usb/cpia2/cpia2_usb.c
+@@ -665,6 +665,10 @@ static int submit_urbs(struct camera_data *cam)
+ 			ERR("%s: usb_alloc_urb error!\n", __func__);
+ 			for (j = 0; j < i; j++)
+ 				usb_free_urb(cam->sbuf[j].urb);
++			for (j = 0; j < NUM_SBUF; j++) {
++				kfree(cam->sbuf[j].data);
++				cam->sbuf[j].data = NULL;
++			}
+ 			return -ENOMEM;
+ 		}
  
- #else	/* !CONFIG_GENERIC_BUG */
- 
-+static inline void *find_bug(unsigned long bugaddr)
-+{
-+	return NULL;
-+}
-+
- static inline enum bug_trap_type report_bug(unsigned long bug_addr,
- 					    struct pt_regs *regs)
- {
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index c43bc2bc5b2ca..f7a4602a76f98 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1501,7 +1501,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
- 	/* Ensure it is not in reserved area nor out of text */
- 	if (!kernel_text_address((unsigned long) p->addr) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
--	    jump_label_text_reserved(p->addr, p->addr)) {
-+	    jump_label_text_reserved(p->addr, p->addr) ||
-+	    find_bug((unsigned long)p->addr)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
 -- 
 2.20.1
 
