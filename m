@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 446F9CAB6E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6044ECAABA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731738AbfJCRVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42984 "EHLO mail.kernel.org"
+        id S1732481AbfJCRMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:12:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389217AbfJCQRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:20 -0400
+        id S2391811AbfJCQaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4F6721848;
-        Thu,  3 Oct 2019 16:17:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 342C82054F;
+        Thu,  3 Oct 2019 16:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119439;
-        bh=ywJS7Thjq/1Bt0yGbQB3ziW6UQFqmq+DJEMXpON3d2U=;
+        s=default; t=1570120254;
+        bh=kjUYmaBo4PVq9u9yyQ+YpRHxns2z/f+WYQMw69UXDSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvtOktV5Sqiw8ojt9BkUiSBaMzTILpzMzbbTJXGbOWUhTDmwj5TIPM7wOooROCKc1
-         hUD0fIfQX5FS16iW1nIYz5XSbQXFfRyF/WIGXZw3HRDKPLlSsfpbqIBh6ocIBpetZK
-         nejEJS/TSeZYivOD8aV/mFTmCSqnKre2Qyu9Hi20=
+        b=Wrl4q/KxobXgpiGq4E6WNgEWTgWdhnaIN54XkDA2cVfFqTRNxHdxGAUMAW/NsLMBm
+         QisFkNaKvn4ZnJQEZ5kkObjAirfcAiul8d69NGKLkQGbY/oEAqXFNkSkrlP1YD8zmD
+         FAUQ1p1+XXf8i2LH+u/jQD/TnEFMzahcAo8ZSImw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
+        stable@vger.kernel.org,
+        Douglas RAILLARD <douglas.raillard@arm.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 064/211] sched/fair: Use rq_lock/unlock in online_fair_sched_group
-Date:   Thu,  3 Oct 2019 17:52:10 +0200
-Message-Id: <20191003154503.204327200@linuxfoundation.org>
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 153/313] sched/cpufreq: Align trace event behavior of fast switching
+Date:   Thu,  3 Oct 2019 17:52:11 +0200
+Message-Id: <20191003154547.990264509@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Auld <pauld@redhat.com>
+From: Douglas RAILLARD <douglas.raillard@arm.com>
 
-[ Upstream commit a46d14eca7b75fffe35603aa8b81df654353d80f ]
+[ Upstream commit 77c84dd1881d0f0176cb678d770bfbda26c54390 ]
 
-Enabling WARN_DOUBLE_CLOCK in /sys/kernel/debug/sched_features causes
-warning to fire in update_rq_clock. This seems to be caused by onlining
-a new fair sched group not using the rq lock wrappers.
+Fast switching path only emits an event for the CPU of interest, whereas the
+regular path emits an event for all the CPUs that had their frequency changed,
+i.e. all the CPUs sharing the same policy.
 
-  [] rq->clock_update_flags & RQCF_UPDATED
-  [] WARNING: CPU: 5 PID: 54385 at kernel/sched/core.c:210 update_rq_clock+0xec/0x150
+With the current behavior, looking at cpu_frequency event for a given CPU that
+is using the fast switching path will not give the correct frequency signal.
 
-  [] Call Trace:
-  []  online_fair_sched_group+0x53/0x100
-  []  cpu_cgroup_css_online+0x16/0x20
-  []  online_css+0x1c/0x60
-  []  cgroup_apply_control_enable+0x231/0x3b0
-  []  cgroup_mkdir+0x41b/0x530
-  []  kernfs_iop_mkdir+0x61/0xa0
-  []  vfs_mkdir+0x108/0x1a0
-  []  do_mkdirat+0x77/0xe0
-  []  do_syscall_64+0x55/0x1d0
-  []  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Using the wrappers in online_fair_sched_group instead of the raw locking
-removes this warning.
-
-[ tglx: Use rq_*lock_irq() ]
-
-Signed-off-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20190801133749.11033-1-pauld@redhat.com
+Signed-off-by: Douglas RAILLARD <douglas.raillard@arm.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/sched/cpufreq_schedutil.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index ad78a15bd5677..32d2dac680a70 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -10079,18 +10079,18 @@ int alloc_fair_sched_group(struct task_group *tg, struct task_group *parent)
- void online_fair_sched_group(struct task_group *tg)
+diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
+index ae3ec77bb92f6..e139b54716b4a 100644
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -117,6 +117,7 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
+ 			      unsigned int next_freq)
  {
- 	struct sched_entity *se;
-+	struct rq_flags rf;
- 	struct rq *rq;
- 	int i;
+ 	struct cpufreq_policy *policy = sg_policy->policy;
++	int cpu;
  
- 	for_each_possible_cpu(i) {
- 		rq = cpu_rq(i);
- 		se = tg->se[i];
--
--		raw_spin_lock_irq(&rq->lock);
-+		rq_lock_irq(rq, &rf);
- 		update_rq_clock(rq);
- 		attach_entity_cfs_rq(se);
- 		sync_throttle(tg, i);
--		raw_spin_unlock_irq(&rq->lock);
-+		rq_unlock_irq(rq, &rf);
- 	}
+ 	if (!sugov_update_next_freq(sg_policy, time, next_freq))
+ 		return;
+@@ -126,7 +127,11 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
+ 		return;
+ 
+ 	policy->cur = next_freq;
+-	trace_cpu_frequency(next_freq, smp_processor_id());
++
++	if (trace_cpu_frequency_enabled()) {
++		for_each_cpu(cpu, policy->cpus)
++			trace_cpu_frequency(next_freq, cpu);
++	}
  }
  
+ static void sugov_deferred_update(struct sugov_policy *sg_policy, u64 time,
 -- 
 2.20.1
 
