@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7895CA828
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88CBCCA8FD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389182AbfJCQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50636 "EHLO mail.kernel.org"
+        id S2390558AbfJCQfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390246AbfJCQWH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:07 -0400
+        id S2404284AbfJCQfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:35:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 055D420659;
-        Thu,  3 Oct 2019 16:22:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 692412070B;
+        Thu,  3 Oct 2019 16:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119726;
-        bh=oRV+leRlKcDaDL3Mq6cSLuxvma0IMKsByFJp4UgJ0xg=;
+        s=default; t=1570120537;
+        bh=nXQIQUChDQTJepmXhuT4OoVw16fDzfRJkyUABc3APIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Egudr22gVQmt3IU5tMs30jzub8AeM/rHR2J3UFax1AF6DSJHq0up3UV713YGDbpYd
-         t2eojIhzjdnaQUjnPFQVM7k9G78zk1ZyGNFXR3ktTAOP46I0/a7He9CJCfutM0vWcE
-         IDyTV5M0BQqHBjATyRoUxSwboeG4BjakEv3NMOzE=
+        b=lQ1BPX3xVY0pD7RpBslwtIv6pJ4wz7NrB2Hs6cRHceR+2CS3WOPxr+q/X7GSEwci0
+         +NRYA0kuJvJeeIgo5RZ5dI5BP5C4dPQ6lHpC93ZepldOImAD7j+gON+1uNSLl35rNx
+         1oJB7JC/7HT5wjS4WLw/dLapFZSE2LSTW2awN7iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 171/211] ASoC: Intel: NHLT: Fix debug print format
-Date:   Thu,  3 Oct 2019 17:53:57 +0200
-Message-Id: <20191003154526.280940544@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Nadav Amit <namit@vmware.com>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.2 260/313] iommu/vt-d: Fix wrong analysis whether devices share the same bus
+Date:   Thu,  3 Oct 2019 17:53:58 +0200
+Message-Id: <20191003154558.642942460@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,34 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 855a06da37a773fd073d51023ac9d07988c87da8 upstream.
+commit 2c70010867f164d1b30e787e360e05d10cc40046 upstream.
 
-oem_table_id is 8 chars long, so we need to limit it, otherwise it
-may print some unprintable characters into dmesg.
+set_msi_sid_cb() is used to determine whether device aliases share the
+same bus, but it can provide false indications that aliases use the same
+bus when in fact they do not. The reason is that set_msi_sid_cb()
+assumes that pdev is fixed, while actually pci_for_each_dma_alias() can
+call fn() when pdev is set to a subordinate device.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-7-amadeuszx.slawinski@linux.intel.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+As a result, running an VM on ESX with VT-d emulation enabled can
+results in the log warning such as:
+
+  DMAR: [INTR-REMAP] Request device [00:11.0] fault index 3b [fault reason 38] Blocked an interrupt request due to source-id verification failure
+
+This seems to cause additional ata errors such as:
+  ata3.00: qc timeout (cmd 0xa1)
+  ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+
+These timeouts also cause boot to be much longer and other errors.
+
+Fix it by checking comparing the alias with the previous one instead.
+
+Fixes: 3f0c625c6ae71 ("iommu/vt-d: Allow interrupts from the entire bus for aliased devices")
 Cc: stable@vger.kernel.org
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-nhlt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel_irq_remapping.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -231,7 +231,7 @@ int skl_nhlt_update_topology_bin(struct
- 	struct hdac_bus *bus = skl_to_bus(skl);
- 	struct device *dev = bus->dev;
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -376,13 +376,13 @@ static int set_msi_sid_cb(struct pci_dev
+ {
+ 	struct set_msi_sid_data *data = opaque;
  
--	dev_dbg(dev, "oem_id %.6s, oem_table_id %8s oem_revision %d\n",
-+	dev_dbg(dev, "oem_id %.6s, oem_table_id %.8s oem_revision %d\n",
- 		nhlt->header.oem_id, nhlt->header.oem_table_id,
- 		nhlt->header.oem_revision);
++	if (data->count == 0 || PCI_BUS_NUM(alias) == PCI_BUS_NUM(data->alias))
++		data->busmatch_count++;
++
+ 	data->pdev = pdev;
+ 	data->alias = alias;
+ 	data->count++;
+ 
+-	if (PCI_BUS_NUM(alias) == pdev->bus->number)
+-		data->busmatch_count++;
+-
+ 	return 0;
+ }
  
 
 
