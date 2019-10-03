@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B2CCAAC9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B05CA980
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390250AbfJCRN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33524 "EHLO mail.kernel.org"
+        id S2404870AbfJCQn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389505AbfJCQ2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:28:48 -0400
+        id S2405230AbfJCQnY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9475B222CB;
-        Thu,  3 Oct 2019 16:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 346FE20830;
+        Thu,  3 Oct 2019 16:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120128;
+        s=default; t=1570121003;
         bh=UgYhas+Ne82pUddsBnQzmIKiDCnGAB4Tisqknu33vB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+ShSmHH6EU+ZDymlMlU3VcSx1th/cnuaxqd+NWmSWsKappC7i8qmEc3AZVqqNN7V
-         MaV4IxUR/7ENfoil5xGeTTtXy7NZVfl/seg9H//dd4AK+/W81bShoPrkFpKRw355zE
-         TWh14rtADgUn9Dt6wogArA7Kif+9OOBaWINuaS/g=
+        b=Bh6XD2o7y0Y6dX7LpOgC9vvEBS9Gf3/84aNek5ykQ/gP5zE1f8HbD2IgjmvvIbxuo
+         cw9i9kMcgY/AGpCRUv41wIikZVPRPBoXb8YyFxoMrr67bCqqE3KCO8Rf9l8TH2YPmu
+         Y+DR9cmyTaRDmQxWHe8YON89ZITsTaFLImf5knS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,12 +33,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 106/313] media: imx: mipi csi-2: Dont fail if initial state times-out
+Subject: [PATCH 5.3 119/344] media: imx: mipi csi-2: Dont fail if initial state times-out
 Date:   Thu,  3 Oct 2019 17:51:24 +0200
-Message-Id: <20191003154543.310627899@linuxfoundation.org>
+Message-Id: <20191003154551.947340107@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
