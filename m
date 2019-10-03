@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B180FCA416
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48752CA41C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388870AbfJCQVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
+        id S2390250AbfJCQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390208AbfJCQVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:21:52 -0400
+        id S2388937AbfJCQWK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:22:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5268E20865;
-        Thu,  3 Oct 2019 16:21:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC35E2054F;
+        Thu,  3 Oct 2019 16:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119711;
-        bh=WV12Xj5vShY0vJCSafmIAez9hmQ3Eiy6jMF6YEac2p4=;
+        s=default; t=1570119729;
+        bh=Ueaqf8L7aiXnLa7rVeHwr0H9y2qhxDWtM7OnYOJ9vwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwBet8gJb7XDq5OINUPTTQca5AccOAoiluT7LtODbTBFITaZTCPS3S263+Q0kB6ia
-         JWKITYywtosnHO1Q2I+sjlpejv7j0s+LHNyYij2vw6iR+Ah49MnxolvgD1IZuTbaN6
-         FWce+G6+AvEA07RPkLGRLXM5CazYplgIG+I8ankk=
+        b=1dM+YiQqtvMNSmxVkweJ/veBDu2ZhiGGSrT19NFZ70qQlyS9Bvj6RAFkua2tNxTHv
+         T46L3geJUf0k17WRpwyXZqgrGZ1+j1RfoBmXZuGtvD/E/25GadtMZdKUIDATP0h57l
+         zZfA5lWKBL33CgPx3oAKQ4DKsUNcUQU60QmT8IcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Lunev <den@virtuozzo.com>,
-        Roman Kagan <rkagan@virtuozzo.com>,
-        Denis Plotnikov <dplotnikov@virtuozzo.com>,
-        Jan Dakinevich <jan.dakinevich@virtuozzo.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 166/211] KVM: x86: set ctxt->have_exception in x86_decode_insn()
-Date:   Thu,  3 Oct 2019 17:53:52 +0200
-Message-Id: <20191003154525.759012107@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 172/211] ASoC: Intel: Skylake: Use correct function to access iomem space
+Date:   Thu,  3 Oct 2019 17:53:58 +0200
+Message-Id: <20191003154526.423613125@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -46,53 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit c8848cee74ff05638e913582a476bde879c968ad upstream.
+commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
 
-x86_emulate_instruction() takes into account ctxt->have_exception flag
-during instruction decoding, but in practice this flag is never set in
-x86_decode_insn().
+For copying from __iomem, we should use __ioread32_copy.
 
-Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
+reported by sparse:
+sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
+sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
+sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
+sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
+
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Cc: Denis Lunev <den@virtuozzo.com>
-Cc: Roman Kagan <rkagan@virtuozzo.com>
-Cc: Denis Plotnikov <dplotnikov@virtuozzo.com>
-Signed-off-by: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/emulate.c |    2 ++
- arch/x86/kvm/x86.c     |    6 ++++++
- 2 files changed, 8 insertions(+)
+ sound/soc/intel/skylake/skl-debug.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -5368,6 +5368,8 @@ done_prefixes:
- 					ctxt->memopp->addr.mem.ea + ctxt->_eip);
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -196,7 +196,7 @@ static ssize_t fw_softreg_read(struct fi
+ 	memset(d->fw_read_buff, 0, FW_REG_BUF);
  
- done:
-+	if (rc == X86EMUL_PROPAGATE_FAULT)
-+		ctxt->have_exception = true;
- 	return (rc != X86EMUL_CONTINUE) ? EMULATION_FAILED : EMULATION_OK;
- }
+ 	if (w0_stat_sz > 0)
+-		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
++		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
  
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6245,6 +6245,12 @@ int x86_emulate_instruction(struct kvm_v
- 						emulation_type))
- 				return EMULATE_DONE;
- 			if (ctxt->have_exception) {
-+				/*
-+				 * #UD should result in just EMULATION_FAILED, and trap-like
-+				 * exception should not be encountered during decode.
-+				 */
-+				WARN_ON_ONCE(ctxt->exception.vector == UD_VECTOR ||
-+					     exception_type(ctxt->exception.vector) == EXCPT_TRAP);
- 				inject_emulated_exception(vcpu);
- 				return EMULATE_DONE;
- 			}
+ 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
+ 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
 
 
