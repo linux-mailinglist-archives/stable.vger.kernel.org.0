@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF127CA826
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30094CA8FA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388653AbfJCQWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
+        id S2390371AbfJCQfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390229AbfJCQWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:01 -0400
+        id S2404264AbfJCQfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:35:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCAF120865;
-        Thu,  3 Oct 2019 16:21:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 410F52070B;
+        Thu,  3 Oct 2019 16:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119720;
-        bh=zrdNoSnOeNZj5QJjLU3IpZ0WHzz72+SQAhpLfEHBe8A=;
+        s=default; t=1570120529;
+        bh=yrvj6QEZn4hh+hdM5DHS2jBMNmNJqEh3Pa38HQ+S6AA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md8OdiptVzGPkWvj9vlzb7RLUcXHabwCg0MIB706oF+JaM0pfXnQE5G1z/QOB3G9L
-         C/IgPZLbBgzofazObLIroBYDrLbXq2Znswk3d6OuIQjB1VyCHYrW4ia8jcIgjcrzW3
-         387I1WreIaZ+EGPWmjZ3hxgSOp8SECsulKMxP7xI=
+        b=rhbFgalGOSoQJgrzaOG+CgZv7fMV56/Em5k1XI9tIZpK2B0T6+vFNlkMHz5Q9OK3n
+         W2jcZLt2Haqm8GIR9fViuZN4N/mXb3/pYOHc+ayQWIu4JCXXm6nX/VaslQBS0Hnfsn
+         RRk0Vr0Ya/hDB9XRtW3yz59FPUIy+gdCobpaYg8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Max Kellermann <max.kellermann@gmail.com>,
-        Wolfgang Rohdewald <wolfgang@rohdewald.de>,
-        Arnd Bergmann <arnd@arndb.de>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 169/211] media: dont drop front-end reference count for ->detach
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Liang Chen <cl@rock-chips.com>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.2 257/313] arm64: dts: rockchip: limit clock rate of MMC controllers for RK3328
 Date:   Thu,  3 Oct 2019 17:53:55 +0200
-Message-Id: <20191003154526.075951948@linuxfoundation.org>
+Message-Id: <20191003154558.340959381@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,84 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Shawn Lin <shawn.lin@rock-chips.com>
 
-commit 14e3cdbb00a885eedc95c0cf8eda8fe28d26d6b4 upstream.
+commit 03e61929c0d227ed3e1c322fc3804216ea298b7e upstream.
 
-A bugfix introduce a link failure in configurations without CONFIG_MODULES:
+150MHz is a fundamental limitation of RK3328 Soc, w/o this limitation,
+eMMC, for instance, will run into 200MHz clock rate in HS200 mode, which
+makes the RK3328 boards not always boot properly. By adding it in
+rk3328.dtsi would also obviate the worry of missing it when adding new
+boards.
 
-In file included from drivers/media/usb/dvb-usb/pctv452e.c:20:0:
-drivers/media/usb/dvb-usb/pctv452e.c: In function 'pctv452e_frontend_attach':
-drivers/media/dvb-frontends/stb0899_drv.h:151:36: error: weak declaration of 'stb0899_attach' being applied to a already existing, static definition
-
-The problem is that the !IS_REACHABLE() declaration of stb0899_attach()
-is a 'static inline' definition that clashes with the weak definition.
-
-I further observed that the bugfix was only done for one of the five users
-of stb0899_attach(), the other four still have the problem.  This reverts
-the bugfix and instead addresses the problem by not dropping the reference
-count when calling '->detach()', instead we call this function directly
-in dvb_frontend_put() before dropping the kref on the front-end.
-
-I first submitted this in early 2018, and after some discussion it
-was apparently discarded.  While there is a long-term plan in place,
-that plan is obviously not nearing completion yet, and the current
-kernel is still broken unless this patch is applied.
-
-Link: https://patchwork.kernel.org/patch/10140175/
-Link: https://patchwork.linuxtv.org/patch/54831/
-
-Cc: Max Kellermann <max.kellermann@gmail.com>
-Cc: Wolfgang Rohdewald <wolfgang@rohdewald.de>
+Fixes: 52e02d377a72 ("arm64: dts: rockchip: add core dtsi file for RK3328 SoCs")
 Cc: stable@vger.kernel.org
-Fixes: f686c14364ad ("[media] stb0899: move code to "detach" callback")
-Fixes: 6cdeaed3b142 ("media: dvb_usb_pctv452e: module refcount changes were unbalanced")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Liang Chen <cl@rock-chips.com>
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/dvb-core/dvb_frontend.c |    4 +++-
- drivers/media/usb/dvb-usb/pctv452e.c  |    8 --------
- 2 files changed, 3 insertions(+), 9 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/dvb-core/dvb_frontend.c
-+++ b/drivers/media/dvb-core/dvb_frontend.c
-@@ -164,6 +164,9 @@ static void dvb_frontend_free(struct kre
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -800,6 +800,7 @@
+ 			 <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
  
- static void dvb_frontend_put(struct dvb_frontend *fe)
- {
-+	/* call detach before dropping the reference count */
-+	if (fe->ops.detach)
-+		fe->ops.detach(fe);
- 	/*
- 	 * Check if the frontend was registered, as otherwise
- 	 * kref was not initialized yet.
-@@ -3035,7 +3038,6 @@ void dvb_frontend_detach(struct dvb_fron
- 	dvb_frontend_invoke_release(fe, fe->ops.release_sec);
- 	dvb_frontend_invoke_release(fe, fe->ops.tuner_ops.release);
- 	dvb_frontend_invoke_release(fe, fe->ops.analog_ops.release);
--	dvb_frontend_invoke_release(fe, fe->ops.detach);
- 	dvb_frontend_put(fe);
- }
- EXPORT_SYMBOL(dvb_frontend_detach);
---- a/drivers/media/usb/dvb-usb/pctv452e.c
-+++ b/drivers/media/usb/dvb-usb/pctv452e.c
-@@ -913,14 +913,6 @@ static int pctv452e_frontend_attach(stru
- 						&a->dev->i2c_adap);
- 	if (!a->fe_adap[0].fe)
- 		return -ENODEV;
--
--	/*
--	 * dvb_frontend will call dvb_detach for both stb0899_detach
--	 * and stb0899_release but we only do dvb_attach(stb0899_attach).
--	 * Increment the module refcount instead.
--	 */
--	symbol_get(stb0899_attach);
--
- 	if ((dvb_attach(lnbp22_attach, a->fe_adap[0].fe,
- 					&a->dev->i2c_adap)) == NULL)
- 		err("Cannot attach lnbp22\n");
+@@ -811,6 +812,7 @@
+ 			 <&cru SCLK_SDIO_DRV>, <&cru SCLK_SDIO_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
+ 
+@@ -822,6 +824,7 @@
+ 			 <&cru SCLK_EMMC_DRV>, <&cru SCLK_EMMC_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
+ 
 
 
