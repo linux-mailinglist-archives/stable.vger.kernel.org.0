@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F7FCA73F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4384ECA79E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393164AbfJCQwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
+        id S2393186AbfJCQwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:52:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393158AbfJCQwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:07 -0400
+        id S2393171AbfJCQwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B4E320865;
-        Thu,  3 Oct 2019 16:52:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 528E02054F;
+        Thu,  3 Oct 2019 16:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121526;
-        bh=YeCFigP0qPUGddwULD/CreVJ/+qrEsHVvja3e2+ZdGI=;
+        s=default; t=1570121528;
+        bh=mdL0Q4Tu0YQ0/7eHxAxBpSVNI6snCFhuwkmBw7iEIB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=15OpnNIRi3WYmvQg4rqc256eloEj7d7k5n38V4PDyF48EOaibWfGaXebS50vHs08Z
-         xy2VZ0a4F3nKweHGYU8259zipO8+iTNB1WaOtBxUvqUHvEonwMZp9P388u3Gm60oDT
-         z1+8+r4IVwVvG7PHwZ0Hx836Sd814Wc6ZYh31tUI=
+        b=SRNeIyqEOLiA+I9vnarFdqD0Zd9sIluEsar7nwixnCaFhHHpo5dvDUHyoVe1at7h2
+         3Jv1zpoTsNdEn2EiYZJk8dme2HXWW686KoDtUHAn9FbfHZV6dy53rAsUo7OB3sZLxK
+         DeOKlrULdE4UEhdPynLAk1IziAXe0qXV9S9L20As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@kernel.org>,
-        Dennis Zhou <dennis@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 312/344] btrfs: adjust dirty_metadata_bytes after writeback failure of extent buffer
-Date:   Thu,  3 Oct 2019 17:54:37 +0200
-Message-Id: <20191003154609.942983053@linuxfoundation.org>
+Subject: [PATCH 5.3 313/344] btrfs: qgroup: Fix the wrong target io_tree when freeing reserved data space
+Date:   Thu,  3 Oct 2019 17:54:38 +0200
+Message-Id: <20191003154610.019756365@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,50 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Zhou <dennis@kernel.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit eb5b64f142504a597d67e2109d603055ff765e52 upstream.
+commit bab32fc069ce8829c416e8737c119f62a57970f9 upstream.
 
-Before, if a eb failed to write out, we would end up triggering a
-BUG_ON(). As of f4340622e0226 ("btrfs: extent_io: Move the BUG_ON() in
-flush_write_bio() one level up"), we no longer BUG_ON(), so we should
-make life consistent and add back the unwritten bytes to
-dirty_metadata_bytes.
+[BUG]
+Under the following case with qgroup enabled, if some error happened
+after we have reserved delalloc space, then in error handling path, we
+could cause qgroup data space leakage:
 
-Fixes: f4340622e022 ("btrfs: extent_io: Move the BUG_ON() in flush_write_bio() one level up")
-CC: stable@vger.kernel.org # 5.2+
-Reviewed-by: Filipe Manana <fdmanana@kernel.org>
-Signed-off-by: Dennis Zhou <dennis@kernel.org>
+>From btrfs_truncate_block() in inode.c:
+
+	ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+					   block_start, blocksize);
+	if (ret)
+		goto out;
+
+ again:
+	page = find_or_create_page(mapping, index, mask);
+	if (!page) {
+		btrfs_delalloc_release_space(inode, data_reserved,
+					     block_start, blocksize, true);
+		btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, true);
+		ret = -ENOMEM;
+		goto out;
+	}
+
+[CAUSE]
+In the above case, btrfs_delalloc_reserve_space() will call
+btrfs_qgroup_reserve_data() and mark the io_tree range with
+EXTENT_QGROUP_RESERVED flag.
+
+In the error handling path, we have the following call stack:
+btrfs_delalloc_release_space()
+|- btrfs_free_reserved_data_space()
+   |- btrsf_qgroup_free_data()
+      |- __btrfs_qgroup_release_data(reserved=@reserved, free=1)
+         |- qgroup_free_reserved_data(reserved=@reserved)
+            |- clear_record_extent_bits();
+            |- freed += changeset.bytes_changed;
+
+However due to a completion bug, qgroup_free_reserved_data() will clear
+EXTENT_QGROUP_RESERVED flag in BTRFS_I(inode)->io_failure_tree, other
+than the correct BTRFS_I(inode)->io_tree.
+Since io_failure_tree is never marked with that flag,
+btrfs_qgroup_free_data() will not free any data reserved space at all,
+causing a leakage.
+
+This type of error handling can only be triggered by errors outside of
+qgroup code. So EDQUOT error from qgroup can't trigger it.
+
+[FIX]
+Fix the wrong target io_tree.
+
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: bc42bda22345 ("btrfs: qgroup: Fix qgroup reserved space underflow by only freeing reserved ranges")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent_io.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/btrfs/qgroup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3745,12 +3745,21 @@ err_unlock:
- static void set_btree_ioerr(struct page *page)
- {
- 	struct extent_buffer *eb = (struct extent_buffer *)page->private;
-+	struct btrfs_fs_info *fs_info;
- 
- 	SetPageError(page);
- 	if (test_and_set_bit(EXTENT_BUFFER_WRITE_ERR, &eb->bflags))
- 		return;
- 
- 	/*
-+	 * If we error out, we should add back the dirty_metadata_bytes
-+	 * to make it consistent.
-+	 */
-+	fs_info = eb->fs_info;
-+	percpu_counter_add_batch(&fs_info->dirty_metadata_bytes,
-+				 eb->len, fs_info->dirty_metadata_batch);
-+
-+	/*
- 	 * If writeback for a btree extent that doesn't belong to a log tree
- 	 * failed, increment the counter transaction->eb_write_errors.
- 	 * We do this because while the transaction is running and before it's
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3469,7 +3469,7 @@ static int qgroup_free_reserved_data(str
+ 		 * EXTENT_QGROUP_RESERVED, we won't double free.
+ 		 * So not need to rush.
+ 		 */
+-		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_failure_tree,
++		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_tree,
+ 				free_start, free_start + free_len - 1,
+ 				EXTENT_QGROUP_RESERVED, &changeset);
+ 		if (ret < 0)
 
 
