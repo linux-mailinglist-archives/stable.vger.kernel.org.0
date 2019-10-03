@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 420F5CA93A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C31BCA93C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404741AbfJCQjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:39:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49278 "EHLO mail.kernel.org"
+        id S2404763AbfJCQjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:39:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404735AbfJCQjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:39:22 -0400
+        id S2404735AbfJCQjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:39:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDD082070B;
-        Thu,  3 Oct 2019 16:39:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFF3C2070B;
+        Thu,  3 Oct 2019 16:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120761;
-        bh=j1VMz70szKG1in2f+5pz0U3jeGXcWdIJYP6XH2tNQWE=;
+        s=default; t=1570120764;
+        bh=kvo8e6FkZ7qO+5CeiOkhJiM1oUsYCDpijb9DiyqS2Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVSGPsNN4b12oRLVBPaYGFYPn8j7rXA/hLxNhzyS6oekHLW2O7LNFR4Nd2I030QFh
-         CTNr9ZPu8I6BIEK+KAPpVOnEBHWPxaXD8y2twxL4n+yyIqKaBF3GPqpkZTHVcRpAqE
-         8U0nmxcXdK51xjJ6e2FbeJINHdGVak3OjeIN6RZ0=
+        b=jSlRZAxudCrtv6r2AxJ7xZSM08/gO8yY7b4L2BXb1OIH19MZjiKrK+AE62WZnwZ+l
+         TcJ0WfxbDEVSd2G5FLUAK/Rsg1uJ8141I66vgJtke97nT40lcdsjkMJ2kulCnJ0M35
+         UIYkJ1lqI6TMZNpD5FaLPrVKUWzWbUGKQFT40xqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Mamonov <pmamonov@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.3 005/344] net/phy: fix DP83865 10 Mbps HDX loopback disable function
-Date:   Thu,  3 Oct 2019 17:49:30 +0200
-Message-Id: <20191003154540.607886894@linuxfoundation.org>
+Subject: [PATCH 5.3 006/344] net: qrtr: Stop rx_worker before freeing node
+Date:   Thu,  3 Oct 2019 17:49:31 +0200
+Message-Id: <20191003154540.701536820@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,45 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Mamonov <pmamonov@gmail.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
+[ Upstream commit 73f0c11d11329a0d6d205d4312b6e5d2512af7c5 ]
 
-According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
-disabled in the expanded memory register 0x1C0.1". The driver erroneously
-used bit 0 instead of bit 1.
+As the endpoint is unregistered there might still be work pending to
+handle incoming messages, which will result in a use after free
+scenario. The plan is to remove the rx_worker, but until then (and for
+stable@) ensure that the work is stopped before the node is freed.
 
-Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
-Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: bdabad3e363d ("net: Add Qualcomm IPC router")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/national.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/qrtr/qrtr.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/phy/national.c
-+++ b/drivers/net/phy/national.c
-@@ -105,14 +105,17 @@ static void ns_giga_speed_fallback(struc
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -150,6 +150,7 @@ static void __qrtr_node_release(struct k
+ 	list_del(&node->item);
+ 	mutex_unlock(&qrtr_node_lock);
  
- static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
- {
-+	u16 lb_dis = BIT(1);
-+
- 	if (disable)
--		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
-+		ns_exp_write(phydev, 0x1c0,
-+			     ns_exp_read(phydev, 0x1c0) | lb_dis);
- 	else
- 		ns_exp_write(phydev, 0x1c0,
--			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
-+			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
- 
- 	pr_debug("10BASE-T HDX loopback %s\n",
--		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
-+		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
++	cancel_work_sync(&node->work);
+ 	skb_queue_purge(&node->rx_queue);
+ 	kfree(node);
  }
- 
- static int ns_config_init(struct phy_device *phydev)
 
 
