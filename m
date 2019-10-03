@@ -2,119 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 242C4C9BBA
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:09:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0547C9BE7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726472AbfJCKHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 06:07:12 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45071 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725892AbfJCKHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 06:07:12 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E961521B6A;
-        Thu,  3 Oct 2019 06:07:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 06:07:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Ob5XsY
-        DXQEf4yERqQyX3eu6NG5p6Eom0FQ0zOs+XZGI=; b=lyuXm2lziqZBPfTsrnskWR
-        wFoLC1CsBSivsP7CUm2Q34sfBTyD/WNU5n/ZqQIcKnMXelHX7Pz9hxd99z4+XmYB
-        uz/JYjLSptWw2j2O8COoIg1spjYk0Z4vMnhcGwj+vxHhK7ws8f/65EvoNwhlUMeK
-        z0zC+KlOjIeBa8iNdFr+rKjvmYRIAwSuTVc5J7gNSq35SCSufVBx8KHnBwxX7OZu
-        fPutC3EuMZop4JyoXh3mJtSBmc2eY0Vki+EC09wHMoaQ9GweVadJ9mADgD3JNCal
-        sdtDNs6oHIf/zEyxhnxOGavju/SS+qz27ClOGve9thP2cVFTupPCFVOI9zGuK7Xg
-        ==
-X-ME-Sender: <xms:T8iVXXMzDyd_WFlC6Eg-620m3KP2U7odY2nO-pZ8qsz1ylipJ4c9sQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgddvfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:T8iVXRPbstAfrfYbOgk6wSw9jZCCi5IWFWWWy63H7V93Qa1SMQ8YZQ>
-    <xmx:T8iVXSfu3jqwjHhl4QaLgeF_vqZ5m4z09-UJtv9uM5a3a7_2O_KsDA>
-    <xmx:T8iVXWepx1TFDFtCAxHT8o7-cI3gSOdRDGWTcdl-C6QexFI_58ecfg>
-    <xmx:T8iVXeoh6v07ss89o3uMzYLnmB2amgn82w_MvKpIIonID0serAqoYw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CC7888005A;
-        Thu,  3 Oct 2019 06:07:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: erofs: fix an error handling in erofs_readdir()" failed to apply to 5.2-stable tree
-To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org, richard@nod.at,
-        stable@vger.kernel.org, yuchao0@huawei.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 12:07:07 +0200
-Message-ID: <157009722768242@kroah.com>
+        id S1725827AbfJCKOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 06:14:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44172 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726119AbfJCKOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 06:14:37 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id E28D4AD63;
+        Thu,  3 Oct 2019 10:14:35 +0000 (UTC)
+From:   Michal Suchanek <msuchanek@suse.de>
+To:     alsa-devel@alsa-project.org
+Cc:     Michal Suchanek <msuchanek@suse.de>, Vinod Koul <vkoul@kernel.org>,
+        Sanyog Kale <sanyog.r.kale@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v2 1/2] soundwire: depend on ACPI
+Date:   Thu,  3 Oct 2019 12:13:54 +0200
+Message-Id: <bd685232ea511251eeb9554172f1524eabf9a46e.1570097621.git.msuchanek@suse.de>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191002081717.GA4015@kitsune.suse.cz>
+References: <20191002081717.GA4015@kitsune.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The device cannot be probed on !ACPI and gives this warning:
 
-The patch below does not apply to the 5.2-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+drivers/soundwire/slave.c:16:12: warning: ‘sdw_slave_add’ defined but
+not used [-Wunused-function]
+ static int sdw_slave_add(struct sdw_bus *bus,
+            ^~~~~~~~~~~~~
 
-thanks,
+Cc: stable@vger.kernel.org
+Fixes: 7c3cd189b86d ("soundwire: Add Master registration")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+---
+ drivers/soundwire/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From acb383f1dcb4f1e79b66d4be3a0b6f519a957b0d Mon Sep 17 00:00:00 2001
-From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Sun, 18 Aug 2019 20:54:57 +0800
-Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
-
-Richard observed a forever loop of erofs_read_raw_page() [1]
-which can be generated by forcely setting ->u.i_blkaddr
-to 0xdeadbeef (as my understanding block layer can
-handle access beyond end of device correctly).
-
-After digging into that, it seems the problem is highly
-related with directories and then I found the root cause
-is an improper error handling in erofs_readdir().
-
-Let's fix it now.
-
-[1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
-
-Reported-by: Richard Weinberger <richard@nod.at>
-Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Link: https://lore.kernel.org/r/20190818125457.25906-1-hsiangkao@aol.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
-index 5f38382637e6..77ef856df9f3 100644
---- a/drivers/staging/erofs/dir.c
-+++ b/drivers/staging/erofs/dir.c
-@@ -82,8 +82,15 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
- 		unsigned int nameoff, maxsize;
+diff --git a/drivers/soundwire/Kconfig b/drivers/soundwire/Kconfig
+index f518273cfbe3..c73bfbaa2659 100644
+--- a/drivers/soundwire/Kconfig
++++ b/drivers/soundwire/Kconfig
+@@ -5,6 +5,7 @@
  
- 		dentry_page = read_mapping_page(mapping, i, NULL);
--		if (IS_ERR(dentry_page))
--			continue;
-+		if (dentry_page == ERR_PTR(-ENOMEM)) {
-+			err = -ENOMEM;
-+			break;
-+		} else if (IS_ERR(dentry_page)) {
-+			errln("fail to readdir of logical block %u of nid %llu",
-+			      i, EROFS_V(dir)->nid);
-+			err = -EFSCORRUPTED;
-+			break;
-+		}
- 
- 		de = (struct erofs_dirent *)kmap(dentry_page);
- 
+ menuconfig SOUNDWIRE
+ 	tristate "SoundWire support"
++	depends on ACPI
+ 	help
+ 	  SoundWire is a 2-Pin interface with data and clock line ratified
+ 	  by the MIPI Alliance. SoundWire is used for transporting data
+-- 
+2.23.0
 
