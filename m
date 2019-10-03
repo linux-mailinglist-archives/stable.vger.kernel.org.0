@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F19E7CA78F
+	by mail.lfdr.de (Postfix) with ESMTP id 13CCFCA78D
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404384AbfJCQwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
+        id S2406247AbfJCQwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393171AbfJCQwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:47 -0400
+        id S2406244AbfJCQwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F2CE2070B;
-        Thu,  3 Oct 2019 16:52:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00DA520865;
+        Thu,  3 Oct 2019 16:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121566;
-        bh=lxArp3kU4HFZxrzSHItw74m76dcaz61ksoyl0nVuO+Y=;
+        s=default; t=1570121569;
+        bh=LDrQjUzm+CCCan4kll+92asz0BfWA/cpY2uRQAkUv6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKpv6+rxJwqgH/argdZvYyxf2ualZjqyAay5/+vzuDL9MUtneVqpA39vbxk1n0Uf2
-         xDdmiHrjsSTEdFUAXoYGnVjxW30J4iTxWDJMDTmBsbVtTWfQZ59cCwNm7mdj16c7IB
-         3Hj4LOwLRSq1rdkwGdJn5MrF2rQI1fHQ4YIpJw+0=
+        b=d+tH43Je7jIkl9gyrmw4FQfl250PzpNh1v5IoaFARSAERZNKSqltr0yvPY3Gxm8M2
+         SGL7IqewdVJGfSmeoTCKmfOOWkyhuWLJLA6lMuueL5yjbAKQD3/gysNCeFbhj1Irbo
+         1wtA00QGqFP/9+xi4K9UG7JJp9NjwWcOHjiDFmvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Boaz Harrosh <boazh@netapp.com>, Jan Kara <jack@suse.cz>,
+        Jan Kara <jack@suse.cz>,
         "Darrick J. Wong" <darrick.wong@oracle.com>
-Subject: [PATCH 5.3 326/344] mm: Handle MADV_WILLNEED through vfs_fadvise()
-Date:   Thu,  3 Oct 2019 17:54:51 +0200
-Message-Id: <20191003154611.049777847@linuxfoundation.org>
+Subject: [PATCH 5.3 327/344] xfs: Fix stale data exposure when readahead races with hole punch
+Date:   Thu,  3 Oct 2019 17:54:52 +0200
+Message-Id: <20191003154611.119132263@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,69 +46,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Kara <jack@suse.cz>
 
-commit 692fe62433d4ca47605b39f7c416efd6679ba694 upstream.
+commit 40144e49ff84c3bd6bd091b58115257670be8803 upstream.
 
-Currently handling of MADV_WILLNEED hint calls directly into readahead
-code. Handle it by calling vfs_fadvise() instead so that filesystem can
-use its ->fadvise() callback to acquire necessary locks or otherwise
-prepare for the request.
+Hole puching currently evicts pages from page cache and then goes on to
+remove blocks from the inode. This happens under both XFS_IOLOCK_EXCL
+and XFS_MMAPLOCK_EXCL which provides appropriate serialization with
+racing reads or page faults. However there is currently nothing that
+prevents readahead triggered by fadvise() or madvise() from racing with
+the hole punch and instantiating page cache page after hole punching has
+evicted page cache in xfs_flush_unmap_range() but before it has removed
+blocks from the inode. This page cache page will be mapping soon to be
+freed block and that can lead to returning stale data to userspace or
+even filesystem corruption.
 
-Suggested-by: Amir Goldstein <amir73il@gmail.com>
-Reviewed-by: Boaz Harrosh <boazh@netapp.com>
+Fix the problem by protecting handling of readahead requests by
+XFS_IOLOCK_SHARED similarly as we protect reads.
+
 CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxjQNmxqmtA_VbYW0Su9rKRk2zobJmahcyeaEVOFKVQ5dw@mail.gmail.com/
+Reported-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Jan Kara <jack@suse.cz>
 Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/madvise.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ fs/xfs/xfs_file.c |   26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
---- a/mm/madvise.c
-+++ b/mm/madvise.c
-@@ -14,6 +14,7 @@
- #include <linux/userfaultfd_k.h>
- #include <linux/hugetlb.h>
+--- a/fs/xfs/xfs_file.c
++++ b/fs/xfs/xfs_file.c
+@@ -28,6 +28,7 @@
  #include <linux/falloc.h>
+ #include <linux/backing-dev.h>
+ #include <linux/mman.h>
 +#include <linux/fadvise.h>
- #include <linux/sched.h>
- #include <linux/ksm.h>
- #include <linux/fs.h>
-@@ -275,6 +276,7 @@ static long madvise_willneed(struct vm_a
- 			     unsigned long start, unsigned long end)
- {
- 	struct file *file = vma->vm_file;
-+	loff_t offset;
  
- 	*prev = vma;
- #ifdef CONFIG_SWAP
-@@ -298,12 +300,20 @@ static long madvise_willneed(struct vm_a
- 		return 0;
- 	}
+ static const struct vm_operations_struct xfs_file_vm_ops;
  
--	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--	if (end > vma->vm_end)
--		end = vma->vm_end;
--	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
--
--	force_page_cache_readahead(file->f_mapping, file, start, end - start);
-+	/*
-+	 * Filesystem's fadvise may need to take various locks.  We need to
-+	 * explicitly grab a reference because the vma (and hence the
-+	 * vma's reference to the file) can go away as soon as we drop
-+	 * mmap_sem.
-+	 */
-+	*prev = NULL;	/* tell sys_madvise we drop mmap_sem */
-+	get_file(file);
-+	up_read(&current->mm->mmap_sem);
-+	offset = (loff_t)(start - vma->vm_start)
-+			+ ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
-+	vfs_fadvise(file, offset, end - start, POSIX_FADV_WILLNEED);
-+	fput(file);
-+	down_read(&current->mm->mmap_sem);
- 	return 0;
+@@ -933,6 +934,30 @@ out_unlock:
+ 	return error;
  }
+ 
++STATIC int
++xfs_file_fadvise(
++	struct file	*file,
++	loff_t		start,
++	loff_t		end,
++	int		advice)
++{
++	struct xfs_inode *ip = XFS_I(file_inode(file));
++	int ret;
++	int lockflags = 0;
++
++	/*
++	 * Operations creating pages in page cache need protection from hole
++	 * punching and similar ops
++	 */
++	if (advice == POSIX_FADV_WILLNEED) {
++		lockflags = XFS_IOLOCK_SHARED;
++		xfs_ilock(ip, lockflags);
++	}
++	ret = generic_fadvise(file, start, end, advice);
++	if (lockflags)
++		xfs_iunlock(ip, lockflags);
++	return ret;
++}
+ 
+ STATIC loff_t
+ xfs_file_remap_range(
+@@ -1232,6 +1257,7 @@ const struct file_operations xfs_file_op
+ 	.fsync		= xfs_file_fsync,
+ 	.get_unmapped_area = thp_get_unmapped_area,
+ 	.fallocate	= xfs_file_fallocate,
++	.fadvise	= xfs_file_fadvise,
+ 	.remap_file_range = xfs_file_remap_range,
+ };
  
 
 
