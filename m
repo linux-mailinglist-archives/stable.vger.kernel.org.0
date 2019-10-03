@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9C6CA8F2
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8763CA822
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391314AbfJCQe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43702 "EHLO mail.kernel.org"
+        id S2390170AbfJCQVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392178AbfJCQe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:58 -0400
+        id S2390160AbfJCQVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0895B2086A;
-        Thu,  3 Oct 2019 16:34:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3425821783;
+        Thu,  3 Oct 2019 16:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120497;
-        bh=GSS11zVS5sAZCAm/t7b3x4fHnf3ZmTKbpHI1jMi/XZQ=;
+        s=default; t=1570119695;
+        bh=ynYx037q2k8foXoI60jbKLN69/59PWUHOAgkDPUJ1Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpZmFtF62WRrTcScrj4G0/c/5TlMuF2AsaX858q/MI3PPkSwoIaPCetgGNbZCx+1M
-         n6iKKVVAwjzINwU6BVJZXp2cCURLWJPX2PoHVKD5TikWOthuBPEUdb0jKVX9QLQrrq
-         rtDcoRoLW3iDey4/R7Vr4mKV9K+Ti483BdcQh7mQ=
+        b=DaDfyAqe0GAfFudHZqOAcpTLJsehblxP3qd722v6568sMXNEC2CPiPbcr6E48MD4Q
+         hwnngyPBzkrXlk3umhAIKup/F7dghwM+9c7o0ZYiSpxH0L93aB0zuP9O9EdYzM7g5z
+         ewdb9xtvV4G5kBpfY0G/uEsNcL44antCHkqxJOFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+74c65761783d66a9c97c@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 205/313] zd1211rw: remove false assertion from zd_mac_clear()
-Date:   Thu,  3 Oct 2019 17:53:03 +0200
-Message-Id: <20191003154553.189396359@linuxfoundation.org>
+Subject: [PATCH 4.19 120/211] ARM: dts: exynos: Mark LDO10 as always-on on Peach Pit/Pi Chromebooks
+Date:   Thu,  3 Oct 2019 17:53:06 +0200
+Message-Id: <20191003154514.603976927@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,33 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 7a2eb7367fdea72e448d1a847aa857f6caf8ea2f ]
+[ Upstream commit 5b0eeeaa37615df37a9a30929b73e9defe61ca84 ]
 
-The function is called before the lock which is asserted was ever used.
-Just remove it.
+Commit aff138bf8e37 ("ARM: dts: exynos: Add TMU nodes regulator supply
+for Peach boards") assigned LDO10 to Exynos Thermal Measurement Unit,
+but it turned out that it supplies also some other critical parts and
+board freezes/crashes when it is turned off.
 
-Reported-by: syzbot+74c65761783d66a9c97c@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+The mentioned commit made Exynos TMU a consumer of that regulator and in
+typical case Exynos TMU driver keeps it enabled from early boot. However
+there are such configurations (example is multi_v7_defconfig), in which
+some of the regulators are compiled as modules and are not available
+from early boot. In such case it may happen that LDO10 is turned off by
+regulator core, because it has no consumers yet (in this case consumer
+drivers cannot get it, because the supply regulators for it are not yet
+available). This in turn causes the board to crash. This patch restores
+'always-on' property for the LDO10 regulator.
+
+Fixes: aff138bf8e37 ("ARM: dts: exynos: Add TMU nodes regulator supply for Peach boards")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/zydas/zd1211rw/zd_mac.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/exynos5420-peach-pit.dts | 1 +
+ arch/arm/boot/dts/exynos5800-peach-pi.dts  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-index da7e63fca9f57..a9999d10ae81f 100644
---- a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-+++ b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-@@ -223,7 +223,6 @@ void zd_mac_clear(struct zd_mac *mac)
- {
- 	flush_workqueue(zd_workqueue);
- 	zd_chip_clear(&mac->chip);
--	lockdep_assert_held(&mac->lock);
- 	ZD_MEMCLEAR(mac, sizeof(struct zd_mac));
- }
- 
+diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+index 57c2332bf2824..25bdc9d97a4df 100644
+--- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
++++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+@@ -437,6 +437,7 @@
+ 				regulator-name = "vdd_ldo10";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-state-mem {
+ 					regulator-off-in-suspend;
+ 				};
+diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+index d80ab9085da19..7989631b39ccf 100644
+--- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
++++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+@@ -437,6 +437,7 @@
+ 				regulator-name = "vdd_ldo10";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-state-mem {
+ 					regulator-off-in-suspend;
+ 				};
 -- 
 2.20.1
 
