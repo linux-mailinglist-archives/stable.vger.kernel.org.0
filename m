@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E01A0CA7C0
+	by mail.lfdr.de (Postfix) with ESMTP id 017E9CA7BE
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405948AbfJCQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38358 "EHLO mail.kernel.org"
+        id S2405987AbfJCQvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405146AbfJCQu7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:50:59 -0400
+        id S2405982AbfJCQvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:51:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 939B820865;
-        Thu,  3 Oct 2019 16:50:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CCA920867;
+        Thu,  3 Oct 2019 16:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121459;
-        bh=nXQIQUChDQTJepmXhuT4OoVw16fDzfRJkyUABc3APIs=;
+        s=default; t=1570121461;
+        bh=GaFBzWQLwO+dySvhLRFxq60xkVTUnrkFqZ/q4+XN0xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txNQnknvRXHd2IBjLif/cvIggVGWZN3vEU9DjF0fXDkrOMkpWZv/OTGtEFkCgCMSq
-         m934wYGylGUZCfvaJw8Qu90g39+QdHmI1uapa40GEHpLLsRRWkIT13Rk1J5K5LuxML
-         d+Z5Lfv5dZwM0w0IintsJWeQIpPZ4LUuZvG8bJjo=
+        b=QTb50mI4YKs8s/n6Tfe/gwzWHvMRzdrO3PorNT3IfQQgBfxBRrY/HTyqFReEzO/WH
+         V5Gglpl4pqG106vgxBDw64qfIqMB1bg3dgjV6uK59qVtRXka/f4A0sNQHFqotgGJHx
+         GJdQukJQD5g+V8yLT4hQ/bA2liNQ8HrjeVFfFnZw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Joerg Roedel <joro@8bytes.org>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Nadav Amit <namit@vmware.com>, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.3 286/344] iommu/vt-d: Fix wrong analysis whether devices share the same bus
-Date:   Thu,  3 Oct 2019 17:54:11 +0200
-Message-Id: <20191003154608.066370067@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.3 287/344] regulator: Defer init completion for a while after late_initcall
+Date:   Thu,  3 Oct 2019 17:54:12 +0200
+Message-Id: <20191003154608.151402340@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,62 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 2c70010867f164d1b30e787e360e05d10cc40046 upstream.
+commit 55576cf1853798e86f620766e23b604c9224c19c upstream.
 
-set_msi_sid_cb() is used to determine whether device aliases share the
-same bus, but it can provide false indications that aliases use the same
-bus when in fact they do not. The reason is that set_msi_sid_cb()
-assumes that pdev is fixed, while actually pci_for_each_dma_alias() can
-call fn() when pdev is set to a subordinate device.
+The kernel has no way of knowing when we have finished instantiating
+drivers, between deferred probe and systems that build key drivers as
+modules we might be doing this long after userspace has booted. This has
+always been a bit of an issue with regulator_init_complete since it can
+power off hardware that's not had it's driver loaded which can result in
+user visible effects, the main case is powering off displays. Practically
+speaking it's not been an issue in real systems since most systems that
+use the regulator API are embedded and build in key drivers anyway but
+with Arm laptops coming on the market it's becoming more of an issue so
+let's do something about it.
 
-As a result, running an VM on ESX with VT-d emulation enabled can
-results in the log warning such as:
+In the absence of any better idea just defer the powering off for 30s
+after late_initcall(), this is obviously a hack but it should mask the
+issue for now and it's no more arbitrary than late_initcall() itself.
+Ideally we'd have some heuristics to detect if we're on an affected
+system and tune or skip the delay appropriately, and there may be some
+need for a command line option to be added.
 
-  DMAR: [INTR-REMAP] Request device [00:11.0] fault index 3b [fault reason 38] Blocked an interrupt request due to source-id verification failure
-
-This seems to cause additional ata errors such as:
-  ata3.00: qc timeout (cmd 0xa1)
-  ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
-
-These timeouts also cause boot to be much longer and other errors.
-
-Fix it by checking comparing the alias with the previous one instead.
-
-Fixes: 3f0c625c6ae71 ("iommu/vt-d: Allow interrupts from the entire bus for aliased devices")
+Link: https://lore.kernel.org/r/20190904124250.25844-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Tested-by: Lee Jones <lee.jones@linaro.org>
 Cc: stable@vger.kernel.org
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Joerg Roedel <joro@8bytes.org>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel_irq_remapping.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/core.c |   42 +++++++++++++++++++++++++++++++-----------
+ 1 file changed, 31 insertions(+), 11 deletions(-)
 
---- a/drivers/iommu/intel_irq_remapping.c
-+++ b/drivers/iommu/intel_irq_remapping.c
-@@ -376,13 +376,13 @@ static int set_msi_sid_cb(struct pci_dev
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5640,7 +5640,7 @@ static int __init regulator_init(void)
+ /* init early to allow our consumers to complete system booting */
+ core_initcall(regulator_init);
+ 
+-static int __init regulator_late_cleanup(struct device *dev, void *data)
++static int regulator_late_cleanup(struct device *dev, void *data)
  {
- 	struct set_msi_sid_data *data = opaque;
- 
-+	if (data->count == 0 || PCI_BUS_NUM(alias) == PCI_BUS_NUM(data->alias))
-+		data->busmatch_count++;
-+
- 	data->pdev = pdev;
- 	data->alias = alias;
- 	data->count++;
- 
--	if (PCI_BUS_NUM(alias) == pdev->bus->number)
--		data->busmatch_count++;
--
+ 	struct regulator_dev *rdev = dev_to_rdev(dev);
+ 	const struct regulator_ops *ops = rdev->desc->ops;
+@@ -5689,18 +5689,9 @@ unlock:
  	return 0;
  }
  
+-static int __init regulator_init_complete(void)
++static void regulator_init_complete_work_function(struct work_struct *work)
+ {
+ 	/*
+-	 * Since DT doesn't provide an idiomatic mechanism for
+-	 * enabling full constraints and since it's much more natural
+-	 * with DT to provide them just assume that a DT enabled
+-	 * system has full constraints.
+-	 */
+-	if (of_have_populated_dt())
+-		has_full_constraints = true;
+-
+-	/*
+ 	 * Regulators may had failed to resolve their input supplies
+ 	 * when were registered, either because the input supply was
+ 	 * not registered yet or because its parent device was not
+@@ -5717,6 +5708,35 @@ static int __init regulator_init_complet
+ 	 */
+ 	class_for_each_device(&regulator_class, NULL, NULL,
+ 			      regulator_late_cleanup);
++}
++
++static DECLARE_DELAYED_WORK(regulator_init_complete_work,
++			    regulator_init_complete_work_function);
++
++static int __init regulator_init_complete(void)
++{
++	/*
++	 * Since DT doesn't provide an idiomatic mechanism for
++	 * enabling full constraints and since it's much more natural
++	 * with DT to provide them just assume that a DT enabled
++	 * system has full constraints.
++	 */
++	if (of_have_populated_dt())
++		has_full_constraints = true;
++
++	/*
++	 * We punt completion for an arbitrary amount of time since
++	 * systems like distros will load many drivers from userspace
++	 * so consumers might not always be ready yet, this is
++	 * particularly an issue with laptops where this might bounce
++	 * the display off then on.  Ideally we'd get a notification
++	 * from userspace when this happens but we don't so just wait
++	 * a bit and hope we waited long enough.  It'd be better if
++	 * we'd only do this on systems that need it, and a kernel
++	 * command line option might be useful.
++	 */
++	schedule_delayed_work(&regulator_init_complete_work,
++			      msecs_to_jiffies(30000));
+ 
+ 	return 0;
+ }
 
 
