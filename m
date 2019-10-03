@@ -2,88 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7614CA072
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:36:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A3CCA094
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726978AbfJCOgc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 10:36:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46462 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726199AbfJCOgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 10:36:32 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92E6220865;
-        Thu,  3 Oct 2019 14:36:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570113391;
-        bh=o0YYkagzBckmNkwAm8JJ/PF9Ay9gVxv32oeYnR18sUM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UN7TeOT6ETVYN5sqlNJuzO4LC3QSoyZnGs+xY7F8gxhWzzdvmruyC57MBBC8csvkR
-         OM38f+Ec6MvP7aM/8lIIjitL1um1zRv8Qu0Z43YL9pXag+8tee4VZLgbqx9OCerFQ6
-         A2Xf1f5BgXu/qUr0o/9wRtH3Vbog1FK0feA72v4s=
-Date:   Thu, 3 Oct 2019 10:36:30 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     pihsun@chromium.org, enric.balletbo@collabora.com,
+        id S1729713AbfJCOsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 10:48:03 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41660 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729617AbfJCOsD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 10:48:03 -0400
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iG2Oe-00020B-Jy; Thu, 03 Oct 2019 15:48:00 +0100
+Received: from ben by deadeye with local (Exim 4.92.1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iG2Oe-0006A4-Dt; Thu, 03 Oct 2019 15:48:00 +0100
+Message-ID: <3fe1cd65a7860464d3780b57c734d12880df4b92.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 29/87] staging: iio: cdc: Don't put an else right
+ after a return
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] platform/chrome: cros_ec_rpmsg: Fix race
- with host command" failed to apply to 5.3-stable tree
-Message-ID: <20191003143630.GC17454@sasha-vm>
-References: <157010460554182@kroah.com>
+Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Catalina Mocanu <catalina.mocanu@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Thu, 03 Oct 2019 15:47:49 +0100
+In-Reply-To: <6436567dd141e5528a5363dd3aaad21815a1c111.camel@perches.com>
+References: <lsq.1570043211.136218297@decadent.org.uk>
+         <6436567dd141e5528a5363dd3aaad21815a1c111.camel@perches.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-KcJewQ6EZ1qfkZkd7xZA"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157010460554182@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 03, 2019 at 02:10:05PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 71cddb7097e2b0feb855d7fd7d59afd12cbee4bb Mon Sep 17 00:00:00 2001
->From: Pi-Hsun Shih <pihsun@chromium.org>
->Date: Wed, 4 Sep 2019 14:26:13 +0800
->Subject: [PATCH] platform/chrome: cros_ec_rpmsg: Fix race with host command
-> when probe failed
->
->Since the rpmsg_endpoint is created before probe is called, it's
->possible that a host event is received during cros_ec_register, and
->there would be some pending work in the host_event_work workqueue while
->cros_ec_register is called.
->
->If cros_ec_register fails, when the leftover work in host_event_work
->run, the ec_dev from the drvdata of the rpdev could be already set to
->NULL, causing kernel crash when trying to run cros_ec_get_next_event.
->
->Fix this by creating the rpmsg_endpoint by ourself, and when
->cros_ec_register fails (or on remove), destroy the endpoint first (to
->make sure there's no more new calls to cros_ec_rpmsg_callback), and then
->cancel all works in the host_event_work workqueue.
->
->Cc: stable@vger.kernel.org
->Fixes: 2de89fd98958 ("platform/chrome: cros_ec: Add EC host command support using rpmsg")
->Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
->Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-I've worked around the changes introduced by 7aa703bb88243 ("mfd /
-platform: cros_ec: Handle chained ECs as platform devices"). Queued for
-5.3 and 5.2.
+--=-KcJewQ6EZ1qfkZkd7xZA
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-Sasha
+On Wed, 2019-10-02 at 14:36 -0700, Joe Perches wrote:
+> On Wed, 2019-10-02 at 20:06 +0100, Ben Hutchings wrote:
+> > 3.16.75-rc1 review patch.  If anyone has any objections, please let me =
+know.
+>=20
+> This doesn't look necessary.
+
+It allows the next patch to apply cleanly.
+
+Ben.
+
+> > ------------------
+> >=20
+> > From: Catalina Mocanu <catalina.mocanu@gmail.com>
+> >=20
+> > commit 288903f6b91e759b0a813219acd376426cbb8f14 upstream.
+> >=20
+> > This fixes the following checkpatch.pl warning:
+> > WARNING: else is not generally useful after a break or return.
+> >=20
+> > While at it, remove new line for symmetry with the rest of the code.
+> >=20
+> > Signed-off-by: Catalina Mocanu <catalina.mocanu@gmail.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> > ---
+> >  drivers/staging/iio/cdc/ad7150.c | 10 +++-------
+> >  1 file changed, 3 insertions(+), 7 deletions(-)
+> >=20
+> > --- a/drivers/staging/iio/cdc/ad7150.c
+> > +++ b/drivers/staging/iio/cdc/ad7150.c
+> > @@ -143,19 +143,15 @@ static int ad7150_read_event_config(stru
+> >  	case IIO_EV_TYPE_MAG_ADAPTIVE:
+> >  		if (dir =3D=3D IIO_EV_DIR_RISING)
+> >  			return adaptive && (threshtype =3D=3D 0x1);
+> > -		else
+> > -			return adaptive && (threshtype =3D=3D 0x0);
+> > +		return adaptive && (threshtype =3D=3D 0x0);
+> >  	case IIO_EV_TYPE_THRESH_ADAPTIVE:
+> >  		if (dir =3D=3D IIO_EV_DIR_RISING)
+> >  			return adaptive && (threshtype =3D=3D 0x3);
+> > -		else
+> > -			return adaptive && (threshtype =3D=3D 0x2);
+> > -
+> > +		return adaptive && (threshtype =3D=3D 0x2);
+> >  	case IIO_EV_TYPE_THRESH:
+> >  		if (dir =3D=3D IIO_EV_DIR_RISING)
+> >  			return !adaptive && (threshtype =3D=3D 0x1);
+> > -		else
+> > -			return !adaptive && (threshtype =3D=3D 0x0);
+> > +		return !adaptive && (threshtype =3D=3D 0x0);
+> >  	default:
+> >  		break;
+> >  	}
+> >=20
+--=20
+Ben Hutchings
+Unix is many things to many people,
+but it's never been everything to anybody.
+
+
+
+--=-KcJewQ6EZ1qfkZkd7xZA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl2WChUACgkQ57/I7JWG
+EQntehAA0+HkJV3LROwrDyJi08Zdjvgi7F7cPNgylHPy7zOR6jR4FJeieCvhNF6W
+vYOttr6E72uAMDqdB3EZPGn2rL8016re1CqioDOCtWa9rBcCb/JLFFFBkeHeCthk
+eBeQHOittYdEUvLhQyWGI9xAzY+9F0Yex+mFrykOP7P//YJ11nKl6ETHreY5Gobd
+qxH4mC+A2VQ+/7wXm5CMti7sz3I2NwbdSjH4+C4ZVPRcr15ZVDk0S0xnMiHlEWAl
+nmuW6+DMxWFnfa2pVDQQo53x0BJiYQNtQZlJWVI0EMTsZp05bMTWULvUkAShp5/C
+BEO2R+MCbWoO/fNt7z43SNC8Q3ch+a6mVLELs8/KcZbEsneHqUJ0wzdGJRyyxyH3
+ik15AYNqBpwb7quVmhzcDP3UHGCBBw5EuPRPXoP3pEsIGOZgtNIHuQaTQCf2tFj9
+0/Mh2baQ0quWTwrleD1UTVR/bGARwpOv2WYYEiTGwF53r5rc2SoDVD1RFYOFKFNd
+82Mqu1f+XNJLG5DI3awkP3myhPk6cUb0nxTgUpKKM6qlMEEOA9n/hO7BaAV5y4I3
+oriKD16LLJ2TAYDzNMA4W9WPkbI9y/tWnC4WzUD9uno4jBFbUJnMI4X6nf/PVqQk
+ELlDpXlrmbsezqh5UsJcggQJpSDi9bMknHBP8NrOGkNrWiazdxo=
+=uPEd
+-----END PGP SIGNATURE-----
+
+--=-KcJewQ6EZ1qfkZkd7xZA--
