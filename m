@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D3ECA4E3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6919CA4CB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391571AbfJCQ3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60430 "EHLO mail.kernel.org"
+        id S1730913AbfJCQ2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:28:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391415AbfJCQ2F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:28:05 -0400
+        id S2389006AbfJCQ2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:28:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79B9E2054F;
-        Thu,  3 Oct 2019 16:28:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAFF52133F;
+        Thu,  3 Oct 2019 16:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120085;
-        bh=VJr7Y3c3/7SQkTk7jHzdjI9G2kexbWM60u3dseRor3A=;
+        s=default; t=1570120101;
+        bh=dPMBz+h3etmnxoqEa7dwetX9+Br6b4R4IuSCrpEqtQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1eKmps7DTx7ZY8cEkXnUoOO4rpqmWVJSrmbkKkN721smF5DCdE2wYCITmI34tOmzy
-         ZQ0IohufbCs5sMo9Ce2K+2ABxIT3wKsfrlvPysG19aUdd8kvm3ns2+xHXaR10p4YbU
-         8E5lvAL6SI8c613lwzm+8K1PTXkvr1X5/OW9MDwE=
+        b=ehwXS3Z6Zl7x0Y3VmLvAkqLg70RAA83Ln6EpRYeJ3/2EHZPNjXkUmpQIWUGIX8lq6
+         YnAr+IdbluBUUR8cTra41FytcwL5LHQszoCL3ztr3FycSQGsa34VO9Vl4mq+J6sVXk
+         EwbeqtxdY5FSCgfxE0CNTLxh9xugUgTfVkz9c4hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
-        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Taeung Song <treeze.taeung@gmail.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 092/313] perf test vfs_getname: Disable ~/.perfconfig to get default output
-Date:   Thu,  3 Oct 2019 17:51:10 +0200
-Message-Id: <20191003154541.916396078@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 097/313] arm64/efi: Move variable assignments after SECTIONS
+Date:   Thu,  3 Oct 2019 17:51:15 +0200
+Message-Id: <20191003154542.442971198@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -48,74 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4fe94ce1c6ba678b5f12b94bb9996eea4fc99e85 ]
+[ Upstream commit 90776dd1c427cbb4d381aa4b13338f1fb1d20f5e ]
 
-To get the expected output we have to ignore whatever changes the user
-has in its ~/.perfconfig file, so set PERF_CONFIG to /dev/null to
-achieve that.
+It seems that LLVM's linker does not correctly handle variable assignments
+involving section positions that are updated during the SECTIONS
+parsing. Commit aa69fb62bea1 ("arm64/efi: Mark __efistub_stext_offset as
+an absolute symbol explicitly") ran into this too, but found a different
+workaround.
 
-Before:
+However, this was not enough, as other variables were also miscalculated
+which manifested as boot failures under UEFI where __efistub__end was
+not taking the correct _end value (they should be the same):
 
-  # egrep 'trace|show_' ~/.perfconfig
-  [trace]
-  	show_zeros = yes
-  	show_duration = no
-  	show_timestamp = no
-  	show_arg_names = no
-  	show_prefix = yes
-  # echo $PERF_CONFIG
+$ ld.lld -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.lld -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.lld | egrep '\b(__efistub_|)_end\b'
+368272: ffff000002218000     0 NOTYPE  LOCAL  HIDDEN    38 __efistub__end
+368322: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT   38 _end
 
-  # perf test "trace + vfs_getname"
-  70: Check open filename arg using perf trace + vfs_getname: FAILED!
-  # export PERF_CONFIG=/dev/null
-  # perf test "trace + vfs_getname"
-  70: Check open filename arg using perf trace + vfs_getname: Ok
-  #
+$ aarch64-linux-gnu-ld.bfd -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.bfd -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.bfd | egrep '\b(__efistub_|)_end\b'
+338124: ffff000012318000     0 NOTYPE  LOCAL  DEFAULT  ABS __efistub__end
+383812: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT 15325 _end
 
-After:
+To work around this, all of the __efistub_-prefixed variable assignments
+need to be moved after the linker script's SECTIONS entry. As it turns
+out, this also solves the problem fixed in commit aa69fb62bea1, so those
+changes are reverted here.
 
-  # egrep 'trace|show_' ~/.perfconfig
-  [trace]
-  	show_zeros = yes
-  	show_duration = no
-  	show_timestamp = no
-  	show_arg_names = no
-  	show_prefix = yes
-  # echo $PERF_CONFIG
-
-  # perf test "trace + vfs_getname"
-  70: Check open filename arg using perf trace + vfs_getname: Ok
-  #
-
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Taeung Song <treeze.taeung@gmail.com>
-Link: https://lkml.kernel.org/n/tip-3up27pexg5i3exuzqrvt4m8u@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/634
+Link: https://bugs.llvm.org/show_bug.cgi?id=42990
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/shell/trace+probe_vfs_getname.sh | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/kernel/image-vars.h  | 51 +++++++++++++++++++++++++++++++++
+ arch/arm64/kernel/image.h       | 42 ---------------------------
+ arch/arm64/kernel/vmlinux.lds.S |  2 ++
+ 3 files changed, 53 insertions(+), 42 deletions(-)
+ create mode 100644 arch/arm64/kernel/image-vars.h
 
-diff --git a/tools/perf/tests/shell/trace+probe_vfs_getname.sh b/tools/perf/tests/shell/trace+probe_vfs_getname.sh
-index 147efeb6b1959..e97f55ba61c23 100755
---- a/tools/perf/tests/shell/trace+probe_vfs_getname.sh
-+++ b/tools/perf/tests/shell/trace+probe_vfs_getname.sh
-@@ -31,6 +31,10 @@ if [ $err -ne 0 ] ; then
- 	exit $err
- fi
- 
-+# Do not use whatever ~/.perfconfig file, it may change the output
-+# via trace.{show_timestamp,show_prefix,etc}
-+export PERF_CONFIG=/dev/null
+diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
+new file mode 100644
+index 0000000000000..25a2a9b479c2f
+--- /dev/null
++++ b/arch/arm64/kernel/image-vars.h
+@@ -0,0 +1,51 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Linker script variables to be set after section resolution, as
++ * ld.lld does not like variables assigned before SECTIONS is processed.
++ */
++#ifndef __ARM64_KERNEL_IMAGE_VARS_H
++#define __ARM64_KERNEL_IMAGE_VARS_H
 +
- trace_open_vfs_getname
- err=$?
- rm -f ${file}
++#ifndef LINKER_SCRIPT
++#error This file should only be included in vmlinux.lds.S
++#endif
++
++#ifdef CONFIG_EFI
++
++__efistub_stext_offset = stext - _text;
++
++/*
++ * The EFI stub has its own symbol namespace prefixed by __efistub_, to
++ * isolate it from the kernel proper. The following symbols are legally
++ * accessed by the stub, so provide some aliases to make them accessible.
++ * Only include data symbols here, or text symbols of functions that are
++ * guaranteed to be safe when executed at another offset than they were
++ * linked at. The routines below are all implemented in assembler in a
++ * position independent manner
++ */
++__efistub_memcmp		= __pi_memcmp;
++__efistub_memchr		= __pi_memchr;
++__efistub_memcpy		= __pi_memcpy;
++__efistub_memmove		= __pi_memmove;
++__efistub_memset		= __pi_memset;
++__efistub_strlen		= __pi_strlen;
++__efistub_strnlen		= __pi_strnlen;
++__efistub_strcmp		= __pi_strcmp;
++__efistub_strncmp		= __pi_strncmp;
++__efistub_strrchr		= __pi_strrchr;
++__efistub___flush_dcache_area	= __pi___flush_dcache_area;
++
++#ifdef CONFIG_KASAN
++__efistub___memcpy		= __pi_memcpy;
++__efistub___memmove		= __pi_memmove;
++__efistub___memset		= __pi_memset;
++#endif
++
++__efistub__text			= _text;
++__efistub__end			= _end;
++__efistub__edata		= _edata;
++__efistub_screen_info		= screen_info;
++
++#endif
++
++#endif /* __ARM64_KERNEL_IMAGE_VARS_H */
+diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
+index 2b85c0d6fa3d1..c7d38c660372c 100644
+--- a/arch/arm64/kernel/image.h
++++ b/arch/arm64/kernel/image.h
+@@ -65,46 +65,4 @@
+ 	DEFINE_IMAGE_LE64(_kernel_offset_le, TEXT_OFFSET);	\
+ 	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);
+ 
+-#ifdef CONFIG_EFI
+-
+-/*
+- * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
+- * https://github.com/ClangBuiltLinux/linux/issues/561
+- */
+-__efistub_stext_offset = ABSOLUTE(stext - _text);
+-
+-/*
+- * The EFI stub has its own symbol namespace prefixed by __efistub_, to
+- * isolate it from the kernel proper. The following symbols are legally
+- * accessed by the stub, so provide some aliases to make them accessible.
+- * Only include data symbols here, or text symbols of functions that are
+- * guaranteed to be safe when executed at another offset than they were
+- * linked at. The routines below are all implemented in assembler in a
+- * position independent manner
+- */
+-__efistub_memcmp		= __pi_memcmp;
+-__efistub_memchr		= __pi_memchr;
+-__efistub_memcpy		= __pi_memcpy;
+-__efistub_memmove		= __pi_memmove;
+-__efistub_memset		= __pi_memset;
+-__efistub_strlen		= __pi_strlen;
+-__efistub_strnlen		= __pi_strnlen;
+-__efistub_strcmp		= __pi_strcmp;
+-__efistub_strncmp		= __pi_strncmp;
+-__efistub_strrchr		= __pi_strrchr;
+-__efistub___flush_dcache_area	= __pi___flush_dcache_area;
+-
+-#ifdef CONFIG_KASAN
+-__efistub___memcpy		= __pi_memcpy;
+-__efistub___memmove		= __pi_memmove;
+-__efistub___memset		= __pi_memset;
+-#endif
+-
+-__efistub__text			= _text;
+-__efistub__end			= _end;
+-__efistub__edata		= _edata;
+-__efistub_screen_info		= screen_info;
+-
+-#endif
+-
+ #endif /* __ARM64_KERNEL_IMAGE_H */
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 7fa0083749078..803b24d2464ae 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -245,6 +245,8 @@ SECTIONS
+ 	HEAD_SYMBOLS
+ }
+ 
++#include "image-vars.h"
++
+ /*
+  * The HYP init code and ID map text can't be longer than a page each,
+  * and should not cross a page boundary.
 -- 
 2.20.1
 
