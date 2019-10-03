@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28334CA892
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A795BCA899
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389614AbfJCQ2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:28:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33414 "EHLO mail.kernel.org"
+        id S2391432AbfJCQ3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:29:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391530AbfJCQ2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:28:46 -0400
+        id S2391430AbfJCQ3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:29:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA24F20700;
-        Thu,  3 Oct 2019 16:28:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A6352054F;
+        Thu,  3 Oct 2019 16:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120125;
-        bh=CiyScJoSbjEh1dk6sz0/OoVDGfhZZEA9aBDwuupZISg=;
+        s=default; t=1570120163;
+        bh=YQCsBXeCa08TPq18aZLL+PQPhGsFsnWxhGKvatllFvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbaOhLbJohhm0NilMXi1PNp5Dfg7ABIG84LZc1Zv7nyfKymBDkTpqNc6vDipP0F8A
-         HfupYqzh79+CcKmO5JJWpXq9TO1ZhIxd0BSJLWH3ROMmDWiu0RLSnoQfzjmSchGsIC
-         xweQTeV7AI8b4oHduAyXZRPOUeltY2IFwIUsY/GM=
+        b=ukma396EXLeG5tuGsGc9MyqC+r9WuVjqxyjN9RVmrLm02iEEK+yuQjSHBzeDk0G/Z
+         imFQ3EHxBtRjzC1BgebiIxw7LeEhmkHtoT5DCuKr+thZQOR4qjKDWmYW835fYtN0yp
+         la25VzEiPff2m5xEDOrfWZjFbhdolC+BpGMBPbMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Valdis Kletnieks <valdis.kletnieks@vt.edu>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        linux-edac@vger.kernel.org, x86@kernel.org,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Alessio Balsini <balsini@android.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 079/313] RAS: Build debugfs.o only when enabled in Kconfig
-Date:   Thu,  3 Oct 2019 17:50:57 +0200
-Message-Id: <20191003154540.628683957@linuxfoundation.org>
+Subject: [PATCH 5.2 082/313] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+Date:   Thu,  3 Oct 2019 17:51:00 +0200
+Message-Id: <20191003154540.934198633@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,47 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit b6ff24f7b5101101ff897dfdde3f37924e676bc2 ]
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-In addition, the 0day bot reported this build error:
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-  >> drivers/ras/debugfs.c:10:5: error: redefinition of 'ras_userspace_consumers'
-      int ras_userspace_consumers(void)
-          ^~~~~~~~~~~~~~~~~~~~~~~
-     In file included from drivers/ras/debugfs.c:3:0:
-     include/linux/ras.h:14:19: note: previous definition of 'ras_userspace_consumers' was here
-      static inline int ras_userspace_consumers(void) { return 0; }
-                      ^~~~~~~~~~~~~~~~~~~~~~~
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
 
-for a riscv-specific .config where CONFIG_DEBUG_FS is not set. Fix all
-that by making debugfs.o depend on that define.
-
- [ bp: Rewrite commit message. ]
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: linux-edac@vger.kernel.org
-Cc: x86@kernel.org
-Link: http://lkml.kernel.org/r/7053.1565218556@turing-police
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ras/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ras/Makefile b/drivers/ras/Makefile
-index ef6777e14d3df..6f0404f501071 100644
---- a/drivers/ras/Makefile
-+++ b/drivers/ras/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
--obj-$(CONFIG_RAS)	+= ras.o debugfs.o
-+obj-$(CONFIG_RAS)	+= ras.o
-+obj-$(CONFIG_DEBUG_FS)	+= debugfs.o
- obj-$(CONFIG_RAS_CEC)	+= cec.o
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index e1739efca37eb..8e32930f65a1d 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1763,6 +1763,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
+ 	case LOOP_SET_BLOCK_SIZE:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 -- 
 2.20.1
 
