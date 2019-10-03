@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDF4CA9C5
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B3BCAB3D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405482AbfJCQri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33014 "EHLO mail.kernel.org"
+        id S1731220AbfJCRTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405290AbfJCQrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:47:37 -0400
+        id S2387906AbfJCQTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42CB621848;
-        Thu,  3 Oct 2019 16:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC552215EA;
+        Thu,  3 Oct 2019 16:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121256;
-        bh=tNKTrgo6pekEMV7o4Yg/oW12mfaytm7NtZ+DZIXJrIo=;
+        s=default; t=1570119585;
+        bh=LyoWdA0f7wwBcvyqosMNHJUlyBRTJxT4ByefN/vA58U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFl0yU4vP0N2nc1iQMt54+J5quF0FkgrW8vpTpgluFUZPJ1VUOWo6daaucoeQ9s+4
-         7GSRV6+9D+0K2/J1B879VrnuiKTyQ9YxS+xGoAqmwv+BE9Ptbg6+b60Qil5ZqPfhAh
-         1OgcQkVEj10cBt+iBdyFfRqBHa0uBVoInFfm44nk=
+        b=DrIbegAGIVQTp5SlZgeSWCP1CTvNhGyKbjNXEyaJda44LbQUd9wUqcEuDertULmHV
+         p2RsU11lqiP5bQYiMSkc+VG0WT2joIr4fFS1S1WHjcH8ZTvpxLbFvm85sRFZpsyFGB
+         QVTnuv9k17iJoe0mjgFwbyIk1fkDDOgr12eHIjBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 211/344] mmc: core: Clarify sdio_irq_pending flag for MMC_CAP2_SDIO_IRQ_NOTHREAD
-Date:   Thu,  3 Oct 2019 17:52:56 +0200
-Message-Id: <20191003154601.098886365@linuxfoundation.org>
+Subject: [PATCH 4.19 112/211] x86/mm/pti: Handle unaligned address gracefully in pti_clone_pagetable()
+Date:   Thu,  3 Oct 2019 17:52:58 +0200
+Message-Id: <20191003154513.070177963@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 36d57efb4af534dd6b442ea0b9a04aa6dfa37abe ]
+[ Upstream commit 825d0b73cd7526b0bb186798583fae810091cbac ]
 
-The sdio_irq_pending flag is used to let host drivers indicate that it has
-signaled an IRQ. If that is the case and we only have a single SDIO func
-that have claimed an SDIO IRQ, our assumption is that we can avoid reading
-the SDIO_CCCR_INTx register and just call the SDIO func irq handler
-immediately. This makes sense, but the flag is set/cleared in a somewhat
-messy order, let's fix that up according to below.
+pti_clone_pmds() assumes that the supplied address is either:
 
-First, the flag is currently set in sdio_run_irqs(), which is executed as a
-work that was scheduled from sdio_signal_irq(). To make it more implicit
-that the host have signaled an IRQ, let's instead immediately set the flag
-in sdio_signal_irq(). This also makes the behavior consistent with host
-drivers that uses the legacy, mmc_signal_sdio_irq() API. This have no
-functional impact, because we don't expect host drivers to call
-sdio_signal_irq() until after the work (sdio_run_irqs()) have been executed
-anyways.
+ - properly PUD/PMD aligned
+or
+ - the address is actually mapped which means that independently
+   of the mapping level (PUD/PMD/PTE) the next higher mapping
+   exists.
 
-Second, currently we never clears the flag when using the sdio_run_irqs()
-work, but only when using the sdio_irq_thread(). Let make the behavior
-consistent, by moving the flag to be cleared inside the common
-process_sdio_pending_irqs() function. Additionally, tweak the behavior of
-the flag slightly, by avoiding to clear it unless we processed the SDIO
-IRQ. The purpose with this at this point, is to keep the information about
-whether there have been an SDIO IRQ signaled by the host, so at system
-resume we can decide to process it without reading the SDIO_CCCR_INTx
-register.
+If that's not the case the unaligned address can be incremented by PUD or
+PMD size incorrectly. All callers supply mapped and/or aligned addresses,
+but for the sake of robustness it's better to handle that case properly and
+to emit a warning.
 
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[ tglx: Rewrote changelog and added WARN_ON_ONCE() ]
+
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282352470.1938@nanos.tec.linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_irq.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/mm/pti.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/sdio_irq.c b/drivers/mmc/core/sdio_irq.c
-index 0bcc5e83bd1a0..40109a6159228 100644
---- a/drivers/mmc/core/sdio_irq.c
-+++ b/drivers/mmc/core/sdio_irq.c
-@@ -31,6 +31,7 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
- {
- 	struct mmc_card *card = host->card;
- 	int i, ret, count;
-+	bool sdio_irq_pending = host->sdio_irq_pending;
- 	unsigned char pending;
- 	struct sdio_func *func;
+diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
+index c1ba376484a5b..622d5968c9795 100644
+--- a/arch/x86/mm/pti.c
++++ b/arch/x86/mm/pti.c
+@@ -338,13 +338,15 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
  
-@@ -38,13 +39,16 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
- 	if (mmc_card_suspended(card))
- 		return 0;
+ 		pud = pud_offset(p4d, addr);
+ 		if (pud_none(*pud)) {
+-			addr += PUD_SIZE;
++			WARN_ON_ONCE(addr & ~PUD_MASK);
++			addr = round_up(addr + 1, PUD_SIZE);
+ 			continue;
+ 		}
  
-+	/* Clear the flag to indicate that we have processed the IRQ. */
-+	host->sdio_irq_pending = false;
-+
- 	/*
- 	 * Optimization, if there is only 1 function interrupt registered
- 	 * and we know an IRQ was signaled then call irq handler directly.
- 	 * Otherwise do the full probe.
- 	 */
- 	func = card->sdio_single_irq;
--	if (func && host->sdio_irq_pending) {
-+	if (func && sdio_irq_pending) {
- 		func->irq_handler(func);
- 		return 1;
- 	}
-@@ -96,7 +100,6 @@ static void sdio_run_irqs(struct mmc_host *host)
- {
- 	mmc_claim_host(host);
- 	if (host->sdio_irqs) {
--		host->sdio_irq_pending = true;
- 		process_sdio_pending_irqs(host);
- 		if (host->ops->ack_sdio_irq)
- 			host->ops->ack_sdio_irq(host);
-@@ -114,6 +117,7 @@ void sdio_irq_work(struct work_struct *work)
+ 		pmd = pmd_offset(pud, addr);
+ 		if (pmd_none(*pmd)) {
+-			addr += PMD_SIZE;
++			WARN_ON_ONCE(addr & ~PMD_MASK);
++			addr = round_up(addr + 1, PMD_SIZE);
+ 			continue;
+ 		}
  
- void sdio_signal_irq(struct mmc_host *host)
- {
-+	host->sdio_irq_pending = true;
- 	queue_delayed_work(system_wq, &host->sdio_irq_work, 0);
- }
- EXPORT_SYMBOL_GPL(sdio_signal_irq);
-@@ -159,7 +163,6 @@ static int sdio_irq_thread(void *_host)
- 		if (ret)
- 			break;
- 		ret = process_sdio_pending_irqs(host);
--		host->sdio_irq_pending = false;
- 		mmc_release_host(host);
- 
- 		/*
 -- 
 2.20.1
 
