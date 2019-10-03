@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B312CAA08
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 896D3CAAA8
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389452AbfJCQSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45166 "EHLO mail.kernel.org"
+        id S2403964AbfJCRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:11:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389515AbfJCQSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:18:32 -0400
+        id S2391389AbfJCQcG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3AAA20865;
-        Thu,  3 Oct 2019 16:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DFBC215EA;
+        Thu,  3 Oct 2019 16:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119512;
-        bh=audjmHFkn6owmybGafMOtOI0Qdga+AxlxVfZCPjyW74=;
+        s=default; t=1570120324;
+        bh=gVJ5XNv35Wj2YquIGuUHJ24XMfhRoDYe2lPrgEnThQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VYpndM3kAmpGR/ef7swSeaYwClCsOor5sO/OEitwXVC3i6qn6MHWoFFI0DS91j2X
-         1rGQ7Xp36yGvUlILz5ggopxoAmHsrFjsGDAHWcG3LElkp9RlhBgF9hPcaqR7IEOxPM
-         47CC01yNWcy+St+9dRySdaAqvjP6/x8HD16ej79s=
+        b=ElJzDAkoiPrJwfDy2/+vzynQLeEtGE3J4hkWYxYvXxLxrQtHYy5ifMl2VaT/Dasop
+         TpY5z9QpaGK6I7IlClhvdk55PegsvUMt9SWJDVnGxqS45XNiVCBhVqlR5/ydkM2k21
+         onVJALbL117iQ/GRuO16RxNl0KZGr5fhOllXGpmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/211] posix-cpu-timers: Sanitize bogus WARNONS
+Subject: [PATCH 5.2 180/313] s390/crypto: xts-aes-s390 fix extra run-time crypto self tests finding
 Date:   Thu,  3 Oct 2019 17:52:38 +0200
-Message-Id: <20191003154508.098114396@linuxfoundation.org>
+Message-Id: <20191003154550.735220295@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 692117c1f7a6770ed41dd8f277cd9fed1dfb16f1 ]
+[ Upstream commit 9e323d45ba94262620a073a3f9945ca927c07c71 ]
 
-Warning when p == NULL and then proceeding and dereferencing p does not
-make any sense as the kernel will crash with a NULL pointer dereference
-right away.
+With 'extra run-time crypto self tests' enabled, the selftest
+for s390-xts fails with
 
-Bailing out when p == NULL and returning an error code does not cure the
-underlying problem which caused p to be NULL. Though it might allow to
-do proper debugging.
+  alg: skcipher: xts-aes-s390 encryption unexpectedly succeeded on
+  test vector "random: len=0 klen=64"; expected_error=-22,
+  cfg="random: inplace use_digest nosimd src_divs=[2.61%@+4006,
+  84.44%@+21, 1.55%@+13, 4.50%@+344, 4.26%@+21, 2.64%@+27]"
 
-Same applies to the clock id check in set_process_cpu_timer().
+This special case with nbytes=0 is not handled correctly and this
+fix now makes sure that -EINVAL is returned when there is en/decrypt
+called with 0 bytes to en/decrypt.
 
-Clean them up and make them return without trying to do further damage.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lkml.kernel.org/r/20190819143801.846497772@linutronix.de
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/posix-cpu-timers.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ arch/s390/crypto/aes_s390.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 76801b9b481eb..d62d7ae5201c5 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -375,7 +375,8 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
- 	struct sighand_struct *sighand;
- 	struct task_struct *p = timer->it.cpu.task;
+diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+index d00f84add5f4c..6d2dbb5089d5c 100644
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -586,6 +586,9 @@ static int xts_aes_encrypt(struct blkcipher_desc *desc,
+ 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
+ 	struct blkcipher_walk walk;
  
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
++	if (!nbytes)
 +		return -EINVAL;
- 
- 	/*
- 	 * Protect against sighand release/switch in exit/exec and process/
-@@ -580,7 +581,8 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 	u64 old_expires, new_expires, old_incr, val;
- 	int ret;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return -EINVAL;
- 
- 	/*
- 	 * Use the to_ktime conversion because that clamps the maximum
-@@ -716,10 +718,11 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 
- static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp)
- {
--	u64 now;
- 	struct task_struct *p = timer->it.cpu.task;
-+	u64 now;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
- 
- 	/*
- 	 * Easy part: convert the reload time.
-@@ -1004,12 +1007,13 @@ static void check_process_timers(struct task_struct *tsk,
-  */
- static void posix_cpu_timer_rearm(struct k_itimer *timer)
- {
-+	struct task_struct *p = timer->it.cpu.task;
- 	struct sighand_struct *sighand;
- 	unsigned long flags;
--	struct task_struct *p = timer->it.cpu.task;
- 	u64 now;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
- 
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
-@@ -1206,7 +1210,9 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
- 	u64 now;
- 	int ret;
- 
--	WARN_ON_ONCE(clock_idx == CPUCLOCK_SCHED);
-+	if (WARN_ON_ONCE(clock_idx >= CPUCLOCK_SCHED))
-+		return;
 +
- 	ret = cpu_timer_sample_group(clock_idx, tsk, &now);
+ 	if (unlikely(!xts_ctx->fc))
+ 		return xts_fallback_encrypt(desc, dst, src, nbytes);
  
- 	if (oldval && ret != -EINVAL) {
+@@ -600,6 +603,9 @@ static int xts_aes_decrypt(struct blkcipher_desc *desc,
+ 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
+ 	struct blkcipher_walk walk;
+ 
++	if (!nbytes)
++		return -EINVAL;
++
+ 	if (unlikely(!xts_ctx->fc))
+ 		return xts_fallback_decrypt(desc, dst, src, nbytes);
+ 
 -- 
 2.20.1
 
