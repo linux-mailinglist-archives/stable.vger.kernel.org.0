@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A1FCA3CC
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAE4CA3D4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388181AbfJCQTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:19:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45954 "EHLO mail.kernel.org"
+        id S2388174AbfJCQTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388158AbfJCQTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:05 -0400
+        id S2387497AbfJCQTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D882E215EA;
-        Thu,  3 Oct 2019 16:19:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD0EB2054F;
+        Thu,  3 Oct 2019 16:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119544;
-        bh=C6bM2lkrmxaRi+8ngCo47RBCDNww5tM1dx0eSaBFFeg=;
+        s=default; t=1570119561;
+        bh=URUZzsuEtvmqgS69CvYyDYYGVRNJ0Jzif+eoUQ1PBvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhEcVcmVOcI/tbmI7X1Tk9G0lStUysjAhdqddK4qnQgMlO9pdalaQW3SldidJcMUZ
-         ljLdvoQQQn694XCzUwrfvJNCSyUPdcHAE7KZuK0grfPqOt9kPqjommFjIUOK5/aLEO
-         /+H6nUgqpmrMs0bB46f/TRqwyEuibozGA/7zTRnE=
+        b=LjMnI3+nj6LVEp5O7KAsMdqFeFfecUu2MUy9oz5tTd2KfdJpPdlhYcUxub48IE8xd
+         fopLl8IQxUo7FGoZfshKM6OfDVYIMcqw0YX7lLMJhGomsS7OOofjhRAOJZsOpNv8Ji
+         WIM2V0wfe7wvpcsG4il79QXb8Oizf/bzXsLmNKd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Peterson <benjamin@python.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 103/211] perf trace beauty ioctl: Fix off-by-one error in cmd->string table
-Date:   Thu,  3 Oct 2019 17:52:49 +0200
-Message-Id: <20191003154510.188106056@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 109/211] arm64: kpti: ensure patched kernel text is fetched from PoU
+Date:   Thu,  3 Oct 2019 17:52:55 +0200
+Message-Id: <20191003154512.244293884@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -48,82 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Peterson <benjamin@python.org>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit b92675f4a9c02dd78052645597dac9e270679ddf ]
+[ Upstream commit f32c7a8e45105bd0af76872bf6eef0438ff12fb2 ]
 
-While tracing a program that calls isatty(3), I noticed that strace
-reported TCGETS for the request argument of the underlying ioctl(2)
-syscall while perf trace reported TCSETS. strace is corrrect. The bug in
-perf was due to the tty ioctl beauty table starting at 0x5400 rather
-than 0x5401.
+While the MMUs is disabled, I-cache speculation can result in
+instructions being fetched from the PoC. During boot we may patch
+instructions (e.g. for alternatives and jump labels), and these may be
+dirty at the PoU (and stale at the PoC).
 
-Committer testing:
+Thus, while the MMU is disabled in the KPTI pagetable fixup code we may
+load stale instructions into the I-cache, potentially leading to
+subsequent crashes when executing regions of code which have been
+modified at runtime.
 
-  Using augmented_raw_syscalls.o and settings to make 'perf trace'
-  use strace formatting, i.e. with this in ~/.perfconfig
+Similarly to commit:
 
-  # cat ~/.perfconfig
-  [trace]
-	add_events = /home/acme/git/linux/tools/perf/examples/bpf/augmented_raw_syscalls.c
-	show_zeros = yes
-	show_duration = no
-	no_inherit = yes
-	show_timestamp = no
-	show_arg_names = no
-	args_alignment = 40
-	show_prefix = yes
+  8ec41987436d566f ("arm64: mm: ensure patched kernel text is fetched from PoU")
 
-  # strace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-  ioctl(1, TIOCGWINSZ, 0x7fff8a9b0860)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7fff8a9b0540)        = -1 ENOTTY (Inappropriate ioctl for device)
-  +++ exited with 0 +++
-  #
+... we can invalidate the I-cache after enabling the MMU to prevent such
+issues.
 
-Before:
+The KPTI pagetable fixup code itself should be clean to the PoC per the
+boot protocol, so no maintenance is required for this code.
 
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCSETS, 0x7fff2cf79f20)        = 0
-  ioctl(1, TIOCSWINSZ, 0x7fff2cf79f40)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCSETS, 0x7fff2cf79c20)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
-
-After:
-
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, 0x7ffed0763920)        = 0
-  ioctl(1, TIOCGWINSZ, 0x7ffed0763940)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7ffed0763620)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
-
-Signed-off-by: Benjamin Peterson <benjamin@python.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Fixes: 1cc47f2d46206d67285aea0ca7e8450af571da13 ("perf trace beauty ioctl: Improve 'cmd' beautifier")
-Link: http://lkml.kernel.org/r/20190823033625.18814-1-benjamin@python.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/proc.S | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/tools/perf/trace/beauty/ioctl.c b/tools/perf/trace/beauty/ioctl.c
-index 1be3b4cf08270..82346ca06f171 100644
---- a/tools/perf/trace/beauty/ioctl.c
-+++ b/tools/perf/trace/beauty/ioctl.c
-@@ -22,7 +22,7 @@
- static size_t ioctl__scnprintf_tty_cmd(int nr, int dir, char *bf, size_t size)
- {
- 	static const char *ioctl_tty_cmd[] = {
--	"TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
-+	[_IOC_NR(TCGETS)] = "TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
- 	"TCSETAF", "TCSBRK", "TCXONC", "TCFLSH", "TIOCEXCL", "TIOCNXCL", "TIOCSCTTY",
- 	"TIOCGPGRP", "TIOCSPGRP", "TIOCOUTQ", "TIOCSTI", "TIOCGWINSZ", "TIOCSWINSZ",
- 	"TIOCMGET", "TIOCMBIS", "TIOCMBIC", "TIOCMSET", "TIOCGSOFTCAR", "TIOCSSOFTCAR",
+diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
+index 8cce091b6c21e..ec6aa18633162 100644
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -294,6 +294,15 @@ skip_pgd:
+ 	msr	sctlr_el1, x18
+ 	isb
+ 
++	/*
++	 * Invalidate the local I-cache so that any instructions fetched
++	 * speculatively from the PoC are discarded, since they may have
++	 * been dynamically patched at the PoU.
++	 */
++	ic	iallu
++	dsb	nsh
++	isb
++
+ 	/* Set the flag to zero to indicate that we're all done */
+ 	str	wzr, [flag_ptr]
+ 	ret
 -- 
 2.20.1
 
