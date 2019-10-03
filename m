@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFEDCAAA4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B47BACAA15
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389351AbfJCRKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40382 "EHLO mail.kernel.org"
+        id S1730320AbfJCQTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403963AbfJCQck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:40 -0400
+        id S2389672AbfJCQTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7789821783;
-        Thu,  3 Oct 2019 16:32:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 450F620865;
+        Thu,  3 Oct 2019 16:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120360;
-        bh=g187vndwyMzQFiDGPL8Bhd9t6/8cXzXzq/6xcOQIgj8=;
+        s=default; t=1570119550;
+        bh=aBfrh3L5PZ4K35YPTLRGipJ41jGGSUx0n61xmPkmCZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bM53Q1+plmpAjz1vYRMkPOqSL52DxqptPRvp9XmP4hSazY1l7q+Ee4G5Gt61NsX8G
-         3HkccfH6KwWIEuRgygcguX7pDDHXwvp0rLWdGRUS8qKZz5IvVXrJsMwmuwxmWTqtfE
-         m8uYrZG+u0lGA9yBn6sOvsV6HGHnGmJHIpWf4e3k=
+        b=Nx9PVkgIB/bcm2rVlZrEnMoxSweOqhdkRRHQg3WcomfTIxpwLJ8yht0BbshoMrR6f
+         AKgbmzno1X29nmBZxoyc02GjbHHYRxg5jQ1Q290TtpcNvXFf8+ha8ooDtsefMhTMSu
+         Sh1zLtrSCK2uZ43BVBeIY2+XiBxcdaJkmc6/R6pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Katsuhiro Suzuki <katsuhiro@katsuster.net>,
+        Daniel Drake <drake@endlessm.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 192/313] mmc: core: Add helper function to indicate if SDIO IRQs is enabled
-Date:   Thu,  3 Oct 2019 17:52:50 +0200
-Message-Id: <20191003154551.890683592@linuxfoundation.org>
+Subject: [PATCH 4.19 105/211] ASoC: es8316: fix headphone mixer volume table
+Date:   Thu,  3 Oct 2019 17:52:51 +0200
+Message-Id: <20191003154510.837975969@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Katsuhiro Suzuki <katsuhiro@katsuster.net>
 
-[ Upstream commit bd880b00697befb73eff7220ee20bdae4fdd487b ]
+[ Upstream commit f972d02fee2496024cfd6f59021c9d89d54922a6 ]
 
-To avoid each host driver supporting SDIO IRQs, from keeping track
-internally about if SDIO IRQs has been claimed, let's introduce a common
-helper function, sdio_irq_claimed().
+This patch fix setting table of Headphone mixer volume.
+Current code uses 4 ... 7 values but these values are prohibited.
 
-The function returns true if SDIO IRQs are claimed, via using the
-information about the number of claimed irqs. This is safe, even without
-any locks, as long as the helper function is called only from
-runtime/system suspend callbacks of the host driver.
+Correct settings are the following:
+  0000 -12dB
+  0001 -10.5dB
+  0010 -9dB
+  0011 -7.5dB
+  0100 -6dB
+  1000 -4.5dB
+  1001 -3dB
+  1010 -1.5dB
+  1011 0dB
 
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Katsuhiro Suzuki <katsuhiro@katsuster.net>
+Reviewed-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/r/20190826153900.25969-1-katsuhiro@katsuster.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mmc/host.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/codecs/es8316.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
-index 7ac3755444d3d..56a8ad506072c 100644
---- a/include/linux/mmc/host.h
-+++ b/include/linux/mmc/host.h
-@@ -493,6 +493,15 @@ void mmc_command_done(struct mmc_host *host, struct mmc_request *mrq);
+diff --git a/sound/soc/codecs/es8316.c b/sound/soc/codecs/es8316.c
+index e97d12d578b00..9ebe77c3784a8 100644
+--- a/sound/soc/codecs/es8316.c
++++ b/sound/soc/codecs/es8316.c
+@@ -46,7 +46,10 @@ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(adc_vol_tlv, -9600, 50, 1);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_max_gain_tlv, -650, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_min_gain_tlv, -1200, 150, 0);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(alc_target_tlv, -1650, 150, 0);
+-static const SNDRV_CTL_TLVD_DECLARE_DB_SCALE(hpmixer_gain_tlv, -1200, 150, 0);
++static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(hpmixer_gain_tlv,
++	0, 4, TLV_DB_SCALE_ITEM(-1200, 150, 0),
++	8, 11, TLV_DB_SCALE_ITEM(-450, 150, 0),
++);
  
- void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq);
+ static const SNDRV_CTL_TLVD_DECLARE_DB_RANGE(adc_pga_gain_tlv,
+ 	0, 0, TLV_DB_SCALE_ITEM(-350, 0, 0),
+@@ -84,7 +87,7 @@ static const struct snd_kcontrol_new es8316_snd_controls[] = {
+ 	SOC_DOUBLE_TLV("Headphone Playback Volume", ES8316_CPHP_ICAL_VOL,
+ 		       4, 0, 3, 1, hpout_vol_tlv),
+ 	SOC_DOUBLE_TLV("Headphone Mixer Volume", ES8316_HPMIX_VOL,
+-		       0, 4, 7, 0, hpmixer_gain_tlv),
++		       0, 4, 11, 0, hpmixer_gain_tlv),
  
-+/*
-+ * May be called from host driver's system/runtime suspend/resume callbacks,
-+ * to know if SDIO IRQs has been claimed.
-+ */
-+static inline bool sdio_irq_claimed(struct mmc_host *host)
-+{
-+	return host->sdio_irqs > 0;
-+}
-+
- static inline void mmc_signal_sdio_irq(struct mmc_host *host)
- {
- 	host->ops->enable_sdio_irq(host, 0);
+ 	SOC_ENUM("Playback Polarity", dacpol),
+ 	SOC_DOUBLE_R_TLV("DAC Playback Volume", ES8316_DAC_VOLL,
 -- 
 2.20.1
 
