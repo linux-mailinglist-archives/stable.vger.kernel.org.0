@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58274CAB4A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B95CA981
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731218AbfJCR1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
+        id S2392710AbfJCQnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388215AbfJCQPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:17 -0400
+        id S2388237AbfJCQn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9433720700;
-        Thu,  3 Oct 2019 16:15:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 933662070B;
+        Thu,  3 Oct 2019 16:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119317;
-        bh=sm0saESBAq5saeJwx5FZW4iF1wl19q26WDg2QPZUf2E=;
+        s=default; t=1570121009;
+        bh=ljyOOYLOrVHKPq0GoGX1yqA6Ygi+ssZEBM2nuLc3eP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3qfSjH1mr2Giz6lkMqYaejDjLr8/1OOQQXx2H3qYkJAH2aznayknusQ2T/k1MPVK
-         ie+ntP7lIi3o8858B1ITaZ8dV/nIe35mT0cNHQJ7EMlFUxF3as7RaBlWumF4drtQzG
-         JxwMq5FidmgEG/bah5YX6QGHfiFaA7RU7bKFc0vs=
+        b=a6XmUtF0qpBd9YNCWgF9kMTOUAgDDxrLpsXkYm8IOjk92l6oVW5c6f4OpeA8QTbOP
+         v6P6Go0J344rOYzLBdu6aGQ9r1dWDCtWsnpUKbK4/e3YHv3OnbkEd4BmgTSsTvBk57
+         bgAUut5YJa1rKJI4+uKx6dNC+jA5DfqhfpGGTpNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 020/211] ax25: enforce CAP_NET_RAW for raw sockets
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 121/344] net: lpc-enet: fix printk format strings
 Date:   Thu,  3 Oct 2019 17:51:26 +0200
-Message-Id: <20191003154451.617529381@linuxfoundation.org>
+Message-Id: <20191003154552.134612304@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ori Nimron <orinimron123@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 0614e2b73768b502fc32a75349823356d98aae2c ]
+[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
 
-When creating a raw AF_AX25 socket, CAP_NET_RAW needs to be checked
-first.
+compile-testing this driver on other architectures showed
+multiple warnings:
 
-Signed-off-by: Ori Nimron <orinimron123@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
+  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
+
+  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
+
+Use format strings that work on all architectures.
+
+Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -858,6 +858,8 @@ static int ax25_create(struct net *net,
- 		break;
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index f7e11f1b0426c..b0c8be127bee1 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1344,13 +1344,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	pldat->dma_buff_base_p = dma_handle;
  
- 	case SOCK_RAW:
-+		if (!capable(CAP_NET_RAW))
-+			return -EPERM;
- 		break;
- 	default:
- 		return -ESOCKTNOSUPPORT;
+ 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
+-	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
++	netdev_dbg(ndev, "IO address size      :%zd\n",
++			(size_t)resource_size(res));
+ 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
+ 			pldat->net_base);
+ 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
+-	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
+-	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
+-			pldat->dma_buff_base_p);
++	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
++	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
++			&pldat->dma_buff_base_p);
+ 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
+ 			pldat->dma_buff_base_v);
+ 
+@@ -1397,8 +1398,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_out_unregister_netdev;
+ 
+-	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
+-	       res->start, ndev->irq);
++	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
++	       (unsigned long)res->start, ndev->irq);
+ 
+ 	device_init_wakeup(dev, 1);
+ 	device_set_wakeup_enable(dev, 0);
+-- 
+2.20.1
+
 
 
