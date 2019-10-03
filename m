@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5625DC9D86
+	by mail.lfdr.de (Postfix) with ESMTP id C488DC9D87
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729984AbfJCLkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 07:40:49 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40691 "EHLO
+        id S1730022AbfJCLk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 07:40:57 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57475 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729820AbfJCLkt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:40:49 -0400
+        by vger.kernel.org with ESMTP id S1729820AbfJCLk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:40:57 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E9E7821C57;
-        Thu,  3 Oct 2019 07:40:48 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id BEC7E21C28;
+        Thu,  3 Oct 2019 07:40:56 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:40:48 -0400
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:40:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bg791F
-        byt7qBKK1sbFyAsKZAVRaaGBCYZXyGc5NVzUw=; b=z52NjHFEauh6pZnyBcyxOn
-        i+YRGlEUl6jLR4xgEzDNd3fzDuglyWmmQRqpd9/mO90IxQNlDWO5mlWa1P/p3luT
-        eRApHV9YgzEvABvlZrBstvMFmrRE50j14nH0pcvMPPaYLRjGg043dadV3InCHtYv
-        pFyh1Ikmpo7ICh14GtMypS9OufMXGVBNrPOeZEml19U1N0zmB34gndOOZPZWnmiR
-        htFp1Jq1H3lBpx7U99A0AzalEm/P5S5eU5dTOL0u2Fp2UAelYiOZwzvGJOx0fQ2B
-        9unp03gFQIZgCcrsMapNXZY5U41D3Tu26SckqIR/RacN3oB298BXRA1XYmvb66bA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=B33xXl
+        LhMgdsWYkneZaakDgA2BCJjXCrggESPQVabHE=; b=x4xBVjxIHgg4Xi9EXHzD7y
+        DyzMYQjT+nDpkzWhW0EUEtmYOSKKKPeV/VpNMbKdD+ehkvMzbUhHAPg6kqkGL2Le
+        XaNc7E58exUhOlwMOyDlNZV2JX3qrkHeuyBEFIjh1lS5hYq5MVyPdxlR8kDW8KMG
+        h4HA/mg38lgGTsrApfK5tkCh712axQhhKmf2iORnpnOiy1GdIoJXf27IpfNpawBO
+        qz2EgY2DUx9tJR9XR7/uylQJXXDbJuWDg4PWKlDKF7oIZFTj4rhck99/UoBcgWb3
+        aRHH7jb4BZqvvmqQGbnAfI6SIOKNz6Hy+E0+axoGF7q3dBRPDRO08EpGP1hHE1jA
         ==
-X-ME-Sender: <xms:QN6VXToUBpEQiVRNKw2GaQkSAN_4K_S8JnPYyZIgRNmxgYzl40HaCg>
+X-ME-Sender: <xms:SN6VXYfuh6TGXGA9FBitrvdd84xq8URlv5WT5maQqL7ct6oaqWBqbw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:QN6VXZtpOSRxbw_Orh0o4MlnK5gcP9XayGx5IIrw5itlwHLHHMBbbA>
-    <xmx:QN6VXbguph_W939hjLiLlD8Kmy9XlWr79svuCLqiBjTPHAqlh5cyyQ>
-    <xmx:QN6VXV2Rx22QoYksA8lfVcZr1NFpOL2-osnAtjsu8Z6ZD6LwQ-MjlQ>
-    <xmx:QN6VXUML-iPwT7KLaku7c8dGr9EI8l36iVkT-NoiYdq-sOOnvxDUPQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:SN6VXQgiC7j-6Vh5kdAGLOTk8Mp_cyWBfOJESEpUT-DE-en0W60T6w>
+    <xmx:SN6VXfgiPZ68pzTR7M8931rszeZ2KJKZLi7SwmtAFIshIslzgiHBWg>
+    <xmx:SN6VXbRUD_kxs9BTtEdtWkDwwNd8HLAbS4uI3rlbj_4OMQPrAfk0kA>
+    <xmx:SN6VXRSvizm0m3yzCmGhWsd9mo7vwMRFU14TEE4fy3aduR_1z-gbAg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5A71780061;
-        Thu,  3 Oct 2019 07:40:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mt76: mt7615: fix mt7615 firmware path definitions" failed to apply to 5.2-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3FA5F80061;
+        Thu,  3 Oct 2019 07:40:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mt76: mt7615: fix mt7615 firmware path definitions" failed to apply to 5.3-stable tree
 To:     lorenzo@kernel.org, kvalo@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 13:40:46 +0200
-Message-ID: <157010284629206@kroah.com>
+Date:   Thu, 03 Oct 2019 13:40:47 +0200
+Message-ID: <157010284795216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.2-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
