@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 579AECA6CD
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B332CA6D2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392220AbfJCQr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:47:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32814 "EHLO mail.kernel.org"
+        id S2405523AbfJCQrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405180AbfJCQr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:47:29 -0400
+        id S2405509AbfJCQrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:47:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28A6220867;
-        Thu,  3 Oct 2019 16:47:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E9E2070B;
+        Thu,  3 Oct 2019 16:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121248;
-        bh=SSaj6SjOpAnKNqQCHy7fYhMvKgjaL7iwdNhua4vxOJw=;
+        s=default; t=1570121259;
+        bh=/F0eqdyJKABuAv6cUV90z+rRaHqrSXh+R+pUYfvNIeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MshQKUxkK5iFU9pa+r+O66z/c8pOnE0Z7U4icDEAC8zXVsKRBIuUgxxIDjSy5GkIU
-         TqE+wXxND0lnw/MnlYphk04Iu2dF6tzHxEHBTmsB4KPb4wy2JX64sQZQHjP8CgBwgp
-         WoEDfKYSjQgbNW9clbRJ8qJZi0kSe65EdavyLOqA=
+        b=iKVKmIsP7LVq7LiOD9IFKfVO4UKCSI0+X7w866iGWgkmrywWutgrhQ1JhBm11ggPA
+         0knkaca88xZgNheSRnClUPLqPjCsm0bar3jKYgQcOZM9A4dMq/Keq2TciSi0/+SHNv
+         Ytzk0yCke5B6Y8MueSqGf5/e5GAxGGVp/iuKEjNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Hou Tao <houtao1@huawei.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 209/344] block: make rq sector size accessible for block stats
-Date:   Thu,  3 Oct 2019 17:52:54 +0200
-Message-Id: <20191003154600.901705699@linuxfoundation.org>
+        stable@vger.kernel.org, Miles Chen <miles.chen@mediatek.com>,
+        linux-mediatek@lists.infradead.org, wsd_upstream@mediatek.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 212/344] sched/psi: Correct overly pessimistic size calculation
+Date:   Thu,  3 Oct 2019 17:52:57 +0200
+Message-Id: <20191003154601.206292517@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,125 +47,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 3d24430694077313c75c6b89f618db09943621e4 ]
+[ Upstream commit 4adcdcea717cb2d8436bef00dd689aa5bc76f11b ]
 
-Currently rq->data_len will be decreased by partial completion or
-zeroed by completion, so when blk_stat_add() is invoked, data_len
-will be zero and there will never be samples in poll_cb because
-blk_mq_poll_stats_bkt() will return -1 if data_len is zero.
+When passing a equal or more then 32 bytes long string to psi_write(),
+psi_write() copies 31 bytes to its buf and overwrites buf[30]
+with '\0'. Which makes the input string 1 byte shorter than
+it should be.
 
-We could move blk_stat_add() back to __blk_mq_complete_request(),
-but that would make the effort of trying to call ktime_get_ns()
-once in vain. Instead we can reuse throtl_size field, and use
-it for both block stats and block throttle, and adjust the
-logic in blk_mq_poll_stats_bkt() accordingly.
+Fix it by copying sizeof(buf) bytes when nbytes >= sizeof(buf).
 
-Fixes: 4bc6339a583c ("block: move blk_stat_add() to __blk_mq_end_request()")
-Tested-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This does not cause problems in normal use case like:
+"some 500000 10000000" or "full 500000 10000000" because they
+are less than 32 bytes in length.
+
+	/* assuming nbytes == 35 */
+	char buf[32];
+
+	buf_size = min(nbytes, (sizeof(buf) - 1)); /* buf_size = 31 */
+	if (copy_from_user(buf, user_buf, buf_size))
+		return -EFAULT;
+
+	buf[buf_size - 1] = '\0'; /* buf[30] = '\0' */
+
+Before:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [   22.473497] nbytes=35,buf_size=31
+ [   22.473775] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [   64.916162] nbytes=32,buf_size=31
+ [   64.916331] 123456789|123456789|123456789| (print 30 chars)
+ %sh: write error: Invalid argument
+
+After:
+
+ %cd /proc/pressure/
+ %echo "123456789|123456789|123456789|1234" > memory
+ [  254.837863] nbytes=35,buf_size=32
+ [  254.838541] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+ %echo "123456789|123456789|123456789|1" > memory
+ [ 9965.714935] nbytes=32,buf_size=32
+ [ 9965.715096] 123456789|123456789|123456789|1 (print 31 chars)
+ %sh: write error: Invalid argument
+
+Also remove the superfluous parentheses.
+
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Cc: <linux-mediatek@lists.infradead.org>
+Cc: <wsd_upstream@mediatek.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190912103452.13281-1-miles.chen@mediatek.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c         | 11 +++++------
- block/blk-throttle.c   |  3 ++-
- include/linux/blkdev.h | 15 ++++++++++++---
- 3 files changed, 19 insertions(+), 10 deletions(-)
+ kernel/sched/psi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index a38ebb2a380c2..9b56428cad0e7 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -44,12 +44,12 @@ static void blk_mq_poll_stats_fn(struct blk_stat_callback *cb);
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 6e52b67b420e7..517e3719027e6 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1198,7 +1198,7 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
+ 	if (static_branch_likely(&psi_disabled))
+ 		return -EOPNOTSUPP;
  
- static int blk_mq_poll_stats_bkt(const struct request *rq)
- {
--	int ddir, bytes, bucket;
-+	int ddir, sectors, bucket;
+-	buf_size = min(nbytes, (sizeof(buf) - 1));
++	buf_size = min(nbytes, sizeof(buf));
+ 	if (copy_from_user(buf, user_buf, buf_size))
+ 		return -EFAULT;
  
- 	ddir = rq_data_dir(rq);
--	bytes = blk_rq_bytes(rq);
-+	sectors = blk_rq_stats_sectors(rq);
- 
--	bucket = ddir + 2*(ilog2(bytes) - 9);
-+	bucket = ddir + 2 * ilog2(sectors);
- 
- 	if (bucket < 0)
- 		return -1;
-@@ -330,6 +330,7 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
- 	else
- 		rq->start_time_ns = 0;
- 	rq->io_start_time_ns = 0;
-+	rq->stats_sectors = 0;
- 	rq->nr_phys_segments = 0;
- #if defined(CONFIG_BLK_DEV_INTEGRITY)
- 	rq->nr_integrity_segments = 0;
-@@ -673,9 +674,7 @@ void blk_mq_start_request(struct request *rq)
- 
- 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
- 		rq->io_start_time_ns = ktime_get_ns();
--#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
--		rq->throtl_size = blk_rq_sectors(rq);
--#endif
-+		rq->stats_sectors = blk_rq_sectors(rq);
- 		rq->rq_flags |= RQF_STATS;
- 		rq_qos_issue(q, rq);
- 	}
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 8ab6c81532236..ee74bffe3504d 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -2246,7 +2246,8 @@ void blk_throtl_stat_add(struct request *rq, u64 time_ns)
- 	struct request_queue *q = rq->q;
- 	struct throtl_data *td = q->td;
- 
--	throtl_track_latency(td, rq->throtl_size, req_op(rq), time_ns >> 10);
-+	throtl_track_latency(td, blk_rq_stats_sectors(rq), req_op(rq),
-+			     time_ns >> 10);
- }
- 
- void blk_throtl_bio_endio(struct bio *bio)
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 1ef375dafb1c1..ae51050c50949 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -202,9 +202,12 @@ struct request {
- #ifdef CONFIG_BLK_WBT
- 	unsigned short wbt_flags;
- #endif
--#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
--	unsigned short throtl_size;
--#endif
-+	/*
-+	 * rq sectors used for blk stats. It has the same value
-+	 * with blk_rq_sectors(rq), except that it never be zeroed
-+	 * by completion.
-+	 */
-+	unsigned short stats_sectors;
- 
- 	/*
- 	 * Number of scatter-gather DMA addr+len pairs after
-@@ -903,6 +906,7 @@ static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
-  * blk_rq_err_bytes()		: bytes left till the next error boundary
-  * blk_rq_sectors()		: sectors left in the entire request
-  * blk_rq_cur_sectors()		: sectors left in the current segment
-+ * blk_rq_stats_sectors()	: sectors of the entire request used for stats
-  */
- static inline sector_t blk_rq_pos(const struct request *rq)
- {
-@@ -931,6 +935,11 @@ static inline unsigned int blk_rq_cur_sectors(const struct request *rq)
- 	return blk_rq_cur_bytes(rq) >> SECTOR_SHIFT;
- }
- 
-+static inline unsigned int blk_rq_stats_sectors(const struct request *rq)
-+{
-+	return rq->stats_sectors;
-+}
-+
- #ifdef CONFIG_BLK_DEV_ZONED
- static inline unsigned int blk_rq_zone_no(struct request *rq)
- {
 -- 
 2.20.1
 
