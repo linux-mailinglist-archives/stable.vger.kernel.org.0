@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DED5CA2C9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E156FCA208
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:03:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733083AbfJCQJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57898 "EHLO mail.kernel.org"
+        id S1730437AbfJCQBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733059AbfJCQJO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:09:14 -0400
+        id S1731765AbfJCQBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:01:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68C2821D81;
-        Thu,  3 Oct 2019 16:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2EC721A4C;
+        Thu,  3 Oct 2019 16:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118953;
-        bh=KxMX0AHppmq/QMFSl9xidCMoTWkoL9DltKhFR7xZW48=;
+        s=default; t=1570118479;
+        bh=n7VZmOmiAaJuzqtEgcUqvu4Su2EMXV+PJoK997lsM9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kU+Q6GvfTTyVNlpBkJmtbOTfaZCKqthdDeGPa0xv4X1ObSPpvDlAivhn42bIb4Rbv
-         ovNKVD9GSvZ+SBPa7tdNI/AeYD+axIJYj1DejCw6oNMwZtHpgtqp7rA2vzw/0wKnBy
-         Fh56ZJ8wV9hKPY+jAdOrUwsMJ07hvN7AxujtbDto=
+        b=xAF3rB/TrRJB32x5gA6Duntb57ngOBBXuQPMAsKtptVVD8eWQdxVgLn6pfR/0zjsB
+         mkWLHnL4KXiX2CAGvCme3j8L8pM/uJM8+eQmD1ke8yMOOAUy/Y5ak2QlDvChAz1MOA
+         7eWGPkl9kY/cqWIWt1lxb9nooH+ube1TXBPwv+PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 070/185] media: iguanair: add sanity checks
+        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
+        Fei Liu <feliu@redhat.com>, Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 025/129] macsec: drop skb sk before calling gro_cells_receive
 Date:   Thu,  3 Oct 2019 17:52:28 +0200
-Message-Id: <20191003154453.328188685@linuxfoundation.org>
+Message-Id: <20191003154330.743447692@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit ab1cbdf159beba7395a13ab70bc71180929ca064 ]
+[ Upstream commit ba56d8ce38c8252fff5b745db3899cf092578ede ]
 
-The driver needs to check the endpoint types, too, as opposed
-to the number of endpoints. This also requires moving the check earlier.
+Fei Liu reported a crash when doing netperf on a topo of macsec
+dev over veth:
 
-Reported-by: syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [  448.919128] refcount_t: underflow; use-after-free.
+  [  449.090460] Call trace:
+  [  449.092895]  refcount_sub_and_test+0xb4/0xc0
+  [  449.097155]  tcp_wfree+0x2c/0x150
+  [  449.100460]  ip_rcv+0x1d4/0x3a8
+  [  449.103591]  __netif_receive_skb_core+0x554/0xae0
+  [  449.108282]  __netif_receive_skb+0x28/0x78
+  [  449.112366]  netif_receive_skb_internal+0x54/0x100
+  [  449.117144]  napi_gro_complete+0x70/0xc0
+  [  449.121054]  napi_gro_flush+0x6c/0x90
+  [  449.124703]  napi_complete_done+0x50/0x130
+  [  449.128788]  gro_cell_poll+0x8c/0xa8
+  [  449.132351]  net_rx_action+0x16c/0x3f8
+  [  449.136088]  __do_softirq+0x128/0x320
+
+The issue was caused by skb's true_size changed without its sk's
+sk_wmem_alloc increased in tcp/skb_gro_receive(). Later when the
+skb is being freed and the skb's truesize is subtracted from its
+sk's sk_wmem_alloc in tcp_wfree(), underflow occurs.
+
+macsec is calling gro_cells_receive() to receive a packet, which
+actually requires skb->sk to be NULL. However when macsec dev is
+over veth, it's possible the skb->sk is still set if the skb was
+not unshared or expanded from the peer veth.
+
+ip_rcv() is calling skb_orphan() to drop the skb's sk for tproxy,
+but it is too late for macsec's calling gro_cells_receive(). So
+fix it by dropping the skb's sk earlier on rx path of macsec.
+
+Fixes: 5491e7c6b1a9 ("macsec: enable GRO and RPS on macsec devices")
+Reported-by: Xiumei Mu <xmu@redhat.com>
+Reported-by: Fei Liu <feliu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/iguanair.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/net/macsec.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
-index 30e24da672268..3c2e248ceca87 100644
---- a/drivers/media/rc/iguanair.c
-+++ b/drivers/media/rc/iguanair.c
-@@ -427,6 +427,10 @@ static int iguanair_probe(struct usb_interface *intf,
- 	int ret, pipein, pipeout;
- 	struct usb_host_interface *idesc;
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -1240,6 +1240,7 @@ deliver:
+ 		macsec_rxsa_put(rx_sa);
+ 	macsec_rxsc_put(rx_sc);
  
-+	idesc = intf->altsetting;
-+	if (idesc->desc.bNumEndpoints < 2)
-+		return -ENODEV;
-+
- 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
- 	rc = rc_allocate_device(RC_DRIVER_IR_RAW);
- 	if (!ir || !rc) {
-@@ -441,18 +445,13 @@ static int iguanair_probe(struct usb_interface *intf,
- 	ir->urb_in = usb_alloc_urb(0, GFP_KERNEL);
- 	ir->urb_out = usb_alloc_urb(0, GFP_KERNEL);
- 
--	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out) {
-+	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out ||
-+	    !usb_endpoint_is_int_in(&idesc->endpoint[0].desc) ||
-+	    !usb_endpoint_is_int_out(&idesc->endpoint[1].desc)) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
- 
--	idesc = intf->altsetting;
--
--	if (idesc->desc.bNumEndpoints < 2) {
--		ret = -ENODEV;
--		goto out;
--	}
--
- 	ir->rc = rc;
- 	ir->dev = &intf->dev;
- 	ir->udev = udev;
--- 
-2.20.1
-
++	skb_orphan(skb);
+ 	ret = gro_cells_receive(&macsec->gro_cells, skb);
+ 	if (ret == NET_RX_SUCCESS)
+ 		count_rx(dev, skb->len);
 
 
