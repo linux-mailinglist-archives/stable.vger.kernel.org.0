@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DA48CABCE
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC61CAC9A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731570AbfJCQA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
+        id S2388348AbfJCQNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731563AbfJCQAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:24 -0400
+        id S1731632AbfJCQNG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:13:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9B6F20700;
-        Thu,  3 Oct 2019 16:00:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAFAE2054F;
+        Thu,  3 Oct 2019 16:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118424;
-        bh=v5z7osx8ZrhN/0iHMnVEgaI9K9aFHg+JY9Ifsi+bC+c=;
+        s=default; t=1570119185;
+        bh=Ueaqf8L7aiXnLa7rVeHwr0H9y2qhxDWtM7OnYOJ9vwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmgscjCcuOwgP07YJm4DvttoqWUIHRMV64y8+7h6+7AfZd6gRz67L3fI5RVFd8n1w
-         AWcERSBA8NXsmdKvaCmsNdwv2sMdURo6zMfcW9r7oLFoJDjIhSZzzMG0abCPJp9eY7
-         nLNnLRQMkIrw0jW4pEH1ZiQGqsz2PvGveTxTAPKM=
+        b=kVgFJdiSq3J3txwpyI+OGyJ1KPlAYEgE2yP0NcY4ZfB3YYvO1lTN2vn6dYCFeAgaP
+         L9+5eiE1uJsys2XNWBDi4BGVAyXzkBAX3TW/63bjZfN7cftNe1fWMdklhHYltL4i+4
+         8TRIKPHUE0sMfjcq5YdDsGNRbN7u6dyzMUWR3cSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 91/99] ext4: fix punch hole for inline_data file systems
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 156/185] ASoC: Intel: Skylake: Use correct function to access iomem space
 Date:   Thu,  3 Oct 2019 17:53:54 +0200
-Message-Id: <20191003154339.624879548@linuxfoundation.org>
+Message-Id: <20191003154514.574110234@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit c1e8220bd316d8ae8e524df39534b8a412a45d5e upstream.
+commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
 
-If a program attempts to punch a hole on an inline data file, we need
-to convert it to a normal file first.
+For copying from __iomem, we should use __ioread32_copy.
 
-This was detected using ext4/032 using the adv configuration.  Simple
-reproducer:
+reported by sparse:
+sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
+sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
+sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
+sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
 
-mke2fs -Fq -t ext4 -O inline_data /dev/vdc
-mount /vdc
-echo "" > /vdc/testfile
-xfs_io -c 'truncate 33554432' /vdc/testfile
-xfs_io -c 'fpunch 0 1048576' /vdc/testfile
-umount /vdc
-e2fsck -fy /dev/vdc
-
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/inode.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/intel/skylake/skl-debug.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -3705,6 +3705,15 @@ int ext4_punch_hole(struct inode *inode,
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -196,7 +196,7 @@ static ssize_t fw_softreg_read(struct fi
+ 	memset(d->fw_read_buff, 0, FW_REG_BUF);
  
- 	trace_ext4_punch_hole(inode, offset, length, 0);
+ 	if (w0_stat_sz > 0)
+-		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
++		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
  
-+	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-+	if (ext4_has_inline_data(inode)) {
-+		down_write(&EXT4_I(inode)->i_mmap_sem);
-+		ret = ext4_convert_inline_data(inode);
-+		up_write(&EXT4_I(inode)->i_mmap_sem);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	/*
- 	 * Write out all dirty pages to avoid race conditions
- 	 * Then release them.
+ 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
+ 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
 
 
