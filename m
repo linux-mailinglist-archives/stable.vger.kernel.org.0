@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 550B9CAB8F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C9C2CAD3B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730566AbfJCP4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:56:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38098 "EHLO mail.kernel.org"
+        id S1732276AbfJCRhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:37:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730550AbfJCP4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:56:19 -0400
+        id S1732259AbfJCQDf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:03:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83DE721D71;
-        Thu,  3 Oct 2019 15:56:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64BB0215EA;
+        Thu,  3 Oct 2019 16:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118176;
-        bh=xYGgpdehUdPm4FDMOD+hC88oalwvoQQcY3B11xmlaQw=;
+        s=default; t=1570118614;
+        bh=PadI4hNMBQz1BBj05eX8H/07KfBXPx1HULQqD62W7BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOVRObtq2YNHEHAPhveZX5Srrs8KjK5QKwyK57RCBBsSxW9hgUpbdImxqO/MprGIB
-         R4DrJFrA/gQgp2sPM39qHhLdSRsO7UOfuR+vwlWFm1EKv5M5mSNi9HxKR7FB8f5XOB
-         9reVdNJJw8iqEJWAjiboyRTrIz/xYWh82pTNgVfU=
+        b=bZrSWvoNcjwR6OiHzlr1HbQInEl6PVBYHB3ePYjnCS/kovhsYWuGweAZ778RS6mu9
+         G/Q4jptizbWZGwy3I2QsBlWFGtBD8m66chuAMO1qII9wgoajNYuoGbc/8TmQNY/iH0
+         IYhkcxnQbIMf+kojWKHou5S85wZmfJBsESib95BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Imre Deak <imre.deak@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 18/99] drm: Flush output polling on shutdown
-Date:   Thu,  3 Oct 2019 17:52:41 +0200
-Message-Id: <20191003154302.729646198@linuxfoundation.org>
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 039/129] ALSA: hda: Flush interrupts on disabling
+Date:   Thu,  3 Oct 2019 17:52:42 +0200
+Message-Id: <20191003154335.740186284@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,129 +45,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 3b295cb1a411d9c82bbfaa66bc17a8508716ed07 ]
+[ Upstream commit caa8422d01e983782548648e125fd617cadcec3f ]
 
-We need to mark the output polling as disabled to prevent concurrent
-irqs from queuing new work as shutdown the probe -- causing that work to
-execute after we have freed the structs:
+I was looking at
 
-<4> [341.846490] DEBUG_LOCKS_WARN_ON(mutex_is_locked(lock))
-<4> [341.846497] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
-<4> [341.846508] Modules linked in: i915(-) vgem thunderbolt snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic mei_hdcp x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec snd_hwdep snd_hda_core snd_pcm mcs7830 btusb usbnet btrtl mii btbcm btintel bluetooth ecdh_generic ecc mei_me mei prime_numbers i2c_hid pinctrl_sunrisepoint pinctrl_intel [last unloaded: i915]
-<4> [341.846546] CPU: 3 PID: 3300 Comm: i915_module_loa Tainted: G     U            5.2.0-rc2-CI-CI_DRM_6175+ #1
-<4> [341.846553] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
-<4> [341.846560] RIP: 0010:mutex_destroy+0x49/0x50
-<4> [341.846565] Code: 00 00 5b c3 e8 a8 9f 3b 00 85 c0 74 ed 8b 05 3e 55 23 01 85 c0 75 e3 48 c7 c6 00 d0 08 82 48 c7 c7 a8 aa 07 82 e8 e7 08 fa ff <0f> 0b eb cc 0f 1f 00 48 b8 11 11 11 11 11 11 11 11 48 89 76 20 48
-<4> [341.846578] RSP: 0018:ffffc900006cfdb0 EFLAGS: 00010286
-<4> [341.846583] RAX: 0000000000000000 RBX: ffff88826759a168 RCX: 0000000000000000
-<4> [341.846589] RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffffffff8112844c
-<4> [341.846595] RBP: ffff8882708fa548 R08: 0000000000000000 R09: 0000000000039600
-<4> [341.846601] R10: 0000000000000000 R11: 0000000000000ce4 R12: ffffffffa07de1e0
-<4> [341.846607] R13: 0000000000000000 R14: 0000000000000000 R15: ffffffffa07de2d0
-<4> [341.846613] FS:  00007f62b5ae0e40(0000) GS:ffff888276380000(0000) knlGS:0000000000000000
-<4> [341.846620] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [341.846626] CR2: 000055a4e064f4a0 CR3: 0000000266b16006 CR4: 00000000003606e0
-<4> [341.846632] Call Trace:
-<4> [341.846639]  drm_fb_helper_fini.part.17+0xb3/0x100
-<4> [341.846682]  intel_fbdev_fini+0x20/0x80 [i915]
-<4> [341.846722]  intel_modeset_cleanup+0x9a/0x140 [i915]
-<4> [341.846750]  i915_driver_unload+0xa3/0x100 [i915]
-<4> [341.846778]  i915_pci_remove+0x19/0x30 [i915]
-<4> [341.846784]  pci_device_remove+0x36/0xb0
-<4> [341.846790]  device_release_driver_internal+0xd3/0x1b0
-<4> [341.846795]  driver_detach+0x3f/0x80
-<4> [341.846800]  bus_remove_driver+0x53/0xd0
-<4> [341.846805]  pci_unregister_driver+0x25/0xa0
-<4> [341.846843]  i915_exit+0x16/0x1c [i915]
-<4> [341.846849]  __se_sys_delete_module+0x162/0x210
-<4> [341.846855]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-<4> [341.846859]  ? do_syscall_64+0xd/0x1c0
-<4> [341.846864]  do_syscall_64+0x55/0x1c0
-<4> [341.846869]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4> [341.846875] RIP: 0033:0x7f62b51871b7
-<4> [341.846881] Code: 73 01 c3 48 8b 0d d1 8c 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a1 8c 2c 00 f7 d8 64 89 01 48
-<4> [341.846897] RSP: 002b:00007ffe7a227138 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-<4> [341.846904] RAX: ffffffffffffffda RBX: 00007ffe7a2272b0 RCX: 00007f62b51871b7
-<4> [341.846910] RDX: 0000000000000001 RSI: 0000000000000800 RDI: 0000557cd6b55948
-<4> [341.846916] RBP: 0000557cd6b558e0 R08: 0000557cd6b5594c R09: 00007ffe7a227160
-<4> [341.846922] R10: 00007ffe7a226134 R11: 0000000000000206 R12: 0000000000000000
-<4> [341.846927] R13: 00007ffe7a227820 R14: 0000000000000000 R15: 0000000000000000
-<4> [341.846936] irq event stamp: 3547847
-<4> [341.846940] hardirqs last  enabled at (3547847): [<ffffffff819aad2c>] _raw_spin_unlock_irqrestore+0x4c/0x60
-<4> [341.846949] hardirqs last disabled at (3547846): [<ffffffff819aab9d>] _raw_spin_lock_irqsave+0xd/0x50
-<4> [341.846957] softirqs last  enabled at (3547376): [<ffffffff81c0033a>] __do_softirq+0x33a/0x4b9
-<4> [341.846966] softirqs last disabled at (3547367): [<ffffffff810b6379>] irq_exit+0xa9/0xc0
-<4> [341.846973] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
-<4> [341.846980] ---[ end trace ba94ca8952ba970e ]---
-<7> [341.866547] [drm:intel_dp_detect [i915]] MST support? port A: no, sink: no, modparam: yes
-<7> [341.890480] [drm:drm_add_display_info] non_desktop set to 0
-<7> [341.890530] [drm:drm_add_edid_modes] ELD: no CEA Extension found
-<7> [341.890537] [drm:drm_add_display_info] non_desktop set to 0
-<7> [341.890578] [drm:drm_helper_probe_single_connector_modes] [CONNECTOR:86:eDP-1] probed modes :
-<7> [341.890589] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 60 373250 3200 3248 3280 3360 1800 1803 1808 1852 0x48 0xa
-<7> [341.890602] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 48 298600 3200 3248 3280 3360 1800 1803 1808 1852 0x40 0xa
-<4> [341.890628] general protection fault: 0000 [#1] PREEMPT SMP PTI
-<4> [341.890636] CPU: 0 PID: 508 Comm: kworker/0:4 Tainted: G     U  W         5.2.0-rc2-CI-CI_DRM_6175+ #1
-<4> [341.890646] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
-<4> [341.890655] Workqueue: events output_poll_execute
-<4> [341.890663] RIP: 0010:drm_setup_crtcs+0x13e/0xbe0
-<4> [341.890669] Code: 00 41 8b 44 24 58 85 c0 0f 8e f9 01 00 00 44 8b 6c 24 20 44 8b 74 24 28 31 db 31 ed 49 8b 44 24 60 48 63 d5 44 89 ee 83 c5 01 <48> 8b 04 d0 44 89 f2 48 8b 38 48 8b 87 88 01 00 00 48 8b 40 20 e8
-<4> [341.890686] RSP: 0018:ffffc9000033fd40 EFLAGS: 00010202
-<4> [341.890692] RAX: 6b6b6b6b6b6b6b6b RBX: 0000000000000002 RCX: 0000000000000000
-<4> [341.890700] RDX: 0000000000000001 RSI: 0000000000000c80 RDI: 00000000ffffffff
-<4> [341.890707] RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
-<4> [341.890715] R10: 0000000000000c80 R11: 0000000000000000 R12: ffff888267599fe8
-<4> [341.890722] R13: 0000000000000c80 R14: 0000000000000708 R15: 0000000000000007
-<4> [341.890730] FS:  0000000000000000(0000) GS:ffff888276200000(0000) knlGS:0000000000000000
-<4> [341.890739] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [341.890745] CR2: 000055a4e064f4a0 CR3: 000000026d234003 CR4: 00000000003606f0
-<4> [341.890752] Call Trace:
-<4> [341.890760]  drm_fb_helper_hotplug_event.part.24+0x89/0xb0
-<4> [341.890768]  drm_kms_helper_hotplug_event+0x21/0x30
-<4> [341.890774]  output_poll_execute+0x9d/0x1a0
-<4> [341.890782]  process_one_work+0x245/0x610
-<4> [341.890790]  worker_thread+0x37/0x380
-<4> [341.890796]  ? process_one_work+0x610/0x610
-<4> [341.890802]  kthread+0x119/0x130
-<4> [341.890808]  ? kthread_park+0x80/0x80
-<4> [341.890815]  ret_from_fork+0x3a/0x50
+<4> [241.835158] general protection fault: 0000 [#1] PREEMPT SMP PTI
+<4> [241.835181] CPU: 1 PID: 214 Comm: kworker/1:3 Tainted: G     U            5.2.0-CI-CI_DRM_6509+ #1
+<4> [241.835199] Hardware name: Dell Inc.                 OptiPlex 745                 /0GW726, BIOS 2.3.1  05/21/2007
+<4> [241.835234] Workqueue: events snd_hdac_bus_process_unsol_events [snd_hda_core]
+<4> [241.835256] RIP: 0010:input_handle_event+0x16d/0x5e0
+<4> [241.835270] Code: 48 8b 93 58 01 00 00 8b 52 08 89 50 04 8b 83 f8 06 00 00 48 8b 93 00 07 00 00 8d 70 01 48 8d 04 c2 83 e1 08 89 b3 f8 06 00 00 <66> 89 28 66 44 89 60 02 44 89 68 04 8b 93 f8 06 00 00 0f 84 fd fe
+<4> [241.835304] RSP: 0018:ffffc9000019fda0 EFLAGS: 00010046
+<4> [241.835317] RAX: 6b6b6b6ec6c6c6c3 RBX: ffff8880290fefc8 RCX: 0000000000000000
+<4> [241.835332] RDX: 000000006b6b6b6b RSI: 000000006b6b6b6c RDI: 0000000000000046
+<4> [241.835347] RBP: 0000000000000005 R08: 0000000000000000 R09: 0000000000000001
+<4> [241.835362] R10: ffffc9000019faa0 R11: 0000000000000000 R12: 0000000000000004
+<4> [241.835377] R13: 0000000000000000 R14: ffff8880290ff1d0 R15: 0000000000000293
+<4> [241.835392] FS:  0000000000000000(0000) GS:ffff88803de80000(0000) knlGS:0000000000000000
+<4> [241.835409] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [241.835422] CR2: 00007ffe9a99e9b7 CR3: 000000002f588000 CR4: 00000000000006e0
+<4> [241.835436] Call Trace:
+<4> [241.835449]  input_event+0x45/0x70
+<4> [241.835464]  snd_jack_report+0xdc/0x100
+<4> [241.835490]  snd_hda_jack_report_sync+0x83/0xc0 [snd_hda_codec]
+<4> [241.835512]  snd_hdac_bus_process_unsol_events+0x5a/0x70 [snd_hda_core]
+<4> [241.835530]  process_one_work+0x245/0x610
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109964
+which has the hallmarks of a worker queued from interrupt after it was
+supposedly cancelled (note the POISON_FREE), and I could not see where
+the interrupt would be flushed on shutdown so added the likely suspects.
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111174
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603135910.15979-2-chris@chris-wilson.co.uk
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_probe_helper.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ sound/hda/hdac_controller.c | 2 ++
+ sound/pci/hda/hda_intel.c   | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index 1fe4b8e6596bd..de1797b3a7461 100644
---- a/drivers/gpu/drm/drm_probe_helper.c
-+++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -338,6 +338,9 @@ static void output_poll_execute(struct work_struct *work)
- 	enum drm_connector_status old_status;
- 	bool repoll = false, changed;
+diff --git a/sound/hda/hdac_controller.c b/sound/hda/hdac_controller.c
+index 00c6af2ae1c29..433f3280f7098 100644
+--- a/sound/hda/hdac_controller.c
++++ b/sound/hda/hdac_controller.c
+@@ -441,6 +441,8 @@ static void azx_int_disable(struct hdac_bus *bus)
+ 	list_for_each_entry(azx_dev, &bus->stream_list, list)
+ 		snd_hdac_stream_updateb(azx_dev, SD_CTL, SD_INT_MASK, 0);
  
-+	if (!dev->mode_config.poll_enabled)
-+		return;
++	synchronize_irq(bus->irq);
 +
- 	/* Pick up any changes detected by the probe functions. */
- 	changed = dev->mode_config.delayed_event;
- 	dev->mode_config.delayed_event = false;
-@@ -501,7 +504,11 @@ EXPORT_SYMBOL(drm_kms_helper_poll_init);
-  */
- void drm_kms_helper_poll_fini(struct drm_device *dev)
- {
--	drm_kms_helper_poll_disable(dev);
-+	if (!dev->mode_config.poll_enabled)
-+		return;
-+
-+	dev->mode_config.poll_enabled = false;
-+	cancel_delayed_work_sync(&dev->mode_config.output_poll_work);
- }
- EXPORT_SYMBOL(drm_kms_helper_poll_fini);
+ 	/* disable SIE for all streams */
+ 	snd_hdac_chip_writeb(bus, INTCTL, 0);
  
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index f2f1d9fd848c8..3d4ea5fd75bf5 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1239,9 +1239,9 @@ static int azx_free(struct azx *chip)
+ 	}
+ 
+ 	if (bus->chip_init) {
++		azx_stop_chip(chip);
+ 		azx_clear_irq_pending(chip);
+ 		azx_stop_all_streams(chip);
+-		azx_stop_chip(chip);
+ 	}
+ 
+ 	if (bus->irq >= 0)
 -- 
 2.20.1
 
