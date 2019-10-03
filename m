@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C580DCAC11
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5797CAC97
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732512AbfJCQFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
+        id S2388112AbfJCQMu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:12:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732509AbfJCQFC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:02 -0400
+        id S2388127AbfJCQMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:12:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B44C1222C4;
-        Thu,  3 Oct 2019 16:05:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECA7F21783;
+        Thu,  3 Oct 2019 16:12:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118702;
-        bh=gHPactWG+w/JGF64GsqYssuxSho10xWheYVPpehPuEk=;
+        s=default; t=1570119169;
+        bh=tcows2Fe6qTgqG6c2nLak3rU9iEea/wKHyBqFYyjQco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nN6f/uj+j/RZYQLdv2yFxrLgi7W3mCDq6NtA7NuI3ybO2hF53LInpr3jUtd4dbQvB
-         N8XKDw53UbCiZqk7aggToZs+9zAtMX+f5at3TvV5A7pP4VQkEfs0OLK75W4BGTVVqy
-         epbF8X0sqN08ajV4pF5kZIvLgN6ycxgCz2aZpzjQ=
+        b=t9s1S9J/MOCleWeda3qwj8Fw1Rn/MN5r51qJHg9BwZuFfbORzr3mEtgADteQCRWtj
+         zuUqmpn7N32DNJPByWxxPS0LZ0OM+MCd9rBF5glPQ/XWIAyoRG7heXcu/5ncWoGXeS
+         6g9AXIgSUxQRcg/X4iGlQhQdJ8bf79/2t9u5AM3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Denis Plotnikov <dplotnikov@virtuozzo.com>,
         Jan Dakinevich <jan.dakinevich@virtuozzo.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.9 106/129] KVM: x86: set ctxt->have_exception in x86_decode_insn()
+Subject: [PATCH 4.14 151/185] KVM: x86: set ctxt->have_exception in x86_decode_insn()
 Date:   Thu,  3 Oct 2019 17:53:49 +0200
-Message-Id: <20191003154407.847490867@linuxfoundation.org>
+Message-Id: <20191003154513.502794218@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/x86/kvm/emulate.c
 +++ b/arch/x86/kvm/emulate.c
-@@ -5257,6 +5257,8 @@ done_prefixes:
+@@ -5298,6 +5298,8 @@ done_prefixes:
  					ctxt->memopp->addr.mem.ea + ctxt->_eip);
  
  done:
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -5765,6 +5765,12 @@ int x86_emulate_instruction(struct kvm_v
+@@ -5893,6 +5893,12 @@ int x86_emulate_instruction(struct kvm_v
  						emulation_type))
  				return EMULATE_DONE;
  			if (ctxt->have_exception) {
