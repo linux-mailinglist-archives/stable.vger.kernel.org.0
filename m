@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CA4CAB36
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 237ACCAAC5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730217AbfJCQPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39850 "EHLO mail.kernel.org"
+        id S2387474AbfJCRNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731470AbfJCQPg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:36 -0400
+        id S2390021AbfJCQ3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:29:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5935D20700;
-        Thu,  3 Oct 2019 16:15:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7B1B2054F;
+        Thu,  3 Oct 2019 16:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119335;
-        bh=CQg4llB20lc/ODXXWRGsZEH6sxP9m4w2YL2WQYMk5UM=;
+        s=default; t=1570120152;
+        bh=izJSz9zwaSm5xge40Tyl2gKrXmgr/JkniLuCjKggVes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCY1m51wIMuYl4w2ikygrhzlso9ErUOCQTxJoM3BJq1jEGoHBuEaToiVP2GcSeozT
-         LG751b6a/EbrzTcUr+EEZ2gslo1CSpEPjok0tjvSjMq/MDsuLUCklwWm8svB5ejnEv
-         MX77n0PbjkJmEE9M2vOC/tZ/2GXDM7obErsaEjvU=
+        b=aHW5YTuctuMvOAfWQga/eCXMRIMfjHYxmH6Y4/luSXjCTs+9dDgtfiYnuQe5Hc+Dh
+         AW+tqbe7R6mMYGuQ80l82nihBGDIKhgkYpCN2DnWAedgILy7eqqkxCoeTq1SdRjAtK
+         4XSrJIm+9d47t0dmwmOiWkhoRtVLC40LnPhbVH4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Igor Opaniuk <igor.opaniuk@toradex.com>,
-        Fabio Estevam <festevam@gmail.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 027/211] ASoC: sgtl5000: Fix of unmute outputs on probe
+Subject: [PATCH 5.2 115/313] ASoC: uniphier: Fix double reset assersion when transitioning to suspend state
 Date:   Thu,  3 Oct 2019 17:51:33 +0200
-Message-Id: <20191003154453.387351130@linuxfoundation.org>
+Message-Id: <20191003154544.199923491@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit 631bc8f0134ae9620d86a96b8c5f9445d91a2dca ]
+[ Upstream commit c372a35550c8d60f673b20210eea58a06d6d38cb ]
 
-To enable "zero cross detect" for ADC/HP, change
-HP_ZCD_EN/ADC_ZCD_EN bits only instead of writing the whole
-CHIP_ANA_CTRL register.
+When transitioning to supend state, uniphier_aio_dai_suspend() is called
+and asserts reset lines and disables clocks.
 
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/20190719100524.23300-6-oleksandr.suvorov@toradex.com
+However, if there are two or more DAIs, uniphier_aio_dai_suspend() are
+called multiple times, and double reset assersion will cause.
+
+This patch defines the counter that has the number of DAIs at first, and
+whenever uniphier_aio_dai_suspend() are called, it decrements the
+counter. And only if the counter is zero, it asserts reset lines and
+disables clocks.
+
+In the same way, uniphier_aio_dai_resume() are called, it increments the
+counter after deasserting reset lines and enabling clocks.
+
+Fixes: 139a34200233 ("ASoC: uniphier: add support for UniPhier AIO CPU DAI driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1566281764-14059-1-git-send-email-hayashi.kunihiko@socionext.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/uniphier/aio-cpu.c | 31 +++++++++++++++++++++----------
+ sound/soc/uniphier/aio.h     |  1 +
+ 2 files changed, 22 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index 60764f6201b19..f9817029bffbb 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1280,6 +1280,7 @@ static int sgtl5000_probe(struct snd_soc_component *component)
- 	int ret;
- 	u16 reg;
- 	struct sgtl5000_priv *sgtl5000 = snd_soc_component_get_drvdata(component);
-+	unsigned int zcd_mask = SGTL5000_HP_ZCD_EN | SGTL5000_ADC_ZCD_EN;
+diff --git a/sound/soc/uniphier/aio-cpu.c b/sound/soc/uniphier/aio-cpu.c
+index ee90e6c3937ce..2ae582a99b636 100644
+--- a/sound/soc/uniphier/aio-cpu.c
++++ b/sound/soc/uniphier/aio-cpu.c
+@@ -424,8 +424,11 @@ int uniphier_aio_dai_suspend(struct snd_soc_dai *dai)
+ {
+ 	struct uniphier_aio *aio = uniphier_priv(dai);
  
- 	/* power up sgtl5000 */
- 	ret = sgtl5000_set_power_regs(component);
-@@ -1305,9 +1306,8 @@ static int sgtl5000_probe(struct snd_soc_component *component)
- 	reg = ((sgtl5000->lrclk_strength) << SGTL5000_PAD_I2S_LRCLK_SHIFT | 0x5f);
- 	snd_soc_component_write(component, SGTL5000_CHIP_PAD_STRENGTH, reg);
+-	reset_control_assert(aio->chip->rst);
+-	clk_disable_unprepare(aio->chip->clk);
++	aio->chip->num_wup_aios--;
++	if (!aio->chip->num_wup_aios) {
++		reset_control_assert(aio->chip->rst);
++		clk_disable_unprepare(aio->chip->clk);
++	}
  
--	snd_soc_component_write(component, SGTL5000_CHIP_ANA_CTRL,
--			SGTL5000_HP_ZCD_EN |
--			SGTL5000_ADC_ZCD_EN);
-+	snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_CTRL,
-+		zcd_mask, zcd_mask);
+ 	return 0;
+ }
+@@ -439,13 +442,15 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 	if (!aio->chip->active)
+ 		return 0;
  
- 	snd_soc_component_update_bits(component, SGTL5000_CHIP_MIC_CTRL,
- 			SGTL5000_BIAS_R_MASK,
+-	ret = clk_prepare_enable(aio->chip->clk);
+-	if (ret)
+-		return ret;
++	if (!aio->chip->num_wup_aios) {
++		ret = clk_prepare_enable(aio->chip->clk);
++		if (ret)
++			return ret;
+ 
+-	ret = reset_control_deassert(aio->chip->rst);
+-	if (ret)
+-		goto err_out_clock;
++		ret = reset_control_deassert(aio->chip->rst);
++		if (ret)
++			goto err_out_clock;
++	}
+ 
+ 	aio_iecout_set_enable(aio->chip, true);
+ 	aio_chip_init(aio->chip);
+@@ -458,7 +463,7 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 
+ 		ret = aio_init(sub);
+ 		if (ret)
+-			goto err_out_clock;
++			goto err_out_reset;
+ 
+ 		if (!sub->setting)
+ 			continue;
+@@ -466,11 +471,16 @@ int uniphier_aio_dai_resume(struct snd_soc_dai *dai)
+ 		aio_port_reset(sub);
+ 		aio_src_reset(sub);
+ 	}
++	aio->chip->num_wup_aios++;
+ 
+ 	return 0;
+ 
++err_out_reset:
++	if (!aio->chip->num_wup_aios)
++		reset_control_assert(aio->chip->rst);
+ err_out_clock:
+-	clk_disable_unprepare(aio->chip->clk);
++	if (!aio->chip->num_wup_aios)
++		clk_disable_unprepare(aio->chip->clk);
+ 
+ 	return ret;
+ }
+@@ -619,6 +629,7 @@ int uniphier_aio_probe(struct platform_device *pdev)
+ 		return PTR_ERR(chip->rst);
+ 
+ 	chip->num_aios = chip->chip_spec->num_dais;
++	chip->num_wup_aios = chip->num_aios;
+ 	chip->aios = devm_kcalloc(dev,
+ 				  chip->num_aios, sizeof(struct uniphier_aio),
+ 				  GFP_KERNEL);
+diff --git a/sound/soc/uniphier/aio.h b/sound/soc/uniphier/aio.h
+index ca6ccbae0ee8c..a7ff7e556429b 100644
+--- a/sound/soc/uniphier/aio.h
++++ b/sound/soc/uniphier/aio.h
+@@ -285,6 +285,7 @@ struct uniphier_aio_chip {
+ 
+ 	struct uniphier_aio *aios;
+ 	int num_aios;
++	int num_wup_aios;
+ 	struct uniphier_aio_pll *plls;
+ 	int num_plls;
+ 
 -- 
 2.20.1
 
