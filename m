@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E9DCAD09
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAAADCAC3A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733124AbfJCReM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:34:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54654 "EHLO mail.kernel.org"
+        id S1732887AbfJCQHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:07:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732869AbfJCQHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:07:03 -0400
+        id S1732886AbfJCQHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:07:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 62F3321783;
-        Thu,  3 Oct 2019 16:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDAB4222BE;
+        Thu,  3 Oct 2019 16:07:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118822;
-        bh=JJbMQfpMauqVXlGCP9Pm3PKD3ws3yenQ8bc1ewOia6w=;
+        s=default; t=1570118828;
+        bh=pli4rmXhq7FOXLXjYFY5y1FXKnIqmfVOfCt3zRgefls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZGQ0+921YSoqc7/sx1uSN/wV0dwu1kamtr6GST2jEPgibZaz5wKfDCqnB4SzGf2NX
-         bbQLtYjadM1WXS6R4PrcMeET/mzoF4wXPbHgW4iWuhk254Qywsj7u8sKYz3Xl9llhX
-         ZVbvm7cIZ4VK70AbqFCfLTI3DCjCG5tiXvxiO2gg=
+        b=jFzBVGKBhqzCJ819X2ZkpAok9KkVANOC+xFX1hNThaxwD/tw1w8+PRNxI/vGkwP9C
+         x0NimacNl1I6rSMSVl1FinjmYuYsRFjBImxGTfTnu9UZftjpHJfWO9+C3UsMUIgVYc
+         55vlJYh+JBCMxWq25bFf55+waHqiXUDusmZbsNmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Surbhi Palande <csurbhi@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        zhengbin <zhengbin13@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 022/185] f2fs: check all the data segments against all node ones
-Date:   Thu,  3 Oct 2019 17:51:40 +0200
-Message-Id: <20191003154442.632619357@linuxfoundation.org>
+Subject: [PATCH 4.14 024/185] blk-mq: move cancel of requeue_work to the front of blk_exit_queue
+Date:   Thu,  3 Oct 2019 17:51:42 +0200
+Message-Id: <20191003154443.250657845@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,42 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Surbhi Palande <f2fsnewbie@gmail.com>
+From: zhengbin <zhengbin13@huawei.com>
 
-[ Upstream commit 1166c1f2f69117ad254189ca781287afa6e550b6 ]
+[ Upstream commit e26cc08265dda37d2acc8394604f220ef412299d ]
 
-As a part of the sanity checking while mounting, distinct segment number
-assignment to data and node segments is verified. Fixing a small bug in
-this verification between node and data segments. We need to check all
-the data segments with all the node segments.
+blk_exit_queue will free elevator_data, while blk_mq_requeue_work
+will access it. Move cancel of requeue_work to the front of
+blk_exit_queue to avoid use-after-free.
 
-Fixes: 042be0f849e5f ("f2fs: fix to do sanity check with current segment number")
-Signed-off-by: Surbhi Palande <csurbhi@gmail.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+blk_exit_queue                blk_mq_requeue_work
+  __elevator_exit               blk_mq_run_hw_queues
+    blk_mq_exit_sched             blk_mq_run_hw_queue
+      dd_exit_queue                 blk_mq_hctx_has_pending
+        kfree(elevator_data)          blk_mq_sched_has_work
+                                        dd_has_work
+
+Fixes: fbc2a15e3433 ("blk-mq: move cancel of requeue_work into blk_mq_release")
+Cc: stable@vger.kernel.org
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: zhengbin <zhengbin13@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ block/blk-mq.c    | 2 --
+ block/blk-sysfs.c | 3 +++
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 4c169ba50c0f4..ad839a7996e9b 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2027,11 +2027,11 @@ int sanity_check_ckpt(struct f2fs_sb_info *sbi)
- 		}
- 	}
- 	for (i = 0; i < NR_CURSEG_NODE_TYPE; i++) {
--		for (j = i; j < NR_CURSEG_DATA_TYPE; j++) {
-+		for (j = 0; j < NR_CURSEG_DATA_TYPE; j++) {
- 			if (le32_to_cpu(ckpt->cur_node_segno[i]) ==
- 				le32_to_cpu(ckpt->cur_data_segno[j])) {
- 				f2fs_msg(sbi->sb, KERN_ERR,
--					"Data segment (%u) and Data segment (%u)"
-+					"Node segment (%u) and Data segment (%u)"
- 					" has the same segno: %u", i, j,
- 					le32_to_cpu(ckpt->cur_node_segno[i]));
- 				return 1;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 55139d2fca3e0..eac4448047366 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2294,8 +2294,6 @@ void blk_mq_release(struct request_queue *q)
+ 	struct blk_mq_hw_ctx *hctx;
+ 	unsigned int i;
+ 
+-	cancel_delayed_work_sync(&q->requeue_work);
+-
+ 	/* hctx kobj stays in hctx */
+ 	queue_for_each_hw_ctx(q, hctx, i) {
+ 		if (!hctx)
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index e54be402899da..9caf96c2c1081 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -811,6 +811,9 @@ static void __blk_release_queue(struct work_struct *work)
+ 
+ 	blk_free_queue_stats(q->stats);
+ 
++	if (q->mq_ops)
++		cancel_delayed_work_sync(&q->requeue_work);
++
+ 	blk_exit_rl(q, &q->root_rl);
+ 
+ 	if (q->queue_tags)
 -- 
 2.20.1
 
