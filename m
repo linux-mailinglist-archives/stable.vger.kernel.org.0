@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28520CA8D6
+	by mail.lfdr.de (Postfix) with ESMTP id 9673DCA8D7
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392051AbfJCQdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41926 "EHLO mail.kernel.org"
+        id S2404011AbfJCQd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392046AbfJCQdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:49 -0400
+        id S2391065AbfJCQdx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:33:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E29C32086A;
-        Thu,  3 Oct 2019 16:33:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40F9320830;
+        Thu,  3 Oct 2019 16:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120427;
-        bh=1rzK5z3oKpBZ1I1lc/MqzCQwJTomHQIV8gCVW5keMjs=;
+        s=default; t=1570120432;
+        bh=BZapDg6ZGXM9Rg5kPcRilfrz2LUQyzrkxIwwMOM1Xy0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndvvbTWRzT7+5bgvePEEH3XYjlA/CCiOwlPg+SgF1nqvnsPutquik+43G98DD6NIK
-         3gi1a7ht8AsW/arbRz4IagyPbnagGATQb0XIA1F5K4hGpWQbzUdWnhsHBYGGvXlIsb
-         UZ20Wg+EbvmRL5l5Go7Emgb2gBvr5aAdPRnsdFeE=
+        b=nbzpc49mwYYk/iN8FrZRD97MSg2E6WVAnofWx20LK3i7Tfp9geNLQnnmBxAmHvfjx
+         djorp6whvxKOrSG2+4yiQmdx1ZmngAsEZ77YziKTMpVybRqf4bZmtnoq1IcVJVKw+0
+         8esmDatWwl+mBJZ3d74DSgql+K1nY04JkS0j7XS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, rostedt@goodmis.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.2 219/313] scsi: qla2xxx: Fix Relogin to prevent modifying scan_state flag
-Date:   Thu,  3 Oct 2019 17:53:17 +0200
-Message-Id: <20191003154554.607309807@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>
+Subject: [PATCH 5.2 220/313] printk: Do not lose last line in kmsg buffer dump
+Date:   Thu,  3 Oct 2019 17:53:18 +0200
+Message-Id: <20191003154554.709877128@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,106 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 8b5292bcfcacf15182a77a973a98d310e76fd58b upstream.
+commit c9dccacfccc72c32692eedff4a27a4b0833a2afd upstream.
 
-Relogin fails to move forward due to scan_state flag indicating device is
-not there. Before relogin process, Session delete process accidently
-modified the scan_state flag.
+kmsg_dump_get_buffer() is supposed to select all the youngest log
+messages which fit into the provided buffer.  It determines the correct
+start index by using msg_print_text() with a NULL buffer to calculate
+the size of each entry.  However, when performing the actual writes,
+msg_print_text() only writes the entry to the buffer if the written len
+is lesser than the size of the buffer.  So if the lengths of the
+selected youngest log messages happen to precisely fill up the provided
+buffer, the last log message is not included.
 
-[mkp: typos plus corrected Fixes: sha as reported by sfr]
+We don't want to modify msg_print_text() to fill up the buffer and start
+returning a length which is equal to the size of the buffer, since
+callers of its other users, such as kmsg_dump_get_line(), depend upon
+the current behaviour.
 
-Fixes: 2dee5521028c ("scsi: qla2xxx: Fix login state machine freeze")
-Cc: stable@vger.kernel.org
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Instead, fix kmsg_dump_get_buffer() to compensate for this.
+
+For example, with the following two final prints:
+
+[    6.427502] AAAAAAAAAAAAA
+[    6.427769] BBBBBBBB12345
+
+A dump of a 64-byte buffer filled by kmsg_dump_get_buffer(), before this
+patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 35 32 32 31 39 37  <0>[    6.522197
+ 00000010: 5d 20 41 41 41 41 41 41 41 41 41 41 41 41 41 0a  ] AAAAAAAAAAAAA.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+After this patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 34 35 36 36 37 38  <0>[    6.456678
+ 00000010: 5d 20 42 42 42 42 42 42 42 42 31 32 33 34 35 0a  ] BBBBBBBB12345.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+Link: http://lkml.kernel.org/r/20190711142937.4083-1-vincent.whitchurch@axis.com
+Fixes: e2ae715d66bf4bec ("kmsg - kmsg_dump() use iterator to receive log buffer content")
+To: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v3.5+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_init.c   |   25 ++++++++++++++++++++-----
- drivers/scsi/qla2xxx/qla_os.c     |    1 +
- drivers/scsi/qla2xxx/qla_target.c |    1 -
- 3 files changed, 21 insertions(+), 6 deletions(-)
+ kernel/printk/printk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -289,8 +289,13 @@ qla2x00_async_login(struct scsi_qla_host
- 	struct srb_iocb *lio;
- 	int rval = QLA_FUNCTION_FAILED;
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3274,7 +3274,7 @@ bool kmsg_dump_get_buffer(struct kmsg_du
+ 	/* move first record forward until length fits into the buffer */
+ 	seq = dumper->cur_seq;
+ 	idx = dumper->cur_idx;
+-	while (l > size && seq < dumper->next_seq) {
++	while (l >= size && seq < dumper->next_seq) {
+ 		struct printk_log *msg = log_from_idx(idx);
  
--	if (!vha->flags.online)
--		goto done;
-+	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
-+	    fcport->loop_id == FC_NO_LOOP_ID) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		    "%s: %8phC - not sending command.\n",
-+		    __func__, fcport->port_name);
-+		return rval;
-+	}
- 
- 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
- 	if (!sp)
-@@ -1262,8 +1267,13 @@ int qla24xx_async_gpdb(struct scsi_qla_h
- 	struct port_database_24xx *pd;
- 	struct qla_hw_data *ha = vha->hw;
- 
--	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
-+	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
-+	    fcport->loop_id == FC_NO_LOOP_ID) {
-+		ql_log(ql_log_warn, vha, 0xffff,
-+		    "%s: %8phC - not sending command.\n",
-+		    __func__, fcport->port_name);
- 		return rval;
-+	}
- 
- 	fcport->disc_state = DSC_GPDB;
- 
-@@ -1953,8 +1963,11 @@ qla24xx_handle_plogi_done_event(struct s
- 		return;
- 	}
- 
--	if (fcport->disc_state == DSC_DELETE_PEND)
-+	if ((fcport->disc_state == DSC_DELETE_PEND) ||
-+	    (fcport->disc_state == DSC_DELETED)) {
-+		set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
- 		return;
-+	}
- 
- 	if (ea->sp->gen2 != fcport->login_gen) {
- 		/* target side must have changed it. */
-@@ -6699,8 +6712,10 @@ qla2x00_abort_isp_cleanup(scsi_qla_host_
- 	}
- 
- 	/* Clear all async request states across all VPs. */
--	list_for_each_entry(fcport, &vha->vp_fcports, list)
-+	list_for_each_entry(fcport, &vha->vp_fcports, list) {
- 		fcport->flags &= ~(FCF_LOGIN_NEEDED | FCF_ASYNC_SENT);
-+		fcport->scan_state = 0;
-+	}
- 	spin_lock_irqsave(&ha->vport_slock, flags);
- 	list_for_each_entry(vp, &ha->vp_list, list) {
- 		atomic_inc(&vp->vref_count);
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -5087,6 +5087,7 @@ void qla24xx_create_new_sess(struct scsi
- 	if (fcport) {
- 		fcport->id_changed = 1;
- 		fcport->scan_state = QLA_FCPORT_FOUND;
-+		fcport->chip_reset = vha->hw->base_qpair->chip_reset;
- 		memcpy(fcport->node_name, e->u.new_sess.node_name, WWN_SIZE);
- 
- 		if (pla) {
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1209,7 +1209,6 @@ static void qla24xx_chk_fcp_state(struct
- 		sess->logout_on_delete = 0;
- 		sess->logo_ack_needed = 0;
- 		sess->fw_login_state = DSC_LS_PORT_UNAVAIL;
--		sess->scan_state = 0;
- 	}
- }
- 
+ 		l -= msg_print_text(msg, true, time, NULL, 0);
 
 
