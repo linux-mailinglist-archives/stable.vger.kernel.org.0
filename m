@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF9BCA6A3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA05ECA6A7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392516AbfJCQpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:45:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
+        id S2392841AbfJCQqD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:46:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404313AbfJCQpu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:45:50 -0400
+        id S1732663AbfJCQqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:46:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72E73215EA;
-        Thu,  3 Oct 2019 16:45:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0119C20830;
+        Thu,  3 Oct 2019 16:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121149;
-        bh=jFyrjGVt0cRFDQk6Fgliyx+XUAerjBChFSMocGjBCxw=;
+        s=default; t=1570121162;
+        bh=Dp16fsSU8hxNbAKOIIQ6JCkszM+DVXRU4bOKtGvh95U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQbGvJoQBp0CBs0FpYGDApykgiV4IqK5Z8H8JUC2M4vG5+rQBdnlQHdv+eWUBCoaA
-         KM/AU2w1HU0Rnfvy4R7pkWFyQXOKxA8BWoSRdlPnCBqfh3Gew55sj3NSmJ3Y/7m2OL
-         A7jHOa8zhPNCO6FnaDGIIt5yhTyySVrPkXIep3q0=
+        b=sld6ZMhS4W+h2imD2DEuecQJYPYSs6ji76Mvov1oKeMZK5LTjpcQp/3Q5j/3kxZjb
+         NN+vqyeoC/6PTtaLYyWLPFBE5jLgOgpfzFyJY8eamSgnw64+s8HLpGfsxOmrgGRkLK
+         plyZ7Z6Ap677T6i24MZcFKF1K0x86IrHys13OzUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 171/344] arm64: kpti: ensure patched kernel text is fetched from PoU
-Date:   Thu,  3 Oct 2019 17:52:16 +0200
-Message-Id: <20191003154557.091909530@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 176/344] ASoC: fsl_ssi: Fix clock control issue in master mode
+Date:   Thu,  3 Oct 2019 17:52:21 +0200
+Message-Id: <20191003154557.605507644@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,59 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit f32c7a8e45105bd0af76872bf6eef0438ff12fb2 ]
+[ Upstream commit 696d05225cebffd172008d212657be90e823eac0 ]
 
-While the MMUs is disabled, I-cache speculation can result in
-instructions being fetched from the PoC. During boot we may patch
-instructions (e.g. for alternatives and jump labels), and these may be
-dirty at the PoU (and stale at the PoC).
+The test case is
+arecord -Dhw:0 -d 10 -f S16_LE -r 48000 -c 2 temp.wav &
+aplay -Dhw:0 -d 30 -f S16_LE -r 48000 -c 2 test.wav
 
-Thus, while the MMU is disabled in the KPTI pagetable fixup code we may
-load stale instructions into the I-cache, potentially leading to
-subsequent crashes when executing regions of code which have been
-modified at runtime.
+There will be error after end of arecord:
+aplay: pcm_write:2051: write error: Input/output error
 
-Similarly to commit:
+Capture and Playback work in parallel in master mode, one
+substream stops, the other substream is impacted, the
+reason is that clock is disabled wrongly.
 
-  8ec41987436d566f ("arm64: mm: ensure patched kernel text is fetched from PoU")
+The clock's reference count is not increased when second
+substream starts, the hw_param() function returns in the
+beginning because first substream is enabled, then in end
+of first substream, the hw_free() disables the clock.
 
-... we can invalidate the I-cache after enabling the MMU to prevent such
-issues.
+This patch is to move the clock enablement to the place
+before checking of the device enablement in hw_param().
 
-The KPTI pagetable fixup code itself should be clean to the PoC per the
-boot protocol, so no maintenance is required for this code.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1567012817-12625-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/proc.S | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/soc/fsl/fsl_ssi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index 7dbf2be470f6c..28a8f7b87ff06 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -286,6 +286,15 @@ skip_pgd:
- 	msr	sctlr_el1, x18
- 	isb
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index fa862af25c1a3..085855f9b08d4 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -799,15 +799,6 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 	u32 wl = SSI_SxCCR_WL(sample_size);
+ 	int ret;
+ 
+-	/*
+-	 * SSI is properly configured if it is enabled and running in
+-	 * the synchronous mode; Note that AC97 mode is an exception
+-	 * that should set separate configurations for STCCR and SRCCR
+-	 * despite running in the synchronous mode.
+-	 */
+-	if (ssi->streams && ssi->synchronous)
+-		return 0;
+-
+ 	if (fsl_ssi_is_i2s_master(ssi)) {
+ 		ret = fsl_ssi_set_bclk(substream, dai, hw_params);
+ 		if (ret)
+@@ -823,6 +814,15 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 	}
  
 +	/*
-+	 * Invalidate the local I-cache so that any instructions fetched
-+	 * speculatively from the PoC are discarded, since they may have
-+	 * been dynamically patched at the PoU.
++	 * SSI is properly configured if it is enabled and running in
++	 * the synchronous mode; Note that AC97 mode is an exception
++	 * that should set separate configurations for STCCR and SRCCR
++	 * despite running in the synchronous mode.
 +	 */
-+	ic	iallu
-+	dsb	nsh
-+	isb
++	if (ssi->streams && ssi->synchronous)
++		return 0;
 +
- 	/* Set the flag to zero to indicate that we're all done */
- 	str	wzr, [flag_ptr]
- 	ret
+ 	if (!fsl_ssi_is_ac97(ssi)) {
+ 		/*
+ 		 * Keep the ssi->i2s_net intact while having a local variable
 -- 
 2.20.1
 
