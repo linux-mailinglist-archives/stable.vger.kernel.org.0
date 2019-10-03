@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDADCA8C6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59568CA8C7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403962AbfJCQck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:32:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40274 "EHLO mail.kernel.org"
+        id S2391957AbfJCQct (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391538AbfJCQch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:37 -0400
+        id S2391132AbfJCQct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 915C92133F;
-        Thu,  3 Oct 2019 16:32:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A662133F;
+        Thu,  3 Oct 2019 16:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120357;
-        bh=OOYbtDl++mAga3Ve0irijuGjJiSWW+eTKM4eu1A5L8A=;
+        s=default; t=1570120368;
+        bh=dWZQeEXELj4oPCyvPKatzqbyZkyD3e/BEQa+Mm6YXN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfkzdnDYkk32zIkOS+qYJt7w+ntEq0xzCn/sLTZ/yaonqyuzX3D53QYgKdtrFGHRv
-         nKif6mZAWT0sk2g1vEJxBAvVzmTmJejZUwTb7GZQ03ojjc8HaxBM0t4NiqgdCBmASA
-         dcQ/jwD10v9/yM2GDKCbykyoqQSZJr8rrKcU6pRA=
+        b=eUA/a6j3qT3l/QoSqU5tPdI//iQhN6/YLBRaUA4qzpM+ZHBUWHecjJGMHJzZkJu+F
+         CqGgKip6LiXmjPP8sHEGQZik8r++W/spBWrK6IodxuAxorXEOHgl+lfafat0D1DK0n
+         JrUDDnAAKNfGx3mvBu9SJGj0j3yfH8UlHvIqIWK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Al Cooper <alcooperx@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 191/313] mmc: sdhci: Fix incorrect switch to HS mode
-Date:   Thu,  3 Oct 2019 17:52:49 +0200
-Message-Id: <20191003154551.793211273@linuxfoundation.org>
+Subject: [PATCH 5.2 195/313] mmc: mtk-sd: Re-store SDIO IRQs mask at system resume
+Date:   Thu,  3 Oct 2019 17:52:53 +0200
+Message-Id: <20191003154552.181623706@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,54 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit c894e33ddc1910e14d6f2a2016f60ab613fd8b37 ]
+[ Upstream commit 1c81d69d4c98aab56c5a7d5a810f84aefdb37e9b ]
 
-When switching from any MMC speed mode that requires 1.8v
-(HS200, HS400 and HS400ES) to High Speed (HS) mode, the system
-ends up configured for SDR12 with a 50MHz clock which is an illegal
-mode.
+In cases when SDIO IRQs have been enabled, runtime suspend is prevented by
+the driver. However, this still means msdc_runtime_suspend|resume() gets
+called during system suspend/resume, via pm_runtime_force_suspend|resume().
 
-This happens because the SDHCI_CTRL_VDD_180 bit in the
-SDHCI_HOST_CONTROL2 register is left set and when this bit is
-set, the speed mode is controlled by the SDHCI_CTRL_UHS field
-in the SDHCI_HOST_CONTROL2 register. The SDHCI_CTRL_UHS field
-will end up being set to 0 (SDR12) by sdhci_set_uhs_signaling()
-because there is no UHS mode being set.
+This means during system suspend/resume, the register context of the mtk-sd
+device most likely loses its register context, even in cases when SDIO IRQs
+have been enabled.
 
-The fix is to change sdhci_set_uhs_signaling() to set the
-SDHCI_CTRL_UHS field to SDR25 (which is the same as HS) for
-any switch to HS mode.
+To re-enable the SDIO IRQs during system resume, the mtk-sd driver
+currently relies on the mmc core to re-enable the SDIO IRQs when it resumes
+the SDIO card, but this isn't the recommended solution. Instead, it's
+better to deal with this locally in the mtk-sd driver, so let's do that.
 
-This was found on a new eMMC controller that does strict checking
-of the speed mode and the corresponding clock rate. It caused the
-switch to HS400 mode to fail because part of the sequence to switch
-to HS400 requires a switch from HS200 to HS before going to HS400.
-
-Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/mmc/host/mtk-sd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index a5dc5aae973e6..c66e66fbaeb40 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1849,7 +1849,9 @@ void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
- 		ctrl_2 |= SDHCI_CTRL_UHS_SDR104;
- 	else if (timing == MMC_TIMING_UHS_SDR12)
- 		ctrl_2 |= SDHCI_CTRL_UHS_SDR12;
--	else if (timing == MMC_TIMING_UHS_SDR25)
-+	else if (timing == MMC_TIMING_SD_HS ||
-+		 timing == MMC_TIMING_MMC_HS ||
-+		 timing == MMC_TIMING_UHS_SDR25)
- 		ctrl_2 |= SDHCI_CTRL_UHS_SDR25;
- 	else if (timing == MMC_TIMING_UHS_SDR50)
- 		ctrl_2 |= SDHCI_CTRL_UHS_SDR50;
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index 33f4b6387ef71..978c8ccce7e31 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -2421,6 +2421,9 @@ static void msdc_restore_reg(struct msdc_host *host)
+ 	} else {
+ 		writel(host->save_para.pad_tune, host->base + tune_reg);
+ 	}
++
++	if (sdio_irq_claimed(host->mmc))
++		__msdc_enable_sdio_irq(host, 1);
+ }
+ 
+ static int msdc_runtime_suspend(struct device *dev)
 -- 
 2.20.1
 
