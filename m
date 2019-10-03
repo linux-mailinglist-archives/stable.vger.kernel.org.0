@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 440ECCAAC3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E1D9CA989
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388870AbfJCRMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
+        id S2405318AbfJCQoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390426AbfJCQ3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:29:37 -0400
+        id S2405317AbfJCQoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:44:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1730520867;
-        Thu,  3 Oct 2019 16:29:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E80272054F;
+        Thu,  3 Oct 2019 16:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120176;
-        bh=sr+EgblRId/7wU5yaG1fEFxsM+CbrijiUWe8BT4QB5M=;
+        s=default; t=1570121041;
+        bh=aCeOu7Setfrgi0G235/LuiodlneTa/ZnHrrPVIws2c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcI2LeZQrHbcWzY2Sll41POzDZA0PfUUlX/BxCDWow+Oroxc6b1fJ3tuecfM60XrC
-         4OA+akrtiADBZ7+nX6yrteVjBN5ADWy0WF6t0IyK9wVpUKod0t24Tv9x81YxvwqnzA
-         NoPNJLgUv7SDtEtiPPYUkw9/GZyl41MRfmGH5+0Y=
+        b=H1vfENMraFUgCTDYxk/m/V4CvafmKMo3hFJiSPnPlwjpy2Ze85T8OyV3Eo9xLwRFD
+         F2rH1aMnpqwHBvd1BVVOB/AAjysdh0zou1zu6x5R4kl9wbnJUqZ+pnl7n2R8mAd7qT
+         CEoj0aJZwV3QlzsCEel0GRqd8KIZXlPLYSTqT7/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 118/313] ASoC: sun4i-i2s: Dont use the oversample to calculate BCLK
-Date:   Thu,  3 Oct 2019 17:51:36 +0200
-Message-Id: <20191003154544.487329014@linuxfoundation.org>
+Subject: [PATCH 5.3 132/344] ASoC: sun4i-i2s: Dont use the oversample to calculate BCLK
+Date:   Thu,  3 Oct 2019 17:51:37 +0200
+Message-Id: <20191003154553.242159405@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,10 +80,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/sound/soc/sunxi/sun4i-i2s.c b/sound/soc/sunxi/sun4i-i2s.c
-index fd7c37596f21a..1d946a1927088 100644
+index 7fa5c61169db0..ab8cb83c8b1a8 100644
 --- a/sound/soc/sunxi/sun4i-i2s.c
 +++ b/sound/soc/sunxi/sun4i-i2s.c
-@@ -219,10 +219,11 @@ static const struct sun4i_i2s_clk_div sun4i_i2s_mclk_div[] = {
+@@ -222,10 +222,11 @@ static const struct sun4i_i2s_clk_div sun4i_i2s_mclk_div[] = {
  };
  
  static int sun4i_i2s_get_bclk_div(struct sun4i_i2s *i2s,
@@ -97,7 +97,7 @@ index fd7c37596f21a..1d946a1927088 100644
  	int i;
  
  	for (i = 0; i < ARRAY_SIZE(sun4i_i2s_bclk_div); i++) {
-@@ -312,8 +313,8 @@ static int sun4i_i2s_set_clk_rate(struct snd_soc_dai *dai,
+@@ -315,8 +316,8 @@ static int sun4i_i2s_set_clk_rate(struct snd_soc_dai *dai,
  		return -EINVAL;
  	}
  
