@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B3BCAB3D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB058CA9C9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731220AbfJCRTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:19:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
+        id S2405529AbfJCQrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387906AbfJCQTq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:46 -0400
+        id S2405525AbfJCQrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:47:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC552215EA;
-        Thu,  3 Oct 2019 16:19:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7341820865;
+        Thu,  3 Oct 2019 16:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119585;
-        bh=LyoWdA0f7wwBcvyqosMNHJUlyBRTJxT4ByefN/vA58U=;
+        s=default; t=1570121262;
+        bh=OOYbtDl++mAga3Ve0irijuGjJiSWW+eTKM4eu1A5L8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrIbegAGIVQTp5SlZgeSWCP1CTvNhGyKbjNXEyaJda44LbQUd9wUqcEuDertULmHV
-         p2RsU11lqiP5bQYiMSkc+VG0WT2joIr4fFS1S1WHjcH8ZTvpxLbFvm85sRFZpsyFGB
-         QVTnuv9k17iJoe0mjgFwbyIk1fkDDOgr12eHIjBM=
+        b=dmaOrg9IpUSx48tyB/Krv2f3i1ZgOOwLltlPK6sXb5WiAFv2w0mSkMdFjAwr7LAlc
+         A4t16dYz0ceorZwFlZf3OiAPCxQfx/4VvSXShmuYXsIJ8sYOleBUUM5XUmD6YPff4Z
+         q8od3fvejAPk0CIVEGEfj1kWErWHbMjqziSCqkdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Al Cooper <alcooperx@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/211] x86/mm/pti: Handle unaligned address gracefully in pti_clone_pagetable()
+Subject: [PATCH 5.3 213/344] mmc: sdhci: Fix incorrect switch to HS mode
 Date:   Thu,  3 Oct 2019 17:52:58 +0200
-Message-Id: <20191003154513.070177963@linuxfoundation.org>
+Message-Id: <20191003154601.306159884@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-[ Upstream commit 825d0b73cd7526b0bb186798583fae810091cbac ]
+[ Upstream commit c894e33ddc1910e14d6f2a2016f60ab613fd8b37 ]
 
-pti_clone_pmds() assumes that the supplied address is either:
+When switching from any MMC speed mode that requires 1.8v
+(HS200, HS400 and HS400ES) to High Speed (HS) mode, the system
+ends up configured for SDR12 with a 50MHz clock which is an illegal
+mode.
 
- - properly PUD/PMD aligned
-or
- - the address is actually mapped which means that independently
-   of the mapping level (PUD/PMD/PTE) the next higher mapping
-   exists.
+This happens because the SDHCI_CTRL_VDD_180 bit in the
+SDHCI_HOST_CONTROL2 register is left set and when this bit is
+set, the speed mode is controlled by the SDHCI_CTRL_UHS field
+in the SDHCI_HOST_CONTROL2 register. The SDHCI_CTRL_UHS field
+will end up being set to 0 (SDR12) by sdhci_set_uhs_signaling()
+because there is no UHS mode being set.
 
-If that's not the case the unaligned address can be incremented by PUD or
-PMD size incorrectly. All callers supply mapped and/or aligned addresses,
-but for the sake of robustness it's better to handle that case properly and
-to emit a warning.
+The fix is to change sdhci_set_uhs_signaling() to set the
+SDHCI_CTRL_UHS field to SDR25 (which is the same as HS) for
+any switch to HS mode.
 
-[ tglx: Rewrote changelog and added WARN_ON_ONCE() ]
+This was found on a new eMMC controller that does strict checking
+of the speed mode and the corresponding clock rate. It caused the
+switch to HS400 mode to fail because part of the sequence to switch
+to HS400 requires a switch from HS200 to HS before going to HS400.
 
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282352470.1938@nanos.tec.linutronix.de
+Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pti.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index c1ba376484a5b..622d5968c9795 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -338,13 +338,15 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
- 
- 		pud = pud_offset(p4d, addr);
- 		if (pud_none(*pud)) {
--			addr += PUD_SIZE;
-+			WARN_ON_ONCE(addr & ~PUD_MASK);
-+			addr = round_up(addr + 1, PUD_SIZE);
- 			continue;
- 		}
- 
- 		pmd = pmd_offset(pud, addr);
- 		if (pmd_none(*pmd)) {
--			addr += PMD_SIZE;
-+			WARN_ON_ONCE(addr & ~PMD_MASK);
-+			addr = round_up(addr + 1, PMD_SIZE);
- 			continue;
- 		}
- 
+diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
+index a5dc5aae973e6..c66e66fbaeb40 100644
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1849,7 +1849,9 @@ void sdhci_set_uhs_signaling(struct sdhci_host *host, unsigned timing)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR104;
+ 	else if (timing == MMC_TIMING_UHS_SDR12)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR12;
+-	else if (timing == MMC_TIMING_UHS_SDR25)
++	else if (timing == MMC_TIMING_SD_HS ||
++		 timing == MMC_TIMING_MMC_HS ||
++		 timing == MMC_TIMING_UHS_SDR25)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR25;
+ 	else if (timing == MMC_TIMING_UHS_SDR50)
+ 		ctrl_2 |= SDHCI_CTRL_UHS_SDR50;
 -- 
 2.20.1
 
