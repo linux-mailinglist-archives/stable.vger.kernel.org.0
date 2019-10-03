@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB53DC9949
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 09:53:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7332CC994A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 09:53:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728178AbfJCHxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 03:53:50 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:50861 "EHLO
+        id S1727368AbfJCHxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 03:53:52 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:40873 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727368AbfJCHxu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 03:53:50 -0400
+        by vger.kernel.org with ESMTP id S1728102AbfJCHxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 03:53:51 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2CAAE20F51;
-        Thu,  3 Oct 2019 03:53:49 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id CCD4220F51;
+        Thu,  3 Oct 2019 03:53:50 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 03:53:49 -0400
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 03:53:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bWJvBm
-        LYb7cBJ7m5Wmx0kTc0+Hq4XvPSl8Z+yBHW6g4=; b=KaCnTAgAJef6zx9xhmCY8X
-        UsuBhUDQp2q65S7lTkYoCNq5ac+KIM7qYWd7XGl8TXLk6NgvhHg5xea0FZy40BlN
-        ino+dReMRGconS5Lz7FPbPYY4m+1TecQD55DzQoeID1sIrA56ZPr1aajpy6Z1dbe
-        cmx59Rsy7vXjlzv39of2IvM39DN8HEWA9sLI4i1xPlhn+4dcbrXbCpMAGLwdzJB4
-        oNII/mzi/xs1dGLkWVFn0Z0RkfwQ7NV6M2OcMyknVqe7PApA7SsRpxaN2XgVDoTS
-        uoesL5cRMwnmSEzwxEqRHt1kDuoxH1vYDvepX2q3M/Mc7Ua+jCfly4jJCN7r1mUg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=WhyJ27
+        qgP/Gea7egG0PNXfobuavKueAhfqWxIZj20UQ=; b=YalNiB42LaFycioyMYElUi
+        f8950UgUul2p7e7rLKGeiLg5k7EqyMwcDnOE7a1cDnQVbBBQ8ijLIxvZbpEV/BzP
+        EuykLPTeGl2KUOrzhpp0wFc6bhDDNGOuxxdGetruW+RlQOVDVsixHvMtWI9CuoyQ
+        7iQ1s6Mw/r+r+Sw9Cv+MHKE6yqpQDkpB17NT5bITxcZlpbmbusn4DExgXkvmRnJF
+        3r92eiym4ggqAShuuiO2cJl/YDDHiiyka2McdLXq3zSeSEnVqtRVaxiewShFxotv
+        MFGlKFR7oh8hzwTtD+9k0pex1vX3f5wqNaW9JosAYJ6kSxxcEO8d2rZi0Pu4E2nA
         ==
-X-ME-Sender: <xms:DamVXeNnaD5ppzwYjrAHrmbo5xfZ5nBEU5Q_lCHMlrcLgnGCgZ1BPQ>
+X-ME-Sender: <xms:DqmVXX7MV7Y1CcQzAIkuVFFmKYwx0hCTyd5eBa5bagbMATVRFlpUqw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeejgdduvdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:DamVXTg3tBTZ4CYNadppTkNmLRVspAADiiJ85ajnbLCHegBKhwvgXw>
-    <xmx:DamVXW8w20ZKef9bK2PuQv4qRVmV2NjIh0s1NkK0XztshA06K-xLeA>
-    <xmx:DamVXYKrGrOiOeW6a6n_jmSX9ge_H6T316hXP9indqnM9UZW1yj2SA>
-    <xmx:DamVXa2m3pybOu8se5W2XYuL6ka84mU0WHDXRk_gtwvnRDhuPgpyzQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
+X-ME-Proxy: <xmx:DqmVXSFIRyl1fm73UosChr2GhPuw1j6yiX_ASR10KHWzgAr4bDsH9g>
+    <xmx:DqmVXe3mWv1DviXiNqndL4LNiQQstJIg_tjTtIZkFqLzihkp7UTA8g>
+    <xmx:DqmVXROQy1bEWfexRa0-tnAG74UwKa6RZt8VmuPoQv47hurHrRDEFA>
+    <xmx:DqmVXf8X-sOeiVPdSk5sGqJ5LuSWUfSlv-eQpBKloPFokt9pzceM4w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C5288D6005B;
-        Thu,  3 Oct 2019 03:53:48 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] md/raid0: avoid RAID0 data corruption due to layout" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6BDD8D60062;
+        Thu,  3 Oct 2019 03:53:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] md/raid0: avoid RAID0 data corruption due to layout" failed to apply to 4.4-stable tree
 To:     neilb@suse.de, guoqing.jiang@cloud.ionos.com, songliubraving@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 09:53:37 +0200
-Message-ID: <157008921721033@kroah.com>
+Date:   Thu, 03 Oct 2019 09:53:38 +0200
+Message-ID: <15700892184360@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
