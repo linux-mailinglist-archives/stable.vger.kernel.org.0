@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E02CA2EC
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F811CA2EE
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730313AbfJCQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59916 "EHLO mail.kernel.org"
+        id S2387677AbfJCQKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387652AbfJCQK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:10:29 -0400
+        id S2387668AbfJCQKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:10:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 546B2207FF;
-        Thu,  3 Oct 2019 16:10:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EBD120865;
+        Thu,  3 Oct 2019 16:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119028;
-        bh=B05maExQbhzmRz3QtW0v5BieCGz5HdQQOqgZortZCcA=;
+        s=default; t=1570119037;
+        bh=iA+iztb5roFqmlVCM7HAQMJDCgCAfgCx2Vgl/zw3M2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMFwPoqF+O+1eHR88DdwCJ6wmD7d2e1VxaZmcnsS5tuRr8DKPzfOtONcMWoiA+xOw
-         MhheLhBhmy+7QE04mPvTAt7FOVA9fg9dHnj/PtOiPPdQHWMeoc5E31eh/hZLHMFRU3
-         VwnkEA2ppiLu3r4i9lOfjNEUrntpJfGwUMSw/pKs=
+        b=O9l5Pr5Q19XS4J3ksQOSBcaoN8+HwDl1IwwXOaCS32r+G4gffY//hZKu2YVYugzkF
+         TPxSX+d0sxHovKnxojiy5jl2ED6ZxWvC+PWiXFmekOgeBr7otu1J8BZj3p4drlGi11
+         P4mbZrpX33HMvFMuV4/FzOy8qChiWGm2SsTrEW6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerald Baeza <gerald.baeza@st.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/185] libperf: Fix alignment trap with xyarray contents in perf stat
-Date:   Thu,  3 Oct 2019 17:52:58 +0200
-Message-Id: <20191003154501.345118791@linuxfoundation.org>
+Subject: [PATCH 4.14 102/185] EDAC/amd64: Decode syndrome before translating address
+Date:   Thu,  3 Oct 2019 17:53:00 +0200
+Message-Id: <20191003154501.898879396@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -50,56 +48,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald BAEZA <gerald.baeza@st.com>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit d9c5c083416500e95da098c01be092b937def7fa ]
+[ Upstream commit 8a2eaab7daf03b23ac902481218034ae2fae5e16 ]
 
-Following the patch 'perf stat: Fix --no-scale', an alignment trap
-happens in process_counter_values() on ARMv7 platforms due to the
-attempt to copy non 64 bits aligned double words (pointed by 'count')
-via a NEON vectored instruction ('vld1' with 64 bits alignment
-constraint).
+AMD Family 17h systems currently require address translation in order to
+report the system address of a DRAM ECC error. This is currently done
+before decoding the syndrome information. The syndrome information does
+not depend on the address translation, so the proper EDAC csrow/channel
+reporting can function without the address. However, the syndrome
+information will not be decoded if the address translation fails.
 
-This patch sets a 64 bits alignment constraint on 'contents[]' field in
-'struct xyarray' since the 'count' pointer used above points to such a
-structure.
+Decode the syndrome information before doing the address translation.
+The syndrome information is architecturally defined in MCA_SYND and can
+be considered robust. The address translation is system-specific and may
+fail on newer systems without proper updates to the translation
+algorithm.
 
-Signed-off-by: Gerald Baeza <gerald.baeza@st.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/1566464769-16374-1-git-send-email-gerald.baeza@st.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 713ad54675fd ("EDAC, amd64: Define and register UMC error decode function")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190821235938.118710-6-Yazen.Ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/xyarray.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/edac/amd64_edac.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/util/xyarray.h b/tools/perf/util/xyarray.h
-index 7ffe562e7ae7f..2627b038b6f2a 100644
---- a/tools/perf/util/xyarray.h
-+++ b/tools/perf/util/xyarray.h
-@@ -2,6 +2,7 @@
- #ifndef _PERF_XYARRAY_H_
- #define _PERF_XYARRAY_H_ 1
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index 35b847b51bfa9..40fb0e7ff8fd9 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -2501,13 +2501,6 @@ static void decode_umc_error(int node_id, struct mce *m)
+ 		goto log_error;
+ 	}
  
-+#include <linux/compiler.h>
- #include <sys/types.h>
+-	if (umc_normaddr_to_sysaddr(m->addr, pvt->mc_node_id, err.channel, &sys_addr)) {
+-		err.err_code = ERR_NORM_ADDR;
+-		goto log_error;
+-	}
+-
+-	error_address_to_page_and_offset(sys_addr, &err);
+-
+ 	if (!(m->status & MCI_STATUS_SYNDV)) {
+ 		err.err_code = ERR_SYND;
+ 		goto log_error;
+@@ -2524,6 +2517,13 @@ static void decode_umc_error(int node_id, struct mce *m)
  
- struct xyarray {
-@@ -10,7 +11,7 @@ struct xyarray {
- 	size_t entries;
- 	size_t max_x;
- 	size_t max_y;
--	char contents[];
-+	char contents[] __aligned(8);
- };
+ 	err.csrow = m->synd & 0x7;
  
- struct xyarray *xyarray__new(int xlen, int ylen, size_t entry_size);
++	if (umc_normaddr_to_sysaddr(m->addr, pvt->mc_node_id, err.channel, &sys_addr)) {
++		err.err_code = ERR_NORM_ADDR;
++		goto log_error;
++	}
++
++	error_address_to_page_and_offset(sys_addr, &err);
++
+ log_error:
+ 	__log_ecc_error(mci, &err, ecc_type);
+ }
 -- 
 2.20.1
 
