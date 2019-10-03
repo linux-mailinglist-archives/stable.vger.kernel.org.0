@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0360CABA4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C584FCABF3
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730895AbfJCP5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39624 "EHLO mail.kernel.org"
+        id S1732068AbfJCQCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:02:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726863AbfJCP5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:57:16 -0400
+        id S1729741AbfJCQCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:02:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B99EB21783;
-        Thu,  3 Oct 2019 15:57:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3272120700;
+        Thu,  3 Oct 2019 16:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118236;
-        bh=R1bNk2/hCaKw1ytY+Ws4ld/IUdVpxotA409O+wn8ryo=;
+        s=default; t=1570118566;
+        bh=wHqDZJIituYx9y3q6KEtPRBcqok4mbWdkHwToUoZq6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BD2Ks0nZNR0MU+cY+KTrkfg9z1f3MjHsfuNn7WZkKXOUGGTOzR20gmjlv09wT4+VT
-         7JmAYQh1REYxvRYc5EzDAimeqwA7+hnGK3PPDpKE6rK4DXHEFJ8YBEigQI+CebdrXA
-         uZpnkCYZMiT15fTz5KyRe5xaI4zsfIUIOJIbCMPI=
+        b=cMsc8h4Vzd9j1C0UnpLmP6HSEGQhWB5eaQ7hpoCgRCuxxjmwULmJUXsHyDMg785XM
+         Je1DKZaAIokNE7R2HtSKOGPeWTSWYWCYMXrEw01+rN21ZsPOYKJQy3ab8nrfhLV+/7
+         eWsHKS0jY5pxMeX17FO3zJHf5Vk2Irpe4Th8Gh4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        James Morse <james.morse@arm.com>,
+        kernel-janitors@vger.kernel.org,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 37/99] media: dib0700: fix link error for dibx000_i2c_set_speed
+Subject: [PATCH 4.9 057/129] EDAC/altera: Use the proper type for the IRQ status bits
 Date:   Thu,  3 Oct 2019 17:53:00 +0200
-Message-Id: <20191003154313.072250631@linuxfoundation.org>
+Message-Id: <20191003154344.255520786@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 765bb8610d305ee488b35d07e2a04ae52fb2df9c ]
+[ Upstream commit 8faa1cf6ed82f33009f63986c3776cc48af1b7b2 ]
 
-When CONFIG_DVB_DIB9000 is disabled, we can still compile code that
-now fails to link against dibx000_i2c_set_speed:
+Smatch complains about the cast of a u32 pointer to unsigned long:
 
-drivers/media/usb/dvb-usb/dib0700_devices.o: In function `dib01x0_pmu_update.constprop.7':
-dib0700_devices.c:(.text.unlikely+0x1c9c): undefined reference to `dibx000_i2c_set_speed'
+  drivers/edac/altera_edac.c:1878 altr_edac_a10_irq_handler()
+  warn: passing casted pointer '&irq_status' to 'find_first_bit()'
 
-The call sites are both through dib01x0_pmu_update(), which gets passed
-an 'i2c' pointer from dib9000_get_i2c_master(), which has returned
-NULL. Checking this pointer seems to be a good idea anyway, and it avoids
-the link failure in most cases.
+This code wouldn't work on a 64 bit big endian system because it would
+read past the end of &irq_status.
 
-Sean Young found another case that is not fixed by that, where certain
-gcc versions leave an unused function in place that causes the link error,
-but adding an explict IS_ENABLED() check also solves this.
+ [ bp: massage. ]
 
-Fixes: b7f54910ce01 ("V4L/DVB (4647): Added module for DiB0700 based devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: 13ab8448d2c9 ("EDAC, altera: Add ECC Manager IRQ controller support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: kernel-janitors@vger.kernel.org
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624134717.GA1754@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dib0700_devices.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/edac/altera_edac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dib0700_devices.c b/drivers/media/usb/dvb-usb/dib0700_devices.c
-index 38c03283a4417..e1316c7b7c2e5 100644
---- a/drivers/media/usb/dvb-usb/dib0700_devices.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_devices.c
-@@ -2418,9 +2418,13 @@ static int dib9090_tuner_attach(struct dvb_usb_adapter *adap)
- 		8, 0x0486,
- 	};
+diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
+index b0bd0f64d8f21..6037efa94c9ba 100644
+--- a/drivers/edac/altera_edac.c
++++ b/drivers/edac/altera_edac.c
+@@ -1651,6 +1651,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
+ 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	int irq = irq_desc_get_irq(desc);
++	unsigned long bits;
  
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &dib9090_dib0090_config) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) != 0)
- 		return -ENODEV;
- 	dib0700_set_i2c_speed(adap->dev, 1500);
-@@ -2496,10 +2500,14 @@ static int nim9090md_tuner_attach(struct dvb_usb_adapter *adap)
- 		0, 0x00ef,
- 		8, 0x0406,
- 	};
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	i2c = dib9000_get_tuner_interface(adap->fe_adap[0].fe);
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &nim9090md_dib0090_config[0]) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) < 0)
- 		return -ENODEV;
+ 	dberr = (irq == edac->db_irq) ? 1 : 0;
+ 	sm_offset = dberr ? A10_SYSMGR_ECC_INTSTAT_DERR_OFST :
+@@ -1660,7 +1661,8 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
  
+ 	regmap_read(edac->ecc_mgr_map, sm_offset, &irq_status);
+ 
+-	for_each_set_bit(bit, (unsigned long *)&irq_status, 32) {
++	bits = irq_status;
++	for_each_set_bit(bit, &bits, 32) {
+ 		irq = irq_linear_revmap(edac->domain, dberr * 32 + bit);
+ 		if (irq)
+ 			generic_handle_irq(irq);
 -- 
 2.20.1
 
