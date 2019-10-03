@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB52CA7FB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F59CA7EE
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405579AbfJCQsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
+        id S2405762AbfJCQsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388403AbfJCQsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:48:20 -0400
+        id S2405098AbfJCQsv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:48:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B1F22070B;
-        Thu,  3 Oct 2019 16:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD4262070B;
+        Thu,  3 Oct 2019 16:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121299;
-        bh=BO2CMp99KgEKir43vyYmY/h5UcVrkGaXXS/emvzKtOY=;
+        s=default; t=1570121331;
+        bh=s1xHu8LphYSTJupvhJsAxrab1Glumm0UXtfw4+RHFfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xomkuQvfJMo9Da05703w+F/wnfjWcQcyQyCgdRKiR6U0G80QTLhmt2YpUrWf9Amul
-         SB+MHP6PsRt5DB9X69aLqiKR48BCE1KkNX3I6ydtUA1RXb2wl/GIdnWTcrsQjG8JS1
-         neGH9Ziro+bAalI0Pz35e8w1cqX+OyYPENxCiV8g=
+        b=BPWbKwTLSRFjobgyL75jmbJnXwLBuHTNq+RerqTxT/+MNvD2LbBCcc2e35ampw6Bz
+         XPmPAQfhoRtGTGCxU13Qgysv4V221c7snl4S+OAISjfTNFAtcy7XQ2zwRciTnEH+bU
+         N5zFlGJWOSe6dfjt+CqIgetOOZ/KEDKyMIABfth0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Ahzo <Ahzo@tutanota.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 221/344] ALSA: hda - Drop unsol event handler for Intel HDMI codecs
-Date:   Thu,  3 Oct 2019 17:53:06 +0200
-Message-Id: <20191003154602.162843134@linuxfoundation.org>
+Subject: [PATCH 5.3 222/344] drm/amd/powerplay/smu7: enforce minimal VBITimeout (v2)
+Date:   Thu,  3 Oct 2019 17:53:07 +0200
+Message-Id: <20191003154602.270747929@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,49 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ahzo <Ahzo@tutanota.com>
 
-[ Upstream commit f2dbe87c5ac1f88e6007ba1f1374f4bd8a197fb6 ]
+[ Upstream commit f659bb6dae58c113805f92822e4c16ddd3156b79 ]
 
-We don't need to deal with the unsol events for Intel chips that are
-tied with the graphics via audio component notifier.  Although the
-presence of the audio component is checked at the beginning of
-hdmi_unsol_event(), better to short cut by dropping unsol_event ops.
+This fixes screen corruption/flickering on 75 Hz displays.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+v2: make print statement debug only (Alex)
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=102646
+Reviewed-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Ahzo <Ahzo@tutanota.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
-index c380596b2e84c..36240def9bf58 100644
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2616,6 +2616,8 @@ static void i915_pin_cvt_fixup(struct hda_codec *codec,
- /* precondition and allocation for Intel codecs */
- static int alloc_intel_hdmi(struct hda_codec *codec)
- {
-+	int err;
+diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+index 487aeee1cf8a5..3c1084de5d59f 100644
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
+@@ -4068,6 +4068,11 @@ static int smu7_program_display_gap(struct pp_hwmgr *hwmgr)
+ 
+ 	data->frame_time_x2 = frame_time_in_us * 2 / 100;
+ 
++	if (data->frame_time_x2 < 280) {
++		pr_debug("%s: enforce minimal VBITimeout: %d -> 280\n", __func__, data->frame_time_x2);
++		data->frame_time_x2 = 280;
++	}
 +
- 	/* requires i915 binding */
- 	if (!codec->bus->core.audio_component) {
- 		codec_info(codec, "No i915 binding for Intel HDMI/DP codec\n");
-@@ -2624,7 +2626,12 @@ static int alloc_intel_hdmi(struct hda_codec *codec)
- 		return -ENODEV;
- 	}
+ 	display_gap2 = pre_vbi_time_in_us * (ref_clock / 100);
  
--	return alloc_generic_hdmi(codec);
-+	err = alloc_generic_hdmi(codec);
-+	if (err < 0)
-+		return err;
-+	/* no need to handle unsol events */
-+	codec->patch_ops.unsol_event = NULL;
-+	return 0;
- }
- 
- /* parse and post-process for Intel codecs */
+ 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCG_DISPLAY_GAP_CNTL2, display_gap2);
 -- 
 2.20.1
 
