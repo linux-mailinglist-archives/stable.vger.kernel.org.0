@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04020CA8E5
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E84CA8EA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391384AbfJCQeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42800 "EHLO mail.kernel.org"
+        id S2390835AbfJCQe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:34:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392114AbfJCQeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:17 -0400
+        id S2404179AbfJCQe0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:34:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6714B20830;
-        Thu,  3 Oct 2019 16:34:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BC8B20830;
+        Thu,  3 Oct 2019 16:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120456;
-        bh=VvGjkM71cReN6WoRHeK5WYV1LuRx+NhLHQO/EKPu3xk=;
+        s=default; t=1570120465;
+        bh=PCK4mgiAMepdmcjkI6hj/qWXpR57RcSqdMCI2dmyfCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xk6HIYlwR9YgUwZ1l41VgLnRMUW0necqFEJYuXsMcYosDnHU99b+8m27U74Ym0fdW
-         L++bQ/wXgFzrikhKwNl5Y9+fj4wx7a74TtdjGX2chaLDOVRMxYbnob5uCu5zTlGlAO
-         JyzCLW1HbamN7ZktPqrkiCf6fNF6CmDTqzzP1qJg=
+        b=pmqUOIyKQrADFuDPfPzTTQS3ldaVIdt3ax6bgtpN/HXC7DGLgP2SjJu1P9PvwRNvd
+         HPb/OCcHt2AhwLj0gkVg2rzOqE/HSbVhzXIh2GWAYD4fZBmLx/jlQ/vZHspCkdYzVp
+         4aVS5sMXQ1pNG77fuP4Du5h3Fb0ctNynJuibIEJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Ewan D. Milne" <emilne@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Mike Snitzer <snitzer@redhat.com>, dm-devel@redhat.com,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 229/313] blk-mq: add callback of .cleanup_rq
-Date:   Thu,  3 Oct 2019 17:53:27 +0200
-Message-Id: <20191003154555.556015268@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Jan Stancek <jstancek@redhat.com>
+Subject: [PATCH 5.2 231/313] powerpc/imc: Dont create debugfs files for cpu-less nodes
+Date:   Thu,  3 Oct 2019 17:53:29 +0200
+Message-Id: <20191003154555.735399024@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -48,98 +45,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
 
-[ Upstream commit 226b4fc75c78f9c497c5182d939101b260cfb9f3 ]
+commit 41ba17f20ea835c489e77bd54e2da73184e22060 upstream.
 
-SCSI maintains its own driver private data hooked off of each SCSI
-request, and the pridate data won't be freed after scsi_queue_rq()
-returns BLK_STS_RESOURCE or BLK_STS_DEV_RESOURCE. An upper layer driver
-(e.g. dm-rq) may need to retry these SCSI requests, before SCSI has
-fully dispatched them, due to a lower level SCSI driver's resource
-limitation identified in scsi_queue_rq(). Currently SCSI's per-request
-private data is leaked when the upper layer driver (dm-rq) frees and
-then retries these requests in response to BLK_STS_RESOURCE or
-BLK_STS_DEV_RESOURCE returns from scsi_queue_rq().
+Commit <684d984038aa> ('powerpc/powernv: Add debugfs interface for
+imc-mode and imc') added debugfs interface for the nest imc pmu
+devices to support changing of different ucode modes. Primarily adding
+this capability for debug. But when doing so, the code did not
+consider the case of cpu-less nodes. So when reading the _cmd_ or
+_mode_ file of a cpu-less node will create this crash.
 
-This usecase is so specialized that it doesn't warrant training an
-existing blk-mq interface (e.g. blk_mq_free_request) to allow SCSI to
-account for freeing its driver private data -- doing so would add an
-extra branch for handling a special case that all other consumers of
-SCSI (and blk-mq) won't ever need to worry about.
+  Faulting instruction address: 0xc0000000000d0d58
+  Oops: Kernel access of bad area, sig: 11 [#1]
+  ...
+  CPU: 67 PID: 5301 Comm: cat Not tainted 5.2.0-rc6-next-20190627+ #19
+  NIP:  c0000000000d0d58 LR: c00000000049aa18 CTR:c0000000000d0d50
+  REGS: c00020194548f9e0 TRAP: 0300   Not tainted  (5.2.0-rc6-next-20190627+)
+  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR:28022822  XER: 00000000
+  CFAR: c00000000049aa14 DAR: 000000000003fc08 DSISR:40000000 IRQMASK: 0
+  ...
+  NIP imc_mem_get+0x8/0x20
+  LR  simple_attr_read+0x118/0x170
+  Call Trace:
+    simple_attr_read+0x70/0x170 (unreliable)
+    debugfs_attr_read+0x6c/0xb0
+    __vfs_read+0x3c/0x70
+     vfs_read+0xbc/0x1a0
+    ksys_read+0x7c/0x140
+    system_call+0x5c/0x70
 
-So the most pragmatic way forward is to delegate freeing SCSI driver
-private data to the upper layer driver (dm-rq).  Do so by adding
-new .cleanup_rq callback and calling a new blk_mq_cleanup_rq() method
-from dm-rq.  A following commit will implement the .cleanup_rq() hook
-in scsi_mq_ops.
+Patch fixes the issue with a more robust check for vbase to NULL.
 
-Cc: Ewan D. Milne <emilne@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Mike Snitzer <snitzer@redhat.com>
-Cc: dm-devel@redhat.com
-Cc: <stable@vger.kernel.org>
-Fixes: 396eaf21ee17 ("blk-mq: improve DM's blk-mq IO merging via blk_insert_cloned_request feedback")
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Before patch, ls output for the debugfs imc directory
+
+  # ls /sys/kernel/debug/powerpc/imc/
+  imc_cmd_0    imc_cmd_251  imc_cmd_253  imc_cmd_255  imc_mode_0    imc_mode_251  imc_mode_253  imc_mode_255
+  imc_cmd_250  imc_cmd_252  imc_cmd_254  imc_cmd_8    imc_mode_250  imc_mode_252  imc_mode_254  imc_mode_8
+
+After patch, ls output for the debugfs imc directory
+
+  # ls /sys/kernel/debug/powerpc/imc/
+  imc_cmd_0  imc_cmd_8  imc_mode_0  imc_mode_8
+
+Actual bug here is that, we have two loops with potentially different
+loop counts. That is, in imc_get_mem_addr_nest(), loop count is
+obtained from the dt entries. But in case of export_imc_mode_and_cmd(),
+loop was based on for_each_nid() count. Patch fixes the loop count in
+latter based on the struct mem_info. Ideally it would be better to
+have array size in struct imc_pmu.
+
+Fixes: 684d984038aa ('powerpc/powernv: Add debugfs interface for imc-mode and imc')
+Reported-by: Qian Cai <cai@lca.pw>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190827101635.6942-1-maddy@linux.vnet.ibm.com
+Cc: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/dm-rq.c     |  1 +
- include/linux/blk-mq.h | 13 +++++++++++++
- 2 files changed, 14 insertions(+)
+ arch/powerpc/platforms/powernv/opal-imc.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
-index 5f7063f05ae07..b41ecb451c784 100644
---- a/drivers/md/dm-rq.c
-+++ b/drivers/md/dm-rq.c
-@@ -408,6 +408,7 @@ static int map_request(struct dm_rq_target_io *tio)
- 		ret = dm_dispatch_clone_request(clone, rq);
- 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
- 			blk_rq_unprep_clone(clone);
-+			blk_mq_cleanup_rq(clone);
- 			tio->ti->type->release_clone_rq(clone, &tio->info);
- 			tio->clone = NULL;
- 			return DM_MAPIO_REQUEUE;
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index 15d1aa53d96c4..a5a99b43f68e8 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -140,6 +140,7 @@ typedef int (poll_fn)(struct blk_mq_hw_ctx *);
- typedef int (map_queues_fn)(struct blk_mq_tag_set *set);
- typedef bool (busy_fn)(struct request_queue *);
- typedef void (complete_fn)(struct request *);
-+typedef void (cleanup_rq_fn)(struct request *);
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -53,9 +53,9 @@ static void export_imc_mode_and_cmd(stru
+ 				    struct imc_pmu *pmu_ptr)
+ {
+ 	static u64 loc, *imc_mode_addr, *imc_cmd_addr;
+-	int chip = 0, nid;
+ 	char mode[16], cmd[16];
+ 	u32 cb_offset;
++	struct imc_mem_info *ptr = pmu_ptr->mem_info;
  
+ 	imc_debugfs_parent = debugfs_create_dir("imc", powerpc_debugfs_root);
  
- struct blk_mq_ops {
-@@ -200,6 +201,12 @@ struct blk_mq_ops {
- 	/* Called from inside blk_get_request() */
- 	void (*initialize_rq_fn)(struct request *rq);
+@@ -69,20 +69,20 @@ static void export_imc_mode_and_cmd(stru
+ 	if (of_property_read_u32(node, "cb_offset", &cb_offset))
+ 		cb_offset = IMC_CNTL_BLK_OFFSET;
  
-+	/*
-+	 * Called before freeing one request which isn't completed yet,
-+	 * and usually for freeing the driver private data
-+	 */
-+	cleanup_rq_fn		*cleanup_rq;
-+
- 	/*
- 	 * If set, returns whether or not this queue currently is busy
- 	 */
-@@ -366,4 +373,10 @@ static inline blk_qc_t request_to_qc_t(struct blk_mq_hw_ctx *hctx,
- 			BLK_QC_T_INTERNAL;
- }
+-	for_each_node(nid) {
+-		loc = (u64)(pmu_ptr->mem_info[chip].vbase) + cb_offset;
++	while (ptr->vbase != NULL) {
++		loc = (u64)(ptr->vbase) + cb_offset;
+ 		imc_mode_addr = (u64 *)(loc + IMC_CNTL_BLK_MODE_OFFSET);
+-		sprintf(mode, "imc_mode_%d", nid);
++		sprintf(mode, "imc_mode_%d", (u32)(ptr->id));
+ 		if (!imc_debugfs_create_x64(mode, 0600, imc_debugfs_parent,
+ 					    imc_mode_addr))
+ 			goto err;
  
-+static inline void blk_mq_cleanup_rq(struct request *rq)
-+{
-+	if (rq->q->mq_ops->cleanup_rq)
-+		rq->q->mq_ops->cleanup_rq(rq);
-+}
-+
- #endif
--- 
-2.20.1
-
+ 		imc_cmd_addr = (u64 *)(loc + IMC_CNTL_BLK_CMD_OFFSET);
+-		sprintf(cmd, "imc_cmd_%d", nid);
++		sprintf(cmd, "imc_cmd_%d", (u32)(ptr->id));
+ 		if (!imc_debugfs_create_x64(cmd, 0600, imc_debugfs_parent,
+ 					    imc_cmd_addr))
+ 			goto err;
+-		chip++;
++		ptr++;
+ 	}
+ 	return;
+ 
 
 
