@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D97CA3AF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7030ACA3B2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387958AbfJCQR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44204 "EHLO mail.kernel.org"
+        id S2388566AbfJCQSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:18:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388566AbfJCQR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:59 -0400
+        id S2389455AbfJCQSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:18:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 532D920700;
-        Thu,  3 Oct 2019 16:17:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 603BC20700;
+        Thu,  3 Oct 2019 16:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119477;
-        bh=wDpL378kGVf4pMIXAYaTkF7wCXDt9A51ysKZ6bNNgTc=;
+        s=default; t=1570119482;
+        bh=wKwjfWM+JCA0f7UO0uWQrgxnwNMKaVWWUO0lVQf5ynI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NxNbdun9Dk57uz48XTBaFuhCamkAKKaHXhrO0d/HPINc88LlhzVZN5qjWdzARNdZP
-         hYukMt49qwXw9YgaJy6HCcSjgkarCnUpOx7PaBi9Qq+S2vm0+rcr7YK5pV4bDHsbxc
-         h8mevgN0qLdckb5z+DHs+KU1Xoa8PYMzf7y2FK/s=
+        b=neq9XLehacnN/ygJjsjMxzCVLjNlVa0tnw9uVf1NFDGLkfyYLf5DzfT/K1JXw71z0
+         tjCvhFpcuk4olWlULfcZXz9Cu9w5xGY++4C3qlSulEQEacUgOw/C49q0dXTJTxdaLa
+         dIBs0M/FkIXNNdMR1Ep8828BwduNj4h5vVnX6Q1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Stefan Agner <stefan.agner@toradex.com>,
+        Philippe Schenker <philippe.schenker@toradex.com>,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 080/211] m68k: Prevent some compiler warnings in Coldfire builds
-Date:   Thu,  3 Oct 2019 17:52:26 +0200
-Message-Id: <20191003154505.566967672@linuxfoundation.org>
+Subject: [PATCH 4.19 082/211] ARM: dts: imx7-colibri: disable HS400
+Date:   Thu,  3 Oct 2019 17:52:28 +0200
+Message-Id: <20191003154506.035362103@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,112 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Stefan Agner <stefan.agner@toradex.com>
 
-[ Upstream commit 94c04390225bcd8283103fd0c04be20cc30cc979 ]
+[ Upstream commit a95fbda08ee20cd063ce5826e0df95a2c22ea8c5 ]
 
-Since commit d3b41b6bb49e ("m68k: Dispatch nvram_ops calls to Atari or
-Mac functions"), Coldfire builds generate compiler warnings due to the
-unconditional inclusion of asm/atarihw.h and asm/macintosh.h.
+Force HS200 by masking bit 63 of the SDHCI capability register.
+The i.MX ESDHC driver uses SDHCI_QUIRK2_CAPS_BIT63_FOR_HS400. With
+that the stack checks bit 63 to descide whether HS400 is available.
+Using sdhci-caps-mask allows to mask bit 63. The stack then selects
+HS200 as operating mode.
 
-The inclusion of asm/atarihw.h causes warnings like this:
+This prevents rare communication errors with minimal effect on
+performance:
+	sdhci-esdhc-imx 30b60000.usdhc: warning! HS400 strobe DLL
+		status REF not lock!
 
-In file included from ./arch/m68k/include/asm/atarihw.h:25:0,
-                 from arch/m68k/kernel/setup_mm.c:41,
-                 from arch/m68k/kernel/setup.c:3:
-./arch/m68k/include/asm/raw_io.h:39:0: warning: "__raw_readb" redefined
- #define __raw_readb in_8
-
-In file included from ./arch/m68k/include/asm/io.h:6:0,
-                 from arch/m68k/kernel/setup_mm.c:36,
-                 from arch/m68k/kernel/setup.c:3:
-./arch/m68k/include/asm/io_no.h:16:0: note: this is the location of the previous definition
- #define __raw_readb(addr) \
-...
-
-This issue is resolved by dropping the asm/raw_io.h include. It turns out
-that asm/io_mm.h already includes that header file.
-
-Moving the relevant macro definitions helps to clarify this dependency
-and make it safe to include asm/atarihw.h.
-
-The other warnings look like this:
-
-In file included from arch/m68k/kernel/setup_mm.c:48:0,
-                 from arch/m68k/kernel/setup.c:3:
-./arch/m68k/include/asm/macintosh.h:19:35: warning: 'struct irq_data' declared inside parameter list will not be visible outside of this definition or declaration
- extern void mac_irq_enable(struct irq_data *data);
-                                   ^~~~~~~~
-...
-
-This issue is resolved by adding the missing linux/irq.h include.
-
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Stefan Agner <stefan.agner@toradex.com>
+Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+Reviewed-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/atarihw.h   | 9 ---------
- arch/m68k/include/asm/io_mm.h     | 6 +++++-
- arch/m68k/include/asm/macintosh.h | 1 +
- 3 files changed, 6 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/imx7-colibri.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/m68k/include/asm/atarihw.h b/arch/m68k/include/asm/atarihw.h
-index 9000b249d225e..407a617fa3a2b 100644
---- a/arch/m68k/include/asm/atarihw.h
-+++ b/arch/m68k/include/asm/atarihw.h
-@@ -22,7 +22,6 @@
+diff --git a/arch/arm/boot/dts/imx7-colibri.dtsi b/arch/arm/boot/dts/imx7-colibri.dtsi
+index 895fbde4d4333..c1ed83131b495 100644
+--- a/arch/arm/boot/dts/imx7-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7-colibri.dtsi
+@@ -323,6 +323,7 @@
+ 	vmmc-supply = <&reg_module_3v3>;
+ 	vqmmc-supply = <&reg_DCDC3>;
+ 	non-removable;
++	sdhci-caps-mask = <0x80000000 0x0>;
+ };
  
- #include <linux/types.h>
- #include <asm/bootinfo-atari.h>
--#include <asm/raw_io.h>
- #include <asm/kmap.h>
- 
- extern u_long atari_mch_cookie;
-@@ -126,14 +125,6 @@ extern struct atari_hw_present atari_hw_present;
-  */
- 
- 
--#define atari_readb   raw_inb
--#define atari_writeb  raw_outb
--
--#define atari_inb_p   raw_inb
--#define atari_outb_p  raw_outb
--
--
--
- #include <linux/mm.h>
- #include <asm/cacheflush.h>
- 
-diff --git a/arch/m68k/include/asm/io_mm.h b/arch/m68k/include/asm/io_mm.h
-index 782b78f8a0489..e056feabbaf0b 100644
---- a/arch/m68k/include/asm/io_mm.h
-+++ b/arch/m68k/include/asm/io_mm.h
-@@ -29,7 +29,11 @@
- #include <asm-generic/iomap.h>
- 
- #ifdef CONFIG_ATARI
--#include <asm/atarihw.h>
-+#define atari_readb   raw_inb
-+#define atari_writeb  raw_outb
-+
-+#define atari_inb_p   raw_inb
-+#define atari_outb_p  raw_outb
- #endif
- 
- 
-diff --git a/arch/m68k/include/asm/macintosh.h b/arch/m68k/include/asm/macintosh.h
-index 08cee11180e69..e441517785fda 100644
---- a/arch/m68k/include/asm/macintosh.h
-+++ b/arch/m68k/include/asm/macintosh.h
-@@ -4,6 +4,7 @@
- 
- #include <linux/seq_file.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- 
- #include <asm/bootinfo-mac.h>
- 
+ &iomuxc {
 -- 
 2.20.1
 
