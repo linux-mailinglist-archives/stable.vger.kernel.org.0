@@ -2,139 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E81DCCA054
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F1DCA062
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730274AbfJCO3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 10:29:53 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:42112 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726393AbfJCO3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 10:29:53 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: bbrezillon)
-        with ESMTPSA id 33AF328E8BE
-Date:   Thu, 3 Oct 2019 16:29:43 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Vitor Soares <Vitor.Soares@synopsys.com>
-Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-i3c@lists.infradead.org, bbrezillon@kernel.org,
-        robh+dt@kernel.org, mark.rutland@arm.com, pgaj@cadence.com,
-        Joao.Pinto@synopsys.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3 2/5] i3c: master: make sure ->boardinfo is
- initialized in add_i3c_dev_locked()
-Message-ID: <20191003162943.4a0d0274@collabora.com>
-In-Reply-To: <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
-References: <cover.1567608245.git.vitor.soares@synopsys.com>
-        <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1727587AbfJCOc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 10:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44356 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726393AbfJCOcZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 10:32:25 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50B0820865;
+        Thu,  3 Oct 2019 14:32:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570113144;
+        bh=7XXpmEpuZMPkDfcHahfksgKNt4e+lKBGGDcjpnAuBGU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Z0ETwHcCMbw0AQ5m6wj89lXh+QvqHO12lqIBtWTk/pthT21P9r9r0ztbl2xB+T2Is
+         oTd0rYuBUWbcV4NCpz3NYYVUu5/yPi5vEFzHdeHM/EVhIfzk2U94GFrzS/JNE429MG
+         wHaprzygOJVrFU+yYNpkscFHyX9mLSydgv0QVZgY=
+Date:   Thu, 3 Oct 2019 10:32:23 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     fdmanana@suse.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Btrfs: fix race setting up and completing
+ qgroup rescan" failed to apply to 4.14-stable tree
+Message-ID: <20191003143223.GB17454@sasha-vm>
+References: <1570103687153167@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1570103687153167@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu,  5 Sep 2019 12:00:35 +0200
-Vitor Soares <Vitor.Soares@synopsys.com> wrote:
+On Thu, Oct 03, 2019 at 01:54:47PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.14-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 13fc1d271a2e3ab8a02071e711add01fab9271f6 Mon Sep 17 00:00:00 2001
+>From: Filipe Manana <fdmanana@suse.com>
+>Date: Tue, 24 Sep 2019 10:49:54 +0100
+>Subject: [PATCH] Btrfs: fix race setting up and completing qgroup rescan
+> workers
+>
+>There is a race between setting up a qgroup rescan worker and completing
+>a qgroup rescan worker that can lead to callers of the qgroup rescan wait
+>ioctl to either not wait for the rescan worker to complete or to hang
+>forever due to missing wake ups. The following diagram shows a sequence
+>of steps that illustrates the race.
+>
+>        CPU 1                                                         CPU 2                                  CPU 3
+>
+> btrfs_ioctl_quota_rescan()
+>  btrfs_qgroup_rescan()
+>   qgroup_rescan_init()
+>    mutex_lock(&fs_info->qgroup_rescan_lock)
+>    spin_lock(&fs_info->qgroup_lock)
+>
+>    fs_info->qgroup_flags |=
+>      BTRFS_QGROUP_STATUS_FLAG_RESCAN
+>
+>    init_completion(
+>      &fs_info->qgroup_rescan_completion)
+>
+>    fs_info->qgroup_rescan_running = true
+>
+>    mutex_unlock(&fs_info->qgroup_rescan_lock)
+>    spin_unlock(&fs_info->qgroup_lock)
+>
+>    btrfs_init_work()
+>     --> starts the worker
+>
+>                                                        btrfs_qgroup_rescan_worker()
+>                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
+>
+>                                                         fs_info->qgroup_flags &=
+>                                                           ~BTRFS_QGROUP_STATUS_FLAG_RESCAN
+>
+>                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
+>
+>                                                         starts transaction, updates qgroup status
+>                                                         item, etc
+>
+>                                                                                                           btrfs_ioctl_quota_rescan()
+>                                                                                                            btrfs_qgroup_rescan()
+>                                                                                                             qgroup_rescan_init()
+>                                                                                                              mutex_lock(&fs_info->qgroup_rescan_lock)
+>                                                                                                              spin_lock(&fs_info->qgroup_lock)
+>
+>                                                                                                              fs_info->qgroup_flags |=
+>                                                                                                                BTRFS_QGROUP_STATUS_FLAG_RESCAN
+>
+>                                                                                                              init_completion(
+>                                                                                                                &fs_info->qgroup_rescan_completion)
+>
+>                                                                                                              fs_info->qgroup_rescan_running = true
+>
+>                                                                                                              mutex_unlock(&fs_info->qgroup_rescan_lock)
+>                                                                                                              spin_unlock(&fs_info->qgroup_lock)
+>
+>                                                                                                              btrfs_init_work()
+>                                                                                                               --> starts another worker
+>
+>                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
+>
+>                                                         fs_info->qgroup_rescan_running = false
+>
+>                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
+>
+>							 complete_all(&fs_info->qgroup_rescan_completion)
+>
+>Before the rescan worker started by the task at CPU 3 completes, if
+>another task calls btrfs_ioctl_quota_rescan(), it will get -EINPROGRESS
+>because the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN is set at
+>fs_info->qgroup_flags, which is expected and correct behaviour.
+>
+>However if other task calls btrfs_ioctl_quota_rescan_wait() before the
+>rescan worker started by the task at CPU 3 completes, it will return
+>immediately without waiting for the new rescan worker to complete,
+>because fs_info->qgroup_rescan_running is set to false by CPU 2.
+>
+>This race is making test case btrfs/171 (from fstests) to fail often:
+>
+>  btrfs/171 9s ... - output mismatch (see /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad)
+>      --- tests/btrfs/171.out     2018-09-16 21:30:48.505104287 +0100
+>      +++ /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad      2019-09-19 02:01:36.938486039 +0100
+>      @@ -1,2 +1,3 @@
+>       QA output created by 171
+>      +ERROR: quota rescan failed: Operation now in progress
+>       Silence is golden
+>      ...
+>      (Run 'diff -u /home/fdmanana/git/hub/xfstests/tests/btrfs/171.out /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad'  to see the entire diff)
+>
+>That is because the test calls the btrfs-progs commands "qgroup quota
+>rescan -w", "qgroup assign" and "qgroup remove" in a sequence that makes
+>calls to the rescan start ioctl fail with -EINPROGRESS (note the "btrfs"
+>commands 'qgroup assign' and 'qgroup remove' often call the rescan start
+>ioctl after calling the qgroup assign ioctl,
+>btrfs_ioctl_qgroup_assign()), since previous waits didn't actually wait
+>for a rescan worker to complete.
+>
+>Another problem the race can cause is missing wake ups for waiters,
+>since the call to complete_all() happens outside a critical section and
+>after clearing the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN. In the sequence
+>diagram above, if we have a waiter for the first rescan task (executed
+>by CPU 2), then fs_info->qgroup_rescan_completion.wait is not empty, and
+>if after the rescan worker clears BTRFS_QGROUP_STATUS_FLAG_RESCAN and
+>before it calls complete_all() against
+>fs_info->qgroup_rescan_completion, the task at CPU 3 calls
+>init_completion() against fs_info->qgroup_rescan_completion which
+>re-initilizes its wait queue to an empty queue, therefore causing the
+>rescan worker at CPU 2 to call complete_all() against an empty queue,
+>never waking up the task waiting for that rescan worker.
+>
+>Fix this by clearing BTRFS_QGROUP_STATUS_FLAG_RESCAN and setting
+>fs_info->qgroup_rescan_running to false in the same critical section,
+>delimited by the mutex fs_info->qgroup_rescan_lock, as well as doing the
+>call to complete_all() in that same critical section. This gives the
+>protection needed to avoid rescan wait ioctl callers not waiting for a
+>running rescan worker and the lost wake ups problem, since setting that
+>rescan flag and boolean as well as initializing the wait queue is done
+>already in a critical section delimited by that mutex (at
+>qgroup_rescan_init()).
+>
+>Fixes: 57254b6ebce4ce ("Btrfs: add ioctl to wait for qgroup rescan completion")
+>Fixes: d2c609b834d62f ("btrfs: properly track when rescan worker is running")
+>CC: stable@vger.kernel.org # 4.4+
+>Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+>Signed-off-by: Filipe Manana <fdmanana@suse.com>
+>Signed-off-by: David Sterba <dsterba@suse.com>
 
-> The newdev->boardinfo assignment was missing in
-> i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
-> propagated to i3c_dev_desc.
-> 
-> Fix this by trying to initialize device i3c_dev_boardinfo if available.
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
-> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> ---
-> Change in v3:
->   - None
-> 
-> Changes in v2:
->   - Change commit message
->   - Change i3c_master_search_i3c_boardinfo(newdev) to
->   i3c_master_init_i3c_dev_boardinfo(newdev)
->   - Add fixes, stable tags
-> 
->  drivers/i3c/master.c | 27 +++++++++++++++++++++++++--
->  1 file changed, 25 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-> index 586e34f..9fb99bc 100644
-> --- a/drivers/i3c/master.c
-> +++ b/drivers/i3c/master.c
-> @@ -1798,6 +1798,22 @@ i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
->  	return NULL;
->  }
->  
-> +static void i3c_master_init_i3c_dev_boardinfo(struct i3c_dev_desc *dev)
-> +{
-> +	struct i3c_master_controller *master = i3c_dev_get_master(dev);
-> +	struct i3c_dev_boardinfo *boardinfo;
-> +
-> +	if (dev->boardinfo)
-> +		return;
-> +
-> +	list_for_each_entry(boardinfo, &master->boardinfo.i3c, node) {
-> +		if (dev->info.pid == boardinfo->pid) {
-> +			dev->boardinfo = boardinfo;
-> +			return;
-> +		}
-> +	}
-> +}
-> +
->  /**
->   * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
->   * @master: master used to send frames on the bus
-> @@ -1818,8 +1834,9 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
->  				  u8 addr)
->  {
->  	struct i3c_device_info info = { .dyn_addr = addr };
-> -	struct i3c_dev_desc *newdev, *olddev;
->  	u8 old_dyn_addr = addr, expected_dyn_addr;
-> +	enum i3c_addr_slot_status addrstatus;
-> +	struct i3c_dev_desc *newdev, *olddev;
->  	struct i3c_ibi_setup ibireq = { };
->  	bool enable_ibi = false;
->  	int ret;
-> @@ -1878,6 +1895,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
->  	if (ret)
->  		goto err_detach_dev;
->  
-> +	i3c_master_init_i3c_dev_boardinfo(newdev);
-> +
->  	/*
->  	 * Depending on our previous state, the expected dynamic address might
->  	 * differ:
-> @@ -1895,7 +1914,11 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
->  	else
->  		expected_dyn_addr = newdev->info.dyn_addr;
->  
-> -	if (newdev->info.dyn_addr != expected_dyn_addr) {
-> +	addrstatus = i3c_bus_get_addr_slot_status(&master->bus,
-> +						  expected_dyn_addr);
-> +
-> +	if (newdev->info.dyn_addr != expected_dyn_addr &&
-> +	    addrstatus == I3C_ADDR_SLOT_FREE) {
+For 4.14, I've just grabbed 2e980acdd8297 ("btrfs: qgroup: Drop
+quota_root and fs_info parameters from update_qgroup_status_item").
 
-First, this change shouldn't be part of this patch, since the commit
-message only mentions the boardinfo init stuff, not the extra 'is slot
-free check'. Plus, I want the fix to be backported so we should avoid
-any unneeded deps.
+For 4.9 and 4.4 I've also worked around missing:
 
-But even with those 2 things addressed, I'm still convinced the
-'free desc when device is not reachable' change you do in patch 1 is
-not that great, and the fact that you can't pre-reserve the address to
-make sure no one uses it until the device had a chance to show up tends
-to prove me right.
+913e153572218 ("btrfs: drop newlines from strings when using btrfs_*
+helpers")
 
-Can we please do what I suggest and solve the "not enough dev slots"
-problem later on (if we really have to).
+0b246afa62b0c ("btrfs: root->fs_info cleanup, add fs_info convenience
+variables")
 
->  		/*
->  		 * Try to apply the expected dynamic address. If it fails, keep
->  		 * the address assigned by the master.
+-- 
+Thanks,
+Sasha
 
