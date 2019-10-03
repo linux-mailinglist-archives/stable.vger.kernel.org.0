@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A44ACAA84
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA71CAA82
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393395AbfJCRH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:07:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45900 "EHLO mail.kernel.org"
+        id S2392519AbfJCRHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:07:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404445AbfJCQgh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:36:37 -0400
+        id S2404463AbfJCQgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C41D92133F;
-        Thu,  3 Oct 2019 16:36:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4AC721783;
+        Thu,  3 Oct 2019 16:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120597;
-        bh=1/khuy4O3zZHpw9LAei40BNaPZ3LL9+GHfckPbkNiRo=;
+        s=default; t=1570120605;
+        bh=tacfYVTqHfwHq8PH0Tb32QiEzTOj+oLqHcLD9XAgums=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Gc/bclxCzp/rOOf6On8di02KCoUAxT6Yk9055nXaUhNIoTc9IyZQtE9VL8nBB3K2
-         UvqKUL4CJjXJSFMAeuDI95UvwBzqrgOKQFDyw5VfH/hHFDP3OJKh5oyFSzsdQPBNoL
-         EaVoizOgVI6jQ7Iqvxr5QsB1YHOZFD65LUa9QmVs=
+        b=JFSjohDpOLGK5FbtZdM3CSqs7CUYZUwWz5V2m6BY/86NhFd1xz0hhUbBirYwBZ65M
+         Ns9/Qe9qNJJOTLUne9F377L0s6LkExJO+sfHetmoc68exllyhuQ1sk8YBjez5YnPgu
+         7swPnRskTSO5+V2aGPnycFlFIhIcjRAWPb+6c7ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.2 280/313] ovl: Fix dereferencing possible ERR_PTR()
-Date:   Thu,  3 Oct 2019 17:54:18 +0200
-Message-Id: <20191003154600.644755235@linuxfoundation.org>
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.2 282/313] btrfs: fix allocation of free space cache v1 bitmap pages
+Date:   Thu,  3 Oct 2019 17:54:20 +0200
+Message-Id: <20191003154600.843504124@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,35 +44,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 97f024b9171e74c4443bbe8a8dce31b917f97ac5 upstream.
+commit 3acd48507dc43eeeb0a1fe965b8bad91cab904a7 upstream.
 
-if ovl_encode_real_fh() fails, no memory was allocated
-and the error in the error-valued pointer should be returned.
+Various notifications of type "BUG kmalloc-4096 () : Redzone
+overwritten" have been observed recently in various parts of the kernel.
+After some time, it has been made a relation with the use of BTRFS
+filesystem and with SLUB_DEBUG turned on.
 
-Fixes: 9b6faee07470 ("ovl: check ERR_PTR() return value from ovl_encode_fh()")
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Cc: <stable@vger.kernel.org> # v4.16+
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+[   22.809700] BUG kmalloc-4096 (Tainted: G        W        ): Redzone overwritten
+
+[   22.810286] INFO: 0xbe1a5921-0xfbfc06cd. First byte 0x0 instead of 0xcc
+[   22.810866] INFO: Allocated in __load_free_space_cache+0x588/0x780 [btrfs] age=22 cpu=0 pid=224
+[   22.811193] 	__slab_alloc.constprop.26+0x44/0x70
+[   22.811345] 	kmem_cache_alloc_trace+0xf0/0x2ec
+[   22.811588] 	__load_free_space_cache+0x588/0x780 [btrfs]
+[   22.811848] 	load_free_space_cache+0xf4/0x1b0 [btrfs]
+[   22.812090] 	cache_block_group+0x1d0/0x3d0 [btrfs]
+[   22.812321] 	find_free_extent+0x680/0x12a4 [btrfs]
+[   22.812549] 	btrfs_reserve_extent+0xec/0x220 [btrfs]
+[   22.812785] 	btrfs_alloc_tree_block+0x178/0x5f4 [btrfs]
+[   22.813032] 	__btrfs_cow_block+0x150/0x5d4 [btrfs]
+[   22.813262] 	btrfs_cow_block+0x194/0x298 [btrfs]
+[   22.813484] 	commit_cowonly_roots+0x44/0x294 [btrfs]
+[   22.813718] 	btrfs_commit_transaction+0x63c/0xc0c [btrfs]
+[   22.813973] 	close_ctree+0xf8/0x2a4 [btrfs]
+[   22.814107] 	generic_shutdown_super+0x80/0x110
+[   22.814250] 	kill_anon_super+0x18/0x30
+[   22.814437] 	btrfs_kill_super+0x18/0x90 [btrfs]
+[   22.814590] INFO: Freed in proc_cgroup_show+0xc0/0x248 age=41 cpu=0 pid=83
+[   22.814841] 	proc_cgroup_show+0xc0/0x248
+[   22.814967] 	proc_single_show+0x54/0x98
+[   22.815086] 	seq_read+0x278/0x45c
+[   22.815190] 	__vfs_read+0x28/0x17c
+[   22.815289] 	vfs_read+0xa8/0x14c
+[   22.815381] 	ksys_read+0x50/0x94
+[   22.815475] 	ret_from_syscall+0x0/0x38
+
+Commit 69d2480456d1 ("btrfs: use copy_page for copying pages instead of
+memcpy") changed the way bitmap blocks are copied. But allthough bitmaps
+have the size of a page, they were allocated with kzalloc().
+
+Most of the time, kzalloc() allocates aligned blocks of memory, so
+copy_page() can be used. But when some debug options like SLAB_DEBUG are
+activated, kzalloc() may return unaligned pointer.
+
+On powerpc, memcpy(), copy_page() and other copying functions use
+'dcbz' instruction which provides an entire zeroed cacheline to avoid
+memory read when the intention is to overwrite a full line. Functions
+like memcpy() are writen to care about partial cachelines at the start
+and end of the destination, but copy_page() assumes it gets pages. As
+pages are naturally cache aligned, copy_page() doesn't care about
+partial lines. This means that when copy_page() is called with a
+misaligned pointer, a few leading bytes are zeroed.
+
+To fix it, allocate bitmaps through kmem_cache instead of using kzalloc()
+The cache pool is created with PAGE_SIZE alignment constraint.
+
+Reported-by: Erhard F. <erhard_f@mailbox.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204371
+Fixes: 69d2480456d1 ("btrfs: use copy_page for copying pages instead of memcpy")
+Cc: stable@vger.kernel.org # 4.19+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ rename to btrfs_free_space_bitmap ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/export.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/ctree.h            |    1 +
+ fs/btrfs/free-space-cache.c |   20 +++++++++++++-------
+ fs/btrfs/inode.c            |    8 ++++++++
+ 3 files changed, 22 insertions(+), 7 deletions(-)
 
---- a/fs/overlayfs/export.c
-+++ b/fs/overlayfs/export.c
-@@ -227,9 +227,8 @@ static int ovl_d_to_fh(struct dentry *de
- 	/* Encode an upper or lower file handle */
- 	fh = ovl_encode_real_fh(enc_lower ? ovl_dentry_lower(dentry) :
- 				ovl_dentry_upper(dentry), !enc_lower);
--	err = PTR_ERR(fh);
- 	if (IS_ERR(fh))
--		goto fail;
-+		return PTR_ERR(fh);
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -40,6 +40,7 @@ extern struct kmem_cache *btrfs_trans_ha
+ extern struct kmem_cache *btrfs_bit_radix_cachep;
+ extern struct kmem_cache *btrfs_path_cachep;
+ extern struct kmem_cache *btrfs_free_space_cachep;
++extern struct kmem_cache *btrfs_free_space_bitmap_cachep;
+ struct btrfs_ordered_sum;
+ struct btrfs_ref;
  
- 	err = -EOVERFLOW;
- 	if (fh->len > buflen)
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -764,7 +764,8 @@ static int __load_free_space_cache(struc
+ 		} else {
+ 			ASSERT(num_bitmaps);
+ 			num_bitmaps--;
+-			e->bitmap = kzalloc(PAGE_SIZE, GFP_NOFS);
++			e->bitmap = kmem_cache_zalloc(
++					btrfs_free_space_bitmap_cachep, GFP_NOFS);
+ 			if (!e->bitmap) {
+ 				kmem_cache_free(
+ 					btrfs_free_space_cachep, e);
+@@ -1881,7 +1882,7 @@ static void free_bitmap(struct btrfs_fre
+ 			struct btrfs_free_space *bitmap_info)
+ {
+ 	unlink_free_space(ctl, bitmap_info);
+-	kfree(bitmap_info->bitmap);
++	kmem_cache_free(btrfs_free_space_bitmap_cachep, bitmap_info->bitmap);
+ 	kmem_cache_free(btrfs_free_space_cachep, bitmap_info);
+ 	ctl->total_bitmaps--;
+ 	ctl->op->recalc_thresholds(ctl);
+@@ -2135,7 +2136,8 @@ new_bitmap:
+ 		}
+ 
+ 		/* allocate the bitmap */
+-		info->bitmap = kzalloc(PAGE_SIZE, GFP_NOFS);
++		info->bitmap = kmem_cache_zalloc(btrfs_free_space_bitmap_cachep,
++						 GFP_NOFS);
+ 		spin_lock(&ctl->tree_lock);
+ 		if (!info->bitmap) {
+ 			ret = -ENOMEM;
+@@ -2146,7 +2148,9 @@ new_bitmap:
+ 
+ out:
+ 	if (info) {
+-		kfree(info->bitmap);
++		if (info->bitmap)
++			kmem_cache_free(btrfs_free_space_bitmap_cachep,
++					info->bitmap);
+ 		kmem_cache_free(btrfs_free_space_cachep, info);
+ 	}
+ 
+@@ -2802,7 +2806,8 @@ out:
+ 	if (entry->bytes == 0) {
+ 		ctl->free_extents--;
+ 		if (entry->bitmap) {
+-			kfree(entry->bitmap);
++			kmem_cache_free(btrfs_free_space_bitmap_cachep,
++					entry->bitmap);
+ 			ctl->total_bitmaps--;
+ 			ctl->op->recalc_thresholds(ctl);
+ 		}
+@@ -3606,7 +3611,7 @@ again:
+ 	}
+ 
+ 	if (!map) {
+-		map = kzalloc(PAGE_SIZE, GFP_NOFS);
++		map = kmem_cache_zalloc(btrfs_free_space_bitmap_cachep, GFP_NOFS);
+ 		if (!map) {
+ 			kmem_cache_free(btrfs_free_space_cachep, info);
+ 			return -ENOMEM;
+@@ -3635,7 +3640,8 @@ again:
+ 
+ 	if (info)
+ 		kmem_cache_free(btrfs_free_space_cachep, info);
+-	kfree(map);
++	if (map)
++		kmem_cache_free(btrfs_free_space_bitmap_cachep, map);
+ 	return 0;
+ }
+ 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -73,6 +73,7 @@ static struct kmem_cache *btrfs_inode_ca
+ struct kmem_cache *btrfs_trans_handle_cachep;
+ struct kmem_cache *btrfs_path_cachep;
+ struct kmem_cache *btrfs_free_space_cachep;
++struct kmem_cache *btrfs_free_space_bitmap_cachep;
+ 
+ static int btrfs_setsize(struct inode *inode, struct iattr *attr);
+ static int btrfs_truncate(struct inode *inode, bool skip_writeback);
+@@ -9361,6 +9362,7 @@ void __cold btrfs_destroy_cachep(void)
+ 	kmem_cache_destroy(btrfs_trans_handle_cachep);
+ 	kmem_cache_destroy(btrfs_path_cachep);
+ 	kmem_cache_destroy(btrfs_free_space_cachep);
++	kmem_cache_destroy(btrfs_free_space_bitmap_cachep);
+ }
+ 
+ int __init btrfs_init_cachep(void)
+@@ -9390,6 +9392,12 @@ int __init btrfs_init_cachep(void)
+ 	if (!btrfs_free_space_cachep)
+ 		goto fail;
+ 
++	btrfs_free_space_bitmap_cachep = kmem_cache_create("btrfs_free_space_bitmap",
++							PAGE_SIZE, PAGE_SIZE,
++							SLAB_RED_ZONE, NULL);
++	if (!btrfs_free_space_bitmap_cachep)
++		goto fail;
++
+ 	return 0;
+ fail:
+ 	btrfs_destroy_cachep();
 
 
