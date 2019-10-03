@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45272CA5E0
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AB8CA798
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404633AbfJCQhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:37:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47102 "EHLO mail.kernel.org"
+        id S2392261AbfJCQzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:55:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404627AbfJCQhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:37:42 -0400
+        id S2406166AbfJCQwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D45C2086A;
-        Thu,  3 Oct 2019 16:37:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD1BD20867;
+        Thu,  3 Oct 2019 16:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120661;
-        bh=UGqMufujAPeYf8XfJuRbDlboz+r/vDuLTwr5F1tDuSA=;
+        s=default; t=1570121542;
+        bh=RgbKOuX3h2QbdzinijI7/wH56GttneKB9fd77dI5Lzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wNnKXvnPwVr8S9KJAkA6DRR8y2OA/ay/ocVRXhtLRhYb8KD4HlXcd/G64Nqqxmdce
-         HXqqsjHe2mK4I056am/fL/8YDZhd+I06faD2ErSNJIpqdMql8z/63TgISgUn7wqEFD
-         xoAsOlcgY+F/6RgJStLBI4V5VFlLFFZMzyZMvXNo=
+        b=TVA+l9s4RSH8n657SnpWgp5roOZC1YyFZPdlhtBqDL4rKlwqxcdTDjXbcbGudcA0j
+         S8SGUnJi5Gj11A+E+y0hpPz9WbnNWVi5Yw2l1ZIayisnrGwedo158tUpqnHemhFlv9
+         ykZSDEGqPIwbttFnh5EmNEqHQ6FJ6jInM/U+fEXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.2 305/313] hwrng: core - dont wait on add_early_randomness()
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.3 318/344] SUNRPC: Fix buffer handling of GSS MIC without slack
 Date:   Thu,  3 Oct 2019 17:54:43 +0200
-Message-Id: <20191003154603.241542353@linuxfoundation.org>
+Message-Id: <20191003154610.440553935@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Vivier <lvivier@redhat.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit 78887832e76541f77169a24ac238fccb51059b63 upstream.
+commit 5f1bc39979d868a0358c683864bec3fc8395440b upstream.
 
-add_early_randomness() is called by hwrng_register() when the
-hardware is added. If this hardware and its module are present
-at boot, and if there is no data available the boot hangs until
-data are available and can't be interrupted.
+The GSS Message Integrity Check data for krb5i may lie partially in the XDR
+reply buffer's pages and tail.  If so, we try to copy the entire MIC into
+free space in the tail.  But as the estimations of the slack space required
+for authentication and verification have improved there may be less free
+space in the tail to complete this copy -- see commit 2c94b8eca1a2
+("SUNRPC: Use au_rslack when computing reply buffer size").  In fact, there
+may only be room in the tail for a single copy of the MIC, and not part of
+the MIC and then another complete copy.
 
-For instance, in the case of virtio-rng, in some cases the host can be
-not able to provide enough entropy for all the guests.
+The real world failure reported is that `ls` of a directory on NFS may
+sometimes return -EIO, which can be traced back to xdr_buf_read_netobj()
+failing to find available free space in the tail to copy the MIC.
 
-We can have two easy ways to reproduce the problem but they rely on
-misconfiguration of the hypervisor or the egd daemon:
+Fix this by checking for the case of the MIC crossing the boundaries of
+head, pages, and tail. If so, shift the buffer until the MIC is contained
+completely within the pages or tail.  This allows the remainder of the
+function to create a sub buffer that directly address the complete MIC.
 
-- if virtio-rng device is configured to connect to the egd daemon of the
-host but when the virtio-rng driver asks for data the daemon is not
-connected,
-
-- if virtio-rng device is configured to connect to the egd daemon of the
-host but the egd daemon doesn't provide data.
-
-The guest kernel will hang at boot until the virtio-rng driver provides
-enough data.
-
-To avoid that, call rng_get_data() in non-blocking mode (wait=0)
-from add_early_randomness().
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Fixes: d9e797261933 ("hwrng: add randomness to system from rng...")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Cc: stable@vger.kernel.org # v5.1
+Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/hw_random/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xdr.c |   27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -67,7 +67,7 @@ static void add_early_randomness(struct
- 	size_t size = min_t(size_t, 16, rng_buffer_size());
+--- a/net/sunrpc/xdr.c
++++ b/net/sunrpc/xdr.c
+@@ -1237,16 +1237,29 @@ xdr_encode_word(struct xdr_buf *buf, uns
+ EXPORT_SYMBOL_GPL(xdr_encode_word);
  
- 	mutex_lock(&reading_mutex);
--	bytes_read = rng_get_data(rng, rng_buffer, size, 1);
-+	bytes_read = rng_get_data(rng, rng_buffer, size, 0);
- 	mutex_unlock(&reading_mutex);
- 	if (bytes_read > 0)
- 		add_device_randomness(rng_buffer, bytes_read);
+ /* If the netobj starting offset bytes from the start of xdr_buf is contained
+- * entirely in the head or the tail, set object to point to it; otherwise
+- * try to find space for it at the end of the tail, copy it there, and
+- * set obj to point to it. */
++ * entirely in the head, pages, or tail, set object to point to it; otherwise
++ * shift the buffer until it is contained entirely within the pages or tail.
++ */
+ int xdr_buf_read_netobj(struct xdr_buf *buf, struct xdr_netobj *obj, unsigned int offset)
+ {
+ 	struct xdr_buf subbuf;
++	unsigned int boundary;
+ 
+ 	if (xdr_decode_word(buf, offset, &obj->len))
+ 		return -EFAULT;
+-	if (xdr_buf_subsegment(buf, &subbuf, offset + 4, obj->len))
++	offset += 4;
++
++	/* Is the obj partially in the head? */
++	boundary = buf->head[0].iov_len;
++	if (offset < boundary && (offset + obj->len) > boundary)
++		xdr_shift_buf(buf, boundary - offset);
++
++	/* Is the obj partially in the pages? */
++	boundary += buf->page_len;
++	if (offset < boundary && (offset + obj->len) > boundary)
++		xdr_shrink_pagelen(buf, boundary - offset);
++
++	if (xdr_buf_subsegment(buf, &subbuf, offset, obj->len))
+ 		return -EFAULT;
+ 
+ 	/* Is the obj contained entirely in the head? */
+@@ -1258,11 +1271,7 @@ int xdr_buf_read_netobj(struct xdr_buf *
+ 	if (subbuf.tail[0].iov_len == obj->len)
+ 		return 0;
+ 
+-	/* use end of tail as storage for obj:
+-	 * (We don't copy to the beginning because then we'd have
+-	 * to worry about doing a potentially overlapping copy.
+-	 * This assumes the object is at most half the length of the
+-	 * tail.) */
++	/* Find a contiguous area in @buf to hold all of @obj */
+ 	if (obj->len > buf->buflen - buf->len)
+ 		return -ENOMEM;
+ 	if (buf->tail[0].iov_len != 0)
 
 
