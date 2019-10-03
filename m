@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CCFC9D83
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5625DC9D86
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730115AbfJCLje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 07:39:34 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41125 "EHLO
+        id S1729984AbfJCLkt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 07:40:49 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:40691 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725827AbfJCLje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:39:34 -0400
+        by vger.kernel.org with ESMTP id S1729820AbfJCLkt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:40:49 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 59D3820E89;
-        Thu,  3 Oct 2019 07:39:33 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:39:33 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id E9E7821C57;
+        Thu,  3 Oct 2019 07:40:48 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:40:48 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9Tt4Bn
-        Z9yMm3M49CxqpNbXjrt2Vp304Moz0qebr4MV4=; b=uM3rKem8VMz2Q+gM6Nmluh
-        5N1en7AKnpOS6b0e9Tx/1g1pIH5p6722oMteeqt76bCZBg2T/Ik+LhlJDVgrlq9s
-        VOLKI+Dj27pb4h4h8slpZadVmLcyIQeEzIELKId/FwlXhcahVs/H1K8b8BYb4GvK
-        RlivNV/iDVNcT10pBvxjNrbgB4hgL+CTXoCLDWauWZyLsIrZLEwJXSTKUaCC49HF
-        UGzdeesiOdDd9KxMetl3MJs3SoAVUw0d31tZZ7xeb4oXQuNWGKbtunkRi/6eQiLx
-        raTYAh2+McIcDQxz1PPabc5zfljrYPiZIAsYLtq5tx/wTBeQvwHrGeEm0HvhA6LA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bg791F
+        byt7qBKK1sbFyAsKZAVRaaGBCYZXyGc5NVzUw=; b=z52NjHFEauh6pZnyBcyxOn
+        i+YRGlEUl6jLR4xgEzDNd3fzDuglyWmmQRqpd9/mO90IxQNlDWO5mlWa1P/p3luT
+        eRApHV9YgzEvABvlZrBstvMFmrRE50j14nH0pcvMPPaYLRjGg043dadV3InCHtYv
+        pFyh1Ikmpo7ICh14GtMypS9OufMXGVBNrPOeZEml19U1N0zmB34gndOOZPZWnmiR
+        htFp1Jq1H3lBpx7U99A0AzalEm/P5S5eU5dTOL0u2Fp2UAelYiOZwzvGJOx0fQ2B
+        9unp03gFQIZgCcrsMapNXZY5U41D3Tu26SckqIR/RacN3oB298BXRA1XYmvb66bA
         ==
-X-ME-Sender: <xms:9d2VXeShBRn5AgIP6LwcapqjlZQdA3lVA_ODUKhxKm4umk8ETboEEw>
+X-ME-Sender: <xms:QN6VXToUBpEQiVRNKw2GaQkSAN_4K_S8JnPYyZIgRNmxgYzl40HaCg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:9d2VXWFca1mVEmYVchDIILojqbjdzNMjQi_A_fokKYqiDdsXknkcZQ>
-    <xmx:9d2VXamizPs7KLSgqVWVmwcuzlBxkjIrgvsJak3iKPJIRZhfYyvcQA>
-    <xmx:9d2VXUOEoJvFrBMHuVKN8TjOtwcc_LmFWUBs0d-CsImcFuP2haF7jg>
-    <xmx:9d2VXZvDhDaotlC0aPR2KT9sdvKYHUAP7vybg5Yrr9wZ3_Enl_adqQ>
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:QN6VXZtpOSRxbw_Orh0o4MlnK5gcP9XayGx5IIrw5itlwHLHHMBbbA>
+    <xmx:QN6VXbguph_W939hjLiLlD8Kmy9XlWr79svuCLqiBjTPHAqlh5cyyQ>
+    <xmx:QN6VXV2Rx22QoYksA8lfVcZr1NFpOL2-osnAtjsu8Z6ZD6LwQ-MjlQ>
+    <xmx:QN6VXUML-iPwT7KLaku7c8dGr9EI8l36iVkT-NoiYdq-sOOnvxDUPQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BF39BD6005E;
-        Thu,  3 Oct 2019 07:39:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] memcg, oom: don't require __GFP_FS when invoking memcg OOM" failed to apply to 4.9-stable tree
-To:     penguin-kernel@i-love.sakura.ne.jp, akpm@linux-foundation.org,
-        mhocko@suse.com, msharbiani@apple.com,
-        penguin-kernel@I-love.SAKURA.ne.jp, rientjes@google.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5A71780061;
+        Thu,  3 Oct 2019 07:40:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mt76: mt7615: fix mt7615 firmware path definitions" failed to apply to 5.2-stable tree
+To:     lorenzo@kernel.org, kvalo@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 13:39:31 +0200
-Message-ID: <1570102771114109@kroah.com>
+Date:   Thu, 03 Oct 2019 13:40:46 +0200
+Message-ID: <157010284629206@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,180 +67,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f9c645621a28e37813a1de96d9cbd89cde94a1e4 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Date: Mon, 23 Sep 2019 15:37:08 -0700
-Subject: [PATCH] memcg, oom: don't require __GFP_FS when invoking memcg OOM
- killer
+From 9d4d0d06bbf9f7e576b0ebbb2f77672d0fc7f503 Mon Sep 17 00:00:00 2001
+From: Lorenzo Bianconi <lorenzo@kernel.org>
+Date: Sun, 22 Sep 2019 15:36:03 +0200
+Subject: [PATCH] mt76: mt7615: fix mt7615 firmware path definitions
 
-Masoud Sharbiani noticed that commit 29ef680ae7c21110 ("memcg, oom: move
-out_of_memory back to the charge path") broke memcg OOM called from
-__xfs_filemap_fault() path.  It turned out that try_charge() is retrying
-forever without making forward progress because mem_cgroup_oom(GFP_NOFS)
-cannot invoke the OOM killer due to commit 3da88fb3bacfaa33 ("mm, oom:
-move GFP_NOFS check to out_of_memory").
+mt7615 patch/n9/cr4 firmwares are available in mediatek folder in
+linux-firmware repository. Because of this mt7615 won't work on regular
+distributions like Ubuntu. Fix path definitions.  Moreover remove useless
+firmware name pointers and use definitions directly
 
-Allowing forced charge due to being unable to invoke memcg OOM killer will
-lead to global OOM situation.  Also, just returning -ENOMEM will be risky
-because OOM path is lost and some paths (e.g.  get_user_pages()) will leak
--ENOMEM.  Therefore, invoking memcg OOM killer (despite GFP_NOFS) will be
-the only choice we can choose for now.
+Fixes: 04b8e65922f6 ("mt76: add mac80211 driver for MT7615 PCIe-based chipsets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-Until 29ef680ae7c21110, we were able to invoke memcg OOM killer when
-GFP_KERNEL reclaim failed [1].  But since 29ef680ae7c21110, we need to
-invoke memcg OOM killer when GFP_NOFS reclaim failed [2].  Although in the
-past we did invoke memcg OOM killer for GFP_NOFS [3], we might get
-pre-mature memcg OOM reports due to this patch.
-
-[1]
-
- leaker invoked oom-killer: gfp_mask=0x6200ca(GFP_HIGHUSER_MOVABLE), nodemask=(null), order=0, oom_score_adj=0
- CPU: 0 PID: 2746 Comm: leaker Not tainted 4.18.0+ #19
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x10a/0x2c0
-  mem_cgroup_out_of_memory+0x46/0x80
-  mem_cgroup_oom_synchronize+0x2e4/0x310
-  ? high_work_func+0x20/0x20
-  pagefault_out_of_memory+0x31/0x76
-  mm_fault_error+0x55/0x115
-  ? handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x433/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffe29ae96f0 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001ce1000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f94be09220d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f949d845000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 158965
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 2016kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:844KB rss:521136KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:132KB writeback:0KB inactive_anon:0KB active_anon:521224KB inactive_file:1012KB active_file:8KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 998 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:521176kB, file-rss:1208kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[2]
-
- leaker invoked oom-killer: gfp_mask=0x600040(GFP_NOFS), nodemask=(null), order=0, oom_score_adj=0
- CPU: 1 PID: 2746 Comm: leaker Not tainted 4.18.0+ #20
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x109/0x2d0
-  mem_cgroup_out_of_memory+0x46/0x80
-  try_charge+0x58d/0x650
-  ? __radix_tree_replace+0x81/0x100
-  mem_cgroup_try_charge+0x7a/0x100
-  __add_to_page_cache_locked+0x92/0x180
-  add_to_page_cache_lru+0x4d/0xf0
-  iomap_readpages_actor+0xde/0x1b0
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  iomap_apply+0xaf/0x130
-  iomap_readpages+0x9f/0x150
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  xfs_vm_readpages+0x18/0x20 [xfs]
-  read_pages+0x60/0x140
-  __do_page_cache_readahead+0x193/0x1b0
-  ondemand_readahead+0x16d/0x2c0
-  page_cache_async_readahead+0x9a/0xd0
-  filemap_fault+0x403/0x620
-  ? alloc_set_pte+0x12c/0x540
-  ? _cond_resched+0x14/0x30
-  __xfs_filemap_fault+0x66/0x180 [xfs]
-  xfs_filemap_fault+0x27/0x30 [xfs]
-  __do_fault+0x19/0x40
-  __handle_mm_fault+0x8e8/0xb60
-  handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x238/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffda45c9290 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001a1e000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f6d061ff20d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f6ce59b2000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 7221
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 1944kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:3632KB rss:518232KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:0KB writeback:0KB inactive_anon:0KB active_anon:518408KB inactive_file:3908KB active_file:12KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 992 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:518264kB, file-rss:1188kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[3]
-
- leaker invoked oom-killer: gfp_mask=0x50, order=0, oom_score_adj=0
- leaker cpuset=/ mems_allowed=0
- CPU: 1 PID: 3206 Comm: leaker Not tainted 3.10.0-957.27.2.el7.x86_64 #1
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  [<ffffffffaf364147>] dump_stack+0x19/0x1b
-  [<ffffffffaf35eb6a>] dump_header+0x90/0x229
-  [<ffffffffaedbb456>] ? find_lock_task_mm+0x56/0xc0
-  [<ffffffffaee32a38>] ? try_get_mem_cgroup_from_mm+0x28/0x60
-  [<ffffffffaedbb904>] oom_kill_process+0x254/0x3d0
-  [<ffffffffaee36c36>] mem_cgroup_oom_synchronize+0x546/0x570
-  [<ffffffffaee360b0>] ? mem_cgroup_charge_common+0xc0/0xc0
-  [<ffffffffaedbc194>] pagefault_out_of_memory+0x14/0x90
-  [<ffffffffaf35d072>] mm_fault_error+0x6a/0x157
-  [<ffffffffaf3717c8>] __do_page_fault+0x3c8/0x4f0
-  [<ffffffffaf371925>] do_page_fault+0x35/0x90
-  [<ffffffffaf36d768>] page_fault+0x28/0x30
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 20628
- memory+swap: usage 524288kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 0kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:840KB rss:523448KB rss_huge:0KB mapped_file:0KB swap:0KB inactive_anon:0KB active_anon:523448KB inactive_file:464KB active_file:376KB unevictable:0KB
- Memory cgroup out of memory: Kill process 3206 (leaker) score 970 or sacrifice child
- Killed process 3206 (leaker) total-vm:536692kB, anon-rss:523304kB, file-rss:412kB, shmem-rss:0kB
-
-Bisected by Masoud Sharbiani.
-
-Link: http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
-Fixes: 3da88fb3bacfaa33 ("mm, oom: move GFP_NOFS check to out_of_memory") [necessary after 29ef680ae7c21110]
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Masoud Sharbiani <msharbiani@apple.com>
-Tested-by: Masoud Sharbiani <msharbiani@apple.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-
-diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-index 95872bdfec4e..a6b76624f5b8 100644
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -1069,9 +1069,10 @@ bool out_of_memory(struct oom_control *oc)
- 	 * The OOM killer does not compensate for IO-less reclaim.
- 	 * pagefault_out_of_memory lost its gfp context so we have to
- 	 * make sure exclude 0 mask - all other users should have at least
--	 * ___GFP_DIRECT_RECLAIM to get here.
-+	 * ___GFP_DIRECT_RECLAIM to get here. But mem_cgroup_oom() has to
-+	 * invoke the OOM killer even if it is a GFP_NOFS allocation.
- 	 */
--	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS))
-+	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS) && !is_memcg_oom(oc))
- 		return true;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index 275d5eaed3b7..842cd81704db 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -333,7 +333,6 @@ static int mt7615_driver_own(struct mt7615_dev *dev)
  
- 	/*
+ static int mt7615_load_patch(struct mt7615_dev *dev)
+ {
+-	const char *firmware = MT7615_ROM_PATCH;
+ 	const struct mt7615_patch_hdr *hdr;
+ 	const struct firmware *fw = NULL;
+ 	int len, ret, sem;
+@@ -349,7 +348,7 @@ static int mt7615_load_patch(struct mt7615_dev *dev)
+ 		return -EAGAIN;
+ 	}
+ 
+-	ret = request_firmware(&fw, firmware, dev->mt76.dev);
++	ret = request_firmware(&fw, MT7615_ROM_PATCH, dev->mt76.dev);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -447,13 +446,11 @@ mt7615_mcu_send_ram_firmware(struct mt7615_dev *dev,
+ 
+ static int mt7615_load_ram(struct mt7615_dev *dev)
+ {
+-	const struct firmware *fw;
+ 	const struct mt7615_fw_trailer *hdr;
+-	const char *n9_firmware = MT7615_FIRMWARE_N9;
+-	const char *cr4_firmware = MT7615_FIRMWARE_CR4;
++	const struct firmware *fw;
+ 	int ret;
+ 
+-	ret = request_firmware(&fw, n9_firmware, dev->mt76.dev);
++	ret = request_firmware(&fw, MT7615_FIRMWARE_N9, dev->mt76.dev);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -482,7 +479,7 @@ static int mt7615_load_ram(struct mt7615_dev *dev)
+ 
+ 	release_firmware(fw);
+ 
+-	ret = request_firmware(&fw, cr4_firmware, dev->mt76.dev);
++	ret = request_firmware(&fw, MT7615_FIRMWARE_CR4, dev->mt76.dev);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
+index cef3fd43cb00..7963e302d705 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
+@@ -26,9 +26,9 @@
+ #define MT7615_RX_RING_SIZE		1024
+ #define MT7615_RX_MCU_RING_SIZE		512
+ 
+-#define MT7615_FIRMWARE_CR4		"mt7615_cr4.bin"
+-#define MT7615_FIRMWARE_N9		"mt7615_n9.bin"
+-#define MT7615_ROM_PATCH		"mt7615_rom_patch.bin"
++#define MT7615_FIRMWARE_CR4		"mediatek/mt7615_cr4.bin"
++#define MT7615_FIRMWARE_N9		"mediatek/mt7615_n9.bin"
++#define MT7615_ROM_PATCH		"mediatek/mt7615_rom_patch.bin"
+ 
+ #define MT7615_EEPROM_SIZE		1024
+ #define MT7615_TOKEN_SIZE		4096
 
