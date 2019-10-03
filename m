@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73FD8CA6E1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E7FCA6D0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405631AbfJCQsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:48:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33966 "EHLO mail.kernel.org"
+        id S2405298AbfJCQrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405612AbfJCQsS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:48:18 -0400
+        id S2405202AbfJCQre (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:47:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1220215EA;
-        Thu,  3 Oct 2019 16:48:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 856E12086A;
+        Thu,  3 Oct 2019 16:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121297;
-        bh=dzieCr/axxqMz92jBnTQ1G764nndP0Xbet2Pe5781Xs=;
+        s=default; t=1570121254;
+        bh=9SO459Tx95hQLcr6M3fZdhK5p3dMn/Dz2ldcdyi20Qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awmHudFA0VyCNO4YNMtUZVgUg9nWT5/6bkblBRJNm5oHWpGhnHIEdcXpjjvrFc8SD
-         Mv8sPQSGbG8N/dRrX0Yqb7fCBjtgkS20WQaiuX9x6PciQa/1+Sfq2qO31QUkePQacG
-         wBk0fMRFmnlwY3y5/k9RC7GGF01CbP644nfNvtyc=
+        b=md9cV8CkeabwpBgC7nspO4ST69xmdZgBAydKC9Ns1hrZVuiFnca8A2oxhfdyKEECL
+         W9KHZafr2n6DGUv/wJudWRvDA5SkYWWIupJCRMZN2QZkHfofo+9BHF56FWBxekWshP
+         mNK7WHWOEDMkgWAsCEEDGNCQjDiaujLuu9MaEv+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 181/344] iommu/amd: Silence warnings under memory pressure
-Date:   Thu,  3 Oct 2019 17:52:26 +0200
-Message-Id: <20191003154558.066593822@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Jinyu Qi <jinyuqi@huawei.com>, Joerg Roedel <jroedel@suse.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 184/344] iommu/iova: Avoid false sharing on fq_timer_on
+Date:   Thu,  3 Oct 2019 17:52:29 +0200
+Message-Id: <20191003154558.358824001@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,62 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3d708895325b78506e8daf00ef31549476e8586a ]
+[ Upstream commit 0d87308cca2c124f9bce02383f1d9632c9be89c4 ]
 
-When running heavy memory pressure workloads, the system is throwing
-endless warnings,
+In commit 14bd9a607f90 ("iommu/iova: Separate atomic variables
+to improve performance") Jinyu Qi identified that the atomic_cmpxchg()
+in queue_iova() was causing a performance loss and moved critical fields
+so that the false sharing would not impact them.
 
-smartpqi 0000:23:00.0: AMD-Vi: IOMMU mapping error in map_sg (io-pages:
-5 reason: -12)
-Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40
-07/10/2019
-swapper/10: page allocation failure: order:0, mode:0xa20(GFP_ATOMIC),
-nodemask=(null),cpuset=/,mems_allowed=0,4
-Call Trace:
- <IRQ>
- dump_stack+0x62/0x9a
- warn_alloc.cold.43+0x8a/0x148
- __alloc_pages_nodemask+0x1a5c/0x1bb0
- get_zeroed_page+0x16/0x20
- iommu_map_page+0x477/0x540
- map_sg+0x1ce/0x2f0
- scsi_dma_map+0xc6/0x160
- pqi_raid_submit_scsi_cmd_with_io_request+0x1c3/0x470 [smartpqi]
- do_IRQ+0x81/0x170
- common_interrupt+0xf/0xf
- </IRQ>
+However, avoiding the false sharing in the first place seems easy.
+We should attempt the atomic_cmpxchg() no more than 100 times
+per second. Adding an atomic_read() will keep the cache
+line mostly shared.
 
-because the allocation could fail from iommu_map_page(), and the volume
-of this call could be huge which may generate a lot of serial console
-output and cosumes all CPUs.
+This false sharing came with commit 9a005a800ae8
+("iommu/iova: Add flush timer").
 
-Fix it by silencing the warning in this call site, and there is still a
-dev_err() later to notify the failure.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 9a005a800ae8 ('iommu/iova: Add flush timer')
+Cc: Jinyu Qi <jinyuqi@huawei.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Acked-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 4 +++-
+ drivers/iommu/iova.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 61de81965c44e..e1259429ded2f 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2577,7 +2577,9 @@ static int map_sg(struct device *dev, struct scatterlist *sglist,
+diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+index 3e1a8a6755723..41c605b0058f9 100644
+--- a/drivers/iommu/iova.c
++++ b/drivers/iommu/iova.c
+@@ -577,7 +577,9 @@ void queue_iova(struct iova_domain *iovad,
  
- 			bus_addr  = address + s->dma_address + (j << PAGE_SHIFT);
- 			phys_addr = (sg_phys(s) & PAGE_MASK) + (j << PAGE_SHIFT);
--			ret = iommu_map_page(domain, bus_addr, phys_addr, PAGE_SIZE, prot, GFP_ATOMIC);
-+			ret = iommu_map_page(domain, bus_addr, phys_addr,
-+					     PAGE_SIZE, prot,
-+					     GFP_ATOMIC | __GFP_NOWARN);
- 			if (ret)
- 				goto out_unmap;
+ 	spin_unlock_irqrestore(&fq->lock, flags);
  
+-	if (atomic_cmpxchg(&iovad->fq_timer_on, 0, 1) == 0)
++	/* Avoid false sharing as much as possible. */
++	if (!atomic_read(&iovad->fq_timer_on) &&
++	    !atomic_cmpxchg(&iovad->fq_timer_on, 0, 1))
+ 		mod_timer(&iovad->fq_timer,
+ 			  jiffies + msecs_to_jiffies(IOVA_FQ_TIMEOUT));
+ }
 -- 
 2.20.1
 
