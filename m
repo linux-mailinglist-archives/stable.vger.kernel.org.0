@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AEECA9C0
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5CACCAB47
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392996AbfJCQrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60710 "EHLO mail.kernel.org"
+        id S2388457AbfJCRT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:19:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391908AbfJCQrN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:47:13 -0400
+        id S2388239AbfJCQTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 036EC2070B;
-        Thu,  3 Oct 2019 16:47:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 838EE21A4C;
+        Thu,  3 Oct 2019 16:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121232;
-        bh=Qr/VRfoHX7sntmUIqwqsVChvtHI6zIMCrPB6fm/zYdM=;
+        s=default; t=1570119547;
+        bh=lAXoCvK9UQCg0kKCfkhoaIjzPBFySSpdewTqTsr5tNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzVRgAtT6D0Djkr0kN/ydtSEgr2WMe72apBfFPNG9F5kbG1xDDZUBdoT3rHPfehMx
-         kKofiM+HxlspJlaD1e0niAmVWufzJwot7PWATwWgy6PTs7djpelMg+95EJMEmBEXCU
-         WzNUyct9LPTf126QLyNmYWUhFPtvDyJcr32jCJuA=
+        b=xVsQ5p3un3YSbiPrRw4it2OfkXzmOt5qrMslFD/9w2bpade0vVJpZ89B+pT147YHP
+         HE1kegcwIFZeOPmcY6C4JEN1Nm4Oms4KsoUlOPQzysOVDY4VrSIryQhmojgRtk4E5x
+         j3NNlnrp9blsj8FuY23jikErYWeY9Ag2B/plH1fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 203/344] platform/x86: intel_pmc_core_pltdrv: Module removal warning fix
-Date:   Thu,  3 Oct 2019 17:52:48 +0200
-Message-Id: <20191003154600.286807055@linuxfoundation.org>
+Subject: [PATCH 4.19 104/211] media: ov9650: add a sanity check
+Date:   Thu,  3 Oct 2019 17:52:50 +0200
+Message-Id: <20191003154510.531808346@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: M. Vefa Bicakci <m.v.b@runbox.com>
+From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-[ Upstream commit 0b43e41e93815ecd9616759cf5d64d3a7be8e6fb ]
+[ Upstream commit 093347abc7a4e0490e3c962ecbde2dc272a8f708 ]
 
-Prior to this commit, removing the intel_pmc_core_pltdrv module
-would cause the following warning:
+As pointed by cppcheck:
 
-  Device 'intel_pmc_core.0' does not have a release() function, it is broken and must be fixed. See Documentation/kobject.txt.
-  WARNING: CPU: 0 PID: 2202 at drivers/base/core.c:1238 device_release+0x6f/0x80
+	[drivers/media/i2c/ov9650.c:706]: (error) Shifting by a negative value is undefined behaviour
+	[drivers/media/i2c/ov9650.c:707]: (error) Shifting by a negative value is undefined behaviour
+	[drivers/media/i2c/ov9650.c:721]: (error) Shifting by a negative value is undefined behaviour
 
-This commit hence adds an empty release function for the driver.
+Prevent mangling with gains with invalid values.
 
-Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+As pointed by Sylvester, this should never happen in practice,
+as min value of V4L2_CID_GAIN control is 16 (gain is always >= 16
+and m is always >= 0), but it is too hard for a static analyzer
+to get this, as the logic with validates control min/max is
+elsewhere inside V4L2 core.
+
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core_pltdrv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/i2c/ov9650.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/platform/x86/intel_pmc_core_pltdrv.c b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-index a8754a6db1b8b..186540014c480 100644
---- a/drivers/platform/x86/intel_pmc_core_pltdrv.c
-+++ b/drivers/platform/x86/intel_pmc_core_pltdrv.c
-@@ -18,8 +18,16 @@
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- 
-+static void intel_pmc_core_release(struct device *dev)
-+{
-+	/* Nothing to do. */
-+}
+diff --git a/drivers/media/i2c/ov9650.c b/drivers/media/i2c/ov9650.c
+index 5bea31cd41aa1..33a21d585dc9c 100644
+--- a/drivers/media/i2c/ov9650.c
++++ b/drivers/media/i2c/ov9650.c
+@@ -716,6 +716,11 @@ static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
+ 		for (m = 6; m >= 0; m--)
+ 			if (gain >= (1 << m) * 16)
+ 				break;
 +
- static struct platform_device pmc_core_device = {
- 	.name = "intel_pmc_core",
-+	.dev  = {
-+		.release = intel_pmc_core_release,
-+	},
- };
++		/* Sanity check: don't adjust the gain with a negative value */
++		if (m < 0)
++			return -EINVAL;
++
+ 		rgain = (gain - ((1 << m) * 16)) / (1 << m);
+ 		rgain |= (((1 << m) - 1) << 4);
  
- /*
 -- 
 2.20.1
 
