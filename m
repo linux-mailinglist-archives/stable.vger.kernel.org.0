@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBAACABE1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8591CAC65
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727326AbfJCQBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:01:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45874 "EHLO mail.kernel.org"
+        id S1733076AbfJCQJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731814AbfJCQBb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:01:31 -0400
+        id S1731103AbfJCQJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:09:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 166C5207FF;
-        Thu,  3 Oct 2019 16:01:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4ADF21848;
+        Thu,  3 Oct 2019 16:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118490;
-        bh=OKvm+ifNl4ftEgJiaFbzOEy9YzPA0oY2ohBxg2c6p5M=;
+        s=default; t=1570118967;
+        bh=di/LEEoX9xwrR2IcaRxTlEuaG7kUjZEk3SJJ3usJhEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwIuVzgB/dZZlqxhM+JrHDILGB1t0fCU7kYboVUltIT9KX7AQhn4u+hmqE07yQmSF
-         fVBQAye3ZoRcY/clgSr5v0XMGeJQ2oTtWOegVGXZYTcSIBJvrL17w3kr6MG+S+UOc1
-         PIHCqIvLlKOT7zq2ed3CRnt3t5JsyrTsehPxPDZA=
+        b=i7AcBQJGIJ/uJJstR/8+DC2vSTrjEE9eRREOCLuXdLxGISQFE7D7gafenoO7TxbYl
+         BvDd79klbenmfc9pPD9LUP2JWtGjcSAKBZEh4G7Sv4Y0LChXMHUxMcVaitWEJbHAUG
+         +0VwO0T+PD157NuBUmi9KL5J1qZzKI9uNkb3WiIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+d9c8bf24e56416d7ce2c@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 029/129] ppp: Fix memory leak in ppp_write
-Date:   Thu,  3 Oct 2019 17:52:32 +0200
-Message-Id: <20191003154332.533793119@linuxfoundation.org>
+        stable@vger.kernel.org, Leon Kong <Leon.KONG@cn.bosch.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 075/185] ASoC: rsnd: dont call clk_get_rate() under atomic context
+Date:   Thu,  3 Oct 2019 17:52:33 +0200
+Message-Id: <20191003154454.516362566@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit 4c247de564f1ff614d11b3bb5313fb70d7b9598b ]
+[ Upstream commit 06e8f5c842f2dbb232897ba967ea7b422745c271 ]
 
-When ppp is closing, __ppp_xmit_process() failed to enqueue skb
-and skb allocated in ppp_write() is leaked.
+ADG is using clk_get_rate() under atomic context, thus, we might
+have scheduling issue.
+To avoid this issue, we need to get/keep clk rate under
+non atomic context.
 
-syzbot reported :
-BUG: memory leak
-unreferenced object 0xffff88812a17bc00 (size 224):
-  comm "syz-executor673", pid 6952, jiffies 4294942888 (age 13.040s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000d110fff9>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<00000000d110fff9>] slab_post_alloc_hook mm/slab.h:522 [inline]
-    [<00000000d110fff9>] slab_alloc_node mm/slab.c:3262 [inline]
-    [<00000000d110fff9>] kmem_cache_alloc_node+0x163/0x2f0 mm/slab.c:3574
-    [<000000002d616113>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:197
-    [<000000000167fc45>] alloc_skb include/linux/skbuff.h:1055 [inline]
-    [<000000000167fc45>] ppp_write+0x48/0x120 drivers/net/ppp/ppp_generic.c:502
-    [<000000009ab42c0b>] __vfs_write+0x43/0xa0 fs/read_write.c:494
-    [<00000000086b2e22>] vfs_write fs/read_write.c:558 [inline]
-    [<00000000086b2e22>] vfs_write+0xee/0x210 fs/read_write.c:542
-    [<00000000a2b70ef9>] ksys_write+0x7c/0x130 fs/read_write.c:611
-    [<00000000ce5e0fdd>] __do_sys_write fs/read_write.c:623 [inline]
-    [<00000000ce5e0fdd>] __se_sys_write fs/read_write.c:620 [inline]
-    [<00000000ce5e0fdd>] __x64_sys_write+0x1e/0x30 fs/read_write.c:620
-    [<00000000d9d7b370>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:296
-    [<0000000006e6d506>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+We need to handle ADG as special device at Renesas Sound driver.
+>From SW point of view, we want to impletent it as
+rsnd_mod_ops :: prepare, but it makes code just complicate.
 
-Fix this by freeing skb, if ppp is closing.
+To avoid complicated code/patch, this patch adds new clk_rate[] array,
+and keep clk IN rate when rsnd_adg_clk_enable() was called.
 
-Fixes: 6d066734e9f0 ("ppp: avoid loop in xmit recursion detection code")
-Reported-and-tested-by: syzbot+d9c8bf24e56416d7ce2c@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Tested-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Tested-by: Leon Kong <Leon.KONG@cn.bosch.com>
+Link: https://lore.kernel.org/r/87v9vb0xkp.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/sh/rcar/adg.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1432,6 +1432,8 @@ static void __ppp_xmit_process(struct pp
- 			netif_wake_queue(ppp->dev);
- 		else
- 			netif_stop_queue(ppp->dev);
-+	} else {
-+		kfree_skb(skb);
+diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
+index eb7879bcc6a79..686401bcd1f53 100644
+--- a/sound/soc/sh/rcar/adg.c
++++ b/sound/soc/sh/rcar/adg.c
+@@ -33,6 +33,7 @@ struct rsnd_adg {
+ 	struct clk *clkout[CLKOUTMAX];
+ 	struct clk_onecell_data onecell;
+ 	struct rsnd_mod mod;
++	int clk_rate[CLKMAX];
+ 	u32 flags;
+ 	u32 ckr;
+ 	u32 rbga;
+@@ -110,9 +111,9 @@ static void __rsnd_adg_get_timesel_ratio(struct rsnd_priv *priv,
+ 	unsigned int val, en;
+ 	unsigned int min, diff;
+ 	unsigned int sel_rate[] = {
+-		clk_get_rate(adg->clk[CLKA]),	/* 0000: CLKA */
+-		clk_get_rate(adg->clk[CLKB]),	/* 0001: CLKB */
+-		clk_get_rate(adg->clk[CLKC]),	/* 0010: CLKC */
++		adg->clk_rate[CLKA],	/* 0000: CLKA */
++		adg->clk_rate[CLKB],	/* 0001: CLKB */
++		adg->clk_rate[CLKC],	/* 0010: CLKC */
+ 		adg->rbga_rate_for_441khz,	/* 0011: RBGA */
+ 		adg->rbgb_rate_for_48khz,	/* 0100: RBGB */
+ 	};
+@@ -328,7 +329,7 @@ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
+ 	 * AUDIO_CLKA/AUDIO_CLKB/AUDIO_CLKC/AUDIO_CLKI.
+ 	 */
+ 	for_each_rsnd_clk(clk, adg, i) {
+-		if (rate == clk_get_rate(clk))
++		if (rate == adg->clk_rate[i])
+ 			return sel_table[i];
  	}
- 	ppp_xmit_unlock(ppp);
- }
+ 
+@@ -394,10 +395,18 @@ void rsnd_adg_clk_control(struct rsnd_priv *priv, int enable)
+ 
+ 	for_each_rsnd_clk(clk, adg, i) {
+ 		ret = 0;
+-		if (enable)
++		if (enable) {
+ 			ret = clk_prepare_enable(clk);
+-		else
++
++			/*
++			 * We shouldn't use clk_get_rate() under
++			 * atomic context. Let's keep it when
++			 * rsnd_adg_clk_enable() was called
++			 */
++			adg->clk_rate[i] = clk_get_rate(adg->clk[i]);
++		} else {
+ 			clk_disable_unprepare(clk);
++		}
+ 
+ 		if (ret < 0)
+ 			dev_warn(dev, "can't use clk %d\n", i);
+-- 
+2.20.1
+
 
 
