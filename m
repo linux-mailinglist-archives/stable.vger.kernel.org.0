@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C917DCA27E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB56CA281
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730988AbfJCQFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52690 "EHLO mail.kernel.org"
+        id S1732636AbfJCQFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731745AbfJCQFs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:48 -0400
+        id S1730923AbfJCQFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6989221D81;
-        Thu,  3 Oct 2019 16:05:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E0E4215EA;
+        Thu,  3 Oct 2019 16:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118747;
-        bh=nv5tyfbfrOt8/5M/vZRl8GRVLkrUHUar+IwteF0cp3Y=;
+        s=default; t=1570118753;
+        bh=Ylw5Xnb5JAPsVmjU+fw+TYuGKV/NrCNuO2yKINxYmx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjixCnmR4tKa415uhuzpvtawIRI4TWP6+fIEq3jZ2JuMLTMIE2+wxzVMyO7J+vMt9
-         szhyMyLVciYrRSiNFga8nTh60aJy8I7jmW/n/J0k1uoOyS3h+lNAnA1zak5FdFSYa7
-         tUitJXrPXxTnWvpZqXM0aWMj/SzJkIz6bLye8Xr8=
+        b=YR/yq92lDGa4kqek0a5k3YOQlzTe1tdqLq9hDhCX/2SQjrx9BIClsJs8LA/UpGUcT
+         nnNzYNKMRwbBYiLF1qPrr2yg13/RHH1tB25igPMocqr19Fxe7pyiI+Y20erBFz4Dl/
+         uFG+Ba9K0NXui09V4F9cRoMZsD/nlGiDh9MV5jgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>,
-        Chris Brandt <chris.brandt@renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4.9 125/129] i2c: riic: Clear NACK in tend isr
-Date:   Thu,  3 Oct 2019 17:54:08 +0200
-Message-Id: <20191003154416.575317081@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>
+Subject: [PATCH 4.9 127/129] CIFS: Fix oplock handling for SMB 2.1+ protocols
+Date:   Thu,  3 Oct 2019 17:54:10 +0200
+Message-Id: <20191003154417.046746814@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -45,37 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Brandt <chris.brandt@renesas.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit a71e2ac1f32097fbb2beab098687a7a95c84543e upstream.
+commit a016e2794fc3a245a91946038dd8f34d65e53cc3 upstream.
 
-The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
-description in HW manual.
+There may be situations when a server negotiates SMB 2.1
+protocol version or higher but responds to a CREATE request
+with an oplock rather than a lease.
 
-This issue shows up quickly when PREEMPT_RT is applied and a device is
-probed that is not plugged in (like a touchscreen controller). The result
-is endless interrupts that halt system boot.
+Currently the client doesn't handle such a case correctly:
+when another CREATE comes in the server sends an oplock
+break to the initial CREATE and the client doesn't send
+an ack back due to a wrong caching level being set (READ
+instead of RWH). Missing an oplock break ack makes the
+server wait until the break times out which dramatically
+increases the latency of the second CREATE.
 
-Fixes: 310c18a41450 ("i2c: riic: add driver")
-Cc: stable@vger.kernel.org
-Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Fix this by properly detecting oplocks when using SMB 2.1
+protocol version and higher.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-riic.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2ops.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -212,6 +212,7 @@ static irqreturn_t riic_tend_isr(int irq
- 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
- 		/* We got a NACKIE */
- 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
-+		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
- 		riic->err = -ENXIO;
- 	} else if (riic->bytes_left) {
- 		return IRQ_NONE;
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1419,6 +1419,11 @@ smb21_set_oplock_level(struct cifsInodeI
+ 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
+ 		return;
+ 
++	/* Check if the server granted an oplock rather than a lease */
++	if (oplock & SMB2_OPLOCK_LEVEL_EXCLUSIVE)
++		return smb2_set_oplock_level(cinode, oplock, epoch,
++					     purge_cache);
++
+ 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
+ 		new_oplock |= CIFS_CACHE_READ_FLG;
+ 		strcat(message, "R");
 
 
