@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D73D9CA1D8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:00:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06273CA1DD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729273AbfJCP7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42842 "EHLO mail.kernel.org"
+        id S1731439AbfJCP7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:59:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731378AbfJCP7m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:59:42 -0400
+        id S1731434AbfJCP7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:59:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AF5A21D81;
-        Thu,  3 Oct 2019 15:59:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB11222C9;
+        Thu,  3 Oct 2019 15:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118380;
-        bh=h0rsyqVWWEVXXs6hc1a5kbfGdU7JSDnYzCi6ysQNAjw=;
+        s=default; t=1570118391;
+        bh=kEmCe5eFpDf0pcPFKgaycmMa56SMC86pe2QDKHFiby0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+SPhiLvgXVdkNPsxvVftd7DhjHEL8V3/5iMHwnNktOh6Cx3BLr/nS2Zo2tjK51gP
-         fWkWINAqEqyI4/wME2g4k6mHz/obFZZPgBPqcQXHyb0gtq9OF2KwNWEUsIK/TPj/ko
-         VNgBO+Hqswpk2hwSqj9TTIJVF2IGqknsrISBZ5BA=
+        b=WDzpsgZduYtPLUfbxIdGmm01geD7xFAxFZx6PwolUPUtAe+pCUxRhtCHo0/Rad/BU
+         K/q5rEJ2oKbZ3cwYGLjJFF6MgbM/DsA3SnrFCfsfCxtM3uj6QCFznWcIQxiCThuW+E
+         AxbdEQzJCy+rQ7gI/aLx6i/6ybALNo9rM6yd9bFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
-        Doug Reiland <doug.reiland@intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.4 83/99] KVM: x86: Manually calculate reserved bits when loading PDPTRS
-Date:   Thu,  3 Oct 2019 17:53:46 +0200
-Message-Id: <20191003154336.641144460@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>
+Subject: [PATCH 4.4 95/99] CIFS: Fix oplock handling for SMB 2.1+ protocols
+Date:   Thu,  3 Oct 2019 17:53:58 +0200
+Message-Id: <20191003154341.829350191@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
 References: <20191003154252.297991283@linuxfoundation.org>
@@ -46,75 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Pavel Shilovsky <pshilov@microsoft.com>
 
-commit 16cfacc8085782dab8e365979356ce1ca87fd6cc upstream.
+commit a016e2794fc3a245a91946038dd8f34d65e53cc3 upstream.
 
-Manually generate the PDPTR reserved bit mask when explicitly loading
-PDPTRs.  The reserved bits that are being tracked by the MMU reflect the
-current paging mode, which is unlikely to be PAE paging in the vast
-majority of flows that use load_pdptrs(), e.g. CR0 and CR4 emulation,
-__set_sregs(), etc...  This can cause KVM to incorrectly signal a bad
-PDPTR, or more likely, miss a reserved bit check and subsequently fail
-a VM-Enter due to a bad VMCS.GUEST_PDPTR.
+There may be situations when a server negotiates SMB 2.1
+protocol version or higher but responds to a CREATE request
+with an oplock rather than a lease.
 
-Add a one off helper to generate the reserved bits instead of sharing
-code across the MMU's calculations and the PDPTR emulation.  The PDPTR
-reserved bits are basically set in stone, and pushing a helper into
-the MMU's calculation adds unnecessary complexity without improving
-readability.
+Currently the client doesn't handle such a case correctly:
+when another CREATE comes in the server sends an oplock
+break to the initial CREATE and the client doesn't send
+an ack back due to a wrong caching level being set (READ
+instead of RWH). Missing an oplock break ack makes the
+server wait until the break times out which dramatically
+increases the latency of the second CREATE.
 
-Oppurtunistically fix/update the comment for load_pdptrs().
+Fix this by properly detecting oplocks when using SMB 2.1
+protocol version and higher.
 
-Note, the buggy commit also introduced a deliberate functional change,
-"Also remove bit 5-6 from rsvd_bits_mask per latest SDM.", which was
-effectively (and correctly) reverted by commit cd9ae5fe47df ("KVM: x86:
-Fix page-tables reserved bits").  A bit of SDM archaeology shows that
-the SDM from late 2008 had a bug (likely a copy+paste error) where it
-listed bits 6:5 as AVL and A for PDPTEs used for 4k entries but reserved
-for 2mb entries.  I.e. the SDM contradicted itself, and bits 6:5 are and
-always have been reserved.
-
-Fixes: 20c466b56168d ("KVM: Use rsvd_bits_mask in load_pdptrs()")
-Cc: stable@vger.kernel.org
-Cc: Nadav Amit <nadav.amit@gmail.com>
-Reported-by: Doug Reiland <doug.reiland@intel.com>
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/cifs/smb2ops.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -523,8 +523,14 @@ static int kvm_read_nested_guest_page(st
- 				       data, offset, len, access);
- }
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1335,6 +1335,11 @@ smb21_set_oplock_level(struct cifsInodeI
+ 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
+ 		return;
  
-+static inline u64 pdptr_rsvd_bits(struct kvm_vcpu *vcpu)
-+{
-+	return rsvd_bits(cpuid_maxphyaddr(vcpu), 63) | rsvd_bits(5, 8) |
-+	       rsvd_bits(1, 2);
-+}
++	/* Check if the server granted an oplock rather than a lease */
++	if (oplock & SMB2_OPLOCK_LEVEL_EXCLUSIVE)
++		return smb2_set_oplock_level(cinode, oplock, epoch,
++					     purge_cache);
 +
- /*
-- * Load the pae pdptrs.  Return true is they are all valid.
-+ * Load the pae pdptrs.  Return 1 if they are all valid, 0 otherwise.
-  */
- int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3)
- {
-@@ -543,8 +549,7 @@ int load_pdptrs(struct kvm_vcpu *vcpu, s
- 	}
- 	for (i = 0; i < ARRAY_SIZE(pdpte); ++i) {
- 		if (is_present_gpte(pdpte[i]) &&
--		    (pdpte[i] &
--		     vcpu->arch.mmu.guest_rsvd_check.rsvd_bits_mask[0][2])) {
-+		    (pdpte[i] & pdptr_rsvd_bits(vcpu))) {
- 			ret = 0;
- 			goto out;
- 		}
+ 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
+ 		new_oplock |= CIFS_CACHE_READ_FLG;
+ 		strcat(message, "R");
 
 
