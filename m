@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25380CABCB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED85ECAC16
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729732AbfJCQAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43996 "EHLO mail.kernel.org"
+        id S1732169AbfJCQFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731545AbfJCQAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:19 -0400
+        id S1730733AbfJCQFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54640207FF;
-        Thu,  3 Oct 2019 16:00:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E92C621D81;
+        Thu,  3 Oct 2019 16:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118418;
-        bh=fsyH0ce6J7i4xp0YrIBg7PCkiz/4+XeUMbByYMJ7klc=;
+        s=default; t=1570118710;
+        bh=eAw4+2mAf06f/+AlDZAKYlg+1ZJzQSKthPZycniYQAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1MkSEzD5hGqUFV5uulsxpVtk8ku84rWJ7qoz3zOd6X9RvnPZgGmhLaY5vPnkUX2W
-         LtNYKrzEP7B9Fcf0mFyKtpeH3aYZwhlTx0R0EdhsgLz1nVm9HxzF9GcZuFIksFA1nu
-         oEYkDyxcqbCVDHY/yzWpanqA4gqMR9ZxQfas1B8Y=
+        b=X9tUT/21DINflDwSO8kciVso5SACdzLdKWliXiYOVkZ6BAg4Pan7S5cTz7p/rVAYZ
+         Ji6uuU+n45MZ/+0mkUJeF82P67s7T2PRA0N+p+1FgEXPF8mg5hHqHra93zjV8GUwju
+         K7rb8hTKKmxvuQLrQhb5xE6Sr0np4CSIPsF3aaEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 89/99] cfg80211: Purge frame registrations on iftype change
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 109/129] ASoC: Intel: NHLT: Fix debug print format
 Date:   Thu,  3 Oct 2019 17:53:52 +0200
-Message-Id: <20191003154339.189378717@linuxfoundation.org>
+Message-Id: <20191003154408.980857876@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kenzior <denkenz@gmail.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit c1d3ad84eae35414b6b334790048406bd6301b12 upstream.
+commit 855a06da37a773fd073d51023ac9d07988c87da8 upstream.
 
-Currently frame registrations are not purged, even when changing the
-interface type.  This can lead to potentially weird situations where
-frames possibly not allowed on a given interface type remain registered
-due to the type switching happening after registration.
+oem_table_id is 8 chars long, so we need to limit it, otherwise it
+may print some unprintable characters into dmesg.
 
-The kernel currently relies on userspace apps to actually purge the
-registrations themselves, this is not something that the kernel should
-rely on.
-
-Add a call to cfg80211_mlme_purge_registrations() to forcefully remove
-any registrations left over prior to switching the iftype.
-
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-7-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Link: https://lore.kernel.org/r/20190828211110.15005-1-denkenz@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/skylake/skl-nhlt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -974,6 +974,7 @@ int cfg80211_change_iface(struct cfg8021
- 		}
+--- a/sound/soc/intel/skylake/skl-nhlt.c
++++ b/sound/soc/intel/skylake/skl-nhlt.c
+@@ -211,7 +211,7 @@ int skl_nhlt_update_topology_bin(struct
+ 	struct hdac_bus *bus = ebus_to_hbus(&skl->ebus);
+ 	struct device *dev = bus->dev;
  
- 		cfg80211_process_rdev_events(rdev);
-+		cfg80211_mlme_purge_registrations(dev->ieee80211_ptr);
- 	}
+-	dev_dbg(dev, "oem_id %.6s, oem_table_id %8s oem_revision %d\n",
++	dev_dbg(dev, "oem_id %.6s, oem_table_id %.8s oem_revision %d\n",
+ 		nhlt->header.oem_id, nhlt->header.oem_table_id,
+ 		nhlt->header.oem_revision);
  
- 	err = rdev_change_virtual_intf(rdev, dev, ntype, flags, params);
 
 
