@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6044ECAABA
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81898CAAB8
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732481AbfJCRMF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:12:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
+        id S2403803AbfJCRMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:12:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391811AbfJCQaz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:30:55 -0400
+        id S2391821AbfJCQa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 342C82054F;
-        Thu,  3 Oct 2019 16:30:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F32C42070B;
+        Thu,  3 Oct 2019 16:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120254;
-        bh=kjUYmaBo4PVq9u9yyQ+YpRHxns2z/f+WYQMw69UXDSc=;
+        s=default; t=1570120257;
+        bh=CguQhBGjD/VMo7E6gLNngt9pIJo06htO8RE80jx/QE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wrl4q/KxobXgpiGq4E6WNgEWTgWdhnaIN54XkDA2cVfFqTRNxHdxGAUMAW/NsLMBm
-         QisFkNaKvn4ZnJQEZ5kkObjAirfcAiul8d69NGKLkQGbY/oEAqXFNkSkrlP1YD8zmD
-         FAUQ1p1+XXf8i2LH+u/jQD/TnEFMzahcAo8ZSImw=
+        b=ReGOkp5pkkQFbzZEeB6zTaU7HvLlg6MV1bo0Hup6Gg6TvP99D7v+HvGAtT6qOt0uG
+         Eb9V+IwtYTr1lwoMBYDIeRR0AbrNdQfvQDy3lHRyQbPCNAwjkYHpt7mPATvskVGRdd
+         GE1J7lpmwyTk/KfN6+iOcQcPrOsUj/0h8sKpbTX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas RAILLARD <douglas.raillard@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, djuran@redhat.com,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 153/313] sched/cpufreq: Align trace event behavior of fast switching
-Date:   Thu,  3 Oct 2019 17:52:11 +0200
-Message-Id: <20191003154547.990264509@linuxfoundation.org>
+Subject: [PATCH 5.2 154/313] x86/apic/vector: Warn when vector space exhaustion breaks affinity
+Date:   Thu,  3 Oct 2019 17:52:12 +0200
+Message-Id: <20191003154548.088944970@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,50 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas RAILLARD <douglas.raillard@arm.com>
+From: Neil Horman <nhorman@tuxdriver.com>
 
-[ Upstream commit 77c84dd1881d0f0176cb678d770bfbda26c54390 ]
+[ Upstream commit 743dac494d61d991967ebcfab92e4f80dc7583b3 ]
 
-Fast switching path only emits an event for the CPU of interest, whereas the
-regular path emits an event for all the CPUs that had their frequency changed,
-i.e. all the CPUs sharing the same policy.
+On x86, CPUs are limited in the number of interrupts they can have affined
+to them as they only support 256 interrupt vectors per CPU. 32 vectors are
+reserved for the CPU and the kernel reserves another 22 for internal
+purposes. That leaves 202 vectors for assignement to devices.
 
-With the current behavior, looking at cpu_frequency event for a given CPU that
-is using the fast switching path will not give the correct frequency signal.
+When an interrupt is set up or the affinity is changed by the kernel or the
+administrator, the vector assignment code attempts to honor the requested
+affinity mask. If the vector space on the CPUs in that affinity mask is
+exhausted the code falls back to a wider set of CPUs and assigns a vector
+on a CPU outside of the requested affinity mask silently.
 
-Signed-off-by: Douglas RAILLARD <douglas.raillard@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+While the effective affinity is reflected in the corresponding
+/proc/irq/$N/effective_affinity* files the silent breakage of the requested
+affinity can lead to unexpected behaviour for administrators.
+
+Add a pr_warn() when this happens so that adminstrators get at least
+informed about it in the syslog.
+
+[ tglx: Massaged changelog and made the pr_warn() more informative ]
+
+Reported-by: djuran@redhat.com
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: djuran@redhat.com
+Link: https://lkml.kernel.org/r/20190822143421.9535-1-nhorman@tuxdriver.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cpufreq_schedutil.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/kernel/apic/vector.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index ae3ec77bb92f6..e139b54716b4a 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -117,6 +117,7 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
- 			      unsigned int next_freq)
- {
- 	struct cpufreq_policy *policy = sg_policy->policy;
-+	int cpu;
- 
- 	if (!sugov_update_next_freq(sg_policy, time, next_freq))
- 		return;
-@@ -126,7 +127,11 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
- 		return;
- 
- 	policy->cur = next_freq;
--	trace_cpu_frequency(next_freq, smp_processor_id());
+diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
+index fdacb864c3dd4..2c5676b0a6e7f 100644
+--- a/arch/x86/kernel/apic/vector.c
++++ b/arch/x86/kernel/apic/vector.c
+@@ -398,6 +398,17 @@ static int activate_reserved(struct irq_data *irqd)
+ 		if (!irqd_can_reserve(irqd))
+ 			apicd->can_reserve = false;
+ 	}
 +
-+	if (trace_cpu_frequency_enabled()) {
-+		for_each_cpu(cpu, policy->cpus)
-+			trace_cpu_frequency(next_freq, cpu);
++	/*
++	 * Check to ensure that the effective affinity mask is a subset
++	 * the user supplied affinity mask, and warn the user if it is not
++	 */
++	if (!cpumask_subset(irq_data_get_effective_affinity_mask(irqd),
++			    irq_data_get_affinity_mask(irqd))) {
++		pr_warn("irq %u: Affinity broken due to vector space exhaustion.\n",
++			irqd->irq);
 +	}
++
+ 	return ret;
  }
  
- static void sugov_deferred_update(struct sugov_policy *sg_policy, u64 time,
 -- 
 2.20.1
 
