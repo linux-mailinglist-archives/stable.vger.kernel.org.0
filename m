@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A248CACB0
+	by mail.lfdr.de (Postfix) with ESMTP id E3B91CACB1
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388595AbfJCQOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37644 "EHLO mail.kernel.org"
+        id S2388575AbfJCQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388590AbfJCQOZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:25 -0400
+        id S2388600AbfJCQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9940521783;
-        Thu,  3 Oct 2019 16:14:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5ED6C21848;
+        Thu,  3 Oct 2019 16:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119263;
-        bh=seIW6zQr5VIwuv4QDaxjF+PSW10jr5UYnwycKFfT2GQ=;
+        s=default; t=1570119265;
+        bh=+JxQQyJlmEHfkDkgRN+ua7d4KM9d+lqwrBvX7zCu9o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUV1kGniHa5FLfAOVCrH/b/C2Au0VzwHQtx7xgg5X0bxuVWt+ovUgQ2MBcn1+uj9Y
-         EjW2isEIs2GMIxKE6+jpcrJRGQnPlaa26jhk97/iiuaD/2gfvlCYjqJ9dUt8cfl2Ng
-         CAGv10qFqeLhxx5M4l7R+D7LQPkv8Q/z9KNQgK0I=
+        b=wgqyWQrz/8/n15iLO1xFLsd6O2gANMEiU6+qkeDfZijuLIc1eivf17NOqKhsj6wNC
+         4NsrgtMI6ATwZH+Xane5kHzrL7ZZVSVA+NQsiUXdENC0cQjZwFrTIXZVUCEfLttzj/
+         x4c6Z+Mp0tieP7033tqxnIZN1TrmvC5iWe+oeh10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Filipe Manana <fdmanana@suse.com>,
+        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
+        Nikolay Borisov <nborisov@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 167/185] Btrfs: fix use-after-free when using the tree modification log
-Date:   Thu,  3 Oct 2019 17:54:05 +0200
-Message-Id: <20191003154517.248539300@linuxfoundation.org>
+Subject: [PATCH 4.14 168/185] btrfs: Relinquish CPUs in btrfs_compare_trees
+Date:   Thu,  3 Oct 2019 17:54:06 +0200
+Message-Id: <20191003154517.884667396@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -45,99 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit efad8a853ad2057f96664328a0d327a05ce39c76 upstream.
+commit 6af112b11a4bc1b560f60a618ac9c1dcefe9836e upstream.
 
-At ctree.c:get_old_root(), we are accessing a root's header owner field
-after we have freed the respective extent buffer. This results in an
-use-after-free that can lead to crashes, and when CONFIG_DEBUG_PAGEALLOC
-is set, results in a stack trace like the following:
+When doing any form of incremental send the parent and the child trees
+need to be compared via btrfs_compare_trees. This  can result in long
+loop chains without ever relinquishing the CPU. This causes softlockup
+detector to trigger when comparing trees with a lot of items. Example
+report:
 
-  [ 3876.799331] stack segment: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-  [ 3876.799363] CPU: 0 PID: 15436 Comm: pool Not tainted 5.3.0-rc3-btrfs-next-54 #1
-  [ 3876.799385] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  [ 3876.799433] RIP: 0010:btrfs_search_old_slot+0x652/0xd80 [btrfs]
-  (...)
-  [ 3876.799502] RSP: 0018:ffff9f08c1a2f9f0 EFLAGS: 00010286
-  [ 3876.799518] RAX: ffff8dd300000000 RBX: ffff8dd85a7a9348 RCX: 000000038da26000
-  [ 3876.799538] RDX: 0000000000000000 RSI: ffffe522ce368980 RDI: 0000000000000246
-  [ 3876.799559] RBP: dae1922adadad000 R08: 0000000008020000 R09: ffffe522c0000000
-  [ 3876.799579] R10: ffff8dd57fd788c8 R11: 000000007511b030 R12: ffff8dd781ddc000
-  [ 3876.799599] R13: ffff8dd9e6240578 R14: ffff8dd6896f7a88 R15: ffff8dd688cf90b8
-  [ 3876.799620] FS:  00007f23ddd97700(0000) GS:ffff8dda20200000(0000) knlGS:0000000000000000
-  [ 3876.799643] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ 3876.799660] CR2: 00007f23d4024000 CR3: 0000000710bb0005 CR4: 00000000003606f0
-  [ 3876.799682] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [ 3876.799703] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [ 3876.799723] Call Trace:
-  [ 3876.799735]  ? do_raw_spin_unlock+0x49/0xc0
-  [ 3876.799749]  ? _raw_spin_unlock+0x24/0x30
-  [ 3876.799779]  resolve_indirect_refs+0x1eb/0xc80 [btrfs]
-  [ 3876.799810]  find_parent_nodes+0x38d/0x1180 [btrfs]
-  [ 3876.799841]  btrfs_check_shared+0x11a/0x1d0 [btrfs]
-  [ 3876.799870]  ? extent_fiemap+0x598/0x6e0 [btrfs]
-  [ 3876.799895]  extent_fiemap+0x598/0x6e0 [btrfs]
-  [ 3876.799913]  do_vfs_ioctl+0x45a/0x700
-  [ 3876.799926]  ksys_ioctl+0x70/0x80
-  [ 3876.799938]  ? trace_hardirqs_off_thunk+0x1a/0x20
-  [ 3876.799953]  __x64_sys_ioctl+0x16/0x20
-  [ 3876.799965]  do_syscall_64+0x62/0x220
-  [ 3876.799977]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [ 3876.799993] RIP: 0033:0x7f23e0013dd7
-  (...)
-  [ 3876.800056] RSP: 002b:00007f23ddd96ca8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  [ 3876.800078] RAX: ffffffffffffffda RBX: 00007f23d80210f8 RCX: 00007f23e0013dd7
-  [ 3876.800099] RDX: 00007f23d80210f8 RSI: 00000000c020660b RDI: 0000000000000003
-  [ 3876.800626] RBP: 000055fa2a2a2440 R08: 0000000000000000 R09: 00007f23ddd96d7c
-  [ 3876.801143] R10: 00007f23d8022000 R11: 0000000000000246 R12: 00007f23ddd96d80
-  [ 3876.801662] R13: 00007f23ddd96d78 R14: 00007f23d80210f0 R15: 00007f23ddd96d80
-  (...)
-  [ 3876.805107] ---[ end trace e53161e179ef04f9 ]---
+watchdog: BUG: soft lockup - CPU#0 stuck for 24s! [snapperd:16153]
+CPU: 0 PID: 16153 Comm: snapperd Not tainted 5.2.9-1-default #1 openSUSE Tumbleweed (unreleased)
+Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+pstate: 40000005 (nZcv daif -PAN -UAO)
+pc : __ll_sc_arch_atomic_sub_return+0x14/0x20
+lr : btrfs_release_extent_buffer_pages+0xe0/0x1e8 [btrfs]
+sp : ffff00001273b7e0
+Call trace:
+ __ll_sc_arch_atomic_sub_return+0x14/0x20
+ release_extent_buffer+0xdc/0x120 [btrfs]
+ free_extent_buffer.part.0+0xb0/0x118 [btrfs]
+ free_extent_buffer+0x24/0x30 [btrfs]
+ btrfs_release_path+0x4c/0xa0 [btrfs]
+ btrfs_free_path.part.0+0x20/0x40 [btrfs]
+ btrfs_free_path+0x24/0x30 [btrfs]
+ get_inode_info+0xa8/0xf8 [btrfs]
+ finish_inode_if_needed+0xe0/0x6d8 [btrfs]
+ changed_cb+0x9c/0x410 [btrfs]
+ btrfs_compare_trees+0x284/0x648 [btrfs]
+ send_subvol+0x33c/0x520 [btrfs]
+ btrfs_ioctl_send+0x8a0/0xaf0 [btrfs]
+ btrfs_ioctl+0x199c/0x2288 [btrfs]
+ do_vfs_ioctl+0x4b0/0x820
+ ksys_ioctl+0x84/0xb8
+ __arm64_sys_ioctl+0x28/0x38
+ el0_svc_common.constprop.0+0x7c/0x188
+ el0_svc_handler+0x34/0x90
+ el0_svc+0x8/0xc
 
-Fix that by saving the root's header owner field into a local variable
-before freeing the root's extent buffer, and then use that local variable
-when needed.
+Fix this by adding a call to cond_resched at the beginning of the main
+loop in btrfs_compare_trees.
 
-Fixes: 30b0463a9394d9 ("Btrfs: fix accessing the root pointer in tree mod log functions")
-CC: stable@vger.kernel.org # 3.10+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Fixes: 7069830a9e38 ("Btrfs: add btrfs_compare_trees function")
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.c |    1 +
+ 1 file changed, 1 insertion(+)
 
 --- a/fs/btrfs/ctree.c
 +++ b/fs/btrfs/ctree.c
-@@ -1414,6 +1414,7 @@ get_old_root(struct btrfs_root *root, u6
- 	struct tree_mod_elem *tm;
- 	struct extent_buffer *eb = NULL;
- 	struct extent_buffer *eb_root;
-+	u64 eb_root_owner = 0;
- 	struct extent_buffer *old;
- 	struct tree_mod_root *old_root = NULL;
- 	u64 old_generation = 0;
-@@ -1448,6 +1449,7 @@ get_old_root(struct btrfs_root *root, u6
- 			free_extent_buffer(old);
- 		}
- 	} else if (old_root) {
-+		eb_root_owner = btrfs_header_owner(eb_root);
- 		btrfs_tree_read_unlock(eb_root);
- 		free_extent_buffer(eb_root);
- 		eb = alloc_dummy_extent_buffer(fs_info, logical);
-@@ -1465,7 +1467,7 @@ get_old_root(struct btrfs_root *root, u6
- 	if (old_root) {
- 		btrfs_set_header_bytenr(eb, eb->start);
- 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
--		btrfs_set_header_owner(eb, btrfs_header_owner(eb_root));
-+		btrfs_set_header_owner(eb, eb_root_owner);
- 		btrfs_set_header_level(eb, old_root->level);
- 		btrfs_set_header_generation(eb, old_generation);
- 	}
+@@ -5494,6 +5494,7 @@ int btrfs_compare_trees(struct btrfs_roo
+ 	advance_left = advance_right = 0;
+ 
+ 	while (1) {
++		cond_resched();
+ 		if (advance_left && !left_end_reached) {
+ 			ret = tree_advance(fs_info, left_path, &left_level,
+ 					left_root_level,
 
 
