@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE33BCAC0A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F6ECACCB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731088AbfJCQEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50824 "EHLO mail.kernel.org"
+        id S1729346AbfJCR3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:29:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732432AbfJCQEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:37 -0400
+        id S2388043AbfJCQM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:12:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7879D222CC;
-        Thu,  3 Oct 2019 16:04:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E334A215EA;
+        Thu,  3 Oct 2019 16:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118677;
-        bh=9HFAQGshaeOx/Cr9UHNqzoYDPUUvGDwBfjfooOSH8zc=;
+        s=default; t=1570119147;
+        bh=lJ6ETzuUgh+usujMpgSo9zVOaxUbPzms0ZR6mLWa65U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnrNqEuBTGKxSqf8t2Y75T3zOiT/eOewf0jNujPduUaLtJ9UvttFXyGtCQlkOzN7w
-         BywVyCda83gO2vqJc3Hu8cHPldq2xrN8vL3OtlbbEomxjEM73HQmoivgBB89jMrqRm
-         4x/IXw5Pnjjm4oiUA+IK0gtgJM8BLgW2k0iq52CM=
+        b=oGtUYRZbI7RfJPARGSTt1I8Ato+BcyZlzXssB447kJ2eSsYvB+EeaPc5joh2Q02Fb
+         mO1keQz22hgGuEUr1V3Qsg6Z5QVa5P81hSKQV1R85W7wTU1v3LojPnp07mCq6TDHCu
+         Teay70Jm7DT3Edw2N2FJDFFQnnACTj5gV0IUrNgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, rostedt@goodmis.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 098/129] ALSA: firewire-tascam: handle error code when getting current source of clock
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>
+Subject: [PATCH 4.14 143/185] printk: Do not lose last line in kmsg buffer dump
 Date:   Thu,  3 Oct 2019 17:53:41 +0200
-Message-Id: <20191003154404.302602005@linuxfoundation.org>
+Message-Id: <20191003154510.225988177@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-commit 2617120f4de6d0423384e0e86b14c78b9de84d5a upstream.
+commit c9dccacfccc72c32692eedff4a27a4b0833a2afd upstream.
 
-The return value of snd_tscm_stream_get_clock() is ignored. This commit
-checks the value and handle error.
+kmsg_dump_get_buffer() is supposed to select all the youngest log
+messages which fit into the provided buffer.  It determines the correct
+start index by using msg_print_text() with a NULL buffer to calculate
+the size of each entry.  However, when performing the actual writes,
+msg_print_text() only writes the entry to the buffer if the written len
+is lesser than the size of the buffer.  So if the lengths of the
+selected youngest log messages happen to precisely fill up the provided
+buffer, the last log message is not included.
 
-Fixes: e453df44f0d6 ("ALSA: firewire-tascam: add PCM functionality")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20190910135152.29800-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+We don't want to modify msg_print_text() to fill up the buffer and start
+returning a length which is equal to the size of the buffer, since
+callers of its other users, such as kmsg_dump_get_line(), depend upon
+the current behaviour.
+
+Instead, fix kmsg_dump_get_buffer() to compensate for this.
+
+For example, with the following two final prints:
+
+[    6.427502] AAAAAAAAAAAAA
+[    6.427769] BBBBBBBB12345
+
+A dump of a 64-byte buffer filled by kmsg_dump_get_buffer(), before this
+patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 35 32 32 31 39 37  <0>[    6.522197
+ 00000010: 5d 20 41 41 41 41 41 41 41 41 41 41 41 41 41 0a  ] AAAAAAAAAAAAA.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+After this patch:
+
+ 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 34 35 36 36 37 38  <0>[    6.456678
+ 00000010: 5d 20 42 42 42 42 42 42 42 42 31 32 33 34 35 0a  ] BBBBBBBB12345.
+ 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+ 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+
+Link: http://lkml.kernel.org/r/20190711142937.4083-1-vincent.whitchurch@axis.com
+Fixes: e2ae715d66bf4bec ("kmsg - kmsg_dump() use iterator to receive log buffer content")
+To: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v3.5+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/tascam/tascam-pcm.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/printk/printk.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/tascam/tascam-pcm.c
-+++ b/sound/firewire/tascam/tascam-pcm.c
-@@ -81,6 +81,9 @@ static int pcm_open(struct snd_pcm_subst
- 		goto err_locked;
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -3189,7 +3189,7 @@ bool kmsg_dump_get_buffer(struct kmsg_du
+ 	/* move first record forward until length fits into the buffer */
+ 	seq = dumper->cur_seq;
+ 	idx = dumper->cur_idx;
+-	while (l > size && seq < dumper->next_seq) {
++	while (l >= size && seq < dumper->next_seq) {
+ 		struct printk_log *msg = log_from_idx(idx);
  
- 	err = snd_tscm_stream_get_clock(tscm, &clock);
-+	if (err < 0)
-+		goto err_locked;
-+
- 	if (clock != SND_TSCM_CLOCK_INTERNAL ||
- 	    amdtp_stream_pcm_running(&tscm->rx_stream) ||
- 	    amdtp_stream_pcm_running(&tscm->tx_stream)) {
+ 		l -= msg_print_text(msg, true, NULL, 0);
 
 
