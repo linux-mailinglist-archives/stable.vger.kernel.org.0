@@ -2,86 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B5A4C9BFB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B813C9C08
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:19:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725892AbfJCKRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 06:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56826 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725827AbfJCKRH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 06:17:07 -0400
+        id S1727410AbfJCKTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 06:19:15 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41581 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726808AbfJCKTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 06:19:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 8BE5621EC3;
+        Thu,  3 Oct 2019 06:19:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 06:19:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=Dq1Yz+
+        KGedL3Ko+m+WXzoB03l3f+KYUsCHJ9xviWabA=; b=diy+in6tkQxdiRJprx4zs+
+        hmdWWZk0OWJglP47Et51sdr4zfQVRrmZPWCfGbzqOwQJ379C5q6rQcX02tVv99QS
+        G7lUjF5smZDK0NceopDOTDOGjzWl/xUOyH9OmoHJkUqH2ZlB7FidSgaYZUn/S+bx
+        PQ00ej0vN+kQHQ4hLuQL8jGFyKkxAi5APS3fEAzABLms1B4s4pRCvREfjce4CmEt
+        86GOpDN85tkdi5mnRq+Axg5DCDr4jV6ne2csvu44b+g8xQ5LpvyE5FmGedRYEon1
+        AnyWpvetVxRYV5RFls0iQTLOXxggdyfHBsYTn6adt3dvlcUCERGGcwJvVCbK6yiQ
+        ==
+X-ME-Sender: <xms:IMuVXWf_dmss3_tY9djNIzV4EbfrMixSdzIsupkH9ysFNhfSYcWs2g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgddviecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:IMuVXaeBBgyxVpU3CTwDnJe1uZAQ4RO4e2H4Za1-QRnWW43rhg6wZA>
+    <xmx:IMuVXWfqeUzMfvmiONd7QB9gt8JgTnvxyMpNfu_5r6X1NWEEJiSJzw>
+    <xmx:IMuVXbl2tJ8pb2dfunXw3uiFlLbxNGBz1chr6VQx-2lJYNATCoLeeA>
+    <xmx:IcuVXWl-3S4D-atDKuUs6C4RSQ0_F-UwHOcGjZve0NZFp2UCivhcVw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4263A218DE;
-        Thu,  3 Oct 2019 10:17:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570097826;
-        bh=5OM8J6Pb0uIJkb1p9cxTKr+YrVkdO+tv6hyPsF0Cfyc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rhsIpyLurUg+S7WEbSiisbWy2SDuhm/dW2Iqt8AyBF4GHsGzXzob/E2YHt6sXBvOH
-         /90PFmM4I6sPmjvtgZ9/KnPZAn8PPp6JZU16ALgfOgSmVCwJPWRrnXasaVwmMeoGtX
-         090oqdENht+MC/hMOowgeZdNCgpJryTTWUzl2bm0=
-Date:   Thu, 3 Oct 2019 12:17:04 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc:     stable@vger.kernel.org, dan.carpenter@oracle.com,
-        pbonzini@redhat.com, sean.j.christopherson@intel.com
-Subject: Re: FAILED: patch "[PATCH] x86: KVM: svm: Fix a check in
- nested_svm_vmrun()" failed to apply to 5.3-stable tree
-Message-ID: <20191003101704.GA2141015@kroah.com>
-References: <1570089676108127@kroah.com>
- <87pnje18zy.fsf@vitty.brq.redhat.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id A7739D6005A;
+        Thu,  3 Oct 2019 06:19:12 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] staging: erofs: fix an error handling in erofs_readdir()" failed to apply to 4.19-stable tree
+To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org, richard@nod.at,
+        stable@vger.kernel.org, yuchao0@huawei.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 03 Oct 2019 12:19:11 +0200
+Message-ID: <1570097951151216@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87pnje18zy.fsf@vitty.brq.redhat.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 03, 2019 at 11:19:45AM +0200, Vitaly Kuznetsov wrote:
-> <gregkh@linuxfoundation.org> writes:
-> 
-> > The patch below does not apply to the 5.3-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> > ------------------ original commit in Linus's tree ------------------
-> >
-> > From a061985b81a20248da60589d01375ebe9bec4dfc Mon Sep 17 00:00:00 2001
-> > From: Dan Carpenter <dan.carpenter@oracle.com>
-> > Date: Tue, 27 Aug 2019 12:38:52 +0300
-> > Subject: [PATCH] x86: KVM: svm: Fix a check in nested_svm_vmrun()
-> >
-> > We refactored this code a bit and accidentally deleted the "-" character
-> > from "-EINVAL".  The kvm_vcpu_map() function never returns positive
-> > EINVAL.
-> >
-> > Fixes: c8e16b78c614 ("x86: KVM: svm: eliminate hardcoded RIP
-> > advancement from vmrun_interception()")
-> 
-> Hm, this commit wasn't backported to 5.3-stable so no fix is needed
-> (scripts don't check pre-requisites like commits mentioned in Fixes:?)
-> 
-> Also, c8e16b78c614 is not a stable@ candidate IMO.
-> 
-> > Cc: stable@vger.kernel.org
-> 
-> This wasn't needed as it's only 5.4 which will have the offending commit
-> and the fix.
 
-Yes, I saw that, but as it was explicitly marked for the stable tree, I
-wanted to verify that this really was not needed here.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-thanks
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From acb383f1dcb4f1e79b66d4be3a0b6f519a957b0d Mon Sep 17 00:00:00 2001
+From: Gao Xiang <gaoxiang25@huawei.com>
+Date: Sun, 18 Aug 2019 20:54:57 +0800
+Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
+
+Richard observed a forever loop of erofs_read_raw_page() [1]
+which can be generated by forcely setting ->u.i_blkaddr
+to 0xdeadbeef (as my understanding block layer can
+handle access beyond end of device correctly).
+
+After digging into that, it seems the problem is highly
+related with directories and then I found the root cause
+is an improper error handling in erofs_readdir().
+
+Let's fix it now.
+
+[1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
+
+Reported-by: Richard Weinberger <richard@nod.at>
+Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Link: https://lore.kernel.org/r/20190818125457.25906-1-hsiangkao@aol.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 5f38382637e6..77ef856df9f3 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -82,8 +82,15 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		unsigned int nameoff, maxsize;
+ 
+ 		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (IS_ERR(dentry_page))
+-			continue;
++		if (dentry_page == ERR_PTR(-ENOMEM)) {
++			err = -ENOMEM;
++			break;
++		} else if (IS_ERR(dentry_page)) {
++			errln("fail to readdir of logical block %u of nid %llu",
++			      i, EROFS_V(dir)->nid);
++			err = -EFSCORRUPTED;
++			break;
++		}
+ 
+ 		de = (struct erofs_dirent *)kmap(dentry_page);
+ 
+
