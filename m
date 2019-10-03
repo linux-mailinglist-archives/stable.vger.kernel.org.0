@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA392CA27C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8B5CCA280
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730857AbfJCQFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:05:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52564 "EHLO mail.kernel.org"
+        id S1730919AbfJCQFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732585AbfJCQFn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:43 -0400
+        id S1732611AbfJCQFp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA68C215EA;
-        Thu,  3 Oct 2019 16:05:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B376521A4C;
+        Thu,  3 Oct 2019 16:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118742;
-        bh=kEUcyf9ce6ZSDzVBodKAh4owIQCPHcgVn4yCbQNmwCo=;
+        s=default; t=1570118745;
+        bh=y443mZgJMPW97Mpfp8ZziGu2lKXh9L7Mmoa5z5wOjxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSIIcZSWtl5i9KDff6jHHx74AcrcDwu2TfStvHOSsdWIc55mCop/BmPs3lm7VW3rd
-         ktzviS2SheGRi0RcWfdkmePPlIoOLqjqfgxag93YEks5cwFAa7FgErS05LaJFbChmA
-         fQ9QMeUDfrTB5pbvK7eRAyG9hfC8vULi+pzX8K3Q=
+        b=QNWM9LQMUMniAOOfJRVIppXgGZkUscNxG7vQ7SR3iu4H62Uf/j01ycOHkYDNeKDxE
+         RqxWj/z4XGWstImy9Lwde1LEFIBDafvhxkACU5Kijfji5Jj4Qs9t02Uy8xbWJA5cKv
+         /s2Iei5xaGXOSb1BUFVnOKmVCULWO7WYeswEeZRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 123/129] quota: fix wrong condition in is_quota_modification()
-Date:   Thu,  3 Oct 2019 17:54:06 +0200
-Message-Id: <20191003154415.939074938@linuxfoundation.org>
+        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.9 124/129] hwrng: core - dont wait on add_early_randomness()
+Date:   Thu,  3 Oct 2019 17:54:07 +0200
+Message-Id: <20191003154416.111926355@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -43,47 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Laurent Vivier <lvivier@redhat.com>
 
-commit 6565c182094f69e4ffdece337d395eb7ec760efc upstream.
+commit 78887832e76541f77169a24ac238fccb51059b63 upstream.
 
-Quoted from
-commit 3da40c7b0898 ("ext4: only call ext4_truncate when size <= isize")
+add_early_randomness() is called by hwrng_register() when the
+hardware is added. If this hardware and its module are present
+at boot, and if there is no data available the boot hangs until
+data are available and can't be interrupted.
 
-" At LSF we decided that if we truncate up from isize we shouldn't trim
-  fallocated blocks that were fallocated with KEEP_SIZE and are past the
- new i_size.  This patch fixes ext4 to do this. "
+For instance, in the case of virtio-rng, in some cases the host can be
+not able to provide enough entropy for all the guests.
 
-And generic/092 of fstest have covered this case for long time, however
-is_quota_modification() didn't adjust based on that rule, so that in
-below condition, we will lose to quota block change:
-- fallocate blocks beyond EOF
-- remount
-- truncate(file_path, file_size)
+We can have two easy ways to reproduce the problem but they rely on
+misconfiguration of the hypervisor or the egd daemon:
 
-Fix it.
+- if virtio-rng device is configured to connect to the egd daemon of the
+host but when the virtio-rng driver asks for data the daemon is not
+connected,
 
-Link: https://lore.kernel.org/r/20190911093650.35329-1-yuchao0@huawei.com
-Fixes: 3da40c7b0898 ("ext4: only call ext4_truncate when size <= isize")
-CC: stable@vger.kernel.org
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+- if virtio-rng device is configured to connect to the egd daemon of the
+host but the egd daemon doesn't provide data.
+
+The guest kernel will hang at boot until the virtio-rng driver provides
+enough data.
+
+To avoid that, call rng_get_data() in non-blocking mode (wait=0)
+from add_early_randomness().
+
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Fixes: d9e797261933 ("hwrng: add randomness to system from rng...")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/quotaops.h |    2 +-
+ drivers/char/hw_random/core.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/quotaops.h
-+++ b/include/linux/quotaops.h
-@@ -21,7 +21,7 @@ static inline struct quota_info *sb_dqop
- /* i_mutex must being held */
- static inline bool is_quota_modification(struct inode *inode, struct iattr *ia)
- {
--	return (ia->ia_valid & ATTR_SIZE && ia->ia_size != inode->i_size) ||
-+	return (ia->ia_valid & ATTR_SIZE) ||
- 		(ia->ia_valid & ATTR_UID && !uid_eq(ia->ia_uid, inode->i_uid)) ||
- 		(ia->ia_valid & ATTR_GID && !gid_eq(ia->ia_gid, inode->i_gid));
- }
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -88,7 +88,7 @@ static void add_early_randomness(struct
+ 	size_t size = min_t(size_t, 16, rng_buffer_size());
+ 
+ 	mutex_lock(&reading_mutex);
+-	bytes_read = rng_get_data(rng, rng_buffer, size, 1);
++	bytes_read = rng_get_data(rng, rng_buffer, size, 0);
+ 	mutex_unlock(&reading_mutex);
+ 	if (bytes_read > 0)
+ 		add_device_randomness(rng_buffer, bytes_read);
 
 
