@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15FECABDD
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C578ECAB9D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729670AbfJCQBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:01:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S1730801AbfJCP4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731730AbfJCQBO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:01:14 -0400
+        id S1730794AbfJCP4y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:56:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C94A21848;
-        Thu,  3 Oct 2019 16:01:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54EDD20700;
+        Thu,  3 Oct 2019 15:56:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118472;
-        bh=2OU/aDDl5if082keo3Lhq1ZCrxI0CLsaFeUqmdsqnOA=;
+        s=default; t=1570118213;
+        bh=GAE2HLg/01cvzJ5pm27QrzJnQpSuN3EpD3z2D6FX7jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNlDsZXhUpxV8jd91OOrda4EgVGdNV0Y3i6P77FTb97dpg0L4l1gyAyKnlbEzwKfN
-         jpfj42HMH2w4+Ld4EgSdYJkidZ/elqAy77lAE837eQK4oyP2Q3RB2nUzh1/H9Vnjae
-         pOMwvzio+RPJxk0A6bkckg2wUY3ub8fHfA2LNrzY=
+        b=CSL/catwEb/9i06BxL9fM6vqT3VjsSrh5oFVI5Tkz7LSD1333ImTzXyM5s+4fGrfl
+         Xu42yudFpCUMbYgm9Ab00WVnJ5qpKDzcJH106TM3yfNbMjVCxrHZZhg6f08UWepTFT
+         T9qjB/DkmFseR1uaYVM/FOQv329Ex0egPOKrV3fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 023/129] arcnet: provide a buffer big enough to actually receive packets
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.4 03/99] HID: lg: make transfer buffers DMA capable
 Date:   Thu,  3 Oct 2019 17:52:26 +0200
-Message-Id: <20191003154329.859212127@linuxfoundation.org>
+Message-Id: <20191003154253.721135607@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,101 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[ Upstream commit 108639aac35eb57f1d0e8333f5fc8c7ff68df938 ]
+commit 061232f0d47fa10103f3efa3e890f002a930d902 upstream.
 
-struct archdr is only big enough to hold the header of various types of
-arcnet packets. So to provide enough space to hold the data read from
-hardware provide a buffer large enough to hold a packet with maximal
-size.
+Kernel v4.9 strictly enforces DMA capable buffers, so we need to remove
+buffers allocated on the stack.
 
-The problem was noticed by the stack protector which makes the kernel
-oops.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Acked-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[jkosina@suse.cz: fix up second usage of hid_hw_raw_request(), spotted by
+ 0day build bot]
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/arcnet/arcnet.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
 
---- a/drivers/net/arcnet/arcnet.c
-+++ b/drivers/net/arcnet/arcnet.c
-@@ -1009,31 +1009,34 @@ EXPORT_SYMBOL(arcnet_interrupt);
- static void arcnet_rx(struct net_device *dev, int bufnum)
- {
- 	struct arcnet_local *lp = netdev_priv(dev);
--	struct archdr pkt;
-+	union {
-+		struct archdr pkt;
-+		char buf[512];
-+	} rxdata;
- 	struct arc_rfc1201 *soft;
- 	int length, ofs;
+---
+ drivers/hid/hid-lg.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -701,11 +701,16 @@ static int lg_probe(struct hid_device *h
  
--	soft = &pkt.soft.rfc1201;
-+	soft = &rxdata.pkt.soft.rfc1201;
+ 	/* Setup wireless link with Logitech Wii wheel */
+ 	if (hdev->product == USB_DEVICE_ID_LOGITECH_WII_WHEEL) {
+-		unsigned char buf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
++		const unsigned char cbuf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
++		u8 *buf = kmemdup(cbuf, sizeof(cbuf), GFP_KERNEL);
  
--	lp->hw.copy_from_card(dev, bufnum, 0, &pkt, ARC_HDR_SIZE);
--	if (pkt.hard.offset[0]) {
--		ofs = pkt.hard.offset[0];
-+	lp->hw.copy_from_card(dev, bufnum, 0, &rxdata.pkt, ARC_HDR_SIZE);
-+	if (rxdata.pkt.hard.offset[0]) {
-+		ofs = rxdata.pkt.hard.offset[0];
- 		length = 256 - ofs;
- 	} else {
--		ofs = pkt.hard.offset[1];
-+		ofs = rxdata.pkt.hard.offset[1];
- 		length = 512 - ofs;
- 	}
+-		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
+-					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
++		if (!buf) {
++			ret = -ENOMEM;
++			goto err_free;
++		}
  
- 	/* get the full header, if possible */
--	if (sizeof(pkt.soft) <= length) {
--		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(pkt.soft));
-+	if (sizeof(rxdata.pkt.soft) <= length) {
-+		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(rxdata.pkt.soft));
- 	} else {
--		memset(&pkt.soft, 0, sizeof(pkt.soft));
-+		memset(&rxdata.pkt.soft, 0, sizeof(rxdata.pkt.soft));
- 		lp->hw.copy_from_card(dev, bufnum, ofs, soft, length);
- 	}
++		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
++					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+ 		if (ret >= 0) {
+ 			/* insert a little delay of 10 jiffies ~ 40ms */
+ 			wait_queue_head_t wait;
+@@ -717,9 +722,10 @@ static int lg_probe(struct hid_device *h
+ 			buf[1] = 0xB2;
+ 			get_random_bytes(&buf[2], 2);
  
- 	arc_printk(D_DURING, dev, "Buffer #%d: received packet from %02Xh to %02Xh (%d+4 bytes)\n",
--		   bufnum, pkt.hard.source, pkt.hard.dest, length);
-+		   bufnum, rxdata.pkt.hard.source, rxdata.pkt.hard.dest, length);
- 
- 	dev->stats.rx_packets++;
- 	dev->stats.rx_bytes += length + ARC_HDR_SIZE;
-@@ -1042,13 +1045,13 @@ static void arcnet_rx(struct net_device
- 	if (arc_proto_map[soft->proto]->is_ip) {
- 		if (BUGLVL(D_PROTO)) {
- 			struct ArcProto
--			*oldp = arc_proto_map[lp->default_proto[pkt.hard.source]],
-+			*oldp = arc_proto_map[lp->default_proto[rxdata.pkt.hard.source]],
- 			*newp = arc_proto_map[soft->proto];
- 
- 			if (oldp != newp) {
- 				arc_printk(D_PROTO, dev,
- 					   "got protocol %02Xh; encap for host %02Xh is now '%c' (was '%c')\n",
--					   soft->proto, pkt.hard.source,
-+					   soft->proto, rxdata.pkt.hard.source,
- 					   newp->suffix, oldp->suffix);
- 			}
+-			ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
++			ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
+ 					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
  		}
-@@ -1057,10 +1060,10 @@ static void arcnet_rx(struct net_device
- 		lp->default_proto[0] = soft->proto;
- 
- 		/* in striking contrast, the following isn't a hack. */
--		lp->default_proto[pkt.hard.source] = soft->proto;
-+		lp->default_proto[rxdata.pkt.hard.source] = soft->proto;
++		kfree(buf);
  	}
- 	/* call the protocol-specific receiver. */
--	arc_proto_map[soft->proto]->rx(dev, bufnum, &pkt, length);
-+	arc_proto_map[soft->proto]->rx(dev, bufnum, &rxdata.pkt, length);
- }
  
- static void null_rx(struct net_device *dev, int bufnum,
+ 	if (drv_data->quirks & LG_FF)
 
 
