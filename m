@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4446DCA8B8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E86BDCA89E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391823AbfJCQbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:31:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38118 "EHLO mail.kernel.org"
+        id S2391609AbfJCQ3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390173AbfJCQbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:31:20 -0400
+        id S2391607AbfJCQ3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:29:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EA4A2054F;
-        Thu,  3 Oct 2019 16:31:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C00EC2054F;
+        Thu,  3 Oct 2019 16:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120279;
-        bh=qTwtcy1Ta8YSY8K/jZ41J8Mqdfo7BZtUs1cpxrNIHl0=;
+        s=default; t=1570120179;
+        bh=zV48jgoYMfQjfPPSYmYYK+1BTHruirrsZy0aq79/d4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWgM8ICT5L+/FtsEA1FoET+rzWL7i0dmo2c0JMpK/PCntDkfdJsH3xWZOfrNLEaDL
-         4L8wCdZ7xKoVYPzAoHjC0yPHh7bT58SM0Ay7mFu1jRwZu8cnODxzW3E1PRQG48ZqsZ
-         Np5jdJxhDsky5YnJYxORQzF3awbX1HSIW4URW2as=
+        b=yUpEM71MO23zT+lQLvu4vX6meIP3lH6NF95LUrHnkfPRsY+jXftWbLqR3/lOL7SJk
+         27CXverldrioEoHSbX1N6fYs3ZCw2c5r+z+DlcIOJA6zkf5lGvL3wFc0AYeRQ4sCqn
+         dlkJuHyp1GuNyEWMHOYF/TpvgPSQMyrVmjJAhpLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 124/313] arm64: entry: Move ct_user_exit before any other exception
-Date:   Thu,  3 Oct 2019 17:51:42 +0200
-Message-Id: <20191003154545.156284126@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+8a8f48672560c8ca59dd@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 127/313] media: dvb-frontends: use ida for pll number
+Date:   Thu,  3 Oct 2019 17:51:45 +0200
+Message-Id: <20191003154545.410601971@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,269 +46,219 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 2671828c3ff4ffadf777f793a1f3232d6e51394a ]
+[ Upstream commit c268e7adea52be0093de1164c425f3c8d8927770 ]
 
-When taking an SError or Debug exception from EL0, we run the C
-handler for these exceptions before updating the context tracking
-code and unmasking lower priority interrupts.
+KASAN: global-out-of-bounds Read in dvb_pll_attach
 
-When booting with nohz_full lockdep tells us we got this wrong:
-| =============================
-| WARNING: suspicious RCU usage
-| 5.3.0-rc2-00010-gb4b5e9dcb11b-dirty #11271 Not tainted
-| -----------------------------
-| include/linux/rcupdate.h:643 rcu_read_unlock() used illegally wh!
-|
-| other info that might help us debug this:
-|
-|
-| RCU used illegally from idle CPU!
-| rcu_scheduler_active = 2, debug_locks = 1
-| RCU used illegally from extended quiescent state!
-| 1 lock held by a.out/432:
-|  #0: 00000000c7a79515 (rcu_read_lock){....}, at: brk_handler+0x00
-|
-| stack backtrace:
-| CPU: 1 PID: 432 Comm: a.out Not tainted 5.3.0-rc2-00010-gb4b5e9d1
-| Hardware name: ARM LTD ARM Juno Development Platform/ARM Juno De8
-| Call trace:
-|  dump_backtrace+0x0/0x140
-|  show_stack+0x14/0x20
-|  dump_stack+0xbc/0x104
-|  lockdep_rcu_suspicious+0xf8/0x108
-|  brk_handler+0x164/0x1b0
-|  do_debug_exception+0x11c/0x278
-|  el0_dbg+0x14/0x20
+Syzbot reported global-out-of-bounds Read in dvb_pll_attach, while
+accessing id[dvb_pll_devcount], because dvb_pll_devcount was 65,
+that is more than size of 'id' which is DVB_PLL_MAX(64).
 
-Moving the ct_user_exit calls to be before do_debug_exception() means
-they are also before trace_hardirqs_off() has been updated. Add a new
-ct_user_exit_irqoff macro to avoid the context-tracking code using
-irqsave/restore before we've updated trace_hardirqs_off(). To be
-consistent, do this everywhere.
+Rather than increasing dvb_pll_devcount every time, use ida so that
+numbers are allocated correctly. This does mean that no more than
+64 devices can be attached at the same time, but this is more than
+sufficient.
 
-The C helper is called enter_from_user_mode() to match x86 in the hope
-we can merge them into kernel/context_tracking.c later.
+usb 1-1: dvb_usb_v2: will pass the complete MPEG2 transport stream to the
+software demuxer
+dvbdev: DVB: registering new adapter (774 Friio White ISDB-T USB2.0)
+usb 1-1: media controller created
+dvbdev: dvb_create_media_entity: media entity 'dvb-demux' registered.
+tc90522 0-0018: Toshiba TC90522 attached.
+usb 1-1: DVB: registering adapter 0 frontend 0 (Toshiba TC90522 ISDB-T
+module)...
+dvbdev: dvb_create_media_entity: media entity 'Toshiba TC90522 ISDB-T
+module' registered.
+==================================================================
+BUG: KASAN: global-out-of-bounds in dvb_pll_attach+0x6c5/0x830
+drivers/media/dvb-frontends/dvb-pll.c:798
+Read of size 4 at addr ffffffff89c9e5e0 by task kworker/0:1/12
 
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: 6c81fe7925cc4c42 ("arm64: enable context tracking")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.2.0-rc6+ #13
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x67/0x231 mm/kasan/report.c:188
+  __kasan_report.cold+0x1a/0x32 mm/kasan/report.c:317
+  kasan_report+0xe/0x20 mm/kasan/common.c:614
+  dvb_pll_attach+0x6c5/0x830 drivers/media/dvb-frontends/dvb-pll.c:798
+  dvb_pll_probe+0xfe/0x174 drivers/media/dvb-frontends/dvb-pll.c:877
+  i2c_device_probe+0x790/0xaa0 drivers/i2c/i2c-core-base.c:389
+  really_probe+0x281/0x660 drivers/base/dd.c:509
+  driver_probe_device+0x104/0x210 drivers/base/dd.c:670
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:777
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:843
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2111
+  i2c_new_client_device+0x5b3/0xc40 drivers/i2c/i2c-core-base.c:778
+  i2c_new_device+0x19/0x50 drivers/i2c/i2c-core-base.c:821
+  dvb_module_probe+0xf9/0x220 drivers/media/dvb-core/dvbdev.c:985
+  friio_tuner_attach+0x125/0x1d0 drivers/media/usb/dvb-usb-v2/gl861.c:536
+  dvb_usbv2_adapter_frontend_init
+drivers/media/usb/dvb-usb-v2/dvb_usb_core.c:675 [inline]
+  dvb_usbv2_adapter_init drivers/media/usb/dvb-usb-v2/dvb_usb_core.c:804
+[inline]
+  dvb_usbv2_init drivers/media/usb/dvb-usb-v2/dvb_usb_core.c:865 [inline]
+  dvb_usbv2_probe.cold+0x24dc/0x255d
+drivers/media/usb/dvb-usb-v2/dvb_usb_core.c:980
+  usb_probe_interface+0x305/0x7a0 drivers/usb/core/driver.c:361
+  really_probe+0x281/0x660 drivers/base/dd.c:509
+  driver_probe_device+0x104/0x210 drivers/base/dd.c:670
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:777
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:843
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2111
+  usb_set_configuration+0xdf6/0x1670 drivers/usb/core/message.c:2023
+  generic_probe+0x9d/0xd5 drivers/usb/core/generic.c:210
+  usb_probe_device+0x99/0x100 drivers/usb/core/driver.c:266
+  really_probe+0x281/0x660 drivers/base/dd.c:509
+  driver_probe_device+0x104/0x210 drivers/base/dd.c:670
+  __device_attach_driver+0x1c2/0x220 drivers/base/dd.c:777
+  bus_for_each_drv+0x15c/0x1e0 drivers/base/bus.c:454
+  __device_attach+0x217/0x360 drivers/base/dd.c:843
+  bus_probe_device+0x1e4/0x290 drivers/base/bus.c:514
+  device_add+0xae6/0x16f0 drivers/base/core.c:2111
+  usb_new_device.cold+0x8c1/0x1016 drivers/usb/core/hub.c:2534
+  hub_port_connect drivers/usb/core/hub.c:5089 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5204 [inline]
+  port_event drivers/usb/core/hub.c:5350 [inline]
+  hub_event+0x1ada/0x3590 drivers/usb/core/hub.c:5432
+  process_one_work+0x905/0x1570 kernel/workqueue.c:2269
+  process_scheduled_works kernel/workqueue.c:2331 [inline]
+  worker_thread+0x7ab/0xe20 kernel/workqueue.c:2417
+  kthread+0x30b/0x410 kernel/kthread.c:255
+  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+
+The buggy address belongs to the variable:
+  id+0x100/0x120
+
+Memory state around the buggy address:
+  ffffffff89c9e480: fa fa fa fa 00 00 fa fa fa fa fa fa 00 00 00 00
+  ffffffff89c9e500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> ffffffff89c9e580: 00 00 00 00 00 00 00 00 00 00 00 00 fa fa fa fa
+                                                        ^
+  ffffffff89c9e600: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
+  ffffffff89c9e680: 04 fa fa fa fa fa fa fa 04 fa fa fa fa fa fa fa
+==================================================================
+
+Reported-by: syzbot+8a8f48672560c8ca59dd@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/exception.h |  2 ++
- arch/arm64/kernel/entry.S          | 36 ++++++++++++++++--------------
- arch/arm64/kernel/traps.c          |  9 ++++++++
- 3 files changed, 30 insertions(+), 17 deletions(-)
+ drivers/media/dvb-frontends/dvb-pll.c | 40 ++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/include/asm/exception.h b/arch/arm64/include/asm/exception.h
-index ed57b760f38cf..a17393ff66774 100644
---- a/arch/arm64/include/asm/exception.h
-+++ b/arch/arm64/include/asm/exception.h
-@@ -30,4 +30,6 @@ static inline u32 disr_to_esr(u64 disr)
- 	return esr;
- }
+diff --git a/drivers/media/dvb-frontends/dvb-pll.c b/drivers/media/dvb-frontends/dvb-pll.c
+index ba0c49107bd28..d45b4ddc8f912 100644
+--- a/drivers/media/dvb-frontends/dvb-pll.c
++++ b/drivers/media/dvb-frontends/dvb-pll.c
+@@ -9,6 +9,7 @@
  
-+asmlinkage void enter_from_user_mode(void);
+ #include <linux/slab.h>
+ #include <linux/module.h>
++#include <linux/idr.h>
+ #include <linux/dvb/frontend.h>
+ #include <asm/types.h>
+ 
+@@ -34,8 +35,7 @@ struct dvb_pll_priv {
+ };
+ 
+ #define DVB_PLL_MAX 64
+-
+-static unsigned int dvb_pll_devcount;
++static DEFINE_IDA(pll_ida);
+ 
+ static int debug;
+ module_param(debug, int, 0644);
+@@ -787,6 +787,7 @@ struct dvb_frontend *dvb_pll_attach(struct dvb_frontend *fe, int pll_addr,
+ 	struct dvb_pll_priv *priv = NULL;
+ 	int ret;
+ 	const struct dvb_pll_desc *desc;
++	int nr;
+ 
+ 	b1 = kmalloc(1, GFP_KERNEL);
+ 	if (!b1)
+@@ -795,9 +796,14 @@ struct dvb_frontend *dvb_pll_attach(struct dvb_frontend *fe, int pll_addr,
+ 	b1[0] = 0;
+ 	msg.buf = b1;
+ 
+-	if ((id[dvb_pll_devcount] > DVB_PLL_UNDEFINED) &&
+-	    (id[dvb_pll_devcount] < ARRAY_SIZE(pll_list)))
+-		pll_desc_id = id[dvb_pll_devcount];
++	nr = ida_simple_get(&pll_ida, 0, DVB_PLL_MAX, GFP_KERNEL);
++	if (nr < 0) {
++		kfree(b1);
++		return NULL;
++	}
 +
- #endif	/* __ASM_EXCEPTION_H */
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 320a30dbe35ef..84a822748c84e 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -30,9 +30,9 @@
-  * Context tracking subsystem.  Used to instrument transitions
-  * between user and kernel mode.
-  */
--	.macro ct_user_exit
-+	.macro ct_user_exit_irqoff
- #ifdef CONFIG_CONTEXT_TRACKING
--	bl	context_tracking_user_exit
-+	bl	enter_from_user_mode
- #endif
- 	.endm
++	if (id[nr] > DVB_PLL_UNDEFINED && id[nr] < ARRAY_SIZE(pll_list))
++		pll_desc_id = id[nr];
  
-@@ -792,8 +792,8 @@ el0_cp15:
- 	/*
- 	 * Trapped CP15 (MRC, MCR, MRRC, MCRR) instructions
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, x25
- 	mov	x1, sp
- 	bl	do_cp15instr
-@@ -805,8 +805,8 @@ el0_da:
- 	 * Data abort handling
- 	 */
- 	mrs	x26, far_el1
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	clear_address_tag x0, x26
- 	mov	x1, x25
- 	mov	x2, sp
-@@ -818,11 +818,11 @@ el0_ia:
- 	 */
- 	mrs	x26, far_el1
- 	gic_prio_kentry_setup tmp=x0
-+	ct_user_exit_irqoff
- 	enable_da_f
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	bl	trace_hardirqs_off
- #endif
--	ct_user_exit
- 	mov	x0, x26
- 	mov	x1, x25
- 	mov	x2, sp
-@@ -832,8 +832,8 @@ el0_fpsimd_acc:
- 	/*
- 	 * Floating Point or Advanced SIMD access
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, x25
- 	mov	x1, sp
- 	bl	do_fpsimd_acc
-@@ -842,8 +842,8 @@ el0_sve_acc:
- 	/*
- 	 * Scalable Vector Extension access
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, x25
- 	mov	x1, sp
- 	bl	do_sve_acc
-@@ -852,8 +852,8 @@ el0_fpsimd_exc:
- 	/*
- 	 * Floating Point, Advanced SIMD or SVE exception
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, x25
- 	mov	x1, sp
- 	bl	do_fpsimd_exc
-@@ -868,11 +868,11 @@ el0_sp_pc:
- 	 * Stack or PC alignment exception handling
- 	 */
- 	gic_prio_kentry_setup tmp=x0
-+	ct_user_exit_irqoff
- 	enable_da_f
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	bl	trace_hardirqs_off
- #endif
--	ct_user_exit
- 	mov	x0, x26
- 	mov	x1, x25
- 	mov	x2, sp
-@@ -882,8 +882,8 @@ el0_undef:
- 	/*
- 	 * Undefined instruction
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, sp
- 	bl	do_undefinstr
- 	b	ret_to_user
-@@ -891,8 +891,8 @@ el0_sys:
- 	/*
- 	 * System instructions, for trapped cache maintenance instructions
- 	 */
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, x25
- 	mov	x1, sp
- 	bl	do_sysinstr
-@@ -902,17 +902,18 @@ el0_dbg:
- 	 * Debug exception handling
- 	 */
- 	tbnz	x24, #0, el0_inv		// EL0 only
-+	mrs	x24, far_el1
- 	gic_prio_kentry_setup tmp=x3
--	mrs	x0, far_el1
-+	ct_user_exit_irqoff
-+	mov	x0, x24
- 	mov	x1, x25
- 	mov	x2, sp
- 	bl	do_debug_exception
- 	enable_da_f
--	ct_user_exit
- 	b	ret_to_user
- el0_inv:
-+	ct_user_exit_irqoff
- 	enable_daif
--	ct_user_exit
- 	mov	x0, sp
- 	mov	x1, #BAD_SYNC
- 	mov	x2, x25
-@@ -925,13 +926,13 @@ el0_irq:
- 	kernel_entry 0
- el0_irq_naked:
- 	gic_prio_irq_setup pmr=x20, tmp=x0
-+	ct_user_exit_irqoff
- 	enable_da_f
+ 	BUG_ON(pll_desc_id < 1 || pll_desc_id >= ARRAY_SIZE(pll_list));
  
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	bl	trace_hardirqs_off
- #endif
+@@ -808,24 +814,20 @@ struct dvb_frontend *dvb_pll_attach(struct dvb_frontend *fe, int pll_addr,
+ 			fe->ops.i2c_gate_ctrl(fe, 1);
  
--	ct_user_exit
- #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- 	tbz	x22, #55, 1f
- 	bl	do_el0_irq_bp_hardening
-@@ -958,13 +959,14 @@ ENDPROC(el1_error)
- el0_error:
- 	kernel_entry 0
- el0_error_naked:
--	mrs	x1, esr_el1
-+	mrs	x25, esr_el1
- 	gic_prio_kentry_setup tmp=x2
-+	ct_user_exit_irqoff
- 	enable_dbg
- 	mov	x0, sp
-+	mov	x1, x25
- 	bl	do_serror
- 	enable_da_f
--	ct_user_exit
- 	b	ret_to_user
- ENDPROC(el0_error)
+ 		ret = i2c_transfer (i2c, &msg, 1);
+-		if (ret != 1) {
+-			kfree(b1);
+-			return NULL;
+-		}
++		if (ret != 1)
++			goto out;
+ 		if (fe->ops.i2c_gate_ctrl)
+ 			     fe->ops.i2c_gate_ctrl(fe, 0);
+ 	}
  
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index 985721a1264c9..b6706a8860371 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -7,9 +7,11 @@
-  */
+ 	priv = kzalloc(sizeof(struct dvb_pll_priv), GFP_KERNEL);
+-	if (!priv) {
+-		kfree(b1);
+-		return NULL;
+-	}
++	if (!priv)
++		goto out;
  
- #include <linux/bug.h>
-+#include <linux/context_tracking.h>
- #include <linux/signal.h>
- #include <linux/personality.h>
- #include <linux/kallsyms.h>
-+#include <linux/kprobes.h>
- #include <linux/spinlock.h>
- #include <linux/uaccess.h>
- #include <linux/hardirq.h>
-@@ -905,6 +907,13 @@ asmlinkage void do_serror(struct pt_regs *regs, unsigned int esr)
- 		nmi_exit();
- }
+ 	priv->pll_i2c_address = pll_addr;
+ 	priv->i2c = i2c;
+ 	priv->pll_desc = desc;
+-	priv->nr = dvb_pll_devcount++;
++	priv->nr = nr;
  
-+asmlinkage void enter_from_user_mode(void)
-+{
-+	CT_WARN_ON(ct_state() != CONTEXT_USER);
-+	user_exit_irqoff();
-+}
-+NOKPROBE_SYMBOL(enter_from_user_mode);
+ 	memcpy(&fe->ops.tuner_ops, &dvb_pll_tuner_ops,
+ 	       sizeof(struct dvb_tuner_ops));
+@@ -858,6 +860,11 @@ struct dvb_frontend *dvb_pll_attach(struct dvb_frontend *fe, int pll_addr,
+ 	kfree(b1);
+ 
+ 	return fe;
++out:
++	kfree(b1);
++	ida_simple_remove(&pll_ida, nr);
 +
- void __pte_error(const char *file, int line, unsigned long val)
++	return NULL;
+ }
+ EXPORT_SYMBOL(dvb_pll_attach);
+ 
+@@ -894,9 +901,10 @@ dvb_pll_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ static int dvb_pll_remove(struct i2c_client *client)
  {
- 	pr_err("%s:%d: bad pte %016lx.\n", file, line, val);
+-	struct dvb_frontend *fe;
++	struct dvb_frontend *fe = i2c_get_clientdata(client);
++	struct dvb_pll_priv *priv = fe->tuner_priv;
+ 
+-	fe = i2c_get_clientdata(client);
++	ida_simple_remove(&pll_ida, priv->nr);
+ 	dvb_pll_release(fe);
+ 	return 0;
+ }
 -- 
 2.20.1
 
