@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAD4CA98F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE334CAB2C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392748AbfJCQob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56580 "EHLO mail.kernel.org"
+        id S2387863AbfJCQPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:15:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392744AbfJCQoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:44:30 -0400
+        id S1732566AbfJCQPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:15:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 951092054F;
-        Thu,  3 Oct 2019 16:44:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC56F2054F;
+        Thu,  3 Oct 2019 16:15:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121069;
-        bh=fKDOifOsBYF0DMQPzAQ/DZmDI8+D34sivsnDb+H7i50=;
+        s=default; t=1570119349;
+        bh=W4X8vXVHEFPFQSTdvRznwhMJHRc36QiMXlnVAAWFoUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VXB5jI/cF9NJmkxBno2dJEldYkwQYZLGntn6RuaV4dNEL9pCIQoXs2MDKJR95+0hm
-         z7qTK++bs04qsrhf0Ne++x4kyZ4z5dl75lhIAyjoFjhFBXcVSfXmPDXV7h7g7PwExa
-         0XCxwXiV3UixRaBQT99zXsV3K0QG6j8I0RSiqXL4=
+        b=2sd8/vwTnmwIGwMEB5fTh4qjP797uKLWbTKRw6tXipVC0Ilk/El0HlCdd0pPwFERf
+         LsEH5W+slu6/QrKsb7Td77ubB5M8bO/YLw9OenKbNpkhW8+WHHm0RDN/vph6BUSG73
+         iPPMQtjsUpbVaZMPVRshEH3j8sDbNB0bUjwI7qyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 107/344] media: i2c: tda1997x: prevent potential NULL pointer access
-Date:   Thu,  3 Oct 2019 17:51:12 +0200
-Message-Id: <20191003154550.774976696@linuxfoundation.org>
+        stable@vger.kernel.org, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        David Ahern <dsahern@gmail.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 007/211] net_sched: add max len check for TCA_KIND
+Date:   Thu,  3 Oct 2019 17:51:13 +0200
+Message-Id: <20191003154448.932834647@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 2f822f1da08ac5c93e351e79d22920f08fa51baf ]
+[ Upstream commit 62794fc4fbf52f2209dc094ea255eaef760e7d01 ]
 
-i2c_new_dummy() can fail returning a NULL pointer. This is not checked
-and the returned pointer is blindly used. Convert to
-devm_i2c_new_dummy_client() which returns an ERR_PTR and also add a
-validity check. Using devm_* here also fixes a leak because the dummy
-client was not released in the probe error path.
+The TCA_KIND attribute is of NLA_STRING which does not check
+the NUL char. KMSAN reported an uninit-value of TCA_KIND which
+is likely caused by the lack of NUL.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Change it to NLA_NUL_STRING and add a max len too.
+
+Fixes: 8b4c3cdd9dd8 ("net: sched: Add policy validation for tc attributes")
+Reported-and-tested-by: syzbot+618aacd49e8c8b8486bd@syzkaller.appspotmail.com
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/tda1997x.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ net/sched/sch_api.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
-index a62ede0966361..5e68182001ecc 100644
---- a/drivers/media/i2c/tda1997x.c
-+++ b/drivers/media/i2c/tda1997x.c
-@@ -2691,7 +2691,13 @@ static int tda1997x_probe(struct i2c_client *client,
- 	}
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1308,7 +1308,8 @@ check_loop_fn(struct Qdisc *q, unsigned
+ }
  
- 	ret = 0x34 + ((io_read(sd, REG_SLAVE_ADDR)>>4) & 0x03);
--	state->client_cec = i2c_new_dummy(client->adapter, ret);
-+	state->client_cec = devm_i2c_new_dummy_device(&client->dev,
-+						      client->adapter, ret);
-+	if (IS_ERR(state->client_cec)) {
-+		ret = PTR_ERR(state->client_cec);
-+		goto err_free_mutex;
-+	}
-+
- 	v4l_info(client, "CEC slave address 0x%02x\n", ret);
- 
- 	ret = tda1997x_core_init(sd);
-@@ -2798,7 +2804,6 @@ static int tda1997x_remove(struct i2c_client *client)
- 	media_entity_cleanup(&sd->entity);
- 	v4l2_ctrl_handler_free(&state->hdl);
- 	regulator_bulk_disable(TDA1997X_NUM_SUPPLIES, state->supplies);
--	i2c_unregister_device(state->client_cec);
- 	cancel_delayed_work(&state->delayed_work_enable_hpd);
- 	mutex_destroy(&state->page_lock);
- 	mutex_destroy(&state->lock);
--- 
-2.20.1
-
+ const struct nla_policy rtm_tca_policy[TCA_MAX + 1] = {
+-	[TCA_KIND]		= { .type = NLA_STRING },
++	[TCA_KIND]		= { .type = NLA_NUL_STRING,
++				    .len = IFNAMSIZ - 1 },
+ 	[TCA_RATE]		= { .type = NLA_BINARY,
+ 				    .len = sizeof(struct tc_estimator) },
+ 	[TCA_STAB]		= { .type = NLA_NESTED },
 
 
