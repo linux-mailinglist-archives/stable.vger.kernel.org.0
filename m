@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3579CA360
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 240E9CA361
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733026AbfJCQM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
+        id S2388740AbfJCQO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388157AbfJCQM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:12:58 -0400
+        id S2388297AbfJCQND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:13:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E43A92054F;
-        Thu,  3 Oct 2019 16:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17EAC2054F;
+        Thu,  3 Oct 2019 16:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119177;
-        bh=ZYCCv+T4GyOSEM7sSveA086+4vtEk0XaVhStkGR/kfM=;
+        s=default; t=1570119182;
+        bh=Y11zvhIK8E89btix8E6YbczENk9krIRsc+ILQ8r1z8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BKsMrv/OLCs7hMejQOtNwng2HPhgZYgfJevIROnFIQxdV8DRmnaYZFHSaVcCmZ9TG
-         DAIOfz6FdqhDrswzzfSpL1hnKjEi6vLZsS06096ECXOYcLeGkax2qA8hCKSG1YrxT2
-         VIe7w/nduMgLGFWrmLCVoNCk3m326pLrhM+d+E5M=
+        b=Ws5d6dSvbOm/MfjzNvDyB7PT3+gqPswJP18oqzOVTIjvTyhKIt1OWZe0YzXEUuzvK
+         slQN2c0bJOKUCerNlc5HsRWPilDefr8f6XonhiTsRUqXQbXBofUd3rY3zwQE6TM/BV
+         AlS+18TNn3P0wvlki4LIXxVQTPAEuRBRVCEV8+/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 153/185] media: sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
-Date:   Thu,  3 Oct 2019 17:53:51 +0200
-Message-Id: <20191003154513.863247432@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 155/185] ASoC: Intel: NHLT: Fix debug print format
+Date:   Thu,  3 Oct 2019 17:53:53 +0200
+Message-Id: <20191003154514.289731616@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -45,41 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
+commit 855a06da37a773fd073d51023ac9d07988c87da8 upstream.
 
-Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
-SN9C201 + OV7660 webcam which is mounted upside down.
+oem_table_id is 8 chars long, so we need to limit it, otherwise it
+may print some unprintable characters into dmesg.
 
-Add it to the sn9c20x flip_dmi_table to deal with this.
-
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-7-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/sn9c20x.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/intel/skylake/skl-nhlt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/gspca/sn9c20x.c
-+++ b/drivers/media/usb/gspca/sn9c20x.c
-@@ -133,6 +133,13 @@ static const struct dmi_system_id flip_d
- 		}
- 	},
- 	{
-+		.ident = "MSI MS-1039",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
-+		}
-+	},
-+	{
- 		.ident = "MSI MS-1632",
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
+--- a/sound/soc/intel/skylake/skl-nhlt.c
++++ b/sound/soc/intel/skylake/skl-nhlt.c
+@@ -215,7 +215,7 @@ int skl_nhlt_update_topology_bin(struct
+ 	struct hdac_bus *bus = ebus_to_hbus(&skl->ebus);
+ 	struct device *dev = bus->dev;
+ 
+-	dev_dbg(dev, "oem_id %.6s, oem_table_id %8s oem_revision %d\n",
++	dev_dbg(dev, "oem_id %.6s, oem_table_id %.8s oem_revision %d\n",
+ 		nhlt->header.oem_id, nhlt->header.oem_table_id,
+ 		nhlt->header.oem_revision);
+ 
 
 
