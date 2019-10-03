@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF93CAC9E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01632CAC1D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732848AbfJCQNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
+        id S1730978AbfJCQFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730414AbfJCQNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:14 -0400
+        id S1730857AbfJCQFm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8F3C2054F;
-        Thu,  3 Oct 2019 16:13:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42D5221A4C;
+        Thu,  3 Oct 2019 16:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119193;
-        bh=gAU5FFtkt4JrXlIGSESoZ5d/KBuNhSLtdre5Bf76G9s=;
+        s=default; t=1570118739;
+        bh=0JyXBfaZ3EE8vscEdg4eOV3sQQ+XbMxdAOMKNoTBNxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcQ+nfx/cynO8Y+93IDwI0naeoZuQuNdAs2r+iY+N+voC8tBy4X1h+gII23h63Mk7
-         fWiH2uKRhMwugGcql0IoBCZmc1V77BAwGba/d5BaG9DC3rC5ixupCzQWVpjV2K5HJD
-         /o/kpt/Y60bdC4UTL4aWyuW70Xgcj0+o3yAfhLQ8=
+        b=ArKU7gzYUYvaGsT4HO/wwT+ymwsAKj/KtcKttY4r9HQJdjSQk6is5zeS9wpdKpQha
+         g7rA7M+bC2tgMh8w4y/acFjfhiGoc+237fz6+8bcV0dLH2nyDZYJn740vq6n6pStRD
+         5DXsdWvztzf4ohTKiFGf9lSi8BUf+oxfJlU1JMxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Araneda <luaraneda@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH 4.14 159/185] ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Thomas Lindroth <thomas.lindroth@gmail.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: [PATCH 4.9 114/129] memcg, kmem: do not fail __GFP_NOFAIL charges
 Date:   Thu,  3 Oct 2019 17:53:57 +0200
-Message-Id: <20191003154515.139543257@linuxfoundation.org>
+Message-Id: <20191003154411.222250820@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Araneda <luaraneda@gmail.com>
+From: Michal Hocko <mhocko@suse.com>
 
-commit b7005d4ef4f3aa2dc24019ffba03a322557ac43d upstream.
+commit e55d9d9bfb69405bd7615c0f8d229d8fafb3e9b8 upstream.
 
-This fixes a kernel panic on memcpy when
-FORTIFY_SOURCE is enabled.
+Thomas has noticed the following NULL ptr dereference when using cgroup
+v1 kmem limit:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 0
+P4D 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
+Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
+RIP: 0010:create_empty_buffers+0x24/0x100
+Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
+RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
+RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
+RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
+FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
+Call Trace:
+ create_page_buffers+0x4d/0x60
+ __block_write_begin_int+0x8e/0x5a0
+ ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
+ ? jbd2__journal_start+0xd7/0x1f0
+ ext4_da_write_begin+0x112/0x3d0
+ generic_perform_write+0xf1/0x1b0
+ ? file_update_time+0x70/0x140
+ __generic_file_write_iter+0x141/0x1a0
+ ext4_file_write_iter+0xef/0x3b0
+ __vfs_write+0x17e/0x1e0
+ vfs_write+0xa5/0x1a0
+ ksys_write+0x57/0xd0
+ do_syscall_64+0x55/0x160
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The initial smp implementation on commit aa7eb2bb4e4a
-("arm: zynq: Add smp support")
-used memcpy, which worked fine until commit ee333554fed5
-("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
-enabled overflow checks at runtime, producing a read
-overflow panic.
+Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
+fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
+behavior because nofail allocations are not allowed to fail.  Normal
+charge path simply forces the charge even if that means to cross the
+limit.  Kmem accounting should be doing the same.
 
-The computed size of memcpy args are:
-- p_size (dst): 4294967295 = (size_t) -1
-- q_size (src): 1
-- size (len): 8
-
-Additionally, the memory is marked as __iomem, so one of
-the memcpy_* functions should be used for read/write.
-
-Fixes: aa7eb2bb4e4a ("arm: zynq: Add smp support")
-Signed-off-by: Luis Araneda <luaraneda@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
+Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/mach-zynq/platsmp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/memcontrol.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/arm/mach-zynq/platsmp.c
-+++ b/arch/arm/mach-zynq/platsmp.c
-@@ -65,7 +65,7 @@ int zynq_cpun_start(u32 address, int cpu
- 			* 0x4: Jump by mov instruction
- 			* 0x8: Jumping address
- 			*/
--			memcpy((__force void *)zero, &zynq_secondary_trampoline,
-+			memcpy_toio(zero, &zynq_secondary_trampoline,
- 							trampoline_size);
- 			writel(address, zero + trampoline_size);
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -2325,6 +2325,16 @@ int memcg_kmem_charge_memcg(struct page
  
+ 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
+ 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
++
++		/*
++		 * Enforce __GFP_NOFAIL allocation because callers are not
++		 * prepared to see failures and likely do not have any failure
++		 * handling code.
++		 */
++		if (gfp & __GFP_NOFAIL) {
++			page_counter_charge(&memcg->kmem, nr_pages);
++			return 0;
++		}
+ 		cancel_charge(memcg, nr_pages);
+ 		return -ENOMEM;
+ 	}
 
 
