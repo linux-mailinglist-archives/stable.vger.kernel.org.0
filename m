@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D21B3CA22D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B580CA22E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730704AbfJCQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
+        id S1732031AbfJCQCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730678AbfJCQCg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:02:36 -0400
+        id S1732027AbfJCQCj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:02:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EB7820700;
-        Thu,  3 Oct 2019 16:02:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29DAB20700;
+        Thu,  3 Oct 2019 16:02:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118555;
-        bh=UlCki8zg9JHsMFVYDz5UUcbj6ctigQ8WdJABiuxnRAs=;
+        s=default; t=1570118558;
+        bh=4LldhGcKaiWIRhK2s/OWpvADxLRNsZW2t/xA95AQhUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lptlYNPAY/zFvkS22Nxgz5xDva8KvYU8Z/D0hfYthmxl0JSMoLZ6uQTqYWt14h25e
-         9zOYCVIkexo/ElVxk4E3PFYQJXwaxI2wtfxQxBW7AFYO/X3BSSk9msuSOQVqjBQQDG
-         llzTwhl73CeqIiBAMl9thXy5y+SHY30faD07qvW4=
+        b=P09dm8yqaxjlWnaZmi+XDV0OyzuSLfKgFgNOnFo64j9HaJ6A25ZBwdFSIUh5K2NgR
+         BPtS0aQEjWmQhf4Sr2+3l6ZXPXxZ2QAOPeITur/YAbVpEH7KjSQeIOaEDY/NXpf+6v
+         k0FLe7uGMh2j6dc+Q4z93jH5VuEDrsNXDK/syojs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 053/129] media: iguanair: add sanity checks
-Date:   Thu,  3 Oct 2019 17:52:56 +0200
-Message-Id: <20191003154341.718370638@linuxfoundation.org>
+Subject: [PATCH 4.9 054/129] base: soc: Export soc_device_register/unregister APIs
+Date:   Thu,  3 Oct 2019 17:52:57 +0200
+Message-Id: <20191003154341.843893098@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -46,59 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit ab1cbdf159beba7395a13ab70bc71180929ca064 ]
+[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
 
-The driver needs to check the endpoint types, too, as opposed
-to the number of endpoints. This also requires moving the check earlier.
+Qcom Socinfo driver can be built as a module, so
+export these two APIs.
 
-Reported-by: syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Tested-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/iguanair.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/base/soc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
-index 5f634545ddd81..25470395c43f1 100644
---- a/drivers/media/rc/iguanair.c
-+++ b/drivers/media/rc/iguanair.c
-@@ -430,6 +430,10 @@ static int iguanair_probe(struct usb_interface *intf,
- 	int ret, pipein, pipeout;
- 	struct usb_host_interface *idesc;
+diff --git a/drivers/base/soc.c b/drivers/base/soc.c
+index b63f23e6ad61b..ddb32c890fa6a 100644
+--- a/drivers/base/soc.c
++++ b/drivers/base/soc.c
+@@ -145,6 +145,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
+ out1:
+ 	return ERR_PTR(ret);
+ }
++EXPORT_SYMBOL_GPL(soc_device_register);
  
-+	idesc = intf->altsetting;
-+	if (idesc->desc.bNumEndpoints < 2)
-+		return -ENODEV;
-+
- 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
- 	rc = rc_allocate_device();
- 	if (!ir || !rc) {
-@@ -444,18 +448,13 @@ static int iguanair_probe(struct usb_interface *intf,
- 	ir->urb_in = usb_alloc_urb(0, GFP_KERNEL);
- 	ir->urb_out = usb_alloc_urb(0, GFP_KERNEL);
+ /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
+ void soc_device_unregister(struct soc_device *soc_dev)
+@@ -153,6 +154,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
  
--	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out) {
-+	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out ||
-+	    !usb_endpoint_is_int_in(&idesc->endpoint[0].desc) ||
-+	    !usb_endpoint_is_int_out(&idesc->endpoint[1].desc)) {
- 		ret = -ENOMEM;
- 		goto out;
- 	}
+ 	device_unregister(&soc_dev->dev);
+ }
++EXPORT_SYMBOL_GPL(soc_device_unregister);
  
--	idesc = intf->altsetting;
--
--	if (idesc->desc.bNumEndpoints < 2) {
--		ret = -ENODEV;
--		goto out;
--	}
--
- 	ir->rc = rc;
- 	ir->dev = &intf->dev;
- 	ir->udev = udev;
+ static int __init soc_bus_register(void)
+ {
 -- 
 2.20.1
 
