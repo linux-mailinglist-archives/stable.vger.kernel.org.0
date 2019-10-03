@@ -2,66 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D620CA0E8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9100FCA10E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726508AbfJCPJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:09:59 -0400
-Received: from smtprelay0140.hostedemail.com ([216.40.44.140]:56052 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726364AbfJCPJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 11:09:59 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay06.hostedemail.com (Postfix) with ESMTP id 6981318225E03;
-        Thu,  3 Oct 2019 15:09:57 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,:::::::::::::,RULES_HIT:41:355:379:599:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1539:1593:1594:1711:1730:1747:1777:1792:2393:2559:2562:2828:2911:3138:3139:3140:3141:3142:3352:3622:3865:3866:3867:3870:3871:3872:3873:3874:4321:4425:5007:7903:7974:10004:10400:10848:11232:11658:11914:12297:12740:12760:12895:13069:13255:13311:13357:13439:14096:14097:14659:14777:21080:21325:21433:21611:21627:21819:21939:30022:30054:30083:30091,0,RBL:47.151.152.152:@perches.com:.lbl8.mailshell.net-62.14.0.100 64.201.201.201,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:fn,MSBL:0,DNSBL:neutral,Custom_rules:0:0:0,LFtime:24,LUA_SUMMARY:none
-X-HE-Tag: move54_39a3222fc933b
-X-Filterd-Recvd-Size: 1870
-Received: from XPS-9350.home (unknown [47.151.152.152])
-        (Authenticated sender: joe@perches.com)
-        by omf03.hostedemail.com (Postfix) with ESMTPA;
-        Thu,  3 Oct 2019 15:09:55 +0000 (UTC)
-Message-ID: <de5e7cd39ce661f8441fb4f5bdf21ee37ada1366.camel@perches.com>
-Subject: Re: [PATCH 3.16 29/87] staging: iio: cdc: Don't put an else right
- after a return
-From:   Joe Perches <joe@perches.com>
-To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        id S1727978AbfJCPTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:19:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41528 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727587AbfJCPTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:19:18 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 159942133F;
+        Thu,  3 Oct 2019 15:19:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570115957;
+        bh=VGdOBCvthwZAw5M9KmhytugKdy+xBwor+dx5qoa9qwI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=HHBg/O/EbdAZy3ZxpyzUZxL/0T6EehvnMS8+oBpWzjfFGRtctXBRD5M37gayo9xN6
+         wubnWGONGuwlABlKV6ngpxHEX0HJtfm6Duy2h8Z7by17N2P+GI1gjvUYGBYipYVUF3
+         IbD3i4GSR9M3MAZphxn8yU6qNK2t3C2UiuY70fiU=
+Date:   Thu, 3 Oct 2019 17:19:14 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     ebiggers@google.com, hch@lst.de, mszeredi@redhat.com,
         stable@vger.kernel.org
-Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Catalina Mocanu <catalina.mocanu@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-In-Reply-To: <3fe1cd65a7860464d3780b57c734d12880df4b92.camel@decadent.org.uk>
-References: <lsq.1570043211.136218297@decadent.org.uk>
-         <6436567dd141e5528a5363dd3aaad21815a1c111.camel@perches.com>
-         <3fe1cd65a7860464d3780b57c734d12880df4b92.camel@decadent.org.uk>
-Content-Type: text/plain; charset="ISO-8859-1"
+Subject: Re: FAILED: patch "[PATCH] fuse: fix deadlock with aio poll and
+ fuse_iqueue::waitq.lock" failed to apply to 4.19-stable tree
+Message-ID: <20191003151914.GA3183327@kroah.com>
+References: <157008885411399@kroah.com>
+ <20191003131655.GW17454@sasha-vm>
 MIME-Version: 1.0
-Date:   Thu, 03 Oct 2019 08:09:05 -0700
-User-Agent: Evolution 3.32.1-2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191003131655.GW17454@sasha-vm>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2019-10-03 at 15:47 +0100, Ben Hutchings wrote:
-> On Wed, 2019-10-02 at 14:36 -0700, Joe Perches wrote:
-> > On Wed, 2019-10-02 at 20:06 +0100, Ben Hutchings wrote:
-> > > 3.16.75-rc1 review patch.  If anyone has any objections, please let me know.
+On Thu, Oct 03, 2019 at 09:16:55AM -0400, Sasha Levin wrote:
+> On Thu, Oct 03, 2019 at 09:47:34AM +0200, gregkh@linuxfoundation.org wrote:
 > > 
-> > This doesn't look necessary.
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 76e43c8ccaa35c30d5df853013561145a0f750a5 Mon Sep 17 00:00:00 2001
+> > From: Eric Biggers <ebiggers@google.com>
+> > Date: Sun, 8 Sep 2019 20:15:18 -0700
+> > Subject: [PATCH] fuse: fix deadlock with aio poll and fuse_iqueue::waitq.lock
+> > 
+> > When IOCB_CMD_POLL is used on the FUSE device, aio_poll() disables IRQs
+> > and takes kioctx::ctx_lock, then fuse_iqueue::waitq.lock.
+> > 
+> > This may have to wait for fuse_iqueue::waitq.lock to be released by one
+> > of many places that take it with IRQs enabled.  Since the IRQ handler
+> > may take kioctx::ctx_lock, lockdep reports that a deadlock is possible.
+> > 
+> > Fix it by protecting the state of struct fuse_iqueue with a separate
+> > spinlock, and only accessing fuse_iqueue::waitq using the versions of
+> > the waitqueue functions which do IRQ-safe locking internally.
+> > 
+> > Reproducer:
+> > 
+> > 	#include <fcntl.h>
+> > 	#include <stdio.h>
+> > 	#include <sys/mount.h>
+> > 	#include <sys/stat.h>
+> > 	#include <sys/syscall.h>
+> > 	#include <unistd.h>
+> > 	#include <linux/aio_abi.h>
+> > 
+> > 	int main()
+> > 	{
+> > 		char opts[128];
+> > 		int fd = open("/dev/fuse", O_RDWR);
+> > 		aio_context_t ctx = 0;
+> > 		struct iocb cb = { .aio_lio_opcode = IOCB_CMD_POLL, .aio_fildes = fd };
+> > 		struct iocb *cbp = &cb;
+> > 
+> > 		sprintf(opts, "fd=%d,rootmode=040000,user_id=0,group_id=0", fd);
+> > 		mkdir("mnt", 0700);
+> > 		mount("foo",  "mnt", "fuse", 0, opts);
+> > 		syscall(__NR_io_setup, 1, &ctx);
+> > 		syscall(__NR_io_submit, ctx, 1, &cbp);
+> > 	}
+> > 
+> > Beginning of lockdep output:
+> > 
+> > 	=====================================================
+> > 	WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
+> > 	5.3.0-rc5 #9 Not tainted
+> > 	-----------------------------------------------------
+> > 	syz_fuse/135 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+> > 	000000003590ceda (&fiq->waitq){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+> > 	000000003590ceda (&fiq->waitq){+.+.}, at: aio_poll fs/aio.c:1751 [inline]
+> > 	000000003590ceda (&fiq->waitq){+.+.}, at: __io_submit_one.constprop.0+0x203/0x5b0 fs/aio.c:1825
+> > 
+> > 	and this task is already holding:
+> > 	0000000075037284 (&(&ctx->ctx_lock)->rlock){..-.}, at: spin_lock_irq include/linux/spinlock.h:363 [inline]
+> > 	0000000075037284 (&(&ctx->ctx_lock)->rlock){..-.}, at: aio_poll fs/aio.c:1749 [inline]
+> > 	0000000075037284 (&(&ctx->ctx_lock)->rlock){..-.}, at: __io_submit_one.constprop.0+0x1f4/0x5b0 fs/aio.c:1825
+> > 	which would create a new lock dependency:
+> > 	 (&(&ctx->ctx_lock)->rlock){..-.} -> (&fiq->waitq){+.+.}
+> > 
+> > 	but this new dependency connects a SOFTIRQ-irq-safe lock:
+> > 	 (&(&ctx->ctx_lock)->rlock){..-.}
+> > 
+> > 	[...]
+> > 
+> > Reported-by: syzbot+af05535bb79520f95431@syzkaller.appspotmail.com
+> > Reported-by: syzbot+d86c4426a01f60feddc7@syzkaller.appspotmail.com
+> > Fixes: bfe4037e722e ("aio: implement IOCB_CMD_POLL")
+> > Cc: <stable@vger.kernel.org> # v4.19+
+> > Cc: Christoph Hellwig <hch@lst.de>
+> > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 > 
-> It allows the next patch to apply cleanly.
+> There were some context changes mostly due to commit 217316a601016 ("fuse:
+> Optimize request_end() by not taking fiq->waitq.lock"). I've fixed it up
+> and queued on 4.14-4.4.
 
-Perhaps when you pick patches that are unnecessary
-for any other reason but to allow easier picking of
-actual fixes, the nominal unnecessary patches could
-be marked as necessary for follow-on patches.
+It said it didn't need to go to anything older than 4.19, so I've
+dropped the 4.4.y, 4.9.y, and 4.14.y versions.
 
-Also, when you send these patch series, please use
-an email delay of at least 1 second between each
-entry in the series as the threading is otherwise
-poor in various email clients when sorting by time.
+thanks,
 
-
+greg k-h
