@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5477CA1E8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD5ACA26E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730269AbfJCQAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43884 "EHLO mail.kernel.org"
+        id S1732123AbfJCQFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731526AbfJCQAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:14 -0400
+        id S1730633AbfJCQFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE48F20700;
-        Thu,  3 Oct 2019 16:00:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB3B2215EA;
+        Thu,  3 Oct 2019 16:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118413;
-        bh=eKoJtabEfXEZlyaf0EUSO1cvN+kiTSfYrUv9v6XiirQ=;
+        s=default; t=1570118713;
+        bh=PISx2vyocSh8/A1YRwQdwLjLxS9DHcEQhiIdSzWqr9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1r2iDX1TdzVxive/m8Z609uy37JW/xgzvK7IC5AjcPUK0cra4Zs1OcKEpBPIlc8c
-         uJD16YmbfTUxERF/mvQHpODLA4YWF2xCZMJlXu/ANuFvkk5pYSN1oBUjqA3aFGcTXx
-         ulia2/AeIFRYRQbkJoLqtO7foTgzrZlPlKm/rAAY=
+        b=T5H5JHnylKqzXz6RyD1fTq03QzNWZZ9tutEY3R45swuztUr+4on0WQ8TlT3wtChAP
+         7YLd3Nt1cJwAKRGd9UYsEa+m7l+lpMH36PJjsoPT14n3C59tTOvHDAGz2pgLsc9Jem
+         EgFWxm33MP31Jbfy+6ni7XqX7rKBfHSo5BS88mUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.4 87/99] alarmtimer: Use EOPNOTSUPP instead of ENOTSUPP
-Date:   Thu,  3 Oct 2019 17:53:50 +0200
-Message-Id: <20191003154338.259710635@linuxfoundation.org>
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 110/129] ASoC: Intel: Fix use of potentially uninitialized variable
+Date:   Thu,  3 Oct 2019 17:53:53 +0200
+Message-Id: <20191003154409.194095223@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit f18ddc13af981ce3c7b7f26925f099e7c6929aba upstream.
+commit 810f3b860850148788fc1ed8a6f5f807199fed65 upstream.
 
-ENOTSUPP is not supposed to be returned to userspace. This was found on an
-OpenPower machine, where the RTC does not support set_alarm.
+If ipc->ops.reply_msg_match is NULL, we may end up using uninitialized
+mask value.
 
-On that system, a clock_nanosleep(CLOCK_REALTIME_ALARM, ...) results in
-"524 Unknown error 524"
+reported by smatch:
+sound/soc/intel/common/sst-ipc.c:266 sst_ipc_reply_find_msg() error: uninitialized symbol 'mask'.
 
-Replace it with EOPNOTSUPP which results in the expected "95 Operation not
-supported" error.
-
-Fixes: 1c6b39ad3f01 (alarmtimers: Return -ENOTSUPP if no RTC device is present)
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-3-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190903171802.28314-1-cascardo@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/alarmtimer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/common/sst-ipc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -530,7 +530,7 @@ static int alarm_timer_create(struct k_i
- 	struct alarm_base *base;
+--- a/sound/soc/intel/common/sst-ipc.c
++++ b/sound/soc/intel/common/sst-ipc.c
+@@ -211,6 +211,8 @@ struct ipc_message *sst_ipc_reply_find_m
  
- 	if (!alarmtimer_get_rtcdev())
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
+ 	if (ipc->ops.reply_msg_match != NULL)
+ 		header = ipc->ops.reply_msg_match(header, &mask);
++	else
++		mask = (u64)-1;
  
- 	if (!capable(CAP_WAKE_ALARM))
- 		return -EPERM;
-@@ -759,7 +759,7 @@ static int alarm_timer_nsleep(const cloc
- 	struct restart_block *restart;
- 
- 	if (!alarmtimer_get_rtcdev())
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (flags & ~TIMER_ABSTIME)
- 		return -EINVAL;
+ 	if (list_empty(&ipc->rx_list)) {
+ 		dev_err(ipc->dev, "error: rx list empty but received 0x%llx\n",
 
 
