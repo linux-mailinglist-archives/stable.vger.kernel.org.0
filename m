@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07193CA42B
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:23:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F43CA412
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390369AbfJCQWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51464 "EHLO mail.kernel.org"
+        id S2389328AbfJCQVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390365AbfJCQWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:42 -0400
+        id S2387709AbfJCQVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0665D20659;
-        Thu,  3 Oct 2019 16:22:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A758222C4;
+        Thu,  3 Oct 2019 16:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119761;
-        bh=yHF9RoZHB6Qm3RCjepEVe+GJFwIebmGSDxiefTu0FjM=;
+        s=default; t=1570119703;
+        bh=zgSTrqbkUadHQjGjspxkvJJQ1y0zPVUECS01n+/9POc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SP+uD7o4NiSFowI2Qys5boR9QOdlg1D3yqE2uFRSejjSUVwDyekoPfY9iau4QGKtF
-         zDpXCuHQXzC+VDl/UadBEZMllvghL3IQl57HiKXG0MPY5X/E6Cxy74WwxYRcMbSvz1
-         /U7Zqr5Tjdo5yVI1cZMHwVQhgm5PR9KVamP6J0L8=
+        b=R5qAR8SlCeKqI1eVCM/dn2ZrYvEEvTI9drliySJm5doukb0IGMiWasfQKnjb2skFS
+         OAxUu1djbUH6v/8nTNzOmYq/nwkXTziW/2ldtkB/nNjO+7iDShZ7OHNMOXJKYhutw0
+         bEzg4BQP3lDrTXY/6xTdY4hkq+3/ggu018o9iei4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joonwon Kang <kjw1627@gmail.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 156/211] randstruct: Check member structs in is_pure_ops_struct()
-Date:   Thu,  3 Oct 2019 17:53:42 +0200
-Message-Id: <20191003154523.683939067@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 163/211] fuse: fix missing unlock_page in fuse_writepage()
+Date:   Thu,  3 Oct 2019 17:53:49 +0200
+Message-Id: <20191003154525.043527749@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -43,44 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joonwon Kang <kjw1627@gmail.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 60f2c82ed20bde57c362e66f796cf9e0e38a6dbb upstream.
+commit d5880c7a8620290a6c90ced7a0e8bd0ad9419601 upstream.
 
-While no uses in the kernel triggered this case, it was possible to have
-a false negative where a struct contains other structs which contain only
-function pointers because of unreachable code in is_pure_ops_struct().
+unlock_page() was missing in case of an already in-flight write against the
+same page.
 
-Signed-off-by: Joonwon Kang <kjw1627@gmail.com>
-Link: https://lore.kernel.org/r/20190727155841.GA13586@host
-Fixes: 313dd1b62921 ("gcc-plugins: Add the randstruct plugin")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Fixes: ff17be086477 ("fuse: writepage: skip already in flight")
+Cc: <stable@vger.kernel.org> # v3.13
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/gcc-plugins/randomize_layout_plugin.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/fuse/file.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/scripts/gcc-plugins/randomize_layout_plugin.c
-+++ b/scripts/gcc-plugins/randomize_layout_plugin.c
-@@ -443,13 +443,13 @@ static int is_pure_ops_struct(const_tree
- 		if (node == fieldtype)
- 			continue;
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1700,6 +1700,7 @@ static int fuse_writepage(struct page *p
+ 		WARN_ON(wbc->sync_mode == WB_SYNC_ALL);
  
--		if (!is_fptr(fieldtype))
--			return 0;
--
--		if (code != RECORD_TYPE && code != UNION_TYPE)
-+		if (code == RECORD_TYPE || code == UNION_TYPE) {
-+			if (!is_pure_ops_struct(fieldtype))
-+				return 0;
- 			continue;
-+		}
- 
--		if (!is_pure_ops_struct(fieldtype))
-+		if (!is_fptr(fieldtype))
- 			return 0;
+ 		redirty_page_for_writepage(wbc, page);
++		unlock_page(page);
+ 		return 0;
  	}
  
 
