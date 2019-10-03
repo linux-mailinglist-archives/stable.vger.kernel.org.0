@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B18E2CA897
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9398CA8B7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390539AbfJCQ3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:29:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34182 "EHLO mail.kernel.org"
+        id S2391300AbfJCQbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:31:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391587AbfJCQ3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:29:07 -0400
+        id S2391253AbfJCQbQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:31:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 783F52054F;
-        Thu,  3 Oct 2019 16:29:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC7120830;
+        Thu,  3 Oct 2019 16:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120147;
-        bh=XqTrBwG3jzWgXqa8Ap4eF4CPHXPDO+58ycrQVeMj+3M=;
+        s=default; t=1570120276;
+        bh=XUmmIth62BR1fhxQkpaj7JH5ZHWo0kcvwHPpfRdMUzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8VELSuCwuCnsd3H6nETF+cRLK07k1bu006XlQpyj7rHOPQ1jBykMyuAj2663VDqi
-         WxfzDQ4L20pFauRKp85rYXwTVOEhEZpkhPAbhVWCqUYhmavQnSzhTugAu9XvVoxAu8
-         PGI/+fYwaTu+4Oeu48Isiny6ozV/Ch6HhwkcjN+o=
+        b=h7UIId9XUemKRVEtEC3yAeHqh2DvgXYfuzn/nQrnkNTVjbQmTIORMelLqDbDdLytG
+         7alS76eo5HwXNYDdlkEtHArETgKqYL7T2KN6eVHvFRz9My2ElUE4krU48loL1Pjxgf
+         kHMecozv5Ih0/3obOWBb1Lol/ENGR8XyDxD23WBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+2d4fc2a0c45ad8da7e99@syzkaller.appspotmail.com
-Subject: [PATCH 5.2 113/313] media: radio/si470x: kill urb on error
-Date:   Thu,  3 Oct 2019 17:51:31 +0200
-Message-Id: <20191003154543.976663170@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Borislav Petkov <bp@suse.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 123/313] ACPI / APEI: Release resources if gen_pool_add() fails
+Date:   Thu,  3 Oct 2019 17:51:41 +0200
+Message-Id: <20191003154545.050926099@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,57 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 0d616f2a3fdbf1304db44d451d9f07008556923b ]
+[ Upstream commit 6abc7622271dc520f241462e2474c71723638851 ]
 
-In the probe() function radio->int_in_urb was not killed if an
-error occurred in the probe sequence. It was also missing in
-the disconnect.
+Destroy ghes_estatus_pool and release memory allocated via vmalloc() on
+errors in ghes_estatus_pool_init() in order to avoid memory leaks.
 
-This caused this syzbot issue:
+ [ bp: do the labels properly and with descriptive names and massage. ]
 
-https://syzkaller.appspot.com/bug?extid=2d4fc2a0c45ad8da7e99
-
-Reported-and-tested-by: syzbot+2d4fc2a0c45ad8da7e99@syzkaller.appspotmail.com
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/1563173924-47479-1-git-send-email-zhangliguang@linux.alibaba.com
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-usb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/apei/ghes.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-usb.c b/drivers/media/radio/si470x/radio-si470x-usb.c
-index 58e622d573733..3dccce398113a 100644
---- a/drivers/media/radio/si470x/radio-si470x-usb.c
-+++ b/drivers/media/radio/si470x/radio-si470x-usb.c
-@@ -734,7 +734,7 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
- 	/* start radio */
- 	retval = si470x_start_usb(radio);
- 	if (retval < 0)
--		goto err_all;
-+		goto err_buf;
+diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+index 993940d582f50..6875bf629f16e 100644
+--- a/drivers/acpi/apei/ghes.c
++++ b/drivers/acpi/apei/ghes.c
+@@ -153,6 +153,7 @@ static void ghes_unmap(void __iomem *vaddr, enum fixed_addresses fixmap_idx)
+ int ghes_estatus_pool_init(int num_ghes)
+ {
+ 	unsigned long addr, len;
++	int rc;
  
- 	/* set initial frequency */
- 	si470x_set_freq(radio, 87.5 * FREQ_MUL); /* available in all regions */
-@@ -749,6 +749,8 @@ static int si470x_usb_driver_probe(struct usb_interface *intf,
+ 	ghes_estatus_pool = gen_pool_create(GHES_ESTATUS_POOL_MIN_ALLOC_ORDER, -1);
+ 	if (!ghes_estatus_pool)
+@@ -164,7 +165,7 @@ int ghes_estatus_pool_init(int num_ghes)
+ 	ghes_estatus_pool_size_request = PAGE_ALIGN(len);
+ 	addr = (unsigned long)vmalloc(PAGE_ALIGN(len));
+ 	if (!addr)
+-		return -ENOMEM;
++		goto err_pool_alloc;
  
- 	return 0;
- err_all:
-+	usb_kill_urb(radio->int_in_urb);
-+err_buf:
- 	kfree(radio->buffer);
- err_ctrl:
- 	v4l2_ctrl_handler_free(&radio->hdl);
-@@ -822,6 +824,7 @@ static void si470x_usb_driver_disconnect(struct usb_interface *intf)
- 	mutex_lock(&radio->lock);
- 	v4l2_device_disconnect(&radio->v4l2_dev);
- 	video_unregister_device(&radio->videodev);
-+	usb_kill_urb(radio->int_in_urb);
- 	usb_set_intfdata(intf, NULL);
- 	mutex_unlock(&radio->lock);
- 	v4l2_device_put(&radio->v4l2_dev);
+ 	/*
+ 	 * New allocation must be visible in all pgd before it can be found by
+@@ -172,7 +173,19 @@ int ghes_estatus_pool_init(int num_ghes)
+ 	 */
+ 	vmalloc_sync_all();
+ 
+-	return gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
++	rc = gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
++	if (rc)
++		goto err_pool_add;
++
++	return 0;
++
++err_pool_add:
++	vfree((void *)addr);
++
++err_pool_alloc:
++	gen_pool_destroy(ghes_estatus_pool);
++
++	return -ENOMEM;
+ }
+ 
+ static int map_gen_v2(struct ghes *ghes)
 -- 
 2.20.1
 
