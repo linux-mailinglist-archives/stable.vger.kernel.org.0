@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BF4CA993
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A791CAB16
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405435AbfJCQou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:44:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57046 "EHLO mail.kernel.org"
+        id S1733211AbfJCQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405434AbfJCQos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:44:48 -0400
+        id S2388924AbfJCQQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A9CF2054F;
-        Thu,  3 Oct 2019 16:44:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 792A4222C4;
+        Thu,  3 Oct 2019 16:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121087;
-        bh=BMdLIydfr0XqiBTIBaO/y9dLc3t97LMQFjAyQ1K7uX0=;
+        s=default; t=1570119371;
+        bh=hB+9cS2VGhVJSJ2jVBd5WTuRU+qCrwFi3LYTB1mPksA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNUjrdQnKui0wmavQE33Q6nVC6YwdgKzlFlgLx7Np6tIESNEVwPINGc6qvNW/N4x7
-         9TyuKxzKDrLNGUWgiEiXtBeWPqVQqC6Sns4q8k2Gf6O/Yinhq46yeGBt5vq7CARO98
-         wzPATZmUlhCZuD00NoSsn34xsd2mWdnAZF0rypO8=
+        b=inHkLJz9A28UUHO0aqa+eN5xDoia3yvrejZ4u6I0onKus3UTnWUISXJNF4WrF9CCk
+         Z+RqmBgW+fWuip2NzyqTyCiy0ziI/70vROq8OIuzy5NUpVl8IQPaRbkZeG0ykMmXCg
+         fdvReKRd25s5bIWqaKbQOI72ciHCJIk4TxgP2uZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, bristot@redhat.com,
+        claudio@evidence.eu.com, lizefan@huawei.com, longman@redhat.com,
+        luca.abeni@santannapisa.it, mathieu.poirier@linaro.org,
+        rostedt@goodmis.org, tj@kernel.org,
+        tommaso.cucinotta@santannapisa.it, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 142/344] posix-cpu-timers: Sanitize bogus WARNONS
+Subject: [PATCH 4.19 041/211] sched/deadline: Fix bandwidth accounting at all levels after offline migration
 Date:   Thu,  3 Oct 2019 17:51:47 +0200
-Message-Id: <20191003154554.261951641@linuxfoundation.org>
+Message-Id: <20191003154457.089554618@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +52,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit 692117c1f7a6770ed41dd8f277cd9fed1dfb16f1 ]
+[ Upstream commit 59d06cea1198d665ba11f7e8c5f45b00ff2e4812 ]
 
-Warning when p == NULL and then proceeding and dereferencing p does not
-make any sense as the kernel will crash with a NULL pointer dereference
-right away.
+If a task happens to be throttled while the CPU it was running on gets
+hotplugged off, the bandwidth associated with the task is not correctly
+migrated with it when the replenishment timer fires (offline_migration).
 
-Bailing out when p == NULL and returning an error code does not cure the
-underlying problem which caused p to be NULL. Though it might allow to
-do proper debugging.
+Fix things up, for this_bw, running_bw and total_bw, when replenishment
+timer fires and task is migrated (dl_task_offline_migration()).
 
-Same applies to the clock id check in set_process_cpu_timer().
-
-Clean them up and make them return without trying to do further damage.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Link: https://lkml.kernel.org/r/20190819143801.846497772@linutronix.de
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: bristot@redhat.com
+Cc: claudio@evidence.eu.com
+Cc: lizefan@huawei.com
+Cc: longman@redhat.com
+Cc: luca.abeni@santannapisa.it
+Cc: mathieu.poirier@linaro.org
+Cc: rostedt@goodmis.org
+Cc: tj@kernel.org
+Cc: tommaso.cucinotta@santannapisa.it
+Link: https://lkml.kernel.org/r/20190719140000.31694-5-juri.lelli@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/posix-cpu-timers.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ kernel/sched/deadline.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 0a426f4e31251..5bbad147a90cf 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -375,7 +375,8 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
- 	struct sighand_struct *sighand;
- 	struct task_struct *p = timer->it.cpu.task;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return -EINVAL;
- 
- 	/*
- 	 * Protect against sighand release/switch in exit/exec and process/
-@@ -580,7 +581,8 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 	u64 old_expires, new_expires, old_incr, val;
- 	int ret;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return -EINVAL;
- 
- 	/*
- 	 * Use the to_ktime conversion because that clamps the maximum
-@@ -715,10 +717,11 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
- 
- static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp)
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index 72c07059ef371..ebec37cb3be9a 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -529,6 +529,7 @@ static struct rq *find_lock_later_rq(struct task_struct *task, struct rq *rq);
+ static struct rq *dl_task_offline_migration(struct rq *rq, struct task_struct *p)
  {
--	u64 now;
- 	struct task_struct *p = timer->it.cpu.task;
-+	u64 now;
+ 	struct rq *later_rq = NULL;
++	struct dl_bw *dl_b;
  
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
+ 	later_rq = find_lock_later_rq(p, rq);
+ 	if (!later_rq) {
+@@ -557,6 +558,38 @@ static struct rq *dl_task_offline_migration(struct rq *rq, struct task_struct *p
+ 		double_lock_balance(rq, later_rq);
+ 	}
  
- 	/*
- 	 * Easy part: convert the reload time.
-@@ -1000,12 +1003,13 @@ static void check_process_timers(struct task_struct *tsk,
-  */
- static void posix_cpu_timer_rearm(struct k_itimer *timer)
- {
-+	struct task_struct *p = timer->it.cpu.task;
- 	struct sighand_struct *sighand;
- 	unsigned long flags;
--	struct task_struct *p = timer->it.cpu.task;
- 	u64 now;
- 
--	WARN_ON_ONCE(p == NULL);
-+	if (WARN_ON_ONCE(!p))
-+		return;
- 
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
-@@ -1202,7 +1206,9 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
- 	u64 now;
- 	int ret;
- 
--	WARN_ON_ONCE(clock_idx == CPUCLOCK_SCHED);
-+	if (WARN_ON_ONCE(clock_idx >= CPUCLOCK_SCHED))
-+		return;
++	if (p->dl.dl_non_contending || p->dl.dl_throttled) {
++		/*
++		 * Inactive timer is armed (or callback is running, but
++		 * waiting for us to release rq locks). In any case, when it
++		 * will fire (or continue), it will see running_bw of this
++		 * task migrated to later_rq (and correctly handle it).
++		 */
++		sub_running_bw(&p->dl, &rq->dl);
++		sub_rq_bw(&p->dl, &rq->dl);
 +
- 	ret = cpu_timer_sample_group(clock_idx, tsk, &now);
++		add_rq_bw(&p->dl, &later_rq->dl);
++		add_running_bw(&p->dl, &later_rq->dl);
++	} else {
++		sub_rq_bw(&p->dl, &rq->dl);
++		add_rq_bw(&p->dl, &later_rq->dl);
++	}
++
++	/*
++	 * And we finally need to fixup root_domain(s) bandwidth accounting,
++	 * since p is still hanging out in the old (now moved to default) root
++	 * domain.
++	 */
++	dl_b = &rq->rd->dl_bw;
++	raw_spin_lock(&dl_b->lock);
++	__dl_sub(dl_b, p->dl.dl_bw, cpumask_weight(rq->rd->span));
++	raw_spin_unlock(&dl_b->lock);
++
++	dl_b = &later_rq->rd->dl_bw;
++	raw_spin_lock(&dl_b->lock);
++	__dl_add(dl_b, p->dl.dl_bw, cpumask_weight(later_rq->rd->span));
++	raw_spin_unlock(&dl_b->lock);
++
+ 	set_task_cpu(p, later_rq->cpu);
+ 	double_unlock_balance(later_rq, rq);
  
- 	if (oldval && ret != -EINVAL) {
 -- 
 2.20.1
 
