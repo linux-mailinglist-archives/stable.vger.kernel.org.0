@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85261CAA09
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D6ACAAA6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389527AbfJCQSi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45268 "EHLO mail.kernel.org"
+        id S2389756AbfJCRLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388735AbfJCQSi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:18:38 -0400
+        id S2391863AbfJCQcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB977222C2;
-        Thu,  3 Oct 2019 16:18:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B05822086A;
+        Thu,  3 Oct 2019 16:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119517;
-        bh=B05maExQbhzmRz3QtW0v5BieCGz5HdQQOqgZortZCcA=;
+        s=default; t=1570120330;
+        bh=U5Yzc058CKUXqtCAG/wb8P/YKKdVwl+o0hV2j/cpivM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dj4W24CIeZ8v+fBwOUYUcpJgZV1BxZIf6tgPKqVsEa+LQCqeCctR5bkJk7hp/2gIf
-         42Q6E/+HF/v/lkdreunrzlJy7oRD3xj0nbu6y4xYdmqVYA4QUaCyzfy1xhUtlkLvxp
-         xbe1v1tRaQKug79o0gMgMbmdTAXryxu2h/cmVKtg=
+        b=gxtxZ12N46XBXY7iDqAkENKd40oZrOQACaKCIp+ClWzv6sA4/SZ7y4MngY20K8HNu
+         yZZVBidygn0nxyRkO0vLkrtf0D5XygdQ0FCB0Bypr67z6c0UlYNz6t0fLqeOEH2qyz
+         RR/fvJwIupeTUMVFu4034TSsL25OHTR8xaNR5S3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerald Baeza <gerald.baeza@st.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+        Gayatri Kammela <gayatri.kammela@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/211] libperf: Fix alignment trap with xyarray contents in perf stat
+        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 182/313] x86/cpu: Add Tiger Lake to Intel family
 Date:   Thu,  3 Oct 2019 17:52:40 +0200
-Message-Id: <20191003154508.450639124@linuxfoundation.org>
+Message-Id: <20191003154550.904397844@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,56 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald BAEZA <gerald.baeza@st.com>
+From: Gayatri Kammela <gayatri.kammela@intel.com>
 
-[ Upstream commit d9c5c083416500e95da098c01be092b937def7fa ]
+[ Upstream commit 6e1c32c5dbb4b90eea8f964c2869d0bde050dbe0 ]
 
-Following the patch 'perf stat: Fix --no-scale', an alignment trap
-happens in process_counter_values() on ARMv7 platforms due to the
-attempt to copy non 64 bits aligned double words (pointed by 'count')
-via a NEON vectored instruction ('vld1' with 64 bits alignment
-constraint).
+Add the model numbers/CPUIDs of Tiger Lake mobile and desktop to the
+Intel family.
 
-This patch sets a 64 bits alignment constraint on 'contents[]' field in
-'struct xyarray' since the 'count' pointer used above points to such a
-structure.
-
-Signed-off-by: Gerald Baeza <gerald.baeza@st.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Suggested-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/1566464769-16374-1-git-send-email-gerald.baeza@st.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190905193020.14707-2-tony.luck@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/xyarray.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/intel-family.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/perf/util/xyarray.h b/tools/perf/util/xyarray.h
-index 7ffe562e7ae7f..2627b038b6f2a 100644
---- a/tools/perf/util/xyarray.h
-+++ b/tools/perf/util/xyarray.h
-@@ -2,6 +2,7 @@
- #ifndef _PERF_XYARRAY_H_
- #define _PERF_XYARRAY_H_ 1
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index f60ddd655c787..82a57d344b9bc 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -58,6 +58,9 @@
+ #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
+ #define INTEL_FAM6_ICELAKE_NNPI		0x9D
  
-+#include <linux/compiler.h>
- #include <sys/types.h>
++#define INTEL_FAM6_TIGERLAKE_L		0x8C
++#define INTEL_FAM6_TIGERLAKE		0x8D
++
+ /* "Small Core" Processors (Atom) */
  
- struct xyarray {
-@@ -10,7 +11,7 @@ struct xyarray {
- 	size_t entries;
- 	size_t max_x;
- 	size_t max_y;
--	char contents[];
-+	char contents[] __aligned(8);
- };
- 
- struct xyarray *xyarray__new(int xlen, int ylen, size_t entry_size);
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
 -- 
 2.20.1
 
