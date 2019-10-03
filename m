@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A24CABBF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2EDCAD43
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728288AbfJCP73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:59:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42418 "EHLO mail.kernel.org"
+        id S1730917AbfJCRhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:37:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731178AbfJCP7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:59:25 -0400
+        id S1732237AbfJCQDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:03:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA2AC20700;
-        Thu,  3 Oct 2019 15:59:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DD00207FF;
+        Thu,  3 Oct 2019 16:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118364;
-        bh=nr9hoKbScMqg1mc7m9e/Fq+wOO542/kklUkiHIoAWZw=;
+        s=default; t=1570118596;
+        bh=ErDtY2kpllQvvj4z6lp/isxmwDgPqnbmLsd+yvJXw78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oB2PQjh1MRIVoUbutHyjFg45e3Y2PDDH1KvICXlzfPIf4W91p8NJZez3hoOuRhOfw
-         cLpoyDxtvnx7UKDt8Y1mKil+0HCw80FF9+hUyi4nTcLqeZd01o6B+J8P0gLQKoqfh1
-         KAeknCFYo2TYKcJzj2T2zMEOu+otoutGXhr6Ih6Y=
+        b=WQoKCDaIUDdyo5sy1EwwwD/G6Fe1wXwBeATgsZB6UZM27RfKgReqvuEWm9wQVCOTq
+         wRVsLit5ncglrYrJ3AlJUsHPGAnwu4sZ0DxIeSo40zHVPWQPaBgPnaSU7WS3TV/rVL
+         zosFjhn6PfJEfygBQl9RDWzjlZTFaAfo6vVmL21Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 46/99] base: soc: Export soc_device_register/unregister APIs
-Date:   Thu,  3 Oct 2019 17:53:09 +0200
-Message-Id: <20191003154317.231270222@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 067/129] media: hdpvr: add terminating 0 at end of string
+Date:   Thu,  3 Oct 2019 17:53:10 +0200
+Message-Id: <20191003154349.336979920@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
+[ Upstream commit 8b8900b729e4f31f12ac1127bde137c775c327e6 ]
 
-Qcom Socinfo driver can be built as a module, so
-export these two APIs.
+dev->usbc_buf was passed as argument for %s, but it was not safeguarded
+by a terminating 0.
 
-Tested-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+This caused this syzbot issue:
+
+https://syzkaller.appspot.com/bug?extid=79d18aac4bf1770dd050
+
+Reported-and-tested-by: syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/soc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/hdpvr/hdpvr-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/soc.c b/drivers/base/soc.c
-index 75b98aad6fafd..84242e6b2897f 100644
---- a/drivers/base/soc.c
-+++ b/drivers/base/soc.c
-@@ -146,6 +146,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
- out1:
- 	return ERR_PTR(ret);
- }
-+EXPORT_SYMBOL_GPL(soc_device_register);
+diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
+index 7b34108f6587e..99171b912a2d8 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-core.c
++++ b/drivers/media/usb/hdpvr/hdpvr-core.c
+@@ -143,6 +143,7 @@ static int device_authorization(struct hdpvr_device *dev)
  
- /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
- void soc_device_unregister(struct soc_device *soc_dev)
-@@ -154,6 +155,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
+ 	dev->fw_ver = dev->usbc_buf[1];
  
- 	device_unregister(&soc_dev->dev);
- }
-+EXPORT_SYMBOL_GPL(soc_device_unregister);
++	dev->usbc_buf[46] = '\0';
+ 	v4l2_info(&dev->v4l2_dev, "firmware version 0x%x dated %s\n",
+ 			  dev->fw_ver, &dev->usbc_buf[2]);
  
- static int __init soc_bus_register(void)
- {
 -- 
 2.20.1
 
