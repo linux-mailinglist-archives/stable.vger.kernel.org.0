@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA25CAC47
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F87CAC55
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731051AbfJCQIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
+        id S1733304AbfJCQI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:08:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733084AbfJCQIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:08:01 -0400
+        id S1733157AbfJCQID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:08:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E65BF20865;
-        Thu,  3 Oct 2019 16:07:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97611207FF;
+        Thu,  3 Oct 2019 16:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118879;
-        bh=LRLzXY4lxIaXVuS1zaxS724Wx5viHfmn/b7LnGfNGhQ=;
+        s=default; t=1570118882;
+        bh=1I3ywQmVmcJCmZ8ZfdyvGyGaLMG7ybfkqJ6ZjhbMwsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AL2koYopvm86VQyyxRuy9wd59HAdGGJAl2Y5mrU5IgRIFpNCNBThxxBwqYOQh9DYA
-         fhVvSOXDWWzE4wcx06k2LFj5fD+9HT2dxQHo2+8/fgKDb0YvqkRagOm1nusr+UTQ+M
-         cTkkJgRVdsq3OD0POpoeyu5YrWS0XV1VROl8n5gw=
+        b=vEGRBiWVJ8QRmzF+/xi1yTWx8rACVMT0Gk1d9EzhM8iPXhGRtny2mHCuL4VUs5Tuk
+         NsEnslvggVHfcIurE1Jz24fXRfcG+i+uv0nHqsvSE/L6dp7qoc9vj4ksKgbNb+5vUB
+         GzSsvTm1P2EDbTiSGHHj15rzsypDD0hTz3wo+HqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
         Jiri Kosina <jkosina@suse.cz>,
-        syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 007/185] HID: logitech: Fix general protection fault caused by Logitech driver
-Date:   Thu,  3 Oct 2019 17:51:25 +0200
-Message-Id: <20191003154438.920158329@linuxfoundation.org>
+        syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 008/185] HID: hidraw: Fix invalid read in hidraw_ioctl
+Date:   Thu,  3 Oct 2019 17:51:26 +0200
+Message-Id: <20191003154439.146697811@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -46,106 +46,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 5f9242775bb61f390f0885f23fc16397262c7538 upstream.
+commit 416dacb819f59180e4d86a5550052033ebb6d72c upstream.
 
-The syzbot fuzzer found a general protection fault in the HID subsystem:
+The syzbot fuzzer has reported a pair of problems in the
+hidraw_ioctl() function: slab-out-of-bounds read and use-after-free
+read.  An example of the first:
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-CPU: 0 PID: 3715 Comm: syz-executor.3 Not tainted 5.2.0-rc6+ #15
+BUG: KASAN: slab-out-of-bounds in strlen+0x79/0x90 lib/string.c:525
+Read of size 1 at addr ffff8881c8035f38 by task syz-executor.4/2833
+
+CPU: 1 PID: 2833 Comm: syz-executor.4 Not tainted 5.3.0-rc2+ #1
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
 Google 01/01/2011
-RIP: 0010:__pm_runtime_resume+0x49/0x180 drivers/base/power/runtime.c:1069
-Code: ed 74 d5 fe 45 85 ed 0f 85 9a 00 00 00 e8 6f 73 d5 fe 48 8d bd c1 02
-00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 48
-89 fa 83 e2 07 38 d0 7f 08 84 c0 0f 85 fe 00 00 00
-RSP: 0018:ffff8881d99d78e0 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000020 RCX: ffffc90003f3f000
-RDX: 0000000416d8686d RSI: ffffffff82676841 RDI: 00000020b6c3436a
-RBP: 00000020b6c340a9 R08: ffff8881c6d64800 R09: fffffbfff0e84c25
-R10: ffff8881d99d7940 R11: ffffffff87426127 R12: 0000000000000004
-R13: 0000000000000000 R14: ffff8881d9b94000 R15: ffffffff897f9048
-FS:  00007f047f542700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b30f21000 CR3: 00000001ca032000 CR4: 00000000001406f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
-  pm_runtime_get_sync include/linux/pm_runtime.h:226 [inline]
-  usb_autopm_get_interface+0x1b/0x50 drivers/usb/core/driver.c:1707
-  usbhid_power+0x7c/0xe0 drivers/hid/usbhid/hid-core.c:1234
-  hid_hw_power include/linux/hid.h:1038 [inline]
-  hidraw_open+0x20d/0x740 drivers/hid/hidraw.c:282
-  chrdev_open+0x219/0x5c0 fs/char_dev.c:413
-  do_dentry_open+0x497/0x1040 fs/open.c:778
-  do_last fs/namei.c:3416 [inline]
-  path_openat+0x1430/0x3ff0 fs/namei.c:3533
-  do_filp_open+0x1a1/0x280 fs/namei.c:3563
-  do_sys_open+0x3c0/0x580 fs/open.c:1070
-  do_syscall_64+0xb7/0x560 arch/x86/entry/common.c:301
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0xca/0x13e lib/dump_stack.c:113
+  print_address_description+0x6a/0x32c mm/kasan/report.c:351
+  __kasan_report.cold+0x1a/0x33 mm/kasan/report.c:482
+  kasan_report+0xe/0x12 mm/kasan/common.c:612
+  strlen+0x79/0x90 lib/string.c:525
+  strlen include/linux/string.h:281 [inline]
+  hidraw_ioctl+0x245/0xae0 drivers/hid/hidraw.c:446
+  vfs_ioctl fs/ioctl.c:46 [inline]
+  file_ioctl fs/ioctl.c:509 [inline]
+  do_vfs_ioctl+0xd2d/0x1330 fs/ioctl.c:696
+  ksys_ioctl+0x9b/0xc0 fs/ioctl.c:713
+  __do_sys_ioctl fs/ioctl.c:720 [inline]
+  __se_sys_ioctl fs/ioctl.c:718 [inline]
+  __x64_sys_ioctl+0x6f/0xb0 fs/ioctl.c:718
+  do_syscall_64+0xb7/0x580 arch/x86/entry/common.c:296
   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459829
+Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f7a68f6dc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459829
+RDX: 0000000000000000 RSI: 0000000080404805 RDI: 0000000000000004
+RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f7a68f6e6d4
+R13: 00000000004c21de R14: 00000000004d5620 R15: 00000000ffffffff
 
-It turns out the fault was caused by a bug in the HID Logitech driver,
-which violates the requirement that every pathway calling
-hid_hw_start() must also call hid_hw_stop().  This patch fixes the bug
-by making sure the requirement is met.
+The two problems have the same cause: hidraw_ioctl() fails to test
+whether the device has been removed.  This patch adds the missing test.
 
-Reported-and-tested-by: syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+Reported-and-tested-by: syzbot+5a6c4ec678a0c6ee84ba@syzkaller.appspotmail.com
 Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 CC: <stable@vger.kernel.org>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-lg.c    |   10 ++++++----
- drivers/hid/hid-lg4ff.c |    1 -
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/hid/hidraw.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -761,7 +761,7 @@ static int lg_probe(struct hid_device *h
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -378,7 +378,7 @@ static long hidraw_ioctl(struct file *fi
  
- 		if (!buf) {
- 			ret = -ENOMEM;
--			goto err_free;
-+			goto err_stop;
- 		}
- 
- 		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
-@@ -793,9 +793,12 @@ static int lg_probe(struct hid_device *h
- 		ret = lg4ff_init(hdev);
- 
- 	if (ret)
--		goto err_free;
-+		goto err_stop;
- 
- 	return 0;
-+
-+err_stop:
-+	hid_hw_stop(hdev);
- err_free:
- 	kfree(drv_data);
- 	return ret;
-@@ -806,8 +809,7 @@ static void lg_remove(struct hid_device
- 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
- 	if (drv_data->quirks & LG_FF4)
- 		lg4ff_deinit(hdev);
--	else
--		hid_hw_stop(hdev);
-+	hid_hw_stop(hdev);
- 	kfree(drv_data);
- }
- 
---- a/drivers/hid/hid-lg4ff.c
-+++ b/drivers/hid/hid-lg4ff.c
-@@ -1485,7 +1485,6 @@ int lg4ff_deinit(struct hid_device *hid)
- 		}
+ 	mutex_lock(&minors_lock);
+ 	dev = hidraw_table[minor];
+-	if (!dev) {
++	if (!dev || !dev->exist) {
+ 		ret = -ENODEV;
+ 		goto out;
  	}
- #endif
--	hid_hw_stop(hid);
- 	drv_data->device_props = NULL;
- 
- 	kfree(entry);
 
 
