@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E52ACA7D2
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A31BCCA7D1
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404984AbfJCQuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37180 "EHLO mail.kernel.org"
+        id S2405904AbfJCQuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:50:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388449AbfJCQuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:50:10 -0400
+        id S2404546AbfJCQuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:50:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D21FE2070B;
-        Thu,  3 Oct 2019 16:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 857BA2086A;
+        Thu,  3 Oct 2019 16:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121410;
-        bh=6Ey5Ks5d2d75Wxpk9etln48qhPSw/IV2zsWaUxU+wzI=;
+        s=default; t=1570121413;
+        bh=qlKi8sfZrReaearLm/ylwI/YAYHwYCncfnDPGIhBkTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mW2t2AOA+bPoRqkX5sDR5GRyMaxoWxoxhIWKIhIgsJrx+p3ebCyK3NLgkO3LggOhi
-         LuLna/Or9Ed0s9LpHs7tRjLoG6suVtQH5OTb2H5Lk+SGfVBWlafmLw+h+Z79G66/1l
-         Efb3gRmhkz6g1SGtvsTpjgGiHfSt9TEXZcgSkEMg=
+        b=WqAca34GdP7Pn+Bj7dJ7BILuuLXv2gnsdnRRXvia2NcZzklneECwS+ScAoknJFEVd
+         9HlBHRSKMkvWjrLX4LSaC1fYvuDT/G+BIurDmR2iOqXIKZK2CiV5eiYPbEC7ez3mMJ
+         Q6iIIL86CloioP7/VboQHqIhmG0qdXqUOczaHQX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Francois Buergisser <fbuergisser@chromium.org>,
+        Ezequiel Garcia <ezequiel@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 269/344] media: sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
-Date:   Thu,  3 Oct 2019 17:53:54 +0200
-Message-Id: <20191003154606.828539871@linuxfoundation.org>
+Subject: [PATCH 5.3 270/344] media: hantro: Set DMA max segment size
+Date:   Thu,  3 Oct 2019 17:53:55 +0200
+Message-Id: <20191003154606.905277395@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,41 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Francois Buergisser <fbuergisser@chromium.org>
 
-commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
+commit c3c3509b86810293df5c524ef61421d8affc8bf0 upstream.
 
-Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
-SN9C201 + OV7660 webcam which is mounted upside down.
-
-Add it to the sn9c20x flip_dmi_table to deal with this.
+The Hantro codec is typically used in platforms with an IOMMU,
+so we need to set a proper DMA segment size. Devices without an
+IOMMU will still fallback to default 64KiB segments.
 
 Cc: stable@vger.kernel.org
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 775fec69008d3 ("media: add Rockchip VPU JPEG encoder driver")
+Signed-off-by: Francois Buergisser <fbuergisser@chromium.org>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/sn9c20x.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/staging/media/hantro/hantro_drv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/usb/gspca/sn9c20x.c
-+++ b/drivers/media/usb/gspca/sn9c20x.c
-@@ -124,6 +124,13 @@ static const struct dmi_system_id flip_d
- 		}
- 	},
- 	{
-+		.ident = "MSI MS-1039",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
-+		}
-+	},
-+	{
- 		.ident = "MSI MS-1632",
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
+--- a/drivers/staging/media/hantro/hantro_drv.c
++++ b/drivers/staging/media/hantro/hantro_drv.c
+@@ -724,6 +724,7 @@ static int hantro_probe(struct platform_
+ 		dev_err(vpu->dev, "Could not set DMA coherent mask.\n");
+ 		return ret;
+ 	}
++	vb2_dma_contig_set_max_seg_size(&pdev->dev, DMA_BIT_MASK(32));
+ 
+ 	for (i = 0; i < vpu->variant->num_irqs; i++) {
+ 		const char *irq_name = vpu->variant->irqs[i].name;
 
 
