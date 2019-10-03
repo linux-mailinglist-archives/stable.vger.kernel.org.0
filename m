@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3506CCA1F3
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B682CA2D9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725932AbfJCQAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44238 "EHLO mail.kernel.org"
+        id S1729763AbfJCQJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728869AbfJCQAa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:30 -0400
+        id S1731109AbfJCQJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:09:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31B0F207FF;
-        Thu,  3 Oct 2019 16:00:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32AF421783;
+        Thu,  3 Oct 2019 16:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118429;
-        bh=kXRTHqdvzRxg+hLmSIfW68KUmIdN8xeuSlI/WR+DK7A=;
+        s=default; t=1570118991;
+        bh=zBya74pRYDPzIK4cQdHPpJIitnD/nPJtdMLpRb7hGTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJfJsScZgnJ+RGDqlcZVF7O+4KYwajH+DJIzoA4ibOb57PZRoamAk5aO8pl+fSUjJ
-         byofAzn5M8WOzrR2Ber8ohFNtmZMzEp9yd3F5cApmitLXbzcIOjET33slNglbydVhL
-         WXy++pDB0W54FUaenEFW58XpPgYdro9iJXn2cUr0=
+        b=0svhtiM0tjQlmSMgcfpGsQwsgNLpPQElwOoEyb0ASb7nHAaHGPZOBnqXql667WXR9
+         xvMoI0U77MF+9UWwuiLCt5oi8cSqBe5JZQlELcR3kL7qlu3na3H0mhOKeQXScZT9zy
+         cK0xOYZjfM4xG/Y9vRHzWDSNnUxO23+kD3yaP7Pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 001/129] Revert "Bluetooth: validate BLE connection interval updates"
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 046/185] usbnet: sanity checking of packet sizes and device mtu
 Date:   Thu,  3 Oct 2019 17:52:04 +0200
-Message-Id: <20191003154318.892827121@linuxfoundation.org>
+Message-Id: <20191003154448.257669170@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,62 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Holtmann <marcel@holtmann.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 68d19d7d995759b96169da5aac313363f92a9075 ]
+[ Upstream commit 280ceaed79f18db930c0cc8bb21f6493490bf29c ]
 
-This reverts commit c49a8682fc5d298d44e8d911f4fa14690ea9485e.
+After a reset packet sizes and device mtu can change and need
+to be reevaluated to calculate queue sizes.
+Malicious devices can set this to zero and we divide by it.
+Introduce sanity checking.
 
-There are devices which require low connection intervals for usable operation
-including keyboards and mice. Forcing a static connection interval for
-these types of devices has an impact in latency and causes a regression.
-
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by:  syzbot+6102c120be558c885f04@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c  | 5 -----
- net/bluetooth/l2cap_core.c | 9 +--------
- 2 files changed, 1 insertion(+), 13 deletions(-)
+ drivers/net/usb/usbnet.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 163a239bda91a..6f78489fdb132 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5089,11 +5089,6 @@ static void hci_le_remote_conn_param_req_evt(struct hci_dev *hdev,
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_UNKNOWN_CONN_ID);
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -356,6 +356,8 @@ void usbnet_update_max_qlen(struct usbne
+ {
+ 	enum usb_device_speed speed = dev->udev->speed;
  
--	if (min < hcon->le_conn_min_interval ||
--	    max > hcon->le_conn_max_interval)
--		return send_conn_param_neg_reply(hdev, handle,
--						 HCI_ERROR_INVALID_LL_PARAMS);
--
- 	if (hci_check_conn_params(min, max, latency, timeout))
- 		return send_conn_param_neg_reply(hdev, handle,
- 						 HCI_ERROR_INVALID_LL_PARAMS);
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 4912e80dacefa..48d23abfe7992 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -5277,14 +5277,7 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
- 
- 	memset(&rsp, 0, sizeof(rsp));
- 
--	if (min < hcon->le_conn_min_interval ||
--	    max > hcon->le_conn_max_interval) {
--		BT_DBG("requested connection interval exceeds current bounds.");
--		err = -EINVAL;
--	} else {
--		err = hci_check_conn_params(min, max, latency, to_multiplier);
--	}
--
-+	err = hci_check_conn_params(min, max, latency, to_multiplier);
- 	if (err)
- 		rsp.result = cpu_to_le16(L2CAP_CONN_PARAM_REJECTED);
- 	else
--- 
-2.20.1
-
++	if (!dev->rx_urb_size || !dev->hard_mtu)
++		goto insanity;
+ 	switch (speed) {
+ 	case USB_SPEED_HIGH:
+ 		dev->rx_qlen = MAX_QUEUE_MEMORY / dev->rx_urb_size;
+@@ -372,6 +374,7 @@ void usbnet_update_max_qlen(struct usbne
+ 		dev->tx_qlen = 5 * MAX_QUEUE_MEMORY / dev->hard_mtu;
+ 		break;
+ 	default:
++insanity:
+ 		dev->rx_qlen = dev->tx_qlen = 4;
+ 	}
+ }
 
 
