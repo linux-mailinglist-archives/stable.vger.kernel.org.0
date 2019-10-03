@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB7ACA495
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7479ACA49A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389341AbfJCQ0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:26:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56728 "EHLO mail.kernel.org"
+        id S2390343AbfJCQ0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:26:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391000AbfJCQ0B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:26:01 -0400
+        id S2391006AbfJCQ0P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A933222CD;
-        Thu,  3 Oct 2019 16:26:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E5B62133F;
+        Thu,  3 Oct 2019 16:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119961;
-        bh=dFcVQl6E0c+wU1d5wfNevRmUe9k+SvO0hOvFIQK6V7I=;
+        s=default; t=1570119974;
+        bh=u/cx5Fx7ocHi7GpON+az0NLHqlFEw3vSZrk3Gb0TNFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuFBqs+pLET0XO1N1HJhhHJXdG9ZeMPMYGzRtrJoCA98ogxrPiJO8fiLXMBeizpm6
-         RKNpaRj7B8zwTg8oxL4lFsm77HI+uTjbonnlnl+dDJc51iwdNEK4n5gxUcD5/Tf7Gt
-         kUobC/e2cCHGOy+9EmHr477cqr1SN4xBjrtkfGeY=
+        b=cLqeM+g19IlSngVmYO8KF5bJRdTuNP/6W8ACfJSOBnou60DOe309M8tyxNegeh3sk
+         rSh9b6/2Le1RZHA3l/n841bdwF9a7S8GtIUdDZ2fOl5iZCHJiJ/jBKz6dJ7mdZZUbB
+         fXBOEAwFLLqzZAaWFKmZGktBzr6/avvVLgUnGCPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Xiuli <xiuli.pan@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 046/313] ASoC: SOF: pci: mark last_busy value at runtime PM init
-Date:   Thu,  3 Oct 2019 17:50:24 +0200
-Message-Id: <20191003154537.681403696@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
+Subject: [PATCH 5.2 051/313] media: hdpvr: Add device num check and handling
+Date:   Thu,  3 Oct 2019 17:50:29 +0200
+Message-Id: <20191003154538.126270389@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,38 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Xiuli <xiuli.pan@linux.intel.com>
+From: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
 
-[ Upstream commit f1b1b9b136827915624136624ff54aba5890a15b ]
+[ Upstream commit d4a6a9537bc32811486282206ecfb7c53754b74d ]
 
-If last_busy value is not set at runtime PM enable, the device will be
-suspend immediately after usage counter is 0. Set the last_busy value to
-make sure delay is working at first boot up.
+Add hdpvr device num check and error handling
 
-Signed-off-by: Pan Xiuli <xiuli.pan@linux.intel.com>
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190722141402.7194-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We need to increment the device count atomically before we checkout a
+device to make sure that we do not reach the max count, otherwise we get
+out-of-bounds errors as reported by syzbot.
+
+Reported-and-tested-by: syzbot+aac8d0d7205f112045d2@syzkaller.appspotmail.com
+
+Signed-off-by: Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/sof-pci-dev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/usb/hdpvr/hdpvr-core.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
-index b778dffb2d25c..49daf1390dac0 100644
---- a/sound/soc/sof/sof-pci-dev.c
-+++ b/sound/soc/sof/sof-pci-dev.c
-@@ -203,6 +203,9 @@ static void sof_pci_probe_complete(struct device *dev)
- 	 */
- 	pm_runtime_allow(dev);
+diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
+index 9b9d894d29bcb..a0905c81d2cb2 100644
+--- a/drivers/media/usb/hdpvr/hdpvr-core.c
++++ b/drivers/media/usb/hdpvr/hdpvr-core.c
+@@ -271,6 +271,7 @@ static int hdpvr_probe(struct usb_interface *interface,
+ #endif
+ 	size_t buffer_size;
+ 	int i;
++	int dev_num;
+ 	int retval = -ENOMEM;
  
-+	/* mark last_busy for pm_runtime to make sure not suspend immediately */
-+	pm_runtime_mark_last_busy(dev);
+ 	/* allocate memory for our device state and initialize it */
+@@ -368,8 +369,17 @@ static int hdpvr_probe(struct usb_interface *interface,
+ 	}
+ #endif
+ 
++	dev_num = atomic_inc_return(&dev_nr);
++	if (dev_num >= HDPVR_MAX) {
++		v4l2_err(&dev->v4l2_dev,
++			 "max device number reached, device register failed\n");
++		atomic_dec(&dev_nr);
++		retval = -ENODEV;
++		goto reg_fail;
++	}
 +
- 	/* follow recommendation in pci-driver.c to decrement usage counter */
- 	pm_runtime_put_noidle(dev);
- }
+ 	retval = hdpvr_register_videodev(dev, &interface->dev,
+-				    video_nr[atomic_inc_return(&dev_nr)]);
++				    video_nr[dev_num]);
+ 	if (retval < 0) {
+ 		v4l2_err(&dev->v4l2_dev, "registering videodev failed\n");
+ 		goto reg_fail;
 -- 
 2.20.1
 
