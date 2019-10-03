@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C56CA2BA
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74637CA21B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733118AbfJCQI1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:08:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56688 "EHLO mail.kernel.org"
+        id S1730309AbfJCQB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:01:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731886AbfJCQI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:08:26 -0400
+        id S1731947AbfJCQB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:01:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8940B215EA;
-        Thu,  3 Oct 2019 16:08:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17021207FF;
+        Thu,  3 Oct 2019 16:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118906;
-        bh=7dFsxG1YLl3GjuYFLgokzQIzvV40LA4esZrNSpI38To=;
+        s=default; t=1570118517;
+        bh=h7qqrCFgfZ/DEQTk1JCp/CFiLubA0n8oC6DSbz2Bmhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ut0Bp6+3nrN7n8VPOO9gyAuEvnMPaIOFGitn5ysBOED33Nf1DFoGitGIv+GCUrOZN
-         68hpQm6YV+If3G36grGB84nasmccQuyhDnG52LmzSzjQGot7DwyeEGfblo2D+K/Tdy
-         kcX1Kwe8emax3sJCQdjBWnz79J3shqEAn6deVjzo=
+        b=0mSx9jpl9Se26RgDeciWpL5VxRRPYqcSxkiccqO/jDmE0FRAqRSYWiMLZ0IM5HBK2
+         rTi+VKo+2IMSkwj9HiSdpZ6XSpHN6WG99w2Y4M9S2EsRS1kB7jdpZDVVlJHa44zu5x
+         w0fcmIRwNgbEHa4k+3qHM8DADtqlim0ZYIkS5bKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/185] regulator: lm363x: Fix off-by-one n_voltages for lm3632 ldo_vpos/ldo_vneg
+        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Xiubo Li <Xiubo.Lee@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.9 009/129] ASoC: fsl: Fix of-node refcount unbalance in fsl_ssi_probe_from_dt()
 Date:   Thu,  3 Oct 2019 17:52:12 +0200
-Message-Id: <20191003154449.808487786@linuxfoundation.org>
+Message-Id: <20191003154323.127768962@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 1e2cc8c5e0745b545d4974788dc606d678b6e564 ]
+commit 2757970f6d0d0a112247600b23d38c0c728ceeb3 upstream.
 
-According to the datasheet https://www.ti.com/lit/ds/symlink/lm3632a.pdf
-Table 20. VPOS Bias Register Field Descriptions VPOS[5:0]
-Sets the Positive Display Bias (LDO) Voltage (50 mV per step)
-000000: 4 V
-000001: 4.05 V
-000010: 4.1 V
-....................
-011101: 5.45 V
-011110: 5.5 V (Default)
-011111: 5.55 V
-....................
-100111: 5.95 V
-101000: 6 V
-Note: Codes 101001 to 111111 map to 6 V
+The node obtained from of_find_node_by_path() has to be unreferenced
+after the use, but we forgot it for the root node.
 
-The LM3632_LDO_VSEL_MAX should be 0b101000 (0x28), so the maximum voltage
-can match the datasheet.
-
-Fixes: 3a8d1a73a037 ("regulator: add LM363X driver")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20190626132632.32629-1-axel.lin@ingics.com
+Fixes: f0fba2ad1b6b ("ASoC: multi-component - ASoC Multi-Component Support")
+Cc: Timur Tabi <timur@kernel.org>
+Cc: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Xiubo Li <Xiubo.Lee@gmail.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/regulator/lm363x-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/fsl_ssi.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/lm363x-regulator.c b/drivers/regulator/lm363x-regulator.c
-index ce5f7d9ad475f..30f576a5daf18 100644
---- a/drivers/regulator/lm363x-regulator.c
-+++ b/drivers/regulator/lm363x-regulator.c
-@@ -33,7 +33,7 @@
- 
- /* LM3632 */
- #define LM3632_BOOST_VSEL_MAX		0x26
--#define LM3632_LDO_VSEL_MAX		0x29
-+#define LM3632_LDO_VSEL_MAX		0x28
- #define LM3632_VBOOST_MIN		4500000
- #define LM3632_VLDO_MIN			4000000
- 
--- 
-2.20.1
-
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -1431,6 +1431,7 @@ static int fsl_ssi_probe(struct platform
+ 	struct fsl_ssi_private *ssi_private;
+ 	int ret = 0;
+ 	struct device_node *np = pdev->dev.of_node;
++	struct device_node *root;
+ 	const struct of_device_id *of_id;
+ 	const char *p, *sprop;
+ 	const uint32_t *iprop;
+@@ -1620,7 +1621,9 @@ static int fsl_ssi_probe(struct platform
+ 	 * device tree.  We also pass the address of the CPU DAI driver
+ 	 * structure.
+ 	 */
+-	sprop = of_get_property(of_find_node_by_path("/"), "compatible", NULL);
++	root = of_find_node_by_path("/");
++	sprop = of_get_property(root, "compatible", NULL);
++	of_node_put(root);
+ 	/* Sometimes the compatible name has a "fsl," prefix, so we strip it. */
+ 	p = strrchr(sprop, ',');
+ 	if (p)
 
 
