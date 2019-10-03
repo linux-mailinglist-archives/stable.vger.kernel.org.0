@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3EC6CA557
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84124CA559
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404104AbfJCQd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41436 "EHLO mail.kernel.org"
+        id S2392011AbfJCQdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404011AbfJCQd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:27 -0400
+        id S2392006AbfJCQdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:33:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 735EA2086A;
-        Thu,  3 Oct 2019 16:33:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F3A420830;
+        Thu,  3 Oct 2019 16:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120406;
-        bh=wNMAwQyR3lEpLegMCTQMtoCUQIx6OvMT+xYy5hpErRE=;
+        s=default; t=1570120414;
+        bh=WbgxNP3QFWxN6WoB3PxWw3/x2rMUsZ0UosLpkH6AAk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCe/PO9l1I4oIrKdZpD6BIH2xcV4xLv1H1SUXrHV70n7uwrLY10uD1KCjWcEXK4el
-         J63h/1yxVzwqvZvACzIFeGz610tjsfVKtoI23UKVgGEOa2AUBOmvGectL3i/B46ijY
-         xG3CUiEdSjbUa9Be/fuYGu4Jhgmx15DtR2psuCFQ=
+        b=fuQJiqHg5R/omtk2J41IWhqmssAnhM0bO+A3ZuQJGqXoVm9APVc+mpD3ct2F+bqXZ
+         HfIwx+9Jz3KNHWlHcW0sjwo5pgUgbDaKrEB/8zQkD82xjoc7Dxs/Y9i7z9DOd2pUS4
+         tIiAZRQ0Np+tXeUmKCVe9RxcMRsFvImFENAht+lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 211/313] media: omap3isp: Set device on omap3isp subdevs
-Date:   Thu,  3 Oct 2019 17:53:09 +0200
-Message-Id: <20191003154553.772381224@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.2 214/313] ARM: omap2plus_defconfig: Fix missing video
+Date:   Thu,  3 Oct 2019 17:53:12 +0200
+Message-Id: <20191003154554.073304812@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,101 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit e9eb103f027725053a4b02f93d7f2858b56747ce ]
+commit 4957eccf979b025286b39388fd1a60cde601a10a upstream.
 
-The omap3isp driver registered subdevs without the dev field being set. Do
-that now.
+When the panel-dpi driver was removed, the simple-panels driver
+was never enabled, so anyone who used the panel-dpi driver lost
+video, and those who used it inconjunction with simple-panels
+would have to manually enable CONFIG_DRM_PANEL_SIMPLE.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch makes CONFIG_DRM_PANEL_SIMPLE a module in the same
+way the deprecated panel-dpi was.
+
+Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
+
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/omap3isp/ispccdc.c    | 1 +
- drivers/media/platform/omap3isp/ispccp2.c    | 1 +
- drivers/media/platform/omap3isp/ispcsi2.c    | 1 +
- drivers/media/platform/omap3isp/isppreview.c | 1 +
- drivers/media/platform/omap3isp/ispresizer.c | 1 +
- drivers/media/platform/omap3isp/ispstat.c    | 2 ++
- 6 files changed, 7 insertions(+)
+ arch/arm/configs/omap2plus_defconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/omap3isp/ispccdc.c b/drivers/media/platform/omap3isp/ispccdc.c
-index 1ba8a5ba343f6..e2f336c715a4d 100644
---- a/drivers/media/platform/omap3isp/ispccdc.c
-+++ b/drivers/media/platform/omap3isp/ispccdc.c
-@@ -2602,6 +2602,7 @@ int omap3isp_ccdc_register_entities(struct isp_ccdc_device *ccdc,
- 	int ret;
- 
- 	/* Register the subdev and video node. */
-+	ccdc->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &ccdc->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispccp2.c b/drivers/media/platform/omap3isp/ispccp2.c
-index efca45bb02c8b..d0a49cdfd22d2 100644
---- a/drivers/media/platform/omap3isp/ispccp2.c
-+++ b/drivers/media/platform/omap3isp/ispccp2.c
-@@ -1031,6 +1031,7 @@ int omap3isp_ccp2_register_entities(struct isp_ccp2_device *ccp2,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	ccp2->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &ccp2->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispcsi2.c b/drivers/media/platform/omap3isp/ispcsi2.c
-index e85917f4a50cc..fd493c5e4e24f 100644
---- a/drivers/media/platform/omap3isp/ispcsi2.c
-+++ b/drivers/media/platform/omap3isp/ispcsi2.c
-@@ -1198,6 +1198,7 @@ int omap3isp_csi2_register_entities(struct isp_csi2_device *csi2,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	csi2->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &csi2->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/isppreview.c b/drivers/media/platform/omap3isp/isppreview.c
-index 40e22400cf5ec..97d660606d984 100644
---- a/drivers/media/platform/omap3isp/isppreview.c
-+++ b/drivers/media/platform/omap3isp/isppreview.c
-@@ -2225,6 +2225,7 @@ int omap3isp_preview_register_entities(struct isp_prev_device *prev,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	prev->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &prev->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispresizer.c b/drivers/media/platform/omap3isp/ispresizer.c
-index 21ca6954df72f..78d9dd7ea2da7 100644
---- a/drivers/media/platform/omap3isp/ispresizer.c
-+++ b/drivers/media/platform/omap3isp/ispresizer.c
-@@ -1681,6 +1681,7 @@ int omap3isp_resizer_register_entities(struct isp_res_device *res,
- 	int ret;
- 
- 	/* Register the subdev and video nodes. */
-+	res->subdev.dev = vdev->mdev->dev;
- 	ret = v4l2_device_register_subdev(vdev, &res->subdev);
- 	if (ret < 0)
- 		goto error;
-diff --git a/drivers/media/platform/omap3isp/ispstat.c b/drivers/media/platform/omap3isp/ispstat.c
-index ca7bb8497c3da..cb5841f628cff 100644
---- a/drivers/media/platform/omap3isp/ispstat.c
-+++ b/drivers/media/platform/omap3isp/ispstat.c
-@@ -1026,6 +1026,8 @@ void omap3isp_stat_unregister_entities(struct ispstat *stat)
- int omap3isp_stat_register_entities(struct ispstat *stat,
- 				    struct v4l2_device *vdev)
- {
-+	stat->subdev.dev = vdev->mdev->dev;
-+
- 	return v4l2_device_register_subdev(vdev, &stat->subdev);
- }
- 
--- 
-2.20.1
-
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -363,6 +363,7 @@ CONFIG_DRM_OMAP_PANEL_TPO_TD028TTEC1=m
+ CONFIG_DRM_OMAP_PANEL_TPO_TD043MTEA1=m
+ CONFIG_DRM_OMAP_PANEL_NEC_NL8048HL11=m
+ CONFIG_DRM_TILCDC=m
++CONFIG_DRM_PANEL_SIMPLE=m
+ CONFIG_FB=y
+ CONFIG_FIRMWARE_EDID=y
+ CONFIG_FB_MODE_HELPERS=y
 
 
