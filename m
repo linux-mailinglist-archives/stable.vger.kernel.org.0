@@ -2,109 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E01CCB08F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 22:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3818CB17F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 23:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730561AbfJCU4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 16:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44288 "EHLO mail.kernel.org"
+        id S1728475AbfJCVva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 17:51:30 -0400
+Received: from mga11.intel.com ([192.55.52.93]:32422 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729440AbfJCU4k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 16:56:40 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 326B52086A;
-        Thu,  3 Oct 2019 20:56:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570136199;
-        bh=/p2jgYyOKcT9NYTQ/y2vi1K03zHRZaCjHgBMcuIA54o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Uh2i/RKe7vbkxGt9MPDSea8a7B4iyrsw++G1FHTY47Wn3h2UBcIoLtTZ3bQJOJ59W
-         LzQ4oBh/bNsfGim3b16sm5uDUTwtHowBnabsmhvqqwKi4xZzKgCwJbFWQvpE3prVIs
-         JodR3BxpISXiGhTxbVuKjqR7WN9m4S0Nx2poVtAQ=
-Date:   Thu, 3 Oct 2019 21:56:34 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        contact@xogium.me, Russell King <linux@armlinux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
-Message-ID: <20191003205633.w26geqhq67u4ysit@willie-the-truck>
-References: <20191002123538.22609-1-will@kernel.org>
- <201910021355.E578D2FFAF@keescook>
+        id S1726982AbfJCVva (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 17:51:30 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Oct 2019 14:51:29 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,253,1566889200"; 
+   d="scan'208";a="191393096"
+Received: from okiselev-mobl1.ccr.corp.intel.com (HELO localhost) ([10.251.93.117])
+  by fmsmga008.fm.intel.com with ESMTP; 03 Oct 2019 14:51:26 -0700
+Date:   Fri, 4 Oct 2019 00:51:25 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     David Safford <david.safford@ge.com>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191003215125.GA30511@linux.intel.com>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+ <1570024819.4999.119.camel@linux.ibm.com>
+ <20191003114119.GF8933@linux.intel.com>
+ <1570107752.4421.183.camel@linux.ibm.com>
+ <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <201910021355.E578D2FFAF@keescook>
-User-Agent: NeoMutt/20170113 (1.7.2)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1570128827.5046.19.camel@linux.ibm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Kees,
-
-On Wed, Oct 02, 2019 at 01:58:46PM -0700, Kees Cook wrote:
-> On Wed, Oct 02, 2019 at 01:35:38PM +0100, Will Deacon wrote:
-> > Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
-> > calling CPU in an infinite loop, but with interrupts and preemption
-> > enabled. From this state, userspace can continue to be scheduled,
-> > despite the system being "dead" as far as the kernel is concerned. This
-> > is easily reproducible on arm64 when booting with "nosmp" on the command
-> > line; a couple of shell scripts print out a periodic "Ping" message
-> > whilst another triggers a crash by writing to /proc/sysrq-trigger:
-> > 
-> >   | sysrq: Trigger a crash
-> >   | Kernel panic - not syncing: sysrq triggered crash
-> >   | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
-> >   | Hardware name: linux,dummy-virt (DT)
-> >   | Call trace:
-> >   |  dump_backtrace+0x0/0x148
-> >   |  show_stack+0x14/0x20
-> >   |  dump_stack+0xa0/0xc4
-> >   |  panic+0x140/0x32c
-> >   |  sysrq_handle_reboot+0x0/0x20
-> >   |  __handle_sysrq+0x124/0x190
-> >   |  write_sysrq_trigger+0x64/0x88
-> >   |  proc_reg_write+0x60/0xa8
-> >   |  __vfs_write+0x18/0x40
-> >   |  vfs_write+0xa4/0x1b8
-> >   |  ksys_write+0x64/0xf0
-> >   |  __arm64_sys_write+0x14/0x20
-> >   |  el0_svc_common.constprop.0+0xb0/0x168
-> >   |  el0_svc_handler+0x28/0x78
-> >   |  el0_svc+0x8/0xc
-> >   | Kernel Offset: disabled
-> >   | CPU features: 0x0002,24002004
-> >   | Memory Limit: none
-> >   | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
-> >   |  Ping 2!
-> >   |  Ping 1!
-> >   |  Ping 1!
-> >   |  Ping 2!
-> > 
-> > The issue can also be triggered on x86 kernels if CONFIG_SMP=n, otherwise
-> > local interrupts are disabled in 'smp_send_stop()'.
-> > 
-> > Disable preemption in 'panic()' before re-enabling interrupts.
+On Thu, Oct 03, 2019 at 02:53:47PM -0400, Mimi Zohar wrote:
+> [Cc'ing David Safford]
 > 
-> Is this perhaps the correct solution for what commit c39ea0b9dd24 ("panic:
-> avoid the extra noise dmesg") was trying to fix?
+> On Thu, 2019-10-03 at 20:58 +0300, Jarkko Sakkinen wrote:
+> > On Thu, Oct 03, 2019 at 09:02:32AM -0400, Mimi Zohar wrote:
+> > > On Thu, 2019-10-03 at 14:41 +0300, Jarkko Sakkinen wrote:
+> > > > On Wed, Oct 02, 2019 at 10:00:19AM -0400, Mimi Zohar wrote:
+> > > > > On Thu, 2019-09-26 at 20:16 +0300, Jarkko Sakkinen wrote:
+> > > > > > Only the kernel random pool should be used for generating random numbers.
+> > > > > > TPM contributes to that pool among the other sources of entropy. In here it
+> > > > > > is not, agreed, absolutely critical because TPM is what is trusted anyway
+> > > > > > but in order to remove tpm_get_random() we need to first remove all the
+> > > > > > call sites.
+> > > > > 
+> > > > > At what point during boot is the kernel random pool available?  Does
+> > > > > this imply that you're planning on changing trusted keys as well?
+> > > > 
+> > > > Well trusted keys *must* be changed to use it. It is not a choice
+> > > > because using a proprietary random number generator instead of defacto
+> > > > one in the kernel can be categorized as a *regression*.
+> > > 
+> > > I really don't see how using the TPM random number for TPM trusted
+> > > keys would be considered a regression.  That by definition is a
+> > > trusted key.  If anything, changing what is currently being done would
+> > > be the regression. 
+> > 
+> > It is really not a TPM trusted key. It trusted key that gets sealed with
+> > the TPM. The key itself is used in clear by kernel. The random number
+> > generator exists in the kernel to for a reason.
+> > 
+> > It is without doubt a regression.
+> 
+> You're misusing the term "regression" here.  A regression is something
+> that previously worked and has stopped working.  In this case, trusted
+> keys has always been based on the TPM random number generator.  Before
+> changing this, there needs to be some guarantees that the kernel
+> random number generator has a pool of random numbers early, on all
+> systems including embedded devices, not just servers.
 
-Hmm, maybe, although that looks like it's focussed more on irq handling
-than preemption. I've deliberately left the irq part alone, since I think
-having magic sysrq work via the keyboard interrupt is desirable from the
-panic loop.
+I'm not using the term regression incorrectly here. Wrong function
+was used to generate random numbers for the payload here. It is an
+obvious bug.
 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-
-Thanks!
-
-Will
+/Jarkko
