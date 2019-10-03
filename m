@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAA4CA99F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C0DCAB6C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392830AbfJCQpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58248 "EHLO mail.kernel.org"
+        id S1730803AbfJCRVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:21:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392828AbfJCQpj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:45:39 -0400
+        id S2389250AbfJCQR2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCC4620867;
-        Thu,  3 Oct 2019 16:45:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C193021783;
+        Thu,  3 Oct 2019 16:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121138;
-        bh=zRRSafVxTQ5grYDlfaRz+gppOToyxtG9qdrTKTUUJ/U=;
+        s=default; t=1570119447;
+        bh=RqFa86+ysUK3w9+oA6+iwf3Z60j/QVf4cHLrqJuUrvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Se45bL6DzE/RL9nciGL3bryurRp3mrAo29UmSDNdCa6zUcx/gzrOFIJhI+7Tn9nHG
-         dquU/Xe0UZJQOdGdPHWcMzxNBoj70Ai/4TKDImgLEfEzhXQy0cgEYmi7tri3liONQo
-         yzoIOwofw3gzHCRpa1zW6XQbEDrEG2pKvT48HNz4=
+        b=WEDYif+RwGhr5GSlwQYvolwtHMcCzVUIqGYcjQFYnH6i0xe/M5IiMJgqlfU4TqLFH
+         vE7T5sZoVJP6L+ge6GpfGwZw6aUn2++j5UHhnvy5zWt+fITfVPYOYRdhLIAXKSIdUw
+         Hge7f9ErdMyPtb4OirOcgqU4Fs1XhA722bwnwx98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Douglas RAILLARD <douglas.raillard@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        =?UTF-8?q?Luis=20Cl=C3=A1udio=20Gon=C3=A7alves?= 
+        <lclaudio@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
+        Taeung Song <treeze.taeung@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 168/344] sched/cpufreq: Align trace event behavior of fast switching
+Subject: [PATCH 4.19 067/211] perf config: Honour $PERF_CONFIG env var to specify alternate .perfconfig
 Date:   Thu,  3 Oct 2019 17:52:13 +0200
-Message-Id: <20191003154556.822084625@linuxfoundation.org>
+Message-Id: <20191003154503.822460048@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas RAILLARD <douglas.raillard@arm.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 77c84dd1881d0f0176cb678d770bfbda26c54390 ]
+[ Upstream commit 61a461fcbd62d42c29a1ea6a9cc3838ad9f49401 ]
 
-Fast switching path only emits an event for the CPU of interest, whereas the
-regular path emits an event for all the CPUs that had their frequency changed,
-i.e. all the CPUs sharing the same policy.
+We had this comment in Documentation/perf_counter/config.c, i.e. since
+when we got this from the git sources, but never really did that
+getenv("PERF_CONFIG"), do it now as I need to disable whatever
+~/.perfconfig root has so that tests parsing tool output are done for
+the expected default output or that we specify an alternate config file
+that when read will make the tools produce expected output.
 
-With the current behavior, looking at cpu_frequency event for a given CPU that
-is using the fast switching path will not give the correct frequency signal.
-
-Signed-off-by: Douglas RAILLARD <douglas.raillard@arm.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Luis Cláudio Gonçalves <lclaudio@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Taeung Song <treeze.taeung@gmail.com>
+Fixes: 078006012401 ("perf_counter tools: add in basic glue from Git")
+Link: https://lkml.kernel.org/n/tip-jo209zac9rut0dz1rqvbdlgm@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cpufreq_schedutil.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ tools/perf/perf.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/cpufreq_schedutil.c b/kernel/sched/cpufreq_schedutil.c
-index 867b4bb6d4beb..b03ca2f73713d 100644
---- a/kernel/sched/cpufreq_schedutil.c
-+++ b/kernel/sched/cpufreq_schedutil.c
-@@ -117,6 +117,7 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
- 			      unsigned int next_freq)
- {
- 	struct cpufreq_policy *policy = sg_policy->policy;
-+	int cpu;
+diff --git a/tools/perf/perf.c b/tools/perf/perf.c
+index a11cb006f9682..80f8ae8b13666 100644
+--- a/tools/perf/perf.c
++++ b/tools/perf/perf.c
+@@ -439,6 +439,9 @@ int main(int argc, const char **argv)
  
- 	if (!sugov_update_next_freq(sg_policy, time, next_freq))
- 		return;
-@@ -126,7 +127,11 @@ static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
- 		return;
+ 	srandom(time(NULL));
  
- 	policy->cur = next_freq;
--	trace_cpu_frequency(next_freq, smp_processor_id());
++	/* Setting $PERF_CONFIG makes perf read _only_ the given config file. */
++	config_exclusive_filename = getenv("PERF_CONFIG");
 +
-+	if (trace_cpu_frequency_enabled()) {
-+		for_each_cpu(cpu, policy->cpus)
-+			trace_cpu_frequency(next_freq, cpu);
-+	}
- }
- 
- static void sugov_deferred_update(struct sugov_policy *sg_policy, u64 time,
+ 	err = perf_config(perf_default_config, NULL);
+ 	if (err)
+ 		return err;
 -- 
 2.20.1
 
