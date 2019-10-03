@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A060CA4FF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91361CA504
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391656AbfJCQaE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:30:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35896 "EHLO mail.kernel.org"
+        id S2391681AbfJCQaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389910AbfJCQaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:30:04 -0400
+        id S2391678AbfJCQaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3AF5720700;
-        Thu,  3 Oct 2019 16:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A53C2054F;
+        Thu,  3 Oct 2019 16:30:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120203;
-        bh=DCEiTU4UemXwcgVyei6aTJbJvetLYVFFZnXWVNu4XLg=;
+        s=default; t=1570120211;
+        bh=Iqq+ihm3MEyO7MocIdtefL66drtCw5MVI0GpPu7TVtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6JJfcH/07Z3GBxlyR80cWemO5Vtna4QvvsBgok0EF5MLNsS9jbDqQRfNZ3ZtxF5F
-         zUPgdsXScNDLv6x5vSQGG0K1NucxudQNTy6bPZ+wJ09ZdiLLsQv143e428HUeA85/u
-         kCkzJrVfOHWng3QA26uJxaZWGyCdJO6yA+zZecv4=
+        b=1e5XnYUZPjyxvUN2tlPVZvkOoo7DfDuB0rm9rGyr6tb4h81a0Qh7w0mCaITWQm3bj
+         xGyV+DWbWz3CYVWIVT8o/yt7n/t2pLV+DiTxOAputC0uFs/hTq+QI0PfC+lLNICicF
+         GVDNlksOxypblKuWAN43J63+KooUZ85rHyRmaVzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Keerthy <j-keerthy@ti.com>, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 136/313] soc: renesas: Enable ARM_ERRATA_754322 for affected Cortex-A9
-Date:   Thu,  3 Oct 2019 17:51:54 +0200
-Message-Id: <20191003154546.272144193@linuxfoundation.org>
+Subject: [PATCH 5.2 138/313] ARM: OMAP2+: move platform-specific asm-offset.h to arch/arm/mach-omap2
+Date:   Thu,  3 Oct 2019 17:51:56 +0200
+Message-Id: <20191003154546.468390520@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,70 +45,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 2eced4607a1e6f51f928ae3e521fe02be5cb7d23 ]
+[ Upstream commit ccf4975dca233b1d6a74752d6ab35c239edc0d58 ]
 
-ARM Erratum 754322 affects Cortex-A9 revisions r2p* and r3p*.
+<generated/ti-pm-asm-offsets.h> is only generated and included by
+arch/arm/mach-omap2/, so it does not need to reside in the globally
+visible include/generated/.
 
-Automatically enable support code to mitigate the erratum when compiling
-a kernel for any of the affected Renesas SoCs:
-  - RZ/A1: r3p0,
-  - R-Mobile A1: r2p4,
-  - R-Car M1A: r2p2-00rel0,
-  - R-Car H1: r3p0,
-  - SH-Mobile AG5: r2p2.
+I renamed it to arch/arm/mach-omap2/pm-asm-offsets.h since the prefix
+'ti-' is just redundant in mach-omap2/.
 
-EMMA Mobile EV2 (r1p3) and RZ/A2 (r4p1) are not affected.
+My main motivation of this change is to avoid the race condition for
+the parallel build (-j) when CONFIG_IKHEADERS is enabled.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+When it is enabled, all the headers under include/ are archived into
+kernel/kheaders_data.tar.xz and exposed in the sysfs.
+
+In the parallel build, we have no idea in which order files are built.
+
+ - If ti-pm-asm-offsets.h is built before kheaders_data.tar.xz,
+   the header will be included in the archive. Probably nobody will
+   use it, but it is harmless except that it will increase the archive
+   size needlessly.
+
+ - If kheaders_data.tar.xz is built before ti-pm-asm-offsets.h,
+   the header will not be included in the archive. However, in the next
+   build, the archive will be re-generated to include the newly-found
+   ti-pm-asm-offsets.h. This is not nice from the build system point
+   of view.
+
+ - If ti-pm-asm-offsets.h and kheaders_data.tar.xz are built at the
+   same time, the corrupted header might be included in the archive,
+   which does not look nice either.
+
+This commit fixes the race.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Tested-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/renesas/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm/mach-omap2/.gitignore  | 1 +
+ arch/arm/mach-omap2/Makefile    | 5 +++--
+ arch/arm/mach-omap2/sleep33xx.S | 2 +-
+ arch/arm/mach-omap2/sleep43xx.S | 2 +-
+ 4 files changed, 6 insertions(+), 4 deletions(-)
+ create mode 100644 arch/arm/mach-omap2/.gitignore
 
-diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
-index 68bfca6f20ddf..2040caa6c8085 100644
---- a/drivers/soc/renesas/Kconfig
-+++ b/drivers/soc/renesas/Kconfig
-@@ -55,6 +55,7 @@ config ARCH_EMEV2
+diff --git a/arch/arm/mach-omap2/.gitignore b/arch/arm/mach-omap2/.gitignore
+new file mode 100644
+index 0000000000000..79a8d6ea71520
+--- /dev/null
++++ b/arch/arm/mach-omap2/.gitignore
+@@ -0,0 +1 @@
++pm-asm-offsets.h
+diff --git a/arch/arm/mach-omap2/Makefile b/arch/arm/mach-omap2/Makefile
+index 85d1b13c9215b..26baeb6477aff 100644
+--- a/arch/arm/mach-omap2/Makefile
++++ b/arch/arm/mach-omap2/Makefile
+@@ -236,9 +236,10 @@ obj-y					+= omap_phy_internal.o
  
- config ARCH_R7S72100
- 	bool "RZ/A1H (R7S72100)"
-+	select ARM_ERRATA_754322
- 	select PM
- 	select PM_GENERIC_DOMAINS
- 	select SYS_SUPPORTS_SH_MTU2
-@@ -76,6 +77,7 @@ config ARCH_R8A73A4
- config ARCH_R8A7740
- 	bool "R-Mobile A1 (R8A77400)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select RENESAS_INTC_IRQPIN
+ obj-$(CONFIG_MACH_OMAP2_TUSB6010)	+= usb-tusb6010.o
  
- config ARCH_R8A7743
-@@ -103,10 +105,12 @@ config ARCH_R8A77470
- config ARCH_R8A7778
- 	bool "R-Car M1A (R8A77781)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
+-include/generated/ti-pm-asm-offsets.h: arch/arm/mach-omap2/pm-asm-offsets.s FORCE
++$(obj)/pm-asm-offsets.h: $(obj)/pm-asm-offsets.s FORCE
+ 	$(call filechk,offsets,__TI_PM_ASM_OFFSETS_H__)
  
- config ARCH_R8A7779
- 	bool "R-Car H1 (R8A77790)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select SYSC_R8A7779
-@@ -150,6 +154,7 @@ config ARCH_R9A06G032
- config ARCH_SH73A0
- 	bool "SH-Mobile AG5 (R8A73A00)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select RENESAS_INTC_IRQPIN
+-$(obj)/sleep33xx.o $(obj)/sleep43xx.o: include/generated/ti-pm-asm-offsets.h
++$(obj)/sleep33xx.o $(obj)/sleep43xx.o: $(obj)/pm-asm-offsets.h
+ 
+ targets += pm-asm-offsets.s
++clean-files += pm-asm-offsets.h
+diff --git a/arch/arm/mach-omap2/sleep33xx.S b/arch/arm/mach-omap2/sleep33xx.S
+index 47a816468cdb4..a003769121aaa 100644
+--- a/arch/arm/mach-omap2/sleep33xx.S
++++ b/arch/arm/mach-omap2/sleep33xx.S
+@@ -6,7 +6,6 @@
+  *	Dave Gerlach, Vaibhav Bedia
+  */
+ 
+-#include <generated/ti-pm-asm-offsets.h>
+ #include <linux/linkage.h>
+ #include <linux/platform_data/pm33xx.h>
+ #include <linux/ti-emif-sram.h>
+@@ -15,6 +14,7 @@
+ 
+ #include "iomap.h"
+ #include "cm33xx.h"
++#include "pm-asm-offsets.h"
+ 
+ #define AM33XX_CM_CLKCTRL_MODULESTATE_DISABLED			0x00030000
+ #define AM33XX_CM_CLKCTRL_MODULEMODE_DISABLE			0x0003
+diff --git a/arch/arm/mach-omap2/sleep43xx.S b/arch/arm/mach-omap2/sleep43xx.S
+index 0c1031442571f..27b13d47cf193 100644
+--- a/arch/arm/mach-omap2/sleep43xx.S
++++ b/arch/arm/mach-omap2/sleep43xx.S
+@@ -6,7 +6,6 @@
+  *	Dave Gerlach, Vaibhav Bedia
+  */
+ 
+-#include <generated/ti-pm-asm-offsets.h>
+ #include <linux/linkage.h>
+ #include <linux/ti-emif-sram.h>
+ #include <linux/platform_data/pm33xx.h>
+@@ -19,6 +18,7 @@
+ #include "iomap.h"
+ #include "omap-secure.h"
+ #include "omap44xx.h"
++#include "pm-asm-offsets.h"
+ #include "prm33xx.h"
+ #include "prcm43xx.h"
+ 
 -- 
 2.20.1
 
