@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFA0CA769
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92EACA774
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393222AbfJCQxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41970 "EHLO mail.kernel.org"
+        id S1732195AbfJCQyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:54:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393217AbfJCQxq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:53:46 -0400
+        id S2393232AbfJCQxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:53:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23BAD2070B;
-        Thu,  3 Oct 2019 16:53:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D193A2070B;
+        Thu,  3 Oct 2019 16:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121625;
-        bh=bJcao7SPBQMuapxEuG3Dz/UmDhKG/EGCDtv2S5A7S9s=;
+        s=default; t=1570121628;
+        bh=RfXH2R0qAeSJaNuWcnYsp87QYBShJznj5iJicT3pyXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uB0X7AeBaqjxk5auo068TU7qTO8fYbcqMpodZ+TPoUqTQa467ZOr0ac8zvysBuc8B
-         Gaw3CvVAEWeWZDmYoWZIwW09hRgVAn72lR9JoIiRieR+zeNp6P7nUykmUhk1UKILv9
-         zYW2Qscvx2JCxNKgwDPOvuF7SKuFLxiEolhH3x6c=
+        b=E4fPJOgtr/iQNt0ViePCz5GmKa7v3IPqq6XYxh4X/IfDqISExpA/fYeQBOdlNvJFu
+         SgqtNouLlQkZeNYtWQEHL0tFcsylxyK1n46nnyuNT0cLIfo3Az2sKysnk4NYWLa/9f
+         e5lW/LxFxFYVPce+FQ59NzImj1keHr7sCkJdF8LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        NeilBrown <neilb@suse.de>, Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 341/344] md/raid0: avoid RAID0 data corruption due to layout confusion.
-Date:   Thu,  3 Oct 2019 17:55:06 +0200
-Message-Id: <20191003154612.088506828@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 342/344] mt76: mt7615: always release sem in mt7615_load_patch
+Date:   Thu,  3 Oct 2019 17:55:07 +0200
+Message-Id: <20191003154612.157543944@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,138 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit c84a1372df929033cb1a0441fb57bd3932f39ac9 ]
+[ Upstream commit 2fc446487c364bf8bbd5f8f5f27e52d914fa1d72 ]
 
-If the drives in a RAID0 are not all the same size, the array is
-divided into zones.
-The first zone covers all drives, to the size of the smallest.
-The second zone covers all drives larger than the smallest, up to
-the size of the second smallest - etc.
+Release patch semaphore even if request_firmware fails in
+mt7615_load_patch
 
-A change in Linux 3.14 unintentionally changed the layout for the
-second and subsequent zones.  All the correct data is still stored, but
-each chunk may be assigned to a different device than in pre-3.14 kernels.
-This can lead to data corruption.
-
-It is not possible to determine what layout to use - it depends which
-kernel the data was written by.
-So we add a module parameter to allow the old (0) or new (1) layout to be
-specified, and refused to assemble an affected array if that parameter is
-not set.
-
-Fixes: 20d0189b1012 ("block: Introduce new bio_split()")
-cc: stable@vger.kernel.org (3.14+)
-Acked-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c | 33 ++++++++++++++++++++++++++++++++-
- drivers/md/raid0.h | 14 ++++++++++++++
- 2 files changed, 46 insertions(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mcu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index bf5cf184a260b..297bbc0f41f05 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -19,6 +19,9 @@
- #include "raid0.h"
- #include "raid5.h"
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index cdad2c8dc2971..7ef681fea3f8f 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -257,9 +257,9 @@ static int mt7615_driver_own(struct mt7615_dev *dev)
  
-+static int default_layout = 0;
-+module_param(default_layout, int, 0644);
-+
- #define UNSUPPORTED_MDDEV_FLAGS		\
- 	((1L << MD_HAS_JOURNAL) |	\
- 	 (1L << MD_JOURNAL_CLEAN) |	\
-@@ -139,6 +142,19 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
- 	}
- 	pr_debug("md/raid0:%s: FINAL %d zones\n",
- 		 mdname(mddev), conf->nr_strip_zones);
-+
-+	if (conf->nr_strip_zones == 1) {
-+		conf->layout = RAID0_ORIG_LAYOUT;
-+	} else if (default_layout == RAID0_ORIG_LAYOUT ||
-+		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
-+		conf->layout = default_layout;
-+	} else {
-+		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
-+		       mdname(mddev));
-+		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
-+		err = -ENOTSUPP;
-+		goto abort;
-+	}
- 	/*
- 	 * now since we have the hard sector sizes, we can make sure
- 	 * chunk size is a multiple of that sector size
-@@ -547,10 +563,12 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
- 
- static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
+ static int mt7615_load_patch(struct mt7615_dev *dev)
  {
-+	struct r0conf *conf = mddev->private;
- 	struct strip_zone *zone;
- 	struct md_rdev *tmp_dev;
- 	sector_t bio_sector;
- 	sector_t sector;
-+	sector_t orig_sector;
- 	unsigned chunk_sects;
- 	unsigned sectors;
+-	const struct firmware *fw;
+-	const struct mt7615_patch_hdr *hdr;
+ 	const char *firmware = MT7615_ROM_PATCH;
++	const struct mt7615_patch_hdr *hdr;
++	const struct firmware *fw = NULL;
+ 	int len, ret, sem;
  
-@@ -584,8 +602,21 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
- 		bio = split;
- 	}
+ 	sem = mt7615_mcu_patch_sem_ctrl(dev, 1);
+@@ -275,7 +275,7 @@ static int mt7615_load_patch(struct mt7615_dev *dev)
  
-+	orig_sector = sector;
- 	zone = find_zone(mddev->private, &sector);
--	tmp_dev = map_sector(mddev, zone, sector, &sector);
-+	switch (conf->layout) {
-+	case RAID0_ORIG_LAYOUT:
-+		tmp_dev = map_sector(mddev, zone, orig_sector, &sector);
-+		break;
-+	case RAID0_ALT_MULTIZONE_LAYOUT:
-+		tmp_dev = map_sector(mddev, zone, sector, &sector);
-+		break;
-+	default:
-+		WARN("md/raid0:%s: Invalid layout\n", mdname(mddev));
-+		bio_io_error(bio);
-+		return true;
-+	}
-+
- 	bio_set_dev(bio, tmp_dev->bdev);
- 	bio->bi_iter.bi_sector = sector + zone->dev_start +
- 		tmp_dev->data_offset;
-diff --git a/drivers/md/raid0.h b/drivers/md/raid0.h
-index 540e65d92642d..3816e5477db1e 100644
---- a/drivers/md/raid0.h
-+++ b/drivers/md/raid0.h
-@@ -8,11 +8,25 @@ struct strip_zone {
- 	int	 nb_dev;	/* # of devices attached to the zone */
- };
+ 	ret = request_firmware(&fw, firmware, dev->mt76.dev);
+ 	if (ret)
+-		return ret;
++		goto out;
  
-+/* Linux 3.14 (20d0189b101) made an unintended change to
-+ * the RAID0 layout for multi-zone arrays (where devices aren't all
-+ * the same size.
-+ * RAID0_ORIG_LAYOUT restores the original layout
-+ * RAID0_ALT_MULTIZONE_LAYOUT uses the altered layout
-+ * The layouts are identical when there is only one zone (all
-+ * devices the same size).
-+ */
-+
-+enum r0layout {
-+	RAID0_ORIG_LAYOUT = 1,
-+	RAID0_ALT_MULTIZONE_LAYOUT = 2,
-+};
- struct r0conf {
- 	struct strip_zone	*strip_zone;
- 	struct md_rdev		**devlist; /* lists of rdevs, pointed to
- 					    * by strip_zone->dev */
- 	int			nr_strip_zones;
-+	enum r0layout		layout;
- };
- 
- #endif
+ 	if (!fw || !fw->data || fw->size < sizeof(*hdr)) {
+ 		dev_err(dev->mt76.dev, "Invalid firmware\n");
 -- 
 2.20.1
 
