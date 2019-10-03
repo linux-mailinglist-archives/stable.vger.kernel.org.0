@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0E7FCA6D0
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D90CA6F2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405298AbfJCQrh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:47:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32940 "EHLO mail.kernel.org"
+        id S2405783AbfJCQs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:48:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405202AbfJCQre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:47:34 -0400
+        id S2405642AbfJCQsC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:48:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 856E12086A;
-        Thu,  3 Oct 2019 16:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64C062070B;
+        Thu,  3 Oct 2019 16:48:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121254;
-        bh=9SO459Tx95hQLcr6M3fZdhK5p3dMn/Dz2ldcdyi20Qc=;
+        s=default; t=1570121280;
+        bh=gDoMJ/kb/DKmiZLAj1iPf+wvICmVlOUmxNJiEv9/iT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md9cV8CkeabwpBgC7nspO4ST69xmdZgBAydKC9Ns1hrZVuiFnca8A2oxhfdyKEECL
-         W9KHZafr2n6DGUv/wJudWRvDA5SkYWWIupJCRMZN2QZkHfofo+9BHF56FWBxekWshP
-         mNK7WHWOEDMkgWAsCEEDGNCQjDiaujLuu9MaEv+s=
+        b=HiU/jD7Yij8b4/TLqnFkq4kWi3vd6xiF6X8MtZ6L74rotjv10s1BabXhodCmUAXVj
+         /TB4Kcx/84MmO8nOQQkuLOCfDhQozNnH+gFoM5FPWSPbjVyZojM5W1sy3TOv6gJEF1
+         ZPGz3g380uW9/A653NUVDe7/C38Qz0EH+Pht54q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jinyu Qi <jinyuqi@huawei.com>, Joerg Roedel <jroedel@suse.de>,
-        Robin Murphy <robin.murphy@arm.com>,
+        stable@vger.kernel.org, Patrick McLean <chutzpah@gentoo.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-trace-devel@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 184/344] iommu/iova: Avoid false sharing on fq_timer_on
-Date:   Thu,  3 Oct 2019 17:52:29 +0200
-Message-Id: <20191003154558.358824001@linuxfoundation.org>
+Subject: [PATCH 5.3 185/344] libtraceevent: Change users plugin directory
+Date:   Thu,  3 Oct 2019 17:52:30 +0200
+Message-Id: <20191003154558.469963340@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,49 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
 
-[ Upstream commit 0d87308cca2c124f9bce02383f1d9632c9be89c4 ]
+[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
 
-In commit 14bd9a607f90 ("iommu/iova: Separate atomic variables
-to improve performance") Jinyu Qi identified that the atomic_cmpxchg()
-in queue_iova() was causing a performance loss and moved critical fields
-so that the false sharing would not impact them.
+To be compliant with XDG user directory layout, the user's plugin
+directory is changed from ~/.traceevent/plugins to
+~/.local/lib/traceevent/plugins/
 
-However, avoiding the false sharing in the first place seems easy.
-We should attempt the atomic_cmpxchg() no more than 100 times
-per second. Adding an atomic_read() will keep the cache
-line mostly shared.
-
-This false sharing came with commit 9a005a800ae8
-("iommu/iova: Add flush timer").
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Fixes: 9a005a800ae8 ('iommu/iova: Add flush timer')
-Cc: Jinyu Qi <jinyuqi@huawei.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Suggested-by: Patrick McLean <chutzpah@gentoo.org>
+Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Patrick McLean <chutzpah@gentoo.org>
+Cc: linux-trace-devel@vger.kernel.org
+Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
+Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
+Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iova.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/lib/traceevent/Makefile       | 6 +++---
+ tools/lib/traceevent/event-plugin.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index 3e1a8a6755723..41c605b0058f9 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -577,7 +577,9 @@ void queue_iova(struct iova_domain *iovad,
+diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
+index 3292c290654f6..86ce17a1f7fb6 100644
+--- a/tools/lib/traceevent/Makefile
++++ b/tools/lib/traceevent/Makefile
+@@ -62,15 +62,15 @@ set_plugin_dir := 1
  
- 	spin_unlock_irqrestore(&fq->lock, flags);
+ # Set plugin_dir to preffered global plugin location
+ # If we install under $HOME directory we go under
+-# $(HOME)/.traceevent/plugins
++# $(HOME)/.local/lib/traceevent/plugins
+ #
+ # We dont set PLUGIN_DIR in case we install under $HOME
+ # directory, because by default the code looks under:
+-# $(HOME)/.traceevent/plugins by default.
++# $(HOME)/.local/lib/traceevent/plugins by default.
+ #
+ ifeq ($(plugin_dir),)
+ ifeq ($(prefix),$(HOME))
+-override plugin_dir = $(HOME)/.traceevent/plugins
++override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
+ set_plugin_dir := 0
+ else
+ override plugin_dir = $(libdir)/traceevent/plugins
+diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
+index 8ca28de9337a5..e1f7ddd5a6cf0 100644
+--- a/tools/lib/traceevent/event-plugin.c
++++ b/tools/lib/traceevent/event-plugin.c
+@@ -18,7 +18,7 @@
+ #include "event-utils.h"
+ #include "trace-seq.h"
  
--	if (atomic_cmpxchg(&iovad->fq_timer_on, 0, 1) == 0)
-+	/* Avoid false sharing as much as possible. */
-+	if (!atomic_read(&iovad->fq_timer_on) &&
-+	    !atomic_cmpxchg(&iovad->fq_timer_on, 0, 1))
- 		mod_timer(&iovad->fq_timer,
- 			  jiffies + msecs_to_jiffies(IOVA_FQ_TIMEOUT));
- }
+-#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
++#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
+ 
+ static struct registered_plugin_options {
+ 	struct registered_plugin_options	*next;
 -- 
 2.20.1
 
