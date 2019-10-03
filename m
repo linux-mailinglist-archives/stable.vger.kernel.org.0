@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFADFCAC60
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A0CCABA9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733059AbfJCQJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:09:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
+        id S1729699AbfJCP5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733108AbfJCQJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:09:17 -0400
+        id S1730989AbfJCP5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:57:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C12E21D81;
-        Thu,  3 Oct 2019 16:09:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 465BA20830;
+        Thu,  3 Oct 2019 15:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118956;
-        bh=Das1zxPJh8NGGhzUtOWS3C9EoRTDQpOlYXIBY9sFkxM=;
+        s=default; t=1570118254;
+        bh=0RTc05l2gYj4ZmdMElNObqKBp2zeliCT/z+ZyWPo8yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wv80tF327RRUnf3dh/Rv06z7HPqrMPLbGrEQXabr6QaAZSWXcRpMloGeszja1Ks68
-         mGcR25st696dKQqXjIn1pFB3Lsulwa+mgp/lqsBUxBP6lZxfXIOfCGEvdDXCW7sKnh
-         RM43Ql2Mg+1augfWqqMxuilLbkqTCPvYIBAd7u+U=
+        b=uWmTHRW23FgjPtnhTQTBmELizKD5j1ZQlupqGxwCSwo7odzzj9xtBmY+eOH2rpqfw
+         ES1Y7Mnjb6Zwz/Hca2jLm7SSOQ9HnDo6i/vEhAMUIsamuHcYkii+g1Ar4cIJDEJB2u
+         PY/D0jZvsLTC11cfBSarG2/C/IHNfURUWBZApoFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/185] base: soc: Export soc_device_register/unregister APIs
-Date:   Thu,  3 Oct 2019 17:52:29 +0200
-Message-Id: <20191003154453.667362010@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 07/99] crypto: talitos - fix missing break in switch statement
+Date:   Thu,  3 Oct 2019 17:52:30 +0200
+Message-Id: <20191003154256.015612973@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
+commit 5fc194ea6d34dfad9833d3043ce41d6c52aff39a upstream.
 
-Qcom Socinfo driver can be built as a module, so
-export these two APIs.
+Add missing break statement in order to prevent the code from falling
+through to case CRYPTO_ALG_TYPE_AHASH.
 
-Tested-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: aeb4c132f33d ("crypto: talitos - Convert to new AEAD interface")
+Cc: stable@vger.kernel.org
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/base/soc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/talitos.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/soc.c b/drivers/base/soc.c
-index 909dedae4c4e1..1242b2d2e01a2 100644
---- a/drivers/base/soc.c
-+++ b/drivers/base/soc.c
-@@ -155,6 +155,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
- out1:
- 	return ERR_PTR(ret);
- }
-+EXPORT_SYMBOL_GPL(soc_device_register);
- 
- /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
- void soc_device_unregister(struct soc_device *soc_dev)
-@@ -164,6 +165,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
- 	device_unregister(&soc_dev->dev);
- 	early_soc_dev_attr = NULL;
- }
-+EXPORT_SYMBOL_GPL(soc_device_unregister);
- 
- static int __init soc_bus_register(void)
- {
--- 
-2.20.1
-
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -2730,6 +2730,7 @@ static int talitos_remove(struct platfor
+ 			break;
+ 		case CRYPTO_ALG_TYPE_AEAD:
+ 			crypto_unregister_aead(&t_alg->algt.alg.aead);
++			break;
+ 		case CRYPTO_ALG_TYPE_AHASH:
+ 			crypto_unregister_ahash(&t_alg->algt.alg.hash);
+ 			break;
 
 
