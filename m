@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D680CAC24
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F13CABC5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732683AbfJCQGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53090 "EHLO mail.kernel.org"
+        id S1729551AbfJCP7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:59:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732679AbfJCQGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:06:05 -0400
+        id S1731447AbfJCP7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:59:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BAA32054F;
-        Thu,  3 Oct 2019 16:06:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C441720700;
+        Thu,  3 Oct 2019 15:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118764;
-        bh=+P58EnLCkeHq64WlSTx0K8rcLEHT5W18QsqQ86e9Lug=;
+        s=default; t=1570118394;
+        bh=M5k0BU5EeWicDdY1kbiDXTopE3+Q1rOXUHpx4wMdFFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyf0m1fvvTNb6N0hUfJh/hZyjznLIYW+75EsfWwi1CUaDHHliIJoPK+gFJ5WO3ABa
-         bfHA1R/R9ceSdflSjqZklPsvPneVtYM6w9FdtpzT2JxqvdA+PTGgeU022Ht3KABMFt
-         VbR8CjY8v/3obvUhf7hFiWRoEHXKwLenhtsQI/hw=
+        b=CqJOsLlA57YvIQtyiNmMxH/ILJQ4lmXO9FdsziGMEew/X07/dBE8NNPqn3BMJWPLD
+         LHvrCaSdAU4u4xvTq9PsDH+wTbUwP0E2CA5SEngclPPv643JGqpS/8HD4w0LzpvPVL
+         0MiAFVI0timWAPl6CWfNlmWhya+GUhutdYi0JK/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 116/129] Btrfs: fix use-after-free when using the tree modification log
+        stable@vger.kernel.org, Mark Salyzyn <salyzyn@android.com>,
+        linux-security-module@vger.kernel.org, kernel-team@android.com,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.4 96/99] ovl: filter of trusted xattr results in audit
 Date:   Thu,  3 Oct 2019 17:53:59 +0200
-Message-Id: <20191003154412.586434919@linuxfoundation.org>
+Message-Id: <20191003154342.358048872@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,99 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Mark Salyzyn <salyzyn@android.com>
 
-commit efad8a853ad2057f96664328a0d327a05ce39c76 upstream.
+commit 5c2e9f346b815841f9bed6029ebcb06415caf640 upstream.
 
-At ctree.c:get_old_root(), we are accessing a root's header owner field
-after we have freed the respective extent buffer. This results in an
-use-after-free that can lead to crashes, and when CONFIG_DEBUG_PAGEALLOC
-is set, results in a stack trace like the following:
+When filtering xattr list for reading, presence of trusted xattr
+results in a security audit log.  However, if there is other content
+no errno will be set, and if there isn't, the errno will be -ENODATA
+and not -EPERM as is usually associated with a lack of capability.
+The check does not block the request to list the xattrs present.
 
-  [ 3876.799331] stack segment: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
-  [ 3876.799363] CPU: 0 PID: 15436 Comm: pool Not tainted 5.3.0-rc3-btrfs-next-54 #1
-  [ 3876.799385] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  [ 3876.799433] RIP: 0010:btrfs_search_old_slot+0x652/0xd80 [btrfs]
-  (...)
-  [ 3876.799502] RSP: 0018:ffff9f08c1a2f9f0 EFLAGS: 00010286
-  [ 3876.799518] RAX: ffff8dd300000000 RBX: ffff8dd85a7a9348 RCX: 000000038da26000
-  [ 3876.799538] RDX: 0000000000000000 RSI: ffffe522ce368980 RDI: 0000000000000246
-  [ 3876.799559] RBP: dae1922adadad000 R08: 0000000008020000 R09: ffffe522c0000000
-  [ 3876.799579] R10: ffff8dd57fd788c8 R11: 000000007511b030 R12: ffff8dd781ddc000
-  [ 3876.799599] R13: ffff8dd9e6240578 R14: ffff8dd6896f7a88 R15: ffff8dd688cf90b8
-  [ 3876.799620] FS:  00007f23ddd97700(0000) GS:ffff8dda20200000(0000) knlGS:0000000000000000
-  [ 3876.799643] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [ 3876.799660] CR2: 00007f23d4024000 CR3: 0000000710bb0005 CR4: 00000000003606f0
-  [ 3876.799682] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [ 3876.799703] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [ 3876.799723] Call Trace:
-  [ 3876.799735]  ? do_raw_spin_unlock+0x49/0xc0
-  [ 3876.799749]  ? _raw_spin_unlock+0x24/0x30
-  [ 3876.799779]  resolve_indirect_refs+0x1eb/0xc80 [btrfs]
-  [ 3876.799810]  find_parent_nodes+0x38d/0x1180 [btrfs]
-  [ 3876.799841]  btrfs_check_shared+0x11a/0x1d0 [btrfs]
-  [ 3876.799870]  ? extent_fiemap+0x598/0x6e0 [btrfs]
-  [ 3876.799895]  extent_fiemap+0x598/0x6e0 [btrfs]
-  [ 3876.799913]  do_vfs_ioctl+0x45a/0x700
-  [ 3876.799926]  ksys_ioctl+0x70/0x80
-  [ 3876.799938]  ? trace_hardirqs_off_thunk+0x1a/0x20
-  [ 3876.799953]  __x64_sys_ioctl+0x16/0x20
-  [ 3876.799965]  do_syscall_64+0x62/0x220
-  [ 3876.799977]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [ 3876.799993] RIP: 0033:0x7f23e0013dd7
-  (...)
-  [ 3876.800056] RSP: 002b:00007f23ddd96ca8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  [ 3876.800078] RAX: ffffffffffffffda RBX: 00007f23d80210f8 RCX: 00007f23e0013dd7
-  [ 3876.800099] RDX: 00007f23d80210f8 RSI: 00000000c020660b RDI: 0000000000000003
-  [ 3876.800626] RBP: 000055fa2a2a2440 R08: 0000000000000000 R09: 00007f23ddd96d7c
-  [ 3876.801143] R10: 00007f23d8022000 R11: 0000000000000246 R12: 00007f23ddd96d80
-  [ 3876.801662] R13: 00007f23ddd96d78 R14: 00007f23d80210f0 R15: 00007f23ddd96d80
-  (...)
-  [ 3876.805107] ---[ end trace e53161e179ef04f9 ]---
+Switch to ns_capable_noaudit to reflect a more appropriate check.
 
-Fix that by saving the root's header owner field into a local variable
-before freeing the root's extent buffer, and then use that local variable
-when needed.
-
-Fixes: 30b0463a9394d9 ("Btrfs: fix accessing the root pointer in tree mod log functions")
-CC: stable@vger.kernel.org # 3.10+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: kernel-team@android.com
+Cc: stable@vger.kernel.org # v3.18+
+Fixes: a082c6f680da ("ovl: filter trusted xattr for non-admin")
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/overlayfs/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1406,6 +1406,7 @@ get_old_root(struct btrfs_root *root, u6
- 	struct tree_mod_elem *tm;
- 	struct extent_buffer *eb = NULL;
- 	struct extent_buffer *eb_root;
-+	u64 eb_root_owner = 0;
- 	struct extent_buffer *old;
- 	struct tree_mod_root *old_root = NULL;
- 	u64 old_generation = 0;
-@@ -1439,6 +1440,7 @@ get_old_root(struct btrfs_root *root, u6
- 			free_extent_buffer(old);
- 		}
- 	} else if (old_root) {
-+		eb_root_owner = btrfs_header_owner(eb_root);
- 		btrfs_tree_read_unlock(eb_root);
- 		free_extent_buffer(eb_root);
- 		eb = alloc_dummy_extent_buffer(root->fs_info, logical,
-@@ -1457,7 +1459,7 @@ get_old_root(struct btrfs_root *root, u6
- 	if (old_root) {
- 		btrfs_set_header_bytenr(eb, eb->start);
- 		btrfs_set_header_backref_rev(eb, BTRFS_MIXED_BACKREF_REV);
--		btrfs_set_header_owner(eb, btrfs_header_owner(eb_root));
-+		btrfs_set_header_owner(eb, eb_root_owner);
- 		btrfs_set_header_level(eb, old_root->level);
- 		btrfs_set_header_generation(eb, old_generation);
- 	}
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -292,7 +292,8 @@ static bool ovl_can_list(const char *s)
+ 		return true;
+ 
+ 	/* Never list trusted.overlay, list other trusted for superuser only */
+-	return !ovl_is_private_xattr(s) && capable(CAP_SYS_ADMIN);
++	return !ovl_is_private_xattr(s) &&
++	       ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN);
+ }
+ 
+ ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
 
 
