@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22C70CA55F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBB9CA564
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392040AbfJCQdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41864 "EHLO mail.kernel.org"
+        id S2392057AbfJCQd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392039AbfJCQdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:45 -0400
+        id S2391473AbfJCQd4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:33:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 335B3222C9;
-        Thu,  3 Oct 2019 16:33:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3C8B2086A;
+        Thu,  3 Oct 2019 16:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120424;
-        bh=o9aX2bau2Ui2FjhVZKIimH8ZL1iyt0Febi4Bh0UHciM=;
+        s=default; t=1570120435;
+        bh=WaXkzYUQZiX+6yr6ucA7h70yZZ/D3f1BdAj3GtAl+L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGanvKRtXq0rz3eUkOHeCzINtXctVROqmWgFeOuMXYQmN7CasIUGxQiRqHHRdj5cp
-         nyy1KEfe/MCKbyzKqCMH1J77vKp+B6GJxFsWMMr2JWOgHOxL2EEbXH0gweChS9aOME
-         e/+dxTFjKDoAlJTnMySwV5dbopSXTJGGZ0SX0+rE=
+        b=i17LURVD6np+kbg4gs+2A5LcfigoIDbbqryLzhjv571dRaYv5Wvdm6W/DnKWRRNWb
+         3QFMhZto06QZqJkoT+pg4dQAHxdOAHGpSiCdCZ9LBsLjg2+A95R6uzU4bhxXHyVF0J
+         E/3o0KcoOGVH5PUoNunZ1UQ10BnmTlfloLnk0wXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
-        Ales Novak <alnovak@suse.cz>,
-        Shane Seymour <shane.seymour@hpe.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.2 218/313] scsi: scsi_dh_rdac: zero cdb in send_mode_select()
-Date:   Thu,  3 Oct 2019 17:53:16 +0200
-Message-Id: <20191003154554.498501720@linuxfoundation.org>
+        stable@vger.kernel.org, Danit Goldberg <danitg@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.2 221/313] IB/mlx5: Free mpi in mp_slave mode
+Date:   Thu,  3 Oct 2019 17:53:19 +0200
+Message-Id: <20191003154554.800537477@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <Martin.Wilck@suse.com>
+From: Danit Goldberg <danitg@mellanox.com>
 
-commit 57adf5d4cfd3198aa480e7c94a101fc8c4e6109d upstream.
+commit 5d44adebbb7e785939df3db36ac360f5e8b73e44 upstream.
 
-cdb in send_mode_select() is not zeroed and is only partially filled in
-rdac_failover_get(), which leads to some random data getting to the
-device. Users have reported storage responding to such commands with
-INVALID FIELD IN CDB. Code before commit 327825574132 was not affected, as
-it called blk_rq_set_block_pc().
+ib_add_slave_port() allocates a multiport struct but never frees it.
+Don't leak memory, free the allocated mpi struct during driver unload.
 
-Fix this by zeroing out the cdb first.
-
-Identified & fix proposed by HPE.
-
-Fixes: 327825574132 ("scsi_dh_rdac: switch to scsi_execute_req_flags()")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20190904155205.1666-1-martin.wilck@suse.com
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Acked-by: Ales Novak <alnovak@suse.cz>
-Reviewed-by: Shane Seymour <shane.seymour@hpe.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 32f69e4be269 ("{net, IB}/mlx5: Manage port association for multiport RoCE")
+Link: https://lore.kernel.org/r/20190916064818.19823-3-leon@kernel.org
+Signed-off-by: Danit Goldberg <danitg@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/device_handler/scsi_dh_rdac.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/mlx5/main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/scsi/device_handler/scsi_dh_rdac.c
-+++ b/drivers/scsi/device_handler/scsi_dh_rdac.c
-@@ -546,6 +546,8 @@ static void send_mode_select(struct work
- 	spin_unlock(&ctlr->ms_lock);
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -6829,6 +6829,7 @@ static void mlx5_ib_remove(struct mlx5_c
+ 			mlx5_ib_unbind_slave_port(mpi->ibdev, mpi);
+ 		list_del(&mpi->list);
+ 		mutex_unlock(&mlx5_ib_multiport_mutex);
++		kfree(mpi);
+ 		return;
+ 	}
  
-  retry:
-+	memset(cdb, 0, sizeof(cdb));
-+
- 	data_size = rdac_failover_get(ctlr, &list, cdb);
- 
- 	RDAC_LOG(RDAC_LOG_FAILOVER, sdev, "array %s, ctlr %d, "
 
 
