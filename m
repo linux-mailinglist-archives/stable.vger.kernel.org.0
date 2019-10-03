@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7008CAB5A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD39CA97D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388757AbfJCQO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
+        id S2404784AbfJCQnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388752AbfJCQO6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:58 -0400
+        id S2404849AbfJCQnQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B552121783;
-        Thu,  3 Oct 2019 16:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3584321783;
+        Thu,  3 Oct 2019 16:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119298;
-        bh=zBya74pRYDPzIK4cQdHPpJIitnD/nPJtdMLpRb7hGTU=;
+        s=default; t=1570120995;
+        bh=vXDkuYne+Hy4F82vAvYwB/USPCaWPvacv5O9Bg8gQqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvYUTsj/rLvLFLtkedzuTV6a5OYsm10830DSqPg5X8kgfjwPhtMKCOmRzXr9izIkA
-         DMlb+IHE5Y/zQnM6ILJCU/lIWFN2wDl6nrmTxAXnUNRYhktgdQmDECyeK8bnhZTuxO
-         2MMbXkc5opVqYRzuQwpcf3GE8kOrNcjTGC2Ah2aw=
+        b=Tpl5xkjqI0E1hQAUe1jR/1S1pHEq1dOTHhWI6xjrnhWHO8Z/NSLFNlUuRPb4gOZWe
+         BvwNcSgb4gLFKj7E/pX+X8ygHsQPzKc4Uh/7ppXPHG9XBMj2zW8N6CbRqi+3V9JIbI
+         Y4t7rp1KMLWjaX3Y3blnNUXGgjV+RbImTk8klA3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 014/211] usbnet: sanity checking of packet sizes and device mtu
-Date:   Thu,  3 Oct 2019 17:51:20 +0200
-Message-Id: <20191003154450.103690210@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 116/344] media: vsp1: fix memory leak of dl on error return path
+Date:   Thu,  3 Oct 2019 17:51:21 +0200
+Message-Id: <20191003154551.648830907@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 280ceaed79f18db930c0cc8bb21f6493490bf29c ]
+[ Upstream commit 70c55c1ad1a76e804ee5330e134674f5d2741cb7 ]
 
-After a reset packet sizes and device mtu can change and need
-to be reevaluated to calculate queue sizes.
-Malicious devices can set this to zero and we divide by it.
-Introduce sanity checking.
+Currently when the call vsp1_dl_body_get fails and returns null the
+error return path leaks the allocation of dl. Fix this by kfree'ing
+dl before returning.
 
-Reported-and-tested-by:  syzbot+6102c120be558c885f04@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Resource leak")
+
+Fixes: 5d7936b8e27d ("media: vsp1: Convert display lists to use new body pool")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/usbnet.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/vsp1/vsp1_dl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -356,6 +356,8 @@ void usbnet_update_max_qlen(struct usbne
- {
- 	enum usb_device_speed speed = dev->udev->speed;
+diff --git a/drivers/media/platform/vsp1/vsp1_dl.c b/drivers/media/platform/vsp1/vsp1_dl.c
+index 104b6f5145364..d7b43037e500a 100644
+--- a/drivers/media/platform/vsp1/vsp1_dl.c
++++ b/drivers/media/platform/vsp1/vsp1_dl.c
+@@ -557,8 +557,10 @@ static struct vsp1_dl_list *vsp1_dl_list_alloc(struct vsp1_dl_manager *dlm)
  
-+	if (!dev->rx_urb_size || !dev->hard_mtu)
-+		goto insanity;
- 	switch (speed) {
- 	case USB_SPEED_HIGH:
- 		dev->rx_qlen = MAX_QUEUE_MEMORY / dev->rx_urb_size;
-@@ -372,6 +374,7 @@ void usbnet_update_max_qlen(struct usbne
- 		dev->tx_qlen = 5 * MAX_QUEUE_MEMORY / dev->hard_mtu;
- 		break;
- 	default:
-+insanity:
- 		dev->rx_qlen = dev->tx_qlen = 4;
- 	}
- }
+ 	/* Get a default body for our list. */
+ 	dl->body0 = vsp1_dl_body_get(dlm->pool);
+-	if (!dl->body0)
++	if (!dl->body0) {
++		kfree(dl);
+ 		return NULL;
++	}
+ 
+ 	header_offset = dl->body0->max_entries * sizeof(*dl->body0->entries);
+ 
+-- 
+2.20.1
+
 
 
