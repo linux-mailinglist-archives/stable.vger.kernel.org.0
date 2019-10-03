@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E8FCA380
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE833CA383
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387521AbfJCQPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40142 "EHLO mail.kernel.org"
+        id S1732566AbfJCQPy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:15:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732566AbfJCQPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:47 -0400
+        id S2388862AbfJCQPw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:15:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 322AC2054F;
-        Thu,  3 Oct 2019 16:15:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 925B420700;
+        Thu,  3 Oct 2019 16:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119346;
-        bh=vg6DsUyf4XVIFXgZdWx6wo3jzA2TDOouGPZg9zo/8JY=;
+        s=default; t=1570119351;
+        bh=bbTKLwu6LByg5hrqRRMmlhrRluWfWwOtjqI2kMTKy+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZtHcN+ax3zSip5rce+wXAqoqb63yC3OpHfeFoYh+xiMLXevTIbb/XSIgA3qO7GPj
-         7h7ROv4XeTh6FnQmxal9auSy0g6Xds9tdWhFfue78ScnA7qTY1I+P1t7OJZWgylsfG
-         PLDWOqGHitA55woVA2kPcx0gEpapM1ifu+28r/dU=
+        b=ffXFbfE+1jhHLr6qMzDoDpspQpF6e6Ze3foZzCvTRtVDqGOM8/PgXFbVAQLJYvjBy
+         Lyu8+g+IqlI3pXQemIq0KL3ighg3zErZK92y1GdES/scir6Y/EzcEN5XSpTRcLxg5P
+         be7rRSPJLPil5zlwN26oopGmJxViXWO1Ag0cmLEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        Yotam Gigi <yotam.gi@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.19 006/211] net/sched: act_sample: dont push mac header on ip6gre ingress
-Date:   Thu,  3 Oct 2019 17:51:12 +0200
-Message-Id: <20191003154448.643286322@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 008/211] nfp: flower: fix memory leak in nfp_flower_spawn_vnic_reprs
+Date:   Thu,  3 Oct 2019 17:51:14 +0200
+Message-Id: <20191003154449.111320254@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -44,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 92974a1d006ad8b30d53047c70974c9e065eb7df ]
+[ Upstream commit 8ce39eb5a67aee25d9f05b40b673c95b23502e3e ]
 
-current 'sample' action doesn't push the mac header of ingress packets if
-they are received by a layer 3 tunnel (like gre or sit); but it forgot to
-check for gre over ipv6, so the following script:
+In nfp_flower_spawn_vnic_reprs in the loop if initialization or the
+allocations fail memory is leaked. Appropriate releases are added.
 
- # tc q a dev $d clsact
- # tc f a dev $d ingress protocol ip flower ip_proto icmp action sample \
- > group 100 rate 1
- # psample -v -g 100
-
-dumps everything, including outer header and mac, when $d is a gre tunnel
-over ipv6. Fix this adding a missing label for ARPHRD_IP6GRE devices.
-
-Fixes: 5c5670fae430 ("net/sched: Introduce sample tc action")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Reviewed-by: Yotam Gigi <yotam.gi@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: b94524529741 ("nfp: flower: add per repr private data for LAG offload")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_sample.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/netronome/nfp/flower/main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/sched/act_sample.c
-+++ b/net/sched/act_sample.c
-@@ -134,6 +134,7 @@ static bool tcf_sample_dev_ok_push(struc
- 	case ARPHRD_TUNNEL6:
- 	case ARPHRD_SIT:
- 	case ARPHRD_IPGRE:
-+	case ARPHRD_IP6GRE:
- 	case ARPHRD_VOID:
- 	case ARPHRD_NONE:
- 		return false;
+--- a/drivers/net/ethernet/netronome/nfp/flower/main.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
+@@ -373,6 +373,7 @@ nfp_flower_spawn_phy_reprs(struct nfp_ap
+ 		repr_priv = kzalloc(sizeof(*repr_priv), GFP_KERNEL);
+ 		if (!repr_priv) {
+ 			err = -ENOMEM;
++			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+ 		}
+ 
+@@ -382,6 +383,7 @@ nfp_flower_spawn_phy_reprs(struct nfp_ap
+ 		port = nfp_port_alloc(app, NFP_PORT_PHYS_PORT, repr);
+ 		if (IS_ERR(port)) {
+ 			err = PTR_ERR(port);
++			kfree(repr_priv);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+ 		}
+@@ -399,6 +401,7 @@ nfp_flower_spawn_phy_reprs(struct nfp_ap
+ 		err = nfp_repr_init(app, repr,
+ 				    cmsg_port_id, port, priv->nn->dp.netdev);
+ 		if (err) {
++			kfree(repr_priv);
+ 			nfp_port_free(port);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
 
 
