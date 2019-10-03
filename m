@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68ABACAAAA
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60EDBCA9B9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392729AbfJCRLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:11:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39420 "EHLO mail.kernel.org"
+        id S2404284AbfJCQqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403936AbfJCQcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:02 -0400
+        id S2392192AbfJCQqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:46:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F97215EA;
-        Thu,  3 Oct 2019 16:32:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8147220865;
+        Thu,  3 Oct 2019 16:46:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120322;
-        bh=UcXwOX4Q3s/OeMb0P6GUol/4vmnAyQo333LJD65XGZo=;
+        s=default; t=1570121200;
+        bh=ZaoPHwtLHsvaA+ZAcx1/9Bq15BWjd0+3loZmP5V6Kmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eU805n9zDFqUAmYvyA4VxROxSzc+7E0B9A/XwiAXbJV9Kk7BOOHL3lb00H0rAQFoj
-         jKrQ7TBjGrKieHc93G3AbwJHrTGOAFXh5moR/g+fwxBcx04LcqU+/cOR+aa1dfkGRU
-         HP3nJbfnVCvYmF4J8Hhsi83RQyNHf8v/2qhpxWLI=
+        b=aFzIoK0TO1Y1gbf4TRNVpdq+lHECipjwZntQ1REk6ixhgIup/c1lbaSba/IH8k5yx
+         szExreE26NQGW9llRvAA5Xrzhrc/nuZ3Fm+MEGeRErd/NSiM4r0TEmE3WaJ2L0Rpzj
+         1kYpCtK965e1Dow97siFUseHBrf1J4QfmkBbg1j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 179/313] irqchip/sifive-plic: set max threshold for ignored handlers
+        stable@vger.kernel.org, Vicki Pfau <vi@endrift.com>,
+        Marcel Bocu <marcel.p.bocu@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        "Woods, Brian" <Brian.Woods@amd.com>,
+        Clemens Ladisch <clemens@ladisch.de>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        linux-hwmon@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 192/344] hwmon: (k10temp) Add support for AMD family 17h, model 70h CPUs
 Date:   Thu,  3 Oct 2019 17:52:37 +0200
-Message-Id: <20191003154550.638931413@linuxfoundation.org>
+Message-Id: <20191003154559.145027593@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +51,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Marcel Bocu <marcel.p.bocu@gmail.com>
 
-[ Upstream commit 9ce06497c2722a0f9109e4cc3ce35b7a69617886 ]
+[ Upstream commit 12163cfbfc0f804cc7d27bc20e8d266ce7459260 ]
 
-When running in M-mode, the S-mode plic handlers are still listed in the
-device tree.  Ignore them by setting the maximum threshold.
+It would seem like model 70h is behaving in the same way as model 30h,
+so let's just add the new F3 PCI ID to the list of compatible devices.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Unlike previous Ryzen/Threadripper, Ryzen gen 3 processors do not need
+temperature offsets anymore. This has been reported in the press and
+verified on my Ryzen 3700X by checking that the idle temperature
+reported by k10temp is matching the temperature reported by the
+firmware.
+
+Vicki Pfau sent an identical patch after I checked that no-one had
+written this patch. I would have been happy about dropping my patch but
+unlike for his patch series, I had already Cc:ed the x86 people and
+they already reviewed the changes. Since Vicki has not answered to
+any email after his initial series, let's assume she is on vacation
+and let's avoid duplication of reviews from the maintainers and merge
+my series. To acknowledge Vicki's anteriority, I added her S-o-b to
+the patch.
+
+v2, suggested by Guenter Roeck and Brian Woods:
+  - rename from 71h to 70h
+
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+Signed-off-by: Marcel Bocu <marcel.p.bocu@gmail.com>
+Tested-by: Marcel Bocu <marcel.p.bocu@gmail.com>
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: "Woods, Brian" <Brian.Woods@amd.com>
+Cc: Clemens Ladisch <clemens@ladisch.de>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-hwmon@vger.kernel.org
+Link: https://lore.kernel.org/r/20190722174653.2391-1-marcel.p.bocu@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hwmon/k10temp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index cf755964f2f8b..c72c036aea768 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -244,6 +244,7 @@ static int __init plic_init(struct device_node *node,
- 		struct plic_handler *handler;
- 		irq_hw_number_t hwirq;
- 		int cpu, hartid;
-+		u32 threshold = 0;
- 
- 		if (of_irq_parse_one(node, i, &parent)) {
- 			pr_err("failed to parse parent for context %d.\n", i);
-@@ -266,10 +267,16 @@ static int __init plic_init(struct device_node *node,
- 			continue;
- 		}
- 
-+		/*
-+		 * When running in M-mode we need to ignore the S-mode handler.
-+		 * Here we assume it always comes later, but that might be a
-+		 * little fragile.
-+		 */
- 		handler = per_cpu_ptr(&plic_handlers, cpu);
- 		if (handler->present) {
- 			pr_warn("handler already present for context %d.\n", i);
--			continue;
-+			threshold = 0xffffffff;
-+			goto done;
- 		}
- 
- 		handler->present = true;
-@@ -279,8 +286,9 @@ static int __init plic_init(struct device_node *node,
- 		handler->enable_base =
- 			plic_regs + ENABLE_BASE + i * ENABLE_PER_HART;
- 
-+done:
- 		/* priority must be > threshold to trigger an interrupt */
--		writel(0, handler->hart_base + CONTEXT_THRESHOLD);
-+		writel(threshold, handler->hart_base + CONTEXT_THRESHOLD);
- 		for (hwirq = 1; hwirq <= nr_irqs; hwirq++)
- 			plic_toggle(handler, hwirq, 0);
- 		nr_handlers++;
+diff --git a/drivers/hwmon/k10temp.c b/drivers/hwmon/k10temp.c
+index c77e89239dcd9..5c1dddde193c3 100644
+--- a/drivers/hwmon/k10temp.c
++++ b/drivers/hwmon/k10temp.c
+@@ -349,6 +349,7 @@ static const struct pci_device_id k10temp_id_table[] = {
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M10H_DF_F3) },
+ 	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M30H_DF_F3) },
++	{ PCI_VDEVICE(AMD, PCI_DEVICE_ID_AMD_17H_M70H_DF_F3) },
+ 	{ PCI_VDEVICE(HYGON, PCI_DEVICE_ID_AMD_17H_DF_F3) },
+ 	{}
+ };
 -- 
 2.20.1
 
