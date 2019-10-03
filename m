@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BE3FCAC02
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89FAFCAD6A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732339AbfJCQEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49730 "EHLO mail.kernel.org"
+        id S1731320AbfJCRla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:41:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732329AbfJCQEE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:04 -0400
+        id S1729351AbfJCP6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:58:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EABE221848;
-        Thu,  3 Oct 2019 16:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A61720830;
+        Thu,  3 Oct 2019 15:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118642;
-        bh=8L9hNn9r4okEI5xHx2L3obY/PsgSU7s+LKMaBTxnf/o=;
+        s=default; t=1570118314;
+        bh=gJXf0m846H7nSaBfT45ol9cDA4hQTRNe/xed/jgri1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUo/17jPVRFZywYZQHojH2tjM/NhXCw6jc3kfzGj9bDg6V4WtbEkaa3Pax27NE3hf
-         +zbVfeRulXtVX1mCiR9gx0DZ1oKhOGm+utKUdISv3Ih9goyHwjZoCv8yxF2qfgh60r
-         Fns8MNEBX5fxfm9cyLSPI1dyO3bpg/7/XcAZ0cqM=
+        b=m/5NW6G6DT3w+rwv5uvPmLCMJ9YrXffHPsTXn9RLuc29pmAOHf+mRQzX2pkWTTrK+
+         mVzvqSJFFHQJbqqLAXhbhCC71HIDQ0o1M95yZZtK+PwNbHq+GdYe/npQEWq/IuEVyY
+         vRXysYHdTuxPWKucrR2qHCFi63qD0asA/vtigzNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 086/129] kprobes: Prohibit probing on BUG() and WARN() address
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 66/99] md/raid1: fail run raid1 array when active disk less than one
 Date:   Thu,  3 Oct 2019 17:53:29 +0200
-Message-Id: <20191003154357.947401040@linuxfoundation.org>
+Message-Id: <20191003154329.075098862@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,68 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit e336b4027775cb458dc713745e526fa1a1996b2a ]
+[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
 
-Since BUG() and WARN() may use a trap (e.g. UD2 on x86) to
-get the address where the BUG() has occurred, kprobes can not
-do single-step out-of-line that instruction. So prohibit
-probing on such address.
+When run test case:
+  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
+  mdadm -S /dev/md1
+  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
 
-Without this fix, if someone put a kprobe on WARN(), the
-kernel will crash with invalid opcode error instead of
-outputing warning message, because kernel can not find
-correct bug address.
+  mdadm --zero /dev/sda
+  mdadm /dev/md1 -a /dev/sda
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S . Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N . Rao <naveen.n.rao@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/156750890133.19112.3393666300746167111.stgit@devnote2
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+  echo offline > /sys/block/sdc/device/state
+  echo offline > /sys/block/sdb/device/state
+  sleep 5
+  mdadm -S /dev/md1
+
+  echo running > /sys/block/sdb/device/state
+  echo running > /sys/block/sdc/device/state
+  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+
+mdadm run fail with kernel message as follow:
+[  172.986064] md: kicking non-fresh sdb from array!
+[  173.004210] md: kicking non-fresh sdc from array!
+[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+[  173.022406] md1: failed to create bitmap (-5)
+
+In fact, when active disk in raid1 array less than one, we
+need to return fail in raid1_run().
+
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bug.h | 5 +++++
- kernel/kprobes.c    | 3 ++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ drivers/md/raid1.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bug.h b/include/linux/bug.h
-index 292d6a10b0c26..0faae96302bda 100644
---- a/include/linux/bug.h
-+++ b/include/linux/bug.h
-@@ -114,6 +114,11 @@ int is_valid_bugaddr(unsigned long addr);
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 82e284d2b202b..abb99515068b1 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -2958,6 +2958,13 @@ static int run(struct mddev *mddev)
+ 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
+ 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
+ 			mddev->degraded++;
++	/*
++	 * RAID1 needs at least one disk in active
++	 */
++	if (conf->raid_disks - mddev->degraded < 1) {
++		ret = -EINVAL;
++		goto abort;
++	}
  
- #else	/* !CONFIG_GENERIC_BUG */
- 
-+static inline void *find_bug(unsigned long bugaddr)
-+{
-+	return NULL;
-+}
-+
- static inline enum bug_trap_type report_bug(unsigned long bug_addr,
- 					    struct pt_regs *regs)
- {
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index e2845dd53b30b..11863e2b01c25 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1454,7 +1454,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
- 	/* Ensure it is not in reserved area nor out of text */
- 	if (!kernel_text_address((unsigned long) p->addr) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
--	    jump_label_text_reserved(p->addr, p->addr)) {
-+	    jump_label_text_reserved(p->addr, p->addr) ||
-+	    find_bug((unsigned long)p->addr)) {
- 		ret = -EINVAL;
- 		goto out;
+ 	if (conf->raid_disks - mddev->degraded == 1)
+ 		mddev->recovery_cp = MaxSector;
+@@ -2992,8 +2999,12 @@ static int run(struct mddev *mddev)
+ 	ret =  md_integrity_register(mddev);
+ 	if (ret) {
+ 		md_unregister_thread(&mddev->thread);
+-		raid1_free(mddev, conf);
++		goto abort;
  	}
++	return 0;
++
++abort:
++	raid1_free(mddev, conf);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
