@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E551CA74A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 036CECA5E6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406184AbfJCQwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40274 "EHLO mail.kernel.org"
+        id S1732371AbfJCQh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:37:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406203AbfJCQwd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:33 -0400
+        id S2392264AbfJCQhx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:37:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 774C520862;
-        Thu,  3 Oct 2019 16:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A5042133F;
+        Thu,  3 Oct 2019 16:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121553;
-        bh=Ty6OmMJeSi36HxlUFpwL5QrdExxs1uOXz5p0/lr+0ZE=;
+        s=default; t=1570120672;
+        bh=WXzNGseD5jr5zANbkRHH1Q37v3XRHzN4zPvYLkcjA6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCXs22U+12p+M6ovxOOZwzdXmtbWuFQM7+YAQVj3Vu0xw52Oed0CDR/g3Q4qpwm+z
-         jC+gjpZqmzDZshaLmD+rAAM6pLhOGzy9tDLhoyLL3l7WpB+HUyH3x5H4M0r18bAEQn
-         KAwpWbDulL8q24c5mnTykT6YiahGxs/FGZiJ+xDU=
+        b=M+V+EZzmwlwZXzhqc+H/tXVg0LZqJ0/D2SyOSTrgTRu9FnedjOVUi+Z8h0pWP+s/L
+         5HyBn1JBpeCPFRrbz9o6mjziBn1Yk2prYyssMTgL6f0H+KnHaSzYZeUEDKjaUeXwgW
+         uGXwmheFp6t8ZfjefHLQoK3iotDDJaQ8qL4DHTcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.3 321/344] md: dont report active array_state until after revalidate_disk() completes.
-Date:   Thu,  3 Oct 2019 17:54:46 +0200
-Message-Id: <20191003154610.681610226@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.2 309/313] drm/amd/display: Restore backlight brightness after system resume
+Date:   Thu,  3 Oct 2019 17:54:47 +0200
+Message-Id: <20191003154603.632876506@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 9d4b45d6af442237560d0bb5502a012baa5234b7 upstream.
+commit bb264220d9316f6bd7c1fd84b8da398c93912931 upstream.
 
-Until revalidate_disk() has completed, the size of a new md array will
-appear to be zero.
-So we shouldn't report, through array_state, that the array is active
-until that time.
-udev rules check array_state to see if the array is ready.  As soon as
-it appear to be zero, fsck can be run.  If it find the size to be
-zero, it will fail.
+Laptops with AMD APU doesn't restore display backlight brightness after
+system resume.
 
-So add a new flag to provide an interlock between do_md_run() and
-array_state_show().  This flag is set while do_md_run() is active and
-it prevents array_state_show() from reporting that the array is
-active.
+This issue started when DC was introduced.
 
-Before do_md_run() is called, ->pers will be NULL so array is
-definitely not active.
-After do_md_run() is called, revalidate_disk() will have run and the
-array will be completely ready.
+Let's use BL_CORE_SUSPENDRESUME so the backlight core calls
+update_status callback after system resume to restore the backlight
+level.
 
-We also move various sysfs_notify*() calls out of md_run() into
-do_md_run() after MD_NOT_READY is cleared.  This ensure the
-information is ready before the notification is sent.
+Tested on Dell Inspiron 3180 (Stoney Ridge) and Dell Latitude 5495
+(Raven Ridge).
 
-Prior to v4.12, array_state_show() was called with the
-mddev->reconfig_mutex held, which provided exclusion with do_md_run().
-
-Note that MD_NOT_READY cleared twice.  This is deliberate to cover
-both success and error paths with minimal noise.
-
-Fixes: b7b17c9b67e5 ("md: remove mddev_lock() from md_attr_show()")
-Cc: stable@vger.kernel.org (v4.12++)
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |   11 +++++++----
- drivers/md/md.h |    3 +++
- 2 files changed, 10 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -4183,7 +4183,7 @@ array_state_show(struct mddev *mddev, ch
- {
- 	enum array_state st = inactive;
- 
--	if (mddev->pers)
-+	if (mddev->pers && !test_bit(MD_NOT_READY, &mddev->flags))
- 		switch(mddev->ro) {
- 		case 1:
- 			st = readonly;
-@@ -5751,9 +5751,6 @@ int md_run(struct mddev *mddev)
- 		md_update_sb(mddev, 0);
- 
- 	md_new_event(mddev);
--	sysfs_notify_dirent_safe(mddev->sysfs_state);
--	sysfs_notify_dirent_safe(mddev->sysfs_action);
--	sysfs_notify(&mddev->kobj, NULL, "degraded");
- 	return 0;
- 
- bitmap_abort:
-@@ -5774,6 +5771,7 @@ static int do_md_run(struct mddev *mddev
- {
- 	int err;
- 
-+	set_bit(MD_NOT_READY, &mddev->flags);
- 	err = md_run(mddev);
- 	if (err)
- 		goto out;
-@@ -5794,9 +5792,14 @@ static int do_md_run(struct mddev *mddev
- 
- 	set_capacity(mddev->gendisk, mddev->array_sectors);
- 	revalidate_disk(mddev->gendisk);
-+	clear_bit(MD_NOT_READY, &mddev->flags);
- 	mddev->changed = 1;
- 	kobject_uevent(&disk_to_dev(mddev->gendisk)->kobj, KOBJ_CHANGE);
-+	sysfs_notify_dirent_safe(mddev->sysfs_state);
-+	sysfs_notify_dirent_safe(mddev->sysfs_action);
-+	sysfs_notify(&mddev->kobj, NULL, "degraded");
- out:
-+	clear_bit(MD_NOT_READY, &mddev->flags);
- 	return err;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1958,6 +1958,7 @@ static int amdgpu_dm_backlight_get_brigh
  }
  
---- a/drivers/md/md.h
-+++ b/drivers/md/md.h
-@@ -248,6 +248,9 @@ enum mddev_flags {
- 	MD_UPDATING_SB,		/* md_check_recovery is updating the metadata
- 				 * without explicitly holding reconfig_mutex.
- 				 */
-+	MD_NOT_READY,		/* do_md_run() is active, so 'array_state'
-+				 * must not report that array is ready yet
-+				 */
+ static const struct backlight_ops amdgpu_dm_backlight_ops = {
++	.options = BL_CORE_SUSPENDRESUME,
+ 	.get_brightness = amdgpu_dm_backlight_get_brightness,
+ 	.update_status	= amdgpu_dm_backlight_update_status,
  };
- 
- enum mddev_sb_flags {
 
 
