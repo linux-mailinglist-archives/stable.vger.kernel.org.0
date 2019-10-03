@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F740CA8F6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC71FCA824
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403899AbfJCQfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:35:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44186 "EHLO mail.kernel.org"
+        id S2390194AbfJCQVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404058AbfJCQfR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:35:17 -0400
+        id S2390191AbfJCQVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D879B222C9;
-        Thu,  3 Oct 2019 16:35:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFED02054F;
+        Thu,  3 Oct 2019 16:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120516;
-        bh=gfjxtCDC8qvqtkS70sKSq48huJP48vRLnJ9jhAFOzAs=;
+        s=default; t=1570119706;
+        bh=N9uKcJosbxuA8yjplpPHJhd3laP5PA0VuKho5o6Ctss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=denW1LXjqEaMznfWyGiLAmndqGn/cMczGjElxfuVYWRxp0c0YzgsIU0ClKKkSocgQ
-         Y1N7twCyDRstUN9481AiE6atjLWUic7xNBhRwJATeQPunUMyg1wLGYqMY3B04JKFdu
-         NibYB78hSIU5Nyxg34U4EukOAVtRlYzD/VsAQIlA=
+        b=i5eUvbvUpG00f3Pli1/RD9HXSh8y0t/mMxa71txXq5a9/SxifIwocfLolDZwa7QFf
+         sUgpncZI+c6mZNWSd9/xtV2zuaofgWUq6CPnc2nUcYu/MXR7zWd2YIAzci0/iMwA9b
+         3MsxOzZG13JN1/4+v/1OQcz9hp0jTwHEQtgzj/uE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.2 252/313] ASoC: Intel: Skylake: Use correct function to access iomem space
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Phil Scarr <phil.scarr@pm.me>
+Subject: [PATCH 4.19 164/211] parisc: Disable HP HSC-PCI Cards to prevent kernel crash
 Date:   Thu,  3 Oct 2019 17:53:50 +0200
-Message-Id: <20191003154557.858082634@linuxfoundation.org>
+Message-Id: <20191003154525.403545595@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+From: Helge Deller <deller@gmx.de>
 
-commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
+commit 5fa1659105fac63e0f3c199b476025c2e04111ce upstream.
 
-For copying from __iomem, we should use __ioread32_copy.
+The HP Dino PCI controller chip can be used in two variants: as on-board
+controller (e.g. in B160L), or on an Add-On card ("Card-Mode") to bridge
+PCI components to systems without a PCI bus, e.g. to a HSC/GSC bus.  One
+such Add-On card is the HP HSC-PCI Card which has one or more DEC Tulip
+PCI NIC chips connected to the on-card Dino PCI controller.
 
-reported by sparse:
-sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
-sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
-sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
-sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
+Dino in Card-Mode has a big disadvantage: All PCI memory accesses need
+to go through the DINO_MEM_DATA register, so Linux drivers will not be
+able to use the ioremap() function. Without ioremap() many drivers will
+not work, one example is the tulip driver which then simply crashes the
+kernel if it tries to access the ports on the HP HSC card.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch disables the HP HSC card if it finds one, and as such
+fixes the kernel crash on a HP D350/2 machine.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Noticed-by: Phil Scarr <phil.scarr@pm.me>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-debug.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/parisc/dino.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/sound/soc/intel/skylake/skl-debug.c
-+++ b/sound/soc/intel/skylake/skl-debug.c
-@@ -188,7 +188,7 @@ static ssize_t fw_softreg_read(struct fi
- 	memset(d->fw_read_buff, 0, FW_REG_BUF);
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -160,6 +160,15 @@ struct dino_device
+ 	(struct dino_device *)__pdata; })
  
- 	if (w0_stat_sz > 0)
--		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
-+		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
  
- 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
- 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
++/* Check if PCI device is behind a Card-mode Dino. */
++static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
++{
++	struct dino_device *dino_dev;
++
++	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
++	return is_card_dino(&dino_dev->hba.dev->id);
++}
++
+ /*
+  * Dino Configuration Space Accessor Functions
+  */
+@@ -442,6 +451,21 @@ static void quirk_cirrus_cardbus(struct
+ }
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
+ 
++#ifdef CONFIG_TULIP
++static void pci_fixup_tulip(struct pci_dev *dev)
++{
++	if (!pci_dev_is_behind_card_dino(dev))
++		return;
++	if (!(pci_resource_flags(dev, 1) & IORESOURCE_MEM))
++		return;
++	pr_warn("%s: HP HSC-PCI Cards with card-mode Dino not yet supported.\n",
++		pci_name(dev));
++	/* Disable this card by zeroing the PCI resources */
++	memset(&dev->resource[0], 0, sizeof(dev->resource[0]));
++	memset(&dev->resource[1], 0, sizeof(dev->resource[1]));
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_DEC, PCI_ANY_ID, pci_fixup_tulip);
++#endif /* CONFIG_TULIP */
+ 
+ static void __init
+ dino_bios_init(void)
 
 
