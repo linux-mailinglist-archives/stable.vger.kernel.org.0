@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 818E9C9A14
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 10:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9167C9A16
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 10:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728328AbfJCIll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 04:41:41 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:53315 "EHLO
+        id S1728750AbfJCIlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 04:41:51 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:42461 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727382AbfJCIll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 04:41:41 -0400
+        by vger.kernel.org with ESMTP id S1727382AbfJCIlv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 04:41:51 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8F8E420EAA;
-        Thu,  3 Oct 2019 04:41:40 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 04:41:40 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 8E6F521E3E;
+        Thu,  3 Oct 2019 04:41:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 04:41:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=v1HaYL
-        Q6pzH+Gp1QkrAbmR1z7k+hw16K7J49pO3wKuI=; b=iBWjsEkPLz+sWkdOEDQl1n
-        3gp6Fh28xC/+x4Mjyi2waHqf7IcN8LRChtET6TKs3S/yYq+PMlPtYf4zKs3NIN5g
-        5moU80RXkTHu2l6wKl1+Lrj/33Y8ebqLupQiZ1eSrDYWFvZz+xKDXNBFh/ziPZFk
-        K3jCbQVpB91ZuDLsUqgUqjZswbs4zksZJBz7Ruy84iCdZagnYfmRqcoLwycTYfhj
-        7usA4hZ52qgjMgwC8A/pnI+5TFgLDDLZEIvJMP14XumN6+LEjgUC+LoD+ypAx+lO
-        qcrdAUg4tfF/EEaqJrs3HzQEbEX+JWxgymyWV8yszIdiXgAE9BVT9+38CjSzGFBQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=BqanlR
+        SNgD11v/Xyhld/wRkjwEPBvbfCCa9IBdN+bN8=; b=BbzG/g5aQJSCAoa/JWikbE
+        tbBV3HIkFonlc9y04exK6oriOQGYmN7q1bxvxDEgnITlnKD3w7yiMSCSJDRn7giI
+        Q17WvasDrakfVkNCQLv2bDLm6HmO6SNOwV0cPiJk/Yz06iZSMp6m5599LAG9DLPC
+        gPBg6nfwhVnx8G9XFzYDIZOcS0+uQyUzro2Q9hBAGLmKHsBQpbjJbbMCj5q5kR0Q
+        fWhb0z14bkt6DwYQVtfywAkLK1KZ+spisyacspwp418dtRvTskHLcqbR1mwEktdt
+        RR8w+YTZ5XOMIb6A64hzZcf9FcuYIHWmS8pBOlbJCB6UQUv2L6WEXcXbJ0X9hONw
         ==
-X-ME-Sender: <xms:RLSVXbPtZK_hnFPfki7ePtNYzk1KBrEDHX6j7sofnqRP3zcSStLQtQ>
+X-ME-Sender: <xms:TrSVXUV_UPvXAqCdjdc3qEJEp3epa0rxvBkvDiY_GZ1QAJj91_kwkw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgddtiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgepke
-X-ME-Proxy: <xmx:RLSVXRixw8Rixyr9CtbMPkNpOoGkCnEj4evkpXag3m8pqgUKHRdjDg>
-    <xmx:RLSVXRhBXd_XF4NG5Ev7HC8cdYOOFumE3dXbD9dGvoyiD1n3-pX42w>
-    <xmx:RLSVXYGKJAUr-5hRwgARF1UA_3AD1CzLWZdjbu1LruwSBS-zQTqu7w>
-    <xmx:RLSVXUOXIUx6VuIhVKxCMSnS4Kg4wlm9RkHbNH2Mn86YkoUlGW0XdA>
+    vehluhhsthgvrhfuihiivgepuddt
+X-ME-Proxy: <xmx:TrSVXSYJisuzBgXCHtWTRqy3RFzBcRCxpglgEmkEE-LRqKOvSXDwBw>
+    <xmx:TrSVXT0GyeT4bXj2WucMZ0es3ueimw9CL3etiPux95u9L0dtaoAM1w>
+    <xmx:TrSVXfsAJMj2iH1z517DVaQA8gdW3bSZOuCagf4L_adLIKSGBnO9rQ>
+    <xmx:TrSVXftRmtfLloFDL5w7YM1JcvkvAss1MCExcQUA-4tvjYldL7lKXA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2C4D5D60062;
-        Thu,  3 Oct 2019 04:41:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: erofs: detect potential multiref due to corrupted" failed to apply to 5.3-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 22AE580063;
+        Thu,  3 Oct 2019 04:41:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] staging: erofs: detect potential multiref due to corrupted" failed to apply to 4.19-stable tree
 To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, yuchao0@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 03 Oct 2019 10:41:39 +0200
-Message-ID: <1570092099109138@kroah.com>
+Message-ID: <157009209989190@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
