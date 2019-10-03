@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46540CABC9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C580DCAC11
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730306AbfJCQAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43750 "EHLO mail.kernel.org"
+        id S1732512AbfJCQFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731518AbfJCQAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:08 -0400
+        id S1732509AbfJCQFC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8092A207FF;
-        Thu,  3 Oct 2019 16:00:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B44C1222C4;
+        Thu,  3 Oct 2019 16:05:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118408;
-        bh=PISx2vyocSh8/A1YRwQdwLjLxS9DHcEQhiIdSzWqr9g=;
+        s=default; t=1570118702;
+        bh=gHPactWG+w/JGF64GsqYssuxSho10xWheYVPpehPuEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/h0sB49amCiM7oia0tDRlZR5SlExBo+Efw+j/nHPBo7wPmJiWAlMP7K6NVeur42j
-         dYZBPru1VrrpktwDAwKht+P6+mHBzBdOyqHiGxzPU9kG/k+2D32Es1eMhlTsmGfbPi
-         racA94M56dV9cegK1XOiMrfln2WvhqobgwAu+YwE=
+        b=nN6f/uj+j/RZYQLdv2yFxrLgi7W3mCDq6NtA7NuI3ybO2hF53LInpr3jUtd4dbQvB
+         N8XKDw53UbCiZqk7aggToZs+9zAtMX+f5at3TvV5A7pP4VQkEfs0OLK75W4BGTVVqy
+         epbF8X0sqN08ajV4pF5kZIvLgN6ycxgCz2aZpzjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 85/99] ASoC: Intel: Fix use of potentially uninitialized variable
-Date:   Thu,  3 Oct 2019 17:53:48 +0200
-Message-Id: <20191003154337.467869715@linuxfoundation.org>
+        stable@vger.kernel.org, Denis Lunev <den@virtuozzo.com>,
+        Roman Kagan <rkagan@virtuozzo.com>,
+        Denis Plotnikov <dplotnikov@virtuozzo.com>,
+        Jan Dakinevich <jan.dakinevich@virtuozzo.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 106/129] KVM: x86: set ctxt->have_exception in x86_decode_insn()
+Date:   Thu,  3 Oct 2019 17:53:49 +0200
+Message-Id: <20191003154407.847490867@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+From: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
 
-commit 810f3b860850148788fc1ed8a6f5f807199fed65 upstream.
+commit c8848cee74ff05638e913582a476bde879c968ad upstream.
 
-If ipc->ops.reply_msg_match is NULL, we may end up using uninitialized
-mask value.
+x86_emulate_instruction() takes into account ctxt->have_exception flag
+during instruction decoding, but in practice this flag is never set in
+x86_decode_insn().
 
-reported by smatch:
-sound/soc/intel/common/sst-ipc.c:266 sst_ipc_reply_find_msg() error: uninitialized symbol 'mask'.
-
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-3-amadeuszx.slawinski@linux.intel.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
 Cc: stable@vger.kernel.org
+Cc: Denis Lunev <den@virtuozzo.com>
+Cc: Roman Kagan <rkagan@virtuozzo.com>
+Cc: Denis Plotnikov <dplotnikov@virtuozzo.com>
+Signed-off-by: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/common/sst-ipc.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kvm/emulate.c |    2 ++
+ arch/x86/kvm/x86.c     |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
---- a/sound/soc/intel/common/sst-ipc.c
-+++ b/sound/soc/intel/common/sst-ipc.c
-@@ -211,6 +211,8 @@ struct ipc_message *sst_ipc_reply_find_m
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -5257,6 +5257,8 @@ done_prefixes:
+ 					ctxt->memopp->addr.mem.ea + ctxt->_eip);
  
- 	if (ipc->ops.reply_msg_match != NULL)
- 		header = ipc->ops.reply_msg_match(header, &mask);
-+	else
-+		mask = (u64)-1;
+ done:
++	if (rc == X86EMUL_PROPAGATE_FAULT)
++		ctxt->have_exception = true;
+ 	return (rc != X86EMUL_CONTINUE) ? EMULATION_FAILED : EMULATION_OK;
+ }
  
- 	if (list_empty(&ipc->rx_list)) {
- 		dev_err(ipc->dev, "error: rx list empty but received 0x%llx\n",
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5765,6 +5765,12 @@ int x86_emulate_instruction(struct kvm_v
+ 						emulation_type))
+ 				return EMULATE_DONE;
+ 			if (ctxt->have_exception) {
++				/*
++				 * #UD should result in just EMULATION_FAILED, and trap-like
++				 * exception should not be encountered during decode.
++				 */
++				WARN_ON_ONCE(ctxt->exception.vector == UD_VECTOR ||
++					     exception_type(ctxt->exception.vector) == EXCPT_TRAP);
+ 				inject_emulated_exception(vcpu);
+ 				return EMULATE_DONE;
+ 			}
 
 
