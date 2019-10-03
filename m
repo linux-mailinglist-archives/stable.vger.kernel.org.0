@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12B22C9D7D
+	by mail.lfdr.de (Postfix) with ESMTP id A78DDC9D7E
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729304AbfJCLjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 07:39:21 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37391 "EHLO
+        id S1729843AbfJCLjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 07:39:23 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60781 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725827AbfJCLjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:39:21 -0400
+        by vger.kernel.org with ESMTP id S1725827AbfJCLjX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:39:23 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0B72A21C24;
-        Thu,  3 Oct 2019 07:39:18 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:39:18 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id EF71B21B7C;
+        Thu,  3 Oct 2019 07:39:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:39:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hDcLVT
-        sqHcFPaiRc0lfIwzCtmClVTVyb5Xvn4May724=; b=NuwAjGpA+G6/HfVNW43/PQ
-        hCSnaNrx7F7OioR8sUPPO6ugsmQ3a1OEH6vCCxPPOo02epEQWCCUs9Q2D/TM8LE6
-        6IOdTuBofUt7430n2gjN2JmPFkQkoV7B5R4yWVD54Sev4I4SszI5NFoLITeNaDto
-        MY/pL//dFOwzZ/YeXRYcTdA7qk9/wRwoUsDrF9oW6OxMuNHdBsbyxhTljI8DbCJH
-        rPtvzkH/XufAxGw0mt6lx59wXJ7zoItpmPa4oVc89Dn9ksf6BkLBQ/78Ji3RZYOC
-        o17E7LnPKaSNF2fi/HcgCAaPCSaZqzk8+yPmc88Qdcawoky1bBrQLSjdyk7PsCEQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GUKkTd
+        0tHziMttnzjgZetoVnqaOl6cX4pgaeC8SGDi8=; b=P1sKmA6Sr2YQn0dqPlfCJh
+        rtip8143buO7CjF63tftCF061dEUx6X2Yb1C8Fxg9UCqo68fGILJUfZPqO1XRkzr
+        TkmA3MdNDfMEv7tOpcXiPLKGnYR4AM4ihb/dAnnyAoqatp17HgyTH1QP9kao9WSX
+        26oFgcLB4J2my7Kd8bJWA5DTwysI4+w7XYGWmrJKkYT1WwYsNby5ccbKxlGgT2wy
+        wBgibpf18veWKAJ15do0/cnEh08GlgV+VvNGAB65fXj8j5Xt87ddAY3ZNtQqxAi2
+        845FdN76kzIoPcDaR5dtF+WX3bS4fSz7jJKada0C78LG0OeQT6SC564C62gpYX6Q
         ==
-X-ME-Sender: <xms:5d2VXcERhoSPnr5Tig_8irds_zAoEJZHUaKZufMGhBY5parlxePTnQ>
+X-ME-Sender: <xms:6d2VXSbAlOPOges6TC56FQI6pvHwR6YJO8bwPm83e712m9WKdMcF7w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:5d2VXZLJqeTVqDmbwmFztmxK5XcaYMR30fF2jOvvs13yqE7eC46Gow>
-    <xmx:5d2VXfNeSaj527x5l7-7FfDpKr2kfOL3gGjauPe4-6TpS2nvj3NlNg>
-    <xmx:5d2VXRkbakjjx8Ygz0WYsOH5tJja3WZ6h947O0omaYM-MecKuLRacQ>
-    <xmx:5t2VXfCbPclDmzXr9GWvUamm7rbK5MslxHNckwjxvovCEOFzlt3Y0w>
-Received: from localhost (unknown [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B4505D6005D;
-        Thu,  3 Oct 2019 07:39:16 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/compaction.c: clear total_{migrate,free}_scanned before" failed to apply to 4.14-stable tree
+    vehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:6d2VXQ_MnGpypDFmSdAgMtScvzKuVLEiFBIRLhLDQBk8wMlxBvkWDA>
+    <xmx:6d2VXT8B_puYsi2I-Ob6hu8M0oM1KbtcudczfB7c3gmkJfcvTytR-Q>
+    <xmx:6d2VXWRFtrlTxSoAJPENMBUE6JM5Czwh_LlKcB1q20alyDfMTKUDWg>
+    <xmx:6d2VXXtc010cAMkDwEl5T3UMunY5UuKOqRDM4mcb4-jFL61xwBnz1A>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6A6D680059;
+        Thu,  3 Oct 2019 07:39:21 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/compaction.c: clear total_{migrate,free}_scanned before" failed to apply to 4.19-stable tree
 To:     laoar.shao@gmail.com, akpm@linux-foundation.org,
         mgorman@techsingularity.net, mhocko@suse.com, rientjes@google.com,
         shaoyafang@didiglobal.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org, vbabka@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 13:38:45 +0200
-Message-ID: <1570102725210249@kroah.com>
+Date:   Thu, 03 Oct 2019 13:38:46 +0200
+Message-ID: <157010272680112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
