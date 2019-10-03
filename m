@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE61CA8F1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C626CA820
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390545AbfJCQey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43592 "EHLO mail.kernel.org"
+        id S2390146AbfJCQVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404229AbfJCQew (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:52 -0400
+        id S2390125AbfJCQVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A4AC215EA;
-        Thu,  3 Oct 2019 16:34:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CF3E20659;
+        Thu,  3 Oct 2019 16:21:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120492;
-        bh=Y+sjdArzs1nxVQ7xmrts51UkkdFRYeUm6jRCoeUmoqY=;
+        s=default; t=1570119682;
+        bh=BaDAgkkOFgT+WQJwC5jLKMwjDio2r3/yL/TbFia8kOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjOuRgYat3KFmZTEzcH8U5a8mOsQDIeRjL6oMksdicNDTpZK2osmXhr08/6OM4dRw
-         zPr0G08bHVI7w/m4xivAdjw6SqyncPUYdDUu392DVwGS4aaj5dH2tN1Jl2HaGGhrHY
-         U0JzVlQHLsgebvpKEMXsfUcgv1xhR+kwndQm9jCE=
+        b=ne8hlVP20R/AYQ80qldV+Z1tvxT8QFNepXnT4oO2/6d9h3uDsRZFCWjVwAJEuf5/2
+         vsmHTWQdX4DHnlUplrhjMYEaMgmEeJzPlIv8xsfMIzT0OLKBqt0hrUHGSEqp9uiVXp
+         rE74bGvE29KGuqRJaTeAUuVm71sYjJ6yNCHZCDBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Lunev <den@virtuozzo.com>,
-        Roman Kagan <rkagan@virtuozzo.com>,
-        Denis Plotnikov <dplotnikov@virtuozzo.com>,
-        Jan Dakinevich <jan.dakinevich@virtuozzo.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.2 240/313] KVM: x86: always stop emulation on page fault
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 152/211] scsi: qla2xxx: Fix Relogin to prevent modifying scan_state flag
 Date:   Thu,  3 Oct 2019 17:53:38 +0200
-Message-Id: <20191003154556.672949528@linuxfoundation.org>
+Message-Id: <20191003154522.656461639@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 8530a79c5a9f4e29e6ffb35ec1a79d81f4968ec8 upstream.
+commit 8b5292bcfcacf15182a77a973a98d310e76fd58b upstream.
 
-inject_emulated_exception() returns true if and only if nested page
-fault happens. However, page fault can come from guest page tables
-walk, either nested or not nested. In both cases we should stop an
-attempt to read under RIP and give guest to step over its own page
-fault handler.
+Relogin fails to move forward due to scan_state flag indicating device is
+not there. Before relogin process, Session delete process accidently
+modified the scan_state flag.
 
-This is also visible when an emulated instruction causes a #GP fault
-and the VMware backdoor is enabled.  To handle the VMware backdoor,
-KVM intercepts #GP faults; with only the next patch applied,
-x86_emulate_instruction() injects a #GP but returns EMULATE_FAIL
-instead of EMULATE_DONE.   EMULATE_FAIL causes handle_exception_nmi()
-(or gp_interception() for SVM) to re-inject the original #GP because it
-thinks emulation failed due to a non-VMware opcode.  This patch prevents
-the issue as x86_emulate_instruction() will return EMULATE_DONE after
-injecting the #GP.
+[mkp: typos plus corrected Fixes: sha as reported by sfr]
 
-Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
+Fixes: 2dee5521028c ("scsi: qla2xxx: Fix login state machine freeze")
 Cc: stable@vger.kernel.org
-Cc: Denis Lunev <den@virtuozzo.com>
-Cc: Roman Kagan <rkagan@virtuozzo.com>
-Cc: Denis Plotnikov <dplotnikov@virtuozzo.com>
-Signed-off-by: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c   |   25 ++++++++++++++++++++-----
+ drivers/scsi/qla2xxx/qla_os.c     |    1 +
+ drivers/scsi/qla2xxx/qla_target.c |    1 -
+ 3 files changed, 21 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6481,8 +6481,10 @@ int x86_emulate_instruction(struct kvm_v
- 			if (reexecute_instruction(vcpu, cr2, write_fault_to_spt,
- 						emulation_type))
- 				return EMULATE_DONE;
--			if (ctxt->have_exception && inject_emulated_exception(vcpu))
-+			if (ctxt->have_exception) {
-+				inject_emulated_exception(vcpu);
- 				return EMULATE_DONE;
-+			}
- 			if (emulation_type & EMULTYPE_SKIP)
- 				return EMULATE_FAIL;
- 			return handle_emulation_failure(vcpu, emulation_type);
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -216,8 +216,13 @@ qla2x00_async_login(struct scsi_qla_host
+ 	struct srb_iocb *lio;
+ 	int rval = QLA_FUNCTION_FAILED;
+ 
+-	if (!vha->flags.online)
+-		goto done;
++	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
++	    fcport->loop_id == FC_NO_LOOP_ID) {
++		ql_log(ql_log_warn, vha, 0xffff,
++		    "%s: %8phC - not sending command.\n",
++		    __func__, fcport->port_name);
++		return rval;
++	}
+ 
+ 	sp = qla2x00_get_sp(vha, fcport, GFP_KERNEL);
+ 	if (!sp)
+@@ -1123,8 +1128,13 @@ int qla24xx_async_gpdb(struct scsi_qla_h
+ 	struct port_database_24xx *pd;
+ 	struct qla_hw_data *ha = vha->hw;
+ 
+-	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT))
++	if (!vha->flags.online || (fcport->flags & FCF_ASYNC_SENT) ||
++	    fcport->loop_id == FC_NO_LOOP_ID) {
++		ql_log(ql_log_warn, vha, 0xffff,
++		    "%s: %8phC - not sending command.\n",
++		    __func__, fcport->port_name);
+ 		return rval;
++	}
+ 
+ 	fcport->disc_state = DSC_GPDB;
+ 
+@@ -1904,8 +1914,11 @@ qla24xx_handle_plogi_done_event(struct s
+ 		return;
+ 	}
+ 
+-	if (fcport->disc_state == DSC_DELETE_PEND)
++	if ((fcport->disc_state == DSC_DELETE_PEND) ||
++	    (fcport->disc_state == DSC_DELETED)) {
++		set_bit(RELOGIN_NEEDED, &vha->dpc_flags);
+ 		return;
++	}
+ 
+ 	if (ea->sp->gen2 != fcport->login_gen) {
+ 		/* target side must have changed it. */
+@@ -6557,8 +6570,10 @@ qla2x00_abort_isp_cleanup(scsi_qla_host_
+ 	}
+ 
+ 	/* Clear all async request states across all VPs. */
+-	list_for_each_entry(fcport, &vha->vp_fcports, list)
++	list_for_each_entry(fcport, &vha->vp_fcports, list) {
+ 		fcport->flags &= ~(FCF_LOGIN_NEEDED | FCF_ASYNC_SENT);
++		fcport->scan_state = 0;
++	}
+ 	spin_lock_irqsave(&ha->vport_slock, flags);
+ 	list_for_each_entry(vp, &ha->vp_list, list) {
+ 		atomic_inc(&vp->vref_count);
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -4864,6 +4864,7 @@ void qla24xx_create_new_sess(struct scsi
+ 	if (fcport) {
+ 		fcport->id_changed = 1;
+ 		fcport->scan_state = QLA_FCPORT_FOUND;
++		fcport->chip_reset = vha->hw->base_qpair->chip_reset;
+ 		memcpy(fcport->node_name, e->u.new_sess.node_name, WWN_SIZE);
+ 
+ 		if (pla) {
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -1216,7 +1216,6 @@ static void qla24xx_chk_fcp_state(struct
+ 		sess->logout_on_delete = 0;
+ 		sess->logo_ack_needed = 0;
+ 		sess->fw_login_state = DSC_LS_PORT_UNAVAIL;
+-		sess->scan_state = 0;
+ 	}
+ }
+ 
 
 
