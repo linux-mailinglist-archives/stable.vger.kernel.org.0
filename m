@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5790ECAC40
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA25CAC47
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732940AbfJCQHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55192 "EHLO mail.kernel.org"
+        id S1731051AbfJCQIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730672AbfJCQHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:07:25 -0400
+        id S1733084AbfJCQIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:08:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BE1F215EA;
-        Thu,  3 Oct 2019 16:07:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E65BF20865;
+        Thu,  3 Oct 2019 16:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118844;
-        bh=1LUJwptwuEKrRHmrKifsxa6dnt9TLOJz1E43bpOEK+g=;
+        s=default; t=1570118879;
+        bh=LRLzXY4lxIaXVuS1zaxS724Wx5viHfmn/b7LnGfNGhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KEkv7B4J6hVCMJi7twB7gakPcGgLiH6PrWt+nh/5RhQN7gkDcqlZH5ymz5YCUu/+
-         0BqttHTf9aGI4cwljGN/nwuaxaqk9hcCOxjXv2/129SJD/tqAg1BQU060e3s5de8nh
-         7SsMPr27ZaE9nVLM/dx4/TAQc1i89hrcGcaOtwf0=
+        b=AL2koYopvm86VQyyxRuy9wd59HAdGGJAl2Y5mrU5IgRIFpNCNBThxxBwqYOQh9DYA
+         fhVvSOXDWWzE4wcx06k2LFj5fD+9HT2dxQHo2+8/fgKDb0YvqkRagOm1nusr+UTQ+M
+         cTkkJgRVdsq3OD0POpoeyu5YrWS0XV1VROl8n5gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rolf Eike Beer <eb@emlix.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 003/185] objtool: Query pkg-config for libelf location
-Date:   Thu,  3 Oct 2019 17:51:21 +0200
-Message-Id: <20191003154438.213505914@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jkosina@suse.cz>,
+        syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 007/185] HID: logitech: Fix general protection fault caused by Logitech driver
+Date:   Thu,  3 Oct 2019 17:51:25 +0200
+Message-Id: <20191003154438.920158329@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,60 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rolf Eike Beer <eb@emlix.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 056d28d135bca0b1d0908990338e00e9dadaf057 upstream.
+commit 5f9242775bb61f390f0885f23fc16397262c7538 upstream.
 
-If it is not in the default location, compilation fails at several points.
+The syzbot fuzzer found a general protection fault in the HID subsystem:
 
-Signed-off-by: Rolf Eike Beer <eb@emlix.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/91a25e992566a7968fedc89ec80e7f4c83ad0548.1553622500.git.jpoimboe@redhat.com
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN
+CPU: 0 PID: 3715 Comm: syz-executor.3 Not tainted 5.2.0-rc6+ #15
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+RIP: 0010:__pm_runtime_resume+0x49/0x180 drivers/base/power/runtime.c:1069
+Code: ed 74 d5 fe 45 85 ed 0f 85 9a 00 00 00 e8 6f 73 d5 fe 48 8d bd c1 02
+00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <0f> b6 04 02 48
+89 fa 83 e2 07 38 d0 7f 08 84 c0 0f 85 fe 00 00 00
+RSP: 0018:ffff8881d99d78e0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000020 RCX: ffffc90003f3f000
+RDX: 0000000416d8686d RSI: ffffffff82676841 RDI: 00000020b6c3436a
+RBP: 00000020b6c340a9 R08: ffff8881c6d64800 R09: fffffbfff0e84c25
+R10: ffff8881d99d7940 R11: ffffffff87426127 R12: 0000000000000004
+R13: 0000000000000000 R14: ffff8881d9b94000 R15: ffffffff897f9048
+FS:  00007f047f542700(0000) GS:ffff8881db200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b30f21000 CR3: 00000001ca032000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  pm_runtime_get_sync include/linux/pm_runtime.h:226 [inline]
+  usb_autopm_get_interface+0x1b/0x50 drivers/usb/core/driver.c:1707
+  usbhid_power+0x7c/0xe0 drivers/hid/usbhid/hid-core.c:1234
+  hid_hw_power include/linux/hid.h:1038 [inline]
+  hidraw_open+0x20d/0x740 drivers/hid/hidraw.c:282
+  chrdev_open+0x219/0x5c0 fs/char_dev.c:413
+  do_dentry_open+0x497/0x1040 fs/open.c:778
+  do_last fs/namei.c:3416 [inline]
+  path_openat+0x1430/0x3ff0 fs/namei.c:3533
+  do_filp_open+0x1a1/0x280 fs/namei.c:3563
+  do_sys_open+0x3c0/0x580 fs/open.c:1070
+  do_syscall_64+0xb7/0x560 arch/x86/entry/common.c:301
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+It turns out the fault was caused by a bug in the HID Logitech driver,
+which violates the requirement that every pathway calling
+hid_hw_start() must also call hid_hw_stop().  This patch fixes the bug
+by making sure the requirement is met.
+
+Reported-and-tested-by: syzbot+3cbe5cd105d2ad56a1df@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Makefile               |    4 +++-
- tools/objtool/Makefile |    7 +++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/hid/hid-lg.c    |   10 ++++++----
+ drivers/hid/hid-lg4ff.c |    1 -
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/Makefile
-+++ b/Makefile
-@@ -949,9 +949,11 @@ mod_sign_cmd = true
- endif
- export mod_sign_cmd
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -761,7 +761,7 @@ static int lg_probe(struct hid_device *h
  
-+HOST_LIBELF_LIBS = $(shell pkg-config libelf --libs 2>/dev/null || echo -lelf)
+ 		if (!buf) {
+ 			ret = -ENOMEM;
+-			goto err_free;
++			goto err_stop;
+ 		}
+ 
+ 		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
+@@ -793,9 +793,12 @@ static int lg_probe(struct hid_device *h
+ 		ret = lg4ff_init(hdev);
+ 
+ 	if (ret)
+-		goto err_free;
++		goto err_stop;
+ 
+ 	return 0;
 +
- ifdef CONFIG_STACK_VALIDATION
-   has_libelf := $(call try-run,\
--		echo "int main() {}" | $(HOSTCC) -xc -o /dev/null -lelf -,1,0)
-+		echo "int main() {}" | $(HOSTCC) -xc -o /dev/null $(HOST_LIBELF_LIBS) -,1,0)
-   ifeq ($(has_libelf),1)
-     objtool_target := tools/objtool FORCE
-   else
---- a/tools/objtool/Makefile
-+++ b/tools/objtool/Makefile
-@@ -26,14 +26,17 @@ LIBSUBCMD		= $(LIBSUBCMD_OUTPUT)libsubcm
- OBJTOOL    := $(OUTPUT)objtool
- OBJTOOL_IN := $(OBJTOOL)-in.o
++err_stop:
++	hid_hw_stop(hdev);
+ err_free:
+ 	kfree(drv_data);
+ 	return ret;
+@@ -806,8 +809,7 @@ static void lg_remove(struct hid_device
+ 	struct lg_drv_data *drv_data = hid_get_drvdata(hdev);
+ 	if (drv_data->quirks & LG_FF4)
+ 		lg4ff_deinit(hdev);
+-	else
+-		hid_hw_stop(hdev);
++	hid_hw_stop(hdev);
+ 	kfree(drv_data);
+ }
  
-+LIBELF_FLAGS := $(shell pkg-config libelf --cflags 2>/dev/null)
-+LIBELF_LIBS  := $(shell pkg-config libelf --libs 2>/dev/null || echo -lelf)
-+
- all: $(OBJTOOL)
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1485,7 +1485,6 @@ int lg4ff_deinit(struct hid_device *hid)
+ 		}
+ 	}
+ #endif
+-	hid_hw_stop(hid);
+ 	drv_data->device_props = NULL;
  
- INCLUDES := -I$(srctree)/tools/include \
- 	    -I$(srctree)/tools/arch/$(HOSTARCH)/include/uapi \
- 	    -I$(srctree)/tools/objtool/arch/$(ARCH)/include
- WARNINGS := $(EXTRA_WARNINGS) -Wno-switch-default -Wno-switch-enum -Wno-packed
--CFLAGS   += -Wall -Werror $(WARNINGS) -fomit-frame-pointer -O2 -g $(INCLUDES)
--LDFLAGS  += -lelf $(LIBSUBCMD)
-+CFLAGS   += -Wall -Werror $(WARNINGS) -fomit-frame-pointer -O2 -g $(INCLUDES) $(LIBELF_FLAGS)
-+LDFLAGS  += $(LIBELF_LIBS) $(LIBSUBCMD)
- 
- # Allow old libelf to be used:
- elfshdr := $(shell echo '$(pound)include <libelf.h>' | $(CC) $(CFLAGS) -x c -E - | grep elf_getshdr)
+ 	kfree(entry);
 
 
