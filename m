@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC6FCA92F
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAD5CA930
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392378AbfJCQip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2392200AbfJCQip (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 12:38:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48464 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729763AbfJCQim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:38:42 -0400
+        id S2392360AbfJCQio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B22732070B;
-        Thu,  3 Oct 2019 16:38:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AD5820830;
+        Thu,  3 Oct 2019 16:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120721;
-        bh=LKRi6Olt+fkto41dkTtVD455lzef874REes/8JxvCMU=;
+        s=default; t=1570120723;
+        bh=RZ0r+49xVQffCkzokeOCJEC2HowsVBwZlOcoarKVGkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJxjHJo1nakzwH2cSzbNOZMy4LDtb53lhakVa8uO/4iT+YCNWWkUhBUt+68CyTPN3
-         /lYtkmiuxlolAhQK+kV2ZMgr2nTg63yg5AGM0qoRMJpRrwtTGyws+Y171OAugKvKEq
-         dbsDyi/cyBi7RR/46OhJJuxeOpIcdKFAxlb+uAMI=
+        b=xJhMkA2yGseTAjByqYNMWfWfTllQTGSVjHRJyNy4ibgdWMJApsF02SW/nW86EOBDt
+         H8y5H0KsJtaVdsrFURwNbhFw4tsa1r7uqxHKLE4qe0cI6LcX1DcWXLROD+5iAQxb3t
+         yLnQeEXEoIXp2POBo0VITsPU0nSQW4pYYCgR+bUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 5.3 014/344] sch_netem: fix a divide by zero in tabledist()
-Date:   Thu,  3 Oct 2019 17:49:39 +0200
-Message-Id: <20191003154541.493253969@linuxfoundation.org>
+Subject: [PATCH 5.3 015/344] selftests: Update fib_tests to handle missing ping6
+Date:   Thu,  3 Oct 2019 17:49:40 +0200
+Message-Id: <20191003154541.593957517@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,36 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit b41d936b5ecfdb3a4abc525ce6402a6c49cffddc ]
+[ Upstream commit 0360894a05ed52be268e3c4d40b2df9d94975fa6 ]
 
-syzbot managed to crash the kernel in tabledist() loading
-an empty distribution table.
+Some distributions (e.g., debian buster) do not install ping6. Re-use
+the hook in pmtu.sh to detect this and fallback to ping.
 
-	t = dist->table[rnd % dist->size];
-
-Simply return an error when such load is attempted.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: a0e11da78f48 ("fib_tests: Add tests for metrics on routes")
+Signed-off-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_netem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/fib_tests.sh |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_netem.c
-+++ b/net/sched/sch_netem.c
-@@ -777,7 +777,7 @@ static int get_dist_table(struct Qdisc *
- 	struct disttable *d;
- 	int i;
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -17,6 +17,8 @@ PAUSE=no
+ IP="ip -netns ns1"
+ NS_EXEC="ip netns exec ns1"
  
--	if (n > NETEM_DIST_MAX)
-+	if (!n || n > NETEM_DIST_MAX)
- 		return -EINVAL;
++which ping6 > /dev/null 2>&1 && ping6=$(which ping6) || ping6=$(which ping)
++
+ log_test()
+ {
+ 	local rc=$1
+@@ -1100,7 +1102,7 @@ ipv6_route_metrics_test()
+ 	log_test $rc 0 "Multipath route with mtu metric"
  
- 	d = kvmalloc(sizeof(struct disttable) + n * sizeof(s16), GFP_KERNEL);
+ 	$IP -6 ro add 2001:db8:104::/64 via 2001:db8:101::2 mtu 1300
+-	run_cmd "ip netns exec ns1 ping6 -w1 -c1 -s 1500 2001:db8:104::1"
++	run_cmd "ip netns exec ns1 ${ping6} -w1 -c1 -s 1500 2001:db8:104::1"
+ 	log_test $? 0 "Using route with mtu metric"
+ 
+ 	run_cmd "$IP -6 ro add 2001:db8:114::/64 via  2001:db8:101::2  congctl lock foo"
 
 
