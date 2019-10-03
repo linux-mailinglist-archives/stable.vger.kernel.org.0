@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E099CCA257
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5377DCA25D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732386AbfJCQEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
+        id S1732394AbfJCQEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732381AbfJCQEV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:21 -0400
+        id S1732391AbfJCQEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:04:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF54A207FF;
-        Thu,  3 Oct 2019 16:04:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EC3021D81;
+        Thu,  3 Oct 2019 16:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118661;
-        bh=cdpXAyC0QgX4B0pAmhmXYPJ+N0Wzzx+vtMzo2FD9JFw=;
+        s=default; t=1570118663;
+        bh=2EVpGNgzS4Menm3jZXMbpAUVlM0C6zIBuCzxtNPlBjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KIVNPqmgcqqaEUGZ06YWlm7DOwmnjA7uo6vBXq7Nucw+TH4mehEhXlP0r4o6SYUBS
-         GnefHFbxo0VnS84WDuLZTngYyZd2RiqpEjYETc3jClZFrPOV97Yml2DJpQEkmDzb45
-         8lXQMpe/EaeobuXzw1d3Dpd6pqEsJjN5KJS3lreI=
+        b=jNMB4yYMDZbSfjH1sRVx3J+77qGnLlBDJvcH32TZIOC1YnhoAo7WxksmkrrnmxWJu
+         wHEVTUJg5igQCa9IjGDDoUZonVK1j/Q3lmTMR56dT44+uUJ9dxlhKnXKm4uJMpcrPD
+         4dPxqtkyggQeXiJNGy6QR+vNGBfyQ/g74zRgjgRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
-        Ahzo <Ahzo@tutanota.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tomas Bortoli <tomasbortoli@gmail.com>,
+        syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 092/129] drm/amd/powerplay/smu7: enforce minimal VBITimeout (v2)
-Date:   Thu,  3 Oct 2019 17:53:35 +0200
-Message-Id: <20191003154401.313155933@linuxfoundation.org>
+Subject: [PATCH 4.9 093/129] media: ttusb-dec: Fix info-leak in ttusb_dec_send_command()
+Date:   Thu,  3 Oct 2019 17:53:36 +0200
+Message-Id: <20191003154402.261725834@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -45,39 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahzo <Ahzo@tutanota.com>
+From: Tomas Bortoli <tomasbortoli@gmail.com>
 
-[ Upstream commit f659bb6dae58c113805f92822e4c16ddd3156b79 ]
+[ Upstream commit a10feaf8c464c3f9cfdd3a8a7ce17e1c0d498da1 ]
 
-This fixes screen corruption/flickering on 75 Hz displays.
+The function at issue does not always initialize each byte allocated
+for 'b' and can therefore leak uninitialized memory to a USB device in
+the call to usb_bulk_msg()
 
-v2: make print statement debug only (Alex)
+Use kzalloc() instead of kmalloc()
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=102646
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Ahzo <Ahzo@tutanota.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
+Reported-by: syzbot+0522702e9d67142379f1@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/usb/ttusb-dec/ttusb_dec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-index 3907439417e76..c0db3b57dfe58 100644
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/smu7_hwmgr.c
-@@ -3739,6 +3739,11 @@ int smu7_program_display_gap(struct pp_hwmgr *hwmgr)
+diff --git a/drivers/media/usb/ttusb-dec/ttusb_dec.c b/drivers/media/usb/ttusb-dec/ttusb_dec.c
+index 4e7671a3a1e4a..d7397c0d7f869 100644
+--- a/drivers/media/usb/ttusb-dec/ttusb_dec.c
++++ b/drivers/media/usb/ttusb-dec/ttusb_dec.c
+@@ -278,7 +278,7 @@ static int ttusb_dec_send_command(struct ttusb_dec *dec, const u8 command,
  
- 	data->frame_time_x2 = frame_time_in_us * 2 / 100;
+ 	dprintk("%s\n", __func__);
  
-+	if (data->frame_time_x2 < 280) {
-+		pr_debug("%s: enforce minimal VBITimeout: %d -> 280\n", __func__, data->frame_time_x2);
-+		data->frame_time_x2 = 280;
-+	}
-+
- 	display_gap2 = pre_vbi_time_in_us * (ref_clock / 100);
+-	b = kmalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
++	b = kzalloc(COMMAND_PACKET_SIZE + 4, GFP_KERNEL);
+ 	if (!b)
+ 		return -ENOMEM;
  
- 	cgs_write_ind_register(hwmgr->device, CGS_IND_REG__SMC, ixCG_DISPLAY_GAP_CNTL2, display_gap2);
 -- 
 2.20.1
 
