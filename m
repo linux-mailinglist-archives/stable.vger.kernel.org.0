@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45140CA880
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF2CCA85D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391302AbfJCQ1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59748 "EHLO mail.kernel.org"
+        id S2390044AbfJCQ0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387971AbfJCQ1l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:41 -0400
+        id S1732677AbfJCQZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:25:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1378721783;
-        Thu,  3 Oct 2019 16:27:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0C0620867;
+        Thu,  3 Oct 2019 16:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120060;
-        bh=48xQrCMOZWQY0GMUtiT7ORhyY7JKh36Uou8DfkPsZ14=;
+        s=default; t=1570119958;
+        bh=DTKvO66v163p+va+SeGgFiOwP3tsFY04aRiTV0shENc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbCNnMgpoWdONlOZDrrypP2YnBsZQj3QwrdDa3VTaAHHYqHY4jLMOhE64J9w16nrZ
-         ZvP3gVFCevdJwPXNRFiuhyzS/4VlvCDLL6JgK4QzyJ1F3NzC7wosgrBp3VRZUqP0TU
-         PE+CIHpo185Rty7RjyioCcPSTxn5kWu1g6bcPTT0=
+        b=096gFiUE4vYb260sj54TyM6i1EIfnwtvZXg+FFviZ+aF6Z2gM9hvj974lMOKVA0v8
+         LG/QPS3FC6mVtOmVkyjaC/47HGtzc27rqwEJkNKmOFCwXOCMsw+HgLJQPOgom9a/vM
+         wgIRLgErCtYryPhpo/M5gItomqQsinKiYnjFi74w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Sean Wang <sean.wang@kernel.org>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 044/313] media: dib0700: fix link error for dibx000_i2c_set_speed
-Date:   Thu,  3 Oct 2019 17:50:22 +0200
-Message-Id: <20191003154537.516567442@linuxfoundation.org>
+Subject: [PATCH 5.2 045/313] media: mtk-cir: lower de-glitch counter for rc-mm protocol
+Date:   Thu,  3 Oct 2019 17:50:23 +0200
+Message-Id: <20191003154537.601406539@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,67 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit 765bb8610d305ee488b35d07e2a04ae52fb2df9c ]
+[ Upstream commit 5dd4b89dc098bf22cd13e82a308f42a02c102b2b ]
 
-When CONFIG_DVB_DIB9000 is disabled, we can still compile code that
-now fails to link against dibx000_i2c_set_speed:
+The rc-mm protocol can't be decoded by the mtk-cir since the de-glitch
+filter removes pulses/spaces shorter than 294 microseconds.
 
-drivers/media/usb/dvb-usb/dib0700_devices.o: In function `dib01x0_pmu_update.constprop.7':
-dib0700_devices.c:(.text.unlikely+0x1c9c): undefined reference to `dibx000_i2c_set_speed'
+Tested on a BananaPi R2.
 
-The call sites are both through dib01x0_pmu_update(), which gets passed
-an 'i2c' pointer from dib9000_get_i2c_master(), which has returned
-NULL. Checking this pointer seems to be a good idea anyway, and it avoids
-the link failure in most cases.
-
-Sean Young found another case that is not fixed by that, where certain
-gcc versions leave an unused function in place that causes the link error,
-but adding an explict IS_ENABLED() check also solves this.
-
-Fixes: b7f54910ce01 ("V4L/DVB (4647): Added module for DiB0700 based devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sean Young <sean@mess.org>
+Acked-by: Sean Wang <sean.wang@kernel.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dib0700_devices.c | 8 ++++++++
+ drivers/media/rc/mtk-cir.c | 8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dib0700_devices.c b/drivers/media/usb/dvb-usb/dib0700_devices.c
-index 66d685065e065..ab7a100ec84fe 100644
---- a/drivers/media/usb/dvb-usb/dib0700_devices.c
-+++ b/drivers/media/usb/dvb-usb/dib0700_devices.c
-@@ -2439,9 +2439,13 @@ static int dib9090_tuner_attach(struct dvb_usb_adapter *adap)
- 		8, 0x0486,
- 	};
+diff --git a/drivers/media/rc/mtk-cir.c b/drivers/media/rc/mtk-cir.c
+index 46101efe017be..da457bf851303 100644
+--- a/drivers/media/rc/mtk-cir.c
++++ b/drivers/media/rc/mtk-cir.c
+@@ -35,6 +35,11 @@
+ /* Fields containing pulse width data */
+ #define MTK_WIDTH_MASK		  (GENMASK(7, 0))
  
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &dib9090_dib0090_config) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) != 0)
- 		return -ENODEV;
- 	dib0700_set_i2c_speed(adap->dev, 1500);
-@@ -2517,10 +2521,14 @@ static int nim9090md_tuner_attach(struct dvb_usb_adapter *adap)
- 		0, 0x00ef,
- 		8, 0x0406,
- 	};
-+	if (!IS_ENABLED(CONFIG_DVB_DIB9000))
-+		return -ENODEV;
- 	i2c = dib9000_get_tuner_interface(adap->fe_adap[0].fe);
- 	if (dvb_attach(dib0090_fw_register, adap->fe_adap[0].fe, i2c, &nim9090md_dib0090_config[0]) == NULL)
- 		return -ENODEV;
- 	i2c = dib9000_get_i2c_master(adap->fe_adap[0].fe, DIBX000_I2C_INTERFACE_GPIO_1_2, 0);
-+	if (!i2c)
-+		return -ENODEV;
- 	if (dib01x0_pmu_update(i2c, data_dib190, 10) < 0)
- 		return -ENODEV;
++/* IR threshold */
++#define MTK_IRTHD		 0x14
++#define MTK_DG_CNT_MASK		 (GENMASK(12, 8))
++#define MTK_DG_CNT(x)		 ((x) << 8)
++
+ /* Bit to enable interrupt */
+ #define MTK_IRINT_EN		  BIT(0)
  
+@@ -400,6 +405,9 @@ static int mtk_ir_probe(struct platform_device *pdev)
+ 	mtk_w32_mask(ir, val, ir->data->fields[MTK_HW_PERIOD].mask,
+ 		     ir->data->fields[MTK_HW_PERIOD].reg);
+ 
++	/* Set de-glitch counter */
++	mtk_w32_mask(ir, MTK_DG_CNT(1), MTK_DG_CNT_MASK, MTK_IRTHD);
++
+ 	/* Enable IR and PWM */
+ 	val = mtk_r32(ir, MTK_CONFIG_HIGH_REG);
+ 	val |= MTK_OK_COUNT(ir->data->ok_count) |  MTK_PWM_EN | MTK_IR_EN;
 -- 
 2.20.1
 
