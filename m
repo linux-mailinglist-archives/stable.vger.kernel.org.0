@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AB9CA3D7
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2551ECA410
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389491AbfJCQTb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:19:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46496 "EHLO mail.kernel.org"
+        id S2388851AbfJCQVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388246AbfJCQT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:27 -0400
+        id S2390178AbfJCQVk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2144222BE;
-        Thu,  3 Oct 2019 16:19:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4FAE21783;
+        Thu,  3 Oct 2019 16:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119566;
-        bh=ta+KEqzYSHy/qTopfT8NAaQJ7lpEpvgFviApnhGf4yc=;
+        s=default; t=1570119698;
+        bh=kfvdiciDmqZ1VtqoBpuDh3Z6dlpATwLZE7GsvgO6uLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODKimWk/ICOv7RyNGPn3vuFy00hO7ZYg8z5WPCeBn+1sQXhwQ66a3PdFIXfv8Ygdo
-         /ZpqABZYzK/Epp5kCwSnA2Q2tbwuG5Dxfv18sam95EHnR9qJByzjTrkZhoYLMFoYDy
-         TBcgVwTyr+VWBV/ZEStUGdfQ11SeT2i64C7ewL08=
+        b=fHy1CKFpfxYeXOuYiPAN9W8N8ZVW32IgqV4OHMigoY6NJlLb69cv+4ek2NaHypWvm
+         dFLfF2Dm3G5ANkbGNyS/ZOwCilCns8HYFEZ+sp4bId/10gWOD4dNTWpYCfBfIM+zBB
+         xyKHWeugmhCK6lcKwb/8t+l01JHDYRlAdTh1qoig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/211] x86/mm/pti: Do not invoke PTI functions when PTI is disabled
-Date:   Thu,  3 Oct 2019 17:52:56 +0200
-Message-Id: <20191003154512.509163128@linuxfoundation.org>
+Subject: [PATCH 4.19 111/211] ASoC: fsl_ssi: Fix clock control issue in master mode
+Date:   Thu,  3 Oct 2019 17:52:57 +0200
+Message-Id: <20191003154512.786799494@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -47,52 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit 990784b57731192b7d90c8d4049e6318d81e887d ]
+[ Upstream commit 696d05225cebffd172008d212657be90e823eac0 ]
 
-When PTI is disabled at boot time either because the CPU is not affected or
-PTI has been disabled on the command line, the boot code still calls into
-pti_finalize() which then unconditionally invokes:
+The test case is
+arecord -Dhw:0 -d 10 -f S16_LE -r 48000 -c 2 temp.wav &
+aplay -Dhw:0 -d 30 -f S16_LE -r 48000 -c 2 test.wav
 
-     pti_clone_entry_text()
-     pti_clone_kernel_text()
+There will be error after end of arecord:
+aplay: pcm_write:2051: write error: Input/output error
 
-pti_clone_kernel_text() was called unconditionally before the 32bit support
-was added and 32bit added the call to pti_clone_entry_text().
+Capture and Playback work in parallel in master mode, one
+substream stops, the other substream is impacted, the
+reason is that clock is disabled wrongly.
 
-The call has no side effects as cloning the page tables into the available
-second one, which was allocated for PTI does not create damage. But it does
-not make sense either and in case that this functionality would be extended
-later this might actually lead to hard to diagnose issues.
+The clock's reference count is not increased when second
+substream starts, the hw_param() function returns in the
+beginning because first substream is enabled, then in end
+of first substream, the hw_free() disables the clock.
 
-Neither function should be called when PTI is runtime disabled. Make the
-invocation conditional.
+This patch is to move the clock enablement to the place
+before checking of the device enablement in hw_param().
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20190828143124.063353972@linutronix.de
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1567012817-12625-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pti.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/fsl/fsl_ssi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index 4df3e5c89d57c..c1ba376484a5b 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -643,6 +643,8 @@ void __init pti_init(void)
-  */
- void pti_finalize(void)
- {
-+	if (!boot_cpu_has(X86_FEATURE_PTI))
-+		return;
- 	/*
- 	 * We need to clone everything (again) that maps parts of the
- 	 * kernel image.
+diff --git a/sound/soc/fsl/fsl_ssi.c b/sound/soc/fsl/fsl_ssi.c
+index 09b2967befd96..d83be26d64467 100644
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -799,15 +799,6 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 	u32 wl = SSI_SxCCR_WL(sample_size);
+ 	int ret;
+ 
+-	/*
+-	 * SSI is properly configured if it is enabled and running in
+-	 * the synchronous mode; Note that AC97 mode is an exception
+-	 * that should set separate configurations for STCCR and SRCCR
+-	 * despite running in the synchronous mode.
+-	 */
+-	if (ssi->streams && ssi->synchronous)
+-		return 0;
+-
+ 	if (fsl_ssi_is_i2s_master(ssi)) {
+ 		ret = fsl_ssi_set_bclk(substream, dai, hw_params);
+ 		if (ret)
+@@ -823,6 +814,15 @@ static int fsl_ssi_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 	}
+ 
++	/*
++	 * SSI is properly configured if it is enabled and running in
++	 * the synchronous mode; Note that AC97 mode is an exception
++	 * that should set separate configurations for STCCR and SRCCR
++	 * despite running in the synchronous mode.
++	 */
++	if (ssi->streams && ssi->synchronous)
++		return 0;
++
+ 	if (!fsl_ssi_is_ac97(ssi)) {
+ 		/*
+ 		 * Keep the ssi->i2s_net intact while having a local variable
 -- 
 2.20.1
 
