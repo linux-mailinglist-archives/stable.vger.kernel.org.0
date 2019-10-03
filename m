@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E4BDCA229
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21B3CA22D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732004AbfJCQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
+        id S1730704AbfJCQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731994AbfJCQC2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:02:28 -0400
+        id S1730678AbfJCQCg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:02:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32B2A21848;
-        Thu,  3 Oct 2019 16:02:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EB7820700;
+        Thu,  3 Oct 2019 16:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118547;
-        bh=XVOD64NLFfzI9rE1FouGmQQ3XmG0h12oUjaJb84NWGI=;
+        s=default; t=1570118555;
+        bh=UlCki8zg9JHsMFVYDz5UUcbj6ctigQ8WdJABiuxnRAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tN44vM7HiJihMVjh4FR+lV6v75wJRb1pctHTLY5D9ffLHJCtVf+WZE4b6JeQ4k0bn
-         a7pb6seXPWwIUjJQiGxS1R2B0vH1+NJYyLdZdMTDkzXQrrmMXkhcIpYt7N8q02ujPZ
-         LVNOJkgBTF2Hx17hGVWKszhsw3CoWK0aYif2GnC0=
+        b=lptlYNPAY/zFvkS22Nxgz5xDva8KvYU8Z/D0hfYthmxl0JSMoLZ6uQTqYWt14h25e
+         9zOYCVIkexo/ElVxk4E3PFYQJXwaxI2wtfxQxBW7AFYO/X3BSSk9msuSOQVqjBQQDG
+         llzTwhl73CeqIiBAMl9thXy5y+SHY30faD07qvW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com,
+        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 051/129] ALSA: hda - Show the fatal CORB/RIRB error more clearly
-Date:   Thu,  3 Oct 2019 17:52:54 +0200
-Message-Id: <20191003154339.930826620@linuxfoundation.org>
+Subject: [PATCH 4.9 053/129] media: iguanair: add sanity checks
+Date:   Thu,  3 Oct 2019 17:52:56 +0200
+Message-Id: <20191003154341.718370638@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -43,42 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit dd65f7e19c6961ba6a69f7c925021b7a270cb950 ]
+[ Upstream commit ab1cbdf159beba7395a13ab70bc71180929ca064 ]
 
-The last fallback of CORB/RIRB communication error recovery is to turn
-on the single command mode, and this last resort usually means that
-something is really screwed up.  Instead of a normal dev_err(), show
-the error more clearly with dev_WARN() with the caller stack trace.
+The driver needs to check the endpoint types, too, as opposed
+to the number of endpoints. This also requires moving the check earlier.
 
-Also, show the bus-reset fallback also as an error, too.
-
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_controller.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/rc/iguanair.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
-index 85dbe2420248d..c5e82329348b3 100644
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -866,10 +866,13 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
- 	 */
- 	if (hbus->allow_bus_reset && !hbus->response_reset && !hbus->in_reset) {
- 		hbus->response_reset = 1;
-+		dev_err(chip->card->dev,
-+			"No response from codec, resetting bus: last cmd=0x%08x\n",
-+			bus->last_cmd[addr]);
- 		return -EAGAIN; /* give a chance to retry */
+diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
+index 5f634545ddd81..25470395c43f1 100644
+--- a/drivers/media/rc/iguanair.c
++++ b/drivers/media/rc/iguanair.c
+@@ -430,6 +430,10 @@ static int iguanair_probe(struct usb_interface *intf,
+ 	int ret, pipein, pipeout;
+ 	struct usb_host_interface *idesc;
+ 
++	idesc = intf->altsetting;
++	if (idesc->desc.bNumEndpoints < 2)
++		return -ENODEV;
++
+ 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
+ 	rc = rc_allocate_device();
+ 	if (!ir || !rc) {
+@@ -444,18 +448,13 @@ static int iguanair_probe(struct usb_interface *intf,
+ 	ir->urb_in = usb_alloc_urb(0, GFP_KERNEL);
+ 	ir->urb_out = usb_alloc_urb(0, GFP_KERNEL);
+ 
+-	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out) {
++	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out ||
++	    !usb_endpoint_is_int_in(&idesc->endpoint[0].desc) ||
++	    !usb_endpoint_is_int_out(&idesc->endpoint[1].desc)) {
+ 		ret = -ENOMEM;
+ 		goto out;
  	}
  
--	dev_err(chip->card->dev,
-+	dev_WARN(chip->card->dev,
- 		"azx_get_response timeout, switching to single_cmd mode: last cmd=0x%08x\n",
- 		bus->last_cmd[addr]);
- 	chip->single_cmd = 1;
+-	idesc = intf->altsetting;
+-
+-	if (idesc->desc.bNumEndpoints < 2) {
+-		ret = -ENODEV;
+-		goto out;
+-	}
+-
+ 	ir->rc = rc;
+ 	ir->dev = &intf->dev;
+ 	ir->udev = udev;
 -- 
 2.20.1
 
