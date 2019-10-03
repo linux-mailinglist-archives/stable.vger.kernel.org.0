@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94709CAB14
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DFAFCA9E0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731310AbfJCQQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41038 "EHLO mail.kernel.org"
+        id S2393292AbfJCRA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388936AbfJCQQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:16:14 -0400
+        id S2392763AbfJCQpR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:45:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3440C222CD;
-        Thu,  3 Oct 2019 16:16:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A2B220865;
+        Thu,  3 Oct 2019 16:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119373;
-        bh=M2kBgoQlS88+8nYbzPOfBARbv19HvebbOKQ1ikit4Wc=;
+        s=default; t=1570121116;
+        bh=wDcK0SuxOI7PvWtcKRyhb1YAeAPrSWo4zVxce4QENGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSOaZrWpoQNeenjfW1DkJkgfIx0OA9viMEwLqyQIXUbkJXUiFWlF60+j6K1TL8omU
-         MKQz2FOPfCzRBPFU38xiN8xpEMFBJWxCSRizZp9PpacpCK9BsnAUdE7Qhwhj2CXxUT
-         G5QyyCUqdQuxBv4tRfWc6QnZ6JkRR5m7RU1sg8yM=
+        b=h/otgvYEagthWCiNRomdrZiAQ6/fuDYAnzZHToshLz7ZTi2kxu+CFbYuLTACN+O4V
+         0wFQnFQwuRzX1BFETQnNhDGE/CZ3nDpcoNFhj90YQMXD6irK+3jv7rpisv9kjXFehj
+         igf0Q14dnE0eSKfT61+Gnnr1r+STh1qeqNrCMSzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Halat <ghalat@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Don Zickus <dzickus@redhat.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 042/211] x86/reboot: Always use NMI fallback when shutdown via reboot vector IPI fails
+Subject: [PATCH 5.3 143/344] media: dvb-core: fix a memory leak bug
 Date:   Thu,  3 Oct 2019 17:51:48 +0200
-Message-Id: <20191003154457.374885791@linuxfoundation.org>
+Message-Id: <20191003154554.365614065@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,126 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Halat <ghalat@redhat.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 747d5a1bf293dcb33af755a6d285d41b8c1ea010 ]
+[ Upstream commit fcd5ce4b3936242e6679875a4d3c3acfc8743e15 ]
 
-A reboot request sends an IPI via the reboot vector and waits for all other
-CPUs to stop. If one or more CPUs are in critical regions with interrupts
-disabled then the IPI is not handled on those CPUs and the shutdown hangs
-if native_stop_other_cpus() is called with the wait argument set.
+In dvb_create_media_entity(), 'dvbdev->entity' is allocated through
+kzalloc(). Then, 'dvbdev->pads' is allocated through kcalloc(). However, if
+kcalloc() fails, the allocated 'dvbdev->entity' is not deallocated, leading
+to a memory leak bug. To fix this issue, free 'dvbdev->entity' before
+returning -ENOMEM.
 
-Such a situation can happen when one CPU was stopped within a lock held
-section and another CPU is trying to acquire that lock with interrupts
-disabled. There are other scenarios which can cause such a lockup as well.
-
-In theory the shutdown should be attempted by an NMI IPI after the timeout
-period elapsed. Though the wait loop after sending the reboot vector IPI
-prevents this. It checks the wait request argument and the timeout. If wait
-is set, which is true for sys_reboot() then it won't fall through to the
-NMI shutdown method after the timeout period has finished.
-
-This was an oversight when the NMI shutdown mechanism was added to handle
-the 'reboot IPI is not working' situation. The mechanism was added to deal
-with stuck panic shutdowns, which do not have the wait request set, so the
-'wait request' case was probably not considered.
-
-Remove the wait check from the post reboot vector IPI wait loop and enforce
-that the wait loop in the NMI fallback path is invoked even if NMI IPIs are
-disabled or the registration of the NMI handler fails. That second wait
-loop will then hang if not all CPUs shutdown and the wait argument is set.
-
-[ tglx: Avoid the hard to parse line break in the NMI fallback path,
-  	add comments and massage the changelog ]
-
-Fixes: 7d007d21e539 ("x86/reboot: Use NMI to assist in shutting down if IRQ fails")
-Signed-off-by: Grzegorz Halat <ghalat@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Don Zickus <dzickus@redhat.com>
-Link: https://lkml.kernel.org/r/20190628122813.15500-1-ghalat@redhat.com
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/smp.c | 46 +++++++++++++++++++++++++------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ drivers/media/dvb-core/dvbdev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/smp.c b/arch/x86/kernel/smp.c
-index 04adc8d60aed8..b2b87b91f3361 100644
---- a/arch/x86/kernel/smp.c
-+++ b/arch/x86/kernel/smp.c
-@@ -181,6 +181,12 @@ asmlinkage __visible void smp_reboot_interrupt(void)
- 	irq_exit();
- }
- 
-+static int register_stop_handler(void)
-+{
-+	return register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
-+				    NMI_FLAG_FIRST, "smp_stop");
-+}
-+
- static void native_stop_other_cpus(int wait)
- {
- 	unsigned long flags;
-@@ -214,39 +220,41 @@ static void native_stop_other_cpus(int wait)
- 		apic->send_IPI_allbutself(REBOOT_VECTOR);
- 
- 		/*
--		 * Don't wait longer than a second if the caller
--		 * didn't ask us to wait.
-+		 * Don't wait longer than a second for IPI completion. The
-+		 * wait request is not checked here because that would
-+		 * prevent an NMI shutdown attempt in case that not all
-+		 * CPUs reach shutdown state.
- 		 */
- 		timeout = USEC_PER_SEC;
--		while (num_online_cpus() > 1 && (wait || timeout--))
-+		while (num_online_cpus() > 1 && timeout--)
- 			udelay(1);
- 	}
--	
--	/* if the REBOOT_VECTOR didn't work, try with the NMI */
--	if ((num_online_cpus() > 1) && (!smp_no_nmi_ipi))  {
--		if (register_nmi_handler(NMI_LOCAL, smp_stop_nmi_callback,
--					 NMI_FLAG_FIRST, "smp_stop"))
--			/* Note: we ignore failures here */
--			/* Hope the REBOOT_IRQ is good enough */
--			goto finish;
--
--		/* sync above data before sending IRQ */
--		wmb();
- 
--		pr_emerg("Shutting down cpus with NMI\n");
-+	/* if the REBOOT_VECTOR didn't work, try with the NMI */
-+	if (num_online_cpus() > 1) {
-+		/*
-+		 * If NMI IPI is enabled, try to register the stop handler
-+		 * and send the IPI. In any case try to wait for the other
-+		 * CPUs to stop.
-+		 */
-+		if (!smp_no_nmi_ipi && !register_stop_handler()) {
-+			/* Sync above data before sending IRQ */
-+			wmb();
- 
--		apic->send_IPI_allbutself(NMI_VECTOR);
-+			pr_emerg("Shutting down cpus with NMI\n");
- 
-+			apic->send_IPI_allbutself(NMI_VECTOR);
+diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
+index a3393cd4e584f..7557fbf9d3068 100644
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -339,8 +339,10 @@ static int dvb_create_media_entity(struct dvb_device *dvbdev,
+ 	if (npads) {
+ 		dvbdev->pads = kcalloc(npads, sizeof(*dvbdev->pads),
+ 				       GFP_KERNEL);
+-		if (!dvbdev->pads)
++		if (!dvbdev->pads) {
++			kfree(dvbdev->entity);
+ 			return -ENOMEM;
 +		}
- 		/*
--		 * Don't wait longer than a 10 ms if the caller
--		 * didn't ask us to wait.
-+		 * Don't wait longer than 10 ms if the caller didn't
-+		 * reqeust it. If wait is true, the machine hangs here if
-+		 * one or more CPUs do not reach shutdown state.
- 		 */
- 		timeout = USEC_PER_MSEC * 10;
- 		while (num_online_cpus() > 1 && (wait || timeout--))
- 			udelay(1);
  	}
  
--finish:
- 	local_irq_save(flags);
- 	disable_local_APIC();
- 	mcheck_cpu_clear(this_cpu_ptr(&cpu_info));
+ 	switch (type) {
 -- 
 2.20.1
 
