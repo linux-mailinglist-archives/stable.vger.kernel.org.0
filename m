@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A78DDC9D7E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3CCFC9D83
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 13:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729843AbfJCLjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 07:39:23 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60781 "EHLO
+        id S1730115AbfJCLje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 07:39:34 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41125 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725827AbfJCLjX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:39:23 -0400
+        by vger.kernel.org with ESMTP id S1725827AbfJCLje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 07:39:34 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id EF71B21B7C;
-        Thu,  3 Oct 2019 07:39:21 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:39:21 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 59D3820E89;
+        Thu,  3 Oct 2019 07:39:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 07:39:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=GUKkTd
-        0tHziMttnzjgZetoVnqaOl6cX4pgaeC8SGDi8=; b=P1sKmA6Sr2YQn0dqPlfCJh
-        rtip8143buO7CjF63tftCF061dEUx6X2Yb1C8Fxg9UCqo68fGILJUfZPqO1XRkzr
-        TkmA3MdNDfMEv7tOpcXiPLKGnYR4AM4ihb/dAnnyAoqatp17HgyTH1QP9kao9WSX
-        26oFgcLB4J2my7Kd8bJWA5DTwysI4+w7XYGWmrJKkYT1WwYsNby5ccbKxlGgT2wy
-        wBgibpf18veWKAJ15do0/cnEh08GlgV+VvNGAB65fXj8j5Xt87ddAY3ZNtQqxAi2
-        845FdN76kzIoPcDaR5dtF+WX3bS4fSz7jJKada0C78LG0OeQT6SC564C62gpYX6Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=9Tt4Bn
+        Z9yMm3M49CxqpNbXjrt2Vp304Moz0qebr4MV4=; b=uM3rKem8VMz2Q+gM6Nmluh
+        5N1en7AKnpOS6b0e9Tx/1g1pIH5p6722oMteeqt76bCZBg2T/Ik+LhlJDVgrlq9s
+        VOLKI+Dj27pb4h4h8slpZadVmLcyIQeEzIELKId/FwlXhcahVs/H1K8b8BYb4GvK
+        RlivNV/iDVNcT10pBvxjNrbgB4hgL+CTXoCLDWauWZyLsIrZLEwJXSTKUaCC49HF
+        UGzdeesiOdDd9KxMetl3MJs3SoAVUw0d31tZZ7xeb4oXQuNWGKbtunkRi/6eQiLx
+        raTYAh2+McIcDQxz1PPabc5zfljrYPiZIAsYLtq5tx/wTBeQvwHrGeEm0HvhA6LA
         ==
-X-ME-Sender: <xms:6d2VXSbAlOPOges6TC56FQI6pvHwR6YJO8bwPm83e712m9WKdMcF7w>
+X-ME-Sender: <xms:9d2VXeShBRn5AgIP6LwcapqjlZQdA3lVA_ODUKhxKm4umk8ETboEEw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdeggecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:6d2VXQ_MnGpypDFmSdAgMtScvzKuVLEiFBIRLhLDQBk8wMlxBvkWDA>
-    <xmx:6d2VXT8B_puYsi2I-Ob6hu8M0oM1KbtcudczfB7c3gmkJfcvTytR-Q>
-    <xmx:6d2VXWRFtrlTxSoAJPENMBUE6JM5Czwh_LlKcB1q20alyDfMTKUDWg>
-    <xmx:6d2VXXtc010cAMkDwEl5T3UMunY5UuKOqRDM4mcb4-jFL61xwBnz1A>
+    vehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:9d2VXWFca1mVEmYVchDIILojqbjdzNMjQi_A_fokKYqiDdsXknkcZQ>
+    <xmx:9d2VXamizPs7KLSgqVWVmwcuzlBxkjIrgvsJak3iKPJIRZhfYyvcQA>
+    <xmx:9d2VXUOEoJvFrBMHuVKN8TjOtwcc_LmFWUBs0d-CsImcFuP2haF7jg>
+    <xmx:9d2VXZvDhDaotlC0aPR2KT9sdvKYHUAP7vybg5Yrr9wZ3_Enl_adqQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6A6D680059;
-        Thu,  3 Oct 2019 07:39:21 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mm/compaction.c: clear total_{migrate,free}_scanned before" failed to apply to 4.19-stable tree
-To:     laoar.shao@gmail.com, akpm@linux-foundation.org,
-        mgorman@techsingularity.net, mhocko@suse.com, rientjes@google.com,
-        shaoyafang@didiglobal.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz
+        by mail.messagingengine.com (Postfix) with ESMTPA id BF39BD6005E;
+        Thu,  3 Oct 2019 07:39:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] memcg, oom: don't require __GFP_FS when invoking memcg OOM" failed to apply to 4.9-stable tree
+To:     penguin-kernel@i-love.sakura.ne.jp, akpm@linux-foundation.org,
+        mhocko@suse.com, msharbiani@apple.com,
+        penguin-kernel@I-love.SAKURA.ne.jp, rientjes@google.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 13:38:46 +0200
-Message-ID: <157010272680112@kroah.com>
+Date:   Thu, 03 Oct 2019 13:39:31 +0200
+Message-ID: <1570102771114109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,125 +71,180 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a94b525241c0fff3598809131d7cfcfe1d572d8c Mon Sep 17 00:00:00 2001
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 23 Sep 2019 15:36:54 -0700
-Subject: [PATCH] mm/compaction.c: clear total_{migrate,free}_scanned before
- scanning a new zone
+From f9c645621a28e37813a1de96d9cbd89cde94a1e4 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Date: Mon, 23 Sep 2019 15:37:08 -0700
+Subject: [PATCH] memcg, oom: don't require __GFP_FS when invoking memcg OOM
+ killer
 
-total_{migrate,free}_scanned will be added to COMPACTMIGRATE_SCANNED and
-COMPACTFREE_SCANNED in compact_zone().  We should clear them before
-scanning a new zone.  In the proc triggered compaction, we forgot clearing
-them.
+Masoud Sharbiani noticed that commit 29ef680ae7c21110 ("memcg, oom: move
+out_of_memory back to the charge path") broke memcg OOM called from
+__xfs_filemap_fault() path.  It turned out that try_charge() is retrying
+forever without making forward progress because mem_cgroup_oom(GFP_NOFS)
+cannot invoke the OOM killer due to commit 3da88fb3bacfaa33 ("mm, oom:
+move GFP_NOFS check to out_of_memory").
 
-[laoar.shao@gmail.com: introduce a helper compact_zone_counters_init()]
-  Link: http://lkml.kernel.org/r/1563869295-25748-1-git-send-email-laoar.shao@gmail.com
-[akpm@linux-foundation.org: expand compact_zone_counters_init() into its single callsite, per mhocko]
-[vbabka@suse.cz: squash compact_zone() list_head init as well]
-  Link: http://lkml.kernel.org/r/1fb6f7da-f776-9e42-22f8-bbb79b030b98@suse.cz
-[akpm@linux-foundation.org: kcompactd_do_work(): avoid unnecessary initialization of cc.zone]
-Link: http://lkml.kernel.org/r/1563789275-9639-1-git-send-email-laoar.shao@gmail.com
-Fixes: 7f354a548d1c ("mm, compaction: add vmstats for kcompactd work")
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
+Allowing forced charge due to being unable to invoke memcg OOM killer will
+lead to global OOM situation.  Also, just returning -ENOMEM will be risky
+because OOM path is lost and some paths (e.g.  get_user_pages()) will leak
+-ENOMEM.  Therefore, invoking memcg OOM killer (despite GFP_NOFS) will be
+the only choice we can choose for now.
+
+Until 29ef680ae7c21110, we were able to invoke memcg OOM killer when
+GFP_KERNEL reclaim failed [1].  But since 29ef680ae7c21110, we need to
+invoke memcg OOM killer when GFP_NOFS reclaim failed [2].  Although in the
+past we did invoke memcg OOM killer for GFP_NOFS [3], we might get
+pre-mature memcg OOM reports due to this patch.
+
+[1]
+
+ leaker invoked oom-killer: gfp_mask=0x6200ca(GFP_HIGHUSER_MOVABLE), nodemask=(null), order=0, oom_score_adj=0
+ CPU: 0 PID: 2746 Comm: leaker Not tainted 4.18.0+ #19
+ Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
+ Call Trace:
+  dump_stack+0x63/0x88
+  dump_header+0x67/0x27a
+  ? mem_cgroup_scan_tasks+0x91/0xf0
+  oom_kill_process+0x210/0x410
+  out_of_memory+0x10a/0x2c0
+  mem_cgroup_out_of_memory+0x46/0x80
+  mem_cgroup_oom_synchronize+0x2e4/0x310
+  ? high_work_func+0x20/0x20
+  pagefault_out_of_memory+0x31/0x76
+  mm_fault_error+0x55/0x115
+  ? handle_mm_fault+0xfd/0x220
+  __do_page_fault+0x433/0x4e0
+  do_page_fault+0x22/0x30
+  ? page_fault+0x8/0x30
+  page_fault+0x1e/0x30
+ RIP: 0033:0x4009f0
+ Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
+ RSP: 002b:00007ffe29ae96f0 EFLAGS: 00010206
+ RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001ce1000
+ RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
+ RBP: 000000000000000c R08: 0000000000000000 R09: 00007f94be09220d
+ R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
+ R13: 0000000000000003 R14: 00007f949d845000 R15: 0000000002800000
+ Task in /leaker killed as a result of limit of /leaker
+ memory: usage 524288kB, limit 524288kB, failcnt 158965
+ memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
+ kmem: usage 2016kB, limit 9007199254740988kB, failcnt 0
+ Memory cgroup stats for /leaker: cache:844KB rss:521136KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:132KB writeback:0KB inactive_anon:0KB active_anon:521224KB inactive_file:1012KB active_file:8KB unevictable:0KB
+ Memory cgroup out of memory: Kill process 2746 (leaker) score 998 or sacrifice child
+ Killed process 2746 (leaker) total-vm:536704kB, anon-rss:521176kB, file-rss:1208kB, shmem-rss:0kB
+ oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+
+[2]
+
+ leaker invoked oom-killer: gfp_mask=0x600040(GFP_NOFS), nodemask=(null), order=0, oom_score_adj=0
+ CPU: 1 PID: 2746 Comm: leaker Not tainted 4.18.0+ #20
+ Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
+ Call Trace:
+  dump_stack+0x63/0x88
+  dump_header+0x67/0x27a
+  ? mem_cgroup_scan_tasks+0x91/0xf0
+  oom_kill_process+0x210/0x410
+  out_of_memory+0x109/0x2d0
+  mem_cgroup_out_of_memory+0x46/0x80
+  try_charge+0x58d/0x650
+  ? __radix_tree_replace+0x81/0x100
+  mem_cgroup_try_charge+0x7a/0x100
+  __add_to_page_cache_locked+0x92/0x180
+  add_to_page_cache_lru+0x4d/0xf0
+  iomap_readpages_actor+0xde/0x1b0
+  ? iomap_zero_range_actor+0x1d0/0x1d0
+  iomap_apply+0xaf/0x130
+  iomap_readpages+0x9f/0x150
+  ? iomap_zero_range_actor+0x1d0/0x1d0
+  xfs_vm_readpages+0x18/0x20 [xfs]
+  read_pages+0x60/0x140
+  __do_page_cache_readahead+0x193/0x1b0
+  ondemand_readahead+0x16d/0x2c0
+  page_cache_async_readahead+0x9a/0xd0
+  filemap_fault+0x403/0x620
+  ? alloc_set_pte+0x12c/0x540
+  ? _cond_resched+0x14/0x30
+  __xfs_filemap_fault+0x66/0x180 [xfs]
+  xfs_filemap_fault+0x27/0x30 [xfs]
+  __do_fault+0x19/0x40
+  __handle_mm_fault+0x8e8/0xb60
+  handle_mm_fault+0xfd/0x220
+  __do_page_fault+0x238/0x4e0
+  do_page_fault+0x22/0x30
+  ? page_fault+0x8/0x30
+  page_fault+0x1e/0x30
+ RIP: 0033:0x4009f0
+ Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
+ RSP: 002b:00007ffda45c9290 EFLAGS: 00010206
+ RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001a1e000
+ RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
+ RBP: 000000000000000c R08: 0000000000000000 R09: 00007f6d061ff20d
+ R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
+ R13: 0000000000000003 R14: 00007f6ce59b2000 R15: 0000000002800000
+ Task in /leaker killed as a result of limit of /leaker
+ memory: usage 524288kB, limit 524288kB, failcnt 7221
+ memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
+ kmem: usage 1944kB, limit 9007199254740988kB, failcnt 0
+ Memory cgroup stats for /leaker: cache:3632KB rss:518232KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:0KB writeback:0KB inactive_anon:0KB active_anon:518408KB inactive_file:3908KB active_file:12KB unevictable:0KB
+ Memory cgroup out of memory: Kill process 2746 (leaker) score 992 or sacrifice child
+ Killed process 2746 (leaker) total-vm:536704kB, anon-rss:518264kB, file-rss:1188kB, shmem-rss:0kB
+ oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+
+[3]
+
+ leaker invoked oom-killer: gfp_mask=0x50, order=0, oom_score_adj=0
+ leaker cpuset=/ mems_allowed=0
+ CPU: 1 PID: 3206 Comm: leaker Not tainted 3.10.0-957.27.2.el7.x86_64 #1
+ Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
+ Call Trace:
+  [<ffffffffaf364147>] dump_stack+0x19/0x1b
+  [<ffffffffaf35eb6a>] dump_header+0x90/0x229
+  [<ffffffffaedbb456>] ? find_lock_task_mm+0x56/0xc0
+  [<ffffffffaee32a38>] ? try_get_mem_cgroup_from_mm+0x28/0x60
+  [<ffffffffaedbb904>] oom_kill_process+0x254/0x3d0
+  [<ffffffffaee36c36>] mem_cgroup_oom_synchronize+0x546/0x570
+  [<ffffffffaee360b0>] ? mem_cgroup_charge_common+0xc0/0xc0
+  [<ffffffffaedbc194>] pagefault_out_of_memory+0x14/0x90
+  [<ffffffffaf35d072>] mm_fault_error+0x6a/0x157
+  [<ffffffffaf3717c8>] __do_page_fault+0x3c8/0x4f0
+  [<ffffffffaf371925>] do_page_fault+0x35/0x90
+  [<ffffffffaf36d768>] page_fault+0x28/0x30
+ Task in /leaker killed as a result of limit of /leaker
+ memory: usage 524288kB, limit 524288kB, failcnt 20628
+ memory+swap: usage 524288kB, limit 9007199254740988kB, failcnt 0
+ kmem: usage 0kB, limit 9007199254740988kB, failcnt 0
+ Memory cgroup stats for /leaker: cache:840KB rss:523448KB rss_huge:0KB mapped_file:0KB swap:0KB inactive_anon:0KB active_anon:523448KB inactive_file:464KB active_file:376KB unevictable:0KB
+ Memory cgroup out of memory: Kill process 3206 (leaker) score 970 or sacrifice child
+ Killed process 3206 (leaker) total-vm:536692kB, anon-rss:523304kB, file-rss:412kB, shmem-rss:0kB
+
+Bisected by Masoud Sharbiani.
+
+Link: http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
+Fixes: 3da88fb3bacfaa33 ("mm, oom: move GFP_NOFS check to out_of_memory") [necessary after 29ef680ae7c21110]
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: Masoud Sharbiani <msharbiani@apple.com>
+Tested-by: Masoud Sharbiani <msharbiani@apple.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
 Cc: David Rientjes <rientjes@google.com>
-Cc: Yafang Shao <shaoyafang@didiglobal.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>	[4.19+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 777c088e9113..d99d59412c75 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -2078,6 +2078,17 @@ compact_zone(struct compact_control *cc, struct capture_control *capc)
- 	const bool sync = cc->mode != MIGRATE_ASYNC;
- 	bool update_cached;
+diff --git a/mm/oom_kill.c b/mm/oom_kill.c
+index 95872bdfec4e..a6b76624f5b8 100644
+--- a/mm/oom_kill.c
++++ b/mm/oom_kill.c
+@@ -1069,9 +1069,10 @@ bool out_of_memory(struct oom_control *oc)
+ 	 * The OOM killer does not compensate for IO-less reclaim.
+ 	 * pagefault_out_of_memory lost its gfp context so we have to
+ 	 * make sure exclude 0 mask - all other users should have at least
+-	 * ___GFP_DIRECT_RECLAIM to get here.
++	 * ___GFP_DIRECT_RECLAIM to get here. But mem_cgroup_oom() has to
++	 * invoke the OOM killer even if it is a GFP_NOFS allocation.
+ 	 */
+-	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS))
++	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS) && !is_memcg_oom(oc))
+ 		return true;
  
-+	/*
-+	 * These counters track activities during zone compaction.  Initialize
-+	 * them before compacting a new zone.
-+	 */
-+	cc->total_migrate_scanned = 0;
-+	cc->total_free_scanned = 0;
-+	cc->nr_migratepages = 0;
-+	cc->nr_freepages = 0;
-+	INIT_LIST_HEAD(&cc->freepages);
-+	INIT_LIST_HEAD(&cc->migratepages);
-+
- 	cc->migratetype = gfpflags_to_migratetype(cc->gfp_mask);
- 	ret = compaction_suitable(cc->zone, cc->order, cc->alloc_flags,
- 							cc->classzone_idx);
-@@ -2281,10 +2292,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
- {
- 	enum compact_result ret;
- 	struct compact_control cc = {
--		.nr_freepages = 0,
--		.nr_migratepages = 0,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.order = order,
- 		.search_order = order,
- 		.gfp_mask = gfp_mask,
-@@ -2305,8 +2312,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
- 
- 	if (capture)
- 		current->capture_control = &capc;
--	INIT_LIST_HEAD(&cc.freepages);
--	INIT_LIST_HEAD(&cc.migratepages);
- 
- 	ret = compact_zone(&cc, &capc);
- 
-@@ -2408,8 +2413,6 @@ static void compact_node(int nid)
- 	struct zone *zone;
- 	struct compact_control cc = {
- 		.order = -1,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.mode = MIGRATE_SYNC,
- 		.ignore_skip_hint = true,
- 		.whole_zone = true,
-@@ -2423,11 +2426,7 @@ static void compact_node(int nid)
- 		if (!populated_zone(zone))
- 			continue;
- 
--		cc.nr_freepages = 0;
--		cc.nr_migratepages = 0;
- 		cc.zone = zone;
--		INIT_LIST_HEAD(&cc.freepages);
--		INIT_LIST_HEAD(&cc.migratepages);
- 
- 		compact_zone(&cc, NULL);
- 
-@@ -2529,8 +2528,6 @@ static void kcompactd_do_work(pg_data_t *pgdat)
- 	struct compact_control cc = {
- 		.order = pgdat->kcompactd_max_order,
- 		.search_order = pgdat->kcompactd_max_order,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.classzone_idx = pgdat->kcompactd_classzone_idx,
- 		.mode = MIGRATE_SYNC_LIGHT,
- 		.ignore_skip_hint = false,
-@@ -2554,16 +2551,10 @@ static void kcompactd_do_work(pg_data_t *pgdat)
- 							COMPACT_CONTINUE)
- 			continue;
- 
--		cc.nr_freepages = 0;
--		cc.nr_migratepages = 0;
--		cc.total_migrate_scanned = 0;
--		cc.total_free_scanned = 0;
--		cc.zone = zone;
--		INIT_LIST_HEAD(&cc.freepages);
--		INIT_LIST_HEAD(&cc.migratepages);
--
- 		if (kthread_should_stop())
- 			return;
-+
-+		cc.zone = zone;
- 		status = compact_zone(&cc, NULL);
- 
- 		if (status == COMPACT_SUCCESS) {
+ 	/*
 
