@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CACCAB47
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFEDCAAA4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388457AbfJCRT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
+        id S2389351AbfJCRKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388239AbfJCQTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:07 -0400
+        id S2403963AbfJCQck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 838EE21A4C;
-        Thu,  3 Oct 2019 16:19:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7789821783;
+        Thu,  3 Oct 2019 16:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119547;
-        bh=lAXoCvK9UQCg0kKCfkhoaIjzPBFySSpdewTqTsr5tNk=;
+        s=default; t=1570120360;
+        bh=g187vndwyMzQFiDGPL8Bhd9t6/8cXzXzq/6xcOQIgj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVsQ5p3un3YSbiPrRw4it2OfkXzmOt5qrMslFD/9w2bpade0vVJpZ89B+pT147YHP
-         HE1kegcwIFZeOPmcY6C4JEN1Nm4Oms4KsoUlOPQzysOVDY4VrSIryQhmojgRtk4E5x
-         j3NNlnrp9blsj8FuY23jikErYWeY9Ag2B/plH1fA=
+        b=bM53Q1+plmpAjz1vYRMkPOqSL52DxqptPRvp9XmP4hSazY1l7q+Ee4G5Gt61NsX8G
+         3HkccfH6KwWIEuRgygcguX7pDDHXwvp0rLWdGRUS8qKZz5IvVXrJsMwmuwxmWTqtfE
+         m8uYrZG+u0lGA9yBn6sOvsV6HGHnGmJHIpWf4e3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/211] media: ov9650: add a sanity check
+Subject: [PATCH 5.2 192/313] mmc: core: Add helper function to indicate if SDIO IRQs is enabled
 Date:   Thu,  3 Oct 2019 17:52:50 +0200
-Message-Id: <20191003154510.531808346@linuxfoundation.org>
+Message-Id: <20191003154551.890683592@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 093347abc7a4e0490e3c962ecbde2dc272a8f708 ]
+[ Upstream commit bd880b00697befb73eff7220ee20bdae4fdd487b ]
 
-As pointed by cppcheck:
+To avoid each host driver supporting SDIO IRQs, from keeping track
+internally about if SDIO IRQs has been claimed, let's introduce a common
+helper function, sdio_irq_claimed().
 
-	[drivers/media/i2c/ov9650.c:706]: (error) Shifting by a negative value is undefined behaviour
-	[drivers/media/i2c/ov9650.c:707]: (error) Shifting by a negative value is undefined behaviour
-	[drivers/media/i2c/ov9650.c:721]: (error) Shifting by a negative value is undefined behaviour
+The function returns true if SDIO IRQs are claimed, via using the
+information about the number of claimed irqs. This is safe, even without
+any locks, as long as the helper function is called only from
+runtime/system suspend callbacks of the host driver.
 
-Prevent mangling with gains with invalid values.
-
-As pointed by Sylvester, this should never happen in practice,
-as min value of V4L2_CID_GAIN control is 16 (gain is always >= 16
-and m is always >= 0), but it is too hard for a static analyzer
-to get this, as the logic with validates control min/max is
-elsewhere inside V4L2 core.
-
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov9650.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/linux/mmc/host.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/media/i2c/ov9650.c b/drivers/media/i2c/ov9650.c
-index 5bea31cd41aa1..33a21d585dc9c 100644
---- a/drivers/media/i2c/ov9650.c
-+++ b/drivers/media/i2c/ov9650.c
-@@ -716,6 +716,11 @@ static int ov965x_set_gain(struct ov965x *ov965x, int auto_gain)
- 		for (m = 6; m >= 0; m--)
- 			if (gain >= (1 << m) * 16)
- 				break;
-+
-+		/* Sanity check: don't adjust the gain with a negative value */
-+		if (m < 0)
-+			return -EINVAL;
-+
- 		rgain = (gain - ((1 << m) * 16)) / (1 << m);
- 		rgain |= (((1 << m) - 1) << 4);
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index 7ac3755444d3d..56a8ad506072c 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -493,6 +493,15 @@ void mmc_command_done(struct mmc_host *host, struct mmc_request *mrq);
  
+ void mmc_cqe_request_done(struct mmc_host *host, struct mmc_request *mrq);
+ 
++/*
++ * May be called from host driver's system/runtime suspend/resume callbacks,
++ * to know if SDIO IRQs has been claimed.
++ */
++static inline bool sdio_irq_claimed(struct mmc_host *host)
++{
++	return host->sdio_irqs > 0;
++}
++
+ static inline void mmc_signal_sdio_irq(struct mmc_host *host)
+ {
+ 	host->ops->enable_sdio_irq(host, 0);
 -- 
 2.20.1
 
