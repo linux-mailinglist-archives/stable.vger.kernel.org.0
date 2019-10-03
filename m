@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ABCCA522
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30A7CA502
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391327AbfJCQb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38362 "EHLO mail.kernel.org"
+        id S2391666AbfJCQaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:30:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391842AbfJCQb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:31:28 -0400
+        id S2389910AbfJCQaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE60D2054F;
-        Thu,  3 Oct 2019 16:31:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE0252054F;
+        Thu,  3 Oct 2019 16:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120287;
-        bh=J857V+s2eCUvaCpjWd7tdKg18VSQm5KUn4SWhVl283w=;
+        s=default; t=1570120206;
+        bh=S2zNVlmqja7JUe4yh3eRIVAzXvsxaHQuJ0G0lZeEYmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jNalYUp0ib3OCnZNJUzYx/66iWmaq5KcAIuvyvyzXB/e/F1eJn3scr3DB5JB7TbWT
-         IduebLkJ1nvMV8dYZ4XEFSCVsaunHSb0ycyTlPVW2fejnAK00BITZhrHAAOe02ecGn
-         Sk8T56bCQQZJmS9BK1rQsYZMC+AGfa/+mvRJAoLo=
+        b=w/07TCStE7Ynm1lCGJjQnl8sQL1/MdaHM7llUApdmCDkDzXi1TfvjMYmX3elkTDne
+         r5MMEUs2tynFkztY3QFVLL1LgTpzWvLwtgQWr9rEosGyiWmt5NZEKp8cqpfxe6dfOH
+         R/gEa3VzGGPRKXbmwZwgHIumLXlY5PeZ8ckYJBDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 117/313] tools headers: Fixup bitsperlong per arch includes
-Date:   Thu,  3 Oct 2019 17:51:35 +0200
-Message-Id: <20191003154544.387002003@linuxfoundation.org>
+Subject: [PATCH 5.2 119/313] ASoC: mchp-i2s-mcc: Wait for RX/TX RDY only if controller is running
+Date:   Thu,  3 Oct 2019 17:51:37 +0200
+Message-Id: <20191003154544.657713329@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,110 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit 42fc2e9ef9603a7948aaa4ffd8dfb94b30294ad8 ]
+[ Upstream commit 0f6fc97501b790c971b11b52a654009d21c45238 ]
 
-We were getting the file by luck, from one of the paths in -I, fix it to
-get it from the proper place:
+Since hw_free() can be called multiple times and not just after a stop
+trigger command, we should check whether the RX or TX ready interrupt was
+truly enabled previously. For this, we assure that the condition of the
+wait event is always true, except when RX/TX interrupts are enabled.
 
-  $ cd tools/include/uapi/asm/
-  [acme@quaco asm]$ grep include bitsperlong.h
-  #include "../../arch/x86/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/s390/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/mips/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
-  #include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
-  #include <asm-generic/bitsperlong.h>
-  $ ls -la ../../arch/x86/include/uapi/asm/bitsperlong.h
-  ls: cannot access '../../arch/x86/include/uapi/asm/bitsperlong.h': No such file or directory
-  $ ls -la ../../../arch/*/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 237 ../../../arch/alpha/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 841 ../../../arch/arm64/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 966 ../../../arch/hexagon/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 234 ../../../arch/ia64/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 100 ../../../arch/microblaze/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 244 ../../../arch/mips/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 352 ../../../arch/parisc/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 312 ../../../arch/powerpc/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 353 ../../../arch/riscv/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 292 ../../../arch/s390/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 323 ../../../arch/sparc/include/uapi/asm/bitsperlong.h
-  -rw-rw-r--. 1 320 ../../../arch/x86/include/uapi/asm/bitsperlong.h
-  $
-
-Found while fixing some other problem, before it was escaping the
-tools/ chroot and using stuff in the kernel sources:
-
-    CC       /tmp/build/perf/util/find_bit.o
-In file included from /git/linux/tools/include/../../arch/x86/include/uapi/asm/bitsperlong.h:11,
-                 from /git/linux/tools/include/uapi/asm/bitsperlong.h:3,
-                 from /git/linux/tools/include/linux/bits.h:6,
-                 from /git/linux/tools/include/linux/bitops.h:13,
-                 from ../lib/find_bit.c:17:
-
-  # cd /git/linux/tools/include/../../arch/x86/include/uapi/asm/
-  # pwd
-  /git/linux/arch/x86/include/uapi/asm
-  #
-
-Now it is getting the one we want it to, i.e. the one inside tools/:
-
-    CC       /tmp/build/perf/util/find_bit.o
-  In file included from /git/linux/tools/arch/x86/include/uapi/asm/bitsperlong.h:11,
-                   from /git/linux/tools/include/linux/bits.h:6,
-                   from /git/linux/tools/include/linux/bitops.h:13,
-
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lkml.kernel.org/n/tip-8f8cfqywmf6jk8a3ucr0ixhu@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 7e0cdf545a55 ("ASoC: mchp-i2s-mcc: add driver for I2SC Multi-Channel Controller")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20190820162411.24836-3-codrin.ciubotariu@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/uapi/asm/bitsperlong.h | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ sound/soc/atmel/mchp-i2s-mcc.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/tools/include/uapi/asm/bitsperlong.h b/tools/include/uapi/asm/bitsperlong.h
-index 57aaeaf8e1920..edba4d93e9e6a 100644
---- a/tools/include/uapi/asm/bitsperlong.h
-+++ b/tools/include/uapi/asm/bitsperlong.h
-@@ -1,22 +1,22 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- #if defined(__i386__) || defined(__x86_64__)
--#include "../../arch/x86/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/x86/include/uapi/asm/bitsperlong.h"
- #elif defined(__aarch64__)
--#include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/arm64/include/uapi/asm/bitsperlong.h"
- #elif defined(__powerpc__)
--#include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/powerpc/include/uapi/asm/bitsperlong.h"
- #elif defined(__s390__)
--#include "../../arch/s390/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/s390/include/uapi/asm/bitsperlong.h"
- #elif defined(__sparc__)
--#include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/sparc/include/uapi/asm/bitsperlong.h"
- #elif defined(__mips__)
--#include "../../arch/mips/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/mips/include/uapi/asm/bitsperlong.h"
- #elif defined(__ia64__)
--#include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/ia64/include/uapi/asm/bitsperlong.h"
- #elif defined(__riscv)
--#include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/riscv/include/uapi/asm/bitsperlong.h"
- #elif defined(__alpha__)
--#include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
-+#include "../../../arch/alpha/include/uapi/asm/bitsperlong.h"
- #else
- #include <asm-generic/bitsperlong.h>
- #endif
+diff --git a/sound/soc/atmel/mchp-i2s-mcc.c b/sound/soc/atmel/mchp-i2s-mcc.c
+index 86495883ca3f1..8272915fa09b9 100644
+--- a/sound/soc/atmel/mchp-i2s-mcc.c
++++ b/sound/soc/atmel/mchp-i2s-mcc.c
+@@ -686,22 +686,24 @@ static int mchp_i2s_mcc_hw_free(struct snd_pcm_substream *substream,
+ 		err = wait_event_interruptible_timeout(dev->wq_txrdy,
+ 						       dev->tx_rdy,
+ 						       msecs_to_jiffies(500));
++		if (err == 0) {
++			dev_warn_once(dev->dev,
++				      "Timeout waiting for Tx ready\n");
++			regmap_write(dev->regmap, MCHP_I2SMCC_IDRA,
++				     MCHP_I2SMCC_INT_TXRDY_MASK(dev->channels));
++			dev->tx_rdy = 1;
++		}
+ 	} else {
+ 		err = wait_event_interruptible_timeout(dev->wq_rxrdy,
+ 						       dev->rx_rdy,
+ 						       msecs_to_jiffies(500));
+-	}
+-
+-	if (err == 0) {
+-		u32 idra;
+-
+-		dev_warn_once(dev->dev, "Timeout waiting for %s\n",
+-			      is_playback ? "Tx ready" : "Rx ready");
+-		if (is_playback)
+-			idra = MCHP_I2SMCC_INT_TXRDY_MASK(dev->channels);
+-		else
+-			idra = MCHP_I2SMCC_INT_RXRDY_MASK(dev->channels);
+-		regmap_write(dev->regmap, MCHP_I2SMCC_IDRA, idra);
++		if (err == 0) {
++			dev_warn_once(dev->dev,
++				      "Timeout waiting for Rx ready\n");
++			regmap_write(dev->regmap, MCHP_I2SMCC_IDRA,
++				     MCHP_I2SMCC_INT_RXRDY_MASK(dev->channels));
++			dev->rx_rdy = 1;
++		}
+ 	}
+ 
+ 	if (!mchp_i2s_mcc_is_running(dev)) {
+@@ -809,6 +811,8 @@ static int mchp_i2s_mcc_dai_probe(struct snd_soc_dai *dai)
+ 
+ 	init_waitqueue_head(&dev->wq_txrdy);
+ 	init_waitqueue_head(&dev->wq_rxrdy);
++	dev->tx_rdy = 1;
++	dev->rx_rdy = 1;
+ 
+ 	snd_soc_dai_init_dma_data(dai, &dev->playback, &dev->capture);
+ 
 -- 
 2.20.1
 
