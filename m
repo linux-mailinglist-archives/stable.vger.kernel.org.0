@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E2C0CA45E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D39ACA460
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729586AbfJCQYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53630 "EHLO mail.kernel.org"
+        id S2389904AbfJCQYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:24:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389858AbfJCQYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:24:08 -0400
+        id S2389858AbfJCQYL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:24:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D7642054F;
-        Thu,  3 Oct 2019 16:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0631F215EA;
+        Thu,  3 Oct 2019 16:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119847;
-        bh=qYTucrpLzAaL76uvI2YjPl7hfi72kzOKW2hzAs5sKy0=;
+        s=default; t=1570119850;
+        bh=uAVntkjPLgHA5UmSzzCWhj6ohpZsu17PsT4M5wIMo7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQODZ99naASQ+QueX33Jie9fCTZZfltyRtpo8WQ14GIcvDSaLvCGQSdRJf2EtQV7D
-         HSizqN6auVVOZ1VschsCr50hXjv+2nMmCgrxz6Zv31HxnJXdUYPl7ZOGom4ZyZLWL2
-         FquyxYJuC9Dgt96OEff4i9aqaqSS7b5yCIKQomBw=
+        b=OSiIGekBanSXUHB449aio/o/7IItvJrgWuiX66M20Inu0zBu+GweLJw2d2T0rewmF
+         Da248k405GX+i193G0e2qNAr75cG1sGbo97CrJFLD8glgOkdiI1+ieuk8CKM4qj/b3
+         kyl7IytL8QWToalUVOtR9ojOXY0pZbobL8JFj0tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 199/211] cfg80211: Purge frame registrations on iftype change
-Date:   Thu,  3 Oct 2019 17:54:25 +0200
-Message-Id: <20191003154529.555733685@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
+Subject: [PATCH 4.19 200/211] /dev/mem: Bail out upon SIGKILL.
+Date:   Thu,  3 Oct 2019 17:54:26 +0200
+Message-Id: <20191003154529.667679035@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -43,41 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kenzior <denkenz@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit c1d3ad84eae35414b6b334790048406bd6301b12 upstream.
+commit 8619e5bdeee8b2c685d686281f2d2a6017c4bc15 upstream.
 
-Currently frame registrations are not purged, even when changing the
-interface type.  This can lead to potentially weird situations where
-frames possibly not allowed on a given interface type remain registered
-due to the type switching happening after registration.
+syzbot found that a thread can stall for minutes inside read_mem() or
+write_mem() after that thread was killed by SIGKILL [1]. Reading from
+iomem areas of /dev/mem can be slow, depending on the hardware.
+While reading 2GB at one read() is legal, delaying termination of killed
+thread for minutes is bad. Thus, allow reading/writing /dev/mem and
+/dev/kmem to be preemptible and killable.
 
-The kernel currently relies on userspace apps to actually purge the
-registrations themselves, this is not something that the kernel should
-rely on.
+  [ 1335.912419][T20577] read_mem: sz=4096 count=2134565632
+  [ 1335.943194][T20577] read_mem: sz=4096 count=2134561536
+  [ 1335.978280][T20577] read_mem: sz=4096 count=2134557440
+  [ 1336.011147][T20577] read_mem: sz=4096 count=2134553344
+  [ 1336.041897][T20577] read_mem: sz=4096 count=2134549248
 
-Add a call to cfg80211_mlme_purge_registrations() to forcefully remove
-any registrations left over prior to switching the iftype.
+Theoretically, reading/writing /dev/mem and /dev/kmem can become
+"interruptible". But this patch chose "killable". Future patch will make
+them "interruptible" so that we can revert to "killable" if some program
+regressed.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Link: https://lore.kernel.org/r/20190828211110.15005-1-denkenz@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
+
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
+Link: https://lore.kernel.org/r/1566825205-10703-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/mem.c |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -930,6 +930,7 @@ int cfg80211_change_iface(struct cfg8021
- 		}
+--- a/drivers/char/mem.c
++++ b/drivers/char/mem.c
+@@ -97,6 +97,13 @@ void __weak unxlate_dev_mem_ptr(phys_add
+ }
+ #endif
  
- 		cfg80211_process_rdev_events(rdev);
-+		cfg80211_mlme_purge_registrations(dev->ieee80211_ptr);
++static inline bool should_stop_iteration(void)
++{
++	if (need_resched())
++		cond_resched();
++	return fatal_signal_pending(current);
++}
++
+ /*
+  * This funcion reads the *physical* memory. The f_pos points directly to the
+  * memory location.
+@@ -175,6 +182,8 @@ static ssize_t read_mem(struct file *fil
+ 		p += sz;
+ 		count -= sz;
+ 		read += sz;
++		if (should_stop_iteration())
++			break;
+ 	}
+ 	kfree(bounce);
+ 
+@@ -251,6 +260,8 @@ static ssize_t write_mem(struct file *fi
+ 		p += sz;
+ 		count -= sz;
+ 		written += sz;
++		if (should_stop_iteration())
++			break;
  	}
  
- 	err = rdev_change_virtual_intf(rdev, dev, ntype, params);
+ 	*ppos += written;
+@@ -468,6 +479,10 @@ static ssize_t read_kmem(struct file *fi
+ 			read += sz;
+ 			low_count -= sz;
+ 			count -= sz;
++			if (should_stop_iteration()) {
++				count = 0;
++				break;
++			}
+ 		}
+ 	}
+ 
+@@ -492,6 +507,8 @@ static ssize_t read_kmem(struct file *fi
+ 			buf += sz;
+ 			read += sz;
+ 			p += sz;
++			if (should_stop_iteration())
++				break;
+ 		}
+ 		free_page((unsigned long)kbuf);
+ 	}
+@@ -544,6 +561,8 @@ static ssize_t do_write_kmem(unsigned lo
+ 		p += sz;
+ 		count -= sz;
+ 		written += sz;
++		if (should_stop_iteration())
++			break;
+ 	}
+ 
+ 	*ppos += written;
+@@ -595,6 +614,8 @@ static ssize_t write_kmem(struct file *f
+ 			buf += sz;
+ 			virtr += sz;
+ 			p += sz;
++			if (should_stop_iteration())
++				break;
+ 		}
+ 		free_page((unsigned long)kbuf);
+ 	}
 
 
