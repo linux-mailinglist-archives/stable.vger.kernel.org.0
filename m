@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 240E9CA361
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E6ACA32F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388740AbfJCQO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
+        id S2388201AbfJCQNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:13:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388297AbfJCQND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:03 -0400
+        id S2388179AbfJCQNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:13:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17EAC2054F;
-        Thu,  3 Oct 2019 16:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B06F2054F;
+        Thu,  3 Oct 2019 16:13:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119182;
-        bh=Y11zvhIK8E89btix8E6YbczENk9krIRsc+ILQ8r1z8g=;
+        s=default; t=1570119195;
+        bh=9nGv8GP1WGb+HJj7APrzz5eL3Z92PFIFl4Q0ahUFkgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ws5d6dSvbOm/MfjzNvDyB7PT3+gqPswJP18oqzOVTIjvTyhKIt1OWZe0YzXEUuzvK
-         slQN2c0bJOKUCerNlc5HsRWPilDefr8f6XonhiTsRUqXQbXBofUd3rY3zwQE6TM/BV
-         AlS+18TNn3P0wvlki4LIXxVQTPAEuRBRVCEV8+/U=
+        b=xDfSeIby40kjXUKc/xPruqURUGaYHtkaqtO8JwCiRGJ0oLfLjZmAoIqtkPEF3RENk
+         TYVAW20pUybxlnOXgVfkqSx6OtaWedfAbmFRhxHEWLnG4ueRvkynx+5IL1dYEUEpcM
+         VzUbHCNKBVNnxQjNuxHkiy5YQLuBF+4LIbbsuu5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 155/185] ASoC: Intel: NHLT: Fix debug print format
-Date:   Thu,  3 Oct 2019 17:53:53 +0200
-Message-Id: <20191003154514.289731616@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Liang Chen <cl@rock-chips.com>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 4.14 160/185] arm64: dts: rockchip: limit clock rate of MMC controllers for RK3328
+Date:   Thu,  3 Oct 2019 17:53:58 +0200
+Message-Id: <20191003154515.349272868@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -46,34 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+From: Shawn Lin <shawn.lin@rock-chips.com>
 
-commit 855a06da37a773fd073d51023ac9d07988c87da8 upstream.
+commit 03e61929c0d227ed3e1c322fc3804216ea298b7e upstream.
 
-oem_table_id is 8 chars long, so we need to limit it, otherwise it
-may print some unprintable characters into dmesg.
+150MHz is a fundamental limitation of RK3328 Soc, w/o this limitation,
+eMMC, for instance, will run into 200MHz clock rate in HS200 mode, which
+makes the RK3328 boards not always boot properly. By adding it in
+rk3328.dtsi would also obviate the worry of missing it when adding new
+boards.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-7-amadeuszx.slawinski@linux.intel.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 52e02d377a72 ("arm64: dts: rockchip: add core dtsi file for RK3328 SoCs")
 Cc: stable@vger.kernel.org
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Liang Chen <cl@rock-chips.com>
+Signed-off-by: Shawn Lin <shawn.lin@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-nhlt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/soc/intel/skylake/skl-nhlt.c
-+++ b/sound/soc/intel/skylake/skl-nhlt.c
-@@ -215,7 +215,7 @@ int skl_nhlt_update_topology_bin(struct
- 	struct hdac_bus *bus = ebus_to_hbus(&skl->ebus);
- 	struct device *dev = bus->dev;
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -685,6 +685,7 @@
+ 			 <&cru SCLK_SDMMC_DRV>, <&cru SCLK_SDMMC_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
  
--	dev_dbg(dev, "oem_id %.6s, oem_table_id %8s oem_revision %d\n",
-+	dev_dbg(dev, "oem_id %.6s, oem_table_id %.8s oem_revision %d\n",
- 		nhlt->header.oem_id, nhlt->header.oem_table_id,
- 		nhlt->header.oem_revision);
+@@ -696,6 +697,7 @@
+ 			 <&cru SCLK_SDIO_DRV>, <&cru SCLK_SDIO_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
+ 
+@@ -707,6 +709,7 @@
+ 			 <&cru SCLK_EMMC_DRV>, <&cru SCLK_EMMC_SAMPLE>;
+ 		clock-names = "biu", "ciu", "ciu-drive", "ciu-sample";
+ 		fifo-depth = <0x100>;
++		max-frequency = <150000000>;
+ 		status = "disabled";
+ 	};
  
 
 
