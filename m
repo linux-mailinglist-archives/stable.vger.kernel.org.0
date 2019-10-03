@@ -2,93 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3BDCA11D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E25CA16D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730246AbfJCPYX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:24:23 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:36935 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727302AbfJCPYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 11:24:23 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1560C21FA9;
-        Thu,  3 Oct 2019 11:24:23 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 11:24:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=wxwbZrBVLmCV/6x5xA/QEnCBye4
-        85D+44+PoHhHJyiw=; b=ZLQr7DvcwhxjtnKCaQkQLfUT9BN8Wrudri+Ww0dS5gg
-        KK/y+OadR23tEVA4w84bS3qrz8AMSPKLVWMAgmB8UItp+3OlhZL44zOwyJwRpZPY
-        okQcefJDs3q9iLsqtQz988/78SPPyyx3BKawUZeQxHILkMTO87U0qVy5xquMcjdn
-        HNrOSq2tA7upTUXlZXaMo55LNOpIS5PfCYPJik/H9sJ3+2F2CO1PGgIPnH0TrDCJ
-        wGG3svo6kaUY6EnINCkeGbNN7DY73ba6j4xU5wByiY3k14wKFZT06RoOU1HLlLao
-        oGleuoRiPTwBJ9WGaB79ZOaqwBpKnnwgLNooddUGpFw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=wxwbZr
-        BVLmCV/6x5xA/QEnCBye485D+44+PoHhHJyiw=; b=LwO7W2fmc8T/wtb7Q2Ilar
-        Yy2h9tHdI3FBmoLmAynLmgBdoegiC9NcIxoZVnQDBgpIUUF+Lyfxd8wID4um7mA0
-        43NoaD0xIJdE9vdfWIxpuKSSpRLzQyzXcvWFA63NvZfgddywbL6Zz8bM5+rMgXFF
-        oz0R0YO0ByZ4ALONW1VqfWu29AdxRckH8CaNFfzgk+azyff/ssjwCsKi6P/Se1Q/
-        Jj655xrfmcl4OMB2CUaz9EMxNbY7jTq98HPr69bWU5/GAje6f9B4zn6igmnOaVal
-        buwF+RDhmKxA2roxuvJHcPC3kxgdOGjc/WmyXlK/L7WvbDcQKA6tsiCTu7ZwdP8g
-        ==
-X-ME-Sender: <xms:phKWXfonIdUnLANP0QwMrQ5Tfrvm1cyVGpFAIHagzQOunvrRBnzZhQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdeklecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:phKWXTWEDQ0OXFy3XOGuQwBcE6HfPRYRtl1S_oSNS95_yxnyPauA4A>
-    <xmx:phKWXbgpxolMHAAkH9rAamcA5D3GIAHT7Offt1GCIUSbvWpG-bwOhw>
-    <xmx:phKWXa8xfMjFRzIgS9elp6HFpHbMzwRqSzoCwqj1PsxWjCQfprC_kA>
-    <xmx:pxKWXfoeSW5e1_yyqc5jzhAPV2mdHvoXL32RNkUJteL7wk-VNzImMA>
+        id S1729838AbfJCPzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:55:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727024AbfJCPzw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:55:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 30B568005C;
-        Thu,  3 Oct 2019 11:24:22 -0400 (EDT)
-Date:   Thu, 3 Oct 2019 17:24:18 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Alex Deucher <alexdeucher@gmail.com>
-Cc:     stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: Re: [PATCH 0/3] amdgpu display fixes for 5.3
-Message-ID: <20191003152418.GA3187656@kroah.com>
-References: <20191002184219.4011-1-alexander.deucher@amd.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 870EE20700;
+        Thu,  3 Oct 2019 15:55:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570118151;
+        bh=/mUCgtJyGz4DPng07kBY1gGf11ZttIpDb6KMtMyH+zk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AfJbS2MSwzZeH5r7qGnu7HoSVqSTHONS7pRRSiUT0tMpPy8Wh0Fol7ALHtZMVvy9W
+         OvHxoLKQYyJxLoDa102NSQdCzQCg1b8zt873A3I1ifvS8Gj8HEgLLyffUiSgQOTvrb
+         PqS4tU5KG0+pWWUXx9JlTWyBN/F/lwNOCQV5dwW8=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 01/99] Revert "Bluetooth: validate BLE connection interval updates"
+Date:   Thu,  3 Oct 2019 17:52:24 +0200
+Message-Id: <20191003154253.184041960@linuxfoundation.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191002184219.4011-1-alexander.deucher@amd.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 02, 2019 at 01:42:16PM -0500, Alex Deucher wrote:
-> Some display fixes for vega20 for stable.  Fixes
-> stability issues with certain combinations of monitors.
-> Cherry-picked from master.
-> 
-> Alex Deucher (1):
->   drm/amdgpu/display: fix 64 bit divide
-> 
-> Charlene Liu (1):
->   drm/amd/display: dce11.x /dce12 update formula input
-> 
-> Zhan Liu (1):
->   drm/amd/display: Add missing HBM support and raise Vega20's uclk.
-> 
->  .../dc/clk_mgr/dce110/dce110_clk_mgr.c        | 27 ++++++++++++++++---
->  .../drm/amd/display/dc/dce/dce_mem_input.c    |  4 +--
->  .../amd/display/dc/dce112/dce112_resource.c   | 16 ++++++-----
->  .../amd/display/dc/dce120/dce120_resource.c   | 11 +++++---
->  drivers/gpu/drm/amd/display/dc/inc/resource.h |  2 ++
->  5 files changed, 45 insertions(+), 15 deletions(-)
+From: Marcel Holtmann <marcel@holtmann.org>
 
-All now queued up, thanks.
+[ Upstream commit 68d19d7d995759b96169da5aac313363f92a9075 ]
 
-greg k-h
+This reverts commit c49a8682fc5d298d44e8d911f4fa14690ea9485e.
+
+There are devices which require low connection intervals for usable operation
+including keyboards and mice. Forcing a static connection interval for
+these types of devices has an impact in latency and causes a regression.
+
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/bluetooth/hci_event.c  | 5 -----
+ net/bluetooth/l2cap_core.c | 9 +--------
+ 2 files changed, 1 insertion(+), 13 deletions(-)
+
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index c4e94f34d0480..37fe2b158c2a7 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5062,11 +5062,6 @@ static void hci_le_remote_conn_param_req_evt(struct hci_dev *hdev,
+ 		return send_conn_param_neg_reply(hdev, handle,
+ 						 HCI_ERROR_UNKNOWN_CONN_ID);
+ 
+-	if (min < hcon->le_conn_min_interval ||
+-	    max > hcon->le_conn_max_interval)
+-		return send_conn_param_neg_reply(hdev, handle,
+-						 HCI_ERROR_INVALID_LL_PARAMS);
+-
+ 	if (hci_check_conn_params(min, max, latency, timeout))
+ 		return send_conn_param_neg_reply(hdev, handle,
+ 						 HCI_ERROR_INVALID_LL_PARAMS);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 8cfba78d26f61..c25f1e4846cde 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -5266,14 +5266,7 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
+ 
+ 	memset(&rsp, 0, sizeof(rsp));
+ 
+-	if (min < hcon->le_conn_min_interval ||
+-	    max > hcon->le_conn_max_interval) {
+-		BT_DBG("requested connection interval exceeds current bounds.");
+-		err = -EINVAL;
+-	} else {
+-		err = hci_check_conn_params(min, max, latency, to_multiplier);
+-	}
+-
++	err = hci_check_conn_params(min, max, latency, to_multiplier);
+ 	if (err)
+ 		rsp.result = cpu_to_le16(L2CAP_CONN_PARAM_REJECTED);
+ 	else
+-- 
+2.20.1
+
+
+
