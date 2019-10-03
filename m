@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52727CA951
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8505DCAAEB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404983AbfJCQk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:40:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51294 "EHLO mail.kernel.org"
+        id S2404509AbfJCRPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404979AbfJCQk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:40:58 -0400
+        id S2391026AbfJCQ0J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:26:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE65F20830;
-        Thu,  3 Oct 2019 16:40:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E6D52133F;
+        Thu,  3 Oct 2019 16:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120857;
-        bh=ZC9lpSM5Wj6CgnpGxKHza4H16yIMHAvueVMdgbA3+Lk=;
+        s=default; t=1570119969;
+        bh=dojeDYxDcSaMAmdiQPqZM0xxtY9cfX6MMKaYkfr+Zbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtAC4e+Htg+QQXGjJzl1tafNzEW3+vt9yh9oJKB6GuRRfgbtlSIn7vWG4gxnsYrVA
-         BsiaClNRYxAXH4RDfjosl+EzVPINyUdaegNjbOtAK5ZR/Lo2YSF/GHAcAwYxT55BxW
-         py0NnvagqoeRuNdoKUjIt6dFmpSmBQ2c31SQzxFQ=
+        b=CidUrJPMFZ9cRlU/aBTpEhMpPc8a383ipNhZY5/oSU/Yt/hMGWjo7IzX2vZ515S1N
+         VYuKKy62RrDqVxAsPX+TLvNxUIxdhw1WfzjUfdBAQVO5f/Cs1xDb3aI14Q682UYAcG
+         1p7bHeXGtPn3hiEwMXfD8C+UR9En7H9vv2VWVIWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 062/344] sched/fair: Fix imbalance due to CPU affinity
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 049/313] media: vb2: reorder checks in vb2_poll()
 Date:   Thu,  3 Oct 2019 17:50:27 +0200
-Message-Id: <20191003154546.221364910@linuxfoundation.org>
+Message-Id: <20191003154537.945046902@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,64 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Guittot <vincent.guittot@linaro.org>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
+[ Upstream commit 8d86a15649957c182e90fa2b1267c16699bc12f1 ]
 
-The load_balance() has a dedicated mecanism to detect when an imbalance
-is due to CPU affinity and must be handled at parent level. In this case,
-the imbalance field of the parent's sched_group is set.
+When reaching the end of stream, V4L2 clients may expect the
+V4L2_EOS_EVENT before being able to dequeue the last buffer, which has
+the V4L2_BUF_FLAG_LAST flag set.
 
-The description of sg_imbalanced() gives a typical example of two groups
-of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
-group and 3 CPUs of the second group. Something like:
+If the vb2_poll() function first checks for events and afterwards if
+buffers are available, a driver can queue the V4L2_EOS_EVENT event and
+return the buffer after the check for events but before the check for
+buffers. This causes vb2_poll() to signal that the buffer with
+V4L2_BUF_FLAG_LAST can be read without the V4L2_EOS_EVENT being
+available.
 
-	{ 0 1 2 3 } { 4 5 6 7 }
-	        *     * * *
+First, check for available buffers and afterwards for events to ensure
+that if vb2_poll() signals POLLIN | POLLRDNORM for the
+V4L2_BUF_FLAG_LAST buffer, it also signals POLLPRI for the
+V4L2_EOS_EVENT.
 
-But the load_balance fails to fix this UC on my octo cores system
-made of 2 clusters of quad cores.
-
-Whereas the load_balance is able to detect that the imbalanced is due to
-CPU affinity, it fails to fix it because the imbalance field is cleared
-before letting parent level a chance to run. In fact, when the imbalance is
-detected, the load_balance reruns without the CPU with pinned tasks. But
-there is no other running tasks in the situation described above and
-everything looks balanced this time so the imbalance field is immediately
-cleared.
-
-The imbalance field should not be cleared if there is no other task to move
-when the imbalance is detected.
-
-Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/common/videobuf2/videobuf2-v4l2.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 500f5db0de0ba..105b1aead0c3a 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -9052,9 +9052,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
- out_balanced:
- 	/*
- 	 * We reach balance although we may have faced some affinity
--	 * constraints. Clear the imbalance flag if it was set.
-+	 * constraints. Clear the imbalance flag only if other tasks got
-+	 * a chance to move and fix the imbalance.
- 	 */
--	if (sd_parent) {
-+	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
- 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
+diff --git a/drivers/media/common/videobuf2/videobuf2-v4l2.c b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+index fb9ac7696fc6e..bd9bfeee385fb 100644
+--- a/drivers/media/common/videobuf2/videobuf2-v4l2.c
++++ b/drivers/media/common/videobuf2/videobuf2-v4l2.c
+@@ -872,17 +872,19 @@ EXPORT_SYMBOL_GPL(vb2_queue_release);
+ __poll_t vb2_poll(struct vb2_queue *q, struct file *file, poll_table *wait)
+ {
+ 	struct video_device *vfd = video_devdata(file);
+-	__poll_t res = 0;
++	__poll_t res;
++
++	res = vb2_core_poll(q, file, wait);
  
- 		if (*group_imbalance)
+ 	if (test_bit(V4L2_FL_USES_V4L2_FH, &vfd->flags)) {
+ 		struct v4l2_fh *fh = file->private_data;
+ 
+ 		poll_wait(file, &fh->wait, wait);
+ 		if (v4l2_event_pending(fh))
+-			res = EPOLLPRI;
++			res |= EPOLLPRI;
+ 	}
+ 
+-	return res | vb2_core_poll(q, file, wait);
++	return res;
+ }
+ EXPORT_SYMBOL_GPL(vb2_poll);
+ 
 -- 
 2.20.1
 
