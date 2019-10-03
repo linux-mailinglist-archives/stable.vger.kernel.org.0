@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D5ACA3A8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE7B9CA38B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388470AbfJCQRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:17:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
+        id S2388050AbfJCQQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388397AbfJCQRi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:38 -0400
+        id S1732434AbfJCQQQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82CFA21848;
-        Thu,  3 Oct 2019 16:17:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5F802133F;
+        Thu,  3 Oct 2019 16:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119458;
-        bh=u7H7ztHchobE3ZGof1DEGjbx8GRy0u3r0WIDuLbnQ48=;
+        s=default; t=1570119376;
+        bh=E+8DDLBbjMszKWIYzvh2j4yfRBKcj4KQ5wwXpznjhCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3Cy/42ua66JMeC3JTNN1RSOpgRAE2vg+z4lJ4DYADzBYD0I3cuizGaTX5okNr79x
-         HrdV02CK6cMQne5FK2Fd3YtKbJW7K/QxaMFe5lEcaoQf5R+hfdYJxJp4NQ/ZSq4siK
-         WTlZ6UGYU2HCDiqmbIaOjdeVAeUHwcE1TlEPi6ZY=
+        b=uQdfMJr0wCK7i5qVaJu8q6Dj5MRrC3Rs5GftIgfdYWkL6bs7I140J9gzrU85kYMme
+         IGIufBi3aldGZAYalOh2pJAYAgOA/X/Tof8sykgWQGBlpwR9d2pt64lVxpbNJqxKil
+         w74OXrj3YwoS1iubOusfkuhtfpdswKscEN6XKklI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Sean Wang <sean.wang@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/211] media: mtk-cir: lower de-glitch counter for rc-mm protocol
-Date:   Thu,  3 Oct 2019 17:51:39 +0200
-Message-Id: <20191003154454.650243924@linuxfoundation.org>
+Subject: [PATCH 4.19 043/211] x86/apic: Soft disable APIC before initializing it
+Date:   Thu,  3 Oct 2019 17:51:49 +0200
+Message-Id: <20191003154457.710618197@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,49 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 5dd4b89dc098bf22cd13e82a308f42a02c102b2b ]
+[ Upstream commit 2640da4cccf5cc613bf26f0998b9e340f4b5f69c ]
 
-The rc-mm protocol can't be decoded by the mtk-cir since the de-glitch
-filter removes pulses/spaces shorter than 294 microseconds.
+If the APIC was already enabled on entry of setup_local_APIC() then
+disabling it soft via the SPIV register makes a lot of sense.
 
-Tested on a BananaPi R2.
+That masks all LVT entries and brings it into a well defined state.
 
-Signed-off-by: Sean Young <sean@mess.org>
-Acked-by: Sean Wang <sean.wang@kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Otherwise previously enabled LVTs which are not touched in the setup
+function stay unmasked and might surprise the just booting kernel.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20190722105219.068290579@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/mtk-cir.c | 8 ++++++++
+ arch/x86/kernel/apic/apic.c | 8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/rc/mtk-cir.c b/drivers/media/rc/mtk-cir.c
-index e42efd9d382ec..d37b85d2bc750 100644
---- a/drivers/media/rc/mtk-cir.c
-+++ b/drivers/media/rc/mtk-cir.c
-@@ -44,6 +44,11 @@
- /* Fields containing pulse width data */
- #define MTK_WIDTH_MASK		  (GENMASK(7, 0))
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 9bfbe1fa0339c..dfdd1caf0d55d 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1538,6 +1538,14 @@ static void setup_local_APIC(void)
+ 		return;
+ 	}
  
-+/* IR threshold */
-+#define MTK_IRTHD		 0x14
-+#define MTK_DG_CNT_MASK		 (GENMASK(12, 8))
-+#define MTK_DG_CNT(x)		 ((x) << 8)
++	/*
++	 * If this comes from kexec/kcrash the APIC might be enabled in
++	 * SPIV. Soft disable it before doing further initialization.
++	 */
++	value = apic_read(APIC_SPIV);
++	value &= ~APIC_SPIV_APIC_ENABLED;
++	apic_write(APIC_SPIV, value);
 +
- /* Bit to enable interrupt */
- #define MTK_IRINT_EN		  BIT(0)
- 
-@@ -409,6 +414,9 @@ static int mtk_ir_probe(struct platform_device *pdev)
- 	mtk_w32_mask(ir, val, ir->data->fields[MTK_HW_PERIOD].mask,
- 		     ir->data->fields[MTK_HW_PERIOD].reg);
- 
-+	/* Set de-glitch counter */
-+	mtk_w32_mask(ir, MTK_DG_CNT(1), MTK_DG_CNT_MASK, MTK_IRTHD);
-+
- 	/* Enable IR and PWM */
- 	val = mtk_r32(ir, MTK_CONFIG_HIGH_REG);
- 	val |= MTK_OK_COUNT(ir->data->ok_count) |  MTK_PWM_EN | MTK_IR_EN;
+ #ifdef CONFIG_X86_32
+ 	/* Pound the ESR really hard over the head with a big hammer - mbligh */
+ 	if (lapic_is_integrated() && apic->disable_esr) {
 -- 
 2.20.1
 
