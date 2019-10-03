@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0AE2CAA57
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30235CAA58
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392712AbfJCRDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390461AbfJCRDr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 13:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405023AbfJCQl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:41:29 -0400
+        id S2405051AbfJCQle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:41:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E11092054F;
-        Thu,  3 Oct 2019 16:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 027EA2054F;
+        Thu,  3 Oct 2019 16:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120889;
-        bh=UGihAmaLW362vg11BnS10tyWxVR4P37dFjOZO5GGe6U=;
+        s=default; t=1570120894;
+        bh=/U8E39KaJHPuCt55oqs9aksyUmQx9j4P9V5W2MqI1Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eg0nHQrVoJDWu1lBd5aZX8HHcffglLYLndGDNDF2btAg5XCE7EOuGU0lq+tAj10Ju
-         eYcIopxwhFG7r0zFn6eGNUXjB7+lNlQnC9trMZmWlLGalcAgCaIJ5z4igCvPTPMqba
-         UMPFUckRG3ruBKOYi6j+KCwd2bYEO6UAAfNLXO5o=
+        b=aAemkEjtUuq4e6OYXJguy3dXLrUcAgY7TX81EUrZPwZsQX4wG5TlQHJO9OdOIvLTf
+         1udmBbjf4412aTbMTu+Yh8f0XddlMfDWYfieA+Rvj8BP/X2szjCTZL7+kbu1/TyfPy
+         I0Aogo+0YMDebOi94L0BojNlothWWt0ZhD+iTsXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 076/344] gpio: madera: Add support for Cirrus Logic CS47L15
-Date:   Thu,  3 Oct 2019 17:50:41 +0200
-Message-Id: <20191003154547.647475518@linuxfoundation.org>
+        stable@vger.kernel.org, Junhua Huang <huang.junhua@zte.com.cn>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 078/344] arm64: mm: free the initrd reserved memblock in a aligned manner
+Date:   Thu,  3 Oct 2019 17:50:43 +0200
+Message-Id: <20191003154547.849626206@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,36 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Junhua Huang <huang.junhua@zte.com.cn>
 
-[ Upstream commit d06be8bc290aa255b9fd8602e60fb9f487aa0f48 ]
+[ Upstream commit 13776f9d40a028a245bb766269e360f5b7a62721 ]
 
-As the gpio is common to all madera codecs all that is needed
-is to setup the correct number of GPIO pins for the CS47L15.
+We should free the initrd reserved memblock in an aligned manner,
+because the initrd reserves the memblock in an aligned manner
+in arm64_memblock_init().
+Otherwise there are some fragments in memblock_reserved regions
+after free_initrd_mem(). e.g.:
+/sys/kernel/debug/memblock # cat reserved
+   0: 0x0000000080080000..0x00000000817fafff
+   1: 0x0000000083400000..0x0000000083ffffff
+   2: 0x0000000090000000..0x000000009000407f
+   3: 0x00000000b0000000..0x00000000b000003f
+   4: 0x00000000b26184ea..0x00000000b2618fff
+The fragments like the ranges from b0000000 to b000003f and
+from b26184ea to b2618fff should be freed.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20190722090748.20807-3-ckeepax@opensource.cirrus.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+And we can do free_reserved_area() after memblock_free(),
+as free_reserved_area() calls __free_pages(), once we've done
+that it could be allocated somewhere else,
+but memblock and iomem still say this is reserved memory.
+
+Fixes: 05c58752f9dc ("arm64: To remove initrd reserved area entry from memblock")
+Signed-off-by: Junhua Huang <huang.junhua@zte.com.cn>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-madera.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/mm/init.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-madera.c b/drivers/gpio/gpio-madera.c
-index 4dbc837d12155..19db5a500eb0d 100644
---- a/drivers/gpio/gpio-madera.c
-+++ b/drivers/gpio/gpio-madera.c
-@@ -136,6 +136,9 @@ static int madera_gpio_probe(struct platform_device *pdev)
- 	madera_gpio->gpio_chip.parent = pdev->dev.parent;
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index f3c795278def0..b1ee6cb4b17fc 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -570,8 +570,12 @@ void free_initmem(void)
+ #ifdef CONFIG_BLK_DEV_INITRD
+ void __init free_initrd_mem(unsigned long start, unsigned long end)
+ {
++	unsigned long aligned_start, aligned_end;
++
++	aligned_start = __virt_to_phys(start) & PAGE_MASK;
++	aligned_end = PAGE_ALIGN(__virt_to_phys(end));
++	memblock_free(aligned_start, aligned_end - aligned_start);
+ 	free_reserved_area((void *)start, (void *)end, 0, "initrd");
+-	memblock_free(__virt_to_phys(start), end - start);
+ }
+ #endif
  
- 	switch (madera->type) {
-+	case CS47L15:
-+		madera_gpio->gpio_chip.ngpio = CS47L15_NUM_GPIOS;
-+		break;
- 	case CS47L35:
- 		madera_gpio->gpio_chip.ngpio = CS47L35_NUM_GPIOS;
- 		break;
 -- 
 2.20.1
 
