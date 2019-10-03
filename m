@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D954CA7EC
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A28CACA7EB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405238AbfJCQtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:49:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35274 "EHLO mail.kernel.org"
+        id S2405802AbfJCQtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405791AbfJCQtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:49:01 -0400
+        id S2405798AbfJCQtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:49:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2C1220865;
-        Thu,  3 Oct 2019 16:48:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE4D92070B;
+        Thu,  3 Oct 2019 16:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121340;
-        bh=BZapDg6ZGXM9Rg5kPcRilfrz2LUQyzrkxIwwMOM1Xy0=;
+        s=default; t=1570121343;
+        bh=I3kLEQRO6N51vK01+5h+Rvc7se9w/7wBISFxOD8uRAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7qm/0phn53sYjcPyW1RMHga51bVgCwWoz33em4Bksg2TLE59+d4Eh/4sDEazx9DU
-         yHYa+B+PvZQIGvbYQmxRR8l+PLtgwzXsrm/TShuwGghQ9o7v4OQex2X/GWMsZpkVmI
-         3SuKfljokjEkuPz+AdmIE5zgfFwcLZhUVtWOg8T8=
+        b=gUW4sKOewD9QjIhl35bCY6fMDPnWT/ogA8I3zqzeJjDP2E6AiYjv6tlvJ0XFsFD9m
+         5akLuvxpni2xsI3SisGeIJkNrkGx4n1XCWfLqdT6hv0/NTLJUbHmrJOTGlFQ73Evsw
+         GuevUglz7MPoFqRrGvs467TP58pF+qAp+iItwu78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, rostedt@goodmis.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Petr Mladek <pmladek@suse.com>
-Subject: [PATCH 5.3 242/344] printk: Do not lose last line in kmsg buffer dump
-Date:   Thu,  3 Oct 2019 17:53:27 +0200
-Message-Id: <20191003154604.278696964@linuxfoundation.org>
+        stable@vger.kernel.org, Danit Goldberg <danitg@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.3 243/344] IB/mlx5: Free mpi in mp_slave mode
+Date:   Thu,  3 Oct 2019 17:53:28 +0200
+Message-Id: <20191003154604.377975004@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,70 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Danit Goldberg <danitg@mellanox.com>
 
-commit c9dccacfccc72c32692eedff4a27a4b0833a2afd upstream.
+commit 5d44adebbb7e785939df3db36ac360f5e8b73e44 upstream.
 
-kmsg_dump_get_buffer() is supposed to select all the youngest log
-messages which fit into the provided buffer.  It determines the correct
-start index by using msg_print_text() with a NULL buffer to calculate
-the size of each entry.  However, when performing the actual writes,
-msg_print_text() only writes the entry to the buffer if the written len
-is lesser than the size of the buffer.  So if the lengths of the
-selected youngest log messages happen to precisely fill up the provided
-buffer, the last log message is not included.
+ib_add_slave_port() allocates a multiport struct but never frees it.
+Don't leak memory, free the allocated mpi struct during driver unload.
 
-We don't want to modify msg_print_text() to fill up the buffer and start
-returning a length which is equal to the size of the buffer, since
-callers of its other users, such as kmsg_dump_get_line(), depend upon
-the current behaviour.
-
-Instead, fix kmsg_dump_get_buffer() to compensate for this.
-
-For example, with the following two final prints:
-
-[    6.427502] AAAAAAAAAAAAA
-[    6.427769] BBBBBBBB12345
-
-A dump of a 64-byte buffer filled by kmsg_dump_get_buffer(), before this
-patch:
-
- 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 35 32 32 31 39 37  <0>[    6.522197
- 00000010: 5d 20 41 41 41 41 41 41 41 41 41 41 41 41 41 0a  ] AAAAAAAAAAAAA.
- 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
- 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-
-After this patch:
-
- 00000000: 3c 30 3e 5b 20 20 20 20 36 2e 34 35 36 36 37 38  <0>[    6.456678
- 00000010: 5d 20 42 42 42 42 42 42 42 42 31 32 33 34 35 0a  ] BBBBBBBB12345.
- 00000020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
- 00000030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-
-Link: http://lkml.kernel.org/r/20190711142937.4083-1-vincent.whitchurch@axis.com
-Fixes: e2ae715d66bf4bec ("kmsg - kmsg_dump() use iterator to receive log buffer content")
-To: rostedt@goodmis.org
-Cc: linux-kernel@vger.kernel.org
-Cc: <stable@vger.kernel.org> # v3.5+
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 32f69e4be269 ("{net, IB}/mlx5: Manage port association for multiport RoCE")
+Link: https://lore.kernel.org/r/20190916064818.19823-3-leon@kernel.org
+Signed-off-by: Danit Goldberg <danitg@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/printk/printk.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -3274,7 +3274,7 @@ bool kmsg_dump_get_buffer(struct kmsg_du
- 	/* move first record forward until length fits into the buffer */
- 	seq = dumper->cur_seq;
- 	idx = dumper->cur_idx;
--	while (l > size && seq < dumper->next_seq) {
-+	while (l >= size && seq < dumper->next_seq) {
- 		struct printk_log *msg = log_from_idx(idx);
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -6959,6 +6959,7 @@ static void mlx5_ib_remove(struct mlx5_c
+ 			mlx5_ib_unbind_slave_port(mpi->ibdev, mpi);
+ 		list_del(&mpi->list);
+ 		mutex_unlock(&mlx5_ib_multiport_mutex);
++		kfree(mpi);
+ 		return;
+ 	}
  
- 		l -= msg_print_text(msg, true, time, NULL, 0);
 
 
