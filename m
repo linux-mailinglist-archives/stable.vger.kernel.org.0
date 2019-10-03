@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 253E7CAC53
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D478CABDB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733297AbfJCQI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:08:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57384 "EHLO mail.kernel.org"
+        id S1731669AbfJCQA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731439AbfJCQI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:08:56 -0400
+        id S1730237AbfJCQA6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:00:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A393321848;
-        Thu,  3 Oct 2019 16:08:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E99C21A4C;
+        Thu,  3 Oct 2019 16:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118935;
-        bh=Xl2elV2ZT10DYuQvJd9qDHbzliuUMTkiEbjCUrmdKss=;
+        s=default; t=1570118457;
+        bh=laAxBeLgUCL7CLKkEoF7O8sqpowtY5MtgmlxoiWAa/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUphUQKp9/5XkuZ4jlXNXfReZaVA1WndIe9U6MRxBdGcMiN0g8Nq1OU/NCmqKz646
-         IXGJ9GZ8lPE9Q5itBTfQVDT7bH1Erv2o37fTsy7OAYYiCiXolkAd9RvNpiAE8fiU4Y
-         yrTvB8zpMNYyQkuhkMleeuT3pnwOtL9KPuhOk0cM=
+        b=MTT/kqL2d/R2afgxdd9kuRyA/+hRBywSqXJmwYaPhPOn2qqoG4MaE2JEaE3a5v3fL
+         PbcE04lrsxWIbFsD4abBjVW8o6cxkE9DcBNT/AIoZCvdsHH3a5vYSMLMRxVfkbjKpW
+         UPALiuJbftcDCycDU0BhjamSHlilXD1PqukIhia0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, lizefan@huawei.com,
-        longman@redhat.com, luca.abeni@santannapisa.it,
-        rostedt@goodmis.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 064/185] sched/core: Fix CPU controller for !RT_GROUP_SCHED
+Subject: [PATCH 4.9 019/129] f2fs: fix to do sanity check on segment bitmap of LFS curseg
 Date:   Thu,  3 Oct 2019 17:52:22 +0200
-Message-Id: <20191003154452.041487065@linuxfoundation.org>
+Message-Id: <20191003154327.846915437@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit a07db5c0865799ebed1f88be0df50c581fb65029 ]
+[ Upstream commit c854f4d681365498f53ba07843a16423625aa7e9 ]
 
-On !CONFIG_RT_GROUP_SCHED configurations it is currently not possible to
-move RT tasks between cgroups to which CPU controller has been attached;
-but it is oddly possible to first move tasks around and then make them
-RT (setschedule to FIFO/RR).
+As Jungyeon Reported in bugzilla:
 
-E.g.:
+https://bugzilla.kernel.org/show_bug.cgi?id=203233
 
-  # mkdir /sys/fs/cgroup/cpu,cpuacct/group1
-  # chrt -fp 10 $$
-  # echo $$ > /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  bash: echo: write error: Invalid argument
-  # chrt -op 0 $$
-  # echo $$ > /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  # chrt -fp 10 $$
-  # cat /sys/fs/cgroup/cpu,cpuacct/group1/tasks
-  2345
-  2598
-  # chrt -p 2345
-  pid 2345's current scheduling policy: SCHED_FIFO
-  pid 2345's current scheduling priority: 10
+- Reproduces
+gcc poc_13.c
+./run.sh f2fs
 
-Also, as Michal noted, it is currently not possible to enable CPU
-controller on unified hierarchy with !CONFIG_RT_GROUP_SCHED (if there
-are any kernel RT threads in root cgroup, they can't be migrated to the
-newly created CPU controller's root in cgroup_update_dfl_csses()).
+- Kernel messages
+ F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
+ kernel BUG at fs/f2fs/segment.c:2133!
+ RIP: 0010:update_sit_entry+0x35d/0x3e0
+ Call Trace:
+  f2fs_allocate_data_block+0x16c/0x5a0
+  do_write_page+0x57/0x100
+  f2fs_do_write_node_page+0x33/0xa0
+  __write_node_page+0x270/0x4e0
+  f2fs_sync_node_pages+0x5df/0x670
+  f2fs_write_checkpoint+0x364/0x13a0
+  f2fs_sync_fs+0xa3/0x130
+  f2fs_do_sync_file+0x1a6/0x810
+  do_fsync+0x33/0x60
+  __x64_sys_fsync+0xb/0x10
+  do_syscall_64+0x43/0x110
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Existing code comes with a comment saying the "we don't support RT-tasks
-being in separate groups". Such comment is however stale and belongs to
-pre-RT_GROUP_SCHED times. Also, it doesn't make much sense for
-!RT_GROUP_ SCHED configurations, since checks related to RT bandwidth
-are not performed at all in these cases.
+The testcase fails because that, in fuzzed image, current segment was
+allocated with LFS type, its .next_blkoff should point to an unused
+block address, but actually, its bitmap shows it's not. So during
+allocation, f2fs crash when setting bitmap.
 
-Make moving RT tasks between CPU controller groups viable by removing
-special case check for RT (and DEADLINE) tasks.
+Introducing sanity_check_curseg() to check such inconsistence of
+current in-used segment.
 
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: lizefan@huawei.com
-Cc: longman@redhat.com
-Cc: luca.abeni@santannapisa.it
-Cc: rostedt@goodmis.org
-Link: https://lkml.kernel.org/r/20190719063455.27328-1-juri.lelli@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 4 ----
- 1 file changed, 4 deletions(-)
+ fs/f2fs/segment.c | 39 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 39 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index ff128e281d1c6..3d24d401b9d42 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6342,10 +6342,6 @@ static int cpu_cgroup_can_attach(struct cgroup_taskset *tset)
- #ifdef CONFIG_RT_GROUP_SCHED
- 		if (!sched_rt_can_attach(css_tg(css), task))
- 			return -EINVAL;
--#else
--		/* We don't support RT-tasks being in separate groups */
--		if (task->sched_class != &fair_sched_class)
--			return -EINVAL;
- #endif
- 		/*
- 		 * Serialize against wake_up_new_task() such that if its
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 2fb99a081de8f..1d5a352138109 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -2490,6 +2490,41 @@ static int build_dirty_segmap(struct f2fs_sb_info *sbi)
+ 	return init_victim_secmap(sbi);
+ }
+ 
++static int sanity_check_curseg(struct f2fs_sb_info *sbi)
++{
++	int i;
++
++	/*
++	 * In LFS/SSR curseg, .next_blkoff should point to an unused blkaddr;
++	 * In LFS curseg, all blkaddr after .next_blkoff should be unused.
++	 */
++	for (i = 0; i < NO_CHECK_TYPE; i++) {
++		struct curseg_info *curseg = CURSEG_I(sbi, i);
++		struct seg_entry *se = get_seg_entry(sbi, curseg->segno);
++		unsigned int blkofs = curseg->next_blkoff;
++
++		if (f2fs_test_bit(blkofs, se->cur_valid_map))
++			goto out;
++
++		if (curseg->alloc_type == SSR)
++			continue;
++
++		for (blkofs += 1; blkofs < sbi->blocks_per_seg; blkofs++) {
++			if (!f2fs_test_bit(blkofs, se->cur_valid_map))
++				continue;
++out:
++			f2fs_msg(sbi->sb, KERN_ERR,
++				"Current segment's next free block offset is "
++				"inconsistent with bitmap, logtype:%u, "
++				"segno:%u, type:%u, next_blkoff:%u, blkofs:%u",
++				i, curseg->segno, curseg->alloc_type,
++				curseg->next_blkoff, blkofs);
++			return -EINVAL;
++		}
++	}
++	return 0;
++}
++
+ /*
+  * Update min, max modified time for cost-benefit GC algorithm
+  */
+@@ -2583,6 +2618,10 @@ int build_segment_manager(struct f2fs_sb_info *sbi)
+ 	if (err)
+ 		return err;
+ 
++	err = sanity_check_curseg(sbi);
++	if (err)
++		return err;
++
+ 	init_min_max_mtime(sbi);
+ 	return 0;
+ }
 -- 
 2.20.1
 
