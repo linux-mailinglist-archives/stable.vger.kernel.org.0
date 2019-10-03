@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A102CAAF9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E0ECA926
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732921AbfJCRQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53550 "EHLO mail.kernel.org"
+        id S2391875AbfJCQiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:38:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389869AbfJCQYF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:24:05 -0400
+        id S2404781AbfJCQiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 836F12054F;
-        Thu,  3 Oct 2019 16:24:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60CD320830;
+        Thu,  3 Oct 2019 16:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119845;
-        bh=XmbnGcaONG9HpypkGHQkc7eQpNqgmmYMiBsIZ+oy6Xk=;
+        s=default; t=1570120688;
+        bh=OZi46/LEW9kyWJKIzQu9CrXEOyEZid01NguqZCh4Q1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11hD+IM9y6MOGFApoG7muc4fmSGQYr20iwQK8Kn72/cmT48rbKnFJgPrazS8Kkygj
-         LjUoMD9b7opM+YINAFssFWQItcqHAPMuNnsZ8VD07YAJPHQxSB9UWIvUexBTYLB0Fk
-         E4l8dbSjVxTeD/XJRqHMpxoRpSfPehxg3Ekf02JE=
+        b=03XJpzUJEr8sT7KBllJJZGH4aHf6dkGszRPfQDDOnDXtMZMzo0PTSAtDqC0Ye+/hj
+         n77ZUS0sWFtomaScEyuBaaPIvxdtxpyaMtzKM7CyeDSeJ8xNG9ugJ/JCh6HH/li24J
+         fkPczQiNU7FZqPKMCw60noDNQev6Tu3qGDeyCB7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
-        Song Liu <songliubraving@fb.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [PATCH 4.19 198/211] md: only call set_in_sync() when it is expected to succeed.
-Date:   Thu,  3 Oct 2019 17:54:24 +0200
-Message-Id: <20191003154529.445841708@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.2 287/313] btrfs: qgroup: Fix reserved data space leak if we have multiple reserve calls
+Date:   Thu,  3 Oct 2019 17:54:25 +0200
+Message-Id: <20191003154601.353973257@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 480523feae581ab714ba6610388a3b4619a2f695 upstream.
+commit d4e204948fe3e0dc8e1fbf3f8f3290c9c2823be3 upstream.
 
-Since commit 4ad23a976413 ("MD: use per-cpu counter for
-writes_pending"), set_in_sync() is substantially more expensive: it
-can wait for a full RCU grace period which can be 10s of milliseconds.
+[BUG]
+The following script can cause btrfs qgroup data space leak:
 
-So we should only call it when the cost is justified.
+  mkfs.btrfs -f $dev
+  mount $dev -o nospace_cache $mnt
 
-md_check_recovery() currently calls set_in_sync() every time it finds
-anything to do (on non-external active arrays).  For an array
-performing resync or recovery, this will be quite often.
-Each call will introduce a delay to the md thread, which can noticeable
-affect IO submission latency.
+  btrfs subv create $mnt/subv
+  btrfs quota en $mnt
+  btrfs quota rescan -w $mnt
+  btrfs qgroup limit 128m $mnt/subv
 
-In md_check_recovery() we only need to call set_in_sync() if
-'safemode' was non-zero at entry, meaning that there has been not
-recent IO.  So we save this "safemode was nonzero" state, and only
-call set_in_sync() if it was non-zero.
+  for (( i = 0; i < 3; i++)); do
+          # Create 3 64M holes for latter fallocate to fail
+          truncate -s 192m $mnt/subv/file
+          xfs_io -c "pwrite 64m 4k" $mnt/subv/file > /dev/null
+          xfs_io -c "pwrite 128m 4k" $mnt/subv/file > /dev/null
+          sync
 
-This measurably reduces mean and maximum IO submission latency during
-resync/recovery.
+          # it's supposed to fail, and each failure will leak at least 64M
+          # data space
+          xfs_io -f -c "falloc 0 192m" $mnt/subv/file &> /dev/null
+          rm $mnt/subv/file
+          sync
+  done
 
-Reported-and-tested-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Fixes: 4ad23a976413 ("MD: use per-cpu counter for writes_pending")
-Cc: stable@vger.kernel.org (v4.12+)
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+  # Shouldn't fail after we removed the file
+  xfs_io -f -c "falloc 0 64m" $mnt/subv/file
+
+[CAUSE]
+Btrfs qgroup data reserve code allow multiple reservations to happen on
+a single extent_changeset:
+E.g:
+	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_1M);
+	btrfs_qgroup_reserve_data(inode, &data_reserved, SZ_1M, SZ_2M);
+	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_4M);
+
+Btrfs qgroup code has its internal tracking to make sure we don't
+double-reserve in above example.
+
+The only pattern utilizing this feature is in the main while loop of
+btrfs_fallocate() function.
+
+However btrfs_qgroup_reserve_data()'s error handling has a bug in that
+on error it clears all ranges in the io_tree with EXTENT_QGROUP_RESERVED
+flag but doesn't free previously reserved bytes.
+
+This bug has a two fold effect:
+- Clearing EXTENT_QGROUP_RESERVED ranges
+  This is the correct behavior, but it prevents
+  btrfs_qgroup_check_reserved_leak() to catch the leakage as the
+  detector is purely EXTENT_QGROUP_RESERVED flag based.
+
+- Leak the previously reserved data bytes.
+
+The bug manifests when N calls to btrfs_qgroup_reserve_data are made and
+the last one fails, leaking space reserved in the previous ones.
+
+[FIX]
+Also free previously reserved data bytes when btrfs_qgroup_reserve_data
+fails.
+
+Fixes: 524725537023 ("btrfs: qgroup: Introduce btrfs_qgroup_reserve_data function")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/qgroup.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8807,6 +8807,7 @@ void md_check_recovery(struct mddev *mdd
- 
- 	if (mddev_trylock(mddev)) {
- 		int spares = 0;
-+		bool try_set_sync = mddev->safemode != 0;
- 
- 		if (!mddev->external && mddev->safemode == 1)
- 			mddev->safemode = 0;
-@@ -8852,7 +8853,7 @@ void md_check_recovery(struct mddev *mdd
- 			}
- 		}
- 
--		if (!mddev->external && !mddev->in_sync) {
-+		if (try_set_sync && !mddev->external && !mddev->in_sync) {
- 			spin_lock(&mddev->lock);
- 			set_in_sync(mddev);
- 			spin_unlock(&mddev->lock);
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3425,6 +3425,9 @@ cleanup:
+ 	while ((unode = ulist_next(&reserved->range_changed, &uiter)))
+ 		clear_extent_bit(&BTRFS_I(inode)->io_tree, unode->val,
+ 				 unode->aux, EXTENT_QGROUP_RESERVED, 0, 0, NULL);
++	/* Also free data bytes of already reserved one */
++	btrfs_qgroup_free_refroot(root->fs_info, root->root_key.objectid,
++				  orig_reserved, BTRFS_QGROUP_RSV_DATA);
+ 	extent_changeset_release(reserved);
+ 	return ret;
+ }
 
 
