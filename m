@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6558BCAAC1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C64F3CA9A6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391238AbfJCRMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
+        id S2392846AbfJCQpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391619AbfJCQ3s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:29:48 -0400
+        id S2392843AbfJCQpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:45:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2291222C2;
-        Thu,  3 Oct 2019 16:29:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C101E2070B;
+        Thu,  3 Oct 2019 16:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120187;
+        s=default; t=1570121146;
         bh=aF29muMYd0aFbQLCZ8bnN7wOIqz7jZ7RkN0z5SAUhJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6MRSxIHoV5GORt+MHlWsVim9kyTyw3gRkS5fnghDzBhPghk9ASBpbGB0T6/kpYfR
-         /zeVg1UUC80tCayDl5ec/IGhvN2ImAVTYOz4H/Hv65flrO32C3frHEYAYp+znesL9N
-         X2BzQHFqeFbQ6pqO7zIyopXkp3vvx/WvuSCkH6rc=
+        b=qjk5o5NChOlvMLU6VCqSUYUMmZxNuWCE5eHqI0eVXRXx7WVEk40yZfcs7cJWpcg+Q
+         IT4zdGDHDvWqt9yEo/z7/1u74ol2E+30UYGfhjaeRnFWQidZVaN1G+mwXy50/28pcd
+         56VQW0PSO8MOG4Ln6xabx+BqMXFYvgVbhCbDbcoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,12 +33,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 130/313] EDAC/amd64: Support more than two controllers for chip selects handling
-Date:   Thu,  3 Oct 2019 17:51:48 +0200
-Message-Id: <20191003154545.707291404@linuxfoundation.org>
+Subject: [PATCH 5.3 144/344] EDAC/amd64: Support more than two controllers for chip selects handling
+Date:   Thu,  3 Oct 2019 17:51:49 +0200
+Message-Id: <20191003154554.464651368@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
