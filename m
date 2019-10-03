@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0BC1CA98E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE30ECAB1E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387677AbfJCQoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:44:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56482 "EHLO mail.kernel.org"
+        id S2387800AbfJCQQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405363AbfJCQoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:44:24 -0400
+        id S1729580AbfJCQQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BDB0206BB;
-        Thu,  3 Oct 2019 16:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A624721848;
+        Thu,  3 Oct 2019 16:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121063;
-        bh=FhMqtDm73GhvjtyVWDtKRVY17JuvvD8eg/8rpvN6FjU=;
+        s=default; t=1570119363;
+        bh=U4nLDZyW+12AR45NjmA0NOq24LJ8YnQZNzJGzVI+V4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPJagvi6tVpQbA5/7qnPh3P1tOZE+6rI7biLJgrrCUTLftDiy9SLthfgR689da44O
-         DWcFNJXZJ2QbbpHzcQAMB2VoDDVizDagrmfuM3dXxBpz+Y1PkK/gxXQgMQHcbBlgDn
-         eWGLPLvmO6mkcn5jdPrxrH4Fp2jyPH8qPTg/kZi8=
+        b=zZkIU0fyxo3hUgEbLuKPtEkoomA8+Vp/NesV8rE7f4RgcK38zyrTtKVrWiXnnU+Wz
+         3HnyJ6BqfLz5Zv2HeLAm7OcbAZ1lAG3N7Denv4HwOcLcAkHlrNTQqxdIF8zLvyEtAd
+         JtxT7CoYcZ3fKiCim4++78J1xSRvCRSYEWaAbHis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 139/344] s390/kasan: provide uninstrumented __strlen
+        stable@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 038/211] sched/fair: Fix imbalance due to CPU affinity
 Date:   Thu,  3 Oct 2019 17:51:44 +0200
-Message-Id: <20191003154553.940953422@linuxfoundation.org>
+Message-Id: <20191003154456.085032239@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit f45f7b5bdaa4828ce871cf03f7c01599a0de57a5 ]
+[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
 
-s390 kasan code uses sclp_early_printk to report initialization
-failures. The code doing that should not be instrumented, because kasan
-shadow memory has not been set up yet. Even though sclp_early_core.c is
-compiled with instrumentation disabled it uses strlen function, which
-is instrumented and would produce shadow memory access if used. To
-avoid that, introduce uninstrumented __strlen function to be used
-instead.
+The load_balance() has a dedicated mecanism to detect when an imbalance
+is due to CPU affinity and must be handled at parent level. In this case,
+the imbalance field of the parent's sched_group is set.
 
-Before commit 7e0d92f00246 ("s390/kasan: improve string/memory functions
-checks") few string functions (including strlen) were escaping kasan
-instrumentation due to usage of platform specific versions which are
-implemented in inline assembly.
+The description of sg_imbalanced() gives a typical example of two groups
+of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
+group and 3 CPUs of the second group. Something like:
 
-Fixes: 7e0d92f00246 ("s390/kasan: improve string/memory functions checks")
-Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+	{ 0 1 2 3 } { 4 5 6 7 }
+	        *     * * *
+
+But the load_balance fails to fix this UC on my octo cores system
+made of 2 clusters of quad cores.
+
+Whereas the load_balance is able to detect that the imbalanced is due to
+CPU affinity, it fails to fix it because the imbalance field is cleared
+before letting parent level a chance to run. In fact, when the imbalance is
+detected, the load_balance reruns without the CPU with pinned tasks. But
+there is no other running tasks in the situation described above and
+everything looks balanced this time so the imbalance field is immediately
+cleared.
+
+The imbalance field should not be cleared if there is no other task to move
+when the imbalance is detected.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/string.h | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/string.h b/arch/s390/include/asm/string.h
-index 70d87db54e627..4c0690fc5167e 100644
---- a/arch/s390/include/asm/string.h
-+++ b/arch/s390/include/asm/string.h
-@@ -71,11 +71,16 @@ extern void *__memmove(void *dest, const void *src, size_t n);
- #define memcpy(dst, src, len) __memcpy(dst, src, len)
- #define memmove(dst, src, len) __memmove(dst, src, len)
- #define memset(s, c, n) __memset(s, c, n)
-+#define strlen(s) __strlen(s)
-+
-+#define __no_sanitize_prefix_strfunc(x) __##x
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 49ed38914669b..ad78a15bd5677 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8863,9 +8863,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ out_balanced:
+ 	/*
+ 	 * We reach balance although we may have faced some affinity
+-	 * constraints. Clear the imbalance flag if it was set.
++	 * constraints. Clear the imbalance flag only if other tasks got
++	 * a chance to move and fix the imbalance.
+ 	 */
+-	if (sd_parent) {
++	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
+ 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
  
- #ifndef __NO_FORTIFY
- #define __NO_FORTIFY /* FORTIFY_SOURCE uses __builtin_memcpy, etc. */
- #endif
- 
-+#else
-+#define __no_sanitize_prefix_strfunc(x) x
- #endif /* defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__) */
- 
- void *__memset16(uint16_t *s, uint16_t v, size_t count);
-@@ -163,8 +168,8 @@ static inline char *strcpy(char *dst, const char *src)
- }
- #endif
- 
--#ifdef __HAVE_ARCH_STRLEN
--static inline size_t strlen(const char *s)
-+#if defined(__HAVE_ARCH_STRLEN) || (defined(CONFIG_KASAN) && !defined(__SANITIZE_ADDRESS__))
-+static inline size_t __no_sanitize_prefix_strfunc(strlen)(const char *s)
- {
- 	register unsigned long r0 asm("0") = 0;
- 	const char *tmp = s;
+ 		if (*group_imbalance)
 -- 
 2.20.1
 
