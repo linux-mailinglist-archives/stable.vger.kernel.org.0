@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D51CA927
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB31CAA7C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392302AbfJCQiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:38:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47866 "EHLO mail.kernel.org"
+        id S2393267AbfJCRG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404183AbfJCQiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:38:13 -0400
+        id S2392301AbfJCQiP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E7B72070B;
-        Thu,  3 Oct 2019 16:38:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA54320830;
+        Thu,  3 Oct 2019 16:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120691;
-        bh=uhbaKLWlkBR1MGVt+PBtDFsl8Khc+T7Mn7gXEEVFRhE=;
+        s=default; t=1570120694;
+        bh=tD7IAs/rUecrJB9NGa8Try+goo14BMYdLlRlOp0L1Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jTXV705SUizATEAua/CjK0sgPeoLOr4e3wNVWeBVxT1vsTZ4CQ5E9UFoE2Hxp8BNX
-         M2u1ZrSweXSWUgh3JpgOA5jOgd5oidzUk0mes5vpH6PENE33+gLfE0EI8icm0mvYKT
-         YKrf3/CECOHak2YqjlSex8fxb2fZHsNx6TicQ0qU=
+        b=S9PbQIJIxd3op7fhtpW4SdD+XmoCluMOk9sXZrCvuuAsYtZZuh7OqnKYHyMwHHTv0
+         Emg+7h7AZ9ZfD0yvk2kfK5ifBdmq+zMKBIDAl2KAsNhmidP31eowV0ggT3FU8e9/g4
+         xXMU1pVogP9/zF12jF33q7H2vYAPyGd9QXTRuQH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.2 288/313] Btrfs: fix race setting up and completing qgroup rescan workers
-Date:   Thu,  3 Oct 2019 17:54:26 +0200
-Message-Id: <20191003154601.462968395@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.2 289/313] SUNRPC: Dequeue the request from the receive queue while were re-encoding
+Date:   Thu,  3 Oct 2019 17:54:27 +0200
+Message-Id: <20191003154601.565296834@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,202 +44,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 13fc1d271a2e3ab8a02071e711add01fab9271f6 upstream.
+commit cc204d01262a69218b2d0db5cdea371de85871d9 upstream.
 
-There is a race between setting up a qgroup rescan worker and completing
-a qgroup rescan worker that can lead to callers of the qgroup rescan wait
-ioctl to either not wait for the rescan worker to complete or to hang
-forever due to missing wake ups. The following diagram shows a sequence
-of steps that illustrates the race.
+Ensure that we dequeue the request from the transport receive queue
+while we're re-encoding to prevent issues like use-after-free when
+we release the bvec.
 
-        CPU 1                                                         CPU 2                                  CPU 3
-
- btrfs_ioctl_quota_rescan()
-  btrfs_qgroup_rescan()
-   qgroup_rescan_init()
-    mutex_lock(&fs_info->qgroup_rescan_lock)
-    spin_lock(&fs_info->qgroup_lock)
-
-    fs_info->qgroup_flags |=
-      BTRFS_QGROUP_STATUS_FLAG_RESCAN
-
-    init_completion(
-      &fs_info->qgroup_rescan_completion)
-
-    fs_info->qgroup_rescan_running = true
-
-    mutex_unlock(&fs_info->qgroup_rescan_lock)
-    spin_unlock(&fs_info->qgroup_lock)
-
-    btrfs_init_work()
-     --> starts the worker
-
-                                                        btrfs_qgroup_rescan_worker()
-                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
-
-                                                         fs_info->qgroup_flags &=
-                                                           ~BTRFS_QGROUP_STATUS_FLAG_RESCAN
-
-                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
-
-                                                         starts transaction, updates qgroup status
-                                                         item, etc
-
-                                                                                                           btrfs_ioctl_quota_rescan()
-                                                                                                            btrfs_qgroup_rescan()
-                                                                                                             qgroup_rescan_init()
-                                                                                                              mutex_lock(&fs_info->qgroup_rescan_lock)
-                                                                                                              spin_lock(&fs_info->qgroup_lock)
-
-                                                                                                              fs_info->qgroup_flags |=
-                                                                                                                BTRFS_QGROUP_STATUS_FLAG_RESCAN
-
-                                                                                                              init_completion(
-                                                                                                                &fs_info->qgroup_rescan_completion)
-
-                                                                                                              fs_info->qgroup_rescan_running = true
-
-                                                                                                              mutex_unlock(&fs_info->qgroup_rescan_lock)
-                                                                                                              spin_unlock(&fs_info->qgroup_lock)
-
-                                                                                                              btrfs_init_work()
-                                                                                                               --> starts another worker
-
-                                                         mutex_lock(&fs_info->qgroup_rescan_lock)
-
-                                                         fs_info->qgroup_rescan_running = false
-
-                                                         mutex_unlock(&fs_info->qgroup_rescan_lock)
-
-							 complete_all(&fs_info->qgroup_rescan_completion)
-
-Before the rescan worker started by the task at CPU 3 completes, if
-another task calls btrfs_ioctl_quota_rescan(), it will get -EINPROGRESS
-because the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN is set at
-fs_info->qgroup_flags, which is expected and correct behaviour.
-
-However if other task calls btrfs_ioctl_quota_rescan_wait() before the
-rescan worker started by the task at CPU 3 completes, it will return
-immediately without waiting for the new rescan worker to complete,
-because fs_info->qgroup_rescan_running is set to false by CPU 2.
-
-This race is making test case btrfs/171 (from fstests) to fail often:
-
-  btrfs/171 9s ... - output mismatch (see /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad)
-#      --- tests/btrfs/171.out     2018-09-16 21:30:48.505104287 +0100
-#      +++ /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad      2019-09-19 02:01:36.938486039 +0100
-#      @@ -1,2 +1,3 @@
-#       QA output created by 171
-#      +ERROR: quota rescan failed: Operation now in progress
-#       Silence is golden
-#      ...
-#      (Run 'diff -u /home/fdmanana/git/hub/xfstests/tests/btrfs/171.out /home/fdmanana/git/hub/xfstests/results//btrfs/171.out.bad'  to see the entire diff)
-
-That is because the test calls the btrfs-progs commands "qgroup quota
-rescan -w", "qgroup assign" and "qgroup remove" in a sequence that makes
-calls to the rescan start ioctl fail with -EINPROGRESS (note the "btrfs"
-commands 'qgroup assign' and 'qgroup remove' often call the rescan start
-ioctl after calling the qgroup assign ioctl,
-btrfs_ioctl_qgroup_assign()), since previous waits didn't actually wait
-for a rescan worker to complete.
-
-Another problem the race can cause is missing wake ups for waiters,
-since the call to complete_all() happens outside a critical section and
-after clearing the flag BTRFS_QGROUP_STATUS_FLAG_RESCAN. In the sequence
-diagram above, if we have a waiter for the first rescan task (executed
-by CPU 2), then fs_info->qgroup_rescan_completion.wait is not empty, and
-if after the rescan worker clears BTRFS_QGROUP_STATUS_FLAG_RESCAN and
-before it calls complete_all() against
-fs_info->qgroup_rescan_completion, the task at CPU 3 calls
-init_completion() against fs_info->qgroup_rescan_completion which
-re-initilizes its wait queue to an empty queue, therefore causing the
-rescan worker at CPU 2 to call complete_all() against an empty queue,
-never waking up the task waiting for that rescan worker.
-
-Fix this by clearing BTRFS_QGROUP_STATUS_FLAG_RESCAN and setting
-fs_info->qgroup_rescan_running to false in the same critical section,
-delimited by the mutex fs_info->qgroup_rescan_lock, as well as doing the
-call to complete_all() in that same critical section. This gives the
-protection needed to avoid rescan wait ioctl callers not waiting for a
-running rescan worker and the lost wake ups problem, since setting that
-rescan flag and boolean as well as initializing the wait queue is done
-already in a critical section delimited by that mutex (at
-qgroup_rescan_init()).
-
-Fixes: 57254b6ebce4ce ("Btrfs: add ioctl to wait for qgroup rescan completion")
-Fixes: d2c609b834d62f ("btrfs: properly track when rescan worker is running")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7536908982047 ("SUNRPC: Ensure the bvecs are reset when we re-encode...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/qgroup.c |   33 +++++++++++++++++++--------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ include/linux/sunrpc/xprt.h |    1 
+ net/sunrpc/clnt.c           |    6 ++--
+ net/sunrpc/xprt.c           |   54 +++++++++++++++++++++++++-------------------
+ 3 files changed, 35 insertions(+), 26 deletions(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3154,9 +3154,6 @@ out:
- 	btrfs_free_path(path);
+--- a/include/linux/sunrpc/xprt.h
++++ b/include/linux/sunrpc/xprt.h
+@@ -346,6 +346,7 @@ bool			xprt_prepare_transmit(struct rpc_
+ void			xprt_request_enqueue_transmit(struct rpc_task *task);
+ void			xprt_request_enqueue_receive(struct rpc_task *task);
+ void			xprt_request_wait_receive(struct rpc_task *task);
++void			xprt_request_dequeue_xprt(struct rpc_task *task);
+ bool			xprt_request_need_retransmit(struct rpc_task *task);
+ void			xprt_transmit(struct rpc_task *task);
+ void			xprt_end_transmit(struct rpc_task *task);
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1785,6 +1785,7 @@ rpc_xdr_encode(struct rpc_task *task)
+ 		     req->rq_rbuffer,
+ 		     req->rq_rcvsize);
  
- 	mutex_lock(&fs_info->qgroup_rescan_lock);
--	if (!btrfs_fs_closing(fs_info))
--		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_RESCAN;
--
- 	if (err > 0 &&
- 	    fs_info->qgroup_flags & BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT) {
- 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
-@@ -3172,16 +3169,30 @@ out:
- 	trans = btrfs_start_transaction(fs_info->quota_root, 1);
- 	if (IS_ERR(trans)) {
- 		err = PTR_ERR(trans);
-+		trans = NULL;
- 		btrfs_err(fs_info,
- 			  "fail to start transaction for status update: %d",
- 			  err);
--		goto done;
- 	}
--	ret = update_qgroup_status_item(trans);
--	if (ret < 0) {
--		err = ret;
--		btrfs_err(fs_info, "fail to update qgroup status: %d", err);
-+
-+	mutex_lock(&fs_info->qgroup_rescan_lock);
-+	if (!btrfs_fs_closing(fs_info))
-+		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_RESCAN;
-+	if (trans) {
-+		ret = update_qgroup_status_item(trans);
-+		if (ret < 0) {
-+			err = ret;
-+			btrfs_err(fs_info, "fail to update qgroup status: %d",
-+				  err);
-+		}
- 	}
-+	fs_info->qgroup_rescan_running = false;
-+	complete_all(&fs_info->qgroup_rescan_completion);
-+	mutex_unlock(&fs_info->qgroup_rescan_lock);
-+
-+	if (!trans)
-+		return;
-+
- 	btrfs_end_transaction(trans);
- 
- 	if (btrfs_fs_closing(fs_info)) {
-@@ -3192,12 +3203,6 @@ out:
- 	} else {
- 		btrfs_err(fs_info, "qgroup scan failed with %d", err);
- 	}
--
--done:
--	mutex_lock(&fs_info->qgroup_rescan_lock);
--	fs_info->qgroup_rescan_running = false;
--	mutex_unlock(&fs_info->qgroup_rescan_lock);
--	complete_all(&fs_info->qgroup_rescan_completion);
++	req->rq_reply_bytes_recvd = 0;
+ 	req->rq_snd_buf.head[0].iov_len = 0;
+ 	xdr_init_encode(&xdr, &req->rq_snd_buf,
+ 			req->rq_snd_buf.head[0].iov_base, req);
+@@ -1804,6 +1805,8 @@ call_encode(struct rpc_task *task)
+ 	if (!rpc_task_need_encode(task))
+ 		goto out;
+ 	dprint_status(task);
++	/* Dequeue task from the receive queue while we're encoding */
++	xprt_request_dequeue_xprt(task);
+ 	/* Encode here so that rpcsec_gss can use correct sequence number. */
+ 	rpc_xdr_encode(task);
+ 	/* Did the encode result in an error condition? */
+@@ -2437,9 +2440,6 @@ call_decode(struct rpc_task *task)
+ 		return;
+ 	case -EAGAIN:
+ 		task->tk_status = 0;
+-		xdr_free_bvec(&req->rq_rcv_buf);
+-		req->rq_reply_bytes_recvd = 0;
+-		req->rq_rcv_buf.len = 0;
+ 		if (task->tk_client->cl_discrtry)
+ 			xprt_conditional_disconnect(req->rq_xprt,
+ 						    req->rq_connect_cookie);
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1296,6 +1296,36 @@ xprt_request_dequeue_transmit(struct rpc
  }
  
- /*
+ /**
++ * xprt_request_dequeue_xprt - remove a task from the transmit+receive queue
++ * @task: pointer to rpc_task
++ *
++ * Remove a task from the transmit and receive queues, and ensure that
++ * it is not pinned by the receive work item.
++ */
++void
++xprt_request_dequeue_xprt(struct rpc_task *task)
++{
++	struct rpc_rqst	*req = task->tk_rqstp;
++	struct rpc_xprt *xprt = req->rq_xprt;
++
++	if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate) ||
++	    test_bit(RPC_TASK_NEED_RECV, &task->tk_runstate) ||
++	    xprt_is_pinned_rqst(req)) {
++		spin_lock(&xprt->queue_lock);
++		xprt_request_dequeue_transmit_locked(task);
++		xprt_request_dequeue_receive_locked(task);
++		while (xprt_is_pinned_rqst(req)) {
++			set_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
++			spin_unlock(&xprt->queue_lock);
++			xprt_wait_on_pinned_rqst(req);
++			spin_lock(&xprt->queue_lock);
++			clear_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
++		}
++		spin_unlock(&xprt->queue_lock);
++	}
++}
++
++/**
+  * xprt_request_prepare - prepare an encoded request for transport
+  * @req: pointer to rpc_rqst
+  *
+@@ -1719,28 +1749,6 @@ void xprt_retry_reserve(struct rpc_task
+ 	xprt_do_reserve(xprt, task);
+ }
+ 
+-static void
+-xprt_request_dequeue_all(struct rpc_task *task, struct rpc_rqst *req)
+-{
+-	struct rpc_xprt *xprt = req->rq_xprt;
+-
+-	if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate) ||
+-	    test_bit(RPC_TASK_NEED_RECV, &task->tk_runstate) ||
+-	    xprt_is_pinned_rqst(req)) {
+-		spin_lock(&xprt->queue_lock);
+-		xprt_request_dequeue_transmit_locked(task);
+-		xprt_request_dequeue_receive_locked(task);
+-		while (xprt_is_pinned_rqst(req)) {
+-			set_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
+-			spin_unlock(&xprt->queue_lock);
+-			xprt_wait_on_pinned_rqst(req);
+-			spin_lock(&xprt->queue_lock);
+-			clear_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
+-		}
+-		spin_unlock(&xprt->queue_lock);
+-	}
+-}
+-
+ /**
+  * xprt_release - release an RPC request slot
+  * @task: task which is finished with the slot
+@@ -1764,7 +1772,7 @@ void xprt_release(struct rpc_task *task)
+ 		task->tk_ops->rpc_count_stats(task, task->tk_calldata);
+ 	else if (task->tk_client)
+ 		rpc_count_iostats(task, task->tk_client->cl_metrics);
+-	xprt_request_dequeue_all(task, req);
++	xprt_request_dequeue_xprt(task);
+ 	spin_lock_bh(&xprt->transport_lock);
+ 	xprt->ops->release_xprt(xprt, task);
+ 	if (xprt->ops->release_request)
 
 
