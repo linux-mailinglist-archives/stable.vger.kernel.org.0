@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3796ACAA43
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919EECA957
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732358AbfJCRCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54266 "EHLO mail.kernel.org"
+        id S2405037AbfJCQl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405195AbfJCQnA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:43:00 -0400
+        id S2405032AbfJCQl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:41:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FC5C206BB;
-        Thu,  3 Oct 2019 16:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 384522054F;
+        Thu,  3 Oct 2019 16:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120979;
-        bh=JJNj1JIfEKumpLPmvbYYR+Yiy/6Lw903RFyWTOdYqXQ=;
+        s=default; t=1570120886;
+        bh=j0TUDoph8IoeSXQzvxDkWduSrhUB92EJS6NKJ4xuYsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjKAqmzE+CcuBFKiStBDnzy4MbfYLr7nLlhWmy6Fd0a8qq2lkVhyKwbU8TrxV/TNH
-         6JYatwG1C9trxkPLLUJNpuREc+1qJB8XTlhVZA9vskJs4Ag6ChQW0ATG32HAc34k6Q
-         xiJIEhHAVacFfNJUKahx9KHYKmB1YJisEML1NfV0=
+        b=zNa5lsuk5wuu8dZsd7q9Z1Tf8Hc6TxsUbiO7cAzJ0dUnj2E0a66ffRHn8mZv7uHH6
+         waAeDtjxh4nTohdvRukSH+VnXL7EFXhDZWKoyoLiOQdwFmvBovUP8WpbmeTicESEjd
+         Hh291AN8vRvq+wmOXvQw2E1Ckg65UjhOfzfjRJPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 073/344] arm64: dts: imx8mq: Correct OPP table according to latest datasheet
-Date:   Thu,  3 Oct 2019 17:50:38 +0200
-Message-Id: <20191003154547.338842324@linuxfoundation.org>
+Subject: [PATCH 5.3 075/344] cpuidle: teo: Allow tick to be stopped if PM QoS is used
+Date:   Thu,  3 Oct 2019 17:50:40 +0200
+Message-Id: <20191003154547.528590075@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,59 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 9eced3a2f224a62a233761e8af18c907c532e192 ]
+[ Upstream commit cab09f3d2d2a0a6cb3dfb678660d67a2c3764f50 ]
 
-According to latest datasheet (Rev.1, 10/2018) from below links,
-in the consumer datasheet, 1.5GHz is mentioned as highest opp but
-depends on speed grading fuse, and in the industrial datasheet,
-1.3GHz is mentioned as highest opp but depends on speed grading
-fuse. 1.5GHz and 1.3GHz opp use same voltage, so no need for
-consumer part to support 1.3GHz opp, with same voltage, CPU should
-run at highest frequency in order to go into idle as quick as
-possible, this can save power.
+The TEO goveror prevents the scheduler tick from being stopped (unless
+stopped already) if there is a PM QoS latency constraint for the given
+CPU and the target residency of the deepest idle state matching that
+constraint is below the tick boundary.
 
-That means for consumer part, 1GHz/1.5GHz are supported, for
-industrial part, 800MHz/1.3GHz are supported, and then check the
-speed grading fuse to limit the highest CPU frequency further.
-Correct the market segment bits in opp table to make them work
-according to datasheets.
+However, that is problematic if CPUs with PM QoS latency constraints
+are idle for long times, because it effectively causes the tick to
+run on them all the time which is wasteful.  [It is also confusing
+and questionable if they are full dynticks CPUs.]
 
-https://www.nxp.com/docs/en/data-sheet/IMX8MDQLQIEC.pdf
-https://www.nxp.com/docs/en/data-sheet/IMX8MDQLQCEC.pdf
+To address that issue, modify the TEO governor to carry out the
+entire search for the most suitable idle state (from the target
+residency perspective) even if a latency constraint is present,
+to allow it to determine the expected idle duration in all cases.
 
-Fixes: 12629c5c3749 ("arm64: dts: imx8mq: Add cpu speed grading and all OPPs")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Also, when using the last several measured idle duration values
+to refine the idle state selection, make it compare those values
+with the current expected idle duration value (instead of
+comparing them with the target residency of the idle state
+selected so far) which should prevent the tick from being
+retained when it makes sense to stop it sometimes (especially
+in the presence of PM QoS latency constraints).
+
+Fixes: b26bf6ab716f ("cpuidle: New timer events oriented governor for tickless systems")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/cpuidle/governors/teo.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 52aae341d0da5..d1f4eb197af26 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -169,15 +169,14 @@
- 		opp-1300000000 {
- 			opp-hz = /bits/ 64 <1300000000>;
- 			opp-microvolt = <1000000>;
--			opp-supported-hw = <0xc>, <0x7>;
-+			opp-supported-hw = <0xc>, <0x4>;
- 			clock-latency-ns = <150000>;
- 		};
+diff --git a/drivers/cpuidle/governors/teo.c b/drivers/cpuidle/governors/teo.c
+index 7d05efdbd3c66..12d9e6cecf1de 100644
+--- a/drivers/cpuidle/governors/teo.c
++++ b/drivers/cpuidle/governors/teo.c
+@@ -242,7 +242,7 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 	struct teo_cpu *cpu_data = per_cpu_ptr(&teo_cpus, dev->cpu);
+ 	int latency_req = cpuidle_governor_latency_req(dev->cpu);
+ 	unsigned int duration_us, count;
+-	int max_early_idx, idx, i;
++	int max_early_idx, constraint_idx, idx, i;
+ 	ktime_t delta_tick;
  
- 		opp-1500000000 {
- 			opp-hz = /bits/ 64 <1500000000>;
- 			opp-microvolt = <1000000>;
--			/* Consumer only but rely on speed grading */
--			opp-supported-hw = <0x8>, <0x7>;
-+			opp-supported-hw = <0x8>, <0x3>;
- 			clock-latency-ns = <150000>;
- 		};
- 	};
+ 	if (cpu_data->last_state >= 0) {
+@@ -257,6 +257,7 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 
+ 	count = 0;
+ 	max_early_idx = -1;
++	constraint_idx = drv->state_count;
+ 	idx = -1;
+ 
+ 	for (i = 0; i < drv->state_count; i++) {
+@@ -286,16 +287,8 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 		if (s->target_residency > duration_us)
+ 			break;
+ 
+-		if (s->exit_latency > latency_req) {
+-			/*
+-			 * If we break out of the loop for latency reasons, use
+-			 * the target residency of the selected state as the
+-			 * expected idle duration to avoid stopping the tick
+-			 * as long as that target residency is low enough.
+-			 */
+-			duration_us = drv->states[idx].target_residency;
+-			goto refine;
+-		}
++		if (s->exit_latency > latency_req && constraint_idx > i)
++			constraint_idx = i;
+ 
+ 		idx = i;
+ 
+@@ -321,7 +314,13 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 		duration_us = drv->states[idx].target_residency;
+ 	}
+ 
+-refine:
++	/*
++	 * If there is a latency constraint, it may be necessary to use a
++	 * shallower idle state than the one selected so far.
++	 */
++	if (constraint_idx < idx)
++		idx = constraint_idx;
++
+ 	if (idx < 0) {
+ 		idx = 0; /* No states enabled. Must use 0. */
+ 	} else if (idx > 0) {
+@@ -331,13 +330,12 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 
+ 		/*
+ 		 * Count and sum the most recent idle duration values less than
+-		 * the target residency of the state selected so far, find the
+-		 * max.
++		 * the current expected idle duration value.
+ 		 */
+ 		for (i = 0; i < INTERVALS; i++) {
+ 			unsigned int val = cpu_data->intervals[i];
+ 
+-			if (val >= drv->states[idx].target_residency)
++			if (val >= duration_us)
+ 				continue;
+ 
+ 			count++;
+@@ -356,8 +354,10 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
+ 			 * would be too shallow.
+ 			 */
+ 			if (!(tick_nohz_tick_stopped() && avg_us < TICK_USEC)) {
+-				idx = teo_find_shallower_state(drv, dev, idx, avg_us);
+ 				duration_us = avg_us;
++				if (drv->states[idx].target_residency > avg_us)
++					idx = teo_find_shallower_state(drv, dev,
++								       idx, avg_us);
+ 			}
+ 		}
+ 	}
 -- 
 2.20.1
 
