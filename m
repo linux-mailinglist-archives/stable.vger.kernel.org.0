@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A783CAB11
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F309CCA909
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732388AbfJCRRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:17:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
+        id S2391698AbfJCQgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390373AbfJCQWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:47 -0400
+        id S2404395AbfJCQgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 321E0215EA;
-        Thu,  3 Oct 2019 16:22:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38FE121783;
+        Thu,  3 Oct 2019 16:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119766;
-        bh=czvX1wbkCejc6EHOLQVri//U8JXIKpvlnKwm/gt/y24=;
+        s=default; t=1570120575;
+        bh=S4+I5ESyQyS/UgATDeHyzIwu+16lRIeDNWwtMrdWlCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eULCaA7EabYZazFhFsGDK/DfolhGZrIAfnxbANKncX8bFGYFcFSpe2GHh5XxtjR4c
-         MbdSjWhGkrbn+5z36zOnru9mfLYgb6oYB4YocFETf2ZDUHVtIxa1Pso+wCq59uHMGe
-         VmFvdRk1fntHWqmQe8lCXFLrsFw91JY5YOSCOEG0=
+        b=g3VJ6mZ5k15PBYYDIYuwlb/QWODd7VAsR8xi7T/NZGfIMwd7VbTfq3GfJhjnYDyMr
+         4rkS/G61YtReEzgmfzVQG9QuVik1YWRpmxhGdX07/sojM+G2jg2k+LatSbJeDjvql3
+         XJMmtIF+hMi5INaI2M2l40EX/WJf7nIvr1Us2Rrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        Thomas Lindroth <thomas.lindroth@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: [PATCH 4.19 184/211] memcg, kmem: do not fail __GFP_NOFAIL charges
+        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.2 272/313] rtw88: pci: Rearrange the memory usage for skb in RX ISR
 Date:   Thu,  3 Oct 2019 17:54:10 +0200
-Message-Id: <20191003154527.764396117@linuxfoundation.org>
+Message-Id: <20191003154559.844199542@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,87 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Jian-Hong Pan <jian-hong@endlessm.com>
 
-commit e55d9d9bfb69405bd7615c0f8d229d8fafb3e9b8 upstream.
+commit ee6db78f5db9bfe426c57a1ec9713827ebccd2d4 upstream.
 
-Thomas has noticed the following NULL ptr dereference when using cgroup
-v1 kmem limit:
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-PGD 0
-P4D 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
-Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
-RIP: 0010:create_empty_buffers+0x24/0x100
-Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
-RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
-RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
-RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
-R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
-FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
-Call Trace:
- create_page_buffers+0x4d/0x60
- __block_write_begin_int+0x8e/0x5a0
- ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
- ? jbd2__journal_start+0xd7/0x1f0
- ext4_da_write_begin+0x112/0x3d0
- generic_perform_write+0xf1/0x1b0
- ? file_update_time+0x70/0x140
- __generic_file_write_iter+0x141/0x1a0
- ext4_file_write_iter+0xef/0x3b0
- __vfs_write+0x17e/0x1e0
- vfs_write+0xa5/0x1a0
- ksys_write+0x57/0xd0
- do_syscall_64+0x55/0x160
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Testing with RTL8822BE hardware, when available memory is low, we
+frequently see a kernel panic and system freeze.
 
-Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
-fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
-behavior because nofail allocations are not allowed to fail.  Normal
-charge path simply forces the charge even if that means to cross the
-limit.  Kmem accounting should be doing the same.
+First, rtw_pci_rx_isr encounters a memory allocation failure (trimmed):
 
-Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
-Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
+rx routine starvation
+WARNING: CPU: 7 PID: 9871 at drivers/net/wireless/realtek/rtw88/pci.c:822 rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+[ 2356.580313] RIP: 0010:rtw_pci_rx_isr.constprop.25+0x35a/0x370 [rtwpci]
+
+Then we see a variety of different error conditions and kernel panics,
+such as this one (trimmed):
+
+rtw_pci 0000:02:00.0: pci bus timeout, check dma status
+skbuff: skb_over_panic: text:00000000091b6e66 len:415 put:415 head:00000000d2880c6f data:000000007a02b1ea tail:0x1df end:0xc0 dev:<NULL>
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:105!
+invalid opcode: 0000 [#1] SMP NOPTI
+RIP: 0010:skb_panic+0x43/0x45
+
+When skb allocation fails and the "rx routine starvation" is hit, the
+function returns immediately without updating the RX ring. At this
+point, the RX ring may continue referencing an old skb which was already
+handed off to ieee80211_rx_irqsafe(). When it comes to be used again,
+bad things happen.
+
+This patch allocates a new, data-sized skb first in RX ISR. After
+copying the data in, we pass it to the upper layers. However, if skb
+allocation fails, we effectively drop the frame. In both cases, the
+original, full size ring skb is reused.
+
+In addition, to fixing the kernel crash, the RX routine should now
+generally behave better under low memory conditions.
+
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204053
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/wireless/realtek/rtw88/pci.c |   49 +++++++++++++------------------
+ 1 file changed, 22 insertions(+), 27 deletions(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -2637,6 +2637,16 @@ int memcg_kmem_charge_memcg(struct page
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -763,6 +763,7 @@ static void rtw_pci_rx_isr(struct rtw_de
+ 	u32 pkt_offset;
+ 	u32 pkt_desc_sz = chip->rx_pkt_desc_sz;
+ 	u32 buf_desc_sz = chip->rx_buf_desc_sz;
++	u32 new_len;
+ 	u8 *rx_desc;
+ 	dma_addr_t dma;
  
- 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
- 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
-+
-+		/*
-+		 * Enforce __GFP_NOFAIL allocation because callers are not
-+		 * prepared to see failures and likely do not have any failure
-+		 * handling code.
+@@ -790,40 +791,34 @@ static void rtw_pci_rx_isr(struct rtw_de
+ 		pkt_offset = pkt_desc_sz + pkt_stat.drv_info_sz +
+ 			     pkt_stat.shift;
+ 
+-		if (pkt_stat.is_c2h) {
+-			/* keep rx_desc, halmac needs it */
+-			skb_put(skb, pkt_stat.pkt_len + pkt_offset);
++		/* allocate a new skb for this frame,
++		 * discard the frame if none available
 +		 */
-+		if (gfp & __GFP_NOFAIL) {
-+			page_counter_charge(&memcg->kmem, nr_pages);
-+			return 0;
-+		}
- 		cancel_charge(memcg, nr_pages);
- 		return -ENOMEM;
- 	}
++		new_len = pkt_stat.pkt_len + pkt_offset;
++		new = dev_alloc_skb(new_len);
++		if (WARN_ONCE(!new, "rx routine starvation\n"))
++			goto next_rp;
++
++		/* put the DMA data including rx_desc from phy to new skb */
++		skb_put_data(new, skb->data, new_len);
+ 
+-			/* pass offset for further operation */
+-			*((u32 *)skb->cb) = pkt_offset;
+-			skb_queue_tail(&rtwdev->c2h_queue, skb);
++		if (pkt_stat.is_c2h) {
++			 /* pass rx_desc & offset for further operation */
++			*((u32 *)new->cb) = pkt_offset;
++			skb_queue_tail(&rtwdev->c2h_queue, new);
+ 			ieee80211_queue_work(rtwdev->hw, &rtwdev->c2h_work);
+ 		} else {
+-			/* remove rx_desc, maybe use skb_pull? */
+-			skb_put(skb, pkt_stat.pkt_len);
+-			skb_reserve(skb, pkt_offset);
+-
+-			/* alloc a smaller skb to mac80211 */
+-			new = dev_alloc_skb(pkt_stat.pkt_len);
+-			if (!new) {
+-				new = skb;
+-			} else {
+-				skb_put_data(new, skb->data, skb->len);
+-				dev_kfree_skb_any(skb);
+-			}
+-			/* TODO: merge into rx.c */
+-			rtw_rx_stats(rtwdev, pkt_stat.vif, skb);
++			/* remove rx_desc */
++			skb_pull(new, pkt_offset);
++
++			rtw_rx_stats(rtwdev, pkt_stat.vif, new);
+ 			memcpy(new->cb, &rx_status, sizeof(rx_status));
+ 			ieee80211_rx_irqsafe(rtwdev->hw, new);
+ 		}
+ 
+-		/* skb delivered to mac80211, alloc a new one in rx ring */
+-		new = dev_alloc_skb(RTK_PCI_RX_BUF_SIZE);
+-		if (WARN(!new, "rx routine starvation\n"))
+-			return;
+-
+-		ring->buf[cur_rp] = new;
+-		rtw_pci_reset_rx_desc(rtwdev, new, ring, cur_rp, buf_desc_sz);
++next_rp:
++		/* new skb delivered to mac80211, re-enable original skb DMA */
++		rtw_pci_reset_rx_desc(rtwdev, skb, ring, cur_rp, buf_desc_sz);
+ 
+ 		/* host read next element in ring */
+ 		if (++cur_rp >= ring->r.len)
 
 
