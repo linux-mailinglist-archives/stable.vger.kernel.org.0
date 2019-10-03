@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6B5CA670
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8955CA673
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405278AbfJCQnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55546 "EHLO mail.kernel.org"
+        id S2405297AbfJCQn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404047AbfJCQnv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:43:51 -0400
+        id S2405292AbfJCQn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EEE32070B;
-        Thu,  3 Oct 2019 16:43:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A0E32070B;
+        Thu,  3 Oct 2019 16:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121030;
-        bh=hjmpnAIp7H1b+RS9Gb7JtQbLwf8dNp2GOvMS39yQNrM=;
+        s=default; t=1570121036;
+        bh=eMPlCWxTQpyconOk0Sr//jZgoyEkKBpyv80QPkFVPI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSy5DLspyDm/CZxga2fmnnlkxbE5L5Yx3RGZfYY/W8s8QyqJpi6EIlHuzbTnchvli
-         vLuKgShG4w08/H/raQ3KxZJnKVK7ugYab+F80Wdh/LaMZd8E/OREmdT6AwvS6deCUj
-         6/kYItniw66b+VRkN5SdFIdX8QAFi69SN97teWlI=
+        b=P9aZWpWs7ygCTfGTILe7b1GpffPkW2xOxhfV9sr63OLF+8VgMfY4Ry11s1TxhYGhg
+         /ete2kQ/lDrtginkbp94OUWpiNgsuq/kzg/WkSdzc8K01ZmxsI+fBWvoXkNEOGv41e
+         EMartH9hdAdBtSZJoYlMGU/l1IqsdMnjs0aoksNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com
-Subject: [PATCH 5.3 128/344] media: hdpvr: add terminating 0 at end of string
-Date:   Thu,  3 Oct 2019 17:51:33 +0200
-Message-Id: <20191003154552.844002633@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Peter Collingbourne <pcc@google.com>
+Subject: [PATCH 5.3 130/344] powerpc/Makefile: Always pass --synthetic to nm if supported
+Date:   Thu,  3 Oct 2019 17:51:35 +0200
+Message-Id: <20191003154553.059733159@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,38 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 8b8900b729e4f31f12ac1127bde137c775c327e6 ]
+[ Upstream commit 117acf5c29dd89e4c86761c365b9724dba0d9763 ]
 
-dev->usbc_buf was passed as argument for %s, but it was not safeguarded
-by a terminating 0.
+Back in 2004 we added logic to arch/ppc64/Makefile to pass
+the --synthetic option to nm, if it was supported by nm.
 
-This caused this syzbot issue:
+Then in 2005 when arch/ppc64 and arch/ppc were merged, the logic to
+add --synthetic was moved inside an #ifdef CONFIG_PPC64 block within
+arch/powerpc/Makefile, and has remained there since.
 
-https://syzkaller.appspot.com/bug?extid=79d18aac4bf1770dd050
+That was fine, though crufty, until recently when a change to
+init/Kconfig added a config time check that uses $(NM). On powerpc
+that leads to an infinite loop because Kconfig uses $(NM) to calculate
+some values, then the powerpc Makefile changes $(NM), which Kconfig
+notices and restarts.
 
-Reported-and-tested-by: syzbot+79d18aac4bf1770dd050@syzkaller.appspotmail.com
+The original commit that added --synthetic simply said:
+  On new toolchains we need to use nm --synthetic or we miss code
+  symbols.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+And the nm man page says that the --synthetic option causes nm to:
+  Include synthetic symbols in the output. These are special symbols
+  created by the linker for various purposes.
+
+So it seems safe to always pass --synthetic if nm supports it, ie. on
+32-bit and 64-bit, it just means 32-bit kernels might have more
+symbols reported (and in practice I see no extra symbols). Making it
+unconditional avoids the #ifdef CONFIG_PPC64, which in turn avoids the
+infinite loop.
+
+Debugged-by: Peter Collingbourne <pcc@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/hdpvr/hdpvr-core.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/Makefile | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
-index a0905c81d2cb2..b75c18a012a73 100644
---- a/drivers/media/usb/hdpvr/hdpvr-core.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-core.c
-@@ -137,6 +137,7 @@ static int device_authorization(struct hdpvr_device *dev)
+diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
+index c345b79414a96..403f7e193833a 100644
+--- a/arch/powerpc/Makefile
++++ b/arch/powerpc/Makefile
+@@ -39,13 +39,11 @@ endif
+ uname := $(shell uname -m)
+ KBUILD_DEFCONFIG := $(if $(filter ppc%,$(uname)),$(uname),ppc64)_defconfig
  
- 	dev->fw_ver = dev->usbc_buf[1];
+-ifdef CONFIG_PPC64
+ new_nm := $(shell if $(NM) --help 2>&1 | grep -- '--synthetic' > /dev/null; then echo y; else echo n; fi)
  
-+	dev->usbc_buf[46] = '\0';
- 	v4l2_info(&dev->v4l2_dev, "firmware version 0x%x dated %s\n",
- 			  dev->fw_ver, &dev->usbc_buf[2]);
+ ifeq ($(new_nm),y)
+ NM		:= $(NM) --synthetic
+ endif
+-endif
  
+ # BITS is used as extension for files which are available in a 32 bit
+ # and a 64 bit version to simplify shared Makefiles.
 -- 
 2.20.1
 
