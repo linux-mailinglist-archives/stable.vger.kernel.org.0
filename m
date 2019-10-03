@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03AC9CAB08
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D16DCAABE
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388999AbfJCQQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:16:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41460 "EHLO mail.kernel.org"
+        id S2387420AbfJCRMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388994AbfJCQQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:16:27 -0400
+        id S2391647AbfJCQaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A10D220865;
-        Thu,  3 Oct 2019 16:16:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49031222C4;
+        Thu,  3 Oct 2019 16:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119387;
-        bh=A7bB2lRTeqg19DskxmH6x0oHCi3rj0FsE/t+ZNh3yVU=;
+        s=default; t=1570120200;
+        bh=WytRyuAeD8r+lZci6Ro91yBin+ytXB3SZAzTOmA8unM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rK94rNr2XlRZYWRTIEyywnJQiDe32gxmuqN/oVynTcHeP8Vtr6Esocx8NcKJvn5DQ
-         6/RZWCu+sxlxNw1sxKSEBjwXOpBDKy5Wv2DpU2znaoMeNOn6jmvXQvQpeXezIeeLpQ
-         fRTtds5E5C6PreQZSkI7peL3IZ9Yhbg9O2/vBg7c=
+        b=eX1NDbqmbj7AqakPwX1jNEQP7b0DQDdpoKez0sAoeNeIUJ5jKtvPet4NhJ7bZ4Ndr
+         BbJw5Ulk0G+jP7o7QMFu5Vp+KzqCfQ+HRKDYpR6osWzpkyfMBIicMqefWvCQ6GRyD5
+         1GMTHFl3G4rky3nGij5YVJe3aWv02wQ+s8dSmVgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/211] media: iguanair: add sanity checks
+Subject: [PATCH 5.2 135/313] soc: renesas: rmobile-sysc: Set GENPD_FLAG_ALWAYS_ON for always-on domain
 Date:   Thu,  3 Oct 2019 17:51:53 +0200
-Message-Id: <20191003154458.734574947@linuxfoundation.org>
+Message-Id: <20191003154546.185363470@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +46,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ab1cbdf159beba7395a13ab70bc71180929ca064 ]
+[ Upstream commit af0bc634728c0bc6a3f66f911f227d5c6396db88 ]
 
-The driver needs to check the endpoint types, too, as opposed
-to the number of endpoints. This also requires moving the check earlier.
+Currently the R-Mobile "always-on" PM Domain is implemented by returning
+-EBUSY from the generic_pm_domain.power_off() callback, and doing
+nothing in the generic_pm_domain.power_on() callback.  However, this
+means the PM Domain core code is not aware of the semantics of this
+special domain, leading to boot warnings like the following on
+SH/R-Mobile SoCs:
 
-Reported-by: syzbot+01a77b82edaa374068e1@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    sh_cmt e6130000.timer: PM domain c5 will not be powered off
+
+Fix this by making the always-on nature of the domain explicit instead,
+by setting the GENPD_FLAG_ALWAYS_ON flag.  This removes the need for the
+domain to provide power control callbacks.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/iguanair.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/soc/renesas/rmobile-sysc.c | 31 +++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
-index 7daac8bab83b0..6f3030b2054d0 100644
---- a/drivers/media/rc/iguanair.c
-+++ b/drivers/media/rc/iguanair.c
-@@ -424,6 +424,10 @@ static int iguanair_probe(struct usb_interface *intf,
- 	int ret, pipein, pipeout;
- 	struct usb_host_interface *idesc;
+diff --git a/drivers/soc/renesas/rmobile-sysc.c b/drivers/soc/renesas/rmobile-sysc.c
+index 421ae1c887d82..54b616ad4a62a 100644
+--- a/drivers/soc/renesas/rmobile-sysc.c
++++ b/drivers/soc/renesas/rmobile-sysc.c
+@@ -48,12 +48,8 @@ struct rmobile_pm_domain *to_rmobile_pd(struct generic_pm_domain *d)
+ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
+ {
+ 	struct rmobile_pm_domain *rmobile_pd = to_rmobile_pd(genpd);
+-	unsigned int mask;
++	unsigned int mask = BIT(rmobile_pd->bit_shift);
  
-+	idesc = intf->altsetting;
-+	if (idesc->desc.bNumEndpoints < 2)
-+		return -ENODEV;
+-	if (rmobile_pd->bit_shift == ~0)
+-		return -EBUSY;
+-
+-	mask = BIT(rmobile_pd->bit_shift);
+ 	if (rmobile_pd->suspend) {
+ 		int ret = rmobile_pd->suspend();
+ 
+@@ -80,14 +76,10 @@ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
+ 
+ static int __rmobile_pd_power_up(struct rmobile_pm_domain *rmobile_pd)
+ {
+-	unsigned int mask;
++	unsigned int mask = BIT(rmobile_pd->bit_shift);
+ 	unsigned int retry_count;
+ 	int ret = 0;
+ 
+-	if (rmobile_pd->bit_shift == ~0)
+-		return 0;
+-
+-	mask = BIT(rmobile_pd->bit_shift);
+ 	if (__raw_readl(rmobile_pd->base + PSTR) & mask)
+ 		return ret;
+ 
+@@ -122,11 +114,15 @@ static void rmobile_init_pm_domain(struct rmobile_pm_domain *rmobile_pd)
+ 	struct dev_power_governor *gov = rmobile_pd->gov;
+ 
+ 	genpd->flags |= GENPD_FLAG_PM_CLK | GENPD_FLAG_ACTIVE_WAKEUP;
+-	genpd->power_off		= rmobile_pd_power_down;
+-	genpd->power_on			= rmobile_pd_power_up;
+-	genpd->attach_dev		= cpg_mstp_attach_dev;
+-	genpd->detach_dev		= cpg_mstp_detach_dev;
+-	__rmobile_pd_power_up(rmobile_pd);
++	genpd->attach_dev = cpg_mstp_attach_dev;
++	genpd->detach_dev = cpg_mstp_detach_dev;
 +
- 	ir = kzalloc(sizeof(*ir), GFP_KERNEL);
- 	rc = rc_allocate_device(RC_DRIVER_IR_RAW);
- 	if (!ir || !rc) {
-@@ -438,18 +442,13 @@ static int iguanair_probe(struct usb_interface *intf,
- 	ir->urb_in = usb_alloc_urb(0, GFP_KERNEL);
- 	ir->urb_out = usb_alloc_urb(0, GFP_KERNEL);
++	if (!(genpd->flags & GENPD_FLAG_ALWAYS_ON)) {
++		genpd->power_off = rmobile_pd_power_down;
++		genpd->power_on = rmobile_pd_power_up;
++		__rmobile_pd_power_up(rmobile_pd);
++	}
++
+ 	pm_genpd_init(genpd, gov ? : &simple_qos_governor, false);
+ }
  
--	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out) {
-+	if (!ir->buf_in || !ir->packet || !ir->urb_in || !ir->urb_out ||
-+	    !usb_endpoint_is_int_in(&idesc->endpoint[0].desc) ||
-+	    !usb_endpoint_is_int_out(&idesc->endpoint[1].desc)) {
- 		ret = -ENOMEM;
- 		goto out;
+@@ -270,6 +266,11 @@ static void __init rmobile_setup_pm_domain(struct device_node *np,
+ 		break;
+ 
+ 	case PD_NORMAL:
++		if (pd->bit_shift == ~0) {
++			/* Top-level always-on domain */
++			pr_debug("PM domain %s is always-on domain\n", name);
++			pd->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
++		}
+ 		break;
  	}
  
--	idesc = intf->altsetting;
--
--	if (idesc->desc.bNumEndpoints < 2) {
--		ret = -ENODEV;
--		goto out;
--	}
--
- 	ir->rc = rc;
- 	ir->dev = &intf->dev;
- 	ir->udev = udev;
 -- 
 2.20.1
 
