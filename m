@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A22C1CAAB6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994FDCA9FC
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387819AbfJCRLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37730 "EHLO mail.kernel.org"
+        id S2389294AbfJCQRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:17:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403822AbfJCQbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:31:06 -0400
+        id S2388484AbfJCQRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E56022054F;
-        Thu,  3 Oct 2019 16:31:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3427D215EA;
+        Thu,  3 Oct 2019 16:17:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120265;
-        bh=gzyP2iDTSZJkcDxjXtyZpYtn6CrWpPanXtKAD1JQ+j4=;
+        s=default; t=1570119460;
+        bh=9WlLpdEMTjmBcZOqESYZTnBii0ZagJO0QmItdcIX0is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKuQNaNSlfqr5UjgaI2kqToDDzpEstyCDcGosNql9M4sQdqNTWwxi+9V4ILg+3Uf+
-         b3Rm1+q0AamMfq92DZ3rAk0GLbYjcWMFpkEGMcrqOuQbWdmP9cwjQAm/OPzxDIzC51
-         fu93qSxpRDQtYrplDA9TRq+WyEOSZahYn7dB46DU=
+        b=lgHi+brIpRCK24u7eoheEXK9eCbig2kYNIKo0Op1FQLV0kX4MII9rFoC1qVlytdtl
+         yG5j4rIbk+hXOjEcRCg3dNUqDknLp1eN3Gi+9VjytGxlNARK2qK7qBK8SEuCuXk/yj
+         b27c1o8xrgiSHQejAvVJifTqvsbDlkIeN7omdyeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 121/313] ASoC: mchp-i2s-mcc: Fix unprepare of GCLK
-Date:   Thu,  3 Oct 2019 17:51:39 +0200
-Message-Id: <20191003154544.888696317@linuxfoundation.org>
+Subject: [PATCH 4.19 034/211] media: exynos4-is: fix leaked of_node references
+Date:   Thu,  3 Oct 2019 17:51:40 +0200
+Message-Id: <20191003154454.862766770@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Wen Yang <wen.yang99@zte.com.cn>
 
-[ Upstream commit 988b59467b2b14523a266957affbe9eca3e99fc9 ]
+[ Upstream commit da79bf41a4d170ca93cc8f3881a70d734a071c37 ]
 
-If hw_free() gets called after hw_params(), GCLK remains prepared,
-preventing further use of it. This patch fixes this by unpreparing the
-clock in hw_free() or if hw_params() gets an error.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Fixes: 7e0cdf545a55 ("ASoC: mchp-i2s-mcc: add driver for I2SC Multi-Channel Controller")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20190820162411.24836-2-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Detected by coccinelle with the following warnings:
+drivers/media/platform/exynos4-is/fimc-is.c:813:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/fimc-is.c:870:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/fimc-is.c:885:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 807, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:545:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 541, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:528:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
+drivers/media/platform/exynos4-is/media-dev.c:534:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 499, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/mchp-i2s-mcc.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-is.c   | 1 +
+ drivers/media/platform/exynos4-is/media-dev.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/sound/soc/atmel/mchp-i2s-mcc.c b/sound/soc/atmel/mchp-i2s-mcc.c
-index 8272915fa09b9..ab7d5f98e759e 100644
---- a/sound/soc/atmel/mchp-i2s-mcc.c
-+++ b/sound/soc/atmel/mchp-i2s-mcc.c
-@@ -670,8 +670,13 @@ static int mchp_i2s_mcc_hw_params(struct snd_pcm_substream *substream,
- 	}
+diff --git a/drivers/media/platform/exynos4-is/fimc-is.c b/drivers/media/platform/exynos4-is/fimc-is.c
+index 5ddb2321e9e48..0fe9be93fabe2 100644
+--- a/drivers/media/platform/exynos4-is/fimc-is.c
++++ b/drivers/media/platform/exynos4-is/fimc-is.c
+@@ -819,6 +819,7 @@ static int fimc_is_probe(struct platform_device *pdev)
+ 		return -ENODEV;
  
- 	ret = regmap_write(dev->regmap, MCHP_I2SMCC_MRA, mra);
--	if (ret < 0)
-+	if (ret < 0) {
-+		if (dev->gclk_use) {
-+			clk_unprepare(dev->gclk);
-+			dev->gclk_use = 0;
-+		}
- 		return ret;
-+	}
- 	return regmap_write(dev->regmap, MCHP_I2SMCC_MRB, mrb);
+ 	is->pmu_regs = of_iomap(node, 0);
++	of_node_put(node);
+ 	if (!is->pmu_regs)
+ 		return -ENOMEM;
+ 
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index deb499f76412a..b5993532831da 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -498,6 +498,7 @@ static int fimc_md_register_sensor_entities(struct fimc_md *fmd)
+ 			continue;
+ 
+ 		ret = fimc_md_parse_port_node(fmd, port, index);
++		of_node_put(port);
+ 		if (ret < 0) {
+ 			of_node_put(node);
+ 			goto rpm_put;
+@@ -531,6 +532,7 @@ static int __of_get_csis_id(struct device_node *np)
+ 	if (!np)
+ 		return -EINVAL;
+ 	of_property_read_u32(np, "reg", &reg);
++	of_node_put(np);
+ 	return reg - FIMC_INPUT_MIPI_CSI2_0;
  }
  
-@@ -710,9 +715,13 @@ static int mchp_i2s_mcc_hw_free(struct snd_pcm_substream *substream,
- 		regmap_write(dev->regmap, MCHP_I2SMCC_CR, MCHP_I2SMCC_CR_CKDIS);
- 
- 		if (dev->gclk_running) {
--			clk_disable_unprepare(dev->gclk);
-+			clk_disable(dev->gclk);
- 			dev->gclk_running = 0;
- 		}
-+		if (dev->gclk_use) {
-+			clk_unprepare(dev->gclk);
-+			dev->gclk_use = 0;
-+		}
- 	}
- 
- 	return 0;
 -- 
 2.20.1
 
