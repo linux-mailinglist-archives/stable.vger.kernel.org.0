@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A178CA4EB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67ABCCA522
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390163AbfJCQ3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:29:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
+        id S2391327AbfJCQb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391374AbfJCQ3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:29:18 -0400
+        id S2391842AbfJCQb2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:31:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C4842054F;
-        Thu,  3 Oct 2019 16:29:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE60D2054F;
+        Thu,  3 Oct 2019 16:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120157;
-        bh=eMPlCWxTQpyconOk0Sr//jZgoyEkKBpyv80QPkFVPI4=;
+        s=default; t=1570120287;
+        bh=J857V+s2eCUvaCpjWd7tdKg18VSQm5KUn4SWhVl283w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyrrpRpZ0mKF2JGcHSGdoBPWIPmv8KSFlQJyQDcBFA1My8q2dj6nznTVlU7ofyWmu
-         p+gJnjHZZzu10O2SJKv3Rj98LdI7YdGpswO1L5hEf/Kjn4oDzsQ4lH7s46CJ/2BQzV
-         Vxfrvz1Xwm1uJ9rrMQ/g+IpEMj5Do7bEkbhBrnbM=
+        b=jNalYUp0ib3OCnZNJUzYx/66iWmaq5KcAIuvyvyzXB/e/F1eJn3scr3DB5JB7TbWT
+         IduebLkJ1nvMV8dYZ4XEFSCVsaunHSb0ycyTlPVW2fejnAK00BITZhrHAAOe02ecGn
+         Sk8T56bCQQZJmS9BK1rQsYZMC+AGfa/+mvRJAoLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Peter Collingbourne <pcc@google.com>
-Subject: [PATCH 5.2 116/313] powerpc/Makefile: Always pass --synthetic to nm if supported
-Date:   Thu,  3 Oct 2019 17:51:34 +0200
-Message-Id: <20191003154544.299239130@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 117/313] tools headers: Fixup bitsperlong per arch includes
+Date:   Thu,  3 Oct 2019 17:51:35 +0200
+Message-Id: <20191003154544.387002003@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,63 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 117acf5c29dd89e4c86761c365b9724dba0d9763 ]
+[ Upstream commit 42fc2e9ef9603a7948aaa4ffd8dfb94b30294ad8 ]
 
-Back in 2004 we added logic to arch/ppc64/Makefile to pass
-the --synthetic option to nm, if it was supported by nm.
+We were getting the file by luck, from one of the paths in -I, fix it to
+get it from the proper place:
 
-Then in 2005 when arch/ppc64 and arch/ppc were merged, the logic to
-add --synthetic was moved inside an #ifdef CONFIG_PPC64 block within
-arch/powerpc/Makefile, and has remained there since.
+  $ cd tools/include/uapi/asm/
+  [acme@quaco asm]$ grep include bitsperlong.h
+  #include "../../arch/x86/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/s390/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/mips/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
+  #include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
+  #include <asm-generic/bitsperlong.h>
+  $ ls -la ../../arch/x86/include/uapi/asm/bitsperlong.h
+  ls: cannot access '../../arch/x86/include/uapi/asm/bitsperlong.h': No such file or directory
+  $ ls -la ../../../arch/*/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 237 ../../../arch/alpha/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 841 ../../../arch/arm64/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 966 ../../../arch/hexagon/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 234 ../../../arch/ia64/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 100 ../../../arch/microblaze/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 244 ../../../arch/mips/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 352 ../../../arch/parisc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 312 ../../../arch/powerpc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 353 ../../../arch/riscv/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 292 ../../../arch/s390/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 323 ../../../arch/sparc/include/uapi/asm/bitsperlong.h
+  -rw-rw-r--. 1 320 ../../../arch/x86/include/uapi/asm/bitsperlong.h
+  $
 
-That was fine, though crufty, until recently when a change to
-init/Kconfig added a config time check that uses $(NM). On powerpc
-that leads to an infinite loop because Kconfig uses $(NM) to calculate
-some values, then the powerpc Makefile changes $(NM), which Kconfig
-notices and restarts.
+Found while fixing some other problem, before it was escaping the
+tools/ chroot and using stuff in the kernel sources:
 
-The original commit that added --synthetic simply said:
-  On new toolchains we need to use nm --synthetic or we miss code
-  symbols.
+    CC       /tmp/build/perf/util/find_bit.o
+In file included from /git/linux/tools/include/../../arch/x86/include/uapi/asm/bitsperlong.h:11,
+                 from /git/linux/tools/include/uapi/asm/bitsperlong.h:3,
+                 from /git/linux/tools/include/linux/bits.h:6,
+                 from /git/linux/tools/include/linux/bitops.h:13,
+                 from ../lib/find_bit.c:17:
 
-And the nm man page says that the --synthetic option causes nm to:
-  Include synthetic symbols in the output. These are special symbols
-  created by the linker for various purposes.
+  # cd /git/linux/tools/include/../../arch/x86/include/uapi/asm/
+  # pwd
+  /git/linux/arch/x86/include/uapi/asm
+  #
 
-So it seems safe to always pass --synthetic if nm supports it, ie. on
-32-bit and 64-bit, it just means 32-bit kernels might have more
-symbols reported (and in practice I see no extra symbols). Making it
-unconditional avoids the #ifdef CONFIG_PPC64, which in turn avoids the
-infinite loop.
+Now it is getting the one we want it to, i.e. the one inside tools/:
 
-Debugged-by: Peter Collingbourne <pcc@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Will Deacon <will@kernel.org>
+    CC       /tmp/build/perf/util/find_bit.o
+  In file included from /git/linux/tools/arch/x86/include/uapi/asm/bitsperlong.h:11,
+                   from /git/linux/tools/include/linux/bits.h:6,
+                   from /git/linux/tools/include/linux/bitops.h:13,
+
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-8f8cfqywmf6jk8a3ucr0ixhu@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Makefile | 2 --
- 1 file changed, 2 deletions(-)
+ tools/include/uapi/asm/bitsperlong.h | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/powerpc/Makefile b/arch/powerpc/Makefile
-index c345b79414a96..403f7e193833a 100644
---- a/arch/powerpc/Makefile
-+++ b/arch/powerpc/Makefile
-@@ -39,13 +39,11 @@ endif
- uname := $(shell uname -m)
- KBUILD_DEFCONFIG := $(if $(filter ppc%,$(uname)),$(uname),ppc64)_defconfig
- 
--ifdef CONFIG_PPC64
- new_nm := $(shell if $(NM) --help 2>&1 | grep -- '--synthetic' > /dev/null; then echo y; else echo n; fi)
- 
- ifeq ($(new_nm),y)
- NM		:= $(NM) --synthetic
- endif
--endif
- 
- # BITS is used as extension for files which are available in a 32 bit
- # and a 64 bit version to simplify shared Makefiles.
+diff --git a/tools/include/uapi/asm/bitsperlong.h b/tools/include/uapi/asm/bitsperlong.h
+index 57aaeaf8e1920..edba4d93e9e6a 100644
+--- a/tools/include/uapi/asm/bitsperlong.h
++++ b/tools/include/uapi/asm/bitsperlong.h
+@@ -1,22 +1,22 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #if defined(__i386__) || defined(__x86_64__)
+-#include "../../arch/x86/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/x86/include/uapi/asm/bitsperlong.h"
+ #elif defined(__aarch64__)
+-#include "../../arch/arm64/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/arm64/include/uapi/asm/bitsperlong.h"
+ #elif defined(__powerpc__)
+-#include "../../arch/powerpc/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/powerpc/include/uapi/asm/bitsperlong.h"
+ #elif defined(__s390__)
+-#include "../../arch/s390/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/s390/include/uapi/asm/bitsperlong.h"
+ #elif defined(__sparc__)
+-#include "../../arch/sparc/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/sparc/include/uapi/asm/bitsperlong.h"
+ #elif defined(__mips__)
+-#include "../../arch/mips/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/mips/include/uapi/asm/bitsperlong.h"
+ #elif defined(__ia64__)
+-#include "../../arch/ia64/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/ia64/include/uapi/asm/bitsperlong.h"
+ #elif defined(__riscv)
+-#include "../../arch/riscv/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/riscv/include/uapi/asm/bitsperlong.h"
+ #elif defined(__alpha__)
+-#include "../../arch/alpha/include/uapi/asm/bitsperlong.h"
++#include "../../../arch/alpha/include/uapi/asm/bitsperlong.h"
+ #else
+ #include <asm-generic/bitsperlong.h>
+ #endif
 -- 
 2.20.1
 
