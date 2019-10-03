@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3101CAB39
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A31CAA20
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390123AbfJCRT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:19:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47050 "EHLO mail.kernel.org"
+        id S2389461AbfJCQTw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:19:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389757AbfJCQTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:48 -0400
+        id S1729690AbfJCQTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D8C8222BE;
-        Thu,  3 Oct 2019 16:19:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DA9220865;
+        Thu,  3 Oct 2019 16:19:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119588;
-        bh=eAjUJp1E2xHVDiwJ3NWPs36uLgMPOkY1v8U/SjReQOY=;
+        s=default; t=1570119590;
+        bh=QJorBsuu7/I+O7IoyuxkA/c3Do8nJw9lZYvwg/ZsupQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyezlc1p+nukOrnNINaYzzjN5sXpU5VFhfAdI2mNHVec11TB/WU3cnEMGBdGLcfrU
-         UIzdW/Y9gYv8UZjh1C0uSkFol08iMEE78JmO8qBJvYPnZaRoXj2VkPmsktNhjBoPrc
-         mLesUFH0niQNmjolk20P0Cf28lXDGapJjKrSg6dw=
+        b=gy1DeIM1u3KlV+lGnzJpt8GvSBmTMwLGbaDYIMKDf9aeTMSOQzBIcL/84eaER2Z2U
+         fYFD52YdClPT6OAMbtAqnRxEm64FR1JOs/DFKiNZDVTDlaEQoTRwiaPLSXQs4B+6Em
+         uOInaWW8oljr9L/0NOwRRbH6DdDCnYNJgW2qoE58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/211] ACPI: custom_method: fix memory leaks
-Date:   Thu,  3 Oct 2019 17:53:07 +0200
-Message-Id: <20191003154514.756957114@linuxfoundation.org>
+Subject: [PATCH 4.19 122/211] ACPI / PCI: fix acpi_pci_irq_enable() memory leak
+Date:   Thu,  3 Oct 2019 17:53:08 +0200
+Message-Id: <20191003154514.997426423@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -46,44 +46,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 03d1571d9513369c17e6848476763ebbd10ec2cb ]
+[ Upstream commit 29b49958cf73b439b17fa29e9a25210809a6c01c ]
 
-In cm_write(), 'buf' is allocated through kzalloc(). In the following
-execution, if an error occurs, 'buf' is not deallocated, leading to memory
-leaks. To fix this issue, free 'buf' before returning the error.
+In acpi_pci_irq_enable(), 'entry' is allocated by kzalloc() in
+acpi_pci_irq_check_entry() (invoked from acpi_pci_irq_lookup()). However,
+it is not deallocated if acpi_pci_irq_valid() returns false, leading to a
+memory leak. To fix this issue, free 'entry' before returning 0.
 
-Fixes: 526b4af47f44 ("ACPI: Split out custom_method functionality into an own driver")
+Fixes: e237a5518425 ("x86/ACPI/PCI: Recognize that Interrupt Line 255 means "not connected"")
 Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/custom_method.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/acpi/pci_irq.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/custom_method.c b/drivers/acpi/custom_method.c
-index e967c1173ba32..222ea3f12f41e 100644
---- a/drivers/acpi/custom_method.c
-+++ b/drivers/acpi/custom_method.c
-@@ -48,8 +48,10 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
- 	if ((*ppos > max_size) ||
- 	    (*ppos + count > max_size) ||
- 	    (*ppos + count < count) ||
--	    (count > uncopied_bytes))
-+	    (count > uncopied_bytes)) {
-+		kfree(buf);
- 		return -EINVAL;
-+	}
+diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+index c576a6fe4ebb3..94ded9513c73b 100644
+--- a/drivers/acpi/pci_irq.c
++++ b/drivers/acpi/pci_irq.c
+@@ -462,8 +462,10 @@ int acpi_pci_irq_enable(struct pci_dev *dev)
+ 		 * No IRQ known to the ACPI subsystem - maybe the BIOS /
+ 		 * driver reported one, then use it. Exit in any case.
+ 		 */
+-		if (!acpi_pci_irq_valid(dev, pin))
++		if (!acpi_pci_irq_valid(dev, pin)) {
++			kfree(entry);
+ 			return 0;
++		}
  
- 	if (copy_from_user(buf + (*ppos), user_buf, count)) {
- 		kfree(buf);
-@@ -69,6 +71,7 @@ static ssize_t cm_write(struct file *file, const char __user * user_buf,
- 		add_taint(TAINT_OVERRIDDEN_ACPI_TABLE, LOCKDEP_NOW_UNRELIABLE);
- 	}
- 
-+	kfree(buf);
- 	return count;
- }
- 
+ 		if (acpi_isa_register_gsi(dev))
+ 			dev_warn(&dev->dev, "PCI INT %c: no GSI\n",
 -- 
 2.20.1
 
