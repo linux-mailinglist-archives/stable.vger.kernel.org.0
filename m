@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5CBCA3EF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81121CA3F2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389891AbfJCQUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
+        id S2389902AbfJCQU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389877AbfJCQUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:20:22 -0400
+        id S2389026AbfJCQU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:20:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D58E6222BE;
-        Thu,  3 Oct 2019 16:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92A3D20865;
+        Thu,  3 Oct 2019 16:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119621;
-        bh=WbFGzKa+WGJChvzA/KCdzaWwqgs1oYs8LIMyu5WgWpE=;
+        s=default; t=1570119624;
+        bh=0GFOoDInj2NDrOs7OhI/W94/e6GgCtYWf1x+GXG+MOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4M+u3SevYh3M5c5AfcWugOaH5cqNeVGLOB0l/aItuBaIQwCnxQJUiNNN1sSLxmXT
-         Cd2pDly0N/t9UJFFQ7HPflktCqMYyTCHqU+7aOXt2zb1dfPIuIvcpBHlgdufZK3Dtt
-         pbRP12F/w93oFkRvZeXOlrfdT5iqmoGSTIwULBkE=
+        b=zYinNjf8H9+yLJvqGkwzZ89e8phSwqEYzQc2iesy4daTxQDtKIjPOIopoJsk6S/ss
+         4fH3iYxJc9L1cvfPlO7YPi9xL1dWiXeNYVgF/D8TXoIWgyYNjt23nsIRCJmD+nquAZ
+         nJ0gUyKp15z1STP19olMn0ZsV6XPpxMI0B4qYfeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/211] raid5: dont set STRIPE_HANDLE to stripe which is in batch list
-Date:   Thu,  3 Oct 2019 17:53:18 +0200
-Message-Id: <20191003154517.031787080@linuxfoundation.org>
+Subject: [PATCH 4.19 133/211] mmc: core: Clarify sdio_irq_pending flag for MMC_CAP2_SDIO_IRQ_NOTHREAD
+Date:   Thu,  3 Oct 2019 17:53:19 +0200
+Message-Id: <20191003154517.209084508@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,73 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 6ce220dd2f8ea71d6afc29b9a7524c12e39f374a ]
+[ Upstream commit 36d57efb4af534dd6b442ea0b9a04aa6dfa37abe ]
 
-If stripe in batch list is set with STRIPE_HANDLE flag, then the stripe
-could be set with STRIPE_ACTIVE by the handle_stripe function. And if
-error happens to the batch_head at the same time, break_stripe_batch_list
-is called, then below warning could happen (the same report in [1]), it
-means a member of batch list was set with STRIPE_ACTIVE.
+The sdio_irq_pending flag is used to let host drivers indicate that it has
+signaled an IRQ. If that is the case and we only have a single SDIO func
+that have claimed an SDIO IRQ, our assumption is that we can avoid reading
+the SDIO_CCCR_INTx register and just call the SDIO func irq handler
+immediately. This makes sense, but the flag is set/cleared in a somewhat
+messy order, let's fix that up according to below.
 
-[7028915.431770] stripe state: 2001
-[7028915.431815] ------------[ cut here ]------------
-[7028915.431828] WARNING: CPU: 18 PID: 29089 at drivers/md/raid5.c:4614 break_stripe_batch_list+0x203/0x240 [raid456]
-[...]
-[7028915.431879] CPU: 18 PID: 29089 Comm: kworker/u82:5 Tainted: G           O    4.14.86-1-storage #4.14.86-1.2~deb9
-[7028915.431881] Hardware name: Supermicro SSG-2028R-ACR24L/X10DRH-iT, BIOS 3.1 06/18/2018
-[7028915.431888] Workqueue: raid5wq raid5_do_work [raid456]
-[7028915.431890] task: ffff9ab0ef36d7c0 task.stack: ffffb72926f84000
-[7028915.431896] RIP: 0010:break_stripe_batch_list+0x203/0x240 [raid456]
-[7028915.431898] RSP: 0018:ffffb72926f87ba8 EFLAGS: 00010286
-[7028915.431900] RAX: 0000000000000012 RBX: ffff9aaa84a98000 RCX: 0000000000000000
-[7028915.431901] RDX: 0000000000000000 RSI: ffff9ab2bfa15458 RDI: ffff9ab2bfa15458
-[7028915.431902] RBP: ffff9aaa8fb4e900 R08: 0000000000000001 R09: 0000000000002eb4
-[7028915.431903] R10: 00000000ffffffff R11: 0000000000000000 R12: ffff9ab1736f1b00
-[7028915.431904] R13: 0000000000000000 R14: ffff9aaa8fb4e900 R15: 0000000000000001
-[7028915.431906] FS:  0000000000000000(0000) GS:ffff9ab2bfa00000(0000) knlGS:0000000000000000
-[7028915.431907] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[7028915.431908] CR2: 00007ff953b9f5d8 CR3: 0000000bf4009002 CR4: 00000000003606e0
-[7028915.431909] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[7028915.431910] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[7028915.431910] Call Trace:
-[7028915.431923]  handle_stripe+0x8e7/0x2020 [raid456]
-[7028915.431930]  ? __wake_up_common_lock+0x89/0xc0
-[7028915.431935]  handle_active_stripes.isra.58+0x35f/0x560 [raid456]
-[7028915.431939]  raid5_do_work+0xc6/0x1f0 [raid456]
+First, the flag is currently set in sdio_run_irqs(), which is executed as a
+work that was scheduled from sdio_signal_irq(). To make it more implicit
+that the host have signaled an IRQ, let's instead immediately set the flag
+in sdio_signal_irq(). This also makes the behavior consistent with host
+drivers that uses the legacy, mmc_signal_sdio_irq() API. This have no
+functional impact, because we don't expect host drivers to call
+sdio_signal_irq() until after the work (sdio_run_irqs()) have been executed
+anyways.
 
-Also commit 59fc630b8b5f9f ("RAID5: batch adjacent full stripe write")
-said "If a stripe is added to batch list, then only the first stripe
-of the list should be put to handle_list and run handle_stripe."
+Second, currently we never clears the flag when using the sdio_run_irqs()
+work, but only when using the sdio_irq_thread(). Let make the behavior
+consistent, by moving the flag to be cleared inside the common
+process_sdio_pending_irqs() function. Additionally, tweak the behavior of
+the flag slightly, by avoiding to clear it unless we processed the SDIO
+IRQ. The purpose with this at this point, is to keep the information about
+whether there have been an SDIO IRQ signaled by the host, so at system
+resume we can decide to process it without reading the SDIO_CCCR_INTx
+register.
 
-So don't set STRIPE_HANDLE to stripe which is already in batch list,
-otherwise the stripe could be put to handle_list and run handle_stripe,
-then the above warning could be triggered.
-
-[1]. https://www.spinics.net/lists/raid/msg62552.html
-
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/core/sdio_irq.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index a147619498dfb..d26e5e9bea427 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -5721,7 +5721,8 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
- 				do_flush = false;
- 			}
+diff --git a/drivers/mmc/core/sdio_irq.c b/drivers/mmc/core/sdio_irq.c
+index b299a24d33f96..d206f2de80d23 100644
+--- a/drivers/mmc/core/sdio_irq.c
++++ b/drivers/mmc/core/sdio_irq.c
+@@ -35,6 +35,7 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
+ {
+ 	struct mmc_card *card = host->card;
+ 	int i, ret, count;
++	bool sdio_irq_pending = host->sdio_irq_pending;
+ 	unsigned char pending;
+ 	struct sdio_func *func;
  
--			set_bit(STRIPE_HANDLE, &sh->state);
-+			if (!sh->batch_head)
-+				set_bit(STRIPE_HANDLE, &sh->state);
- 			clear_bit(STRIPE_DELAYED, &sh->state);
- 			if ((!sh->batch_head || sh == sh->batch_head) &&
- 			    (bi->bi_opf & REQ_SYNC) &&
+@@ -42,13 +43,16 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
+ 	if (mmc_card_suspended(card))
+ 		return 0;
+ 
++	/* Clear the flag to indicate that we have processed the IRQ. */
++	host->sdio_irq_pending = false;
++
+ 	/*
+ 	 * Optimization, if there is only 1 function interrupt registered
+ 	 * and we know an IRQ was signaled then call irq handler directly.
+ 	 * Otherwise do the full probe.
+ 	 */
+ 	func = card->sdio_single_irq;
+-	if (func && host->sdio_irq_pending) {
++	if (func && sdio_irq_pending) {
+ 		func->irq_handler(func);
+ 		return 1;
+ 	}
+@@ -100,7 +104,6 @@ void sdio_run_irqs(struct mmc_host *host)
+ {
+ 	mmc_claim_host(host);
+ 	if (host->sdio_irqs) {
+-		host->sdio_irq_pending = true;
+ 		process_sdio_pending_irqs(host);
+ 		if (host->ops->ack_sdio_irq)
+ 			host->ops->ack_sdio_irq(host);
+@@ -119,6 +122,7 @@ void sdio_irq_work(struct work_struct *work)
+ 
+ void sdio_signal_irq(struct mmc_host *host)
+ {
++	host->sdio_irq_pending = true;
+ 	queue_delayed_work(system_wq, &host->sdio_irq_work, 0);
+ }
+ EXPORT_SYMBOL_GPL(sdio_signal_irq);
+@@ -164,7 +168,6 @@ static int sdio_irq_thread(void *_host)
+ 		if (ret)
+ 			break;
+ 		ret = process_sdio_pending_irqs(host);
+-		host->sdio_irq_pending = false;
+ 		mmc_release_host(host);
+ 
+ 		/*
 -- 
 2.20.1
 
