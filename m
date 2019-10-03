@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C578ECAB9D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5632BCAC5F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730801AbfJCP4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39052 "EHLO mail.kernel.org"
+        id S1732086AbfJCQJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:09:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730794AbfJCP4y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:56:54 -0400
+        id S1733078AbfJCQJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:09:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54EDD20700;
-        Thu,  3 Oct 2019 15:56:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA052207FF;
+        Thu,  3 Oct 2019 16:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118213;
-        bh=GAE2HLg/01cvzJ5pm27QrzJnQpSuN3EpD3z2D6FX7jQ=;
+        s=default; t=1570118951;
+        bh=q7MH5xjL57lYshgLlsRFQ3lgZeENdcd5LR0JjZVkFok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CSL/catwEb/9i06BxL9fM6vqT3VjsSrh5oFVI5Tkz7LSD1333ImTzXyM5s+4fGrfl
-         Xu42yudFpCUMbYgm9Ab00WVnJ5qpKDzcJH106TM3yfNbMjVCxrHZZhg6f08UWepTFT
-         T9qjB/DkmFseR1uaYVM/FOQv329Ex0egPOKrV3fw=
+        b=eogvt0xLu2N0RzVWDBH3iISmxmo1Oy3cYBIRHQqYRJPBTOgzXZ4ZmEaPI3k/g2dTv
+         RfX4ofd9OODlKbr3Y4X/RVMgvDAgXPhJUSkwsVS87M9z7PL/YE3yVhxM6Voyqon9U/
+         2fSpgoqyis0AF+syOScmyHntv34OjvgzxB2pbig0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 03/99] HID: lg: make transfer buffers DMA capable
-Date:   Thu,  3 Oct 2019 17:52:26 +0200
-Message-Id: <20191003154253.721135607@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 069/185] EDAC/mc: Fix grain_bits calculation
+Date:   Thu,  3 Oct 2019 17:52:27 +0200
+Message-Id: <20191003154453.150860539@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From: Robert Richter <rrichter@marvell.com>
 
-commit 061232f0d47fa10103f3efa3e890f002a930d902 upstream.
+[ Upstream commit 3724ace582d9f675134985727fd5e9811f23c059 ]
 
-Kernel v4.9 strictly enforces DMA capable buffers, so we need to remove
-buffers allocated on the stack.
+The grain in EDAC is defined as "minimum granularity for an error
+report, in bytes". The following calculation of the grain_bits in
+edac_mc is wrong:
 
-[jkosina@suse.cz: fix up second usage of hid_hw_raw_request(), spotted by
- 0day build bot]
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	grain_bits = fls_long(e->grain) + 1;
 
+Where grain_bits is defined as:
+
+	grain = 1 << grain_bits
+
+Example:
+
+	grain = 8	# 64 bit (8 bytes)
+	grain_bits = fls_long(8) + 1
+	grain_bits = 4 + 1 = 5
+
+	grain = 1 << grain_bits
+	grain = 1 << 5 = 32
+
+Replace it with the correct calculation:
+
+	grain_bits = fls_long(e->grain - 1);
+
+The example gives now:
+
+	grain_bits = fls_long(8 - 1)
+	grain_bits = fls_long(7)
+	grain_bits = 3
+
+	grain = 1 << 3 = 8
+
+Also, check if the hardware reports a reasonable grain != 0 and fallback
+with a warning to 1 byte granularity otherwise.
+
+ [ bp: massage a bit. ]
+
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624150758.6695-2-rrichter@marvell.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-lg.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/edac/edac_mc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -701,11 +701,16 @@ static int lg_probe(struct hid_device *h
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index 80801c616395e..f7fa05fee45a1 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -1240,9 +1240,13 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
+ 	if (p > e->location)
+ 		*(p - 1) = '\0';
  
- 	/* Setup wireless link with Logitech Wii wheel */
- 	if (hdev->product == USB_DEVICE_ID_LOGITECH_WII_WHEEL) {
--		unsigned char buf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-+		const unsigned char cbuf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-+		u8 *buf = kmemdup(cbuf, sizeof(cbuf), GFP_KERNEL);
+-	/* Report the error via the trace interface */
+-	grain_bits = fls_long(e->grain) + 1;
++	/* Sanity-check driver-supplied grain value. */
++	if (WARN_ON_ONCE(!e->grain))
++		e->grain = 1;
++
++	grain_bits = fls_long(e->grain - 1);
  
--		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
--					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+		if (!buf) {
-+			ret = -ENOMEM;
-+			goto err_free;
-+		}
- 
-+		ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
-+					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
- 		if (ret >= 0) {
- 			/* insert a little delay of 10 jiffies ~ 40ms */
- 			wait_queue_head_t wait;
-@@ -717,9 +722,10 @@ static int lg_probe(struct hid_device *h
- 			buf[1] = 0xB2;
- 			get_random_bytes(&buf[2], 2);
- 
--			ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(buf),
-+			ret = hid_hw_raw_request(hdev, buf[0], buf, sizeof(cbuf),
- 					HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
- 		}
-+		kfree(buf);
- 	}
- 
- 	if (drv_data->quirks & LG_FF)
++	/* Report the error via the trace interface */
+ 	if (IS_ENABLED(CONFIG_RAS))
+ 		trace_mc_event(type, e->msg, e->label, e->error_count,
+ 			       mci->mc_idx, e->top_layer, e->mid_layer,
+-- 
+2.20.1
+
 
 
