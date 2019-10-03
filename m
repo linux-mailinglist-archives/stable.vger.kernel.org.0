@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C748ECA68E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D3DCA65B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405454AbfJCQo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54176 "EHLO mail.kernel.org"
+        id S2392696AbfJCQnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404806AbfJCQmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:42:55 -0400
+        id S2405131AbfJCQm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:42:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CAC5D2054F;
-        Thu,  3 Oct 2019 16:42:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80EFC206BB;
+        Thu,  3 Oct 2019 16:42:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120974;
-        bh=Jr0wGQmS0muJUE7fHZrs67QdfVNAOhdhj82RmrQrEgE=;
+        s=default; t=1570120977;
+        bh=5+4+EyeHu/Ui4dWZQbgh+L+4DfByRKwtCBXnWaSYN9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oI5P9mxyiyqe+PK4SHXWVAWvtsyQEEWsRj+Xti7r5mbzToNUhYpOJnrKcCnvsX8nr
-         noWUyiWK43S9P+bo5DDi+23D9LAvlBmC1XK7srDPwpvyyTA8Zd/LhOn9sgmkggIk86
-         j5RWswJnjwKozp9DuGj84dHLX6R8gq9uDZeRo/OQ=
+        b=hUC2Lde2urY667cK7p0sCULAvsUvRe3WD9YzSxwYfQptoOJbzvEYv5exJrkIfML2R
+         Gtc96NTwhu0uiFzhPPhypgQ/1iQWGuh9L/PHBRCRbDOu1p6c5iv4TQi72F+TZc4fF7
+         BbDfMXZ6wasHjG6QYyPhpGVhb+c67lQLD1HNZ3Eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org, Robert Richter <rrichter@marvell.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 071/344] rcu: Add destroy_work_on_stack() to match INIT_WORK_ONSTACK()
-Date:   Thu,  3 Oct 2019 17:50:36 +0200
-Message-Id: <20191003154547.138807171@linuxfoundation.org>
+Subject: [PATCH 5.3 072/344] EDAC/mc: Fix grain_bits calculation
+Date:   Thu,  3 Oct 2019 17:50:37 +0200
+Message-Id: <20191003154547.235446511@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,52 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@linux.ibm.com>
+From: Robert Richter <rrichter@marvell.com>
 
-[ Upstream commit fbad01af8c3bb9618848abde8054ab7e0c2330fe ]
+[ Upstream commit 3724ace582d9f675134985727fd5e9811f23c059 ]
 
-The synchronize_rcu_expedited() function has an INIT_WORK_ONSTACK(),
-but lacks the corresponding destroy_work_on_stack().  This commit
-therefore adds destroy_work_on_stack().
+The grain in EDAC is defined as "minimum granularity for an error
+report, in bytes". The following calculation of the grain_bits in
+edac_mc is wrong:
 
-Reported-by: Andrea Arcangeli <aarcange@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
-Acked-by: Andrea Arcangeli <aarcange@redhat.com>
+	grain_bits = fls_long(e->grain) + 1;
+
+Where grain_bits is defined as:
+
+	grain = 1 << grain_bits
+
+Example:
+
+	grain = 8	# 64 bit (8 bytes)
+	grain_bits = fls_long(8) + 1
+	grain_bits = 4 + 1 = 5
+
+	grain = 1 << grain_bits
+	grain = 1 << 5 = 32
+
+Replace it with the correct calculation:
+
+	grain_bits = fls_long(e->grain - 1);
+
+The example gives now:
+
+	grain_bits = fls_long(8 - 1)
+	grain_bits = fls_long(7)
+	grain_bits = 3
+
+	grain = 1 << 3 = 8
+
+Also, check if the hardware reports a reasonable grain != 0 and fallback
+with a warning to 1 byte granularity otherwise.
+
+ [ bp: massage a bit. ]
+
+Signed-off-by: Robert Richter <rrichter@marvell.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624150758.6695-2-rrichter@marvell.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/edac/edac_mc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index af7e7b9c86afa..513b403b683b7 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -792,6 +792,7 @@ static int rcu_print_task_exp_stall(struct rcu_node *rnp)
-  */
- void synchronize_rcu_expedited(void)
- {
-+	bool boottime = (rcu_scheduler_active == RCU_SCHEDULER_INIT);
- 	struct rcu_exp_work rew;
- 	struct rcu_node *rnp;
- 	unsigned long s;
-@@ -817,7 +818,7 @@ void synchronize_rcu_expedited(void)
- 		return;  /* Someone else did our work for us. */
+diff --git a/drivers/edac/edac_mc.c b/drivers/edac/edac_mc.c
+index 64922c8fa7e3b..d899d86897d06 100644
+--- a/drivers/edac/edac_mc.c
++++ b/drivers/edac/edac_mc.c
+@@ -1235,9 +1235,13 @@ void edac_mc_handle_error(const enum hw_event_mc_err_type type,
+ 	if (p > e->location)
+ 		*(p - 1) = '\0';
  
- 	/* Ensure that load happens before action based on it. */
--	if (unlikely(rcu_scheduler_active == RCU_SCHEDULER_INIT)) {
-+	if (unlikely(boottime)) {
- 		/* Direct call during scheduler init and early_initcalls(). */
- 		rcu_exp_sel_wait_wake(s);
- 	} else {
-@@ -835,5 +836,8 @@ void synchronize_rcu_expedited(void)
- 
- 	/* Let the next expedited grace period start. */
- 	mutex_unlock(&rcu_state.exp_mutex);
+-	/* Report the error via the trace interface */
+-	grain_bits = fls_long(e->grain) + 1;
++	/* Sanity-check driver-supplied grain value. */
++	if (WARN_ON_ONCE(!e->grain))
++		e->grain = 1;
 +
-+	if (likely(!boottime))
-+		destroy_work_on_stack(&rew.rew_work);
- }
- EXPORT_SYMBOL_GPL(synchronize_rcu_expedited);
++	grain_bits = fls_long(e->grain - 1);
+ 
++	/* Report the error via the trace interface */
+ 	if (IS_ENABLED(CONFIG_RAS))
+ 		trace_mc_event(type, e->msg, e->label, e->error_count,
+ 			       mci->mc_idx, e->top_layer, e->mid_layer,
 -- 
 2.20.1
 
