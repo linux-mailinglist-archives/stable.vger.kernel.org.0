@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0697ECA87A
+	by mail.lfdr.de (Postfix) with ESMTP id E317CCA87C
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391264AbfJCQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391257AbfJCQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 12:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59232 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391239AbfJCQ1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:22 -0400
+        id S2390619AbfJCQ12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:27:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F69F21A4C;
-        Thu,  3 Oct 2019 16:27:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D08A720867;
+        Thu,  3 Oct 2019 16:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120041;
-        bh=WIctwk9L72Om2Ui1kbxR8vV1p8YYAz6Te+AeYjGT+5g=;
+        s=default; t=1570120047;
+        bh=iItdgteyx2Yyq6/oHJhvcXHvnUEhYPhCCQi5ReAoQIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOw8o6oyh5A0RvGcriTOqC626VGAoivuo7GT0leW9WPxMino5YAlL9uVReHuovGuA
-         cz0xh601Y/4QwHXqytFhR9C3GY5U7ddKkHdSR/bTQn12x7mUR6LCAj8oJg8A+8Xu+C
-         smsWYMHN2v9Y0cYFSULc+04ZvcnJTGTSK/y1jsWE=
+        b=MGVNj4hHZGUDqWpsYzv1p5oNm1Oyqdl8XB2pkSXunUGr/kALrRrKZUKIw+kE3DWci
+         aokxFDwzASNYQdFmxKzSFwtuFfL0P/3q/o/ID8WBPN5ioge5J9qO5g4I8T8kNjJnxN
+         /j18ENMFdCtoL/3a6mTeylRhHtdST47QtwKWosQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
         Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 074/313] md/raid1: end bio when the device faulty
-Date:   Thu,  3 Oct 2019 17:50:52 +0200
-Message-Id: <20191003154540.129667554@linuxfoundation.org>
+Subject: [PATCH 5.2 075/313] md: dont call spare_active in md_reap_sync_thread if all member devices cant work
+Date:   Thu,  3 Oct 2019 17:50:53 +0200
+Message-Id: <20191003154540.228351734@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,73 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Guoqing Jiang <jgq516@gmail.com>
 
-[ Upstream commit eeba6809d8d58908b5ed1b5ceb5fcb09a98a7cad ]
+[ Upstream commit 0d8ed0e9bf9643f27f4816dca61081784dedb38d ]
 
-When write bio return error, it would be added to conf->retry_list
-and wait for raid1d thread to retry write and acknowledge badblocks.
+When add one disk to array, the md_reap_sync_thread is responsible
+to activate the spare and set In_sync flag for the new member in
+spare_active().
 
-In narrow_write_error(), the error bio will be split in the unit of
-badblock shift (such as one sector) and raid1d thread issues them
-one by one. Until all of the splited bio has finished, raid1d thread
-can go on processing other things, which is time consuming.
+But if raid1 has one member disk A, and disk B is added to the array.
+Then we offline A before all the datas are synchronized from A to B,
+obviously B doesn't have the latest data as A, but B is still marked
+with In_sync flag.
 
-But, there is a scene for error handling that is not necessary.
-When the device has been set faulty, flush_bio_list() may end
-bios in pending_bio_list with error status. Since these bios
-has not been issued to the device actually, error handlding to
-retry write and acknowledge badblocks make no sense.
+So let's not call spare_active under the condition, otherwise B is
+still showed with 'U' state which is not correct.
 
-Even without that scene, when the device is faulty, badblocks info
-can not be written out to the device. Thus, we also no need to
-handle the error IO.
-
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid1.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/md/md.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 2aa36e570e049..a26731a9b38e7 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -426,19 +426,21 @@ static void raid1_end_write_request(struct bio *bio)
- 		    /* We never try FailFast to WriteMostly devices */
- 		    !test_bit(WriteMostly, &rdev->flags)) {
- 			md_error(r1_bio->mddev, rdev);
--			if (!test_bit(Faulty, &rdev->flags))
--				/* This is the only remaining device,
--				 * We need to retry the write without
--				 * FailFast
--				 */
--				set_bit(R1BIO_WriteError, &r1_bio->state);
--			else {
--				/* Finished with this branch */
--				r1_bio->bios[mirror] = NULL;
--				to_put = bio;
--			}
--		} else
-+		}
-+
-+		/*
-+		 * When the device is faulty, it is not necessary to
-+		 * handle write error.
-+		 * For failfast, this is the only remaining device,
-+		 * We need to retry the write without FailFast.
-+		 */
-+		if (!test_bit(Faulty, &rdev->flags))
- 			set_bit(R1BIO_WriteError, &r1_bio->state);
-+		else {
-+			/* Finished with this branch */
-+			r1_bio->bios[mirror] = NULL;
-+			to_put = bio;
-+		}
- 	} else {
- 		/*
- 		 * Set R1BIO_Uptodate in our master bio, so that we
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 9801d540fea1c..5e885b6c4240d 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -8944,7 +8944,8 @@ void md_reap_sync_thread(struct mddev *mddev)
+ 	/* resync has finished, collect result */
+ 	md_unregister_thread(&mddev->sync_thread);
+ 	if (!test_bit(MD_RECOVERY_INTR, &mddev->recovery) &&
+-	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
++	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
++	    mddev->degraded != mddev->raid_disks) {
+ 		/* success...*/
+ 		/* activate any spares */
+ 		if (mddev->pers->spare_active(mddev)) {
 -- 
 2.20.1
 
