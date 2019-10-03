@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48752CA41C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26372CA420
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390250AbfJCQWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50698 "EHLO mail.kernel.org"
+        id S2390273AbfJCQWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388937AbfJCQWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:10 -0400
+        id S2390269AbfJCQWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:22:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC35E2054F;
-        Thu,  3 Oct 2019 16:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FE8C20659;
+        Thu,  3 Oct 2019 16:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119729;
-        bh=Ueaqf8L7aiXnLa7rVeHwr0H9y2qhxDWtM7OnYOJ9vwM=;
+        s=default; t=1570119734;
+        bh=V7DuxVBin5ZXYh+MsB/OcPR+axrn4a9WekxFP0wvVYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1dM+YiQqtvMNSmxVkweJ/veBDu2ZhiGGSrT19NFZ70qQlyS9Bvj6RAFkua2tNxTHv
-         T46L3geJUf0k17WRpwyXZqgrGZ1+j1RfoBmXZuGtvD/E/25GadtMZdKUIDATP0h57l
-         zZfA5lWKBL33CgPx3oAKQ4DKsUNcUQU60QmT8IcI=
+        b=Igif/AiTRlzIu1lOqdZTpy8QJhWArROVKb+vyIGUOt3DabNG9kSDVlWfJzhqOJjPq
+         3r3xNmHOEFf8cMQFM9LPJWwxbuGU78jOvTyCoRnSJFtlv0a0MtGHs5Q7WzTiDk2l3h
+         XfzEXetfa23PMPCfXQTlJCbmp8+xELRT2H60ZaNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <amadeuszx.slawinski@intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 172/211] ASoC: Intel: Skylake: Use correct function to access iomem space
-Date:   Thu,  3 Oct 2019 17:53:58 +0200
-Message-Id: <20191003154526.423613125@linuxfoundation.org>
+Subject: [PATCH 4.19 173/211] ASoC: Intel: Fix use of potentially uninitialized variable
+Date:   Thu,  3 Oct 2019 17:53:59 +0200
+Message-Id: <20191003154526.543798873@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -48,39 +48,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
+commit 810f3b860850148788fc1ed8a6f5f807199fed65 upstream.
 
-For copying from __iomem, we should use __ioread32_copy.
+If ipc->ops.reply_msg_match is NULL, we may end up using uninitialized
+mask value.
 
-reported by sparse:
-sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
-sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
-sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
-sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
+reported by smatch:
+sound/soc/intel/common/sst-ipc.c:266 sst_ipc_reply_find_msg() error: uninitialized symbol 'mask'.
 
 Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
+Link: https://lore.kernel.org/r/20190827141712.21015-3-amadeuszx.slawinski@linux.intel.com
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-debug.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/common/sst-ipc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/intel/skylake/skl-debug.c
-+++ b/sound/soc/intel/skylake/skl-debug.c
-@@ -196,7 +196,7 @@ static ssize_t fw_softreg_read(struct fi
- 	memset(d->fw_read_buff, 0, FW_REG_BUF);
+--- a/sound/soc/intel/common/sst-ipc.c
++++ b/sound/soc/intel/common/sst-ipc.c
+@@ -231,6 +231,8 @@ struct ipc_message *sst_ipc_reply_find_m
  
- 	if (w0_stat_sz > 0)
--		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
-+		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
+ 	if (ipc->ops.reply_msg_match != NULL)
+ 		header = ipc->ops.reply_msg_match(header, &mask);
++	else
++		mask = (u64)-1;
  
- 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
- 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
+ 	if (list_empty(&ipc->rx_list)) {
+ 		dev_err(ipc->dev, "error: rx list empty but received 0x%llx\n",
 
 
