@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 017E9CA7BE
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9EFCA5C0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405987AbfJCQvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38390 "EHLO mail.kernel.org"
+        id S2392235AbfJCQgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:36:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405982AbfJCQvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:51:02 -0400
+        id S2392227AbfJCQgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CCA920867;
-        Thu,  3 Oct 2019 16:51:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EE5F2070B;
+        Thu,  3 Oct 2019 16:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121461;
-        bh=GaFBzWQLwO+dySvhLRFxq60xkVTUnrkFqZ/q4+XN0xs=;
+        s=default; t=1570120581;
+        bh=Vhn61zfodW2nUexBhYAvgnh3S61wuWAuR3adKLo41/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTb50mI4YKs8s/n6Tfe/gwzWHvMRzdrO3PorNT3IfQQgBfxBRrY/HTyqFReEzO/WH
-         V5Gglpl4pqG106vgxBDw64qfIqMB1bg3dgjV6uK59qVtRXka/f4A0sNQHFqotgGJHx
-         GJdQukJQD5g+V8yLT4hQ/bA2liNQ8HrjeVFfFnZw=
+        b=mk2VQRpgXbOYF0ekaIAwsj/ezLnMApAJjj27r4747OXnXjAtFBVv9uKAlPrVcDOTf
+         LsGGgj8+pZ2e7W5XK0No54M/GoPaQqwaSxOEOdArzT8GpwYjpbYqyAzK6MdufilIOA
+         sgqQX2uFEHXkATeF+C4Vzo/EEsfDGHjC5TGcMUjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.3 287/344] regulator: Defer init completion for a while after late_initcall
+        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.2 274/313] ath10k: fix channel info parsing for non tlv target
 Date:   Thu,  3 Oct 2019 17:54:12 +0200
-Message-Id: <20191003154608.151402340@linuxfoundation.org>
+Message-Id: <20191003154600.019382008@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Rakesh Pillai <pillair@codeaurora.org>
 
-commit 55576cf1853798e86f620766e23b604c9224c19c upstream.
+commit 6be6c04bcc2e8770b8637632789ff15765124894 upstream.
 
-The kernel has no way of knowing when we have finished instantiating
-drivers, between deferred probe and systems that build key drivers as
-modules we might be doing this long after userspace has booted. This has
-always been a bit of an issue with regulator_init_complete since it can
-power off hardware that's not had it's driver loaded which can result in
-user visible effects, the main case is powering off displays. Practically
-speaking it's not been an issue in real systems since most systems that
-use the regulator API are embedded and build in key drivers anyway but
-with Arm laptops coming on the market it's becoming more of an issue so
-let's do something about it.
+The tlv targets such as WCN3990 send more data in the chan info event, which is
+not sent by the non tlv targets. There is a minimum size check in the wmi event
+for non-tlv targets and hence we cannot update the common channel info
+structure as it was done in commit 13104929d2ec ("ath10k: fill the channel
+survey results for WCN3990 correctly"). This broke channel survey results on
+10.x firmware versions.
 
-In the absence of any better idea just defer the powering off for 30s
-after late_initcall(), this is obviously a hack but it should mask the
-issue for now and it's no more arbitrary than late_initcall() itself.
-Ideally we'd have some heuristics to detect if we're on an affected
-system and tune or skip the delay appropriately, and there may be some
-need for a command line option to be added.
+If the common channel info structure is updated, the size check for chan info
+event for non-tlv targets will fail and return -EPROTO and we see the below
+error messages
 
-Link: https://lore.kernel.org/r/20190904124250.25844-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Lee Jones <lee.jones@linaro.org>
-Cc: stable@vger.kernel.org
+   ath10k_pci 0000:01:00.0: failed to parse chan info event: -71
+
+Add tlv specific channel info structure and restore the original size of the
+common channel info structure to mitigate this issue.
+
+Tested HW: WCN3990
+	   QCA9887
+Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
+	   10.2.4-1.0-00037
+
+Fixes: 13104929d2ec ("ath10k: fill the channel survey results for WCN3990 correctly")
+Cc: stable@vger.kernel.org # 5.0
+Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/regulator/core.c |   42 +++++++++++++++++++++++++++++++-----------
- 1 file changed, 31 insertions(+), 11 deletions(-)
+ drivers/net/wireless/ath/ath10k/wmi-tlv.c |    2 +-
+ drivers/net/wireless/ath/ath10k/wmi-tlv.h |   16 ++++++++++++++++
+ drivers/net/wireless/ath/ath10k/wmi.h     |    8 --------
+ 3 files changed, 17 insertions(+), 9 deletions(-)
 
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5640,7 +5640,7 @@ static int __init regulator_init(void)
- /* init early to allow our consumers to complete system booting */
- core_initcall(regulator_init);
- 
--static int __init regulator_late_cleanup(struct device *dev, void *data)
-+static int regulator_late_cleanup(struct device *dev, void *data)
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
+@@ -810,7 +810,7 @@ static int ath10k_wmi_tlv_op_pull_ch_inf
+ 					     struct wmi_ch_info_ev_arg *arg)
  {
- 	struct regulator_dev *rdev = dev_to_rdev(dev);
- 	const struct regulator_ops *ops = rdev->desc->ops;
-@@ -5689,18 +5689,9 @@ unlock:
- 	return 0;
- }
+ 	const void **tb;
+-	const struct wmi_chan_info_event *ev;
++	const struct wmi_tlv_chan_info_event *ev;
+ 	int ret;
  
--static int __init regulator_init_complete(void)
-+static void regulator_init_complete_work_function(struct work_struct *work)
- {
- 	/*
--	 * Since DT doesn't provide an idiomatic mechanism for
--	 * enabling full constraints and since it's much more natural
--	 * with DT to provide them just assume that a DT enabled
--	 * system has full constraints.
--	 */
--	if (of_have_populated_dt())
--		has_full_constraints = true;
+ 	tb = ath10k_wmi_tlv_parse_alloc(ar, skb->data, skb->len, GFP_ATOMIC);
+--- a/drivers/net/wireless/ath/ath10k/wmi-tlv.h
++++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.h
+@@ -1607,6 +1607,22 @@ struct chan_info_params {
+ 
+ #define WMI_TLV_FLAG_MGMT_BUNDLE_TX_COMPL	BIT(9)
+ 
++struct wmi_tlv_chan_info_event {
++	__le32 err_code;
++	__le32 freq;
++	__le32 cmd_flags;
++	__le32 noise_floor;
++	__le32 rx_clear_count;
++	__le32 cycle_count;
++	__le32 chan_tx_pwr_range;
++	__le32 chan_tx_pwr_tp;
++	__le32 rx_frame_count;
++	__le32 my_bss_rx_cycle_count;
++	__le32 rx_11b_mode_data_duration;
++	__le32 tx_frame_cnt;
++	__le32 mac_clk_mhz;
++} __packed;
++
+ struct wmi_tlv_mgmt_tx_compl_ev {
+ 	__le32 desc_id;
+ 	__le32 status;
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6524,14 +6524,6 @@ struct wmi_chan_info_event {
+ 	__le32 noise_floor;
+ 	__le32 rx_clear_count;
+ 	__le32 cycle_count;
+-	__le32 chan_tx_pwr_range;
+-	__le32 chan_tx_pwr_tp;
+-	__le32 rx_frame_count;
+-	__le32 my_bss_rx_cycle_count;
+-	__le32 rx_11b_mode_data_duration;
+-	__le32 tx_frame_cnt;
+-	__le32 mac_clk_mhz;
 -
--	/*
- 	 * Regulators may had failed to resolve their input supplies
- 	 * when were registered, either because the input supply was
- 	 * not registered yet or because its parent device was not
-@@ -5717,6 +5708,35 @@ static int __init regulator_init_complet
- 	 */
- 	class_for_each_device(&regulator_class, NULL, NULL,
- 			      regulator_late_cleanup);
-+}
-+
-+static DECLARE_DELAYED_WORK(regulator_init_complete_work,
-+			    regulator_init_complete_work_function);
-+
-+static int __init regulator_init_complete(void)
-+{
-+	/*
-+	 * Since DT doesn't provide an idiomatic mechanism for
-+	 * enabling full constraints and since it's much more natural
-+	 * with DT to provide them just assume that a DT enabled
-+	 * system has full constraints.
-+	 */
-+	if (of_have_populated_dt())
-+		has_full_constraints = true;
-+
-+	/*
-+	 * We punt completion for an arbitrary amount of time since
-+	 * systems like distros will load many drivers from userspace
-+	 * so consumers might not always be ready yet, this is
-+	 * particularly an issue with laptops where this might bounce
-+	 * the display off then on.  Ideally we'd get a notification
-+	 * from userspace when this happens but we don't so just wait
-+	 * a bit and hope we waited long enough.  It'd be better if
-+	 * we'd only do this on systems that need it, and a kernel
-+	 * command line option might be useful.
-+	 */
-+	schedule_delayed_work(&regulator_init_complete_work,
-+			      msecs_to_jiffies(30000));
+ } __packed;
  
- 	return 0;
- }
+ struct wmi_10_4_chan_info_event {
 
 
