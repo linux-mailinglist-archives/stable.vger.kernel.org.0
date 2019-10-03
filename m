@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B46E5CA99D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1637CA9F3
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392777AbfJCQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
+        id S2389177AbfJCQRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:17:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392776AbfJCQpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:45:20 -0400
+        id S2389171AbfJCQRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13CAE2070B;
-        Thu,  3 Oct 2019 16:45:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 189CB20865;
+        Thu,  3 Oct 2019 16:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121119;
-        bh=m1xU3MN9oZtjKPTUZFaPksrFuGLR44/SZKFcE/8zU+8=;
+        s=default; t=1570119428;
+        bh=qv9ygTfvEiKSBYql2/cnEalR9CuEm7hiXBuwEhcKLyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UA6Z+ljscwMSYMz2zcM+Td53bmUEGq/qN1viLpnFA9YDacD7VOpIBDmcGWtGAK+5v
-         lu4zd70zH+w4/TiAKMsNgzpRNmpnAotpcoYn7M7oQ05D8VlZR9xwL3QxcjLPV6djiP
-         DDPlsXyauPJVQbuAwLfd8ZSAbNqfMmiuAaN7H5Z8=
+        b=TvHc88VYQMPY2SdiL9nVJQdwQRQeQFwTe1esTj100DTlim+HCjbqk9gv1DhijsRtJ
+         /TZdBpBugbnK8fGpWGObRdu8h+yDNKusdc6+8txz8EDb0oVYse0SkO9dgs3qET3wi2
+         m30iTXNQ7wTN6rW6rEgl1k6qwrexuduCcBkW1HQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 161/344] perf report: Fix --ns time sort key output
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Alessio Balsini <balsini@android.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 060/211] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
 Date:   Thu,  3 Oct 2019 17:52:06 +0200
-Message-Id: <20191003154556.092459836@linuxfoundation.org>
+Message-Id: <20191003154502.001730641@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andi Kleen <ak@linux.intel.com>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit 3dab6ac080dcd7f71cb9ceb84ad7dafecd6f7c07 ]
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-If the user specified --ns, the column to print the sort time stamp
-wasn't wide enough to actually print the full nanoseconds.
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-Widen the time key column width when --ns is specified.
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
 
-Before:
-
-  % perf record -a sleep 1
-  % perf report --sort time,overhead,symbol --stdio --ns
-  ...
-       2.39%  187851.10000  [k] smp_call_function_single   -      -
-       1.53%  187851.10000  [k] intel_idle                 -      -
-       0.59%  187851.10000  [.] __wcscmp_ifunc             -      -
-       0.33%  187851.10000  [.] 0000000000000000           -      -
-       0.28%  187851.10000  [k] cpuidle_enter_state        -      -
-
-After:
-
-  % perf report --sort time,overhead,symbol --stdio --ns
-  ...
-       2.39%  187851.100000000  [k] smp_call_function_single   -      -
-       1.53%  187851.100000000  [k] intel_idle                 -      -
-       0.59%  187851.100000000  [.] __wcscmp_ifunc             -      -
-       0.33%  187851.100000000  [.] 0000000000000000           -      -
-       0.28%  187851.100000000  [k] cpuidle_enter_state        -      -
-
-Signed-off-by: Andi Kleen <ak@linux.intel.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Link: http://lkml.kernel.org/r/20190823210338.12360-2-andi@firstfloor.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/hist.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/util/hist.c b/tools/perf/util/hist.c
-index f24fd1954f6c9..6bd270a1e93e0 100644
---- a/tools/perf/util/hist.c
-+++ b/tools/perf/util/hist.c
-@@ -193,7 +193,10 @@ void hists__calc_col_len(struct hists *hists, struct hist_entry *h)
- 	hists__new_col_len(hists, HISTC_MEM_LVL, 21 + 3);
- 	hists__new_col_len(hists, HISTC_LOCAL_WEIGHT, 12);
- 	hists__new_col_len(hists, HISTC_GLOBAL_WEIGHT, 12);
--	hists__new_col_len(hists, HISTC_TIME, 12);
-+	if (symbol_conf.nanosecs)
-+		hists__new_col_len(hists, HISTC_TIME, 16);
-+	else
-+		hists__new_col_len(hists, HISTC_TIME, 12);
- 
- 	if (h->srcline) {
- 		len = MAX(strlen(h->srcline), strlen(sort_srcline.se_header));
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index cef8e00c9d9d6..126c2c5146732 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1719,6 +1719,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
+ 	case LOOP_SET_BLOCK_SIZE:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 -- 
 2.20.1
 
