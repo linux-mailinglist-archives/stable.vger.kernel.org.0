@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1632ECAA45
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CCBCAACB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405195AbfJCRCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
+        id S1731971AbfJCRN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:13:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405084AbfJCQmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:42:44 -0400
+        id S2391321AbfJCQ16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:27:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02773206BB;
-        Thu,  3 Oct 2019 16:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 603D921783;
+        Thu,  3 Oct 2019 16:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120963;
-        bh=PXGyuAPnXiAbwagSHmuY/DyLAwPdHDjmxWdSWUh6/3c=;
+        s=default; t=1570120076;
+        bh=e6HrPHm9mHRsCTtvzt4/Np6paexRy6vP8uDN+UsN+Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6OwT2cn7ugn1w/TJNks+G+mzZ+/cp75FBOJrzvTJ1sv+tJybO+mytow1G5LfUcXV
-         273TEMf0o8StaUDe+bVIwidQ3QdDhv51P6cPj4xbImM8VM5+vVNnyQgPKOhgpsytau
-         L64Y42excqif5S1NjZYiiVfi/tV6T9ve0+KXCdOo=
+        b=heM1vrjFLl5r+0XolW/cQV6RNqFAip9nYs+TQfEpeyN2FtM1jwgOR0SHyltd4UpEq
+         NrCOkKXvYCsPJmNvmsUvrjMFM3et0LOpGCHXiwBtU82/S1GmI1V1SvTvGB+QT4M1Wn
+         fb+NpdNKUpVlbUkCtr+evbk7JPVQIleEJD1R1I0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, zhengbin <zhengbin13@huawei.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 102/344] blk-mq: Fix memory leak in blk_mq_init_allocated_queue error handling
+Subject: [PATCH 5.2 089/313] blk-mq: Fix memory leak in blk_mq_init_allocated_queue error handling
 Date:   Thu,  3 Oct 2019 17:51:07 +0200
-Message-Id: <20191003154550.266019544@linuxfoundation.org>
+Message-Id: <20191003154541.637813090@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 0835f4d8d42e7..a38ebb2a380c2 100644
+index 68106a41f90d2..f934e8afe5b43 100644
 --- a/block/blk-mq.c
 +++ b/block/blk-mq.c
-@@ -2841,6 +2841,8 @@ static unsigned int nr_hw_queues(struct blk_mq_tag_set *set)
+@@ -2853,6 +2853,8 @@ static unsigned int nr_hw_queues(struct blk_mq_tag_set *set)
  struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
  						  struct request_queue *q)
  {
@@ -71,7 +71,7 @@ index 0835f4d8d42e7..a38ebb2a380c2 100644
  	/* mark the queue as mq asap */
  	q->mq_ops = set->ops;
  
-@@ -2902,17 +2904,18 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+@@ -2914,17 +2916,18 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
  	blk_mq_map_swqueue(q);
  
  	if (!(set->flags & BLK_MQ_F_NO_SCHED)) {
