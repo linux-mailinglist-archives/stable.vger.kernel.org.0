@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB8C1CA7B5
+	by mail.lfdr.de (Postfix) with ESMTP id 6C5A8CA7B4
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393142AbfJCQvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:51:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38726 "EHLO mail.kernel.org"
+        id S2393148AbfJCQvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:51:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393135AbfJCQvW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:51:22 -0400
+        id S2393110AbfJCQvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:51:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1E722086A;
-        Thu,  3 Oct 2019 16:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7E6A121D81;
+        Thu,  3 Oct 2019 16:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121480;
-        bh=cALHChxfpYgX3ckCPadrD4QhV/lxZt6jYXvXFJ0lOY0=;
+        s=default; t=1570121483;
+        bh=8XbpD/NilelXghlLTARo7fm8QXV1LjXxZFbmJy62XoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ekU9G9XebXkPmntexm0wKuogomYsv75v3PYfIpdldWLj+nYZytVcRO1/wWm5heVtP
-         2Jj281NCvk1kuc3ypJDAYicWjint17QuPsOTdehkgV142XIXv1V/DlnEI3YxhsCZNV
-         Tux0x0LjlsxdtrNBD2KH1JpOdWjFlIpItHlNuAeo=
+        b=g+uS/0iPBXl+iGOc/B18+FS6xApfHzOYLDiXoP+nbNxvD2wvrHe5fnCHNTar9JkW0
+         eCeVZTQp1j5QTfWF00KkzULyeTfSQz5z/z7PghWUGfLSOTQHqBh1lt8Y2TiX1kjtfw
+         uesXsNJm8HBfLKj9YgtCCr2NP69pEjduorMXXOQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Masoud Sharbiani <msharbiani@apple.com>,
-        Michal Hocko <mhocko@suse.com>,
-        David Rientjes <rientjes@google.com>,
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        Thomas Lindroth <thomas.lindroth@gmail.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Shakeel Butt <shakeelb@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 293/344] memcg, oom: dont require __GFP_FS when invoking memcg OOM killer
-Date:   Thu,  3 Oct 2019 17:54:18 +0200
-Message-Id: <20191003154608.584963229@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: [PATCH 5.3 294/344] memcg, kmem: do not fail __GFP_NOFAIL charges
+Date:   Thu,  3 Oct 2019 17:54:19 +0200
+Message-Id: <20191003154608.655351712@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -48,182 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Michal Hocko <mhocko@suse.com>
 
-commit f9c645621a28e37813a1de96d9cbd89cde94a1e4 upstream.
+commit e55d9d9bfb69405bd7615c0f8d229d8fafb3e9b8 upstream.
 
-Masoud Sharbiani noticed that commit 29ef680ae7c21110 ("memcg, oom: move
-out_of_memory back to the charge path") broke memcg OOM called from
-__xfs_filemap_fault() path.  It turned out that try_charge() is retrying
-forever without making forward progress because mem_cgroup_oom(GFP_NOFS)
-cannot invoke the OOM killer due to commit 3da88fb3bacfaa33 ("mm, oom:
-move GFP_NOFS check to out_of_memory").
+Thomas has noticed the following NULL ptr dereference when using cgroup
+v1 kmem limit:
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+PGD 0
+P4D 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 3 PID: 16923 Comm: gtk-update-icon Not tainted 4.19.51 #42
+Hardware name: Gigabyte Technology Co., Ltd. Z97X-Gaming G1/Z97X-Gaming G1, BIOS F9 07/31/2015
+RIP: 0010:create_empty_buffers+0x24/0x100
+Code: cd 0f 1f 44 00 00 0f 1f 44 00 00 41 54 49 89 d4 ba 01 00 00 00 55 53 48 89 fb e8 97 fe ff ff 48 89 c5 48 89 c2 eb 03 48 89 ca <48> 8b 4a 08 4c 09 22 48 85 c9 75 f1 48 89 6a 08 48 8b 43 18 48 8d
+RSP: 0018:ffff927ac1b37bf8 EFLAGS: 00010286
+RAX: 0000000000000000 RBX: fffff2d4429fd740 RCX: 0000000100097149
+RDX: 0000000000000000 RSI: 0000000000000082 RDI: ffff9075a99fbe00
+RBP: 0000000000000000 R08: fffff2d440949cc8 R09: 00000000000960c0
+R10: 0000000000000002 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff907601f18360 R14: 0000000000002000 R15: 0000000000001000
+FS:  00007fb55b288bc0(0000) GS:ffff90761f8c0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000008 CR3: 000000007aebc002 CR4: 00000000001606e0
+Call Trace:
+ create_page_buffers+0x4d/0x60
+ __block_write_begin_int+0x8e/0x5a0
+ ? ext4_inode_attach_jinode.part.82+0xb0/0xb0
+ ? jbd2__journal_start+0xd7/0x1f0
+ ext4_da_write_begin+0x112/0x3d0
+ generic_perform_write+0xf1/0x1b0
+ ? file_update_time+0x70/0x140
+ __generic_file_write_iter+0x141/0x1a0
+ ext4_file_write_iter+0xef/0x3b0
+ __vfs_write+0x17e/0x1e0
+ vfs_write+0xa5/0x1a0
+ ksys_write+0x57/0xd0
+ do_syscall_64+0x55/0x160
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Allowing forced charge due to being unable to invoke memcg OOM killer will
-lead to global OOM situation.  Also, just returning -ENOMEM will be risky
-because OOM path is lost and some paths (e.g.  get_user_pages()) will leak
--ENOMEM.  Therefore, invoking memcg OOM killer (despite GFP_NOFS) will be
-the only choice we can choose for now.
+Tetsuo then noticed that this is because the __memcg_kmem_charge_memcg
+fails __GFP_NOFAIL charge when the kmem limit is reached.  This is a wrong
+behavior because nofail allocations are not allowed to fail.  Normal
+charge path simply forces the charge even if that means to cross the
+limit.  Kmem accounting should be doing the same.
 
-Until 29ef680ae7c21110, we were able to invoke memcg OOM killer when
-GFP_KERNEL reclaim failed [1].  But since 29ef680ae7c21110, we need to
-invoke memcg OOM killer when GFP_NOFS reclaim failed [2].  Although in the
-past we did invoke memcg OOM killer for GFP_NOFS [3], we might get
-pre-mature memcg OOM reports due to this patch.
-
-[1]
-
- leaker invoked oom-killer: gfp_mask=0x6200ca(GFP_HIGHUSER_MOVABLE), nodemask=(null), order=0, oom_score_adj=0
- CPU: 0 PID: 2746 Comm: leaker Not tainted 4.18.0+ #19
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x10a/0x2c0
-  mem_cgroup_out_of_memory+0x46/0x80
-  mem_cgroup_oom_synchronize+0x2e4/0x310
-  ? high_work_func+0x20/0x20
-  pagefault_out_of_memory+0x31/0x76
-  mm_fault_error+0x55/0x115
-  ? handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x433/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffe29ae96f0 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001ce1000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f94be09220d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f949d845000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 158965
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 2016kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:844KB rss:521136KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:132KB writeback:0KB inactive_anon:0KB active_anon:521224KB inactive_file:1012KB active_file:8KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 998 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:521176kB, file-rss:1208kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[2]
-
- leaker invoked oom-killer: gfp_mask=0x600040(GFP_NOFS), nodemask=(null), order=0, oom_score_adj=0
- CPU: 1 PID: 2746 Comm: leaker Not tainted 4.18.0+ #20
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  dump_stack+0x63/0x88
-  dump_header+0x67/0x27a
-  ? mem_cgroup_scan_tasks+0x91/0xf0
-  oom_kill_process+0x210/0x410
-  out_of_memory+0x109/0x2d0
-  mem_cgroup_out_of_memory+0x46/0x80
-  try_charge+0x58d/0x650
-  ? __radix_tree_replace+0x81/0x100
-  mem_cgroup_try_charge+0x7a/0x100
-  __add_to_page_cache_locked+0x92/0x180
-  add_to_page_cache_lru+0x4d/0xf0
-  iomap_readpages_actor+0xde/0x1b0
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  iomap_apply+0xaf/0x130
-  iomap_readpages+0x9f/0x150
-  ? iomap_zero_range_actor+0x1d0/0x1d0
-  xfs_vm_readpages+0x18/0x20 [xfs]
-  read_pages+0x60/0x140
-  __do_page_cache_readahead+0x193/0x1b0
-  ondemand_readahead+0x16d/0x2c0
-  page_cache_async_readahead+0x9a/0xd0
-  filemap_fault+0x403/0x620
-  ? alloc_set_pte+0x12c/0x540
-  ? _cond_resched+0x14/0x30
-  __xfs_filemap_fault+0x66/0x180 [xfs]
-  xfs_filemap_fault+0x27/0x30 [xfs]
-  __do_fault+0x19/0x40
-  __handle_mm_fault+0x8e8/0xb60
-  handle_mm_fault+0xfd/0x220
-  __do_page_fault+0x238/0x4e0
-  do_page_fault+0x22/0x30
-  ? page_fault+0x8/0x30
-  page_fault+0x1e/0x30
- RIP: 0033:0x4009f0
- Code: 03 00 00 00 e8 71 fd ff ff 48 83 f8 ff 49 89 c6 74 74 48 89 c6 bf c0 0c 40 00 31 c0 e8 69 fd ff ff 45 85 ff 7e 21 31 c9 66 90 <41> 0f be 14 0e 01 d3 f7 c1 ff 0f 00 00 75 05 41 c6 04 0e 2a 48 83
- RSP: 002b:00007ffda45c9290 EFLAGS: 00010206
- RAX: 000000000000001b RBX: 0000000000000000 RCX: 0000000001a1e000
- RDX: 0000000000000000 RSI: 000000007fffffe5 RDI: 0000000000000000
- RBP: 000000000000000c R08: 0000000000000000 R09: 00007f6d061ff20d
- R10: 0000000000000002 R11: 0000000000000246 R12: 00000000000186a0
- R13: 0000000000000003 R14: 00007f6ce59b2000 R15: 0000000002800000
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 7221
- memory+swap: usage 0kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 1944kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:3632KB rss:518232KB rss_huge:0KB shmem:0KB mapped_file:0KB dirty:0KB writeback:0KB inactive_anon:0KB active_anon:518408KB inactive_file:3908KB active_file:12KB unevictable:0KB
- Memory cgroup out of memory: Kill process 2746 (leaker) score 992 or sacrifice child
- Killed process 2746 (leaker) total-vm:536704kB, anon-rss:518264kB, file-rss:1188kB, shmem-rss:0kB
- oom_reaper: reaped process 2746 (leaker), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
-
-[3]
-
- leaker invoked oom-killer: gfp_mask=0x50, order=0, oom_score_adj=0
- leaker cpuset=/ mems_allowed=0
- CPU: 1 PID: 3206 Comm: leaker Not tainted 3.10.0-957.27.2.el7.x86_64 #1
- Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/13/2018
- Call Trace:
-  [<ffffffffaf364147>] dump_stack+0x19/0x1b
-  [<ffffffffaf35eb6a>] dump_header+0x90/0x229
-  [<ffffffffaedbb456>] ? find_lock_task_mm+0x56/0xc0
-  [<ffffffffaee32a38>] ? try_get_mem_cgroup_from_mm+0x28/0x60
-  [<ffffffffaedbb904>] oom_kill_process+0x254/0x3d0
-  [<ffffffffaee36c36>] mem_cgroup_oom_synchronize+0x546/0x570
-  [<ffffffffaee360b0>] ? mem_cgroup_charge_common+0xc0/0xc0
-  [<ffffffffaedbc194>] pagefault_out_of_memory+0x14/0x90
-  [<ffffffffaf35d072>] mm_fault_error+0x6a/0x157
-  [<ffffffffaf3717c8>] __do_page_fault+0x3c8/0x4f0
-  [<ffffffffaf371925>] do_page_fault+0x35/0x90
-  [<ffffffffaf36d768>] page_fault+0x28/0x30
- Task in /leaker killed as a result of limit of /leaker
- memory: usage 524288kB, limit 524288kB, failcnt 20628
- memory+swap: usage 524288kB, limit 9007199254740988kB, failcnt 0
- kmem: usage 0kB, limit 9007199254740988kB, failcnt 0
- Memory cgroup stats for /leaker: cache:840KB rss:523448KB rss_huge:0KB mapped_file:0KB swap:0KB inactive_anon:0KB active_anon:523448KB inactive_file:464KB active_file:376KB unevictable:0KB
- Memory cgroup out of memory: Kill process 3206 (leaker) score 970 or sacrifice child
- Killed process 3206 (leaker) total-vm:536692kB, anon-rss:523304kB, file-rss:412kB, shmem-rss:0kB
-
-Bisected by Masoud Sharbiani.
-
-Link: http://lkml.kernel.org/r/cbe54ed1-b6ba-a056-8899-2dc42526371d@i-love.sakura.ne.jp
-Fixes: 3da88fb3bacfaa33 ("mm, oom: move GFP_NOFS check to out_of_memory") [necessary after 29ef680ae7c21110]
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: Masoud Sharbiani <msharbiani@apple.com>
-Tested-by: Masoud Sharbiani <msharbiani@apple.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
+Link: http://lkml.kernel.org/r/20190906125608.32129-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reported-by: Thomas Lindroth <thomas.lindroth@gmail.com>
+Debugged-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Thomas Lindroth <thomas.lindroth@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/oom_kill.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/memcontrol.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/mm/oom_kill.c
-+++ b/mm/oom_kill.c
-@@ -1068,9 +1068,10 @@ bool out_of_memory(struct oom_control *o
- 	 * The OOM killer does not compensate for IO-less reclaim.
- 	 * pagefault_out_of_memory lost its gfp context so we have to
- 	 * make sure exclude 0 mask - all other users should have at least
--	 * ___GFP_DIRECT_RECLAIM to get here.
-+	 * ___GFP_DIRECT_RECLAIM to get here. But mem_cgroup_oom() has to
-+	 * invoke the OOM killer even if it is a GFP_NOFS allocation.
- 	 */
--	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS))
-+	if (oc->gfp_mask && !(oc->gfp_mask & __GFP_FS) && !is_memcg_oom(oc))
- 		return true;
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -2821,6 +2821,16 @@ int __memcg_kmem_charge_memcg(struct pag
  
- 	/*
+ 	if (!cgroup_subsys_on_dfl(memory_cgrp_subsys) &&
+ 	    !page_counter_try_charge(&memcg->kmem, nr_pages, &counter)) {
++
++		/*
++		 * Enforce __GFP_NOFAIL allocation because callers are not
++		 * prepared to see failures and likely do not have any failure
++		 * handling code.
++		 */
++		if (gfp & __GFP_NOFAIL) {
++			page_counter_charge(&memcg->kmem, nr_pages);
++			return 0;
++		}
+ 		cancel_charge(memcg, nr_pages);
+ 		return -ENOMEM;
+ 	}
 
 
