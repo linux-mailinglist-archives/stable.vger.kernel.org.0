@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2003CA6E8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CEFFCA7F3
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405087AbfJCQsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:48:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34558 "EHLO mail.kernel.org"
+        id S2389158AbfJCQ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405695AbfJCQsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:48:37 -0400
+        id S2405709AbfJCQsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:48:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3D2F20867;
-        Thu,  3 Oct 2019 16:48:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF36C2070B;
+        Thu,  3 Oct 2019 16:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121316;
-        bh=/J2pAeecO5+wy94vLp5m0dXczIyTOj8lr+GmEvWqm2E=;
+        s=default; t=1570121319;
+        bh=WbgxNP3QFWxN6WoB3PxWw3/x2rMUsZ0UosLpkH6AAk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wF+z7eQdog1Sx0kYzgbRcMua2LJKU+5bpgkFDvzewshO2heGEgVzwOpySWnLjYUip
-         JqHXRaycnjZsbXrKB9KNlCY0C3Y5tNpwDiRHOYfN/9uryd8Tx3kdyzxNSCBpWBqkux
-         BiilTseumZxv64UE8Cz1urGvQyOJy/3ACDRIB/XI=
+        b=sQOh18/STuF7C8Oglwo6AI29a1RtPw862w6baBhlBso9V6n9QYEWWF5F8ZC6lZXHD
+         Q078LZkhZwXkjhbHGkycWhiMTBoX4FvwoacdlnHf9/5Pg735mUswPohk9xrAbGaeNd
+         LRvxZZMg0dexwMNG18N4n773IzxTlqpzolJJzprY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
         Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.3 235/344] ARM: dts: logicpd-torpedo-baseboard: Fix missing video
-Date:   Thu,  3 Oct 2019 17:53:20 +0200
-Message-Id: <20191003154603.566037614@linuxfoundation.org>
+Subject: [PATCH 5.3 236/344] ARM: omap2plus_defconfig: Fix missing video
+Date:   Thu,  3 Oct 2019 17:53:21 +0200
+Message-Id: <20191003154603.674004191@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,13 +45,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adam Ford <aford173@gmail.com>
 
-commit f9f5518a38684e031d913f40482721ff553f5ba2 upstream.
+commit 4957eccf979b025286b39388fd1a60cde601a10a upstream.
 
-A previous commit removed the panel-dpi driver, which made the
-Torpedo video stop working because it relied on the dpi driver
-for setting video timings.  Now that the simple-panel driver is
-available in omap2plus, this patch migrates the Torpedo dev kits
-to use a similar panel and remove the manual timing requirements.
+When the panel-dpi driver was removed, the simple-panels driver
+was never enabled, so anyone who used the panel-dpi driver lost
+video, and those who used it inconjunction with simple-panels
+would have to manually enable CONFIG_DRM_PANEL_SIMPLE.
+
+This patch makes CONFIG_DRM_PANEL_SIMPLE a module in the same
+way the deprecated panel-dpi was.
 
 Fixes: 8bf4b1621178 ("drm/omap: Remove panel-dpi driver")
 
@@ -60,69 +62,18 @@ Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi |   37 +++--------------------
- 1 file changed, 6 insertions(+), 31 deletions(-)
+ arch/arm/configs/omap2plus_defconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi
-+++ b/arch/arm/boot/dts/logicpd-torpedo-baseboard.dtsi
-@@ -108,7 +108,6 @@
- &dss {
- 	status = "ok";
- 	vdds_dsi-supply = <&vpll2>;
--	vdda_video-supply = <&video_reg>;
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&dss_dpi_pins1>;
- 	port {
-@@ -124,44 +123,20 @@
- 		display0 = &lcd0;
- 	};
- 
--	video_reg: video_reg {
--		pinctrl-names = "default";
--		pinctrl-0 = <&panel_pwr_pins>;
--		compatible = "regulator-fixed";
--		regulator-name = "fixed-supply";
--		regulator-min-microvolt = <3300000>;
--		regulator-max-microvolt = <3300000>;
--		gpio = <&gpio5 27 GPIO_ACTIVE_HIGH>;	/* gpio155, lcd INI */
--	};
--
- 	lcd0: display {
--		compatible = "panel-dpi";
-+		/* This isn't the exact LCD, but the timings meet spec */
-+		/* To make it work, set CONFIG_OMAP2_DSS_MIN_FCK_PER_PCK=4 */
-+		compatible = "newhaven,nhd-4.3-480272ef-atxl";
- 		label = "15";
--		status = "okay";
--		/* default-on; */
- 		pinctrl-names = "default";
--
-+		pinctrl-0 = <&panel_pwr_pins>;
-+		backlight = <&bl>;
-+		enable-gpios = <&gpio5 27 GPIO_ACTIVE_HIGH>;
- 		port {
- 			lcd_in: endpoint {
- 				remote-endpoint = <&dpi_out>;
- 			};
- 		};
--
--		panel-timing {
--			clock-frequency = <9000000>;
--			hactive = <480>;
--			vactive = <272>;
--			hfront-porch = <3>;
--			hback-porch = <2>;
--			hsync-len = <42>;
--			vback-porch = <3>;
--			vfront-porch = <4>;
--			vsync-len = <11>;
--			hsync-active = <0>;
--			vsync-active = <0>;
--			de-active = <1>;
--			pixelclk-active = <1>;
--		};
- 	};
- 
- 	bl: backlight {
+--- a/arch/arm/configs/omap2plus_defconfig
++++ b/arch/arm/configs/omap2plus_defconfig
+@@ -363,6 +363,7 @@ CONFIG_DRM_OMAP_PANEL_TPO_TD028TTEC1=m
+ CONFIG_DRM_OMAP_PANEL_TPO_TD043MTEA1=m
+ CONFIG_DRM_OMAP_PANEL_NEC_NL8048HL11=m
+ CONFIG_DRM_TILCDC=m
++CONFIG_DRM_PANEL_SIMPLE=m
+ CONFIG_FB=y
+ CONFIG_FIRMWARE_EDID=y
+ CONFIG_FB_MODE_HELPERS=y
 
 
