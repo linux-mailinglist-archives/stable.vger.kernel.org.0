@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91CBACA7F8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F48CA7F5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405687AbfJCQsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:48:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+        id S2405697AbfJCQse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:48:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405669AbfJCQs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:48:29 -0400
+        id S2405695AbfJCQsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:48:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D6D32070B;
-        Thu,  3 Oct 2019 16:48:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1765220865;
+        Thu,  3 Oct 2019 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121307;
-        bh=GWfO61UdfkXShokBTmb/zORTeBkGVGwIc2HMawHQahk=;
+        s=default; t=1570121310;
+        bh=1X4dbgK86t92uPuoRJwnsA5icgB6cWJxddxWb6aSO5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOFES9rmgi8WCbE9jbP390X0kQAz2KzeSl0sGin3HjdyNJ8OIBpMX4bTTJQjxk6Un
-         038sC/0M6pfCbgKfom73PzG8fRIRQXJMpu20tvgMcMdY8JeXgKs5LMtBZdXel5gtgG
-         65OoBvVlIKokHrDirVDE1KvKTyvGAGhHU28WdrmM=
+        b=BbTEC7vfv7TurwAc1CTp56/13TwmmkY554/BCVXafkMIuFxAZbPHBCMD1kkNW1E/y
+         9hG3T/gLtyh70if43rCqa9M7J0GXrZPQ4fUCtoNmUujvL416c8eQidTK6oo54Pcffy
+         Qe7gEZVjHCDYZzO/5J8WCCT6Ld8Y/BrRyapdrnwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Palecek <jpalecek@web.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 232/344] kvm: Nested KVM MMUs need PAE root too
-Date:   Thu,  3 Oct 2019 17:53:17 +0200
-Message-Id: <20191003154603.282028034@linuxfoundation.org>
+Subject: [PATCH 5.3 233/344] media: omap3isp: Set device on omap3isp subdevs
+Date:   Thu,  3 Oct 2019 17:53:18 +0200
+Message-Id: <20191003154603.366281679@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,107 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiří Paleček <jpalecek@web.de>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 1cfff4d9a5d01fa61e5768a6afffc81ae1c8ecb9 ]
+[ Upstream commit e9eb103f027725053a4b02f93d7f2858b56747ce ]
 
-On AMD processors, in PAE 32bit mode, nested KVM instances don't
-work. The L0 host get a kernel OOPS, which is related to
-arch.mmu->pae_root being NULL.
+The omap3isp driver registered subdevs without the dev field being set. Do
+that now.
 
-The reason for this is that when setting up nested KVM instance,
-arch.mmu is set to &arch.guest_mmu (while normally, it would be
-&arch.root_mmu). However, the initialization and allocation of
-pae_root only creates it in root_mmu. KVM code (ie. in
-mmu_alloc_shadow_roots) then accesses arch.mmu->pae_root, which is the
-unallocated arch.guest_mmu->pae_root.
-
-This fix just allocates (and frees) pae_root in both guest_mmu and
-root_mmu (and also lm_root if it was allocated). The allocation is
-subject to previous restrictions ie. it won't allocate anything on
-64-bit and AFAIK not on Intel.
-
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=203923
-Fixes: 14c07ad89f4d ("x86/kvm/mmu: introduce guest_mmu")
-Signed-off-by: Jiri Palecek <jpalecek@web.de>
-Tested-by: Jiri Palecek <jpalecek@web.de>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ drivers/media/platform/omap3isp/ispccdc.c    | 1 +
+ drivers/media/platform/omap3isp/ispccp2.c    | 1 +
+ drivers/media/platform/omap3isp/ispcsi2.c    | 1 +
+ drivers/media/platform/omap3isp/isppreview.c | 1 +
+ drivers/media/platform/omap3isp/ispresizer.c | 1 +
+ drivers/media/platform/omap3isp/ispstat.c    | 2 ++
+ 6 files changed, 7 insertions(+)
 
-diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
-index a63964e7cec7b..c68bf3aab12c1 100644
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -5611,13 +5611,13 @@ slot_handle_leaf(struct kvm *kvm, struct kvm_memory_slot *memslot,
- 				 PT_PAGE_TABLE_LEVEL, lock_flush_tlb);
- }
+diff --git a/drivers/media/platform/omap3isp/ispccdc.c b/drivers/media/platform/omap3isp/ispccdc.c
+index 1ba8a5ba343f6..e2f336c715a4d 100644
+--- a/drivers/media/platform/omap3isp/ispccdc.c
++++ b/drivers/media/platform/omap3isp/ispccdc.c
+@@ -2602,6 +2602,7 @@ int omap3isp_ccdc_register_entities(struct isp_ccdc_device *ccdc,
+ 	int ret;
  
--static void free_mmu_pages(struct kvm_vcpu *vcpu)
-+static void free_mmu_pages(struct kvm_mmu *mmu)
+ 	/* Register the subdev and video node. */
++	ccdc->subdev.dev = vdev->mdev->dev;
+ 	ret = v4l2_device_register_subdev(vdev, &ccdc->subdev);
+ 	if (ret < 0)
+ 		goto error;
+diff --git a/drivers/media/platform/omap3isp/ispccp2.c b/drivers/media/platform/omap3isp/ispccp2.c
+index efca45bb02c8b..d0a49cdfd22d2 100644
+--- a/drivers/media/platform/omap3isp/ispccp2.c
++++ b/drivers/media/platform/omap3isp/ispccp2.c
+@@ -1031,6 +1031,7 @@ int omap3isp_ccp2_register_entities(struct isp_ccp2_device *ccp2,
+ 	int ret;
+ 
+ 	/* Register the subdev and video nodes. */
++	ccp2->subdev.dev = vdev->mdev->dev;
+ 	ret = v4l2_device_register_subdev(vdev, &ccp2->subdev);
+ 	if (ret < 0)
+ 		goto error;
+diff --git a/drivers/media/platform/omap3isp/ispcsi2.c b/drivers/media/platform/omap3isp/ispcsi2.c
+index e85917f4a50cc..fd493c5e4e24f 100644
+--- a/drivers/media/platform/omap3isp/ispcsi2.c
++++ b/drivers/media/platform/omap3isp/ispcsi2.c
+@@ -1198,6 +1198,7 @@ int omap3isp_csi2_register_entities(struct isp_csi2_device *csi2,
+ 	int ret;
+ 
+ 	/* Register the subdev and video nodes. */
++	csi2->subdev.dev = vdev->mdev->dev;
+ 	ret = v4l2_device_register_subdev(vdev, &csi2->subdev);
+ 	if (ret < 0)
+ 		goto error;
+diff --git a/drivers/media/platform/omap3isp/isppreview.c b/drivers/media/platform/omap3isp/isppreview.c
+index 40e22400cf5ec..97d660606d984 100644
+--- a/drivers/media/platform/omap3isp/isppreview.c
++++ b/drivers/media/platform/omap3isp/isppreview.c
+@@ -2225,6 +2225,7 @@ int omap3isp_preview_register_entities(struct isp_prev_device *prev,
+ 	int ret;
+ 
+ 	/* Register the subdev and video nodes. */
++	prev->subdev.dev = vdev->mdev->dev;
+ 	ret = v4l2_device_register_subdev(vdev, &prev->subdev);
+ 	if (ret < 0)
+ 		goto error;
+diff --git a/drivers/media/platform/omap3isp/ispresizer.c b/drivers/media/platform/omap3isp/ispresizer.c
+index 21ca6954df72f..78d9dd7ea2da7 100644
+--- a/drivers/media/platform/omap3isp/ispresizer.c
++++ b/drivers/media/platform/omap3isp/ispresizer.c
+@@ -1681,6 +1681,7 @@ int omap3isp_resizer_register_entities(struct isp_res_device *res,
+ 	int ret;
+ 
+ 	/* Register the subdev and video nodes. */
++	res->subdev.dev = vdev->mdev->dev;
+ 	ret = v4l2_device_register_subdev(vdev, &res->subdev);
+ 	if (ret < 0)
+ 		goto error;
+diff --git a/drivers/media/platform/omap3isp/ispstat.c b/drivers/media/platform/omap3isp/ispstat.c
+index 62b2eacb96fd1..5b9b57f4d9bf8 100644
+--- a/drivers/media/platform/omap3isp/ispstat.c
++++ b/drivers/media/platform/omap3isp/ispstat.c
+@@ -1026,6 +1026,8 @@ void omap3isp_stat_unregister_entities(struct ispstat *stat)
+ int omap3isp_stat_register_entities(struct ispstat *stat,
+ 				    struct v4l2_device *vdev)
  {
--	free_page((unsigned long)vcpu->arch.mmu->pae_root);
--	free_page((unsigned long)vcpu->arch.mmu->lm_root);
-+	free_page((unsigned long)mmu->pae_root);
-+	free_page((unsigned long)mmu->lm_root);
- }
- 
--static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
-+static int alloc_mmu_pages(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu)
- {
- 	struct page *page;
- 	int i;
-@@ -5638,9 +5638,9 @@ static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
- 	if (!page)
- 		return -ENOMEM;
- 
--	vcpu->arch.mmu->pae_root = page_address(page);
-+	mmu->pae_root = page_address(page);
- 	for (i = 0; i < 4; ++i)
--		vcpu->arch.mmu->pae_root[i] = INVALID_PAGE;
-+		mmu->pae_root[i] = INVALID_PAGE;
- 
- 	return 0;
- }
-@@ -5648,6 +5648,7 @@ static int alloc_mmu_pages(struct kvm_vcpu *vcpu)
- int kvm_mmu_create(struct kvm_vcpu *vcpu)
- {
- 	uint i;
-+	int ret;
- 
- 	vcpu->arch.mmu = &vcpu->arch.root_mmu;
- 	vcpu->arch.walk_mmu = &vcpu->arch.root_mmu;
-@@ -5665,7 +5666,19 @@ int kvm_mmu_create(struct kvm_vcpu *vcpu)
- 		vcpu->arch.guest_mmu.prev_roots[i] = KVM_MMU_ROOT_INFO_INVALID;
- 
- 	vcpu->arch.nested_mmu.translate_gpa = translate_nested_gpa;
--	return alloc_mmu_pages(vcpu);
++	stat->subdev.dev = vdev->mdev->dev;
 +
-+	ret = alloc_mmu_pages(vcpu, &vcpu->arch.guest_mmu);
-+	if (ret)
-+		return ret;
-+
-+	ret = alloc_mmu_pages(vcpu, &vcpu->arch.root_mmu);
-+	if (ret)
-+		goto fail_allocate_root;
-+
-+	return ret;
-+ fail_allocate_root:
-+	free_mmu_pages(&vcpu->arch.guest_mmu);
-+	return ret;
- }
- 
- 
-@@ -6168,7 +6181,8 @@ unsigned long kvm_mmu_calculate_default_mmu_pages(struct kvm *kvm)
- void kvm_mmu_destroy(struct kvm_vcpu *vcpu)
- {
- 	kvm_mmu_unload(vcpu);
--	free_mmu_pages(vcpu);
-+	free_mmu_pages(&vcpu->arch.root_mmu);
-+	free_mmu_pages(&vcpu->arch.guest_mmu);
- 	mmu_free_memory_caches(vcpu);
+ 	return v4l2_device_register_subdev(vdev, &stat->subdev);
  }
  
 -- 
