@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE72CA364
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20932CA2ED
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388800AbfJCQPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:15:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
+        id S1731501AbfJCQKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:10:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732115AbfJCQPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:15:04 -0400
+        id S1730267AbfJCQKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:10:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17A8F21783;
-        Thu,  3 Oct 2019 16:15:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2589215EA;
+        Thu,  3 Oct 2019 16:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119303;
-        bh=Vp0vtQ+CVMjNxo+ens7kr2TcRsike0sSb5zyI7nGzM0=;
+        s=default; t=1570119031;
+        bh=uR4aGca4FN9wadKYbMaF/W0aRTC4nJx9UHIMFrXBdn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIxMb+eJuhG7ETZm8nU5Ac9RX+AR5RU614FQgTD0iyeFRYwbCdOqVo+93wjmMMW6r
-         lZvfKca9GOKBrSDzEDV2ZC+LUPJx4APyfcoiTAN738rWlhHalWCn1vi84MQ11OEEtH
-         9IhrhhkscO8dKFpe3kxS44pjF0nRr/CBBCPzd8dI=
+        b=nYYvtGzzkn9hTknMnUmNiSt8JsNr6l32NzDccBdeJh4Y1lgTdGjKPO+0UR9rCPXmZ
+         G36Qvqv4CuKbjgRGtK87kV3nhL5Ih9qAY7rzyqwimMGLnjNISiC6CKVnvfmeSw0dCR
+         f8+dT+7FOLfIbU7QxiJuSs6Pmbamohy45SUYeVpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Marek Majkowski <marek@cloudflare.com>,
-        Jon Maxwell <jmaxwell37@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 016/211] tcp: better handle TCP_USER_TIMEOUT in SYN_SENT state
-Date:   Thu,  3 Oct 2019 17:51:22 +0200
-Message-Id: <20191003154450.606298417@linuxfoundation.org>
+        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 083/185] sched/fair: Use rq_lock/unlock in online_fair_sched_group
+Date:   Thu,  3 Oct 2019 17:52:41 +0200
+Message-Id: <20191003154456.332104405@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,64 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Phil Auld <pauld@redhat.com>
 
-[ Upstream commit a66b10c05ee2d744189e9a2130394b070883d289 ]
+[ Upstream commit a46d14eca7b75fffe35603aa8b81df654353d80f ]
 
-Yuchung Cheng and Marek Majkowski independently reported a weird
-behavior of TCP_USER_TIMEOUT option when used at connect() time.
+Enabling WARN_DOUBLE_CLOCK in /sys/kernel/debug/sched_features causes
+warning to fire in update_rq_clock. This seems to be caused by onlining
+a new fair sched group not using the rq lock wrappers.
 
-When the TCP_USER_TIMEOUT is reached, tcp_write_timeout()
-believes the flow should live, and the following condition
-in tcp_clamp_rto_to_user_timeout() programs one jiffie timers :
+  [] rq->clock_update_flags & RQCF_UPDATED
+  [] WARNING: CPU: 5 PID: 54385 at kernel/sched/core.c:210 update_rq_clock+0xec/0x150
 
-    remaining = icsk->icsk_user_timeout - elapsed;
-    if (remaining <= 0)
-        return 1; /* user timeout has passed; fire ASAP */
+  [] Call Trace:
+  []  online_fair_sched_group+0x53/0x100
+  []  cpu_cgroup_css_online+0x16/0x20
+  []  online_css+0x1c/0x60
+  []  cgroup_apply_control_enable+0x231/0x3b0
+  []  cgroup_mkdir+0x41b/0x530
+  []  kernfs_iop_mkdir+0x61/0xa0
+  []  vfs_mkdir+0x108/0x1a0
+  []  do_mkdirat+0x77/0xe0
+  []  do_syscall_64+0x55/0x1d0
+  []  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-This silly situation ends when the max syn rtx count is reached.
+Using the wrappers in online_fair_sched_group instead of the raw locking
+removes this warning.
 
-This patch makes sure we honor both TCP_SYNCNT and TCP_USER_TIMEOUT,
-avoiding these spurious SYN packets.
+[ tglx: Use rq_*lock_irq() ]
 
-Fixes: b701a99e431d ("tcp: Add tcp_clamp_rto_to_user_timeout() helper to improve accuracy")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Yuchung Cheng <ycheng@google.com>
-Reported-by: Marek Majkowski <marek@cloudflare.com>
-Cc: Jon Maxwell <jmaxwell37@gmail.com>
-Link: https://marc.info/?l=linux-netdev&m=156940118307949&w=2
-Acked-by: Jon Maxwell <jmaxwell37@gmail.com>
-Tested-by: Marek Majkowski <marek@cloudflare.com>
-Signed-off-by: Marek Majkowski <marek@cloudflare.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20190801133749.11033-1-pauld@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_timer.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp_timer.c
-+++ b/net/ipv4/tcp_timer.c
-@@ -219,7 +219,7 @@ static int tcp_write_timeout(struct sock
- 	struct inet_connection_sock *icsk = inet_csk(sk);
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	struct net *net = sock_net(sk);
--	bool expired, do_reset;
-+	bool expired = false, do_reset;
- 	int retry_until;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 808db3566ddbc..55a33009f9a54 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -9423,18 +9423,18 @@ int alloc_fair_sched_group(struct task_group *tg, struct task_group *parent)
+ void online_fair_sched_group(struct task_group *tg)
+ {
+ 	struct sched_entity *se;
++	struct rq_flags rf;
+ 	struct rq *rq;
+ 	int i;
  
- 	if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV)) {
-@@ -251,9 +251,10 @@ static int tcp_write_timeout(struct sock
- 			if (tcp_out_of_resources(sk, do_reset))
- 				return 1;
- 		}
-+	}
-+	if (!expired)
- 		expired = retransmits_timed_out(sk, retry_until,
- 						icsk->icsk_user_timeout);
--	}
- 	tcp_fastopen_active_detect_blackhole(sk, expired);
+ 	for_each_possible_cpu(i) {
+ 		rq = cpu_rq(i);
+ 		se = tg->se[i];
+-
+-		raw_spin_lock_irq(&rq->lock);
++		rq_lock_irq(rq, &rf);
+ 		update_rq_clock(rq);
+ 		attach_entity_cfs_rq(se);
+ 		sync_throttle(tg, i);
+-		raw_spin_unlock_irq(&rq->lock);
++		rq_unlock_irq(rq, &rf);
+ 	}
+ }
  
- 	if (BPF_SOCK_OPS_TEST_FLAG(tp, BPF_SOCK_OPS_RTO_CB_FLAG))
+-- 
+2.20.1
+
 
 
