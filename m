@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C64F3CA9A6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AA57CAB12
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392846AbfJCQpr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:45:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58470 "EHLO mail.kernel.org"
+        id S2388957AbfJCQQU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392843AbfJCQpr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:45:47 -0400
+        id S2388936AbfJCQQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C101E2070B;
-        Thu,  3 Oct 2019 16:45:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E24920700;
+        Thu,  3 Oct 2019 16:16:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121146;
-        bh=aF29muMYd0aFbQLCZ8bnN7wOIqz7jZ7RkN0z5SAUhJI=;
+        s=default; t=1570119378;
+        bh=vaMMPoKAfHhldi0winWWmJRpYRh/kQDxIZEj1PKaLew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjk5o5NChOlvMLU6VCqSUYUMmZxNuWCE5eHqI0eVXRXx7WVEk40yZfcs7cJWpcg+Q
-         IT4zdGDHDvWqt9yEo/z7/1u74ol2E+30UYGfhjaeRnFWQidZVaN1G+mwXy50/28pcd
-         56VQW0PSO8MOG4Ln6xabx+BqMXFYvgVbhCbDbcoQ=
+        b=0K4Dk/SLWpm60ixe9CrcVl4HsSt9e6+4Nd9bwYlfVKZHCJXyORdeAb+kFkwGw6uqR
+         shOl6/wykzwU+PTsDOESD+4ahv/5sDb/tmNlzF70pf1N6d/cY0gi60iRmRbkZde8cx
+         yce3k5W+NGGhXfBBte7XFEHwWGGra0fhKDUKJ9Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 144/344] EDAC/amd64: Support more than two controllers for chip selects handling
-Date:   Thu,  3 Oct 2019 17:51:49 +0200
-Message-Id: <20191003154554.464651368@linuxfoundation.org>
+Subject: [PATCH 4.19 044/211] ALSA: hda - Show the fatal CORB/RIRB error more clearly
+Date:   Thu,  3 Oct 2019 17:51:50 +0200
+Message-Id: <20191003154458.049402720@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,233 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yazen Ghannam <yazen.ghannam@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit d971e28e2ce4696fcc32998c8aced5e47701fffe ]
+[ Upstream commit dd65f7e19c6961ba6a69f7c925021b7a270cb950 ]
 
-The struct chip_select array that's used for saving chip select bases
-and masks is fixed at length of two. There should be one struct
-chip_select for each controller, so this array should be increased to
-support systems that may have more than two controllers.
+The last fallback of CORB/RIRB communication error recovery is to turn
+on the single command mode, and this last resort usually means that
+something is really screwed up.  Instead of a normal dev_err(), show
+the error more clearly with dev_WARN() with the caller stack trace.
 
-Increase the size of the struct chip_select array to eight, which is the
-largest number of controllers per die currently supported on AMD
-systems.
+Also, show the bus-reset fallback also as an error, too.
 
-Fix number of DIMMs and Chip Select bases/masks on Family17h, because
-AMD Family 17h systems support 2 DIMMs, 4 CS bases, and 2 CS masks per
-channel.
-
-Also, carve out the Family 17h+ reading of the bases/masks into a
-separate function. This effectively reverts the original bases/masks
-reading code to before Family 17h support was added.
-
-Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Link: https://lkml.kernel.org/r/20190821235938.118710-2-Yazen.Ghannam@amd.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 123 +++++++++++++++++++++-----------------
- drivers/edac/amd64_edac.h |   5 +-
- 2 files changed, 71 insertions(+), 57 deletions(-)
+ sound/pci/hda/hda_controller.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 873437be86d9c..dd60cf5a3d969 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -810,7 +810,7 @@ static void debug_display_dimm_sizes_df(struct amd64_pvt *pvt, u8 ctrl)
- 
- 	edac_printk(KERN_DEBUG, EDAC_MC, "UMC%d chip selects:\n", ctrl);
- 
--	for (dimm = 0; dimm < 4; dimm++) {
-+	for (dimm = 0; dimm < 2; dimm++) {
- 		size0 = 0;
- 		cs0 = dimm * 2;
- 
-@@ -942,89 +942,102 @@ static void prep_chip_selects(struct amd64_pvt *pvt)
- 	} else if (pvt->fam == 0x15 && pvt->model == 0x30) {
- 		pvt->csels[0].b_cnt = pvt->csels[1].b_cnt = 4;
- 		pvt->csels[0].m_cnt = pvt->csels[1].m_cnt = 2;
-+	} else if (pvt->fam >= 0x17) {
-+		int umc;
-+
-+		for_each_umc(umc) {
-+			pvt->csels[umc].b_cnt = 4;
-+			pvt->csels[umc].m_cnt = 2;
-+		}
-+
- 	} else {
- 		pvt->csels[0].b_cnt = pvt->csels[1].b_cnt = 8;
- 		pvt->csels[0].m_cnt = pvt->csels[1].m_cnt = 4;
- 	}
- }
- 
-+static void read_umc_base_mask(struct amd64_pvt *pvt)
-+{
-+	u32 umc_base_reg, umc_mask_reg;
-+	u32 base_reg, mask_reg;
-+	u32 *base, *mask;
-+	int cs, umc;
-+
-+	for_each_umc(umc) {
-+		umc_base_reg = get_umc_base(umc) + UMCCH_BASE_ADDR;
-+
-+		for_each_chip_select(cs, umc, pvt) {
-+			base = &pvt->csels[umc].csbases[cs];
-+
-+			base_reg = umc_base_reg + (cs * 4);
-+
-+			if (!amd_smn_read(pvt->mc_node_id, base_reg, base))
-+				edac_dbg(0, "  DCSB%d[%d]=0x%08x reg: 0x%x\n",
-+					 umc, cs, *base, base_reg);
-+		}
-+
-+		umc_mask_reg = get_umc_base(umc) + UMCCH_ADDR_MASK;
-+
-+		for_each_chip_select_mask(cs, umc, pvt) {
-+			mask = &pvt->csels[umc].csmasks[cs];
-+
-+			mask_reg = umc_mask_reg + (cs * 4);
-+
-+			if (!amd_smn_read(pvt->mc_node_id, mask_reg, mask))
-+				edac_dbg(0, "  DCSM%d[%d]=0x%08x reg: 0x%x\n",
-+					 umc, cs, *mask, mask_reg);
-+		}
-+	}
-+}
-+
- /*
-  * Function 2 Offset F10_DCSB0; read in the DCS Base and DCS Mask registers
-  */
- static void read_dct_base_mask(struct amd64_pvt *pvt)
- {
--	int base_reg0, base_reg1, mask_reg0, mask_reg1, cs;
-+	int cs;
- 
- 	prep_chip_selects(pvt);
- 
--	if (pvt->umc) {
--		base_reg0 = get_umc_base(0) + UMCCH_BASE_ADDR;
--		base_reg1 = get_umc_base(1) + UMCCH_BASE_ADDR;
--		mask_reg0 = get_umc_base(0) + UMCCH_ADDR_MASK;
--		mask_reg1 = get_umc_base(1) + UMCCH_ADDR_MASK;
--	} else {
--		base_reg0 = DCSB0;
--		base_reg1 = DCSB1;
--		mask_reg0 = DCSM0;
--		mask_reg1 = DCSM1;
--	}
-+	if (pvt->umc)
-+		return read_umc_base_mask(pvt);
- 
- 	for_each_chip_select(cs, 0, pvt) {
--		int reg0   = base_reg0 + (cs * 4);
--		int reg1   = base_reg1 + (cs * 4);
-+		int reg0   = DCSB0 + (cs * 4);
-+		int reg1   = DCSB1 + (cs * 4);
- 		u32 *base0 = &pvt->csels[0].csbases[cs];
- 		u32 *base1 = &pvt->csels[1].csbases[cs];
- 
--		if (pvt->umc) {
--			if (!amd_smn_read(pvt->mc_node_id, reg0, base0))
--				edac_dbg(0, "  DCSB0[%d]=0x%08x reg: 0x%x\n",
--					 cs, *base0, reg0);
--
--			if (!amd_smn_read(pvt->mc_node_id, reg1, base1))
--				edac_dbg(0, "  DCSB1[%d]=0x%08x reg: 0x%x\n",
--					 cs, *base1, reg1);
--		} else {
--			if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, base0))
--				edac_dbg(0, "  DCSB0[%d]=0x%08x reg: F2x%x\n",
--					 cs, *base0, reg0);
-+		if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, base0))
-+			edac_dbg(0, "  DCSB0[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *base0, reg0);
- 
--			if (pvt->fam == 0xf)
--				continue;
-+		if (pvt->fam == 0xf)
-+			continue;
- 
--			if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, base1))
--				edac_dbg(0, "  DCSB1[%d]=0x%08x reg: F2x%x\n",
--					 cs, *base1, (pvt->fam == 0x10) ? reg1
--								: reg0);
--		}
-+		if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, base1))
-+			edac_dbg(0, "  DCSB1[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *base1, (pvt->fam == 0x10) ? reg1
-+							: reg0);
+diff --git a/sound/pci/hda/hda_controller.c b/sound/pci/hda/hda_controller.c
+index a41c1bec7c88c..8fcb421193e02 100644
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -877,10 +877,13 @@ static int azx_rirb_get_response(struct hdac_bus *bus, unsigned int addr,
+ 	 */
+ 	if (hbus->allow_bus_reset && !hbus->response_reset && !hbus->in_reset) {
+ 		hbus->response_reset = 1;
++		dev_err(chip->card->dev,
++			"No response from codec, resetting bus: last cmd=0x%08x\n",
++			bus->last_cmd[addr]);
+ 		return -EAGAIN; /* give a chance to retry */
  	}
  
- 	for_each_chip_select_mask(cs, 0, pvt) {
--		int reg0   = mask_reg0 + (cs * 4);
--		int reg1   = mask_reg1 + (cs * 4);
-+		int reg0   = DCSM0 + (cs * 4);
-+		int reg1   = DCSM1 + (cs * 4);
- 		u32 *mask0 = &pvt->csels[0].csmasks[cs];
- 		u32 *mask1 = &pvt->csels[1].csmasks[cs];
- 
--		if (pvt->umc) {
--			if (!amd_smn_read(pvt->mc_node_id, reg0, mask0))
--				edac_dbg(0, "    DCSM0[%d]=0x%08x reg: 0x%x\n",
--					 cs, *mask0, reg0);
--
--			if (!amd_smn_read(pvt->mc_node_id, reg1, mask1))
--				edac_dbg(0, "    DCSM1[%d]=0x%08x reg: 0x%x\n",
--					 cs, *mask1, reg1);
--		} else {
--			if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, mask0))
--				edac_dbg(0, "    DCSM0[%d]=0x%08x reg: F2x%x\n",
--					 cs, *mask0, reg0);
-+		if (!amd64_read_dct_pci_cfg(pvt, 0, reg0, mask0))
-+			edac_dbg(0, "    DCSM0[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *mask0, reg0);
- 
--			if (pvt->fam == 0xf)
--				continue;
-+		if (pvt->fam == 0xf)
-+			continue;
- 
--			if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, mask1))
--				edac_dbg(0, "    DCSM1[%d]=0x%08x reg: F2x%x\n",
--					 cs, *mask1, (pvt->fam == 0x10) ? reg1
--								: reg0);
--		}
-+		if (!amd64_read_dct_pci_cfg(pvt, 1, reg0, mask1))
-+			edac_dbg(0, "    DCSM1[%d]=0x%08x reg: F2x%x\n",
-+				 cs, *mask1, (pvt->fam == 0x10) ? reg1
-+							: reg0);
- 	}
- }
- 
-diff --git a/drivers/edac/amd64_edac.h b/drivers/edac/amd64_edac.h
-index 8f66472f7adc2..4dce6a2ac75f9 100644
---- a/drivers/edac/amd64_edac.h
-+++ b/drivers/edac/amd64_edac.h
-@@ -96,6 +96,7 @@
- /* Hardware limit on ChipSelect rows per MC and processors per system */
- #define NUM_CHIPSELECTS			8
- #define DRAM_RANGES			8
-+#define NUM_CONTROLLERS			8
- 
- #define ON true
- #define OFF false
-@@ -351,8 +352,8 @@ struct amd64_pvt {
- 	u32 dbam0;		/* DRAM Base Address Mapping reg for DCT0 */
- 	u32 dbam1;		/* DRAM Base Address Mapping reg for DCT1 */
- 
--	/* one for each DCT */
--	struct chip_select csels[2];
-+	/* one for each DCT/UMC */
-+	struct chip_select csels[NUM_CONTROLLERS];
- 
- 	/* DRAM base and limit pairs F1x[78,70,68,60,58,50,48,40] */
- 	struct dram_range ranges[DRAM_RANGES];
+-	dev_err(chip->card->dev,
++	dev_WARN(chip->card->dev,
+ 		"azx_get_response timeout, switching to single_cmd mode: last cmd=0x%08x\n",
+ 		bus->last_cmd[addr]);
+ 	chip->single_cmd = 1;
 -- 
 2.20.1
 
