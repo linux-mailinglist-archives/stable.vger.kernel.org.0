@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3B6CA875
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0BECA878
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391178AbfJCQ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:27:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
+        id S2390152AbfJCQ1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391195AbfJCQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:06 -0400
+        id S2391195AbfJCQ1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:27:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 385BC20867;
-        Thu,  3 Oct 2019 16:27:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0D3B20867;
+        Thu,  3 Oct 2019 16:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120025;
-        bh=xKTppu/GDfJLMQWpfzwwiblwXnUW9uwticGihbh1hF8=;
+        s=default; t=1570120031;
+        bh=NJLxmO+sPDzSi40Zm+6uwJ9bnxqS9Qk6TiNQiFwfxvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0mfvbSGv5ZBdNojMeyVtyj3NU31gv6gztN0C2EZ2r6CQrJjYjH92r4YrErSxyHnRo
-         vtjjSa5K42qKRhXf+5nwACSel+kEXruA3WEOSnfk7mzDl5V2SppkmWqT/HJ3nja2Hi
-         wxJoN8E1VQ52/MlMn0BGmIZJ/KxfJzLFbNQ6lWPI=
+        b=vhSC2mWDsxvGsRhEHG4dI78PM1J9kEtuGfyU9yeyICHD63G27uEkNicOx/LCRMPQE
+         VSvkikz4ZNf9WQJjZFTb9zL2MJHybNgBSjHe+FTLAkTgguQFKfZxJt7uA9kBSe2udV
+         qccL2pQEHiroshCqAAAbsvWAu2H3G8WV1obUvlIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, chenzefeng <chenzefeng2@huawei.com>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 068/313] base: soc: Export soc_device_register/unregister APIs
-Date:   Thu,  3 Oct 2019 17:50:46 +0200
-Message-Id: <20191003154539.598967096@linuxfoundation.org>
+Subject: [PATCH 5.2 070/313] ia64:unwind: fix double free for mod->arch.init_unw_table
+Date:   Thu,  3 Oct 2019 17:50:48 +0200
+Message-Id: <20191003154539.770094835@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,45 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: chenzefeng <chenzefeng2@huawei.com>
 
-[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
+[ Upstream commit c5e5c48c16422521d363c33cfb0dcf58f88c119b ]
 
-Qcom Socinfo driver can be built as a module, so
-export these two APIs.
+The function free_module in file kernel/module.c as follow:
 
-Tested-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+void free_module(struct module *mod) {
+	......
+	module_arch_cleanup(mod);
+	......
+	module_arch_freeing_init(mod);
+	......
+}
+
+Both module_arch_cleanup and module_arch_freeing_init function
+would free the mod->arch.init_unw_table, which cause double free.
+
+Here, set mod->arch.init_unw_table = NULL after remove the unwind
+table to avoid double free.
+
+Signed-off-by: chenzefeng <chenzefeng2@huawei.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/soc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/ia64/kernel/module.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/soc.c b/drivers/base/soc.c
-index 10b280f30217b..7e91894a380b5 100644
---- a/drivers/base/soc.c
-+++ b/drivers/base/soc.c
-@@ -157,6 +157,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
- out1:
- 	return ERR_PTR(ret);
- }
-+EXPORT_SYMBOL_GPL(soc_device_register);
- 
- /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
- void soc_device_unregister(struct soc_device *soc_dev)
-@@ -166,6 +167,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
- 	device_unregister(&soc_dev->dev);
- 	early_soc_dev_attr = NULL;
- }
-+EXPORT_SYMBOL_GPL(soc_device_unregister);
- 
- static int __init soc_bus_register(void)
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index 326448f9df160..1a42ba885188a 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -914,10 +914,14 @@ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mo
+ void
+ module_arch_cleanup (struct module *mod)
  {
+-	if (mod->arch.init_unw_table)
++	if (mod->arch.init_unw_table) {
+ 		unw_remove_unwind_table(mod->arch.init_unw_table);
+-	if (mod->arch.core_unw_table)
++		mod->arch.init_unw_table = NULL;
++	}
++	if (mod->arch.core_unw_table) {
+ 		unw_remove_unwind_table(mod->arch.core_unw_table);
++		mod->arch.core_unw_table = NULL;
++	}
+ }
+ 
+ void *dereference_module_function_descriptor(struct module *mod, void *ptr)
 -- 
 2.20.1
 
