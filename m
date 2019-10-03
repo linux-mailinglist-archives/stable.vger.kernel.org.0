@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85BAFCA7BD
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81580CA727
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405223AbfJCQvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38510 "EHLO mail.kernel.org"
+        id S2405996AbfJCQvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405182AbfJCQvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:51:07 -0400
+        id S2405320AbfJCQvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:51:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC8EA2054F;
-        Thu,  3 Oct 2019 16:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5797A20867;
+        Thu,  3 Oct 2019 16:51:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121467;
-        bh=OSDbZ+qnZK1aTfBoQCDkx4FU7CwedCYXzK82/thGqPc=;
+        s=default; t=1570121469;
+        bh=15Pi5jIVm7QFY/vnRgq/37d4lE+PeYOiUAUJGLUQ1Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVxXFvyWKEaOU7dapxkbpx4qcEGHKl5bEFRD0yTtl9wf5Ux58GN7G28PirqEo34be
-         16dncNx5AxqQGdwf+bFAlAIAOYggKbDBl28A1NuVpEe5E5tXOE9MZX05GCtD1QqTFP
-         SaXEQgVCT5F4EER91qPPItAp2Zmdd0RsS8lOYeWQ=
+        b=Ssm7iunnTsOND4DhBEmpbKQMIfFtbB4g40QpJ0nde7w4A/PxVOa9CMAuX6f57QNgY
+         xFcktdwr4lzbkvdWHH1bJvLkHU/SaCxg9+iawQ9m16znMqil0vjM0tDg7/FUadzYML
+         npewQPDWobNIYGtt053hEBxyZ6HheoUhzhZYp5LY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Peter Jones <pjones@redhat.com>
-Subject: [PATCH 5.3 288/344] efifb: BGRT: Improve efifb_bgrt_sanity_check
-Date:   Thu,  3 Oct 2019 17:54:13 +0200
-Message-Id: <20191003154608.221655861@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.3 289/344] gfs2: clear buf_in_tr when ending a transaction in sweep_bh_for_rgrps
+Date:   Thu,  3 Oct 2019 17:54:14 +0200
+Message-Id: <20191003154608.294277963@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,71 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 51677dfcc17f88ed754143df670ff064eae67f84 upstream.
+commit f0b444b349e33ae0d3dd93e25ca365482a5d17d4 upstream.
 
-For various reasons, at least with x86 EFI firmwares, the xoffset and
-yoffset in the BGRT info are not always reliable.
+In function sweep_bh_for_rgrps, which is a helper for punch_hole,
+it uses variable buf_in_tr to keep track of when it needs to commit
+pending block frees on a partial delete that overflows the
+transaction created for the delete. The problem is that the
+variable was initialized at the start of function sweep_bh_for_rgrps
+but it was never cleared, even when starting a new transaction.
 
-Extensive testing has shown that when the info is correct, the
-BGRT image is always exactly centered horizontally (the yoffset variable
-is more variable and not always predictable).
+This patch reinitializes the variable when the transaction is
+ended, so the next transaction starts out with it cleared.
 
-This commit simplifies / improves the bgrt_sanity_check to simply
-check that the BGRT image is exactly centered horizontally and skips
-(re)drawing it when it is not.
-
-This fixes the BGRT image sometimes being drawn in the wrong place.
-
-Cc: stable@vger.kernel.org
-Fixes: 88fe4ceb2447 ("efifb: BGRT: Do not copy the boot graphics for non native resolutions")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: Peter Jones <pjones@redhat.com>,
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190721131918.10115-1-hdegoede@redhat.com
+Fixes: d552a2b9b33e ("GFS2: Non-recursive delete")
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/efifb.c |   27 ++++++---------------------
- 1 file changed, 6 insertions(+), 21 deletions(-)
+ fs/gfs2/bmap.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -122,28 +122,13 @@ static void efifb_copy_bmp(u8 *src, u32
-  */
- static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
- {
--	static const int default_resolutions[][2] = {
--		{  800,  600 },
--		{ 1024,  768 },
--		{ 1280, 1024 },
--	};
--	u32 i, right_margin;
-+	/*
-+	 * All x86 firmwares horizontally center the image (the yoffset
-+	 * calculations differ between boards, but xoffset is predictable).
-+	 */
-+	u32 expected_xoffset = (si->lfb_width - bmp_width) / 2;
- 
--	for (i = 0; i < ARRAY_SIZE(default_resolutions); i++) {
--		if (default_resolutions[i][0] == si->lfb_width &&
--		    default_resolutions[i][1] == si->lfb_height)
--			break;
--	}
--	/* If not a default resolution used for textmode, this should be fine */
--	if (i >= ARRAY_SIZE(default_resolutions))
--		return true;
--
--	/* If the right margin is 5 times smaller then the left one, reject */
--	right_margin = si->lfb_width - (bgrt_tab.image_offset_x + bmp_width);
--	if (right_margin < (bgrt_tab.image_offset_x / 5))
--		return false;
--
--	return true;
-+	return bgrt_tab.image_offset_x == expected_xoffset;
- }
- #else
- static bool efifb_bgrt_sanity_check(struct screen_info *si, u32 bmp_width)
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -1680,6 +1680,7 @@ out_unlock:
+ 			brelse(dibh);
+ 			up_write(&ip->i_rw_mutex);
+ 			gfs2_trans_end(sdp);
++			buf_in_tr = false;
+ 		}
+ 		gfs2_glock_dq_uninit(rd_gh);
+ 		cond_resched();
 
 
