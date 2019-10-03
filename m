@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 617B3CA7D7
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A61C8CA70D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405110AbfJCQtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:49:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36704 "EHLO mail.kernel.org"
+        id S1729214AbfJCQt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:49:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405872AbfJCQty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:49:54 -0400
+        id S2392102AbfJCQt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:49:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5D9D20865;
-        Thu,  3 Oct 2019 16:49:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5310B20865;
+        Thu,  3 Oct 2019 16:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121394;
-        bh=GSS11zVS5sAZCAm/t7b3x4fHnf3ZmTKbpHI1jMi/XZQ=;
+        s=default; t=1570121396;
+        bh=BfTwByiLBOEtLAiKrDFm0+a1C2cPRfgHJQH9uMU+AJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLdDp1mZROeM0Xx8kfLfk9O/a9DgSUfLUC5dMkFbZWDvCjvG1C1r7o0xvIMwuenyE
-         IAewjQWn2rawcYfdm9qXKlV7PDPNOHfi2kMNlJlIuzEtfpOkWwb/JTKqz5BkQBZUKX
-         6JbcTgS1LSFQnBs11C0Pf5j/XbHpTsEy+fNn/Jwc=
+        b=VInVGZotdzOYuQlIpsxviIrrQ8p59VUQ7LFEAfqsOyADtpm7f8lbsdLnCne2xqRBx
+         wAZDoibjAOf/u/54D5+xKiif43GRbsd3Dn5PerWhSnzTH+lslqDrMfbWvvlL4L60Wc
+         0qJmQQhLbylbu9YMtXDRMdL9zIgBo33+R5MDSsGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+74c65761783d66a9c97c@syzkaller.appspotmail.com,
-        Oliver Neukum <oneukum@suse.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 227/344] zd1211rw: remove false assertion from zd_mac_clear()
-Date:   Thu,  3 Oct 2019 17:53:12 +0200
-Message-Id: <20191003154602.764454005@linuxfoundation.org>
+Subject: [PATCH 5.3 228/344] btrfs: delayed-inode: Kill the BUG_ON() in btrfs_delete_delayed_dir_index()
+Date:   Thu,  3 Oct 2019 17:53:13 +0200
+Message-Id: <20191003154602.868294269@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,33 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 7a2eb7367fdea72e448d1a847aa857f6caf8ea2f ]
+[ Upstream commit 933c22a7512c5c09b1fdc46b557384efe8d03233 ]
 
-The function is called before the lock which is asserted was ever used.
-Just remove it.
+There is one report of fuzzed image which leads to BUG_ON() in
+btrfs_delete_delayed_dir_index().
 
-Reported-by: syzbot+74c65761783d66a9c97c@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Although that fuzzed image can already be addressed by enhanced
+extent-tree error handler, it's still better to hunt down more BUG_ON().
+
+This patch will hunt down two BUG_ON()s in
+btrfs_delete_delayed_dir_index():
+- One for error from btrfs_delayed_item_reserve_metadata()
+  Instead of BUG_ON(), we output an error message and free the item.
+  And return the error.
+  All callers of this function handles the error by aborting current
+  trasaction.
+
+- One for possible EEXIST from __btrfs_add_delayed_deletion_item()
+  That function can return -EEXIST.
+  We already have a good enough error message for that, only need to
+  clean up the reserved metadata space and allocated item.
+
+To help above cleanup, also modifiy __btrfs_remove_delayed_item() called
+in btrfs_release_delayed_item(), to skip unassociated item.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203253
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/zydas/zd1211rw/zd_mac.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/delayed-inode.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-index da7e63fca9f57..a9999d10ae81f 100644
---- a/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-+++ b/drivers/net/wireless/zydas/zd1211rw/zd_mac.c
-@@ -223,7 +223,6 @@ void zd_mac_clear(struct zd_mac *mac)
- {
- 	flush_workqueue(zd_workqueue);
- 	zd_chip_clear(&mac->chip);
--	lockdep_assert_held(&mac->lock);
- 	ZD_MEMCLEAR(mac, sizeof(struct zd_mac));
- }
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index 43fdb2992956a..6858a05606dd3 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -474,6 +474,9 @@ static void __btrfs_remove_delayed_item(struct btrfs_delayed_item *delayed_item)
+ 	struct rb_root_cached *root;
+ 	struct btrfs_delayed_root *delayed_root;
  
++	/* Not associated with any delayed_node */
++	if (!delayed_item->delayed_node)
++		return;
+ 	delayed_root = delayed_item->delayed_node->root->fs_info->delayed_root;
+ 
+ 	BUG_ON(!delayed_root);
+@@ -1525,7 +1528,12 @@ int btrfs_delete_delayed_dir_index(struct btrfs_trans_handle *trans,
+ 	 * we have reserved enough space when we start a new transaction,
+ 	 * so reserving metadata failure is impossible.
+ 	 */
+-	BUG_ON(ret);
++	if (ret < 0) {
++		btrfs_err(trans->fs_info,
++"metadata reservation failed for delayed dir item deltiona, should have been reserved");
++		btrfs_release_delayed_item(item);
++		goto end;
++	}
+ 
+ 	mutex_lock(&node->mutex);
+ 	ret = __btrfs_add_delayed_deletion_item(node, item);
+@@ -1534,7 +1542,8 @@ int btrfs_delete_delayed_dir_index(struct btrfs_trans_handle *trans,
+ 			  "err add delayed dir index item(index: %llu) into the deletion tree of the delayed node(root id: %llu, inode id: %llu, errno: %d)",
+ 			  index, node->root->root_key.objectid,
+ 			  node->inode_id, ret);
+-		BUG();
++		btrfs_delayed_item_release_metadata(dir->root, item);
++		btrfs_release_delayed_item(item);
+ 	}
+ 	mutex_unlock(&node->mutex);
+ end:
 -- 
 2.20.1
 
