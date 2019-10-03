@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF18CCA35C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE72CA364
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388710AbfJCQOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
+        id S2388800AbfJCQPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388704AbfJCQOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:48 -0400
+        id S1732115AbfJCQPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:15:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7873222C4;
-        Thu,  3 Oct 2019 16:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17A8F21783;
+        Thu,  3 Oct 2019 16:15:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119287;
-        bh=yJTPNF/Co3hgq7+7x8NMQeGLOqXVJ4OSl9f4tPbFaTY=;
+        s=default; t=1570119303;
+        bh=Vp0vtQ+CVMjNxo+ens7kr2TcRsike0sSb5zyI7nGzM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QfMmvWsj6ECRdRFc+JE34FMIwab8HVqI4qLyj8mhKb1RWTw0PIfBm0bG4es51dFq
-         mr/3yPAUouEkZ0Mrh2EvYjMN0UMQGxbBGmi7KXnuOksjbvVQ5EIb4JjUNYrTBFVXbY
-         BYvXc/SkWtpL0dZuFNlfHhitrYj8apS9kU/5pNhE=
+        b=fIxMb+eJuhG7ETZm8nU5Ac9RX+AR5RU614FQgTD0iyeFRYwbCdOqVo+93wjmMMW6r
+         lZvfKca9GOKBrSDzEDV2ZC+LUPJx4APyfcoiTAN738rWlhHalWCn1vi84MQ11OEEtH
+         9IhrhhkscO8dKFpe3kxS44pjF0nRr/CBBCPzd8dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takeshi Misawa <jeliantsurux@gmail.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+d9c8bf24e56416d7ce2c@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 010/211] ppp: Fix memory leak in ppp_write
-Date:   Thu,  3 Oct 2019 17:51:16 +0200
-Message-Id: <20191003154449.434454700@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Marek Majkowski <marek@cloudflare.com>,
+        Jon Maxwell <jmaxwell37@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 016/211] tcp: better handle TCP_USER_TIMEOUT in SYN_SENT state
+Date:   Thu,  3 Oct 2019 17:51:22 +0200
+Message-Id: <20191003154450.606298417@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,61 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4c247de564f1ff614d11b3bb5313fb70d7b9598b ]
+[ Upstream commit a66b10c05ee2d744189e9a2130394b070883d289 ]
 
-When ppp is closing, __ppp_xmit_process() failed to enqueue skb
-and skb allocated in ppp_write() is leaked.
+Yuchung Cheng and Marek Majkowski independently reported a weird
+behavior of TCP_USER_TIMEOUT option when used at connect() time.
 
-syzbot reported :
-BUG: memory leak
-unreferenced object 0xffff88812a17bc00 (size 224):
-  comm "syz-executor673", pid 6952, jiffies 4294942888 (age 13.040s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000d110fff9>] kmemleak_alloc_recursive include/linux/kmemleak.h:43 [inline]
-    [<00000000d110fff9>] slab_post_alloc_hook mm/slab.h:522 [inline]
-    [<00000000d110fff9>] slab_alloc_node mm/slab.c:3262 [inline]
-    [<00000000d110fff9>] kmem_cache_alloc_node+0x163/0x2f0 mm/slab.c:3574
-    [<000000002d616113>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:197
-    [<000000000167fc45>] alloc_skb include/linux/skbuff.h:1055 [inline]
-    [<000000000167fc45>] ppp_write+0x48/0x120 drivers/net/ppp/ppp_generic.c:502
-    [<000000009ab42c0b>] __vfs_write+0x43/0xa0 fs/read_write.c:494
-    [<00000000086b2e22>] vfs_write fs/read_write.c:558 [inline]
-    [<00000000086b2e22>] vfs_write+0xee/0x210 fs/read_write.c:542
-    [<00000000a2b70ef9>] ksys_write+0x7c/0x130 fs/read_write.c:611
-    [<00000000ce5e0fdd>] __do_sys_write fs/read_write.c:623 [inline]
-    [<00000000ce5e0fdd>] __se_sys_write fs/read_write.c:620 [inline]
-    [<00000000ce5e0fdd>] __x64_sys_write+0x1e/0x30 fs/read_write.c:620
-    [<00000000d9d7b370>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:296
-    [<0000000006e6d506>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+When the TCP_USER_TIMEOUT is reached, tcp_write_timeout()
+believes the flow should live, and the following condition
+in tcp_clamp_rto_to_user_timeout() programs one jiffie timers :
 
-Fix this by freeing skb, if ppp is closing.
+    remaining = icsk->icsk_user_timeout - elapsed;
+    if (remaining <= 0)
+        return 1; /* user timeout has passed; fire ASAP */
 
-Fixes: 6d066734e9f0 ("ppp: avoid loop in xmit recursion detection code")
-Reported-and-tested-by: syzbot+d9c8bf24e56416d7ce2c@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Tested-by: Guillaume Nault <gnault@redhat.com>
+This silly situation ends when the max syn rtx count is reached.
+
+This patch makes sure we honor both TCP_SYNCNT and TCP_USER_TIMEOUT,
+avoiding these spurious SYN packets.
+
+Fixes: b701a99e431d ("tcp: Add tcp_clamp_rto_to_user_timeout() helper to improve accuracy")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Yuchung Cheng <ycheng@google.com>
+Reported-by: Marek Majkowski <marek@cloudflare.com>
+Cc: Jon Maxwell <jmaxwell37@gmail.com>
+Link: https://marc.info/?l=linux-netdev&m=156940118307949&w=2
+Acked-by: Jon Maxwell <jmaxwell37@gmail.com>
+Tested-by: Marek Majkowski <marek@cloudflare.com>
+Signed-off-by: Marek Majkowski <marek@cloudflare.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ppp/ppp_generic.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/tcp_timer.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1419,6 +1419,8 @@ static void __ppp_xmit_process(struct pp
- 			netif_wake_queue(ppp->dev);
- 		else
- 			netif_stop_queue(ppp->dev);
-+	} else {
-+		kfree_skb(skb);
- 	}
- 	ppp_xmit_unlock(ppp);
- }
+--- a/net/ipv4/tcp_timer.c
++++ b/net/ipv4/tcp_timer.c
+@@ -219,7 +219,7 @@ static int tcp_write_timeout(struct sock
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct net *net = sock_net(sk);
+-	bool expired, do_reset;
++	bool expired = false, do_reset;
+ 	int retry_until;
+ 
+ 	if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV)) {
+@@ -251,9 +251,10 @@ static int tcp_write_timeout(struct sock
+ 			if (tcp_out_of_resources(sk, do_reset))
+ 				return 1;
+ 		}
++	}
++	if (!expired)
+ 		expired = retransmits_timed_out(sk, retry_until,
+ 						icsk->icsk_user_timeout);
+-	}
+ 	tcp_fastopen_active_detect_blackhole(sk, expired);
+ 
+ 	if (BPF_SOCK_OPS_TEST_FLAG(tp, BPF_SOCK_OPS_RTO_CB_FLAG))
 
 
