@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99980CA3CD
+	by mail.lfdr.de (Postfix) with ESMTP id 30A1FCA3CC
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389685AbfJCQTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:19:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S2388181AbfJCQTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:19:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389672AbfJCQTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:02 -0400
+        id S2388158AbfJCQTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A9DA20865;
-        Thu,  3 Oct 2019 16:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D882E215EA;
+        Thu,  3 Oct 2019 16:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119541;
-        bh=/HJvbzJRlJJiGsRssqDI4IrbcQ6A6pHz/L9DnUT+I6U=;
+        s=default; t=1570119544;
+        bh=C6bM2lkrmxaRi+8ngCo47RBCDNww5tM1dx0eSaBFFeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTPjmjIXXR77H6LfBJnqyGoixD+j5qQuKrowUdbIubyXrSnBO17rLQfzpgX7VMraQ
-         KY+JWeZLdHiMZ/z7FgDomF3RkLis4MfybTWqUx9D5UHCAeeOk3+aiRGfynVM5EgGmD
-         3dXQJ1n9YRzfmhak2SUrwZvi52TOu2sfQQJW3WfM=
+        b=YhEcVcmVOcI/tbmI7X1Tk9G0lStUysjAhdqddK4qnQgMlO9pdalaQW3SldidJcMUZ
+         ljLdvoQQQn694XCzUwrfvJNCSyUPdcHAE7KZuK0grfPqOt9kPqjommFjIUOK5/aLEO
+         /+H6nUgqpmrMs0bB46f/TRqwyEuibozGA/7zTRnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Maciej S. Szmigiero" <mail@maciej.szmigiero.name>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Benjamin Peterson <benjamin@python.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/211] media: saa7134: fix terminology around saa7134_i2c_eeprom_md7134_gate()
-Date:   Thu,  3 Oct 2019 17:52:48 +0200
-Message-Id: <20191003154510.065803224@linuxfoundation.org>
+Subject: [PATCH 4.19 103/211] perf trace beauty ioctl: Fix off-by-one error in cmd->string table
+Date:   Thu,  3 Oct 2019 17:52:49 +0200
+Message-Id: <20191003154510.188106056@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -46,58 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
+From: Benjamin Peterson <benjamin@python.org>
 
-[ Upstream commit 9d802222a3405599d6e1984d9324cddf592ea1f4 ]
+[ Upstream commit b92675f4a9c02dd78052645597dac9e270679ddf ]
 
-saa7134_i2c_eeprom_md7134_gate() function and the associated comment uses
-an inverted i2c gate open / closed terminology.
-Let's fix this.
+While tracing a program that calls isatty(3), I noticed that strace
+reported TCGETS for the request argument of the underlying ioctl(2)
+syscall while perf trace reported TCSETS. strace is corrrect. The bug in
+perf was due to the tty ioctl beauty table starting at 0x5400 rather
+than 0x5401.
 
-Signed-off-by: Maciej S. Szmigiero <mail@maciej.szmigiero.name>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: fix alignment checkpatch warning]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Committer testing:
+
+  Using augmented_raw_syscalls.o and settings to make 'perf trace'
+  use strace formatting, i.e. with this in ~/.perfconfig
+
+  # cat ~/.perfconfig
+  [trace]
+	add_events = /home/acme/git/linux/tools/perf/examples/bpf/augmented_raw_syscalls.c
+	show_zeros = yes
+	show_duration = no
+	no_inherit = yes
+	show_timestamp = no
+	show_arg_names = no
+	args_alignment = 40
+	show_prefix = yes
+
+  # strace -e ioctl stty > /dev/null
+  ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+  ioctl(1, TIOCGWINSZ, 0x7fff8a9b0860)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCGETS, 0x7fff8a9b0540)        = -1 ENOTTY (Inappropriate ioctl for device)
+  +++ exited with 0 +++
+  #
+
+Before:
+
+  # perf trace -e ioctl stty > /dev/null
+  ioctl(0, TCSETS, 0x7fff2cf79f20)        = 0
+  ioctl(1, TIOCSWINSZ, 0x7fff2cf79f40)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCSETS, 0x7fff2cf79c20)        = -1 ENOTTY (Inappropriate ioctl for device)
+  #
+
+After:
+
+  # perf trace -e ioctl stty > /dev/null
+  ioctl(0, TCGETS, 0x7ffed0763920)        = 0
+  ioctl(1, TIOCGWINSZ, 0x7ffed0763940)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCGETS, 0x7ffed0763620)        = -1 ENOTTY (Inappropriate ioctl for device)
+  #
+
+Signed-off-by: Benjamin Peterson <benjamin@python.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Fixes: 1cc47f2d46206d67285aea0ca7e8450af571da13 ("perf trace beauty ioctl: Improve 'cmd' beautifier")
+Link: http://lkml.kernel.org/r/20190823033625.18814-1-benjamin@python.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7134/saa7134-i2c.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ tools/perf/trace/beauty/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/saa7134/saa7134-i2c.c b/drivers/media/pci/saa7134/saa7134-i2c.c
-index cf1e526de56ac..8a1128c60680b 100644
---- a/drivers/media/pci/saa7134/saa7134-i2c.c
-+++ b/drivers/media/pci/saa7134/saa7134-i2c.c
-@@ -351,7 +351,11 @@ static const struct i2c_client saa7134_client_template = {
- 
- /* ----------------------------------------------------------- */
- 
--/* On Medion 7134 reading EEPROM needs DVB-T demod i2c gate open */
-+/*
-+ * On Medion 7134 reading the SAA7134 chip config EEPROM needs DVB-T
-+ * demod i2c gate closed due to an address clash between this EEPROM
-+ * and the demod one.
-+ */
- static void saa7134_i2c_eeprom_md7134_gate(struct saa7134_dev *dev)
+diff --git a/tools/perf/trace/beauty/ioctl.c b/tools/perf/trace/beauty/ioctl.c
+index 1be3b4cf08270..82346ca06f171 100644
+--- a/tools/perf/trace/beauty/ioctl.c
++++ b/tools/perf/trace/beauty/ioctl.c
+@@ -22,7 +22,7 @@
+ static size_t ioctl__scnprintf_tty_cmd(int nr, int dir, char *bf, size_t size)
  {
- 	u8 subaddr = 0x7, dmdregval;
-@@ -368,14 +372,14 @@ static void saa7134_i2c_eeprom_md7134_gate(struct saa7134_dev *dev)
- 
- 	ret = i2c_transfer(&dev->i2c_adap, i2cgatemsg_r, 2);
- 	if ((ret == 2) && (dmdregval & 0x2)) {
--		pr_debug("%s: DVB-T demod i2c gate was left closed\n",
-+		pr_debug("%s: DVB-T demod i2c gate was left open\n",
- 			 dev->name);
- 
- 		data[0] = subaddr;
- 		data[1] = (dmdregval & ~0x2);
- 		if (i2c_transfer(&dev->i2c_adap, i2cgatemsg_w, 1) != 1)
--			pr_err("%s: EEPROM i2c gate open failure\n",
--			  dev->name);
-+			pr_err("%s: EEPROM i2c gate close failure\n",
-+			       dev->name);
- 	}
- }
- 
+ 	static const char *ioctl_tty_cmd[] = {
+-	"TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
++	[_IOC_NR(TCGETS)] = "TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
+ 	"TCSETAF", "TCSBRK", "TCXONC", "TCFLSH", "TIOCEXCL", "TIOCNXCL", "TIOCSCTTY",
+ 	"TIOCGPGRP", "TIOCSPGRP", "TIOCOUTQ", "TIOCSTI", "TIOCGWINSZ", "TIOCSWINSZ",
+ 	"TIOCMGET", "TIOCMBIS", "TIOCMBIC", "TIOCMSET", "TIOCGSOFTCAR", "TIOCSSOFTCAR",
 -- 
 2.20.1
 
