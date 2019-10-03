@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6CCBCAACB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1960CAB4C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731971AbfJCRN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60250 "EHLO mail.kernel.org"
+        id S2388210AbfJCQPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:15:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391321AbfJCQ16 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:58 -0400
+        id S2388848AbfJCQPP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:15:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 603D921783;
-        Thu,  3 Oct 2019 16:27:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3D8C20865;
+        Thu,  3 Oct 2019 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120076;
-        bh=e6HrPHm9mHRsCTtvzt4/Np6paexRy6vP8uDN+UsN+Qk=;
+        s=default; t=1570119314;
+        bh=2NQHd2QxdKNhEULOQ3m6pk/Bq8wN86OiE8oTa6a2Tsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=heM1vrjFLl5r+0XolW/cQV6RNqFAip9nYs+TQfEpeyN2FtM1jwgOR0SHyltd4UpEq
-         NrCOkKXvYCsPJmNvmsUvrjMFM3et0LOpGCHXiwBtU82/S1GmI1V1SvTvGB+QT4M1Wn
-         fb+NpdNKUpVlbUkCtr+evbk7JPVQIleEJD1R1I0w=
+        b=h1p+bt3tPe71/F3cyZHi+sNNRJIBrJJ1zt+TByJTYPNHENm5o2N9Qy9VfDkC/Ory9
+         jZamKRJJstF1hY0t3124GmdcgpyONiBCUkdk45scNwREwoknql/u7dLWpTLCEhSWKK
+         lq03jLYSO/fu3Tb5AAYg4NAf7EewGcFidCmJdHfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhengbin <zhengbin13@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 089/313] blk-mq: Fix memory leak in blk_mq_init_allocated_queue error handling
-Date:   Thu,  3 Oct 2019 17:51:07 +0200
-Message-Id: <20191003154541.637813090@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ce366e2b8296e25d84f5@syzkaller.appspotmail.com,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.19 002/211] cdc_ncm: fix divide-by-zero caused by invalid wMaxPacketSize
+Date:   Thu,  3 Oct 2019 17:51:08 +0200
+Message-Id: <20191003154447.588223033@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengbin <zhengbin13@huawei.com>
+From: Bjørn Mork <bjorn@mork.no>
 
-[ Upstream commit 73d9c8d4c0017e21e1ff519474ceb1450484dc9a ]
+[ Upstream commit 3fe4b3351301660653a2bc73f2226da0ebd2b95e ]
 
-If blk_mq_init_allocated_queue->elevator_init_mq fails, need to release
-the previously requested resources.
+Endpoints with zero wMaxPacketSize are not usable for transferring
+data. Ignore such endpoints when looking for valid in, out and
+status pipes, to make the driver more robust against invalid and
+meaningless descriptors.
 
-Fixes: d34849913819 ("blk-mq-sched: allow setting of default IO scheduler")
-Signed-off-by: zhengbin <zhengbin13@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The wMaxPacketSize of the out pipe is used as divisor. So this change
+fixes a divide-by-zero bug.
+
+Reported-by: syzbot+ce366e2b8296e25d84f5@syzkaller.appspotmail.com
+Signed-off-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-mq.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/usb/cdc_ncm.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 68106a41f90d2..f934e8afe5b43 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2853,6 +2853,8 @@ static unsigned int nr_hw_queues(struct blk_mq_tag_set *set)
- struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- 						  struct request_queue *q)
- {
-+	int ret = -ENOMEM;
-+
- 	/* mark the queue as mq asap */
- 	q->mq_ops = set->ops;
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -681,8 +681,12 @@ cdc_ncm_find_endpoints(struct usbnet *de
+ 	u8 ep;
  
-@@ -2914,17 +2916,18 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- 	blk_mq_map_swqueue(q);
- 
- 	if (!(set->flags & BLK_MQ_F_NO_SCHED)) {
--		int ret;
+ 	for (ep = 0; ep < intf->cur_altsetting->desc.bNumEndpoints; ep++) {
 -
- 		ret = elevator_init_mq(q);
- 		if (ret)
--			return ERR_PTR(ret);
-+			goto err_tag_set;
- 	}
- 
- 	return q;
- 
-+err_tag_set:
-+	blk_mq_del_queue_tag_set(q);
- err_hctxs:
- 	kfree(q->queue_hw_ctx);
-+	q->nr_hw_queues = 0;
- err_sys_init:
- 	blk_mq_sysfs_deinit(q);
- err_poll:
--- 
-2.20.1
-
+ 		e = intf->cur_altsetting->endpoint + ep;
++
++		/* ignore endpoints which cannot transfer data */
++		if (!usb_endpoint_maxp(&e->desc))
++			continue;
++
+ 		switch (e->desc.bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) {
+ 		case USB_ENDPOINT_XFER_INT:
+ 			if (usb_endpoint_dir_in(&e->desc)) {
 
 
