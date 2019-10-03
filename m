@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF52ACAD47
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988C8CAD78
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388161AbfJCRiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:38:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
+        id S2390380AbfJCRmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:42:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729496AbfJCQCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:02:50 -0400
+        id S1730924AbfJCP5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:57:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC4C721D81;
-        Thu,  3 Oct 2019 16:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30C5220830;
+        Thu,  3 Oct 2019 15:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118569;
-        bh=FUo7+AM5G1HtGd+uzgYEtJ+YHg9f4YGf1zd1fEXlen0=;
+        s=default; t=1570118241;
+        bh=5u9Whsc6p/XfD9xIRZ6kTcBX2xjj+4JbTk+wCWZ59AA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bb8O0UFHWMZ5OcSCY1dkOiL04D/yyxbtzaN/OpqRBsf+p3PB5fWZZJ+8xGK6as3i2
-         vyroAP/9G+9C2/vcrpLXtXA+0XozBEH88AFpGyye47eu51/Hc0OkXzSXtnQYudVyOI
-         7+YbCTZnCXp5/UqenYalt0e66l69HHKkezJ8x+Zg=
+        b=IGqME5eC9/Wb1MRfQfL+v3vLhoSqf0yP5Bc/6GZqbLUzq3Rl3399VF93s1an+KDgC
+         kpaIv7RulDxaC5Puexa70c8mSP+6zi2CnALWLGe8/+EDfx6ymePbga3IyAPOGOWBBt
+         Qk/NdkN1kTjaTfHAxvs008wPeHdMsL8cNb/734Fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 058/129] md: dont call spare_active in md_reap_sync_thread if all member devices cant work
-Date:   Thu,  3 Oct 2019 17:53:01 +0200
-Message-Id: <20191003154345.384807398@linuxfoundation.org>
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 39/99] sched/fair: Fix imbalance due to CPU affinity
+Date:   Thu,  3 Oct 2019 17:53:02 +0200
+Message-Id: <20191003154314.415611606@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <jgq516@gmail.com>
+From: Vincent Guittot <vincent.guittot@linaro.org>
 
-[ Upstream commit 0d8ed0e9bf9643f27f4816dca61081784dedb38d ]
+[ Upstream commit f6cad8df6b30a5d2bbbd2e698f74b4cafb9fb82b ]
 
-When add one disk to array, the md_reap_sync_thread is responsible
-to activate the spare and set In_sync flag for the new member in
-spare_active().
+The load_balance() has a dedicated mecanism to detect when an imbalance
+is due to CPU affinity and must be handled at parent level. In this case,
+the imbalance field of the parent's sched_group is set.
 
-But if raid1 has one member disk A, and disk B is added to the array.
-Then we offline A before all the datas are synchronized from A to B,
-obviously B doesn't have the latest data as A, but B is still marked
-with In_sync flag.
+The description of sg_imbalanced() gives a typical example of two groups
+of 4 CPUs each and 4 tasks each with a cpumask covering 1 CPU of the first
+group and 3 CPUs of the second group. Something like:
 
-So let's not call spare_active under the condition, otherwise B is
-still showed with 'U' state which is not correct.
+	{ 0 1 2 3 } { 4 5 6 7 }
+	        *     * * *
 
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+But the load_balance fails to fix this UC on my octo cores system
+made of 2 clusters of quad cores.
+
+Whereas the load_balance is able to detect that the imbalanced is due to
+CPU affinity, it fails to fix it because the imbalance field is cleared
+before letting parent level a chance to run. In fact, when the imbalance is
+detected, the load_balance reruns without the CPU with pinned tasks. But
+there is no other running tasks in the situation described above and
+everything looks balanced this time so the imbalance field is immediately
+cleared.
+
+The imbalance field should not be cleared if there is no other task to move
+when the imbalance is detected.
+
+Signed-off-by: Vincent Guittot <vincent.guittot@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/1561996022-28829-1-git-send-email-vincent.guittot@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 765a16dab2e5f..c1c514792457a 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8573,7 +8573,8 @@ void md_reap_sync_thread(struct mddev *mddev)
- 	/* resync has finished, collect result */
- 	md_unregister_thread(&mddev->sync_thread);
- 	if (!test_bit(MD_RECOVERY_INTR, &mddev->recovery) &&
--	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery)) {
-+	    !test_bit(MD_RECOVERY_REQUESTED, &mddev->recovery) &&
-+	    mddev->degraded != mddev->raid_disks) {
- 		/* success...*/
- 		/* activate any spares */
- 		if (mddev->pers->spare_active(mddev)) {
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 19d735ab44db4..cd2fb8384fbe3 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7313,9 +7313,10 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ out_balanced:
+ 	/*
+ 	 * We reach balance although we may have faced some affinity
+-	 * constraints. Clear the imbalance flag if it was set.
++	 * constraints. Clear the imbalance flag only if other tasks got
++	 * a chance to move and fix the imbalance.
+ 	 */
+-	if (sd_parent) {
++	if (sd_parent && !(env.flags & LBF_ALL_PINNED)) {
+ 		int *group_imbalance = &sd_parent->groups->sgc->imbalance;
+ 
+ 		if (*group_imbalance)
 -- 
 2.20.1
 
