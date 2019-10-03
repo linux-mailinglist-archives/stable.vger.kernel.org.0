@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C3ECA457
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3CECA5F7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390647AbfJCQXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:23:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53214 "EHLO mail.kernel.org"
+        id S2392326AbfJCQib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:38:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390640AbfJCQXw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:23:52 -0400
+        id S2392315AbfJCQi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3473222BE;
-        Thu,  3 Oct 2019 16:23:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 065DC2086A;
+        Thu,  3 Oct 2019 16:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119831;
-        bh=pP89B59oW/f7tod7PG0miwbXWNsTY7e+yYicB3brcU4=;
+        s=default; t=1570120707;
+        bh=VtSc1ME8SN1wgVSZQutqFakL7GH/xf7ew/ekejUwB/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0n+I3vs5HkZNmIaU9ydK5MS+VMtJeL66lM+vX8aJc/6FguE539Z8elrW+YOYSyQzm
-         c1y2pZpsXBOQ7wYDM8bzrFHHkqy/tab7pl13o+mdeodvMU6NbTdesR1dPoBiaA/e2x
-         lW7YI0UDHsMELP20W9To88Q55gNPzuLVOslJJRMw=
+        b=cXCWVUr51UJj/gTA7E0yz4QksVS+acIo3YsuuA5x30DIdlLaSJrCTAXEr0Oy7AIEh
+         S8SQShMedI4Ps9fdH9AVdCPfMprFIm9k4+zwEl+xEAgo8RVe2cVJ8MSerxzV/2qAy3
+         km3IzyF/Y4FbFv6h8+0NRrBKpZS2qHB6A8bGZI6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yafang Shao <laoar.shao@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        David Rientjes <rientjes@google.com>,
-        Yafang Shao <shaoyafang@didiglobal.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 210/211] mm/compaction.c: clear total_{migrate,free}_scanned before scanning a new zone
-Date:   Thu,  3 Oct 2019 17:54:36 +0200
-Message-Id: <20191003154530.762686997@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 001/344] arcnet: provide a buffer big enough to actually receive packets
+Date:   Thu,  3 Oct 2019 17:49:26 +0200
+Message-Id: <20191003154540.201477719@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,131 +48,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit a94b525241c0fff3598809131d7cfcfe1d572d8c ]
+[ Upstream commit 108639aac35eb57f1d0e8333f5fc8c7ff68df938 ]
 
-total_{migrate,free}_scanned will be added to COMPACTMIGRATE_SCANNED and
-COMPACTFREE_SCANNED in compact_zone().  We should clear them before
-scanning a new zone.  In the proc triggered compaction, we forgot clearing
-them.
+struct archdr is only big enough to hold the header of various types of
+arcnet packets. So to provide enough space to hold the data read from
+hardware provide a buffer large enough to hold a packet with maximal
+size.
 
-[laoar.shao@gmail.com: introduce a helper compact_zone_counters_init()]
-  Link: http://lkml.kernel.org/r/1563869295-25748-1-git-send-email-laoar.shao@gmail.com
-[akpm@linux-foundation.org: expand compact_zone_counters_init() into its single callsite, per mhocko]
-[vbabka@suse.cz: squash compact_zone() list_head init as well]
-  Link: http://lkml.kernel.org/r/1fb6f7da-f776-9e42-22f8-bbb79b030b98@suse.cz
-[akpm@linux-foundation.org: kcompactd_do_work(): avoid unnecessary initialization of cc.zone]
-Link: http://lkml.kernel.org/r/1563789275-9639-1-git-send-email-laoar.shao@gmail.com
-Fixes: 7f354a548d1c ("mm, compaction: add vmstats for kcompactd work")
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Yafang Shao <shaoyafang@didiglobal.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem was noticed by the stack protector which makes the kernel
+oops.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/compaction.c | 35 +++++++++++++----------------------
- 1 file changed, 13 insertions(+), 22 deletions(-)
+ drivers/net/arcnet/arcnet.c |   31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index faca45ebe62df..5079ddbec8f9e 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1540,6 +1540,17 @@ static enum compact_result compact_zone(struct zone *zone, struct compact_contro
- 	unsigned long end_pfn = zone_end_pfn(zone);
- 	const bool sync = cc->mode != MIGRATE_ASYNC;
- 
-+	/*
-+	 * These counters track activities during zone compaction.  Initialize
-+	 * them before compacting a new zone.
-+	 */
-+	cc->total_migrate_scanned = 0;
-+	cc->total_free_scanned = 0;
-+	cc->nr_migratepages = 0;
-+	cc->nr_freepages = 0;
-+	INIT_LIST_HEAD(&cc->freepages);
-+	INIT_LIST_HEAD(&cc->migratepages);
-+
- 	cc->migratetype = gfpflags_to_migratetype(cc->gfp_mask);
- 	ret = compaction_suitable(zone, cc->order, cc->alloc_flags,
- 							cc->classzone_idx);
-@@ -1703,10 +1714,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
+--- a/drivers/net/arcnet/arcnet.c
++++ b/drivers/net/arcnet/arcnet.c
+@@ -1063,31 +1063,34 @@ EXPORT_SYMBOL(arcnet_interrupt);
+ static void arcnet_rx(struct net_device *dev, int bufnum)
  {
- 	enum compact_result ret;
- 	struct compact_control cc = {
--		.nr_freepages = 0,
--		.nr_migratepages = 0,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.order = order,
- 		.gfp_mask = gfp_mask,
- 		.zone = zone,
-@@ -1719,8 +1726,6 @@ static enum compact_result compact_zone_order(struct zone *zone, int order,
- 		.ignore_skip_hint = (prio == MIN_COMPACT_PRIORITY),
- 		.ignore_block_suitable = (prio == MIN_COMPACT_PRIORITY)
- 	};
--	INIT_LIST_HEAD(&cc.freepages);
--	INIT_LIST_HEAD(&cc.migratepages);
+ 	struct arcnet_local *lp = netdev_priv(dev);
+-	struct archdr pkt;
++	union {
++		struct archdr pkt;
++		char buf[512];
++	} rxdata;
+ 	struct arc_rfc1201 *soft;
+ 	int length, ofs;
  
- 	ret = compact_zone(zone, &cc);
+-	soft = &pkt.soft.rfc1201;
++	soft = &rxdata.pkt.soft.rfc1201;
  
-@@ -1819,8 +1824,6 @@ static void compact_node(int nid)
- 	struct zone *zone;
- 	struct compact_control cc = {
- 		.order = -1,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.mode = MIGRATE_SYNC,
- 		.ignore_skip_hint = true,
- 		.whole_zone = true,
-@@ -1834,11 +1837,7 @@ static void compact_node(int nid)
- 		if (!populated_zone(zone))
- 			continue;
+-	lp->hw.copy_from_card(dev, bufnum, 0, &pkt, ARC_HDR_SIZE);
+-	if (pkt.hard.offset[0]) {
+-		ofs = pkt.hard.offset[0];
++	lp->hw.copy_from_card(dev, bufnum, 0, &rxdata.pkt, ARC_HDR_SIZE);
++	if (rxdata.pkt.hard.offset[0]) {
++		ofs = rxdata.pkt.hard.offset[0];
+ 		length = 256 - ofs;
+ 	} else {
+-		ofs = pkt.hard.offset[1];
++		ofs = rxdata.pkt.hard.offset[1];
+ 		length = 512 - ofs;
+ 	}
  
--		cc.nr_freepages = 0;
--		cc.nr_migratepages = 0;
- 		cc.zone = zone;
--		INIT_LIST_HEAD(&cc.freepages);
--		INIT_LIST_HEAD(&cc.migratepages);
+ 	/* get the full header, if possible */
+-	if (sizeof(pkt.soft) <= length) {
+-		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(pkt.soft));
++	if (sizeof(rxdata.pkt.soft) <= length) {
++		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(rxdata.pkt.soft));
+ 	} else {
+-		memset(&pkt.soft, 0, sizeof(pkt.soft));
++		memset(&rxdata.pkt.soft, 0, sizeof(rxdata.pkt.soft));
+ 		lp->hw.copy_from_card(dev, bufnum, ofs, soft, length);
+ 	}
  
- 		compact_zone(zone, &cc);
+ 	arc_printk(D_DURING, dev, "Buffer #%d: received packet from %02Xh to %02Xh (%d+4 bytes)\n",
+-		   bufnum, pkt.hard.source, pkt.hard.dest, length);
++		   bufnum, rxdata.pkt.hard.source, rxdata.pkt.hard.dest, length);
  
-@@ -1947,8 +1946,6 @@ static void kcompactd_do_work(pg_data_t *pgdat)
- 	struct zone *zone;
- 	struct compact_control cc = {
- 		.order = pgdat->kcompactd_max_order,
--		.total_migrate_scanned = 0,
--		.total_free_scanned = 0,
- 		.classzone_idx = pgdat->kcompactd_classzone_idx,
- 		.mode = MIGRATE_SYNC_LIGHT,
- 		.ignore_skip_hint = false,
-@@ -1972,16 +1969,10 @@ static void kcompactd_do_work(pg_data_t *pgdat)
- 							COMPACT_CONTINUE)
- 			continue;
+ 	dev->stats.rx_packets++;
+ 	dev->stats.rx_bytes += length + ARC_HDR_SIZE;
+@@ -1096,13 +1099,13 @@ static void arcnet_rx(struct net_device
+ 	if (arc_proto_map[soft->proto]->is_ip) {
+ 		if (BUGLVL(D_PROTO)) {
+ 			struct ArcProto
+-			*oldp = arc_proto_map[lp->default_proto[pkt.hard.source]],
++			*oldp = arc_proto_map[lp->default_proto[rxdata.pkt.hard.source]],
+ 			*newp = arc_proto_map[soft->proto];
  
--		cc.nr_freepages = 0;
--		cc.nr_migratepages = 0;
--		cc.total_migrate_scanned = 0;
--		cc.total_free_scanned = 0;
--		cc.zone = zone;
--		INIT_LIST_HEAD(&cc.freepages);
--		INIT_LIST_HEAD(&cc.migratepages);
--
- 		if (kthread_should_stop())
- 			return;
-+
-+		cc.zone = zone;
- 		status = compact_zone(zone, &cc);
+ 			if (oldp != newp) {
+ 				arc_printk(D_PROTO, dev,
+ 					   "got protocol %02Xh; encap for host %02Xh is now '%c' (was '%c')\n",
+-					   soft->proto, pkt.hard.source,
++					   soft->proto, rxdata.pkt.hard.source,
+ 					   newp->suffix, oldp->suffix);
+ 			}
+ 		}
+@@ -1111,10 +1114,10 @@ static void arcnet_rx(struct net_device
+ 		lp->default_proto[0] = soft->proto;
  
- 		if (status == COMPACT_SUCCESS) {
--- 
-2.20.1
-
+ 		/* in striking contrast, the following isn't a hack. */
+-		lp->default_proto[pkt.hard.source] = soft->proto;
++		lp->default_proto[rxdata.pkt.hard.source] = soft->proto;
+ 	}
+ 	/* call the protocol-specific receiver. */
+-	arc_proto_map[soft->proto]->rx(dev, bufnum, &pkt, length);
++	arc_proto_map[soft->proto]->rx(dev, bufnum, &rxdata.pkt, length);
+ }
+ 
+ static void null_rx(struct net_device *dev, int bufnum,
 
 
