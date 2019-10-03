@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF362C9E11
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4C6C9E12
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:10:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727410AbfJCMKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 08:10:09 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:58865 "EHLO
+        id S1728149AbfJCMKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 08:10:18 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:34065 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726523AbfJCMKJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 08:10:09 -0400
+        by vger.kernel.org with ESMTP id S1726523AbfJCMKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 08:10:18 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1E08021C28;
-        Thu,  3 Oct 2019 08:10:08 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 08:10:08 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 6305721C48;
+        Thu,  3 Oct 2019 08:10:17 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 08:10:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1PoJxO
-        DID3RTQhAwI1MFprIlFF/0SnbeMc5GIrJALAg=; b=G6keLlifg8xocPrxxLEb6e
-        +Df2hvYL2bjjhETwlLOWLcMJBKhdshE/AaB+P+fF/O/+JvQZCRA+yI8eDaNYzh6R
-        4BnVxcM4vKlWQDLN0ob9c4o4J58qBol3ZdMZTyKehzsSR21prn4DPSwsMcAQrCB8
-        NvogBHZPvS7SDRzFkvko+Gng19TYm1xBYbC7/E+TplWaQbMhtzV5WAlh1l78Zk4G
-        8+0B3swhAoZk/yvCoPB9tJ/LQpKAxaFjtMHQ/yhVCF5TNGZmBYYKV9R1sv5q09ZJ
-        bGQiJef6mKaEeFd6A1EyYRzdcsZE0A40QY4Hs3OpN6cWu12CsNMh32ZU4tbf6KSA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=S+es6a
+        43gYf5KHU/RwtWwSBwlHzrqvjNtE/WQUTInhw=; b=O8Vnwha87Ic4BOzzEVEXz1
+        ERCL3RYdUTwWSdDB5OTSmVkPyzz6RydVTvKYWlqdVR4/ksJQTPwOzZB5fQn8NA1j
+        CUyMu92PQzMe+4dDNEEQUABd+32StaWKbwz4M8KU0I0PmA+T5qR2ovy7+pA34u6o
+        bxuhnnyw1b7Ji/Raa+CqxOEiKOJ/eUW+/kT83AcAS96trdQEYSMYp9LTUkmQ7qW4
+        SRsHZTJ2ErLAXh1mtWqIvReiSrcihNaaog//fyCuodxSMh73f7Br2i72vOFj86mB
+        xzPG7El+J5BHrmK8JrtO2vTBWhkXPM4a0DEp00Q2ko9wNHUuK7ETudxR/dASXWYw
         ==
-X-ME-Sender: <xms:H-WVXbFuDKBS_MncIXQZ7iInX28xmfBLAjie9h_IvF_NuHGCejmqbw>
+X-ME-Sender: <xms:KeWVXdk9I79skVUlenM7-HkjlXtG27EdO5DqUJDdIGwkHzNRqCkTHA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:H-WVXSnaqeYKnuFF0Vph_IFIBZL0LNPQZpEuQDDQ_Pn2W_wRXCXQQQ>
-    <xmx:H-WVXSlVRxmDtp6UGR7BJQaBjMI5foox7XVPO22_kEMn0HB-vT7c9Q>
-    <xmx:H-WVXfU3TTRn5-glsaYBuHFrKfmw8xFU0OqdO8gKIqliO2pqQykWJQ>
-    <xmx:IOWVXQAlGFeQ9vmH-04NCteEDVukfbAiRRwxkeRSWRKsnXa_XXHoAQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:KeWVXb9NwhDcsXzBWggDaGXsXyAIy5MILOeG3akWavnAICPxqLT7Fw>
+    <xmx:KeWVXRFG6SZmWcAKU3WSHonFNJOnF2R3Yg_hUHUmnPaZLcHsaMru5Q>
+    <xmx:KeWVXSKaFIvMw_rXwNN67CmAxNE4v2O7l3HsIZdqC21cL0yumveBQQ>
+    <xmx:KeWVXRsqrI_ARzeRRA960Bv6__QUvWkzV8QUb1v9deoPU02YwhzCrQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 89C5D8005C;
-        Thu,  3 Oct 2019 08:10:07 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] platform/chrome: cros_ec_rpmsg: Fix race with host command" failed to apply to 5.3-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 535F6D6005D;
+        Thu,  3 Oct 2019 08:10:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] platform/chrome: cros_ec_rpmsg: Fix race with host command" failed to apply to 5.2-stable tree
 To:     pihsun@chromium.org, enric.balletbo@collabora.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 14:10:05 +0200
-Message-ID: <157010460554182@kroah.com>
+Date:   Thu, 03 Oct 2019 14:10:06 +0200
+Message-ID: <1570104606107159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 5.2-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
