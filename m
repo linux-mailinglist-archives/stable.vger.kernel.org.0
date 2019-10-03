@@ -2,112 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7BBCA011
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E81DCCA054
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 16:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbfJCOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 10:08:35 -0400
-Received: from mga03.intel.com ([134.134.136.65]:64806 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729369AbfJCOIf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 10:08:35 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Oct 2019 07:08:33 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,252,1566889200"; 
-   d="scan'208";a="191275044"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga008.fm.intel.com with SMTP; 03 Oct 2019 07:08:29 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Thu, 03 Oct 2019 17:08:28 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linux-pm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH] cpufreq: Fix RCU reboot regression on x86 PIC machines
-Date:   Thu,  3 Oct 2019 17:08:28 +0300
-Message-Id: <20191003140828.14801-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.21.0
+        id S1730274AbfJCO3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 10:29:53 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:42112 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726393AbfJCO3x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 10:29:53 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: bbrezillon)
+        with ESMTPSA id 33AF328E8BE
+Date:   Thu, 3 Oct 2019 16:29:43 +0200
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Vitor Soares <Vitor.Soares@synopsys.com>
+Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-i3c@lists.infradead.org, bbrezillon@kernel.org,
+        robh+dt@kernel.org, mark.rutland@arm.com, pgaj@cadence.com,
+        Joao.Pinto@synopsys.com, stable@vger.kernel.org
+Subject: Re: [PATCH v3 2/5] i3c: master: make sure ->boardinfo is
+ initialized in add_i3c_dev_locked()
+Message-ID: <20191003162943.4a0d0274@collabora.com>
+In-Reply-To: <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
+References: <cover.1567608245.git.vitor.soares@synopsys.com>
+        <ed18fd927b5759a6a1edb351113ceca615283189.1567608245.git.vitor.soares@synopsys.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Thu,  5 Sep 2019 12:00:35 +0200
+Vitor Soares <Vitor.Soares@synopsys.com> wrote:
 
-Since 4.20-rc1 my PIC machines no longer reboot/shutdown.
-I bisected this down to commit 45975c7d21a1 ("rcu: Define RCU-sched
-API in terms of RCU for Tree RCU PREEMPT builds").
+> The newdev->boardinfo assignment was missing in
+> i3c_master_add_i3c_dev_locked() and hence the ->of_node info isn't
+> propagated to i3c_dev_desc.
+> 
+> Fix this by trying to initialize device i3c_dev_boardinfo if available.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+> ---
+> Change in v3:
+>   - None
+> 
+> Changes in v2:
+>   - Change commit message
+>   - Change i3c_master_search_i3c_boardinfo(newdev) to
+>   i3c_master_init_i3c_dev_boardinfo(newdev)
+>   - Add fixes, stable tags
+> 
+>  drivers/i3c/master.c | 27 +++++++++++++++++++++++++--
+>  1 file changed, 25 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+> index 586e34f..9fb99bc 100644
+> --- a/drivers/i3c/master.c
+> +++ b/drivers/i3c/master.c
+> @@ -1798,6 +1798,22 @@ i3c_master_search_i3c_dev_duplicate(struct i3c_dev_desc *refdev)
+>  	return NULL;
+>  }
+>  
+> +static void i3c_master_init_i3c_dev_boardinfo(struct i3c_dev_desc *dev)
+> +{
+> +	struct i3c_master_controller *master = i3c_dev_get_master(dev);
+> +	struct i3c_dev_boardinfo *boardinfo;
+> +
+> +	if (dev->boardinfo)
+> +		return;
+> +
+> +	list_for_each_entry(boardinfo, &master->boardinfo.i3c, node) {
+> +		if (dev->info.pid == boardinfo->pid) {
+> +			dev->boardinfo = boardinfo;
+> +			return;
+> +		}
+> +	}
+> +}
+> +
+>  /**
+>   * i3c_master_add_i3c_dev_locked() - add an I3C slave to the bus
+>   * @master: master used to send frames on the bus
+> @@ -1818,8 +1834,9 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+>  				  u8 addr)
+>  {
+>  	struct i3c_device_info info = { .dyn_addr = addr };
+> -	struct i3c_dev_desc *newdev, *olddev;
+>  	u8 old_dyn_addr = addr, expected_dyn_addr;
+> +	enum i3c_addr_slot_status addrstatus;
+> +	struct i3c_dev_desc *newdev, *olddev;
+>  	struct i3c_ibi_setup ibireq = { };
+>  	bool enable_ibi = false;
+>  	int ret;
+> @@ -1878,6 +1895,8 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+>  	if (ret)
+>  		goto err_detach_dev;
+>  
+> +	i3c_master_init_i3c_dev_boardinfo(newdev);
+> +
+>  	/*
+>  	 * Depending on our previous state, the expected dynamic address might
+>  	 * differ:
+> @@ -1895,7 +1914,11 @@ int i3c_master_add_i3c_dev_locked(struct i3c_master_controller *master,
+>  	else
+>  		expected_dyn_addr = newdev->info.dyn_addr;
+>  
+> -	if (newdev->info.dyn_addr != expected_dyn_addr) {
+> +	addrstatus = i3c_bus_get_addr_slot_status(&master->bus,
+> +						  expected_dyn_addr);
+> +
+> +	if (newdev->info.dyn_addr != expected_dyn_addr &&
+> +	    addrstatus == I3C_ADDR_SLOT_FREE) {
 
-I traced the hang into
--> cpufreq_suspend()
- -> cpufreq_stop_governor()
-  -> cpufreq_dbs_governor_stop()
-   -> gov_clear_update_util()
-    -> synchronize_sched()
-     -> synchronize_rcu()
+First, this change shouldn't be part of this patch, since the commit
+message only mentions the boardinfo init stuff, not the extra 'is slot
+free check'. Plus, I want the fix to be backported so we should avoid
+any unneeded deps.
 
-Only PREEMPT=y is affected for obvious reasons. The problem
-is limited to PIC machines since they mask off interrupts
-in i8259A_shutdown() (syscore_ops.shutdown() registered
-from device_initcall()).
+But even with those 2 things addressed, I'm still convinced the
+'free desc when device is not reachable' change you do in patch 1 is
+not that great, and the fact that you can't pre-reserve the address to
+make sure no one uses it until the device had a chance to show up tends
+to prove me right.
 
-I reported this long ago but no better fix has surfaced,
-hence sending out my initial workaround which I've been
-carrying around ever since. I just move cpufreq_core_init()
-to late_initcall() so the syscore_ops get registered in the
-oppsite order and thus the .shutdown() hooks get executed
-in the opposite order as well. Not 100% convinced this is
-safe (especially moving the cpufreq_global_kobject creation
-to late_initcall()) but I've not had any problems with it
-at least.
+Can we please do what I suggest and solve the "not enough dev slots"
+problem later on (if we really have to).
 
-Here's the resulting change in initcall_debug:
-+ PM: Calling cpufreq_suspend+0x0/0x100
-  PM: Calling mce_syscore_shutdown+0x0/0x10
-  PM: Calling i8259A_shutdown+0x0/0x10
-- PM: Calling cpufreq_suspend+0x0/0x100
-+ reboot: Restarting system
-+ reboot: machine restart
-
-Cc: stable@vger.kernel.org
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-pm@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Fixes: 45975c7d21a1 ("rcu: Define RCU-sched API in terms of RCU for Tree RCU PREEMPT builds")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/cpufreq/cpufreq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index c52d6fa32aac..6a8fb9b08e33 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -2761,4 +2761,4 @@ static int __init cpufreq_core_init(void)
- 	return 0;
- }
- module_param(off, int, 0444);
--core_initcall(cpufreq_core_init);
-+late_initcall(cpufreq_core_init);
--- 
-2.21.0
+>  		/*
+>  		 * Try to apply the expected dynamic address. If it fails, keep
+>  		 * the address assigned by the master.
 
