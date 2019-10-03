@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A869ECAC69
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2355BCABFD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387450AbfJCQJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:09:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
+        id S1732286AbfJCQDr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733205AbfJCQJg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:09:36 -0400
+        id S1730147AbfJCQDq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:03:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BCA5215EA;
-        Thu,  3 Oct 2019 16:09:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3632A222C8;
+        Thu,  3 Oct 2019 16:03:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118975;
-        bh=14EbOH0XAvEPQOaJJj0L0hn8plnIwTmS2PmGUyKvBX0=;
+        s=default; t=1570118625;
+        bh=7F6SIb3tXu1Am0gNafFZg5pOXuYRgrhH+sJyguD84P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dky9YNolcp5NZ1MF1din0No/EKQBNPG6xIkKFFCZnnTXQ86L/Fsw10vL4tm+sZWeG
-         OTpvluryxH1CX2NNl6raGjT8OX1VgXcWUlignRa8I6/WSFJLCPm6Yst2hP+ZCOKUBV
-         nsp+QZdlrVfMvu6E0J7m1g2wwJL9kAc6msCcfrRk=
+        b=aWzmRx3NgWliHJalIf9tDy7L6bh55R6utAX1N3RvFdoFw55yp73TAiGQsTELtrtK3
+         UvRUyLt/+LWJALtDXxzJChydtmEGuzS6ExoJhYLkPNDQtAx9CGMks/b9LBerl/2cYc
+         wY17Vd6khpeKmfsDhjgZFGi6p1TI0LAt8KlMgVcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/185] md: dont set In_sync if array is frozen
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 033/129] usbnet: sanity checking of packet sizes and device mtu
 Date:   Thu,  3 Oct 2019 17:52:36 +0200
-Message-Id: <20191003154455.019955860@linuxfoundation.org>
+Message-Id: <20191003154334.016658072@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <jgq516@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 062f5b2ae12a153644c765e7ba3b0f825427be1d ]
+[ Upstream commit 280ceaed79f18db930c0cc8bb21f6493490bf29c ]
 
-When a disk is added to array, the following path is called in mdadm.
+After a reset packet sizes and device mtu can change and need
+to be reevaluated to calculate queue sizes.
+Malicious devices can set this to zero and we divide by it.
+Introduce sanity checking.
 
-Manage_subdevs -> sysfs_freeze_array
-               -> Manage_add
-               -> sysfs_set_str(&info, NULL, "sync_action","idle")
-
-Then from kernel side, Manage_add invokes the path (add_new_disk ->
-validate_super = super_1_validate) to set In_sync flag.
-
-Since In_sync means "device is in_sync with rest of array", and the new
-added disk need to resync thread to help the synchronization of data.
-And md_reap_sync_thread would call spare_active to set In_sync for the
-new added disk finally. So don't set In_sync if array is in frozen.
-
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by:  syzbot+6102c120be558c885f04@syzkaller.appspotmail.com
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/usb/usbnet.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index d185725e100c0..f86082ee62a69 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -1763,8 +1763,15 @@ static int super_1_validate(struct mddev *mddev, struct md_rdev *rdev)
- 				if (!(le32_to_cpu(sb->feature_map) &
- 				      MD_FEATURE_RECOVERY_BITMAP))
- 					rdev->saved_raid_disk = -1;
--			} else
--				set_bit(In_sync, &rdev->flags);
-+			} else {
-+				/*
-+				 * If the array is FROZEN, then the device can't
-+				 * be in_sync with rest of array.
-+				 */
-+				if (!test_bit(MD_RECOVERY_FROZEN,
-+					      &mddev->recovery))
-+					set_bit(In_sync, &rdev->flags);
-+			}
- 			rdev->raid_disk = role;
- 			break;
- 		}
--- 
-2.20.1
-
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -354,6 +354,8 @@ void usbnet_update_max_qlen(struct usbne
+ {
+ 	enum usb_device_speed speed = dev->udev->speed;
+ 
++	if (!dev->rx_urb_size || !dev->hard_mtu)
++		goto insanity;
+ 	switch (speed) {
+ 	case USB_SPEED_HIGH:
+ 		dev->rx_qlen = MAX_QUEUE_MEMORY / dev->rx_urb_size;
+@@ -370,6 +372,7 @@ void usbnet_update_max_qlen(struct usbne
+ 		dev->tx_qlen = 5 * MAX_QUEUE_MEMORY / dev->hard_mtu;
+ 		break;
+ 	default:
++insanity:
+ 		dev->rx_qlen = dev->tx_qlen = 4;
+ 	}
+ }
 
 
