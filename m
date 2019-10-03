@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC4CCA790
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72F39CA5E7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406233AbfJCQwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40422 "EHLO mail.kernel.org"
+        id S2392289AbfJCQh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:37:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406218AbfJCQwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:39 -0400
+        id S2392281AbfJCQh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:37:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E37442070B;
-        Thu,  3 Oct 2019 16:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFB5321783;
+        Thu,  3 Oct 2019 16:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121558;
-        bh=fWEaeGtp2H7l4xjNjdh86W44KFTLhlpFqGa86ZHBHj0=;
+        s=default; t=1570120675;
+        bh=bJcao7SPBQMuapxEuG3Dz/UmDhKG/EGCDtv2S5A7S9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YG8Z297MdlE5WSMhmwMuNMSM32DDfHEr2ok4KQB1sovCbT7iSET/twAcsc2sl8FGL
-         15B2g/ZJBphGKIno/OF5Pq5DwJBhluOm8qTleI33NvkECvtkjE+mo5rbznv8cyIo7d
-         Et8+KVm7UP62oCXSEqRwjJHu7K6MPSeutcR1TFbI=
+        b=nnPjpilhh+lgrgozkawVBHgHmR9BeEkfbvioNpLfmYASomKZpz6UXL83Fo5LvdRJg
+         xrPH9pJB3zOSBnUWtq0Jb6oNmqX1hIf1ooQGmopwxEdZmCxDnMORXkadFlzDqrnnDY
+         3RFTvjZr0HifYCzckYlwnoUJy09kB58Vz4rZxNsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.3 323/344] cfg80211: Purge frame registrations on iftype change
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        NeilBrown <neilb@suse.de>, Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 310/313] md/raid0: avoid RAID0 data corruption due to layout confusion.
 Date:   Thu,  3 Oct 2019 17:54:48 +0200
-Message-Id: <20191003154610.836574231@linuxfoundation.org>
+Message-Id: <20191003154603.729871177@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +45,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Kenzior <denkenz@gmail.com>
+From: NeilBrown <neilb@suse.de>
 
-commit c1d3ad84eae35414b6b334790048406bd6301b12 upstream.
+[ Upstream commit c84a1372df929033cb1a0441fb57bd3932f39ac9 ]
 
-Currently frame registrations are not purged, even when changing the
-interface type.  This can lead to potentially weird situations where
-frames possibly not allowed on a given interface type remain registered
-due to the type switching happening after registration.
+If the drives in a RAID0 are not all the same size, the array is
+divided into zones.
+The first zone covers all drives, to the size of the smallest.
+The second zone covers all drives larger than the smallest, up to
+the size of the second smallest - etc.
 
-The kernel currently relies on userspace apps to actually purge the
-registrations themselves, this is not something that the kernel should
-rely on.
+A change in Linux 3.14 unintentionally changed the layout for the
+second and subsequent zones.  All the correct data is still stored, but
+each chunk may be assigned to a different device than in pre-3.14 kernels.
+This can lead to data corruption.
 
-Add a call to cfg80211_mlme_purge_registrations() to forcefully remove
-any registrations left over prior to switching the iftype.
+It is not possible to determine what layout to use - it depends which
+kernel the data was written by.
+So we add a module parameter to allow the old (0) or new (1) layout to be
+specified, and refused to assemble an affected array if that parameter is
+not set.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Link: https://lore.kernel.org/r/20190828211110.15005-1-denkenz@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 20d0189b1012 ("block: Introduce new bio_split()")
+cc: stable@vger.kernel.org (3.14+)
+Acked-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/util.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/raid0.c | 33 ++++++++++++++++++++++++++++++++-
+ drivers/md/raid0.h | 14 ++++++++++++++
+ 2 files changed, 46 insertions(+), 1 deletion(-)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -960,6 +960,7 @@ int cfg80211_change_iface(struct cfg8021
- 		}
+diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
+index bf5cf184a260b..297bbc0f41f05 100644
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -19,6 +19,9 @@
+ #include "raid0.h"
+ #include "raid5.h"
  
- 		cfg80211_process_rdev_events(rdev);
-+		cfg80211_mlme_purge_registrations(dev->ieee80211_ptr);
++static int default_layout = 0;
++module_param(default_layout, int, 0644);
++
+ #define UNSUPPORTED_MDDEV_FLAGS		\
+ 	((1L << MD_HAS_JOURNAL) |	\
+ 	 (1L << MD_JOURNAL_CLEAN) |	\
+@@ -139,6 +142,19 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
+ 	}
+ 	pr_debug("md/raid0:%s: FINAL %d zones\n",
+ 		 mdname(mddev), conf->nr_strip_zones);
++
++	if (conf->nr_strip_zones == 1) {
++		conf->layout = RAID0_ORIG_LAYOUT;
++	} else if (default_layout == RAID0_ORIG_LAYOUT ||
++		   default_layout == RAID0_ALT_MULTIZONE_LAYOUT) {
++		conf->layout = default_layout;
++	} else {
++		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
++		       mdname(mddev));
++		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
++		err = -ENOTSUPP;
++		goto abort;
++	}
+ 	/*
+ 	 * now since we have the hard sector sizes, we can make sure
+ 	 * chunk size is a multiple of that sector size
+@@ -547,10 +563,12 @@ static void raid0_handle_discard(struct mddev *mddev, struct bio *bio)
+ 
+ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
+ {
++	struct r0conf *conf = mddev->private;
+ 	struct strip_zone *zone;
+ 	struct md_rdev *tmp_dev;
+ 	sector_t bio_sector;
+ 	sector_t sector;
++	sector_t orig_sector;
+ 	unsigned chunk_sects;
+ 	unsigned sectors;
+ 
+@@ -584,8 +602,21 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
+ 		bio = split;
  	}
  
- 	err = rdev_change_virtual_intf(rdev, dev, ntype, params);
++	orig_sector = sector;
+ 	zone = find_zone(mddev->private, &sector);
+-	tmp_dev = map_sector(mddev, zone, sector, &sector);
++	switch (conf->layout) {
++	case RAID0_ORIG_LAYOUT:
++		tmp_dev = map_sector(mddev, zone, orig_sector, &sector);
++		break;
++	case RAID0_ALT_MULTIZONE_LAYOUT:
++		tmp_dev = map_sector(mddev, zone, sector, &sector);
++		break;
++	default:
++		WARN("md/raid0:%s: Invalid layout\n", mdname(mddev));
++		bio_io_error(bio);
++		return true;
++	}
++
+ 	bio_set_dev(bio, tmp_dev->bdev);
+ 	bio->bi_iter.bi_sector = sector + zone->dev_start +
+ 		tmp_dev->data_offset;
+diff --git a/drivers/md/raid0.h b/drivers/md/raid0.h
+index 540e65d92642d..3816e5477db1e 100644
+--- a/drivers/md/raid0.h
++++ b/drivers/md/raid0.h
+@@ -8,11 +8,25 @@ struct strip_zone {
+ 	int	 nb_dev;	/* # of devices attached to the zone */
+ };
+ 
++/* Linux 3.14 (20d0189b101) made an unintended change to
++ * the RAID0 layout for multi-zone arrays (where devices aren't all
++ * the same size.
++ * RAID0_ORIG_LAYOUT restores the original layout
++ * RAID0_ALT_MULTIZONE_LAYOUT uses the altered layout
++ * The layouts are identical when there is only one zone (all
++ * devices the same size).
++ */
++
++enum r0layout {
++	RAID0_ORIG_LAYOUT = 1,
++	RAID0_ALT_MULTIZONE_LAYOUT = 2,
++};
+ struct r0conf {
+ 	struct strip_zone	*strip_zone;
+ 	struct md_rdev		**devlist; /* lists of rdevs, pointed to
+ 					    * by strip_zone->dev */
+ 	int			nr_strip_zones;
++	enum r0layout		layout;
+ };
+ 
+ #endif
+-- 
+2.20.1
+
 
 
