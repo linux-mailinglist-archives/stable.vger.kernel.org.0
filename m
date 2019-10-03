@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DB8CA82E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C856CA906
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390351AbfJCQWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:22:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51432 "EHLO mail.kernel.org"
+        id S2404375AbfJCQgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390347AbfJCQWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:22:39 -0400
+        id S2404371AbfJCQgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42FD3222BE;
-        Thu,  3 Oct 2019 16:22:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B57042086A;
+        Thu,  3 Oct 2019 16:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119758;
-        bh=oMEZALGYqpjAmf3M/soEiS5nERz2JiuJz1YaMlXvuv4=;
+        s=default; t=1570120570;
+        bh=5c5TRDo84sJDQ13UTbdqdWaHh1lRiJyZiHqi4clyXMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQgVZ3Gzo+rV9Ve8cCHNAb0aJNagd9ktDhGMpE+g8IVo1094fzUVs8vlo2fNINwvw
-         9AmQvtLcNXs0aIbe0xbYigNRve4YrSNrhY+bLWEDBv1WSf63QkL34lV0RGHwwQEEQS
-         SuI63+axdroNcNb9jeOW8frczKedOAADasSKBiiU=
+        b=enYHxHnE5kNtFbGEHcPAloEAsLISa0TNt9jl0BVsRoceEZsQXDP8ee0uEL/OOsmou
+         yo7eeUyTr18/B2hrpFVVfwpKZ80o72bW0/5/sTPT/6i5PftHMsuSwnypC9OllurHEa
+         2bCnfhaM+gtoFrVONtgWykx4E1+gI2tBGh6kVEXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 4.19 182/211] gfs2: clear buf_in_tr when ending a transaction in sweep_bh_for_rgrps
-Date:   Thu,  3 Oct 2019 17:54:08 +0200
-Message-Id: <20191003154527.528197361@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>
+Subject: [PATCH 5.2 271/313] KEYS: trusted: correctly initialize digests and fix locking issue
+Date:   Thu,  3 Oct 2019 17:54:09 +0200
+Message-Id: <20191003154559.738687404@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit f0b444b349e33ae0d3dd93e25ca365482a5d17d4 upstream.
+commit 9f75c82246313d4c2a6bc77e947b45655b3b5ad5 upstream.
 
-In function sweep_bh_for_rgrps, which is a helper for punch_hole,
-it uses variable buf_in_tr to keep track of when it needs to commit
-pending block frees on a partial delete that overflows the
-transaction created for the delete. The problem is that the
-variable was initialized at the start of function sweep_bh_for_rgrps
-but it was never cleared, even when starting a new transaction.
+Commit 0b6cf6b97b7e ("tpm: pass an array of tpm_extend_digest structures to
+tpm_pcr_extend()") modifies tpm_pcr_extend() to accept a digest for each
+PCR bank. After modification, tpm_pcr_extend() expects that digests are
+passed in the same order as the algorithms set in chip->allocated_banks.
 
-This patch reinitializes the variable when the transaction is
-ended, so the next transaction starts out with it cleared.
+This patch fixes two issues introduced in the last iterations of the patch
+set: missing initialization of the TPM algorithm ID in the tpm_digest
+structures passed to tpm_pcr_extend() by the trusted key module, and
+unreleased locks in the TPM driver due to returning from tpm_pcr_extend()
+without calling tpm_put_ops().
 
-Fixes: d552a2b9b33e ("GFS2: Non-recursive delete")
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 0b6cf6b97b7e ("tpm: pass an array of tpm_extend_digest structures to tpm_pcr_extend()")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Suggested-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/gfs2/bmap.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/tpm/tpm-interface.c |   14 +++++++++-----
+ security/keys/trusted.c          |    5 +++++
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -1630,6 +1630,7 @@ out_unlock:
- 			brelse(dibh);
- 			up_write(&ip->i_rw_mutex);
- 			gfs2_trans_end(sdp);
-+			buf_in_tr = false;
- 		}
- 		gfs2_glock_dq_uninit(rd_gh);
- 		cond_resched();
+--- a/drivers/char/tpm/tpm-interface.c
++++ b/drivers/char/tpm/tpm-interface.c
+@@ -320,18 +320,22 @@ int tpm_pcr_extend(struct tpm_chip *chip
+ 	if (!chip)
+ 		return -ENODEV;
+ 
+-	for (i = 0; i < chip->nr_allocated_banks; i++)
+-		if (digests[i].alg_id != chip->allocated_banks[i].alg_id)
+-			return -EINVAL;
++	for (i = 0; i < chip->nr_allocated_banks; i++) {
++		if (digests[i].alg_id != chip->allocated_banks[i].alg_id) {
++			rc = EINVAL;
++			goto out;
++		}
++	}
+ 
+ 	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+ 		rc = tpm2_pcr_extend(chip, pcr_idx, digests);
+-		tpm_put_ops(chip);
+-		return rc;
++		goto out;
+ 	}
+ 
+ 	rc = tpm1_pcr_extend(chip, pcr_idx, digests[0].digest,
+ 			     "attempting extend a PCR value");
++
++out:
+ 	tpm_put_ops(chip);
+ 	return rc;
+ }
+--- a/security/keys/trusted.c
++++ b/security/keys/trusted.c
+@@ -1228,11 +1228,16 @@ hashalg_fail:
+ 
+ static int __init init_digests(void)
+ {
++	int i;
++
+ 	digests = kcalloc(chip->nr_allocated_banks, sizeof(*digests),
+ 			  GFP_KERNEL);
+ 	if (!digests)
+ 		return -ENOMEM;
+ 
++	for (i = 0; i < chip->nr_allocated_banks; i++)
++		digests[i].alg_id = chip->allocated_banks[i].alg_id;
++
+ 	return 0;
+ }
+ 
 
 
