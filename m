@@ -2,131 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1458DC9862
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 08:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75FCAC9865
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 08:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725879AbfJCGnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 02:43:25 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:63142 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725770AbfJCGnZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 02:43:25 -0400
-Received: from pps.filterd (m0044010.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x936emPY023424
-        for <stable@vger.kernel.org>; Wed, 2 Oct 2019 23:43:24 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=facebook;
- bh=6DXtwSfVTxTQsg7OTAhIZXgsLk6C+uUhHjPiAO5wwjY=;
- b=dLBEBmZ62kTmrmp57awYr6nJ79lFsBRMUGbKHuv6g7qkTYpUn2+OIx9UosJRybSBzX7b
- MTZHwBn8ltvYqJBAN5U2Jey7kn15pQmka6VP3JrJWJ2DpojP5rdE/ljWa0Tj5DJ8jEPI
- j0tsFdJ7j2xsQF0xp8e/rV404/9XOrTr2m8= 
-Received: from mail.thefacebook.com (mailout.thefacebook.com [199.201.64.23])
-        by mx0a-00082601.pphosted.com with ESMTP id 2vc8tb1gfr-3
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Wed, 02 Oct 2019 23:43:24 -0700
-Received: from mx-out.facebook.com (2620:10d:c081:10::13) by
- mail.thefacebook.com (2620:10d:c081:35::128) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA) id 15.1.1713.5;
- Wed, 2 Oct 2019 23:43:23 -0700
-Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
-        id 8EA6762E311C; Wed,  2 Oct 2019 23:43:20 -0700 (PDT)
-Smtp-Origin-Hostprefix: devbig
-From:   Song Liu <songliubraving@fb.com>
-Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
-To:     <linux-kernel@vger.kernel.org>
-CC:     <kernel-team@fb.com>, Song Liu <songliubraving@fb.com>,
-        <stable@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Smtp-Origin-Cluster: ftw2c04
-Subject: [PATCH] perf/core: fix corner case in perf_rotate_context()
-Date:   Wed, 2 Oct 2019 23:43:17 -0700
-Message-ID: <20191003064317.3961135-1-songliubraving@fb.com>
-X-Mailer: git-send-email 2.17.1
-X-FB-Internal: Safe
+        id S1726148AbfJCGog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 02:44:36 -0400
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:53148 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725860AbfJCGog (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 02:44:36 -0400
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id x936iLei009739;
+        Thu, 3 Oct 2019 01:44:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1570085061;
+        bh=pww96FifOzFOAv34A5OgWfQsIAH2JwK5bVg6KSoEPDc=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=GoeHJZjXRuRLHuueczTl9ky8wdTJFzQXg3T11MzmV4opULohieR538G37w7OmjjGp
+         zKru1gfa87KqQvgpj1p9nfAhBFtdM/6w1eFo4nz3+bML9igu1TIcBErvIPvXrpuBcI
+         nH1LFmUlTvHo3I+7RpWlmardu8EEJg5ns7r6bViQ=
+Received: from DFLE104.ent.ti.com (dfle104.ent.ti.com [10.64.6.25])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id x936iLOw057547;
+        Thu, 3 Oct 2019 01:44:21 -0500
+Received: from DFLE101.ent.ti.com (10.64.6.22) by DFLE104.ent.ti.com
+ (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Thu, 3 Oct
+ 2019 01:44:20 -0500
+Received: from lelv0326.itg.ti.com (10.180.67.84) by DFLE101.ent.ti.com
+ (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Thu, 3 Oct 2019 01:44:20 -0500
+Received: from [10.1.3.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id x936iJhv014676;
+        Thu, 3 Oct 2019 01:44:19 -0500
+Subject: Re: [PATCH] drm/omap: fix max fclk divider for omap36xx
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        <dri-devel@lists.freedesktop.org>
+CC:     <linux-omap@vger.kernel.org>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>,
+        Adam Ford <aford173@gmail.com>, <stable@vger.kernel.org>
+References: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+From:   Jyri Sarha <jsarha@ti.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=jsarha@ti.com; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <13677fc4-3497-3494-5ac6-1cb88ac91728@ti.com>
+Date:   Thu, 3 Oct 2019 09:44:18 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
- definitions=2019-10-03_03:2019-10-01,2019-10-03 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 mlxscore=0 adultscore=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0 bulkscore=0
- mlxlogscore=999 malwarescore=0 clxscore=1015 suspectscore=1
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1908290000 definitions=main-1910030064
-X-FB-Internal: deliver
+In-Reply-To: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a rare corner case, but it does happen:
+On 02/10/2019 15:25, Tomi Valkeinen wrote:
+> The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
+> (in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
+> correct, and using divider of 32 breaks DSS with a flood or underflows
+> and sync losts. Dividers up to 31 seem to work fine.
+> 
+> There is another patch to the DT files to limit the divider correctly,
+> but as the DSS driver also needs to know the maximum divider to be able
+> to iteratively find good rates, we also need to do the fix in the DSS
+> driver.
+> 
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Cc: Adam Ford <aford173@gmail.com>
+> Cc: stable@vger.kernel.org
 
-In perf_rotate_context(), when the first cpu flexible event fail to
-schedule, cpu_rotate is 1, while cpu_event is NULL. Since cpu_event is
-NULL, perf_rotate_context will _NOT_ call cpu_ctx_sched_out(), thus
-cpuctx->ctx.is_active will have EVENT_FLEXIBLE set. Then, the next
-perf_event_sched_in() will skip all cpu flexible events because of the
-EVENT_FLEXIBLE bit.
+Reviewed-by: Jyri Sarha <jsarha@ti.com>
 
-In the next call of perf_rotate_context(), cpu_rotate stays 1, and
-cpu_event stays NULL, so this process repeats. The end result is, flexible
-events on this cpu will not be scheduled (until another event being added
-to the cpuctx).
+> ---
+>  drivers/gpu/drm/omapdrm/dss/dss.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+> index e226324adb69..4bdd63b57100 100644
+> --- a/drivers/gpu/drm/omapdrm/dss/dss.c
+> +++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+> @@ -1083,7 +1083,7 @@ static const struct dss_features omap34xx_dss_feats = {
+>  
+>  static const struct dss_features omap3630_dss_feats = {
+>  	.model			=	DSS_MODEL_OMAP3,
+> -	.fck_div_max		=	32,
+> +	.fck_div_max		=	31,
+>  	.fck_freq_max		=	173000000,
+>  	.dss_fck_multiplier	=	1,
+>  	.parent_clk_name	=	"dpll4_ck",
+> 
 
-Similar issue may happen with the task_ctx. But it is usually not a
-problem because the task_ctx moves around different CPU.
 
-Fix this corner case by using cpu_rotate and task_rotate to gate calls for
-(cpu_)ctx_sched_out and rotate_ctx. Also enable rotate_ctx() to handle
-event == NULL case.
-
-Fixes: 8d5bce0c37fa ("perf/core: Optimize perf_rotate_context() event scheduling")
-Cc: stable@vger.kernel.org # v4.17+
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
----
- kernel/events/core.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 4655adbbae10..50021735f367 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3775,6 +3775,13 @@ static void rotate_ctx(struct perf_event_context *ctx, struct perf_event *event)
- 	if (ctx->rotate_disable)
- 		return;
- 
-+	/* if no event specified, try to rotate the first event */
-+	if (!event)
-+		event = rb_entry_safe(rb_first(&ctx->flexible_groups.tree),
-+				      typeof(*event), group_node);
-+	if (!event)
-+		return;
-+
- 	perf_event_groups_delete(&ctx->flexible_groups, event);
- 	perf_event_groups_insert(&ctx->flexible_groups, event);
- }
-@@ -3816,14 +3823,14 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
- 	 * As per the order given at ctx_resched() first 'pop' task flexible
- 	 * and then, if needed CPU flexible.
- 	 */
--	if (task_event || (task_ctx && cpu_event))
-+	if (task_rotate || (task_ctx && cpu_rotate))
- 		ctx_sched_out(task_ctx, cpuctx, EVENT_FLEXIBLE);
--	if (cpu_event)
-+	if (cpu_rotate)
- 		cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
- 
--	if (task_event)
-+	if (task_rotate)
- 		rotate_ctx(task_ctx, task_event);
--	if (cpu_event)
-+	if (cpu_rotate)
- 		rotate_ctx(&cpuctx->ctx, cpu_event);
- 
- 	perf_event_sched_in(cpuctx, task_ctx, current);
 -- 
-2.17.1
-
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
