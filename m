@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08241CA7D4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E52ACA7D2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404439AbfJCQuL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2404984AbfJCQuL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 12:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405892AbfJCQuI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:50:08 -0400
+        id S2388449AbfJCQuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:50:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DFD92086A;
-        Thu,  3 Oct 2019 16:50:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D21FE2070B;
+        Thu,  3 Oct 2019 16:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121407;
-        bh=RluXyseXMQYFzo+kd6pyD1sdBCaQFakvt+G1DrV2/6Y=;
+        s=default; t=1570121410;
+        bh=6Ey5Ks5d2d75Wxpk9etln48qhPSw/IV2zsWaUxU+wzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJGmGcWSEF6cPhscEZtt0UWdVDB+P/K9Zweeb5qvpy2drpsMLjP5wypslSwArZJkl
-         Wi89dPNEyQaa9y1Cf2klTxKwP6qwOXC2LdCeqSNpZiElmgvbpQYXJzGaUlTQvf4Bnt
-         oGWp/tMocnl39N5lfJt4BYq5Nc23/nnjKIdNGtuM=
+        b=mW2t2AOA+bPoRqkX5sDR5GRyMaxoWxoxhIWKIhIgsJrx+p3ebCyK3NLgkO3LggOhi
+         LuLna/Or9Ed0s9LpHs7tRjLoG6suVtQH5OTb2H5Lk+SGfVBWlafmLw+h+Z79G66/1l
+         Efb3gRmhkz6g1SGtvsTpjgGiHfSt9TEXZcgSkEMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.3 268/344] media: videobuf-core.c: poll_wait needs a non-NULL buf pointer
-Date:   Thu,  3 Oct 2019 17:53:53 +0200
-Message-Id: <20191003154606.758995735@linuxfoundation.org>
+Subject: [PATCH 5.3 269/344] media: sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
+Date:   Thu,  3 Oct 2019 17:53:54 +0200
+Message-Id: <20191003154606.828539871@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,45 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 6f51fdfd8229d5358c2d6e272cf73478866e8ddc upstream.
+commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
 
-poll_wait uses &buf->done, but buf is NULL. Move the poll_wait to later
-in the function once buf is correctly set and only call it if it is
-non-NULL.
+Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
+SN9C201 + OV7660 webcam which is mounted upside down.
 
+Add it to the sn9c20x flip_dmi_table to deal with this.
+
+Cc: stable@vger.kernel.org
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: bb436cbeb918 ("media: videobuf: fix epoll() by calling poll_wait first")
-Cc: <stable@vger.kernel.org>      # for v5.1 and up
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/v4l2-core/videobuf-core.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/sn9c20x.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/media/v4l2-core/videobuf-core.c
-+++ b/drivers/media/v4l2-core/videobuf-core.c
-@@ -1123,7 +1123,6 @@ __poll_t videobuf_poll_stream(struct fil
- 	struct videobuf_buffer *buf = NULL;
- 	__poll_t rc = 0;
- 
--	poll_wait(file, &buf->done, wait);
- 	videobuf_queue_lock(q);
- 	if (q->streaming) {
- 		if (!list_empty(&q->stream))
-@@ -1143,7 +1142,9 @@ __poll_t videobuf_poll_stream(struct fil
+--- a/drivers/media/usb/gspca/sn9c20x.c
++++ b/drivers/media/usb/gspca/sn9c20x.c
+@@ -124,6 +124,13 @@ static const struct dmi_system_id flip_d
  		}
- 		buf = q->read_buf;
- 	}
--	if (!buf)
-+	if (buf)
-+		poll_wait(file, &buf->done, wait);
-+	else
- 		rc = EPOLLERR;
- 
- 	if (0 == rc) {
+ 	},
+ 	{
++		.ident = "MSI MS-1039",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
++		}
++	},
++	{
+ 		.ident = "MSI MS-1632",
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
 
 
