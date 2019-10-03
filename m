@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0F4CAAE6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDACCAAE2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389072AbfJCQQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
+        id S2389079AbfJCQQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389068AbfJCQQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:16:44 -0400
+        id S2387453AbfJCQQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DC7320865;
-        Thu,  3 Oct 2019 16:16:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D02E215EA;
+        Thu,  3 Oct 2019 16:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119403;
-        bh=1OTmBRj4BiFxwz7Zk+PCyFAf9g8Kt6/mwnyfAG+45S0=;
+        s=default; t=1570119405;
+        bh=xu8cDBVm/s7hvJIacKg88rR28SFhpQz90oD3QYf2fXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVOtHrBmZhiDr55EfaywBpZJq/gXDtfwC7a/3A4Asv9WnSftScfD2I9/G5x3lFy2k
-         LxiFe+xgEk/TeP5Fz35qkhPt+mhDOABn8wwidFwpBxifyO/lrmRqbzvU9TOBG8JCrq
-         M/7bEx53xSRvDNAtL2PEQKqI5S/lT678LgF+VPoQ=
+        b=cGSDseJY7i7wATBg0bkaUH5Wh3hJroEVwUdT+7MLydnz+S1LRxR0uHxo3zEHTTO/b
+         3ebDWQCS8sLcex3MLOTnndZoa0WYUQxItGIaQ7hEQuFuQrERBO9UoZAiM8tPy2IPvs
+         LAm+WXbslE+67cxc/0yOgHgM4QWDNT2CXH9gPK+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Kong <Leon.KONG@cn.bosch.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 052/211] ASoC: rsnd: dont call clk_get_rate() under atomic context
-Date:   Thu,  3 Oct 2019 17:51:58 +0200
-Message-Id: <20191003154500.087440981@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 053/211] arm64/prefetch: fix a -Wtype-limits warning
+Date:   Thu,  3 Oct 2019 17:51:59 +0200
+Message-Id: <20191003154500.358542969@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -45,87 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 06e8f5c842f2dbb232897ba967ea7b422745c271 ]
+[ Upstream commit b99286b088ea843b935dcfb29f187697359fe5cd ]
 
-ADG is using clk_get_rate() under atomic context, thus, we might
-have scheduling issue.
-To avoid this issue, we need to get/keep clk rate under
-non atomic context.
+The commit d5370f754875 ("arm64: prefetch: add alternative pattern for
+CPUs without a prefetcher") introduced MIDR_IS_CPU_MODEL_RANGE() to be
+used in has_no_hw_prefetch() with rv_min=0 which generates a compilation
+warning from GCC,
 
-We need to handle ADG as special device at Renesas Sound driver.
->From SW point of view, we want to impletent it as
-rsnd_mod_ops :: prepare, but it makes code just complicate.
+In file included from ./arch/arm64/include/asm/cache.h:8,
+               from ./include/linux/cache.h:6,
+               from ./include/linux/printk.h:9,
+               from ./include/linux/kernel.h:15,
+               from ./include/linux/cpumask.h:10,
+               from arch/arm64/kernel/cpufeature.c:11:
+arch/arm64/kernel/cpufeature.c: In function 'has_no_hw_prefetch':
+./arch/arm64/include/asm/cputype.h:59:26: warning: comparison of
+unsigned expression >= 0 is always true [-Wtype-limits]
+_model == (model) && rv >= (rv_min) && rv <= (rv_max);  \
+                        ^~
+arch/arm64/kernel/cpufeature.c:889:9: note: in expansion of macro
+'MIDR_IS_CPU_MODEL_RANGE'
+return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
+       ^~~~~~~~~~~~~~~~~~~~~~~
 
-To avoid complicated code/patch, this patch adds new clk_rate[] array,
-and keep clk IN rate when rsnd_adg_clk_enable() was called.
+Fix it by converting MIDR_IS_CPU_MODEL_RANGE to a static inline
+function.
 
-Reported-by: Leon Kong <Leon.KONG@cn.bosch.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Tested-by: Leon Kong <Leon.KONG@cn.bosch.com>
-Link: https://lore.kernel.org/r/87v9vb0xkp.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/adg.c | 21 +++++++++++++++------
- 1 file changed, 15 insertions(+), 6 deletions(-)
+ arch/arm64/include/asm/cputype.h | 21 +++++++++++----------
+ arch/arm64/kernel/cpufeature.c   |  2 +-
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
-index 051f96405346b..549a137878a65 100644
---- a/sound/soc/sh/rcar/adg.c
-+++ b/sound/soc/sh/rcar/adg.c
-@@ -30,6 +30,7 @@ struct rsnd_adg {
- 	struct clk *clkout[CLKOUTMAX];
- 	struct clk_onecell_data onecell;
- 	struct rsnd_mod mod;
-+	int clk_rate[CLKMAX];
- 	u32 flags;
- 	u32 ckr;
- 	u32 rbga;
-@@ -113,9 +114,9 @@ static void __rsnd_adg_get_timesel_ratio(struct rsnd_priv *priv,
- 	unsigned int val, en;
- 	unsigned int min, diff;
- 	unsigned int sel_rate[] = {
--		clk_get_rate(adg->clk[CLKA]),	/* 0000: CLKA */
--		clk_get_rate(adg->clk[CLKB]),	/* 0001: CLKB */
--		clk_get_rate(adg->clk[CLKC]),	/* 0010: CLKC */
-+		adg->clk_rate[CLKA],	/* 0000: CLKA */
-+		adg->clk_rate[CLKB],	/* 0001: CLKB */
-+		adg->clk_rate[CLKC],	/* 0010: CLKC */
- 		adg->rbga_rate_for_441khz,	/* 0011: RBGA */
- 		adg->rbgb_rate_for_48khz,	/* 0100: RBGB */
- 	};
-@@ -331,7 +332,7 @@ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
- 	 * AUDIO_CLKA/AUDIO_CLKB/AUDIO_CLKC/AUDIO_CLKI.
- 	 */
- 	for_each_rsnd_clk(clk, adg, i) {
--		if (rate == clk_get_rate(clk))
-+		if (rate == adg->clk_rate[i])
- 			return sel_table[i];
- 	}
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index b4a48419769f2..9b7d5abd04afd 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -62,14 +62,6 @@
+ #define MIDR_CPU_MODEL_MASK (MIDR_IMPLEMENTOR_MASK | MIDR_PARTNUM_MASK | \
+ 			     MIDR_ARCHITECTURE_MASK)
  
-@@ -398,10 +399,18 @@ void rsnd_adg_clk_control(struct rsnd_priv *priv, int enable)
+-#define MIDR_IS_CPU_MODEL_RANGE(midr, model, rv_min, rv_max)		\
+-({									\
+-	u32 _model = (midr) & MIDR_CPU_MODEL_MASK;			\
+-	u32 rv = (midr) & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);	\
+-									\
+-	_model == (model) && rv >= (rv_min) && rv <= (rv_max);		\
+- })
+-
+ #define ARM_CPU_IMP_ARM			0x41
+ #define ARM_CPU_IMP_APM			0x50
+ #define ARM_CPU_IMP_CAVIUM		0x43
+@@ -153,10 +145,19 @@ struct midr_range {
  
- 	for_each_rsnd_clk(clk, adg, i) {
- 		ret = 0;
--		if (enable)
-+		if (enable) {
- 			ret = clk_prepare_enable(clk);
--		else
+ #define MIDR_ALL_VERSIONS(m) MIDR_RANGE(m, 0, 0, 0xf, 0xf)
+ 
++static inline bool midr_is_cpu_model_range(u32 midr, u32 model, u32 rv_min,
++					   u32 rv_max)
++{
++	u32 _model = midr & MIDR_CPU_MODEL_MASK;
++	u32 rv = midr & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);
 +
-+			/*
-+			 * We shouldn't use clk_get_rate() under
-+			 * atomic context. Let's keep it when
-+			 * rsnd_adg_clk_enable() was called
-+			 */
-+			adg->clk_rate[i] = clk_get_rate(adg->clk[i]);
-+		} else {
- 			clk_disable_unprepare(clk);
-+		}
++	return _model == model && rv >= rv_min && rv <= rv_max;
++}
++
+ static inline bool is_midr_in_range(u32 midr, struct midr_range const *range)
+ {
+-	return MIDR_IS_CPU_MODEL_RANGE(midr, range->model,
+-				 range->rv_min, range->rv_max);
++	return midr_is_cpu_model_range(midr, range->model,
++				       range->rv_min, range->rv_max);
+ }
  
- 		if (ret < 0)
- 			dev_warn(dev, "can't use clk %d\n", i);
+ static inline bool
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 859d63cc99a31..a897efdb3dddd 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -846,7 +846,7 @@ static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int _
+ 	u32 midr = read_cpuid_id();
+ 
+ 	/* Cavium ThunderX pass 1.x and 2.x */
+-	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
++	return midr_is_cpu_model_range(midr, MIDR_THUNDERX,
+ 		MIDR_CPU_VAR_REV(0, 0),
+ 		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
+ }
 -- 
 2.20.1
 
