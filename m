@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B484FCACA5
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 940ADCACA7
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388456AbfJCQNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:13:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36796 "EHLO mail.kernel.org"
+        id S2388509AbfJCQOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388449AbfJCQNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:51 -0400
+        id S2388504AbfJCQOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60E1C2054F;
-        Thu,  3 Oct 2019 16:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD3A12054F;
+        Thu,  3 Oct 2019 16:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119230;
-        bh=k1efsW7IKJq+Czkbunuurx0HI92kzse705DoNbejggo=;
+        s=default; t=1570119244;
+        bh=Zm2B1F/uU1HKxIqJj3bpcXBykbAxzVxXbPe7Q9uwm8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=06s1Z8wxzDDQN7U71M1I7KVY4jkrrJFQug1uGQEJcqZIsgdDX+IYMSrFOoUGV7RG3
-         NnIAtBG8UGVSdUIaJRHY1lwLOFpIYM3uqC2Z14kr0xlvrjaOVTuw8L9cbY9zA7UCQb
-         LvCzdkHT+Fqd0yLU2wvrStK8op7qutoX5eeLchd0=
+        b=H6NxIMTrcgvK0Z+LUC5fD4QYXWBMEIJKma1QkynENeWpJ0qWqfHQjmViIjykPMmoV
+         0Fco4dG/tEdyDFR/56laGuE7hoKOT5e0LCzJtlTfIMAsvG7mVfJyoMk6eQqrgL8s/r
+         kWXYo9ZbSgGLcbZO3HXWBEA9XK3ROHEwBBjhx9+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pandit <rakesh@tuxera.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.14 175/185] ext4: fix warning inside ext4_convert_unwritten_extents_endio
-Date:   Thu,  3 Oct 2019 17:54:13 +0200
-Message-Id: <20191003154520.560757088@linuxfoundation.org>
+        stable@vger.kernel.org, Murphy Zhou <jencce.kernel@gmail.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 180/185] CIFS: fix max ea value size
+Date:   Thu,  3 Oct 2019 17:54:18 +0200
+Message-Id: <20191003154521.934504196@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -43,37 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pandit <rakesh@tuxera.com>
+From: Murphy Zhou <jencce.kernel@gmail.com>
 
-commit e3d550c2c4f2f3dba469bc3c4b83d9332b4e99e1 upstream.
+commit 63d37fb4ce5ae7bf1e58f906d1bf25f036fe79b2 upstream.
 
-Really enable warning when CONFIG_EXT4_DEBUG is set and fix missing
-first argument.  This was introduced in commit ff95ec22cd7f ("ext4:
-add warning to ext4_convert_unwritten_extents_endio") and splitting
-extents inside endio would trigger it.
+It should not be larger then the slab max buf size. If user
+specifies a larger size, it passes this check and goes
+straightly to SMB2_set_info_init performing an insecure memcpy.
 
-Fixes: ff95ec22cd7f ("ext4: add warning to ext4_convert_unwritten_extents_endio")
-Signed-off-by: Rakesh Pandit <rakesh@tuxera.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/extents.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/cifs/xattr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3756,8 +3756,8 @@ static int ext4_convert_unwritten_extent
- 	 * illegal.
- 	 */
- 	if (ee_block != map->m_lblk || ee_len > map->m_len) {
--#ifdef EXT4_DEBUG
--		ext4_warning("Inode (%ld) finished: extent logical block %llu,"
-+#ifdef CONFIG_EXT4_DEBUG
-+		ext4_warning(inode->i_sb, "Inode (%ld) finished: extent logical block %llu,"
- 			     " len %u; IO logical block %llu, len %u",
- 			     inode->i_ino, (unsigned long long)ee_block, ee_len,
- 			     (unsigned long long)map->m_lblk, map->m_len);
+--- a/fs/cifs/xattr.c
++++ b/fs/cifs/xattr.c
+@@ -31,7 +31,7 @@
+ #include "cifs_fs_sb.h"
+ #include "cifs_unicode.h"
+ 
+-#define MAX_EA_VALUE_SIZE 65535
++#define MAX_EA_VALUE_SIZE CIFSMaxBufSize
+ #define CIFS_XATTR_CIFS_ACL "system.cifs_acl"
+ #define CIFS_XATTR_ATTRIB "cifs.dosattrib"  /* full name: user.cifs.dosattrib */
+ #define CIFS_XATTR_CREATETIME "cifs.creationtime"  /* user.cifs.creationtime */
 
 
