@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0F4CA554
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B79CA533
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404045AbfJCQdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:33:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41228 "EHLO mail.kernel.org"
+        id S2403934AbfJCQcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404124AbfJCQdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:18 -0400
+        id S2403927AbfJCQcA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42A89215EA;
-        Thu,  3 Oct 2019 16:33:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C20320830;
+        Thu,  3 Oct 2019 16:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120397;
-        bh=YdtB9ERDjqPMpLb1hhSKMnEGtL5LAfOBUuAxVN22O04=;
+        s=default; t=1570120319;
+        bh=KqDLmtdUKBEwEgCmLxElOgvKZQwQkg4iinUvA4Igcok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00wKocBBWNasNksPFmij14hafSI7lurfI5WALS/DKyy4noYBFn8Djx/cytniRSynM
-         JjkYrvV62P/TEvj1KdWhrfJYG2UhsRUaAU5AEjCIcAgKgMfISG+Xg8/5Kv5+/5iywP
-         EENE6VyPsOh4nThdJcqQ+m98ZaeN7KRDdMkyiv2s=
+        b=pyLqIQJUN1iW6P6EoNkjGFKRMVa9Wj7prc5x26J+csQ1effH1ESqiI4NKe8QuGVGR
+         GDtO+Z6qjLmZ7ohQoc2tonROpmrZulh4huASNyQwCcbRxyVOS9u5AOKnX5solmMgEC
+         gfkq7Mso4DtLJW+90S4vFdi+4X7oUalu5SGUfu1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        James Smart <james.smart@broadcom.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 159/313] x86/mm/pti: Handle unaligned address gracefully in pti_clone_pagetable()
-Date:   Thu,  3 Oct 2019 17:52:17 +0200
-Message-Id: <20191003154548.602201222@linuxfoundation.org>
+Subject: [PATCH 5.2 161/313] nvme-multipath: fix ana log nsid lookup when nsid is not found
+Date:   Thu,  3 Oct 2019 17:52:19 +0200
+Message-Id: <20191003154548.795139311@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -46,56 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit 825d0b73cd7526b0bb186798583fae810091cbac ]
+[ Upstream commit e01f91dff91c7b16a6e3faf2565017d497a73f83 ]
 
-pti_clone_pmds() assumes that the supplied address is either:
+ANA log parsing invokes nvme_update_ana_state() per ANA group desc.
+This updates the state of namespaces with nsids in desc->nsids[].
 
- - properly PUD/PMD aligned
-or
- - the address is actually mapped which means that independently
-   of the mapping level (PUD/PMD/PTE) the next higher mapping
-   exists.
+Both ctrl->namespaces list and desc->nsids[] array are sorted by nsid.
+Hence nvme_update_ana_state() performs a single walk over ctrl->namespaces:
+- if current namespace matches the current desc->nsids[n],
+  this namespace is updated, and n is incremented.
+- the process stops when it encounters the end of either
+  ctrl->namespaces end or desc->nsids[]
 
-If that's not the case the unaligned address can be incremented by PUD or
-PMD size incorrectly. All callers supply mapped and/or aligned addresses,
-but for the sake of robustness it's better to handle that case properly and
-to emit a warning.
+In case desc->nsids[n] does not match any of ctrl->namespaces,
+the remaining nsids following desc->nsids[n] will not be updated.
+Such situation was considered abnormal and generated WARN_ON_ONCE.
 
-[ tglx: Rewrote changelog and added WARN_ON_ONCE() ]
+However ANA log MAY contain nsids not (yet) found in ctrl->namespaces.
+For example, lets consider the following scenario:
+- nvme0 exposes namespaces with nsids = [2, 3] to the host
+- a new namespace nsid = 1 is added dynamically
+- also, a ANA topology change is triggered
+- NS_CHANGED aen is generated and triggers scan_work
+- before scan_work discovers nsid=1 and creates a namespace, a NOTICE_ANA
+  aen was issues and ana_work receives ANA log with nsids=[1, 2, 3]
 
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1908282352470.1938@nanos.tec.linutronix.de
+Result: ana_work fails to update ANA state on existing namespaces [2, 3]
+
+Solution:
+Change the way nvme_update_ana_state() namespace list walk
+checks the current namespace against desc->nsids[n] as follows:
+a) ns->head->ns_id < desc->nsids[n]: keep walking ctrl->namespaces.
+b) ns->head->ns_id == desc->nsids[n]: match, update the namespace
+c) ns->head->ns_id >= desc->nsids[n]: skip to desc->nsids[n+1]
+
+This enables correct operation in the scenario described above.
+This also allows ANA log to contain nsids currently invisible
+to the host, i.e. inactive nsids.
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Reviewed-by:   James Smart <james.smart@broadcom.com>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/pti.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/host/multipath.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/mm/pti.c b/arch/x86/mm/pti.c
-index ba22b50f4eca2..7f2140414440d 100644
---- a/arch/x86/mm/pti.c
-+++ b/arch/x86/mm/pti.c
-@@ -330,13 +330,15 @@ pti_clone_pgtable(unsigned long start, unsigned long end,
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 304aa8a65f2f8..f928bcfc57b5b 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -501,14 +501,16 @@ static int nvme_update_ana_state(struct nvme_ctrl *ctrl,
  
- 		pud = pud_offset(p4d, addr);
- 		if (pud_none(*pud)) {
--			addr += PUD_SIZE;
-+			WARN_ON_ONCE(addr & ~PUD_MASK);
-+			addr = round_up(addr + 1, PUD_SIZE);
+ 	down_write(&ctrl->namespaces_rwsem);
+ 	list_for_each_entry(ns, &ctrl->namespaces, list) {
+-		if (ns->head->ns_id != le32_to_cpu(desc->nsids[n]))
++		unsigned nsid = le32_to_cpu(desc->nsids[n]);
++
++		if (ns->head->ns_id < nsid)
  			continue;
- 		}
- 
- 		pmd = pmd_offset(pud, addr);
- 		if (pmd_none(*pmd)) {
--			addr += PMD_SIZE;
-+			WARN_ON_ONCE(addr & ~PMD_MASK);
-+			addr = round_up(addr + 1, PMD_SIZE);
- 			continue;
- 		}
+-		nvme_update_ns_ana_state(desc, ns);
++		if (ns->head->ns_id == nsid)
++			nvme_update_ns_ana_state(desc, ns);
+ 		if (++n == nr_nsids)
+ 			break;
+ 	}
+ 	up_write(&ctrl->namespaces_rwsem);
+-	WARN_ON_ONCE(n < nr_nsids);
+ 	return 0;
+ }
  
 -- 
 2.20.1
