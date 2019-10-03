@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD0DCAB27
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BBE3CAA91
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393361AbfJCRSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:18:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49862 "EHLO mail.kernel.org"
+        id S2389862AbfJCRIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:08:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390156AbfJCQVe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:21:34 -0400
+        id S2391832AbfJCQfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:35:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BC3520659;
-        Thu,  3 Oct 2019 16:21:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E02A2070B;
+        Thu,  3 Oct 2019 16:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119693;
-        bh=8MmppN0wk6iJ6HlwRzJl5OGpV+msx+sgDG0ZWr1rF/o=;
+        s=default; t=1570120502;
+        bh=wcMVuAqbMTHTWZ9CBU+HlR2sUqfwj8hv95CeiKNkwOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9/F+duVd4sxMBCwIrCZjp3CyOBoW5b2cP+pB0mc0D6fCOpKmH1MPDlAsxJtnOjD9
-         K/5BZytGttEXhJWSrEWk6Q4rt1oNZWtrF+MevNy06AqHOmN9/Sy0QMr3GCKE35bbG4
-         bT/+xAK5usuWV16iAjeGevvFqXAAmLUKKyPN3jLg=
+        b=p3wWF95QpUbXLeA5kPOR2PUheEYuFRUN8uPYqJFc0i/2nChuwSY8D2M1AV/NsHL3W
+         54Xha8Z/D/zGeIIL3X4z+WkBItjf1s/ZH13o6ytWY99PSu4FwlTZfKrw2xTD+YdxMh
+         VYGZevXnMVUHxM2wOSY1K/gamHH3n0N8oMEUMaAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick McLean <chutzpah@gentoo.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-trace-devel@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Jungyeon Yoon <jungyeon.yoon@gmail.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/211] libtraceevent: Change users plugin directory
+Subject: [PATCH 5.2 207/313] btrfs: extent-tree: Make sure we only allocate extents from block groups with the same type
 Date:   Thu,  3 Oct 2019 17:53:05 +0200
-Message-Id: <20191003154514.403362132@linuxfoundation.org>
+Message-Id: <20191003154553.372022346@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,68 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
+[ Upstream commit 2a28468e525f3924efed7f29f2bc5a2926e7e19a ]
 
-To be compliant with XDG user directory layout, the user's plugin
-directory is changed from ~/.traceevent/plugins to
-~/.local/lib/traceevent/plugins/
+[BUG]
+With fuzzed image and MIXED_GROUPS super flag, we can hit the following
+BUG_ON():
 
-Suggested-by: Patrick McLean <chutzpah@gentoo.org>
-Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Patrick McLean <chutzpah@gentoo.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
-Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
-Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+  kernel BUG at fs/btrfs/delayed-ref.c:491!
+  invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+  CPU: 0 PID: 1849 Comm: sync Tainted: G           O      5.2.0-custom #27
+  RIP: 0010:update_existing_head_ref.cold+0x44/0x46 [btrfs]
+  Call Trace:
+   add_delayed_ref_head+0x20c/0x2d0 [btrfs]
+   btrfs_add_delayed_tree_ref+0x1fc/0x490 [btrfs]
+   btrfs_free_tree_block+0x123/0x380 [btrfs]
+   __btrfs_cow_block+0x435/0x500 [btrfs]
+   btrfs_cow_block+0x110/0x240 [btrfs]
+   btrfs_search_slot+0x230/0xa00 [btrfs]
+   ? __lock_acquire+0x105e/0x1e20
+   btrfs_insert_empty_items+0x67/0xc0 [btrfs]
+   alloc_reserved_file_extent+0x9e/0x340 [btrfs]
+   __btrfs_run_delayed_refs+0x78e/0x1240 [btrfs]
+   ? kvm_clock_read+0x18/0x30
+   ? __sched_clock_gtod_offset+0x21/0x50
+   btrfs_run_delayed_refs.part.0+0x4e/0x180 [btrfs]
+   btrfs_run_delayed_refs+0x23/0x30 [btrfs]
+   btrfs_commit_transaction+0x53/0x9f0 [btrfs]
+   btrfs_sync_fs+0x7c/0x1c0 [btrfs]
+   ? __ia32_sys_fdatasync+0x20/0x20
+   sync_fs_one_sb+0x23/0x30
+   iterate_supers+0x95/0x100
+   ksys_sync+0x62/0xb0
+   __ia32_sys_sync+0xe/0x20
+   do_syscall_64+0x65/0x240
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+[CAUSE]
+This situation is caused by several factors:
+- Fuzzed image
+  The extent tree of this fs missed one backref for extent tree root.
+  So we can allocated space from that slot.
+
+- MIXED_BG feature
+  Super block has MIXED_BG flag.
+
+- No mixed block groups exists
+  All block groups are just regular ones.
+
+This makes data space_info->block_groups[] contains metadata block
+groups.  And when we reserve space for data, we can use space in
+metadata block group.
+
+Then we hit the following file operations:
+
+- fallocate
+  We need to allocate data extents.
+  find_free_extent() choose to use the metadata block to allocate space
+  from, and choose the space of extent tree root, since its backref is
+  missing.
+
+  This generate one delayed ref head with is_data = 1.
+
+- extent tree update
+  We need to update extent tree at run_delayed_ref time.
+
+  This generate one delayed ref head with is_data = 0, for the same
+  bytenr of old extent tree root.
+
+Then we trigger the BUG_ON().
+
+[FIX]
+The quick fix here is to check block_group->flags before using it.
+
+The problem can only happen for MIXED_GROUPS fs. Regular filesystems
+won't have space_info with DATA|METADATA flag, and no way to hit the
+bug.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203255
+Reported-by: Jungyeon Yoon <jungyeon.yoon@gmail.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile       | 6 +++---
- tools/lib/traceevent/event-plugin.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/extent-tree.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index 0b4e833088a4d..95a43ccb6dd09 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -55,15 +55,15 @@ set_plugin_dir := 1
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index b8f4720879021..37865929fdc22 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -7875,6 +7875,14 @@ static noinline int find_free_extent(struct btrfs_fs_info *fs_info,
+ 			 */
+ 			if ((flags & extra) && !(block_group->flags & extra))
+ 				goto loop;
++
++			/*
++			 * This block group has different flags than we want.
++			 * It's possible that we have MIXED_GROUP flag but no
++			 * block group is mixed.  Just skip such block group.
++			 */
++			btrfs_release_block_group(block_group, delalloc);
++			continue;
+ 		}
  
- # Set plugin_dir to preffered global plugin location
- # If we install under $HOME directory we go under
--# $(HOME)/.traceevent/plugins
-+# $(HOME)/.local/lib/traceevent/plugins
- #
- # We dont set PLUGIN_DIR in case we install under $HOME
- # directory, because by default the code looks under:
--# $(HOME)/.traceevent/plugins by default.
-+# $(HOME)/.local/lib/traceevent/plugins by default.
- #
- ifeq ($(plugin_dir),)
- ifeq ($(prefix),$(HOME))
--override plugin_dir = $(HOME)/.traceevent/plugins
-+override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
- set_plugin_dir := 0
- else
- override plugin_dir = $(libdir)/traceevent/plugins
-diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
-index f17e25097e1e2..52874eb94acef 100644
---- a/tools/lib/traceevent/event-plugin.c
-+++ b/tools/lib/traceevent/event-plugin.c
-@@ -16,7 +16,7 @@
- #include "event-parse.h"
- #include "event-utils.h"
- 
--#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
-+#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
- 
- static struct registered_plugin_options {
- 	struct registered_plugin_options	*next;
+ have_block_group:
 -- 
 2.20.1
 
