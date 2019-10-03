@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EA3CA4DA
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B376FCA4DC
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391530AbfJCQ2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:28:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33600 "EHLO mail.kernel.org"
+        id S2391552AbfJCQ2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:28:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389668AbfJCQ2v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:28:51 -0400
+        id S2389668AbfJCQ2x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:28:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44CD121783;
-        Thu,  3 Oct 2019 16:28:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F35D520700;
+        Thu,  3 Oct 2019 16:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120130;
-        bh=Ykb93oMr+3gztSj7HV5KYl0vXoN7XcXRQ9o4/s8Ik+A=;
+        s=default; t=1570120133;
+        bh=ljyOOYLOrVHKPq0GoGX1yqA6Ygi+ssZEBM2nuLc3eP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbiuOhcpeJVUS6D/UN+I0kPopwEElWSVZovHrY+GWiiC9EAL1Z6WvLGUPyzAGhP9D
-         T7nArGXv9rw3thDRI9+Tnh6qwTXLcuozpcolB7VACFb9fhDHkZIHvfHQ/q0kQlDMgy
-         OMjM3Zive/byRWdaDJMZ/jPxJhI+yqtnpizTSCBA=
+        b=eKcH2ppdomBg/WpZHDi3KGWzVtx4c6nagUovOpjMvmDfhNzyGJ6kUlVDGnQi4wZmb
+         w+m4VC6Ynt7uJUrumQ4cGJ6/yeSFsaaAlqWvG6lsmC4ntip9xDrTPNResqYicYznqe
+         oF1HxLpXxteF/c04sAH5Zt4Gf0/GmMmTQ01sR14w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 107/313] kasan/arm64: fix CONFIG_KASAN_SW_TAGS && KASAN_INLINE
-Date:   Thu,  3 Oct 2019 17:51:25 +0200
-Message-Id: <20191003154543.398677051@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 108/313] net: lpc-enet: fix printk format strings
+Date:   Thu,  3 Oct 2019 17:51:26 +0200
+Message-Id: <20191003154543.497387495@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,77 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 34b5560db40d2941cfbe82eca1641353d5aed1a9 ]
+[ Upstream commit de6f97b2bace0e2eb6c3a86e124d1e652a587b56 ]
 
-The generic Makefile.kasan propagates CONFIG_KASAN_SHADOW_OFFSET into
-KASAN_SHADOW_OFFSET, but only does so for CONFIG_KASAN_GENERIC.
+compile-testing this driver on other architectures showed
+multiple warnings:
 
-Since commit:
+  drivers/net/ethernet/nxp/lpc_eth.c: In function 'lpc_eth_drv_probe':
+  drivers/net/ethernet/nxp/lpc_eth.c:1337:19: warning: format '%d' expects argument of type 'int', but argument 4 has type 'resource_size_t {aka long long unsigned int}' [-Wformat=]
 
-  6bd1d0be0e97936d ("arm64: kasan: Switch to using KASAN_SHADOW_OFFSET")
+  drivers/net/ethernet/nxp/lpc_eth.c:1342:19: warning: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
 
-... arm64 defines CONFIG_KASAN_SHADOW_OFFSET in Kconfig rather than
-defining KASAN_SHADOW_OFFSET in a Makefile. Thus, if
-CONFIG_KASAN_SW_TAGS && KASAN_INLINE are selected, we get build time
-splats due to KASAN_SHADOW_OFFSET not being set:
+Use format strings that work on all architectures.
 
-| [mark@lakrids:~/src/linux]% usellvm 8.0.1 usekorg 8.1.0  make ARCH=arm64 CROSS_COMPILE=aarch64-linux- CC=clang
-| scripts/kconfig/conf  --syncconfig Kconfig
-|   CC      scripts/mod/empty.o
-| clang (LLVM option parsing): for the -hwasan-mapping-offset option: '' value invalid for uint argument!
-| scripts/Makefile.build:273: recipe for target 'scripts/mod/empty.o' failed
-| make[1]: *** [scripts/mod/empty.o] Error 1
-| Makefile:1123: recipe for target 'prepare0' failed
-| make: *** [prepare0] Error 2
-
-Let's fix this by always propagating CONFIG_KASAN_SHADOW_OFFSET into
-KASAN_SHADOW_OFFSET if CONFIG_KASAN is selected, moving the existing
-common definition of +CFLAGS_KASAN_NOSANITIZE to the top of
-Makefile.kasan.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Tested-by Steve Capper <steve.capper@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20190809144043.476786-10-arnd@arndb.de
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.kasan | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/nxp/lpc_eth.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/scripts/Makefile.kasan b/scripts/Makefile.kasan
-index 6410bd22fe387..03757cc60e06c 100644
---- a/scripts/Makefile.kasan
-+++ b/scripts/Makefile.kasan
-@@ -1,4 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
-+ifdef CONFIG_KASAN
-+CFLAGS_KASAN_NOSANITIZE := -fno-builtin
-+KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
-+endif
-+
- ifdef CONFIG_KASAN_GENERIC
+diff --git a/drivers/net/ethernet/nxp/lpc_eth.c b/drivers/net/ethernet/nxp/lpc_eth.c
+index f7e11f1b0426c..b0c8be127bee1 100644
+--- a/drivers/net/ethernet/nxp/lpc_eth.c
++++ b/drivers/net/ethernet/nxp/lpc_eth.c
+@@ -1344,13 +1344,14 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	pldat->dma_buff_base_p = dma_handle;
  
- ifdef CONFIG_KASAN_INLINE
-@@ -7,8 +12,6 @@ else
- 	call_threshold := 0
- endif
+ 	netdev_dbg(ndev, "IO address space     :%pR\n", res);
+-	netdev_dbg(ndev, "IO address size      :%d\n", resource_size(res));
++	netdev_dbg(ndev, "IO address size      :%zd\n",
++			(size_t)resource_size(res));
+ 	netdev_dbg(ndev, "IO address (mapped)  :0x%p\n",
+ 			pldat->net_base);
+ 	netdev_dbg(ndev, "IRQ number           :%d\n", ndev->irq);
+-	netdev_dbg(ndev, "DMA buffer size      :%d\n", pldat->dma_buff_size);
+-	netdev_dbg(ndev, "DMA buffer P address :0x%08x\n",
+-			pldat->dma_buff_base_p);
++	netdev_dbg(ndev, "DMA buffer size      :%zd\n", pldat->dma_buff_size);
++	netdev_dbg(ndev, "DMA buffer P address :%pad\n",
++			&pldat->dma_buff_base_p);
+ 	netdev_dbg(ndev, "DMA buffer V address :0x%p\n",
+ 			pldat->dma_buff_base_v);
  
--KASAN_SHADOW_OFFSET ?= $(CONFIG_KASAN_SHADOW_OFFSET)
--
- CFLAGS_KASAN_MINIMAL := -fsanitize=kernel-address
+@@ -1397,8 +1398,8 @@ static int lpc_eth_drv_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_out_unregister_netdev;
  
- cc-param = $(call cc-option, -mllvm -$(1), $(call cc-option, --param $(1)))
-@@ -45,7 +48,3 @@ CFLAGS_KASAN := -fsanitize=kernel-hwaddress \
- 		$(instrumentation_flags)
+-	netdev_info(ndev, "LPC mac at 0x%08x irq %d\n",
+-	       res->start, ndev->irq);
++	netdev_info(ndev, "LPC mac at 0x%08lx irq %d\n",
++	       (unsigned long)res->start, ndev->irq);
  
- endif # CONFIG_KASAN_SW_TAGS
--
--ifdef CONFIG_KASAN
--CFLAGS_KASAN_NOSANITIZE := -fno-builtin
--endif
+ 	device_init_wakeup(dev, 1);
+ 	device_set_wakeup_enable(dev, 0);
 -- 
 2.20.1
 
