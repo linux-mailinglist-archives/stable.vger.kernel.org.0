@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 036CECA5E6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED668CA74B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732371AbfJCQh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:37:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
+        id S2406211AbfJCQwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392264AbfJCQhx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:37:53 -0400
+        id S2406209AbfJCQwg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A5042133F;
-        Thu,  3 Oct 2019 16:37:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 473D321783;
+        Thu,  3 Oct 2019 16:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120672;
-        bh=WXzNGseD5jr5zANbkRHH1Q37v3XRHzN4zPvYLkcjA6o=;
+        s=default; t=1570121555;
+        bh=ZRce7myZfk1QI63VqGi7nz03HZhFbaacZxkzZTBauw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+V+EZzmwlwZXzhqc+H/tXVg0LZqJ0/D2SyOSTrgTRu9FnedjOVUi+Z8h0pWP+s/L
-         5HyBn1JBpeCPFRrbz9o6mjziBn1Yk2prYyssMTgL6f0H+KnHaSzYZeUEDKjaUeXwgW
-         uGXwmheFp6t8ZfjefHLQoK3iotDDJaQ8qL4DHTcY=
+        b=nkJ5ejQYK5UYiW8nfglbqh50SjaUglw9iBNPpVFqgt/JiyGOJtiQGQJDl5PN7DEEq
+         9pHMlAUdt1k3T6gj/KZKqy7Fx5vhOp01DlXflVGfoDH1s35y3SfjCfnUPIrIjWbtBD
+         40qgLdsqLgJ0TKLbvrgqAyQp+/TYvmbMhnayyRWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.2 309/313] drm/amd/display: Restore backlight brightness after system resume
+        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
+        Song Liu <songliubraving@fb.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>
+Subject: [PATCH 5.3 322/344] md: only call set_in_sync() when it is expected to succeed.
 Date:   Thu,  3 Oct 2019 17:54:47 +0200
-Message-Id: <20191003154603.632876506@linuxfoundation.org>
+Message-Id: <20191003154610.763756994@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: NeilBrown <neilb@suse.com>
 
-commit bb264220d9316f6bd7c1fd84b8da398c93912931 upstream.
+commit 480523feae581ab714ba6610388a3b4619a2f695 upstream.
 
-Laptops with AMD APU doesn't restore display backlight brightness after
-system resume.
+Since commit 4ad23a976413 ("MD: use per-cpu counter for
+writes_pending"), set_in_sync() is substantially more expensive: it
+can wait for a full RCU grace period which can be 10s of milliseconds.
 
-This issue started when DC was introduced.
+So we should only call it when the cost is justified.
 
-Let's use BL_CORE_SUSPENDRESUME so the backlight core calls
-update_status callback after system resume to restore the backlight
-level.
+md_check_recovery() currently calls set_in_sync() every time it finds
+anything to do (on non-external active arrays).  For an array
+performing resync or recovery, this will be quite often.
+Each call will introduce a delay to the md thread, which can noticeable
+affect IO submission latency.
 
-Tested on Dell Inspiron 3180 (Stoney Ridge) and Dell Latitude 5495
-(Raven Ridge).
+In md_check_recovery() we only need to call set_in_sync() if
+'safemode' was non-zero at entry, meaning that there has been not
+recent IO.  So we save this "safemode was nonzero" state, and only
+call set_in_sync() if it was non-zero.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This measurably reduces mean and maximum IO submission latency during
+resync/recovery.
+
+Reported-and-tested-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Fixes: 4ad23a976413 ("MD: use per-cpu counter for writes_pending")
+Cc: stable@vger.kernel.org (v4.12+)
+Signed-off-by: NeilBrown <neilb@suse.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/md.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1958,6 +1958,7 @@ static int amdgpu_dm_backlight_get_brigh
- }
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -8910,6 +8910,7 @@ void md_check_recovery(struct mddev *mdd
  
- static const struct backlight_ops amdgpu_dm_backlight_ops = {
-+	.options = BL_CORE_SUSPENDRESUME,
- 	.get_brightness = amdgpu_dm_backlight_get_brightness,
- 	.update_status	= amdgpu_dm_backlight_update_status,
- };
+ 	if (mddev_trylock(mddev)) {
+ 		int spares = 0;
++		bool try_set_sync = mddev->safemode != 0;
+ 
+ 		if (!mddev->external && mddev->safemode == 1)
+ 			mddev->safemode = 0;
+@@ -8955,7 +8956,7 @@ void md_check_recovery(struct mddev *mdd
+ 			}
+ 		}
+ 
+-		if (!mddev->external && !mddev->in_sync) {
++		if (try_set_sync && !mddev->external && !mddev->in_sync) {
+ 			spin_lock(&mddev->lock);
+ 			set_in_sync(mddev);
+ 			spin_unlock(&mddev->lock);
 
 
