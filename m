@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A617FCA16F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79595CA171
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730358AbfJCPzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
+        id S1730397AbfJCPz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727024AbfJCPzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:55:55 -0400
+        id S1727024AbfJCPz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:55:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D0F221783;
-        Thu,  3 Oct 2019 15:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3EBF20700;
+        Thu,  3 Oct 2019 15:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118153;
-        bh=WFPSs1XY6ltViKwCO9RVIRh0ygbXm+W+QOBH+Hvw6PI=;
+        s=default; t=1570118156;
+        bh=2E95dSBRWtQr6Z6UBdjENXXfyVla9zDM7EnJmd5Yigg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAdjekYdhG5aBk6GuV0W4yGfzy6BTqvgqapgMWBI0RhTSqctqA4QNCndoJqqf9hp0
-         uXrIxRhP6HhgGiwj5/8nizODzEHPCtsuE2tWYD1CAw9AAMZF/Ofxn26zA2EDLE9jgh
-         OYK3RARnEjJDE9TI/7cMGMKvK4AMceDNZE33LP14=
+        b=2LXLEGIG/oQ2VAxJS6dCtpbtPSmABeRp3rPUFxMuA8mau9Wr6OSRTCbHdssVjYKRd
+         OqJ+YX/YW45prge4iVbzqy0QPCOxKO1C0Zz97527RVGw3DWZIVAWA0rTOI5BmIBShV
+         Pjz5tkImJn1I4iTyBRxWJFgGc4fzIFu9i3Adeb2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Shih-Yuan Lee (FourDollars)" <fourdollars@debian.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 10/99] ALSA: hda - Add laptop imic fixup for ASUS M9V laptop
-Date:   Thu,  3 Oct 2019 17:52:33 +0200
-Message-Id: <20191003154257.959228889@linuxfoundation.org>
+        =?UTF-8?q?Arkadiusz=20Mi=C5=9Bkiewicz?= <arekm@maven.pl>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 11/99] mac80211: Print text for disassociation reason
+Date:   Thu,  3 Oct 2019 17:52:34 +0200
+Message-Id: <20191003154258.281012302@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
 References: <20191003154252.297991283@linuxfoundation.org>
@@ -44,32 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
+From: Arkadiusz Miskiewicz <a.miskiewicz@gmail.com>
 
-commit 7b485d175631be676424aedb8cd2f66d0c93da78 upstream.
+[ Upstream commit 68506e9af132a6b5735c1dd4b11240da0cf5eeae ]
 
-The same fixup to enable laptop imic is needed for ASUS M9V with AD1986A
-codec like another HP machine.
+When disassociation happens only numeric reason is printed
+in ieee80211_rx_mgmt_disassoc(). Add text variant, too.
 
-Signed-off-by: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190920134052.GA8035@localhost
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Arkadiusz Miśkiewicz <arekm@maven.pl>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_analog.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/mac80211/mlme.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_analog.c
-+++ b/sound/pci/hda/patch_analog.c
-@@ -370,6 +370,7 @@ static const struct hda_fixup ad1986a_fi
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index ae5387b93df37..3daf3ae4003be 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2857,8 +2857,9 @@ static void ieee80211_rx_mgmt_disassoc(struct ieee80211_sub_if_data *sdata,
  
- static const struct snd_pci_quirk ad1986a_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x30af, "HP B2800", AD1986A_FIXUP_LAPTOP_IMIC),
-+	SND_PCI_QUIRK(0x1043, 0x1153, "ASUS M9V", AD1986A_FIXUP_LAPTOP_IMIC),
- 	SND_PCI_QUIRK(0x1043, 0x1443, "ASUS Z99He", AD1986A_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x1043, 0x1447, "ASUS A8JN", AD1986A_FIXUP_EAPD),
- 	SND_PCI_QUIRK_MASK(0x1043, 0xff00, 0x8100, "ASUS P5", AD1986A_FIXUP_3STACK),
+ 	reason_code = le16_to_cpu(mgmt->u.disassoc.reason_code);
+ 
+-	sdata_info(sdata, "disassociated from %pM (Reason: %u)\n",
+-		   mgmt->sa, reason_code);
++	sdata_info(sdata, "disassociated from %pM (Reason: %u=%s)\n",
++		   mgmt->sa, reason_code,
++		   ieee80211_get_reason_code_string(reason_code));
+ 
+ 	ieee80211_set_disassoc(sdata, 0, 0, false, NULL);
+ 
+-- 
+2.20.1
+
 
 
