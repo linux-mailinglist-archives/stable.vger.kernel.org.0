@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0EFCA6B9
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EC5CA6BB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392192AbfJCQqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:46:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60060 "EHLO mail.kernel.org"
+        id S2389249AbfJCQqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404825AbfJCQqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:46:43 -0400
+        id S2392946AbfJCQqs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:46:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E59F2070B;
-        Thu,  3 Oct 2019 16:46:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A28D5215EA;
+        Thu,  3 Oct 2019 16:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121202;
-        bh=MoJuAFD5H01r8aUKRg6WQ0qWyaX5xkkJmQOMh7mNsM0=;
+        s=default; t=1570121208;
+        bh=LHr0zQNTuWMvB8KfJDg2lp4+b/SuKXqID+v+rc6sg8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boCbJJniKXRMtNXMxbRwN1O/HnbEJI4VqtueB+X679ERSRlDW/pLTTth0pljord+P
-         LiEkFE+zSORi1CXGls1RZqLFZ/MMzJpTRlFZJfkEzjS9LLO1bZd0CD6Yzr6Y5jJVgJ
-         xVuGHwy2rT8wsO4c+Z4l0pxMCgKa6GQig5B9Rg54=
+        b=zVYqSXR2uVCjbtsjahGoM52Q5/5TbG854kFRhWyvqC9UVQ7m6XSzpHjOO8+px8FJ/
+         RUNu5PkkVHyvcj1gm/uLIehdsWyR4AFYAMArSHDdkfLzEfa2NxtRxPqm2KckoJ54hf
+         FKG/QBk5rcSWbG6BdPio4QdQ3JYyuiQ36MhjTf64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Shenran <shenran268@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 193/344] hwmon: (acpi_power_meter) Change log level for unsafe software power cap
-Date:   Thu,  3 Oct 2019 17:52:38 +0200
-Message-Id: <20191003154559.252557962@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 195/344] dmaengine: ti: edma: Do not reset reserved paRAM slots
+Date:   Thu,  3 Oct 2019 17:52:40 +0200
+Message-Id: <20191003154559.443819896@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,48 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Shenran <shenran268@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit 6e4d91aa071810deac2cd052161aefb376ecf04e ]
+[ Upstream commit c5dbe60664b3660f5ac5854e21273ea2e7ff698f ]
 
-At boot time, the acpi_power_meter driver logs the following error level
-message: "Ignoring unsafe software power cap". Having read about it from
-a few sources, it seems that the error message can be quite misleading.
+Skip resetting paRAM slots marked as reserved as they might be used by
+other cores.
 
-While the message can imply that Linux is ignoring the fact that the
-system is operating in potentially dangerous conditions, the truth is
-the driver found an ACPI_PMC object that supports software power
-capping. The driver simply decides not to use it, perhaps because it
-doesn't support the object.
-
-The best solution is probably changing the log level from error to warning.
-All sources I have found, regarding the error, have downplayed its
-significance. There is not much of a reason for it to be on error level,
-while causing potential confusions or misinterpretations.
-
-Signed-off-by: Wang Shenran <shenran268@gmail.com>
-Link: https://lore.kernel.org/r/20190724080110.6952-1-shenran268@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190823125618.8133-2-peter.ujfalusi@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/acpi_power_meter.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/ti/edma.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
-index 6ba1a08253f0a..4cf25458f0b95 100644
---- a/drivers/hwmon/acpi_power_meter.c
-+++ b/drivers/hwmon/acpi_power_meter.c
-@@ -681,8 +681,8 @@ static int setup_attrs(struct acpi_power_meter_resource *resource)
+diff --git a/drivers/dma/ti/edma.c b/drivers/dma/ti/edma.c
+index ceabdea40ae0f..982631d4e1f8a 100644
+--- a/drivers/dma/ti/edma.c
++++ b/drivers/dma/ti/edma.c
+@@ -2273,9 +2273,6 @@ static int edma_probe(struct platform_device *pdev)
  
- 	if (resource->caps.flags & POWER_METER_CAN_CAP) {
- 		if (!can_cap_in_hardware()) {
--			dev_err(&resource->acpi_dev->dev,
--				"Ignoring unsafe software power cap!\n");
-+			dev_warn(&resource->acpi_dev->dev,
-+				 "Ignoring unsafe software power cap!\n");
- 			goto skip_unsafe_cap;
+ 	ecc->default_queue = info->default_queue;
+ 
+-	for (i = 0; i < ecc->num_slots; i++)
+-		edma_write_slot(ecc, i, &dummy_paramset);
+-
+ 	if (info->rsv) {
+ 		/* Set the reserved slots in inuse list */
+ 		rsv_slots = info->rsv->rsv_slots;
+@@ -2288,6 +2285,12 @@ static int edma_probe(struct platform_device *pdev)
  		}
+ 	}
  
++	for (i = 0; i < ecc->num_slots; i++) {
++		/* Reset only unused - not reserved - paRAM slots */
++		if (!test_bit(i, ecc->slot_inuse))
++			edma_write_slot(ecc, i, &dummy_paramset);
++	}
++
+ 	/* Clear the xbar mapped channels in unused list */
+ 	xbar_chans = info->xbar_chans;
+ 	if (xbar_chans) {
 -- 
 2.20.1
 
