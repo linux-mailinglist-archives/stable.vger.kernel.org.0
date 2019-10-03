@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F6CCA7A2
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F7FCA73F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393160AbfJCQwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2393164AbfJCQwH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 12:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39602 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393156AbfJCQwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:04 -0400
+        id S2393158AbfJCQwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00F3E20862;
-        Thu,  3 Oct 2019 16:52:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B4E320865;
+        Thu,  3 Oct 2019 16:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121523;
-        bh=QgqhBMZOdxVZBFPauAUYX1wbmJG3AvrJIlgEmUkZGP4=;
+        s=default; t=1570121526;
+        bh=YeCFigP0qPUGddwULD/CreVJ/+qrEsHVvja3e2+ZdGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOihcuykp1FmqNbh8CmqkLzVq2Gn4egsJ9sCnWiX7VmG4ZS/PTpLG+02tBlKBvCIu
-         /2ShZuCE/BbT3tZ03zAYfsMThpEcKDRIzL7HUlD9fd5AtJdyIHgXU6GBf6LR+lG8lu
-         TlW9dU403j8V5fApAiP27shxgXdFnNEBlwc+vzbc=
+        b=15OpnNIRi3WYmvQg4rqc256eloEj7d7k5n38V4PDyF48EOaibWfGaXebS50vHs08Z
+         xy2VZ0a4F3nKweHGYU8259zipO8+iTNB1WaOtBxUvqUHvEonwMZp9P388u3Gm60oDT
+         z1+8+r4IVwVvG7PHwZ0Hx836Sd814Wc6ZYh31tUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Nikolay Borisov <nborisov@suse.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@kernel.org>,
+        Dennis Zhou <dennis@kernel.org>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 311/344] btrfs: Relinquish CPUs in btrfs_compare_trees
-Date:   Thu,  3 Oct 2019 17:54:36 +0200
-Message-Id: <20191003154609.868056456@linuxfoundation.org>
+Subject: [PATCH 5.3 312/344] btrfs: adjust dirty_metadata_bytes after writeback failure of extent buffer
+Date:   Thu,  3 Oct 2019 17:54:37 +0200
+Message-Id: <20191003154609.942983053@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,69 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Dennis Zhou <dennis@kernel.org>
 
-commit 6af112b11a4bc1b560f60a618ac9c1dcefe9836e upstream.
+commit eb5b64f142504a597d67e2109d603055ff765e52 upstream.
 
-When doing any form of incremental send the parent and the child trees
-need to be compared via btrfs_compare_trees. This  can result in long
-loop chains without ever relinquishing the CPU. This causes softlockup
-detector to trigger when comparing trees with a lot of items. Example
-report:
+Before, if a eb failed to write out, we would end up triggering a
+BUG_ON(). As of f4340622e0226 ("btrfs: extent_io: Move the BUG_ON() in
+flush_write_bio() one level up"), we no longer BUG_ON(), so we should
+make life consistent and add back the unwritten bytes to
+dirty_metadata_bytes.
 
-watchdog: BUG: soft lockup - CPU#0 stuck for 24s! [snapperd:16153]
-CPU: 0 PID: 16153 Comm: snapperd Not tainted 5.2.9-1-default #1 openSUSE Tumbleweed (unreleased)
-Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-pstate: 40000005 (nZcv daif -PAN -UAO)
-pc : __ll_sc_arch_atomic_sub_return+0x14/0x20
-lr : btrfs_release_extent_buffer_pages+0xe0/0x1e8 [btrfs]
-sp : ffff00001273b7e0
-Call trace:
- __ll_sc_arch_atomic_sub_return+0x14/0x20
- release_extent_buffer+0xdc/0x120 [btrfs]
- free_extent_buffer.part.0+0xb0/0x118 [btrfs]
- free_extent_buffer+0x24/0x30 [btrfs]
- btrfs_release_path+0x4c/0xa0 [btrfs]
- btrfs_free_path.part.0+0x20/0x40 [btrfs]
- btrfs_free_path+0x24/0x30 [btrfs]
- get_inode_info+0xa8/0xf8 [btrfs]
- finish_inode_if_needed+0xe0/0x6d8 [btrfs]
- changed_cb+0x9c/0x410 [btrfs]
- btrfs_compare_trees+0x284/0x648 [btrfs]
- send_subvol+0x33c/0x520 [btrfs]
- btrfs_ioctl_send+0x8a0/0xaf0 [btrfs]
- btrfs_ioctl+0x199c/0x2288 [btrfs]
- do_vfs_ioctl+0x4b0/0x820
- ksys_ioctl+0x84/0xb8
- __arm64_sys_ioctl+0x28/0x38
- el0_svc_common.constprop.0+0x7c/0x188
- el0_svc_handler+0x34/0x90
- el0_svc+0x8/0xc
-
-Fix this by adding a call to cond_resched at the beginning of the main
-loop in btrfs_compare_trees.
-
-Fixes: 7069830a9e38 ("Btrfs: add btrfs_compare_trees function")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Fixes: f4340622e022 ("btrfs: extent_io: Move the BUG_ON() in flush_write_bio() one level up")
+CC: stable@vger.kernel.org # 5.2+
+Reviewed-by: Filipe Manana <fdmanana@kernel.org>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/extent_io.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -5477,6 +5477,7 @@ int btrfs_compare_trees(struct btrfs_roo
- 	advance_left = advance_right = 0;
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3745,12 +3745,21 @@ err_unlock:
+ static void set_btree_ioerr(struct page *page)
+ {
+ 	struct extent_buffer *eb = (struct extent_buffer *)page->private;
++	struct btrfs_fs_info *fs_info;
  
- 	while (1) {
-+		cond_resched();
- 		if (advance_left && !left_end_reached) {
- 			ret = tree_advance(left_path, &left_level,
- 					left_root_level,
+ 	SetPageError(page);
+ 	if (test_and_set_bit(EXTENT_BUFFER_WRITE_ERR, &eb->bflags))
+ 		return;
+ 
+ 	/*
++	 * If we error out, we should add back the dirty_metadata_bytes
++	 * to make it consistent.
++	 */
++	fs_info = eb->fs_info;
++	percpu_counter_add_batch(&fs_info->dirty_metadata_bytes,
++				 eb->len, fs_info->dirty_metadata_batch);
++
++	/*
+ 	 * If writeback for a btree extent that doesn't belong to a log tree
+ 	 * failed, increment the counter transaction->eb_write_errors.
+ 	 * We do this because while the transaction is running and before it's
 
 
