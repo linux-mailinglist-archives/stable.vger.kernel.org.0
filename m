@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E0E6C9BEB
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:15:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC1AC9BED
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 12:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbfJCKOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 06:14:44 -0400
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:36009 "EHLO
+        id S1726364AbfJCKPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 06:15:13 -0400
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59801 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728356AbfJCKOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 06:14:43 -0400
+        by vger.kernel.org with ESMTP id S1726808AbfJCKPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 06:15:13 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7B0FF21B24;
-        Thu,  3 Oct 2019 06:14:42 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id A81D621B24;
+        Thu,  3 Oct 2019 06:15:12 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 03 Oct 2019 06:14:42 -0400
+  by compute6.internal (MEProxy); Thu, 03 Oct 2019 06:15:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=HS74y5
-        zXbvP8MNdwcfvt0Xcl7eE9eqy51Gn2kN3Taco=; b=opCacq6xCkfhLQzP+99F3I
-        rqr/Gzs4ae2ps94purqjP0+8RZCYED/7W2L62oEVIVDg0tdXKHIPWQE8D0cB6rRW
-        jn9BwISOuC0ZWmI8w0n9EhMIGhhXicQIYQytsvKW6cwlkbQYRcYEu92RgVJE3/7m
-        Q9cK++jI9RAcZHLfpMa6Uix96qwJQmAGovxB3cVkwo1kw+k0WfPpSwXKL8+kvQtY
-        t41k8FKLsH1Hnysblp9d81rDYvppvaoZ5Nm4AmhIMIpnfDN3X9guEyNnAIDHQ8Bb
-        JDr+w0ojI19CjCYydAWop+tr41+UmiVkvpElBhUtr5PdmQ1WZFcOsgKWCIZbz78A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XTgyw4
+        BBT0LauJxAPO4upa5iaBnd7u1s4gHz8OFR+yw=; b=lvwMBDeXPW2HElikPiFK2X
+        i5am5OpgSvhjHQBkyNDgc9Sa6CM/iPXuY6QRVQF8mFHal04SxeTZTvaXWs7Xe3QX
+        k6Ja8uepQP7GUciHhzBbInlsQE4+jIcSoEbN0VhOoamxyrQfabQ8HoAANaet2jOB
+        v6LJGIoseSfUSWhBvn7meAu6wUAPPnK35cIyYeRVFvxUKB+87jFZMBFwqWe9kznh
+        NrMVAXUnyfn7i2YRA8gyT0SrG6n5YzH4axI1nXqFyJcU1jRikrhAOzDS+yb22rgc
+        3Q5B7Awqq1Cxp+frgX7Cva9nMoi369gDCXMumTVGw3p1Jxl53sv0wxoMlD/UTEPg
         ==
-X-ME-Sender: <xms:EsqVXTrnSRo83NGQjbaAcpXQjvk0Y06ehagCwoEy6v-VxZ69m-yn3w>
+X-ME-Sender: <xms:MMqVXeowTNgD1nDF5ENsqcPE_CU6HY4c5P0zJk9LwF7wj1sWTAGJzA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrgeekgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:EsqVXbedzeUYo51oRZ2EqkaKp0O6PN0CCXzEZ3pvbOzxM9NDi6Dhtw>
-    <xmx:EsqVXarGM1hRHO25YTMsEIKlUts80-okw4iG-yxnjvKAynVJ24jk9A>
-    <xmx:EsqVXUGg1vERXG_1j4XaUxx2EPKroBSXa_vy6ErzSsW2QFyEOBDwpg>
-    <xmx:EsqVXS2hVTL6Y6aprQaGYX0X5jIH_0ygT6ZbmoMygnrtXDdBWi6_vA>
+    vehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:MMqVXQfkz9d2OGKDmvWnPIsdVeg__xTvJTL5U9QQnqOnHdKxXamR1Q>
+    <xmx:MMqVXcTAI0XEcD5tuJ9pkIsrR8bzl8yGBVxS_QcPw7LxaPIXoG7wTw>
+    <xmx:MMqVXRaH86-QnpGL_hBNSNiLMdllJpGoLAVrOa4WLhSEMgmjFua_hQ>
+    <xmx:MMqVXZTv8kgUc9sBVoRcc34yilnR0TXO7VqrS462JlEKHBot4nAPxQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D3999D6005A;
-        Thu,  3 Oct 2019 06:14:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: erofs: avoid endless loop of invalid lookback" failed to apply to 5.3-stable tree
-To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2F334D60057;
+        Thu,  3 Oct 2019 06:15:12 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] staging: erofs: fix an error handling in erofs_readdir()" failed to apply to 5.3-stable tree
+To:     gaoxiang25@huawei.com, gregkh@linuxfoundation.org, richard@nod.at,
         stable@vger.kernel.org, yuchao0@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Oct 2019 12:14:37 +0200
-Message-ID: <1570097677148205@kroah.com>
+Date:   Thu, 03 Oct 2019 12:15:11 +0200
+Message-ID: <1570097711173101@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,38 +69,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 598bb8913d015150b7734b55443c0e53e7189fc7 Mon Sep 17 00:00:00 2001
+From acb383f1dcb4f1e79b66d4be3a0b6f519a957b0d Mon Sep 17 00:00:00 2001
 From: Gao Xiang <gaoxiang25@huawei.com>
-Date: Mon, 19 Aug 2019 18:34:26 +0800
-Subject: [PATCH] staging: erofs: avoid endless loop of invalid lookback
- distance 0
+Date: Sun, 18 Aug 2019 20:54:57 +0800
+Subject: [PATCH] staging: erofs: fix an error handling in erofs_readdir()
 
-As reported by erofs-utils fuzzer, Lookback distance should
-be a positive number, so it should be actually looked back
-rather than spinning.
+Richard observed a forever loop of erofs_read_raw_page() [1]
+which can be generated by forcely setting ->u.i_blkaddr
+to 0xdeadbeef (as my understanding block layer can
+handle access beyond end of device correctly).
 
-Fixes: 02827e1796b3 ("staging: erofs: add erofs_map_blocks_iter")
+After digging into that, it seems the problem is highly
+related with directories and then I found the root cause
+is an improper error handling in erofs_readdir().
+
+Let's fix it now.
+
+[1] https://lore.kernel.org/r/1163995781.68824.1566084358245.JavaMail.zimbra@nod.at/
+
+Reported-by: Richard Weinberger <richard@nod.at>
+Fixes: 3aa8ec716e52 ("staging: erofs: add directory operations")
 Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190819103426.87579-7-gaoxiang25@huawei.com
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Link: https://lore.kernel.org/r/20190818125457.25906-1-hsiangkao@aol.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/staging/erofs/zmap.c b/drivers/staging/erofs/zmap.c
-index 7408e86823a4..774dacbc5b32 100644
---- a/drivers/staging/erofs/zmap.c
-+++ b/drivers/staging/erofs/zmap.c
-@@ -350,6 +350,12 @@ static int vle_extent_lookback(struct z_erofs_maprecorder *m,
+diff --git a/drivers/staging/erofs/dir.c b/drivers/staging/erofs/dir.c
+index 5f38382637e6..77ef856df9f3 100644
+--- a/drivers/staging/erofs/dir.c
++++ b/drivers/staging/erofs/dir.c
+@@ -82,8 +82,15 @@ static int erofs_readdir(struct file *f, struct dir_context *ctx)
+ 		unsigned int nameoff, maxsize;
  
- 	switch (m->type) {
- 	case Z_EROFS_VLE_CLUSTER_TYPE_NONHEAD:
-+		if (unlikely(!m->delta[0])) {
-+			errln("invalid lookback distance 0 at nid %llu",
-+			      vi->nid);
-+			DBG_BUGON(1);
-+			return -EFSCORRUPTED;
+ 		dentry_page = read_mapping_page(mapping, i, NULL);
+-		if (IS_ERR(dentry_page))
+-			continue;
++		if (dentry_page == ERR_PTR(-ENOMEM)) {
++			err = -ENOMEM;
++			break;
++		} else if (IS_ERR(dentry_page)) {
++			errln("fail to readdir of logical block %u of nid %llu",
++			      i, EROFS_V(dir)->nid);
++			err = -EFSCORRUPTED;
++			break;
 +		}
- 		return vle_extent_lookback(m, m->delta[0]);
- 	case Z_EROFS_VLE_CLUSTER_TYPE_PLAIN:
- 		map->m_flags &= ~EROFS_MAP_ZIPPED;
+ 
+ 		de = (struct erofs_dirent *)kmap(dentry_page);
+ 
 
