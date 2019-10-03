@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD4FCA65E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375ACCA660
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391597AbfJCQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54422 "EHLO mail.kernel.org"
+        id S2405120AbfJCQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:43:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405111AbfJCQnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:43:08 -0400
+        id S2405140AbfJCQnN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:43:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D7C32070B;
-        Thu,  3 Oct 2019 16:43:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D7692070B;
+        Thu,  3 Oct 2019 16:43:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120987;
-        bh=dmdbnGlcQ67LSvX15BeOkemg/oVzkc782wV47LPJXig=;
+        s=default; t=1570120992;
+        bh=6wQX0xJ/q3Ed4fG+/mE1pswdwSLXVm2+9rffNMTgyZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQ8vi4L4Q3za7fyzVdZ8G868eigjkDhlDxL4s9klNb+R9wfLwbAVcPp3mXKAPBadX
-         zHNN94E07VT/YlORpM9hs8YMlpni0O9Gl5w61RcTUOMYjIJfVCjcVWaj6Y4ChM/hdS
-         F6/M94bTSgSOZPpKh4VMxHgjn31Y+GxdGJAsVtIs=
+        b=n7KejlMLMT3DxqKyeAjZr/z5HpDbRQZtJDMsUvLOnU9aIJjQcGWThdTUcxGHydLhf
+         8EXl2q5aVT0uh0wFX2nE2tZQSpC6Tof1NMVs8Qsjc81FE+DMd9/H2Jt78w9ic3Nkb0
+         3OAYDlxZ1Wy5e2Zk27z/uOnz48eyCzsaTEr7rW6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 113/344] dmaengine: iop-adma: use correct printk format strings
-Date:   Thu,  3 Oct 2019 17:51:18 +0200
-Message-Id: <20191003154551.361789545@linuxfoundation.org>
+        stable@vger.kernel.org, Tan Xiaojun <tanxiaojun@huawei.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        "Tzvetomir Stoyanov (VMware)" <tz.stoyanov@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 115/344] perf record: Support aarch64 random socket_id assignment
+Date:   Thu,  3 Oct 2019 17:51:20 +0200
+Message-Id: <20191003154551.554233113@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,106 +53,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tan Xiaojun <tanxiaojun@huawei.com>
 
-[ Upstream commit 00c9755524fbaa28117be774d7c92fddb5ca02f3 ]
+[ Upstream commit 0a4d8fb229dd78f9e0752817339e19e903b37a60 ]
 
-When compile-testing on other architectures, we get lots of warnings
-about incorrect format strings, like:
+Same as in the commit 01766229533f ("perf record: Support s390 random
+socket_id assignment"), aarch64 also have this problem.
 
-   drivers/dma/iop-adma.c: In function 'iop_adma_alloc_slots':
-   drivers/dma/iop-adma.c:307:6: warning: format '%x' expects argument of type 'unsigned int', but argument 6 has type 'dma_addr_t {aka long long unsigned int}' [-Wformat=]
+Without this fix:
 
-   drivers/dma/iop-adma.c: In function 'iop_adma_prep_dma_memcpy':
->> drivers/dma/iop-adma.c:518:40: warning: format '%u' expects argument of type 'unsigned int', but argument 5 has type 'size_t {aka long unsigned int}' [-Wformat=]
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  socket_id number is too big.You may need to upgrade the perf tool.
 
-Use %zu for printing size_t as required, and cast the dma_addr_t
-arguments to 'u64' for printing with %llx. Ideally this should use
-the %pad format string, but that requires an lvalue argument that
-doesn't work here.
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # Core ID and Socket ID information is not available
+  ...
 
-Link: https://lore.kernel.org/r/20190809163334.489360-3-arnd@arndb.de
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+With this fix:
+  [root@localhost perf]# ./perf report --header -I -v
+  ...
+  cpumask list: 0-31
+  cpumask list: 32-63
+  cpumask list: 64-95
+  cpumask list: 96-127
+
+  # ========
+  # captured on    : Thu Aug  1 22:58:38 2019
+  # header version : 1
+  ...
+  # CPU 0: Core ID 0, Socket ID 36
+  # CPU 1: Core ID 1, Socket ID 36
+  ...
+  # CPU 126: Core ID 126, Socket ID 8442
+  # CPU 127: Core ID 127, Socket ID 8442
+  ...
+
+Signed-off-by: Tan Xiaojun <tanxiaojun@huawei.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tzvetomir Stoyanov (VMware) <tz.stoyanov@gmail.com>
+Link: http://lkml.kernel.org/r/1564717737-21602-1-git-send-email-tanxiaojun@huawei.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/iop-adma.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ tools/perf/util/header.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/iop-adma.c b/drivers/dma/iop-adma.c
-index c6c0143670d9d..a776857d89c8f 100644
---- a/drivers/dma/iop-adma.c
-+++ b/drivers/dma/iop-adma.c
-@@ -116,9 +116,9 @@ static void __iop_adma_slot_cleanup(struct iop_adma_chan *iop_chan)
- 	list_for_each_entry_safe(iter, _iter, &iop_chan->chain,
- 					chain_node) {
- 		pr_debug("\tcookie: %d slot: %d busy: %d "
--			"this_desc: %#x next_desc: %#x ack: %d\n",
-+			"this_desc: %#x next_desc: %#llx ack: %d\n",
- 			iter->async_tx.cookie, iter->idx, busy,
--			iter->async_tx.phys, iop_desc_get_next_desc(iter),
-+			iter->async_tx.phys, (u64)iop_desc_get_next_desc(iter),
- 			async_tx_test_ack(&iter->async_tx));
- 		prefetch(_iter);
- 		prefetch(&_iter->async_tx);
-@@ -306,9 +306,9 @@ iop_adma_alloc_slots(struct iop_adma_chan *iop_chan, int num_slots,
- 				int i;
- 				dev_dbg(iop_chan->device->common.dev,
- 					"allocated slot: %d "
--					"(desc %p phys: %#x) slots_per_op %d\n",
-+					"(desc %p phys: %#llx) slots_per_op %d\n",
- 					iter->idx, iter->hw_desc,
--					iter->async_tx.phys, slots_per_op);
-+					(u64)iter->async_tx.phys, slots_per_op);
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 1903d7ec97976..bf7cf12495539 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -2251,8 +2251,10 @@ static int process_cpu_topology(struct feat_fd *ff, void *data __maybe_unused)
+ 	/* On s390 the socket_id number is not related to the numbers of cpus.
+ 	 * The socket_id number might be higher than the numbers of cpus.
+ 	 * This depends on the configuration.
++	 * AArch64 is the same.
+ 	 */
+-	if (ph->env.arch && !strncmp(ph->env.arch, "s390", 4))
++	if (ph->env.arch && (!strncmp(ph->env.arch, "s390", 4)
++			  || !strncmp(ph->env.arch, "aarch64", 7)))
+ 		do_core_id_test = false;
  
- 				/* pre-ack all but the last descriptor */
- 				if (num_slots != slots_per_op)
-@@ -516,7 +516,7 @@ iop_adma_prep_dma_memcpy(struct dma_chan *chan, dma_addr_t dma_dest,
- 		return NULL;
- 	BUG_ON(len > IOP_ADMA_MAX_BYTE_COUNT);
- 
--	dev_dbg(iop_chan->device->common.dev, "%s len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s len: %zu\n",
- 		__func__, len);
- 
- 	spin_lock_bh(&iop_chan->lock);
-@@ -549,7 +549,7 @@ iop_adma_prep_dma_xor(struct dma_chan *chan, dma_addr_t dma_dest,
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
- 
- 	dev_dbg(iop_chan->device->common.dev,
--		"%s src_cnt: %d len: %u flags: %lx\n",
-+		"%s src_cnt: %d len: %zu flags: %lx\n",
- 		__func__, src_cnt, len, flags);
- 
- 	spin_lock_bh(&iop_chan->lock);
-@@ -582,7 +582,7 @@ iop_adma_prep_dma_xor_val(struct dma_chan *chan, dma_addr_t *dma_src,
- 	if (unlikely(!len))
- 		return NULL;
- 
--	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
- 		__func__, src_cnt, len);
- 
- 	spin_lock_bh(&iop_chan->lock);
-@@ -620,7 +620,7 @@ iop_adma_prep_dma_pq(struct dma_chan *chan, dma_addr_t *dst, dma_addr_t *src,
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
- 
- 	dev_dbg(iop_chan->device->common.dev,
--		"%s src_cnt: %d len: %u flags: %lx\n",
-+		"%s src_cnt: %d len: %zu flags: %lx\n",
- 		__func__, src_cnt, len, flags);
- 
- 	if (dmaf_p_disabled_continue(flags))
-@@ -683,7 +683,7 @@ iop_adma_prep_dma_pq_val(struct dma_chan *chan, dma_addr_t *pq, dma_addr_t *src,
- 		return NULL;
- 	BUG_ON(len > IOP_ADMA_XOR_MAX_BYTE_COUNT);
- 
--	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %u\n",
-+	dev_dbg(iop_chan->device->common.dev, "%s src_cnt: %d len: %zu\n",
- 		__func__, src_cnt, len);
- 
- 	spin_lock_bh(&iop_chan->lock);
+ 	for (i = 0; i < (u32)cpu_nr; i++) {
 -- 
 2.20.1
 
