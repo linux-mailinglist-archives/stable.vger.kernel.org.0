@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D6ACAAA6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D004BCAA0C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389756AbfJCRLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:11:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S2389592AbfJCQSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:18:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391863AbfJCQcK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:10 -0400
+        id S2388699AbfJCQSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:18:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B05822086A;
-        Thu,  3 Oct 2019 16:32:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94FF121783;
+        Thu,  3 Oct 2019 16:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120330;
-        bh=U5Yzc058CKUXqtCAG/wb8P/YKKdVwl+o0hV2j/cpivM=;
+        s=default; t=1570119520;
+        bh=2RCEg7l97LRwKRzZakcVXzs9bT+W5NfSG1bK1ShynnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxtxZ12N46XBXY7iDqAkENKd40oZrOQACaKCIp+ClWzv6sA4/SZ7y4MngY20K8HNu
-         yZZVBidygn0nxyRkO0vLkrtf0D5XygdQ0FCB0Bypr67z6c0UlYNz6t0fLqeOEH2qyz
-         RR/fvJwIupeTUMVFu4034TSsL25OHTR8xaNR5S3k=
+        b=b1SH7jgcqdh1GhHsAfZn6W3ioQMYJCeaLjd1OGexssiYgIVpOK98spcGgBADZxKyE
+         /F6+c0lYzKMC0+wMJwFSLNGWeKymA7m7uA3HsMVnIhSFLI1hQjfRCDbat1AWhC9XBW
+         8relT58mU/dB9MwQHpsRnzfALkFfGUsOq7PRMnxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
-        Gayatri Kammela <gayatri.kammela@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rahul Tanwar <rahul.tanwar@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 182/313] x86/cpu: Add Tiger Lake to Intel family
-Date:   Thu,  3 Oct 2019 17:52:40 +0200
-Message-Id: <20191003154550.904397844@linuxfoundation.org>
+        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 095/211] EDAC/amd64: Recognize DRAM device type ECC capability
+Date:   Thu,  3 Oct 2019 17:52:41 +0200
+Message-Id: <20191003154508.721172968@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gayatri Kammela <gayatri.kammela@intel.com>
+From: Yazen Ghannam <yazen.ghannam@amd.com>
 
-[ Upstream commit 6e1c32c5dbb4b90eea8f964c2869d0bde050dbe0 ]
+[ Upstream commit f8be8e5680225ac9caf07d4545f8529b7395327f ]
 
-Add the model numbers/CPUIDs of Tiger Lake mobile and desktop to the
-Intel family.
+AMD Family 17h systems support x4 and x16 DRAM devices. However, the
+device type is not checked when setting mci.edac_ctl_cap.
 
-Suggested-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Gayatri Kammela <gayatri.kammela@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rahul Tanwar <rahul.tanwar@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190905193020.14707-2-tony.luck@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Set the appropriate capability flag based on the device type.
+
+Default to x8 DRAM device when neither the x4 or x16 bits are set.
+
+ [ bp: reverse cpk_en check to save an indentation level. ]
+
+Fixes: 2d09d8f301f5 ("EDAC, amd64: Determine EDAC MC capabilities on Fam17h")
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190821235938.118710-3-Yazen.Ghannam@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/edac/amd64_edac.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index f60ddd655c787..82a57d344b9bc 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -58,6 +58,9 @@
- #define INTEL_FAM6_ICELAKE_MOBILE	0x7E
- #define INTEL_FAM6_ICELAKE_NNPI		0x9D
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index e2addb2bca296..1613df20774f9 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -3101,12 +3101,15 @@ static bool ecc_enabled(struct pci_dev *F3, u16 nid)
+ static inline void
+ f17h_determine_edac_ctl_cap(struct mem_ctl_info *mci, struct amd64_pvt *pvt)
+ {
+-	u8 i, ecc_en = 1, cpk_en = 1;
++	u8 i, ecc_en = 1, cpk_en = 1, dev_x4 = 1, dev_x16 = 1;
  
-+#define INTEL_FAM6_TIGERLAKE_L		0x8C
-+#define INTEL_FAM6_TIGERLAKE		0x8D
+ 	for (i = 0; i < NUM_UMCS; i++) {
+ 		if (pvt->umc[i].sdp_ctrl & UMC_SDP_INIT) {
+ 			ecc_en &= !!(pvt->umc[i].umc_cap_hi & UMC_ECC_ENABLED);
+ 			cpk_en &= !!(pvt->umc[i].umc_cap_hi & UMC_ECC_CHIPKILL_CAP);
 +
- /* "Small Core" Processors (Atom) */
++			dev_x4  &= !!(pvt->umc[i].dimm_cfg & BIT(6));
++			dev_x16 &= !!(pvt->umc[i].dimm_cfg & BIT(7));
+ 		}
+ 	}
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+@@ -3114,8 +3117,15 @@ f17h_determine_edac_ctl_cap(struct mem_ctl_info *mci, struct amd64_pvt *pvt)
+ 	if (ecc_en) {
+ 		mci->edac_ctl_cap |= EDAC_FLAG_SECDED;
+ 
+-		if (cpk_en)
++		if (!cpk_en)
++			return;
++
++		if (dev_x4)
+ 			mci->edac_ctl_cap |= EDAC_FLAG_S4ECD4ED;
++		else if (dev_x16)
++			mci->edac_ctl_cap |= EDAC_FLAG_S16ECD16ED;
++		else
++			mci->edac_ctl_cap |= EDAC_FLAG_S8ECD8ED;
+ 	}
+ }
+ 
 -- 
 2.20.1
 
