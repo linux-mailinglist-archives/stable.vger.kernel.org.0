@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CF25CA70A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E1DCA7DD
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405848AbfJCQtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:49:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36490 "EHLO mail.kernel.org"
+        id S2405866AbfJCQ53 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:57:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405845AbfJCQtq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:49:46 -0400
+        id S2405853AbfJCQtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:49:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FF2E215EA;
-        Thu,  3 Oct 2019 16:49:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 351F921783;
+        Thu,  3 Oct 2019 16:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121385;
-        bh=rPaLg1m9winrfrc8LJ+1bVDOdUBp4c8jxgZhSx0iDT4=;
+        s=default; t=1570121388;
+        bh=Q/NK56j/ghdmHEJTxu2BwpA78enXAjTw55znvF1Vb/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrVSar5w1c/KoSHvfVnLSD+KChOQ7MBKJl61vEhZwYO/O+h/lT5x9kQF3cnMlHZXG
-         HO9urewbudjKym6qidn2oOeBAx7WOCMk2MBRiJJSOVTGBuDB6fqmHnVtmCSeQqF/3N
-         6hSPpw1J4LYe6KJJsYzpfNNZXU4Adm5+TX4mxYNY=
+        b=rLhZ7Uy8KruEag/U3I0ui1A2AFcPQbc8xtaknyAuCWquLmE/IOgIWREB+XP/9ykRp
+         CH3jprgLLpv/SIYoBF/fKpj3eKgq1G1D/gZkRDTdtstjNPVMYnju1o5EFg67Bg24j2
+         tGon3x4eOpVsZHW8UeSTpfTAfTbO9o2UO8Q9Ccx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?G=C3=B6ran=20Uddeborg?= <goeran@uddeborg.se>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 224/344] drm: fix module name in edid_firmware log message
-Date:   Thu,  3 Oct 2019 17:53:09 +0200
-Message-Id: <20191003154602.468470724@linuxfoundation.org>
+Subject: [PATCH 5.3 225/344] ALSA: hda/realtek - Blacklist PC beep for Lenovo ThinkCentre M73/93
+Date:   Thu,  3 Oct 2019 17:53:10 +0200
+Message-Id: <20191003154602.572925801@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit ade925995b172f1d7410d1c665b2f47c5e99bef0 ]
+[ Upstream commit 051c78af14fcd74a22b5af45548ad9d588247cc7 ]
 
-The module is drm_kms_helper, not drm_kms_firmware.
+Lenovo ThinkCentre M73 and M93 don't seem to have a proper beep
+although the driver tries to probe and set up blindly.
+Blacklist these machines for suppressing the beep creation.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204549
-Reported-by: Göran Uddeborg <goeran@uddeborg.se>
-Fixes: ac6c35a4d8c7 ("drm: add backwards compatibility support for drm_kms_helper.edid_firmware")
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190821094312.5514-1-jani.nikula@intel.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204635
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_kms_helper_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_kms_helper_common.c b/drivers/gpu/drm/drm_kms_helper_common.c
-index d9a5ac81949e2..221a8528c9937 100644
---- a/drivers/gpu/drm/drm_kms_helper_common.c
-+++ b/drivers/gpu/drm/drm_kms_helper_common.c
-@@ -40,7 +40,7 @@ MODULE_LICENSE("GPL and additional rights");
- /* Backward compatibility for drm_kms_helper.edid_firmware */
- static int edid_firmware_set(const char *val, const struct kernel_param *kp)
- {
--	DRM_NOTE("drm_kms_firmware.edid_firmware is deprecated, please use drm.edid_firmware instead.\n");
-+	DRM_NOTE("drm_kms_helper.edid_firmware is deprecated, please use drm.edid_firmware instead.\n");
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 1bec62720374d..d223a79ac934f 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1058,6 +1058,9 @@ static const struct snd_pci_quirk beep_white_list[] = {
+ 	SND_PCI_QUIRK(0x1043, 0x834a, "EeePC", 1),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "GA-MA790X", 1),
+ 	SND_PCI_QUIRK(0x8086, 0xd613, "Intel", 1),
++	/* blacklist -- no beep available */
++	SND_PCI_QUIRK(0x17aa, 0x309e, "Lenovo ThinkCentre M73", 0),
++	SND_PCI_QUIRK(0x17aa, 0x30a3, "Lenovo ThinkCentre M93", 0),
+ 	{}
+ };
  
- 	return __drm_set_edid_firmware_path(val);
- }
 -- 
 2.20.1
 
