@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4AACA855
+	by mail.lfdr.de (Postfix) with ESMTP id 9A4D2CA856
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390463AbfJCQZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55292 "EHLO mail.kernel.org"
+        id S2390492AbfJCQZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390458AbfJCQZM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:25:12 -0400
+        id S2388107AbfJCQZT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:25:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 096AA20867;
-        Thu,  3 Oct 2019 16:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52B2821A4C;
+        Thu,  3 Oct 2019 16:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119912;
-        bh=svINnZnyDjLNpHNLsHFjhuTBT8SNQ686q063Aj8i0Wc=;
+        s=default; t=1570119917;
+        bh=W0T+0m0P2SGl5GUNMUD4zXhYLqP9P+xj8Epf7hhfNdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X99fOu4qSlQM+PrsPQk/Ub540hh7K1gBtyhzeW/iM0XpD1g03hXbU1ZDgwW6K3mM8
-         VWpu0rM8St/gbpPQBOlIafjynwO9dTkgEITLRAksQqTrRGzb6ZFkGPZc5PqbPsTBY+
-         W7/aXrF98WmeSO6w6X3bj7rE68RlwfQLTPPFLZbU=
+        b=SRMA7zB0HwEprw1ZWB5cnHnbYgY+/XeEkwAH53ia8UUvaii46C/dTo4PK/X1fzBuh
+         i3on+oseyEHUxvcT/ez/cyWtHgMLTlfD1uO6WkAr9NrXu8OxykX5EIzhVwuW9FPhe8
+         NFYxsmtoIzvPT+cBKaOBAOa5u1UGFoeG78zHww+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodong Wang <bodong@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.2 027/313] net/mlx5: Add device ID of upcoming BlueField-2
-Date:   Thu,  3 Oct 2019 17:50:05 +0200
-Message-Id: <20191003154536.009698603@linuxfoundation.org>
+        stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 029/313] appletalk: enforce CAP_NET_RAW for raw sockets
+Date:   Thu,  3 Oct 2019 17:50:07 +0200
+Message-Id: <20191003154536.199089000@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,31 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodong Wang <bodong@mellanox.com>
+From: Ori Nimron <orinimron123@gmail.com>
 
-[ Upstream commit d19a79ee38c8fda6d297e4227e80db8bf51c71a6 ]
+[ Upstream commit 6cc03e8aa36c51f3b26a0d21a3c4ce2809c842ac ]
 
-Add the device ID of upcoming BlueField-2 integrated ConnectX-6 Dx
-network controller. Its VFs will be using the generic VF device ID:
-0x101e "ConnectX Family mlx5Gen Virtual Function".
+When creating a raw AF_APPLETALK socket, CAP_NET_RAW needs to be checked
+first.
 
-Fixes: 2e9d3e83ab82 ("net/mlx5: Update the list of the PCI supported devices")
-Signed-off-by: Bodong Wang <bodong@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Ori Nimron <orinimron123@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/appletalk/ddp.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1525,6 +1525,7 @@ static const struct pci_device_id mlx5_c
- 	{ PCI_VDEVICE(MELLANOX, 0x101e), MLX5_PCI_DEV_IS_VF},	/* ConnectX Family mlx5Gen Virtual Function */
- 	{ PCI_VDEVICE(MELLANOX, 0xa2d2) },			/* BlueField integrated ConnectX-5 network controller */
- 	{ PCI_VDEVICE(MELLANOX, 0xa2d3), MLX5_PCI_DEV_IS_VF},	/* BlueField integrated ConnectX-5 network controller VF */
-+	{ PCI_VDEVICE(MELLANOX, 0xa2d6) },			/* BlueField-2 integrated ConnectX-6 Dx network controller */
- 	{ 0, }
- };
- 
+--- a/net/appletalk/ddp.c
++++ b/net/appletalk/ddp.c
+@@ -1023,6 +1023,11 @@ static int atalk_create(struct net *net,
+ 	 */
+ 	if (sock->type != SOCK_RAW && sock->type != SOCK_DGRAM)
+ 		goto out;
++
++	rc = -EPERM;
++	if (sock->type == SOCK_RAW && !kern && !capable(CAP_NET_RAW))
++		goto out;
++
+ 	rc = -ENOMEM;
+ 	sk = sk_alloc(net, PF_APPLETALK, GFP_KERNEL, &ddp_proto, kern);
+ 	if (!sk)
 
 
