@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC141CA9E6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5716CAAEC
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732888AbfJCRB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57110 "EHLO mail.kernel.org"
+        id S2389054AbfJCQQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404061AbfJCQou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:44:50 -0400
+        id S2389052AbfJCQQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:16:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1CEB2070B;
-        Thu,  3 Oct 2019 16:44:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F116B2054F;
+        Thu,  3 Oct 2019 16:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121090;
-        bh=9m2JYGkvWDmA0P2yVuAEtBW885OyXdy4d9jpcGwBEes=;
+        s=default; t=1570119400;
+        bh=I6mLupdicjRHBWyEFst+0fM+XGoYu7qjKSS+PJ4HJa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAqVn8C3Ne5s6xgUnc8yL3qGY80EsfVyuWir2PliRd2ygD5c6wgo8XJRe4FGxo55q
-         lqOACdUh8kb+G6FxdykGPoKvBmj3MgI71H7KeFxbFqrA+kZE8HozKSIcxi/SV6nhZh
-         HVwQbRrOGBrTHMySFus7n+dbFiHw4BlwlLnpd4Ig=
+        b=ANooPvhVZo6oWTzY/4+XLcKvvwiAxOrigbfZYhklWFI2RYL3Dmhd3Zyk7bskAZJ4z
+         GKhXHeSsAlRdnffHA1kgWIJmi6ke72WplyGygNCkOAQ9bbbu4Rb69LVWWrnmDn6O7J
+         1OcZoyEIdfg3OiBm/FXMgXndwwMYwt4U3gZS2r9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Simon Horman <horms+renesas@verge.net.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Borislav Petkov <bp@suse.de>,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        James Morse <james.morse@arm.com>,
+        kernel-janitors@vger.kernel.org,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 151/344] soc: renesas: Enable ARM_ERRATA_754322 for affected Cortex-A9
-Date:   Thu,  3 Oct 2019 17:51:56 +0200
-Message-Id: <20191003154555.146144185@linuxfoundation.org>
+Subject: [PATCH 4.19 051/211] EDAC/altera: Use the proper type for the IRQ status bits
+Date:   Thu,  3 Oct 2019 17:51:57 +0200
+Message-Id: <20191003154459.712803357@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +50,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2eced4607a1e6f51f928ae3e521fe02be5cb7d23 ]
+[ Upstream commit 8faa1cf6ed82f33009f63986c3776cc48af1b7b2 ]
 
-ARM Erratum 754322 affects Cortex-A9 revisions r2p* and r3p*.
+Smatch complains about the cast of a u32 pointer to unsigned long:
 
-Automatically enable support code to mitigate the erratum when compiling
-a kernel for any of the affected Renesas SoCs:
-  - RZ/A1: r3p0,
-  - R-Mobile A1: r2p4,
-  - R-Car M1A: r2p2-00rel0,
-  - R-Car H1: r3p0,
-  - SH-Mobile AG5: r2p2.
+  drivers/edac/altera_edac.c:1878 altr_edac_a10_irq_handler()
+  warn: passing casted pointer '&irq_status' to 'find_first_bit()'
 
-EMMA Mobile EV2 (r1p3) and RZ/A2 (r4p1) are not affected.
+This code wouldn't work on a 64 bit big endian system because it would
+read past the end of &irq_status.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+ [ bp: massage. ]
+
+Fixes: 13ab8448d2c9 ("EDAC, altera: Add ECC Manager IRQ controller support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: kernel-janitors@vger.kernel.org
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Link: https://lkml.kernel.org/r/20190624134717.GA1754@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/renesas/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/edac/altera_edac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
-index 2bbf49e5d4418..9583c542c47f7 100644
---- a/drivers/soc/renesas/Kconfig
-+++ b/drivers/soc/renesas/Kconfig
-@@ -55,6 +55,7 @@ config ARCH_EMEV2
+diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
+index 5762c3c383f2e..56de378ad13dc 100644
+--- a/drivers/edac/altera_edac.c
++++ b/drivers/edac/altera_edac.c
+@@ -1956,6 +1956,7 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
+ 	struct altr_arria10_edac *edac = irq_desc_get_handler_data(desc);
+ 	struct irq_chip *chip = irq_desc_get_chip(desc);
+ 	int irq = irq_desc_get_irq(desc);
++	unsigned long bits;
  
- config ARCH_R7S72100
- 	bool "RZ/A1H (R7S72100)"
-+	select ARM_ERRATA_754322
- 	select PM
- 	select PM_GENERIC_DOMAINS
- 	select RENESAS_OSTM
-@@ -78,6 +79,7 @@ config ARCH_R8A73A4
- config ARCH_R8A7740
- 	bool "R-Mobile A1 (R8A77400)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select RENESAS_INTC_IRQPIN
+ 	dberr = (irq == edac->db_irq) ? 1 : 0;
+ 	sm_offset = dberr ? A10_SYSMGR_ECC_INTSTAT_DERR_OFST :
+@@ -1965,7 +1966,8 @@ static void altr_edac_a10_irq_handler(struct irq_desc *desc)
  
- config ARCH_R8A7743
-@@ -105,10 +107,12 @@ config ARCH_R8A77470
- config ARCH_R8A7778
- 	bool "R-Car M1A (R8A77781)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
+ 	regmap_read(edac->ecc_mgr_map, sm_offset, &irq_status);
  
- config ARCH_R8A7779
- 	bool "R-Car H1 (R8A77790)"
- 	select ARCH_RCAR_GEN1
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select SYSC_R8A7779
-@@ -152,6 +156,7 @@ config ARCH_R9A06G032
- config ARCH_SH73A0
- 	bool "SH-Mobile AG5 (R8A73A00)"
- 	select ARCH_RMOBILE
-+	select ARM_ERRATA_754322
- 	select HAVE_ARM_SCU if SMP
- 	select HAVE_ARM_TWD if SMP
- 	select RENESAS_INTC_IRQPIN
+-	for_each_set_bit(bit, (unsigned long *)&irq_status, 32) {
++	bits = irq_status;
++	for_each_set_bit(bit, &bits, 32) {
+ 		irq = irq_linear_revmap(edac->domain, dberr * 32 + bit);
+ 		if (irq)
+ 			generic_handle_irq(irq);
 -- 
 2.20.1
 
