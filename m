@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 994F5CA73B
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74A7CA746
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406138AbfJCQv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:51:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39428 "EHLO mail.kernel.org"
+        id S2406183AbfJCQw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:52:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406133AbfJCQv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:51:56 -0400
+        id S2406178AbfJCQwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2FC62054F;
-        Thu,  3 Oct 2019 16:51:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D2732133F;
+        Thu,  3 Oct 2019 16:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121515;
-        bh=YFcpQ5DlkoOtVD/DRuruBohEHaSxFNyUrtc9wrJsp8g=;
+        s=default; t=1570121544;
+        bh=zR8prZ67XS3tWyl81iTYJBxZzU5N6ZPe07g20rODNrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpSJYrnINUllIl4GQ2ZzlzvNqK90TfydbrXnMg3Fte0dXThCGDnrKp8kYNgVx1d1U
-         qoG5kMoBra4oIngWZ5gk3K7csO2OMF07Jqu05dRdkpJzDJugWu/Od4laKCOLrFxRkp
-         owuzWaZCvgw3HgUXlo8Anb81CiqjJbTTZ3oa+9BU=
+        b=wb68v6VFW8KJTmUUYsbNe+nVSbj38JRzPiUTatY7SK+v/YY8vSPGOBMU04+uG3bVg
+         iS/QnmADr9pU15B24ByIUjxSCNk7e1wcCPX7Do7Je279tWwb8TFOAn5A4zdjIjHBuy
+         SPdyY10SkI7/09qKdw0/yITVrM4FrEiOlNy/NIF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.3 300/344] ath10k: fix channel info parsing for non tlv target
-Date:   Thu,  3 Oct 2019 17:54:25 +0200
-Message-Id: <20191003154609.079936462@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Subject: [PATCH 5.3 301/344] i40e: check __I40E_VF_DISABLE bit in i40e_sync_filters_subtask
+Date:   Thu,  3 Oct 2019 17:54:26 +0200
+Message-Id: <20191003154609.147514725@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,95 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-commit 6be6c04bcc2e8770b8637632789ff15765124894 upstream.
+commit a7542b87607560d0b89e7ff81d870bd6ff8835cb upstream.
 
-The tlv targets such as WCN3990 send more data in the chan info event, which is
-not sent by the non tlv targets. There is a minimum size check in the wmi event
-for non-tlv targets and hence we cannot update the common channel info
-structure as it was done in commit 13104929d2ec ("ath10k: fill the channel
-survey results for WCN3990 correctly"). This broke channel survey results on
-10.x firmware versions.
+While testing VF spawn/destroy the following panic occurred.
 
-If the common channel info structure is updated, the size check for chan info
-event for non-tlv targets will fail and return -EPROTO and we see the below
-error messages
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000029
+[...]
+Workqueue: i40e i40e_service_task [i40e]
+RIP: 0010:i40e_sync_vsi_filters+0x6fd/0xc60 [i40e]
+[...]
+Call Trace:
+ ? __switch_to_asm+0x35/0x70
+ ? __switch_to_asm+0x41/0x70
+ ? __switch_to_asm+0x35/0x70
+ ? _cond_resched+0x15/0x30
+ i40e_sync_filters_subtask+0x56/0x70 [i40e]
+ i40e_service_task+0x382/0x11b0 [i40e]
+ ? __switch_to_asm+0x41/0x70
+ ? __switch_to_asm+0x41/0x70
+ process_one_work+0x1a7/0x3b0
+ worker_thread+0x30/0x390
+ ? create_worker+0x1a0/0x1a0
+ kthread+0x112/0x130
+ ? kthread_bind+0x30/0x30
+ ret_from_fork+0x35/0x40
 
-   ath10k_pci 0000:01:00.0: failed to parse chan info event: -71
+Investigation revealed a race where pf->vf[vsi->vf_id].trusted may get
+accessed by the watchdog via i40e_sync_filters_subtask() although
+i40e_free_vfs() already free'd pf->vf.
+To avoid this the call to i40e_sync_vsi_filters() in
+i40e_sync_filters_subtask() needs to be guarded by __I40E_VF_DISABLE,
+which is also used by i40e_free_vfs().
 
-Add tlv specific channel info structure and restore the original size of the
-common channel info structure to mitigate this issue.
+Note: put the __I40E_VF_DISABLE check after the
+__I40E_MACVLAN_SYNC_PENDING check as the latter is more likely to
+trigger.
 
-Tested HW: WCN3990
-	   QCA9887
-Tested FW: WLAN.HL.3.1-00784-QCAHLSWMTPLZ-1
-	   10.2.4-1.0-00037
-
-Fixes: 13104929d2ec ("ath10k: fill the channel survey results for WCN3990 correctly")
-Cc: stable@vger.kernel.org # 5.0
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath10k/wmi-tlv.c |    2 +-
- drivers/net/wireless/ath/ath10k/wmi-tlv.h |   16 ++++++++++++++++
- drivers/net/wireless/ath/ath10k/wmi.h     |    8 --------
- 3 files changed, 17 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.c
-@@ -841,7 +841,7 @@ static int ath10k_wmi_tlv_op_pull_ch_inf
- 					     struct wmi_ch_info_ev_arg *arg)
- {
- 	const void **tb;
--	const struct wmi_chan_info_event *ev;
-+	const struct wmi_tlv_chan_info_event *ev;
- 	int ret;
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -2583,6 +2583,10 @@ static void i40e_sync_filters_subtask(st
+ 		return;
+ 	if (!test_and_clear_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state))
+ 		return;
++	if (test_and_set_bit(__I40E_VF_DISABLE, pf->state)) {
++		set_bit(__I40E_MACVLAN_SYNC_PENDING, pf->state);
++		return;
++	}
  
- 	tb = ath10k_wmi_tlv_parse_alloc(ar, skb->data, skb->len, GFP_ATOMIC);
---- a/drivers/net/wireless/ath/ath10k/wmi-tlv.h
-+++ b/drivers/net/wireless/ath/ath10k/wmi-tlv.h
-@@ -1615,6 +1615,22 @@ struct chan_info_params {
+ 	for (v = 0; v < pf->num_alloc_vsi; v++) {
+ 		if (pf->vsi[v] &&
+@@ -2597,6 +2601,7 @@ static void i40e_sync_filters_subtask(st
+ 			}
+ 		}
+ 	}
++	clear_bit(__I40E_VF_DISABLE, pf->state);
+ }
  
- #define WMI_TLV_FLAG_MGMT_BUNDLE_TX_COMPL	BIT(9)
- 
-+struct wmi_tlv_chan_info_event {
-+	__le32 err_code;
-+	__le32 freq;
-+	__le32 cmd_flags;
-+	__le32 noise_floor;
-+	__le32 rx_clear_count;
-+	__le32 cycle_count;
-+	__le32 chan_tx_pwr_range;
-+	__le32 chan_tx_pwr_tp;
-+	__le32 rx_frame_count;
-+	__le32 my_bss_rx_cycle_count;
-+	__le32 rx_11b_mode_data_duration;
-+	__le32 tx_frame_cnt;
-+	__le32 mac_clk_mhz;
-+} __packed;
-+
- struct wmi_tlv_mgmt_tx_compl_ev {
- 	__le32 desc_id;
- 	__le32 status;
---- a/drivers/net/wireless/ath/ath10k/wmi.h
-+++ b/drivers/net/wireless/ath/ath10k/wmi.h
-@@ -6533,14 +6533,6 @@ struct wmi_chan_info_event {
- 	__le32 noise_floor;
- 	__le32 rx_clear_count;
- 	__le32 cycle_count;
--	__le32 chan_tx_pwr_range;
--	__le32 chan_tx_pwr_tp;
--	__le32 rx_frame_count;
--	__le32 my_bss_rx_cycle_count;
--	__le32 rx_11b_mode_data_duration;
--	__le32 tx_frame_cnt;
--	__le32 mac_clk_mhz;
--
- } __packed;
- 
- struct wmi_10_4_chan_info_event {
+ /**
 
 
