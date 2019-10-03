@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F192BCAC2F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6841FCAC30
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729337AbfJCQGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53960 "EHLO mail.kernel.org"
+        id S1732816AbfJCQGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:06:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731984AbfJCQGh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:06:37 -0400
+        id S1732808AbfJCQGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:06:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCB8521A4C;
-        Thu,  3 Oct 2019 16:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E20D3207FF;
+        Thu,  3 Oct 2019 16:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118796;
-        bh=KqutcUBBFwjEucekYcsip5PjUcKs6zNDIiPAfx1rv3Q=;
+        s=default; t=1570118804;
+        bh=rBfg1VHZ1ulI3RU63dveim5KDxRhoNFTWRrE5Xe8CFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlwf/Z+feuRsXov/YgBfTFXaQq0BlHlippYPokNnLcXX+h/ctdmw0zKS+W9HYRD2P
-         aWJ81X08gc9sjY7Ny8Z8TyRKNVlbZ57bTA2rAmWgjMQQTDPar0MrDHQRxvaeYUQi7k
-         ejqk8bZ3MxzMlI4zflPwc43uej9LnVEDmXNZAo0c=
+        b=WMBFkm3XVSQNmyAEGCdh4RM+LLY2+oKUd3ziEZZkuBvz+oqyQS/bk87OGGt5MuUgd
+         CqMTHkFNQTPS6EYYWZ8xjJ68LuwyMA2mt/TBY8iobrQCGswm7O4n7VXn7/9euUnol2
+         pS0K/7Cqo/cZu8TzrVN5qLpPUljBqU5YHt8xTJSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Xiubo Li <Xiubo.Lee@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 013/185] ASoC: fsl: Fix of-node refcount unbalance in fsl_ssi_probe_from_dt()
-Date:   Thu,  3 Oct 2019 17:51:31 +0200
-Message-Id: <20191003154440.201936739@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Dennis Padiernos <depadiernos@gmail.com>
+Subject: [PATCH 4.14 016/185] ALSA: hda - Apply AMD controller workaround for Raven platform
+Date:   Thu,  3 Oct 2019 17:51:34 +0200
+Message-Id: <20191003154441.189849859@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -48,45 +45,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 2757970f6d0d0a112247600b23d38c0c728ceeb3 upstream.
+commit d2c63b7dfd06788a466d5ec8a850491f084c5fc2 upstream.
 
-The node obtained from of_find_node_by_path() has to be unreferenced
-after the use, but we forgot it for the root node.
+It's reported that the garbled sound on HP Envy x360 13z-ag000 (Ryzen
+Laptop) is fixed by the same workaround applied to other AMD chips.
+Update the driver_data entry for Raven (1022:15e3) to use the newly
+introduced preset, AZX_DCAPS_PRESET_AMD_SB.  Since it already contains
+AZX_DCAPS_PM_RUNTIME, we can drop that bit, too.
 
-Fixes: f0fba2ad1b6b ("ASoC: multi-component - ASoC Multi-Component Support")
-Cc: Timur Tabi <timur@kernel.org>
-Cc: Nicolin Chen <nicoleotsuka@gmail.com>
-Cc: Xiubo Li <Xiubo.Lee@gmail.com>
-Cc: Fabio Estevam <festevam@gmail.com>
+Reported-and-tested-by: Dennis Padiernos <depadiernos@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190920073040.31764-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/fsl/fsl_ssi.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_intel.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/soc/fsl/fsl_ssi.c
-+++ b/sound/soc/fsl/fsl_ssi.c
-@@ -1418,6 +1418,7 @@ static int fsl_ssi_probe(struct platform
- 	struct fsl_ssi_private *ssi_private;
- 	int ret = 0;
- 	struct device_node *np = pdev->dev.of_node;
-+	struct device_node *root;
- 	const struct of_device_id *of_id;
- 	const char *p, *sprop;
- 	const uint32_t *iprop;
-@@ -1605,7 +1606,9 @@ static int fsl_ssi_probe(struct platform
- 	 * device tree.  We also pass the address of the CPU DAI driver
- 	 * structure.
- 	 */
--	sprop = of_get_property(of_find_node_by_path("/"), "compatible", NULL);
-+	root = of_find_node_by_path("/");
-+	sprop = of_get_property(root, "compatible", NULL);
-+	of_node_put(root);
- 	/* Sometimes the compatible name has a "fsl," prefix, so we strip it. */
- 	p = strrchr(sprop, ',');
- 	if (p)
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2586,8 +2586,7 @@ static const struct pci_device_id azx_id
+ 			 AZX_DCAPS_PM_RUNTIME },
+ 	/* AMD Raven */
+ 	{ PCI_DEVICE(0x1022, 0x15e3),
+-	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_ATI_SB |
+-			 AZX_DCAPS_PM_RUNTIME },
++	  .driver_data = AZX_DRIVER_GENERIC | AZX_DCAPS_PRESET_AMD_SB },
+ 	/* ATI HDMI */
+ 	{ PCI_DEVICE(0x1002, 0x0002),
+ 	  .driver_data = AZX_DRIVER_ATIHDMI_NS | AZX_DCAPS_PRESET_ATI_HDMI_NS },
 
 
