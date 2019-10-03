@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8819ECAC2E
+	by mail.lfdr.de (Postfix) with ESMTP id F192BCAC2F
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731318AbfJCQGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
+        id S1729337AbfJCQGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732778AbfJCQGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:06:34 -0400
+        id S1731984AbfJCQGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:06:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28643207FF;
-        Thu,  3 Oct 2019 16:06:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCB8521A4C;
+        Thu,  3 Oct 2019 16:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118793;
-        bh=t9LHanrfw5j5X4dy+qVtdNwC8YoU47sS5DxxzUcEG8I=;
+        s=default; t=1570118796;
+        bh=KqutcUBBFwjEucekYcsip5PjUcKs6zNDIiPAfx1rv3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfE8Y69qza8TNbPpHjy+8QQhC8DeRjVv3qiZpH/nd0NyDHtaOtvWFUYwjR4ZSuwWk
-         NsOI0YY1SxBAr+nUnw7GOkrAtuTeDyfIwq28XPPTsoAJKoGPJqMN5bMGPBa1kWMTu2
-         fFZzSm4J0xRBEW7+gPQZFBhMcUTGHalYkMKr+SOk=
+        b=xlwf/Z+feuRsXov/YgBfTFXaQq0BlHlippYPokNnLcXX+h/ctdmw0zKS+W9HYRD2P
+         aWJ81X08gc9sjY7Ny8Z8TyRKNVlbZ57bTA2rAmWgjMQQTDPar0MrDHQRxvaeYUQi7k
+         ejqk8bZ3MxzMlI4zflPwc43uej9LnVEDmXNZAo0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 012/185] media: tvp5150: fix switch exit in set control handler
-Date:   Thu,  3 Oct 2019 17:51:30 +0200
-Message-Id: <20191003154439.976082404@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Xiubo Li <Xiubo.Lee@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 013/185] ASoC: fsl: Fix of-node refcount unbalance in fsl_ssi_probe_from_dt()
+Date:   Thu,  3 Oct 2019 17:51:31 +0200
+Message-Id: <20191003154440.201936739@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -43,39 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2d29bcc8c237874795175b2930fa9a45a115175a upstream.
+commit 2757970f6d0d0a112247600b23d38c0c728ceeb3 upstream.
 
-The function only consists of a single switch case block without a
-default case. Unsupported control requests are indicated by the -EINVAL
-return code trough the last return statement at the end of the function. So
-exiting just the switch case block returns the -EINVAL error code but the
-hue control is supported and a zero should be returned instead.
+The node obtained from of_find_node_by_path() has to be unreferenced
+after the use, but we forgot it for the root node.
 
-Replace the break by a 'return 0' to fix this behaviour.
-
-Fixes: d183e4efcae8 ("[media] v4l: tvp5150: Add missing break in set
-control handler")
-
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fixes: f0fba2ad1b6b ("ASoC: multi-component - ASoC Multi-Component Support")
+Cc: Timur Tabi <timur@kernel.org>
+Cc: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Xiubo Li <Xiubo.Lee@gmail.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/tvp5150.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/fsl_ssi.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/media/i2c/tvp5150.c
-+++ b/drivers/media/i2c/tvp5150.c
-@@ -827,7 +827,7 @@ static int tvp5150_s_ctrl(struct v4l2_ct
- 		return 0;
- 	case V4L2_CID_HUE:
- 		tvp5150_write(sd, TVP5150_HUE_CTL, ctrl->val);
--		break;
-+		return 0;
- 	case V4L2_CID_TEST_PATTERN:
- 		decoder->enable = ctrl->val ? false : true;
- 		tvp5150_selmux(sd);
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -1418,6 +1418,7 @@ static int fsl_ssi_probe(struct platform
+ 	struct fsl_ssi_private *ssi_private;
+ 	int ret = 0;
+ 	struct device_node *np = pdev->dev.of_node;
++	struct device_node *root;
+ 	const struct of_device_id *of_id;
+ 	const char *p, *sprop;
+ 	const uint32_t *iprop;
+@@ -1605,7 +1606,9 @@ static int fsl_ssi_probe(struct platform
+ 	 * device tree.  We also pass the address of the CPU DAI driver
+ 	 * structure.
+ 	 */
+-	sprop = of_get_property(of_find_node_by_path("/"), "compatible", NULL);
++	root = of_find_node_by_path("/");
++	sprop = of_get_property(root, "compatible", NULL);
++	of_node_put(root);
+ 	/* Sometimes the compatible name has a "fsl," prefix, so we strip it. */
+ 	p = strrchr(sprop, ',');
+ 	if (p)
 
 
