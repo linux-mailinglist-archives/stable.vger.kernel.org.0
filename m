@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDC61CAC9A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6455CCAC17
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388348AbfJCQNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35658 "EHLO mail.kernel.org"
+        id S1732180AbfJCQFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731632AbfJCQNG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:06 -0400
+        id S1731287AbfJCQFQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAFAE2054F;
-        Thu,  3 Oct 2019 16:13:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D447207FF;
+        Thu,  3 Oct 2019 16:05:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119185;
-        bh=Ueaqf8L7aiXnLa7rVeHwr0H9y2qhxDWtM7OnYOJ9vwM=;
+        s=default; t=1570118715;
+        bh=gAU5FFtkt4JrXlIGSESoZ5d/KBuNhSLtdre5Bf76G9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVgFJdiSq3J3txwpyI+OGyJ1KPlAYEgE2yP0NcY4ZfB3YYvO1lTN2vn6dYCFeAgaP
-         L9+5eiE1uJsys2XNWBDi4BGVAyXzkBAX3TW/63bjZfN7cftNe1fWMdklhHYltL4i+4
-         8TRIKPHUE0sMfjcq5YdDsGNRbN7u6dyzMUWR3cSU=
+        b=IkdJXTlAg1shSPSvuYbFsCnEPGSS2iAUVd/8ZGsmdELiBm+iIOyQ34HvIEwdhaJU9
+         wsx4k0r+dHUabaBmoEiF7QV7Q3WQZ2Z6/lQPvUBQ4WoHeuz9C8GDZYTJZIE4La1RUB
+         eDvxArX/kPOU2PsNEVm9KEZ9W3gp+5144hYQN9ZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.14 156/185] ASoC: Intel: Skylake: Use correct function to access iomem space
+        stable@vger.kernel.org, Luis Araneda <luaraneda@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 4.9 111/129] ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
 Date:   Thu,  3 Oct 2019 17:53:54 +0200
-Message-Id: <20191003154514.574110234@linuxfoundation.org>
+Message-Id: <20191003154409.643189494@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+From: Luis Araneda <luaraneda@gmail.com>
 
-commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
+commit b7005d4ef4f3aa2dc24019ffba03a322557ac43d upstream.
 
-For copying from __iomem, we should use __ioread32_copy.
+This fixes a kernel panic on memcpy when
+FORTIFY_SOURCE is enabled.
 
-reported by sparse:
-sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
-sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
-sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
-sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
-sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
+The initial smp implementation on commit aa7eb2bb4e4a
+("arm: zynq: Add smp support")
+used memcpy, which worked fine until commit ee333554fed5
+("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
+enabled overflow checks at runtime, producing a read
+overflow panic.
 
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
-Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The computed size of memcpy args are:
+- p_size (dst): 4294967295 = (size_t) -1
+- q_size (src): 1
+- size (len): 8
+
+Additionally, the memory is marked as __iomem, so one of
+the memcpy_* functions should be used for read/write.
+
+Fixes: aa7eb2bb4e4a ("arm: zynq: Add smp support")
+Signed-off-by: Luis Araneda <luaraneda@gmail.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/intel/skylake/skl-debug.c |    2 +-
+ arch/arm/mach-zynq/platsmp.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/intel/skylake/skl-debug.c
-+++ b/sound/soc/intel/skylake/skl-debug.c
-@@ -196,7 +196,7 @@ static ssize_t fw_softreg_read(struct fi
- 	memset(d->fw_read_buff, 0, FW_REG_BUF);
+--- a/arch/arm/mach-zynq/platsmp.c
++++ b/arch/arm/mach-zynq/platsmp.c
+@@ -65,7 +65,7 @@ int zynq_cpun_start(u32 address, int cpu
+ 			* 0x4: Jump by mov instruction
+ 			* 0x8: Jumping address
+ 			*/
+-			memcpy((__force void *)zero, &zynq_secondary_trampoline,
++			memcpy_toio(zero, &zynq_secondary_trampoline,
+ 							trampoline_size);
+ 			writel(address, zero + trampoline_size);
  
- 	if (w0_stat_sz > 0)
--		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
-+		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
- 
- 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
- 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
 
 
