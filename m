@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 338B4CAC8F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36861CABBB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388020AbfJCQMV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:12:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34472 "EHLO mail.kernel.org"
+        id S1731316AbfJCP7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388014AbfJCQMU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:12:20 -0400
+        id S1729160AbfJCP7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:59:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C66D120700;
-        Thu,  3 Oct 2019 16:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A06320830;
+        Thu,  3 Oct 2019 15:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119139;
+        s=default; t=1570118348;
         bh=fik+i5HOycM4aEtSccDBSMO6kukqh4PeAR2iNgi49dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zp8PkfR/05S/vGoz8TUKN0IV67t/3U2XQ5zPTz847KgKJWm7KiU1cyTvk0Xa5pA6O
-         I7VKtjlxJuB5hiQKLV6LiBsuRgEFV+W6gpyPyYAIWu/jLP6s+CN2yH2e96kvqo5Z5r
-         PvJaNgnW4X8J5m0Cux2ypTYxT7IM+bE24jbYFCTw=
+        b=HdopCgV3LXuEa2LN3iYWJWlLHNQCdpn2sInW3zEVoW9/XWBWo1WP7tW3w2UexfHEe
+         eDnDxzr41l7K/WFAXC60Kg0YU3Y/JMph046xU1l8PLJzDuX1quqDhOwnYUvtdEHgpV
+         eWxDtWk/um4zb+36oq07IXNfXn9A9N4kSjgTMvjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 141/185] ALSA: firewire-tascam: check intermediate state of clock status and retry
-Date:   Thu,  3 Oct 2019 17:53:39 +0200
-Message-Id: <20191003154509.448533373@linuxfoundation.org>
+Subject: [PATCH 4.4 77/99] ALSA: firewire-tascam: check intermediate state of clock status and retry
+Date:   Thu,  3 Oct 2019 17:53:40 +0200
+Message-Id: <20191003154334.566717289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
