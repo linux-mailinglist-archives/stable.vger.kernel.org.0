@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29ED6CAA77
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DA5CA932
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732925AbfJCRF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:05:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48552 "EHLO mail.kernel.org"
+        id S2391594AbfJCQiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:38:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392384AbfJCQir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:38:47 -0400
+        id S1729763AbfJCQiu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 120202070B;
-        Thu,  3 Oct 2019 16:38:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B607E20830;
+        Thu,  3 Oct 2019 16:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120726;
-        bh=/QZ43/W/Cy9WuI7fzA5ePZm73v8V4eY8UHAZpiVx6ME=;
+        s=default; t=1570120729;
+        bh=QewyYujb4UdrSEcgi+mYAT8PK5n643YgE674FQS0/Gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRAheUaStKiPxqRuJT0viAdjy1W/KwDV63DkNshqf8Z4wPCdatuL+mERo6lQE61Z9
-         TATy6kimoNqOxshU1FFHk5u+TJI1Ffr/HA/vVPo6c58hNfOtyTGkpU+Tl7g55j0xry
-         3MBaptL5wetIiVGub+8/FS+aUoUr4gj3ipSVNld4=
+        b=Y4UXgk48AUCCwVo50F19OugBMKozRgNftvLA1rHnaXGDoL3egYDphKFwFAXsOa92p
+         r1s9LERPFv64yVXnlSktzMMDsdCF7hmHDWaddldwPMSFCqnkWRUTPVVZP2IyXQ7KG9
+         Q6SvTjxvmXFYgEC6GVtJyjx2wp14/ykVdYoT8LfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit <benoit.sansoni@gmail.com>,
-        Stephen Hemminger <stephen@networkplumber.org>,
+        stable@vger.kernel.org, "Kevin(Yudong) Yang" <yyd@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Priyaranjan Jha <priyarjha@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 016/344] skge: fix checksum byte order
-Date:   Thu,  3 Oct 2019 17:49:41 +0200
-Message-Id: <20191003154541.689473938@linuxfoundation.org>
+Subject: [PATCH 5.3 017/344] tcp_bbr: fix quantization code to not raise cwnd if not probing bandwidth
+Date:   Thu,  3 Oct 2019 17:49:42 +0200
+Message-Id: <20191003154541.776910558@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,32 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Hemminger <stephen@networkplumber.org>
+From: "Kevin(Yudong) Yang" <yyd@google.com>
 
-[ Upstream commit 5aafeb74b5bb65b34cc87c7623f9fa163a34fa3b ]
+[ Upstream commit 6b3656a60f2067738d1a423328199720806f0c44 ]
 
-Running old skge driver on PowerPC causes checksum errors
-because hardware reported 1's complement checksum is in little-endian
-byte order.
+There was a bug in the previous logic that attempted to ensure gain cycling
+gets inflight above BDP even for small BDPs. This code correctly raised and
+lowered target inflight values during the gain cycle. And this code
+correctly ensured that cwnd was raised when probing bandwidth. However, it
+did not correspondingly ensure that cwnd was *not* raised in this way when
+*not* probing for bandwidth. The result was that small-BDP flows that were
+always cwnd-bound could go for many cycles with a fixed cwnd, and not probe
+or yield bandwidth at all. This meant that multiple small-BDP flows could
+fail to converge in their bandwidth allocations.
 
-Reported-by: Benoit <benoit.sansoni@gmail.com>
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+Fixes: 3c346b233c68 ("tcp_bbr: fix bw probing to raise in-flight data for very small BDPs")
+Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Acked-by: Priyaranjan Jha <priyarjha@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/skge.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_bbr.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/marvell/skge.c
-+++ b/drivers/net/ethernet/marvell/skge.c
-@@ -3108,7 +3108,7 @@ static struct sk_buff *skge_rx_get(struc
- 	skb_put(skb, len);
+--- a/net/ipv4/tcp_bbr.c
++++ b/net/ipv4/tcp_bbr.c
+@@ -386,7 +386,7 @@ static u32 bbr_bdp(struct sock *sk, u32
+  * which allows 2 outstanding 2-packet sequences, to try to keep pipe
+  * full even with ACK-every-other-packet delayed ACKs.
+  */
+-static u32 bbr_quantization_budget(struct sock *sk, u32 cwnd, int gain)
++static u32 bbr_quantization_budget(struct sock *sk, u32 cwnd)
+ {
+ 	struct bbr *bbr = inet_csk_ca(sk);
  
- 	if (dev->features & NETIF_F_RXCSUM) {
--		skb->csum = csum;
-+		skb->csum = le16_to_cpu(csum);
- 		skb->ip_summed = CHECKSUM_COMPLETE;
- 	}
+@@ -397,7 +397,7 @@ static u32 bbr_quantization_budget(struc
+ 	cwnd = (cwnd + 1) & ~1U;
  
+ 	/* Ensure gain cycling gets inflight above BDP even for small BDPs. */
+-	if (bbr->mode == BBR_PROBE_BW && gain > BBR_UNIT)
++	if (bbr->mode == BBR_PROBE_BW && bbr->cycle_idx == 0)
+ 		cwnd += 2;
+ 
+ 	return cwnd;
+@@ -409,7 +409,7 @@ static u32 bbr_inflight(struct sock *sk,
+ 	u32 inflight;
+ 
+ 	inflight = bbr_bdp(sk, bw, gain);
+-	inflight = bbr_quantization_budget(sk, inflight, gain);
++	inflight = bbr_quantization_budget(sk, inflight);
+ 
+ 	return inflight;
+ }
+@@ -529,7 +529,7 @@ static void bbr_set_cwnd(struct sock *sk
+ 	 * due to aggregation (of data and/or ACKs) visible in the ACK stream.
+ 	 */
+ 	target_cwnd += bbr_ack_aggregation_cwnd(sk);
+-	target_cwnd = bbr_quantization_budget(sk, target_cwnd, gain);
++	target_cwnd = bbr_quantization_budget(sk, target_cwnd);
+ 
+ 	/* If we're below target cwnd, slow start cwnd toward target cwnd. */
+ 	if (bbr_full_bw_reached(sk))  /* only cut cwnd if we filled the pipe */
 
 
