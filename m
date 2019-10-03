@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2596BCAD53
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F68CAC76
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389539AbfJCRia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:38:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47456 "EHLO mail.kernel.org"
+        id S2387641AbfJCQK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730476AbfJCQCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:02:32 -0400
+        id S2387637AbfJCQK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:10:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3AEA21A4C;
-        Thu,  3 Oct 2019 16:02:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D19FD215EA;
+        Thu,  3 Oct 2019 16:10:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118550;
-        bh=qOgqvqjCkUD8COe5UC9OHjXjf/iIdtSx/nJitqT3eqk=;
+        s=default; t=1570119026;
+        bh=BmCxRh3AFZo6roUst32OqGMBUYL85uQbOxwAP4cI02Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUvAjDIPqNZwqt7nAvnX1MJPoRgLk/AIayKKh6RspRbAEyv38YU+VRwQsVCpM/Jtf
-         2cUlmPA3HdPNY0DSgAOMHbo9GQCdYqCFruWlgJs21iZTFqsXORI+TOmXRIYXzludQs
-         j2hdwAly5ResitDqCehiE5vshUbegQZN/uclAug0=
+        b=lHQcf8bFOdZZmxTLvcWPAN41GCLLvS5XCFZnXMgEvpZ6OslTNx67zj0L0BmAsyYR1
+         2zWvXwXZF76neMlCF3w4395zIqXIbKOpWNpZ7U5hxbdwISBnK0+mEjMy7T6kS6HC1i
+         VOqyLwAUXbIkFizatYgUJJt0Pg4FR9XaXmhKZjiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/129] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
-Date:   Thu,  3 Oct 2019 17:52:55 +0200
-Message-Id: <20191003154340.598492120@linuxfoundation.org>
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 099/185] media: dvb-core: fix a memory leak bug
+Date:   Thu,  3 Oct 2019 17:52:57 +0200
+Message-Id: <20191003154501.005669722@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
+[ Upstream commit fcd5ce4b3936242e6679875a4d3c3acfc8743e15 ]
 
-In build_adc_controls(), there is an if statement on line 773 to check
-whether ak->adc_info is NULL:
-    if (! ak->adc_info ||
-        ! ak->adc_info[mixer_ch].switch_name)
+In dvb_create_media_entity(), 'dvbdev->entity' is allocated through
+kzalloc(). Then, 'dvbdev->pads' is allocated through kcalloc(). However, if
+kcalloc() fails, the allocated 'dvbdev->entity' is not deallocated, leading
+to a memory leak bug. To fix this issue, free 'dvbdev->entity' before
+returning -ENOMEM.
 
-When ak->adc_info is NULL, it is used on line 792:
-    knew.name = ak->adc_info[mixer_ch].selector_name;
-
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, referring to lines 773 and 774, ak->adc_info
-and ak->adc_info[mixer_ch].selector_name are checked before being used.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/other/ak4xxx-adda.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/dvb-core/dvbdev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
-index bf377dc192aa7..d33e02c317129 100644
---- a/sound/i2c/other/ak4xxx-adda.c
-+++ b/sound/i2c/other/ak4xxx-adda.c
-@@ -789,11 +789,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
- 				return err;
+diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
+index 41aad0f99d73c..ba3c68fb9676b 100644
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -316,8 +316,10 @@ static int dvb_create_media_entity(struct dvb_device *dvbdev,
+ 	if (npads) {
+ 		dvbdev->pads = kcalloc(npads, sizeof(*dvbdev->pads),
+ 				       GFP_KERNEL);
+-		if (!dvbdev->pads)
++		if (!dvbdev->pads) {
++			kfree(dvbdev->entity);
+ 			return -ENOMEM;
++		}
+ 	}
  
- 			memset(&knew, 0, sizeof(knew));
--			knew.name = ak->adc_info[mixer_ch].selector_name;
--			if (!knew.name) {
-+			if (!ak->adc_info ||
-+				!ak->adc_info[mixer_ch].selector_name) {
- 				knew.name = "Capture Channel";
- 				knew.index = mixer_ch + ak->idx_offset * 2;
--			}
-+			} else
-+				knew.name = ak->adc_info[mixer_ch].selector_name;
- 
- 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
- 			knew.info = ak4xxx_capture_source_info;
+ 	switch (type) {
 -- 
 2.20.1
 
