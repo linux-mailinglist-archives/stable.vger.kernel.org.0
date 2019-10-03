@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E6BCAD6F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE116CAC18
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731205AbfJCRln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:41:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
+        id S1731665AbfJCQFb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731195AbfJCP6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:58:12 -0400
+        id S1732550AbfJCQFa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C749207FF;
-        Thu,  3 Oct 2019 15:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B94A1207FF;
+        Thu,  3 Oct 2019 16:05:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118292;
-        bh=NSukmqKx85zf26wnhrsuHIwKRjUlm+nK4EgIzbL9UfQ=;
+        s=default; t=1570118729;
+        bh=7RMS4YktEnGBSooX125/Dw0SiOsFPkU0E3b2XtdJMjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2R3W/Rf8LQFSQawsAHsseL1PPjJAP5ldZSktG3PowwCc/6iL9uGwI810XnjvU/TTj
-         A2Bfu+EB0EnewcbsbeBFbc9wA4XsXeCTIJCBqRKlh1igyznXNQwQOf6Ny1BulJLGrq
-         Ec4LJ/sGmuPQtpSmVOZ5eJa5UuU5Z2nMjISoLsSE=
+        b=p0Ai2GNhSmP67CbXW5M3HzuwHilm7221Q102XPZ9v2GIke3WkH2vTnWl4kT0c0BGc
+         VaZPBtV0JwkIlVde5IlK90kAcuetYt+1as2lVnJtEWfkeaK6drX2INzNF3GGtCKHtx
+         nP5bywSRZOjokRnZP3Q3gYVUmA5ArVJpPvujMMgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Patrick McLean <chutzpah@gentoo.org>,
+        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-trace-devel@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 59/99] media: cpia2_usb: fix memory leaks
+Subject: [PATCH 4.9 079/129] libtraceevent: Change users plugin directory
 Date:   Thu,  3 Oct 2019 17:53:22 +0200
-Message-Id: <20191003154325.545969001@linuxfoundation.org>
+Message-Id: <20191003154355.281204555@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
 
-[ Upstream commit 1c770f0f52dca1a2323c594f01f5ec6f1dddc97f ]
+[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
 
-In submit_urbs(), 'cam->sbuf[i].data' is allocated through kmalloc_array().
-However, it is not deallocated if the following allocation for urbs fails.
-To fix this issue, free 'cam->sbuf[i].data' if usb_alloc_urb() fails.
+To be compliant with XDG user directory layout, the user's plugin
+directory is changed from ~/.traceevent/plugins to
+~/.local/lib/traceevent/plugins/
 
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Suggested-by: Patrick McLean <chutzpah@gentoo.org>
+Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Patrick McLean <chutzpah@gentoo.org>
+Cc: linux-trace-devel@vger.kernel.org
+Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
+Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
+Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/cpia2/cpia2_usb.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ tools/lib/traceevent/Makefile       | 6 +++---
+ tools/lib/traceevent/event-plugin.c | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
-index 41ea00ac3a873..76b9cb940b871 100644
---- a/drivers/media/usb/cpia2/cpia2_usb.c
-+++ b/drivers/media/usb/cpia2/cpia2_usb.c
-@@ -665,6 +665,10 @@ static int submit_urbs(struct camera_data *cam)
- 			ERR("%s: usb_alloc_urb error!\n", __func__);
- 			for (j = 0; j < i; j++)
- 				usb_free_urb(cam->sbuf[j].urb);
-+			for (j = 0; j < NUM_SBUF; j++) {
-+				kfree(cam->sbuf[j].data);
-+				cam->sbuf[j].data = NULL;
-+			}
- 			return -ENOMEM;
- 		}
+diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
+index 7851df1490e0a..cc3315da6dc39 100644
+--- a/tools/lib/traceevent/Makefile
++++ b/tools/lib/traceevent/Makefile
+@@ -54,15 +54,15 @@ set_plugin_dir := 1
  
+ # Set plugin_dir to preffered global plugin location
+ # If we install under $HOME directory we go under
+-# $(HOME)/.traceevent/plugins
++# $(HOME)/.local/lib/traceevent/plugins
+ #
+ # We dont set PLUGIN_DIR in case we install under $HOME
+ # directory, because by default the code looks under:
+-# $(HOME)/.traceevent/plugins by default.
++# $(HOME)/.local/lib/traceevent/plugins by default.
+ #
+ ifeq ($(plugin_dir),)
+ ifeq ($(prefix),$(HOME))
+-override plugin_dir = $(HOME)/.traceevent/plugins
++override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
+ set_plugin_dir := 0
+ else
+ override plugin_dir = $(libdir)/traceevent/plugins
+diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
+index a16756ae35267..5fe7889606a23 100644
+--- a/tools/lib/traceevent/event-plugin.c
++++ b/tools/lib/traceevent/event-plugin.c
+@@ -30,7 +30,7 @@
+ #include "event-parse.h"
+ #include "event-utils.h"
+ 
+-#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
++#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
+ 
+ static struct registered_plugin_options {
+ 	struct registered_plugin_options	*next;
 -- 
 2.20.1
 
