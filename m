@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35A00CAA60
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B067CA942
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392874AbfJCREK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:04:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51642 "EHLO mail.kernel.org"
+        id S2391400AbfJCQjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:39:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405008AbfJCQlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:41:16 -0400
+        id S2391591AbfJCQjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:39:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CBF0206BB;
-        Thu,  3 Oct 2019 16:41:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DD6221848;
+        Thu,  3 Oct 2019 16:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120876;
-        bh=0xn1V+dQaLQrN6Mj+KrT7gR0pmwR/tohH0dFedkmAxU=;
+        s=default; t=1570120780;
+        bh=egfPkjQleP3+sm+wRrMFBlYgRWbRB8K/Z1RhaImosww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4JNlVIxy5GyFmvR9o9PKGZb9mtYzuRzlOeaKrU9oa0OI00WsrH+6M+lfD62a7nf0
-         YZbsQRR2AjSeNzkyZLTcuQqjfqfhvEZy7CHQm2P+BOluBDZ3sQXzuLId/xUQCJTY4W
-         8YoqNClnwidGLmc+vQyyzGOHdYBFYiENn5HtYhb0=
+        b=GnzlP9hOM+pRcGk/jJbbmFbtLPPy3Xo0udmHL0bqoDSdwfpD0m7TNJ+n+y3DZBFc4
+         gZ/a353Zxm7DRsB7PhB+Dszp1r/cSdLcbsYZSnUIpJ7dVtVaJVGspDRWFWkmXYn76M
+         fiFLg31R0abJs2RWueYKqdjNy/CQty/ggLNWBxu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 035/344] ax25: enforce CAP_NET_RAW for raw sockets
-Date:   Thu,  3 Oct 2019 17:50:00 +0200
-Message-Id: <20191003154543.547209436@linuxfoundation.org>
+Subject: [PATCH 5.3 036/344] ieee802154: enforce CAP_NET_RAW for raw sockets
+Date:   Thu,  3 Oct 2019 17:50:01 +0200
+Message-Id: <20191003154543.641781781@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -45,29 +46,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ori Nimron <orinimron123@gmail.com>
 
-[ Upstream commit 0614e2b73768b502fc32a75349823356d98aae2c ]
+[ Upstream commit e69dbd4619e7674c1679cba49afd9dd9ac347eef ]
 
-When creating a raw AF_AX25 socket, CAP_NET_RAW needs to be checked
-first.
+When creating a raw AF_IEEE802154 socket, CAP_NET_RAW needs to be
+checked first.
 
 Signed-off-by: Ori Nimron <orinimron123@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ax25/af_ax25.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ieee802154/socket.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -855,6 +855,8 @@ static int ax25_create(struct net *net,
- 		break;
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -1008,6 +1008,9 @@ static int ieee802154_create(struct net
  
+ 	switch (sock->type) {
  	case SOCK_RAW:
++		rc = -EPERM;
 +		if (!capable(CAP_NET_RAW))
-+			return -EPERM;
++			goto out;
+ 		proto = &ieee802154_raw_prot;
+ 		ops = &ieee802154_raw_ops;
  		break;
- 	default:
- 		return -ESOCKTNOSUPPORT;
 
 
