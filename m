@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22CD9CAC9F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D8FCAD63
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731289AbfJCQNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35784 "EHLO mail.kernel.org"
+        id S1732843AbfJCRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388360AbfJCQNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:13:11 -0400
+        id S1731423AbfJCP7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:59:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EDE42054F;
-        Thu,  3 Oct 2019 16:13:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6497D222CB;
+        Thu,  3 Oct 2019 15:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119190;
-        bh=RzBBn1sBdiFhmbdzNBun+vapTG+24oKBd7pOWXsexII=;
+        s=default; t=1570118388;
+        bh=nv5tyfbfrOt8/5M/vZRl8GRVLkrUHUar+IwteF0cp3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHLUYPlXHNWZxGv20/mz6AfBgYHOfFj8HNSrHsRy6rtRSZEE3kap6R7b1haqTnEyQ
-         60w1/oVmXtwXLr6+HPnSwdhk4/SpiPWuMWYYL//884ojcdtP04y/UO4fd6urpRGiGc
-         +ERX5BzJ9IasUPOom6M4pnBKEUMT9HCILyYwjv2Q=
+        b=j6+G/mLSFuonIBjZmJay27UjgEAR7FqXXxSWNdKTwaCfYYJTehyTW8PWVgJ37g+Br
+         JMj550TmgCJ980Ug7sBSxLctrQyPGPs0dZCKY1UGBsCeJOYx42VgXkDN31xV5c1L0G
+         7BBQtbYyWrqhO3tryb+LXOfJrxtYKI0/OUF89ywg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lihua Yao <ylhuajnu@outlook.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 4.14 158/185] ARM: samsung: Fix system restart on S3C6410
-Date:   Thu,  3 Oct 2019 17:53:56 +0200
-Message-Id: <20191003154515.001351358@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>,
+        Chris Brandt <chris.brandt@renesas.com>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.4 94/99] i2c: riic: Clear NACK in tend isr
+Date:   Thu,  3 Oct 2019 17:53:57 +0200
+Message-Id: <20191003154341.692437022@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lihua Yao <ylhuajnu@outlook.com>
+From: Chris Brandt <chris.brandt@renesas.com>
 
-commit 16986074035cc0205472882a00d404ed9d213313 upstream.
+commit a71e2ac1f32097fbb2beab098687a7a95c84543e upstream.
 
-S3C6410 system restart is triggered by watchdog reset.
+The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
+description in HW manual.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 9f55342cc2de ("ARM: dts: s3c64xx: Fix infinite interrupt in soft mode")
-Signed-off-by: Lihua Yao <ylhuajnu@outlook.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+This issue shows up quickly when PREEMPT_RT is applied and a device is
+probed that is not plugged in (like a touchscreen controller). The result
+is endless interrupts that halt system boot.
+
+Fixes: 310c18a41450 ("i2c: riic: add driver")
+Cc: stable@vger.kernel.org
+Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
+Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/plat-samsung/watchdog-reset.c |    1 +
+ drivers/i2c/busses/i2c-riic.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/arm/plat-samsung/watchdog-reset.c
-+++ b/arch/arm/plat-samsung/watchdog-reset.c
-@@ -67,6 +67,7 @@ void samsung_wdt_reset(void)
- #ifdef CONFIG_OF
- static const struct of_device_id s3c2410_wdt_match[] = {
- 	{ .compatible = "samsung,s3c2410-wdt" },
-+	{ .compatible = "samsung,s3c6410-wdt" },
- 	{},
- };
- 
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -212,6 +212,7 @@ static irqreturn_t riic_tend_isr(int irq
+ 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
+ 		/* We got a NACKIE */
+ 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
++		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
+ 		riic->err = -ENXIO;
+ 	} else if (riic->bytes_left) {
+ 		return IRQ_NONE;
 
 
