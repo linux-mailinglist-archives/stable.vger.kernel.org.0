@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBCECA17C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB52CA17E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730583AbfJCP4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
+        id S1730601AbfJCP40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:56:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730567AbfJCP4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:56:22 -0400
+        id S1730597AbfJCP4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:56:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E746222C4;
-        Thu,  3 Oct 2019 15:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8287821A4C;
+        Thu,  3 Oct 2019 15:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118179;
-        bh=dW48E+90Ju4Fq2BsIhzQSomBVKhPGaRolKXDtx/RzV0=;
+        s=default; t=1570118185;
+        bh=2OU/aDDl5if082keo3Lhq1ZCrxI0CLsaFeUqmdsqnOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUPJEfWQyhEpZBr0M1LD7z6txpPwf02lAcVi9ky8D+33zIvuX8oDweKTc4JDd28xN
-         8wQBOaSh57UpvKVqK8gku6h21/3fd5nodhAcRm9FaXK0l0bx3uwsy4fe8VzZf8SEGJ
-         NdkEjs1dKoj8Y7MlFqArf/DQ7+wKVf+vdg0dF+O8=
+        b=oj95QolTunlcDzHfYvz3jFqECfoWDYM4IRvG1tRnZfL8E8/OLayw6MUjeyBRSI49A
+         +8VujKCgdnyhhejCJDBeemmvraR2fCftumWfS3ok0APWwQzzMfITvW5rNHgY8msydY
+         /VZ+KIumlh8ni8CB4gJYdtdYyVKgitOqutr1knBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jian-hong@endlessm.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 19/99] Bluetooth: btrtl: Additional Realtek 8822CE Bluetooth devices
-Date:   Thu,  3 Oct 2019 17:52:42 +0200
-Message-Id: <20191003154302.862451073@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 20/99] arcnet: provide a buffer big enough to actually receive packets
+Date:   Thu,  3 Oct 2019 17:52:43 +0200
+Message-Id: <20191003154303.294917042@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
 References: <20191003154252.297991283@linuxfoundation.org>
@@ -44,70 +46,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jian-hong@endlessm.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 6d0762b19c5963ff9e178e8af3626532ee04d93d ]
+[ Upstream commit 108639aac35eb57f1d0e8333f5fc8c7ff68df938 ]
 
-The ASUS X412FA laptop contains a Realtek RTL8822CE device with an
-associated BT chip using a USB ID of 04ca:4005. This ID is added to the
-driver.
+struct archdr is only big enough to hold the header of various types of
+arcnet packets. So to provide enough space to hold the data read from
+hardware provide a buffer large enough to hold a packet with maximal
+size.
 
-The /sys/kernel/debug/usb/devices portion for this device is:
+The problem was noticed by the stack protector which makes the kernel
+oops.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=09 Cnt=04 Dev#=  4 Spd=12   MxCh= 0
-D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=04ca ProdID=4005 Rev= 0.00
-S:  Manufacturer=Realtek
-S:  Product=Bluetooth Radio
-S:  SerialNumber=00e04c000001
-C:* #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204707
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Acked-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/arcnet/arcnet.c |   31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index b0a12e6dae439..fcc12c8796598 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -353,6 +353,9 @@ static const struct usb_device_id blacklist_table[] = {
- 	/* Additional Realtek 8822BE Bluetooth devices */
- 	{ USB_DEVICE(0x0b05, 0x185c), .driver_info = BTUSB_REALTEK },
+--- a/drivers/net/arcnet/arcnet.c
++++ b/drivers/net/arcnet/arcnet.c
+@@ -1009,31 +1009,34 @@ EXPORT_SYMBOL(arcnet_interrupt);
+ static void arcnet_rx(struct net_device *dev, int bufnum)
+ {
+ 	struct arcnet_local *lp = netdev_priv(dev);
+-	struct archdr pkt;
++	union {
++		struct archdr pkt;
++		char buf[512];
++	} rxdata;
+ 	struct arc_rfc1201 *soft;
+ 	int length, ofs;
  
-+	/* Additional Realtek 8822CE Bluetooth devices */
-+	{ USB_DEVICE(0x04ca, 0x4005), .driver_info = BTUSB_REALTEK },
-+
- 	/* Silicon Wave based devices */
- 	{ USB_DEVICE(0x0c10, 0x0000), .driver_info = BTUSB_SWAVE },
+-	soft = &pkt.soft.rfc1201;
++	soft = &rxdata.pkt.soft.rfc1201;
  
--- 
-2.20.1
-
+-	lp->hw.copy_from_card(dev, bufnum, 0, &pkt, ARC_HDR_SIZE);
+-	if (pkt.hard.offset[0]) {
+-		ofs = pkt.hard.offset[0];
++	lp->hw.copy_from_card(dev, bufnum, 0, &rxdata.pkt, ARC_HDR_SIZE);
++	if (rxdata.pkt.hard.offset[0]) {
++		ofs = rxdata.pkt.hard.offset[0];
+ 		length = 256 - ofs;
+ 	} else {
+-		ofs = pkt.hard.offset[1];
++		ofs = rxdata.pkt.hard.offset[1];
+ 		length = 512 - ofs;
+ 	}
+ 
+ 	/* get the full header, if possible */
+-	if (sizeof(pkt.soft) <= length) {
+-		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(pkt.soft));
++	if (sizeof(rxdata.pkt.soft) <= length) {
++		lp->hw.copy_from_card(dev, bufnum, ofs, soft, sizeof(rxdata.pkt.soft));
+ 	} else {
+-		memset(&pkt.soft, 0, sizeof(pkt.soft));
++		memset(&rxdata.pkt.soft, 0, sizeof(rxdata.pkt.soft));
+ 		lp->hw.copy_from_card(dev, bufnum, ofs, soft, length);
+ 	}
+ 
+ 	arc_printk(D_DURING, dev, "Buffer #%d: received packet from %02Xh to %02Xh (%d+4 bytes)\n",
+-		   bufnum, pkt.hard.source, pkt.hard.dest, length);
++		   bufnum, rxdata.pkt.hard.source, rxdata.pkt.hard.dest, length);
+ 
+ 	dev->stats.rx_packets++;
+ 	dev->stats.rx_bytes += length + ARC_HDR_SIZE;
+@@ -1042,13 +1045,13 @@ static void arcnet_rx(struct net_device
+ 	if (arc_proto_map[soft->proto]->is_ip) {
+ 		if (BUGLVL(D_PROTO)) {
+ 			struct ArcProto
+-			*oldp = arc_proto_map[lp->default_proto[pkt.hard.source]],
++			*oldp = arc_proto_map[lp->default_proto[rxdata.pkt.hard.source]],
+ 			*newp = arc_proto_map[soft->proto];
+ 
+ 			if (oldp != newp) {
+ 				arc_printk(D_PROTO, dev,
+ 					   "got protocol %02Xh; encap for host %02Xh is now '%c' (was '%c')\n",
+-					   soft->proto, pkt.hard.source,
++					   soft->proto, rxdata.pkt.hard.source,
+ 					   newp->suffix, oldp->suffix);
+ 			}
+ 		}
+@@ -1057,10 +1060,10 @@ static void arcnet_rx(struct net_device
+ 		lp->default_proto[0] = soft->proto;
+ 
+ 		/* in striking contrast, the following isn't a hack. */
+-		lp->default_proto[pkt.hard.source] = soft->proto;
++		lp->default_proto[rxdata.pkt.hard.source] = soft->proto;
+ 	}
+ 	/* call the protocol-specific receiver. */
+-	arc_proto_map[soft->proto]->rx(dev, bufnum, &pkt, length);
++	arc_proto_map[soft->proto]->rx(dev, bufnum, &rxdata.pkt, length);
+ }
+ 
+ static void null_rx(struct net_device *dev, int bufnum,
 
 
