@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3822ECACB4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E83FCAD29
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388656AbfJCQOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38050 "EHLO mail.kernel.org"
+        id S2388071AbfJCRfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727451AbfJCQOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:37 -0400
+        id S1732642AbfJCQF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F1152054F;
-        Thu,  3 Oct 2019 16:14:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 582242054F;
+        Thu,  3 Oct 2019 16:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119276;
-        bh=Cq9/10KQj+NH/Bx5YWM63Er78hKvm6bwpuORR7T5TSU=;
+        s=default; t=1570118755;
+        bh=iHfGe84i5leyeF01WVOTO5FmmkKoYIY5JVD9wh7lneU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5ndArMpc9/kczkA81osY65pfO1eEQNNz/KxpP74ofOzr5b+91+wC4NgH//x1b7Mi
-         L/jwkywkInMq0vFSSuMgkQzHSiVosAb/bjVnkO7xbSthWexrghhfYtIShccAEMIA5W
-         XFPWCgndl44ekkvZAx2bMRvEInoVRlCfvAFjqvZY=
+        b=mz/R1FZLKVv1PDTdAb3LEO1nTWL33LV4mFrhHSoJMWTiBKhMs3n3A0h4fJMvP1T7C
+         556ykui1UYKPcmSvwIJLbfkl5SS0bI2RP0HVWGqq0cHay3HhtC6oZ6lNH4B0bY8BaP
+         MYDcA2/5mc9dL7EHMyIh8CqhYMLN41UihmEN0r1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.com>,
-        Song Liu <songliubraving@fb.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>
-Subject: [PATCH 4.14 172/185] md: only call set_in_sync() when it is expected to succeed.
-Date:   Thu,  3 Oct 2019 17:54:10 +0200
-Message-Id: <20191003154519.575402106@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Fengqi <lufq.fnst@cn.fujitsu.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 128/129] btrfs: qgroup: Drop quota_root and fs_info parameters from update_qgroup_status_item
+Date:   Thu,  3 Oct 2019 17:54:11 +0200
+Message-Id: <20191003154417.400121911@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
+References: <20191003154318.081116689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Lu Fengqi <lufq.fnst@cn.fujitsu.com>
 
-commit 480523feae581ab714ba6610388a3b4619a2f695 upstream.
+[ Upstream commit 2e980acdd829742966c6a7e565ef3382c0717295 ]
 
-Since commit 4ad23a976413 ("MD: use per-cpu counter for
-writes_pending"), set_in_sync() is substantially more expensive: it
-can wait for a full RCU grace period which can be 10s of milliseconds.
+They can be fetched from the transaction handle.
 
-So we should only call it when the cost is justified.
-
-md_check_recovery() currently calls set_in_sync() every time it finds
-anything to do (on non-external active arrays).  For an array
-performing resync or recovery, this will be quite often.
-Each call will introduce a delay to the md thread, which can noticeable
-affect IO submission latency.
-
-In md_check_recovery() we only need to call set_in_sync() if
-'safemode' was non-zero at entry, meaning that there has been not
-recent IO.  So we save this "safemode was nonzero" state, and only
-call set_in_sync() if it was non-zero.
-
-This measurably reduces mean and maximum IO submission latency during
-resync/recovery.
-
-Reported-and-tested-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Fixes: 4ad23a976413 ("MD: use per-cpu counter for writes_pending")
-Cc: stable@vger.kernel.org (v4.12+)
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lu Fengqi <lufq.fnst@cn.fujitsu.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/qgroup.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8765,6 +8765,7 @@ void md_check_recovery(struct mddev *mdd
+diff --git a/fs/btrfs/qgroup.c b/fs/btrfs/qgroup.c
+index f25233093d68c..088dc7d38c136 100644
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -759,10 +759,10 @@ static int update_qgroup_info_item(struct btrfs_trans_handle *trans,
+ 	return ret;
+ }
  
- 	if (mddev_trylock(mddev)) {
- 		int spares = 0;
-+		bool try_set_sync = mddev->safemode != 0;
+-static int update_qgroup_status_item(struct btrfs_trans_handle *trans,
+-				     struct btrfs_fs_info *fs_info,
+-				    struct btrfs_root *root)
++static int update_qgroup_status_item(struct btrfs_trans_handle *trans)
+ {
++	struct btrfs_fs_info *fs_info = trans->fs_info;
++	struct btrfs_root *quota_root = fs_info->quota_root;
+ 	struct btrfs_path *path;
+ 	struct btrfs_key key;
+ 	struct extent_buffer *l;
+@@ -778,7 +778,7 @@ static int update_qgroup_status_item(struct btrfs_trans_handle *trans,
+ 	if (!path)
+ 		return -ENOMEM;
  
- 		if (!mddev->external && mddev->safemode == 1)
- 			mddev->safemode = 0;
-@@ -8810,7 +8811,7 @@ void md_check_recovery(struct mddev *mdd
- 			}
- 		}
+-	ret = btrfs_search_slot(trans, root, &key, path, 0, 1);
++	ret = btrfs_search_slot(trans, quota_root, &key, path, 0, 1);
+ 	if (ret > 0)
+ 		ret = -ENOENT;
  
--		if (!mddev->external && !mddev->in_sync) {
-+		if (try_set_sync && !mddev->external && !mddev->in_sync) {
- 			spin_lock(&mddev->lock);
- 			set_in_sync(mddev);
- 			spin_unlock(&mddev->lock);
+@@ -1863,7 +1863,7 @@ int btrfs_run_qgroups(struct btrfs_trans_handle *trans,
+ 		fs_info->qgroup_flags &= ~BTRFS_QGROUP_STATUS_FLAG_ON;
+ 	spin_unlock(&fs_info->qgroup_lock);
+ 
+-	ret = update_qgroup_status_item(trans, fs_info, quota_root);
++	ret = update_qgroup_status_item(trans);
+ 	if (ret)
+ 		fs_info->qgroup_flags |= BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT;
+ 
+@@ -2403,7 +2403,7 @@ static void btrfs_qgroup_rescan_worker(struct btrfs_work *work)
+ 			  err);
+ 		goto done;
+ 	}
+-	ret = update_qgroup_status_item(trans, fs_info, fs_info->quota_root);
++	ret = update_qgroup_status_item(trans);
+ 	if (ret < 0) {
+ 		err = ret;
+ 		btrfs_err(fs_info, "fail to update qgroup status: %d", err);
+-- 
+2.20.1
+
 
 
