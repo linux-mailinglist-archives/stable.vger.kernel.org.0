@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF16CA658
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C748ECA68E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392703AbfJCQmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54106 "EHLO mail.kernel.org"
+        id S2405454AbfJCQo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392696AbfJCQmw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:42:52 -0400
+        id S2404806AbfJCQmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:42:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F52B20865;
-        Thu,  3 Oct 2019 16:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAC5D2054F;
+        Thu,  3 Oct 2019 16:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120971;
-        bh=IW9B/HeSgNw2BYZ4ZZx2Ue6CPKz5wPi/K6VoRd80Rnc=;
+        s=default; t=1570120974;
+        bh=Jr0wGQmS0muJUE7fHZrs67QdfVNAOhdhj82RmrQrEgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5MwBKDCp5tnDIDPouwSn2LkX+O3hJY4NuW0E+bXKm/Lpwus4UDvgqu+rab+wdWvo
-         mj//1igFUAmDdL/dj+W+JlsDf9ffUjtLRFqFc8Ejz1p78IpD6JpGCYsEPPowH1sPDi
-         +6cMJAhGLhkXgJrKjp5rGdq00avOU7Sd7XDqQ4Ic=
+        b=oI5P9mxyiyqe+PK4SHXWVAWvtsyQEEWsRj+Xti7r5mbzToNUhYpOJnrKcCnvsX8nr
+         noWUyiWK43S9P+bo5DDi+23D9LAvlBmC1XK7srDPwpvyyTA8Zd/LhOn9sgmkggIk86
+         j5RWswJnjwKozp9DuGj84dHLX6R8gq9uDZeRo/OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 070/344] ALSA: i2c: ak4xxx-adda: Fix a possible null pointer dereference in build_adc_controls()
-Date:   Thu,  3 Oct 2019 17:50:35 +0200
-Message-Id: <20191003154547.030082171@linuxfoundation.org>
+        stable@vger.kernel.org, Andrea Arcangeli <aarcange@redhat.com>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 071/344] rcu: Add destroy_work_on_stack() to match INIT_WORK_ONSTACK()
+Date:   Thu,  3 Oct 2019 17:50:36 +0200
+Message-Id: <20191003154547.138807171@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,52 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Paul E. McKenney <paulmck@linux.ibm.com>
 
-[ Upstream commit 2127c01b7f63b06a21559f56a8c81a3c6535bd1a ]
+[ Upstream commit fbad01af8c3bb9618848abde8054ab7e0c2330fe ]
 
-In build_adc_controls(), there is an if statement on line 773 to check
-whether ak->adc_info is NULL:
-    if (! ak->adc_info ||
-        ! ak->adc_info[mixer_ch].switch_name)
+The synchronize_rcu_expedited() function has an INIT_WORK_ONSTACK(),
+but lacks the corresponding destroy_work_on_stack().  This commit
+therefore adds destroy_work_on_stack().
 
-When ak->adc_info is NULL, it is used on line 792:
-    knew.name = ak->adc_info[mixer_ch].selector_name;
-
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, referring to lines 773 and 774, ak->adc_info
-and ak->adc_info[mixer_ch].selector_name are checked before being used.
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Acked-by: Andrea Arcangeli <aarcange@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/i2c/other/ak4xxx-adda.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/rcu/tree_exp.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/i2c/other/ak4xxx-adda.c b/sound/i2c/other/ak4xxx-adda.c
-index 5f59316f982ae..7d15093844b92 100644
---- a/sound/i2c/other/ak4xxx-adda.c
-+++ b/sound/i2c/other/ak4xxx-adda.c
-@@ -775,11 +775,12 @@ static int build_adc_controls(struct snd_akm4xxx *ak)
- 				return err;
+diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
+index af7e7b9c86afa..513b403b683b7 100644
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -792,6 +792,7 @@ static int rcu_print_task_exp_stall(struct rcu_node *rnp)
+  */
+ void synchronize_rcu_expedited(void)
+ {
++	bool boottime = (rcu_scheduler_active == RCU_SCHEDULER_INIT);
+ 	struct rcu_exp_work rew;
+ 	struct rcu_node *rnp;
+ 	unsigned long s;
+@@ -817,7 +818,7 @@ void synchronize_rcu_expedited(void)
+ 		return;  /* Someone else did our work for us. */
  
- 			memset(&knew, 0, sizeof(knew));
--			knew.name = ak->adc_info[mixer_ch].selector_name;
--			if (!knew.name) {
-+			if (!ak->adc_info ||
-+				!ak->adc_info[mixer_ch].selector_name) {
- 				knew.name = "Capture Channel";
- 				knew.index = mixer_ch + ak->idx_offset * 2;
--			}
-+			} else
-+				knew.name = ak->adc_info[mixer_ch].selector_name;
+ 	/* Ensure that load happens before action based on it. */
+-	if (unlikely(rcu_scheduler_active == RCU_SCHEDULER_INIT)) {
++	if (unlikely(boottime)) {
+ 		/* Direct call during scheduler init and early_initcalls(). */
+ 		rcu_exp_sel_wait_wake(s);
+ 	} else {
+@@ -835,5 +836,8 @@ void synchronize_rcu_expedited(void)
  
- 			knew.iface = SNDRV_CTL_ELEM_IFACE_MIXER;
- 			knew.info = ak4xxx_capture_source_info;
+ 	/* Let the next expedited grace period start. */
+ 	mutex_unlock(&rcu_state.exp_mutex);
++
++	if (likely(!boottime))
++		destroy_work_on_stack(&rew.rew_work);
+ }
+ EXPORT_SYMBOL_GPL(synchronize_rcu_expedited);
 -- 
 2.20.1
 
