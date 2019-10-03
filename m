@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FE9CA8AE
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3304ECA8AF
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391757AbfJCQab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36632 "EHLO mail.kernel.org"
+        id S1731180AbfJCQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390025AbfJCQab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:30:31 -0400
+        id S2391766AbfJCQae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:30:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC3D22054F;
-        Thu,  3 Oct 2019 16:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B6D920867;
+        Thu,  3 Oct 2019 16:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120230;
-        bh=V0RnYzcQU1XuCrNHFEnrM5GjrBtSWIbwGLuJ+vIGQHc=;
+        s=default; t=1570120233;
+        bh=EMm/DFERg7gGpc6ZK4Hzzr9d6eNec1wYcIFHfvS9e2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uG26Xgc6Ce0EI/ccvuGr9BoD3mzdwB6lVvP5EI7+GTitEQmsPDxfT22tO03y37+Be
-         GBuff8fpkJCM5EHzFUv0iaHLjy8TG4wYfg9G+gjqQVtWtFJgAtHDfkNon8bQcfDUyd
-         1Uk4Dpdem32wtkUIxYA0lyWtZ3d/IRj0CGa/360w=
+        b=UwmNVxGak4fLBlv+tziudmwG3S7vbeQocy59dO4MkLpZDdLe68bThlCokU7XB8XGc
+         +IIkJxhfPBJ8Gsf577dN3T1+lat3lusunP9/WcGnf8Sm9svyc3Y4hEat8cB55BTyjA
+         MmWdgiGuTsXgY4DE47Si0TwobVj4vV+m1fSgbwNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Peterson <benjamin@python.org>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 145/313] perf trace beauty ioctl: Fix off-by-one error in cmd->string table
-Date:   Thu,  3 Oct 2019 17:52:03 +0200
-Message-Id: <20191003154547.183275673@linuxfoundation.org>
+        Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 146/313] perf report: Fix --ns time sort key output
+Date:   Thu,  3 Oct 2019 17:52:04 +0200
+Message-Id: <20191003154547.292040072@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -48,82 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Peterson <benjamin@python.org>
+From: Andi Kleen <ak@linux.intel.com>
 
-[ Upstream commit b92675f4a9c02dd78052645597dac9e270679ddf ]
+[ Upstream commit 3dab6ac080dcd7f71cb9ceb84ad7dafecd6f7c07 ]
 
-While tracing a program that calls isatty(3), I noticed that strace
-reported TCGETS for the request argument of the underlying ioctl(2)
-syscall while perf trace reported TCSETS. strace is corrrect. The bug in
-perf was due to the tty ioctl beauty table starting at 0x5400 rather
-than 0x5401.
+If the user specified --ns, the column to print the sort time stamp
+wasn't wide enough to actually print the full nanoseconds.
 
-Committer testing:
-
-  Using augmented_raw_syscalls.o and settings to make 'perf trace'
-  use strace formatting, i.e. with this in ~/.perfconfig
-
-  # cat ~/.perfconfig
-  [trace]
-	add_events = /home/acme/git/linux/tools/perf/examples/bpf/augmented_raw_syscalls.c
-	show_zeros = yes
-	show_duration = no
-	no_inherit = yes
-	show_timestamp = no
-	show_arg_names = no
-	args_alignment = 40
-	show_prefix = yes
-
-  # strace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
-  ioctl(1, TIOCGWINSZ, 0x7fff8a9b0860)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7fff8a9b0540)        = -1 ENOTTY (Inappropriate ioctl for device)
-  +++ exited with 0 +++
-  #
+Widen the time key column width when --ns is specified.
 
 Before:
 
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCSETS, 0x7fff2cf79f20)        = 0
-  ioctl(1, TIOCSWINSZ, 0x7fff2cf79f40)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCSETS, 0x7fff2cf79c20)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
+  % perf record -a sleep 1
+  % perf report --sort time,overhead,symbol --stdio --ns
+  ...
+       2.39%  187851.10000  [k] smp_call_function_single   -      -
+       1.53%  187851.10000  [k] intel_idle                 -      -
+       0.59%  187851.10000  [.] __wcscmp_ifunc             -      -
+       0.33%  187851.10000  [.] 0000000000000000           -      -
+       0.28%  187851.10000  [k] cpuidle_enter_state        -      -
 
 After:
 
-  # perf trace -e ioctl stty > /dev/null
-  ioctl(0, TCGETS, 0x7ffed0763920)        = 0
-  ioctl(1, TIOCGWINSZ, 0x7ffed0763940)    = -1 ENOTTY (Inappropriate ioctl for device)
-  ioctl(1, TCGETS, 0x7ffed0763620)        = -1 ENOTTY (Inappropriate ioctl for device)
-  #
+  % perf report --sort time,overhead,symbol --stdio --ns
+  ...
+       2.39%  187851.100000000  [k] smp_call_function_single   -      -
+       1.53%  187851.100000000  [k] intel_idle                 -      -
+       0.59%  187851.100000000  [.] __wcscmp_ifunc             -      -
+       0.33%  187851.100000000  [.] 0000000000000000           -      -
+       0.28%  187851.100000000  [k] cpuidle_enter_state        -      -
 
-Signed-off-by: Benjamin Peterson <benjamin@python.org>
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Fixes: 1cc47f2d46206d67285aea0ca7e8450af571da13 ("perf trace beauty ioctl: Improve 'cmd' beautifier")
-Link: http://lkml.kernel.org/r/20190823033625.18814-1-benjamin@python.org
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: http://lkml.kernel.org/r/20190823210338.12360-2-andi@firstfloor.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/trace/beauty/ioctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/hist.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/trace/beauty/ioctl.c b/tools/perf/trace/beauty/ioctl.c
-index 52242fa4072b0..e19eb6ea361d7 100644
---- a/tools/perf/trace/beauty/ioctl.c
-+++ b/tools/perf/trace/beauty/ioctl.c
-@@ -21,7 +21,7 @@
- static size_t ioctl__scnprintf_tty_cmd(int nr, int dir, char *bf, size_t size)
- {
- 	static const char *ioctl_tty_cmd[] = {
--	"TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
-+	[_IOC_NR(TCGETS)] = "TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
- 	"TCSETAF", "TCSBRK", "TCXONC", "TCFLSH", "TIOCEXCL", "TIOCNXCL", "TIOCSCTTY",
- 	"TIOCGPGRP", "TIOCSPGRP", "TIOCOUTQ", "TIOCSTI", "TIOCGWINSZ", "TIOCSWINSZ",
- 	"TIOCMGET", "TIOCMBIS", "TIOCMBIC", "TIOCMSET", "TIOCGSOFTCAR", "TIOCSSOFTCAR",
+diff --git a/tools/perf/util/hist.c b/tools/perf/util/hist.c
+index 7ace7a10054d8..966c248d6a3a1 100644
+--- a/tools/perf/util/hist.c
++++ b/tools/perf/util/hist.c
+@@ -193,7 +193,10 @@ void hists__calc_col_len(struct hists *hists, struct hist_entry *h)
+ 	hists__new_col_len(hists, HISTC_MEM_LVL, 21 + 3);
+ 	hists__new_col_len(hists, HISTC_LOCAL_WEIGHT, 12);
+ 	hists__new_col_len(hists, HISTC_GLOBAL_WEIGHT, 12);
+-	hists__new_col_len(hists, HISTC_TIME, 12);
++	if (symbol_conf.nanosecs)
++		hists__new_col_len(hists, HISTC_TIME, 16);
++	else
++		hists__new_col_len(hists, HISTC_TIME, 12);
+ 
+ 	if (h->srcline) {
+ 		len = MAX(strlen(h->srcline), strlen(sort_srcline.se_header));
 -- 
 2.20.1
 
