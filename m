@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D44ACAD2B
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40E9ACACD4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732642AbfJCRgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51884 "EHLO mail.kernel.org"
+        id S1728773AbfJCRaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:30:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732198AbfJCQFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:19 -0400
+        id S1731716AbfJCQLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:11:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13A99215EA;
-        Thu,  3 Oct 2019 16:05:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0939C20865;
+        Thu,  3 Oct 2019 16:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118718;
-        bh=8LVBhwOe9iKmTrHRY8JxBQfug0KuqOv9YxaYUxIzXu8=;
+        s=default; t=1570119093;
+        bh=aurkG+qHpUTJ4ILOYxbbHtwEfOXzpl3vsIt2uUSsD34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/HkxdFkFQ34TC4G88d40M2JcCAqesgXL4QxvstQUYqc6VDf2+FrixZ6Y0c5N8Ak2
-         Fa1VSPI6AynLy308Qc6MA7Iyb3OfFb3MjV+lWxAxsaFh1dXkrPFg8ynizSVtz16kBy
-         3LO2M1eSaXX0VzRLd6W7ovabxzAY8/9BQ9QmMvRA=
+        b=gBBVrJHaNQGd5YPMOAY5ehJofz1uwADth+DlUXS79ssm3JRKyoQohhx1pwqm/yKKv
+         UequupKNk7lp8dpzZxLoEW6v2ccamklnZgoiW+JmQM36d33txCIx0YZBMdRZqqS332
+         edquB6eGj6VcwT/DtN9B7Zy4YK3XebfhbSe/3y8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 076/129] arm64: kpti: ensure patched kernel text is fetched from PoU
+        stable@vger.kernel.org, Wang Shenran <shenran268@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 121/185] hwmon: (acpi_power_meter) Change log level for unsafe software power cap
 Date:   Thu,  3 Oct 2019 17:53:19 +0200
-Message-Id: <20191003154353.011305485@linuxfoundation.org>
+Message-Id: <20191003154505.278346952@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Wang Shenran <shenran268@gmail.com>
 
-[ Upstream commit f32c7a8e45105bd0af76872bf6eef0438ff12fb2 ]
+[ Upstream commit 6e4d91aa071810deac2cd052161aefb376ecf04e ]
 
-While the MMUs is disabled, I-cache speculation can result in
-instructions being fetched from the PoC. During boot we may patch
-instructions (e.g. for alternatives and jump labels), and these may be
-dirty at the PoU (and stale at the PoC).
+At boot time, the acpi_power_meter driver logs the following error level
+message: "Ignoring unsafe software power cap". Having read about it from
+a few sources, it seems that the error message can be quite misleading.
 
-Thus, while the MMU is disabled in the KPTI pagetable fixup code we may
-load stale instructions into the I-cache, potentially leading to
-subsequent crashes when executing regions of code which have been
-modified at runtime.
+While the message can imply that Linux is ignoring the fact that the
+system is operating in potentially dangerous conditions, the truth is
+the driver found an ACPI_PMC object that supports software power
+capping. The driver simply decides not to use it, perhaps because it
+doesn't support the object.
 
-Similarly to commit:
+The best solution is probably changing the log level from error to warning.
+All sources I have found, regarding the error, have downplayed its
+significance. There is not much of a reason for it to be on error level,
+while causing potential confusions or misinterpretations.
 
-  8ec41987436d566f ("arm64: mm: ensure patched kernel text is fetched from PoU")
-
-... we can invalidate the I-cache after enabling the MMU to prevent such
-issues.
-
-The KPTI pagetable fixup code itself should be clean to the PoC per the
-boot protocol, so no maintenance is required for this code.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Wang Shenran <shenran268@gmail.com>
+Link: https://lore.kernel.org/r/20190724080110.6952-1-shenran268@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/proc.S | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hwmon/acpi_power_meter.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index 3ceec224d3d24..3b95e3126eebb 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -263,6 +263,15 @@ skip_pgd:
- 	msr	sctlr_el1, x18
- 	isb
+diff --git a/drivers/hwmon/acpi_power_meter.c b/drivers/hwmon/acpi_power_meter.c
+index 14a94d90c028a..ba3af4505d8fb 100644
+--- a/drivers/hwmon/acpi_power_meter.c
++++ b/drivers/hwmon/acpi_power_meter.c
+@@ -693,8 +693,8 @@ static int setup_attrs(struct acpi_power_meter_resource *resource)
  
-+	/*
-+	 * Invalidate the local I-cache so that any instructions fetched
-+	 * speculatively from the PoC are discarded, since they may have
-+	 * been dynamically patched at the PoU.
-+	 */
-+	ic	iallu
-+	dsb	nsh
-+	isb
-+
- 	/* Set the flag to zero to indicate that we're all done */
- 	str	wzr, [flag_ptr]
- 	ret
+ 	if (resource->caps.flags & POWER_METER_CAN_CAP) {
+ 		if (!can_cap_in_hardware()) {
+-			dev_err(&resource->acpi_dev->dev,
+-				"Ignoring unsafe software power cap!\n");
++			dev_warn(&resource->acpi_dev->dev,
++				 "Ignoring unsafe software power cap!\n");
+ 			goto skip_unsafe_cap;
+ 		}
+ 
 -- 
 2.20.1
 
