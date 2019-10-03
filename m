@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7D2CA79A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45272CA5E0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405463AbfJCQwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39906 "EHLO mail.kernel.org"
+        id S2404633AbfJCQhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:37:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405685AbfJCQwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:21 -0400
+        id S2404627AbfJCQhm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:37:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22EF420867;
-        Thu,  3 Oct 2019 16:52:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D45C2086A;
+        Thu,  3 Oct 2019 16:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121539;
-        bh=P7wwFBQ92PMoNElICaZjH/2DVh4B1IGlpsufPB36m4g=;
+        s=default; t=1570120661;
+        bh=UGqMufujAPeYf8XfJuRbDlboz+r/vDuLTwr5F1tDuSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x10cdvu/M9CJNyEvKjD/960Jjj05ducXpnM7K4bCm8j3n706TX2FJhgaqW1rqx1e7
-         XfloJz3ebXHzGIfrDoqxVxTR/3FDNivgtzkOFShH0anENug9qCfHzCniZm1vi2gN74
-         9Y8l0AT1hC052HpzGDaD70yeyYSdtobVlE9HOBfo=
+        b=wNnKXvnPwVr8S9KJAkA6DRR8y2OA/ay/ocVRXhtLRhYb8KD4HlXcd/G64Nqqxmdce
+         HXqqsjHe2mK4I056am/fL/8YDZhd+I06faD2ErSNJIpqdMql8z/63TgISgUn7wqEFD
+         xoAsOlcgY+F/6RgJStLBI4V5VFlLFFZMzyZMvXNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.3 317/344] SUNRPC: Dequeue the request from the receive queue while were re-encoding
-Date:   Thu,  3 Oct 2019 17:54:42 +0200
-Message-Id: <20191003154610.359977343@linuxfoundation.org>
+        stable@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+        Theodore Tso <tytso@mit.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.2 305/313] hwrng: core - dont wait on add_early_randomness()
+Date:   Thu,  3 Oct 2019 17:54:43 +0200
+Message-Id: <20191003154603.241542353@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,141 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Laurent Vivier <lvivier@redhat.com>
 
-commit cc204d01262a69218b2d0db5cdea371de85871d9 upstream.
+commit 78887832e76541f77169a24ac238fccb51059b63 upstream.
 
-Ensure that we dequeue the request from the transport receive queue
-while we're re-encoding to prevent issues like use-after-free when
-we release the bvec.
+add_early_randomness() is called by hwrng_register() when the
+hardware is added. If this hardware and its module are present
+at boot, and if there is no data available the boot hangs until
+data are available and can't be interrupted.
 
-Fixes: 7536908982047 ("SUNRPC: Ensure the bvecs are reset when we re-encode...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+For instance, in the case of virtio-rng, in some cases the host can be
+not able to provide enough entropy for all the guests.
+
+We can have two easy ways to reproduce the problem but they rely on
+misconfiguration of the hypervisor or the egd daemon:
+
+- if virtio-rng device is configured to connect to the egd daemon of the
+host but when the virtio-rng driver asks for data the daemon is not
+connected,
+
+- if virtio-rng device is configured to connect to the egd daemon of the
+host but the egd daemon doesn't provide data.
+
+The guest kernel will hang at boot until the virtio-rng driver provides
+enough data.
+
+To avoid that, call rng_get_data() in non-blocking mode (wait=0)
+from add_early_randomness().
+
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Fixes: d9e797261933 ("hwrng: add randomness to system from rng...")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/sunrpc/xprt.h |    1 
- net/sunrpc/clnt.c           |    6 ++--
- net/sunrpc/xprt.c           |   54 +++++++++++++++++++++++++-------------------
- 3 files changed, 35 insertions(+), 26 deletions(-)
+ drivers/char/hw_random/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -352,6 +352,7 @@ bool			xprt_prepare_transmit(struct rpc_
- void			xprt_request_enqueue_transmit(struct rpc_task *task);
- void			xprt_request_enqueue_receive(struct rpc_task *task);
- void			xprt_request_wait_receive(struct rpc_task *task);
-+void			xprt_request_dequeue_xprt(struct rpc_task *task);
- bool			xprt_request_need_retransmit(struct rpc_task *task);
- void			xprt_transmit(struct rpc_task *task);
- void			xprt_end_transmit(struct rpc_task *task);
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1862,6 +1862,7 @@ rpc_xdr_encode(struct rpc_task *task)
- 		     req->rq_rbuffer,
- 		     req->rq_rcvsize);
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -67,7 +67,7 @@ static void add_early_randomness(struct
+ 	size_t size = min_t(size_t, 16, rng_buffer_size());
  
-+	req->rq_reply_bytes_recvd = 0;
- 	req->rq_snd_buf.head[0].iov_len = 0;
- 	xdr_init_encode(&xdr, &req->rq_snd_buf,
- 			req->rq_snd_buf.head[0].iov_base, req);
-@@ -1881,6 +1882,8 @@ call_encode(struct rpc_task *task)
- 	if (!rpc_task_need_encode(task))
- 		goto out;
- 	dprint_status(task);
-+	/* Dequeue task from the receive queue while we're encoding */
-+	xprt_request_dequeue_xprt(task);
- 	/* Encode here so that rpcsec_gss can use correct sequence number. */
- 	rpc_xdr_encode(task);
- 	/* Did the encode result in an error condition? */
-@@ -2518,9 +2521,6 @@ call_decode(struct rpc_task *task)
- 		return;
- 	case -EAGAIN:
- 		task->tk_status = 0;
--		xdr_free_bvec(&req->rq_rcv_buf);
--		req->rq_reply_bytes_recvd = 0;
--		req->rq_rcv_buf.len = 0;
- 		if (task->tk_client->cl_discrtry)
- 			xprt_conditional_disconnect(req->rq_xprt,
- 						    req->rq_connect_cookie);
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1324,6 +1324,36 @@ xprt_request_dequeue_transmit(struct rpc
- }
- 
- /**
-+ * xprt_request_dequeue_xprt - remove a task from the transmit+receive queue
-+ * @task: pointer to rpc_task
-+ *
-+ * Remove a task from the transmit and receive queues, and ensure that
-+ * it is not pinned by the receive work item.
-+ */
-+void
-+xprt_request_dequeue_xprt(struct rpc_task *task)
-+{
-+	struct rpc_rqst	*req = task->tk_rqstp;
-+	struct rpc_xprt *xprt = req->rq_xprt;
-+
-+	if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate) ||
-+	    test_bit(RPC_TASK_NEED_RECV, &task->tk_runstate) ||
-+	    xprt_is_pinned_rqst(req)) {
-+		spin_lock(&xprt->queue_lock);
-+		xprt_request_dequeue_transmit_locked(task);
-+		xprt_request_dequeue_receive_locked(task);
-+		while (xprt_is_pinned_rqst(req)) {
-+			set_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
-+			spin_unlock(&xprt->queue_lock);
-+			xprt_wait_on_pinned_rqst(req);
-+			spin_lock(&xprt->queue_lock);
-+			clear_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
-+		}
-+		spin_unlock(&xprt->queue_lock);
-+	}
-+}
-+
-+/**
-  * xprt_request_prepare - prepare an encoded request for transport
-  * @req: pointer to rpc_rqst
-  *
-@@ -1747,28 +1777,6 @@ void xprt_retry_reserve(struct rpc_task
- 	xprt_do_reserve(xprt, task);
- }
- 
--static void
--xprt_request_dequeue_all(struct rpc_task *task, struct rpc_rqst *req)
--{
--	struct rpc_xprt *xprt = req->rq_xprt;
--
--	if (test_bit(RPC_TASK_NEED_XMIT, &task->tk_runstate) ||
--	    test_bit(RPC_TASK_NEED_RECV, &task->tk_runstate) ||
--	    xprt_is_pinned_rqst(req)) {
--		spin_lock(&xprt->queue_lock);
--		xprt_request_dequeue_transmit_locked(task);
--		xprt_request_dequeue_receive_locked(task);
--		while (xprt_is_pinned_rqst(req)) {
--			set_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
--			spin_unlock(&xprt->queue_lock);
--			xprt_wait_on_pinned_rqst(req);
--			spin_lock(&xprt->queue_lock);
--			clear_bit(RPC_TASK_MSG_PIN_WAIT, &task->tk_runstate);
--		}
--		spin_unlock(&xprt->queue_lock);
--	}
--}
--
- /**
-  * xprt_release - release an RPC request slot
-  * @task: task which is finished with the slot
-@@ -1788,7 +1796,7 @@ void xprt_release(struct rpc_task *task)
- 	}
- 
- 	xprt = req->rq_xprt;
--	xprt_request_dequeue_all(task, req);
-+	xprt_request_dequeue_xprt(task);
- 	spin_lock(&xprt->transport_lock);
- 	xprt->ops->release_xprt(xprt, task);
- 	if (xprt->ops->release_request)
+ 	mutex_lock(&reading_mutex);
+-	bytes_read = rng_get_data(rng, rng_buffer, size, 1);
++	bytes_read = rng_get_data(rng, rng_buffer, size, 0);
+ 	mutex_unlock(&reading_mutex);
+ 	if (bytes_read > 0)
+ 		add_device_randomness(rng_buffer, bytes_read);
 
 
