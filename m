@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53CDFCA477
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E048CA47A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390876AbfJCQZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:25:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
+        id S2390896AbfJCQZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:25:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388308AbfJCQZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:25:05 -0400
+        id S2390890AbfJCQZJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:25:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C35C020867;
-        Thu,  3 Oct 2019 16:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93F0F20867;
+        Thu,  3 Oct 2019 16:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119904;
-        bh=uJuJAo1xVU26HBO94Sblngg/fDJwSP7RTRepFXVxBw4=;
+        s=default; t=1570119907;
+        bh=2xWpjil+l2o8gx5YUAJnFWxRnFzf0K1uH0omm+gh2xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LviVXQdmTifiCl1VwStLb1j0cOdxuaqX8jAq+3NCBai+IXlGxaQXWWD9KntVozm8u
-         pRouOZx1RrYdxFjXFZNH5N3w4vXTr/pzQiO01aNppHYuXlBP6G9Ktl19c0b+Ym0QyE
-         0VlNODmYZrGL+JdvsnTAcAkyxf68iWwwYrVkRwpY=
+        b=MLyY78veFHHGV3FCfRGDq896XyyhsuMmD4ARRSQ9qp/mx8PLKJ25VfGKi0qVSLvi/
+         naN74nnGawrkOhVKfqp4ggWBeDVAi9a6/NbKVBz4/8tbexQJB4JiPyQiKN6eVZtkk8
+         yFTHpH/f9xysDsiybB6gVhCPGqsj09MRVX6J/UQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@mellanox.com>,
-        Maor Gottlieb <maorg@mellanox.com>
-Subject: [PATCH 5.2 024/313] net/mlx5e: Fix traffic duplication in ethtool steering
-Date:   Thu,  3 Oct 2019 17:50:02 +0200
-Message-Id: <20191003154535.742085273@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Vlad Buslov <vladbu@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.2 025/313] net: sched: fix possible crash in tcf_action_destroy()
+Date:   Thu,  3 Oct 2019 17:50:03 +0200
+Message-Id: <20191003154535.830842603@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,41 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d22fcc806b84b9818de08b32e494f3c05dd236c7 ]
+[ Upstream commit 3d66b89c30f9220a72e92847768fc8ba4d027d88 ]
 
-Before this patch, when adding multiple ethtool steering rules with
-identical classification, the driver used to append the new destination
-to the already existing hw rule, which caused the hw to forward the
-traffic to all destinations (rx queues).
+If the allocation done in tcf_exts_init() failed,
+we end up with a NULL pointer in exts->actions.
 
-Here we avoid this by setting the "no append" mlx5 fs core flag when
-adding a new ethtool rule.
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8198 Comm: syz-executor.3 Not tainted 5.3.0-rc8+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:tcf_action_destroy+0x71/0x160 net/sched/act_api.c:705
+Code: c3 08 44 89 ee e8 4f cb bb fb 41 83 fd 20 0f 84 c9 00 00 00 e8 c0 c9 bb fb 48 89 d8 48 b9 00 00 00 00 00 fc ff df 48 c1 e8 03 <80> 3c 08 00 0f 85 c0 00 00 00 4c 8b 33 4d 85 f6 0f 84 9d 00 00 00
+RSP: 0018:ffff888096e16ff0 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: dffffc0000000000
+RDX: 0000000000040000 RSI: ffffffff85b6ab30 RDI: 0000000000000000
+RBP: ffff888096e17020 R08: ffff8880993f6140 R09: fffffbfff11cae67
+R10: fffffbfff11cae66 R11: ffffffff88e57333 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff888096e177a0 R15: 0000000000000001
+FS:  00007f62bc84a700(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000758040 CR3: 0000000088b64000 CR4: 00000000001426e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ tcf_exts_destroy+0x38/0xb0 net/sched/cls_api.c:3030
+ tcindex_set_parms+0xf7f/0x1e50 net/sched/cls_tcindex.c:488
+ tcindex_change+0x230/0x318 net/sched/cls_tcindex.c:519
+ tc_new_tfilter+0xa4b/0x1c70 net/sched/cls_api.c:2152
+ rtnetlink_rcv_msg+0x838/0xb00 net/core/rtnetlink.c:5214
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
 
-Fixes: 6dc6071cfcde ("net/mlx5e: Add ethtool flow steering support")
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
-Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 90b73b77d08e ("net: sched: change action API to use array of pointers to actions")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Vlad Buslov <vladbu@mellanox.com>
+Cc: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sched/cls_api.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs_ethtool.c
-@@ -397,10 +397,10 @@ add_ethtool_flow_rule(struct mlx5e_priv
- 		      struct mlx5_flow_table *ft,
- 		      struct ethtool_rx_flow_spec *fs)
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -3031,8 +3031,10 @@ out:
+ void tcf_exts_destroy(struct tcf_exts *exts)
  {
-+	struct mlx5_flow_act flow_act = { .flags = FLOW_ACT_NO_APPEND };
- 	struct mlx5_flow_destination *dst = NULL;
--	struct mlx5_flow_act flow_act = {0};
--	struct mlx5_flow_spec *spec;
- 	struct mlx5_flow_handle *rule;
-+	struct mlx5_flow_spec *spec;
- 	int err = 0;
- 
- 	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
+ #ifdef CONFIG_NET_CLS_ACT
+-	tcf_action_destroy(exts->actions, TCA_ACT_UNBIND);
+-	kfree(exts->actions);
++	if (exts->actions) {
++		tcf_action_destroy(exts->actions, TCA_ACT_UNBIND);
++		kfree(exts->actions);
++	}
+ 	exts->nr_actions = 0;
+ #endif
+ }
 
 
