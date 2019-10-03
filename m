@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37034CA837
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F740CA8F6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390504AbfJCQX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52388 "EHLO mail.kernel.org"
+        id S2403899AbfJCQfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:35:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389247AbfJCQXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:23:25 -0400
+        id S2404058AbfJCQfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:35:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E97E222BE;
-        Thu,  3 Oct 2019 16:23:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D879B222C9;
+        Thu,  3 Oct 2019 16:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119804;
-        bh=tdrSIakgkJxkwvj9PwAtp3A0fkdY/Sa05NmNhMrFOb4=;
+        s=default; t=1570120516;
+        bh=gfjxtCDC8qvqtkS70sKSq48huJP48vRLnJ9jhAFOzAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3dh0QGTromyDCeUb3O5Qbqf/PuGeSgRC+IbHhtj8g2yyx2G4CSf/IfTrcfT2Dolt
-         IahsWzn8CJPkgrzeA+EQYi9Pj0OUisJRaeRG99jf4/RjU50yyqWukOftVdJSaRTRBX
-         7jeIq9myEY42RoQa60jwTExM0OxU+stnouWGjRDs=
+        b=denW1LXjqEaMznfWyGiLAmndqGn/cMczGjElxfuVYWRxp0c0YzgsIU0ClKKkSocgQ
+         Y1N7twCyDRstUN9481AiE6atjLWUic7xNBhRwJATeQPunUMyg1wLGYqMY3B04JKFdu
+         NibYB78hSIU5Nyxg34U4EukOAVtRlYzD/VsAQIlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Jan Stancek <jstancek@redhat.com>
-Subject: [PATCH 4.19 162/211] powerpc/imc: Dont create debugfs files for cpu-less nodes
-Date:   Thu,  3 Oct 2019 17:53:48 +0200
-Message-Id: <20191003154524.920770851@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
+        <amadeuszx.slawinski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.2 252/313] ASoC: Intel: Skylake: Use correct function to access iomem space
+Date:   Thu,  3 Oct 2019 17:53:50 +0200
+Message-Id: <20191003154557.858082634@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+From: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
 
-commit 41ba17f20ea835c489e77bd54e2da73184e22060 upstream.
+commit 17d29ff98fd4b70e9ccdac5e95e18a087e2737ef upstream.
 
-Commit <684d984038aa> ('powerpc/powernv: Add debugfs interface for
-imc-mode and imc') added debugfs interface for the nest imc pmu
-devices to support changing of different ucode modes. Primarily adding
-this capability for debug. But when doing so, the code did not
-consider the case of cpu-less nodes. So when reading the _cmd_ or
-_mode_ file of a cpu-less node will create this crash.
+For copying from __iomem, we should use __ioread32_copy.
 
-  Faulting instruction address: 0xc0000000000d0d58
-  Oops: Kernel access of bad area, sig: 11 [#1]
-  ...
-  CPU: 67 PID: 5301 Comm: cat Not tainted 5.2.0-rc6-next-20190627+ #19
-  NIP:  c0000000000d0d58 LR: c00000000049aa18 CTR:c0000000000d0d50
-  REGS: c00020194548f9e0 TRAP: 0300   Not tainted  (5.2.0-rc6-next-20190627+)
-  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR:28022822  XER: 00000000
-  CFAR: c00000000049aa14 DAR: 000000000003fc08 DSISR:40000000 IRQMASK: 0
-  ...
-  NIP imc_mem_get+0x8/0x20
-  LR  simple_attr_read+0x118/0x170
-  Call Trace:
-    simple_attr_read+0x70/0x170 (unreliable)
-    debugfs_attr_read+0x6c/0xb0
-    __vfs_read+0x3c/0x70
-     vfs_read+0xbc/0x1a0
-    ksys_read+0x7c/0x140
-    system_call+0x5c/0x70
+reported by sparse:
+sound/soc/intel/skylake/skl-debug.c:437:34: warning: incorrect type in argument 1 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:34:    expected void [noderef] <asn:2> *to
+sound/soc/intel/skylake/skl-debug.c:437:34:    got unsigned char *
+sound/soc/intel/skylake/skl-debug.c:437:51: warning: incorrect type in argument 2 (different address spaces)
+sound/soc/intel/skylake/skl-debug.c:437:51:    expected void const *from
+sound/soc/intel/skylake/skl-debug.c:437:51:    got void [noderef] <asn:2> *[assigned] fw_reg_addr
 
-Patch fixes the issue with a more robust check for vbase to NULL.
-
-Before patch, ls output for the debugfs imc directory
-
-  # ls /sys/kernel/debug/powerpc/imc/
-  imc_cmd_0    imc_cmd_251  imc_cmd_253  imc_cmd_255  imc_mode_0    imc_mode_251  imc_mode_253  imc_mode_255
-  imc_cmd_250  imc_cmd_252  imc_cmd_254  imc_cmd_8    imc_mode_250  imc_mode_252  imc_mode_254  imc_mode_8
-
-After patch, ls output for the debugfs imc directory
-
-  # ls /sys/kernel/debug/powerpc/imc/
-  imc_cmd_0  imc_cmd_8  imc_mode_0  imc_mode_8
-
-Actual bug here is that, we have two loops with potentially different
-loop counts. That is, in imc_get_mem_addr_nest(), loop count is
-obtained from the dt entries. But in case of export_imc_mode_and_cmd(),
-loop was based on for_each_nid() count. Patch fixes the loop count in
-latter based on the struct mem_info. Ideally it would be better to
-have array size in struct imc_pmu.
-
-Fixes: 684d984038aa ('powerpc/powernv: Add debugfs interface for imc-mode and imc')
-Reported-by: Qian Cai <cai@lca.pw>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190827101635.6942-1-maddy@linux.vnet.ibm.com
-Cc: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@intel.com>
+Link: https://lore.kernel.org/r/20190827141712.21015-2-amadeuszx.slawinski@linux.intel.com
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/opal-imc.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/soc/intel/skylake/skl-debug.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/opal-imc.c
-+++ b/arch/powerpc/platforms/powernv/opal-imc.c
-@@ -57,9 +57,9 @@ static void export_imc_mode_and_cmd(stru
- 				    struct imc_pmu *pmu_ptr)
- {
- 	static u64 loc, *imc_mode_addr, *imc_cmd_addr;
--	int chip = 0, nid;
- 	char mode[16], cmd[16];
- 	u32 cb_offset;
-+	struct imc_mem_info *ptr = pmu_ptr->mem_info;
+--- a/sound/soc/intel/skylake/skl-debug.c
++++ b/sound/soc/intel/skylake/skl-debug.c
+@@ -188,7 +188,7 @@ static ssize_t fw_softreg_read(struct fi
+ 	memset(d->fw_read_buff, 0, FW_REG_BUF);
  
- 	imc_debugfs_parent = debugfs_create_dir("imc", powerpc_debugfs_root);
+ 	if (w0_stat_sz > 0)
+-		__iowrite32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
++		__ioread32_copy(d->fw_read_buff, fw_reg_addr, w0_stat_sz >> 2);
  
-@@ -73,20 +73,20 @@ static void export_imc_mode_and_cmd(stru
- 	if (of_property_read_u32(node, "cb_offset", &cb_offset))
- 		cb_offset = IMC_CNTL_BLK_OFFSET;
- 
--	for_each_node(nid) {
--		loc = (u64)(pmu_ptr->mem_info[chip].vbase) + cb_offset;
-+	while (ptr->vbase != NULL) {
-+		loc = (u64)(ptr->vbase) + cb_offset;
- 		imc_mode_addr = (u64 *)(loc + IMC_CNTL_BLK_MODE_OFFSET);
--		sprintf(mode, "imc_mode_%d", nid);
-+		sprintf(mode, "imc_mode_%d", (u32)(ptr->id));
- 		if (!imc_debugfs_create_x64(mode, 0600, imc_debugfs_parent,
- 					    imc_mode_addr))
- 			goto err;
- 
- 		imc_cmd_addr = (u64 *)(loc + IMC_CNTL_BLK_CMD_OFFSET);
--		sprintf(cmd, "imc_cmd_%d", nid);
-+		sprintf(cmd, "imc_cmd_%d", (u32)(ptr->id));
- 		if (!imc_debugfs_create_x64(cmd, 0600, imc_debugfs_parent,
- 					    imc_cmd_addr))
- 			goto err;
--		chip++;
-+		ptr++;
- 	}
- 	return;
- 
+ 	for (offset = 0; offset < FW_REG_SIZE; offset += 16) {
+ 		ret += snprintf(tmp + ret, FW_REG_BUF - ret, "%#.4x: ", offset);
 
 
