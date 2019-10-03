@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2270BCA9B4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC141CA9E6
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392902AbfJCQqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59784 "EHLO mail.kernel.org"
+        id S1732888AbfJCRB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390968AbfJCQqa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:46:30 -0400
+        id S2404061AbfJCQou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:44:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFFDE20867;
-        Thu,  3 Oct 2019 16:46:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1CEB2070B;
+        Thu,  3 Oct 2019 16:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121189;
-        bh=WytRyuAeD8r+lZci6Ro91yBin+ytXB3SZAzTOmA8unM=;
+        s=default; t=1570121090;
+        bh=9m2JYGkvWDmA0P2yVuAEtBW885OyXdy4d9jpcGwBEes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgIqBvpBRM2a9z7524KBSwXdEXMOKdKM7zSpjkvsjN8WX2rkEaNGa6Nl3liZbbqam
-         f+VXGHwaHB7ZdVW79TOPiqxLWUroj/Yla+FacUY3qh8H5mKopVY72WcXSIxuhwiaMg
-         sS/yaxfivVTxK0W02TcCbAm3XR+zDkJbgxacaIFQ=
+        b=HAqVn8C3Ne5s6xgUnc8yL3qGY80EsfVyuWir2PliRd2ygD5c6wgo8XJRe4FGxo55q
+         lqOACdUh8kb+G6FxdykGPoKvBmj3MgI71H7KeFxbFqrA+kZE8HozKSIcxi/SV6nhZh
+         HVwQbRrOGBrTHMySFus7n+dbFiHw4BlwlLnpd4Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
         Simon Horman <horms+renesas@verge.net.au>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 150/344] soc: renesas: rmobile-sysc: Set GENPD_FLAG_ALWAYS_ON for always-on domain
-Date:   Thu,  3 Oct 2019 17:51:55 +0200
-Message-Id: <20191003154555.056977978@linuxfoundation.org>
+Subject: [PATCH 5.3 151/344] soc: renesas: Enable ARM_ERRATA_754322 for affected Cortex-A9
+Date:   Thu,  3 Oct 2019 17:51:56 +0200
+Message-Id: <20191003154555.146144185@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -48,96 +47,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit af0bc634728c0bc6a3f66f911f227d5c6396db88 ]
+[ Upstream commit 2eced4607a1e6f51f928ae3e521fe02be5cb7d23 ]
 
-Currently the R-Mobile "always-on" PM Domain is implemented by returning
--EBUSY from the generic_pm_domain.power_off() callback, and doing
-nothing in the generic_pm_domain.power_on() callback.  However, this
-means the PM Domain core code is not aware of the semantics of this
-special domain, leading to boot warnings like the following on
-SH/R-Mobile SoCs:
+ARM Erratum 754322 affects Cortex-A9 revisions r2p* and r3p*.
 
-    sh_cmt e6130000.timer: PM domain c5 will not be powered off
+Automatically enable support code to mitigate the erratum when compiling
+a kernel for any of the affected Renesas SoCs:
+  - RZ/A1: r3p0,
+  - R-Mobile A1: r2p4,
+  - R-Car M1A: r2p2-00rel0,
+  - R-Car H1: r3p0,
+  - SH-Mobile AG5: r2p2.
 
-Fix this by making the always-on nature of the domain explicit instead,
-by setting the GENPD_FLAG_ALWAYS_ON flag.  This removes the need for the
-domain to provide power control callbacks.
+EMMA Mobile EV2 (r1p3) and RZ/A2 (r4p1) are not affected.
 
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/renesas/rmobile-sysc.c | 31 +++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ drivers/soc/renesas/Kconfig | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/soc/renesas/rmobile-sysc.c b/drivers/soc/renesas/rmobile-sysc.c
-index 421ae1c887d82..54b616ad4a62a 100644
---- a/drivers/soc/renesas/rmobile-sysc.c
-+++ b/drivers/soc/renesas/rmobile-sysc.c
-@@ -48,12 +48,8 @@ struct rmobile_pm_domain *to_rmobile_pd(struct generic_pm_domain *d)
- static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
- {
- 	struct rmobile_pm_domain *rmobile_pd = to_rmobile_pd(genpd);
--	unsigned int mask;
-+	unsigned int mask = BIT(rmobile_pd->bit_shift);
+diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
+index 2bbf49e5d4418..9583c542c47f7 100644
+--- a/drivers/soc/renesas/Kconfig
++++ b/drivers/soc/renesas/Kconfig
+@@ -55,6 +55,7 @@ config ARCH_EMEV2
  
--	if (rmobile_pd->bit_shift == ~0)
--		return -EBUSY;
--
--	mask = BIT(rmobile_pd->bit_shift);
- 	if (rmobile_pd->suspend) {
- 		int ret = rmobile_pd->suspend();
+ config ARCH_R7S72100
+ 	bool "RZ/A1H (R7S72100)"
++	select ARM_ERRATA_754322
+ 	select PM
+ 	select PM_GENERIC_DOMAINS
+ 	select RENESAS_OSTM
+@@ -78,6 +79,7 @@ config ARCH_R8A73A4
+ config ARCH_R8A7740
+ 	bool "R-Mobile A1 (R8A77400)"
+ 	select ARCH_RMOBILE
++	select ARM_ERRATA_754322
+ 	select RENESAS_INTC_IRQPIN
  
-@@ -80,14 +76,10 @@ static int rmobile_pd_power_down(struct generic_pm_domain *genpd)
+ config ARCH_R8A7743
+@@ -105,10 +107,12 @@ config ARCH_R8A77470
+ config ARCH_R8A7778
+ 	bool "R-Car M1A (R8A77781)"
+ 	select ARCH_RCAR_GEN1
++	select ARM_ERRATA_754322
  
- static int __rmobile_pd_power_up(struct rmobile_pm_domain *rmobile_pd)
- {
--	unsigned int mask;
-+	unsigned int mask = BIT(rmobile_pd->bit_shift);
- 	unsigned int retry_count;
- 	int ret = 0;
- 
--	if (rmobile_pd->bit_shift == ~0)
--		return 0;
--
--	mask = BIT(rmobile_pd->bit_shift);
- 	if (__raw_readl(rmobile_pd->base + PSTR) & mask)
- 		return ret;
- 
-@@ -122,11 +114,15 @@ static void rmobile_init_pm_domain(struct rmobile_pm_domain *rmobile_pd)
- 	struct dev_power_governor *gov = rmobile_pd->gov;
- 
- 	genpd->flags |= GENPD_FLAG_PM_CLK | GENPD_FLAG_ACTIVE_WAKEUP;
--	genpd->power_off		= rmobile_pd_power_down;
--	genpd->power_on			= rmobile_pd_power_up;
--	genpd->attach_dev		= cpg_mstp_attach_dev;
--	genpd->detach_dev		= cpg_mstp_detach_dev;
--	__rmobile_pd_power_up(rmobile_pd);
-+	genpd->attach_dev = cpg_mstp_attach_dev;
-+	genpd->detach_dev = cpg_mstp_detach_dev;
-+
-+	if (!(genpd->flags & GENPD_FLAG_ALWAYS_ON)) {
-+		genpd->power_off = rmobile_pd_power_down;
-+		genpd->power_on = rmobile_pd_power_up;
-+		__rmobile_pd_power_up(rmobile_pd);
-+	}
-+
- 	pm_genpd_init(genpd, gov ? : &simple_qos_governor, false);
- }
- 
-@@ -270,6 +266,11 @@ static void __init rmobile_setup_pm_domain(struct device_node *np,
- 		break;
- 
- 	case PD_NORMAL:
-+		if (pd->bit_shift == ~0) {
-+			/* Top-level always-on domain */
-+			pr_debug("PM domain %s is always-on domain\n", name);
-+			pd->genpd.flags |= GENPD_FLAG_ALWAYS_ON;
-+		}
- 		break;
- 	}
- 
+ config ARCH_R8A7779
+ 	bool "R-Car H1 (R8A77790)"
+ 	select ARCH_RCAR_GEN1
++	select ARM_ERRATA_754322
+ 	select HAVE_ARM_SCU if SMP
+ 	select HAVE_ARM_TWD if SMP
+ 	select SYSC_R8A7779
+@@ -152,6 +156,7 @@ config ARCH_R9A06G032
+ config ARCH_SH73A0
+ 	bool "SH-Mobile AG5 (R8A73A00)"
+ 	select ARCH_RMOBILE
++	select ARM_ERRATA_754322
+ 	select HAVE_ARM_SCU if SMP
+ 	select HAVE_ARM_TWD if SMP
+ 	select RENESAS_INTC_IRQPIN
 -- 
 2.20.1
 
