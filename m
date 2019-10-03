@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D27D6C9ED4
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72C17C9EEB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 14:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727331AbfJCMuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 08:50:16 -0400
-Received: from mga12.intel.com ([192.55.52.136]:49408 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726393AbfJCMuQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 08:50:16 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Oct 2019 05:50:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,252,1566889200"; 
-   d="scan'208";a="196334370"
-Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.161])
-  by orsmga006.jf.intel.com with ESMTP; 03 Oct 2019 05:50:13 -0700
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        keyrings@vger.kernel.org (open list:ASYMMETRIC KEYS),
-        linux-crypto@vger.kernel.org (open list:CRYPTO API),
-        linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH v2] KEYS: asym_tpm: Switch to get_random_bytes()
-Date:   Thu,  3 Oct 2019 15:50:09 +0300
-Message-Id: <20191003125009.30195-1-jarkko.sakkinen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
+        id S1730255AbfJCMyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 08:54:46 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:36402 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730208AbfJCMyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 08:54:46 -0400
+Received: by mail-pg1-f194.google.com with SMTP id 23so1747785pgk.3;
+        Thu, 03 Oct 2019 05:54:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3KwiyzQXnyUJv1x/MpX8d1dxJ0H+8l16xNQfdlBiu7Q=;
+        b=Ki7WXgc3hN/m65nEvTuJa+uSDNFti0pDLKU0okGj1ewDEUaaeJHorGdPZtOksopZpl
+         DKDH5I5rAEOnD894ytQVVWiAv0YTUDVgOpxXblBzaqDR6yJhS6dXUqWAmTPvHFE72rqT
+         IMfui+z3v77jS1XjCRtzy8RhFKgUqQjsZKYHnZ4lX05WApaHrlAbkubZONZKchxO9QlL
+         D4gwXaUb12kYGrh9WKWfRs9ef6sjT4ERyIk6C6lpIsBI+lgWlxgwZ6bbvlGQkHW84dzC
+         lJZZYO22PQfFCoILqICadeFaikNHBMW3aNbBGHFNWdC1r+r/xI6kirTjjVhnQZp7TAC8
+         tW1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3KwiyzQXnyUJv1x/MpX8d1dxJ0H+8l16xNQfdlBiu7Q=;
+        b=q/G6vE4mvtbVUoxA5VHp9rOUP+dIyTy9S0qFILANdNTwqcfu9SL1XWZU2Yfv7DrDlz
+         DAXrQpVXI48og+nJE2LtDRseAlWYlaOy4+Ge8MUeyNPgVwkP/csHPHn6cHI4ioxmVUCa
+         slCGJkPPyzNlClFI6Us6x7x1u0K2U9+MQ/Q9F02cQpDjtzDCZJPj5fETPYNkJ3FZyP7x
+         1BtCNiIIN2VZqDPeaAqNVQq7VTojND9nAbLZVdFeVldW0xmVF//xVP5zFpGW1bU+l7dv
+         26n4ECGJX9lZBgtMUQOhvdJvaXIu65OsPvoYcXgJGH+MCO8buLiPptjo7Ve8xCrWIxBI
+         whFg==
+X-Gm-Message-State: APjAAAXof1aysUbSrGiZ8zvC6Y6zctyWd0QqxP1cqtOMNkzdW9zQ/uc4
+        adnsC671sPrzBb6ErIiB4lM=
+X-Google-Smtp-Source: APXvYqyEIaDgDSzD8DdoQRFBDstfMRvl2zMjJnbtV8041AXWaa/1PccwYt4WDZQDa124/NUEXYAcpg==
+X-Received: by 2002:a17:90a:356d:: with SMTP id q100mr10627772pjb.53.1570107283855;
+        Thu, 03 Oct 2019 05:54:43 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id c6sm5516569pgk.65.2019.10.03.05.54.41
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 03 Oct 2019 05:54:42 -0700 (PDT)
+Subject: Re: [PATCH 3.16 00/87] 3.16.75-rc1 review
+To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        Denis Kirjanov <kda@linux-powerpc.org>
+References: <lsq.1570043210.379046399@decadent.org.uk>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <1a374d67-9908-6c7d-c428-219ee6d79ee4@roeck-us.net>
+Date:   Thu, 3 Oct 2019 05:54:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <lsq.1570043210.379046399@decadent.org.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Only the kernel random pool should be used for generating random numbers.
-TPM contributes to that pool among the other sources of entropy. In here it
-is not, agreed, absolutely critical because TPM is what is trusted anyway
-but in order to remove tpm_get_random() we need to first remove all the
-call sites.
+On 10/2/19 12:06 PM, Ben Hutchings wrote:
+> This is the start of the stable review cycle for the 3.16.75 release.
+> There are 87 patches in this series, which will be posted as responses
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri Oct 04 19:06:50 UTC 2019.
+> Anything received after that time might be too late.
+>
+For v3.16.74-87-g815992c3a9a0:
 
-Cc: stable@vger.kernel.org
-Fixes: 0c36264aa1d5 ("KEYS: asym_tpm: Add loadkey2 and flushspecific [ver #2]")
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
----
-v2:
-* Changed two remaining call sites to use get_random_bytes()
-* Removed "stating the obvious" comments.
- crypto/asymmetric_keys/asym_tpm.c | 22 ++++------------------
- 1 file changed, 4 insertions(+), 18 deletions(-)
+Build results:
+	total: 136 pass: 122 fail: 14
+Failed builds:
+	alpha:allmodconfig
+	arm:allmodconfig
+	arm64:allmodconfig
+	i386:allyesconfig
+	i386:allmodconfig
+	m68k:allmodconfig
+	mips:allmodconfig
+	parisc:allmodconfig
+	powerpc:allmodconfig
+	s390:allmodconfig
+	sparc64:allmodconfig
+	x86_64:allyesconfig
+	x86_64:allmodconfig
+	xtensa:allmodconfig
+Qemu test results:
+	total: 229 pass: 229 fail: 0
 
-diff --git a/crypto/asymmetric_keys/asym_tpm.c b/crypto/asymmetric_keys/asym_tpm.c
-index 76d2ce3a1b5b..4eaf57483b9a 100644
---- a/crypto/asymmetric_keys/asym_tpm.c
-+++ b/crypto/asymmetric_keys/asym_tpm.c
-@@ -6,6 +6,7 @@
- #include <linux/kernel.h>
- #include <linux/seq_file.h>
- #include <linux/scatterlist.h>
-+#include <linux/random.h>
- #include <linux/tpm.h>
- #include <linux/tpm_command.h>
- #include <crypto/akcipher.h>
-@@ -53,12 +54,7 @@ static int tpm_loadkey2(struct tpm_buf *tb,
- 		return ret;
- 	}
- 
--	/* generate odd nonce */
--	ret = tpm_get_random(NULL, nonceodd, TPM_NONCE_SIZE);
--	if (ret < 0) {
--		pr_info("tpm_get_random failed (%d)\n", ret);
--		return ret;
--	}
-+	get_random_bytes(nonceodd, TPM_NONCE_SIZE);
- 
- 	/* calculate authorization HMAC value */
- 	ret = TSS_authhmac(authdata, keyauth, SHA1_DIGEST_SIZE, enonce,
-@@ -139,12 +135,7 @@ static int tpm_unbind(struct tpm_buf *tb,
- 		return ret;
- 	}
- 
--	/* generate odd nonce */
--	ret = tpm_get_random(NULL, nonceodd, TPM_NONCE_SIZE);
--	if (ret < 0) {
--		pr_info("tpm_get_random failed (%d)\n", ret);
--		return ret;
--	}
-+	get_random_bytes(nonceodd, TPM_NONCE_SIZE);
- 
- 	/* calculate authorization HMAC value */
- 	ret = TSS_authhmac(authdata, keyauth, SHA1_DIGEST_SIZE, enonce,
-@@ -225,12 +216,7 @@ static int tpm_sign(struct tpm_buf *tb,
- 		return ret;
- 	}
- 
--	/* generate odd nonce */
--	ret = tpm_get_random(NULL, nonceodd, TPM_NONCE_SIZE);
--	if (ret < 0) {
--		pr_info("tpm_get_random failed (%d)\n", ret);
--		return ret;
--	}
-+	get_random_bytes(nonceodd, TPM_NONCE_SIZE);
- 
- 	/* calculate authorization HMAC value */
- 	ret = TSS_authhmac(authdata, keyauth, SHA1_DIGEST_SIZE, enonce,
--- 
-2.20.1
+The error is:
 
+drivers/staging/iio/cdc/ad7150.c:9:10: fatal error: linux/bitfield.h: No such file or directory
+
+which indeed does not exist in v3.16.y. Culprit is commit 6117323f0fbfb
+("staging:iio:ad7150: fix threshold mode config bit".
+
+Guenter
