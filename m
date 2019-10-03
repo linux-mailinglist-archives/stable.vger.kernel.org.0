@@ -2,121 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F40DC9FD5
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 15:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6012C9FE9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 15:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728315AbfJCNuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 09:50:22 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:39714 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725874AbfJCNuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Oct 2019 09:50:22 -0400
-Received: by mail-lf1-f65.google.com with SMTP id 72so1903393lfh.6;
-        Thu, 03 Oct 2019 06:50:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xOQUGD5j0sSP/q6R07ewuqh26B4gRZQR5+vNl+UIpvk=;
-        b=dEmndmQDFomjWP5da9f37BnG4gdaZsO4QwsqpugKYzEximGc8XLTZJFug66zhucIw6
-         9cm0UX+o/CpJOkr0YgTAPU3gV++APYw0jfs88F5dUhHnNsLe9O2ylyX0TBCLmtRf7l12
-         tXw/KYcaTurae0rTL7HvvitxHycjSTvPPxji8AdJklc0Ne05XXWHWaUNT6AqAxzqKFXM
-         7WZYux+TT/p2tdFfj8y3EBU/AbApGMXVTrq+koxhODhkk9v0mUuZgyDZQCQKNVTQmfBY
-         fVGKYgo8gdUyVOhsch+Odi/97yqFmbQckUrwjMHl0q5dyCZwIqNt0LYTYybw/5ZCI6UI
-         mf9A==
-X-Gm-Message-State: APjAAAVtIDSJxlEK5tx77dhWgUD9jaHj8QrrDlApCgF/xMFkNEmsm6vp
-        XdkJLH6eBd7tLAcO/eAdK/wS+i/N
-X-Google-Smtp-Source: APXvYqya10ErmzjwDGsx3D3Tu1cJU1NuQMw6RM1hfbg2sofbrKHDGmM33e+6KgbV3AdR4eis6SEuZw==
-X-Received: by 2002:ac2:5966:: with SMTP id h6mr6105091lfp.78.1570110619866;
-        Thu, 03 Oct 2019 06:50:19 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id 81sm558409lje.70.2019.10.03.06.50.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 03 Oct 2019 06:50:18 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@xi.terra>)
-        id 1iG1Uz-0002H1-HJ; Thu, 03 Oct 2019 15:50:29 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     linux-usb@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Rainer Weikusat <rainer.weikusat@sncag.com>,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] USB: serial: keyspan: fix NULL-derefs on open() and write()
-Date:   Thu,  3 Oct 2019 15:49:58 +0200
-Message-Id: <20191003134958.8692-1-johan@kernel.org>
-X-Mailer: git-send-email 2.23.0
+        id S1729580AbfJCNyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 09:54:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729244AbfJCNyn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 09:54:43 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E953E20865;
+        Thu,  3 Oct 2019 13:54:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570110883;
+        bh=uxGETtiNRiejHOUgGfK8i24qmr0VDthxEixlWwjg6V0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uHLOxaMP4bGNwCQ8MvP2OUGqzgn0FAnPC14iWDbqUL9QRG+/jKz+VRA58Uat6dzHH
+         VpQLP4yRiDM12dA73RuHZgoP6eD1C87EvVivmSKeD9SyRT5kamiJE0DDxxc0K1mcNe
+         +kYUrAIZ604C0wKUverSQ2nl2jZ2fPUrulNRPu90=
+Date:   Thu, 3 Oct 2019 09:54:41 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     lorenzo@kernel.org, kvalo@codeaurora.org, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] mt76: mt7615: fix mt7615 firmware path
+ definitions" failed to apply to 5.3-stable tree
+Message-ID: <20191003135441.GA17454@sasha-vm>
+References: <157010284795216@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <157010284795216@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix NULL-pointer dereferences on open() and write() which can be
-triggered by a malicious USB device.
+On Thu, Oct 03, 2019 at 01:40:47PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 5.3-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 9d4d0d06bbf9f7e576b0ebbb2f77672d0fc7f503 Mon Sep 17 00:00:00 2001
+>From: Lorenzo Bianconi <lorenzo@kernel.org>
+>Date: Sun, 22 Sep 2019 15:36:03 +0200
+>Subject: [PATCH] mt76: mt7615: fix mt7615 firmware path definitions
+>
+>mt7615 patch/n9/cr4 firmwares are available in mediatek folder in
+>linux-firmware repository. Because of this mt7615 won't work on regular
+>distributions like Ubuntu. Fix path definitions.  Moreover remove useless
+>firmware name pointers and use definitions directly
+>
+>Fixes: 04b8e65922f6 ("mt76: add mac80211 driver for MT7615 PCIe-based chipsets")
+>Cc: stable@vger.kernel.org
+>Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+>Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-The current URB allocation helper would fail to initialise the newly
-allocated URB if the device has unexpected endpoint descriptors,
-something which could lead NULL-pointer dereferences in a number of
-open() and write() paths when accessing the URB. For example:
+I've resolved this by also taking 2fc446487c364 ("mt76: mt7615: always
+release sem in mt7615_load_patch"). Queued up both for 5.3 and 5.2, not
+needed on older kernels.
 
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:usb_clear_halt+0x11/0xc0
-	...
-	Call Trace:
-	 ? tty_port_open+0x4d/0xd0
-	 keyspan_open+0x70/0x160 [keyspan]
-	 serial_port_activate+0x5b/0x80 [usbserial]
-	 tty_port_open+0x7b/0xd0
-	 ? check_tty_count+0x43/0xa0
-	 tty_open+0xf1/0x490
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:keyspan_write+0x14e/0x1f3 [keyspan]
-	...
-	Call Trace:
-	 serial_write+0x43/0xa0 [usbserial]
-	 n_tty_write+0x1af/0x4f0
-	 ? do_wait_intr_irq+0x80/0x80
-	 ? process_echoes+0x60/0x60
-	 tty_write+0x13f/0x2f0
-
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	...
-	RIP: 0010:keyspan_usa26_send_setup+0x298/0x305 [keyspan]
-	...
-	Call Trace:
-	 keyspan_open+0x10f/0x160 [keyspan]
-	 serial_port_activate+0x5b/0x80 [usbserial]
-	 tty_port_open+0x7b/0xd0
-	 ? check_tty_count+0x43/0xa0
-	 tty_open+0xf1/0x490
-
-Fixes: fdcba53e2d58 ("fix for bugzilla #7544 (keyspan USB-to-serial converter)")
-Cc: stable <stable@vger.kernel.org>	# 2.6.21
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/serial/keyspan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/serial/keyspan.c b/drivers/usb/serial/keyspan.c
-index d34779fe4a8d..e66a59ef43a1 100644
---- a/drivers/usb/serial/keyspan.c
-+++ b/drivers/usb/serial/keyspan.c
-@@ -1741,8 +1741,8 @@ static struct urb *keyspan_setup_urb(struct usb_serial *serial, int endpoint,
- 
- 	ep_desc = find_ep(serial, endpoint);
- 	if (!ep_desc) {
--		/* leak the urb, something's wrong and the callers don't care */
--		return urb;
-+		usb_free_urb(urb);
-+		return NULL;
- 	}
- 	if (usb_endpoint_xfer_int(ep_desc)) {
- 		ep_type_name = "INT";
 -- 
-2.23.0
-
+Thanks,
+Sasha
