@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A38CA53A
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:34:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8C4CA53F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391511AbfJCQcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:32:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
+        id S2390436AbfJCQc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391510AbfJCQcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:19 -0400
+        id S2390277AbfJCQc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E495B215EA;
-        Thu,  3 Oct 2019 16:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED96120830;
+        Thu,  3 Oct 2019 16:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120338;
-        bh=5eDikgOSaSe6iEg5YcefwyC0Wju1DF4Oj1szVWREBus=;
+        s=default; t=1570120346;
+        bh=leYeD/s84fzCzJiLxlqZC7v0m9tHRmhR+GFQopj0SIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcG+Bp2/AcX0FSl/0lHaoqgzL8mPnbtZ+bjKe4P561yHNexuNJtqpIA7wIQbrCKf8
-         Eo4AW+2J5FwmfNq91/dF+gvacRyyYgSPM2OeAdon20rdNUve1YpO7ZC3C5ZTo+3iWq
-         +ers22w2PPMPn5Uae3r2ki04tLkIz/olpimpOJbc=
+        b=J/92dptHgghn5KSYeWrRg2GycEHQ2dwy04uk5P0V/o5oEUerFKfJoCF/twu+NeBB5
+         0aahHVVs7LKbstad1hKV/Ag49oI/zrmTjFVsKfjuzVyCIEYSuwa8FL90cqmDaLf9Yz
+         hKApW4F8VfCgTbwxOjaj6DqtoahCMl6eQj0V16sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Arthur She <arthur.she@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 185/313] ASoC: dmaengine: Make the pcm->name equal to pcm->id if the name is not set
-Date:   Thu,  3 Oct 2019 17:52:43 +0200
-Message-Id: <20191003154551.208360676@linuxfoundation.org>
+Subject: [PATCH 5.2 188/313] raid5: dont set STRIPE_HANDLE to stripe which is in batch list
+Date:   Thu,  3 Oct 2019 17:52:46 +0200
+Message-Id: <20191003154551.497794967@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,44 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 2ec42f3147e1610716f184b02e65d7f493eed925 ]
+[ Upstream commit 6ce220dd2f8ea71d6afc29b9a7524c12e39f374a ]
 
-Some tools use the snd_pcm_info_get_name() to try to identify PCMs or for
-other purposes.
+If stripe in batch list is set with STRIPE_HANDLE flag, then the stripe
+could be set with STRIPE_ACTIVE by the handle_stripe function. And if
+error happens to the batch_head at the same time, break_stripe_batch_list
+is called, then below warning could happen (the same report in [1]), it
+means a member of batch list was set with STRIPE_ACTIVE.
 
-Currently it is left empty with the dmaengine-pcm, in this case copy the
-pcm->id string as pcm->name.
+[7028915.431770] stripe state: 2001
+[7028915.431815] ------------[ cut here ]------------
+[7028915.431828] WARNING: CPU: 18 PID: 29089 at drivers/md/raid5.c:4614 break_stripe_batch_list+0x203/0x240 [raid456]
+[...]
+[7028915.431879] CPU: 18 PID: 29089 Comm: kworker/u82:5 Tainted: G           O    4.14.86-1-storage #4.14.86-1.2~deb9
+[7028915.431881] Hardware name: Supermicro SSG-2028R-ACR24L/X10DRH-iT, BIOS 3.1 06/18/2018
+[7028915.431888] Workqueue: raid5wq raid5_do_work [raid456]
+[7028915.431890] task: ffff9ab0ef36d7c0 task.stack: ffffb72926f84000
+[7028915.431896] RIP: 0010:break_stripe_batch_list+0x203/0x240 [raid456]
+[7028915.431898] RSP: 0018:ffffb72926f87ba8 EFLAGS: 00010286
+[7028915.431900] RAX: 0000000000000012 RBX: ffff9aaa84a98000 RCX: 0000000000000000
+[7028915.431901] RDX: 0000000000000000 RSI: ffff9ab2bfa15458 RDI: ffff9ab2bfa15458
+[7028915.431902] RBP: ffff9aaa8fb4e900 R08: 0000000000000001 R09: 0000000000002eb4
+[7028915.431903] R10: 00000000ffffffff R11: 0000000000000000 R12: ffff9ab1736f1b00
+[7028915.431904] R13: 0000000000000000 R14: ffff9aaa8fb4e900 R15: 0000000000000001
+[7028915.431906] FS:  0000000000000000(0000) GS:ffff9ab2bfa00000(0000) knlGS:0000000000000000
+[7028915.431907] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[7028915.431908] CR2: 00007ff953b9f5d8 CR3: 0000000bf4009002 CR4: 00000000003606e0
+[7028915.431909] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[7028915.431910] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[7028915.431910] Call Trace:
+[7028915.431923]  handle_stripe+0x8e7/0x2020 [raid456]
+[7028915.431930]  ? __wake_up_common_lock+0x89/0xc0
+[7028915.431935]  handle_active_stripes.isra.58+0x35f/0x560 [raid456]
+[7028915.431939]  raid5_do_work+0xc6/0x1f0 [raid456]
 
-For example IGT is using this to find the HDMI PCM for testing audio on it.
+Also commit 59fc630b8b5f9f ("RAID5: batch adjacent full stripe write")
+said "If a stripe is added to batch list, then only the first stripe
+of the list should be put to handle_list and run handle_stripe."
 
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reported-by: Arthur She <arthur.she@linaro.org>
-Link: https://lore.kernel.org/r/20190906055524.7393-1-peter.ujfalusi@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So don't set STRIPE_HANDLE to stripe which is already in batch list,
+otherwise the stripe could be put to handle_list and run handle_stripe,
+then the above warning could be triggered.
+
+[1]. https://www.spinics.net/lists/raid/msg62552.html
+
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/md/raid5.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-generic-dmaengine-pcm.c b/sound/soc/soc-generic-dmaengine-pcm.c
-index 748f5f641002e..d93db2c2b5270 100644
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -306,6 +306,12 @@ static int dmaengine_pcm_new(struct snd_soc_pcm_runtime *rtd)
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index da94cbaa1a9ed..8d2811e436b93 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -5719,7 +5719,8 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
+ 				do_flush = false;
+ 			}
  
- 		if (!dmaengine_pcm_can_report_residue(dev, pcm->chan[i]))
- 			pcm->flags |= SND_DMAENGINE_PCM_FLAG_NO_RESIDUE;
-+
-+		if (rtd->pcm->streams[i].pcm->name[0] == '\0') {
-+			strncpy(rtd->pcm->streams[i].pcm->name,
-+				rtd->pcm->streams[i].pcm->id,
-+				sizeof(rtd->pcm->streams[i].pcm->name));
-+		}
- 	}
- 
- 	return 0;
+-			set_bit(STRIPE_HANDLE, &sh->state);
++			if (!sh->batch_head)
++				set_bit(STRIPE_HANDLE, &sh->state);
+ 			clear_bit(STRIPE_DELAYED, &sh->state);
+ 			if ((!sh->batch_head || sh == sh->batch_head) &&
+ 			    (bi->bi_opf & REQ_SYNC) &&
 -- 
 2.20.1
 
