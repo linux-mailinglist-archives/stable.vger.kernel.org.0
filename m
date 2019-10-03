@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 479F5CA8F8
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56BE8CA825
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391229AbfJCQfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S2390224AbfJCQV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404074AbfJCQfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:35:22 -0400
+        id S2390208AbfJCQV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43D582070B;
-        Thu,  3 Oct 2019 16:35:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1BC2A2054F;
+        Thu,  3 Oct 2019 16:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120521;
-        bh=ZsSQ/Q9nhpssLAIx6yD5sSkzGLXOhaVzTnt0SeF9+v0=;
+        s=default; t=1570119717;
+        bh=ZYCCv+T4GyOSEM7sSveA086+4vtEk0XaVhStkGR/kfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DkWCfsnQl6SHN44K/2Sg1DZ2SRNJYmdEh5IbHnNSvqCZsBj7yjDpMYyuhn2t8dDst
-         1hJv0B05pBk6Z7U5LOvMdic9SJm3IHp+hnu4dLOM51j4j29lKBsM4CojxPRMcBmVed
-         OFrYswMqUUvKncPHnhCL7jSLRjP+6+zS7g3Ekigg=
+        b=YWgYrk8VElaSq/wrTS7e1XfLMsPmI7UmpQsiZrLTLsyIllPulogUctNBJCI8iaJZQ
+         Upl7zda1PAd0AXdgVM+p8I7ykZb8zO0gknK8Vr5oRtSMfsctD9FyCGgR0WS1qkFRZU
+         IiY6kBif4Z5kxXfqHm0urRe462koUrZbf5ArtCbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lihua Yao <ylhuajnu@outlook.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Subject: [PATCH 5.2 254/313] ARM: samsung: Fix system restart on S3C6410
-Date:   Thu,  3 Oct 2019 17:53:52 +0200
-Message-Id: <20191003154558.054311010@linuxfoundation.org>
+        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 168/211] media: sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
+Date:   Thu,  3 Oct 2019 17:53:54 +0200
+Message-Id: <20191003154525.987598969@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lihua Yao <ylhuajnu@outlook.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 16986074035cc0205472882a00d404ed9d213313 upstream.
+commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
 
-S3C6410 system restart is triggered by watchdog reset.
+Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
+SN9C201 + OV7660 webcam which is mounted upside down.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 9f55342cc2de ("ARM: dts: s3c64xx: Fix infinite interrupt in soft mode")
-Signed-off-by: Lihua Yao <ylhuajnu@outlook.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Add it to the sn9c20x flip_dmi_table to deal with this.
+
+Cc: stable@vger.kernel.org
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/plat-samsung/watchdog-reset.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/gspca/sn9c20x.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/arm/plat-samsung/watchdog-reset.c
-+++ b/arch/arm/plat-samsung/watchdog-reset.c
-@@ -62,6 +62,7 @@ void samsung_wdt_reset(void)
- #ifdef CONFIG_OF
- static const struct of_device_id s3c2410_wdt_match[] = {
- 	{ .compatible = "samsung,s3c2410-wdt" },
-+	{ .compatible = "samsung,s3c6410-wdt" },
- 	{},
- };
- 
+--- a/drivers/media/usb/gspca/sn9c20x.c
++++ b/drivers/media/usb/gspca/sn9c20x.c
+@@ -133,6 +133,13 @@ static const struct dmi_system_id flip_d
+ 		}
+ 	},
+ 	{
++		.ident = "MSI MS-1039",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
++		}
++	},
++	{
+ 		.ident = "MSI MS-1632",
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
 
 
