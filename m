@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54590CAC09
+	by mail.lfdr.de (Postfix) with ESMTP id BE33BCAC0A
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731331AbfJCQEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
+        id S1731088AbfJCQEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:04:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732430AbfJCQEe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:34 -0400
+        id S1732432AbfJCQEh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:04:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB04C21D81;
-        Thu,  3 Oct 2019 16:04:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7879D222CC;
+        Thu,  3 Oct 2019 16:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118674;
-        bh=JWoQwYa5H76DAUBqCzDOjjVohTZObjYeydY9EYZpwEU=;
+        s=default; t=1570118677;
+        bh=9HFAQGshaeOx/Cr9UHNqzoYDPUUvGDwBfjfooOSH8zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HBm7msikmSUFnp+cQH4/5mtr2F+ANCBXsPWYAKJzqOAZ2BrRxU3SK1hXSXSFWqkeM
-         /Kmt0pZO7ApCREB0czAIROAjaj+4C+/Zv1/ndLsOuYsSb8yJeH+YqWiaKOAxlQpCOv
-         gxAXz//qd+/1+y3PSkkpRkU7z7q2XvFdIlpweoeU=
+        b=SnrNqEuBTGKxSqf8t2Y75T3zOiT/eOewf0jNujPduUaLtJ9UvttFXyGtCQlkOzN7w
+         BywVyCda83gO2vqJc3Hu8cHPldq2xrN8vL3OtlbbEomxjEM73HQmoivgBB89jMrqRm
+         4x/IXw5Pnjjm4oiUA+IK0gtgJM8BLgW2k0iq52CM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/129] PM / devfreq: passive: fix compiler warning
-Date:   Thu,  3 Oct 2019 17:53:40 +0200
-Message-Id: <20191003154403.884103313@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 098/129] ALSA: firewire-tascam: handle error code when getting current source of clock
+Date:   Thu,  3 Oct 2019 17:53:41 +0200
+Message-Id: <20191003154404.302602005@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -44,35 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: MyungJoo Ham <myungjoo.ham@samsung.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 0465814831a926ce2f83e8f606d067d86745234e ]
+commit 2617120f4de6d0423384e0e86b14c78b9de84d5a upstream.
 
-The recent commit of
-PM / devfreq: passive: Use non-devm notifiers
-had incurred compiler warning, "unused variable 'dev'".
+The return value of snd_tscm_stream_get_clock() is ignored. This commit
+checks the value and handle error.
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e453df44f0d6 ("ALSA: firewire-tascam: add PCM functionality")
+Cc: <stable@vger.kernel.org> # v4.4+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20190910135152.29800-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/devfreq/governor_passive.c | 1 -
- 1 file changed, 1 deletion(-)
+ sound/firewire/tascam/tascam-pcm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
-index 8e889fd805b58..62c262fc2178d 100644
---- a/drivers/devfreq/governor_passive.c
-+++ b/drivers/devfreq/governor_passive.c
-@@ -152,7 +152,6 @@ static int devfreq_passive_notifier_call(struct notifier_block *nb,
- static int devfreq_passive_event_handler(struct devfreq *devfreq,
- 				unsigned int event, void *data)
- {
--	struct device *dev = devfreq->dev.parent;
- 	struct devfreq_passive_data *p_data
- 			= (struct devfreq_passive_data *)devfreq->data;
- 	struct devfreq *parent = (struct devfreq *)p_data->parent;
--- 
-2.20.1
-
+--- a/sound/firewire/tascam/tascam-pcm.c
++++ b/sound/firewire/tascam/tascam-pcm.c
+@@ -81,6 +81,9 @@ static int pcm_open(struct snd_pcm_subst
+ 		goto err_locked;
+ 
+ 	err = snd_tscm_stream_get_clock(tscm, &clock);
++	if (err < 0)
++		goto err_locked;
++
+ 	if (clock != SND_TSCM_CLOCK_INTERNAL ||
+ 	    amdtp_stream_pcm_running(&tscm->rx_stream) ||
+ 	    amdtp_stream_pcm_running(&tscm->tx_stream)) {
 
 
