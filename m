@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 738D7CA84F
+	by mail.lfdr.de (Postfix) with ESMTP id E1C34CA850
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390836AbfJCQY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:24:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54810 "EHLO mail.kernel.org"
+        id S2388212AbfJCQZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390831AbfJCQYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:24:55 -0400
+        id S1729193AbfJCQY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:24:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24B8B20867;
-        Thu,  3 Oct 2019 16:24:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C5B020867;
+        Thu,  3 Oct 2019 16:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119893;
-        bh=8+lmPgBjYpQcwYx55SQ8PdxzuWuMMuuKkoFHrZUWAIA=;
+        s=default; t=1570119898;
+        bh=wzy+qn7G4vChhr+Igs0f97LpsFy/FGBogC3S8Dgnf0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KKCcAcssWu52iJ3oYML2kuOofAqhZhGP+R599t/UOd+Z/NWWojuMxhs8WgUHZ2ru
-         jKryNvG9rUuJfJAicwnVdu6Y75l0Xf7DWMGBoSEAki1GTpmRfie5bKKtRv+KZ+TW5Y
-         070OEUy7m60w5b0rfQRetD5cv7I2n6Acdm6aojIo=
+        b=i/fGyxrRXfSdgvo8BXLL2PWMBaoi6k2O+K9TQvw30rsp3aC8gFWC+Z2piwIKYRDq1
+         IDyTBWMPAnCtFQxGhhw3QwG+JqypIHKSy+YwG0CVnCCjbAG12kElSLNFKHOWpSwH7x
+         MbphbdXg2R/tC8j69Mja/1/p58pOEF7IXB4EekR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
         Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 020/313] net/sched: cbs: Fix not adding cbs instance to list
-Date:   Thu,  3 Oct 2019 17:49:58 +0200
-Message-Id: <20191003154535.348101588@linuxfoundation.org>
+        Jiri Pirko <jiri@mellanox.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.2 022/313] net_sched: add policy validation for action attributes
+Date:   Thu,  3 Oct 2019 17:50:00 +0200
+Message-Id: <20191003154535.559326756@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,169 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 3e8b9bfa110896f95d602d8c98d5f9d67e41d78c ]
+[ Upstream commit 199ce850ce112315cfc68d42b694bcaa27b097b7 ]
 
-When removing a cbs instance when offloading is enabled, the crash
-below can be observed.
+Similar to commit 8b4c3cdd9dd8
+("net: sched: Add policy validation for tc attributes"), we need
+to add proper policy validation for TC action attributes too.
 
-The problem happens because that when offloading is enabled, the cbs
-instance is not added to the list.
-
-Also, the current code doesn't handle correctly the case when offload
-is disabled without removing the qdisc: if the link speed changes the
-credit calculations will be wrong. When we create the cbs instance
-with offloading enabled, it's not added to the notification list, when
-later we disable offloading, it's not in the list, so link speed
-changes will not affect it.
-
-The solution for both issues is the same, add the cbs instance being
-created unconditionally to the global list, even if the link state
-notification isn't useful "right now".
-
-Crash log:
-
-[518758.189866] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[518758.189870] #PF: supervisor read access in kernel mode
-[518758.189871] #PF: error_code(0x0000) - not-present page
-[518758.189872] PGD 0 P4D 0
-[518758.189874] Oops: 0000 [#1] SMP PTI
-[518758.189876] CPU: 3 PID: 4825 Comm: tc Not tainted 5.2.9 #1
-[518758.189877] Hardware name: Gigabyte Technology Co., Ltd. Z390 AORUS ULTRA/Z390 AORUS ULTRA-CF, BIOS F7 03/14/2019
-[518758.189881] RIP: 0010:__list_del_entry_valid+0x29/0xa0
-[518758.189883] Code: 90 48 b8 00 01 00 00 00 00 ad de 55 48 8b 17 4c 8b 47 08 48 89 e5 48 39 c2 74 27 48 b8 00 02 00 00 00 00 ad de 49 39 c0 74 2d <49> 8b 30 48 39 fe 75 3d 48 8b 52 08 48 39 f2 75 4c b8 01 00 00 00
-[518758.189885] RSP: 0018:ffffa27e43903990 EFLAGS: 00010207
-[518758.189887] RAX: dead000000000200 RBX: ffff8bce69f0f000 RCX: 0000000000000000
-[518758.189888] RDX: 0000000000000000 RSI: ffff8bce69f0f064 RDI: ffff8bce69f0f1e0
-[518758.189890] RBP: ffffa27e43903990 R08: 0000000000000000 R09: ffff8bce69e788c0
-[518758.189891] R10: ffff8bce62acd400 R11: 00000000000003cb R12: ffff8bce69e78000
-[518758.189892] R13: ffff8bce69f0f140 R14: 0000000000000000 R15: 0000000000000000
-[518758.189894] FS:  00007fa1572c8f80(0000) GS:ffff8bce6e0c0000(0000) knlGS:0000000000000000
-[518758.189895] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[518758.189896] CR2: 0000000000000000 CR3: 000000040a398006 CR4: 00000000003606e0
-[518758.189898] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[518758.189899] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[518758.189900] Call Trace:
-[518758.189904]  cbs_destroy+0x32/0xa0 [sch_cbs]
-[518758.189906]  qdisc_destroy+0x45/0x120
-[518758.189907]  qdisc_put+0x25/0x30
-[518758.189908]  qdisc_graft+0x2c1/0x450
-[518758.189910]  tc_get_qdisc+0x1c8/0x310
-[518758.189912]  ? get_page_from_freelist+0x91a/0xcb0
-[518758.189914]  rtnetlink_rcv_msg+0x293/0x360
-[518758.189916]  ? kmem_cache_alloc_node_trace+0x178/0x260
-[518758.189918]  ? __kmalloc_node_track_caller+0x38/0x50
-[518758.189920]  ? rtnl_calcit.isra.0+0xf0/0xf0
-[518758.189922]  netlink_rcv_skb+0x48/0x110
-[518758.189923]  rtnetlink_rcv+0x10/0x20
-[518758.189925]  netlink_unicast+0x15b/0x1d0
-[518758.189926]  netlink_sendmsg+0x1ea/0x380
-[518758.189929]  sock_sendmsg+0x2f/0x40
-[518758.189930]  ___sys_sendmsg+0x295/0x2f0
-[518758.189932]  ? ___sys_recvmsg+0x151/0x1e0
-[518758.189933]  ? do_wp_page+0x7e/0x450
-[518758.189935]  __sys_sendmsg+0x48/0x80
-[518758.189937]  __x64_sys_sendmsg+0x1a/0x20
-[518758.189939]  do_syscall_64+0x53/0x1f0
-[518758.189941]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[518758.189942] RIP: 0033:0x7fa15755169a
-[518758.189944] Code: 48 c7 c0 ff ff ff ff eb be 0f 1f 80 00 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 18 b8 2e 00 00 00 c5 fc 77 0f 05 <48> 3d 00 f0 ff ff 77 5e c3 0f 1f 44 00 00 48 83 ec 28 89 54 24 1c
-[518758.189946] RSP: 002b:00007ffda58b60b8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-[518758.189948] RAX: ffffffffffffffda RBX: 000055e4b836d9a0 RCX: 00007fa15755169a
-[518758.189949] RDX: 0000000000000000 RSI: 00007ffda58b6128 RDI: 0000000000000003
-[518758.189951] RBP: 00007ffda58b6190 R08: 0000000000000001 R09: 000055e4b9d848a0
-[518758.189952] R10: 0000000000000000 R11: 0000000000000246 R12: 000000005d654b49
-[518758.189953] R13: 0000000000000000 R14: 00007ffda58b6230 R15: 00007ffda58b6210
-[518758.189955] Modules linked in: sch_cbs sch_etf sch_mqprio netlink_diag unix_diag e1000e igb intel_pch_thermal thermal video backlight pcc_cpufreq
-[518758.189960] CR2: 0000000000000000
-[518758.189961] ---[ end trace 6a13f7aaf5376019 ]---
-[518758.189963] RIP: 0010:__list_del_entry_valid+0x29/0xa0
-[518758.189964] Code: 90 48 b8 00 01 00 00 00 00 ad de 55 48 8b 17 4c 8b 47 08 48 89 e5 48 39 c2 74 27 48 b8 00 02 00 00 00 00 ad de 49 39 c0 74 2d <49> 8b 30 48 39 fe 75 3d 48 8b 52 08 48 39 f2 75 4c b8 01 00 00 00
-[518758.189967] RSP: 0018:ffffa27e43903990 EFLAGS: 00010207
-[518758.189968] RAX: dead000000000200 RBX: ffff8bce69f0f000 RCX: 0000000000000000
-[518758.189969] RDX: 0000000000000000 RSI: ffff8bce69f0f064 RDI: ffff8bce69f0f1e0
-[518758.189971] RBP: ffffa27e43903990 R08: 0000000000000000 R09: ffff8bce69e788c0
-[518758.189972] R10: ffff8bce62acd400 R11: 00000000000003cb R12: ffff8bce69e78000
-[518758.189973] R13: ffff8bce69f0f140 R14: 0000000000000000 R15: 0000000000000000
-[518758.189975] FS:  00007fa1572c8f80(0000) GS:ffff8bce6e0c0000(0000) knlGS:0000000000000000
-[518758.189976] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[518758.189977] CR2: 0000000000000000 CR3: 000000040a398006 CR4: 00000000003606e0
-[518758.189979] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[518758.189980] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Fixes: e0a7683d30e9 ("net/sched: cbs: fix port_rate miscalculation")
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Acked-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cbs.c |   30 +++++++++++++-----------------
- 1 file changed, 13 insertions(+), 17 deletions(-)
+ net/sched/act_api.c |   34 ++++++++++++++++++----------------
+ 1 file changed, 18 insertions(+), 16 deletions(-)
 
---- a/net/sched/sch_cbs.c
-+++ b/net/sched/sch_cbs.c
-@@ -392,7 +392,6 @@ static int cbs_init(struct Qdisc *sch, s
- {
- 	struct cbs_sched_data *q = qdisc_priv(sch);
- 	struct net_device *dev = qdisc_dev(sch);
--	int err;
- 
- 	if (!opt) {
- 		NL_SET_ERR_MSG(extack, "Missing CBS qdisc options  which are mandatory");
-@@ -404,6 +403,10 @@ static int cbs_init(struct Qdisc *sch, s
- 	if (!q->qdisc)
- 		return -ENOMEM;
- 
-+	spin_lock(&cbs_list_lock);
-+	list_add(&q->cbs_list, &cbs_list);
-+	spin_unlock(&cbs_list_lock);
-+
- 	qdisc_hash_add(q->qdisc, false);
- 
- 	q->queue = sch->dev_queue - netdev_get_tx_queue(dev, 0);
-@@ -413,17 +416,7 @@ static int cbs_init(struct Qdisc *sch, s
- 
- 	qdisc_watchdog_init(&q->watchdog, sch);
- 
--	err = cbs_change(sch, opt, extack);
--	if (err)
--		return err;
--
--	if (!q->offload) {
--		spin_lock(&cbs_list_lock);
--		list_add(&q->cbs_list, &cbs_list);
--		spin_unlock(&cbs_list_lock);
--	}
--
--	return 0;
-+	return cbs_change(sch, opt, extack);
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -828,6 +828,15 @@ static struct tc_cookie *nla_memdup_cook
+ 	return c;
  }
  
- static void cbs_destroy(struct Qdisc *sch)
-@@ -431,15 +424,18 @@ static void cbs_destroy(struct Qdisc *sc
- 	struct cbs_sched_data *q = qdisc_priv(sch);
- 	struct net_device *dev = qdisc_dev(sch);
- 
--	spin_lock(&cbs_list_lock);
--	list_del(&q->cbs_list);
--	spin_unlock(&cbs_list_lock);
-+	/* Nothing to do if we couldn't create the underlying qdisc */
-+	if (!q->qdisc)
-+		return;
- 
- 	qdisc_watchdog_cancel(&q->watchdog);
- 	cbs_disable_offload(dev, q);
- 
--	if (q->qdisc)
--		qdisc_put(q->qdisc);
-+	spin_lock(&cbs_list_lock);
-+	list_del(&q->cbs_list);
-+	spin_unlock(&cbs_list_lock);
++static const struct nla_policy tcf_action_policy[TCA_ACT_MAX + 1] = {
++	[TCA_ACT_KIND]		= { .type = NLA_NUL_STRING,
++				    .len = IFNAMSIZ - 1 },
++	[TCA_ACT_INDEX]		= { .type = NLA_U32 },
++	[TCA_ACT_COOKIE]	= { .type = NLA_BINARY,
++				    .len = TC_COOKIE_MAX_SIZE },
++	[TCA_ACT_OPTIONS]	= { .type = NLA_NESTED },
++};
 +
-+	qdisc_put(q->qdisc);
- }
+ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
+ 				    struct nlattr *nla, struct nlattr *est,
+ 				    char *name, int ovr, int bind,
+@@ -843,8 +852,8 @@ struct tc_action *tcf_action_init_1(stru
+ 	int err;
  
- static int cbs_dump(struct Qdisc *sch, struct sk_buff *skb)
+ 	if (name == NULL) {
+-		err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla, NULL,
+-						  extack);
++		err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla,
++						  tcf_action_policy, extack);
+ 		if (err < 0)
+ 			goto err_out;
+ 		err = -EINVAL;
+@@ -853,18 +862,9 @@ struct tc_action *tcf_action_init_1(stru
+ 			NL_SET_ERR_MSG(extack, "TC action kind must be specified");
+ 			goto err_out;
+ 		}
+-		if (nla_strlcpy(act_name, kind, IFNAMSIZ) >= IFNAMSIZ) {
+-			NL_SET_ERR_MSG(extack, "TC action name too long");
+-			goto err_out;
+-		}
+-		if (tb[TCA_ACT_COOKIE]) {
+-			int cklen = nla_len(tb[TCA_ACT_COOKIE]);
+-
+-			if (cklen > TC_COOKIE_MAX_SIZE) {
+-				NL_SET_ERR_MSG(extack, "TC cookie size above the maximum");
+-				goto err_out;
+-			}
++		nla_strlcpy(act_name, kind, IFNAMSIZ);
+ 
++		if (tb[TCA_ACT_COOKIE]) {
+ 			cookie = nla_memdup_cookie(tb);
+ 			if (!cookie) {
+ 				NL_SET_ERR_MSG(extack, "No memory to generate TC cookie");
+@@ -1095,7 +1095,8 @@ static struct tc_action *tcf_action_get_
+ 	int index;
+ 	int err;
+ 
+-	err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla, NULL, extack);
++	err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla,
++					  tcf_action_policy, extack);
+ 	if (err < 0)
+ 		goto err_out;
+ 
+@@ -1149,7 +1150,8 @@ static int tca_action_flush(struct net *
+ 
+ 	b = skb_tail_pointer(skb);
+ 
+-	err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla, NULL, extack);
++	err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla,
++					  tcf_action_policy, extack);
+ 	if (err < 0)
+ 		goto err_out;
+ 
+@@ -1437,7 +1439,7 @@ static struct nlattr *find_dump_kind(str
+ 
+ 	if (tb[1] == NULL)
+ 		return NULL;
+-	if (nla_parse_nested_deprecated(tb2, TCA_ACT_MAX, tb[1], NULL, NULL) < 0)
++	if (nla_parse_nested_deprecated(tb2, TCA_ACT_MAX, tb[1], tcf_action_policy, NULL) < 0)
+ 		return NULL;
+ 	kind = tb2[TCA_ACT_KIND];
+ 
 
 
