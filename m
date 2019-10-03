@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74426CAB18
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BF4CA993
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387653AbfJCQQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40878 "EHLO mail.kernel.org"
+        id S2405435AbfJCQou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:44:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731678AbfJCQQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:16:09 -0400
+        id S2405434AbfJCQos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:44:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB71221A4C;
-        Thu,  3 Oct 2019 16:16:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A9CF2054F;
+        Thu,  3 Oct 2019 16:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119368;
-        bh=RlevjJ75zKVEy+y0QbPOPi0NbIdTe8pyzaYc6gK6Tys=;
+        s=default; t=1570121087;
+        bh=BMdLIydfr0XqiBTIBaO/y9dLc3t97LMQFjAyQ1K7uX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ULqGSEBKGi/2h6DfrAaThkTVTZd69InW79cuC5mutgX9gdXqzB/fa7ruEvoSlkZlN
-         /x5w6+B4lu4Sj/sHbx7kdhqi9YqheU8wgqUCTyRU0H2Irb4552pXNL3PYZ4U2pMjBS
-         P/N6gsgZvtedQGvndnnwvhbDTvojZt4du7exh+GI=
+        b=rNUjrdQnKui0wmavQE33Q6nVC6YwdgKzlFlgLx7Np6tIESNEVwPINGc6qvNW/N4x7
+         9TyuKxzKDrLNGUWgiEiXtBeWPqVQqC6Sns4q8k2Gf6O/Yinhq46yeGBt5vq7CARO98
+         wzPATZmUlhCZuD00NoSsn34xsd2mWdnAZF0rypO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/211] x86/apic: Make apic_pending_intr_clear() more robust
-Date:   Thu,  3 Oct 2019 17:51:46 +0200
-Message-Id: <20191003154456.808437093@linuxfoundation.org>
+Subject: [PATCH 5.3 142/344] posix-cpu-timers: Sanitize bogus WARNONS
+Date:   Thu,  3 Oct 2019 17:51:47 +0200
+Message-Id: <20191003154554.261951641@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,199 +46,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit cc8bf191378c1da8ad2b99cf470ee70193ace84e ]
+[ Upstream commit 692117c1f7a6770ed41dd8f277cd9fed1dfb16f1 ]
 
-In course of developing shorthand based IPI support issues with the
-function which tries to clear eventually pending ISR bits in the local APIC
-were observed.
+Warning when p == NULL and then proceeding and dereferencing p does not
+make any sense as the kernel will crash with a NULL pointer dereference
+right away.
 
-  1) O-day testing triggered the WARN_ON() in apic_pending_intr_clear().
+Bailing out when p == NULL and returning an error code does not cure the
+underlying problem which caused p to be NULL. Though it might allow to
+do proper debugging.
 
-     This warning is emitted when the function fails to clear pending ISR
-     bits or observes pending IRR bits which are not delivered to the CPU
-     after the stale ISR bit(s) are ACK'ed.
+Same applies to the clock id check in set_process_cpu_timer().
 
-     Unfortunately the function only emits a WARN_ON() and fails to dump
-     the IRR/ISR content. That's useless for debugging.
-
-     Feng added spot on debug printk's which revealed that the stale IRR
-     bit belonged to the APIC timer interrupt vector, but adding ad hoc
-     debug code does not help with sporadic failures in the field.
-
-     Rework the loop so the full IRR/ISR contents are saved and on failure
-     dumped.
-
-  2) The loop termination logic is interesting at best.
-
-     If the machine has no TSC or cpu_khz is not known yet it tries 1
-     million times to ack stale IRR/ISR bits. What?
-
-     With TSC it uses the TSC to calculate the loop termination. It takes a
-     timestamp at entry and terminates the loop when:
-
-     	  (rdtsc() - start_timestamp) >= (cpu_hkz << 10)
-
-     That's roughly one second.
-
-     Both methods are problematic. The APIC has 256 vectors, which means
-     that in theory max. 256 IRR/ISR bits can be set. In practice this is
-     impossible and the chance that more than a few bits are set is close
-     to zero.
-
-     With the pure loop based approach the 1 million retries are complete
-     overkill.
-
-     With TSC this can terminate too early in a guest which is running on a
-     heavily loaded host even with only a couple of IRR/ISR bits set. The
-     reason is that after acknowledging the highest priority ISR bit,
-     pending IRRs must get serviced first before the next round of
-     acknowledge can take place as the APIC (real and virtualized) does not
-     honour EOI without a preceeding interrupt on the CPU. And every APIC
-     read/write takes a VMEXIT if the APIC is virtualized. While trying to
-     reproduce the issue 0-day reported it was observed that the guest was
-     scheduled out long enough under heavy load that it terminated after 8
-     iterations.
-
-     Make the loop terminate after 512 iterations. That's plenty enough
-     in any case and does not take endless time to complete.
+Clean them up and make them return without trying to do further damage.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20190722105219.158847694@linutronix.de
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Link: https://lkml.kernel.org/r/20190819143801.846497772@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 107 +++++++++++++++++++++---------------
- 1 file changed, 63 insertions(+), 44 deletions(-)
+ kernel/time/posix-cpu-timers.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index b316bd61a6ace..9bfbe1fa0339c 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1450,54 +1450,72 @@ static void lapic_setup_esr(void)
- 			oldvalue, value);
- }
+diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
+index 0a426f4e31251..5bbad147a90cf 100644
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -375,7 +375,8 @@ static int posix_cpu_timer_del(struct k_itimer *timer)
+ 	struct sighand_struct *sighand;
+ 	struct task_struct *p = timer->it.cpu.task;
  
--static void apic_pending_intr_clear(void)
-+#define APIC_IR_REGS		APIC_ISR_NR
-+#define APIC_IR_BITS		(APIC_IR_REGS * 32)
-+#define APIC_IR_MAPSIZE		(APIC_IR_BITS / BITS_PER_LONG)
-+
-+union apic_ir {
-+	unsigned long	map[APIC_IR_MAPSIZE];
-+	u32		regs[APIC_IR_REGS];
-+};
-+
-+static bool apic_check_and_ack(union apic_ir *irr, union apic_ir *isr)
+-	WARN_ON_ONCE(p == NULL);
++	if (WARN_ON_ONCE(!p))
++		return -EINVAL;
+ 
+ 	/*
+ 	 * Protect against sighand release/switch in exit/exec and process/
+@@ -580,7 +581,8 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
+ 	u64 old_expires, new_expires, old_incr, val;
+ 	int ret;
+ 
+-	WARN_ON_ONCE(p == NULL);
++	if (WARN_ON_ONCE(!p))
++		return -EINVAL;
+ 
+ 	/*
+ 	 * Use the to_ktime conversion because that clamps the maximum
+@@ -715,10 +717,11 @@ static int posix_cpu_timer_set(struct k_itimer *timer, int timer_flags,
+ 
+ static void posix_cpu_timer_get(struct k_itimer *timer, struct itimerspec64 *itp)
  {
--	long long max_loops = cpu_khz ? cpu_khz : 1000000;
--	unsigned long long tsc = 0, ntsc;
--	unsigned int queued;
--	unsigned long value;
--	int i, j, acked = 0;
-+	int i, bit;
-+
-+	/* Read the IRRs */
-+	for (i = 0; i < APIC_IR_REGS; i++)
-+		irr->regs[i] = apic_read(APIC_IRR + i * 0x10);
-+
-+	/* Read the ISRs */
-+	for (i = 0; i < APIC_IR_REGS; i++)
-+		isr->regs[i] = apic_read(APIC_ISR + i * 0x10);
+-	u64 now;
+ 	struct task_struct *p = timer->it.cpu.task;
++	u64 now;
  
--	if (boot_cpu_has(X86_FEATURE_TSC))
--		tsc = rdtsc();
- 	/*
--	 * After a crash, we no longer service the interrupts and a pending
--	 * interrupt from previous kernel might still have ISR bit set.
--	 *
--	 * Most probably by now CPU has serviced that pending interrupt and
--	 * it might not have done the ack_APIC_irq() because it thought,
--	 * interrupt came from i8259 as ExtInt. LAPIC did not get EOI so it
--	 * does not clear the ISR bit and cpu thinks it has already serivced
--	 * the interrupt. Hence a vector might get locked. It was noticed
--	 * for timer irq (vector 0x31). Issue an extra EOI to clear ISR.
-+	 * If the ISR map is not empty. ACK the APIC and run another round
-+	 * to verify whether a pending IRR has been unblocked and turned
-+	 * into a ISR.
- 	 */
--	do {
--		queued = 0;
--		for (i = APIC_ISR_NR - 1; i >= 0; i--)
--			queued |= apic_read(APIC_IRR + i*0x10);
--
--		for (i = APIC_ISR_NR - 1; i >= 0; i--) {
--			value = apic_read(APIC_ISR + i*0x10);
--			for_each_set_bit(j, &value, 32) {
--				ack_APIC_irq();
--				acked++;
--			}
--		}
--		if (acked > 256) {
--			pr_err("LAPIC pending interrupts after %d EOI\n", acked);
--			break;
--		}
--		if (queued) {
--			if (boot_cpu_has(X86_FEATURE_TSC) && cpu_khz) {
--				ntsc = rdtsc();
--				max_loops = (long long)cpu_khz << 10;
--				max_loops -= ntsc - tsc;
--			} else {
--				max_loops--;
--			}
--		}
--	} while (queued && max_loops > 0);
--	WARN_ON(max_loops <= 0);
-+	if (!bitmap_empty(isr->map, APIC_IR_BITS)) {
-+		/*
-+		 * There can be multiple ISR bits set when a high priority
-+		 * interrupt preempted a lower priority one. Issue an ACK
-+		 * per set bit.
-+		 */
-+		for_each_set_bit(bit, isr->map, APIC_IR_BITS)
-+			ack_APIC_irq();
-+		return true;
-+	}
-+
-+	return !bitmap_empty(irr->map, APIC_IR_BITS);
-+}
-+
-+/*
-+ * After a crash, we no longer service the interrupts and a pending
-+ * interrupt from previous kernel might still have ISR bit set.
-+ *
-+ * Most probably by now the CPU has serviced that pending interrupt and it
-+ * might not have done the ack_APIC_irq() because it thought, interrupt
-+ * came from i8259 as ExtInt. LAPIC did not get EOI so it does not clear
-+ * the ISR bit and cpu thinks it has already serivced the interrupt. Hence
-+ * a vector might get locked. It was noticed for timer irq (vector
-+ * 0x31). Issue an extra EOI to clear ISR.
-+ *
-+ * If there are pending IRR bits they turn into ISR bits after a higher
-+ * priority ISR bit has been acked.
-+ */
-+static void apic_pending_intr_clear(void)
-+{
-+	union apic_ir irr, isr;
-+	unsigned int i;
-+
-+	/* 512 loops are way oversized and give the APIC a chance to obey. */
-+	for (i = 0; i < 512; i++) {
-+		if (!apic_check_and_ack(&irr, &isr))
-+			return;
-+	}
-+	/* Dump the IRR/ISR content if that failed */
-+	pr_warn("APIC: Stale IRR: %256pb ISR: %256pb\n", irr.map, isr.map);
- }
- 
- /**
-@@ -1565,6 +1583,7 @@ static void setup_local_APIC(void)
- 	value &= ~APIC_TPRI_MASK;
- 	apic_write(APIC_TASKPRI, value);
- 
-+	/* Clear eventually stale ISR/IRR bits */
- 	apic_pending_intr_clear();
+-	WARN_ON_ONCE(p == NULL);
++	if (WARN_ON_ONCE(!p))
++		return;
  
  	/*
+ 	 * Easy part: convert the reload time.
+@@ -1000,12 +1003,13 @@ static void check_process_timers(struct task_struct *tsk,
+  */
+ static void posix_cpu_timer_rearm(struct k_itimer *timer)
+ {
++	struct task_struct *p = timer->it.cpu.task;
+ 	struct sighand_struct *sighand;
+ 	unsigned long flags;
+-	struct task_struct *p = timer->it.cpu.task;
+ 	u64 now;
+ 
+-	WARN_ON_ONCE(p == NULL);
++	if (WARN_ON_ONCE(!p))
++		return;
+ 
+ 	/*
+ 	 * Fetch the current sample and update the timer's expiry time.
+@@ -1202,7 +1206,9 @@ void set_process_cpu_timer(struct task_struct *tsk, unsigned int clock_idx,
+ 	u64 now;
+ 	int ret;
+ 
+-	WARN_ON_ONCE(clock_idx == CPUCLOCK_SCHED);
++	if (WARN_ON_ONCE(clock_idx >= CPUCLOCK_SCHED))
++		return;
++
+ 	ret = cpu_timer_sample_group(clock_idx, tsk, &now);
+ 
+ 	if (oldval && ret != -EINVAL) {
 -- 
 2.20.1
 
