@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2243ECA23F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 049F8CA265
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732161AbfJCQDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48640 "EHLO mail.kernel.org"
+        id S1732476AbfJCQEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732164AbfJCQDW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:03:22 -0400
+        id S1732467AbfJCQEt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:04:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5078222BE;
-        Thu,  3 Oct 2019 16:03:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8037E222CD;
+        Thu,  3 Oct 2019 16:04:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118601;
-        bh=p68INXkclvLGmBIJXQaku3HvUMATg5Q2YwTxVLJ28T8=;
+        s=default; t=1570118689;
+        bh=4VoAc1yvZwRE0X8+pm99fjf3hGnKk12dJhyILIPYcAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlGxjOB77iNkgTKM9isPHq2O58UDmrqezpTek5DodmhfVvXyUI0mY8qL/YDa1XhW5
-         UdaoaO3cCwydpEkRPWQo3aDXt1cYo5TPjLqRffnj29GeY8CdKT3Ki18A5fngzZIVJC
-         eGZoX5VjLVZ1xqqe0LG0g+9uTCYOKc4VWLeYjYUo=
+        b=OIqOSFnzp0n6p5yogXgqljhw6QHVvRL/Qxko73dGMndyvxH9qFJ7CycFAVhgjvGqs
+         MQXr7f2lniWcYpMWywWdRMeUJX8a5hsBdkUSjS1fI40Git24P48rKfqiBnkiZhFGTJ
+         NF49XT6+U59JoE7Rai/aOBntpDLTJvMGDzzqqHkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        stable@vger.kernel.org, Al Stone <ahs3@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/129] PM / devfreq: passive: Use non-devm notifiers
-Date:   Thu,  3 Oct 2019 17:53:12 +0200
-Message-Id: <20191003154349.733521610@linuxfoundation.org>
+Subject: [PATCH 4.9 075/129] ACPI / CPPC: do not require the _PSD method
+Date:   Thu,  3 Oct 2019 17:53:18 +0200
+Message-Id: <20191003154352.723992673@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -45,67 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leonard Crestez <leonard.crestez@nxp.com>
+From: Al Stone <ahs3@redhat.com>
 
-[ Upstream commit 0ef7c7cce43f6ecc2b96d447e69b2900a9655f7c ]
+[ Upstream commit 4c4cdc4c63853fee48c02e25c8605fb65a6c9924 ]
 
-The devfreq passive governor registers and unregisters devfreq
-transition notifiers on DEVFREQ_GOV_START/GOV_STOP using devm wrappers.
+According to the ACPI 6.3 specification, the _PSD method is optional
+when using CPPC.  The underlying assumption is that each CPU can change
+frequency independently from all other CPUs; _PSD is provided to tell
+the OS that some processors can NOT do that.
 
-If devfreq itself is registered with devm then a warning is triggered on
-rmmod from devm_devfreq_unregister_notifier. Call stack looks like this:
+However, the acpi_get_psd() function returns ENODEV if there is no _PSD
+method present, or an ACPI error status if an error occurs when evaluating
+_PSD, if present.  This makes _PSD mandatory when using CPPC, in violation
+of the specification, and only on Linux.
 
-	devm_devfreq_unregister_notifier+0x30/0x40
-	devfreq_passive_event_handler+0x4c/0x88
-	devfreq_remove_device.part.8+0x6c/0x9c
-	devm_devfreq_dev_release+0x18/0x20
-	release_nodes+0x1b0/0x220
-	devres_release_all+0x78/0x84
-	device_release_driver_internal+0x100/0x1c0
-	driver_detach+0x4c/0x90
-	bus_remove_driver+0x7c/0xd0
-	driver_unregister+0x2c/0x58
-	platform_driver_unregister+0x10/0x18
-	imx_devfreq_platdrv_exit+0x14/0xd40 [imx_devfreq]
+This has forced some firmware writers to provide a dummy _PSD, even though
+it is irrelevant, but only because Linux requires it; other OSPMs follow
+the spec.  We really do not want to have OS specific ACPI tables, though.
 
-This happens because devres_release_all will first remove all the nodes
-into a separate todo list so the nested devres_release from
-devm_devfreq_unregister_notifier won't find anything.
+So, correct acpi_get_psd() so that it does not return an error if there
+is no _PSD method present, but does return a failure when the method can
+not be executed properly.  This allows _PSD to be optional as it should
+be.
 
-Fix the warning by calling the non-devm APIS for frequency notification.
-Using devm wrappers is not actually useful for a governor anyway: it
-relies on the devfreq core to correctly match the GOV_START/GOV_STOP
-notifications.
-
-Fixes: 996133119f57 ("PM / devfreq: Add new passive governor")
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+Signed-off-by: Al Stone <ahs3@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/governor_passive.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/acpi/cppc_acpi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
-index 5be96b2249e72..8e889fd805b58 100644
---- a/drivers/devfreq/governor_passive.c
-+++ b/drivers/devfreq/governor_passive.c
-@@ -168,12 +168,12 @@ static int devfreq_passive_event_handler(struct devfreq *devfreq,
- 			p_data->this = devfreq;
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index e0ea8f56d2bfd..9ec4618df5338 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -360,8 +360,10 @@ static int acpi_get_psd(struct cpc_desc *cpc_ptr, acpi_handle handle)
+ 	union acpi_object  *psd = NULL;
+ 	struct acpi_psd_package *pdomain;
  
- 		nb->notifier_call = devfreq_passive_notifier_call;
--		ret = devm_devfreq_register_notifier(dev, parent, nb,
-+		ret = devfreq_register_notifier(parent, nb,
- 					DEVFREQ_TRANSITION_NOTIFIER);
- 		break;
- 	case DEVFREQ_GOV_STOP:
--		devm_devfreq_unregister_notifier(dev, parent, nb,
--					DEVFREQ_TRANSITION_NOTIFIER);
-+		WARN_ON(devfreq_unregister_notifier(parent, nb,
-+					DEVFREQ_TRANSITION_NOTIFIER));
- 		break;
- 	default:
- 		break;
+-	status = acpi_evaluate_object_typed(handle, "_PSD", NULL, &buffer,
+-			ACPI_TYPE_PACKAGE);
++	status = acpi_evaluate_object_typed(handle, "_PSD", NULL,
++					    &buffer, ACPI_TYPE_PACKAGE);
++	if (status == AE_NOT_FOUND)	/* _PSD is optional */
++		return 0;
+ 	if (ACPI_FAILURE(status))
+ 		return -ENODEV;
+ 
 -- 
 2.20.1
 
