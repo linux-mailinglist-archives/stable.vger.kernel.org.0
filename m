@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46759CAC6F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64DFCAB9B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387557AbfJCQKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:10:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
+        id S1729566AbfJCP4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:56:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732251AbfJCQKI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:10:08 -0400
+        id S1730765AbfJCP4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:56:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B43D21848;
-        Thu,  3 Oct 2019 16:10:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4EB2222BE;
+        Thu,  3 Oct 2019 15:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119007;
-        bh=e0OsJVXdRup6T509mAuK/fbZ1RieDXJfxSYWGYLNNhw=;
+        s=default; t=1570118208;
+        bh=Z5K104AeOyNdbPg+AtmXlyXO1njHendpyh/MCwlZFf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGot3dzNYyRdNEutHiTJ26Mh1+53gv1Nf75UsGrAxavHeKYuOH4VDztD6vs9gqmwL
-         1Z8U+DELwA3awlkTJe+2FJXKPAn/eJKXSpTRbSStPjv0owgt1EFHqMUHow8Nb4Hunz
-         9WCDuzIf/7oeC0Xiw5Yy04MTyz9wQFsE8eMUkqEE=
+        b=V/qjaqGCPVNy5a1YDO5Gd2HimRq3JMegvfRuqKzGYqCGo2eJ2gkPhRoY5Gwt58AJX
+         zgxtfG12C+M4zamTjoeAND54SxRSbf8ZaXYYylBaoByN0eXNlpJaAUf3wFszLImTnj
+         H7olOOYm3M5/CsM1vJnY0PNjvVSZEDWNHC9FS0mI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/185] media: omap3isp: Dont set streaming state on random subdevs
-Date:   Thu,  3 Oct 2019 17:52:50 +0200
-Message-Id: <20191003154459.161016085@linuxfoundation.org>
+        stable@vger.kernel.org, Ori Nimron <orinimron123@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 28/99] mISDN: enforce CAP_NET_RAW for raw sockets
+Date:   Thu,  3 Oct 2019 17:52:51 +0200
+Message-Id: <20191003154308.059086207@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
-References: <20191003154437.541662648@linuxfoundation.org>
+In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
+References: <20191003154252.297991283@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Ori Nimron <orinimron123@gmail.com>
 
-[ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+[ Upstream commit b91ee4aa2a2199ba4d4650706c272985a5a32d80 ]
 
-The streaming state should be set to the first upstream sub-device only,
-not everywhere, for a sub-device driver itself knows how to best control
-the streaming state of its own upstream sub-devices.
+When creating a raw AF_ISDN socket, CAP_NET_RAW needs to be checked
+first.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ori Nimron <orinimron123@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/omap3isp/isp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/isdn/mISDN/socket.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
-index c834fea5f9b00..b34b6a604f92f 100644
---- a/drivers/media/platform/omap3isp/isp.c
-+++ b/drivers/media/platform/omap3isp/isp.c
-@@ -727,6 +727,10 @@ static int isp_pipeline_enable(struct isp_pipeline *pipe,
- 					s_stream, mode);
- 			pipe->do_propagation = true;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
- 	}
+--- a/drivers/isdn/mISDN/socket.c
++++ b/drivers/isdn/mISDN/socket.c
+@@ -763,6 +763,8 @@ base_sock_create(struct net *net, struct
  
- 	return 0;
-@@ -841,6 +845,10 @@ static int isp_pipeline_disable(struct isp_pipeline *pipe)
- 						      &subdev->entity);
- 			failure = -ETIMEDOUT;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
- 	}
+ 	if (sock->type != SOCK_RAW)
+ 		return -ESOCKTNOSUPPORT;
++	if (!capable(CAP_NET_RAW))
++		return -EPERM;
  
- 	return failure;
--- 
-2.20.1
-
+ 	sk = sk_alloc(net, PF_ISDN, GFP_KERNEL, &mISDN_proto, kern);
+ 	if (!sk)
 
 
