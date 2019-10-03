@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 441E4CA30C
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56706CA2E5
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387870AbfJCQLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33554 "EHLO mail.kernel.org"
+        id S2387582AbfJCQKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387877AbfJCQLm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:11:42 -0400
+        id S2387579AbfJCQKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:10:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14531207FF;
-        Thu,  3 Oct 2019 16:11:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDB7D20865;
+        Thu,  3 Oct 2019 16:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119101;
-        bh=cn6NzZ9VbJI2M0TVHdR5+d1pVaa64iCqsLuPxdNrJMI=;
+        s=default; t=1570119010;
+        bh=7xF1xYmOlay9Ze+szq0md9RS0t+LoDPP2wL641ILDTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Qix8PXnhhaOTDkiBEVxvXVaSZ7Wlbv9JQ2UgYVTYMHYbPTUVzotM12TO/IECDZq1
-         V/Bw4WhZW3VcXPul2C8MwG74EB4GnickfYVQ6n/rmr9F4IStSqC2sh7JuevfIvgX/r
-         wOyV7KaMaeqZqJNnf/dWAMBR+soxpNr/Bl/kVlOE=
+        b=yXDn2w1brUqZVOZIiqo/IHFqMigZiNGlZhaP9gE8Xybb1qCbp0RMEia+RzjZpBVw3
+         mt/wYeYpaeR/LlMuimujaG25kCahOkbamIS5dQhGcol3Xo/2s5i1Vekzgr3gGE+78S
+         /IiSI93xnP2+xty1VZwYWox9kR6u7z+VNhqc1CFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Darius Rad <alpha@area49.net>,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Steve Longerbeam <slongerbeam@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/185] media: rc: imon: Allow iMON RC protocol for ffdc 7e device
-Date:   Thu,  3 Oct 2019 17:52:46 +0200
-Message-Id: <20191003154458.180129634@linuxfoundation.org>
+Subject: [PATCH 4.14 093/185] media: imx: mipi csi-2: Dont fail if initial state times-out
+Date:   Thu,  3 Oct 2019 17:52:51 +0200
+Message-Id: <20191003154459.482636264@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -45,51 +48,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darius Rad <alpha@area49.net>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit b20a6e298bcb8cb8ae18de26baaf462a6418515b ]
+[ Upstream commit 0d5078c7172c46db6c58718d817b9fcf769554b4 ]
 
-Allow selecting the IR protocol, MCE or iMON, for a device that
-identifies as follows (with config id 0x7e):
+Not all sensors will be able to guarantee a proper initial state.
+This may be either because the driver is not properly written,
+or (probably unlikely) because the hardware won't support it.
 
-15c2:ffdc SoundGraph Inc. iMON PAD Remote Controller
+While the right solution in the former case is to fix the sensor
+driver, the real world not always allows right solutions, due to lack
+of available documentation and support on these sensors.
 
-As the driver is structured to default to iMON when both RC
-protocols are supported, existing users of this device (using MCE
-protocol) will need to manually switch to MCE (RC-6) protocol from
-userspace (with ir-keytable, sysfs).
+Let's relax this requirement, and allow the driver to support stream start,
+even if the sensor initial sequence wasn't the expected.
 
-Signed-off-by: Darius Rad <alpha@area49.net>
-Signed-off-by: Sean Young <sean@mess.org>
+Also improve the warning message to better explain the problem and provide
+a hint that the sensor driver needs to be fixed.
+
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Steve Longerbeam <slongerbeam@gmail.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/imon.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/media/imx/imx6-mipi-csi2.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/rc/imon.c b/drivers/media/rc/imon.c
-index 0c46155a8e9da..a7547c88e4c36 100644
---- a/drivers/media/rc/imon.c
-+++ b/drivers/media/rc/imon.c
-@@ -1963,12 +1963,17 @@ static void imon_get_ffdc_type(struct imon_context *ictx)
- 		break;
- 	/* iMON VFD, MCE IR */
- 	case 0x46:
--	case 0x7e:
- 	case 0x9e:
- 		dev_info(ictx->dev, "0xffdc iMON VFD, MCE IR");
- 		detected_display_type = IMON_DISPLAY_TYPE_VFD;
- 		allowed_protos = RC_PROTO_BIT_RC6_MCE;
- 		break;
-+	/* iMON VFD, iMON or MCE IR */
-+	case 0x7e:
-+		dev_info(ictx->dev, "0xffdc iMON VFD, iMON or MCE IR");
-+		detected_display_type = IMON_DISPLAY_TYPE_VFD;
-+		allowed_protos |= RC_PROTO_BIT_RC6_MCE;
-+		break;
- 	/* iMON LCD, MCE IR */
- 	case 0x9f:
- 		dev_info(ictx->dev, "0xffdc iMON LCD, MCE IR");
+diff --git a/drivers/staging/media/imx/imx6-mipi-csi2.c b/drivers/staging/media/imx/imx6-mipi-csi2.c
+index 5061f3f524fd5..c28f65c5427d1 100644
+--- a/drivers/staging/media/imx/imx6-mipi-csi2.c
++++ b/drivers/staging/media/imx/imx6-mipi-csi2.c
+@@ -247,7 +247,7 @@ static int __maybe_unused csi2_dphy_wait_ulp(struct csi2_dev *csi2)
+ }
+ 
+ /* Waits for low-power LP-11 state on data and clock lanes. */
+-static int csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
++static void csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
+ {
+ 	u32 mask, reg;
+ 	int ret;
+@@ -258,11 +258,9 @@ static int csi2_dphy_wait_stopstate(struct csi2_dev *csi2)
+ 	ret = readl_poll_timeout(csi2->base + CSI2_PHY_STATE, reg,
+ 				 (reg & mask) == mask, 0, 500000);
+ 	if (ret) {
+-		v4l2_err(&csi2->sd, "LP-11 timeout, phy_state = 0x%08x\n", reg);
+-		return ret;
++		v4l2_warn(&csi2->sd, "LP-11 wait timeout, likely a sensor driver bug, expect capture failures.\n");
++		v4l2_warn(&csi2->sd, "phy_state = 0x%08x\n", reg);
+ 	}
+-
+-	return 0;
+ }
+ 
+ /* Wait for active clock on the clock lane. */
+@@ -320,9 +318,7 @@ static int csi2_start(struct csi2_dev *csi2)
+ 	csi2_enable(csi2, true);
+ 
+ 	/* Step 5 */
+-	ret = csi2_dphy_wait_stopstate(csi2);
+-	if (ret)
+-		goto err_assert_reset;
++	csi2_dphy_wait_stopstate(csi2);
+ 
+ 	/* Step 6 */
+ 	ret = v4l2_subdev_call(csi2->src_sd, video, s_stream, 1);
 -- 
 2.20.1
 
