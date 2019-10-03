@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA81CA90F
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD70CAA80
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404464AbfJCQgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:36:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45964 "EHLO mail.kernel.org"
+        id S2391897AbfJCRHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404459AbfJCQgo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:36:44 -0400
+        id S2404489AbfJCQgx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:36:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24CE82070B;
-        Thu,  3 Oct 2019 16:36:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0F662070B;
+        Thu,  3 Oct 2019 16:36:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120602;
-        bh=6Ey5Ks5d2d75Wxpk9etln48qhPSw/IV2zsWaUxU+wzI=;
+        s=default; t=1570120613;
+        bh=VaJEsh5UkLakPlc6ctisliyWBlDu3TrANxzQLBFR4vY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXT+xHX1wRfVpqD2+RweChDHpUurcoIcBUg97Y9zHNLkXuLO4Le9x27zxYOva0HVn
-         GT8gb43noiGFzDAjM3nIP0Zcg3Fbf4iIiZ8An6RwhPb3GvMnyZE8Wl0wXuMqQZpV7r
-         oeD2tjGN7nnLdItRwkOPDligmJvkbEBIpQrxf9rg=
+        b=My9ykIW2xcrintFEYHXd76kAVeK9q0/qPCKA/VM1eIok5Jn5nPsPJsQdgaF6vAvTF
+         LVAaE65HSvHVnC6o5l0CwCz4+SlLhjDEr3fePKRnDBLCHpYf4zEx4o4IudN9rwYVrF
+         syXIh8V0zoKE30O7Devg1zOQQCl5aE8N0W0qD8sY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.2 246/313] media: sn9c20x: Add MSI MS-1039 laptop to flip_dmi_table
-Date:   Thu,  3 Oct 2019 17:53:44 +0200
-Message-Id: <20191003154557.264036600@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.2 249/313] spi: spi-fsl-dspi: Exit the ISR with IRQ_NONE when its not ours
+Date:   Thu,  3 Oct 2019 17:53:47 +0200
+Message-Id: <20191003154557.580679284@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -45,41 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-commit 7e0bb5828311f811309bed5749528ca04992af2f upstream.
+commit d41f36a6464a85c06ad920703d878e4491d2c023 upstream.
 
-Like a bunch of other MSI laptops the MS-1039 uses a 0c45:627b
-SN9C201 + OV7660 webcam which is mounted upside down.
+The DSPI interrupt can be shared between two controllers at least on the
+LX2160A. In that case, the driver for one controller might misbehave and
+consume the other's interrupt. Fix this by actually checking if any of
+the bits in the status register have been asserted.
 
-Add it to the sn9c20x flip_dmi_table to deal with this.
-
+Fixes: 13aed2392741 ("spi: spi-fsl-dspi: use IRQF_SHARED mode to request IRQ")
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20190822212450.21420-2-olteanv@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/gspca/sn9c20x.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/spi/spi-fsl-dspi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/usb/gspca/sn9c20x.c
-+++ b/drivers/media/usb/gspca/sn9c20x.c
-@@ -124,6 +124,13 @@ static const struct dmi_system_id flip_d
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -886,9 +886,11 @@ static irqreturn_t dspi_interrupt(int ir
+ 					trans_mode);
+ 			}
  		}
- 	},
- 	{
-+		.ident = "MSI MS-1039",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MICRO-STAR INT'L CO.,LTD."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "MS-1039"),
-+		}
-+	},
-+	{
- 		.ident = "MSI MS-1632",
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "MSI"),
++
++		return IRQ_HANDLED;
+ 	}
+ 
+-	return IRQ_HANDLED;
++	return IRQ_NONE;
+ }
+ 
+ static const struct of_device_id fsl_dspi_dt_ids[] = {
 
 
