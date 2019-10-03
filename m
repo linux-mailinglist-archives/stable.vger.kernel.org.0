@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4384ECA79E
+	by mail.lfdr.de (Postfix) with ESMTP id B2AA3CA79F
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393186AbfJCQwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2393181AbfJCQwN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 3 Oct 2019 12:52:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393171AbfJCQwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:52:09 -0400
+        id S1732564AbfJCQwM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:52:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 528E02054F;
-        Thu,  3 Oct 2019 16:52:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF02420865;
+        Thu,  3 Oct 2019 16:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121528;
-        bh=mdL0Q4Tu0YQ0/7eHxAxBpSVNI6snCFhuwkmBw7iEIB0=;
+        s=default; t=1570121531;
+        bh=OZi46/LEW9kyWJKIzQu9CrXEOyEZid01NguqZCh4Q1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRNeIyqEOLiA+I9vnarFdqD0Zd9sIluEsar7nwixnCaFhHHpo5dvDUHyoVe1at7h2
-         3Jv1zpoTsNdEn2EiYZJk8dme2HXWW686KoDtUHAn9FbfHZV6dy53rAsUo7OB3sZLxK
-         DeOKlrULdE4UEhdPynLAk1IziAXe0qXV9S9L20As=
+        b=0ak7N7ycqmnDm6hAvIsEMrkumrRqeGW45A57yGAvnwmXBBhZchr3hK953ez/FXenG
+         nJjg+U4X7DqHZLj2Vgwnxn7RPqcZcgxKgKZoMqnCvC/vnaSgbu/3EafmEurgxKrLbQ
+         Fuzci0uadfzgPzN6zbWY0ELwOM/qJR/Qr3qJI99M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 313/344] btrfs: qgroup: Fix the wrong target io_tree when freeing reserved data space
-Date:   Thu,  3 Oct 2019 17:54:38 +0200
-Message-Id: <20191003154610.019756365@linuxfoundation.org>
+Subject: [PATCH 5.3 314/344] btrfs: qgroup: Fix reserved data space leak if we have multiple reserve calls
+Date:   Thu,  3 Oct 2019 17:54:39 +0200
+Message-Id: <20191003154610.104056625@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,79 +45,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Qu Wenruo <wqu@suse.com>
 
-commit bab32fc069ce8829c416e8737c119f62a57970f9 upstream.
+commit d4e204948fe3e0dc8e1fbf3f8f3290c9c2823be3 upstream.
 
 [BUG]
-Under the following case with qgroup enabled, if some error happened
-after we have reserved delalloc space, then in error handling path, we
-could cause qgroup data space leakage:
+The following script can cause btrfs qgroup data space leak:
 
->From btrfs_truncate_block() in inode.c:
+  mkfs.btrfs -f $dev
+  mount $dev -o nospace_cache $mnt
 
-	ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
-					   block_start, blocksize);
-	if (ret)
-		goto out;
+  btrfs subv create $mnt/subv
+  btrfs quota en $mnt
+  btrfs quota rescan -w $mnt
+  btrfs qgroup limit 128m $mnt/subv
 
- again:
-	page = find_or_create_page(mapping, index, mask);
-	if (!page) {
-		btrfs_delalloc_release_space(inode, data_reserved,
-					     block_start, blocksize, true);
-		btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, true);
-		ret = -ENOMEM;
-		goto out;
-	}
+  for (( i = 0; i < 3; i++)); do
+          # Create 3 64M holes for latter fallocate to fail
+          truncate -s 192m $mnt/subv/file
+          xfs_io -c "pwrite 64m 4k" $mnt/subv/file > /dev/null
+          xfs_io -c "pwrite 128m 4k" $mnt/subv/file > /dev/null
+          sync
+
+          # it's supposed to fail, and each failure will leak at least 64M
+          # data space
+          xfs_io -f -c "falloc 0 192m" $mnt/subv/file &> /dev/null
+          rm $mnt/subv/file
+          sync
+  done
+
+  # Shouldn't fail after we removed the file
+  xfs_io -f -c "falloc 0 64m" $mnt/subv/file
 
 [CAUSE]
-In the above case, btrfs_delalloc_reserve_space() will call
-btrfs_qgroup_reserve_data() and mark the io_tree range with
-EXTENT_QGROUP_RESERVED flag.
+Btrfs qgroup data reserve code allow multiple reservations to happen on
+a single extent_changeset:
+E.g:
+	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_1M);
+	btrfs_qgroup_reserve_data(inode, &data_reserved, SZ_1M, SZ_2M);
+	btrfs_qgroup_reserve_data(inode, &data_reserved, 0, SZ_4M);
 
-In the error handling path, we have the following call stack:
-btrfs_delalloc_release_space()
-|- btrfs_free_reserved_data_space()
-   |- btrsf_qgroup_free_data()
-      |- __btrfs_qgroup_release_data(reserved=@reserved, free=1)
-         |- qgroup_free_reserved_data(reserved=@reserved)
-            |- clear_record_extent_bits();
-            |- freed += changeset.bytes_changed;
+Btrfs qgroup code has its internal tracking to make sure we don't
+double-reserve in above example.
 
-However due to a completion bug, qgroup_free_reserved_data() will clear
-EXTENT_QGROUP_RESERVED flag in BTRFS_I(inode)->io_failure_tree, other
-than the correct BTRFS_I(inode)->io_tree.
-Since io_failure_tree is never marked with that flag,
-btrfs_qgroup_free_data() will not free any data reserved space at all,
-causing a leakage.
+The only pattern utilizing this feature is in the main while loop of
+btrfs_fallocate() function.
 
-This type of error handling can only be triggered by errors outside of
-qgroup code. So EDQUOT error from qgroup can't trigger it.
+However btrfs_qgroup_reserve_data()'s error handling has a bug in that
+on error it clears all ranges in the io_tree with EXTENT_QGROUP_RESERVED
+flag but doesn't free previously reserved bytes.
+
+This bug has a two fold effect:
+- Clearing EXTENT_QGROUP_RESERVED ranges
+  This is the correct behavior, but it prevents
+  btrfs_qgroup_check_reserved_leak() to catch the leakage as the
+  detector is purely EXTENT_QGROUP_RESERVED flag based.
+
+- Leak the previously reserved data bytes.
+
+The bug manifests when N calls to btrfs_qgroup_reserve_data are made and
+the last one fails, leaking space reserved in the previous ones.
 
 [FIX]
-Fix the wrong target io_tree.
+Also free previously reserved data bytes when btrfs_qgroup_reserve_data
+fails.
 
-Reported-by: Josef Bacik <josef@toxicpanda.com>
-Fixes: bc42bda22345 ("btrfs: qgroup: Fix qgroup reserved space underflow by only freeing reserved ranges")
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Fixes: 524725537023 ("btrfs: qgroup: Introduce btrfs_qgroup_reserve_data function")
+CC: stable@vger.kernel.org # 4.4+
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/qgroup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/qgroup.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
 --- a/fs/btrfs/qgroup.c
 +++ b/fs/btrfs/qgroup.c
-@@ -3469,7 +3469,7 @@ static int qgroup_free_reserved_data(str
- 		 * EXTENT_QGROUP_RESERVED, we won't double free.
- 		 * So not need to rush.
- 		 */
--		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_failure_tree,
-+		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_tree,
- 				free_start, free_start + free_len - 1,
- 				EXTENT_QGROUP_RESERVED, &changeset);
- 		if (ret < 0)
+@@ -3425,6 +3425,9 @@ cleanup:
+ 	while ((unode = ulist_next(&reserved->range_changed, &uiter)))
+ 		clear_extent_bit(&BTRFS_I(inode)->io_tree, unode->val,
+ 				 unode->aux, EXTENT_QGROUP_RESERVED, 0, 0, NULL);
++	/* Also free data bytes of already reserved one */
++	btrfs_qgroup_free_refroot(root->fs_info, root->root_key.objectid,
++				  orig_reserved, BTRFS_QGROUP_RSV_DATA);
+ 	extent_changeset_release(reserved);
+ 	return ret;
+ }
 
 
