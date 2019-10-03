@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EF8CA291
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D0ACA293
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731984AbfJCQGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
+        id S1731588AbfJCQGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732795AbfJCQGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:06:39 -0400
+        id S1730325AbfJCQGm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:06:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95A61207FF;
-        Thu,  3 Oct 2019 16:06:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 623F920865;
+        Thu,  3 Oct 2019 16:06:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118799;
-        bh=Qr5EGmTQNR2o9tv56lUO1BpJvOjnhnOrG5GY8KDWsgs=;
+        s=default; t=1570118801;
+        bh=WFPSs1XY6ltViKwCO9RVIRh0ygbXm+W+QOBH+Hvw6PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATwvV+HlCSUsS7q7ijz59TBANNbs/9zOj70LpwSyB6qbt5aXF4w+H4NKHm5LDKRpQ
-         dgtMXjDXCbtCkS6lUytRstV3HrBK32dH1BwjyeJTk4MMaAZ11Uc+owrzKWRxH/NrIG
-         lW/zE8K+IBYFVbQFZd7cM+O+q0H1cve3bcvRQDNY=
+        b=hubPOXQeOOj/3gKdzpAyJOWV+4gIdV/I5nCTB560tTjqxzaB80sDCScLQk6zK/87G
+         JKYXGugc0OlsEoXj3hxzeiVpOYliBOE8TDnzeAZuufR75HrFjgi8dTbexxZHtIV0ko
+         5zxw2VOqGNzSYqGPEVXiMcUss/rOrbB/gh2bg5oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Niklas Cassel <niklas.cassel@linaro.org>
-Subject: [PATCH 4.14 014/185] arm64: kpti: Whitelist Cortex-A CPUs that dont implement the CSV3 field
-Date:   Thu,  3 Oct 2019 17:51:32 +0200
-Message-Id: <20191003154440.681273301@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Shih-Yuan Lee (FourDollars)" <fourdollars@debian.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 015/185] ALSA: hda - Add laptop imic fixup for ASUS M9V laptop
+Date:   Thu,  3 Oct 2019 17:51:33 +0200
+Message-Id: <20191003154440.905045441@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -43,38 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
 
-commit 2a355ec25729053bb9a1a89b6c1d1cdd6c3b3fb1 upstream.
+commit 7b485d175631be676424aedb8cd2f66d0c93da78 upstream.
 
-While the CSV3 field of the ID_AA64_PFR0 CPU ID register can be checked
-to see if a CPU is susceptible to Meltdown and therefore requires kpti
-to be enabled, existing CPUs do not implement this field.
+The same fixup to enable laptop imic is needed for ASUS M9V with AD1986A
+codec like another HP machine.
 
-We therefore whitelist all unaffected Cortex-A CPUs that do not implement
-the CSV3 field.
-
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Shih-Yuan Lee (FourDollars) <fourdollars@debian.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20190920134052.GA8035@localhost
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/cpufeature.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_analog.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -838,6 +838,11 @@ static bool unmap_kernel_at_el0(const st
- 	switch (read_cpuid_id() & MIDR_CPU_MODEL_MASK) {
- 	case MIDR_CAVIUM_THUNDERX2:
- 	case MIDR_BRCM_VULCAN:
-+	case MIDR_CORTEX_A53:
-+	case MIDR_CORTEX_A55:
-+	case MIDR_CORTEX_A57:
-+	case MIDR_CORTEX_A72:
-+	case MIDR_CORTEX_A73:
- 		return false;
- 	}
+--- a/sound/pci/hda/patch_analog.c
++++ b/sound/pci/hda/patch_analog.c
+@@ -370,6 +370,7 @@ static const struct hda_fixup ad1986a_fi
  
+ static const struct snd_pci_quirk ad1986a_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x30af, "HP B2800", AD1986A_FIXUP_LAPTOP_IMIC),
++	SND_PCI_QUIRK(0x1043, 0x1153, "ASUS M9V", AD1986A_FIXUP_LAPTOP_IMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1443, "ASUS Z99He", AD1986A_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1043, 0x1447, "ASUS A8JN", AD1986A_FIXUP_EAPD),
+ 	SND_PCI_QUIRK_MASK(0x1043, 0xff00, 0x8100, "ASUS P5", AD1986A_FIXUP_3STACK),
 
 
