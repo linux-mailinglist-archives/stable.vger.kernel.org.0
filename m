@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED2ACAABC
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46866CA99C
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388851AbfJCRMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:12:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36894 "EHLO mail.kernel.org"
+        id S2392764AbfJCQpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:45:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390445AbfJCQaj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:30:39 -0400
+        id S2392753AbfJCQpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:45:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0844620700;
-        Thu,  3 Oct 2019 16:30:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7DB92070B;
+        Thu,  3 Oct 2019 16:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120238;
-        bh=SDlAYI9BhqBHRdwdkMZlPxl5JV58fBNfvFUMaH7kJuQ=;
+        s=default; t=1570121114;
+        bh=V0RnYzcQU1XuCrNHFEnrM5GjrBtSWIbwGLuJ+vIGQHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zeccw3kcw059DsjUHAneiuyltUE2eFhm3/NoE7WJvAFVpLINZmn4Jh4Bvb//1zd7D
-         0NH/65XgDGWFSsqR4PhO7UaS9KeWGKHIMugfk8n7UIF6nONJEeHZjYdKd5UAUDGaGi
-         djZApuC86NNTSonTMcx/sXUXufqhvL3REBqt9nkQ=
+        b=kEnnR29LtvCxCCj4RryFeSSLojV999E3DNJzm7Xvs+0oI/32Isf0juM8fGXVNzP+6
+         eZxfzLLPbIkHD1X68sVkgXBwjn0SAaccU6u6voNVKC1d+Y9OT4Pd+IP0JJJHGWOqab
+         zX8sDrGkYzBnz9TNRqn46pe+oZIzr0v5CRbkM0Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        stable@vger.kernel.org, Benjamin Peterson <benjamin@python.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 147/313] perf script: Fix memory leaks in list_scripts()
+Subject: [PATCH 5.3 160/344] perf trace beauty ioctl: Fix off-by-one error in cmd->string table
 Date:   Thu,  3 Oct 2019 17:52:05 +0200
-Message-Id: <20191003154547.411558084@linuxfoundation.org>
+Message-Id: <20191003154555.990626790@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,46 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Benjamin Peterson <benjamin@python.org>
 
-[ Upstream commit 3b4acbb92dbda4829e021e5c6d5410658849fa1c ]
+[ Upstream commit b92675f4a9c02dd78052645597dac9e270679ddf ]
 
-In case memory resources for *buf* and *paths* were allocated, jump to
-*out* and release them before return.
+While tracing a program that calls isatty(3), I noticed that strace
+reported TCGETS for the request argument of the underlying ioctl(2)
+syscall while perf trace reported TCSETS. strace is corrrect. The bug in
+perf was due to the tty ioctl beauty table starting at 0x5400 rather
+than 0x5401.
 
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Committer testing:
+
+  Using augmented_raw_syscalls.o and settings to make 'perf trace'
+  use strace formatting, i.e. with this in ~/.perfconfig
+
+  # cat ~/.perfconfig
+  [trace]
+	add_events = /home/acme/git/linux/tools/perf/examples/bpf/augmented_raw_syscalls.c
+	show_zeros = yes
+	show_duration = no
+	no_inherit = yes
+	show_timestamp = no
+	show_arg_names = no
+	args_alignment = 40
+	show_prefix = yes
+
+  # strace -e ioctl stty > /dev/null
+  ioctl(0, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+  ioctl(1, TIOCGWINSZ, 0x7fff8a9b0860)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCGETS, 0x7fff8a9b0540)        = -1 ENOTTY (Inappropriate ioctl for device)
+  +++ exited with 0 +++
+  #
+
+Before:
+
+  # perf trace -e ioctl stty > /dev/null
+  ioctl(0, TCSETS, 0x7fff2cf79f20)        = 0
+  ioctl(1, TIOCSWINSZ, 0x7fff2cf79f40)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCSETS, 0x7fff2cf79c20)        = -1 ENOTTY (Inappropriate ioctl for device)
+  #
+
+After:
+
+  # perf trace -e ioctl stty > /dev/null
+  ioctl(0, TCGETS, 0x7ffed0763920)        = 0
+  ioctl(1, TIOCGWINSZ, 0x7ffed0763940)    = -1 ENOTTY (Inappropriate ioctl for device)
+  ioctl(1, TCGETS, 0x7ffed0763620)        = -1 ENOTTY (Inappropriate ioctl for device)
+  #
+
+Signed-off-by: Benjamin Peterson <benjamin@python.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Gustavo A. R. Silva <gustavo@embeddedor.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Addresses-Coverity-ID: 1444328 ("Resource leak")
-Fixes: 6f3da20e151f ("perf report: Support builtin perf script in scripts menu")
-Link: http://lkml.kernel.org/r/20190408162748.GA21008@embeddedor
+Fixes: 1cc47f2d46206d67285aea0ca7e8450af571da13 ("perf trace beauty ioctl: Improve 'cmd' beautifier")
+Link: http://lkml.kernel.org/r/20190823033625.18814-1-benjamin@python.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/ui/browsers/scripts.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/perf/trace/beauty/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/ui/browsers/scripts.c b/tools/perf/ui/browsers/scripts.c
-index 27cf3ab88d13f..f4edb18f67ec9 100644
---- a/tools/perf/ui/browsers/scripts.c
-+++ b/tools/perf/ui/browsers/scripts.c
-@@ -131,8 +131,10 @@ static int list_scripts(char *script_name, bool *custom,
- 		int key = ui_browser__input_window("perf script command",
- 				"Enter perf script command line (without perf script prefix)",
- 				script_args, "", 0);
--		if (key != K_ENTER)
--			return -1;
-+		if (key != K_ENTER) {
-+			ret = -1;
-+			goto out;
-+		}
- 		sprintf(script_name, "%s script %s", perf, script_args);
- 	} else if (choice < num + max_std) {
- 		strcpy(script_name, paths[choice]);
+diff --git a/tools/perf/trace/beauty/ioctl.c b/tools/perf/trace/beauty/ioctl.c
+index 52242fa4072b0..e19eb6ea361d7 100644
+--- a/tools/perf/trace/beauty/ioctl.c
++++ b/tools/perf/trace/beauty/ioctl.c
+@@ -21,7 +21,7 @@
+ static size_t ioctl__scnprintf_tty_cmd(int nr, int dir, char *bf, size_t size)
+ {
+ 	static const char *ioctl_tty_cmd[] = {
+-	"TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
++	[_IOC_NR(TCGETS)] = "TCGETS", "TCSETS", "TCSETSW", "TCSETSF", "TCGETA", "TCSETA", "TCSETAW",
+ 	"TCSETAF", "TCSBRK", "TCXONC", "TCFLSH", "TIOCEXCL", "TIOCNXCL", "TIOCSCTTY",
+ 	"TIOCGPGRP", "TIOCSPGRP", "TIOCOUTQ", "TIOCSTI", "TIOCGWINSZ", "TIOCSWINSZ",
+ 	"TIOCMGET", "TIOCMBIS", "TIOCMBIC", "TIOCMSET", "TIOCGSOFTCAR", "TIOCSSOFTCAR",
 -- 
 2.20.1
 
