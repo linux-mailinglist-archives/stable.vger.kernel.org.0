@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8535CCA6AF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58391CA68D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392674AbfJCQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59494 "EHLO mail.kernel.org"
+        id S2405002AbfJCQoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:44:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392618AbfJCQqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:46:19 -0400
+        id S2404740AbfJCQox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:44:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A9D220867;
-        Thu,  3 Oct 2019 16:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64AC7206BB;
+        Thu,  3 Oct 2019 16:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121178;
-        bh=B05maExQbhzmRz3QtW0v5BieCGz5HdQQOqgZortZCcA=;
+        s=default; t=1570121092;
+        bh=J2I7SM7bMsl2OQ6fr2CABIWGTg6EorLiy5htaNXQeuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M74lGIjdsRlcpw41hHDnzcnC3OfIYeyd5v+/b4sGY326EyG3p3LspjUag/0nV+CyI
-         YzRyi6XoZeJAiRy7vLl9uydybNiK0iA4Fekf3sNwhdLofsOP77lcJKExdcItpoMjlh
-         /HjJYj80LIap6mNYSI/zgDHayjl25IC1kKk+igEo=
+        b=exwgFh8qxuEtkDldN19X+pM7VHk/Pr64VVLAJALFRyN/uRIBaVv8iMeW+dz2e08C0
+         dhY4Rj6QFQ+KxffuzRw1nfwaFzOOYddQSHew1PIexKasay4PhkfFqtV1cHA3AoMEmn
+         COJnx5/4h/KQcTO5oiguJLN82+PllCJzZqLc5Qsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerald Baeza <gerald.baeza@st.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 146/344] libperf: Fix alignment trap with xyarray contents in perf stat
-Date:   Thu,  3 Oct 2019 17:51:51 +0200
-Message-Id: <20191003154554.663779897@linuxfoundation.org>
+Subject: [PATCH 5.3 152/344] PM / devfreq: Fix kernel oops on governor module load
+Date:   Thu,  3 Oct 2019 17:51:57 +0200
+Message-Id: <20191003154555.236136924@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -50,56 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald BAEZA <gerald.baeza@st.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit d9c5c083416500e95da098c01be092b937def7fa ]
+[ Upstream commit 7544fd7f384591038646d3cd9efb311ab4509e24 ]
 
-Following the patch 'perf stat: Fix --no-scale', an alignment trap
-happens in process_counter_values() on ARMv7 platforms due to the
-attempt to copy non 64 bits aligned double words (pointed by 'count')
-via a NEON vectored instruction ('vld1' with 64 bits alignment
-constraint).
+A bit unexpectedly (but still documented), request_module may
+return a positive value, in case of a modprobe error.
+This is currently causing issues in the devfreq framework.
 
-This patch sets a 64 bits alignment constraint on 'contents[]' field in
-'struct xyarray' since the 'count' pointer used above points to such a
-structure.
+When a request_module exits with a positive value, we currently
+return that via ERR_PTR. However, because the value is positive,
+it's not a ERR_VALUE proper, and is therefore treated as a
+valid struct devfreq_governor pointer, leading to a kernel oops.
 
-Signed-off-by: Gerald Baeza <gerald.baeza@st.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lkml.kernel.org/r/1566464769-16374-1-git-send-email-gerald.baeza@st.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fix this by returning -EINVAL if request_module returns a positive
+value.
+
+Fixes: b53b0128052ff ("PM / devfreq: Fix static checker warning in try_then_request_governor")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/xyarray.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/devfreq/devfreq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/xyarray.h b/tools/perf/util/xyarray.h
-index 7ffe562e7ae7f..2627b038b6f2a 100644
---- a/tools/perf/util/xyarray.h
-+++ b/tools/perf/util/xyarray.h
-@@ -2,6 +2,7 @@
- #ifndef _PERF_XYARRAY_H_
- #define _PERF_XYARRAY_H_ 1
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index ab22bf8a12d69..a0e19802149fc 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -254,7 +254,7 @@ static struct devfreq_governor *try_then_request_governor(const char *name)
+ 		/* Restore previous state before return */
+ 		mutex_lock(&devfreq_list_lock);
+ 		if (err)
+-			return ERR_PTR(err);
++			return (err < 0) ? ERR_PTR(err) : ERR_PTR(-EINVAL);
  
-+#include <linux/compiler.h>
- #include <sys/types.h>
- 
- struct xyarray {
-@@ -10,7 +11,7 @@ struct xyarray {
- 	size_t entries;
- 	size_t max_x;
- 	size_t max_y;
--	char contents[];
-+	char contents[] __aligned(8);
- };
- 
- struct xyarray *xyarray__new(int xlen, int ylen, size_t entry_size);
+ 		governor = find_devfreq_governor(name);
+ 	}
 -- 
 2.20.1
 
