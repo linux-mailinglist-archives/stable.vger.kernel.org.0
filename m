@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AFDCABD6
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB60CAC52
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731633AbfJCQAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44772 "EHLO mail.kernel.org"
+        id S1730425AbfJCQIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730237AbfJCQAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:00:50 -0400
+        id S1731439AbfJCQIu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:08:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5BE9215EA;
-        Thu,  3 Oct 2019 16:00:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CFFE20865;
+        Thu,  3 Oct 2019 16:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118449;
-        bh=6OBD0aBevgYHmrpLYBQqh87qftSvBxuBak2GXZSsGdA=;
+        s=default; t=1570118930;
+        bh=VBJNM2vTUgCaLDng6wOKnNX5G5DEU3d89JMapHsEbvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MW6D0TlG70YY66eCwOOS/n2DUUgczkYVlP1j14dYWA+WVS2vLn6e95D9ZtqLEriae
-         khMeZxSVUe0wKBIOsUkDVfZY6iE+DZZG+aDIAPpdhxSEvxOsm4lc8hAtpTWBtl+hig
-         Xr8vdqSL2k8j31QQFXM3KqUqS+njgBJErljm28IY=
+        b=UXsq78dWxITJ3sQVCeqXvoOu63a3NfM6WTCrWqT11T38grg53gfwF4IaO34Psqt5Y
+         +JNezUAA+Gw98dy2Hd3dfDLw/GkHdn/Ja9T3NRiuI8qRLr7GDi+fNX4CPsFgk4RxPc
+         A2HsB8+IwLQ2xV7aaRuszWW8qb1Lziz9ylvRZ5Jg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaxing Luo <luojiaxing@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 016/129] irqchip/gic-v3-its: Fix LPI release for Multi-MSI devices
-Date:   Thu,  3 Oct 2019 17:52:19 +0200
-Message-Id: <20191003154325.823376892@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 062/185] media: i2c: ov5640: Check for devm_gpiod_get_optional() error
+Date:   Thu,  3 Oct 2019 17:52:20 +0200
+Message-Id: <20191003154451.282144792@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit c9c96e30ecaa0aafa225aa1a5392cb7db17c7a82 ]
+[ Upstream commit 8791a102ce579346cea9d2f911afef1c1985213c ]
 
-When allocating a range of LPIs for a Multi-MSI capable device,
-this allocation extended to the closest power of 2.
+The power down and reset GPIO are optional, but the return value
+from devm_gpiod_get_optional() needs to be checked and propagated
+in the case of error, so that probe deferral can work.
 
-But on the release path, the interrupts are released one by
-one. This results in not releasing the "extra" range, leaking
-the its_device. Trying to reprobe the device will then fail.
-
-Fix it by releasing the LPIs the same way we allocate them.
-
-Fixes: 8208d1708b88 ("irqchip/gic-v3-its: Align PCI Multi-MSI allocation on their size")
-Reported-by: Jiaxing Luo <luojiaxing@huawei.com>
-Tested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/f5e948aa-e32f-3f74-ae30-31fee06c2a74@huawei.com
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov5640.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index 83ca754250fb7..0c0cd2768d6e9 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -1519,14 +1519,13 @@ static void its_irq_domain_free(struct irq_domain *domain, unsigned int virq,
- 	struct its_device *its_dev = irq_data_get_irq_chip_data(d);
- 	int i;
- 
-+	bitmap_release_region(its_dev->event_map.lpi_map,
-+			      its_get_event_id(irq_domain_get_irq_data(domain, virq)),
-+			      get_count_order(nr_irqs));
+diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
+index acf5c8a55bbd2..69f564b0837a7 100644
+--- a/drivers/media/i2c/ov5640.c
++++ b/drivers/media/i2c/ov5640.c
+@@ -2261,9 +2261,14 @@ static int ov5640_probe(struct i2c_client *client,
+ 	/* request optional power down pin */
+ 	sensor->pwdn_gpio = devm_gpiod_get_optional(dev, "powerdown",
+ 						    GPIOD_OUT_HIGH);
++	if (IS_ERR(sensor->pwdn_gpio))
++		return PTR_ERR(sensor->pwdn_gpio);
 +
- 	for (i = 0; i < nr_irqs; i++) {
- 		struct irq_data *data = irq_domain_get_irq_data(domain,
- 								virq + i);
--		u32 event = its_get_event_id(data);
--
--		/* Mark interrupt index as unused */
--		clear_bit(event, its_dev->event_map.lpi_map);
--
- 		/* Nuke the entry in the domain */
- 		irq_domain_reset_irq_data(data);
- 	}
+ 	/* request optional reset pin */
+ 	sensor->reset_gpio = devm_gpiod_get_optional(dev, "reset",
+ 						     GPIOD_OUT_HIGH);
++	if (IS_ERR(sensor->reset_gpio))
++		return PTR_ERR(sensor->reset_gpio);
+ 
+ 	v4l2_i2c_subdev_init(&sensor->sd, client, &ov5640_subdev_ops);
+ 
 -- 
 2.20.1
 
