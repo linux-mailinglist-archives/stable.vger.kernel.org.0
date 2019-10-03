@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D40DACA414
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B180FCA416
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388626AbfJCQVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:21:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50266 "EHLO mail.kernel.org"
+        id S2388870AbfJCQVz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:21:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388873AbfJCQVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:21:49 -0400
+        id S2390208AbfJCQVw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:21:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88F5B21A4C;
-        Thu,  3 Oct 2019 16:21:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5268E20865;
+        Thu,  3 Oct 2019 16:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119709;
-        bh=DGlwU+v3u6z+2mLU2WrgF0LQts6QqlPRvvRSOnHMvFk=;
+        s=default; t=1570119711;
+        bh=WV12Xj5vShY0vJCSafmIAez9hmQ3Eiy6jMF6YEac2p4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8BbQFkycujaHUzsRWrvi5t2xBC+Wf2I6qcsis3gOevLNLo3wSLAIWjGrO/ybjilx
-         JuL0kYkMb60OhLIvK6pjBqZ4V9M8FktruoWK2832UAioAq9dY3RivgXhgQlbT0Fl+i
-         tbB1nrHhUsszPXdkP0f2e5Wc4n8fLFviMie5y0lE=
+        b=WwBet8gJb7XDq5OINUPTTQca5AccOAoiluT7LtODbTBFITaZTCPS3S263+Q0kB6ia
+         JWKITYywtosnHO1Q2I+sjlpejv7j0s+LHNyYij2vw6iR+Ah49MnxolvgD1IZuTbaN6
+         FWce+G6+AvEA07RPkLGRLXM5CazYplgIG+I8ankk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Denis Plotnikov <dplotnikov@virtuozzo.com>,
         Jan Dakinevich <jan.dakinevich@virtuozzo.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 165/211] KVM: x86: always stop emulation on page fault
-Date:   Thu,  3 Oct 2019 17:53:51 +0200
-Message-Id: <20191003154525.515888626@linuxfoundation.org>
+Subject: [PATCH 4.19 166/211] KVM: x86: set ctxt->have_exception in x86_decode_insn()
+Date:   Thu,  3 Oct 2019 17:53:52 +0200
+Message-Id: <20191003154525.759012107@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -48,23 +48,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jan Dakinevich <jan.dakinevich@virtuozzo.com>
 
-commit 8530a79c5a9f4e29e6ffb35ec1a79d81f4968ec8 upstream.
+commit c8848cee74ff05638e913582a476bde879c968ad upstream.
 
-inject_emulated_exception() returns true if and only if nested page
-fault happens. However, page fault can come from guest page tables
-walk, either nested or not nested. In both cases we should stop an
-attempt to read under RIP and give guest to step over its own page
-fault handler.
-
-This is also visible when an emulated instruction causes a #GP fault
-and the VMware backdoor is enabled.  To handle the VMware backdoor,
-KVM intercepts #GP faults; with only the next patch applied,
-x86_emulate_instruction() injects a #GP but returns EMULATE_FAIL
-instead of EMULATE_DONE.   EMULATE_FAIL causes handle_exception_nmi()
-(or gp_interception() for SVM) to re-inject the original #GP because it
-thinks emulation failed due to a non-VMware opcode.  This patch prevents
-the issue as x86_emulate_instruction() will return EMULATE_DONE after
-injecting the #GP.
+x86_emulate_instruction() takes into account ctxt->have_exception flag
+during instruction decoding, but in practice this flag is never set in
+x86_decode_insn().
 
 Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
 Cc: stable@vger.kernel.org
@@ -76,22 +64,35 @@ Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c |    2 ++
+ arch/x86/kvm/x86.c     |    6 ++++++
+ 2 files changed, 8 insertions(+)
 
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -5368,6 +5368,8 @@ done_prefixes:
+ 					ctxt->memopp->addr.mem.ea + ctxt->_eip);
+ 
+ done:
++	if (rc == X86EMUL_PROPAGATE_FAULT)
++		ctxt->have_exception = true;
+ 	return (rc != X86EMUL_CONTINUE) ? EMULATION_FAILED : EMULATION_OK;
+ }
+ 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -6244,8 +6244,10 @@ int x86_emulate_instruction(struct kvm_v
- 			if (reexecute_instruction(vcpu, cr2, write_fault_to_spt,
+@@ -6245,6 +6245,12 @@ int x86_emulate_instruction(struct kvm_v
  						emulation_type))
  				return EMULATE_DONE;
--			if (ctxt->have_exception && inject_emulated_exception(vcpu))
-+			if (ctxt->have_exception) {
-+				inject_emulated_exception(vcpu);
+ 			if (ctxt->have_exception) {
++				/*
++				 * #UD should result in just EMULATION_FAILED, and trap-like
++				 * exception should not be encountered during decode.
++				 */
++				WARN_ON_ONCE(ctxt->exception.vector == UD_VECTOR ||
++					     exception_type(ctxt->exception.vector) == EXCPT_TRAP);
+ 				inject_emulated_exception(vcpu);
  				return EMULATE_DONE;
-+			}
- 			if (emulation_type & EMULTYPE_SKIP)
- 				return EMULATE_FAIL;
- 			return handle_emulation_failure(vcpu, emulation_type);
+ 			}
 
 
