@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19DBBCA684
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82475CA689
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405384AbfJCQod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56664 "EHLO mail.kernel.org"
+        id S2405409AbfJCQom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:44:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405377AbfJCQoc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:44:32 -0400
+        id S2405377AbfJCQoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:44:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 42181206BB;
-        Thu,  3 Oct 2019 16:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A2752054F;
+        Thu,  3 Oct 2019 16:44:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121071;
-        bh=bFLCTGyYohymiALd+WKgy6NVhCk0aLlPxI6AHXlCS/0=;
+        s=default; t=1570121077;
+        bh=dPMBz+h3etmnxoqEa7dwetX9+Br6b4R4IuSCrpEqtQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTrJThkwPBbIsy806+kzW99656kAueRDrTX6r7Y06CPTX57BLjYJdDBihxJQuaeAu
-         LKtwhF/twRK3kKIjJBnq/8geKiGd2Q0sGnC2tGuvdnXlGd+0Cy80+WEEmiBJPg1DOB
-         Hurj3m6csy6tUUCqipDGNXHnYJ6mcyA5Y8hyAvLg=
+        b=JTdvZ7Wm//9tOfHjkAf3U/oFseIZCKiVCA5o/+vC/iD7FzNHyT6QChW4X4adrk+Dg
+         IHL992J5AvDMvttQRUHhEOBq/jbN2hldomNwUUvbyNBfaddFGwEtmUfRJK0wbSRp9v
+         WDx6TUujtn/d3pkFdkVdNBLPP9vh9mDWXy38XHic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 108/344] media: fdp1: Reduce FCP not found message level to debug
-Date:   Thu,  3 Oct 2019 17:51:13 +0200
-Message-Id: <20191003154550.859307945@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Kees Cook <keescook@chromium.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 110/344] arm64/efi: Move variable assignments after SECTIONS
+Date:   Thu,  3 Oct 2019 17:51:15 +0200
+Message-Id: <20191003154551.066055944@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -47,43 +44,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4fd22938569c14f6092c05880ca387409d78355f ]
+[ Upstream commit 90776dd1c427cbb4d381aa4b13338f1fb1d20f5e ]
 
-When support for the IPMMU is not enabled, the FDP driver may be
-probe-deferred multiple times, causing several messages to be printed
-like:
+It seems that LLVM's linker does not correctly handle variable assignments
+involving section positions that are updated during the SECTIONS
+parsing. Commit aa69fb62bea1 ("arm64/efi: Mark __efistub_stext_offset as
+an absolute symbol explicitly") ran into this too, but found a different
+workaround.
 
-    rcar_fdp1 fe940000.fdp1: FCP not found (-517)
-    rcar_fdp1 fe944000.fdp1: FCP not found (-517)
+However, this was not enough, as other variables were also miscalculated
+which manifested as boot failures under UEFI where __efistub__end was
+not taking the correct _end value (they should be the same):
 
-Fix this by reducing the message level to debug level, as is done in the
-VSP1 driver.
+$ ld.lld -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.lld -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.lld | egrep '\b(__efistub_|)_end\b'
+368272: ffff000002218000     0 NOTYPE  LOCAL  HIDDEN    38 __efistub__end
+368322: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT   38 _end
 
-Fixes: 4710b752e029f3f8 ("[media] v4l: Add Renesas R-Car FDP1 Driver")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+$ aarch64-linux-gnu-ld.bfd -EL -maarch64elf --no-undefined -X -shared \
+	-Bsymbolic -z notext -z norelro --no-apply-dynamic-relocs \
+	-o vmlinux.bfd -T poc.lds --whole-archive vmlinux.o && \
+  readelf -Ws vmlinux.bfd | egrep '\b(__efistub_|)_end\b'
+338124: ffff000012318000     0 NOTYPE  LOCAL  DEFAULT  ABS __efistub__end
+383812: ffff000012318000     0 NOTYPE  GLOBAL DEFAULT 15325 _end
+
+To work around this, all of the __efistub_-prefixed variable assignments
+need to be moved after the linker script's SECTIONS entry. As it turns
+out, this also solves the problem fixed in commit aa69fb62bea1, so those
+changes are reverted here.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/634
+Link: https://bugs.llvm.org/show_bug.cgi?id=42990
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar_fdp1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/image-vars.h  | 51 +++++++++++++++++++++++++++++++++
+ arch/arm64/kernel/image.h       | 42 ---------------------------
+ arch/arm64/kernel/vmlinux.lds.S |  2 ++
+ 3 files changed, 53 insertions(+), 42 deletions(-)
+ create mode 100644 arch/arm64/kernel/image-vars.h
 
-diff --git a/drivers/media/platform/rcar_fdp1.c b/drivers/media/platform/rcar_fdp1.c
-index 43aae9b6bb20e..c23ec127c2776 100644
---- a/drivers/media/platform/rcar_fdp1.c
-+++ b/drivers/media/platform/rcar_fdp1.c
-@@ -2306,7 +2306,7 @@ static int fdp1_probe(struct platform_device *pdev)
- 		fdp1->fcp = rcar_fcp_get(fcp_node);
- 		of_node_put(fcp_node);
- 		if (IS_ERR(fdp1->fcp)) {
--			dev_err(&pdev->dev, "FCP not found (%ld)\n",
-+			dev_dbg(&pdev->dev, "FCP not found (%ld)\n",
- 				PTR_ERR(fdp1->fcp));
- 			return PTR_ERR(fdp1->fcp);
- 		}
+diff --git a/arch/arm64/kernel/image-vars.h b/arch/arm64/kernel/image-vars.h
+new file mode 100644
+index 0000000000000..25a2a9b479c2f
+--- /dev/null
++++ b/arch/arm64/kernel/image-vars.h
+@@ -0,0 +1,51 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Linker script variables to be set after section resolution, as
++ * ld.lld does not like variables assigned before SECTIONS is processed.
++ */
++#ifndef __ARM64_KERNEL_IMAGE_VARS_H
++#define __ARM64_KERNEL_IMAGE_VARS_H
++
++#ifndef LINKER_SCRIPT
++#error This file should only be included in vmlinux.lds.S
++#endif
++
++#ifdef CONFIG_EFI
++
++__efistub_stext_offset = stext - _text;
++
++/*
++ * The EFI stub has its own symbol namespace prefixed by __efistub_, to
++ * isolate it from the kernel proper. The following symbols are legally
++ * accessed by the stub, so provide some aliases to make them accessible.
++ * Only include data symbols here, or text symbols of functions that are
++ * guaranteed to be safe when executed at another offset than they were
++ * linked at. The routines below are all implemented in assembler in a
++ * position independent manner
++ */
++__efistub_memcmp		= __pi_memcmp;
++__efistub_memchr		= __pi_memchr;
++__efistub_memcpy		= __pi_memcpy;
++__efistub_memmove		= __pi_memmove;
++__efistub_memset		= __pi_memset;
++__efistub_strlen		= __pi_strlen;
++__efistub_strnlen		= __pi_strnlen;
++__efistub_strcmp		= __pi_strcmp;
++__efistub_strncmp		= __pi_strncmp;
++__efistub_strrchr		= __pi_strrchr;
++__efistub___flush_dcache_area	= __pi___flush_dcache_area;
++
++#ifdef CONFIG_KASAN
++__efistub___memcpy		= __pi_memcpy;
++__efistub___memmove		= __pi_memmove;
++__efistub___memset		= __pi_memset;
++#endif
++
++__efistub__text			= _text;
++__efistub__end			= _end;
++__efistub__edata		= _edata;
++__efistub_screen_info		= screen_info;
++
++#endif
++
++#endif /* __ARM64_KERNEL_IMAGE_VARS_H */
+diff --git a/arch/arm64/kernel/image.h b/arch/arm64/kernel/image.h
+index 2b85c0d6fa3d1..c7d38c660372c 100644
+--- a/arch/arm64/kernel/image.h
++++ b/arch/arm64/kernel/image.h
+@@ -65,46 +65,4 @@
+ 	DEFINE_IMAGE_LE64(_kernel_offset_le, TEXT_OFFSET);	\
+ 	DEFINE_IMAGE_LE64(_kernel_flags_le, __HEAD_FLAGS);
+ 
+-#ifdef CONFIG_EFI
+-
+-/*
+- * Use ABSOLUTE() to avoid ld.lld treating this as a relative symbol:
+- * https://github.com/ClangBuiltLinux/linux/issues/561
+- */
+-__efistub_stext_offset = ABSOLUTE(stext - _text);
+-
+-/*
+- * The EFI stub has its own symbol namespace prefixed by __efistub_, to
+- * isolate it from the kernel proper. The following symbols are legally
+- * accessed by the stub, so provide some aliases to make them accessible.
+- * Only include data symbols here, or text symbols of functions that are
+- * guaranteed to be safe when executed at another offset than they were
+- * linked at. The routines below are all implemented in assembler in a
+- * position independent manner
+- */
+-__efistub_memcmp		= __pi_memcmp;
+-__efistub_memchr		= __pi_memchr;
+-__efistub_memcpy		= __pi_memcpy;
+-__efistub_memmove		= __pi_memmove;
+-__efistub_memset		= __pi_memset;
+-__efistub_strlen		= __pi_strlen;
+-__efistub_strnlen		= __pi_strnlen;
+-__efistub_strcmp		= __pi_strcmp;
+-__efistub_strncmp		= __pi_strncmp;
+-__efistub_strrchr		= __pi_strrchr;
+-__efistub___flush_dcache_area	= __pi___flush_dcache_area;
+-
+-#ifdef CONFIG_KASAN
+-__efistub___memcpy		= __pi_memcpy;
+-__efistub___memmove		= __pi_memmove;
+-__efistub___memset		= __pi_memset;
+-#endif
+-
+-__efistub__text			= _text;
+-__efistub__end			= _end;
+-__efistub__edata		= _edata;
+-__efistub_screen_info		= screen_info;
+-
+-#endif
+-
+ #endif /* __ARM64_KERNEL_IMAGE_H */
+diff --git a/arch/arm64/kernel/vmlinux.lds.S b/arch/arm64/kernel/vmlinux.lds.S
+index 7fa0083749078..803b24d2464ae 100644
+--- a/arch/arm64/kernel/vmlinux.lds.S
++++ b/arch/arm64/kernel/vmlinux.lds.S
+@@ -245,6 +245,8 @@ SECTIONS
+ 	HEAD_SYMBOLS
+ }
+ 
++#include "image-vars.h"
++
+ /*
+  * The HYP init code and ID map text can't be longer than a page each,
+  * and should not cross a page boundary.
 -- 
 2.20.1
 
