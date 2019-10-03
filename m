@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 049F8CA265
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B344CA274
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732476AbfJCQEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:04:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51116 "EHLO mail.kernel.org"
+        id S1730767AbfJCQFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732467AbfJCQEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:04:49 -0400
+        id S1729193AbfJCQFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8037E222CD;
-        Thu,  3 Oct 2019 16:04:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75215215EA;
+        Thu,  3 Oct 2019 16:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118689;
-        bh=4VoAc1yvZwRE0X8+pm99fjf3hGnKk12dJhyILIPYcAQ=;
+        s=default; t=1570118724;
+        bh=lTc6DFAiAPGMPxNE/on0ezBOoV5GI9L/+6b0widIlG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIqOSFnzp0n6p5yogXgqljhw6QHVvRL/Qxko73dGMndyvxH9qFJ7CycFAVhgjvGqs
-         MQXr7f2lniWcYpMWywWdRMeUJX8a5hsBdkUSjS1fI40Git24P48rKfqiBnkiZhFGTJ
-         NF49XT6+U59JoE7Rai/aOBntpDLTJvMGDzzqqHkY=
+        b=Y+gP5jZDPnbFmMJv4Gpu9nS1z6a+vkObcGrNUYJMeX6xAnWY/x7xt5Y4Div/8u8E4
+         gYOXnUZrW6geQ1tArC0QniVgX/gBcDm1SB9VRciWY3NKqqVQbfc3F+tXCuPlrXGIbk
+         iu+Wz5zZ2bSLuC8RkaUB6nbLCQKqXEYdPS8ucGRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Stone <ahs3@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Tom Wu <tomwu@mellanox.com>,
+        Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/129] ACPI / CPPC: do not require the _PSD method
-Date:   Thu,  3 Oct 2019 17:53:18 +0200
-Message-Id: <20191003154352.723992673@linuxfoundation.org>
+Subject: [PATCH 4.9 077/129] nvmet: fix data units read and written counters in SMART log
+Date:   Thu,  3 Oct 2019 17:53:20 +0200
+Message-Id: <20191003154353.906756915@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -44,53 +48,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Stone <ahs3@redhat.com>
+From: Tom Wu <tomwu@mellanox.com>
 
-[ Upstream commit 4c4cdc4c63853fee48c02e25c8605fb65a6c9924 ]
+[ Upstream commit 3bec2e3754becebd4c452999adb49bc62c575ea4 ]
 
-According to the ACPI 6.3 specification, the _PSD method is optional
-when using CPPC.  The underlying assumption is that each CPU can change
-frequency independently from all other CPUs; _PSD is provided to tell
-the OS that some processors can NOT do that.
+In nvme spec 1.3 there is a definition for data write/read counters
+from SMART log, (See section 5.14.1.2):
+	This value is reported in thousands (i.e., a value of 1
+	corresponds to 1000 units of 512 bytes read) and is rounded up.
 
-However, the acpi_get_psd() function returns ENODEV if there is no _PSD
-method present, or an ACPI error status if an error occurs when evaluating
-_PSD, if present.  This makes _PSD mandatory when using CPPC, in violation
-of the specification, and only on Linux.
+However, in nvme target where value is reported with actual units,
+but not thousands of units as the spec requires.
 
-This has forced some firmware writers to provide a dummy _PSD, even though
-it is irrelevant, but only because Linux requires it; other OSPMs follow
-the spec.  We really do not want to have OS specific ACPI tables, though.
-
-So, correct acpi_get_psd() so that it does not return an error if there
-is no _PSD method present, but does return a failure when the method can
-not be executed properly.  This allows _PSD to be optional as it should
-be.
-
-Signed-off-by: Al Stone <ahs3@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Tom Wu <tomwu@mellanox.com>
+Reviewed-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvme/target/admin-cmd.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index e0ea8f56d2bfd..9ec4618df5338 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -360,8 +360,10 @@ static int acpi_get_psd(struct cpc_desc *cpc_ptr, acpi_handle handle)
- 	union acpi_object  *psd = NULL;
- 	struct acpi_psd_package *pdomain;
+diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
+index cdb7752dcbb79..446f61ba018d7 100644
+--- a/drivers/nvme/target/admin-cmd.c
++++ b/drivers/nvme/target/admin-cmd.c
+@@ -47,9 +47,11 @@ static u16 nvmet_get_smart_log_nsid(struct nvmet_req *req,
+ 	}
  
--	status = acpi_evaluate_object_typed(handle, "_PSD", NULL, &buffer,
--			ACPI_TYPE_PACKAGE);
-+	status = acpi_evaluate_object_typed(handle, "_PSD", NULL,
-+					    &buffer, ACPI_TYPE_PACKAGE);
-+	if (status == AE_NOT_FOUND)	/* _PSD is optional */
-+		return 0;
- 	if (ACPI_FAILURE(status))
- 		return -ENODEV;
+ 	host_reads = part_stat_read(ns->bdev->bd_part, ios[READ]);
+-	data_units_read = part_stat_read(ns->bdev->bd_part, sectors[READ]);
++	data_units_read = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
++		sectors[READ]), 1000);
+ 	host_writes = part_stat_read(ns->bdev->bd_part, ios[WRITE]);
+-	data_units_written = part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
++	data_units_written = DIV_ROUND_UP(part_stat_read(ns->bdev->bd_part,
++		sectors[WRITE]), 1000);
  
+ 	put_unaligned_le64(host_reads, &slog->host_reads[0]);
+ 	put_unaligned_le64(data_units_read, &slog->data_units_read[0]);
+@@ -75,11 +77,11 @@ static u16 nvmet_get_smart_log_all(struct nvmet_req *req,
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(ns, &ctrl->subsys->namespaces, dev_link) {
+ 		host_reads += part_stat_read(ns->bdev->bd_part, ios[READ]);
+-		data_units_read +=
+-			part_stat_read(ns->bdev->bd_part, sectors[READ]);
++		data_units_read += DIV_ROUND_UP(
++			part_stat_read(ns->bdev->bd_part, sectors[READ]), 1000);
+ 		host_writes += part_stat_read(ns->bdev->bd_part, ios[WRITE]);
+-		data_units_written +=
+-			part_stat_read(ns->bdev->bd_part, sectors[WRITE]);
++		data_units_written += DIV_ROUND_UP(
++			part_stat_read(ns->bdev->bd_part, sectors[WRITE]), 1000);
+ 
+ 	}
+ 	rcu_read_unlock();
 -- 
 2.20.1
 
