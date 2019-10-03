@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0FF6CA19D
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3376CA19F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 17:58:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727451AbfJCP5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40140 "EHLO mail.kernel.org"
+        id S1731007AbfJCP5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 11:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730968AbfJCP5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:57:38 -0400
+        id S1731004AbfJCP5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:57:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09F6E21848;
-        Thu,  3 Oct 2019 15:57:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB3F720700;
+        Thu,  3 Oct 2019 15:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118257;
-        bh=WWb1wYNljwQ/3KRsaERbjPT/UPBTlJ3xjkOLi37igHM=;
+        s=default; t=1570118260;
+        bh=IcFEqKSzhlE2huX698hch9Qt6fR7Sr3QJnA7k5YfM6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D8gOKu1wk/wCB6r+66Ie7kOrmXAqK1igSR83lB799IbhxD7/w83PG7rRKSjA3sNbR
-         nMCwDfcPtxan4RZBElc4jLh7HhZDy/9sWxiFckBck5Zy0KPdRwdk+o9MMgPU3YFg/c
-         xSX52jTLPBlRkDOO36zk6yCUYqo8mq27YdFdRTMk=
+        b=X9rZrpmcB5Klx0KlBXtmwWTUMF39SByFD3o+5rkDtD+Q041Bx5YsDLAS9WoeKRMHi
+         fWC8dY1cwmtd48LMunds/KH5bxf4lTCIrjqiYE3g1k5AAk+0fVYrmfBS5k1A9EOoDd
+         ku9MVSBYJ1aiolWjwzjuaIKgPwuU8zWqg+IPjVIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mao Wenan <maowenan@huawei.com>
-Subject: [PATCH 4.4 08/99] [PATCH stable 4.4 net] net: rds: Fix NULL ptr use in rds_tcp_kill_sock
-Date:   Thu,  3 Oct 2019 17:52:31 +0200
-Message-Id: <20191003154256.590115314@linuxfoundation.org>
+        stable@vger.kernel.org, Timur Tabi <timur@kernel.org>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Xiubo Li <Xiubo.Lee@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 09/99] ASoC: fsl: Fix of-node refcount unbalance in fsl_ssi_probe_from_dt()
+Date:   Thu,  3 Oct 2019 17:52:32 +0200
+Message-Id: <20191003154257.324014712@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
 References: <20191003154252.297991283@linuxfoundation.org>
@@ -42,68 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mao Wenan <maowenan@huawei.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-After the commit c4e97b06cfdc ("net: rds: force to destroy
-connection if t_sock is NULL in rds_tcp_kill_sock()."),
-it introduced null-ptr-deref in rds_tcp_kill_sock as below:
+commit 2757970f6d0d0a112247600b23d38c0c728ceeb3 upstream.
 
-BUG: KASAN: null-ptr-deref on address 0000000000000020
-Read of size 8 by task kworker/u16:10/910
-CPU: 3 PID: 910 Comm: kworker/u16:10 Not tainted 4.4.178+ #3
-Hardware name: linux,dummy-virt (DT)
-Workqueue: netns cleanup_net
-Call trace:
-[<ffffff90080abb50>] dump_backtrace+0x0/0x618
-[<ffffff90080ac1a0>] show_stack+0x38/0x60
-[<ffffff9008c42b78>] dump_stack+0x1a8/0x230
-[<ffffff90085d469c>] kasan_report_error+0xc8c/0xfc0
-[<ffffff90085d54a4>] kasan_report+0x94/0xd8
-[<ffffff90085d1b28>] __asan_load8+0x88/0x150
-[<ffffff9009c9cc2c>] rds_tcp_dev_event+0x734/0xb48
-[<ffffff90081eacb0>] raw_notifier_call_chain+0x150/0x1e8
-[<ffffff900973fec0>] call_netdevice_notifiers_info+0x90/0x110
-[<ffffff9009764874>] netdev_run_todo+0x2f4/0xb08
-[<ffffff9009796d34>] rtnl_unlock+0x2c/0x48
-[<ffffff9009756484>] default_device_exit_batch+0x444/0x528
-[<ffffff9009720498>] ops_exit_list+0x1c0/0x240
-[<ffffff9009724a80>] cleanup_net+0x738/0xbf8
-[<ffffff90081ca6cc>] process_one_work+0x96c/0x13e0
-[<ffffff90081cf370>] worker_thread+0x7e0/0x1910
-[<ffffff90081e7174>] kthread+0x304/0x390
-[<ffffff9008094280>] ret_from_fork+0x10/0x50
+The node obtained from of_find_node_by_path() has to be unreferenced
+after the use, but we forgot it for the root node.
 
-If the first loop add the tc->t_sock = NULL to the tmp_list,
-1). list_for_each_entry_safe(tc, _tc, &rds_tcp_conn_list, t_tcp_node)
-
-then the second loop is to find connections to destroy, tc->t_sock
-might equal NULL, and tc->t_sock->sk happens null-ptr-deref.
-2). list_for_each_entry_safe(tc, _tc, &tmp_list, t_tcp_node)
-
-Fixes: c4e97b06cfdc ("net: rds: force to destroy connection if t_sock is NULL in rds_tcp_kill_sock().")
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
+Fixes: f0fba2ad1b6b ("ASoC: multi-component - ASoC Multi-Component Support")
+Cc: Timur Tabi <timur@kernel.org>
+Cc: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Xiubo Li <Xiubo.Lee@gmail.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rds/tcp.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/fsl/fsl_ssi.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -352,9 +352,11 @@ static void rds_tcp_kill_sock(struct net
- 	}
- 	spin_unlock_irq(&rds_tcp_conn_lock);
- 	list_for_each_entry_safe(tc, _tc, &tmp_list, t_tcp_node) {
--		sk = tc->t_sock->sk;
--		sk->sk_prot->disconnect(sk, 0);
--		tcp_done(sk);
-+		if (tc->t_sock) {
-+			sk = tc->t_sock->sk;
-+			sk->sk_prot->disconnect(sk, 0);
-+			tcp_done(sk);
-+		}
- 		if (tc->conn->c_passive)
- 			rds_conn_destroy(tc->conn->c_passive);
- 		rds_conn_destroy(tc->conn);
+--- a/sound/soc/fsl/fsl_ssi.c
++++ b/sound/soc/fsl/fsl_ssi.c
+@@ -1374,6 +1374,7 @@ static int fsl_ssi_probe(struct platform
+ 	struct fsl_ssi_private *ssi_private;
+ 	int ret = 0;
+ 	struct device_node *np = pdev->dev.of_node;
++	struct device_node *root;
+ 	const struct of_device_id *of_id;
+ 	const char *p, *sprop;
+ 	const uint32_t *iprop;
+@@ -1510,7 +1511,9 @@ static int fsl_ssi_probe(struct platform
+ 	 * device tree.  We also pass the address of the CPU DAI driver
+ 	 * structure.
+ 	 */
+-	sprop = of_get_property(of_find_node_by_path("/"), "compatible", NULL);
++	root = of_find_node_by_path("/");
++	sprop = of_get_property(root, "compatible", NULL);
++	of_node_put(root);
+ 	/* Sometimes the compatible name has a "fsl," prefix, so we strip it. */
+ 	p = strrchr(sprop, ',');
+ 	if (p)
 
 
