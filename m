@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B91CACB1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59093CACB2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388575AbfJCQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37734 "EHLO mail.kernel.org"
+        id S2388619AbfJCQOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388600AbfJCQO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:14:27 -0400
+        id S2388611AbfJCQO3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:14:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ED6C21848;
-        Thu,  3 Oct 2019 16:14:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C354222D1;
+        Thu,  3 Oct 2019 16:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119265;
-        bh=+JxQQyJlmEHfkDkgRN+ua7d4KM9d+lqwrBvX7zCu9o4=;
+        s=default; t=1570119268;
+        bh=yvUe+Z4dCAUpy9c9GEtQIJ0JPnNlbHZnmaNzpt+jDuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgqyWQrz/8/n15iLO1xFLsd6O2gANMEiU6+qkeDfZijuLIc1eivf17NOqKhsj6wNC
-         4NsrgtMI6ATwZH+Xane5kHzrL7ZZVSVA+NQsiUXdENC0cQjZwFrTIXZVUCEfLttzj/
-         x4c6Z+Mp0tieP7033tqxnIZN1TrmvC5iWe+oeh10=
+        b=Rj3StsXflPofimykBTm6AwONwiD/c804TajZAJS7uyFKTvz5FwLflVXKh2Vs53h2H
+         5RsXpJe1xMAOtsxCS50+5Bhc3SHRO0//W2uTX2Wkg66YHpPkUM6e5rcrBr1nsN7xeg
+         7XF/AOr3aWLdvMmmx8UAs6WIE3K4a5zI6ujriEbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Thumshirn <jthumshirn@suse.de>,
-        Nikolay Borisov <nborisov@suse.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Nikolay Borisov <nborisov@suse.com>, Qu Wenruo <wqu@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 168/185] btrfs: Relinquish CPUs in btrfs_compare_trees
-Date:   Thu,  3 Oct 2019 17:54:06 +0200
-Message-Id: <20191003154517.884667396@linuxfoundation.org>
+Subject: [PATCH 4.14 169/185] btrfs: qgroup: Fix the wrong target io_tree when freeing reserved data space
+Date:   Thu,  3 Oct 2019 17:54:07 +0200
+Message-Id: <20191003154518.448745892@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,69 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 6af112b11a4bc1b560f60a618ac9c1dcefe9836e upstream.
+commit bab32fc069ce8829c416e8737c119f62a57970f9 upstream.
 
-When doing any form of incremental send the parent and the child trees
-need to be compared via btrfs_compare_trees. This  can result in long
-loop chains without ever relinquishing the CPU. This causes softlockup
-detector to trigger when comparing trees with a lot of items. Example
-report:
+[BUG]
+Under the following case with qgroup enabled, if some error happened
+after we have reserved delalloc space, then in error handling path, we
+could cause qgroup data space leakage:
 
-watchdog: BUG: soft lockup - CPU#0 stuck for 24s! [snapperd:16153]
-CPU: 0 PID: 16153 Comm: snapperd Not tainted 5.2.9-1-default #1 openSUSE Tumbleweed (unreleased)
-Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-pstate: 40000005 (nZcv daif -PAN -UAO)
-pc : __ll_sc_arch_atomic_sub_return+0x14/0x20
-lr : btrfs_release_extent_buffer_pages+0xe0/0x1e8 [btrfs]
-sp : ffff00001273b7e0
-Call trace:
- __ll_sc_arch_atomic_sub_return+0x14/0x20
- release_extent_buffer+0xdc/0x120 [btrfs]
- free_extent_buffer.part.0+0xb0/0x118 [btrfs]
- free_extent_buffer+0x24/0x30 [btrfs]
- btrfs_release_path+0x4c/0xa0 [btrfs]
- btrfs_free_path.part.0+0x20/0x40 [btrfs]
- btrfs_free_path+0x24/0x30 [btrfs]
- get_inode_info+0xa8/0xf8 [btrfs]
- finish_inode_if_needed+0xe0/0x6d8 [btrfs]
- changed_cb+0x9c/0x410 [btrfs]
- btrfs_compare_trees+0x284/0x648 [btrfs]
- send_subvol+0x33c/0x520 [btrfs]
- btrfs_ioctl_send+0x8a0/0xaf0 [btrfs]
- btrfs_ioctl+0x199c/0x2288 [btrfs]
- do_vfs_ioctl+0x4b0/0x820
- ksys_ioctl+0x84/0xb8
- __arm64_sys_ioctl+0x28/0x38
- el0_svc_common.constprop.0+0x7c/0x188
- el0_svc_handler+0x34/0x90
- el0_svc+0x8/0xc
+>From btrfs_truncate_block() in inode.c:
 
-Fix this by adding a call to cond_resched at the beginning of the main
-loop in btrfs_compare_trees.
+	ret = btrfs_delalloc_reserve_space(inode, &data_reserved,
+					   block_start, blocksize);
+	if (ret)
+		goto out;
 
-Fixes: 7069830a9e38 ("Btrfs: add btrfs_compare_trees function")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+ again:
+	page = find_or_create_page(mapping, index, mask);
+	if (!page) {
+		btrfs_delalloc_release_space(inode, data_reserved,
+					     block_start, blocksize, true);
+		btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, true);
+		ret = -ENOMEM;
+		goto out;
+	}
+
+[CAUSE]
+In the above case, btrfs_delalloc_reserve_space() will call
+btrfs_qgroup_reserve_data() and mark the io_tree range with
+EXTENT_QGROUP_RESERVED flag.
+
+In the error handling path, we have the following call stack:
+btrfs_delalloc_release_space()
+|- btrfs_free_reserved_data_space()
+   |- btrsf_qgroup_free_data()
+      |- __btrfs_qgroup_release_data(reserved=@reserved, free=1)
+         |- qgroup_free_reserved_data(reserved=@reserved)
+            |- clear_record_extent_bits();
+            |- freed += changeset.bytes_changed;
+
+However due to a completion bug, qgroup_free_reserved_data() will clear
+EXTENT_QGROUP_RESERVED flag in BTRFS_I(inode)->io_failure_tree, other
+than the correct BTRFS_I(inode)->io_tree.
+Since io_failure_tree is never marked with that flag,
+btrfs_qgroup_free_data() will not free any data reserved space at all,
+causing a leakage.
+
+This type of error handling can only be triggered by errors outside of
+qgroup code. So EDQUOT error from qgroup can't trigger it.
+
+[FIX]
+Fix the wrong target io_tree.
+
+Reported-by: Josef Bacik <josef@toxicpanda.com>
+Fixes: bc42bda22345 ("btrfs: qgroup: Fix qgroup reserved space underflow by only freeing reserved ranges")
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/qgroup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -5494,6 +5494,7 @@ int btrfs_compare_trees(struct btrfs_roo
- 	advance_left = advance_right = 0;
- 
- 	while (1) {
-+		cond_resched();
- 		if (advance_left && !left_end_reached) {
- 			ret = tree_advance(fs_info, left_path, &left_level,
- 					left_root_level,
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2951,7 +2951,7 @@ static int qgroup_free_reserved_data(str
+ 		 * EXTENT_QGROUP_RESERVED, we won't double free.
+ 		 * So not need to rush.
+ 		 */
+-		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_failure_tree,
++		ret = clear_record_extent_bits(&BTRFS_I(inode)->io_tree,
+ 				free_start, free_start + free_len - 1,
+ 				EXTENT_QGROUP_RESERVED, &changeset);
+ 		if (ret < 0)
 
 
