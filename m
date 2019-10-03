@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1389CA238
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8F86CA23E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:04:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730853AbfJCQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48222 "EHLO mail.kernel.org"
+        id S1731043AbfJCQDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:03:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732204AbfJCQDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:03:06 -0400
+        id S1732104AbfJCQDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:03:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1627E20700;
-        Thu,  3 Oct 2019 16:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CF0921A4C;
+        Thu,  3 Oct 2019 16:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118585;
-        bh=egiD3HlchjuA3kjYlfvJDgaix+zmh6+yq/vEbpt6MAg=;
+        s=default; t=1570118598;
+        bh=ZXx/rLq0nk9f0Ahs2K5n+bICEAILjbx/fuHqecPZgMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zurVI+qfln6ruCRbc8uXbScPi7Ez4ltjdPUaq30tmOi/Kfx93kbYcApicnqz6Zfd4
-         luDeN6Vs/GMREyExep8ZAtA7EYzk/uAO6EqNPWAMZ/7fIX/VY0HuHh5ZXhRu21Ow+/
-         FfGbQcI3tVqE7KNgOzGZuhaoa6oxtF3V2BSVGuKs=
+        b=c5cH7AZLg1kpcrYe2iL5fpKo4dmr0Pfmso3bjZk0u9mpQnZxPjjljFp4KlqV6dvEF
+         DWx0vr7P+u/lD52MVeMnX6WqY0s8zHinsj5WsesMGrU11t6+oANVrEJYozKD1AMVxY
+         s7I2fHsoDBDu+7aG190UWCw0cxXlqhu2x8o92PD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 063/129] media: omap3isp: Dont set streaming state on random subdevs
-Date:   Thu,  3 Oct 2019 17:53:06 +0200
-Message-Id: <20191003154347.645464548@linuxfoundation.org>
+Subject: [PATCH 4.9 068/129] media: dvb-core: fix a memory leak bug
+Date:   Thu,  3 Oct 2019 17:53:11 +0200
+Message-Id: <20191003154349.641487254@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -46,48 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 7ef57be07ac146e70535747797ef4aee0f06e9f9 ]
+[ Upstream commit fcd5ce4b3936242e6679875a4d3c3acfc8743e15 ]
 
-The streaming state should be set to the first upstream sub-device only,
-not everywhere, for a sub-device driver itself knows how to best control
-the streaming state of its own upstream sub-devices.
+In dvb_create_media_entity(), 'dvbdev->entity' is allocated through
+kzalloc(). Then, 'dvbdev->pads' is allocated through kcalloc(). However, if
+kcalloc() fails, the allocated 'dvbdev->entity' is not deallocated, leading
+to a memory leak bug. To fix this issue, free 'dvbdev->entity' before
+returning -ENOMEM.
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/omap3isp/isp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/dvb-core/dvbdev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/omap3isp/isp.c b/drivers/media/platform/omap3isp/isp.c
-index a21b12c5c0853..ce651d3ca1b82 100644
---- a/drivers/media/platform/omap3isp/isp.c
-+++ b/drivers/media/platform/omap3isp/isp.c
-@@ -726,6 +726,10 @@ static int isp_pipeline_enable(struct isp_pipeline *pipe,
- 					s_stream, mode);
- 			pipe->do_propagation = true;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
+diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
+index 75a3f4b57fd4f..a1cc1c1e53182 100644
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -314,8 +314,10 @@ static int dvb_create_media_entity(struct dvb_device *dvbdev,
+ 	if (npads) {
+ 		dvbdev->pads = kcalloc(npads, sizeof(*dvbdev->pads),
+ 				       GFP_KERNEL);
+-		if (!dvbdev->pads)
++		if (!dvbdev->pads) {
++			kfree(dvbdev->entity);
+ 			return -ENOMEM;
++		}
  	}
  
- 	return 0;
-@@ -840,6 +844,10 @@ static int isp_pipeline_disable(struct isp_pipeline *pipe)
- 						      &subdev->entity);
- 			failure = -ETIMEDOUT;
- 		}
-+
-+		/* Stop at the first external sub-device. */
-+		if (subdev->dev != isp->dev)
-+			break;
- 	}
- 
- 	return failure;
+ 	switch (type) {
 -- 
 2.20.1
 
