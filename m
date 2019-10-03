@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B32CA2AC
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D788CA2AF
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733029AbfJCQHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55898 "EHLO mail.kernel.org"
+        id S1731756AbfJCQIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:08:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733023AbfJCQHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:07:54 -0400
+        id S1733028AbfJCQH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:07:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75B12215EA;
-        Thu,  3 Oct 2019 16:07:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F36F207FF;
+        Thu,  3 Oct 2019 16:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118874;
-        bh=1OUUghvMNit7ATWMhWdyUNvrax21oyc5yD7XumTD/D4=;
+        s=default; t=1570118876;
+        bh=rK2Pf0xervn4YMl5Tev4jcEGHBlJ/S3B9WfVo1Gkftw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZ7l1xtb029s3uOchxUA53F9IGdl6og0GwZCmacCHf7R9XvZ3kKUnxZMUbBBNcVvV
-         iIl9+MUg8Ytp5EJLfOlLJSoaiVCxDgeGw638QjG1t0DS+oNZyNGIjPRrwB1kJuSoIi
-         8IiwYjr5ULToWNH0X/xZrAbr707PP2aRbZv/asPs=
+        b=jl6A3NiXbwWTBqMczvP/3qdLXM6Z/J+Ill4OdAntyODhlAcIdU4Dbje2PoHqjhfbj
+         tMmUQxms29Q/X6C4uj5nEgpOaABXbtfNNME0kYbB9DxskHkz57IRGoTOq//ghXTek6
+         JKXtlSBLUcO30jPG5xFcnS44LuCf7j6+Rf8/O+G4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Jiri Kosina <jkosina@suse.cz>,
-        syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 005/185] HID: prodikeys: Fix general protection fault during probe
-Date:   Thu,  3 Oct 2019 17:51:23 +0200
-Message-Id: <20191003154438.538516442@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 006/185] HID: sony: Fix memory corruption issue on cleanup.
+Date:   Thu,  3 Oct 2019 17:51:24 +0200
+Message-Id: <20191003154438.695963429@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,76 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-commit 98375b86c79137416e9fd354177b85e768c16e56 upstream.
+commit 2bcdacb70327013ca2066bfcf2af1009eff01f1d upstream.
 
-The syzbot fuzzer provoked a general protection fault in the
-hid-prodikeys driver:
+The sony driver is not properly cleaning up from potential failures in
+sony_input_configured. Currently it calls hid_hw_stop, while hid_connect
+is still running. This is not a good idea, instead hid_hw_stop should
+be moved to sony_probe. Similar changes were recently made to Logitech
+drivers, which were also doing improper cleanup.
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN
-CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.3.0-rc5+ #28
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:pcmidi_submit_output_report drivers/hid/hid-prodikeys.c:300  [inline]
-RIP: 0010:pcmidi_set_operational drivers/hid/hid-prodikeys.c:558 [inline]
-RIP: 0010:pcmidi_snd_initialise drivers/hid/hid-prodikeys.c:686 [inline]
-RIP: 0010:pk_probe+0xb51/0xfd0 drivers/hid/hid-prodikeys.c:836
-Code: 0f 85 50 04 00 00 48 8b 04 24 4c 89 7d 10 48 8b 58 08 e8 b2 53 e4 fc
-48 8b 54 24 20 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f
-85 13 04 00 00 48 ba 00 00 00 00 00 fc ff df 49 8b
-
-The problem is caused by the fact that pcmidi_get_output_report() will
-return an error if the HID device doesn't provide the right sort of
-output report, but pcmidi_set_operational() doesn't bother to check
-the return code and assumes the function call always succeeds.
-
-This patch adds the missing check and aborts the probe operation if
-necessary.
-
-Reported-and-tested-by: syzbot+1088533649dafa1c9004@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: <stable@vger.kernel.org>
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-prodikeys.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hid/hid-sony.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -556,10 +556,14 @@ static void pcmidi_setup_extra_keys(
- 
- static int pcmidi_set_operational(struct pcmidi_snd *pm)
- {
-+	int rc;
-+
- 	if (pm->ifnum != 1)
- 		return 0; /* only set up ONCE for interace 1 */
- 
--	pcmidi_get_output_report(pm);
-+	rc = pcmidi_get_output_report(pm);
-+	if (rc < 0)
-+		return rc;
- 	pcmidi_submit_output_report(pm, 0xc1);
- 	return 0;
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2710,7 +2710,6 @@ err_stop:
+ 	kfree(sc->output_report_dmabuf);
+ 	sony_remove_dev_list(sc);
+ 	sony_release_device_id(sc);
+-	hid_hw_stop(hdev);
+ 	return ret;
  }
-@@ -688,7 +692,11 @@ static int pcmidi_snd_initialise(struct
- 	spin_lock_init(&pm->rawmidi_in_lock);
  
- 	init_sustain_timers(pm);
--	pcmidi_set_operational(pm);
-+	err = pcmidi_set_operational(pm);
-+	if (err < 0) {
-+		pk_error("failed to find output report\n");
-+		goto fail_register;
-+	}
+@@ -2772,6 +2771,7 @@ static int sony_probe(struct hid_device
+ 	 */
+ 	if (!(hdev->claimed & HID_CLAIMED_INPUT)) {
+ 		hid_err(hdev, "failed to claim input\n");
++		hid_hw_stop(hdev);
+ 		return -ENODEV;
+ 	}
  
- 	/* register it */
- 	err = snd_card_register(card);
 
 
