@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7211BCAA19
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B87DCA9C4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389441AbfJCQTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46282 "EHLO mail.kernel.org"
+        id S2405185AbfJCQrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:47:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389491AbfJCQTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:19:18 -0400
+        id S2405194AbfJCQrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:47:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 371BD21783;
-        Thu,  3 Oct 2019 16:19:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C06592086A;
+        Thu,  3 Oct 2019 16:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119558;
-        bh=T+aCyAiEDOzNUK91tdmqUu+c6rJ8cwy/8kf1dw1hA2g=;
+        s=default; t=1570121251;
+        bh=vNmoFFEBAwmRbkNPotkq14fYmjwQEJC6ATGtg3SyS7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CuTbhTTuoxiVBR3sgm05gDzZt6wEzpVKty55HqEZ9b1jAVfd5wCKxY5S5Yc65ikxi
-         y9RT4O7+E7/eFMaxTdZeNzyI0Zmh5nP/HiWi2ALqWMH5Weqgr88fGQ5KYK8+VlAEeT
-         CTjPcBeUz+1kM2lOSdatde9t9NI/ftUQlcaZbsVI=
+        b=bh+AWL6oVOBx5S/xsF3ltWV4pJWla4yL6FQIP6TwYjfUEynUvr70rGUHPrt2v/FTk
+         dMIbipsQ3EuK//f0GBqvn8a5Qrw/fUvns6ZZ6ocrsJAby7S5wKbK2R5aNaK26lMMZO
+         e+kP5NbxerbIQo2VuLHqPMaloNbpa3pJ8Fio0ows=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, djuran@redhat.com,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/211] x86/apic/vector: Warn when vector space exhaustion breaks affinity
-Date:   Thu,  3 Oct 2019 17:52:54 +0200
-Message-Id: <20191003154511.950306304@linuxfoundation.org>
+Subject: [PATCH 5.3 210/344] raid5: dont set STRIPE_HANDLE to stripe which is in batch list
+Date:   Thu,  3 Oct 2019 17:52:55 +0200
+Message-Id: <20191003154601.005425530@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
-References: <20191003154447.010950442@linuxfoundation.org>
+In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
+References: <20191003154540.062170222@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 743dac494d61d991967ebcfab92e4f80dc7583b3 ]
+[ Upstream commit 6ce220dd2f8ea71d6afc29b9a7524c12e39f374a ]
 
-On x86, CPUs are limited in the number of interrupts they can have affined
-to them as they only support 256 interrupt vectors per CPU. 32 vectors are
-reserved for the CPU and the kernel reserves another 22 for internal
-purposes. That leaves 202 vectors for assignement to devices.
+If stripe in batch list is set with STRIPE_HANDLE flag, then the stripe
+could be set with STRIPE_ACTIVE by the handle_stripe function. And if
+error happens to the batch_head at the same time, break_stripe_batch_list
+is called, then below warning could happen (the same report in [1]), it
+means a member of batch list was set with STRIPE_ACTIVE.
 
-When an interrupt is set up or the affinity is changed by the kernel or the
-administrator, the vector assignment code attempts to honor the requested
-affinity mask. If the vector space on the CPUs in that affinity mask is
-exhausted the code falls back to a wider set of CPUs and assigns a vector
-on a CPU outside of the requested affinity mask silently.
+[7028915.431770] stripe state: 2001
+[7028915.431815] ------------[ cut here ]------------
+[7028915.431828] WARNING: CPU: 18 PID: 29089 at drivers/md/raid5.c:4614 break_stripe_batch_list+0x203/0x240 [raid456]
+[...]
+[7028915.431879] CPU: 18 PID: 29089 Comm: kworker/u82:5 Tainted: G           O    4.14.86-1-storage #4.14.86-1.2~deb9
+[7028915.431881] Hardware name: Supermicro SSG-2028R-ACR24L/X10DRH-iT, BIOS 3.1 06/18/2018
+[7028915.431888] Workqueue: raid5wq raid5_do_work [raid456]
+[7028915.431890] task: ffff9ab0ef36d7c0 task.stack: ffffb72926f84000
+[7028915.431896] RIP: 0010:break_stripe_batch_list+0x203/0x240 [raid456]
+[7028915.431898] RSP: 0018:ffffb72926f87ba8 EFLAGS: 00010286
+[7028915.431900] RAX: 0000000000000012 RBX: ffff9aaa84a98000 RCX: 0000000000000000
+[7028915.431901] RDX: 0000000000000000 RSI: ffff9ab2bfa15458 RDI: ffff9ab2bfa15458
+[7028915.431902] RBP: ffff9aaa8fb4e900 R08: 0000000000000001 R09: 0000000000002eb4
+[7028915.431903] R10: 00000000ffffffff R11: 0000000000000000 R12: ffff9ab1736f1b00
+[7028915.431904] R13: 0000000000000000 R14: ffff9aaa8fb4e900 R15: 0000000000000001
+[7028915.431906] FS:  0000000000000000(0000) GS:ffff9ab2bfa00000(0000) knlGS:0000000000000000
+[7028915.431907] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[7028915.431908] CR2: 00007ff953b9f5d8 CR3: 0000000bf4009002 CR4: 00000000003606e0
+[7028915.431909] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[7028915.431910] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[7028915.431910] Call Trace:
+[7028915.431923]  handle_stripe+0x8e7/0x2020 [raid456]
+[7028915.431930]  ? __wake_up_common_lock+0x89/0xc0
+[7028915.431935]  handle_active_stripes.isra.58+0x35f/0x560 [raid456]
+[7028915.431939]  raid5_do_work+0xc6/0x1f0 [raid456]
 
-While the effective affinity is reflected in the corresponding
-/proc/irq/$N/effective_affinity* files the silent breakage of the requested
-affinity can lead to unexpected behaviour for administrators.
+Also commit 59fc630b8b5f9f ("RAID5: batch adjacent full stripe write")
+said "If a stripe is added to batch list, then only the first stripe
+of the list should be put to handle_list and run handle_stripe."
 
-Add a pr_warn() when this happens so that adminstrators get at least
-informed about it in the syslog.
+So don't set STRIPE_HANDLE to stripe which is already in batch list,
+otherwise the stripe could be put to handle_list and run handle_stripe,
+then the above warning could be triggered.
 
-[ tglx: Massaged changelog and made the pr_warn() more informative ]
+[1]. https://www.spinics.net/lists/raid/msg62552.html
 
-Reported-by: djuran@redhat.com
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: djuran@redhat.com
-Link: https://lkml.kernel.org/r/20190822143421.9535-1-nhorman@tuxdriver.com
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/vector.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/md/raid5.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index 10e1d17aa0608..c352ca2e1456f 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -400,6 +400,17 @@ static int activate_reserved(struct irq_data *irqd)
- 		if (!irqd_can_reserve(irqd))
- 			apicd->can_reserve = false;
- 	}
-+
-+	/*
-+	 * Check to ensure that the effective affinity mask is a subset
-+	 * the user supplied affinity mask, and warn the user if it is not
-+	 */
-+	if (!cpumask_subset(irq_data_get_effective_affinity_mask(irqd),
-+			    irq_data_get_affinity_mask(irqd))) {
-+		pr_warn("irq %u: Affinity broken due to vector space exhaustion.\n",
-+			irqd->irq);
-+	}
-+
- 	return ret;
- }
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 3de4e13bde984..21514edb2bea3 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -5718,7 +5718,8 @@ static bool raid5_make_request(struct mddev *mddev, struct bio * bi)
+ 				do_flush = false;
+ 			}
  
+-			set_bit(STRIPE_HANDLE, &sh->state);
++			if (!sh->batch_head)
++				set_bit(STRIPE_HANDLE, &sh->state);
+ 			clear_bit(STRIPE_DELAYED, &sh->state);
+ 			if ((!sh->batch_head || sh == sh->batch_head) &&
+ 			    (bi->bi_opf & REQ_SYNC) &&
 -- 
 2.20.1
 
