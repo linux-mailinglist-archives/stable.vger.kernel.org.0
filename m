@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34D90CA6F2
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB150CA6D9
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:56:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405783AbfJCQs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
+        id S2405360AbfJCQsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:48:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405642AbfJCQsC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:48:02 -0400
+        id S1730393AbfJCQsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:48:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64C062070B;
-        Thu,  3 Oct 2019 16:48:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D95320865;
+        Thu,  3 Oct 2019 16:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121280;
-        bh=gDoMJ/kb/DKmiZLAj1iPf+wvICmVlOUmxNJiEv9/iT8=;
+        s=default; t=1570121283;
+        bh=bKfn+btWwWWiPbw7VyR5q/2ZiI1dAcsXHfdj2EDnlZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiU/jD7Yij8b4/TLqnFkq4kWi3vd6xiF6X8MtZ6L74rotjv10s1BabXhodCmUAXVj
-         /TB4Kcx/84MmO8nOQQkuLOCfDhQozNnH+gFoM5FPWSPbjVyZojM5W1sy3TOv6gJEF1
-         ZPGz3g380uW9/A653NUVDe7/C38Qz0EH+Pht54q4=
+        b=aObsFV5A0Aunf2OClugzTYkyhcQpeD7s2aJagntAtOkKUfHlASUuUL3qGbSlg5Z5J
+         9EL92vW7AXzT1AL6xG7Jbe3pBk+B+m+adDjw05Rp+eLnfW8qVrpBO08Yau20JQRW9g
+         8kv4wEcEOCTV30LjYNcDxxp/Q9Zlmrl/f4xgDNe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick McLean <chutzpah@gentoo.org>,
-        Tzvetomir Stoyanov <tstoyanov@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-trace-devel@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
+        Rob Herring <robh@kernel.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 185/344] libtraceevent: Change users plugin directory
-Date:   Thu,  3 Oct 2019 17:52:30 +0200
-Message-Id: <20191003154558.469963340@linuxfoundation.org>
+Subject: [PATCH 5.3 186/344] ASoC: dt-bindings: sun4i-spdif: Fix dma-names warning
+Date:   Thu,  3 Oct 2019 17:52:31 +0200
+Message-Id: <20191003154558.559128603@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -50,68 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzvetomir Stoyanov <tstoyanov@vmware.com>
+From: Maxime Ripard <maxime.ripard@bootlin.com>
 
-[ Upstream commit e97fd1383cd77c467d2aed7fa4e596789df83977 ]
+[ Upstream commit 1a8e7cdfa4f5872bf0c202d09bff6628aba6b9f6 ]
 
-To be compliant with XDG user directory layout, the user's plugin
-directory is changed from ~/.traceevent/plugins to
-~/.local/lib/traceevent/plugins/
+Even though the H6 compatible has been properly added, the exeption for the
+number of DMA channels hasn't been updated, leading in a validation
+warning.
 
-Suggested-by: Patrick McLean <chutzpah@gentoo.org>
-Signed-off-by: Tzvetomir Stoyanov <tstoyanov@vmware.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Patrick McLean <chutzpah@gentoo.org>
-Cc: linux-trace-devel@vger.kernel.org
-Link: https://lore.kernel.org/linux-trace-devel/20190313144206.41e75cf8@patrickm/
-Link: http://lore.kernel.org/linux-trace-devel/20190801074959.22023-4-tz.stoyanov@gmail.com
-Link: http://lore.kernel.org/lkml/20190805204355.344622683@goodmis.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fix this.
+
+Fixes: b20453031472 ("dt-bindings: sound: sun4i-spdif: Add Allwinner H6 compatible")
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Link: https://lore.kernel.org/r/20190828125209.28173-1-mripard@kernel.org
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/traceevent/Makefile       | 6 +++---
- tools/lib/traceevent/event-plugin.c | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ .../devicetree/bindings/sound/allwinner,sun4i-a10-spdif.yaml  | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/traceevent/Makefile b/tools/lib/traceevent/Makefile
-index 3292c290654f6..86ce17a1f7fb6 100644
---- a/tools/lib/traceevent/Makefile
-+++ b/tools/lib/traceevent/Makefile
-@@ -62,15 +62,15 @@ set_plugin_dir := 1
+diff --git a/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-spdif.yaml b/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-spdif.yaml
+index e0284d8c3b636..38d4cede0860d 100644
+--- a/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-spdif.yaml
++++ b/Documentation/devicetree/bindings/sound/allwinner,sun4i-a10-spdif.yaml
+@@ -70,7 +70,9 @@ allOf:
+       properties:
+         compatible:
+           contains:
+-            const: allwinner,sun8i-h3-spdif
++            enum:
++              - allwinner,sun8i-h3-spdif
++              - allwinner,sun50i-h6-spdif
  
- # Set plugin_dir to preffered global plugin location
- # If we install under $HOME directory we go under
--# $(HOME)/.traceevent/plugins
-+# $(HOME)/.local/lib/traceevent/plugins
- #
- # We dont set PLUGIN_DIR in case we install under $HOME
- # directory, because by default the code looks under:
--# $(HOME)/.traceevent/plugins by default.
-+# $(HOME)/.local/lib/traceevent/plugins by default.
- #
- ifeq ($(plugin_dir),)
- ifeq ($(prefix),$(HOME))
--override plugin_dir = $(HOME)/.traceevent/plugins
-+override plugin_dir = $(HOME)/.local/lib/traceevent/plugins
- set_plugin_dir := 0
- else
- override plugin_dir = $(libdir)/traceevent/plugins
-diff --git a/tools/lib/traceevent/event-plugin.c b/tools/lib/traceevent/event-plugin.c
-index 8ca28de9337a5..e1f7ddd5a6cf0 100644
---- a/tools/lib/traceevent/event-plugin.c
-+++ b/tools/lib/traceevent/event-plugin.c
-@@ -18,7 +18,7 @@
- #include "event-utils.h"
- #include "trace-seq.h"
- 
--#define LOCAL_PLUGIN_DIR ".traceevent/plugins"
-+#define LOCAL_PLUGIN_DIR ".local/lib/traceevent/plugins/"
- 
- static struct registered_plugin_options {
- 	struct registered_plugin_options	*next;
+     then:
+       properties:
 -- 
 2.20.1
 
