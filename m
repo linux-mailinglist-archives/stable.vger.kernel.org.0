@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F88CA940
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD1BCA92B
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404843AbfJCQje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:39:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
+        id S2392152AbfJCQib (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:38:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404349AbfJCQjc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:39:32 -0400
+        id S2389681AbfJCQia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D71802070B;
-        Thu,  3 Oct 2019 16:39:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D99AD20830;
+        Thu,  3 Oct 2019 16:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120772;
-        bh=AW86f9tuNuQ3Cckl92NcJjBerWskZPFWFXKAJraaCrA=;
+        s=default; t=1570120710;
+        bh=mg/lXnaKl1n2LEuLDz3EK4eUsnnzZrYumsSwGKfrScA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uU/Xa3pnYXjO/ILDncDNt5Ga3xngk6VsUczTQgVg7pFYV593Bcja7bOkKxhmIBkG9
-         zC+1jUxKFDi3ADBfLD3aojD1ByZNGcgMvuRwi3gyktEZvpVY/wyFVmbptlp97UUOl+
-         jks4JKyZoNOVvXzmVdh/NY3nUfACwMiNEWOEvgdQ=
+        b=N5/w8GFXWJJwFyvL8LM6pfh3gDE1pbwTsNhgjK9om5jYoT2nksWFu5dXTDNK9oBLg
+         ZOt/nG5gljfYQ8/vmnv07VILdQuqciCNmTIXssWNbZD4I1G/ARC4sUyvy93lSMBAzK
+         T0I/WLNKe5/bsr9ejNEMVD3gxDXv0oN4IMzBZiPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 009/344] net: stmmac: Fix page pool size
-Date:   Thu,  3 Oct 2019 17:49:34 +0200
-Message-Id: <20191003154541.001833168@linuxfoundation.org>
+Subject: [PATCH 5.3 010/344] nfp: flower: fix memory leak in nfp_flower_spawn_vnic_reprs
+Date:   Thu,  3 Oct 2019 17:49:35 +0200
+Message-Id: <20191003154541.106436730@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -43,45 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 4f28bd956e081fc018fe9b41ffa31573f17bfb61 ]
+[ Upstream commit 8ce39eb5a67aee25d9f05b40b673c95b23502e3e ]
 
-The size of individual pages in the page pool in given by an order. The
-order is the binary logarithm of the number of pages that make up one of
-the pages in the pool. However, the driver currently passes the number
-of pages rather than the order, so it ends up wasting quite a bit of
-memory.
+In nfp_flower_spawn_vnic_reprs in the loop if initialization or the
+allocations fail memory is leaked. Appropriate releases are added.
 
-Fix this by taking the binary logarithm and passing that in the order
-field.
-
-Fixes: 2af6106ae949 ("net: stmmac: Introducing support for Page Pool")
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Fixes: b94524529741 ("nfp: flower: add per repr private data for LAG offload")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Acked-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/flower/main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1532,13 +1532,15 @@ static int alloc_dma_rx_desc_resources(s
- 	for (queue = 0; queue < rx_count; queue++) {
- 		struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
- 		struct page_pool_params pp_params = { 0 };
-+		unsigned int num_pages;
+--- a/drivers/net/ethernet/netronome/nfp/flower/main.c
++++ b/drivers/net/ethernet/netronome/nfp/flower/main.c
+@@ -400,6 +400,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_a
+ 		repr_priv = kzalloc(sizeof(*repr_priv), GFP_KERNEL);
+ 		if (!repr_priv) {
+ 			err = -ENOMEM;
++			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+ 		}
  
- 		rx_q->queue_index = queue;
- 		rx_q->priv_data = priv;
- 
- 		pp_params.flags = PP_FLAG_DMA_MAP;
- 		pp_params.pool_size = DMA_RX_SIZE;
--		pp_params.order = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
-+		num_pages = DIV_ROUND_UP(priv->dma_buf_sz, PAGE_SIZE);
-+		pp_params.order = ilog2(num_pages);
- 		pp_params.nid = dev_to_node(priv->device);
- 		pp_params.dev = priv->device;
- 		pp_params.dma_dir = DMA_FROM_DEVICE;
+@@ -413,6 +414,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_a
+ 		port = nfp_port_alloc(app, port_type, repr);
+ 		if (IS_ERR(port)) {
+ 			err = PTR_ERR(port);
++			kfree(repr_priv);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
+ 		}
+@@ -433,6 +435,7 @@ nfp_flower_spawn_vnic_reprs(struct nfp_a
+ 		err = nfp_repr_init(app, repr,
+ 				    port_id, port, priv->nn->dp.netdev);
+ 		if (err) {
++			kfree(repr_priv);
+ 			nfp_port_free(port);
+ 			nfp_repr_free(repr);
+ 			goto err_reprs_clean;
 
 
