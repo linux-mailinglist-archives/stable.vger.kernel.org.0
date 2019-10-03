@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AC9CCA7C1
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E01A0CA7C0
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404890AbfJCQu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
+        id S2405948AbfJCQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393110AbfJCQu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:50:57 -0400
+        id S2405146AbfJCQu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:50:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8C32054F;
-        Thu,  3 Oct 2019 16:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 939B820865;
+        Thu,  3 Oct 2019 16:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121456;
-        bh=+UCKaZfYue33VfG5BDJ5CZdVt/o9tLhbPDHE2Ou/7zY=;
+        s=default; t=1570121459;
+        bh=nXQIQUChDQTJepmXhuT4OoVw16fDzfRJkyUABc3APIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UXsLDNFx+MckIkNBFCAiXA12fjEbocE+49Uilh1pb/vgreG/KhuQPYLK8REsjbSbh
-         Im7jXhiMFd0mYvDb70DYtsPeohvuwX9ISYyjk3phGgEwIBruY4shEUVg3nfTlSHjap
-         2URVW6vght6ryV+XZf2XLvY692BgCnovawXeb9Dk=
+        b=txNQnknvRXHd2IBjLif/cvIggVGWZN3vEU9DjF0fXDkrOMkpWZv/OTGtEFkCgCMSq
+         m934wYGylGUZCfvaJw8Qu90g39+QdHmI1uapa40GEHpLLsRRWkIT13Rk1J5K5LuxML
+         d+Z5Lfv5dZwM0w0IintsJWeQIpPZ4LUuZvG8bJjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.3 285/344] alarmtimer: Use EOPNOTSUPP instead of ENOTSUPP
-Date:   Thu,  3 Oct 2019 17:54:10 +0200
-Message-Id: <20191003154607.979058870@linuxfoundation.org>
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Joerg Roedel <joro@8bytes.org>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Nadav Amit <namit@vmware.com>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.3 286/344] iommu/vt-d: Fix wrong analysis whether devices share the same bus
+Date:   Thu,  3 Oct 2019 17:54:11 +0200
+Message-Id: <20191003154608.066370067@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,49 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit f18ddc13af981ce3c7b7f26925f099e7c6929aba upstream.
+commit 2c70010867f164d1b30e787e360e05d10cc40046 upstream.
 
-ENOTSUPP is not supposed to be returned to userspace. This was found on an
-OpenPower machine, where the RTC does not support set_alarm.
+set_msi_sid_cb() is used to determine whether device aliases share the
+same bus, but it can provide false indications that aliases use the same
+bus when in fact they do not. The reason is that set_msi_sid_cb()
+assumes that pdev is fixed, while actually pci_for_each_dma_alias() can
+call fn() when pdev is set to a subordinate device.
 
-On that system, a clock_nanosleep(CLOCK_REALTIME_ALARM, ...) results in
-"524 Unknown error 524"
+As a result, running an VM on ESX with VT-d emulation enabled can
+results in the log warning such as:
 
-Replace it with EOPNOTSUPP which results in the expected "95 Operation not
-supported" error.
+  DMAR: [INTR-REMAP] Request device [00:11.0] fault index 3b [fault reason 38] Blocked an interrupt request due to source-id verification failure
 
-Fixes: 1c6b39ad3f01 (alarmtimers: Return -ENOTSUPP if no RTC device is present)
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+This seems to cause additional ata errors such as:
+  ata3.00: qc timeout (cmd 0xa1)
+  ata3.00: failed to IDENTIFY (I/O error, err_mask=0x4)
+
+These timeouts also cause boot to be much longer and other errors.
+
+Fix it by checking comparing the alias with the previous one instead.
+
+Fixes: 3f0c625c6ae71 ("iommu/vt-d: Allow interrupts from the entire bus for aliased devices")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190903171802.28314-1-cascardo@canonical.com
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/alarmtimer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/intel_irq_remapping.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -672,7 +672,7 @@ static int alarm_timer_create(struct k_i
- 	enum  alarmtimer_type type;
+--- a/drivers/iommu/intel_irq_remapping.c
++++ b/drivers/iommu/intel_irq_remapping.c
+@@ -376,13 +376,13 @@ static int set_msi_sid_cb(struct pci_dev
+ {
+ 	struct set_msi_sid_data *data = opaque;
  
- 	if (!alarmtimer_get_rtcdev())
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
++	if (data->count == 0 || PCI_BUS_NUM(alias) == PCI_BUS_NUM(data->alias))
++		data->busmatch_count++;
++
+ 	data->pdev = pdev;
+ 	data->alias = alias;
+ 	data->count++;
  
- 	if (!capable(CAP_WAKE_ALARM))
- 		return -EPERM;
-@@ -790,7 +790,7 @@ static int alarm_timer_nsleep(const cloc
- 	int ret = 0;
+-	if (PCI_BUS_NUM(alias) == pdev->bus->number)
+-		data->busmatch_count++;
+-
+ 	return 0;
+ }
  
- 	if (!alarmtimer_get_rtcdev())
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 
- 	if (flags & ~TIMER_ABSTIME)
- 		return -EINVAL;
 
 
