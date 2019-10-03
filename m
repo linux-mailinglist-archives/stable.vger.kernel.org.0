@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1899ACA8C2
+	by mail.lfdr.de (Postfix) with ESMTP id 8744ACA8C3
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391915AbfJCQcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39948 "EHLO mail.kernel.org"
+        id S2391943AbfJCQcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390436AbfJCQcZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:32:25 -0400
+        id S2391939AbfJCQcd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:32:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50E8A2070B;
-        Thu,  3 Oct 2019 16:32:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 642632070B;
+        Thu,  3 Oct 2019 16:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120343;
-        bh=HlgQtIyPanrqp3NrtSIRncC6kR3bDwrU5TfjDjtS9bI=;
+        s=default; t=1570120351;
+        bh=fP7mtkBeozDd3ru7q/dWJl8QsplEw+feOxj/O/dCgDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvgttceQuZhTqijSY0H3BY1d8DTRuJVYbAsWzgUiCfjUK1TsjDgzgbNvUrgm1rPBR
-         mHkT8vWBSU98aJULENatAm7qv2KcJiUBPZBmzOtzCN+HgLU6xErWi4QtvIFmm+vSc0
-         bhZyTyT46SOEWNrJC72eWw8nZ4oQvYjySput5d0Q=
+        b=yfdRg5Ui+Ww+HB2GCKVPd8+n/lJL7IN2s5TeiVIC/kPHR8zRIcWGuvHWwgfCyEpon
+         QJkZOIxO/wKvBTPsTJKEyIXAm4wB4uKQlkVoYeYayQgn2F90UQSgkTnD3sVuWvbOYQ
+         evsLOMB2/6caTdkODXlBdLU13DtbY/DmSqj7sOBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Hou Tao <houtao1@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 187/313] block: make rq sector size accessible for block stats
-Date:   Thu,  3 Oct 2019 17:52:45 +0200
-Message-Id: <20191003154551.403130600@linuxfoundation.org>
+Subject: [PATCH 5.2 189/313] mmc: core: Clarify sdio_irq_pending flag for MMC_CAP2_SDIO_IRQ_NOTHREAD
+Date:   Thu,  3 Oct 2019 17:52:47 +0200
+Message-Id: <20191003154551.610578633@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -44,125 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 3d24430694077313c75c6b89f618db09943621e4 ]
+[ Upstream commit 36d57efb4af534dd6b442ea0b9a04aa6dfa37abe ]
 
-Currently rq->data_len will be decreased by partial completion or
-zeroed by completion, so when blk_stat_add() is invoked, data_len
-will be zero and there will never be samples in poll_cb because
-blk_mq_poll_stats_bkt() will return -1 if data_len is zero.
+The sdio_irq_pending flag is used to let host drivers indicate that it has
+signaled an IRQ. If that is the case and we only have a single SDIO func
+that have claimed an SDIO IRQ, our assumption is that we can avoid reading
+the SDIO_CCCR_INTx register and just call the SDIO func irq handler
+immediately. This makes sense, but the flag is set/cleared in a somewhat
+messy order, let's fix that up according to below.
 
-We could move blk_stat_add() back to __blk_mq_complete_request(),
-but that would make the effort of trying to call ktime_get_ns()
-once in vain. Instead we can reuse throtl_size field, and use
-it for both block stats and block throttle, and adjust the
-logic in blk_mq_poll_stats_bkt() accordingly.
+First, the flag is currently set in sdio_run_irqs(), which is executed as a
+work that was scheduled from sdio_signal_irq(). To make it more implicit
+that the host have signaled an IRQ, let's instead immediately set the flag
+in sdio_signal_irq(). This also makes the behavior consistent with host
+drivers that uses the legacy, mmc_signal_sdio_irq() API. This have no
+functional impact, because we don't expect host drivers to call
+sdio_signal_irq() until after the work (sdio_run_irqs()) have been executed
+anyways.
 
-Fixes: 4bc6339a583c ("block: move blk_stat_add() to __blk_mq_end_request()")
-Tested-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Second, currently we never clears the flag when using the sdio_run_irqs()
+work, but only when using the sdio_irq_thread(). Let make the behavior
+consistent, by moving the flag to be cleared inside the common
+process_sdio_pending_irqs() function. Additionally, tweak the behavior of
+the flag slightly, by avoiding to clear it unless we processed the SDIO
+IRQ. The purpose with this at this point, is to keep the information about
+whether there have been an SDIO IRQ signaled by the host, so at system
+resume we can decide to process it without reading the SDIO_CCCR_INTx
+register.
+
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c         | 11 +++++------
- block/blk-throttle.c   |  3 ++-
- include/linux/blkdev.h | 15 ++++++++++++---
- 3 files changed, 19 insertions(+), 10 deletions(-)
+ drivers/mmc/core/sdio_irq.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index f934e8afe5b43..af93ca28ce4f0 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -44,12 +44,12 @@ static void blk_mq_poll_stats_fn(struct blk_stat_callback *cb);
- 
- static int blk_mq_poll_stats_bkt(const struct request *rq)
+diff --git a/drivers/mmc/core/sdio_irq.c b/drivers/mmc/core/sdio_irq.c
+index 9f54a259a1b36..e4823ef0a0de9 100644
+--- a/drivers/mmc/core/sdio_irq.c
++++ b/drivers/mmc/core/sdio_irq.c
+@@ -31,6 +31,7 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
  {
--	int ddir, bytes, bucket;
-+	int ddir, sectors, bucket;
+ 	struct mmc_card *card = host->card;
+ 	int i, ret, count;
++	bool sdio_irq_pending = host->sdio_irq_pending;
+ 	unsigned char pending;
+ 	struct sdio_func *func;
  
- 	ddir = rq_data_dir(rq);
--	bytes = blk_rq_bytes(rq);
-+	sectors = blk_rq_stats_sectors(rq);
+@@ -38,13 +39,16 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
+ 	if (mmc_card_suspended(card))
+ 		return 0;
  
--	bucket = ddir + 2*(ilog2(bytes) - 9);
-+	bucket = ddir + 2 * ilog2(sectors);
- 
- 	if (bucket < 0)
- 		return -1;
-@@ -330,6 +330,7 @@ static struct request *blk_mq_rq_ctx_init(struct blk_mq_alloc_data *data,
- 	else
- 		rq->start_time_ns = 0;
- 	rq->io_start_time_ns = 0;
-+	rq->stats_sectors = 0;
- 	rq->nr_phys_segments = 0;
- #if defined(CONFIG_BLK_DEV_INTEGRITY)
- 	rq->nr_integrity_segments = 0;
-@@ -679,9 +680,7 @@ void blk_mq_start_request(struct request *rq)
- 
- 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
- 		rq->io_start_time_ns = ktime_get_ns();
--#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
--		rq->throtl_size = blk_rq_sectors(rq);
--#endif
-+		rq->stats_sectors = blk_rq_sectors(rq);
- 		rq->rq_flags |= RQF_STATS;
- 		rq_qos_issue(q, rq);
- 	}
-diff --git a/block/blk-throttle.c b/block/blk-throttle.c
-index 8ab6c81532236..ee74bffe3504d 100644
---- a/block/blk-throttle.c
-+++ b/block/blk-throttle.c
-@@ -2246,7 +2246,8 @@ void blk_throtl_stat_add(struct request *rq, u64 time_ns)
- 	struct request_queue *q = rq->q;
- 	struct throtl_data *td = q->td;
- 
--	throtl_track_latency(td, rq->throtl_size, req_op(rq), time_ns >> 10);
-+	throtl_track_latency(td, blk_rq_stats_sectors(rq), req_op(rq),
-+			     time_ns >> 10);
- }
- 
- void blk_throtl_bio_endio(struct bio *bio)
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 93baef66b9424..4c6754e536725 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -202,9 +202,12 @@ struct request {
- #ifdef CONFIG_BLK_WBT
- 	unsigned short wbt_flags;
- #endif
--#ifdef CONFIG_BLK_DEV_THROTTLING_LOW
--	unsigned short throtl_size;
--#endif
-+	/*
-+	 * rq sectors used for blk stats. It has the same value
-+	 * with blk_rq_sectors(rq), except that it never be zeroed
-+	 * by completion.
-+	 */
-+	unsigned short stats_sectors;
- 
- 	/*
- 	 * Number of scatter-gather DMA addr+len pairs after
-@@ -902,6 +905,7 @@ static inline struct request_queue *bdev_get_queue(struct block_device *bdev)
-  * blk_rq_err_bytes()		: bytes left till the next error boundary
-  * blk_rq_sectors()		: sectors left in the entire request
-  * blk_rq_cur_sectors()		: sectors left in the current segment
-+ * blk_rq_stats_sectors()	: sectors of the entire request used for stats
-  */
- static inline sector_t blk_rq_pos(const struct request *rq)
- {
-@@ -930,6 +934,11 @@ static inline unsigned int blk_rq_cur_sectors(const struct request *rq)
- 	return blk_rq_cur_bytes(rq) >> SECTOR_SHIFT;
- }
- 
-+static inline unsigned int blk_rq_stats_sectors(const struct request *rq)
-+{
-+	return rq->stats_sectors;
-+}
++	/* Clear the flag to indicate that we have processed the IRQ. */
++	host->sdio_irq_pending = false;
 +
- #ifdef CONFIG_BLK_DEV_ZONED
- static inline unsigned int blk_rq_zone_no(struct request *rq)
+ 	/*
+ 	 * Optimization, if there is only 1 function interrupt registered
+ 	 * and we know an IRQ was signaled then call irq handler directly.
+ 	 * Otherwise do the full probe.
+ 	 */
+ 	func = card->sdio_single_irq;
+-	if (func && host->sdio_irq_pending) {
++	if (func && sdio_irq_pending) {
+ 		func->irq_handler(func);
+ 		return 1;
+ 	}
+@@ -96,7 +100,6 @@ void sdio_run_irqs(struct mmc_host *host)
  {
+ 	mmc_claim_host(host);
+ 	if (host->sdio_irqs) {
+-		host->sdio_irq_pending = true;
+ 		process_sdio_pending_irqs(host);
+ 		if (host->ops->ack_sdio_irq)
+ 			host->ops->ack_sdio_irq(host);
+@@ -115,6 +118,7 @@ void sdio_irq_work(struct work_struct *work)
+ 
+ void sdio_signal_irq(struct mmc_host *host)
+ {
++	host->sdio_irq_pending = true;
+ 	queue_delayed_work(system_wq, &host->sdio_irq_work, 0);
+ }
+ EXPORT_SYMBOL_GPL(sdio_signal_irq);
+@@ -160,7 +164,6 @@ static int sdio_irq_thread(void *_host)
+ 		if (ret)
+ 			break;
+ 		ret = process_sdio_pending_irqs(host);
+-		host->sdio_irq_pending = false;
+ 		mmc_release_host(host);
+ 
+ 		/*
 -- 
 2.20.1
 
