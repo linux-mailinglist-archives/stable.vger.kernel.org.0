@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80D8FCAD63
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACF93CAC9E
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732843AbfJCRkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43226 "EHLO mail.kernel.org"
+        id S1732848AbfJCQNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:13:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731423AbfJCP7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:59:49 -0400
+        id S1730414AbfJCQNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:13:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6497D222CB;
-        Thu,  3 Oct 2019 15:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8F3C2054F;
+        Thu,  3 Oct 2019 16:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118388;
-        bh=nv5tyfbfrOt8/5M/vZRl8GRVLkrUHUar+IwteF0cp3Y=;
+        s=default; t=1570119193;
+        bh=gAU5FFtkt4JrXlIGSESoZ5d/KBuNhSLtdre5Bf76G9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6+G/mLSFuonIBjZmJay27UjgEAR7FqXXxSWNdKTwaCfYYJTehyTW8PWVgJ37g+Br
-         JMj550TmgCJ980Ug7sBSxLctrQyPGPs0dZCKY1UGBsCeJOYx42VgXkDN31xV5c1L0G
-         7BBQtbYyWrqhO3tryb+LXOfJrxtYKI0/OUF89ywg=
+        b=pcQ+nfx/cynO8Y+93IDwI0naeoZuQuNdAs2r+iY+N+voC8tBy4X1h+gII23h63Mk7
+         fWiH2uKRhMwugGcql0IoBCZmc1V77BAwGba/d5BaG9DC3rC5ixupCzQWVpjV2K5HJD
+         /o/kpt/Y60bdC4UTL4aWyuW70Xgcj0+o3yAfhLQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>,
-        Chris Brandt <chris.brandt@renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4.4 94/99] i2c: riic: Clear NACK in tend isr
+        stable@vger.kernel.org, Luis Araneda <luaraneda@gmail.com>,
+        Michal Simek <michal.simek@xilinx.com>
+Subject: [PATCH 4.14 159/185] ARM: zynq: Use memcpy_toio instead of memcpy on smp bring-up
 Date:   Thu,  3 Oct 2019 17:53:57 +0200
-Message-Id: <20191003154341.692437022@linuxfoundation.org>
+Message-Id: <20191003154515.139543257@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Brandt <chris.brandt@renesas.com>
+From: Luis Araneda <luaraneda@gmail.com>
 
-commit a71e2ac1f32097fbb2beab098687a7a95c84543e upstream.
+commit b7005d4ef4f3aa2dc24019ffba03a322557ac43d upstream.
 
-The NACKF flag should be cleared in INTRIICNAKI interrupt processing as
-description in HW manual.
+This fixes a kernel panic on memcpy when
+FORTIFY_SOURCE is enabled.
 
-This issue shows up quickly when PREEMPT_RT is applied and a device is
-probed that is not plugged in (like a touchscreen controller). The result
-is endless interrupts that halt system boot.
+The initial smp implementation on commit aa7eb2bb4e4a
+("arm: zynq: Add smp support")
+used memcpy, which worked fine until commit ee333554fed5
+("ARM: 8749/1: Kconfig: Add ARCH_HAS_FORTIFY_SOURCE")
+enabled overflow checks at runtime, producing a read
+overflow panic.
 
-Fixes: 310c18a41450 ("i2c: riic: add driver")
+The computed size of memcpy args are:
+- p_size (dst): 4294967295 = (size_t) -1
+- q_size (src): 1
+- size (len): 8
+
+Additionally, the memory is marked as __iomem, so one of
+the memcpy_* functions should be used for read/write.
+
+Fixes: aa7eb2bb4e4a ("arm: zynq: Add smp support")
+Signed-off-by: Luis Araneda <luaraneda@gmail.com>
 Cc: stable@vger.kernel.org
-Reported-by: Chien Nguyen <chien.nguyen.eb@rvc.renesas.com>
-Signed-off-by: Chris Brandt <chris.brandt@renesas.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-riic.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-zynq/platsmp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-riic.c
-+++ b/drivers/i2c/busses/i2c-riic.c
-@@ -212,6 +212,7 @@ static irqreturn_t riic_tend_isr(int irq
- 	if (readb(riic->base + RIIC_ICSR2) & ICSR2_NACKF) {
- 		/* We got a NACKIE */
- 		readb(riic->base + RIIC_ICDRR);	/* dummy read */
-+		riic_clear_set_bit(riic, ICSR2_NACKF, 0, RIIC_ICSR2);
- 		riic->err = -ENXIO;
- 	} else if (riic->bytes_left) {
- 		return IRQ_NONE;
+--- a/arch/arm/mach-zynq/platsmp.c
++++ b/arch/arm/mach-zynq/platsmp.c
+@@ -65,7 +65,7 @@ int zynq_cpun_start(u32 address, int cpu
+ 			* 0x4: Jump by mov instruction
+ 			* 0x8: Jumping address
+ 			*/
+-			memcpy((__force void *)zero, &zynq_secondary_trampoline,
++			memcpy_toio(zero, &zynq_secondary_trampoline,
+ 							trampoline_size);
+ 			writel(address, zero + trampoline_size);
+ 
 
 
