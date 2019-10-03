@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D272ACA873
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB3B6CA875
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391181AbfJCQ1B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:27:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
+        id S2391178AbfJCQ1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:27:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391178AbfJCQ1A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:00 -0400
+        id S2391195AbfJCQ1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:27:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B44502133F;
-        Thu,  3 Oct 2019 16:26:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 385BC20867;
+        Thu,  3 Oct 2019 16:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120020;
-        bh=/U8E39KaJHPuCt55oqs9aksyUmQx9j4P9V5W2MqI1Vw=;
+        s=default; t=1570120025;
+        bh=xKTppu/GDfJLMQWpfzwwiblwXnUW9uwticGihbh1hF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZl0eus3XLwRbityb4k53ZyxvmSNHZoPxCAgdeYMkFML8BGnLYPZoKf3WtzrbHL5s
-         PCeERwTLC2/iEMhOZn4f44fc/cIUrV/mlIVGxvfBag5U8k92A8gntZiWkGwH/MucLa
-         xqMhBMJ6TDWCW7CADxBMp/CfjCeG/Rn4B4J5d6/U=
+        b=0mfvbSGv5ZBdNojMeyVtyj3NU31gv6gztN0C2EZ2r6CQrJjYjH92r4YrErSxyHnRo
+         vtjjSa5K42qKRhXf+5nwACSel+kEXruA3WEOSnfk7mzDl5V2SppkmWqT/HJ3nja2Hi
+         wxJoN8E1VQ52/MlMn0BGmIZJ/KxfJzLFbNQ6lWPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junhua Huang <huang.junhua@zte.com.cn>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 066/313] arm64: mm: free the initrd reserved memblock in a aligned manner
-Date:   Thu,  3 Oct 2019 17:50:44 +0200
-Message-Id: <20191003154539.429006809@linuxfoundation.org>
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Vaishali Thakkar <vaishali.thakkar@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 068/313] base: soc: Export soc_device_register/unregister APIs
+Date:   Thu,  3 Oct 2019 17:50:46 +0200
+Message-Id: <20191003154539.598967096@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,55 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junhua Huang <huang.junhua@zte.com.cn>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 13776f9d40a028a245bb766269e360f5b7a62721 ]
+[ Upstream commit f7ccc7a397cf2ef64aebb2f726970b93203858d2 ]
 
-We should free the initrd reserved memblock in an aligned manner,
-because the initrd reserves the memblock in an aligned manner
-in arm64_memblock_init().
-Otherwise there are some fragments in memblock_reserved regions
-after free_initrd_mem(). e.g.:
-/sys/kernel/debug/memblock # cat reserved
-   0: 0x0000000080080000..0x00000000817fafff
-   1: 0x0000000083400000..0x0000000083ffffff
-   2: 0x0000000090000000..0x000000009000407f
-   3: 0x00000000b0000000..0x00000000b000003f
-   4: 0x00000000b26184ea..0x00000000b2618fff
-The fragments like the ranges from b0000000 to b000003f and
-from b26184ea to b2618fff should be freed.
+Qcom Socinfo driver can be built as a module, so
+export these two APIs.
 
-And we can do free_reserved_area() after memblock_free(),
-as free_reserved_area() calls __free_pages(), once we've done
-that it could be allocated somewhere else,
-but memblock and iomem still say this is reserved memory.
-
-Fixes: 05c58752f9dc ("arm64: To remove initrd reserved area entry from memblock")
-Signed-off-by: Junhua Huang <huang.junhua@zte.com.cn>
-Signed-off-by: Will Deacon <will@kernel.org>
+Tested-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Vaishali Thakkar <vaishali.thakkar@linaro.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/init.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/base/soc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index f3c795278def0..b1ee6cb4b17fc 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -570,8 +570,12 @@ void free_initmem(void)
- #ifdef CONFIG_BLK_DEV_INITRD
- void __init free_initrd_mem(unsigned long start, unsigned long end)
- {
-+	unsigned long aligned_start, aligned_end;
-+
-+	aligned_start = __virt_to_phys(start) & PAGE_MASK;
-+	aligned_end = PAGE_ALIGN(__virt_to_phys(end));
-+	memblock_free(aligned_start, aligned_end - aligned_start);
- 	free_reserved_area((void *)start, (void *)end, 0, "initrd");
--	memblock_free(__virt_to_phys(start), end - start);
+diff --git a/drivers/base/soc.c b/drivers/base/soc.c
+index 10b280f30217b..7e91894a380b5 100644
+--- a/drivers/base/soc.c
++++ b/drivers/base/soc.c
+@@ -157,6 +157,7 @@ struct soc_device *soc_device_register(struct soc_device_attribute *soc_dev_attr
+ out1:
+ 	return ERR_PTR(ret);
  }
- #endif
++EXPORT_SYMBOL_GPL(soc_device_register);
  
+ /* Ensure soc_dev->attr is freed prior to calling soc_device_unregister. */
+ void soc_device_unregister(struct soc_device *soc_dev)
+@@ -166,6 +167,7 @@ void soc_device_unregister(struct soc_device *soc_dev)
+ 	device_unregister(&soc_dev->dev);
+ 	early_soc_dev_attr = NULL;
+ }
++EXPORT_SYMBOL_GPL(soc_device_unregister);
+ 
+ static int __init soc_bus_register(void)
+ {
 -- 
 2.20.1
 
