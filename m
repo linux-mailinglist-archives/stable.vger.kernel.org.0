@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A79CA276
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38776CA278
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729193AbfJCQF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:05:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
+        id S1732559AbfJCQFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:05:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732546AbfJCQF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:05:27 -0400
+        id S1731703AbfJCQFc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:05:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 329CB207FF;
-        Thu,  3 Oct 2019 16:05:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79BD321A4C;
+        Thu,  3 Oct 2019 16:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118726;
-        bh=tddyAmMWK7NokJMf3/KI0aacBgpY3keO5ZLu9U7JNds=;
+        s=default; t=1570118731;
+        bh=RjgmkSOMi2xT5X4blqGQ8ZeCdi9HMfHkXvSSXsfQvR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBgH7TjsbA/RbOGNO8bKN6vNYU2lDMBWiBtjOJEz5ZTBi220OC3ICdiDmqKG/9lLC
-         VaRq236TPOjhB/mobnIKipjtBAEVVq3elknD+5mfxUqlHPg+Y0XkMuzJmCBg7ME/zZ
-         wBFMOtnvp7j7bavioqDKeresAkJZzcwZ3RknXoYU=
+        b=o2LOf0sEeq7zDg2yv6eBGHUGuCtR5J8PViJSTLD1dRxmtZAJHsT8pVYVaWqdcbZhu
+         1PEcXQaG8Gm4vf1pu6u6T0Cu5rNuS5jqDjovQxw0DTxdXIh6mxwN/qAfp5lvifEyxt
+         s+5SsTlRX30orQJZLaxOFaT4SaQV/bAfER8FWqRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 078/129] iommu/amd: Silence warnings under memory pressure
-Date:   Thu,  3 Oct 2019 17:53:21 +0200
-Message-Id: <20191003154354.413065118@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 080/129] ARM: dts: exynos: Mark LDO10 as always-on on Peach Pit/Pi Chromebooks
+Date:   Thu,  3 Oct 2019 17:53:23 +0200
+Message-Id: <20191003154355.384873192@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -43,62 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 3d708895325b78506e8daf00ef31549476e8586a ]
+[ Upstream commit 5b0eeeaa37615df37a9a30929b73e9defe61ca84 ]
 
-When running heavy memory pressure workloads, the system is throwing
-endless warnings,
+Commit aff138bf8e37 ("ARM: dts: exynos: Add TMU nodes regulator supply
+for Peach boards") assigned LDO10 to Exynos Thermal Measurement Unit,
+but it turned out that it supplies also some other critical parts and
+board freezes/crashes when it is turned off.
 
-smartpqi 0000:23:00.0: AMD-Vi: IOMMU mapping error in map_sg (io-pages:
-5 reason: -12)
-Hardware name: HPE ProLiant DL385 Gen10/ProLiant DL385 Gen10, BIOS A40
-07/10/2019
-swapper/10: page allocation failure: order:0, mode:0xa20(GFP_ATOMIC),
-nodemask=(null),cpuset=/,mems_allowed=0,4
-Call Trace:
- <IRQ>
- dump_stack+0x62/0x9a
- warn_alloc.cold.43+0x8a/0x148
- __alloc_pages_nodemask+0x1a5c/0x1bb0
- get_zeroed_page+0x16/0x20
- iommu_map_page+0x477/0x540
- map_sg+0x1ce/0x2f0
- scsi_dma_map+0xc6/0x160
- pqi_raid_submit_scsi_cmd_with_io_request+0x1c3/0x470 [smartpqi]
- do_IRQ+0x81/0x170
- common_interrupt+0xf/0xf
- </IRQ>
+The mentioned commit made Exynos TMU a consumer of that regulator and in
+typical case Exynos TMU driver keeps it enabled from early boot. However
+there are such configurations (example is multi_v7_defconfig), in which
+some of the regulators are compiled as modules and are not available
+from early boot. In such case it may happen that LDO10 is turned off by
+regulator core, because it has no consumers yet (in this case consumer
+drivers cannot get it, because the supply regulators for it are not yet
+available). This in turn causes the board to crash. This patch restores
+'always-on' property for the LDO10 regulator.
 
-because the allocation could fail from iommu_map_page(), and the volume
-of this call could be huge which may generate a lot of serial console
-output and cosumes all CPUs.
-
-Fix it by silencing the warning in this call site, and there is still a
-dev_err() later to notify the failure.
-
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: aff138bf8e37 ("ARM: dts: exynos: Add TMU nodes regulator supply for Peach boards")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5420-peach-pit.dts | 1 +
+ arch/arm/boot/dts/exynos5800-peach-pi.dts  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index dd7880de7e4e9..e81acb2b6ee7d 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2595,7 +2595,9 @@ static int map_sg(struct device *dev, struct scatterlist *sglist,
- 
- 			bus_addr  = address + s->dma_address + (j << PAGE_SHIFT);
- 			phys_addr = (sg_phys(s) & PAGE_MASK) + (j << PAGE_SHIFT);
--			ret = iommu_map_page(domain, bus_addr, phys_addr, PAGE_SIZE, prot, GFP_ATOMIC);
-+			ret = iommu_map_page(domain, bus_addr, phys_addr,
-+					     PAGE_SIZE, prot,
-+					     GFP_ATOMIC | __GFP_NOWARN);
- 			if (ret)
- 				goto out_unmap;
- 
+diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+index ec4a00f1ce01e..8b754ae8c8f7d 100644
+--- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
++++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+@@ -427,6 +427,7 @@
+ 				regulator-name = "vdd_ldo10";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-state-mem {
+ 					regulator-off-in-suspend;
+ 				};
+diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+index 01f466816fea7..1f90df2d7ecd8 100644
+--- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
++++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+@@ -427,6 +427,7 @@
+ 				regulator-name = "vdd_ldo10";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-state-mem {
+ 					regulator-off-in-suspend;
+ 				};
 -- 
 2.20.1
 
