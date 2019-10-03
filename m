@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C83CACA939
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 420F5CA93A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404733AbfJCQjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:39:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49224 "EHLO mail.kernel.org"
+        id S2404741AbfJCQjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:39:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404041AbfJCQjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:39:19 -0400
+        id S2404735AbfJCQjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:39:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59E632070B;
-        Thu,  3 Oct 2019 16:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDD082070B;
+        Thu,  3 Oct 2019 16:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120758;
-        bh=JgBrlH+Itu1vKsvB8lGZbiO4ta09eCPbLm2aSAuszJc=;
+        s=default; t=1570120761;
+        bh=j1VMz70szKG1in2f+5pz0U3jeGXcWdIJYP6XH2tNQWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RmMMJCHghdSUKLg45Q0S6DYptr86ICWcmHsfKZ7aRwI47FrAY2/woNIzbHUJdLFpR
-         OahMgOTCNkFv3h3WioksGwToB0ID61JohiNm6S5Ed2b3vdCP6aRZReBq3JEKbVrg4X
-         cpw7DdEsAZHlO7FB2cMX0vawI+yHAOe7yKJ2aMI0=
+        b=pVSGPsNN4b12oRLVBPaYGFYPn8j7rXA/hLxNhzyS6oekHLW2O7LNFR4Nd2I030QFh
+         CTNr9ZPu8I6BIEK+KAPpVOnEBHWPxaXD8y2twxL4n+yyIqKaBF3GPqpkZTHVcRpAqE
+         8U0nmxcXdK51xjJ6e2FbeJINHdGVak3OjeIN6RZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Fei Liu <feliu@redhat.com>, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 004/344] macsec: drop skb sk before calling gro_cells_receive
-Date:   Thu,  3 Oct 2019 17:49:29 +0200
-Message-Id: <20191003154540.498425829@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Mamonov <pmamonov@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.3 005/344] net/phy: fix DP83865 10 Mbps HDX loopback disable function
+Date:   Thu,  3 Oct 2019 17:49:30 +0200
+Message-Id: <20191003154540.607886894@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,61 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Peter Mamonov <pmamonov@gmail.com>
 
-[ Upstream commit ba56d8ce38c8252fff5b745db3899cf092578ede ]
+[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
 
-Fei Liu reported a crash when doing netperf on a topo of macsec
-dev over veth:
+According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
+disabled in the expanded memory register 0x1C0.1". The driver erroneously
+used bit 0 instead of bit 1.
 
-  [  448.919128] refcount_t: underflow; use-after-free.
-  [  449.090460] Call trace:
-  [  449.092895]  refcount_sub_and_test+0xb4/0xc0
-  [  449.097155]  tcp_wfree+0x2c/0x150
-  [  449.100460]  ip_rcv+0x1d4/0x3a8
-  [  449.103591]  __netif_receive_skb_core+0x554/0xae0
-  [  449.108282]  __netif_receive_skb+0x28/0x78
-  [  449.112366]  netif_receive_skb_internal+0x54/0x100
-  [  449.117144]  napi_gro_complete+0x70/0xc0
-  [  449.121054]  napi_gro_flush+0x6c/0x90
-  [  449.124703]  napi_complete_done+0x50/0x130
-  [  449.128788]  gro_cell_poll+0x8c/0xa8
-  [  449.132351]  net_rx_action+0x16c/0x3f8
-  [  449.136088]  __do_softirq+0x128/0x320
-
-The issue was caused by skb's true_size changed without its sk's
-sk_wmem_alloc increased in tcp/skb_gro_receive(). Later when the
-skb is being freed and the skb's truesize is subtracted from its
-sk's sk_wmem_alloc in tcp_wfree(), underflow occurs.
-
-macsec is calling gro_cells_receive() to receive a packet, which
-actually requires skb->sk to be NULL. However when macsec dev is
-over veth, it's possible the skb->sk is still set if the skb was
-not unshared or expanded from the peer veth.
-
-ip_rcv() is calling skb_orphan() to drop the skb's sk for tproxy,
-but it is too late for macsec's calling gro_cells_receive(). So
-fix it by dropping the skb's sk earlier on rx path of macsec.
-
-Fixes: 5491e7c6b1a9 ("macsec: enable GRO and RPS on macsec devices")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Reported-by: Fei Liu <feliu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
+Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/macsec.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/national.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1235,6 +1235,7 @@ deliver:
- 		macsec_rxsa_put(rx_sa);
- 	macsec_rxsc_put(rx_sc);
+--- a/drivers/net/phy/national.c
++++ b/drivers/net/phy/national.c
+@@ -105,14 +105,17 @@ static void ns_giga_speed_fallback(struc
  
-+	skb_orphan(skb);
- 	ret = gro_cells_receive(&macsec->gro_cells, skb);
- 	if (ret == NET_RX_SUCCESS)
- 		count_rx(dev, skb->len);
+ static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
+ {
++	u16 lb_dis = BIT(1);
++
+ 	if (disable)
+-		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
++		ns_exp_write(phydev, 0x1c0,
++			     ns_exp_read(phydev, 0x1c0) | lb_dis);
+ 	else
+ 		ns_exp_write(phydev, 0x1c0,
+-			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
++			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
+ 
+ 	pr_debug("10BASE-T HDX loopback %s\n",
+-		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
++		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
+ }
+ 
+ static int ns_config_init(struct phy_device *phydev)
 
 
