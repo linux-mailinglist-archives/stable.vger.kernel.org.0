@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0389ECA935
+	by mail.lfdr.de (Postfix) with ESMTP id 71815CA936
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404016AbfJCQjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48824 "EHLO mail.kernel.org"
+        id S2404091AbfJCQjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403971AbfJCQjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:39:01 -0400
+        id S2403971AbfJCQjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:39:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F57F2086A;
-        Thu,  3 Oct 2019 16:38:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39C48215EA;
+        Thu,  3 Oct 2019 16:39:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120739;
-        bh=s0xutKlkCj+UQ8hTmA20iOU0UaH/rpwjtQ7opHQnesI=;
+        s=default; t=1570120742;
+        bh=5q0PLQdi6AJ6C8Dj+RBxjxqThfLtkDeN6xsz6UwYsPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wFfpE5K+E1GR8TLW4F8c1oDF1CLT7ulQTZO8DJgMhfto7TZhq2dfSfQC5+vfxRtNS
-         yrD1NcpmWI+2Tq4PYZa6btVq1Fst4R2BMweDbGyuVobj2qhADlq4zUJI2lhiD4Ucmy
-         c73r3b9+O0/jwID/UsuoALgnbexUPE1g+ZlnxA0U=
+        b=T2xHVRxBQiHwg3ZGsPk+AMz64HVTWtViOiIi5SESBDN5ITlBqY7KxxHBfj4x31j0d
+         XYIE27t33gfYmXzvPOLcWsqNXHYwcdvO0UuBCqU6bho4MkYev0qq48EcAhUx0byNcS
+         RxXqOJ8yio4/QWsXQUvfMxDYcFx784Ry0R9Mmz+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+fae39afd2101a17ec624@syzkaller.appspotmail.com,
-        Ka-Cheong Poon <ka-cheong.poon@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 020/344] net/rds: Check laddr_check before calling it
-Date:   Thu,  3 Oct 2019 17:49:45 +0200
-Message-Id: <20191003154542.073432324@linuxfoundation.org>
+        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
+        Vlad Buslov <vladbu@mellanox.com>,
+        Eli Britstein <elibr@mellanox.com>,
+        Roi Dayan <roid@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.3 021/344] net/mlx5e: Fix matching on tunnel addresses type
+Date:   Thu,  3 Oct 2019 17:49:46 +0200
+Message-Id: <20191003154542.166889134@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -46,43 +46,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
+From: Dmytro Linkin <dmitrolin@mellanox.com>
 
-[ Upstream commit 05733434ee9ae6548723a808647248583e347cca ]
+[ Upstream commit fe1587a7de94912ed75ba5ddbfabf0741f9f8239 ]
 
-In rds_bind(), laddr_check is called without checking if it is NULL or
-not.  And rs_transport should be reset if rds_add_bound() fails.
+In mlx5 parse_tunnel_attr() function dispatch on encap IP address type
+is performed by directly checking flow_rule_match_key() on
+FLOW_DISSECTOR_KEY_ENC_IPV4_ADDRS, and then on
+FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS. However, since those are stored in
+union, first check is always true if any type of encap address is set,
+which leads to IPv6 tunnel encap address being parsed as IPv4 by mlx5.
+Determine correct IP address type by checking control key first and if
+it set, take address type from match.key->addr_type.
 
-Fixes: c5c1a030a7db ("net/rds: An rds_sock is added too early to the hash table")
-Reported-by: syzbot+fae39afd2101a17ec624@syzkaller.appspotmail.com
-Signed-off-by: Ka-Cheong Poon <ka-cheong.poon@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d1bda7eecd88 ("net/mlx5e: Allow matching only enc_key_id/enc_dst_port for decapsulation action")
+Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
+Reviewed-by: Vlad Buslov <vladbu@mellanox.com>
+Reviewed-by: Eli Britstein <elibr@mellanox.com>
+Reviewed-by: Roi Dayan <roid@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rds/bind.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |   97 ++++++++++++++----------
+ 1 file changed, 57 insertions(+), 40 deletions(-)
 
---- a/net/rds/bind.c
-+++ b/net/rds/bind.c
-@@ -244,7 +244,8 @@ int rds_bind(struct socket *sock, struct
- 	 */
- 	if (rs->rs_transport) {
- 		trans = rs->rs_transport;
--		if (trans->laddr_check(sock_net(sock->sk),
-+		if (!trans->laddr_check ||
-+		    trans->laddr_check(sock_net(sock->sk),
- 				       binding_addr, scope_id) != 0) {
- 			ret = -ENOPROTOOPT;
- 			goto out;
-@@ -263,6 +264,8 @@ int rds_bind(struct socket *sock, struct
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1369,46 +1369,63 @@ static int parse_tunnel_attr(struct mlx5
+ 		return err;
+ 	}
  
- 	sock_set_flag(sk, SOCK_RCU_FREE);
- 	ret = rds_add_bound(rs, binding_addr, &port, scope_id);
-+	if (ret)
-+		rs->rs_transport = NULL;
+-	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_IPV4_ADDRS)) {
+-		struct flow_match_ipv4_addrs match;
+-
+-		flow_rule_match_enc_ipv4_addrs(rule, &match);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_c,
+-			 src_ipv4_src_ipv6.ipv4_layout.ipv4,
+-			 ntohl(match.mask->src));
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_v,
+-			 src_ipv4_src_ipv6.ipv4_layout.ipv4,
+-			 ntohl(match.key->src));
+-
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_c,
+-			 dst_ipv4_dst_ipv6.ipv4_layout.ipv4,
+-			 ntohl(match.mask->dst));
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_v,
+-			 dst_ipv4_dst_ipv6.ipv4_layout.ipv4,
+-			 ntohl(match.key->dst));
+-
+-		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, ethertype);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_v, ethertype, ETH_P_IP);
+-	} else if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_IPV6_ADDRS)) {
+-		struct flow_match_ipv6_addrs match;
+-
+-		flow_rule_match_enc_ipv6_addrs(rule, &match);
+-		memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_c,
+-				    src_ipv4_src_ipv6.ipv6_layout.ipv6),
+-		       &match.mask->src, MLX5_FLD_SZ_BYTES(ipv6_layout, ipv6));
+-		memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_v,
+-				    src_ipv4_src_ipv6.ipv6_layout.ipv6),
+-		       &match.key->src, MLX5_FLD_SZ_BYTES(ipv6_layout, ipv6));
+-
+-		memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_c,
+-				    dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
+-		       &match.mask->dst, MLX5_FLD_SZ_BYTES(ipv6_layout, ipv6));
+-		memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_v,
+-				    dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
+-		       &match.key->dst, MLX5_FLD_SZ_BYTES(ipv6_layout, ipv6));
+-
+-		MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c, ethertype);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_v, ethertype, ETH_P_IPV6);
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_CONTROL)) {
++		struct flow_match_control match;
++		u16 addr_type;
++
++		flow_rule_match_enc_control(rule, &match);
++		addr_type = match.key->addr_type;
++
++		/* For tunnel addr_type used same key id`s as for non-tunnel */
++		if (addr_type == FLOW_DISSECTOR_KEY_IPV4_ADDRS) {
++			struct flow_match_ipv4_addrs match;
++
++			flow_rule_match_enc_ipv4_addrs(rule, &match);
++			MLX5_SET(fte_match_set_lyr_2_4, headers_c,
++				 src_ipv4_src_ipv6.ipv4_layout.ipv4,
++				 ntohl(match.mask->src));
++			MLX5_SET(fte_match_set_lyr_2_4, headers_v,
++				 src_ipv4_src_ipv6.ipv4_layout.ipv4,
++				 ntohl(match.key->src));
++
++			MLX5_SET(fte_match_set_lyr_2_4, headers_c,
++				 dst_ipv4_dst_ipv6.ipv4_layout.ipv4,
++				 ntohl(match.mask->dst));
++			MLX5_SET(fte_match_set_lyr_2_4, headers_v,
++				 dst_ipv4_dst_ipv6.ipv4_layout.ipv4,
++				 ntohl(match.key->dst));
++
++			MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c,
++					 ethertype);
++			MLX5_SET(fte_match_set_lyr_2_4, headers_v, ethertype,
++				 ETH_P_IP);
++		} else if (addr_type == FLOW_DISSECTOR_KEY_IPV6_ADDRS) {
++			struct flow_match_ipv6_addrs match;
++
++			flow_rule_match_enc_ipv6_addrs(rule, &match);
++			memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_c,
++					    src_ipv4_src_ipv6.ipv6_layout.ipv6),
++			       &match.mask->src, MLX5_FLD_SZ_BYTES(ipv6_layout,
++								   ipv6));
++			memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_v,
++					    src_ipv4_src_ipv6.ipv6_layout.ipv6),
++			       &match.key->src, MLX5_FLD_SZ_BYTES(ipv6_layout,
++								  ipv6));
++
++			memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_c,
++					    dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
++			       &match.mask->dst, MLX5_FLD_SZ_BYTES(ipv6_layout,
++								   ipv6));
++			memcpy(MLX5_ADDR_OF(fte_match_set_lyr_2_4, headers_v,
++					    dst_ipv4_dst_ipv6.ipv6_layout.ipv6),
++			       &match.key->dst, MLX5_FLD_SZ_BYTES(ipv6_layout,
++								  ipv6));
++
++			MLX5_SET_TO_ONES(fte_match_set_lyr_2_4, headers_c,
++					 ethertype);
++			MLX5_SET(fte_match_set_lyr_2_4, headers_v, ethertype,
++				 ETH_P_IPV6);
++		}
+ 	}
  
- out:
- 	release_sock(sk);
+ 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_IP)) {
 
 
