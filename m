@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3827CA3E7
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15ABCCA3EA
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389816AbfJCQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47416 "EHLO mail.kernel.org"
+        id S2388596AbfJCQUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:20:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389817AbfJCQUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:20:05 -0400
+        id S2389835AbfJCQUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:20:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C53F21848;
-        Thu,  3 Oct 2019 16:20:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3746A222CB;
+        Thu,  3 Oct 2019 16:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119604;
-        bh=7L1YCLI7nFelp+SPnq0BWc5FBbcZjI1Rhef/1ZljChU=;
+        s=default; t=1570119606;
+        bh=s7x370y95jXHCMWBXfaRjHHLe9MY1QprAjrHw4KTmss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGe/VGcEJ8BKRXJ1nLFcuK4BSkNWD/TTzdhJ8HFmAnNC/Q3LesSMS01Mn26DkbAuz
-         K6PeCrl7X5JwgmooekgVNvXVbfY312CkoWt00Bhib3GOUe8Mq036lkj89W4UmMBlUl
-         1jUxb4U5d+X5wReD4QHUnugPzKihLAfiBGMw9hGY=
+        b=l6DpmpDo2P2J1H08zhYTF9pb5nB9ZSRh76T6FRMKQo1bthEXSXQKxefXXl7akS25G
+         yenkYfeaU4Bpon02CHqY1AYcZOxGvYZ5Gfp1cTMsHBwKVUHNchBb855rD53exEKTl6
+         Wesn1Rm8La0tulYe2uI9W5Wr0FzJsGY4CAA09Eto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/211] kprobes: Prohibit probing on BUG() and WARN() address
-Date:   Thu,  3 Oct 2019 17:53:13 +0200
-Message-Id: <20191003154515.822292192@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 128/211] s390/crypto: xts-aes-s390 fix extra run-time crypto self tests finding
+Date:   Thu,  3 Oct 2019 17:53:14 +0200
+Message-Id: <20191003154515.944746287@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -51,68 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit e336b4027775cb458dc713745e526fa1a1996b2a ]
+[ Upstream commit 9e323d45ba94262620a073a3f9945ca927c07c71 ]
 
-Since BUG() and WARN() may use a trap (e.g. UD2 on x86) to
-get the address where the BUG() has occurred, kprobes can not
-do single-step out-of-line that instruction. So prohibit
-probing on such address.
+With 'extra run-time crypto self tests' enabled, the selftest
+for s390-xts fails with
 
-Without this fix, if someone put a kprobe on WARN(), the
-kernel will crash with invalid opcode error instead of
-outputing warning message, because kernel can not find
-correct bug address.
+  alg: skcipher: xts-aes-s390 encryption unexpectedly succeeded on
+  test vector "random: len=0 klen=64"; expected_error=-22,
+  cfg="random: inplace use_digest nosimd src_divs=[2.61%@+4006,
+  84.44%@+21, 1.55%@+13, 4.50%@+344, 4.26%@+21, 2.64%@+27]"
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Acked-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S . Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N . Rao <naveen.n.rao@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/156750890133.19112.3393666300746167111.stgit@devnote2
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+This special case with nbytes=0 is not handled correctly and this
+fix now makes sure that -EINVAL is returned when there is en/decrypt
+called with 0 bytes to en/decrypt.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bug.h | 5 +++++
- kernel/kprobes.c    | 3 ++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/crypto/aes_s390.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/include/linux/bug.h b/include/linux/bug.h
-index fe5916550da8c..f639bd0122f39 100644
---- a/include/linux/bug.h
-+++ b/include/linux/bug.h
-@@ -47,6 +47,11 @@ void generic_bug_clear_once(void);
+diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
+index 8ff7cb3da1cba..2bc189187ed40 100644
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -585,6 +585,9 @@ static int xts_aes_encrypt(struct blkcipher_desc *desc,
+ 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
+ 	struct blkcipher_walk walk;
  
- #else	/* !CONFIG_GENERIC_BUG */
- 
-+static inline void *find_bug(unsigned long bugaddr)
-+{
-+	return NULL;
-+}
++	if (!nbytes)
++		return -EINVAL;
 +
- static inline enum bug_trap_type report_bug(unsigned long bug_addr,
- 					    struct pt_regs *regs)
- {
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 714d63f60460b..b8efca9dc2cbb 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -1505,7 +1505,8 @@ static int check_kprobe_address_safe(struct kprobe *p,
- 	/* Ensure it is not in reserved area nor out of text */
- 	if (!kernel_text_address((unsigned long) p->addr) ||
- 	    within_kprobe_blacklist((unsigned long) p->addr) ||
--	    jump_label_text_reserved(p->addr, p->addr)) {
-+	    jump_label_text_reserved(p->addr, p->addr) ||
-+	    find_bug((unsigned long)p->addr)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
+ 	if (unlikely(!xts_ctx->fc))
+ 		return xts_fallback_encrypt(desc, dst, src, nbytes);
+ 
+@@ -599,6 +602,9 @@ static int xts_aes_decrypt(struct blkcipher_desc *desc,
+ 	struct s390_xts_ctx *xts_ctx = crypto_blkcipher_ctx(desc->tfm);
+ 	struct blkcipher_walk walk;
+ 
++	if (!nbytes)
++		return -EINVAL;
++
+ 	if (unlikely(!xts_ctx->fc))
+ 		return xts_fallback_decrypt(desc, dst, src, nbytes);
+ 
 -- 
 2.20.1
 
