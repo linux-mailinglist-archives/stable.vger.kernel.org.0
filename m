@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B206CA76C
+	by mail.lfdr.de (Postfix) with ESMTP id EB314CA76E
 	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405849AbfJCQxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42072 "EHLO mail.kernel.org"
+        id S2393236AbfJCQxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405846AbfJCQxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:53:51 -0400
+        id S2405895AbfJCQxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:53:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8611120862;
-        Thu,  3 Oct 2019 16:53:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 306382070B;
+        Thu,  3 Oct 2019 16:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121631;
-        bh=tEjjV9/KHLuryKuJmE36aBzvQU5FZfBxR5QLqsqJyGI=;
+        s=default; t=1570121633;
+        bh=L0SmYGtaGcxI3+BLpfscRZ+R1XBFygt6MAgF3wzw8/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEo47zz2yAEwId8s90mZ8Y8FK4z3orpNW8tftSD9nkJ3InPveDprXbItPkr866hlN
-         P64BvEk+4XRAaBuEiz8KhiER39vQ0ZmJB/6W/BYiHwIMNh3hokNlsPXUCNydn+D3zm
-         Fg5xP6p0U89Y/S3m6HWElpnOP8/uf47hibJKneQE=
+        b=y+5KixEuVb/V9dSuG3t6qa6ZCR+yMYwvlf5IMi4JVRw183CiTyFjCCbS7POkY5SvM
+         EmodsJE6o8XsDbqYhqlwaaUQzv1u4KNfFFAmdvKWyO4iFg5RkUeHCiMT06JYiu1Zc7
+         ctfYaAUFCr+6UDsNUjW9ucwKhCsJD5tYDvONMDBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Pi-Hsun Shih <pihsun@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 343/344] mt76: mt7615: fix mt7615 firmware path definitions
-Date:   Thu,  3 Oct 2019 17:55:08 +0200
-Message-Id: <20191003154612.229586680@linuxfoundation.org>
+Subject: [PATCH 5.3 344/344] platform/chrome: cros_ec_rpmsg: Fix race with host command when probe failed
+Date:   Thu,  3 Oct 2019 17:55:09 +0200
+Message-Id: <20191003154612.302053827@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
 References: <20191003154540.062170222@linuxfoundation.org>
@@ -44,89 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Pi-Hsun Shih <pihsun@chromium.org>
 
-[ Upstream commit 9d4d0d06bbf9f7e576b0ebbb2f77672d0fc7f503 ]
+[ Upstream commit 71cddb7097e2b0feb855d7fd7d59afd12cbee4bb ]
 
-mt7615 patch/n9/cr4 firmwares are available in mediatek folder in
-linux-firmware repository. Because of this mt7615 won't work on regular
-distributions like Ubuntu. Fix path definitions.  Moreover remove useless
-firmware name pointers and use definitions directly
+Since the rpmsg_endpoint is created before probe is called, it's
+possible that a host event is received during cros_ec_register, and
+there would be some pending work in the host_event_work workqueue while
+cros_ec_register is called.
 
-Fixes: 04b8e65922f6 ("mt76: add mac80211 driver for MT7615 PCIe-based chipsets")
+If cros_ec_register fails, when the leftover work in host_event_work
+run, the ec_dev from the drvdata of the rpdev could be already set to
+NULL, causing kernel crash when trying to run cros_ec_get_next_event.
+
+Fix this by creating the rpmsg_endpoint by ourself, and when
+cros_ec_register fails (or on remove), destroy the endpoint first (to
+make sure there's no more new calls to cros_ec_rpmsg_callback), and then
+cancel all works in the host_event_work workqueue.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 2de89fd98958 ("platform/chrome: cros_ec: Add EC host command support using rpmsg")
+Signed-off-by: Pi-Hsun Shih <pihsun@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mcu.c    | 11 ++++-------
- drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h |  6 +++---
- 2 files changed, 7 insertions(+), 10 deletions(-)
+ drivers/platform/chrome/cros_ec_rpmsg.c | 32 +++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-index 7ef681fea3f8f..b941fa4a1bcd0 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-@@ -257,7 +257,6 @@ static int mt7615_driver_own(struct mt7615_dev *dev)
+diff --git a/drivers/platform/chrome/cros_ec_rpmsg.c b/drivers/platform/chrome/cros_ec_rpmsg.c
+index 5d3fb2abad1d6..bec19d4814aba 100644
+--- a/drivers/platform/chrome/cros_ec_rpmsg.c
++++ b/drivers/platform/chrome/cros_ec_rpmsg.c
+@@ -41,6 +41,7 @@ struct cros_ec_rpmsg {
+ 	struct rpmsg_device *rpdev;
+ 	struct completion xfer_ack;
+ 	struct work_struct host_event_work;
++	struct rpmsg_endpoint *ept;
+ };
  
- static int mt7615_load_patch(struct mt7615_dev *dev)
+ /**
+@@ -72,7 +73,6 @@ static int cros_ec_pkt_xfer_rpmsg(struct cros_ec_device *ec_dev,
+ 				  struct cros_ec_command *ec_msg)
  {
--	const char *firmware = MT7615_ROM_PATCH;
- 	const struct mt7615_patch_hdr *hdr;
- 	const struct firmware *fw = NULL;
- 	int len, ret, sem;
-@@ -273,7 +272,7 @@ static int mt7615_load_patch(struct mt7615_dev *dev)
- 		return -EAGAIN;
- 	}
+ 	struct cros_ec_rpmsg *ec_rpmsg = ec_dev->priv;
+-	struct rpmsg_device *rpdev = ec_rpmsg->rpdev;
+ 	struct ec_host_response *response;
+ 	unsigned long timeout;
+ 	int len;
+@@ -85,7 +85,7 @@ static int cros_ec_pkt_xfer_rpmsg(struct cros_ec_device *ec_dev,
+ 	dev_dbg(ec_dev->dev, "prepared, len=%d\n", len);
  
--	ret = request_firmware(&fw, firmware, dev->mt76.dev);
-+	ret = request_firmware(&fw, MT7615_ROM_PATCH, dev->mt76.dev);
- 	if (ret)
- 		goto out;
+ 	reinit_completion(&ec_rpmsg->xfer_ack);
+-	ret = rpmsg_send(rpdev->ept, ec_dev->dout, len);
++	ret = rpmsg_send(ec_rpmsg->ept, ec_dev->dout, len);
+ 	if (ret) {
+ 		dev_err(ec_dev->dev, "rpmsg send failed\n");
+ 		return ret;
+@@ -196,11 +196,24 @@ static int cros_ec_rpmsg_callback(struct rpmsg_device *rpdev, void *data,
+ 	return 0;
+ }
  
-@@ -339,14 +338,12 @@ static u32 gen_dl_mode(u8 feature_set, bool is_cr4)
- 
- static int mt7615_load_ram(struct mt7615_dev *dev)
++static struct rpmsg_endpoint *
++cros_ec_rpmsg_create_ept(struct rpmsg_device *rpdev)
++{
++	struct rpmsg_channel_info chinfo = {};
++
++	strscpy(chinfo.name, rpdev->id.name, RPMSG_NAME_SIZE);
++	chinfo.src = rpdev->src;
++	chinfo.dst = RPMSG_ADDR_ANY;
++
++	return rpmsg_create_ept(rpdev, cros_ec_rpmsg_callback, NULL, chinfo);
++}
++
+ static int cros_ec_rpmsg_probe(struct rpmsg_device *rpdev)
  {
--	const struct firmware *fw;
- 	const struct mt7615_fw_trailer *hdr;
--	const char *n9_firmware = MT7615_FIRMWARE_N9;
--	const char *cr4_firmware = MT7615_FIRMWARE_CR4;
- 	u32 n9_ilm_addr, offset;
- 	int i, ret;
-+	const struct firmware *fw;
+ 	struct device *dev = &rpdev->dev;
+ 	struct cros_ec_rpmsg *ec_rpmsg;
+ 	struct cros_ec_device *ec_dev;
++	int ret;
  
--	ret = request_firmware(&fw, n9_firmware, dev->mt76.dev);
-+	ret = request_firmware(&fw, MT7615_FIRMWARE_N9, dev->mt76.dev);
- 	if (ret)
- 		return ret;
+ 	ec_dev = devm_kzalloc(dev, sizeof(*ec_dev), GFP_KERNEL);
+ 	if (!ec_dev)
+@@ -225,7 +238,18 @@ static int cros_ec_rpmsg_probe(struct rpmsg_device *rpdev)
+ 	INIT_WORK(&ec_rpmsg->host_event_work,
+ 		  cros_ec_rpmsg_host_event_function);
  
-@@ -394,7 +391,7 @@ static int mt7615_load_ram(struct mt7615_dev *dev)
+-	return cros_ec_register(ec_dev);
++	ec_rpmsg->ept = cros_ec_rpmsg_create_ept(rpdev);
++	if (!ec_rpmsg->ept)
++		return -ENOMEM;
++
++	ret = cros_ec_register(ec_dev);
++	if (ret < 0) {
++		rpmsg_destroy_ept(ec_rpmsg->ept);
++		cancel_work_sync(&ec_rpmsg->host_event_work);
++		return ret;
++	}
++
++	return 0;
+ }
  
- 	release_firmware(fw);
+ static void cros_ec_rpmsg_remove(struct rpmsg_device *rpdev)
+@@ -233,6 +257,7 @@ static void cros_ec_rpmsg_remove(struct rpmsg_device *rpdev)
+ 	struct cros_ec_device *ec_dev = dev_get_drvdata(&rpdev->dev);
+ 	struct cros_ec_rpmsg *ec_rpmsg = ec_dev->priv;
  
--	ret = request_firmware(&fw, cr4_firmware, dev->mt76.dev);
-+	ret = request_firmware(&fw, MT7615_FIRMWARE_CR4, dev->mt76.dev);
- 	if (ret)
- 		return ret;
++	rpmsg_destroy_ept(ec_rpmsg->ept);
+ 	cancel_work_sync(&ec_rpmsg->host_event_work);
+ }
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-index f02ffcffe6376..f83615dbe1c5d 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mt7615.h
-@@ -25,9 +25,9 @@
- #define MT7615_RX_RING_SIZE		1024
- #define MT7615_RX_MCU_RING_SIZE		512
+@@ -249,7 +274,6 @@ static struct rpmsg_driver cros_ec_driver_rpmsg = {
+ 	},
+ 	.probe		= cros_ec_rpmsg_probe,
+ 	.remove		= cros_ec_rpmsg_remove,
+-	.callback	= cros_ec_rpmsg_callback,
+ };
  
--#define MT7615_FIRMWARE_CR4		"mt7615_cr4.bin"
--#define MT7615_FIRMWARE_N9		"mt7615_n9.bin"
--#define MT7615_ROM_PATCH		"mt7615_rom_patch.bin"
-+#define MT7615_FIRMWARE_CR4		"mediatek/mt7615_cr4.bin"
-+#define MT7615_FIRMWARE_N9		"mediatek/mt7615_n9.bin"
-+#define MT7615_ROM_PATCH		"mediatek/mt7615_rom_patch.bin"
- 
- #define MT7615_EEPROM_SIZE		1024
- #define MT7615_TOKEN_SIZE		4096
+ module_rpmsg_driver(cros_ec_driver_rpmsg);
 -- 
 2.20.1
 
