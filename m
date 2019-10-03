@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A6DCA1FF
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:03:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36462CA202
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731701AbfJCQBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:01:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45152 "EHLO mail.kernel.org"
+        id S1731695AbfJCQBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731695AbfJCQBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:01:05 -0400
+        id S1731713AbfJCQBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:01:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F537222BE;
-        Thu,  3 Oct 2019 16:01:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F0A1222CA;
+        Thu,  3 Oct 2019 16:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118463;
-        bh=VjXLo2CSeUqx9PubYQkZdyxnvmfH6vy9KUJzPiPSUOo=;
+        s=default; t=1570118466;
+        bh=1oTflIp+0DFm3t/tcAZPV/QHPxzbzVU5UUqdS0ki9bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFeTCz1ihA4t8j/SejFmnKopKqq0yr9I38YlbDEz4YFOl2D7naX1SUDPwPSXnnYwK
-         LHoUnVnqV3AY1HLzxCUI0WjxLm5eRebUx84VXjQqTOSK92/wBHfPBYQ3W7KySDMTPJ
-         iMllGa/nFAKFmhbK4OGJRvVvXNIjXg+Xsllhnpv4=
+        b=N1SfWQabXt9ZgAsFO/hbXpEZL+7XsiyEhXr0P393L3DdRP/yIy+0CQCTtBAqM9ZS2
+         2qCr8P4Gp0+tVUD6MdjGDpgSRdecnhe40brCU5Z03B+MNH31dZF7AnBsiKMPoOQ5uJ
+         1H3fb87Q3keSFilvkkUQ+gbq3ik6RW2a3GCmMYHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Imre Deak <imre.deak@intel.com>,
+        stable@vger.kernel.org, Zorro Lang <zlang@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Bill ODonnell <billodo@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 020/129] drm: Flush output polling on shutdown
-Date:   Thu,  3 Oct 2019 17:52:23 +0200
-Message-Id: <20191003154328.125639053@linuxfoundation.org>
+Subject: [PATCH 4.9 021/129] xfs: dont crash on null attr fork xfs_bmapi_read
+Date:   Thu,  3 Oct 2019 17:52:24 +0200
+Message-Id: <20191003154328.784738427@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
 References: <20191003154318.081116689@linuxfoundation.org>
@@ -44,131 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Darrick J. Wong <darrick.wong@oracle.com>
 
-[ Upstream commit 3b295cb1a411d9c82bbfaa66bc17a8508716ed07 ]
+[ Upstream commit 8612de3f7ba6e900465e340516b8313806d27b2d ]
 
-We need to mark the output polling as disabled to prevent concurrent
-irqs from queuing new work as shutdown the probe -- causing that work to
-execute after we have freed the structs:
+Zorro Lang reported a crash in generic/475 if we try to inactivate a
+corrupt inode with a NULL attr fork (stack trace shortened somewhat):
 
-<4> [341.846490] DEBUG_LOCKS_WARN_ON(mutex_is_locked(lock))
-<4> [341.846497] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
-<4> [341.846508] Modules linked in: i915(-) vgem thunderbolt snd_hda_codec_hdmi snd_hda_codec_realtek snd_hda_codec_generic mei_hdcp x86_pkg_temp_thermal coretemp crct10dif_pclmul crc32_pclmul ghash_clmulni_intel snd_hda_codec snd_hwdep snd_hda_core snd_pcm mcs7830 btusb usbnet btrtl mii btbcm btintel bluetooth ecdh_generic ecc mei_me mei prime_numbers i2c_hid pinctrl_sunrisepoint pinctrl_intel [last unloaded: i915]
-<4> [341.846546] CPU: 3 PID: 3300 Comm: i915_module_loa Tainted: G     U            5.2.0-rc2-CI-CI_DRM_6175+ #1
-<4> [341.846553] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
-<4> [341.846560] RIP: 0010:mutex_destroy+0x49/0x50
-<4> [341.846565] Code: 00 00 5b c3 e8 a8 9f 3b 00 85 c0 74 ed 8b 05 3e 55 23 01 85 c0 75 e3 48 c7 c6 00 d0 08 82 48 c7 c7 a8 aa 07 82 e8 e7 08 fa ff <0f> 0b eb cc 0f 1f 00 48 b8 11 11 11 11 11 11 11 11 48 89 76 20 48
-<4> [341.846578] RSP: 0018:ffffc900006cfdb0 EFLAGS: 00010286
-<4> [341.846583] RAX: 0000000000000000 RBX: ffff88826759a168 RCX: 0000000000000000
-<4> [341.846589] RDX: 0000000000000002 RSI: 0000000000000000 RDI: ffffffff8112844c
-<4> [341.846595] RBP: ffff8882708fa548 R08: 0000000000000000 R09: 0000000000039600
-<4> [341.846601] R10: 0000000000000000 R11: 0000000000000ce4 R12: ffffffffa07de1e0
-<4> [341.846607] R13: 0000000000000000 R14: 0000000000000000 R15: ffffffffa07de2d0
-<4> [341.846613] FS:  00007f62b5ae0e40(0000) GS:ffff888276380000(0000) knlGS:0000000000000000
-<4> [341.846620] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [341.846626] CR2: 000055a4e064f4a0 CR3: 0000000266b16006 CR4: 00000000003606e0
-<4> [341.846632] Call Trace:
-<4> [341.846639]  drm_fb_helper_fini.part.17+0xb3/0x100
-<4> [341.846682]  intel_fbdev_fini+0x20/0x80 [i915]
-<4> [341.846722]  intel_modeset_cleanup+0x9a/0x140 [i915]
-<4> [341.846750]  i915_driver_unload+0xa3/0x100 [i915]
-<4> [341.846778]  i915_pci_remove+0x19/0x30 [i915]
-<4> [341.846784]  pci_device_remove+0x36/0xb0
-<4> [341.846790]  device_release_driver_internal+0xd3/0x1b0
-<4> [341.846795]  driver_detach+0x3f/0x80
-<4> [341.846800]  bus_remove_driver+0x53/0xd0
-<4> [341.846805]  pci_unregister_driver+0x25/0xa0
-<4> [341.846843]  i915_exit+0x16/0x1c [i915]
-<4> [341.846849]  __se_sys_delete_module+0x162/0x210
-<4> [341.846855]  ? trace_hardirqs_off_thunk+0x1a/0x1c
-<4> [341.846859]  ? do_syscall_64+0xd/0x1c0
-<4> [341.846864]  do_syscall_64+0x55/0x1c0
-<4> [341.846869]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-<4> [341.846875] RIP: 0033:0x7f62b51871b7
-<4> [341.846881] Code: 73 01 c3 48 8b 0d d1 8c 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a1 8c 2c 00 f7 d8 64 89 01 48
-<4> [341.846897] RSP: 002b:00007ffe7a227138 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
-<4> [341.846904] RAX: ffffffffffffffda RBX: 00007ffe7a2272b0 RCX: 00007f62b51871b7
-<4> [341.846910] RDX: 0000000000000001 RSI: 0000000000000800 RDI: 0000557cd6b55948
-<4> [341.846916] RBP: 0000557cd6b558e0 R08: 0000557cd6b5594c R09: 00007ffe7a227160
-<4> [341.846922] R10: 00007ffe7a226134 R11: 0000000000000206 R12: 0000000000000000
-<4> [341.846927] R13: 00007ffe7a227820 R14: 0000000000000000 R15: 0000000000000000
-<4> [341.846936] irq event stamp: 3547847
-<4> [341.846940] hardirqs last  enabled at (3547847): [<ffffffff819aad2c>] _raw_spin_unlock_irqrestore+0x4c/0x60
-<4> [341.846949] hardirqs last disabled at (3547846): [<ffffffff819aab9d>] _raw_spin_lock_irqsave+0xd/0x50
-<4> [341.846957] softirqs last  enabled at (3547376): [<ffffffff81c0033a>] __do_softirq+0x33a/0x4b9
-<4> [341.846966] softirqs last disabled at (3547367): [<ffffffff810b6379>] irq_exit+0xa9/0xc0
-<4> [341.846973] WARNING: CPU: 3 PID: 3300 at kernel/locking/mutex-debug.c:103 mutex_destroy+0x49/0x50
-<4> [341.846980] ---[ end trace ba94ca8952ba970e ]---
-<7> [341.866547] [drm:intel_dp_detect [i915]] MST support? port A: no, sink: no, modparam: yes
-<7> [341.890480] [drm:drm_add_display_info] non_desktop set to 0
-<7> [341.890530] [drm:drm_add_edid_modes] ELD: no CEA Extension found
-<7> [341.890537] [drm:drm_add_display_info] non_desktop set to 0
-<7> [341.890578] [drm:drm_helper_probe_single_connector_modes] [CONNECTOR:86:eDP-1] probed modes :
-<7> [341.890589] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 60 373250 3200 3248 3280 3360 1800 1803 1808 1852 0x48 0xa
-<7> [341.890602] [drm:drm_mode_debug_printmodeline] Modeline "3200x1800": 48 298600 3200 3248 3280 3360 1800 1803 1808 1852 0x40 0xa
-<4> [341.890628] general protection fault: 0000 [#1] PREEMPT SMP PTI
-<4> [341.890636] CPU: 0 PID: 508 Comm: kworker/0:4 Tainted: G     U  W         5.2.0-rc2-CI-CI_DRM_6175+ #1
-<4> [341.890646] Hardware name: Dell Inc. XPS 13 9360/0823VW, BIOS 2.9.0 07/09/2018
-<4> [341.890655] Workqueue: events output_poll_execute
-<4> [341.890663] RIP: 0010:drm_setup_crtcs+0x13e/0xbe0
-<4> [341.890669] Code: 00 41 8b 44 24 58 85 c0 0f 8e f9 01 00 00 44 8b 6c 24 20 44 8b 74 24 28 31 db 31 ed 49 8b 44 24 60 48 63 d5 44 89 ee 83 c5 01 <48> 8b 04 d0 44 89 f2 48 8b 38 48 8b 87 88 01 00 00 48 8b 40 20 e8
-<4> [341.890686] RSP: 0018:ffffc9000033fd40 EFLAGS: 00010202
-<4> [341.890692] RAX: 6b6b6b6b6b6b6b6b RBX: 0000000000000002 RCX: 0000000000000000
-<4> [341.890700] RDX: 0000000000000001 RSI: 0000000000000c80 RDI: 00000000ffffffff
-<4> [341.890707] RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
-<4> [341.890715] R10: 0000000000000c80 R11: 0000000000000000 R12: ffff888267599fe8
-<4> [341.890722] R13: 0000000000000c80 R14: 0000000000000708 R15: 0000000000000007
-<4> [341.890730] FS:  0000000000000000(0000) GS:ffff888276200000(0000) knlGS:0000000000000000
-<4> [341.890739] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-<4> [341.890745] CR2: 000055a4e064f4a0 CR3: 000000026d234003 CR4: 00000000003606f0
-<4> [341.890752] Call Trace:
-<4> [341.890760]  drm_fb_helper_hotplug_event.part.24+0x89/0xb0
-<4> [341.890768]  drm_kms_helper_hotplug_event+0x21/0x30
-<4> [341.890774]  output_poll_execute+0x9d/0x1a0
-<4> [341.890782]  process_one_work+0x245/0x610
-<4> [341.890790]  worker_thread+0x37/0x380
-<4> [341.890796]  ? process_one_work+0x610/0x610
-<4> [341.890802]  kthread+0x119/0x130
-<4> [341.890808]  ? kthread_park+0x80/0x80
-<4> [341.890815]  ret_from_fork+0x3a/0x50
+RIP: 0010:xfs_bmapi_read+0x311/0xb00 [xfs]
+RSP: 0018:ffff888047f9ed68 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888047f9f038 RCX: 1ffffffff5f99f51
+RDX: 0000000000000002 RSI: 0000000000000008 RDI: 0000000000000012
+RBP: ffff888002a41f00 R08: ffffed10005483f0 R09: ffffed10005483ef
+R10: ffffed10005483ef R11: ffff888002a41f7f R12: 0000000000000004
+R13: ffffe8fff53b5768 R14: 0000000000000005 R15: 0000000000000001
+FS:  00007f11d44b5b80(0000) GS:ffff888114200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000ef6000 CR3: 000000002e176003 CR4: 00000000001606e0
+Call Trace:
+ xfs_dabuf_map.constprop.18+0x696/0xe50 [xfs]
+ xfs_da_read_buf+0xf5/0x2c0 [xfs]
+ xfs_da3_node_read+0x1d/0x230 [xfs]
+ xfs_attr_inactive+0x3cc/0x5e0 [xfs]
+ xfs_inactive+0x4c8/0x5b0 [xfs]
+ xfs_fs_destroy_inode+0x31b/0x8e0 [xfs]
+ destroy_inode+0xbc/0x190
+ xfs_bulkstat_one_int+0xa8c/0x1200 [xfs]
+ xfs_bulkstat_one+0x16/0x20 [xfs]
+ xfs_bulkstat+0x6fa/0xf20 [xfs]
+ xfs_ioc_bulkstat+0x182/0x2b0 [xfs]
+ xfs_file_ioctl+0xee0/0x12a0 [xfs]
+ do_vfs_ioctl+0x193/0x1000
+ ksys_ioctl+0x60/0x90
+ __x64_sys_ioctl+0x6f/0xb0
+ do_syscall_64+0x9f/0x4d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f11d39a3e5b
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=109964
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Imre Deak <imre.deak@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603135910.15979-2-chris@chris-wilson.co.uk
+The "obvious" cause is that the attr ifork is null despite the inode
+claiming an attr fork having at least one extent, but it's not so
+obvious why we ended up with an inode in that state.
+
+Reported-by: Zorro Lang <zlang@redhat.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204031
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Bill O'Donnell <billodo@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_probe_helper.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_bmap.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index d7822bef19869..b33d39d9dd14d 100644
---- a/drivers/gpu/drm/drm_probe_helper.c
-+++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -387,6 +387,9 @@ static void output_poll_execute(struct work_struct *work)
- 	enum drm_connector_status old_status;
- 	bool repoll = false, changed;
+diff --git a/fs/xfs/libxfs/xfs_bmap.c b/fs/xfs/libxfs/xfs_bmap.c
+index 8ad65d43b65d8..d34085bf4a40b 100644
+--- a/fs/xfs/libxfs/xfs_bmap.c
++++ b/fs/xfs/libxfs/xfs_bmap.c
+@@ -4212,15 +4212,28 @@ xfs_bmapi_read(
+ 	XFS_STATS_INC(mp, xs_blk_mapr);
  
-+	if (!dev->mode_config.poll_enabled)
-+		return;
-+
- 	/* Pick up any changes detected by the probe functions. */
- 	changed = dev->mode_config.delayed_event;
- 	dev->mode_config.delayed_event = false;
-@@ -550,7 +553,11 @@ EXPORT_SYMBOL(drm_kms_helper_poll_init);
-  */
- void drm_kms_helper_poll_fini(struct drm_device *dev)
- {
--	drm_kms_helper_poll_disable(dev);
-+	if (!dev->mode_config.poll_enabled)
-+		return;
-+
-+	dev->mode_config.poll_enabled = false;
-+	cancel_delayed_work_sync(&dev->mode_config.output_poll_work);
- }
- EXPORT_SYMBOL(drm_kms_helper_poll_fini);
+ 	ifp = XFS_IFORK_PTR(ip, whichfork);
++	if (!ifp) {
++		/* No CoW fork?  Return a hole. */
++		if (whichfork == XFS_COW_FORK) {
++			mval->br_startoff = bno;
++			mval->br_startblock = HOLESTARTBLOCK;
++			mval->br_blockcount = len;
++			mval->br_state = XFS_EXT_NORM;
++			*nmap = 1;
++			return 0;
++		}
  
+-	/* No CoW fork?  Return a hole. */
+-	if (whichfork == XFS_COW_FORK && !ifp) {
+-		mval->br_startoff = bno;
+-		mval->br_startblock = HOLESTARTBLOCK;
+-		mval->br_blockcount = len;
+-		mval->br_state = XFS_EXT_NORM;
+-		*nmap = 1;
+-		return 0;
++		/*
++		 * A missing attr ifork implies that the inode says we're in
++		 * extents or btree format but failed to pass the inode fork
++		 * verifier while trying to load it.  Treat that as a file
++		 * corruption too.
++		 */
++#ifdef DEBUG
++		xfs_alert(mp, "%s: inode %llu missing fork %d",
++				__func__, ip->i_ino, whichfork);
++#endif /* DEBUG */
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if (!(ifp->if_flags & XFS_IFEXTENTS)) {
 -- 
 2.20.1
 
