@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAAC8CAB92
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16939CAD80
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730625AbfJCP4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 11:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38406 "EHLO mail.kernel.org"
+        id S1733120AbfJCRnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:43:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730610AbfJCP4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:56:31 -0400
+        id S1730621AbfJCP4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 11:56:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5FEC5207FF;
-        Thu,  3 Oct 2019 15:56:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1883D207FF;
+        Thu,  3 Oct 2019 15:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118190;
-        bh=PzDVJIaJusdMjmT/cggQNTFeh15nn52NkL+YCM8KRfM=;
+        s=default; t=1570118193;
+        bh=fH7xEbLSbHI/G2E3fCNaLnww3DvBBPdljFfySDZlM1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tP1JyMjqNZ4G7VDj0yjmFhwLQrUEUI9Chmze8ZHtD43VKglOn2MnvqOYAZY3zBSEs
-         2Xb8qod8zsUFXOCnQdH3zgIH4crZb/eKvXZDqIVc8geAitdrmagbt0cJf/dU358d9b
-         9T3g7t7u+uzw0PfFRzawXR2a9a3VMHooF/hwTW6A=
+        b=zsU6sq2S3UQDAj9qEPKF/y1dNgp4zXlv0WyhX31Dqdkd522KayDRReEzj08CnmRDA
+         ab8Fpc6WyawYHx8BZZ7/a2RQRdFMicznUgzaMLgscllTLpWzM4MMMvyFVgY1INh19x
+         ekKf941jQ6Ezpw0BLqTOEB2DvMnZRT8rTN+u0Uwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Mamonov <pmamonov@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.4 22/99] net/phy: fix DP83865 10 Mbps HDX loopback disable function
-Date:   Thu,  3 Oct 2019 17:52:45 +0200
-Message-Id: <20191003154304.750742111@linuxfoundation.org>
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Pravin B Shelar <pshelar@ovn.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 23/99] openvswitch: change type of UPCALL_PID attribute to NLA_UNSPEC
+Date:   Thu,  3 Oct 2019 17:52:46 +0200
+Message-Id: <20191003154305.326578184@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
 References: <20191003154252.297991283@linuxfoundation.org>
@@ -44,45 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Mamonov <pmamonov@gmail.com>
+From: Li RongQing <lirongqing@baidu.com>
 
-[ Upstream commit e47488b2df7f9cb405789c7f5d4c27909fc597ae ]
+[ Upstream commit ea8564c865299815095bebeb4b25bef474218e4c ]
 
-According to the DP83865 datasheet "the 10 Mbps HDX loopback can be
-disabled in the expanded memory register 0x1C0.1". The driver erroneously
-used bit 0 instead of bit 1.
+userspace openvswitch patch "(dpif-linux: Implement the API
+functions to allow multiple handler threads read upcall)"
+changes its type from U32 to UNSPEC, but leave the kernel
+unchanged
 
-Fixes: 4621bf129856 ("phy: Add file missed in previous commit.")
-Signed-off-by: Peter Mamonov <pmamonov@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+and after kernel 6e237d099fac "(netlink: Relax attr validation
+for fixed length types)", this bug is exposed by the below
+warning
+
+	[   57.215841] netlink: 'ovs-vswitchd': attribute type 5 has an invalid length.
+
+Fixes: 5cd667b0a456 ("openvswitch: Allow each vport to have an array of 'port_id's")
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Acked-by: Pravin B Shelar <pshelar@ovn.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/national.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/openvswitch/datapath.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/phy/national.c
-+++ b/drivers/net/phy/national.c
-@@ -110,14 +110,17 @@ static void ns_giga_speed_fallback(struc
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -2152,7 +2152,7 @@ static const struct nla_policy vport_pol
+ 	[OVS_VPORT_ATTR_STATS] = { .len = sizeof(struct ovs_vport_stats) },
+ 	[OVS_VPORT_ATTR_PORT_NO] = { .type = NLA_U32 },
+ 	[OVS_VPORT_ATTR_TYPE] = { .type = NLA_U32 },
+-	[OVS_VPORT_ATTR_UPCALL_PID] = { .type = NLA_U32 },
++	[OVS_VPORT_ATTR_UPCALL_PID] = { .type = NLA_UNSPEC },
+ 	[OVS_VPORT_ATTR_OPTIONS] = { .type = NLA_NESTED },
+ };
  
- static void ns_10_base_t_hdx_loopack(struct phy_device *phydev, int disable)
- {
-+	u16 lb_dis = BIT(1);
-+
- 	if (disable)
--		ns_exp_write(phydev, 0x1c0, ns_exp_read(phydev, 0x1c0) | 1);
-+		ns_exp_write(phydev, 0x1c0,
-+			     ns_exp_read(phydev, 0x1c0) | lb_dis);
- 	else
- 		ns_exp_write(phydev, 0x1c0,
--			     ns_exp_read(phydev, 0x1c0) & 0xfffe);
-+			     ns_exp_read(phydev, 0x1c0) & ~lb_dis);
- 
- 	pr_debug("10BASE-T HDX loopback %s\n",
--		 (ns_exp_read(phydev, 0x1c0) & 0x0001) ? "off" : "on");
-+		 (ns_exp_read(phydev, 0x1c0) & lb_dis) ? "off" : "on");
- }
- 
- static int ns_config_init(struct phy_device *phydev)
 
 
