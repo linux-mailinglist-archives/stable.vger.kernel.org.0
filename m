@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C40ECA576
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84648CA579
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390471AbfJCQem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:34:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43372 "EHLO mail.kernel.org"
+        id S2392148AbfJCQep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:34:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392148AbfJCQem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:34:42 -0400
+        id S1730354AbfJCQeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:34:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACFA72070B;
-        Thu,  3 Oct 2019 16:34:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 875BB2070B;
+        Thu,  3 Oct 2019 16:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120481;
-        bh=Pked2uDDLVovjt6dOYD0c9fDApYqn3LgQwFvjn28zlc=;
+        s=default; t=1570120484;
+        bh=e+vpEdynfvmz8PwJA4x8O4oVQGYU5GXH/XaFuuhjjPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zASLddE4BHedEw3djlFq+M+Un/xJkpEnDZCByD37x5Pkx3CHNjOw+VlcUiC6aTn00
-         CDXj3L+BywaZzqAFkiyEsB1RKp3MMrWm1GWUyTl22VVWszF7HmtKDfQR83vfVuxMFH
-         EMcUYC3PxRyL3nu9/clYL149h/yNCAn90XWIkqNg=
+        b=HeTxsRsGjk8/8bunH+n0Rs2oAR2XqMwAe5PJzOcstlbuCdVlMTLTyQNPQnzF6Rdjd
+         YfWaiCdiWIqhQLE/njt6GtGdr79XxhREXuP8mkItoNb2UA2hWU5bmOPYk/wnD/7LDu
+         M8qf7B8ZQH0d2UNOXolFYK7DM4iqFOZaUiMZu0Hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.2 237/313] fuse: fix beyond-end-of-page access in fuse_parse_cache()
-Date:   Thu,  3 Oct 2019 17:53:35 +0200
-Message-Id: <20191003154556.374840052@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Phil Scarr <phil.scarr@pm.me>
+Subject: [PATCH 5.2 238/313] parisc: Disable HP HSC-PCI Cards to prevent kernel crash
+Date:   Thu,  3 Oct 2019 17:53:36 +0200
+Message-Id: <20191003154556.490294105@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,72 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit e5854b1cdf6cb48a20e01e3bdad0476a4c60a077 upstream.
+commit 5fa1659105fac63e0f3c199b476025c2e04111ce upstream.
 
-With DEBUG_PAGEALLOC on, the following triggers.
+The HP Dino PCI controller chip can be used in two variants: as on-board
+controller (e.g. in B160L), or on an Add-On card ("Card-Mode") to bridge
+PCI components to systems without a PCI bus, e.g. to a HSC/GSC bus.  One
+such Add-On card is the HP HSC-PCI Card which has one or more DEC Tulip
+PCI NIC chips connected to the on-card Dino PCI controller.
 
-  BUG: unable to handle page fault for address: ffff88859367c000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 3001067 P4D 3001067 PUD 406d3a8067 PMD 406d30c067 PTE 800ffffa6c983060
-  Oops: 0000 [#1] SMP DEBUG_PAGEALLOC
-  CPU: 38 PID: 3110657 Comm: python2.7
-  RIP: 0010:fuse_readdir+0x88f/0xe7a [fuse]
-  Code: 49 8b 4d 08 49 39 4e 60 0f 84 44 04 00 00 48 8b 43 08 43 8d 1c 3c 4d 01 7e 68 49 89 dc 48 03 5c 24 38 49 89 46 60 8b 44 24 30 <8b> 4b 10 44 29 e0 48 89 ca 48 83 c1 1f 48 83 e1 f8 83 f8 17 49 89
-  RSP: 0018:ffffc90035edbde0 EFLAGS: 00010286
-  RAX: 0000000000001000 RBX: ffff88859367bff0 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff88859367bfed RDI: 0000000000920907
-  RBP: ffffc90035edbe90 R08: 000000000000014b R09: 0000000000000004
-  R10: ffff88859367b000 R11: 0000000000000000 R12: 0000000000000ff0
-  R13: ffffc90035edbee0 R14: ffff889fb8546180 R15: 0000000000000020
-  FS:  00007f80b5f4a740(0000) GS:ffff889fffa00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: ffff88859367c000 CR3: 0000001c170c2001 CR4: 00000000003606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   iterate_dir+0x122/0x180
-   __x64_sys_getdents+0xa6/0x140
-   do_syscall_64+0x42/0x100
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Dino in Card-Mode has a big disadvantage: All PCI memory accesses need
+to go through the DINO_MEM_DATA register, so Linux drivers will not be
+able to use the ioremap() function. Without ioremap() many drivers will
+not work, one example is the tulip driver which then simply crashes the
+kernel if it tries to access the ports on the HP HSC card.
 
-It's in fuse_parse_cache().  %rbx (ffff88859367bff0) is fuse_dirent
-pointer - addr + offset.  FUSE_DIRENT_SIZE() is trying to dereference
-namelen off of it but that derefs into the next page which is disabled
-by pagealloc debug causing a PF.
+This patch disables the HP HSC card if it finds one, and as such
+fixes the kernel crash on a HP D350/2 machine.
 
-This is caused by dirent->namelen being accessed before ensuring that
-there's enough bytes in the page for the dirent.  Fix it by pushing
-down reclen calculation.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Fixes: 5d7bc7e8680c ("fuse: allow using readdir cache")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Noticed-by: Phil Scarr <phil.scarr@pm.me>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/readdir.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/parisc/dino.c |   24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/fs/fuse/readdir.c
-+++ b/fs/fuse/readdir.c
-@@ -372,11 +372,13 @@ static enum fuse_parse_result fuse_parse
- 	for (;;) {
- 		struct fuse_dirent *dirent = addr + offset;
- 		unsigned int nbytes = size - offset;
--		size_t reclen = FUSE_DIRENT_SIZE(dirent);
-+		size_t reclen;
+--- a/drivers/parisc/dino.c
++++ b/drivers/parisc/dino.c
+@@ -156,6 +156,15 @@ static inline struct dino_device *DINO_D
+ 	return container_of(hba, struct dino_device, hba);
+ }
  
- 		if (nbytes < FUSE_NAME_OFFSET || !dirent->namelen)
- 			break;
- 
-+		reclen = FUSE_DIRENT_SIZE(dirent); /* derefs ->namelen */
++/* Check if PCI device is behind a Card-mode Dino. */
++static int pci_dev_is_behind_card_dino(struct pci_dev *dev)
++{
++	struct dino_device *dino_dev;
 +
- 		if (WARN_ON(dirent->namelen > FUSE_NAME_MAX))
- 			return FOUND_ERR;
- 		if (WARN_ON(reclen > nbytes))
++	dino_dev = DINO_DEV(parisc_walk_tree(dev->bus->bridge));
++	return is_card_dino(&dino_dev->hba.dev->id);
++}
++
+ /*
+  * Dino Configuration Space Accessor Functions
+  */
+@@ -437,6 +446,21 @@ static void quirk_cirrus_cardbus(struct
+ }
+ DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_CIRRUS, PCI_DEVICE_ID_CIRRUS_6832, quirk_cirrus_cardbus );
+ 
++#ifdef CONFIG_TULIP
++static void pci_fixup_tulip(struct pci_dev *dev)
++{
++	if (!pci_dev_is_behind_card_dino(dev))
++		return;
++	if (!(pci_resource_flags(dev, 1) & IORESOURCE_MEM))
++		return;
++	pr_warn("%s: HP HSC-PCI Cards with card-mode Dino not yet supported.\n",
++		pci_name(dev));
++	/* Disable this card by zeroing the PCI resources */
++	memset(&dev->resource[0], 0, sizeof(dev->resource[0]));
++	memset(&dev->resource[1], 0, sizeof(dev->resource[1]));
++}
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_DEC, PCI_ANY_ID, pci_fixup_tulip);
++#endif /* CONFIG_TULIP */
+ 
+ static void __init
+ dino_bios_init(void)
 
 
