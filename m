@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B65CAA9E
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B61DCAB2F
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392329AbfJCRKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41776 "EHLO mail.kernel.org"
+        id S1729586AbfJCRTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 13:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392032AbfJCQdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:42 -0400
+        id S2389850AbfJCQUO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:20:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E8AC20830;
-        Thu,  3 Oct 2019 16:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E5F22054F;
+        Thu,  3 Oct 2019 16:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120422;
-        bh=Oa22ffIU2Jf0c7DY4ADK8jkULI0dly0qUUAy6O5XH+0=;
+        s=default; t=1570119613;
+        bh=J4T6+B81gkpI9TCDtnorHdYhOeqwjXSYR9zZtDyn2aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDoyFQStpXr40S2P+2bgj7z35Vyz+dQJZISvDeXn+042eyWmPDNswNJtwe57qouIO
-         hop/imM1vYng9EalZSHtpAq0bIUfIm/wCuhcRQedLC0DbgGw50A3iNCBRhAAP4HeL3
-         DVNzm5E6HpenSYckao/dsxT7WKr8wHD3sWQwdKWo=
+        b=k2C4FMmwsMxPdf5liN/TObcI9X9x3BglL2n0aBWGpG1GGcLyaLTzO+otiskbLKwcN
+         hc2MPjzI/p7NoT81FLtlFAozZyeAigxFyI2LUzyxWtXIJnuJrn4A8buMdQH1jQo74R
+         6rVcyt94pggWvV/XRX8P8OLlpHs4K/YIUTFORIQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.2 217/313] ALSA: firewire-tascam: check intermediate state of clock status and retry
-Date:   Thu,  3 Oct 2019 17:53:15 +0200
-Message-Id: <20191003154554.402334322@linuxfoundation.org>
+        stable@vger.kernel.org, "M. Vefa Bicakci" <m.v.b@runbox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 130/211] platform/x86: intel_pmc_core: Do not ioremap RAM
+Date:   Thu,  3 Oct 2019 17:53:16 +0200
+Message-Id: <20191003154516.641195729@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,110 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: M. Vefa Bicakci <m.v.b@runbox.com>
 
-commit e1a00b5b253a4f97216b9a33199a863987075162 upstream.
+[ Upstream commit 7d505758b1e556cdf65a5e451744fe0ae8063d17 ]
 
-2 bytes in MSB of register for clock status is zero during intermediate
-state after changing status of sampling clock in models of TASCAM FireWire
-series. The duration of this state differs depending on cases. During the
-state, it's better to retry reading the register for current status of
-the clock.
+On a Xen-based PVH virtual machine with more than 4 GiB of RAM,
+intel_pmc_core fails initialization with the following warning message
+from the kernel, indicating that the driver is attempting to ioremap
+RAM:
 
-In current implementation, the intermediate state is checked only when
-getting current sampling transmission frequency, then retry reading.
-This care is required for the other operations to read the register.
+  ioremap on RAM at 0x00000000fe000000 - 0x00000000fe001fff
+  WARNING: CPU: 1 PID: 434 at arch/x86/mm/ioremap.c:186 __ioremap_caller.constprop.0+0x2aa/0x2c0
+...
+  Call Trace:
+   ? pmc_core_probe+0x87/0x2d0 [intel_pmc_core]
+   pmc_core_probe+0x87/0x2d0 [intel_pmc_core]
 
-This commit moves the codes of check and retry into helper function
-commonly used for operations to read the register.
+This issue appears to manifest itself because of the following fallback
+mechanism in the driver:
 
-Fixes: e453df44f0d6 ("ALSA: firewire-tascam: add PCM functionality")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20190910135152.29800-3-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	if (lpit_read_residency_count_address(&slp_s0_addr))
+		pmcdev->base_addr = PMC_BASE_ADDR_DEFAULT;
 
+The validity of address PMC_BASE_ADDR_DEFAULT (i.e., 0xFE000000) is not
+verified by the driver, which is what this patch introduces. With this
+patch, if address PMC_BASE_ADDR_DEFAULT is in RAM, then the driver will
+not attempt to ioremap the aforementioned address.
+
+Signed-off-by: M. Vefa Bicakci <m.v.b@runbox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/tascam/tascam-stream.c |   42 ++++++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+ drivers/platform/x86/intel_pmc_core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/sound/firewire/tascam/tascam-stream.c
-+++ b/sound/firewire/tascam/tascam-stream.c
-@@ -8,20 +8,37 @@
- #include <linux/delay.h>
- #include "tascam.h"
+diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
+index 088d1c2047e6b..36bd2545afb62 100644
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -685,10 +685,14 @@ static int __init pmc_core_probe(void)
+ 	if (pmcdev->map == &spt_reg_map && !pci_dev_present(pmc_pci_ids))
+ 		pmcdev->map = &cnp_reg_map;
  
-+#define CLOCK_STATUS_MASK      0xffff0000
-+#define CLOCK_CONFIG_MASK      0x0000ffff
+-	if (lpit_read_residency_count_address(&slp_s0_addr))
++	if (lpit_read_residency_count_address(&slp_s0_addr)) {
+ 		pmcdev->base_addr = PMC_BASE_ADDR_DEFAULT;
+-	else
 +
- #define CALLBACK_TIMEOUT 500
- 
- static int get_clock(struct snd_tscm *tscm, u32 *data)
- {
-+	int trial = 0;
- 	__be32 reg;
- 	int err;
- 
--	err = snd_fw_transaction(tscm->unit, TCODE_READ_QUADLET_REQUEST,
--				 TSCM_ADDR_BASE + TSCM_OFFSET_CLOCK_STATUS,
--				 &reg, sizeof(reg), 0);
--	if (err >= 0)
-+	while (trial++ < 5) {
-+		err = snd_fw_transaction(tscm->unit, TCODE_READ_QUADLET_REQUEST,
-+				TSCM_ADDR_BASE + TSCM_OFFSET_CLOCK_STATUS,
-+				&reg, sizeof(reg), 0);
-+		if (err < 0)
-+			return err;
-+
- 		*data = be32_to_cpu(reg);
-+		if (*data & CLOCK_STATUS_MASK)
-+			break;
-+
-+		// In intermediate state after changing clock status.
-+		msleep(50);
++		if (page_is_ram(PHYS_PFN(pmcdev->base_addr)))
++			return -ENODEV;
++	} else {
+ 		pmcdev->base_addr = slp_s0_addr - pmcdev->map->slp_s0_offset;
 +	}
  
--	return err;
-+	// Still in the intermediate state.
-+	if (trial >= 5)
-+		return -EAGAIN;
-+
-+	return 0;
- }
- 
- static int set_clock(struct snd_tscm *tscm, unsigned int rate,
-@@ -34,7 +51,7 @@ static int set_clock(struct snd_tscm *ts
- 	err = get_clock(tscm, &data);
- 	if (err < 0)
- 		return err;
--	data &= 0x0000ffff;
-+	data &= CLOCK_CONFIG_MASK;
- 
- 	if (rate > 0) {
- 		data &= 0x000000ff;
-@@ -79,17 +96,14 @@ static int set_clock(struct snd_tscm *ts
- 
- int snd_tscm_stream_get_rate(struct snd_tscm *tscm, unsigned int *rate)
- {
--	u32 data = 0x0;
--	unsigned int trials = 0;
-+	u32 data;
- 	int err;
- 
--	while (data == 0x0 || trials++ < 5) {
--		err = get_clock(tscm, &data);
--		if (err < 0)
--			return err;
-+	err = get_clock(tscm, &data);
-+	if (err < 0)
-+		return err;
- 
--		data = (data & 0xff000000) >> 24;
--	}
-+	data = (data & 0xff000000) >> 24;
- 
- 	/* Check base rate. */
- 	if ((data & 0x0f) == 0x01)
+ 	pmcdev->regbase = ioremap(pmcdev->base_addr,
+ 				  pmcdev->map->regmap_length);
+-- 
+2.20.1
+
 
 
