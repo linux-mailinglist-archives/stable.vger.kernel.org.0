@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0030CA3A0
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D52FCA3A2
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732422AbfJCQRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42910 "EHLO mail.kernel.org"
+        id S2389205AbfJCQRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389205AbfJCQRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:17:17 -0400
+        id S2388394AbfJCQRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:17:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F7B320700;
-        Thu,  3 Oct 2019 16:17:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 869B020865;
+        Thu,  3 Oct 2019 16:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570119436;
-        bh=Oh+7ZXgLTx07OWwHyaxKMRlgpijwLPFXyLLpXRu+Qls=;
+        s=default; t=1570119441;
+        bh=vpb3RdfOJRrO7WE5fuKy6/hyWAMQx4pHWPaGXtcDL2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjOPlZcT6E21D6T99/2ymp2LaxC+TMlDCi1q4itAHYnMCnBNmybFNuTbgkoe4JlYO
-         etznXaQXurRKBKTLnAZaFGw8B/k/o7Oqt9MnWU309uGpE1Fc4bms9NSUxFC3BNCdft
-         bba0ZSSqaQGIqn4eBM6kXpmM9TbkEPAx8M9w9fa4=
+        b=N4qex38C1WM2eT8VwKRiodA1lKHWiOR0VVQp/l+0MPPkMpLLzKUE1nHxkXnp8k37p
+         ka8ITGv7SXtyU7OIk3mTTNUpkQI9dJOVpEszYPHfi6b1rHN7vtCUnPy4khpcJwM4Ii
+         c0bdafYUwmiY0iKUybzeQqG3FysgEG9P4mHUrXwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Quinlan <james.quinlan@broadcom.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/211] firmware: arm_scmi: Check if platform has released shmem before using
-Date:   Thu,  3 Oct 2019 17:52:09 +0200
-Message-Id: <20191003154502.983205965@linuxfoundation.org>
+Subject: [PATCH 4.19 065/211] idle: Prevent late-arriving interrupts from disrupting offline
+Date:   Thu,  3 Oct 2019 17:52:11 +0200
+Message-Id: <20191003154503.434608576@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
 References: <20191003154447.010950442@linuxfoundation.org>
@@ -44,52 +47,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9dc34d635c67e57051853855c43249408641a5ab ]
+[ Upstream commit e78a7614f3876ac649b3df608789cb6ef74d0480 ]
 
-Sometimes platfom may take too long to respond to the command and OS
-might timeout before platform transfer the ownership of the shared
-memory region to the OS with the response.
+Scheduling-clock interrupts can arrive late in the CPU-offline process,
+after idle entry and the subsequent call to cpuhp_report_idle_dead().
+Once execution passes the call to rcu_report_dead(), RCU is ignoring
+the CPU, which results in lockdep complaints when the interrupt handler
+uses RCU:
 
-Since the mailbox channel associated with the channel is freed and new
-commands are dispatch on the same channel, OS needs to wait until it
-gets back the ownership. If not, either OS may end up overwriting the
-platform response for the last command(which is fine as OS timed out
-that command) or platform might overwrite the payload for the next
-command with the response for the old.
+------------------------------------------------------------------------
 
-The latter is problematic as platform may end up interpretting the
-response as the payload. In order to avoid such race, let's wait until
-the OS gets back the ownership before we prepare the shared memory with
-the payload for the next command.
+=============================
+WARNING: suspicious RCU usage
+5.2.0-rc1+ #681 Not tainted
+-----------------------------
+kernel/sched/fair.c:9542 suspicious rcu_dereference_check() usage!
 
-Reported-by: Jim Quinlan <james.quinlan@broadcom.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+other info that might help us debug this:
+
+RCU used illegally from offline CPU!
+rcu_scheduler_active = 2, debug_locks = 1
+no locks held by swapper/5/0.
+
+stack backtrace:
+CPU: 5 PID: 0 Comm: swapper/5 Not tainted 5.2.0-rc1+ #681
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS Bochs 01/01/2011
+Call Trace:
+ <IRQ>
+ dump_stack+0x5e/0x8b
+ trigger_load_balance+0xa8/0x390
+ ? tick_sched_do_timer+0x60/0x60
+ update_process_times+0x3b/0x50
+ tick_sched_handle+0x2f/0x40
+ tick_sched_timer+0x32/0x70
+ __hrtimer_run_queues+0xd3/0x3b0
+ hrtimer_interrupt+0x11d/0x270
+ ? sched_clock_local+0xc/0x74
+ smp_apic_timer_interrupt+0x79/0x200
+ apic_timer_interrupt+0xf/0x20
+ </IRQ>
+RIP: 0010:delay_tsc+0x22/0x50
+Code: ff 0f 1f 80 00 00 00 00 65 44 8b 05 18 a7 11 48 0f ae e8 0f 31 48 89 d6 48 c1 e6 20 48 09 c6 eb 0e f3 90 65 8b 05 fe a6 11 48 <41> 39 c0 75 18 0f ae e8 0f 31 48 c1 e2 20 48 09 c2 48 89 d0 48 29
+RSP: 0000:ffff8f92c0157ed0 EFLAGS: 00000212 ORIG_RAX: ffffffffffffff13
+RAX: 0000000000000005 RBX: ffff8c861f356400 RCX: ffff8f92c0157e64
+RDX: 000000321214c8cc RSI: 00000032120daa7f RDI: 0000000000260f15
+RBP: 0000000000000005 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000000
+R13: 0000000000000000 R14: ffff8c861ee18000 R15: ffff8c861ee18000
+ cpuhp_report_idle_dead+0x31/0x60
+ do_idle+0x1d5/0x200
+ ? _raw_spin_unlock_irqrestore+0x2d/0x40
+ cpu_startup_entry+0x14/0x20
+ start_secondary+0x151/0x170
+ secondary_startup_64+0xa4/0xb0
+
+------------------------------------------------------------------------
+
+This happens rarely, but can be forced by happen more often by
+placing delays in cpuhp_report_idle_dead() following the call to
+rcu_report_dead().  With this in place, the following rcutorture
+scenario reproduces the problem within a few minutes:
+
+tools/testing/selftests/rcutorture/bin/kvm.sh --cpus 8 --duration 5 --kconfig "CONFIG_DEBUG_LOCK_ALLOC=y CONFIG_PROVE_LOCKING=y" --configs "TREE04"
+
+This commit uses the crude but effective expedient of moving the disabling
+of interrupts within the idle loop to precede the cpu_is_offline()
+check.  It also invokes tick_nohz_idle_stop_tick() instead of
+tick_nohz_idle_stop_tick_protected() to shut off the scheduling-clock
+interrupt.
+
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+[ paulmck: Revert tick_nohz_idle_stop_tick_protected() removal, new callers. ]
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/driver.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/sched/idle.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index 8f952f2f1a292..09119e3f5c018 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -271,6 +271,14 @@ static void scmi_tx_prepare(struct mbox_client *cl, void *m)
- 	struct scmi_chan_info *cinfo = client_to_scmi_chan_info(cl);
- 	struct scmi_shared_mem __iomem *mem = cinfo->payload;
+diff --git a/kernel/sched/idle.c b/kernel/sched/idle.c
+index 16f84142f2f49..44a17366c8ec2 100644
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -240,13 +240,14 @@ static void do_idle(void)
+ 		check_pgt_cache();
+ 		rmb();
  
-+	/*
-+	 * Ideally channel must be free by now unless OS timeout last
-+	 * request and platform continued to process the same, wait
-+	 * until it releases the shared memory, otherwise we may endup
-+	 * overwriting its response with new message payload or vice-versa
-+	 */
-+	spin_until_cond(ioread32(&mem->channel_status) &
-+			SCMI_SHMEM_CHAN_STAT_CHANNEL_FREE);
- 	/* Mark channel busy + clear error */
- 	iowrite32(0x0, &mem->channel_status);
- 	iowrite32(t->hdr.poll_completion ? 0 : SCMI_SHMEM_FLAG_INTR_ENABLED,
++		local_irq_disable();
++
+ 		if (cpu_is_offline(cpu)) {
+-			tick_nohz_idle_stop_tick_protected();
++			tick_nohz_idle_stop_tick();
+ 			cpuhp_report_idle_dead();
+ 			arch_cpu_idle_dead();
+ 		}
+ 
+-		local_irq_disable();
+ 		arch_cpu_idle_enter();
+ 
+ 		/*
 -- 
 2.20.1
 
