@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 196E7CAAA0
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF7FCAA22
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730393AbfJCRKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41498 "EHLO mail.kernel.org"
+        id S2389789AbfJCQUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:20:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404109AbfJCQd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:33:29 -0400
+        id S2388805AbfJCQT7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:19:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30B5420830;
-        Thu,  3 Oct 2019 16:33:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48EBD215EA;
+        Thu,  3 Oct 2019 16:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120408;
-        bh=UxrkhlOJ5LfTfHbwZvKs7QiZcYpNZh7w2BoGwiaiP/4=;
+        s=default; t=1570119598;
+        bh=57zbMiVngujYeilxbGZGmOy0krEqRQDQymwGIukHjns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOEHA7TR90Z/qhB2PKaeXBtbDjTEWrJoTnTtkmMuSc47kXnAaUl/rMXnCgHwfI1/z
-         Cs82UYtn9k/W0Mml47SJwTSWcZLLivQ/SPjGcSgB4cMErc9udjuGVcN5D962b5v266
-         Qkrsc/hPojxEe7dgQlfgwB1ilQAwdS1wBzR8/f9Q=
+        b=A8kMR9HSmZY6PK3nBDYiF1e+IA6vDERFhObXj35Abxe24rTyR55oElgRnlrpOy9un
+         trFKiXWfVqQf4fv+Rs9x/oje5Nij//76LcwtEgDe0atPCQP0rG3ZFcsFpGsaPn/GKS
+         5KlApzrRVxSztxql8Rkgfh35F4sF+q1Hgg+QHnu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Yufen Yu <yuyufen@huawei.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 212/313] PM / devfreq: passive: fix compiler warning
-Date:   Thu,  3 Oct 2019 17:53:10 +0200
-Message-Id: <20191003154553.868738806@linuxfoundation.org>
+Subject: [PATCH 4.19 125/211] md/raid1: fail run raid1 array when active disk less than one
+Date:   Thu,  3 Oct 2019 17:53:11 +0200
+Message-Id: <20191003154515.507071696@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
-References: <20191003154533.590915454@linuxfoundation.org>
+In-Reply-To: <20191003154447.010950442@linuxfoundation.org>
+References: <20191003154447.010950442@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: MyungJoo Ham <myungjoo.ham@samsung.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 0465814831a926ce2f83e8f606d067d86745234e ]
+[ Upstream commit 07f1a6850c5d5a65c917c3165692b5179ac4cb6b ]
 
-The recent commit of
-PM / devfreq: passive: Use non-devm notifiers
-had incurred compiler warning, "unused variable 'dev'".
+When run test case:
+  mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
+  mdadm -S /dev/md1
+  mdadm -A /dev/md1 /dev/sd[b-c] --run --force
 
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+  mdadm --zero /dev/sda
+  mdadm /dev/md1 -a /dev/sda
+
+  echo offline > /sys/block/sdc/device/state
+  echo offline > /sys/block/sdb/device/state
+  sleep 5
+  mdadm -S /dev/md1
+
+  echo running > /sys/block/sdb/device/state
+  echo running > /sys/block/sdc/device/state
+  mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+
+mdadm run fail with kernel message as follow:
+[  172.986064] md: kicking non-fresh sdb from array!
+[  173.004210] md: kicking non-fresh sdc from array!
+[  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+[  173.022406] md1: failed to create bitmap (-5)
+
+In fact, when active disk in raid1 array less than one, we
+need to return fail in raid1_run().
+
+Reviewed-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/governor_passive.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/md/raid1.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/devfreq/governor_passive.c b/drivers/devfreq/governor_passive.c
-index da485477065c5..be6eeab9c814e 100644
---- a/drivers/devfreq/governor_passive.c
-+++ b/drivers/devfreq/governor_passive.c
-@@ -149,7 +149,6 @@ static int devfreq_passive_notifier_call(struct notifier_block *nb,
- static int devfreq_passive_event_handler(struct devfreq *devfreq,
- 				unsigned int event, void *data)
- {
--	struct device *dev = devfreq->dev.parent;
- 	struct devfreq_passive_data *p_data
- 			= (struct devfreq_passive_data *)devfreq->data;
- 	struct devfreq *parent = (struct devfreq *)p_data->parent;
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 54010675df9a5..6929d110d8048 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -3105,6 +3105,13 @@ static int raid1_run(struct mddev *mddev)
+ 		    !test_bit(In_sync, &conf->mirrors[i].rdev->flags) ||
+ 		    test_bit(Faulty, &conf->mirrors[i].rdev->flags))
+ 			mddev->degraded++;
++	/*
++	 * RAID1 needs at least one disk in active
++	 */
++	if (conf->raid_disks - mddev->degraded < 1) {
++		ret = -EINVAL;
++		goto abort;
++	}
+ 
+ 	if (conf->raid_disks - mddev->degraded == 1)
+ 		mddev->recovery_cp = MaxSector;
+@@ -3138,8 +3145,12 @@ static int raid1_run(struct mddev *mddev)
+ 	ret =  md_integrity_register(mddev);
+ 	if (ret) {
+ 		md_unregister_thread(&mddev->thread);
+-		raid1_free(mddev, conf);
++		goto abort;
+ 	}
++	return 0;
++
++abort:
++	raid1_free(mddev, conf);
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
