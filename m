@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 695E2CA296
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F95ECA2AB
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732850AbfJCQG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54420 "EHLO mail.kernel.org"
+        id S1732250AbfJCQHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732847AbfJCQGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:06:55 -0400
+        id S1733013AbfJCQHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:07:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F352215EA;
-        Thu,  3 Oct 2019 16:06:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF2E9207FF;
+        Thu,  3 Oct 2019 16:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118815;
-        bh=W/MQtJc3HNF8IPyUepQOWlDMkAdB3bVfVEgqHk2M5u0=;
+        s=default; t=1570118871;
+        bh=BIohoXAlhVB4rZBWYriKGkkUxUnJUI9fxltSi2I7I1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uVxOKL3/Icl4kYvWeNhKD1ECXxYkWrflId52G1ZdVPMqiM4GtM1cGLaWFoYVA9/U2
-         CP9lwvqzNHnygqAXENu3+k6QDsgvmuNNwT/46I1AfDI0gWwpyUnbU1oAvFrXyFnmhs
-         AEuOc0sDgjRVkv4H1poUqIhuWeJB/XKEYriGCuEs=
+        b=KihU/GQvfkjg5KNMhTuTIEHjj+Fh66SmX8sT51mlHy5GGkSPiXr/6pmJ0NMmkggAC
+         6+ThM7rWfXwwRj38pCl2XGX6iHWFiz0BJmZKAAQNne3YwKg+swzVjQ+H12iZ7H4SZE
+         lnN85LJNxWgN+n2237sVqR3H0oWQU0dumiTSD9c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 002/185] powerpc/xive: Fix bogus error code returned by OPAL
-Date:   Thu,  3 Oct 2019 17:51:20 +0200
-Message-Id: <20191003154437.856017779@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.m>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 004/185] IB/core: Add an unbound WQ type to the new CQ API
+Date:   Thu,  3 Oct 2019 17:51:22 +0200
+Message-Id: <20191003154438.325611744@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
 References: <20191003154437.541662648@linuxfoundation.org>
@@ -44,84 +46,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kurz <groug@kaod.org>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-commit 6ccb4ac2bf8a35c694ead92f8ac5530a16e8f2c8 upstream.
+commit f794809a7259dfaa3d47d90ef5a86007cf48b1ce upstream.
 
-There's a bug in skiboot that causes the OPAL_XIVE_ALLOCATE_IRQ call
-to return the 32-bit value 0xffffffff when OPAL has run out of IRQs.
-Unfortunatelty, OPAL return values are signed 64-bit entities and
-errors are supposed to be negative. If that happens, the linux code
-confusingly treats 0xffffffff as a valid IRQ number and panics at some
-point.
+The upstream kernel commit cited below modified the workqueue in the
+new CQ API to be bound to a specific CPU (instead of being unbound).
+This caused ALL users of the new CQ API to use the same bound WQ.
 
-A fix was recently merged in skiboot:
+Specifically, MAD handling was severely delayed when the CPU bound
+to the WQ was busy handling (higher priority) interrupts.
 
-e97391ae2bb5 ("xive: fix return value of opal_xive_allocate_irq()")
+This caused a delay in the MAD "heartbeat" response handling,
+which resulted in ports being incorrectly classified as "down".
 
-but we need a workaround anyway to support older skiboots already
-in the field.
+To fix this, add a new "unbound" WQ type to the new CQ API, so that users
+have the option to choose either a bound WQ or an unbound WQ.
 
-Internally convert 0xffffffff to OPAL_RESOURCE which is the usual error
-returned upon resource exhaustion.
+For MADs, choose the new "unbound" WQ.
 
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/156821713818.1985334.14123187368108582810.stgit@bahia.lan
-(groug: fix arch/powerpc/platforms/powernv/opal-wrappers.S instead of
-        non-existing arch/powerpc/platforms/powernv/opal-call.c)
-Signed-off-by: Greg Kurz <groug@kaod.org>
+Fixes: b7363e67b23e ("IB/device: Convert ib-comp-wq to be CPU-bound")
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.m>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/opal.h                |    2 +-
- arch/powerpc/platforms/powernv/opal-wrappers.S |    2 +-
- arch/powerpc/sysdev/xive/native.c              |   11 +++++++++++
- 3 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cq.c     |    8 ++++++--
+ drivers/infiniband/core/device.c |   15 ++++++++++++++-
+ drivers/infiniband/core/mad.c    |    2 +-
+ include/rdma/ib_verbs.h          |    9 ++++++---
+ 4 files changed, 27 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/include/asm/opal.h
-+++ b/arch/powerpc/include/asm/opal.h
-@@ -266,7 +266,7 @@ int64_t opal_xive_get_vp_info(uint64_t v
- int64_t opal_xive_set_vp_info(uint64_t vp,
- 			      uint64_t flags,
- 			      uint64_t report_cl_pair);
--int64_t opal_xive_allocate_irq(uint32_t chip_id);
-+int64_t opal_xive_allocate_irq_raw(uint32_t chip_id);
- int64_t opal_xive_free_irq(uint32_t girq);
- int64_t opal_xive_sync(uint32_t type, uint32_t id);
- int64_t opal_xive_dump(uint32_t type, uint32_t id);
---- a/arch/powerpc/platforms/powernv/opal-wrappers.S
-+++ b/arch/powerpc/platforms/powernv/opal-wrappers.S
-@@ -301,7 +301,7 @@ OPAL_CALL(opal_xive_set_queue_info,		OPA
- OPAL_CALL(opal_xive_donate_page,		OPAL_XIVE_DONATE_PAGE);
- OPAL_CALL(opal_xive_alloc_vp_block,		OPAL_XIVE_ALLOCATE_VP_BLOCK);
- OPAL_CALL(opal_xive_free_vp_block,		OPAL_XIVE_FREE_VP_BLOCK);
--OPAL_CALL(opal_xive_allocate_irq,		OPAL_XIVE_ALLOCATE_IRQ);
-+OPAL_CALL(opal_xive_allocate_irq_raw,		OPAL_XIVE_ALLOCATE_IRQ);
- OPAL_CALL(opal_xive_free_irq,			OPAL_XIVE_FREE_IRQ);
- OPAL_CALL(opal_xive_get_vp_info,		OPAL_XIVE_GET_VP_INFO);
- OPAL_CALL(opal_xive_set_vp_info,		OPAL_XIVE_SET_VP_INFO);
---- a/arch/powerpc/sysdev/xive/native.c
-+++ b/arch/powerpc/sysdev/xive/native.c
-@@ -234,6 +234,17 @@ static bool xive_native_match(struct dev
- 	return of_device_is_compatible(node, "ibm,opal-xive-vc");
+--- a/drivers/infiniband/core/cq.c
++++ b/drivers/infiniband/core/cq.c
+@@ -112,12 +112,12 @@ static void ib_cq_poll_work(struct work_
+ 				    IB_POLL_BATCH);
+ 	if (completed >= IB_POLL_BUDGET_WORKQUEUE ||
+ 	    ib_req_notify_cq(cq, IB_POLL_FLAGS) > 0)
+-		queue_work(ib_comp_wq, &cq->work);
++		queue_work(cq->comp_wq, &cq->work);
  }
  
-+static s64 opal_xive_allocate_irq(u32 chip_id)
-+{
-+	s64 irq = opal_xive_allocate_irq_raw(chip_id);
-+
-+	/*
-+	 * Old versions of skiboot can incorrectly return 0xffffffff to
-+	 * indicate no space, fix it up here.
-+	 */
-+	return irq == 0xffffffff ? OPAL_RESOURCE : irq;
-+}
-+
- #ifdef CONFIG_SMP
- static int xive_native_get_ipi(unsigned int cpu, struct xive_cpu *xc)
+ static void ib_cq_completion_workqueue(struct ib_cq *cq, void *private)
  {
+-	queue_work(ib_comp_wq, &cq->work);
++	queue_work(cq->comp_wq, &cq->work);
+ }
+ 
+ /**
+@@ -169,9 +169,12 @@ struct ib_cq *ib_alloc_cq(struct ib_devi
+ 		ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
+ 		break;
+ 	case IB_POLL_WORKQUEUE:
++	case IB_POLL_UNBOUND_WORKQUEUE:
+ 		cq->comp_handler = ib_cq_completion_workqueue;
+ 		INIT_WORK(&cq->work, ib_cq_poll_work);
+ 		ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
++		cq->comp_wq = (cq->poll_ctx == IB_POLL_WORKQUEUE) ?
++				ib_comp_wq : ib_comp_unbound_wq;
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -206,6 +209,7 @@ void ib_free_cq(struct ib_cq *cq)
+ 		irq_poll_disable(&cq->iop);
+ 		break;
+ 	case IB_POLL_WORKQUEUE:
++	case IB_POLL_UNBOUND_WORKQUEUE:
+ 		cancel_work_sync(&cq->work);
+ 		break;
+ 	default:
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -61,6 +61,7 @@ struct ib_client_data {
+ };
+ 
+ struct workqueue_struct *ib_comp_wq;
++struct workqueue_struct *ib_comp_unbound_wq;
+ struct workqueue_struct *ib_wq;
+ EXPORT_SYMBOL_GPL(ib_wq);
+ 
+@@ -1202,10 +1203,19 @@ static int __init ib_core_init(void)
+ 		goto err;
+ 	}
+ 
++	ib_comp_unbound_wq =
++		alloc_workqueue("ib-comp-unb-wq",
++				WQ_UNBOUND | WQ_HIGHPRI | WQ_MEM_RECLAIM |
++				WQ_SYSFS, WQ_UNBOUND_MAX_ACTIVE);
++	if (!ib_comp_unbound_wq) {
++		ret = -ENOMEM;
++		goto err_comp;
++	}
++
+ 	ret = class_register(&ib_class);
+ 	if (ret) {
+ 		pr_warn("Couldn't create InfiniBand device class\n");
+-		goto err_comp;
++		goto err_comp_unbound;
+ 	}
+ 
+ 	ret = rdma_nl_init();
+@@ -1254,6 +1264,8 @@ err_ibnl:
+ 	rdma_nl_exit();
+ err_sysfs:
+ 	class_unregister(&ib_class);
++err_comp_unbound:
++	destroy_workqueue(ib_comp_unbound_wq);
+ err_comp:
+ 	destroy_workqueue(ib_comp_wq);
+ err:
+@@ -1272,6 +1284,7 @@ static void __exit ib_core_cleanup(void)
+ 	addr_cleanup();
+ 	rdma_nl_exit();
+ 	class_unregister(&ib_class);
++	destroy_workqueue(ib_comp_unbound_wq);
+ 	destroy_workqueue(ib_comp_wq);
+ 	/* Make sure that any pending umem accounting work is done. */
+ 	destroy_workqueue(ib_wq);
+--- a/drivers/infiniband/core/mad.c
++++ b/drivers/infiniband/core/mad.c
+@@ -3178,7 +3178,7 @@ static int ib_mad_port_open(struct ib_de
+ 	}
+ 
+ 	port_priv->cq = ib_alloc_cq(port_priv->device, port_priv, cq_size, 0,
+-			IB_POLL_WORKQUEUE);
++			IB_POLL_UNBOUND_WORKQUEUE);
+ 	if (IS_ERR(port_priv->cq)) {
+ 		dev_err(&device->dev, "Couldn't create ib_mad CQ\n");
+ 		ret = PTR_ERR(port_priv->cq);
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -68,6 +68,7 @@
+ 
+ extern struct workqueue_struct *ib_wq;
+ extern struct workqueue_struct *ib_comp_wq;
++extern struct workqueue_struct *ib_comp_unbound_wq;
+ 
+ union ib_gid {
+ 	u8	raw[16];
+@@ -1544,9 +1545,10 @@ struct ib_ah {
+ typedef void (*ib_comp_handler)(struct ib_cq *cq, void *cq_context);
+ 
+ enum ib_poll_context {
+-	IB_POLL_DIRECT,		/* caller context, no hw completions */
+-	IB_POLL_SOFTIRQ,	/* poll from softirq context */
+-	IB_POLL_WORKQUEUE,	/* poll from workqueue */
++	IB_POLL_DIRECT,		   /* caller context, no hw completions */
++	IB_POLL_SOFTIRQ,	   /* poll from softirq context */
++	IB_POLL_WORKQUEUE,	   /* poll from workqueue */
++	IB_POLL_UNBOUND_WORKQUEUE, /* poll from unbound workqueue */
+ };
+ 
+ struct ib_cq {
+@@ -1563,6 +1565,7 @@ struct ib_cq {
+ 		struct irq_poll		iop;
+ 		struct work_struct	work;
+ 	};
++	struct workqueue_struct *comp_wq;
+ };
+ 
+ struct ib_srq {
 
 
