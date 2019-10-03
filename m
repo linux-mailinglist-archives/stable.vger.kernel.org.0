@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8F4CA778
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6253DCA5F4
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 18:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405701AbfJCQyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:54:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41544 "EHLO mail.kernel.org"
+        id S2392306AbfJCQiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:38:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406415AbfJCQxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:53:30 -0400
+        id S2392144AbfJCQiX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:38:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 080FE20862;
-        Thu,  3 Oct 2019 16:53:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3ACC20830;
+        Thu,  3 Oct 2019 16:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570121609;
-        bh=Tek2S5ozdBKs5F5n9CWzI7W0uvZebdyiHH8VgKUx6vE=;
+        s=default; t=1570120702;
+        bh=apEfD4q9zyhxqB3xsHAa2NQ+UoWoYJIDYz+hdQ4OCN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oc2QdUuNHHtExiv1wQzV0esZxyfMV7sQHg9EDiPEcqGHGp/rHVq8BBgwvCHSWJWYP
-         G3bj7NRg/XAoqVXuvfb8VAA82uTIFrVr5Dp4OC+jJyaOdALNBbI1KKw+9g78H+2WKC
-         M3+OBt07/4pKrHigeU1dUz8z/gdpufVcyh5QWqHw=
+        b=dj3ZYgT4JvZBA69e3qoZv+2DV15m5ZWNui8pG1Ap3563UvmotZscqQxyfTKbKyPEc
+         Fdb7U3fj5TiE6xOJBTq36beRLSSmEvkPFbrXm5vfB8RWVdthKtyHY+ZcxbuJdvewte
+         gSEH6GySlVVUPtQ2vU4DvGokHoTCNJifTZ6//2Fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Aurelien Aptel <aaptel@suse.com>
-Subject: [PATCH 5.3 305/344] smb3: fix unmount hang in open_shroot
+        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 5.2 292/313] md/raid6: Set R5_ReadError when there is read failure on parity disk
 Date:   Thu,  3 Oct 2019 17:54:30 +0200
-Message-Id: <20191003154609.431149924@linuxfoundation.org>
+Message-Id: <20191003154601.901780807@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154540.062170222@linuxfoundation.org>
-References: <20191003154540.062170222@linuxfoundation.org>
+In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
+References: <20191003154533.590915454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Xiao Ni <xni@redhat.com>
 
-commit 96d9f7ed00b86104bf03adeffc8980897e9694ab upstream.
+commit 143f6e733b73051cd22dcb80951c6c929da413ce upstream.
 
-An earlier patch "CIFS: fix deadlock in cached root handling"
-did not completely address the deadlock in open_shroot. This
-patch addresses the deadlock.
+7471fb77ce4d ("md/raid6: Fix anomily when recovering a single device in
+RAID6.") avoids rereading P when it can be computed from other members.
+However, this misses the chance to re-write the right data to P. This
+patch sets R5_ReadError if the re-read fails.
 
-In testing the recent patch:
-  smb3: improve handling of share deleted (and share recreated)
-we were able to reproduce the open_shroot deadlock to one
-of the target servers in unmount in a delete share scenario.
+Also, when re-read is skipped, we also missed the chance to reset
+rdev->read_errors to 0. It can fail the disk when there are many read
+errors on P member disk (other disks don't have read error)
 
-Fixes: 7e5a70ad88b1e ("CIFS: fix deadlock in cached root handling")
+V2: upper layer read request don't read parity/Q data. So there is no
+need to consider such situation.
 
-This is version 2 of this patch. An earlier version of this
-patch "smb3: fix unmount hang in open_shroot" had a problem
-found by Dan.
+This is Reported-by: kbuild test robot <lkp@intel.com>
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Suggested-by: Pavel Shilovsky <pshilov@microsoft.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Aurelien Aptel <aaptel@suse.com>
-CC: Stable <stable@vger.kernel.org>
+Fixes: 7471fb77ce4d ("md/raid6: Fix anomily when recovering a single device in RAID6.")
+Cc: <stable@vger.kernel.org> #4.4+
+Signed-off-by: Xiao Ni <xni@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb2ops.c |   21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/md/raid5.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -656,6 +656,15 @@ int open_shroot(unsigned int xid, struct
- 		return 0;
- 	}
- 
-+	/*
-+	 * We do not hold the lock for the open because in case
-+	 * SMB2_open needs to reconnect, it will end up calling
-+	 * cifs_mark_open_files_invalid() which takes the lock again
-+	 * thus causing a deadlock
-+	 */
-+
-+	mutex_unlock(&tcon->crfid.fid_mutex);
-+
- 	if (smb3_encryption_required(tcon))
- 		flags |= CIFS_TRANSFORM_REQ;
- 
-@@ -677,7 +686,7 @@ int open_shroot(unsigned int xid, struct
- 
- 	rc = SMB2_open_init(tcon, &rqst[0], &oplock, &oparms, &utf16_path);
- 	if (rc)
--		goto oshr_exit;
-+		goto oshr_free;
- 	smb2_set_next_command(tcon, &rqst[0]);
- 
- 	memset(&qi_iov, 0, sizeof(qi_iov));
-@@ -690,18 +699,10 @@ int open_shroot(unsigned int xid, struct
- 				  sizeof(struct smb2_file_all_info) +
- 				  PATH_MAX * 2, 0, NULL);
- 	if (rc)
--		goto oshr_exit;
-+		goto oshr_free;
- 
- 	smb2_set_related(&rqst[1]);
- 
--	/*
--	 * We do not hold the lock for the open because in case
--	 * SMB2_open needs to reconnect, it will end up calling
--	 * cifs_mark_open_files_invalid() which takes the lock again
--	 * thus causing a deadlock
--	 */
--
--	mutex_unlock(&tcon->crfid.fid_mutex);
- 	rc = compound_send_recv(xid, ses, flags, 2, rqst,
- 				resp_buftype, rsp_iov);
- 	mutex_lock(&tcon->crfid.fid_mutex);
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -2559,7 +2559,9 @@ static void raid5_end_read_request(struc
+ 		    && !test_bit(R5_ReadNoMerge, &sh->dev[i].flags))
+ 			retry = 1;
+ 		if (retry)
+-			if (test_bit(R5_ReadNoMerge, &sh->dev[i].flags)) {
++			if (sh->qd_idx >= 0 && sh->pd_idx == i)
++				set_bit(R5_ReadError, &sh->dev[i].flags);
++			else if (test_bit(R5_ReadNoMerge, &sh->dev[i].flags)) {
+ 				set_bit(R5_ReadError, &sh->dev[i].flags);
+ 				clear_bit(R5_ReadNoMerge, &sh->dev[i].flags);
+ 			} else
 
 
