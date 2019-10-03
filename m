@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB75FCAD84
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6771CCAC6D
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730621AbfJCRna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 13:43:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37996 "EHLO mail.kernel.org"
+        id S2387519AbfJCQKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730508AbfJCP4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 11:56:11 -0400
+        id S2387545AbfJCQKD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:10:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5875222C2;
-        Thu,  3 Oct 2019 15:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B31CE207FF;
+        Thu,  3 Oct 2019 16:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570118171;
-        bh=fUAnB/ruuX52fNGvK6A6pX90EFxYq0eSKrdO/R1/YDQ=;
+        s=default; t=1570119002;
+        bh=CdKsb+0RI3iUs2816+NlYyidIgr7wQBF4+TCgmP++QE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IK22RXoll77RkTOs9fRF+sNqXS45izbAtXR7t+8pKx0iVpq71K6mex5G/DKd13tR
-         Rgbv69mpGgDMsMzfSPN1upfLMv8ztWTg4Y/sqT/neY6+nd/Fy1RHJp1GTy6bpipV3I
-         Sv+gdxf8nbyxLp+S/hze66GO9+8m+N4rIIng12nE=
+        b=D6/8UFM55yXdl+UYxBhXyP7v6/GRr+znJ1pQ21v5ck1fxkNoasR3q0Ujeh0CWYcgm
+         JlbHMURGM9s50mWwgMOMbWodOB4LNE4dG4pSSZYnBb3K65dxx5SBjaSIpKvFfiDEYo
+         QkBSIGUtrF7gKMZyPZ7f1DWfHpjoj9pPpQAkoEYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Xiaofei Tan <tanxiaofei@huawei.com>,
+        James Morse <james.morse@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 16/99] Revert "f2fs: avoid out-of-range memory access"
-Date:   Thu,  3 Oct 2019 17:52:39 +0200
-Message-Id: <20191003154301.630690783@linuxfoundation.org>
+Subject: [PATCH 4.14 082/185] efi: cper: print AER info of PCIe fatal error
+Date:   Thu,  3 Oct 2019 17:52:40 +0200
+Message-Id: <20191003154456.044591111@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191003154252.297991283@linuxfoundation.org>
-References: <20191003154252.297991283@linuxfoundation.org>
+In-Reply-To: <20191003154437.541662648@linuxfoundation.org>
+References: <20191003154437.541662648@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Xiaofei Tan <tanxiaofei@huawei.com>
 
-[ Upstream commit a37d0862d17411edb67677a580a6f505ec2225f6 ]
+[ Upstream commit b194a77fcc4001dc40aecdd15d249648e8a436d1 ]
 
-As Pavel Machek reported:
+AER info of PCIe fatal error is not printed in the current driver.
+Because APEI driver will panic directly for fatal error, and can't
+run to the place of printing AER info.
 
-"We normally use -EUCLEAN to signal filesystem corruption. Plus, it is
-good idea to report it to the syslog and mark filesystem as "needing
-fsck" if filesystem can do that."
+An example log is as following:
+{763}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 11
+{763}[Hardware Error]: event severity: fatal
+{763}[Hardware Error]:  Error 0, type: fatal
+{763}[Hardware Error]:   section_type: PCIe error
+{763}[Hardware Error]:   port_type: 0, PCIe end point
+{763}[Hardware Error]:   version: 4.0
+{763}[Hardware Error]:   command: 0x0000, status: 0x0010
+{763}[Hardware Error]:   device_id: 0000:82:00.0
+{763}[Hardware Error]:   slot: 0
+{763}[Hardware Error]:   secondary_bus: 0x00
+{763}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x10fb
+{763}[Hardware Error]:   class_code: 000002
+Kernel panic - not syncing: Fatal hardware error!
 
-Still we need improve the original patch with:
-- use unlikely keyword
-- add message print
-- return EUCLEAN
+This issue was imported by the patch, '37448adfc7ce ("aerdrv: Move
+cper_print_aer() call out of interrupt context")'. To fix this issue,
+this patch adds print of AER info in cper_print_pcie() for fatal error.
 
-However, after rethink this patch, I don't think we should add such
-condition check here as below reasons:
-- We have already checked the field in f2fs_sanity_check_ckpt(),
-- If there is fs corrupt or security vulnerability, there is nothing
-to guarantee the field is integrated after the check, unless we do
-the check before each of its use, however no filesystem does that.
-- We only have similar check for bitmap, which was added due to there
-is bitmap corruption happened on f2fs' runtime in product.
-- There are so many key fields in SB/CP/NAT did have such check
-after f2fs_sanity_check_{sb,cp,..}.
+Here is the example log after this patch applied:
+{24}[Hardware Error]: Hardware error from APEI Generic Hardware Error Source: 10
+{24}[Hardware Error]: event severity: fatal
+{24}[Hardware Error]:  Error 0, type: fatal
+{24}[Hardware Error]:   section_type: PCIe error
+{24}[Hardware Error]:   port_type: 0, PCIe end point
+{24}[Hardware Error]:   version: 4.0
+{24}[Hardware Error]:   command: 0x0546, status: 0x4010
+{24}[Hardware Error]:   device_id: 0000:01:00.0
+{24}[Hardware Error]:   slot: 0
+{24}[Hardware Error]:   secondary_bus: 0x00
+{24}[Hardware Error]:   vendor_id: 0x15b3, device_id: 0x1019
+{24}[Hardware Error]:   class_code: 000002
+{24}[Hardware Error]:   aer_uncor_status: 0x00040000, aer_uncor_mask: 0x00000000
+{24}[Hardware Error]:   aer_uncor_severity: 0x00062010
+{24}[Hardware Error]:   TLP Header: 000000c0 01010000 00000001 00000000
+Kernel panic - not syncing: Fatal hardware error!
 
-So I propose to revert this unneeded check.
-
-This reverts commit 56f3ce675103e3fb9e631cfb4131fc768bc23e9a.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 37448adfc7ce ("aerdrv: Move cper_print_aer() call out of interrupt context")
+Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
+Reviewed-by: James Morse <james.morse@arm.com>
+[ardb: put parens around terms of && operator]
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/firmware/efi/cper.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 014bee5c0e75e..6802cd754eda0 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -1510,11 +1510,6 @@ static int read_compacted_summaries(struct f2fs_sb_info *sbi)
- 		seg_i = CURSEG_I(sbi, i);
- 		segno = le32_to_cpu(ckpt->cur_data_segno[i]);
- 		blk_off = le16_to_cpu(ckpt->cur_data_blkoff[i]);
--		if (blk_off > ENTRIES_IN_SUM) {
--			f2fs_bug_on(sbi, 1);
--			f2fs_put_page(page, 1);
--			return -EFAULT;
--		}
- 		seg_i->next_segno = segno;
- 		reset_curseg(sbi, i, 0);
- 		seg_i->alloc_type = ckpt->alloc_type[i];
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index ce23d5402bd66..db404aab82b2a 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -507,6 +507,21 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
+ 		printk(
+ 	"%s""bridge: secondary_status: 0x%04x, control: 0x%04x\n",
+ 	pfx, pcie->bridge.secondary_status, pcie->bridge.control);
++
++	/* Fatal errors call __ghes_panic() before AER handler prints this */
++	if ((pcie->validation_bits & CPER_PCIE_VALID_AER_INFO) &&
++	    (gdata->error_severity & CPER_SEV_FATAL)) {
++		struct aer_capability_regs *aer;
++
++		aer = (struct aer_capability_regs *)pcie->aer_info;
++		printk("%saer_uncor_status: 0x%08x, aer_uncor_mask: 0x%08x\n",
++		       pfx, aer->uncor_status, aer->uncor_mask);
++		printk("%saer_uncor_severity: 0x%08x\n",
++		       pfx, aer->uncor_severity);
++		printk("%sTLP Header: %08x %08x %08x %08x\n", pfx,
++		       aer->header_log.dw0, aer->header_log.dw1,
++		       aer->header_log.dw2, aer->header_log.dw3);
++	}
+ }
+ 
+ static void cper_print_tstamp(const char *pfx,
 -- 
 2.20.1
 
