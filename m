@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0A5CA879
-	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0697ECA87A
+	for <lists+stable@lfdr.de>; Thu,  3 Oct 2019 19:19:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390139AbfJCQ1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Oct 2019 12:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59136 "EHLO mail.kernel.org"
+        id S2391264AbfJCQ1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Oct 2019 12:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391233AbfJCQ1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Oct 2019 12:27:20 -0400
+        id S2391239AbfJCQ1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Oct 2019 12:27:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF1F62054F;
-        Thu,  3 Oct 2019 16:27:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F69F21A4C;
+        Thu,  3 Oct 2019 16:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570120039;
-        bh=pBcD5qYEl+7A2rAULfW6SfUahiHD8dGgMVyMJC12Zlo=;
+        s=default; t=1570120041;
+        bh=WIctwk9L72Om2Ui1kbxR8vV1p8YYAz6Te+AeYjGT+5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/k/3lQgUjK4+iNrNcJ+RvxZBeCwuJSyT9+h3LosHcC/P3GlhkQPNeIA8f+6G65lJ
-         LiQm1HaNjQ/WKrztaguP7DDx6wKmbKXo91fonmu5XVrEXfSE3SAyw+CxBtbySMwuaT
-         8qw5tPQbYgnt2NiWNVzUURlLx9RWHNMMTDV5YRtM=
+        b=FOw8o6oyh5A0RvGcriTOqC626VGAoivuo7GT0leW9WPxMino5YAlL9uVReHuovGuA
+         cz0xh601Y/4QwHXqytFhR9C3GY5U7ddKkHdSR/bTQn12x7mUR6LCAj8oJg8A+8Xu+C
+         smsWYMHN2v9Y0cYFSULc+04ZvcnJTGTSK/y1jsWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 073/313] arm64/prefetch: fix a -Wtype-limits warning
-Date:   Thu,  3 Oct 2019 17:50:51 +0200
-Message-Id: <20191003154540.036062225@linuxfoundation.org>
+        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
+        Song Liu <songliubraving@fb.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 074/313] md/raid1: end bio when the device faulty
+Date:   Thu,  3 Oct 2019 17:50:52 +0200
+Message-Id: <20191003154540.129667554@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191003154533.590915454@linuxfoundation.org>
 References: <20191003154533.590915454@linuxfoundation.org>
@@ -43,96 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit b99286b088ea843b935dcfb29f187697359fe5cd ]
+[ Upstream commit eeba6809d8d58908b5ed1b5ceb5fcb09a98a7cad ]
 
-The commit d5370f754875 ("arm64: prefetch: add alternative pattern for
-CPUs without a prefetcher") introduced MIDR_IS_CPU_MODEL_RANGE() to be
-used in has_no_hw_prefetch() with rv_min=0 which generates a compilation
-warning from GCC,
+When write bio return error, it would be added to conf->retry_list
+and wait for raid1d thread to retry write and acknowledge badblocks.
 
-In file included from ./arch/arm64/include/asm/cache.h:8,
-               from ./include/linux/cache.h:6,
-               from ./include/linux/printk.h:9,
-               from ./include/linux/kernel.h:15,
-               from ./include/linux/cpumask.h:10,
-               from arch/arm64/kernel/cpufeature.c:11:
-arch/arm64/kernel/cpufeature.c: In function 'has_no_hw_prefetch':
-./arch/arm64/include/asm/cputype.h:59:26: warning: comparison of
-unsigned expression >= 0 is always true [-Wtype-limits]
-_model == (model) && rv >= (rv_min) && rv <= (rv_max);  \
-                        ^~
-arch/arm64/kernel/cpufeature.c:889:9: note: in expansion of macro
-'MIDR_IS_CPU_MODEL_RANGE'
-return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
-       ^~~~~~~~~~~~~~~~~~~~~~~
+In narrow_write_error(), the error bio will be split in the unit of
+badblock shift (such as one sector) and raid1d thread issues them
+one by one. Until all of the splited bio has finished, raid1d thread
+can go on processing other things, which is time consuming.
 
-Fix it by converting MIDR_IS_CPU_MODEL_RANGE to a static inline
-function.
+But, there is a scene for error handling that is not necessary.
+When the device has been set faulty, flush_bio_list() may end
+bios in pending_bio_list with error status. Since these bios
+has not been issued to the device actually, error handlding to
+retry write and acknowledge badblocks make no sense.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Will Deacon <will@kernel.org>
+Even without that scene, when the device is faulty, badblocks info
+can not be written out to the device. Thus, we also no need to
+handle the error IO.
+
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cputype.h | 21 +++++++++++----------
- arch/arm64/kernel/cpufeature.c   |  2 +-
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/md/raid1.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index e7d46631cc42b..b1454d117cd2c 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -51,14 +51,6 @@
- #define MIDR_CPU_MODEL_MASK (MIDR_IMPLEMENTOR_MASK | MIDR_PARTNUM_MASK | \
- 			     MIDR_ARCHITECTURE_MASK)
- 
--#define MIDR_IS_CPU_MODEL_RANGE(midr, model, rv_min, rv_max)		\
--({									\
--	u32 _model = (midr) & MIDR_CPU_MODEL_MASK;			\
--	u32 rv = (midr) & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);	\
--									\
--	_model == (model) && rv >= (rv_min) && rv <= (rv_max);		\
-- })
--
- #define ARM_CPU_IMP_ARM			0x41
- #define ARM_CPU_IMP_APM			0x50
- #define ARM_CPU_IMP_CAVIUM		0x43
-@@ -159,10 +151,19 @@ struct midr_range {
- #define MIDR_REV(m, v, r) MIDR_RANGE(m, v, r, v, r)
- #define MIDR_ALL_VERSIONS(m) MIDR_RANGE(m, 0, 0, 0xf, 0xf)
- 
-+static inline bool midr_is_cpu_model_range(u32 midr, u32 model, u32 rv_min,
-+					   u32 rv_max)
-+{
-+	u32 _model = midr & MIDR_CPU_MODEL_MASK;
-+	u32 rv = midr & (MIDR_REVISION_MASK | MIDR_VARIANT_MASK);
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 2aa36e570e049..a26731a9b38e7 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -426,19 +426,21 @@ static void raid1_end_write_request(struct bio *bio)
+ 		    /* We never try FailFast to WriteMostly devices */
+ 		    !test_bit(WriteMostly, &rdev->flags)) {
+ 			md_error(r1_bio->mddev, rdev);
+-			if (!test_bit(Faulty, &rdev->flags))
+-				/* This is the only remaining device,
+-				 * We need to retry the write without
+-				 * FailFast
+-				 */
+-				set_bit(R1BIO_WriteError, &r1_bio->state);
+-			else {
+-				/* Finished with this branch */
+-				r1_bio->bios[mirror] = NULL;
+-				to_put = bio;
+-			}
+-		} else
++		}
 +
-+	return _model == model && rv >= rv_min && rv <= rv_max;
-+}
-+
- static inline bool is_midr_in_range(u32 midr, struct midr_range const *range)
- {
--	return MIDR_IS_CPU_MODEL_RANGE(midr, range->model,
--				 range->rv_min, range->rv_max);
-+	return midr_is_cpu_model_range(midr, range->model,
-+				       range->rv_min, range->rv_max);
- }
- 
- static inline bool
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 68faf535f40a3..d3fbb89a31e57 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -894,7 +894,7 @@ static bool has_no_hw_prefetch(const struct arm64_cpu_capabilities *entry, int _
- 	u32 midr = read_cpuid_id();
- 
- 	/* Cavium ThunderX pass 1.x and 2.x */
--	return MIDR_IS_CPU_MODEL_RANGE(midr, MIDR_THUNDERX,
-+	return midr_is_cpu_model_range(midr, MIDR_THUNDERX,
- 		MIDR_CPU_VAR_REV(0, 0),
- 		MIDR_CPU_VAR_REV(1, MIDR_REVISION_MASK));
- }
++		/*
++		 * When the device is faulty, it is not necessary to
++		 * handle write error.
++		 * For failfast, this is the only remaining device,
++		 * We need to retry the write without FailFast.
++		 */
++		if (!test_bit(Faulty, &rdev->flags))
+ 			set_bit(R1BIO_WriteError, &r1_bio->state);
++		else {
++			/* Finished with this branch */
++			r1_bio->bios[mirror] = NULL;
++			to_put = bio;
++		}
+ 	} else {
+ 		/*
+ 		 * Set R1BIO_Uptodate in our master bio, so that we
 -- 
 2.20.1
 
