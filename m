@@ -2,88 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8D3CB4B5
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 09:01:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECC1CB4D9
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 09:11:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387533AbfJDHBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 03:01:06 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:36739 "EHLO
+        id S1728315AbfJDHL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 03:11:27 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:46523 "EHLO
         mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387623AbfJDHBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 03:01:05 -0400
-Received: by mail-wr1-f66.google.com with SMTP id y19so5696749wrd.3
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 00:01:02 -0700 (PDT)
+        with ESMTP id S1727326AbfJDHL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 03:11:27 -0400
+Received: by mail-wr1-f66.google.com with SMTP id o18so5657593wrv.13
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 00:11:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=Jc/WrDTffdzMOLmQCIoEtNdtkjgf6yNFeVahnwheomA=;
-        b=bzEXD4sBdyP+iLfO9xnq99BYTVpfWbDxhxam3qyEl4lk175w0CrsdanhXfss7flWcN
-         zEdYLo4Pt9WjuimTbDv+ovi8OIkosoNROOGJkj0d24LcruisVbBYPxd3qh0so9IJk8Ea
-         5nrrH38DjiBGIR3npe4mttmKntA7BpNRyZkuXzLWjTnscqAXMrx/fO2T/8CHbGHwqAEB
-         3BsYrW/H8ZT0gswQwBmZjhYyhfXsWjceE8dU1afoNs1kdcyEXXqCwXIwTjfVyFrYLe9i
-         hFdsteRWALu18gwJ6PJ3V0euEXBv39WTSUf78rci9aF1mHEeTinhPwfd/9XCjRU6DW9a
-         h2wg==
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=RdhJuOTEgHD8o5roy1R7weiRb4QE+YOncsOETWm4IUI=;
+        b=ewSWsK4TYqMCBks1ubbgnAFU5dUHbEJAOhsZtdQ88cdNX3gbd54+cMZ33WEfo4zGgd
+         90v/j6/aJu/EKB6fVj+CBYnmibHcIJYwIWskuqPT7lHrLGBOOQ+YD5e6c3OENQQSENNV
+         DYpwQO7KI6L5lJ3FUBwfCajG9QiE6U7G2qA1KljSOsEGzmLT5/x5rYT3zcK9IHQNMju1
+         2MdDlESSmx7LojGnzVysHDfzrVzEphTiY3Hirb7Vze0eIIV1lwloRWAwifqR8HcY1XV4
+         aOB82YXXD8s3PPQZZIXGKa3nXXb9aHGqIDlPFV66seT+aVFltwE30Bup7tXfBb+qUdnE
+         DsHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=Jc/WrDTffdzMOLmQCIoEtNdtkjgf6yNFeVahnwheomA=;
-        b=o2CbEStCxXhpNcvaVloAgsKM4xV8NwfyCjj9jXsxgXCuWilkZ6qLA+UAK6vKPjcdd7
-         /qkrdZTR3X0uEUBK54YHp/FGZN1MjNjPzU3Hbrh5s08M0lwC3I05yE+ABIsklxFhGnqp
-         131fAYeIm6UMsS81i1jk7QzOYKS5kDUOy5n1ABK48H2cCOjGSOZX3ab8tVnR1393e2ve
-         LiatFjrllX6bIJAPcoQjMg5//rIJaXh2BqJV/PiUaK+EiNf53wL/vSmzASoLiBlreKAl
-         WuqwO8X0HxUYF79qR9Y5bBqIxNMskRqs2+p5ZCYpzLfmrmOvqOiGmKfvM9lWlrkk3hSy
-         gWDw==
-X-Gm-Message-State: APjAAAWKmTraeiqkzwRMq2xz5HTTbKPefuaJwL4tixdNL6Csm9hudTGf
-        4BoQKk8nk+UTFrbtzy1IybPdfA==
-X-Google-Smtp-Source: APXvYqwhYCcMQldMQo77du5ARRj7J5UzwBdXjn6Laoh7sQAzd4HRTmI+vGvm/uz69ancRxlG0jDaQQ==
-X-Received: by 2002:a5d:5270:: with SMTP id l16mr10656378wrc.105.1570172462271;
-        Fri, 04 Oct 2019 00:01:02 -0700 (PDT)
+         :content-transfer-encoding:subject:to:from;
+        bh=RdhJuOTEgHD8o5roy1R7weiRb4QE+YOncsOETWm4IUI=;
+        b=O6B4MtWvba+Vb7Mn5Tp7B3kXV7OtZPB0/FVdtqRikprfw3rLr436hR1RBMAGccOerR
+         2uiaXvvQXYmBJAa25zczsSHJyyU3F0J0nd2PhkqRRZ/qNukbBxJeBfNxC560lnrK4aK3
+         kfwcYQG1tQrHxKs/vvZFTEgYVY5YWbOYftwNtzpducgsuuegu1CKQbzg41UyTCEgOO1c
+         1uRqbcpTLrIB7xjc64671l/wY7wEnEn0KJGuK77gDCHsbDtLemnuuizp5BJIz9GaG7uh
+         pv6Y2BEf5+oWQQifiPdDcYXj2s43srpBXfPOL4jgKSylrRnfdcorzbSCXYfewrd2NejQ
+         d9EQ==
+X-Gm-Message-State: APjAAAX9H3nkYwWBN16dHF2D5N/uOTQIdXU4k3s9PWlqhHw6nr5yK8Yw
+        hEch4JhxdpC6UIOvP/tVSRNWCAKj0gLKRQ==
+X-Google-Smtp-Source: APXvYqyiU0xfbmDYAlHQ+vplfRw0qEfQsZDMhCP+BlSPtmPrqUWWBO9TWqJROquapB1nk+D+w/xiZg==
+X-Received: by 2002:a5d:694c:: with SMTP id r12mr9826405wrw.44.1570173085179;
+        Fri, 04 Oct 2019 00:11:25 -0700 (PDT)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w125sm8566712wmg.32.2019.10.04.00.01.00
+        by smtp.gmail.com with ESMTPSA id a3sm4320997wmj.35.2019.10.04.00.11.24
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Oct 2019 00:01:01 -0700 (PDT)
-Message-ID: <5d96ee2d.1c69fb81.6b8e2.7a8e@mx.google.com>
-Date:   Fri, 04 Oct 2019 00:01:01 -0700 (PDT)
+        Fri, 04 Oct 2019 00:11:24 -0700 (PDT)
+Message-ID: <5d96f09c.1c69fb81.2582d.3eb4@mx.google.com>
+Date:   Fri, 04 Oct 2019 00:11:24 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.194-130-gc1fc11455620
-X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.14.146-186-gb99061374089
+X-Kernelci-Branch: linux-4.14.y
 X-Kernelci-Tree: stable-rc
-In-Reply-To: <20191003154318.081116689@linuxfoundation.org>
-References: <20191003154318.081116689@linuxfoundation.org>
-Subject: Re: [PATCH 4.9 000/129] 4.9.195-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
+Subject: stable-rc/linux-4.14.y boot: 111 boots: 0 failed,
+ 102 passed with 9 offline (v4.14.146-186-gb99061374089)
+To:     stable@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 99 boots: 0 failed, 86 passed with 13 offline (=
-v4.9.194-130-gc1fc11455620)
+stable-rc/linux-4.14.y boot: 111 boots: 0 failed, 102 passed with 9 offline=
+ (v4.14.146-186-gb99061374089)
 
 Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.194-130-gc1fc11455620/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.194-130-gc1fc11455620/
+-4.14.y/kernel/v4.14.146-186-gb99061374089/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.146-186-gb99061374089/
 
 Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.194-130-gc1fc11455620
-Git Commit: c1fc114556201dc059e2c202e99eac038af8495e
+Branch: linux-4.14.y
+Git Describe: v4.14.146-186-gb99061374089
+Git Commit: b99061374089a66c2dd55bbea3299a602a4f0891
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Tested: 51 unique boards, 20 SoC families, 13 builds out of 197
+Tested: 61 unique boards, 21 SoC families, 12 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.14.146-147-g=
+990856f784cb)
 
 Offline Platforms:
 
@@ -101,26 +105,19 @@ arm:
     sunxi_defconfig:
         gcc-8
             sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
 
     multi_v7_defconfig:
         gcc-8
-            alpine-db: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
             qcom-apq8064-cm-qs600: 1 offline lab
             qcom-apq8064-ifc6410: 1 offline lab
             sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
 
 arm64:
 
     defconfig:
         gcc-8
             apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
 
 ---
 For more info write to <info@kernelci.org>
