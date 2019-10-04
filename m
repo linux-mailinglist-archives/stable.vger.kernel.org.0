@@ -2,547 +2,933 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3386CB628
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 10:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F419CB6AC
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 10:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727758AbfJDIaY convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 4 Oct 2019 04:30:24 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51024 "EHLO mx1.redhat.com"
+        id S1729617AbfJDIyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 04:54:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727513AbfJDIaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 04:30:23 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725730AbfJDIyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 04:54:03 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 2D9EEA44AF6
-        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 08:30:23 +0000 (UTC)
-Received: from [172.54.19.159] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3287319C77;
-        Fri,  4 Oct 2019 08:30:18 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EF8421848;
+        Fri,  4 Oct 2019 08:54:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570179242;
+        bh=zcCQ1iSEr/w6ybhw+D+s2B9VV9KZHVtlX8pQ20N0ikw=;
+        h=Subject:To:From:Date:From;
+        b=xrop5995BPLef8+pFzYFRxD/xseW5gOK2fJ5j5w3pEIoib7SVx5JJTNb2LCvO/1j5
+         2YSM4qeRHrU6UrvLRpRBvMNvEid7lNal81i1g/YKHuyblsffVj0HhJD1C/dRA/49CT
+         vT5ZYGnA1MV01N6CiT6exY291uUhD37fuyvXBSAA=
+Subject: patch "USB: rio500: Remove Rio 500 kernel driver" added to usb-linus
+To:     hadess@hadess.net, gregkh@linuxfoundation.org, miquel@df.uba.ar,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 04 Oct 2019 10:53:59 +0200
+Message-ID: <1570179239132179@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Message-ID: <cki.2CCC9F2DA5.U9GZMPMWBT@redhat.com>
-X-Gitlab-Pipeline-ID: 203466
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/203466
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Fri, 04 Oct 2019 08:30:23 +0000 (UTC)
-Date:   Fri, 4 Oct 2019 04:30:23 -0400
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+This is a note to let you know that I've just added the patch titled
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+    USB: rio500: Remove Rio 500 kernel driver
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 0e7d6367ac13 - Linux 5.3.2
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-The results of these automated tests are provided below.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/203466
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 0e7d6367ac13 - Linux 5.3.2
+If you have any questions about this process, please let me know.
 
 
-We grabbed the 6dc47a721a5a commit of the stable queue repository.
+From 015664d15270a112c2371d812f03f7c579b35a73 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess@hadess.net>
+Date: Mon, 23 Sep 2019 18:18:43 +0200
+Subject: USB: rio500: Remove Rio 500 kernel driver
 
-We then merged the patchset with `git am`:
+The Rio500 kernel driver has not been used by Rio500 owners since 2001
+not long after the rio500 project added support for a user-space USB stack
+through the very first versions of usbdevfs and then libusb.
 
-  arcnet-provide-a-buffer-big-enough-to-actually-receive-packets.patch
-  cdc_ncm-fix-divide-by-zero-caused-by-invalid-wmaxpacketsize.patch
-  ipv6-do-not-free-rt-if-fib_lookup_noref-is-set-on-suppress-rule.patch
-  macsec-drop-skb-sk-before-calling-gro_cells_receive.patch
-  net-phy-fix-dp83865-10-mbps-hdx-loopback-disable-function.patch
-  net-qrtr-stop-rx_worker-before-freeing-node.patch
-  net-sched-act_sample-don-t-push-mac-header-on-ip6gre-ingress.patch
-  net_sched-add-max-len-check-for-tca_kind.patch
-  net-stmmac-fix-page-pool-size.patch
-  nfp-flower-fix-memory-leak-in-nfp_flower_spawn_vnic_reprs.patch
-  nfp-flower-prevent-memory-leak-in-nfp_flower_spawn_phy_reprs.patch
-  openvswitch-change-type-of-upcall_pid-attribute-to-nla_unspec.patch
-  ppp-fix-memory-leak-in-ppp_write.patch
-  sch_netem-fix-a-divide-by-zero-in-tabledist.patch
-  selftests-update-fib_tests-to-handle-missing-ping6.patch
-  skge-fix-checksum-byte-order.patch
-  tcp_bbr-fix-quantization-code-to-not-raise-cwnd-if-not-probing-bandwidth.patch
-  usbnet-ignore-endpoints-with-invalid-wmaxpacketsize.patch
-  usbnet-sanity-checking-of-packet-sizes-and-device-mtu.patch
-  net-rds-check-laddr_check-before-calling-it.patch
-  net-mlx5e-fix-matching-on-tunnel-addresses-type.patch
-  ipv6-fix-a-typo-in-fib6_rule_lookup.patch
-  selftests-update-fib_nexthop_multiprefix-to-handle-missing-ping6.patch
-  net-phy-micrel-add-asym-pause-workaround-for-ksz9021.patch
-  net-sched-cbs-fix-not-adding-cbs-instance-to-list.patch
-  ipv4-revert-removal-of-rt_uses_gateway.patch
-  net_sched-add-policy-validation-for-action-attributes.patch
-  vrf-do-not-attempt-to-create-ipv6-mcast-rule-if-ipv6-is-disabled.patch
-  net-mlx5e-fix-traffic-duplication-in-ethtool-steering.patch
-  net-sched-fix-possible-crash-in-tcf_action_destroy.patch
-  tcp-better-handle-tcp_user_timeout-in-syn_sent-state.patch
-  net-mlx5-add-device-id-of-upcoming-bluefield-2.patch
-  misdn-enforce-cap_net_raw-for-raw-sockets.patch
-  appletalk-enforce-cap_net_raw-for-raw-sockets.patch
-  ax25-enforce-cap_net_raw-for-raw-sockets.patch
-  ieee802154-enforce-cap_net_raw-for-raw-sockets.patch
-  nfc-enforce-cap_net_raw-for-raw-sockets.patch
-  alsa-hda-flush-interrupts-on-disabling.patch
-  asoc-sof-intel-hda-make-hdac_device-device-managed.patch
-  cpufreq-ap806-add-null-check-after-kcalloc.patch
-  alsa-hda-hdmi-don-t-report-spurious-jack-state-chang.patch
-  regulator-lm363x-fix-off-by-one-n_voltages-for-lm363.patch
-  regulator-lm363x-fix-n_voltages-setting-for-lm36274.patch
-  spi-dw-mmio-clock-should-be-shut-when-error-occurs.patch
-  asoc-tlv320aic31xx-suppress-error-message-for-eprobe.patch
-  asoc-sgtl5000-fix-of-unmute-outputs-on-probe.patch
-  asoc-sgtl5000-fix-charge-pump-source-assignment.patch
-  firmware-qcom_scm-use-proper-types-for-dma-mappings.patch
-  dmaengine-bcm2835-print-error-in-case-setting-dma-ma.patch
-  leds-leds-lp5562-allow-firmware-files-up-to-the-maxi.patch
-  asoc-sof-reset-dma-state-in-prepare.patch
-  media-dib0700-fix-link-error-for-dibx000_i2c_set_spe.patch
-  media-mtk-cir-lower-de-glitch-counter-for-rc-mm-prot.patch
-  asoc-sof-pci-mark-last_busy-value-at-runtime-pm-init.patch
-  media-exynos4-is-fix-leaked-of_node-references.patch
-  media-vivid-add-sanity-check-to-avoid-divide-error-a.patch
-  media-vb2-reorder-checks-in-vb2_poll.patch
-  media-vivid-work-around-high-stack-usage-with-clang.patch
-  media-hdpvr-add-device-num-check-and-handling.patch
-  media-i2c-ov5640-check-for-devm_gpiod_get_optional-e.patch
-  time-tick-broadcast-fix-tick_broadcast_offline-lockd.patch
-  sched-fair-fix-imbalance-due-to-cpu-affinity.patch
-  sched-core-fix-cpu-controller-for-rt_group_sched.patch
-  x86-apic-make-apic_pending_intr_clear-more-robust.patch
-  sched-deadline-fix-bandwidth-accounting-at-all-level.patch
-  x86-reboot-always-use-nmi-fallback-when-shutdown-via.patch
-  rcu-tree-call-setschedule-gp-ktread-to-sched_fifo-ou.patch
-  x86-apic-soft-disable-apic-before-initializing-it.patch
-  alsa-hda-show-the-fatal-corb-rirb-error-more-clearly.patch
-  alsa-i2c-ak4xxx-adda-fix-a-possible-null-pointer-der.patch
-  rcu-add-destroy_work_on_stack-to-match-init_work_ons.patch
-  edac-mc-fix-grain_bits-calculation.patch
-  arm64-dts-imx8mq-correct-opp-table-according-to-late.patch
-  media-iguanair-add-sanity-checks.patch
-  cpuidle-teo-allow-tick-to-be-stopped-if-pm-qos-is-us.patch
-  gpio-madera-add-support-for-cirrus-logic-cs47l15.patch
-  gpio-madera-add-support-for-cirrus-logic-cs47l92.patch
-  arm64-mm-free-the-initrd-reserved-memblock-in-a-alig.patch
-  soc-amlogic-meson-clk-measure-protect-measure-with-a.patch
-  base-soc-export-soc_device_register-unregister-apis.patch
-  alsa-usb-audio-skip-bsynchaddress-endpoint-check-if-.patch
-  ia64-unwind-fix-double-free-for-mod-arch.init_unw_ta.patch
-  edac-altera-use-the-proper-type-for-the-irq-status-b.patch
-  asoc-rsnd-don-t-call-clk_get_rate-under-atomic-conte.patch
-  arm64-prefetch-fix-a-wtype-limits-warning.patch
-  md-raid1-end-bio-when-the-device-faulty.patch
-  md-don-t-call-spare_active-in-md_reap_sync_thread-if.patch
-  md-don-t-set-in_sync-if-array-is-frozen.patch
-  media-media-platform-fsl-viu.c-fix-build-for-microbl.patch
-  media-staging-tegra-vde-fix-build-error.patch
-  ras-fix-prototype-warnings.patch
-  ras-build-debugfs.o-only-when-enabled-in-kconfig.patch
-  asoc-hdac_hda-fix-page-fault-issue-by-removing-race.patch
-  acpi-processor-don-t-print-errors-for-processorids-0.patch
-  loop-add-loop_set_direct_io-to-compat-ioctl.patch
-  perf-tools-fix-paths-in-include-statements.patch
-  edac-pnd2-fix-ioremap-size-in-dnv_rd_reg.patch
-  efi-cper-print-aer-info-of-pcie-fatal-error.patch
-  firmware-arm_scmi-check-if-platform-has-released-shm.patch
-  sched-fair-use-rq_lock-unlock-in-online_fair_sched_g.patch
-  idle-prevent-late-arriving-interrupts-from-disruptin.patch
-  blk-mq-fix-memory-leak-in-blk_mq_init_allocated_queu.patch
-  media-gspca-zero-usb_buf-on-error.patch
-  perf-config-honour-perf_config-env-var-to-specify-al.patch
-  perf-test-vfs_getname-disable-.perfconfig-to-get-def.patch
-  media-mtk-mdp-fix-reference-count-on-old-device-tree.patch
-  media-i2c-tda1997x-prevent-potential-null-pointer-ac.patch
-  media-fdp1-reduce-fcp-not-found-message-level-to-deb.patch
-  media-em28xx-modules-workqueue-not-inited-for-2nd-de.patch
-  arm64-efi-move-variable-assignments-after-sections.patch
-  perf-unwind-fix-libunwind-when-tid-pid.patch
-  media-rc-imon-allow-imon-rc-protocol-for-ffdc-7e-dev.patch
-  dmaengine-iop-adma-use-correct-printk-format-strings.patch
-  arm-xscale-fix-multi-cpu-compilation.patch
-  perf-ftrace-use-cap_sys_admin-instead-of-euid-0.patch
-  perf-record-support-aarch64-random-socket_id-assignm.patch
-  media-vsp1-fix-memory-leak-of-dl-on-error-return-pat.patch
-  media-i2c-ov5645-fix-power-sequence.patch
-  media-omap3isp-don-t-set-streaming-state-on-random-s.patch
-  media-imx-mipi-csi-2-don-t-fail-if-initial-state-tim.patch
-  kasan-arm64-fix-config_kasan_sw_tags-kasan_inline.patch
-  net-lpc-enet-fix-printk-format-strings.patch
-  m68k-prevent-some-compiler-warnings-in-coldfire-buil.patch
-  arm-dts-imx7d-cl-som-imx7-make-ethernet-work-again.patch
-  arm64-dts-qcom-qcs404-evb-mark-wcss-clocks-protected.patch
-  arm-dts-imx7-colibri-disable-hs400.patch
-  x86-platform-intel-iosf_mbi-rewrite-locking.patch
-  media-radio-si470x-kill-urb-on-error.patch
-  media-hdpvr-add-terminating-0-at-end-of-string.patch
-  asoc-uniphier-fix-double-reset-assersion-when-transi.patch
-  powerpc-makefile-always-pass-synthetic-to-nm-if-supp.patch
-  tools-headers-fixup-bitsperlong-per-arch-includes.patch
-  asoc-sun4i-i2s-don-t-use-the-oversample-to-calculate.patch
-  asoc-mchp-i2s-mcc-wait-for-rx-tx-rdy-only-if-control.patch
-  led-triggers-fix-a-memory-leak-bug.patch
-  asoc-mchp-i2s-mcc-fix-unprepare-of-gclk.patch
-  nbd-add-missing-config-put.patch
-  acpi-apei-release-resources-if-gen_pool_add-fails.patch
-  arm64-entry-move-ct_user_exit-before-any-other-excep.patch
-  s390-kasan-provide-uninstrumented-__strlen.patch
-  media-mceusb-fix-eliminate-tx-ir-signal-length-limit.patch
-  media-dvb-frontends-use-ida-for-pll-number.patch
-  posix-cpu-timers-sanitize-bogus-warnons.patch
-  media-dvb-core-fix-a-memory-leak-bug.patch
-  edac-amd64-support-more-than-two-controllers-for-chi.patch
-  cpufreq-imx-cpufreq-dt-add-i.mx8mn-support.patch
-  libperf-fix-alignment-trap-with-xyarray-contents-in-.patch
-  edac-amd64-recognize-dram-device-type-ecc-capability.patch
-  edac-amd64-decode-syndrome-before-translating-addres.patch
-  arm-at91-move-platform-specific-asm-offset.h-to-arch.patch
-  soc-renesas-rmobile-sysc-set-genpd_flag_always_on-fo.patch
-  soc-renesas-enable-arm_errata_754322-for-affected-co.patch
-  pm-devfreq-fix-kernel-oops-on-governor-module-load.patch
-  arm-omap2-move-platform-specific-asm-offset.h-to-arc.patch
-  pm-devfreq-passive-use-non-devm-notifiers.patch
-  pm-devfreq-exynos-bus-correct-clock-enable-sequence.patch
-  media-cec-notifier-clear-cec_adap-in-cec_notifier_un.patch
-  media-saa7146-add-cleanup-in-hexium_attach.patch
-  media-cpia2_usb-fix-memory-leaks.patch
-  media-saa7134-fix-terminology-around-saa7134_i2c_eep.patch
-  perf-trace-beauty-ioctl-fix-off-by-one-error-in-cmd-.patch
-  perf-report-fix-ns-time-sort-key-output.patch
-  perf-script-fix-memory-leaks-in-list_scripts.patch
-  media-aspeed-video-address-a-protential-usage-of-an-.patch
-  media-ov9650-add-a-sanity-check.patch
-  leds-lm3532-fixes-for-the-driver-for-stability.patch
-  asoc-es8316-fix-headphone-mixer-volume-table.patch
-  acpi-cppc-do-not-require-the-_psd-method.patch
-  sched-cpufreq-align-trace-event-behavior-of-fast-swi.patch
-  arm64-dts-meson-fix-boards-regulators-states-format.patch
-  x86-apic-vector-warn-when-vector-space-exhaustion-br.patch
-  arm64-kpti-ensure-patched-kernel-text-is-fetched-fro.patch
-  perf-evlist-use-unshare-clone_fs-in-sb-threads-to-le.patch
-  arm64-use-correct-ll-sc-atomic-constraints.patch
-  jump_label-don-t-warn-on-__exit-jump-entries.patch
-  x86-mm-pti-do-not-invoke-pti-functions-when-pti-is-d.patch
-  asoc-fsl_ssi-fix-clock-control-issue-in-master-mode.patch
-  x86-mm-pti-handle-unaligned-address-gracefully-in-pt.patch
-  nvmet-fix-data-units-read-and-written-counters-in-sm.patch
-  nvme-multipath-fix-ana-log-nsid-lookup-when-nsid-is-.patch
-  alsa-firewire-motu-add-support-for-motu-4pre.patch
-  iommu-amd-silence-warnings-under-memory-pressure.patch
-  asoc-intel-haswell-adjust-machine-device-private-con.patch
-  libata-ahci-drop-pcs-quirk-for-denverton-and-beyond.patch
-  iommu-iova-avoid-false-sharing-on-fq_timer_on.patch
-  libtraceevent-change-users-plugin-directory.patch
-  asoc-dt-bindings-sun4i-spdif-fix-dma-names-warning.patch
-  arm-dts-exynos-mark-ldo10-as-always-on-on-peach-pit-.patch
-  x86-amd_nb-add-pci-device-ids-for-family-17h-model-7.patch
-  acpi-custom_method-fix-memory-leaks.patch
-  acpi-pci-fix-acpi_pci_irq_enable-memory-leak.patch
-  closures-fix-a-race-on-wakeup-from-closure_sync.patch
-  hwmon-k10temp-add-support-for-amd-family-17h-model-7.patch
-  hwmon-acpi_power_meter-change-log-level-for-unsafe-s.patch
-  md-raid1-fail-run-raid1-array-when-active-disk-less-.patch
-  dmaengine-ti-edma-do-not-reset-reserved-param-slots.patch
-  kprobes-prohibit-probing-on-bug-and-warn-address.patch
-  x86-mm-fix-cpumask_of_node-error-condition.patch
-  irqchip-sifive-plic-set-max-threshold-for-ignored-ha.patch
-  s390-crypto-xts-aes-s390-fix-extra-run-time-crypto-s.patch
-  irqchip-gic-v3-its-fix-lpi-release-for-multi-msi-dev.patch
-  x86-cpu-add-tiger-lake-to-intel-family.patch
-  platform-x86-intel_pmc_core-do-not-ioremap-ram.patch
-  platform-x86-intel_pmc_core_pltdrv-module-removal-wa.patch
-  soc-simple-card-utils-set-0hz-to-sysclk-when-shutdow.patch
-  asoc-dmaengine-make-the-pcm-name-equal-to-pcm-id-if-.patch
-  tools-power-x86-intel-speed-select-fix-memory-leak.patch
-  spi-bcm2835-work-around-done-bit-erratum.patch
-  io_uring-fix-wrong-sequence-setting-logic.patch
-  block-make-rq-sector-size-accessible-for-block-stats.patch
-  raid5-don-t-set-stripe_handle-to-stripe-which-is-in-.patch
-  mmc-core-clarify-sdio_irq_pending-flag-for-mmc_cap2_.patch
-  sched-psi-correct-overly-pessimistic-size-calculatio.patch
-  mmc-sdhci-fix-incorrect-switch-to-hs-mode.patch
-  mmc-core-add-helper-function-to-indicate-if-sdio-irq.patch
-  mmc-dw_mmc-re-store-sdio-irqs-mask-at-system-resume.patch
-  raid5-don-t-increment-read_errors-on-eilseq-return.patch
-  mmc-mtk-sd-re-store-sdio-irqs-mask-at-system-resume.patch
-  libertas-add-missing-sentinel-at-end-of-if_usb.c-fw_.patch
-  e1000e-add-workaround-for-possible-stalled-packet.patch
-  alsa-hda-add-a-quirk-model-for-fixing-huawei-mateboo.patch
-  alsa-hda-drop-unsol-event-handler-for-intel-hdmi-cod.patch
-  drm-amd-powerplay-smu7-enforce-minimal-vbitimeout-v2.patch
-  media-ttusb-dec-fix-info-leak-in-ttusb_dec_send_comm.patch
-  drm-fix-module-name-in-edid_firmware-log-message.patch
-  alsa-hda-realtek-blacklist-pc-beep-for-lenovo-thinkc.patch
-  iommu-amd-override-wrong-ivrs-ioapic-on-raven-ridge-.patch
-  zd1211rw-remove-false-assertion-from-zd_mac_clear.patch
-  btrfs-delayed-inode-kill-the-bug_on-in-btrfs_delete_.patch
-  btrfs-extent-tree-make-sure-we-only-allocate-extents.patch
-  btrfs-tree-checker-add-root_item-check.patch
-  btrfs-detect-unbalanced-tree-with-empty-leaf-before-.patch
-  kvm-nested-kvm-mmus-need-pae-root-too.patch
-  media-omap3isp-set-device-on-omap3isp-subdevs.patch
-  pm-devfreq-passive-fix-compiler-warning.patch
-  arm-dts-logicpd-torpedo-baseboard-fix-missing-video.patch
-  arm-omap2plus_defconfig-fix-missing-video.patch
-  iwlwifi-fw-don-t-send-geo_tx_power_limit-command-to-fw-version-36.patch
-  alsa-firewire-tascam-handle-error-code-when-getting-current-source-of-clock.patch
-  alsa-firewire-tascam-check-intermediate-state-of-clock-status-and-retry.patch
-  scsi-scsi_dh_rdac-zero-cdb-in-send_mode_select.patch
-  scsi-qla2xxx-fix-relogin-to-prevent-modifying-scan_state-flag.patch
-  printk-do-not-lose-last-line-in-kmsg-buffer-dump.patch
-  ib-mlx5-free-mpi-in-mp_slave-mode.patch
-  ib-hfi1-define-variables-as-unsigned-long-to-fix-kasan-warning.patch
-  ib-hfi1-do-not-update-hcrc-for-a-kdeth-packet-during-fault-injection.patch
-  rdma-fix-double-free-in-srq-creation-error-flow.patch
-  randstruct-check-member-structs-in-is_pure_ops_struct.patch
-  arm-dts-am3517-evm-fix-missing-video.patch
-  rcu-tree-fix-sched_fifo-params.patch
-  alsa-hda-realtek-pci-quirk-for-medion-e4254.patch
-  blk-mq-add-callback-of-.cleanup_rq.patch
-  scsi-implement-.cleanup_rq-callback.patch
-  powerpc-imc-dont-create-debugfs-files-for-cpu-less-nodes.patch
-  tpm_tis_core-turn-on-the-tpm-before-probing-irq-s.patch
-  tpm_tis_core-set-tpm_chip_flag_irq-before-probing-for-interrupts.patch
-  tpm-wrap-the-buffer-from-the-caller-to-tpm_buf-in-tpm_send.patch
-  fuse-fix-deadlock-with-aio-poll-and-fuse_iqueue-waitq.lock.patch
-  fuse-fix-missing-unlock_page-in-fuse_writepage.patch
-  fuse-fix-beyond-end-of-page-access-in-fuse_parse_cache.patch
-  parisc-disable-hp-hsc-pci-cards-to-prevent-kernel-crash.patch
-  platform-x86-intel_int0002_vgpio-fix-wakeups-not-working-on-cherry-trail.patch
-  kvm-x86-always-stop-emulation-on-page-fault.patch
-  kvm-x86-set-ctxt-have_exception-in-x86_decode_insn.patch
-  kvm-x86-manually-calculate-reserved-bits-when-loading-pdptrs.patch
-  kvm-x86-disable-posted-interrupts-for-non-standard-irqs-delivery-modes.patch
-  kvm-x86-add-significant-index-flag-to-a-few-cpuid-leaves.patch
-  kvm-x86-mmu-use-fast-invalidate-mechanism-to-zap-mmio-sptes.patch
-  media-videobuf-core.c-poll_wait-needs-a-non-null-buf-pointer.patch
-  media-sn9c20x-add-msi-ms-1039-laptop-to-flip_dmi_table.patch
-  media-hantro-set-dma-max-segment-size.patch
-  media-don-t-drop-front-end-reference-count-for-detach.patch
-  media-vivid-fix-device-init-when-no_error_inj-1-and-fb-disabled.patch
-  spi-ep93xx-repair-spi-cs-lookup-tables.patch
-  spi-spi-fsl-dspi-exit-the-isr-with-irq_none-when-it-s-not-ours.patch
-  binfmt_elf-do-not-move-brk-for-interp-less-et_exec.patch
-  asoc-intel-nhlt-fix-debug-print-format.patch
-  asoc-intel-skylake-use-correct-function-to-access-iomem-space.patch
-  asoc-intel-fix-use-of-potentially-uninitialized-variable.patch
-  staging-erofs-cannot-set-erofs_v_z_inited_bit-if-fill_inode_lazy-fails.patch
-  arm-samsung-fix-system-restart-on-s3c6410.patch
-  arm-zynq-use-memcpy_toio-instead-of-memcpy-on-smp-bring-up.patch
-  arm64-tlb-ensure-we-execute-an-isb-following-walk-cache-invalidation.patch
-  arm64-dts-rockchip-limit-clock-rate-of-mmc-controllers-for-rk3328.patch
-  iommu-arm-smmu-v3-disable-detection-of-ats-and-pri.patch
-  alarmtimer-use-eopnotsupp-instead-of-enotsupp.patch
-  iommu-vt-d-fix-wrong-analysis-whether-devices-share-the-same-bus.patch
-  regulator-defer-init-completion-for-a-while-after-late_initcall.patch
-  efifb-bgrt-improve-efifb_bgrt_sanity_check.patch
-  gfs2-clear-buf_in_tr-when-ending-a-transaction-in-sweep_bh_for_rgrps.patch
-  z3fold-fix-retry-mechanism-in-page-reclaim.patch
-  z3fold-fix-memory-leak-in-kmem-cache.patch
-  mm-compaction.c-clear-total_-migrate-free-_scanned-before-scanning-a-new-zone.patch
-  memcg-oom-don-t-require-__gfp_fs-when-invoking-memcg-oom-killer.patch
-  memcg-kmem-do-not-fail-__gfp_nofail-charges.patch
-  lib-lzo-lzo1x_compress.c-fix-alignment-bug-in-lzo-rle.patch
-  mt76-round-up-length-on-mt76_wr_copy.patch
-  keys-trusted-correctly-initialize-digests-and-fix-locking-issue.patch
-  rtw88-pci-rearrange-the-memory-usage-for-skb-in-rx-isr.patch
-  rtw88-pci-use-dma-sync-instead-of-remapping-in-rx-isr.patch
-  ath10k-fix-channel-info-parsing-for-non-tlv-target.patch
-  i40e-check-__i40e_vf_disable-bit-in-i40e_sync_filters_subtask.patch
-  block-mq-deadline-fix-queue-restart-handling.patch
-  block-fix-null-pointer-dereference-in-blk_mq_rq_timed_out.patch
-  smb3-allow-disabling-requesting-leases.patch
-  smb3-fix-unmount-hang-in-open_shroot.patch
-  smb3-fix-leak-in-open-on-server-perf-counter.patch
-  ovl-fix-dereferencing-possible-err_ptr.patch
-  ovl-filter-of-trusted-xattr-results-in-audit.patch
-  btrfs-fix-allocation-of-free-space-cache-v1-bitmap-pages.patch
-  btrfs-fix-use-after-free-when-using-the-tree-modification-log.patch
-  btrfs-relinquish-cpus-in-btrfs_compare_trees.patch
-  btrfs-adjust-dirty_metadata_bytes-after-writeback-failure-of-extent-buffer.patch
-  btrfs-qgroup-fix-the-wrong-target-io_tree-when-freeing-reserved-data-space.patch
-  btrfs-qgroup-fix-reserved-data-space-leak-if-we-have-multiple-reserve-calls.patch
-  btrfs-fix-race-setting-up-and-completing-qgroup-rescan-workers.patch
-  btrfs-fix-a-regression-which-we-can-t-convert-to-single-profile.patch
+Support for the kernel driver was removed from the upstream utilities
+in 2008:
+https://gitlab.freedesktop.org/hadess/rio500/commit/943f624ab721eb8281c287650fcc9e2026f6f5db
 
-Compile testing
----------------
+Cc: Cesar Miquel <miquel@df.uba.ar>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/6251c17584d220472ce882a3d9c199c401a51a71.camel@hadess.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ Documentation/usb/rio.rst          | 109 ------
+ MAINTAINERS                        |   7 -
+ arch/arm/configs/badge4_defconfig  |   1 -
+ arch/arm/configs/corgi_defconfig   |   1 -
+ arch/arm/configs/pxa_defconfig     |   1 -
+ arch/arm/configs/s3c2410_defconfig |   1 -
+ arch/arm/configs/spitz_defconfig   |   1 -
+ arch/mips/configs/mtx1_defconfig   |   1 -
+ arch/mips/configs/rm200_defconfig  |   1 -
+ drivers/usb/misc/Kconfig           |  10 -
+ drivers/usb/misc/Makefile          |   1 -
+ drivers/usb/misc/rio500.c          | 554 -----------------------------
+ drivers/usb/misc/rio500_usb.h      |  20 --
+ 13 files changed, 708 deletions(-)
+ delete mode 100644 Documentation/usb/rio.rst
+ delete mode 100644 drivers/usb/misc/rio500.c
+ delete mode 100644 drivers/usb/misc/rio500_usb.h
 
-We compiled the kernel for 3 architectures:
+diff --git a/Documentation/usb/rio.rst b/Documentation/usb/rio.rst
+deleted file mode 100644
+index ea73475471db..000000000000
+--- a/Documentation/usb/rio.rst
++++ /dev/null
+@@ -1,109 +0,0 @@
+-﻿============
+-Diamonds Rio
+-============
+-
+-Copyright (C) 1999, 2000 Bruce Tenison
+-
+-Portions Copyright (C) 1999, 2000 David Nelson
+-
+-Thanks to David Nelson for guidance and the usage of the scanner.txt
+-and scanner.c files to model our driver and this informative file.
+-
+-Mar. 2, 2000
+-
+-Changes
+-=======
+-
+-- Initial Revision
+-
+-
+-Overview
+-========
+-
+-This README will address issues regarding how to configure the kernel
+-to access a RIO 500 mp3 player.
+-Before I explain how to use this to access the Rio500 please be warned:
+-
+-.. warning::
+-
+-   Please note that this software is still under development.  The authors
+-   are in no way responsible for any damage that may occur, no matter how
+-   inconsequential.
+-
+-It seems that the Rio has a problem when sending .mp3 with low batteries.
+-I suggest when the batteries are low and you want to transfer stuff that you
+-replace it with a fresh one. In my case, what happened is I lost two 16kb
+-blocks (they are no longer usable to store information to it). But I don't
+-know if that's normal or not; it could simply be a problem with the flash
+-memory.
+-
+-In an extreme case, I left my Rio playing overnight and the batteries wore
+-down to nothing and appear to have corrupted the flash memory. My RIO
+-needed to be replaced as a result.  Diamond tech support is aware of the
+-problem.  Do NOT allow your batteries to wear down to nothing before
+-changing them.  It appears RIO 500 firmware does not handle low battery
+-power well at all.
+-
+-On systems with OHCI controllers, the kernel OHCI code appears to have
+-power on problems with some chipsets.  If you are having problems
+-connecting to your RIO 500, try turning it on first and then plugging it
+-into the USB cable.
+-
+-Contact Information
+--------------------
+-
+-   The main page for the project is hosted at sourceforge.net in the following
+-   URL: <http://rio500.sourceforge.net>. You can also go to the project's
+-   sourceforge home page at: <http://sourceforge.net/projects/rio500/>.
+-   There is also a mailing list: rio500-users@lists.sourceforge.net
+-
+-Authors
+--------
+-
+-Most of the code was written by Cesar Miquel <miquel@df.uba.ar>. Keith
+-Clayton <kclayton@jps.net> is incharge of the PPC port and making sure
+-things work there. Bruce Tenison <btenison@dibbs.net> is adding support
+-for .fon files and also does testing. The program will mostly sure be
+-re-written and Pete Ikusz along with the rest will re-design it. I would
+-also like to thank Tri Nguyen <tmn_3022000@hotmail.com> who provided use
+-with some important information regarding the communication with the Rio.
+-
+-Additional Information and userspace tools
+-
+-	http://rio500.sourceforge.net/
+-
+-
+-Requirements
+-============
+-
+-A host with a USB port running a Linux kernel with RIO 500 support enabled.
+-
+-The driver is a module called rio500, which should be automatically loaded
+-as you plug in your device. If that fails you can manually load it with
+-
+-  modprobe rio500
+-
+-Udev should automatically create a device node as soon as plug in your device.
+-If that fails, you can manually add a device for the USB rio500::
+-
+-  mknod /dev/usb/rio500 c 180 64
+-
+-In that case, set appropriate permissions for /dev/usb/rio500 (don't forget
+-about group and world permissions).  Both read and write permissions are
+-required for proper operation.
+-
+-That's it.  The Rio500 Utils at: http://rio500.sourceforge.net should
+-be able to access the rio500.
+-
+-Limits
+-======
+-
+-You can use only a single rio500 device at a time with your computer.
+-
+-Bugs
+-====
+-
+-If you encounter any problems feel free to drop me an email.
+-
+-Bruce Tenison
+-btenison@dibbs.net
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 296de2b51c83..3bcf493f3f8c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16762,13 +16762,6 @@ W:	http://www.linux-usb.org/usbnet
+ S:	Maintained
+ F:	drivers/net/usb/dm9601.c
+ 
+-USB DIAMOND RIO500 DRIVER
+-M:	Cesar Miquel <miquel@df.uba.ar>
+-L:	rio500-users@lists.sourceforge.net
+-W:	http://rio500.sourceforge.net
+-S:	Maintained
+-F:	drivers/usb/misc/rio500*
+-
+ USB EHCI DRIVER
+ M:	Alan Stern <stern@rowland.harvard.edu>
+ L:	linux-usb@vger.kernel.org
+diff --git a/arch/arm/configs/badge4_defconfig b/arch/arm/configs/badge4_defconfig
+index 5ae5b5228467..ef484c4cfd1a 100644
+--- a/arch/arm/configs/badge4_defconfig
++++ b/arch/arm/configs/badge4_defconfig
+@@ -91,7 +91,6 @@ CONFIG_USB_SERIAL_PL2303=m
+ CONFIG_USB_SERIAL_CYBERJACK=m
+ CONFIG_USB_SERIAL_XIRCOM=m
+ CONFIG_USB_SERIAL_OMNINET=m
+-CONFIG_USB_RIO500=m
+ CONFIG_EXT2_FS=m
+ CONFIG_EXT3_FS=m
+ CONFIG_MSDOS_FS=y
+diff --git a/arch/arm/configs/corgi_defconfig b/arch/arm/configs/corgi_defconfig
+index e4f6442588e7..4fec2ec379ad 100644
+--- a/arch/arm/configs/corgi_defconfig
++++ b/arch/arm/configs/corgi_defconfig
+@@ -195,7 +195,6 @@ CONFIG_USB_SERIAL_XIRCOM=m
+ CONFIG_USB_SERIAL_OMNINET=m
+ CONFIG_USB_EMI62=m
+ CONFIG_USB_EMI26=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYTHERM=m
+diff --git a/arch/arm/configs/pxa_defconfig b/arch/arm/configs/pxa_defconfig
+index 787c3f9be414..b817c57f05f1 100644
+--- a/arch/arm/configs/pxa_defconfig
++++ b/arch/arm/configs/pxa_defconfig
+@@ -581,7 +581,6 @@ CONFIG_USB_SERIAL_XIRCOM=m
+ CONFIG_USB_SERIAL_OMNINET=m
+ CONFIG_USB_EMI62=m
+ CONFIG_USB_EMI26=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYTHERM=m
+diff --git a/arch/arm/configs/s3c2410_defconfig b/arch/arm/configs/s3c2410_defconfig
+index 95b5a4ffddea..73ed73a8785a 100644
+--- a/arch/arm/configs/s3c2410_defconfig
++++ b/arch/arm/configs/s3c2410_defconfig
+@@ -327,7 +327,6 @@ CONFIG_USB_EMI62=m
+ CONFIG_USB_EMI26=m
+ CONFIG_USB_ADUTUX=m
+ CONFIG_USB_SEVSEG=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYPRESS_CY7C63=m
+diff --git a/arch/arm/configs/spitz_defconfig b/arch/arm/configs/spitz_defconfig
+index 4fb51d665abb..a1cdbfa064c5 100644
+--- a/arch/arm/configs/spitz_defconfig
++++ b/arch/arm/configs/spitz_defconfig
+@@ -189,7 +189,6 @@ CONFIG_USB_SERIAL_XIRCOM=m
+ CONFIG_USB_SERIAL_OMNINET=m
+ CONFIG_USB_EMI62=m
+ CONFIG_USB_EMI26=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYTHERM=m
+diff --git a/arch/mips/configs/mtx1_defconfig b/arch/mips/configs/mtx1_defconfig
+index 16bef819fe98..914af125a7fa 100644
+--- a/arch/mips/configs/mtx1_defconfig
++++ b/arch/mips/configs/mtx1_defconfig
+@@ -571,7 +571,6 @@ CONFIG_USB_SERIAL_OMNINET=m
+ CONFIG_USB_EMI62=m
+ CONFIG_USB_EMI26=m
+ CONFIG_USB_ADUTUX=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYPRESS_CY7C63=m
+diff --git a/arch/mips/configs/rm200_defconfig b/arch/mips/configs/rm200_defconfig
+index 8762e75f5d5f..2c7adea7638f 100644
+--- a/arch/mips/configs/rm200_defconfig
++++ b/arch/mips/configs/rm200_defconfig
+@@ -314,7 +314,6 @@ CONFIG_USB_SERIAL_SAFE_PADDED=y
+ CONFIG_USB_SERIAL_CYBERJACK=m
+ CONFIG_USB_SERIAL_XIRCOM=m
+ CONFIG_USB_SERIAL_OMNINET=m
+-CONFIG_USB_RIO500=m
+ CONFIG_USB_LEGOTOWER=m
+ CONFIG_USB_LCD=m
+ CONFIG_USB_CYTHERM=m
+diff --git a/drivers/usb/misc/Kconfig b/drivers/usb/misc/Kconfig
+index bdae62b2ffe0..9bce583aada3 100644
+--- a/drivers/usb/misc/Kconfig
++++ b/drivers/usb/misc/Kconfig
+@@ -47,16 +47,6 @@ config USB_SEVSEG
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called usbsevseg.
+ 
+-config USB_RIO500
+-	tristate "USB Diamond Rio500 support"
+-	help
+-	  Say Y here if you want to connect a USB Rio500 mp3 player to your
+-	  computer's USB port. Please read <file:Documentation/usb/rio.rst>
+-	  for more information.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called rio500.
+-
+ config USB_LEGOTOWER
+ 	tristate "USB Lego Infrared Tower support"
+ 	help
+diff --git a/drivers/usb/misc/Makefile b/drivers/usb/misc/Makefile
+index 109f54f5b9aa..0d416eb624bb 100644
+--- a/drivers/usb/misc/Makefile
++++ b/drivers/usb/misc/Makefile
+@@ -17,7 +17,6 @@ obj-$(CONFIG_USB_ISIGHTFW)		+= isight_firmware.o
+ obj-$(CONFIG_USB_LCD)			+= usblcd.o
+ obj-$(CONFIG_USB_LD)			+= ldusb.o
+ obj-$(CONFIG_USB_LEGOTOWER)		+= legousbtower.o
+-obj-$(CONFIG_USB_RIO500)		+= rio500.o
+ obj-$(CONFIG_USB_TEST)			+= usbtest.o
+ obj-$(CONFIG_USB_EHSET_TEST_FIXTURE)    += ehset.o
+ obj-$(CONFIG_USB_TRANCEVIBRATOR)	+= trancevibrator.o
+diff --git a/drivers/usb/misc/rio500.c b/drivers/usb/misc/rio500.c
+deleted file mode 100644
+index 30cae5e1954d..000000000000
+--- a/drivers/usb/misc/rio500.c
++++ /dev/null
+@@ -1,554 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/* -*- linux-c -*- */
+-
+-/* 
+- * Driver for USB Rio 500
+- *
+- * Cesar Miquel (miquel@df.uba.ar)
+- * 
+- * based on hp_scanner.c by David E. Nelson (dnelson@jump.net)
+- *
+- * Based upon mouse.c (Brad Keryan) and printer.c (Michael Gee).
+- *
+- * Changelog:
+- * 30/05/2003  replaced lock/unlock kernel with up/down
+- *             Daniele Bellucci  bellucda@tiscali.it
+- * */
+-
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/signal.h>
+-#include <linux/sched/signal.h>
+-#include <linux/mutex.h>
+-#include <linux/errno.h>
+-#include <linux/random.h>
+-#include <linux/poll.h>
+-#include <linux/slab.h>
+-#include <linux/spinlock.h>
+-#include <linux/usb.h>
+-#include <linux/wait.h>
+-
+-#include "rio500_usb.h"
+-
+-#define DRIVER_AUTHOR "Cesar Miquel <miquel@df.uba.ar>"
+-#define DRIVER_DESC "USB Rio 500 driver"
+-
+-#define RIO_MINOR	64
+-
+-/* stall/wait timeout for rio */
+-#define NAK_TIMEOUT (HZ)
+-
+-#define IBUF_SIZE 0x1000
+-
+-/* Size of the rio buffer */
+-#define OBUF_SIZE 0x10000
+-
+-struct rio_usb_data {
+-        struct usb_device *rio_dev;     /* init: probe_rio */
+-        unsigned int ifnum;             /* Interface number of the USB device */
+-        int isopen;                     /* nz if open */
+-        int present;                    /* Device is present on the bus */
+-        char *obuf, *ibuf;              /* transfer buffers */
+-        char bulk_in_ep, bulk_out_ep;   /* Endpoint assignments */
+-        wait_queue_head_t wait_q;       /* for timeouts */
+-};
+-
+-static DEFINE_MUTEX(rio500_mutex);
+-static struct rio_usb_data rio_instance;
+-
+-static int open_rio(struct inode *inode, struct file *file)
+-{
+-	struct rio_usb_data *rio = &rio_instance;
+-
+-	/* against disconnect() */
+-	mutex_lock(&rio500_mutex);
+-
+-	if (rio->isopen || !rio->present) {
+-		mutex_unlock(&rio500_mutex);
+-		return -EBUSY;
+-	}
+-	rio->isopen = 1;
+-
+-	init_waitqueue_head(&rio->wait_q);
+-
+-
+-	dev_info(&rio->rio_dev->dev, "Rio opened.\n");
+-	mutex_unlock(&rio500_mutex);
+-
+-	return 0;
+-}
+-
+-static int close_rio(struct inode *inode, struct file *file)
+-{
+-	struct rio_usb_data *rio = &rio_instance;
+-
+-	/* against disconnect() */
+-	mutex_lock(&rio500_mutex);
+-
+-	rio->isopen = 0;
+-	if (!rio->present) {
+-		/* cleanup has been delayed */
+-		kfree(rio->ibuf);
+-		kfree(rio->obuf);
+-		rio->ibuf = NULL;
+-		rio->obuf = NULL;
+-	} else {
+-		dev_info(&rio->rio_dev->dev, "Rio closed.\n");
+-	}
+-	mutex_unlock(&rio500_mutex);
+-	return 0;
+-}
+-
+-static long ioctl_rio(struct file *file, unsigned int cmd, unsigned long arg)
+-{
+-	struct RioCommand rio_cmd;
+-	struct rio_usb_data *rio = &rio_instance;
+-	void __user *data;
+-	unsigned char *buffer;
+-	int result, requesttype;
+-	int retries;
+-	int retval=0;
+-
+-	mutex_lock(&rio500_mutex);
+-        /* Sanity check to make sure rio is connected, powered, etc */
+-        if (rio->present == 0 || rio->rio_dev == NULL) {
+-		retval = -ENODEV;
+-		goto err_out;
+-	}
+-
+-	switch (cmd) {
+-	case RIO_RECV_COMMAND:
+-		data = (void __user *) arg;
+-		if (data == NULL)
+-			break;
+-		if (copy_from_user(&rio_cmd, data, sizeof(struct RioCommand))) {
+-			retval = -EFAULT;
+-			goto err_out;
+-		}
+-		if (rio_cmd.length < 0 || rio_cmd.length > PAGE_SIZE) {
+-			retval = -EINVAL;
+-			goto err_out;
+-		}
+-		buffer = (unsigned char *) __get_free_page(GFP_KERNEL);
+-		if (buffer == NULL) {
+-			retval = -ENOMEM;
+-			goto err_out;
+-		}
+-		if (copy_from_user(buffer, rio_cmd.buffer, rio_cmd.length)) {
+-			retval = -EFAULT;
+-			free_page((unsigned long) buffer);
+-			goto err_out;
+-		}
+-
+-		requesttype = rio_cmd.requesttype | USB_DIR_IN |
+-		    USB_TYPE_VENDOR | USB_RECIP_DEVICE;
+-		dev_dbg(&rio->rio_dev->dev,
+-			"sending command:reqtype=%0x req=%0x value=%0x index=%0x len=%0x\n",
+-			requesttype, rio_cmd.request, rio_cmd.value,
+-			rio_cmd.index, rio_cmd.length);
+-		/* Send rio control message */
+-		retries = 3;
+-		while (retries) {
+-			result = usb_control_msg(rio->rio_dev,
+-						 usb_rcvctrlpipe(rio-> rio_dev, 0),
+-						 rio_cmd.request,
+-						 requesttype,
+-						 rio_cmd.value,
+-						 rio_cmd.index, buffer,
+-						 rio_cmd.length,
+-						 jiffies_to_msecs(rio_cmd.timeout));
+-			if (result == -ETIMEDOUT)
+-				retries--;
+-			else if (result < 0) {
+-				dev_err(&rio->rio_dev->dev,
+-					"Error executing ioctrl. code = %d\n",
+-					result);
+-				retries = 0;
+-			} else {
+-				dev_dbg(&rio->rio_dev->dev,
+-					"Executed ioctl. Result = %d (data=%02x)\n",
+-					result, buffer[0]);
+-				if (copy_to_user(rio_cmd.buffer, buffer,
+-						 rio_cmd.length)) {
+-					free_page((unsigned long) buffer);
+-					retval = -EFAULT;
+-					goto err_out;
+-				}
+-				retries = 0;
+-			}
+-
+-			/* rio_cmd.buffer contains a raw stream of single byte
+-			   data which has been returned from rio.  Data is
+-			   interpreted at application level.  For data that
+-			   will be cast to data types longer than 1 byte, data
+-			   will be little_endian and will potentially need to
+-			   be swapped at the app level */
+-
+-		}
+-		free_page((unsigned long) buffer);
+-		break;
+-
+-	case RIO_SEND_COMMAND:
+-		data = (void __user *) arg;
+-		if (data == NULL)
+-			break;
+-		if (copy_from_user(&rio_cmd, data, sizeof(struct RioCommand))) {
+-			retval = -EFAULT;
+-			goto err_out;
+-		}
+-		if (rio_cmd.length < 0 || rio_cmd.length > PAGE_SIZE) {
+-			retval = -EINVAL;
+-			goto err_out;
+-		}
+-		buffer = (unsigned char *) __get_free_page(GFP_KERNEL);
+-		if (buffer == NULL) {
+-			retval = -ENOMEM;
+-			goto err_out;
+-		}
+-		if (copy_from_user(buffer, rio_cmd.buffer, rio_cmd.length)) {
+-			free_page((unsigned long)buffer);
+-			retval = -EFAULT;
+-			goto err_out;
+-		}
+-
+-		requesttype = rio_cmd.requesttype | USB_DIR_OUT |
+-		    USB_TYPE_VENDOR | USB_RECIP_DEVICE;
+-		dev_dbg(&rio->rio_dev->dev,
+-			"sending command: reqtype=%0x req=%0x value=%0x index=%0x len=%0x\n",
+-			requesttype, rio_cmd.request, rio_cmd.value,
+-			rio_cmd.index, rio_cmd.length);
+-		/* Send rio control message */
+-		retries = 3;
+-		while (retries) {
+-			result = usb_control_msg(rio->rio_dev,
+-						 usb_sndctrlpipe(rio-> rio_dev, 0),
+-						 rio_cmd.request,
+-						 requesttype,
+-						 rio_cmd.value,
+-						 rio_cmd.index, buffer,
+-						 rio_cmd.length,
+-						 jiffies_to_msecs(rio_cmd.timeout));
+-			if (result == -ETIMEDOUT)
+-				retries--;
+-			else if (result < 0) {
+-				dev_err(&rio->rio_dev->dev,
+-					"Error executing ioctrl. code = %d\n",
+-					result);
+-				retries = 0;
+-			} else {
+-				dev_dbg(&rio->rio_dev->dev,
+-					"Executed ioctl. Result = %d\n", result);
+-				retries = 0;
+-
+-			}
+-
+-		}
+-		free_page((unsigned long) buffer);
+-		break;
+-
+-	default:
+-		retval = -ENOTTY;
+-		break;
+-	}
+-
+-
+-err_out:
+-	mutex_unlock(&rio500_mutex);
+-	return retval;
+-}
+-
+-static ssize_t
+-write_rio(struct file *file, const char __user *buffer,
+-	  size_t count, loff_t * ppos)
+-{
+-	DEFINE_WAIT(wait);
+-	struct rio_usb_data *rio = &rio_instance;
+-
+-	unsigned long copy_size;
+-	unsigned long bytes_written = 0;
+-	unsigned int partial;
+-
+-	int result = 0;
+-	int maxretry;
+-	int errn = 0;
+-	int intr;
+-
+-	intr = mutex_lock_interruptible(&rio500_mutex);
+-	if (intr)
+-		return -EINTR;
+-        /* Sanity check to make sure rio is connected, powered, etc */
+-        if (rio->present == 0 || rio->rio_dev == NULL) {
+-		mutex_unlock(&rio500_mutex);
+-		return -ENODEV;
+-	}
+-
+-
+-
+-	do {
+-		unsigned long thistime;
+-		char *obuf = rio->obuf;
+-
+-		thistime = copy_size =
+-		    (count >= OBUF_SIZE) ? OBUF_SIZE : count;
+-		if (copy_from_user(rio->obuf, buffer, copy_size)) {
+-			errn = -EFAULT;
+-			goto error;
+-		}
+-		maxretry = 5;
+-		while (thistime) {
+-			if (!rio->rio_dev) {
+-				errn = -ENODEV;
+-				goto error;
+-			}
+-			if (signal_pending(current)) {
+-				mutex_unlock(&rio500_mutex);
+-				return bytes_written ? bytes_written : -EINTR;
+-			}
+-
+-			result = usb_bulk_msg(rio->rio_dev,
+-					 usb_sndbulkpipe(rio->rio_dev, 2),
+-					 obuf, thistime, &partial, 5000);
+-
+-			dev_dbg(&rio->rio_dev->dev,
+-				"write stats: result:%d thistime:%lu partial:%u\n",
+-				result, thistime, partial);
+-
+-			if (result == -ETIMEDOUT) {	/* NAK - so hold for a while */
+-				if (!maxretry--) {
+-					errn = -ETIME;
+-					goto error;
+-				}
+-				prepare_to_wait(&rio->wait_q, &wait, TASK_INTERRUPTIBLE);
+-				schedule_timeout(NAK_TIMEOUT);
+-				finish_wait(&rio->wait_q, &wait);
+-				continue;
+-			} else if (!result && partial) {
+-				obuf += partial;
+-				thistime -= partial;
+-			} else
+-				break;
+-		}
+-		if (result) {
+-			dev_err(&rio->rio_dev->dev, "Write Whoops - %x\n",
+-				result);
+-			errn = -EIO;
+-			goto error;
+-		}
+-		bytes_written += copy_size;
+-		count -= copy_size;
+-		buffer += copy_size;
+-	} while (count > 0);
+-
+-	mutex_unlock(&rio500_mutex);
+-
+-	return bytes_written ? bytes_written : -EIO;
+-
+-error:
+-	mutex_unlock(&rio500_mutex);
+-	return errn;
+-}
+-
+-static ssize_t
+-read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
+-{
+-	DEFINE_WAIT(wait);
+-	struct rio_usb_data *rio = &rio_instance;
+-	ssize_t read_count;
+-	unsigned int partial;
+-	int this_read;
+-	int result;
+-	int maxretry = 10;
+-	char *ibuf;
+-	int intr;
+-
+-	intr = mutex_lock_interruptible(&rio500_mutex);
+-	if (intr)
+-		return -EINTR;
+-	/* Sanity check to make sure rio is connected, powered, etc */
+-        if (rio->present == 0 || rio->rio_dev == NULL) {
+-		mutex_unlock(&rio500_mutex);
+-		return -ENODEV;
+-	}
+-
+-	ibuf = rio->ibuf;
+-
+-	read_count = 0;
+-
+-
+-	while (count > 0) {
+-		if (signal_pending(current)) {
+-			mutex_unlock(&rio500_mutex);
+-			return read_count ? read_count : -EINTR;
+-		}
+-		if (!rio->rio_dev) {
+-			mutex_unlock(&rio500_mutex);
+-			return -ENODEV;
+-		}
+-		this_read = (count >= IBUF_SIZE) ? IBUF_SIZE : count;
+-
+-		result = usb_bulk_msg(rio->rio_dev,
+-				      usb_rcvbulkpipe(rio->rio_dev, 1),
+-				      ibuf, this_read, &partial,
+-				      8000);
+-
+-		dev_dbg(&rio->rio_dev->dev,
+-			"read stats: result:%d this_read:%u partial:%u\n",
+-			result, this_read, partial);
+-
+-		if (partial) {
+-			count = this_read = partial;
+-		} else if (result == -ETIMEDOUT || result == 15) {	/* FIXME: 15 ??? */
+-			if (!maxretry--) {
+-				mutex_unlock(&rio500_mutex);
+-				dev_err(&rio->rio_dev->dev,
+-					"read_rio: maxretry timeout\n");
+-				return -ETIME;
+-			}
+-			prepare_to_wait(&rio->wait_q, &wait, TASK_INTERRUPTIBLE);
+-			schedule_timeout(NAK_TIMEOUT);
+-			finish_wait(&rio->wait_q, &wait);
+-			continue;
+-		} else if (result != -EREMOTEIO) {
+-			mutex_unlock(&rio500_mutex);
+-			dev_err(&rio->rio_dev->dev,
+-				"Read Whoops - result:%d partial:%u this_read:%u\n",
+-				result, partial, this_read);
+-			return -EIO;
+-		} else {
+-			mutex_unlock(&rio500_mutex);
+-			return (0);
+-		}
+-
+-		if (this_read) {
+-			if (copy_to_user(buffer, ibuf, this_read)) {
+-				mutex_unlock(&rio500_mutex);
+-				return -EFAULT;
+-			}
+-			count -= this_read;
+-			read_count += this_read;
+-			buffer += this_read;
+-		}
+-	}
+-	mutex_unlock(&rio500_mutex);
+-	return read_count;
+-}
+-
+-static const struct file_operations usb_rio_fops = {
+-	.owner =	THIS_MODULE,
+-	.read =		read_rio,
+-	.write =	write_rio,
+-	.unlocked_ioctl = ioctl_rio,
+-	.open =		open_rio,
+-	.release =	close_rio,
+-	.llseek =	noop_llseek,
+-};
+-
+-static struct usb_class_driver usb_rio_class = {
+-	.name =		"rio500%d",
+-	.fops =		&usb_rio_fops,
+-	.minor_base =	RIO_MINOR,
+-};
+-
+-static int probe_rio(struct usb_interface *intf,
+-		     const struct usb_device_id *id)
+-{
+-	struct usb_device *dev = interface_to_usbdev(intf);
+-	struct rio_usb_data *rio = &rio_instance;
+-	int retval = -ENOMEM;
+-	char *ibuf, *obuf;
+-
+-	if (rio->present) {
+-		dev_info(&intf->dev, "Second USB Rio at address %d refused\n", dev->devnum);
+-		return -EBUSY;
+-	}
+-	dev_info(&intf->dev, "USB Rio found at address %d\n", dev->devnum);
+-
+-	obuf = kmalloc(OBUF_SIZE, GFP_KERNEL);
+-	if (!obuf) {
+-		dev_err(&dev->dev,
+-			"probe_rio: Not enough memory for the output buffer\n");
+-		goto err_obuf;
+-	}
+-	dev_dbg(&intf->dev, "obuf address: %p\n", obuf);
+-
+-	ibuf = kmalloc(IBUF_SIZE, GFP_KERNEL);
+-	if (!ibuf) {
+-		dev_err(&dev->dev,
+-			"probe_rio: Not enough memory for the input buffer\n");
+-		goto err_ibuf;
+-	}
+-	dev_dbg(&intf->dev, "ibuf address: %p\n", ibuf);
+-
+-	mutex_lock(&rio500_mutex);
+-	rio->rio_dev = dev;
+-	rio->ibuf = ibuf;
+-	rio->obuf = obuf;
+-	rio->present = 1;
+-	mutex_unlock(&rio500_mutex);
+-
+-	retval = usb_register_dev(intf, &usb_rio_class);
+-	if (retval) {
+-		dev_err(&dev->dev,
+-			"Not able to get a minor for this device.\n");
+-		goto err_register;
+-	}
+-
+-	usb_set_intfdata(intf, rio);
+-	return retval;
+-
+- err_register:
+-	mutex_lock(&rio500_mutex);
+-	rio->present = 0;
+-	mutex_unlock(&rio500_mutex);
+- err_ibuf:
+-	kfree(obuf);
+- err_obuf:
+-	return retval;
+-}
+-
+-static void disconnect_rio(struct usb_interface *intf)
+-{
+-	struct rio_usb_data *rio = usb_get_intfdata (intf);
+-
+-	usb_set_intfdata (intf, NULL);
+-	if (rio) {
+-		usb_deregister_dev(intf, &usb_rio_class);
+-
+-		mutex_lock(&rio500_mutex);
+-		if (rio->isopen) {
+-			rio->isopen = 0;
+-			/* better let it finish - the release will do whats needed */
+-			rio->rio_dev = NULL;
+-			mutex_unlock(&rio500_mutex);
+-			return;
+-		}
+-		kfree(rio->ibuf);
+-		kfree(rio->obuf);
+-
+-		dev_info(&intf->dev, "USB Rio disconnected.\n");
+-
+-		rio->present = 0;
+-		mutex_unlock(&rio500_mutex);
+-	}
+-}
+-
+-static const struct usb_device_id rio_table[] = {
+-	{ USB_DEVICE(0x0841, 1) }, 		/* Rio 500 */
+-	{ }					/* Terminating entry */
+-};
+-
+-MODULE_DEVICE_TABLE (usb, rio_table);
+-
+-static struct usb_driver rio_driver = {
+-	.name =		"rio500",
+-	.probe =	probe_rio,
+-	.disconnect =	disconnect_rio,
+-	.id_table =	rio_table,
+-};
+-
+-module_usb_driver(rio_driver);
+-
+-MODULE_AUTHOR( DRIVER_AUTHOR );
+-MODULE_DESCRIPTION( DRIVER_DESC );
+-MODULE_LICENSE("GPL");
+-
+diff --git a/drivers/usb/misc/rio500_usb.h b/drivers/usb/misc/rio500_usb.h
+deleted file mode 100644
+index 6db7a5863496..000000000000
+--- a/drivers/usb/misc/rio500_usb.h
++++ /dev/null
+@@ -1,20 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*  ----------------------------------------------------------------------
+-    Copyright (C) 2000  Cesar Miquel  (miquel@df.uba.ar)
+-    ---------------------------------------------------------------------- */
+-
+-#define RIO_SEND_COMMAND			0x1
+-#define RIO_RECV_COMMAND			0x2
+-
+-#define RIO_DIR_OUT               	        0x0
+-#define RIO_DIR_IN				0x1
+-
+-struct RioCommand {
+-	short length;
+-	int request;
+-	int requesttype;
+-	int value;
+-	int index;
+-	void __user *buffer;
+-	int timeout;
+-};
+-- 
+2.23.0
 
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking TCP: keepalive test
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking TCP: keepalive test
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking TCP: keepalive test
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
 
