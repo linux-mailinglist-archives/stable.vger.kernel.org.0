@@ -2,112 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD624CC2DE
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 20:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 220C4CC373
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 21:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730369AbfJDSnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 14:43:02 -0400
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:60460 "EHLO
-        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725932AbfJDSnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 14:43:02 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 2D7ED8EE21D;
-        Fri,  4 Oct 2019 11:43:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1570214580;
-        bh=M74BA6tZivmW9mP21CAJFbPqbr1TAq/9ADBP/A9ZWCU=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=lDID8OIt0ZoWsUhcV9xGKmNthRBBOfWUHonDTKSjA6LoJ/9SHYXTalE3NXX5NjWud
-         GnbDsj5BSMKN7HrlBwZmEIE5it50+cKw7/Gq8Hy9g1trWY1TLFmRZLcHMEp3doU5EP
-         QB0qnuFiFQJukSgdNFdrdm1KRZUxFwe4W32uPuME=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 41kHJ_Bxesff; Fri,  4 Oct 2019 11:42:59 -0700 (PDT)
-Received: from jarvis.lan (unknown [50.35.76.230])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 630708EE0EE;
-        Fri,  4 Oct 2019 11:42:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1570214578;
-        bh=M74BA6tZivmW9mP21CAJFbPqbr1TAq/9ADBP/A9ZWCU=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=BfZjm1wfN2MVKPY+jvDeZiktbgRzU31b3o8X+q8WouZEqANNy/ySb6YPUcZ5MQcAD
-         t7KviywM4RRCfrVF8s8/cb+iZqvx9HOB3pH8SevfVrQMIKyN7nJ9qZUe5ztkHLjmy6
-         F5VsKsL7UYugGwZkXmjEArIWxnVjDZen55Euh170=
-Message-ID: <1570214574.3563.32.camel@HansenPartnership.com>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Jerry Snitselaar <jsnitsel@redhat.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Date:   Fri, 04 Oct 2019 11:42:54 -0700
-In-Reply-To: <20191004183342.y63qdvspojyf3m55@cantor>
-References: <20191003114119.GF8933@linux.intel.com>
-         <1570107752.4421.183.camel@linux.ibm.com>
-         <20191003175854.GB19679@linux.intel.com>
-         <1570128827.5046.19.camel@linux.ibm.com>
-         <20191003215125.GA30511@linux.intel.com>
-         <20191003215743.GB30511@linux.intel.com>
-         <1570140491.5046.33.camel@linux.ibm.com>
-         <1570147177.10818.11.camel@HansenPartnership.com>
-         <20191004182216.GB6945@linux.intel.com>
-         <1570213491.3563.27.camel@HansenPartnership.com>
-         <20191004183342.y63qdvspojyf3m55@cantor>
+        id S1728356AbfJDTN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 15:13:58 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:44705 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727978AbfJDTN6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 15:13:58 -0400
+Received: by mail-io1-f67.google.com with SMTP id w12so15810035iol.11
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 12:13:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=usuFISMqci9f735wNqIFTbIm+6Oe9vY9sfRcppqbt5s=;
+        b=dqnHn6VzYL8isBsECK66z+izUOCHrnor547t4yzQvzU0CvhSw8eQpdwLbaWXAY/NeN
+         BNATxURcN6OufLOxmIPNqM6m+4uayboCb38A1BIKheHgEfO+8iiXHTFKMZHPRRAapdyv
+         NRazy8Ds+RsuC0RpZqJ2g4kZM1VRW5TOCirJyVNbIUb+gIGhKhkrLq/5KgsXNyxm1tk8
+         MmtusgN65ueuNQElTF8Q9J2HwX39krqdhEbPpttb1Sn0azO8HvfQwDXOJ0sKEkkBzIy4
+         HRm/yQgx6YYJ2TyLDYdHZWW5bP/QYbkKG5bO0zaec8v4j6M9N6MKzyKFgMLEfAU7Fx/d
+         44ZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=usuFISMqci9f735wNqIFTbIm+6Oe9vY9sfRcppqbt5s=;
+        b=n8lVkdwV4yozfee9sj3LG7VDwROKNEwQS+bg/jA7q/7YGxWdoc8e0ExjhPutf6/Ahx
+         vAkWiYtTATAj9ar+CAFuGKPOf8HPRf6qLZw7o59dqCVlNx+HkFfDCx5lbn2gtd9ouK/A
+         c8CKdb5GRqebCMvNe81ivyMkkeITyzCILFbFOGcu0pbzAWqZSAFkqotjS711Gef6cRSJ
+         z3LzcEIfv6MI0pq8xtxC4cfb3/buWg2lK2lIannBny9VNbQ0SS68rxsi/cYFhvBbdeF6
+         e5MakMkpBmTpsnKP2gmjdQQW9IKTDXHj1HGtAfnaqRH8dpC7SozgKytQEGRASZSKr0DK
+         E4rA==
+X-Gm-Message-State: APjAAAUb90LOssjLfQ2+KiAiiKxypA7GaN/lHBUC3WQHEuzEpf7OHBml
+        1MobywNPXuL+dRPjfMYyMpmPv6VDiWIk+wTKgtA=
+X-Google-Smtp-Source: APXvYqw7D+eDORhC+cl1Bgbu1mvM2Vuxmpo42M/xJHX3Kw42aKPbtuWiVS0mBFdre6xnV6CINTxECyIqQTJNkX/QDpQ=
+X-Received: by 2002:a02:94e5:: with SMTP id x92mr15667637jah.11.1570216436967;
+ Fri, 04 Oct 2019 12:13:56 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a4f:b70f:0:0:0:0:0 with HTTP; Fri, 4 Oct 2019 12:13:55 -0700 (PDT)
+Reply-To: helenpatrrick@gmail.com
+From:   Angel Helen <cbankuae@gmail.com>
+Date:   Fri, 4 Oct 2019 19:13:55 +0000
+Message-ID: <CAOrQnn__J90ymYGk52s1_9JCK1Mv5rbnZ995FGqzKu+8OpUcdg@mail.gmail.com>
+Subject: HELLO PLEASE CAN I SPEAK WITH YOU?
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-10-04 at 11:33 -0700, Jerry Snitselaar wrote:
-> On Fri Oct 04 19, James Bottomley wrote:
-> > On Fri, 2019-10-04 at 21:22 +0300, Jarkko Sakkinen wrote:
-> > > On Thu, Oct 03, 2019 at 04:59:37PM -0700, James Bottomley wrote:
-> > > > I think the principle of using multiple RNG sources for strong
-> > > > keys is a sound one, so could I propose a compromise:  We have
-> > > > a tpm subsystem random number generator that, when asked for
-> > > > <n> random bytes first extracts <n> bytes from the TPM RNG and
-> > > > places it into the kernel entropy pool and then asks for <n>
-> > > > random bytes from the kernel RNG? That way, it will always have
-> > > > the entropy to satisfy the request and in the worst case, where
-> > > > the kernel has picked up no other entropy sources at all it
-> > > > will be equivalent to what we have now (single entropy source)
-> > > > but usually it will be a much better mixed entropy source.
-> > > 
-> > > I think we should rely the existing architecture where TPM is
-> > > contributing to the entropy pool as hwrng.
-> > 
-> > That doesn't seem to work: when I trace what happens I see us
-> > inject 32 bytes of entropy at boot time, but never again.  I think
-> > the problem is the kernel entropy pool is push not pull and we have
-> > no triggering event in the TPM to get us to push.  I suppose we
-> > could set a timer to do this or perhaps there is a pull hook and we
-> > haven't wired it up correctly?
-> > 
-> > James
-> > 
-> 
-> Shouldn't hwrng_fillfn be pulling from it?
+Hello dear,
+My name is Miss Helen i am a humble sincere single girl looking for
+true love, and a partner to assist me transfer my late father money,
+an amount of, (Four Million Two Hundred Thousand US Dollars) to your
+country for investment. I will give you 40% after the transfer, while
+the remaining amount will be invest in your country in your names,
+with 50% equal profits sharing.
 
-It should, but the problem seems to be it only polls the "current" hw
-rng ... it doesn't seem to have a concept that there may be more than
-one.  What happens, according to a brief reading of the code, is when
-multiple are registered, it determines what the "best" one is and then
-only pulls from that.  What I think it should be doing is filling from
-all of them using the entropy quality to adjust how many bits we get.
+Send me your pictures with brief introductions about your self's, so
+that i will give you further details and procedure.
 
-James
+Message me to my email: helenpatrrick@gmail.com
 
+I awaits your answer today.
+God bless you.
+Miss Helen.
