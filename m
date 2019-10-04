@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFB3CC1E4
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 19:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 607C2CC1E5
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 19:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388243AbfJDRlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 13:41:08 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:43958 "EHLO
+        id S2387900AbfJDRlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 13:41:21 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:37768 "EHLO
         mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387428AbfJDRlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 13:41:08 -0400
-Received: by mail-pg1-f194.google.com with SMTP id v27so4115118pgk.10
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 10:41:07 -0700 (PDT)
+        with ESMTP id S2387428AbfJDRlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 13:41:21 -0400
+Received: by mail-pg1-f194.google.com with SMTP id p1so2362606pgi.4
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 10:41:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Net3R7Dkt20AxiBZL5y2ysKq2zHp531byeIbpfRatR0=;
-        b=NQe7+D0be4f47eppi/ITfx5wG418DLhVE0bDATgCN82eoTNTEsOzLL26jgRJjC9Xfi
-         kdc0WVhtKep1k6b2u8MuMyvMaCnfvz0EIssoGQ5poxGaJd9GUE6KTEsfOPOw+PGn+Imc
-         ucHGORm3xDyTQ11iSglRGGaROUsXNoWJgML2o=
+        bh=JlOUzbJIo2LQ1SEnIarXWwDTgdELla2Y8WKpxYqlPgU=;
+        b=JFJTkjDzZzpduAkycfYVFJs9f1vgLUQpwcGP0okjyFLMoRUdZ2yE+sW7fVzQfc1J58
+         wcUojVBe5mgxjxozE7Lrs1eORe9RkgmlTzqAKwnZp8mBmt13NToqfWxR5LTs5Ys9L9m2
+         5HFnjBpLHnlNxDu7z+2y6L3fhlwJPcSpdyItU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Net3R7Dkt20AxiBZL5y2ysKq2zHp531byeIbpfRatR0=;
-        b=ERPKAcdNx49ZKdjNn1x4jNduvx97BQAwGERcxj7vzZai2wJC0sXLFEEvDulkDBzHL1
-         Z8q3ZLF08uhtkVhN4RiDq5H5TwGXQsQpfxvuV4n/4TX2SidPbvlm6/TsFXLQJJet/6VI
-         LVlWiH+10dpHMHsI/+NYnvNHIjtiL7Sb73ppyjt2rT19J07hZsbTRMV8HPjsCtlZyghW
-         ZIDb4DUmMbzQYSRKGrHEUIhSAeReZVv4rlJtxP2Tb/jbUaPhHvgupik+UsvFICOMNXy9
-         r6OWf8WK+IjRiP1sRT4OVI4MyI+pFzyVhcAb7GMdekZb/Vh6soHFXpQ8SAe7WbuphxCD
-         TGgg==
-X-Gm-Message-State: APjAAAUSP244W0eCvQHRslRSOKuQLqi6kWkRmdlFqeJ8/Kkhn+VsT62B
-        HqtdJGXFVb0NxQ1TJaiNaRCg1sy2v0A=
-X-Google-Smtp-Source: APXvYqz0bXr61IriX6wAiWhZBBCiksoUUnoUttN44lPRXyYrQRPvS1FSF54p3w8m3MME4mIhrTbA0g==
-X-Received: by 2002:a17:90a:ba93:: with SMTP id t19mr17394637pjr.141.1570210866100;
-        Fri, 04 Oct 2019 10:41:06 -0700 (PDT)
+        bh=JlOUzbJIo2LQ1SEnIarXWwDTgdELla2Y8WKpxYqlPgU=;
+        b=pk89jFv6Ougxz3k2HPsHc7ilUVXrTahw+tJ54gYcvaueUDUoSOKSYAVmlRhJHAAecB
+         ehAWMPUsuwecFVWvVHTAyJrRtcI4dRJNIw4C0NnW5mvFiYSe7rhdjW84XKyla22dooGb
+         zzAsC5G50J26houFn5dy5PTmK8vIwkX2DZi0SHOL+EifGk31EKisqCsOgBdd6lGOyKy9
+         OsLER8ISvSeKMxH7JMwBYtf2nrvGbLx93Q/7o7jQoURUTtE2g3LeXW4EbRXY0lhLPdO6
+         LzxMeA+R6LpsNtQXKsDwi7LUgrLQGK4EsdyrOu56vjF+Q+OHptt6Z2Q9Wycm+DjeXs4r
+         fW7Q==
+X-Gm-Message-State: APjAAAW6ksFIPLtQO+KL55x0z/kTRHuEO0OlrU0O1Tx7y4VYSzUcxYih
+        /co2rQPeJlpnKhk/KNdH4AxFw63S0vo=
+X-Google-Smtp-Source: APXvYqzpTt2Frp7qcct+0vt2vUNTsgQXVDjQOb25olJL5hXEbTDs/bChULeV+xJ4U0T1tCjH6HRumA==
+X-Received: by 2002:a63:2903:: with SMTP id p3mr16670283pgp.306.1570210878909;
+        Fri, 04 Oct 2019 10:41:18 -0700 (PDT)
 Received: from zsm-linux.mtv.corp.google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
-        by smtp.googlemail.com with ESMTPSA id q88sm12281544pjq.9.2019.10.04.10.41.04
+        by smtp.googlemail.com with ESMTPSA id m34sm10323996pgb.91.2019.10.04.10.41.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Oct 2019 10:41:05 -0700 (PDT)
+        Fri, 04 Oct 2019 10:41:18 -0700 (PDT)
 From:   Zubin Mithra <zsm@chromium.org>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
         daniel@iogearbox.net, songliubraving@fb.com, ast@kernel.org
-Subject: [v4.19.y] bpf: fix use after free in prog symbol exposure
-Date:   Fri,  4 Oct 2019 10:40:58 -0700
-Message-Id: <20191004174058.32106-1-zsm@chromium.org>
+Subject: [v4.14.y] bpf: fix use after free in prog symbol exposure
+Date:   Fri,  4 Oct 2019 10:41:12 -0700
+Message-Id: <20191004174112.32217-1-zsm@chromium.org>
 X-Mailer: git-send-email 2.23.0.581.g78d2f28ef7-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -134,41 +134,68 @@ Cc: Song Liu <songliubraving@fb.com>
 Signed-off-by: Zubin Mithra <zsm@chromium.org>
 ---
 Notes:
-* Syzkaller triggered a WARNING on 4.19 kernels with the following
+* Syzkaller triggered a WARNING on 4.14 kernels with the following
 stacktrace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xc8/0x129 lib/dump_stack.c:113
- panic+0x1da/0x3bf kernel/panic.c:184
- __warn+0x160/0x1b6 kernel/panic.c:536
- report_bug+0x123/0x18b lib/bug.c:186
- fixup_bug+0x3e/0x77 arch/x86/kernel/traps.c:178
- do_error_trap+0xe4/0x1f4 arch/x86/kernel/traps.c:296
- invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:993
- bpf_prog_free_deferred+0x29a/0x2ad kernel/bpf/core.c:1742
- process_one_work+0x784/0xbcf kernel/workqueue.c:2153
- worker_thread+0x4e9/0x65a kernel/workqueue.c:2296
- kthread+0x2e8/0x2fc kernel/kthread.c:246
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:413
+Call Trace:
+  dump_stack+0x81/0xb3
+  panic+0x14a/0x2ad
+  ? refcount_error_report+0xf6/0xf6
+  ? set_fs+0x1a/0x29
+  ? bpf_jit_free+0x8b/0xce
+  __warn+0xde/0x112
+  ? bpf_jit_free+0x8b/0xce
+  report_bug+0x91/0xda
+  fixup_bug+0x2c/0x4c
+  do_error_trap+0xda/0x192
+  ? fixup_bug+0x4c/0x4c
+  ? hlock_class+0x6d/0x8b
+  ? mark_lock+0x3a/0x26d
+  ? trace_hardirqs_off_caller+0xf2/0xfb
+  ? trace_hardirqs_off_thunk+0x1a/0x1c
+  invalid_op+0x1b/0x40
+  ? bpf_jit_binary_free+0x15/0x20
+  ? bpf_jit_free+0x7b/0xce
+  process_one_work+0x484/0x793
+  ? wq_calc_node_cpumask.constprop.37+0x25/0x25
+  ? worker_clr_flags+0x52/0x88
+  worker_thread+0x2b8/0x3d1
+  ? rescuer_thread+0x425/0x425
+  kthread+0x192/0x1a2
+  ? __list_del_entry+0x41/0x41
+  ret_from_fork+0x3a/0x50
 
-* The commit is present in linux-5.2.y. A backport for 4.14.y has been sent
+* The commit is not present in linux-4.19.y. A backport has been sent
 separately.
 
 * The patch resolves conflicts inside bpf_prog_load that arise due to
-perf_event_bpf_event() not being present in linux-4.19.y.
+trace_bpf_prog_load() not being present upstream when c751798aa224 was
+applied and perf_event_bpf_event() not being present in linux-4.14.y.
 
 * Tests run: Chrome OS tryjobs, Syzkaller reproducer
 
- kernel/bpf/syscall.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ kernel/bpf/syscall.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
 diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 118e3a8fc7646..6e544e364821e 100644
+index 2d828d3469822..59d2e94ecb798 100644
 --- a/kernel/bpf/syscall.c
 +++ b/kernel/bpf/syscall.c
-@@ -1454,19 +1454,25 @@ static int bpf_prog_load(union bpf_attr *attr)
+@@ -1067,20 +1067,26 @@ static int bpf_prog_load(union bpf_attr *attr)
  	if (err)
  		goto free_used_maps;
  
+-	err = bpf_prog_new_fd(prog);
+-	if (err < 0) {
+-		/* failed to allocate fd.
+-		 * bpf_prog_put() is needed because the above
+-		 * bpf_prog_alloc_id() has published the prog
+-		 * to the userspace and the userspace may
+-		 * have refcnt-ed it through BPF_PROG_GET_FD_BY_ID.
+-		 */
+-		bpf_prog_put(prog);
+-		return err;
+-	}
+-
 +	/* Upon success of bpf_prog_alloc_id(), the BPF prog is
 +	 * effectively publicly exposed. However, retrieving via
 +	 * bpf_prog_get_fd_by_id() will take another reference,
@@ -183,22 +210,12 @@ index 118e3a8fc7646..6e544e364821e 100644
 +	 * Also, any failure handling from this point onwards must
 +	 * be using bpf_prog_put() given the program is exposed.
 +	 */
-+	bpf_prog_kallsyms_add(prog);
+ 	bpf_prog_kallsyms_add(prog);
+ 	trace_bpf_prog_load(prog, err);
 +
- 	err = bpf_prog_new_fd(prog);
--	if (err < 0) {
--		/* failed to allocate fd.
--		 * bpf_prog_put() is needed because the above
--		 * bpf_prog_alloc_id() has published the prog
--		 * to the userspace and the userspace may
--		 * have refcnt-ed it through BPF_PROG_GET_FD_BY_ID.
--		 */
++	err = bpf_prog_new_fd(prog);
 +	if (err < 0)
- 		bpf_prog_put(prog);
--		return err;
--	}
--
--	bpf_prog_kallsyms_add(prog);
++		bpf_prog_put(prog);
  	return err;
  
  free_used_maps:
