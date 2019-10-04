@@ -2,254 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88A9ACBF33
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 17:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC8ACBFD2
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 17:55:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389086AbfJDPbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 11:31:02 -0400
-Received: from mga07.intel.com ([134.134.136.100]:1738 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389815AbfJDPbC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 11:31:02 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 08:31:00 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,256,1566889200"; 
-   d="scan'208";a="276088759"
-Received: from twinkler-lnx.jer.intel.com ([10.12.91.155])
-  by orsmga001.jf.intel.com with ESMTP; 04 Oct 2019 08:30:58 -0700
-From:   Tomas Winkler <tomas.winkler@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [char-misc for v4.5-rc2 2/2 V2] mei: avoid FW version request on Ibex Peak and earlier
-Date:   Fri,  4 Oct 2019 21:17:22 +0300
-Message-Id: <20191004181722.31374-1-tomas.winkler@intel.com>
-X-Mailer: git-send-email 2.21.0
+        id S2390128AbfJDPzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 11:55:54 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:45805 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390031AbfJDPzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 11:55:54 -0400
+Received: by mail-pg1-f195.google.com with SMTP id q7so3960640pgi.12
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 08:55:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tKT3NphsS8aC+Hm20wz5BTowxyu8Cj2InabWiB0c0GY=;
+        b=P9uryt8X7gX4iN8K3stEiJTJcM2cNtvg5fWgSYMUEnyNUbpf0ORwDeV01gZKcjRXCO
+         VCwvJSIUMUzDCJGqe3vTdQ1hMWFKYBkDV4e2OYCKawfibi6tstydDPA3//MRuqJbtD4R
+         z8UKcn4TKlwv5xv6uJJi8wck3MSYJwOu971ps=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=tKT3NphsS8aC+Hm20wz5BTowxyu8Cj2InabWiB0c0GY=;
+        b=bLzYdQBkFJSTRJdD4P92O0XZ87EdsKWGFQV67OmGtDOi7TwVYb6mOKacgm9OI4MBYt
+         HusMvJifvJVFqt5u0flYFB3HjTlS1wVNm1/6EBktWMVI6leGCCPRgeggsNfGnigM/b8O
+         yGooRPSz7ZU3x2edKkqSaHVLgyYPNiiW6lC0b11VYxRQTJYnkFLfeC8qdPEG6F3dTRmI
+         D2+0psBnr3xa/d4lgaVA92n+52NZ+QZ9dLT2GxrGypHJHuktvBvNaaAbBL75xuHX2RQp
+         S4p3rfNrIWo4D45aGRy3PgYCC1FP0eN5soPiiXy5vArtws1kEPlRJjTlaUt+73X28nnz
+         WWXg==
+X-Gm-Message-State: APjAAAWZa6vhL8kpc4cNHMQMOjsTXOgkpbgXXriNvcjHEMlcXF8Js17q
+        +eJOUjvFCj/ynHMy4U2jX+jYSw==
+X-Google-Smtp-Source: APXvYqzseQzsIEYKPy2lca6iSmI4k9mLnTVGFyHajRsnq7Qjy0ko5OuaFD/y5oKMSoGkp+PZoeYkLQ==
+X-Received: by 2002:a63:368a:: with SMTP id d132mr16009995pga.428.1570204552364;
+        Fri, 04 Oct 2019 08:55:52 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id z4sm5730004pjt.17.2019.10.04.08.55.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Oct 2019 08:55:51 -0700 (PDT)
+Date:   Fri, 4 Oct 2019 08:55:50 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Will Deacon <will@kernel.org>
+Cc:     linux-wireless@vger.kernel.org, nico@semmle.com,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH 1/2] mac80211: Reject malformed SSID elements
+Message-ID: <201910040855.8E8B4D7A@keescook>
+References: <20191004095132.15777-1-will@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191004095132.15777-1-will@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+On Fri, Oct 04, 2019 at 10:51:31AM +0100, Will Deacon wrote:
+> Although this shouldn't occur in practice, it's a good idea to bounds
+> check the length field of the SSID element prior to using it for things
+> like allocations or memcpy operations.
+> 
+> Cc: <stable@vger.kernel.org>
+> Cc: Johannes Berg <johannes@sipsolutions.net>
+> Cc: Kees Cook <keescook@chromium.org>
+> Reported-by: Nicolas Waisman <nico@semmle.com>
+> Signed-off-by: Will Deacon <will@kernel.org>
 
-The fixed MKHI client on PCH 6 gen platforms
-does not support fw version retrieval.
-The error is not fatal, but it fills up the kernel logs and
-slows down the driver start.
-This patch disables requesting FW version on GEN6 and earlier platforms.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-Fixes warning:
-[   15.964298] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: Could not read FW version
-[   15.964301] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: version command failed -5
+-Kees
 
-Cc: <stable@vger.kernel.org> +v4.18
-Cc: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
----
-V2: Drop offending debug message
- drivers/misc/mei/bus-fixup.c | 14 +++++++++++---
- drivers/misc/mei/hw-me.c     | 21 ++++++++++++++++++---
- drivers/misc/mei/hw-me.h     |  8 ++++++--
- drivers/misc/mei/mei_dev.h   |  4 ++++
- drivers/misc/mei/pci-me.c    | 10 +++++-----
- 5 files changed, 44 insertions(+), 13 deletions(-)
+> ---
+>  net/mac80211/mlme.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+> index 26a2f49208b6..54dd8849d1cc 100644
+> --- a/net/mac80211/mlme.c
+> +++ b/net/mac80211/mlme.c
+> @@ -2633,7 +2633,8 @@ struct sk_buff *ieee80211_ap_probereq_get(struct ieee80211_hw *hw,
+>  
+>  	rcu_read_lock();
+>  	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+> -	if (WARN_ON_ONCE(ssid == NULL))
+> +	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
+> +		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+>  		ssid_len = 0;
+>  	else
+>  		ssid_len = ssid[1];
+> @@ -5233,7 +5234,7 @@ int ieee80211_mgd_assoc(struct ieee80211_sub_if_data *sdata,
+>  
+>  	rcu_read_lock();
+>  	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+> -	if (!ssidie) {
+> +	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
+>  		rcu_read_unlock();
+>  		kfree(assoc_data);
+>  		return -EINVAL;
+> -- 
+> 2.23.0.581.g78d2f28ef7-goog
+> 
 
-diff --git a/drivers/misc/mei/bus-fixup.c b/drivers/misc/mei/bus-fixup.c
-index 32e9b1aed2ca..0a2b99e1af45 100644
---- a/drivers/misc/mei/bus-fixup.c
-+++ b/drivers/misc/mei/bus-fixup.c
-@@ -218,13 +218,21 @@ static void mei_mkhi_fix(struct mei_cl_device *cldev)
- {
- 	int ret;
- 
-+	/* No need to enable the client if nothing is needed from it */
-+	if (!cldev->bus->fw_f_fw_ver_supported &&
-+	    !cldev->bus->hbm_f_os_supported)
-+		return;
-+
- 	ret = mei_cldev_enable(cldev);
- 	if (ret)
- 		return;
- 
--	ret = mei_fwver(cldev);
--	if (ret < 0)
--		dev_err(&cldev->dev, "FW version command failed %d\n", ret);
-+	if (cldev->bus->fw_f_fw_ver_supported) {
-+		ret = mei_fwver(cldev);
-+		if (ret < 0)
-+			dev_err(&cldev->dev, "FW version command failed %d\n",
-+				ret);
-+	}
- 
- 	if (cldev->bus->hbm_f_os_supported) {
- 		ret = mei_osver(cldev);
-diff --git a/drivers/misc/mei/hw-me.c b/drivers/misc/mei/hw-me.c
-index abe1b1f4362f..c4f6991d3028 100644
---- a/drivers/misc/mei/hw-me.c
-+++ b/drivers/misc/mei/hw-me.c
-@@ -1355,6 +1355,8 @@ static bool mei_me_fw_type_sps(struct pci_dev *pdev)
- #define MEI_CFG_FW_SPS                           \
- 	.quirk_probe = mei_me_fw_type_sps
- 
-+#define MEI_CFG_FW_VER_SUPP                     \
-+	.fw_ver_supported = 1
- 
- #define MEI_CFG_ICH_HFS                      \
- 	.fw_status.count = 0
-@@ -1392,31 +1394,41 @@ static const struct mei_cfg mei_me_ich10_cfg = {
- 	MEI_CFG_ICH10_HFS,
- };
- 
--/* PCH devices */
--static const struct mei_cfg mei_me_pch_cfg = {
-+/* PCH6 devices */
-+static const struct mei_cfg mei_me_pch6_cfg = {
- 	MEI_CFG_PCH_HFS,
- };
- 
-+/* PCH7 devices */
-+static const struct mei_cfg mei_me_pch7_cfg = {
-+	MEI_CFG_PCH_HFS,
-+	MEI_CFG_FW_VER_SUPP,
-+};
-+
- /* PCH Cougar Point and Patsburg with quirk for Node Manager exclusion */
- static const struct mei_cfg mei_me_pch_cpt_pbg_cfg = {
- 	MEI_CFG_PCH_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_FW_NM,
- };
- 
- /* PCH8 Lynx Point and newer devices */
- static const struct mei_cfg mei_me_pch8_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- };
- 
- /* PCH8 Lynx Point with quirk for SPS Firmware exclusion */
- static const struct mei_cfg mei_me_pch8_sps_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_FW_SPS,
- };
- 
- /* Cannon Lake and newer devices */
- static const struct mei_cfg mei_me_pch12_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_DMA_128,
- };
- 
-@@ -1428,7 +1440,8 @@ static const struct mei_cfg *const mei_cfg_list[] = {
- 	[MEI_ME_UNDEF_CFG] = NULL,
- 	[MEI_ME_ICH_CFG] = &mei_me_ich_cfg,
- 	[MEI_ME_ICH10_CFG] = &mei_me_ich10_cfg,
--	[MEI_ME_PCH_CFG] = &mei_me_pch_cfg,
-+	[MEI_ME_PCH6_CFG] = &mei_me_pch6_cfg,
-+	[MEI_ME_PCH7_CFG] = &mei_me_pch7_cfg,
- 	[MEI_ME_PCH_CPT_PBG_CFG] = &mei_me_pch_cpt_pbg_cfg,
- 	[MEI_ME_PCH8_CFG] = &mei_me_pch8_cfg,
- 	[MEI_ME_PCH8_SPS_CFG] = &mei_me_pch8_sps_cfg,
-@@ -1473,6 +1486,8 @@ struct mei_device *mei_me_dev_init(struct pci_dev *pdev,
- 	mei_device_init(dev, &pdev->dev, &mei_me_hw_ops);
- 	hw->cfg = cfg;
- 
-+	dev->fw_f_fw_ver_supported = cfg->fw_ver_supported;
-+
- 	return dev;
- }
- 
-diff --git a/drivers/misc/mei/hw-me.h b/drivers/misc/mei/hw-me.h
-index 08c84a0de4a8..1d8794828cbc 100644
---- a/drivers/misc/mei/hw-me.h
-+++ b/drivers/misc/mei/hw-me.h
-@@ -20,11 +20,13 @@
-  * @fw_status: FW status
-  * @quirk_probe: device exclusion quirk
-  * @dma_size: device DMA buffers size
-+ * @fw_ver_supported: is fw version retrievable from FW
-  */
- struct mei_cfg {
- 	const struct mei_fw_status fw_status;
- 	bool (*quirk_probe)(struct pci_dev *pdev);
- 	size_t dma_size[DMA_DSCR_NUM];
-+	u32 fw_ver_supported:1;
- };
- 
- 
-@@ -62,7 +64,8 @@ struct mei_me_hw {
-  * @MEI_ME_UNDEF_CFG:      Lower sentinel.
-  * @MEI_ME_ICH_CFG:        I/O Controller Hub legacy devices.
-  * @MEI_ME_ICH10_CFG:      I/O Controller Hub platforms Gen10
-- * @MEI_ME_PCH_CFG:        Platform Controller Hub platforms (Up to Gen8).
-+ * @MEI_ME_PCH6_CFG:       Platform Controller Hub platforms (Gen6).
-+ * @MEI_ME_PCH7_CFG:       Platform Controller Hub platforms (Gen7).
-  * @MEI_ME_PCH_CPT_PBG_CFG:Platform Controller Hub workstations
-  *                         with quirk for Node Manager exclusion.
-  * @MEI_ME_PCH8_CFG:       Platform Controller Hub Gen8 and newer
-@@ -77,7 +80,8 @@ enum mei_cfg_idx {
- 	MEI_ME_UNDEF_CFG,
- 	MEI_ME_ICH_CFG,
- 	MEI_ME_ICH10_CFG,
--	MEI_ME_PCH_CFG,
-+	MEI_ME_PCH6_CFG,
-+	MEI_ME_PCH7_CFG,
- 	MEI_ME_PCH_CPT_PBG_CFG,
- 	MEI_ME_PCH8_CFG,
- 	MEI_ME_PCH8_SPS_CFG,
-diff --git a/drivers/misc/mei/mei_dev.h b/drivers/misc/mei/mei_dev.h
-index f71a023aed3c..0f2141178299 100644
---- a/drivers/misc/mei/mei_dev.h
-+++ b/drivers/misc/mei/mei_dev.h
-@@ -426,6 +426,8 @@ struct mei_fw_version {
-  *
-  * @fw_ver : FW versions
-  *
-+ * @fw_f_fw_ver_supported : fw feature: fw version supported
-+ *
-  * @me_clients_rwsem: rw lock over me_clients list
-  * @me_clients  : list of FW clients
-  * @me_clients_map : FW clients bit map
-@@ -506,6 +508,8 @@ struct mei_device {
- 
- 	struct mei_fw_version fw_ver[MEI_MAX_FW_VER_BLOCKS];
- 
-+	unsigned int fw_f_fw_ver_supported:1;
-+
- 	struct rw_semaphore me_clients_rwsem;
- 	struct list_head me_clients;
- 	DECLARE_BITMAP(me_clients_map, MEI_CLIENTS_MAX);
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index 775a2090c2ac..3dca63eddaa0 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -61,13 +61,13 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICH10_3, MEI_ME_ICH10_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICH10_4, MEI_ME_ICH10_CFG)},
- 
--	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_1, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_2, MEI_ME_PCH_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_1, MEI_ME_PCH6_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_2, MEI_ME_PCH6_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CPT_1, MEI_ME_PCH_CPT_PBG_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_PBG_1, MEI_ME_PCH_CPT_PBG_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_1, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_2, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_3, MEI_ME_PCH_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_1, MEI_ME_PCH7_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_2, MEI_ME_PCH7_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_3, MEI_ME_PCH7_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_H, MEI_ME_PCH8_SPS_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_W, MEI_ME_PCH8_SPS_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_LP, MEI_ME_PCH8_CFG)},
 -- 
-2.21.0
-
+Kees Cook
