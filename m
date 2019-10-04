@@ -2,98 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A50CBAA0
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F8FECBAFE
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387584AbfJDMjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 08:39:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54924 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387470AbfJDMjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 08:39:19 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 339CB20862;
-        Fri,  4 Oct 2019 12:39:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570192758;
-        bh=4FEbo5VC83j061jOotLrjaIgKAcFxq1tzgigv5AmM4U=;
-        h=Subject:To:From:Date:From;
-        b=Ft+SXn6eEjVz+YtQi/RfODv1falVhSDgYJmSsHIY9WjEJmHHCy5uH+WlXdxx7MSfu
-         /1JtnFuU1Ll/vbYA9pEHoUChmKKjFQQ0XHU9odCv+Fr9ZE8/wRt00AxxAn04x9NO4q
-         6PurXvjWDKKv18e7TUYcMipsNvCX4F31v1YN2ONs=
-Subject: patch "USB: serial: fix runtime PM after driver unbind" added to usb-linus
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 14:39:03 +0200
-Message-ID: <157019274324251@kroah.com>
+        id S2387545AbfJDM5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 08:57:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44500 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2387440AbfJDM5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 08:57:04 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 6794DB123;
+        Fri,  4 Oct 2019 12:57:02 +0000 (UTC)
+Date:   Fri, 4 Oct 2019 14:57:01 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Qian Cai <cai@lca.pw>
+Cc:     akpm@linux-foundation.org, tj@kernel.org, vdavydov.dev@gmail.com,
+        hannes@cmpxchg.org, guro@fb.com, cl@linux.com, penberg@kernel.org,
+        rientjes@google.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/slub: fix a deadlock in show_slab_objects()
+Message-ID: <20191004125701.GJ9578@dhcp22.suse.cz>
+References: <1570192309-10132-1-git-send-email-cai@lca.pw>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1570192309-10132-1-git-send-email-cai@lca.pw>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri 04-10-19 08:31:49, Qian Cai wrote:
+> Long time ago, there fixed a similar deadlock in show_slab_objects()
+> [1]. However, it is apparently due to the commits like 01fb58bcba63
+> ("slab: remove synchronous synchronize_sched() from memcg cache
+> deactivation path") and 03afc0e25f7f ("slab: get_online_mems for
+> kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
+> just reading files in /sys/kernel/slab which will generate a lockdep
+> splat below.
+> 
+> Since the "mem_hotplug_lock" here is only to obtain a stable online node
+> mask while racing with NUMA node hotplug, in the worst case, the results
+> may me miscalculated while doing NUMA node hotplug, but they shall be
+> corrected by later reads of the same files.
 
-This is a note to let you know that I've just added the patch titled
+I think it is important to mention that this doesn't expose the
+show_slab_objects to use-after-free. There is only a single path that
+might really race here and that is the slab hotplug notifier callback
+__kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
+doesn't really destroy kmem_cache_node data structures.
 
-    USB: serial: fix runtime PM after driver unbind
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From d51bdb93ca7e71d7fb30a572c7b47ed0194bf3fe Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Tue, 1 Oct 2019 10:49:07 +0200
-Subject: USB: serial: fix runtime PM after driver unbind
-
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
-
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
-
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-4-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/serial/usb-serial.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/usb/serial/usb-serial.c b/drivers/usb/serial/usb-serial.c
-index a3179fea38c8..8f066bb55d7d 100644
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -314,10 +314,7 @@ static void serial_cleanup(struct tty_struct *tty)
- 	serial = port->serial;
- 	owner = serial->type->driver.owner;
- 
--	mutex_lock(&serial->disc_mutex);
--	if (!serial->disconnected)
--		usb_autopm_put_interface(serial->interface);
--	mutex_unlock(&serial->disc_mutex);
-+	usb_autopm_put_interface(serial->interface);
- 
- 	usb_serial_put(serial);
- 	module_put(owner);
+Thanks!
 -- 
-2.23.0
-
-
+Michal Hocko
+SUSE Labs
