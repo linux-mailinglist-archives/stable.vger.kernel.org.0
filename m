@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A13BCB3F7
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 06:42:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B3CCCB420
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 07:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727589AbfJDEmn convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 4 Oct 2019 00:42:43 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:49980 "EHLO mx1.redhat.com"
+        id S1729926AbfJDFVD convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 4 Oct 2019 01:21:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:45522 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726569AbfJDEmn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 00:42:43 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1729363AbfJDFVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 01:21:03 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8F346C058CB8
-        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 04:42:42 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 21468308404E
+        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 05:21:02 +0000 (UTC)
 Received: from [172.54.19.159] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 849595C1D6;
-        Fri,  4 Oct 2019 04:42:39 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 194B45D9DC;
+        Fri,  4 Oct 2019 05:20:57 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Message-ID: <cki.D41174ECB4.ILDHB3M211@redhat.com>
-X-Gitlab-Pipeline-ID: 203151
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.CD8D9BC445.A1Z0EFWTKU@redhat.com>
+X-Gitlab-Pipeline-ID: 203199
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/203151
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 04 Oct 2019 04:42:42 +0000 (UTC)
-Date:   Fri, 4 Oct 2019 00:42:43 -0400
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/203199
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Fri, 04 Oct 2019 05:21:02 +0000 (UTC)
+Date:   Fri, 4 Oct 2019 01:21:03 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -55,7 +57,7 @@ The results of these automated tests are provided below.
 
 All kernel binaries, config files, and logs are available for download here:
 
-  https://artifacts.cki-project.org/pipelines/203151
+  https://artifacts.cki-project.org/pipelines/203199
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -76,7 +78,7 @@ We cloned this repository and checked out the following commit:
   Commit: 0e7d6367ac13 - Linux 5.3.2
 
 
-We grabbed the 4cf82141226a commit of the stable queue repository.
+We grabbed the 57b2c88e3e8f commit of the stable queue repository.
 
 We then merged the patchset with `git am`:
 
@@ -348,6 +350,28 @@ We then merged the patchset with `git am`:
   kvm-x86-disable-posted-interrupts-for-non-standard-irqs-delivery-modes.patch
   kvm-x86-add-significant-index-flag-to-a-few-cpuid-leaves.patch
   kvm-x86-mmu-use-fast-invalidate-mechanism-to-zap-mmio-sptes.patch
+  media-videobuf-core.c-poll_wait-needs-a-non-null-buf-pointer.patch
+  media-sn9c20x-add-msi-ms-1039-laptop-to-flip_dmi_table.patch
+  media-hantro-set-dma-max-segment-size.patch
+  media-don-t-drop-front-end-reference-count-for-detach.patch
+  media-vivid-fix-device-init-when-no_error_inj-1-and-fb-disabled.patch
+  spi-ep93xx-repair-spi-cs-lookup-tables.patch
+  spi-spi-fsl-dspi-exit-the-isr-with-irq_none-when-it-s-not-ours.patch
+  binfmt_elf-do-not-move-brk-for-interp-less-et_exec.patch
+  asoc-intel-nhlt-fix-debug-print-format.patch
+  asoc-intel-skylake-use-correct-function-to-access-iomem-space.patch
+  asoc-intel-fix-use-of-potentially-uninitialized-variable.patch
+  staging-erofs-avoid-endless-loop-of-invalid-lookback-distance-0.patch
+  staging-erofs-fix-an-error-handling-in-erofs_readdir.patch
+  staging-erofs-cannot-set-erofs_v_z_inited_bit-if-fill_inode_lazy-fails.patch
+  arm-samsung-fix-system-restart-on-s3c6410.patch
+  arm-zynq-use-memcpy_toio-instead-of-memcpy-on-smp-bring-up.patch
+  arm64-tlb-ensure-we-execute-an-isb-following-walk-cache-invalidation.patch
+  arm64-dts-rockchip-limit-clock-rate-of-mmc-controllers-for-rk3328.patch
+  iommu-arm-smmu-v3-disable-detection-of-ats-and-pri.patch
+  alarmtimer-use-eopnotsupp-instead-of-enotsupp.patch
+  iommu-vt-d-fix-wrong-analysis-whether-devices-share-the-same-bus.patch
+  regulator-defer-init-completion-for-a-while-after-late_initcall.patch
 
 Compile testing
 ---------------
@@ -369,10 +393,42 @@ Hardware testing
 We booted each kernel and ran the following tests:
 
   aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking TCP: keepalive test
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         🚧 ✅ LTP lite
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
 
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
 
   ppc64le:
       Host 1:
@@ -390,7 +446,7 @@ We booted each kernel and ran the following tests:
          ✅ iotop: sanity
          ✅ tuned: tune-processes-through-perf
          ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
+         🚧 ❌ LTP lite
          🚧 ✅ POSIX pjd-fstest suites
          🚧 ✅ Memory function: kaslr
          🚧 ✅ Networking MACsec: sanity
@@ -412,15 +468,6 @@ We booted each kernel and ran the following tests:
 
   x86_64:
       Host 1:
-         ✅ Boot test
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-      Host 2:
          ✅ Boot test
          ✅ Podman system integration test (as root)
          ✅ Podman system integration test (as user)
@@ -450,6 +497,15 @@ We booted each kernel and ran the following tests:
          🚧 ✅ Networking route_func: forward
          🚧 ✅ Networking ipsec: basic netns transport
          🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ IOMMU boot test
+         🚧 ✅ Storage blktests
 
   Test sources: https://github.com/CKI-project/tests-beaker
     💚 Pull requests are welcome for new tests or improvements to existing tests!
