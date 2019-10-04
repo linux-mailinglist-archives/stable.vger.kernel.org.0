@@ -2,118 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE7CACC2BD
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 20:34:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3EACC2C9
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 20:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729199AbfJDSdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 14:33:45 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51670 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728671AbfJDSdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 14:33:45 -0400
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 10669862E
-        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 18:33:45 +0000 (UTC)
-Received: by mail-io1-f72.google.com with SMTP id w8so13258608iol.20
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 11:33:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=aeQSWmmaMbD2rtAedaridPsedsaFdmXVu7fisAVhdps=;
-        b=nMnc4K0pXo2CTGnNWyXbhja15OKwEcfUkW1eAxWAuSo4HqP5OjEHLxRbt9HbgFnvhM
-         QEhezVn/BkMoQTMJE+7Te6Q9kq1/gtQLFGZ5op99vRx591wsC4xSCfEsfFa0qW/w9LQy
-         s5GFdz2yFX5cLfzG0aCfjY3cdHvMjwqN3AiZcqR+0uQ964+ai+ynRNFpMRX6CBuq8Fko
-         TWMptvmsdkzY7KaWrYDWon8+tH7KaN7C8m115zJdMqPfc0mnMNjaJYf0xW4rFZPQim8n
-         XeI9s77xst7ECoxxkIoNXHzOTg6YoEn0WaGNDXExFfnHvuJUS66n7NxJTbD2sQLVPRfB
-         mjNw==
-X-Gm-Message-State: APjAAAVFlvIOdoa9Wc7fYdEcoUcoHT6oYJgAjLjoqkCvzNiBbZfM5dbU
-        rOtRuSWhO3nWyFsPEkEpFXeVeahO39Um0xNqDQiGmT0A9m9SQFbfcCbKpl7sIq8KIhnICoTKHcr
-        NVjS430MgLcfY1nIf
-X-Received: by 2002:a92:5f13:: with SMTP id t19mr17505491ilb.163.1570214024468;
-        Fri, 04 Oct 2019 11:33:44 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxhnv9IbiNP0vZP4Q/OhxamH9k+1d3iqKOa6kLDIX8ihrMTs9eEUpMLXlE7X21laTFOo11IWg==
-X-Received: by 2002:a92:5f13:: with SMTP id t19mr17505467ilb.163.1570214024240;
-        Fri, 04 Oct 2019 11:33:44 -0700 (PDT)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id l3sm2318388ioj.7.2019.10.04.11.33.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Oct 2019 11:33:43 -0700 (PDT)
-Date:   Fri, 4 Oct 2019 11:33:42 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191004183342.y63qdvspojyf3m55@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20191003114119.GF8933@linux.intel.com>
- <1570107752.4421.183.camel@linux.ibm.com>
- <20191003175854.GB19679@linux.intel.com>
- <1570128827.5046.19.camel@linux.ibm.com>
- <20191003215125.GA30511@linux.intel.com>
- <20191003215743.GB30511@linux.intel.com>
- <1570140491.5046.33.camel@linux.ibm.com>
- <1570147177.10818.11.camel@HansenPartnership.com>
- <20191004182216.GB6945@linux.intel.com>
- <1570213491.3563.27.camel@HansenPartnership.com>
+        id S1729283AbfJDSig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 14:38:36 -0400
+Received: from mail-eopbgr780105.outbound.protection.outlook.com ([40.107.78.105]:57568
+        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725775AbfJDSig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 14:38:36 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Zpme58YAI+Kdje4mFt74Of/FkZT1+8hbxb7z1qiKBY+hB1p8pFcvK6+2VM09GYqcoudpm5JfsHchhaqhfUnaL1y5iBKMkrdN20A0pBOqBqshEtD06OAHZo7hVxVMfA9oSo2DH7q1gHfenwHdMD5znfrXCRvT9ZIukgGyrIuT2rApD5xxXSJRZg9mYsB3gU/xypKoCAwg+pa6zixeV/Hv39dWLlMtWwD24Aj/u+3vV4BEc/qR2NmnpA+vFlqzl/np4mDP6KD7drfVk4MbVsjvCXllYOMZK4EwG4x1hGOo6G3V6Iyu8PA6Ss3kd6byVapc1LRL2bnswkBsr23b71JFAw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TmIxy/PjlZyB6WiPy5Y1mXP4cKe/6PSz1vCAtIda/Uc=;
+ b=S032L/Hjr5fkvdSJ1kQBkQ7kIVmoP4T3Umff+3PP9seB4Z5hukw/E4hQAjUZli5710eDtZM3emyjfd2WU40MLvVpP5vyjSKmKLI1w41rhjFO6wbEpYlC2R6Ekn2IuEueAl4DWZoefxzgbrf6zvUk8/u0TiJP4BL4vcy9TMWRp3tR9DPPzVkLI76KS/JpH5aXnbbBGanHFMghKOzcqlPUJSB31blx21rwaGUr/ZWVWouZ/ZQHec0j0LhO7Z9TrrE6+Dw+7v/+2i2qxmO18jnCp1TI3yiGzsEYvHJq/6U6p9Ph5WOBzofc5tpc+RFG6zryikmS/jgEmWvniauDolq3fw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wavecomp.com; dmarc=pass action=none header.from=mips.com;
+ dkim=pass header.d=mips.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wavecomp.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=TmIxy/PjlZyB6WiPy5Y1mXP4cKe/6PSz1vCAtIda/Uc=;
+ b=uWHUWtpweCeYJcbjpcan8ciixm/0D/p5R/3BKtthZpm83itqlcbMPC0TJ3CM19abHZX/Hq3UTLrIq5bBsqtX5tN8Vo6d2M0pu4wu3AHI9OnvBijbaOvKS4MfbDs1DfsjYta25JjRJgO2XTPrLPGhFCxEr6JH/5DXveUJau+9Uic=
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
+ MWHPR2201MB1646.namprd22.prod.outlook.com (10.174.167.35) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2305.20; Fri, 4 Oct 2019 18:38:33 +0000
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::3050:9a38:9d8e:8033]) by MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::3050:9a38:9d8e:8033%5]) with mapi id 15.20.2327.023; Fri, 4 Oct 2019
+ 18:38:33 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Paul Burton <pburton@wavecomp.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: [PATCH] mtd: rawnand: au1550nd: Fix au_read_buf16() prototype
+Thread-Topic: [PATCH] mtd: rawnand: au1550nd: Fix au_read_buf16() prototype
+Thread-Index: AQHVeuLtostA17/f6UyQ8/BtivUYgw==
+Date:   Fri, 4 Oct 2019 18:38:33 +0000
+Message-ID: <20191004183706.850363-1-paul.burton@mips.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR01CA0007.prod.exchangelabs.com (2603:10b6:a02:80::20)
+ To MWHPR2201MB1277.namprd22.prod.outlook.com (2603:10b6:301:18::12)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-mailer: git-send-email 2.23.0
+x-originating-ip: [12.94.197.246]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: f04e93b6-6e42-4112-a795-08d748fa0f77
+x-ms-traffictypediagnostic: MWHPR2201MB1646:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MWHPR2201MB16462C0976DF7F6523348FBAC19E0@MWHPR2201MB1646.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:913;
+x-forefront-prvs: 018093A9B5
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(136003)(396003)(39840400004)(346002)(366004)(376002)(199004)(189003)(66556008)(66946007)(66446008)(66476007)(64756008)(316002)(6486002)(54906003)(4326008)(5640700003)(6116002)(3846002)(66066001)(6436002)(2906002)(1076003)(5660300002)(478600001)(14454004)(2351001)(486006)(8676002)(25786009)(6916009)(386003)(36756003)(81156014)(81166006)(44832011)(50226002)(8936002)(99286004)(71190400001)(26005)(71200400001)(7416002)(2501003)(186003)(6506007)(102836004)(52116002)(42882007)(305945005)(7736002)(256004)(14444005)(2616005)(476003)(6512007)(21314003);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1646;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: t3OFo/a0xq/BZZNB32zuWmCYOdnRMRaXSLVWT5nCERy3jthSJ1A2zrrdMSFfRk0Alt2cVK3tuIMd0TImVFbrhwzfEBHRnO9KuV0bzEaduNC2hBCoD6nzCN+TBR9ZC6G039PZ4apb0al+qBPEVFPgiX9QKB9thchbpKJuXhaQMG3kiPgXxKFs5rQiyug/WigQ15fkfHfSBStzPaV67oKdVfUiptZQi0dwjWLSQeW8L1cc46+ggiBc19TyAbYpIPGO71NbMdSCXrvD9ikzlZqwqyjo/X5z521whds+8nS29LZBp24o9yoybMMx2jNXhH5QaGOI628ggYtz1Z7YbPFFKm1XNYO6HCHyrKpKdhcL/3Lv+hMUD5vTfTEJq8IvixJOHD2WbwEacWVyC5aYZmfidvzwIzLzzajOgyENzLuDcWU=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1570213491.3563.27.camel@HansenPartnership.com>
-User-Agent: NeoMutt/20180716
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f04e93b6-6e42-4112-a795-08d748fa0f77
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Oct 2019 18:38:33.6717
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 5eSqV3glVtPTgjt1tqDtUpAZh4HL7Y5NXH4ermDaWtItT0iwlvCn55d4sb1EjUL8QkzjXjnVdkzLrBmCDm2QFQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1646
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri Oct 04 19, James Bottomley wrote:
->On Fri, 2019-10-04 at 21:22 +0300, Jarkko Sakkinen wrote:
->> On Thu, Oct 03, 2019 at 04:59:37PM -0700, James Bottomley wrote:
->> > I think the principle of using multiple RNG sources for strong keys
->> > is a sound one, so could I propose a compromise:  We have a tpm
->> > subsystem random number generator that, when asked for <n> random
->> > bytes first extracts <n> bytes from the TPM RNG and places it into
->> > the kernel entropy pool and then asks for <n> random bytes from the
->> > kernel RNG? That way, it will always have the entropy to satisfy
->> > the request and in the worst case, where the kernel has picked up
->> > no other entropy sources at all it will be equivalent to what we
->> > have now (single entropy source) but usually it will be a much
->> > better mixed entropy source.
->>
->> I think we should rely the existing architecture where TPM is
->> contributing to the entropy pool as hwrng.
->
->That doesn't seem to work: when I trace what happens I see us inject 32
->bytes of entropy at boot time, but never again.  I think the problem is
->the kernel entropy pool is push not pull and we have no triggering
->event in the TPM to get us to push.  I suppose we could set a timer to
->do this or perhaps there is a pull hook and we haven't wired it up
->correctly?
->
->James
->
+Commit 7e534323c416 ("mtd: rawnand: Pass a nand_chip object to
+chip->read_xxx() hooks") modified the prototype of the struct nand_chip
+read_buf function pointer. In the au1550nd driver we have 2
+implementations of read_buf. The previously mentioned commit modified
+the au_read_buf() implementation to match the function pointer, but not
+au_read_buf16(). This results in a compiler warning for MIPS
+db1xxx_defconfig builds:
 
-Shouldn't hwrng_fillfn be pulling from it?
+  drivers/mtd/nand/raw/au1550nd.c:443:57:
+    warning: pointer type mismatch in conditional expression
+
+Fix this by updating the prototype of au_read_buf16() to take a struct
+nand_chip pointer as its first argument, as is expected after commit
+7e534323c416 ("mtd: rawnand: Pass a nand_chip object to chip->read_xxx()
+hooks").
+
+Note that this shouldn't have caused any functional issues at runtime,
+since the offset of the struct mtd_info within struct nand_chip is 0
+making mtd_to_nand() effectively a type-cast.
+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Fixes: 7e534323c416 ("mtd: rawnand: Pass a nand_chip object to chip->read_x=
+xx() hooks")
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Brian Norris <computersforpeace@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Cc: linux-mtd@lists.infradead.org
+Cc: linux-mips@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.20+
+
+---
+
+ drivers/mtd/nand/raw/au1550nd.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/mtd/nand/raw/au1550nd.c b/drivers/mtd/nand/raw/au1550n=
+d.c
+index 97a97a9ccc36..2bc818dea2a8 100644
+--- a/drivers/mtd/nand/raw/au1550nd.c
++++ b/drivers/mtd/nand/raw/au1550nd.c
+@@ -140,10 +140,9 @@ static void au_write_buf16(struct nand_chip *this, con=
+st u_char *buf, int len)
+  *
+  * read function for 16bit buswidth
+  */
+-static void au_read_buf16(struct mtd_info *mtd, u_char *buf, int len)
++static void au_read_buf16(struct nand_chip *this, u_char *buf, int len)
+ {
+ 	int i;
+-	struct nand_chip *this =3D mtd_to_nand(mtd);
+ 	u16 *p =3D (u16 *) buf;
+ 	len >>=3D 1;
+=20
+--=20
+2.23.0
+
