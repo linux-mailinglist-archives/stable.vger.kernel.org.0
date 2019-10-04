@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD27CB700
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:04:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5EDCB702
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:04:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbfJDJE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 05:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34818 "EHLO mail.kernel.org"
+        id S1730423AbfJDJEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 05:04:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725932AbfJDJE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 05:04:27 -0400
+        id S1725932AbfJDJEc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 05:04:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C610206C0;
-        Fri,  4 Oct 2019 09:04:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4D1A207FF;
+        Fri,  4 Oct 2019 09:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570179865;
-        bh=Oa8qu5e5fvhw2X9/YTvbD42dwgiPyzTdrR4OnXMcpC8=;
+        s=default; t=1570179871;
+        bh=E26K2FRiqtXZQYf4D80AofVKB4j2w6lfNBVurLBb8no=;
         h=Subject:To:From:Date:From;
-        b=M3DjEFrsW+1LWtD0kedqHtFWMc/p11oIoFUP6uyKJuDXE/g8eK5czSdSp7qkjgH3A
-         7CPo517S1T1TCHZ+ufVzxCUme0TqYBaesyKusMUSmZXyV0a6AwpN/681yJ5ar1X+/B
-         cm8IWL7syVUsb76Ff82UN2grg/O28dx9nyrMFTbI=
-Subject: patch "USB: adutux: fix NULL-derefs on disconnect" added to usb-linus
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=sh8xthX3QDyYopePOLccwIl6HKWEg8oL3kVv5rwFWkYNAP2V6xB4+zQc+A8tzFz/+
+         PXFgkbaPsgVTvEE+ysd49H2JGGiglGhQtLQ1dmNw6m+PZbnqDUC0PMl3bbvj1qCmaN
+         9Y/Q3TI/Wyvf959r5gKMnS9C8IZ387EGnnI2+ZE4=
+Subject: patch "USB: yurex: Don't retry on unexpected errors" added to usb-linus
+To:     stern@rowland.harvard.edu, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tomoki.sekiyama@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 11:04:11 +0200
-Message-ID: <157017985171112@kroah.com>
+Date:   Fri, 04 Oct 2019 11:04:12 +0200
+Message-ID: <157017985216627@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: adutux: fix NULL-derefs on disconnect
+    USB: yurex: Don't retry on unexpected errors
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,112 +55,76 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From b2fa7baee744fde746c17bc1860b9c6f5c2eebb7 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 25 Sep 2019 11:29:13 +0200
-Subject: USB: adutux: fix NULL-derefs on disconnect
+From 32a0721c6620b77504916dac0cea8ad497c4878a Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Tue, 17 Sep 2019 12:47:23 -0400
+Subject: USB: yurex: Don't retry on unexpected errors
 
-The driver was using its struct usb_device pointer as an inverted
-disconnected flag, but was setting it to NULL before making sure all
-completion handlers had run. This could lead to a NULL-pointer
-dereference in a number of dev_dbg statements in the completion handlers
-which relies on said pointer.
+According to Greg KH, it has been generally agreed that when a USB
+driver encounters an unknown error (or one it can't handle directly),
+it should just give up instead of going into a potentially infinite
+retry loop.
 
-The pointer was also dereferenced unconditionally in a dev_dbg statement
-release() something which would lead to a NULL-deref whenever a device
-was disconnected before the final character-device close if debugging
-was enabled.
+The three codes -EPROTO, -EILSEQ, and -ETIME fall into this category.
+They can be caused by bus errors such as packet loss or corruption,
+attempting to communicate with a disconnected device, or by malicious
+firmware.  Nowadays the extent of packet loss or corruption is
+negligible, so it should be safe for a driver to give up whenever one
+of these errors occurs.
 
-Fix this by unconditionally stopping all I/O and preventing
-resubmissions by poisoning the interrupt URBs at disconnect and using a
-dedicated disconnected flag.
+Although the yurex driver handles -EILSEQ errors in this way, it
+doesn't do the same for -EPROTO (as discovered by the syzbot fuzzer)
+or other unrecognized errors.  This patch adjusts the driver so that
+it doesn't log an error message for -EPROTO or -ETIME, and it doesn't
+retry after any errors.
 
-This also makes sure that all I/O has completed by the time the
-disconnect callback returns.
+Reported-and-tested-by: syzbot+b24d736f18a1541ad550@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: Tomoki Sekiyama <tomoki.sekiyama@gmail.com>
+CC: <stable@vger.kernel.org>
 
-Fixes: 1ef37c6047fe ("USB: adutux: remove custom debug macro and module parameter")
-Fixes: 66d4bc30d128 ("USB: adutux: remove custom debug macro")
-Cc: stable <stable@vger.kernel.org>     # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190925092913.8608-2-johan@kernel.org
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1909171245410.1590-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/adutux.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/usb/misc/yurex.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/misc/adutux.c b/drivers/usb/misc/adutux.c
-index bcc138990e2f..f9efec719359 100644
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -75,6 +75,7 @@ struct adu_device {
- 	char			serial_number[8];
- 
- 	int			open_count; /* number of times this port has been opened */
-+	unsigned long		disconnected:1;
- 
- 	char		*read_buffer_primary;
- 	int			read_buffer_length;
-@@ -116,7 +117,7 @@ static void adu_abort_transfers(struct adu_device *dev)
- {
- 	unsigned long flags;
- 
--	if (dev->udev == NULL)
-+	if (dev->disconnected)
+diff --git a/drivers/usb/misc/yurex.c b/drivers/usb/misc/yurex.c
+index 6715a128e6c8..8d52d4336c29 100644
+--- a/drivers/usb/misc/yurex.c
++++ b/drivers/usb/misc/yurex.c
+@@ -132,6 +132,7 @@ static void yurex_interrupt(struct urb *urb)
+ 	switch (status) {
+ 	case 0: /*success*/
+ 		break;
++	/* The device is terminated or messed up, give up */
+ 	case -EOVERFLOW:
+ 		dev_err(&dev->interface->dev,
+ 			"%s - overflow with length %d, actual length is %d\n",
+@@ -140,12 +141,13 @@ static void yurex_interrupt(struct urb *urb)
+ 	case -ENOENT:
+ 	case -ESHUTDOWN:
+ 	case -EILSEQ:
+-		/* The device is terminated, clean up */
++	case -EPROTO:
++	case -ETIME:
  		return;
- 
- 	/* shutdown transfer */
-@@ -243,7 +244,7 @@ static int adu_open(struct inode *inode, struct file *file)
+ 	default:
+ 		dev_err(&dev->interface->dev,
+ 			"%s - unknown status received: %d\n", __func__, status);
+-		goto exit;
++		return;
  	}
  
- 	dev = usb_get_intfdata(interface);
--	if (!dev || !dev->udev) {
-+	if (!dev) {
- 		retval = -ENODEV;
- 		goto exit_no_device;
- 	}
-@@ -326,7 +327,7 @@ static int adu_release(struct inode *inode, struct file *file)
+ 	/* handle received message */
+@@ -177,7 +179,6 @@ static void yurex_interrupt(struct urb *urb)
+ 		break;
  	}
  
- 	adu_release_internal(dev);
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		/* the device was unplugged before the file was released */
- 		if (!dev->open_count)	/* ... and we're the last user */
- 			adu_delete(dev);
-@@ -354,7 +355,7 @@ static ssize_t adu_read(struct file *file, __user char *buffer, size_t count,
- 		return -ERESTARTSYS;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -518,7 +519,7 @@ static ssize_t adu_write(struct file *file, const __user char *buffer,
- 		goto exit_nolock;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -764,11 +765,14 @@ static void adu_disconnect(struct usb_interface *interface)
- 
- 	usb_deregister_dev(interface, &adu_class);
- 
-+	usb_poison_urb(dev->interrupt_in_urb);
-+	usb_poison_urb(dev->interrupt_out_urb);
-+
- 	mutex_lock(&adutux_mutex);
- 	usb_set_intfdata(interface, NULL);
- 
- 	mutex_lock(&dev->mtx);	/* not interruptible */
--	dev->udev = NULL;	/* poison */
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->mtx);
- 
- 	/* if the device is not opened, then we clean up right now */
+-exit:
+ 	retval = usb_submit_urb(dev->urb, GFP_ATOMIC);
+ 	if (retval) {
+ 		dev_err(&dev->interface->dev, "%s - usb_submit_urb failed: %d\n",
 -- 
 2.23.0
 
