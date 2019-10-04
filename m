@@ -2,64 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB9CCBF68
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 17:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A9ACBF33
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 17:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389798AbfJDPje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 11:39:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33908 "EHLO mail.kernel.org"
+        id S2389086AbfJDPbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 11:31:02 -0400
+Received: from mga07.intel.com ([134.134.136.100]:1738 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389669AbfJDPje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 11:39:34 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A780D2133F;
-        Fri,  4 Oct 2019 15:39:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570203573;
-        bh=7mN4EkWIC+sa8xnzoE6Gaae7KewHvPbrgTo81IUo5t0=;
-        h=Subject:To:From:Date:From;
-        b=OQPukmr00/Fl2UjDyz5/QE6kvqFfRqMDtXtKclhCeiPEPVldL48Ry+IKYHD9seUXi
-         lPsIs55+QybQRq9qmDln4jo0IrbQSdERr5hHEx3+M3byqiV1P58+g25OcgwdlZ/Evx
-         GzybLm4cP1BWQT4qDKf40kIWMbW4HjPpzegPPoOU=
-Subject: patch "mei: avoid FW version request on Ibex Peak and earlier" added to char-misc-linus
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        pmenzel@molgen.mpg.de, stable@vger.kernel.org,
-        tomas.winkler@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 17:39:30 +0200
-Message-ID: <157020357097236@kroah.com>
+        id S2389815AbfJDPbC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 11:31:02 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 08:31:00 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,256,1566889200"; 
+   d="scan'208";a="276088759"
+Received: from twinkler-lnx.jer.intel.com ([10.12.91.155])
+  by orsmga001.jf.intel.com with ESMTP; 04 Oct 2019 08:30:58 -0700
+From:   Tomas Winkler <tomas.winkler@intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [char-misc for v4.5-rc2 2/2 V2] mei: avoid FW version request on Ibex Peak and earlier
+Date:   Fri,  4 Oct 2019 21:17:22 +0300
+Message-Id: <20191004181722.31374-1-tomas.winkler@intel.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    mei: avoid FW version request on Ibex Peak and earlier
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From f8204f0ddd62966a0e79c2804963a21e3540dd82 Mon Sep 17 00:00:00 2001
 From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Fri, 4 Oct 2019 21:17:22 +0300
-Subject: mei: avoid FW version request on Ibex Peak and earlier
 
 The fixed MKHI client on PCH 6 gen platforms
 does not support fw version retrieval.
@@ -75,9 +53,8 @@ Cc: <stable@vger.kernel.org> +v4.18
 Cc: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191004181722.31374-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+V2: Drop offending debug message
  drivers/misc/mei/bus-fixup.c | 14 +++++++++++---
  drivers/misc/mei/hw-me.c     | 21 ++++++++++++++++++---
  drivers/misc/mei/hw-me.h     |  8 ++++++--
@@ -274,6 +251,5 @@ index 775a2090c2ac..3dca63eddaa0 100644
  	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_W, MEI_ME_PCH8_SPS_CFG)},
  	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_LP, MEI_ME_PCH8_CFG)},
 -- 
-2.23.0
-
+2.21.0
 
