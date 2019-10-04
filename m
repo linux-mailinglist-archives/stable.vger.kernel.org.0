@@ -2,99 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38C18CC23D
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 19:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A664CC281
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 20:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730070AbfJDR7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 13:59:08 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:35814 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729291AbfJDR7I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 13:59:08 -0400
-Received: by mail-wr1-f68.google.com with SMTP id v8so8280630wrt.2
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 10:59:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jgnHuYOBuQgRMCSGhOSTLXGvVsE7sj4jNdIwjE0D7jY=;
-        b=wGK+BXTmLp+/3nc/WMDVFuo7eZPlirrJkhY1ZA8fK+SUHJhcvzrINJNXdTNUUsL3SH
-         MzqGCo08yrAL0ZwR1577zNAgCLplE3MKEUWNQ6RqZfuzEHEcQ63xsUrm2xc9LaQJAMbA
-         OkZOH0argRI6TRsc6uGveIxmjzhmFEinNbgJPRl/F3T4ahgaXKU3fwkxqzJFIMbV4aTU
-         7MLfJFCnXde1m9U61aoGpPdvfn9gGjcGo+S24hZN1DSKCeAeyQmXr9mmzrrBVPQGIWRN
-         eJ414WInRqmtXJbzrKDEBUX348ODh5i2mDXv43gCIwXZxXFM5Mbm3lCFqltDTAO6HOWG
-         xWlg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jgnHuYOBuQgRMCSGhOSTLXGvVsE7sj4jNdIwjE0D7jY=;
-        b=elDyS9X0t/YOKmPKjY7/GbxLCp1B9g65LqzP/s4joVGNVzQCMQBmrKxB4RIaMsDg9m
-         3heC/31Wo3E2GG3wgqYrXdEl0ghFTNtAb/jpn+zWgi1ET7qQyc5EpTGw/0xT0S93MRgV
-         XcGZ5xEtxECXnO19vbGKG+eKf7c2Dlegx4IT6wkoO0DkCoqNwbzWHmK5Wrt5U/VmBPOt
-         2vTR3xjwh2DjiqRv2tQVNJJ5WKp2lc2/fVE4ZtSrIt1RCDhdIVQ9CrRsR2fgzWNH6v90
-         fI8/U4AO/d9RGrCjiiEieDJXf8hPbKyCm3P+trpTXNqJSyYUNSGad9s6J9+8Su/HK/98
-         /zhQ==
-X-Gm-Message-State: APjAAAVrX8u88j2JtccDdRjRGWaLErwn0EIBdygBKwmfXN1wrLdS2EK2
-        1CLAIPlej6QBAOjXDOnkndXyZ9//zMUqzg==
-X-Google-Smtp-Source: APXvYqxvN1xVN6VtjkFC4vvtSxmeRbytXA92dG6OXThPTRAhc/IcCxlDDZ1XjL/zc9j34bOqT1pHOw==
-X-Received: by 2002:adf:fd4d:: with SMTP id h13mr12639900wrs.66.1570211945801;
-        Fri, 04 Oct 2019 10:59:05 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a13sm15771328wrf.73.2019.10.04.10.59.04
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Oct 2019 10:59:05 -0700 (PDT)
-Message-ID: <5d978869.1c69fb81.11cbb.8c32@mx.google.com>
-Date:   Fri, 04 Oct 2019 10:59:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727264AbfJDSUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 14:20:16 -0400
+Received: from mga07.intel.com ([134.134.136.100]:15752 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725730AbfJDSUP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 14:20:15 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 11:20:14 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,257,1566889200"; 
+   d="scan'208";a="205910170"
+Received: from nzaki1-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.4.57])
+  by fmsmga001.fm.intel.com with ESMTP; 04 Oct 2019 11:20:08 -0700
+Date:   Fri, 4 Oct 2019 21:20:07 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>
+Cc:     David Safford <david.safford@ge.com>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191004182007.GA6945@linux.intel.com>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+ <1570024819.4999.119.camel@linux.ibm.com>
+ <20191003114119.GF8933@linux.intel.com>
+ <1570107752.4421.183.camel@linux.ibm.com>
+ <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
+ <20191003215125.GA30511@linux.intel.com>
+ <20191003215743.GB30511@linux.intel.com>
+ <1570140491.5046.33.camel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Kernel: v5.3.2-1-g9c30694424ee
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-5.3.y boot: 73 boots: 2 failed,
- 70 passed with 1 conflict (v5.3.2-1-g9c30694424ee)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1570140491.5046.33.camel@linux.ibm.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.3.y boot: 73 boots: 2 failed, 70 passed with 1 conflict (v5.=
-3.2-1-g9c30694424ee)
+On Thu, Oct 03, 2019 at 06:08:11PM -0400, Mimi Zohar wrote:
+> > At the time when trusted keys was introduced I'd say that it was a wrong
+> > design decision and badly implemented code. But you are right in that as
+> > far that code is considered it would unfair to speak of a regression.
+> > 
+> > asym-tpm.c on the other hand this is fresh new code. There has been
+> > *countless* of discussions over the years that random numbers should
+> > come from multiple sources of entropy. There is no other categorization
+> > than a bug for the tpm_get_random() there.
+> 
+> This week's LWN article on "5.4 Merge window, part 2" discusses "boot-
+> time entropy".  This article couldn't have been more perfectly timed.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-3.y/kernel/v5.3.2-1-g9c30694424ee/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
-rnel/v5.3.2-1-g9c30694424ee/
+Do not see any obvious relation to this dicussion. Are you saying that
+you should not use the defacto kernel API's but instead bake your own
+hacks because even defacto stuff bumps into issues from time to time?
 
-Tree: stable
-Branch: linux-5.3.y
-Git Describe: v5.3.2-1-g9c30694424ee
-Git Commit: 9c30694424ee15cc30a23f92a913d5322b9e5bd2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 50 unique boards, 18 SoC families, 13 builds out of 208
+And BTW, at the time you call tpm_get_random(), TPM driver is already
+contributing to the entropy pool (registered as hwrng).
 
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8096-db820c: 1 failed lab
-            meson-gxm-khadas-vim2: 1 failed lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-drue: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+/Jarkko
