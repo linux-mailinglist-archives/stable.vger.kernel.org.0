@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B27CB703
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2113CB707
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbfJDJEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 05:04:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34906 "EHLO mail.kernel.org"
+        id S1727024AbfJDJHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 05:07:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725932AbfJDJEh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 05:04:37 -0400
+        id S1725932AbfJDJHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 05:07:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7AFB207FF;
-        Fri,  4 Oct 2019 09:04:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4A9620867;
+        Fri,  4 Oct 2019 09:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570179876;
-        bh=/vNnduyW4qIhtyadsCero3VjP5rbhr+1vMhAHY4buYo=;
+        s=default; t=1570180023;
+        bh=T18DGzqFPZ3zpux9RU9o9DrVH45PNxTFxCssQeR7Qy8=;
         h=Subject:To:From:Date:From;
-        b=1nAIr7qRnjZqCxv4d1UWVEDZuwJ5dldRKBhjO308dQIBu+LoUgKEY7f0pYy2uirPt
-         BEpAB4MtXyf5X3FSJ8CNSDeYkVIsO/23NHfC0NukpUY7PYT7kWV+DQ1DAZnISCVStv
-         pTyP8I0tmbUoJQz+ty3l1Q9vupt3noDBonst4O0A=
-Subject: patch "USB: dummy-hcd: fix power budget for SuperSpeed mode" added to usb-linus
-To:     Jacky.Cao@sony.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, stern@rowland.harvard.edu
+        b=ap44rYIFxrwheASxsFz7lFHrLmzP94o0ftESpqmUIj2yL30wE/VClhSLkC4+LXyyF
+         S14H29sxbWkVt4AIAArUqo8uahUkDVczVa0YL/V3d0Mzi0h5+whgc8WVLgVN5EtQ4F
+         l0lv6pCoyDktDcWKanvgCYsJARH3CZZoFqDbMarE=
+Subject: patch "usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in" added to usb-linus
+To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 11:04:12 +0200
-Message-ID: <1570179852116123@kroah.com>
+Date:   Fri, 04 Oct 2019 11:07:00 +0200
+Message-ID: <157018002097114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: dummy-hcd: fix power budget for SuperSpeed mode
+    usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,51 +56,58 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2636d49b64671d3d90ecc4daf971b58df3956519 Mon Sep 17 00:00:00 2001
-From: "Jacky.Cao@sony.com" <Jacky.Cao@sony.com>
-Date: Thu, 5 Sep 2019 04:11:57 +0000
-Subject: USB: dummy-hcd: fix power budget for SuperSpeed mode
+From 7101949f36fc77b530b73e4c6bd0066a2740d75b Mon Sep 17 00:00:00 2001
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Date: Tue, 1 Oct 2019 15:01:17 +0300
+Subject: usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in
+ tcpm_fw_get_caps()
 
-The power budget for SuperSpeed mode should be 900 mA
-according to USB specification, so set the power budget
-to 900mA for dummy_start_ss which is only used for
-SuperSpeed mode.
+The "port->typec_caps.data" and "port->typec_caps.type" variables are
+enums and in this context GCC will treat them as an unsigned int so they
+can never be less than zero.
 
-If the max power consumption of SuperSpeed device is
-larger than 500 mA, insufficient available bus power
-error happens in usb_choose_configuration function
-when the device connects to dummy hcd.
-
-Signed-off-by: Jacky Cao <Jacky.Cao@sony.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/16EA1F625E922C43B00B9D82250220500871CDE5@APYOKXMS108.ap.sony.com
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20191001120117.GA23528@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/dummy_hcd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/tcpm.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/dummy_hcd.c b/drivers/usb/gadget/udc/dummy_hcd.c
-index 8414fac74493..3d499d93c083 100644
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -48,6 +48,7 @@
- #define DRIVER_VERSION	"02 May 2005"
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 96562744101c..5f61d9977a15 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -4409,18 +4409,20 @@ static int tcpm_fw_get_caps(struct tcpm_port *port,
+ 	/* USB data support is optional */
+ 	ret = fwnode_property_read_string(fwnode, "data-role", &cap_str);
+ 	if (ret == 0) {
+-		port->typec_caps.data = typec_find_port_data_role(cap_str);
+-		if (port->typec_caps.data < 0)
+-			return -EINVAL;
++		ret = typec_find_port_data_role(cap_str);
++		if (ret < 0)
++			return ret;
++		port->typec_caps.data = ret;
+ 	}
  
- #define POWER_BUDGET	500	/* in mA; use 8 for low-power port testing */
-+#define POWER_BUDGET_3	900	/* in mA */
+ 	ret = fwnode_property_read_string(fwnode, "power-role", &cap_str);
+ 	if (ret < 0)
+ 		return ret;
  
- static const char	driver_name[] = "dummy_hcd";
- static const char	driver_desc[] = "USB Host+Gadget Emulator";
-@@ -2432,7 +2433,7 @@ static int dummy_start_ss(struct dummy_hcd *dum_hcd)
- 	dum_hcd->rh_state = DUMMY_RH_RUNNING;
- 	dum_hcd->stream_en_ep = 0;
- 	INIT_LIST_HEAD(&dum_hcd->urbp_list);
--	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET;
-+	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET_3;
- 	dummy_hcd_to_hcd(dum_hcd)->state = HC_STATE_RUNNING;
- 	dummy_hcd_to_hcd(dum_hcd)->uses_new_polling = 1;
- #ifdef CONFIG_USB_OTG
+-	port->typec_caps.type = typec_find_port_power_role(cap_str);
+-	if (port->typec_caps.type < 0)
+-		return -EINVAL;
++	ret = typec_find_port_power_role(cap_str);
++	if (ret < 0)
++		return ret;
++	port->typec_caps.type = ret;
+ 	port->port_type = port->typec_caps.type;
+ 
+ 	if (port->port_type == TYPEC_PORT_SNK)
 -- 
 2.23.0
 
