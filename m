@@ -2,126 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 254BBCB713
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C9DCB718
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725730AbfJDJLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 05:11:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:53964 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730921AbfJDJLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 05:11:46 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 9FDC6AEFB;
-        Fri,  4 Oct 2019 09:11:43 +0000 (UTC)
-Date:   Fri, 4 Oct 2019 11:11:42 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Feng Tang <feng.tang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, contact@xogium.me
-Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
-Message-ID: <20191004091142.57iylai22aqpu6lu@pathway.suse.cz>
-References: <20191002123538.22609-1-will@kernel.org>
- <201910021355.E578D2FFAF@keescook>
- <20191003205633.w26geqhq67u4ysit@willie-the-truck>
+        id S1730369AbfJDJMV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 05:12:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36478 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730350AbfJDJMU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 05:12:20 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA5E420867;
+        Fri,  4 Oct 2019 09:12:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570180339;
+        bh=zGWPEDxlxSysrrh+Tvs4jxEnDbYj4A91Gcbrq3fF7tg=;
+        h=Subject:To:From:Date:From;
+        b=xQtWPcxg6FNUQV8dj0f1ftdi5aW6EpJAhLR29yw3wvT3jc5D2J2zuI/o/c5J+4sfD
+         qT/M/RAgl2OvFMp30COutL/sMuUrhh9foOlLqvKUo8h3IGin/s3ASMXaw4cLH+rEHi
+         Hbvf/9R3b4ivHpRBLWb28Mjr8i+S0UGA18mOc5nU=
+Subject: patch "USB: usblcd: fix I/O after disconnect" added to usb-linus
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 04 Oct 2019 11:12:17 +0200
+Message-ID: <15701803373232@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191003205633.w26geqhq67u4ysit@willie-the-truck>
-User-Agent: NeoMutt/20170912 (1.9.0)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 2019-10-03 21:56:34, Will Deacon wrote:
-> Hi Kees,
-> 
-> On Wed, Oct 02, 2019 at 01:58:46PM -0700, Kees Cook wrote:
-> > On Wed, Oct 02, 2019 at 01:35:38PM +0100, Will Deacon wrote:
-> > > Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
-> > > calling CPU in an infinite loop, but with interrupts and preemption
-> > > enabled. From this state, userspace can continue to be scheduled,
-> > > despite the system being "dead" as far as the kernel is concerned. This
-> > > is easily reproducible on arm64 when booting with "nosmp" on the command
-> > > line; a couple of shell scripts print out a periodic "Ping" message
-> > > whilst another triggers a crash by writing to /proc/sysrq-trigger:
-> > > 
-> > >   | sysrq: Trigger a crash
-> > >   | Kernel panic - not syncing: sysrq triggered crash
-> > >   | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
-> > >   | Hardware name: linux,dummy-virt (DT)
-> > >   | Call trace:
-> > >   |  dump_backtrace+0x0/0x148
-> > >   |  show_stack+0x14/0x20
-> > >   |  dump_stack+0xa0/0xc4
-> > >   |  panic+0x140/0x32c
-> > >   |  sysrq_handle_reboot+0x0/0x20
-> > >   |  __handle_sysrq+0x124/0x190
-> > >   |  write_sysrq_trigger+0x64/0x88
-> > >   |  proc_reg_write+0x60/0xa8
-> > >   |  __vfs_write+0x18/0x40
-> > >   |  vfs_write+0xa4/0x1b8
-> > >   |  ksys_write+0x64/0xf0
-> > >   |  __arm64_sys_write+0x14/0x20
-> > >   |  el0_svc_common.constprop.0+0xb0/0x168
-> > >   |  el0_svc_handler+0x28/0x78
-> > >   |  el0_svc+0x8/0xc
-> > >   | Kernel Offset: disabled
-> > >   | CPU features: 0x0002,24002004
-> > >   | Memory Limit: none
-> > >   | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
-> > >   |  Ping 2!
-> > >   |  Ping 1!
-> > >   |  Ping 1!
-> > >   |  Ping 2!
-> > > 
-> > > The issue can also be triggered on x86 kernels if CONFIG_SMP=n, otherwise
-> > > local interrupts are disabled in 'smp_send_stop()'.
-> > > 
-> > > Disable preemption in 'panic()' before re-enabling interrupts.
-> > 
-> > Is this perhaps the correct solution for what commit c39ea0b9dd24 ("panic:
-> > avoid the extra noise dmesg") was trying to fix?
-> 
-> Hmm, maybe, although that looks like it's focussed more on irq handling
-> than preemption.
 
-Exactly, the backtrace mentioned in commit c39ea0b9dd24 ("panic: avoid
-the extra noise dmesg") is printed by wake_up() called from
-wake_up_klogd_work_func(). It is irq_work. Therefore disabling
-preemption would not prevent this.
+This is a note to let you know that I've just added the patch titled
+
+    USB: usblcd: fix I/O after disconnect
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
 
 
-> I've deliberately left the irq part alone, since I think
-> having magic sysrq work via the keyboard interrupt is desirable from the
-> panic loop.
+From eb7f5a490c5edfe8126f64bc58b9ba2edef0a425 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Thu, 26 Sep 2019 11:12:25 +0200
+Subject: USB: usblcd: fix I/O after disconnect
 
-I agree that we should keep sysrq working.
+Make sure to stop all I/O on disconnect by adding a disconnected flag
+which is used to prevent new I/O from being started and by stopping all
+ongoing I/O before returning.
 
-One pity thing is that led_panic_blink() in
-leds/drivers/trigger/ledtrig-panic.c uses workqueues:
+This also fixes a potential use-after-free on driver unbind in case the
+driver data is freed before the completion handler has run.
 
-  + led_panic_blink()
-    + led_trigger_event()
-      + led_set_brightness()
-	+ schedule_work()
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>	# 7bbe990c989e
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20190926091228.24634-7-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/misc/usblcd.c | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-It means that it depends on the scheduler. I guess that it
-does not work in many panic situations. But this patch
-will always block it.
+diff --git a/drivers/usb/misc/usblcd.c b/drivers/usb/misc/usblcd.c
+index 9ba4a4e68d91..aa982d3ca36b 100644
+--- a/drivers/usb/misc/usblcd.c
++++ b/drivers/usb/misc/usblcd.c
+@@ -18,6 +18,7 @@
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/mutex.h>
++#include <linux/rwsem.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb.h>
+ 
+@@ -57,6 +58,8 @@ struct usb_lcd {
+ 							   using up all RAM */
+ 	struct usb_anchor	submitted;		/* URBs to wait for
+ 							   before suspend */
++	struct rw_semaphore	io_rwsem;
++	unsigned long		disconnected:1;
+ };
+ #define to_lcd_dev(d) container_of(d, struct usb_lcd, kref)
+ 
+@@ -142,6 +145,13 @@ static ssize_t lcd_read(struct file *file, char __user * buffer,
+ 
+ 	dev = file->private_data;
+ 
++	down_read(&dev->io_rwsem);
++
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto out_up_io;
++	}
++
+ 	/* do a blocking bulk read to get data from the device */
+ 	retval = usb_bulk_msg(dev->udev,
+ 			      usb_rcvbulkpipe(dev->udev,
+@@ -158,6 +168,9 @@ static ssize_t lcd_read(struct file *file, char __user * buffer,
+ 			retval = bytes_read;
+ 	}
+ 
++out_up_io:
++	up_read(&dev->io_rwsem);
++
+ 	return retval;
+ }
+ 
+@@ -237,11 +250,18 @@ static ssize_t lcd_write(struct file *file, const char __user * user_buffer,
+ 	if (r < 0)
+ 		return -EINTR;
+ 
++	down_read(&dev->io_rwsem);
++
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto err_up_io;
++	}
++
+ 	/* create a urb, and a buffer for it, and copy the data to the urb */
+ 	urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!urb) {
+ 		retval = -ENOMEM;
+-		goto err_no_buf;
++		goto err_up_io;
+ 	}
+ 
+ 	buf = usb_alloc_coherent(dev->udev, count, GFP_KERNEL,
+@@ -278,6 +298,7 @@ static ssize_t lcd_write(struct file *file, const char __user * user_buffer,
+ 	   the USB core will eventually free it entirely */
+ 	usb_free_urb(urb);
+ 
++	up_read(&dev->io_rwsem);
+ exit:
+ 	return count;
+ error_unanchor:
+@@ -285,7 +306,8 @@ static ssize_t lcd_write(struct file *file, const char __user * user_buffer,
+ error:
+ 	usb_free_coherent(dev->udev, count, buf, urb->transfer_dma);
+ 	usb_free_urb(urb);
+-err_no_buf:
++err_up_io:
++	up_read(&dev->io_rwsem);
+ 	up(&dev->limit_sem);
+ 	return retval;
+ }
+@@ -325,6 +347,7 @@ static int lcd_probe(struct usb_interface *interface,
+ 
+ 	kref_init(&dev->kref);
+ 	sema_init(&dev->limit_sem, USB_LCD_CONCURRENT_WRITES);
++	init_rwsem(&dev->io_rwsem);
+ 	init_usb_anchor(&dev->submitted);
+ 
+ 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
+@@ -422,6 +445,12 @@ static void lcd_disconnect(struct usb_interface *interface)
+ 	/* give back our minor */
+ 	usb_deregister_dev(interface, &lcd_class);
+ 
++	down_write(&dev->io_rwsem);
++	dev->disconnected = 1;
++	up_write(&dev->io_rwsem);
++
++	usb_kill_anchored_urbs(&dev->submitted);
++
+ 	/* decrement our usage count */
+ 	kref_put(&dev->kref, lcd_delete);
+ 
+-- 
+2.23.0
 
-I agree that it is strange that userspace still works at
-this stage. But does it cause any real problems?
 
-Best Regards,
-Petr
