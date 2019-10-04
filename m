@@ -2,100 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB4CCC456
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 22:40:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDA2CC4A8
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 23:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388638AbfJDUkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 16:40:39 -0400
-Received: from mga01.intel.com ([192.55.52.88]:8925 "EHLO mga01.intel.com"
+        id S1725826AbfJDVNN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 4 Oct 2019 17:13:13 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59624 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388633AbfJDUkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 16:40:39 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 13:40:39 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,257,1566889200"; 
-   d="scan'208";a="276158758"
-Received: from sedona.ch.intel.com ([10.2.136.157])
-  by orsmga001.jf.intel.com with ESMTP; 04 Oct 2019 13:40:38 -0700
-Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
-        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x94Kebwh057931;
-        Fri, 4 Oct 2019 13:40:38 -0700
-Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
-        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x94KeZBZ026620;
-        Fri, 4 Oct 2019 16:40:35 -0400
-Subject: [PATCH for-rc 1/2] IB/hfi1: Avoid excessive retry for TID RDMA READ
- request
-From:   Dennis Dalessandro <dennis.dalessandro@intel.com>
-To:     jgg@ziepe.ca, dledford@redhat.com
-Cc:     linux-rdma@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
-Date:   Fri, 04 Oct 2019 16:40:35 -0400
-Message-ID: <20191004204035.26542.41684.stgit@awfm-01.aw.intel.com>
-In-Reply-To: <20191004203739.26542.57060.stgit@awfm-01.aw.intel.com>
-References: <20191004203739.26542.57060.stgit@awfm-01.aw.intel.com>
-User-Agent: StGit/0.17.1-dirty
-MIME-Version: 1.0
+        id S1730131AbfJDVNM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 17:13:12 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 249383067285
+        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 21:13:12 +0000 (UTC)
+Received: from [172.54.19.159] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A6C015D9DC;
+        Fri,  4 Oct 2019 21:13:06 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.0-rc1-ee9ecfe.cki
+ (stable-next)
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.E002CEC560.ADSFL0PI1X@redhat.com>
+X-Gitlab-Pipeline-ID: 205642
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/205642
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Fri, 04 Oct 2019 21:13:12 +0000 (UTC)
+Date:   Fri, 4 Oct 2019 17:13:12 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaike Wan <kaike.wan@intel.com>
 
-A TID RDMA READ request could be retried under one of the following
-conditions:
-- The RC retry timer expires;
-- A later TID RDMA READ RESP packet is received before the next
-  expected one.
-For the latter, under normal conditions, the PSN in IB space is used
-for comparison. More specifically, the IB PSN in the incoming TID RDMA
-READ RESP packet is compared with the last IB PSN of a given TID RDMA
-READ request to determine if the request should be retried. This is
-similar to the retry logic for noraml RDMA READ request.
+Hello,
 
-However, if a TID RDMA READ RESP packet is lost due to congestion,
-header suppresion will be disabled and each incoming packet will raise
-an interrupt until the hardware flow is reloaded. Under this condition,
-each packet KDETH PSN will be checked by software against r_next_psn
-and a retry will be requested if the packet KDETH PSN is later than
-r_next_psn. Since each TID RDMA READ segment could have up to 64
-packets and each TID RDMA READ request could have many segments, we
-could make far more retries under such conditions, and thus leading to
-RETRY_EXC_ERR status.
+We ran automated tests on a recent commit from this kernel tree:
 
-This patch fixes the issue by removing the retry when the incoming
-packet KDETH PSN is later than r_next_psn. Instead, it resorts to
-RC timer and normal IB PSN comparison for any request retry.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
+            Commit: ee9ecfe4515a - tcp: fix slab-out-of-bounds in tcp_zerocopy_receive()
 
-Fixes: 9905bf06e890 ("IB/hfi1: Add functions to receive TID RDMA READ response")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
----
- drivers/infiniband/hw/hfi1/tid_rdma.c |    5 -----
- 1 file changed, 5 deletions(-)
+The results of these automated tests are provided below.
 
-diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
-index b4dcc4d..f21fca3 100644
---- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-+++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-@@ -2736,11 +2736,6 @@ static bool handle_read_kdeth_eflags(struct hfi1_ctxtdata *rcd,
- 				diff = cmp_psn(psn,
- 					       flow->flow_state.r_next_psn);
- 				if (diff > 0) {
--					if (!(qp->r_flags & RVT_R_RDMAR_SEQ))
--						restart_tid_rdma_read_req(rcd,
--									  qp,
--									  wqe);
--
- 					/* Drop the packet.*/
- 					goto s_unlock;
- 				} else if (diff < 0) {
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/205642
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ❌ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 3:
+         ✅ Boot test
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+
+      Host 4:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 5:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ IOMMU boot test
+         🚧 ✅ Storage blktests
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
 
