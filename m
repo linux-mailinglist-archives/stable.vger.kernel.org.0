@@ -2,88 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B61BCB7A8
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97141CB7CD
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 12:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387908AbfJDJvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 05:51:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50662 "EHLO mail.kernel.org"
+        id S1730769AbfJDKCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 06:02:24 -0400
+Received: from mga02.intel.com ([134.134.136.20]:15524 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387827AbfJDJvr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 05:51:47 -0400
-Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FE1521D81;
-        Fri,  4 Oct 2019 09:51:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570182706;
-        bh=vE/jWS60KzqcNNmlodqOlV9AdeCoY1+tE4ZQVtKNzf8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yp1IkKEedfiRjZZ63iNqBeC6Z87eN81/lCy5T3vvESbPi7xVobOhKbjycm6ERQxz0
-         QUYsnIU7brsaSZlEjRkmUA6TYnSEA7r1AsbFBC66inUqcCJ4n+AmrNttuCWxciClE8
-         l5gNqRGxEmMXt/EUqpQ+8yexFhLQfOC0Km9FJg8I=
-From:   Will Deacon <will@kernel.org>
-To:     linux-wireless@vger.kernel.org
-Cc:     nico@semmle.com, Will Deacon <will@kernel.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 2/2] cfg80211: wext: Reject malformed SSID elements
-Date:   Fri,  4 Oct 2019 10:51:32 +0100
-Message-Id: <20191004095132.15777-2-will@kernel.org>
-X-Mailer: git-send-email 2.11.0
-In-Reply-To: <20191004095132.15777-1-will@kernel.org>
-References: <20191004095132.15777-1-will@kernel.org>
+        id S1726927AbfJDKCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 06:02:24 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 03:02:23 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,256,1566889200"; 
+   d="scan'208";a="205821754"
+Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
+  by fmsmga001.fm.intel.com with ESMTP; 04 Oct 2019 03:02:21 -0700
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Ajay Gupta <ajayg@nvidia.com>, linux-usb@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] usb: typec: ucsi: ccg: Remove run_isr flag
+Date:   Fri,  4 Oct 2019 13:02:18 +0300
+Message-Id: <20191004100219.71152-2-heikki.krogerus@linux.intel.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191004100219.71152-1-heikki.krogerus@linux.intel.com>
+References: <20191004100219.71152-1-heikki.krogerus@linux.intel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field.
+The "run_isr" flag is used for preventing the driver from
+calling the interrupt service routine in its runtime resume
+callback when the driver is expecting completion to a
+command, but what that basically does is that it hides the
+real problem. The real problem is that the controller is
+allowed to suspend in the middle of command execution.
 
-Cc: <stable@vger.kernel.org>
-Cc: Johannes Berg <johannes@sipsolutions.net>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+As a more appropriate fix for the problem, using autosuspend
+delay time that matches UCSI_TIMEOUT_MS (5s). That prevents
+the controller from suspending while still in the middle of
+executing a command.
+
+This fixes a potential deadlock. Both ccg_read() and
+ccg_write() are called with the mutex already taken at least
+from ccg_send_command(). In ccg_read() and ccg_write, the
+mutex is only acquired so that run_isr flag can be set.
+
+Fixes: f0e4cd948b91 ("usb: typec: ucsi: ccg: add runtime pm workaround")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 ---
- net/wireless/wext-sme.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi_ccg.c | 42 +++----------------------------
+ 1 file changed, 4 insertions(+), 38 deletions(-)
 
-diff --git a/net/wireless/wext-sme.c b/net/wireless/wext-sme.c
-index c67d7a82ab13..3fd2cc7fc36a 100644
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -201,6 +201,7 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
- 			       struct iw_request_info *info,
- 			       struct iw_point *data, char *ssid)
+diff --git a/drivers/usb/typec/ucsi/ucsi_ccg.c b/drivers/usb/typec/ucsi/ucsi_ccg.c
+index 907e20e1a71e..d772fce51905 100644
+--- a/drivers/usb/typec/ucsi/ucsi_ccg.c
++++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
+@@ -195,7 +195,6 @@ struct ucsi_ccg {
+ 
+ 	/* fw build with vendor information */
+ 	u16 fw_build;
+-	bool run_isr; /* flag to call ISR routine during resume */
+ 	struct work_struct pm_work;
+ };
+ 
+@@ -224,18 +223,6 @@ static int ccg_read(struct ucsi_ccg *uc, u16 rab, u8 *data, u32 len)
+ 	if (quirks && quirks->max_read_len)
+ 		max_read_len = quirks->max_read_len;
+ 
+-	if (uc->fw_build == CCG_FW_BUILD_NVIDIA &&
+-	    uc->fw_version <= CCG_OLD_FW_VERSION) {
+-		mutex_lock(&uc->lock);
+-		/*
+-		 * Do not schedule pm_work to run ISR in
+-		 * ucsi_ccg_runtime_resume() after pm_runtime_get_sync()
+-		 * since we are already in ISR path.
+-		 */
+-		uc->run_isr = false;
+-		mutex_unlock(&uc->lock);
+-	}
+-
+ 	pm_runtime_get_sync(uc->dev);
+ 	while (rem_len > 0) {
+ 		msgs[1].buf = &data[len - rem_len];
+@@ -278,18 +265,6 @@ static int ccg_write(struct ucsi_ccg *uc, u16 rab, u8 *data, u32 len)
+ 	msgs[0].len = len + sizeof(rab);
+ 	msgs[0].buf = buf;
+ 
+-	if (uc->fw_build == CCG_FW_BUILD_NVIDIA &&
+-	    uc->fw_version <= CCG_OLD_FW_VERSION) {
+-		mutex_lock(&uc->lock);
+-		/*
+-		 * Do not schedule pm_work to run ISR in
+-		 * ucsi_ccg_runtime_resume() after pm_runtime_get_sync()
+-		 * since we are already in ISR path.
+-		 */
+-		uc->run_isr = false;
+-		mutex_unlock(&uc->lock);
+-	}
+-
+ 	pm_runtime_get_sync(uc->dev);
+ 	status = i2c_transfer(client->adapter, msgs, ARRAY_SIZE(msgs));
+ 	if (status < 0) {
+@@ -1130,7 +1105,6 @@ static int ucsi_ccg_probe(struct i2c_client *client,
+ 	uc->ppm.sync = ucsi_ccg_sync;
+ 	uc->dev = dev;
+ 	uc->client = client;
+-	uc->run_isr = true;
+ 	mutex_init(&uc->lock);
+ 	INIT_WORK(&uc->work, ccg_update_firmware);
+ 	INIT_WORK(&uc->pm_work, ccg_pm_workaround_work);
+@@ -1188,6 +1162,8 @@ static int ucsi_ccg_probe(struct i2c_client *client,
+ 
+ 	pm_runtime_set_active(uc->dev);
+ 	pm_runtime_enable(uc->dev);
++	pm_runtime_use_autosuspend(uc->dev);
++	pm_runtime_set_autosuspend_delay(uc->dev, 5000);
+ 	pm_runtime_idle(uc->dev);
+ 
+ 	return 0;
+@@ -1229,7 +1205,6 @@ static int ucsi_ccg_runtime_resume(struct device *dev)
  {
-+	int ret = 0;
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct ucsi_ccg *uc = i2c_get_clientdata(client);
+-	bool schedule = true;
  
- 	/* call only for station! */
-@@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
- 		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
- 	}
- 	wdev_unlock(wdev);
+ 	/*
+ 	 * Firmware version 3.1.10 or earlier, built for NVIDIA has known issue
+@@ -1237,17 +1212,8 @@ static int ucsi_ccg_runtime_resume(struct device *dev)
+ 	 * Schedule a work to call ISR as a workaround.
+ 	 */
+ 	if (uc->fw_build == CCG_FW_BUILD_NVIDIA &&
+-	    uc->fw_version <= CCG_OLD_FW_VERSION) {
+-		mutex_lock(&uc->lock);
+-		if (!uc->run_isr) {
+-			uc->run_isr = true;
+-			schedule = false;
+-		}
+-		mutex_unlock(&uc->lock);
+-
+-		if (schedule)
+-			schedule_work(&uc->pm_work);
+-	}
++	    uc->fw_version <= CCG_OLD_FW_VERSION)
++		schedule_work(&uc->pm_work);
  
--	return 0;
-+	return ret;
+ 	return 0;
  }
- 
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
 -- 
-2.23.0.581.g78d2f28ef7-goog
+2.23.0
 
