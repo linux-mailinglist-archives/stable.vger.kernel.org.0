@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3E7CC5EA
-	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 00:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B4ACC5CF
+	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 00:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730298AbfJDW1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 18:27:46 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:35485 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728812AbfJDW1M (ORCPT
+        id S2388148AbfJDW1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 18:27:13 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:43716 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388037AbfJDW1M (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 18:27:12 -0400
-Received: by mail-pl1-f196.google.com with SMTP id c3so2302105plo.2
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 15:27:10 -0700 (PDT)
+Received: by mail-pg1-f193.google.com with SMTP id v27so4511969pgk.10
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 15:27:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=DB10pg/WIJaO+aJTgK4OR+kGpHxX86yfhLw/UszwpCo=;
-        b=F5uG1Agmj1h9uJUlUsYaVzT9Nk4sqGpyY9EGmbmREWfkyCLX2Jypf/Vry8EYBqlg6y
-         +5mmeuhecQk1H+/FUJ58m8WKZSUIoDROJ8cXuO1cXJvn/DtQTX99y99UNqV/CUfGWq8C
-         SLXTxvc6qPmiBMbAvEABZWldwZ1/NsRYGGkdCpPAC6bXZkrlGLpbaVIa2KJrd/ryeSUT
-         XXIocsOg0tgXtlaZzEHywwXICMIe9YedFnHjO/H7IocH1cuUcRViUrK4sRCS4QF4iFGg
-         WyQKekfWYrwKHwUU39tkpVTyLDxjY9zrGkI6vCGtwxbHZyG1TjIYCAIyJ/jk6sDNyRf9
-         mTiA==
+        bh=QoZQF1YbSGqv09dK0KDHECoZ26zQGdAXMaDDkqK/sak=;
+        b=N1pFmJEh2KW227rJpCbD4242buzzbOIiY6ERrMQ9gsicebzcXfJT8NECywRZ0N5/si
+         Tgj4n3z6k0mSjwaGIY0Sb9m/zLKF/BcICGuTagr4Zg+Au/njphRbjvNov33jKsA/Vf7Q
+         WJF7/x1LoGppiW4Sq9F1hFhlPoIgmJwkPdEhKkhquJh7jCC02RvlcZ/+T+2suX+sWsQ8
+         0Q8AeMHZ0ScKasmjlFy/MbZh+z5Sjc/tD3uKcmfU+yPdrkHQHmMgRhn7Z+AutgO8kms7
+         M657x4K//+keOT+lxrB83va5DmkQtIz+fN8gUJr1lTqf+wsnRlzemkuwmS866ClQ9M6O
+         2XDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=DB10pg/WIJaO+aJTgK4OR+kGpHxX86yfhLw/UszwpCo=;
-        b=iIjajHPiBYiIsnpXUoSuiIxPWfZfQTtTKq9k10VeLUVZYC01B/4PQj/jObZ2KnW5z6
-         emsykxQCo1OcxvtwHUW/KmIeuTOaHFwgScKmxex2kqZ4DbdUbAH/lZHwGJOVLFoAqe0x
-         uZsD76wZXMNzVdYjoLd+jksDKYnlu5CbZCZreNJtbIFUBhMaEUGXIj/E88GeXCjR7Pcv
-         34LQoDnP09PncFs6CPHXwludwiHj5Pg63ObHIKXYo+GvIM26A84CuXwydZ5G+rbwmUFR
-         gKLKXG0mqr6xQZMeDoBgkEf4C/BFlGYTPI1KE9kzOT1JFM5IfSsp7wSh+7CiD2UPmc9B
-         8i6A==
-X-Gm-Message-State: APjAAAVKRukF7p/gp3b+lftFkoR+39AGMBWNJaMCnuDtsm6ljjQOIksS
-        fSHxZ/MBwKhIL2SCT1tZEN7gXQ==
-X-Google-Smtp-Source: APXvYqzCVLSpk4OE/L2LUrTXd1xxgCf0fxLXYqqbD9oR0XvRr6RzlVdImC6SxgRlG2DIsUN1EbXjmQ==
-X-Received: by 2002:a17:902:aa08:: with SMTP id be8mr3333013plb.317.1570228029737;
-        Fri, 04 Oct 2019 15:27:09 -0700 (PDT)
+        bh=QoZQF1YbSGqv09dK0KDHECoZ26zQGdAXMaDDkqK/sak=;
+        b=NneLkDR+rBs9icb20247HYjlEMttyuaNkkIeXiwymM5tiuirQx5VyLf4fvPp+5jiv1
+         D5eIJ7XmGq2fG6YNAmvxngOyFHTpwXgiWAFzziyk7sRrUZifXxqXm1ackvRb4bNNKsXQ
+         jPHQGa6ac0ZWgBZ2ltRKgWbj1TUtK9PPB4hKZF1QSwveK0iiNdeUNMjLkZvMIEuB2ErQ
+         KtjxRiAQQpmF/GmGnpnkozpjf4cQigIjqGcegwL3Xk8w2Omdnzfm24iiKsKVDPcRDic/
+         NXgZLsY7c4WvG7Wfpgp8JjytzgIVcQW191nMZLzpMCV1CkuQCJXCmHX5pjme+lXzA/ij
+         jy8A==
+X-Gm-Message-State: APjAAAXyMxn2/amSvyL5IylwhRECnr/zAghghA2YxjAjU5uCztIJwTy6
+        dw7OTvHH+3ur+S3nyTuCO0Y+7g==
+X-Google-Smtp-Source: APXvYqx4xJ8Wtupkhwv6dK4c8+ZLjIxa9GbmQKmw3sJuGnsohr/0eA2ZNw37OxsBRy7204cKjdQ11w==
+X-Received: by 2002:a63:1420:: with SMTP id u32mr2589745pgl.62.1570228031137;
+        Fri, 04 Oct 2019 15:27:11 -0700 (PDT)
 Received: from localhost.localdomain (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
-        by smtp.gmail.com with ESMTPSA id x37sm6328136pgl.18.2019.10.04.15.27.08
+        by smtp.gmail.com with ESMTPSA id x37sm6328136pgl.18.2019.10.04.15.27.09
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Oct 2019 15:27:08 -0700 (PDT)
+        Fri, 04 Oct 2019 15:27:10 -0700 (PDT)
 From:   Bjorn Andersson <bjorn.andersson@linaro.org>
 To:     Ohad Ben-Cohen <ohad@wizery.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>
 Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v2 1/6] rpmsg: glink: Fix reuse intents memory leak issue
-Date:   Fri,  4 Oct 2019 15:26:57 -0700
-Message-Id: <20191004222702.8632-2-bjorn.andersson@linaro.org>
+Subject: [PATCH v2 2/6] rpmsg: glink: Fix use after free in open_ack TIMEOUT case
+Date:   Fri,  4 Oct 2019 15:26:58 -0700
+Message-Id: <20191004222702.8632-3-bjorn.andersson@linaro.org>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20191004222702.8632-1-bjorn.andersson@linaro.org>
 References: <20191004222702.8632-1-bjorn.andersson@linaro.org>
@@ -61,48 +61,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arun Kumar Neelakantam <aneela@codeaurora.org>
 
-Memory allocated for re-usable intents are not freed during channel
-cleanup which causes memory leak in system.
+Extra channel reference put when remote sending OPEN_ACK after timeout
+causes use-after-free while handling next remote CLOSE command.
 
-Check and free all re-usable memory to avoid memory leak.
+Remove extra reference put in timeout case to avoid use-after-free.
 
-Fixes: 933b45da5d1d ("rpmsg: glink: Add support for TX intents")
+Fixes: b4f8e52b89f6 ("rpmsg: Introduce Qualcomm RPM glink driver")
 Cc: stable@vger.kernel.org
 Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
-Reported-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 ---
 
 Changes since v1:
 - None
 
- drivers/rpmsg/qcom_glink_native.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/rpmsg/qcom_glink_native.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
-index 621f1afd4d6b..9355ce26fd98 100644
+index 9355ce26fd98..72ed671f5dcd 100644
 --- a/drivers/rpmsg/qcom_glink_native.c
 +++ b/drivers/rpmsg/qcom_glink_native.c
-@@ -241,10 +241,19 @@ static void qcom_glink_channel_release(struct kref *ref)
- {
- 	struct glink_channel *channel = container_of(ref, struct glink_channel,
- 						     refcount);
-+	struct glink_core_rx_intent *tmp;
- 	unsigned long flags;
-+	int iid;
+@@ -1103,13 +1103,12 @@ static int qcom_glink_create_remote(struct qcom_glink *glink,
+ close_link:
+ 	/*
+ 	 * Send a close request to "undo" our open-ack. The close-ack will
+-	 * release the last reference.
++	 * release qcom_glink_send_open_req() reference and the last reference
++	 * will be relesed after receiving remote_close or transport unregister
++	 * by calling qcom_glink_native_remove().
+ 	 */
+ 	qcom_glink_send_close_req(glink, channel);
  
- 	spin_lock_irqsave(&channel->intent_lock, flags);
-+	idr_for_each_entry(&channel->liids, tmp, iid) {
-+		kfree(tmp->data);
-+		kfree(tmp);
-+	}
- 	idr_destroy(&channel->liids);
-+
-+	idr_for_each_entry(&channel->riids, tmp, iid)
-+		kfree(tmp);
- 	idr_destroy(&channel->riids);
- 	spin_unlock_irqrestore(&channel->intent_lock, flags);
+-	/* Release qcom_glink_send_open_req() reference */
+-	kref_put(&channel->refcount, qcom_glink_channel_release);
+-
+ 	return ret;
+ }
  
 -- 
 2.18.0
