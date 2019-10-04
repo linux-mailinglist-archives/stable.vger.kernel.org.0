@@ -2,239 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B822FCBC9A
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 16:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34D25CBCC9
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 16:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388727AbfJDOFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 10:05:24 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:47413 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388657AbfJDOFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 10:05:24 -0400
-Received: from [213.220.153.21] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iGOCv-0002p9-PZ; Fri, 04 Oct 2019 14:05:21 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Varad Gautam <vrd@amazon.de>, stable@vger.kernel.org,
-        Jan Glauber <jglauber@marvell.com>
-Subject: [PATCH] devpts: Fix NULL pointer dereference in dcache_readdir()
-Date:   Fri,  4 Oct 2019 16:05:03 +0200
-Message-Id: <20191004140503.9817-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.23.0
+        id S2388724AbfJDOOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 10:14:25 -0400
+Received: from mx0a-00176a03.pphosted.com ([67.231.149.52]:37582 "EHLO
+        mx0a-00176a03.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388270AbfJDOOZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 10:14:25 -0400
+X-Greylist: delayed 2835 seconds by postgrey-1.27 at vger.kernel.org; Fri, 04 Oct 2019 10:14:24 EDT
+Received: from pps.filterd (m0047961.ppops.net [127.0.0.1])
+        by m0047961.ppops.net-00176a03. (8.16.0.42/8.16.0.42) with SMTP id x94DQiO1000518;
+        Fri, 4 Oct 2019 09:27:09 -0400
+From:   "Safford, David (GE Global Research, US)" <david.safford@ge.com>
+To:     Mimi Zohar <zohar@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "Wiseman, Monty (GE Global Research, US)" <monty.wiseman@ge.com>
+CC:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Thread-Topic: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Thread-Index: AQHVdI4g9L3xPAeMJki3mq4fpV79C6dHrWSAgAFrf4CAABaxAIAAUs4AgAAPVoCAAOxxAA==
+Date:   Fri, 4 Oct 2019 13:26:58 +0000
+Message-ID: <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+         <1570024819.4999.119.camel@linux.ibm.com>
+         <20191003114119.GF8933@linux.intel.com>
+         <1570107752.4421.183.camel@linux.ibm.com>
+         <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
+In-Reply-To: <1570128827.5046.19.camel@linux.ibm.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-dg-ref: =?utf-8?B?UEcxbGRHRStQR0YwSUc1dFBTSmliMlI1TG5SNGRDSWdjRDBpWXpwY2RYTmxj?=
+ =?utf-8?B?bk5jTWpFeU5EY3pPVFV3WEdGd2NHUmhkR0ZjY205aGJXbHVaMXd3T1dRNE5E?=
+ =?utf-8?B?bGlOaTB6TW1RekxUUmhOREF0T0RWbFpTMDJZamcwWW1FeU9XVXpOV0pjYlhO?=
+ =?utf-8?B?bmMxeHRjMmN0WVRKa05qTTFOV1l0WlRaaFlTMHhNV1U1TFRobE5XTXRZVFJq?=
+ =?utf-8?B?TTJZd1lqVTVPR0UyWEdGdFpTMTBaWE4wWEdFeVpEWXpOVFl3TFdVMllXRXRN?=
+ =?utf-8?B?VEZsT1MwNFpUVmpMV0UwWXpObU1HSTFPVGhoTm1KdlpIa3VkSGgwSWlCemVq?=
+ =?utf-8?B?MGlNemN6TlNJZ2REMGlNVE15TVRRMk5qa3lNVGMxT0RVME9ESTRJaUJvUFNK?=
+ =?utf-8?B?dloyZDVXalpCVldVelVFNWpNekZyYUdsak9YRmFOMU5vZVc4OUlpQnBaRDBp?=
+ =?utf-8?B?SWlCaWJEMGlNQ0lnWW04OUlqRWlJR05wUFNKalFVRkJRVVZTU0ZVeFVsTlNW?=
+ =?utf-8?B?VVpPUTJkVlFVRkZiME5CUVVSelprZEtiSFF6Y2xaQldqWTNlSHB6WmtwTWNV?=
+ =?utf-8?B?bHVjblpJVDNnNGEzVnZaMFJCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFVRkJTRUZCUVVGRVlVRlJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZC?=
+ =?utf-8?B?UVVGQlJVRkJVVUZDUVVGQlFVWjBSMlZSZDBGQlFVRkJRVUZCUVVGQlFVRkJR?=
+ =?utf-8?B?VW8wUVVGQlFtNUJSMVZCV0hkQ2FrRkhPRUZpWjBKdFFVZHJRVnBCUW14QlJ6?=
+ =?utf-8?B?UkJaRUZDY0VGSFJVRmlRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZC?=
+ =?utf-8?B?UVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJR?=
+ =?utf-8?B?VUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFV?=
+ =?utf-8?B?RkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGRlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFXZEJRVUZCUVVGdVowRkJRVWRqUVZwUlFtWkJSMmRCWVZGQ2JrRkhaMEZp?=
+ =?utf-8?B?UVVJMVFVZE5RV0ozUW5WQlIxbEJZVkZDYTBGSFZVRmlaMEl3UVVkclFWbFJR?=
+ =?utf-8?B?bk5CUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFV?=
+ =?utf-8?B?RkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZC?=
+ =?utf-8?B?UVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJV?=
+ =?utf-8?B?VUZCUVVGQlFVRkJRVU5CUVVGQlFVRkRaVUZCUVVGYWQwSnNRVVk0UVdKblFu?=
+ =?utf-8?B?WkJSelJCWTBGQ01VRkhTVUZpUVVKd1FVZE5RVUZCUVVGQlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZC?=
+ =?utf-8?B?UVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJR?=
+ =?utf-8?B?VUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFV?=
+ =?utf-8?B?RkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVGQlFVRkJRVUZCUVVG?=
+ =?utf-8?B?QlFVRkJRVUZCUWtGQlFVRkJRVUZCUVVGSlFVRkJRVUZCUVQwOUlpOCtQQzl0?=
+ =?utf-8?B?WlhSaFBnPT0=?=
+x-dg-rorf: 
+x-originating-ip: [3.159.19.191]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-04_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1910040125
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
-
-Closing /dev/pts/ptmx removes the corresponding pty under /dev/pts/
-without synchronizing against concurrent path walkers. This can lead to
-'dcache_readdir()' tripping over a 'struct dentry' with a NULL 'd_inode'
-field:
-
-  | BUG: kernel NULL pointer dereference, address: 0000000000000000
-  | #PF: supervisor read access in kernel mode
-  | #PF: error_code(0x0000) - not-present page
-  | PGD 0 P4D 0
-  | SMP PTI
-  | CPU: 9 PID: 179 Comm: ptmx Not tainted 5.4.0-rc1+ #5
-  | RIP: 0010:dcache_readdir+0xe1/0x150
-  | Code: 48 83 f8 01 74 a2 48 83 f8 02 74 eb 4d 8d a7 90 00 00 00 45 31 f6 eb 42 48 8b 43 30 48 8b 4d 08 48 89 ef 8b 53 24 48 8b 73 28 <44> 0f b7 08 4c 8b 55 00 4c 8b 40 40 66 41 c1 e9 0c 41 83 e1 0f e8
-  | RSP: 0018:ffffa7df8044be58 EFLAGS: 00010286
-  | RAX: 0000000000000000 RBX: ffff9511c78f3ec0 RCX: 0000000000000002
-  | RDX: 0000000000000001 RSI: ffff9511c78f3ef8 RDI: ffffa7df8044bed0
-  | RBP: ffffa7df8044bed0 R08: 0000000000000000 R09: 00000000004bc478
-  | R10: ffff9511c877c6a8 R11: ffff9511c8dde600 R12: ffff9511c878c460
-  | R13: ffff9511c878c3c0 R14: 0000000000000000 R15: ffff9511c9442cc0
-  | FS:  00007fc5ea2e1700(0000) GS:ffff9511ca280000(0000) knlGS:0000000000000000
-  | CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  | CR2: 0000000000000000 CR3: 0000000047d68002 CR4: 0000000000760ea0
-  | DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  | DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  | PKRU: 55555554
-  | Call Trace:
-  |  iterate_dir+0x137/0x190
-  |  ksys_getdents64+0x97/0x130
-  |  ? iterate_dir+0x190/0x190
-  |  __x64_sys_getdents64+0x11/0x20
-  |  do_syscall_64+0x43/0x110
-  |  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-In this case, one CPU is deleting the dentry and clearing the inode
-pointer via:
-
-	 devpts_pty_kill()
-		-> dput()
-			-> dentry_kill()
-				-> __dentry_kill()
-					-> dentry_unlink_inode()
-
-whilst the other is traversing the directory an obtaining a reference
-to the dentry being deleted via:
-
-	sys_getdents64()
-		-> iterate_dir()
-			-> dcache_readdir()
-				-> next_positive()
-
-Prevent the race by acquiring the inode lock of the parent in
-'devpts_pty_kill()' so that path walkers are held off until the dentry
-has been completely torn down.
-
-Will's fix didn't link to the commit it fixes so I tracked it down.
-devpts_pty_kill() used to take inode_lock() before removing a pts
-device. The inode_lock() got removed in
-8ead9dd54716 ("devpts: more pty driver interface cleanups"). The
-reasoning behind the removal seemed to be that the inode_lock() was only
-needed because d_find_alias(inode) had to be called before that commit
-to find the dentry that was supposed to be removed. Linus then changed
-the pty driver to stash away the dentry and subsequently got rid of the
-inode_lock(). However, it seems that the inode_lock() is needed to
-protect against the race outlined above. So add it back.
-
-Note that this bug had been brought up before in November 2018 before
-(cf. [1]). But a fix never got merged because a proper commit wasn't
-sent. The issue came back up when Will and I talked about it at Kernel
-Recipes in Paris. So here is a fix which prevents the issue. I very much
-vote we get this merged asap, since as an unprivileged user I can do:
-
-unshare -U --map-root --mount
-mount -t devpts devpts
-./<run_reproducer_below
-
-/* Reproducer */
-Note that the reproducer will take a little while. Will reported usually
-around 10s. For me it took a few minutes.
-
- #ifndef _GNU_SOURCE
- #define _GNU_SOURCE 1
- #endif
- #include <dirent.h>
- #include <errno.h>
- #include <fcntl.h>
- #include <pthread.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <sys/stat.h>
- #include <sys/types.h>
- #include <unistd.h>
-
- static void *readdir_thread(void *arg)
- {
- 	DIR *d = arg;
- 	struct dirent *dent;
-
- 	for (;;) {
- 		errno = 0;
- 		dent = readdir(d);
- 		if (!dent) {
- 			if (errno)
- 				perror("readdir");
- 			break;
- 		}
- 		rewinddir(d);
- 	}
-
- 	return NULL;
- }
-
- int main(void)
- {
- 	DIR *d;
- 	pthread_t t;
- 	int ret = 0;
-
- 	d = opendir("/dev/pts");
- 	if (!d) {
- 		ret = errno;
- 		perror("opendir");
- 		exit(EXIT_FAILURE);
- 	}
-
- 	ret = pthread_create(&t, NULL, readdir_thread, d);
- 	if (ret) {
- 		errno = ret;
- 		perror("pthread_create");
- 		exit(EXIT_FAILURE);
- 	}
-
- 	for (;;) {
- 		int dfd;
- 		int fd;
-
- 		dfd = dirfd(d);
- 		if (dfd < 0) {
- 			perror("dirfd");
- 			break;
- 		}
-
- 		fd = openat(dirfd(d), "ptmx", O_RDONLY | O_NONBLOCK | O_CLOEXEC);
- 		if (fd < 0) {
- 			perror("openat");
- 			break;
- 		}
- 		close(fd);
- 	}
-
- 	pthread_join(t, NULL);
- 	closedir(d);
- 	exit(EXIT_SUCCESS);
- }
-
-/* References */
-[1]: https://lore.kernel.org/r/20181109143744.GA12128@hc
-
-Fixes: 8ead9dd54716 ("devpts: more pty driver interface cleanups")
-Cc: <stable@vger.kernel.org>
-Cc: Jan Glauber <jglauber@marvell.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
-[christian.brauner@ubuntu.com: dig into history and add context and reproducer to commit message]
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
- fs/devpts/inode.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/fs/devpts/inode.c b/fs/devpts/inode.c
-index 42e5a766d33c..4b4546347aac 100644
---- a/fs/devpts/inode.c
-+++ b/fs/devpts/inode.c
-@@ -617,13 +617,18 @@ void *devpts_get_priv(struct dentry *dentry)
-  */
- void devpts_pty_kill(struct dentry *dentry)
- {
--	WARN_ON_ONCE(dentry->d_sb->s_magic != DEVPTS_SUPER_MAGIC);
-+	struct super_block *sb = dentry->d_sb;
-+	struct dentry *parent = sb->s_root;
- 
-+	WARN_ON_ONCE(sb->s_magic != DEVPTS_SUPER_MAGIC);
-+
-+	inode_lock(parent->d_inode);
- 	dentry->d_fsdata = NULL;
- 	drop_nlink(dentry->d_inode);
- 	fsnotify_unlink(d_inode(dentry->d_parent), dentry);
- 	d_drop(dentry);
- 	dput(dentry);	/* d_alloc_name() in devpts_pty_new() */
-+	inode_unlock(parent->d_inode);
- }
- 
- static int __init init_devpts_fs(void)
--- 
-2.23.0
-
+PiBGcm9tOiBNaW1pIFpvaGFyIDx6b2hhckBsaW51eC5pYm0uY29tPg0KPiBTZW50OiBUaHVyc2Rh
+eSwgT2N0b2JlciAzLCAyMDE5IDI6NTQgUE0NCj4gVG86IEphcmtrbyBTYWtraW5lbiA8amFya2tv
+LnNha2tpbmVuQGxpbnV4LmludGVsLmNvbT47IFNhZmZvcmQsIERhdmlkIChHRQ0KPiBTdWJqZWN0
+OiBFWFQ6IFJlOiBbUEFUQ0hdIEtFWVM6IGFzeW1fdHBtOiBTd2l0Y2ggdG8gZ2V0X3JhbmRvbV9i
+eXRlcygpDQo+IA0KPiBbQ2MnaW5nIERhdmlkIFNhZmZvcmRdDQo+IA0KPiBPbiBUaHUsIDIwMTkt
+MTAtMDMgYXQgMjA6NTggKzAzMDAsIEphcmtrbyBTYWtraW5lbiB3cm90ZToNCj4gPiBPbiBUaHUs
+IE9jdCAwMywgMjAxOSBhdCAwOTowMjozMkFNIC0wNDAwLCBNaW1pIFpvaGFyIHdyb3RlOg0KPiA+
+ID4gT24gVGh1LCAyMDE5LTEwLTAzIGF0IDE0OjQxICswMzAwLCBKYXJra28gU2Fra2luZW4gd3Jv
+dGU6DQo+ID4gPiA+IE9uIFdlZCwgT2N0IDAyLCAyMDE5IGF0IDEwOjAwOjE5QU0gLTA0MDAsIE1p
+bWkgWm9oYXIgd3JvdGU6DQo+ID4gPiA+ID4gT24gVGh1LCAyMDE5LTA5LTI2IGF0IDIwOjE2ICsw
+MzAwLCBKYXJra28gU2Fra2luZW4gd3JvdGU6DQo+ID4gPiA+ID4gPiBPbmx5IHRoZSBrZXJuZWwg
+cmFuZG9tIHBvb2wgc2hvdWxkIGJlIHVzZWQgZm9yIGdlbmVyYXRpbmcgcmFuZG9tDQo+IG51bWJl
+cnMuDQo+ID4gPiA+ID4gPiBUUE0gY29udHJpYnV0ZXMgdG8gdGhhdCBwb29sIGFtb25nIHRoZSBv
+dGhlciBzb3VyY2VzIG9mDQo+ID4gPiA+ID4gPiBlbnRyb3B5LiBJbiBoZXJlIGl0IGlzIG5vdCwg
+YWdyZWVkLCBhYnNvbHV0ZWx5IGNyaXRpY2FsDQo+ID4gPiA+ID4gPiBiZWNhdXNlIFRQTSBpcyB3
+aGF0IGlzIHRydXN0ZWQgYW55d2F5IGJ1dCBpbiBvcmRlciB0byByZW1vdmUNCj4gPiA+ID4gPiA+
+IHRwbV9nZXRfcmFuZG9tKCkgd2UgbmVlZCB0byBmaXJzdCByZW1vdmUgYWxsIHRoZSBjYWxsIHNp
+dGVzLg0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gQXQgd2hhdCBwb2ludCBkdXJpbmcgYm9vdCBpcyB0
+aGUga2VybmVsIHJhbmRvbSBwb29sIGF2YWlsYWJsZT8NCj4gPiA+ID4gPiBEb2VzIHRoaXMgaW1w
+bHkgdGhhdCB5b3UncmUgcGxhbm5pbmcgb24gY2hhbmdpbmcgdHJ1c3RlZCBrZXlzIGFzIHdlbGw/
+DQo+ID4gPiA+DQo+ID4gPiA+IFdlbGwgdHJ1c3RlZCBrZXlzICptdXN0KiBiZSBjaGFuZ2VkIHRv
+IHVzZSBpdC4gSXQgaXMgbm90IGEgY2hvaWNlDQo+ID4gPiA+IGJlY2F1c2UgdXNpbmcgYSBwcm9w
+cmlldGFyeSByYW5kb20gbnVtYmVyIGdlbmVyYXRvciBpbnN0ZWFkIG9mDQo+ID4gPiA+IGRlZmFj
+dG8gb25lIGluIHRoZSBrZXJuZWwgY2FuIGJlIGNhdGVnb3JpemVkIGFzIGEgKnJlZ3Jlc3Npb24q
+Lg0KPiA+ID4NCj4gPiA+IEkgcmVhbGx5IGRvbid0IHNlZSBob3cgdXNpbmcgdGhlIFRQTSByYW5k
+b20gbnVtYmVyIGZvciBUUE0gdHJ1c3RlZA0KPiA+ID4ga2V5cyB3b3VsZCBiZSBjb25zaWRlcmVk
+IGEgcmVncmVzc2lvbi4gwqBUaGF0IGJ5IGRlZmluaXRpb24gaXMgYQ0KPiA+ID4gdHJ1c3RlZCBr
+ZXkuIMKgSWYgYW55dGhpbmcsIGNoYW5naW5nIHdoYXQgaXMgY3VycmVudGx5IGJlaW5nIGRvbmUN
+Cj4gPiA+IHdvdWxkIGJlIHRoZSByZWdyZXNzaW9uLg0KPiA+DQo+ID4gSXQgaXMgcmVhbGx5IG5v
+dCBhIFRQTSB0cnVzdGVkIGtleS4gSXQgdHJ1c3RlZCBrZXkgdGhhdCBnZXRzIHNlYWxlZA0KPiA+
+IHdpdGggdGhlIFRQTS4gVGhlIGtleSBpdHNlbGYgaXMgdXNlZCBpbiBjbGVhciBieSBrZXJuZWwu
+IFRoZSByYW5kb20NCj4gPiBudW1iZXIgZ2VuZXJhdG9yIGV4aXN0cyBpbiB0aGUga2VybmVsIHRv
+IGZvciBhIHJlYXNvbi4NCj4gPg0KPiA+IEl0IGlzIHdpdGhvdXQgZG91YnQgYSByZWdyZXNzaW9u
+Lg0KPiANCj4gWW91J3JlIG1pc3VzaW5nIHRoZSB0ZXJtICJyZWdyZXNzaW9uIiBoZXJlLiDCoEEg
+cmVncmVzc2lvbiBpcyBzb21ldGhpbmcgdGhhdA0KPiBwcmV2aW91c2x5IHdvcmtlZCBhbmQgaGFz
+IHN0b3BwZWQgd29ya2luZy4gwqBJbiB0aGlzIGNhc2UsIHRydXN0ZWQga2V5cyBoYXMNCj4gYWx3
+YXlzIGJlZW4gYmFzZWQgb24gdGhlIFRQTSByYW5kb20gbnVtYmVyIGdlbmVyYXRvci4gwqBCZWZv
+cmUgY2hhbmdpbmcNCj4gdGhpcywgdGhlcmUgbmVlZHMgdG8gYmUgc29tZSBndWFyYW50ZWVzIHRo
+YXQgdGhlIGtlcm5lbCByYW5kb20gbnVtYmVyDQo+IGdlbmVyYXRvciBoYXMgYSBwb29sIG9mIHJh
+bmRvbSBudW1iZXJzIGVhcmx5LCBvbiBhbGwgc3lzdGVtcyBpbmNsdWRpbmcNCj4gZW1iZWRkZWQg
+ZGV2aWNlcywgbm90IGp1c3Qgc2VydmVycy4NCj4gDQo+IE1pbWkNCg0KQXMgdGhlIG9yaWdpbmFs
+IGF1dGhvciBvZiB0cnVzdGVkIGtleXMsIGxldCBtZSBtYWtlIGEgZmV3IGNvbW1lbnRzLg0KRmly
+c3QsIHRydXN0ZWQga2V5cyB3ZXJlIHNwZWNpZmljYWxseSBpbXBsZW1lbnRlZCBhbmQgKmRvY3Vt
+ZW50ZWQqIHRvDQp1c2UgdGhlIFRQTSB0byBib3RoIGdlbmVyYXRlIGFuZCBzZWFsIGtleXMuIEl0
+cyBrZXJuZWwgZG9jdW1lbnRhdGlvbg0Kc3BlY2lmaWNhbGx5IHN0YXRlcyB0aGlzIGFzIGEgcHJv
+bWlzZSB0byB1c2VyIHNwYWNlLiBJZiB5b3Ugd2FudCB0byBoYXZlIA0KYSBkaWZmZXJlbnQga2V5
+IHN5c3RlbSB0aGF0IHVzZXMgdGhlIHJhbmRvbSBwb29sIHRvIGdlbmVyYXRlIHRoZSBrZXlzLA0K
+ZmluZSwgYnV0IGRvbid0IGNoYW5nZSB0cnVzdGVkIGtleXMsIGFzIHRoYXQgY2hhbmdlcyB0aGUg
+ZXhpc3RpbmcgcHJvbWlzZQ0KdG8gdXNlciBzcGFjZS4gDQoNClRoZXJlIGFyZSBtYW55IGdvb2Qg
+cmVhc29ucyBmb3Igd2FudGluZyB0aGUga2V5cyB0byBiZSBiYXNlZCBvbiB0aGUNClRQTSBnZW5l
+cmF0b3IuICBBcyB0aGUgc291cmNlIGZvciB0aGUga2VybmVsIHJhbmRvbSBudW1iZXIgZ2VuZXJh
+dG9yDQppdHNlbGYgc2F5cywgc29tZSBzeXN0ZW1zIGxhY2sgZ29vZCByYW5kb21uZXNzIGF0IHN0
+YXJ0dXAsIGFuZCBzeXN0ZW1zDQpzaG91bGQgcHJlc2VydmUgYW5kIHJlbG9hZCB0aGUgcG9vbCBh
+Y3Jvc3Mgc2h1dGRvd24gYW5kIHN0YXJ0dXAuDQpUaGVyZSBhcmUgdXNlIGNhc2VzIGZvciB0cnVz
+dGVkIGtleXMgd2hpY2ggbmVlZCB0byBnZW5lcmF0ZSBrZXlzIA0KYmVmb3JlIHN1Y2ggc2NyaXB0
+cyBoYXZlIHJ1bi4gQWxzbywgaW4gc29tZSB1c2UgY2FzZXMsIHdlIG5lZWQgdG8gc2hvdw0KdGhh
+dCB0cnVzdGVkIGtleXMgYXJlIEZJUFMgY29tcGxpYW50LCB3aGljaCBpcyBwb3NzaWJsZSB3aXRo
+IFRQTQ0KZ2VuZXJhdGVkIGtleXMuDQoNClNlY29uZCwgdGhlIFRQTSBpcyBoYXJkbHkgYSAicHJv
+cHJpZXRhcnkgcmFuZG9tIG51bWJlciBnZW5lcmF0b3IiLg0KSXQgaXMgYW4gb3BlbiBzdGFuZGFy
+ZCB3aXRoIG11bHRpcGxlIGltcGxlbWVudGF0aW9ucywgbWFueSBvZiB3aGljaCBhcmUNCkZJUFMg
+Y2VydGlmaWVkLg0KDQpUaGlyZCwgYXMgTWltaSBzdGF0ZXMsIHVzaW5nIGEgVFBNIGlzIG5vdCBh
+ICJyZWdyZXNzaW9uIi4gSXQgd291bGQgYmUgYQ0KcmVncmVzc2lvbiB0byBjaGFuZ2UgdHJ1c3Rl
+ZCBrZXlzIF9ub3RfIHRvIHVzZSB0aGUgVFBNLCBiZWNhdXNlIHRoYXQNCmlzIHdoYXQgdHJ1c3Rl
+ZCBrZXlzIGFyZSBkb2N1bWVudGVkIHRvIHByb3ZpZGUgdG8gdXNlciBzcGFjZS4NCg0KZGF2ZQ0K
+DQo=
