@@ -2,113 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2113CB707
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254BBCB713
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 11:11:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727024AbfJDJHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 05:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725932AbfJDJHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 05:07:04 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A9620867;
-        Fri,  4 Oct 2019 09:07:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570180023;
-        bh=T18DGzqFPZ3zpux9RU9o9DrVH45PNxTFxCssQeR7Qy8=;
-        h=Subject:To:From:Date:From;
-        b=ap44rYIFxrwheASxsFz7lFHrLmzP94o0ftESpqmUIj2yL30wE/VClhSLkC4+LXyyF
-         S14H29sxbWkVt4AIAArUqo8uahUkDVczVa0YL/V3d0Mzi0h5+whgc8WVLgVN5EtQ4F
-         l0lv6pCoyDktDcWKanvgCYsJARH3CZZoFqDbMarE=
-Subject: patch "usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in" added to usb-linus
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 11:07:00 +0200
-Message-ID: <157018002097114@kroah.com>
+        id S1725730AbfJDJLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 05:11:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:53964 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730921AbfJDJLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 05:11:46 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 9FDC6AEFB;
+        Fri,  4 Oct 2019 09:11:43 +0000 (UTC)
+Date:   Fri, 4 Oct 2019 11:11:42 +0200
+From:   Petr Mladek <pmladek@suse.com>
+To:     Will Deacon <will@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Feng Tang <feng.tang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, contact@xogium.me
+Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
+Message-ID: <20191004091142.57iylai22aqpu6lu@pathway.suse.cz>
+References: <20191002123538.22609-1-will@kernel.org>
+ <201910021355.E578D2FFAF@keescook>
+ <20191003205633.w26geqhq67u4ysit@willie-the-truck>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191003205633.w26geqhq67u4ysit@willie-the-truck>
+User-Agent: NeoMutt/20170912 (1.9.0)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu 2019-10-03 21:56:34, Will Deacon wrote:
+> Hi Kees,
+> 
+> On Wed, Oct 02, 2019 at 01:58:46PM -0700, Kees Cook wrote:
+> > On Wed, Oct 02, 2019 at 01:35:38PM +0100, Will Deacon wrote:
+> > > Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
+> > > calling CPU in an infinite loop, but with interrupts and preemption
+> > > enabled. From this state, userspace can continue to be scheduled,
+> > > despite the system being "dead" as far as the kernel is concerned. This
+> > > is easily reproducible on arm64 when booting with "nosmp" on the command
+> > > line; a couple of shell scripts print out a periodic "Ping" message
+> > > whilst another triggers a crash by writing to /proc/sysrq-trigger:
+> > > 
+> > >   | sysrq: Trigger a crash
+> > >   | Kernel panic - not syncing: sysrq triggered crash
+> > >   | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
+> > >   | Hardware name: linux,dummy-virt (DT)
+> > >   | Call trace:
+> > >   |  dump_backtrace+0x0/0x148
+> > >   |  show_stack+0x14/0x20
+> > >   |  dump_stack+0xa0/0xc4
+> > >   |  panic+0x140/0x32c
+> > >   |  sysrq_handle_reboot+0x0/0x20
+> > >   |  __handle_sysrq+0x124/0x190
+> > >   |  write_sysrq_trigger+0x64/0x88
+> > >   |  proc_reg_write+0x60/0xa8
+> > >   |  __vfs_write+0x18/0x40
+> > >   |  vfs_write+0xa4/0x1b8
+> > >   |  ksys_write+0x64/0xf0
+> > >   |  __arm64_sys_write+0x14/0x20
+> > >   |  el0_svc_common.constprop.0+0xb0/0x168
+> > >   |  el0_svc_handler+0x28/0x78
+> > >   |  el0_svc+0x8/0xc
+> > >   | Kernel Offset: disabled
+> > >   | CPU features: 0x0002,24002004
+> > >   | Memory Limit: none
+> > >   | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
+> > >   |  Ping 2!
+> > >   |  Ping 1!
+> > >   |  Ping 1!
+> > >   |  Ping 2!
+> > > 
+> > > The issue can also be triggered on x86 kernels if CONFIG_SMP=n, otherwise
+> > > local interrupts are disabled in 'smp_send_stop()'.
+> > > 
+> > > Disable preemption in 'panic()' before re-enabling interrupts.
+> > 
+> > Is this perhaps the correct solution for what commit c39ea0b9dd24 ("panic:
+> > avoid the extra noise dmesg") was trying to fix?
+> 
+> Hmm, maybe, although that looks like it's focussed more on irq handling
+> than preemption.
 
-This is a note to let you know that I've just added the patch titled
-
-    usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in
-
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 7101949f36fc77b530b73e4c6bd0066a2740d75b Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Tue, 1 Oct 2019 15:01:17 +0300
-Subject: usb: typec: tcpm: usb: typec: tcpm: Fix a signedness bug in
- tcpm_fw_get_caps()
-
-The "port->typec_caps.data" and "port->typec_caps.type" variables are
-enums and in this context GCC will treat them as an unsigned int so they
-can never be less than zero.
-
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20191001120117.GA23528@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/tcpm.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 96562744101c..5f61d9977a15 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4409,18 +4409,20 @@ static int tcpm_fw_get_caps(struct tcpm_port *port,
- 	/* USB data support is optional */
- 	ret = fwnode_property_read_string(fwnode, "data-role", &cap_str);
- 	if (ret == 0) {
--		port->typec_caps.data = typec_find_port_data_role(cap_str);
--		if (port->typec_caps.data < 0)
--			return -EINVAL;
-+		ret = typec_find_port_data_role(cap_str);
-+		if (ret < 0)
-+			return ret;
-+		port->typec_caps.data = ret;
- 	}
- 
- 	ret = fwnode_property_read_string(fwnode, "power-role", &cap_str);
- 	if (ret < 0)
- 		return ret;
- 
--	port->typec_caps.type = typec_find_port_power_role(cap_str);
--	if (port->typec_caps.type < 0)
--		return -EINVAL;
-+	ret = typec_find_port_power_role(cap_str);
-+	if (ret < 0)
-+		return ret;
-+	port->typec_caps.type = ret;
- 	port->port_type = port->typec_caps.type;
- 
- 	if (port->port_type == TYPEC_PORT_SNK)
--- 
-2.23.0
+Exactly, the backtrace mentioned in commit c39ea0b9dd24 ("panic: avoid
+the extra noise dmesg") is printed by wake_up() called from
+wake_up_klogd_work_func(). It is irq_work. Therefore disabling
+preemption would not prevent this.
 
 
+> I've deliberately left the irq part alone, since I think
+> having magic sysrq work via the keyboard interrupt is desirable from the
+> panic loop.
+
+I agree that we should keep sysrq working.
+
+One pity thing is that led_panic_blink() in
+leds/drivers/trigger/ledtrig-panic.c uses workqueues:
+
+  + led_panic_blink()
+    + led_trigger_event()
+      + led_set_brightness()
+	+ schedule_work()
+
+It means that it depends on the scheduler. I guess that it
+does not work in many panic situations. But this patch
+will always block it.
+
+I agree that it is strange that userspace still works at
+this stage. But does it cause any real problems?
+
+Best Regards,
+Petr
