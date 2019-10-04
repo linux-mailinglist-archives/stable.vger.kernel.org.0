@@ -2,115 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEBACBB67
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 15:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5D2ACBB75
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 15:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388333AbfJDNOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 09:14:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39096 "EHLO mail.kernel.org"
+        id S2388217AbfJDNRA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 09:17:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388052AbfJDNOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 09:14:47 -0400
+        id S2388149AbfJDNRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 09:17:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 593B0215EA;
-        Fri,  4 Oct 2019 13:14:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CBF8D215EA;
+        Fri,  4 Oct 2019 13:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570194886;
-        bh=6/9WVoqQDzax2opwmByoj24XWv4XpbMfI1dPsKeo5JE=;
-        h=Subject:To:From:Date:From;
-        b=bH70WptTf8v+/Er0CKdD8Aj0J1iVLLvRDMOuZ6YFGmdnLjnZDZOBG3+v3/2Jd+BFj
-         1XmqQBZc8nwKoGdjKSR8777IRqnmRqqo9U9/g55pMfuRi+W/ZmTeIz9MybZ5WrisBr
-         gndOjrXaa+TvR7YnPy21zBlOjL57xxMhI1BYwqGE=
-Subject: patch "serial: uartps: Fix uartps_major handling" added to tty-linus
-To:     michal.simek@xilinx.com, gregkh@linuxfoundation.org,
-        pthomas8589@gmail.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 15:14:44 +0200
-Message-ID: <157019488416070@kroah.com>
+        s=default; t=1570195019;
+        bh=JhC4q3xQd1BuHOAbskODkPKUuTj7CTnwNuwebrzeljI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GnefFeSdOLNAo25NzwCIS2oDkpTO5ngijHOLf6DtdkxA6RLo//Ab/4PS3f14/JcMK
+         /1pmZ3dS8n/GuoZlyAL03kcZllwSmcwIMya6GMsvw8FDoMBfD8TqH8keYW4u4xKN87
+         FcZwl01OScs31EXVQExe76jyycGeanL53X+i9vJg=
+Date:   Fri, 4 Oct 2019 15:16:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tomas Winkler <tomas.winkler@intel.com>
+Cc:     Alexander Usyskin <alexander.usyskin@intel.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: Re: [char-misc for v4.5-rc2 2/2] mei: avoid FW version request on
+ Ibex Peak and earlier
+Message-ID: <20191004131656.GA703365@kroah.com>
+References: <20191001235958.19979-1-tomas.winkler@intel.com>
+ <20191001235958.19979-2-tomas.winkler@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191001235958.19979-2-tomas.winkler@intel.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Oct 02, 2019 at 02:59:58AM +0300, Tomas Winkler wrote:
+> From: Alexander Usyskin <alexander.usyskin@intel.com>
+> 
+> The fixed MKHI client on PCH 6 gen platforms
+> does not support fw version retrieval.
+> The error is not fatal, but it fills up the kernel logs and
+> slows down the driver start.
+> This patch disables requesting FW version on GEN6 and earlier platforms.
+> 
+> Fixes warning:
+> [   15.964298] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: Could not read FW version
+> [   15.964301] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: version command failed -5
+> 
+> Cc: <stable@vger.kernel.org> +v4.18
+> Cc: Paul Menzel <pmenzel@molgen.mpg.de>
+> Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+> Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+> ---
+>  drivers/misc/mei/bus-fixup.c | 16 +++++++++++++---
+>  drivers/misc/mei/hw-me.c     | 21 ++++++++++++++++++---
+>  drivers/misc/mei/hw-me.h     |  8 ++++++--
+>  drivers/misc/mei/mei_dev.h   |  4 ++++
+>  drivers/misc/mei/pci-me.c    | 10 +++++-----
+>  5 files changed, 46 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/misc/mei/bus-fixup.c b/drivers/misc/mei/bus-fixup.c
+> index 32e9b1aed2ca..5ac679ac9b19 100644
+> --- a/drivers/misc/mei/bus-fixup.c
+> +++ b/drivers/misc/mei/bus-fixup.c
+> @@ -218,13 +218,23 @@ static void mei_mkhi_fix(struct mei_cl_device *cldev)
+>  {
+>  	int ret;
+>  
+> +	dev_dbg(&cldev->dev, "running hook %s\n", __func__);
 
-This is a note to let you know that I've just added the patch titled
+That is what ftrace is for, don't sprinkle that all over the kernel for
+no reason :(
 
-    serial: uartps: Fix uartps_major handling
+thanks,
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 5e9bd2d70ae7c00a95a22994abf1eef728649e64 Mon Sep 17 00:00:00 2001
-From: Michal Simek <michal.simek@xilinx.com>
-Date: Fri, 4 Oct 2019 15:04:11 +0200
-Subject: serial: uartps: Fix uartps_major handling
-
-There are two parts which should be fixed. The first one is to assigned
-uartps_major at the end of probe() to avoid complicated logic when
-something fails.
-The second part is initialized uartps_major number to 0 when last device is
-removed. This will ensure that on next probe driver will ask for new
-dynamic major number.
-
-Fixes: ab262666018d ("serial: uartps: Use the same dynamic major number for all ports")
-Reported-by: Paul Thomas <pthomas8589@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/d2652cda992833315c4f96f06953eb547f928918.1570194248.git.michal.simek@xilinx.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/xilinx_uartps.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
-index da4563aaaf5c..4e55bc327a54 100644
---- a/drivers/tty/serial/xilinx_uartps.c
-+++ b/drivers/tty/serial/xilinx_uartps.c
-@@ -1550,7 +1550,6 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 		goto err_out_id;
- 	}
- 
--	uartps_major = cdns_uart_uart_driver->tty_driver->major;
- 	cdns_uart_data->cdns_uart_driver = cdns_uart_uart_driver;
- 
- 	/*
-@@ -1680,6 +1679,7 @@ static int cdns_uart_probe(struct platform_device *pdev)
- 		console_port = NULL;
- #endif
- 
-+	uartps_major = cdns_uart_uart_driver->tty_driver->major;
- 	cdns_uart_data->cts_override = of_property_read_bool(pdev->dev.of_node,
- 							     "cts-override");
- 	return 0;
-@@ -1741,6 +1741,12 @@ static int cdns_uart_remove(struct platform_device *pdev)
- 		console_port = NULL;
- #endif
- 
-+	/* If this is last instance major number should be initialized */
-+	mutex_lock(&bitmap_lock);
-+	if (bitmap_empty(bitmap, MAX_UART_INSTANCES))
-+		uartps_major = 0;
-+	mutex_unlock(&bitmap_lock);
-+
- 	uart_unregister_driver(cdns_uart_data->cdns_uart_driver);
- 	return rc;
- }
--- 
-2.23.0
-
-
+greg k-h
