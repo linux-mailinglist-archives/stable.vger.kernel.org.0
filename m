@@ -2,137 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B550CC3FF
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 22:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB4CCC456
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 22:40:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731402AbfJDULi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 16:11:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:51306 "EHLO mx1.redhat.com"
+        id S2388638AbfJDUkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 16:40:39 -0400
+Received: from mga01.intel.com ([192.55.52.88]:8925 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731140AbfJDULi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 16:11:38 -0400
-Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 85CF22CD7E5
-        for <stable@vger.kernel.org>; Fri,  4 Oct 2019 20:11:37 +0000 (UTC)
-Received: by mail-io1-f69.google.com with SMTP id g15so14029435ioc.0
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 13:11:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=oefRLRHPUFRhefeZoPfYtoKI/frpILJv/HMoF+sATsw=;
-        b=ie0zPkb/+sGbkBUhvx4XjaDZopLQLqQcEwfk8sporMUB4igN2BgN9zxmkHZesHGzAs
-         gFGUXXYAVbPaWKt61Z9zeLV+D+XDt+OECjJy5VQeTxR3i5Dn/lPl5qajs7m7P6bDhbnL
-         M2gzpGdvKXqR6gKe92RzQhqSfrdCg4BJ/pRdZh/MkT1C/AeBJCONGwEHOS0mVwr/eSfJ
-         unalDYMUIWkbEtOBdkFjsTce9zlGvM+I25zhQPgSIgRR0jg/To/A6j5pluGVSMeQ+JdL
-         W04ZD3kpuniw+MvuPcFOxnqShtzsnIUrmqYGHrF3r5+N8RYbw2Lu+UqxMkdrAleXV/kW
-         gQEA==
-X-Gm-Message-State: APjAAAUU2JuSyku0KlrocDV6oujL+ot2fyELzw6CXZ5aQCkJupv4GpJR
-        T7JCgXT44U9bH0tzyknZ6aJSdQF4v/YYusAZhCLJeEAPXREQSqLbE4bIr6RCrGfeHfS7+iRAT+l
-        fZFy9yOPQ0nup7ynf
-X-Received: by 2002:a92:3bca:: with SMTP id n71mr18292787ilh.104.1570219896771;
-        Fri, 04 Oct 2019 13:11:36 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqy1qh//E7zUDQGLacjK8MB0QFfBwC6v81r/DwCPI28EUzHD5yO7QqL9crRHlqdxwAyYXmoNPg==
-X-Received: by 2002:a92:3bca:: with SMTP id n71mr18292760ilh.104.1570219896550;
-        Fri, 04 Oct 2019 13:11:36 -0700 (PDT)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id f12sm2530228iob.58.2019.10.04.13.11.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Oct 2019 13:11:35 -0700 (PDT)
-Date:   Fri, 4 Oct 2019 13:11:34 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191004201134.nuesk6hxtxajnxh2@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <1570128827.5046.19.camel@linux.ibm.com>
- <20191003215125.GA30511@linux.intel.com>
- <20191003215743.GB30511@linux.intel.com>
- <1570140491.5046.33.camel@linux.ibm.com>
- <1570147177.10818.11.camel@HansenPartnership.com>
- <20191004182216.GB6945@linux.intel.com>
- <1570213491.3563.27.camel@HansenPartnership.com>
- <20191004183342.y63qdvspojyf3m55@cantor>
- <1570214574.3563.32.camel@HansenPartnership.com>
- <20191004200728.xoj6jlgbhv57gepc@cantor>
+        id S2388633AbfJDUkj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 16:40:39 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 13:40:39 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,257,1566889200"; 
+   d="scan'208";a="276158758"
+Received: from sedona.ch.intel.com ([10.2.136.157])
+  by orsmga001.jf.intel.com with ESMTP; 04 Oct 2019 13:40:38 -0700
+Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x94Kebwh057931;
+        Fri, 4 Oct 2019 13:40:38 -0700
+Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x94KeZBZ026620;
+        Fri, 4 Oct 2019 16:40:35 -0400
+Subject: [PATCH for-rc 1/2] IB/hfi1: Avoid excessive retry for TID RDMA READ
+ request
+From:   Dennis Dalessandro <dennis.dalessandro@intel.com>
+To:     jgg@ziepe.ca, dledford@redhat.com
+Cc:     linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
+Date:   Fri, 04 Oct 2019 16:40:35 -0400
+Message-ID: <20191004204035.26542.41684.stgit@awfm-01.aw.intel.com>
+In-Reply-To: <20191004203739.26542.57060.stgit@awfm-01.aw.intel.com>
+References: <20191004203739.26542.57060.stgit@awfm-01.aw.intel.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191004200728.xoj6jlgbhv57gepc@cantor>
-User-Agent: NeoMutt/20180716
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri Oct 04 19, Jerry Snitselaar wrote:
->On Fri Oct 04 19, James Bottomley wrote:
->>On Fri, 2019-10-04 at 11:33 -0700, Jerry Snitselaar wrote:
->>>On Fri Oct 04 19, James Bottomley wrote:
->>>> On Fri, 2019-10-04 at 21:22 +0300, Jarkko Sakkinen wrote:
->>>> > On Thu, Oct 03, 2019 at 04:59:37PM -0700, James Bottomley wrote:
->>>> > > I think the principle of using multiple RNG sources for strong
->>>> > > keys is a sound one, so could I propose a compromise:  We have
->>>> > > a tpm subsystem random number generator that, when asked for
->>>> > > <n> random bytes first extracts <n> bytes from the TPM RNG and
->>>> > > places it into the kernel entropy pool and then asks for <n>
->>>> > > random bytes from the kernel RNG? That way, it will always have
->>>> > > the entropy to satisfy the request and in the worst case, where
->>>> > > the kernel has picked up no other entropy sources at all it
->>>> > > will be equivalent to what we have now (single entropy source)
->>>> > > but usually it will be a much better mixed entropy source.
->>>> >
->>>> > I think we should rely the existing architecture where TPM is
->>>> > contributing to the entropy pool as hwrng.
->>>>
->>>> That doesn't seem to work: when I trace what happens I see us
->>>> inject 32 bytes of entropy at boot time, but never again.  I think
->>>> the problem is the kernel entropy pool is push not pull and we have
->>>> no triggering event in the TPM to get us to push.  I suppose we
->>>> could set a timer to do this or perhaps there is a pull hook and we
->>>> haven't wired it up correctly?
->>>>
->>>> James
->>>>
->>>
->>>Shouldn't hwrng_fillfn be pulling from it?
->>
->>It should, but the problem seems to be it only polls the "current" hw
->>rng ... it doesn't seem to have a concept that there may be more than
->>one.  What happens, according to a brief reading of the code, is when
->>multiple are registered, it determines what the "best" one is and then
->>only pulls from that.  What I think it should be doing is filling from
->>all of them using the entropy quality to adjust how many bits we get.
->>
->>James
->>
->
->Most of them don't even set quality, including the tpm, so they end up
->at the end of the list. For the ones that do I'm not sure how they determined
->the value. For example virtio-rng sets quality to 1000.
+From: Kaike Wan <kaike.wan@intel.com>
 
-I should have added that I like that idea though.
+A TID RDMA READ request could be retried under one of the following
+conditions:
+- The RC retry timer expires;
+- A later TID RDMA READ RESP packet is received before the next
+  expected one.
+For the latter, under normal conditions, the PSN in IB space is used
+for comparison. More specifically, the IB PSN in the incoming TID RDMA
+READ RESP packet is compared with the last IB PSN of a given TID RDMA
+READ request to determine if the request should be retried. This is
+similar to the retry logic for noraml RDMA READ request.
+
+However, if a TID RDMA READ RESP packet is lost due to congestion,
+header suppresion will be disabled and each incoming packet will raise
+an interrupt until the hardware flow is reloaded. Under this condition,
+each packet KDETH PSN will be checked by software against r_next_psn
+and a retry will be requested if the packet KDETH PSN is later than
+r_next_psn. Since each TID RDMA READ segment could have up to 64
+packets and each TID RDMA READ request could have many segments, we
+could make far more retries under such conditions, and thus leading to
+RETRY_EXC_ERR status.
+
+This patch fixes the issue by removing the retry when the incoming
+packet KDETH PSN is later than r_next_psn. Instead, it resorts to
+RC timer and normal IB PSN comparison for any request retry.
+
+Fixes: 9905bf06e890 ("IB/hfi1: Add functions to receive TID RDMA READ response")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+---
+ drivers/infiniband/hw/hfi1/tid_rdma.c |    5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
+index b4dcc4d..f21fca3 100644
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -2736,11 +2736,6 @@ static bool handle_read_kdeth_eflags(struct hfi1_ctxtdata *rcd,
+ 				diff = cmp_psn(psn,
+ 					       flow->flow_state.r_next_psn);
+ 				if (diff > 0) {
+-					if (!(qp->r_flags & RVT_R_RDMAR_SEQ))
+-						restart_tid_rdma_read_req(rcd,
+-									  qp,
+-									  wqe);
+-
+ 					/* Drop the packet.*/
+ 					goto s_unlock;
+ 				} else if (diff < 0) {
+
