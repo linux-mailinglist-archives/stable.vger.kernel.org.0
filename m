@@ -2,117 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1101CBFD4
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 17:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C921CBFF4
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 18:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390051AbfJDP4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 11:56:11 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40802 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390092AbfJDP4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 11:56:10 -0400
-Received: by mail-pl1-f196.google.com with SMTP id d22so3322795pll.7
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 08:56:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=XuTFm7PmBnOTEXwk6HOm9tTaZO7sz0lj99hGKjmHVpY=;
-        b=QxJ7VeTkadELxH/Iy/fJ4QBoLHE+jrTZuju/6HbUfQ+SsRCVL32NJjVA+NMrsu82/5
-         u6GhYGfWUJcLdaCVyEV2l4bcbg6AAiojH6HJBNTvUAcravI0qPjzYMN55IFkpTawGXyQ
-         9RJ/B0spq8hjtL7HcKMoa8eKFpFf5e0TdIVmo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=XuTFm7PmBnOTEXwk6HOm9tTaZO7sz0lj99hGKjmHVpY=;
-        b=a3IvljMyv4r4NgZNuz/yc5mcpPEyo7oPhETxydgmymbOON/hbKtcBmvQuWzUtwu2xL
-         FiilYBQqa9nVh1UPVAOv7f8/g1A1mwtE0e51ULMp/LNMpSA7HQRNvTc1+p0UUu/GE8/+
-         V1w54vykZM2NpBf0q0roA6yrx64Qb6FtBLnqglln4/3EVdBHQPI/zZ+XKluSiME7C1BJ
-         MxM6LwgBYaoGZOSXSYpUKt88Y2a6gnresS7Dvkd/W76NOLC59NcuwL3McKzJiih0cYId
-         7pJmt6IpSwsD/QGMx50A1g+ctZw8tI5fMTXubw7B3Y4PJSKxli7h0KA01HGBexP0cbWo
-         I6hg==
-X-Gm-Message-State: APjAAAWeCYmrjLBDs5pYNYMH4lPO8XeJQif3cUseeCUXypFo9IVZ21rm
-        oSFUlF/H7ohhtlsEfECHhRP+zJxVLIc=
-X-Google-Smtp-Source: APXvYqwXwW9gr3TP/4gIxZCVkrUW1BJFdOLdlW0Xrehgp//g/KdmNeXpOWkYjeWazMIbwhgVGrTofw==
-X-Received: by 2002:a17:902:a586:: with SMTP id az6mr16193131plb.12.1570204570070;
-        Fri, 04 Oct 2019 08:56:10 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id w10sm6645699pfi.137.2019.10.04.08.56.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Oct 2019 08:56:09 -0700 (PDT)
-Date:   Fri, 4 Oct 2019 08:56:08 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Will Deacon <will@kernel.org>
-Cc:     linux-wireless@vger.kernel.org, nico@semmle.com,
-        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH 2/2] cfg80211: wext: Reject malformed SSID elements
-Message-ID: <201910040856.C85EDF91@keescook>
-References: <20191004095132.15777-1-will@kernel.org>
- <20191004095132.15777-2-will@kernel.org>
+        id S2390133AbfJDQCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 12:02:24 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:47784 "EHLO
+        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389131AbfJDQCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 12:02:24 -0400
+Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.2 #3 (Red Hat Linux))
+        id 1iGQ27-0006Xd-Tl; Fri, 04 Oct 2019 16:02:20 +0000
+Date:   Fri, 4 Oct 2019 17:02:19 +0100
+From:   Al Viro <viro@zeniv.linux.org.uk>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Varad Gautam <vrd@amazon.de>, stable@vger.kernel.org,
+        Jan Glauber <jglauber@marvell.com>
+Subject: Re: [PATCH] devpts: Fix NULL pointer dereference in dcache_readdir()
+Message-ID: <20191004160219.GI26530@ZenIV.linux.org.uk>
+References: <20191004140503.9817-1-christian.brauner@ubuntu.com>
+ <20191004142748.GG26530@ZenIV.linux.org.uk>
+ <20191004143301.kfzcut6a6z5owfee@wittgenstein>
+ <20191004151058.GH26530@ZenIV.linux.org.uk>
+ <20191004152526.adgg3a7u7jylfk4a@wittgenstein>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191004095132.15777-2-will@kernel.org>
+In-Reply-To: <20191004152526.adgg3a7u7jylfk4a@wittgenstein>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 04, 2019 at 10:51:32AM +0100, Will Deacon wrote:
-> Ensure the SSID element is bounds-checked prior to invoking memcpy()
-> with its length field.
+On Fri, Oct 04, 2019 at 05:25:28PM +0200, Christian Brauner wrote:
+> On Fri, Oct 04, 2019 at 04:10:58PM +0100, Al Viro wrote:
+> > On Fri, Oct 04, 2019 at 04:33:02PM +0200, Christian Brauner wrote:
+> > > On Fri, Oct 04, 2019 at 03:27:48PM +0100, Al Viro wrote:
+> > > > On Fri, Oct 04, 2019 at 04:05:03PM +0200, Christian Brauner wrote:
+> > > > > From: Will Deacon <will@kernel.org>
+> > > > > 
+> > > > > Closing /dev/pts/ptmx removes the corresponding pty under /dev/pts/
+> > > > > without synchronizing against concurrent path walkers. This can lead to
+> > > > > 'dcache_readdir()' tripping over a 'struct dentry' with a NULL 'd_inode'
+> > > > > field:
+> > > > 
+> > > > FWIW, vfs.git#fixes (or #next.dcache) ought to deal with that one.
+> > > 
+> > > Is it feasible to backport your changes? Or do we want to merge the one
+> > > here first and backport?
+> > 
+> > I'm not sure.  The whole pile is backportable, all right (and the first commit
 > 
-> Cc: <stable@vger.kernel.org>
-> Cc: Johannes Berg <johannes@sipsolutions.net>
-> Cc: Kees Cook <keescook@chromium.org>
-> Reported-by: Nicolas Waisman <nico@semmle.com>
-> Signed-off-by: Will Deacon <will@kernel.org>
+> Ok. So here's what I propose: we'll merge this one as it seems an
+> obvious fix to the problem and can easily be backported to stable
+> kernels.
+> Then you'll land your generic workaround alleviating callers from
+> holding inode_lock(). Then I'll send a patch to remove the inode_lock()
+> from devpts for master.
+> If we see that your fix is fine to backport and has no performance
+> impacts that you find unacceptable we backport it.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
+There's more than one bug here.
+	* fucked up lockless traversals.  Affect anything that uses dcache_readdir()
+	* devpts (and selinuxfs, while we are at it) running afoul of (implicit)
+assumption by dcache_readdir() - that stuff won't get removed from under it
+	* (possibly) cifs hitting the same on eviction by memory pressure alone
+(no locked inodes anywhere in sight).  Possibly == if cifs IPC$ share happens to
+show up non-empty (e.g. due to server playing silly buggers).
+	* (possibly) cifs hitting *another* lovely issue - lookup in one subdirectory
+of IPC$ root finding an alias for another subdirectory of said root, triggering
+d_move() of dentry of the latter.  IF the name happens to be long enough to be
+externally allocated and if dcache_readdir() on root is currently copying it to
+userland, Bad Things(tm) will happen.  That one almost certainly depends upon the
+server playing silly buggers and might or might not be possible.  I'm not familiar
+enough with CIFS to tell.
 
--Kees
+The first 3 are dealt with by the first commit in that pile; the last one is
+not.  devpts patch of yours would deal with a part of the second bug.
+Performance regression comes with fixing the first one, which is also
+quite real.  There might be a way to avoid that performance hit,
+but it will be harder to backport.
 
-> ---
->  net/wireless/wext-sme.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/wireless/wext-sme.c b/net/wireless/wext-sme.c
-> index c67d7a82ab13..3fd2cc7fc36a 100644
-> --- a/net/wireless/wext-sme.c
-> +++ b/net/wireless/wext-sme.c
-> @@ -201,6 +201,7 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
->  			       struct iw_request_info *info,
->  			       struct iw_point *data, char *ssid)
->  {
-> +	int ret = 0;
->  	struct wireless_dev *wdev = dev->ieee80211_ptr;
->  
->  	/* call only for station! */
-> @@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
->  		if (ie) {
->  			data->flags = 1;
->  			data->length = ie[1];
-> -			memcpy(ssid, ie + 2, data->length);
-> +			if (data->length > IW_ESSID_MAX_SIZE)
-> +				ret = -EINVAL;
-> +			else
-> +				memcpy(ssid, ie + 2, data->length);
->  		}
->  		rcu_read_unlock();
->  	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-> @@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct net_device *dev,
->  	}
->  	wdev_unlock(wdev);
->  
-> -	return 0;
-> +	return ret;
->  }
->  
->  int cfg80211_mgd_wext_siwap(struct net_device *dev,
-> -- 
-> 2.23.0.581.g78d2f28ef7-goog
-> 
-
--- 
-Kees Cook
+FWIW, some discussion of that fun went in a thread shortly before the merge
+window - look for "Possible FS race condition between iterate_dir and
+d_alloc_parallel" on fsdevel.  Some of that went off-list, though...
