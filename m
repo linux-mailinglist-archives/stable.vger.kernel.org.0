@@ -2,78 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F24CC15D
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 19:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E2DCC17A
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 19:18:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727647AbfJDRIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 13:08:18 -0400
-Received: from sonic308-9.consmr.mail.ne1.yahoo.com ([66.163.187.32]:40025
-        "EHLO sonic308-9.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726978AbfJDRIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 13:08:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1570208896; bh=NpCDJGFiPXgQJqlSph6AraCuJeCGLTgDpBTbzEMZcHQ=; h=Date:From:Reply-To:Subject:From:Subject; b=HsLJoN/urNBtpsGL4/GUP+PLT4QimwRMoWh2fnp8QljllBrJ0UPY/ZiS7Ha5V73gyXS1D+1vI6JV8cRCw+JVOBIyFFN41SAQKKOzliRwr6gajrvVXrV9DEoC1jFTLh2Jbp2PlnfaBPXwOLPtgrAlhI4A2GBMQEQjw7eRWo72NcdAV6RulJraNcK56sUJUHzSVbEFxNf0c2qZLobnc4613G+grU3nxQ1SuhtflZfz+7wuRAlXHzyIvlOfGrVfONiYk5W9PTBtT4qPYlca9iaiyuxeXyaK5plppZMSPtyP9gwHCPgw3ri8w/5krVTFrm4zuAd2JFJpZXQwtFz0LdwqQg==
-X-YMail-OSG: ZBSwQm4VM1k8UQW844QRM1PvlV13Rd7JqP7srJn33eDkxMHAf6ajfw6vFkMOfYe
- 8tV1yMUcqkuldSNl_CzGOsnph4mtksoltp5ZDQbmnAVFqx1HSVdIIduw2mNjBdROwWZqIDLT_VWT
- dyWCwil3d1cUKEeF50ccNFEJBVqdXu.G7yKN1shQU7MMC1.rWsGildt0.x8_gPiCiuIe04COy2NZ
- U5OzeXnemEPpdyxLeWdXWoQWpDHaXn9umZFa9T4cQwaoj5l6rJg9S37.0zoswa95gHrJharA3pyF
- qDD2NVxqSciHkpPHEkh8jayv9MrePLSB6DhIMt.4.waNdRRD7ybNYFqNg0DeP3O.VCknErNTeuzQ
- tN4SYTPHhrFoEiz.HWB3WeqcDt3Ly46uBHLaDn80ubxMRiROYuY5Js7sDpf4KAotpNjghxP3trRG
- SFiGdHIO.EwzkWQ345Jbcq71n3idulZP5QPZW_.KwwmMO2YOKmUYZKLj_MloYK8wpty2aeOjAMuo
- yLPX9Q6P5v_VxdlAT7TrqCstZioq7fSXtfRUH4r4rcD4DNQBoEOxx4zfKM.o.9TriZJ53WDmC.ch
- kfmrWQ7AoiRTangoFUEzJUIcJxbWfVHiISvlFnjdi3m.pusML_7nPxkWxn7ODYdjvy3iRJEq2RBn
- eW83utPMt0kYijtpA1_gdteUWRPs6s.s.hu21x8tKa3.8MggYHE8ufViPM8w40TIhgCfCbXpVPBt
- zhzSLE41xjGvZQgFhybkKrMIWdoZIrWkTbUefs.MSz4IgFRAAIQLJ3ayrAN9O_F.CntUtEDQrUYT
- GnQ734q0kjVqPvLra6BvVUYEXRCPxub_Crl53woXj98FdMzaLCvR5IUR.ycUjF6Dlq5zY.4PZgvz
- fJodWvfsu0TxB18ggVEfrQJD2M2zm3Aux6rGNa9mTQj3C0Dg3VUv1RLm.eM.j1Xe_SS8FsRtToZR
- NiVTpv8WJUHCef.f96sNFIY1kJEXYVlNtCcidI8.3eGCcu.qReejPs0cnJ4GkSlwmsieJm1eQtVp
- 9bHASW4..z0ZNl.iAMYUFZcu7U_uzAZrIuHPMegm3oAt05.KrtSGQguxgoS.szNtiWq3fI_ZIgSN
- EV0PJpP2D_nZR7YgMpNkoyXVDvwseXhEtVXGUc3tc08Gs0aLWjN6p3qFHo0XnUIp2tg4SSOFVfLd
- gQZMI3ZpAHamfNlYhnQ51BPOZuHn.5N7D7MLAcKPwFskzWrlA6BAkD3uJ9hTzxG.p8ezPPELlU57
- TAirLQ7.KmRNyYu6Id_va4qPqnjmpT2u8Cm27I.yhQRCxnyp8
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Fri, 4 Oct 2019 17:08:16 +0000
-Date:   Fri, 4 Oct 2019 17:08:15 +0000 (UTC)
-From:   "Mr. Fola Oladipo Adebowale" <accdept68@gmail.com>
-Reply-To: mr.folaoladipo@aol.com
-Message-ID: <2116419410.3763524.1570208895405@mail.yahoo.com>
-Subject: For Our Mutual Benefits
+        id S2387428AbfJDRSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 13:18:34 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:39997 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387458AbfJDRSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 13:18:34 -0400
+Received: by mail-wm1-f67.google.com with SMTP id b24so6630405wmj.5
+        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 10:18:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=vSCZRVvC3+lS/m/5VhPoHlx4NxXLOc81DvV+LWIfkdI=;
+        b=UKFHFnh9nN+i2/PErPuilwj+wf6KkqJ5eSEQfnkwsiErh2Cp8GNwusUj9Um2+lsLX8
+         6KoERYmVrab3mD5lTArBoghMq5cl4UJRdZKorqbseQNF+4TeK9LlHXpp9PM45sc+Yd2C
+         yOAlqyDrJvwCm/wBxyrtHB9kl1BC0y5ND9uwn5Zl10R74/uFkwUzptxlF3WkgkvuobwG
+         epXXflVYZWFZRHG5u7KldMPKHFi6OcM+1e8uL1a0z/EpnrNUJHlwAGryzxsN/7gFnLaP
+         gIEkxB1SlymZj7RwRO8VCnwFTrUQoSMa9bMXjuXYJShL3VZAIg2EQsR+KNON525tX9ZK
+         Lakw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=vSCZRVvC3+lS/m/5VhPoHlx4NxXLOc81DvV+LWIfkdI=;
+        b=KsQWCY04cUxd9vdAVPSpuZm6gtO8XT4pGm2Q2/EWDcGYuHGiKI4Dn8y0/pXJzHsXIi
+         /ca9ekdXqAAO8X+Wp8Pwm96Lss5Lu7+fwD+fqaVfNZujl4TFthkJnIxgZ9i8feynMidR
+         bV3Gq2RRSDmbFaYFJES2CX5ul0a9m8/9FPCzaxISYMA8pnDKMmvQhk8Du9rf0rsmBV3x
+         FXNxK+qrKrh+psWKpt4YHxKHJ1xKVBv3AHULtKWadhCpzD09tnSc/u77VdzhVyS1+oNJ
+         0h3bVdfZL79WR/9xaI4OSlMJttba7cSdJ427L1x2+subEuecXR82nKNqLfTggtgjvuRp
+         72kQ==
+X-Gm-Message-State: APjAAAWdyf8UPz7X5f5Kx2/c9e4o/opBRwKJOB9byz4mMiSpPXdFaJaz
+        LAyJF6q9lUoKJCEvpr6Dr2UgfROFD+BEAA==
+X-Google-Smtp-Source: APXvYqzo2LIr6Nv6Jq1Puhg2AP1KpQ0WEZJhTcMNWgrlJC9jvp51DUh09RQZnINK4y8ra3QlJGhEKA==
+X-Received: by 2002:a05:600c:219a:: with SMTP id e26mr1607620wme.86.1570209512003;
+        Fri, 04 Oct 2019 10:18:32 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u83sm15648981wme.0.2019.10.04.10.18.31
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 04 Oct 2019 10:18:31 -0700 (PDT)
+Message-ID: <5d977ee7.1c69fb81.b5b21.be7d@mx.google.com>
+Date:   Fri, 04 Oct 2019 10:18:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-To:     unlisted-recipients:; (no To-header on input)
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Kernel: v5.3.2-346-gc9adc631ac5f
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-5.3.y boot: 67 boots: 0 failed,
+ 66 passed with 1 conflict (v5.3.2-346-gc9adc631ac5f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.3.y boot: 67 boots: 0 failed, 66 passed with 1 conflict (=
+v5.3.2-346-gc9adc631ac5f)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.2-346-gc9adc631ac5f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.2-346-gc9adc631ac5f/
 
-Attention:
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.2-346-gc9adc631ac5f
+Git Commit: c9adc631ac5f1d6ac4ead2332f2a82c4e199852d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 44 unique boards, 17 SoC families, 12 builds out of 208
 
-As=C2=A0the=C2=A0Director=C2=A0of=C2=A0Finance=C2=A0and=C2=A0Accounts=C2=A0=
-with=C2=A0the=C2=A0Federal=C2=A0Ministry=C2=A0of=C2=A0Power=C2=A0&=C2=A0Hou=
-sing.=C2=A0I=C2=A0am=C2=A0in=C2=A0a=C2=A0position=C2=A0to=C2=A0facilitate=
-=C2=A0immediate=C2=A0transfer=C2=A0of=C2=A0(Twenty=C2=A0Eight=C2=A0Million=
-=C2=A0United=C2=A0States=C2=A0Dollars)=C2=A0to=C2=A0any=C2=A0of=C2=A0your=
-=C2=A0nominated=C2=A0bank=C2=A0account.
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-Source=C2=A0of=C2=A0funds:=C2=A0An=C2=A0over-invoiced=C2=A0payment=C2=A0fro=
-m=C2=A0a=C2=A0past=C2=A0project=C2=A0executed=C2=A0in=C2=A0my=C2=A0departme=
-nt.=C2=A0I=C2=A0cannot=C2=A0successfully=C2=A0achieve=C2=A0this=C2=A0transa=
-ction=C2=A0without=C2=A0presenting=C2=A0you=C2=A0as=C2=A0foreign=C2=A0contr=
-actor=C2=A0who=C2=A0will=C2=A0provide=C2=A0the=C2=A0bank=C2=A0account=C2=A0=
-to=C2=A0receive=C2=A0the=C2=A0funds.=C2=A0Every=C2=A0documentation=C2=A0for=
-=C2=A0the=C2=A0claim=C2=A0of=C2=A0the=C2=A0funds=C2=A0will=C2=A0be=C2=A0leg=
-ally=C2=A0processed=C2=A0and=C2=A0documented,=C2=A0so=C2=A0I=C2=A0will=C2=
-=A0need=C2=A0your=C2=A0full=C2=A0co-operation=C2=A0for=C2=A0our=C2=A0mutual=
-=C2=A0benefits.
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-drue: PASS (gcc-8)
 
-We=C2=A0will=C2=A0discuss=C2=A0details=C2=A0if=C2=A0you=C2=A0are=C2=A0inter=
-ested=C2=A0to=C2=A0work=C2=A0with=C2=A0me=C2=A0to=C2=A0secure=C2=A0this=C2=
-=A0funds,=C2=A0as=C2=A0I=C2=A0said=C2=A0for=C2=A0our=C2=A0mutual=C2=A0benef=
-its.=C2=A0I=C2=A0will=C2=A0be=C2=A0looking=C2=A0forward=C2=A0to=C2=A0your=
-=C2=A0prompt=C2=A0response.
-
-BEST=C2=A0REGARDS
-MR=C2=A0FOLA=C2=A0OLADIPO=C2=A0ADEBOWALE
-(DIRECTOR=C2=A0FINANCE=C2=A0AND=C2=A0ACCOUNTS)
-FEDERAL=C2=A0MINISTRY=C2=A0OF=C2=A0POWER,=C2=A0WORKS=C2=A0&=C2=A0HOUSING
+---
+For more info write to <info@kernelci.org>
