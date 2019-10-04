@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DB0CBA7B
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F02CBA7C
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbfJDMdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 08:33:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53316 "EHLO mail.kernel.org"
+        id S1730534AbfJDMdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 08:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729034AbfJDMdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 08:33:09 -0400
+        id S1729034AbfJDMdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 08:33:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A41402133F;
-        Fri,  4 Oct 2019 12:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF7FD21D71;
+        Fri,  4 Oct 2019 12:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570192387;
-        bh=mOV/28ZBjQNkaI1Uip6u9dPWYCrSAEH8SC4djCsd5Ds=;
+        s=default; t=1570192390;
+        bh=a28RiVcZlaU1l4S1kGxhs3+yVI3120C/aeUxrxL3SbE=;
         h=Subject:To:From:Date:From;
-        b=pNwyDlYERJ1rzipaarN2dgUNU36U45n9bwC1B/KfWF0F8mV5n3LnwUtF+YJojNoBt
-         ojVbHB0POIL2WfHLjRPkM//L89og2RHL7o/QysawqLP5fhR1B7AW0t8DZY1cWDoans
-         QKgBOmUBSDRI1E9UWRp54STmUjQp/6z8L490uC/w=
-Subject: patch "xhci: Fix false warning message about wrong bounce buffer write" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
+        b=i9M5qjtNg52CYVFLw8LEWzglPLW4LM4wo+/TxENBsYsIengLKgCF2sP0NKPf4TejD
+         X374EChSEduPTmD0xGa4doZ1Awkc8NJxYqnMtNVzoIH8YvJL0JTJ4LugO/ushEXPu/
+         0qwtLGdlyGF9EXTa1KZEftnhTqHkoZWNDNavVA6M=
+Subject: patch "xhci: Check all endpoints for LPM timeout" added to usb-linus
+To:     jan@centricular.com, gregkh@linuxfoundation.org,
+        mathias.nyman@linux.intel.com, p.zabel@pengutronix.de,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 14:33:04 +0200
-Message-ID: <157019238421412@kroah.com>
+Date:   Fri, 04 Oct 2019 14:33:05 +0200
+Message-ID: <1570192385110220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: Fix false warning message about wrong bounce buffer write
+    xhci: Check all endpoints for LPM timeout
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,48 +56,49 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From c03101ff4f74bb30679c1a03d551ecbef1024bf6 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Fri, 4 Oct 2019 14:59:26 +0300
-Subject: xhci: Fix false warning message about wrong bounce buffer write
- length
+From d500c63f80f2ea08ee300e57da5f2af1c13875f5 Mon Sep 17 00:00:00 2001
+From: Jan Schmidt <jan@centricular.com>
+Date: Fri, 4 Oct 2019 14:59:28 +0300
+Subject: xhci: Check all endpoints for LPM timeout
 
-The check printing out the "WARN Wrong bounce buffer write length:"
-uses incorrect values when comparing bytes written from scatterlist
-to bounce buffer. Actual copied lengths are fine.
+If an endpoint is encountered that returns USB3_LPM_DEVICE_INITIATED, keep
+checking further endpoints, as there might be periodic endpoints later
+that return USB3_LPM_DISABLED due to shorter service intervals.
 
-The used seg->bounce_len will be set to equal new_buf_len a few lines later
-in the code, but is incorrect when doing the comparison.
+Without this, the code can set too high a maximum-exit-latency and
+prevent the use of multiple USB3 cameras that should be able to work.
 
-The patch which added this false warning was backported to 4.8+ kernels
-so this should be backported as far as well.
-
-Cc: <stable@vger.kernel.org> # v4.8+
-Fixes: 597c56e372da ("xhci: update bounce buffer with correct sg num")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jan Schmidt <jan@centricular.com>
+Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-2-git-send-email-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/1570190373-30684-4-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 9741cdeea9d7..85ceb43e3405 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3202,10 +3202,10 @@ static int xhci_align_td(struct xhci_hcd *xhci, struct urb *urb, u32 enqd_len,
- 	if (usb_urb_dir_out(urb)) {
- 		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
- 				   seg->bounce_buf, new_buff_len, enqd_len);
--		if (len != seg->bounce_len)
-+		if (len != new_buff_len)
- 			xhci_warn(xhci,
- 				"WARN Wrong bounce buffer write length: %zu != %d\n",
--				len, seg->bounce_len);
-+				len, new_buff_len);
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
- 	} else {
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index aed5a65f25bd..a5ba5ace3d00 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4674,12 +4674,12 @@ static int xhci_update_timeout_for_endpoint(struct xhci_hcd *xhci,
+ 	alt_timeout = xhci_call_host_update_timeout_for_endpoint(xhci, udev,
+ 		desc, state, timeout);
+ 
+-	/* If we found we can't enable hub-initiated LPM, or
++	/* If we found we can't enable hub-initiated LPM, and
+ 	 * the U1 or U2 exit latency was too high to allow
+-	 * device-initiated LPM as well, just stop searching.
++	 * device-initiated LPM as well, then we will disable LPM
++	 * for this device, so stop searching any further.
+ 	 */
+-	if (alt_timeout == USB3_LPM_DISABLED ||
+-			alt_timeout == USB3_LPM_DEVICE_INITIATED) {
++	if (alt_timeout == USB3_LPM_DISABLED) {
+ 		*timeout = alt_timeout;
+ 		return -E2BIG;
+ 	}
 -- 
 2.23.0
 
