@@ -2,108 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0313CB9BE
-	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1F61CBA72
+	for <lists+stable@lfdr.de>; Fri,  4 Oct 2019 14:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728927AbfJDMCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 08:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
+        id S1730000AbfJDMad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 08:30:33 -0400
+Received: from mga06.intel.com ([134.134.136.31]:45768 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726002AbfJDMCv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Oct 2019 08:02:51 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4472E222C2;
-        Fri,  4 Oct 2019 12:02:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570190570;
-        bh=PXWlXDTm5m9TTYicswSwlsF/tZ5t7/6QogvvYvnVSQw=;
-        h=Subject:To:From:Date:From;
-        b=S7B9R2SZBZdGt9WHCYQgV7ZF+xtknc1lZzD9UweluUtGdHDC3mup0bMNrWiU1Hp5r
-         CuB1o7SCU11+Qc8qFLmF16O3wmeg9i/nYnhZDxmb777xRdGY9BnRTlXu3I4WbgeYKg
-         CIXC2uKQeECDi6p1B6qNd+yCuJZCbvpIzH/6cFG8=
-Subject: patch "USB: legousbtower: fix open after failed reset request" added to usb-linus
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Oct 2019 14:02:36 +0200
-Message-ID: <157019055624026@kroah.com>
+        id S1728927AbfJDMad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Oct 2019 08:30:33 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Oct 2019 05:30:32 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,256,1566889200"; 
+   d="scan'208";a="204292357"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga002.jf.intel.com with SMTP; 04 Oct 2019 05:30:27 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 04 Oct 2019 15:30:26 +0300
+Date:   Fri, 4 Oct 2019 15:30:26 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linux-pm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH] cpufreq: Fix RCU reboot regression on x86 PIC machines
+Message-ID: <20191004123026.GU1208@intel.com>
+References: <20191003140828.14801-1-ville.syrjala@linux.intel.com>
+ <2393023.mJgu6cDs6C@kreacher>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <2393023.mJgu6cDs6C@kreacher>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 03, 2019 at 05:05:28PM +0200, Rafael J. Wysocki wrote:
+> On Thursday, October 3, 2019 4:08:28 PM CEST Ville Syrjala wrote:
+> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > 
+> > Since 4.20-rc1 my PIC machines no longer reboot/shutdown.
+> > I bisected this down to commit 45975c7d21a1 ("rcu: Define RCU-sched
+> > API in terms of RCU for Tree RCU PREEMPT builds").
+> > 
+> > I traced the hang into
+> > -> cpufreq_suspend()
+> >  -> cpufreq_stop_governor()
+> >   -> cpufreq_dbs_governor_stop()
+> >    -> gov_clear_update_util()
+> >     -> synchronize_sched()
+> >      -> synchronize_rcu()
+> > 
+> > Only PREEMPT=y is affected for obvious reasons. The problem
+> > is limited to PIC machines since they mask off interrupts
+> > in i8259A_shutdown() (syscore_ops.shutdown() registered
+> > from device_initcall()).
+> 
+> Let me treat this as a fresh bug report. :-)
+> 
+> > I reported this long ago but no better fix has surfaced,
+> 
+> So I don't recall seeing the original report or if I did, I had not understood
+> the problem then.
+> 
+> > hence sending out my initial workaround which I've been
+> > carrying around ever since. I just move cpufreq_core_init()
+> > to late_initcall() so the syscore_ops get registered in the
+> > oppsite order and thus the .shutdown() hooks get executed
+> > in the opposite order as well. Not 100% convinced this is
+> > safe (especially moving the cpufreq_global_kobject creation
+> > to late_initcall()) but I've not had any problems with it
+> > at least.
+> 
+> The problem is a bug in cpufreq that shouldn't point its syscore shutdown
+> callback pointer to cpufreq_suspend(), because the syscore stage is generally
+> too lat to call that function and I'm not sure why this has not been causing
+> any other issues to trigger (or maybe it did, but they were not reported).
+> 
+> Does the patch below work for you?
 
-This is a note to let you know that I've just added the patch titled
+It does. Thanks.
 
-    USB: legousbtower: fix open after failed reset request
+Feel free to slap on
+Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+if you want to go with that.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+> 
+> ---
+>  drivers/base/core.c       |    3 +++
+>  drivers/cpufreq/cpufreq.c |   10 ----------
+>  2 files changed, 3 insertions(+), 10 deletions(-)
+> 
+> Index: linux-pm/drivers/cpufreq/cpufreq.c
+> ===================================================================
+> --- linux-pm.orig/drivers/cpufreq/cpufreq.c
+> +++ linux-pm/drivers/cpufreq/cpufreq.c
+> @@ -2737,14 +2737,6 @@ int cpufreq_unregister_driver(struct cpu
+>  }
+>  EXPORT_SYMBOL_GPL(cpufreq_unregister_driver);
+>  
+> -/*
+> - * Stop cpufreq at shutdown to make sure it isn't holding any locks
+> - * or mutexes when secondary CPUs are halted.
+> - */
+> -static struct syscore_ops cpufreq_syscore_ops = {
+> -	.shutdown = cpufreq_suspend,
+> -};
+> -
+>  struct kobject *cpufreq_global_kobject;
+>  EXPORT_SYMBOL(cpufreq_global_kobject);
+>  
+> @@ -2756,8 +2748,6 @@ static int __init cpufreq_core_init(void
+>  	cpufreq_global_kobject = kobject_create_and_add("cpufreq", &cpu_subsys.dev_root->kobj);
+>  	BUG_ON(!cpufreq_global_kobject);
+>  
+> -	register_syscore_ops(&cpufreq_syscore_ops);
+> -
+>  	return 0;
+>  }
+>  module_param(off, int, 0444);
+> Index: linux-pm/drivers/base/core.c
+> ===================================================================
+> --- linux-pm.orig/drivers/base/core.c
+> +++ linux-pm/drivers/base/core.c
+> @@ -9,6 +9,7 @@
+>   */
+>  
+>  #include <linux/acpi.h>
+> +#include <linux/cpufreq.h>
+>  #include <linux/device.h>
+>  #include <linux/err.h>
+>  #include <linux/fwnode.h>
+> @@ -3179,6 +3180,8 @@ void device_shutdown(void)
+>  	wait_for_device_probe();
+>  	device_block_probing();
+>  
+> +	cpufreq_suspend();
+> +
+>  	spin_lock(&devices_kset->list_lock);
+>  	/*
+>  	 * Walk the devices list backward, shutting down each in turn.
+> 
+> 
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 0b074f6986751361ff442bc1127c1648567aa8d6 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Thu, 19 Sep 2019 10:30:39 +0200
-Subject: USB: legousbtower: fix open after failed reset request
-
-The driver would return with a nonzero open count in case the reset
-control request failed. This would prevent any further attempts to open
-the char dev until the device was disconnected.
-
-Fix this by incrementing the open count only on successful open.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190919083039.30898-5-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/misc/legousbtower.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
-index 4fa999882635..44d6a3381804 100644
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -348,7 +348,6 @@ static int tower_open (struct inode *inode, struct file *file)
- 		retval = -EBUSY;
- 		goto unlock_exit;
- 	}
--	dev->open_count = 1;
- 
- 	/* reset the tower */
- 	result = usb_control_msg (dev->udev,
-@@ -388,13 +387,14 @@ static int tower_open (struct inode *inode, struct file *file)
- 		dev_err(&dev->udev->dev,
- 			"Couldn't submit interrupt_in_urb %d\n", retval);
- 		dev->interrupt_in_running = 0;
--		dev->open_count = 0;
- 		goto unlock_exit;
- 	}
- 
- 	/* save device in the file's private structure */
- 	file->private_data = dev;
- 
-+	dev->open_count = 1;
-+
- unlock_exit:
- 	mutex_unlock(&dev->lock);
- 
 -- 
-2.23.0
-
-
+Ville Syrjälä
+Intel
