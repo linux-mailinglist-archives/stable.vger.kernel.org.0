@@ -2,318 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF742CC6E9
-	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 02:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1266DCC74F
+	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 04:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbfJEA2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Oct 2019 20:28:31 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:54361 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725730AbfJEA2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 20:28:31 -0400
-Received: by mail-wm1-f65.google.com with SMTP id p7so7384750wmp.4
-        for <stable@vger.kernel.org>; Fri, 04 Oct 2019 17:28:28 -0700 (PDT)
+        id S1726269AbfJECEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Oct 2019 22:04:46 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:41867 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726215AbfJECEq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Oct 2019 22:04:46 -0400
+Received: by mail-io1-f68.google.com with SMTP id n26so17477640ioj.8;
+        Fri, 04 Oct 2019 19:04:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=PJwesKN0Is219mNF64hfY/kw11eEsy/0j8tNwxs1DJA=;
-        b=AnMhXUJF8+z1tHPJ/FIGM3DCjkcy+X4PJ54beMEF9AtkwdC/DOMI9laxGlWaZjqVTN
-         nIeyLmUvn9iIzav2DU2x8LrjJGxKQOxnCLfMklyirLjaCI0136T+RdNhWeeQYwLvvHHM
-         StsrTa3d9+RVd7wSzgkdKdoFELxUUI9DV09w3FnFj2p734jyEFyT8CoveJIXLPbPU7T8
-         McaSLpA1fc167vTehFKxoIzA+b8j4FniXKBKAyfYRPWhxBdTKptpE8NO9UPeTCFxyQJL
-         nEl0WjnEwzafQc4JYmjgnczf9A/gaqRTJCMfVFms4Mcnpf5e3YyhaM8SSr0UAmR+kzV2
-         +JIQ==
+        bh=dKFFeqNEIfC6bfYX2MCvoQDPGT0qQ00+CPFZGAhucyY=;
+        b=XBe5Lfr1WO/ehyz2z39XQtwaT6/KSwCbVEkv+2+0BqSdThjVgBjDT1cuh1+asCPLPx
+         7QTCbGMiz4NzONlXxyuS+vu/g3czW4Fyux9aI/D8wbAdKY+FTdHb/l+Dimq5bdZeEzYD
+         4PjV2HAXhU3I46PSY0ygDCaTG+Ru7LcYyB6UX2Am/0LP7qsksngNjNGyBQyIMySnfFN1
+         726mZeM8PEajpVSZxXtpNoNmFFOwjt1cIweKDUr1Ruq9U/VrEnc87f0/bqTjY1C9PjRL
+         CvHxOHCgL0RXpJQPyzDv17vfNua7aQ2gBTO64mLIXl0NIDm8B29bBrZMGg41IB64Hpze
+         Hm2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=PJwesKN0Is219mNF64hfY/kw11eEsy/0j8tNwxs1DJA=;
-        b=ewj7lbOCQF4quI64RJILZwIawtzlB4sOJO8+h1pWIFUtmW3bm+sDR9yv6r87ktoaSx
-         NmN3SuZCbNWmrsh83i8xNKPHZn5Ey3SO7gdMFRazkHzL5MX0Mz/6r/v22Dz+oT5tk3Ox
-         nFi8NL9jjfHsMWHXnA9E6eZ5Lji2klRSQWv0+B7FY5/T12btYnoxnqVhQ+gBHV8cjkqn
-         KmCWdxX2tmULkUVGif6pdQn6RxkTzude6zs1HZv3H5PSKqQd6NuZTRBNHnJetPaLMtHH
-         pzBwq3wHH28tCgfHvd2RdgQSPFYAeYQSu1DPnUP2t0Pu6rYo30nRknnb1TKRzwEWMyeT
-         Ix2Q==
-X-Gm-Message-State: APjAAAWkxg3LEvz9GRRJwQMiLUETNvk8ILF+/hWwP9f/w4GidTiS3FpF
-        nQjgeFKAcJaajEku7iFjaI2s3UazccTBVwlsJvnIfQ==
-X-Google-Smtp-Source: APXvYqzI0rIG0wqXAwtaDOJKrCcsCfXxfx+Mka86mIDcf7oXXqxJStAEgz+oeCVqpjtjJlqjXM+ugYQ+pd6SDyI5+Bc=
-X-Received: by 2002:a7b:c10b:: with SMTP id w11mr12087632wmi.108.1570235306479;
- Fri, 04 Oct 2019 17:28:26 -0700 (PDT)
+        bh=dKFFeqNEIfC6bfYX2MCvoQDPGT0qQ00+CPFZGAhucyY=;
+        b=mjzsRr4SWmviCrF0sh+PRQSqmFbRjNK7kYT2kzNmQj5JqvyhLlrVf7LBeyN3jhS1AL
+         DeoUqWbAyNiJKKTtvxhJx56o1hOFGUCsOThIDyVo5dTitoOQRG5tgrhz0F+JiStxMPZ6
+         AmPRjasswn86AHBo+I/Qt809pN3/DrKSZbuX9rH7cKN/oOSEtjKOz0TFItuuxCFC1QrH
+         7jd+RrCAe67m2XigCBC3W+pY63i6BJPW3dK+/sxaqn1X+b2QwCDEZBaGaojox8kt50Sc
+         BjUyeWaWEpXIReBr5wnsO8HvAPCFxeEWmwaLI2oca8yaDmtM6pHKcB0J4H8/l3wVV7rH
+         0OBQ==
+X-Gm-Message-State: APjAAAXEU5nyCk8HT/pQsQ4iRMDPRrIpOxqM6iVh8XnLJMplcj341cY/
+        fz0+p9XccNF0ucDSTry6xFF2BOONymnSDF9TQBw=
+X-Google-Smtp-Source: APXvYqwBIAoHkqwaCUKDOqze9cchvM+P00vkTrkL1lxkk2uirCl29/HUsptcngeC6wh302S1+9ApJXpS9WjXydrEuD0=
+X-Received: by 2002:a5d:8f02:: with SMTP id f2mr8826897iof.272.1570241084953;
+ Fri, 04 Oct 2019 19:04:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191004001243.140897-1-xueweiz@google.com> <20191004005423.GA19076@lorien.usersys.redhat.com>
- <CAPtwhKrswHQ1Ue2YO2hJi7h-Dsk6eGPiQ2UmLCq1AxGxMoHr2w@mail.gmail.com> <20191004131432.GA9498@pauld.bos.csb>
-In-Reply-To: <20191004131432.GA9498@pauld.bos.csb>
-From:   Xuewei Zhang <xueweiz@google.com>
-Date:   Fri, 4 Oct 2019 17:28:15 -0700
-Message-ID: <CAPtwhKo1YND6VG1u8brj8ZRpn33p2xH1cdSRBs-cBSEm78V=Lw@mail.gmail.com>
-Subject: Re: [PATCH] sched/fair: scale quota and period without losing
- quota/period ratio precision
-To:     Phil Auld <pauld@redhat.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Anton Blanchard <anton@ozlabs.org>,
+References: <20191004140503.9817-1-christian.brauner@ubuntu.com>
+ <20191004142748.GG26530@ZenIV.linux.org.uk> <20191004143301.kfzcut6a6z5owfee@wittgenstein>
+ <20191004151058.GH26530@ZenIV.linux.org.uk> <20191004152526.adgg3a7u7jylfk4a@wittgenstein>
+ <20191004160219.GI26530@ZenIV.linux.org.uk> <20191004165428.GA28597@ZenIV.linux.org.uk>
+In-Reply-To: <20191004165428.GA28597@ZenIV.linux.org.uk>
+From:   Steve French <smfrench@gmail.com>
+Date:   Fri, 4 Oct 2019 21:04:33 -0500
+Message-ID: <CAH2r5msU43=Nc=Az05y9mXwKSpe5YC1gL1KHYiu7eowP+sYZog@mail.gmail.com>
+Subject: Re: [cifs] semantics of IPC$ shares (was Re: [PATCH] devpts: Fix NULL
+ pointer dereference in dcache_readdir())
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Amir Goldstein <amir73il@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        trivial@kernel.org, Neel Natu <neelnatu@google.com>,
-        Hao Luo <haoluo@google.com>
+        Varad Gautam <vrd@amazon.de>, Stable <stable@vger.kernel.org>,
+        Jan Glauber <jglauber@marvell.com>,
+        CIFS <linux-cifs@vger.kernel.org>,
+        samba-technical <samba-technical@lists.samba.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 4, 2019 at 6:14 AM Phil Auld <pauld@redhat.com> wrote:
+Your questions are interesting and rarely asked.
+
+On Fri, Oct 4, 2019 at 11:57 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
 >
-> On Thu, Oct 03, 2019 at 07:05:56PM -0700 Xuewei Zhang wrote:
-> > +cc neelnatu@google.com and haoluo@google.com, they helped a lot
-> > for this issue. Sorry I forgot to include them when sending out the patch.
-> >
-> > On Thu, Oct 3, 2019 at 5:55 PM Phil Auld <pauld@redhat.com> wrote:
-> > >
-> > > Hi,
-> > >
-> > > On Thu, Oct 03, 2019 at 05:12:43PM -0700 Xuewei Zhang wrote:
-> > > > quota/period ratio is used to ensure a child task group won't get more
-> > > > bandwidth than the parent task group, and is calculated as:
-> > > > normalized_cfs_quota() = [(quota_us << 20) / period_us]
-> > > >
-> > > > If the quota/period ratio was changed during this scaling due to
-> > > > precision loss, it will cause inconsistency between parent and child
-> > > > task groups. See below example:
-> > > > A userspace container manager (kubelet) does three operations:
-> > > > 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
-> > > > 2) Create a few children cgroups.
-> > > > 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
-> > > >
-> > > > These operations are expected to succeed. However, if the scaling of
-> > > > 147/128 happens before step 3), quota and period of the parent cgroup
-> > > > will be changed:
-> > > > new_quota: 1148437ns, 1148us
-> > > > new_period: 11484375ns, 11484us
-> > > >
-> > > > And when step 3) comes in, the ratio of the child cgroup will be 104857,
-> > > > which will be larger than the parent cgroup ratio (104821), and will
-> > > > fail.
-> > > >
-> > > > Scaling them by a factor of 2 will fix the problem.
-> > >
-> > > I have no issues with the concept. We went around a bit about the actual
-> > > numbers and made it an approximation.
-> > >
-> > > >
-> > > > Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-> > > > Signed-off-by: Xuewei Zhang <xueweiz@google.com>
-> > > > ---
-> > > >  kernel/sched/fair.c | 36 ++++++++++++++++++++++--------------
-> > > >  1 file changed, 22 insertions(+), 14 deletions(-)
-> > > >
-> > > > diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> > > > index 83ab35e2374f..b3d3d0a231cd 100644
-> > > > --- a/kernel/sched/fair.c
-> > > > +++ b/kernel/sched/fair.c
-> > > > @@ -4926,20 +4926,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
-> > > >               if (++count > 3) {
-> > > >                       u64 new, old = ktime_to_ns(cfs_b->period);
-> > > >
-> > > > -                     new = (old * 147) / 128; /* ~115% */
-> > > > -                     new = min(new, max_cfs_quota_period);
-> > > > -
-> > > > -                     cfs_b->period = ns_to_ktime(new);
-> > > > -
-> > > > -                     /* since max is 1s, this is limited to 1e9^2, which fits in u64 */
-> > > > -                     cfs_b->quota *= new;
-> > > > -                     cfs_b->quota = div64_u64(cfs_b->quota, old);
-> > > > -
-> > > > -                     pr_warn_ratelimited(
-> > > > -     "cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
-> > > > -                             smp_processor_id(),
-> > > > -                             div_u64(new, NSEC_PER_USEC),
-> > > > -                             div_u64(cfs_b->quota, NSEC_PER_USEC));
-> > > > +                     /*
-> > > > +                      * Grow period by a factor of 2 to avoid lossing precision.
-> > > > +                      * Precision loss in the quota/period ratio can cause __cfs_schedulable
-> > > > +                      * to fail.
-> > > > +                      */
-> > > > +                     new = old * 2;
-> > > > +                     if (new < max_cfs_quota_period) {
-> > >
-> > > I don't like this part as much. There may be a value between
-> > > max_cfs_quota_period/2 and max_cfs_quota_period that would get us out of
-> > > the loop. Possibly in practice it won't matter but here you trigger the
-> > > warning and take no action to keep it from continuing.
-> > >
-> > > Also, if you are actually hitting this then you might want to just start at
-> > > a higher but proportional quota and period.
-> >
-> > I'd like to do what you suggested. A quick idea would be to scale period to
-> > max_cfs_quota_period, and scale quota proportionally. However the naive
-> > implementation won't work under this edge case:
-> > original:
-> > quota: 500,000us  period: 570,000us
-> > after scaling:
-> > quota: 877,192us  period: 1,000,000us
-> > original ratio: 919803
-> > new ratio: 919802
-> >
-> > To do this right, the code would have to keep an eye out on the precision loss,
-> > and increase quota by 1us sometimes to cancel out the precision loss.
-> >
-> > Also, I think this case is not that important. Because if we are
-> > hitting this case, that
-> > suggests the period is already >0.5s. And if we are still hitting
-> > timeouts with a 0.5s
-> > period, scaling it to 1s probably won't help much.
-> > When this happens, I'd imagine the parent cgroup would have a LOT of child
-> > cgroups. It might make sense for the userspace to create the parent cgroup with
-> > 1s period.
-> >
-> > If you think automatically scaling 0.5s+ to 1s is still important, I'm
-> > happy to stash
-> > this patch, and send in another one that handles the 0.5+s -> 1s
-> > scaling the right
-> > way. :) Thanks!
+> On Fri, Oct 04, 2019 at 05:02:20PM +0100, Al Viro wrote:
 >
-> First let me understand your use case better. I was thinking about this more last
-> night and it doesn't make sense.
+> >       * (possibly) cifs hitting the same on eviction by memory pressure alone
+> > (no locked inodes anywhere in sight).  Possibly == if cifs IPC$ share happens to
+> > show up non-empty (e.g. due to server playing silly buggers).
+> >       * (possibly) cifs hitting *another* lovely issue - lookup in one subdirectory
+> > of IPC$ root finding an alias for another subdirectory of said root, triggering
+> > d_move() of dentry of the latter.  IF the name happens to be long enough to be
+> > externally allocated and if dcache_readdir() on root is currently copying it to
+> > userland, Bad Things(tm) will happen.  That one almost certainly depends upon the
+> > server playing silly buggers and might or might not be possible.  I'm not familiar
+> > enough with CIFS to tell.
 >
-> You are setting a small quota and period on the parent cgroup and then setting the
-> same small quota and period on the child. As you say to keep the child from getting
-> more quota than the parent. But that should already be the case simply by setting
-> it on the parent. The child can't get more quota than the parent.   All this does
-> is make the kernel do more work handling more period timers and such.
-
-Sorry for not being clear enough. Let me provide a bit more additional context:
-
-kubelet [1] is the userspace program setting the cfs quota and period.
-kubelet is essentially a container manager for the end user. The end user
-can specify any attainable configurations for a pod (which contains multiple
-containers).
-
-The user interface of kubelet allows end user to specify the amount of CPU
-granted to any pod or container (in the form of mCPU). And then kubelet will
-convert the spec to quota/period accepted by cgroup fs, using this rule:
-the period of any pod/container will be set to 100000us
-the quota of the pod/container will be calculated using the allowed mCPU
-
-And kubelet simply then writes the calculated period and quota to cgroup fs.
-
-It's very common to specify a pod with multiple containers, and setting
-different quota for the child containers: some granted with 5-50% of the
-bandwidth available to the parent, while some other granted with 100%. For
-simplicity, kubelet writes quota/period to cgroup fs for all pods and
-containers.
-
-----
-Now back to our discussion. :)
-
-You see, the reason that kubelet write identical quota and period to parent and
-child cgroup, is not because it want to enforce that child doesn't get more
-quota than parent. It is simply because kubelet needs to manage the quota for
-all containers and pods, and it's more convenenient to just set the quota and
-period for all of them (because in many cases, child cgroups actually gets less
-bandwidth than the parent, and has to be set specifically).
-
-I agree that your suggestion would work. If a child cgroup is set to the same
-bandwidth of the parent cgroup, we could change the userspace program, and ask
-it to skip setting the child cgroup bandwidth.
-However, this logic would be a special case, and will require significant logic
-change to the userspace container managers.
-
-
-This issue is affecting many Kubernetes users, see this open issue:
-https://github.com/kubernetes/kubernetes/issues/72878
-kubelet on their machines are doing the three operations mentioned in the patch.
-I also explained them in more detail in this doc:
-https://docs.google.com/document/d/13KLD__6A935igLXpTFFomqfclATC89nAkhPOxsuKA0I/edit?usp=sharing
-
-Basically, Kubernetes is operating on the below assumption of kernel today:
-Setting the cpu quota/period of a child cgroup should not be rejected unless
-the bandwidth is exceeding what the quota/period set for the parent cgroup.
-
-I think this assumption is fair. Please let me know if you think otherwise. And
-if so, since the kernel broke this assumption today, I don't think it's the
-responsibility for the userspace to deal with the problem that kernel may change
-the quota/period ratio at any time.
-
-[1] https://github.com/kubernetes/kubernetes/tree/master/pkg/kubelet
-
+> BTW, I would really appreciate somebody familiar with CIFS giving a braindump on
+> that.  Questions:
 >
-> Setting the child quota/period only makes sense when setting it smaller than
-> the parent.
+> 1) What's normally (== without malicious/broken server) seen when you mount
+> an IPC$ share?
 
-As mentioned above, in the use case of kublet, it's much easier to always
-set the child quota/period, than to only set it when it is different
-(i.e. smaller)
-than the parent.
+IPC$ is for "inter process communication" so is basically an
+abstraction for named pipes (used
+for remote procedure call queries using the old DCE/RPC standard).
 
->
-> Also, in order to hit this problem you need to have many hundreds of children, in
-> my experience. In that case it makes even less sense to write the same quota/preiod
-> as the parent into each of the children.
-
-Here is a problematic scenario:
-The parent cgroup have 1000 children with a small quota/period, and after a
-few minutes, kubelet wants to add one additional child with the same
-quota/period.
-This bug could prevent kubelet from setting that one additional child
-successfully.
+To Windows it is possible to mount IPC$, to Samba you can connect to
+the share but
+due to a Samba server bug you can't do a query info on "." (the 'root'
+of the IPC$ share).
 
 
-Thanks a lot for taking time reviewing and responding the patch Phil!
-Really appreciate it.
+> 2) Does it ever have subdirectories (i.e. can we fail a lookup in its root if it
+> looks like returning a subdirectory)?
 
-Best regards,
-Xuewei
+In Samba you can't query subdirectories on IPC$ because even open of "."
+fails, but to Windows the query directory would get "STATUS_INVALID_INFO_CLASS"
 
+An interesting question, and one that I will bring up with the spec
+writers is whether
+there are info level which would be allowed for query directory (probably not).
+
+Another interesting question this brings up is ... "should we allow
+enumerating the 'services' under IPC$
+via readdir"?   You could imagine a case where mounting IPC$ would
+allow you to see the 'services'
+exported by the server over remote procedure call ("server service"
+and "workstation server" and "netlogon service"
+and the global name space (DFS) service and  perhaps "witness protocol
+services" and "branch cache service" etc.)
+
+And then thinking about Dave Howell's changes to the mount API -
+should this be a mechanism that is allowed to be
+used to either browse the valid shares or better access the root of
+the (DFS) global name space.
+
+But the short answer is "no you can't query the directory contents
+under IPC$" (at least not without changing the
+abstraction that we export on the client) but I am open to ideas if
+this would fit with Dave Howell's changes to the
+mount API or other ideas.
+> 3) If it can be non-empty, is there way to ask the server about its contents?
+> Short of "look every possible name up", that is...
 >
-> Or there is something else causing the timer to take too long to run...
->
->
-> I agree that if we are taking > 1/2s to run do_sched_cfs_period_timer() it may
-> not matter, as I said above.
->
->
-> Cheers,
-> Phil
->
-> >
-> > Best regards,
-> > Xuewei
-> >
-> > >
-> > >
-> > > Cheers,
-> > > Phil
-> > >
-> > > > +                             cfs_b->period = ns_to_ktime(new);
-> > > > +                             cfs_b->quota *= 2;
-> > > > +
-> > > > +                             pr_warn_ratelimited(
-> > > > +     "cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-> > > > +                                     smp_processor_id(),
-> > > > +                                     div_u64(new, NSEC_PER_USEC),
-> > > > +                                     div_u64(cfs_b->quota, NSEC_PER_USEC));
-> > > > +                     } else {
-> > > > +                             pr_warn_ratelimited(
-> > > > +     "cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-> > > > +                                     smp_processor_id(),
-> > > > +                                     div_u64(old, NSEC_PER_USEC),
-> > > > +                                     div_u64(cfs_b->quota, NSEC_PER_USEC));
-> > > > +                     }
-> > > >
-> > > >                       /* reset count so we don't come right back in here */
-> > > >                       count = 0;
-> > > > --
-> > > > 2.23.0.581.g78d2f28ef7-goog
-> > > >
-> > >
-> > > --
->
-> --
+> As it is, the thing is abusing either cifs_lookup() (if it really shouldn't
+> have any files in it) or dcache_readdir().  Sure, dcache_readdir() can (and
+> should) pin a dentry while copying the name to userland, but WTF kind of
+> semantics it is?  "ls will return the things you'd guessed to look up, until
+> there's enough memory pressure to have them forgotten, which can happen at
+> any point with no activity on server"?
+
+Server's realistically must expose a share "IPC$" so in theory it can be mounted
+(despite Samba server's current bug there) and there were some experiments
+that Shirish did a few years ago opening well known services under mounts
+to IPC$ (to allow doing remote procedure calls over SMB3 mounts which has
+some value) but AFAIK you would never do a readdir over IPC$ and no
+current users would ever mount IPC$
+
+-- 
+Thanks,
+
+Steve
