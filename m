@@ -2,241 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CDCCCC8B1
-	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 10:02:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B5DCC93B
+	for <lists+stable@lfdr.de>; Sat,  5 Oct 2019 12:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727108AbfJEICN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Oct 2019 04:02:13 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33054 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725927AbfJEICN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Oct 2019 04:02:13 -0400
-Received: by mail-wr1-f66.google.com with SMTP id b9so9680762wrs.0;
-        Sat, 05 Oct 2019 01:02:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=9Y7BCdKfF42C/Nu4DmZI0go32skY7iFtS+PHT8KquHk=;
-        b=lnZ5s8qbvATDvfkDAGH9QXGUHLzVfRIhHxTTf3zYlkGtxecNmJvhy4Pi6hTKQjnVha
-         6hSugYX8AsLa2dGymYKg1F+8Itzby0IrP0HqxBlw4LFWPUaQlWfCV4uDZTfgdqyUxq5P
-         FGRkFIsnmz0LGkUeOaciiaduVJdvlLSMeE7rHDl8hEQLw4HQY6kM+miPXbCtjLoSfpZS
-         szFPKqXJU1gcJbjbBL22WR8TGY1B2Wtk0I4aoarLoHXjWjbz1fnHjFU3bKTeRNz29dUm
-         fTcRuKjznBhNyUGmj8P2wEkM4rICjNxRDfKbmaCZRWX34gI3Gcykt59XjYmazA7LZ9vy
-         LZPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=9Y7BCdKfF42C/Nu4DmZI0go32skY7iFtS+PHT8KquHk=;
-        b=kVExF2BX6Ts3OA5wnVPTKveJOfnaQ5m40Bk5Pzl1xXUxoVjvEW64caV5iApOG+p3xs
-         gOIAxeynQ9ik1EC2lW9TpSAei5+rgGdaY4WY0Z1WykrpHbRrfaLb34JHXnaHCCSqkZ3J
-         bVp+/zUEDdFxz09Tt/CX5C6yLPcJXLwF2ggur3zya/6YZPFgoeaq6PmHJra+ToJR89Ce
-         kKnv69TSjQNW0bhpUC+OIEpoyPNnjzjiRYLIlkFngq59zS9Tnq6l314TAdHBas5vWo35
-         9U8yKqpwqszJ37vrBRAhokhp4O/BGPBfliiPCB8NDFlyxiwvTwgyyYvX3eDDJNFJPj8b
-         qmng==
-X-Gm-Message-State: APjAAAU6Tsa+IGzKKMpIS2bu7Y74AqJYp0u0vHrAEpKMuVDQ6nBbV8PM
-        XTwRnvxvpt661mlX2tsHJCw=
-X-Google-Smtp-Source: APXvYqyLe93o8VDkGupD7Nb7RzULRgbdVO/KAfRYPzld3ZlPF/Nf/o9ggcYWHCRWU6ftX04owCdZYA==
-X-Received: by 2002:adf:f691:: with SMTP id v17mr9222636wrp.81.1570262529967;
-        Sat, 05 Oct 2019 01:02:09 -0700 (PDT)
-Received: from lt530 (p200300C1CF1FCE00BF22FF9D719792AD.dip0.t-ipconnect.de. [2003:c1:cf1f:ce00:bf22:ff9d:7197:92ad])
-        by smtp.gmail.com with ESMTPSA id e3sm7878146wme.39.2019.10.05.01.02.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 05 Oct 2019 01:02:09 -0700 (PDT)
-Date:   Sat, 5 Oct 2019 10:02:05 +0200
-From:   Daniel Scheller <d.scheller.oss@gmail.com>
-To:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc:     Linux Media Mailing List <linux-media@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@infradead.org>,
-        Sergey Kozlov <serjk@netup.ru>, Abylay Ospan <aospan@netup.ru>,
+        id S1726654AbfJEKCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Oct 2019 06:02:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726283AbfJEKCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Oct 2019 06:02:15 -0400
+Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F13112133F;
+        Sat,  5 Oct 2019 10:02:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570269734;
+        bh=m6LrBg7MJD79UJpB4HucLtlJvJ8+4uAw8KrPnz16hH4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=EPZC3YH/iyV3EmrMJLSGYrKUMpzwTd7G2x0SWAkOlMrsb1+2c/WCN1oPIuyiIGJlO
+         QPZ1G2x2FzT4tj2q9v57sisMM/JHradVxCvcGd9jlglk3hbawRo3Fhoz3diypd5mUZ
+         R4yntHyhn7aiRBb8YS9puqp6Blg5CoJjF2BsWmf0=
+Date:   Sat, 5 Oct 2019 11:02:09 +0100
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Hartmut Knaack <knaack.h@gmx.de>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        Chen-Yu Tsai <wens@csie.org>, linux-iio@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v3] media: cxd2841er: avoid too many status inquires
-Message-ID: <20191005100205.01459123@lt530>
-In-Reply-To: <483cecc9f65b03ad3cd54aea09ecd9819c3dc6db.1570197700.git.mchehab+samsung@kernel.org>
-References: <deda32250ad32078b98eb41eb09d6d20050a6f9c.1570113429.git.mchehab+samsung@kernel.org>
-        <483cecc9f65b03ad3cd54aea09ecd9819c3dc6db.1570197700.git.mchehab+samsung@kernel.org>
+Subject: Re: [PATCH] iio: adc: axp288: Override TS pin bias current for some
+ models
+Message-ID: <20191005110209.16a9041d@archlinux>
+In-Reply-To: <20190915185342.235354-1-hdegoede@redhat.com>
+References: <20190915185342.235354-1-hdegoede@redhat.com>
 X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Fri,  4 Oct 2019 11:02:28 -0300
-schrieb Mauro Carvalho Chehab <mchehab+samsung@kernel.org>:
+On Sun, 15 Sep 2019 20:53:42 +0200
+Hans de Goede <hdegoede@redhat.com> wrote:
 
-> As reported at:
-> 	https://tvheadend.org/issues/5625
-> 
-> Retrieving certain status can cause discontinuity issues.
-> 
-> Prevent that by adding a timeout to each status logic.
-> 
-> Currently, the timeout is estimated based at the channel
-> bandwidth. There are other parameters that may also affect
-> the timeout, but that would require a per-delivery system
-> calculus and probably more information about how cxd2481er
-> works, with we don't have.
-> 
-> So, do a poor man's best guess.
+> Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
+> preserve the bias current set by the firmware at boot.  This fixes issues
+> we were seeing on various models, but it seems our old hardcoded 80=C5=B3=
+A bias
+> current was working around a firmware bug on at least one model laptop.
+>=20
+> In order to both have our cake and eat it, this commit adds a dmi based
+> list of models where we need to override the firmware set bias current and
+> adds the one model we now know needs this to it: The Lenovo Ideapad 100S
+> (11 inch version).
 
-Such hardware quirk hack should clearly be enabled by a (new) config
-flag (see the bits at the top of cxd2841er.h) which consumer drivers
-can set if there are known issues with them. The reported issue is
-nothing every piece of hardware with a cxd28xx demod soldered on has -
-I believe the JokerTV devices which Abylay originally made this driver
-for suffers from this and at least the Digital Devices C/C2/T/T2/I
-boards (cxd2837/43/54) definitely don't have any issues (and I use them
-regularily in my TVheadend server which is frequently used).
+Ouch.
 
-So please hide this behind a flag named ie. "CXD2841ER_STAT_TIMEOUT"
-and enable that in the USB drivers which the affected USB sticks use.
- 
+>=20
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D203829
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Applied to the fixes-togreg branch of iio.git.
+
+Thanks,
+
+Jonathan
+
 > ---
->  drivers/media/dvb-frontends/cxd2841er.c | 68 +++++++++++++++++++++++++
->  1 file changed, 68 insertions(+)
-> 
-> diff --git a/drivers/media/dvb-frontends/cxd2841er.c b/drivers/media/dvb-frontends/cxd2841er.c
-> index 1b30cf570803..218da631df19 100644
-> --- a/drivers/media/dvb-frontends/cxd2841er.c
-> +++ b/drivers/media/dvb-frontends/cxd2841er.c
-> @@ -60,6 +60,13 @@ struct cxd2841er_priv {
->  	enum cxd2841er_xtal		xtal;
->  	enum fe_caps caps;
->  	u32				flags;
-> +
-> +	unsigned long			ber_interval;
-> +	unsigned long			ucb_interval;
-> +
-> +	unsigned long			ber_time;
-> +	unsigned long			ucb_time;
-> +	unsigned long			snr_time;
->  };
->  
->  static const struct cxd2841er_cnr_data s_cn_data[] = {
-> @@ -1941,6 +1948,10 @@ static void cxd2841er_read_ber(struct dvb_frontend *fe)
->  	struct cxd2841er_priv *priv = fe->demodulator_priv;
->  	u32 ret, bit_error = 0, bit_count = 0;
->  
-> +	if (priv->ber_time &&
-> +	   (!time_after(jiffies, priv->ber_time)))
-> +		return;
-> +
->  	dev_dbg(&priv->i2c->dev, "%s()\n", __func__);
->  	switch (p->delivery_system) {
->  	case SYS_DVBC_ANNEX_A:
-> @@ -1953,9 +1964,15 @@ static void cxd2841er_read_ber(struct dvb_frontend *fe)
->  		break;
->  	case SYS_DVBS:
->  		ret = cxd2841er_mon_read_ber_s(priv, &bit_error, &bit_count);
-> +
-> +		if (!priv->ber_interval && p->symbol_rate)
-> +			priv->ber_interval = (10000000) / (p->symbol_rate / 1000);
->  		break;
->  	case SYS_DVBS2:
->  		ret = cxd2841er_mon_read_ber_s2(priv, &bit_error, &bit_count);
-> +
-> +		if (!priv->ber_interval && p->symbol_rate)
-> +			priv->ber_interval = (10000000) / (p->symbol_rate / 1000);
->  		break;
->  	case SYS_DVBT:
->  		ret = cxd2841er_read_ber_t(priv, &bit_error, &bit_count);
-> @@ -1978,6 +1995,21 @@ static void cxd2841er_read_ber(struct dvb_frontend *fe)
->  		p->post_bit_error.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
->  		p->post_bit_count.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
->  	}
-> +
-> +	/*
-> +	 * If the per-delivery system doesn't specify, set a default timeout
-> +	 * that will wait for ~12.5 seconds for 8MHz channels
-> +	 */
-> +	if (!priv->ber_interval && p->bandwidth_hz)
-> +		priv->ber_interval = (100000000) / (p->bandwidth_hz / 1000);
-> +
-> +	if (priv->ber_interval < 1000)
-> +		priv->ber_interval = 1000;
-> +
-> +// HACK:
-> +dev_info(&priv->i2c->dev, "BER interval: %d ms", priv->ber_interval);
-> +
-> +	priv->ber_time = jiffies + msecs_to_jiffies(priv->ber_interval);
->  }
->  
->  static void cxd2841er_read_signal_strength(struct dvb_frontend *fe)
-> @@ -2037,6 +2069,16 @@ static void cxd2841er_read_snr(struct dvb_frontend *fe)
->  	struct dtv_frontend_properties *p = &fe->dtv_property_cache;
->  	struct cxd2841er_priv *priv = fe->demodulator_priv;
->  
-> +	if (priv->snr_time &&
-> +	   (!time_after(jiffies, priv->snr_time)))
-> +		return;
-> +
-> +	/* Preventing asking SNR more than once per second */
-> +	priv->snr_time = jiffies + msecs_to_jiffies(1000);
-> +
-> +// HACK
-> +dev_info(&priv->i2c->dev, "SNR interval: %d ms", 1000);
-> +
->  	dev_dbg(&priv->i2c->dev, "%s()\n", __func__);
->  	switch (p->delivery_system) {
->  	case SYS_DVBC_ANNEX_A:
-> @@ -2081,6 +2123,10 @@ static void cxd2841er_read_ucblocks(struct dvb_frontend *fe)
->  	struct cxd2841er_priv *priv = fe->demodulator_priv;
->  	u32 ucblocks = 0;
->  
-> +	if (priv->ucb_time &&
-> +	   (!time_after(jiffies, priv->ucb_time)))
-> +		return;
-> +
->  	dev_dbg(&priv->i2c->dev, "%s()\n", __func__);
->  	switch (p->delivery_system) {
->  	case SYS_DVBC_ANNEX_A:
-> @@ -2105,6 +2151,21 @@ static void cxd2841er_read_ucblocks(struct dvb_frontend *fe)
->  
->  	p->block_error.stat[0].scale = FE_SCALE_COUNTER;
->  	p->block_error.stat[0].uvalue = ucblocks;
-> +
-> +	/*
-> +	 * If the per-delivery system doesn't specify, set a default timeout
-> +	 * that will wait 20-30 seconds
-> +	 */
-> +	if (!priv->ucb_interval && p->bandwidth_hz)
-> +		priv->ucb_interval = (100 * 204 * 1000 * 8) / p->bandwidth_hz;
-> +
-> +	if (priv->ucb_interval < 1000)
-> +		priv->ucb_interval = 1000;
-> +
-> +// HACK:
-> +dev_info(&priv->i2c->dev, "UCB interval: %d ms", priv->ucb_interval);
-> +
-> +	priv->ucb_time = jiffies + msecs_to_jiffies(priv->ucb_interval);
->  }
->  
->  static int cxd2841er_dvbt2_set_profile(
-> @@ -3360,6 +3421,13 @@ static int cxd2841er_set_frontend_s(struct dvb_frontend *fe)
->  	p->post_bit_error.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
->  	p->post_bit_count.stat[0].scale = FE_SCALE_NOT_AVAILABLE;
->  
-> +	/* Reset the wait for jiffies logic */
-> +	priv->ber_interval = 0;
-> +	priv->ucb_interval = 0;
-> +	priv->ber_time = 0;
-> +	priv->ucb_time = 0;
-> +	priv->snr_time = 0;
-> +
+>  drivers/iio/adc/axp288_adc.c | 32 ++++++++++++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+>=20
+> diff --git a/drivers/iio/adc/axp288_adc.c b/drivers/iio/adc/axp288_adc.c
+> index 31d51bcc5f2c..85d08e68b34f 100644
+> --- a/drivers/iio/adc/axp288_adc.c
+> +++ b/drivers/iio/adc/axp288_adc.c
+> @@ -7,6 +7,7 @@
+>   * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~
+>   */
+> =20
+> +#include <linux/dmi.h>
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+>  #include <linux/device.h>
+> @@ -25,6 +26,11 @@
+>  #define AXP288_ADC_EN_MASK				0xF0
+>  #define AXP288_ADC_TS_ENABLE				0x01
+> =20
+> +#define AXP288_ADC_TS_BIAS_MASK				GENMASK(5, 4)
+> +#define AXP288_ADC_TS_BIAS_20UA				(0 << 4)
+> +#define AXP288_ADC_TS_BIAS_40UA				(1 << 4)
+> +#define AXP288_ADC_TS_BIAS_60UA				(2 << 4)
+> +#define AXP288_ADC_TS_BIAS_80UA				(3 << 4)
+>  #define AXP288_ADC_TS_CURRENT_ON_OFF_MASK		GENMASK(1, 0)
+>  #define AXP288_ADC_TS_CURRENT_OFF			(0 << 0)
+>  #define AXP288_ADC_TS_CURRENT_ON_WHEN_CHARGING		(1 << 0)
+> @@ -177,10 +183,36 @@ static int axp288_adc_read_raw(struct iio_dev *indi=
+o_dev,
 >  	return ret;
 >  }
->  
+> =20
+> +/*
+> + * We rely on the machine's firmware to correctly setup the TS pin bias =
+current
+> + * at boot. This lists systems with broken fw where we need to set it ou=
+rselves.
+> + */
+> +static const struct dmi_system_id axp288_adc_ts_bias_override[] =3D {
+> +	{
+> +		/* Lenovo Ideapad 100S (11 inch) */
+> +		.matches =3D {
+> +		  DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> +		  DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad 100S-11IBY"),
+> +		},
+> +		.driver_data =3D (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
+> +	},
+> +	{}
+> +};
+> +
+>  static int axp288_adc_initialize(struct axp288_adc_info *info)
+>  {
+> +	const struct dmi_system_id *bias_override;
+>  	int ret, adc_enable_val;
+> =20
+> +	bias_override =3D dmi_first_match(axp288_adc_ts_bias_override);
+> +	if (bias_override) {
+> +		ret =3D regmap_update_bits(info->regmap, AXP288_ADC_TS_PIN_CTRL,
+> +					 AXP288_ADC_TS_BIAS_MASK,
+> +					 (uintptr_t)bias_override->driver_data);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+>  	/*
+>  	 * Determine if the TS pin is enabled and set the TS current-source
+>  	 * accordingly.
 
-
-
-
-Best regards,
-Daniel Scheller
--- 
-https://github.com/herrnst
