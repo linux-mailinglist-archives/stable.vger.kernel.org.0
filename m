@@ -2,109 +2,279 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDC2CCD39
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 01:02:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C0CCCD3F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 01:11:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbfJEXCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Oct 2019 19:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52354 "EHLO mail.kernel.org"
+        id S1725947AbfJEXLK convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 5 Oct 2019 19:11:10 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:45336 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726107AbfJEXCg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Oct 2019 19:02:36 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725801AbfJEXLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Oct 2019 19:11:10 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B3CE20862;
-        Sat,  5 Oct 2019 23:02:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570316555;
-        bh=pbCDwTpnxXwPtXZNFzio8R6jbg4DLNM1x7B3grojDPw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zv+p98PCeWNGZlJ8OtQAB26G6EkW2a2HjaVvZ6dIpjVVh/Q78h1eUKzUl4t1AgTZ2
-         LwoiqZpsJzcIfdEumNTZVbBoUr/+zBCChIxMXkdzG9o7/lbobup29RiTkAxoq2JfO2
-         k/6aHn3SNEm3WYuutdL7Kqf2EL5A49pTZPDoc3mg=
-Date:   Sat, 5 Oct 2019 19:02:34 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        clang-built-linux@googlegroups.com
-Subject: Re: [PATCH AUTOSEL 4.14 08/23] ARM: 8875/1: Kconfig: default to
- AEABI w/ Clang
-Message-ID: <20191005230234.GD25255@sasha-vm>
-References: <20190929173535.9744-1-sashal@kernel.org>
- <20190929173535.9744-8-sashal@kernel.org>
- <20190929180852.GA901024@archlinux-threadripper>
+        by mx1.redhat.com (Postfix) with ESMTPS id 7AC10308FC20
+        for <stable@vger.kernel.org>; Sat,  5 Oct 2019 23:11:09 +0000 (UTC)
+Received: from [172.54.19.159] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 679A95D772;
+        Sat,  5 Oct 2019 23:11:04 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190929180852.GA901024@archlinux-threadripper>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.4-ed56826.cki
+ (stable)
+CC:     Jeff Bastian <jbastian@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.F7D7AF8291.B2RERZ8XG4@redhat.com>
+X-Gitlab-Pipeline-ID: 207647
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/207647
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Sat, 05 Oct 2019 23:11:09 +0000 (UTC)
+Date:   Sat, 5 Oct 2019 19:11:10 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 29, 2019 at 11:08:52AM -0700, Nathan Chancellor wrote:
->On Sun, Sep 29, 2019 at 01:35:18PM -0400, Sasha Levin wrote:
->> From: Nick Desaulniers <ndesaulniers@google.com>
->>
->> [ Upstream commit a05b9608456e0d4464c6f7ca8572324ace57a3f4 ]
->>
->> Clang produces references to __aeabi_uidivmod and __aeabi_idivmod for
->> arm-linux-gnueabi and arm-linux-gnueabihf targets incorrectly when AEABI
->> is not selected (such as when OABI_COMPAT is selected).
->>
->> While this means that OABI userspaces wont be able to upgraded to
->> kernels built with Clang, it means that boards that don't enable AEABI
->> like s3c2410_defconfig will stop failing to link in KernelCI when built
->> with Clang.
->>
->> Link: https://github.com/ClangBuiltLinux/linux/issues/482
->> Link: https://groups.google.com/forum/#!msg/clang-built-linux/yydsAAux5hk/GxjqJSW-AQAJ
->>
->> Suggested-by: Arnd Bergmann <arnd@arndb.de>
->> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
->> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
->> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
->> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  arch/arm/Kconfig | 5 +++--
->>  1 file changed, 3 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
->> index cf69aab648fbd..f0080864b9ce8 100644
->> --- a/arch/arm/Kconfig
->> +++ b/arch/arm/Kconfig
->> @@ -1595,8 +1595,9 @@ config ARM_PATCH_IDIV
->>  	  code to do integer division.
->>
->>  config AEABI
->> -	bool "Use the ARM EABI to compile the kernel" if !CPU_V7 && !CPU_V7M && !CPU_V6 && !CPU_V6K
->> -	default CPU_V7 || CPU_V7M || CPU_V6 || CPU_V6K
->> +	bool "Use the ARM EABI to compile the kernel" if !CPU_V7 && \
->> +		!CPU_V7M && !CPU_V6 && !CPU_V6K && !CC_IS_CLANG
->> +	default CPU_V7 || CPU_V7M || CPU_V6 || CPU_V6K || CC_IS_CLANG
->>  	help
->>  	  This option allows for the kernel to be compiled using the latest
->>  	  ARM ABI (aka EABI).  This is only useful if you are using a user
->> --
->> 2.20.1
->>
->
->Hi Sasha,
->
->This patch will not do anything for 4.14 because CC_IS_CLANG is not
->defined in this tree. The Kconfig patches that make this symbol possible
->were not merged until 4.18. I would recommend dropping it (unless Nick
->has an idea to make this work).
 
-I've dropped it from 4.14 and older, thanks!
+Hello,
 
--- 
-Thanks,
-Sasha
+We ran automated tests on a recent commit from this kernel tree:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: ed56826f1779 - Linux 5.3.4
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/207647
+
+One or more kernel tests failed:
+
+    x86_64:
+      ❌ stress: stress-ng
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+
+         ⚡ Internal infrastructure issues prevented one or more tests (marked
+         with ⚡⚡⚡) from running on this architecture.
+         This is not the fault of the kernel that was tested.
+
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         🚧 ⚡⚡⚡ LTP lite
+         🚧 ⚡⚡⚡ CIFS Connectathon
+         🚧 ⚡⚡⚡ POSIX pjd-fstest suites
+         🚧 ⚡⚡⚡ Memory function: kaslr
+         🚧 ⚡⚡⚡ Networking bridge: sanity
+         🚧 ⚡⚡⚡ Networking MACsec: sanity
+         🚧 ⚡⚡⚡ Networking route: pmtu
+         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
+         🚧 ⚡⚡⚡ L2TP basic test
+         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
+         🚧 ⚡⚡⚡ ALSA PCM loopback test
+         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
+         🚧 ⚡⚡⚡ storage: dm/common
+         🚧 ⚡⚡⚡ trace: ftrace/tracer
+         🚧 ⚡⚡⚡ Networking route_func: local
+         🚧 ⚡⚡⚡ Networking route_func: forward
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
+         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ❌ stress: stress-ng
+         🚧 ❌ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 2:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+      Host 3:
+         ✅ Boot test
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+
+      Host 4:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 5:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ IOMMU boot test
+         🚧 ✅ Storage blktests
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
+
