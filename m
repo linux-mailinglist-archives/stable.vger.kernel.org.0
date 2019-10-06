@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9228CD413
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4FE1CD415
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727238AbfJFRUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:20:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45556 "EHLO mail.kernel.org"
+        id S1727416AbfJFRVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:21:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727233AbfJFRUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:20:31 -0400
+        id S1727255AbfJFRUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:20:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67D762080F;
-        Sun,  6 Oct 2019 17:20:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E5822077B;
+        Sun,  6 Oct 2019 17:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382430;
-        bh=hpE6EBFLQyLMUQrjkG8l6mH4CF7Sr3JcameIFPSw3pA=;
+        s=default; t=1570382433;
+        bh=H1UlWTytnQ7kqdRX4mbQdL7bveS9FBSgwFgIlp3T5Ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vopqkc+KdJKiHleonKatlf4Fq+T4jT7bOqygwNX+ArACFYoy1Y02WdLnhKjj8YWff
-         CbvV9Dt0aIQ9bxPLyB2Bb391JCsdVssV6jSVXBMTUhMzcA5ToJHrNEfDNTkTY5054L
-         2jpdhhhWToe1Db7ZKES6ZiObJSONpCrIfjTWqF58=
+        b=IalJrVrCPkk+jH3Y08+r+SVb7XDMINuj14zh7zQpcZXk+wS85GVNPRWLjMWOyBcAF
+         w/dRGGRZ6yX2xjCJH1fjKxd/u4eZTwoIvCWFwFaLvpWoxyQqJT5REdI6nfgp9Tb/Zn
+         CncJMbGHQlyTpp0QxNhl3t0U2TnmV/M8sxABpBhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 28/36] net: qlogic: Fix memory leak in ql_alloc_large_buffers
-Date:   Sun,  6 Oct 2019 19:19:10 +0200
-Message-Id: <20191006171057.291439167@linuxfoundation.org>
+Subject: [PATCH 4.4 29/36] nfc: fix memory leak in llcp_sock_bind()
+Date:   Sun,  6 Oct 2019 19:19:11 +0200
+Message-Id: <20191006171058.216908056@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -44,30 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1acb8f2a7a9f10543868ddd737e37424d5c36cf4 ]
+[ Upstream commit a0c2dc1fe63e2869b74c1c7f6a81d1745c8a695d ]
 
-In ql_alloc_large_buffers, a new skb is allocated via netdev_alloc_skb.
-This skb should be released if pci_dma_mapping_error fails.
+sysbot reported a memory leak after a bind() has failed.
 
-Fixes: 0f8ab89e825f ("qla3xxx: Check return code from pci_map_single() in ql_release_to_lrg_buf_free_list(), ql_populate_free_queue(), ql_alloc_large_buffers(), and ql3xxx_send()")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+While we are at it, abort the operation if kmemdup() has failed.
+
+BUG: memory leak
+unreferenced object 0xffff888105d83ec0 (size 32):
+  comm "syz-executor067", pid 7207, jiffies 4294956228 (age 19.430s)
+  hex dump (first 32 bytes):
+    00 69 6c 65 20 72 65 61 64 00 6e 65 74 3a 5b 34  .ile read.net:[4
+    30 32 36 35 33 33 30 39 37 5d 00 00 00 00 00 00  026533097]......
+  backtrace:
+    [<0000000036bac473>] kmemleak_alloc_recursive /./include/linux/kmemleak.h:43 [inline]
+    [<0000000036bac473>] slab_post_alloc_hook /mm/slab.h:522 [inline]
+    [<0000000036bac473>] slab_alloc /mm/slab.c:3319 [inline]
+    [<0000000036bac473>] __do_kmalloc /mm/slab.c:3653 [inline]
+    [<0000000036bac473>] __kmalloc_track_caller+0x169/0x2d0 /mm/slab.c:3670
+    [<000000000cd39d07>] kmemdup+0x27/0x60 /mm/util.c:120
+    [<000000008e57e5fc>] kmemdup /./include/linux/string.h:432 [inline]
+    [<000000008e57e5fc>] llcp_sock_bind+0x1b3/0x230 /net/nfc/llcp_sock.c:107
+    [<000000009cb0b5d3>] __sys_bind+0x11c/0x140 /net/socket.c:1647
+    [<00000000492c3bbc>] __do_sys_bind /net/socket.c:1658 [inline]
+    [<00000000492c3bbc>] __se_sys_bind /net/socket.c:1656 [inline]
+    [<00000000492c3bbc>] __x64_sys_bind+0x1e/0x30 /net/socket.c:1656
+    [<0000000008704b2a>] do_syscall_64+0x76/0x1a0 /arch/x86/entry/common.c:296
+    [<000000009f4c57a4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 30cc4587659e ("NFC: Move LLCP code to the NFC top level diirectory")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/llcp_sock.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -2783,6 +2783,7 @@ static int ql_alloc_large_buffers(struct
- 				netdev_err(qdev->ndev,
- 					   "PCI mapping failed with error: %d\n",
- 					   err);
-+				dev_kfree_skb_irq(skb);
- 				ql_free_large_buffers(qdev);
- 				return -ENOMEM;
- 			}
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -118,9 +118,14 @@ static int llcp_sock_bind(struct socket
+ 	llcp_sock->service_name = kmemdup(llcp_addr.service_name,
+ 					  llcp_sock->service_name_len,
+ 					  GFP_KERNEL);
+-
++	if (!llcp_sock->service_name) {
++		ret = -ENOMEM;
++		goto put_dev;
++	}
+ 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
++		kfree(llcp_sock->service_name);
++		llcp_sock->service_name = NULL;
+ 		ret = -EADDRINUSE;
+ 		goto put_dev;
+ 	}
 
 
