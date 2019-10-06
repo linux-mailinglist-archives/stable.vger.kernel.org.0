@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 280F9CD79D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 118FDCD79F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729561AbfJFRcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:32:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58876 "EHLO mail.kernel.org"
+        id S1728825AbfJFRca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729557AbfJFRcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:24 -0400
+        id S1729573AbfJFRc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22C822133F;
-        Sun,  6 Oct 2019 17:32:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72F3F2133F;
+        Sun,  6 Oct 2019 17:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383143;
-        bh=fjJrdjq9ByRxGdjY6wKrvDvBEtcNvBtzbjBhKXMgaT0=;
+        s=default; t=1570383149;
+        bh=SQJ2TA1+dys19b096G1EEsqcCLyoAwdRC5caxt6qv2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UzMuSkyD+PMAWEA7YppHXXThhuWfkFyXh+920M3jWGLioyfD5alQmpRge4i+BnnmI
-         I0kpifbFPoDek2A4LQEOVQx9g6KdgS8KE1TfIyPEqB0ftgKLXqpT2LC4nnlQthjrm6
-         KbgqopKPS/UOPdxckewjC4TWXWcKtTvVmLr5TOuU=
+        b=CJOkCvGFdGVGmCLiWbhf0vI8hY+FOUX6YutoVzqwtutyRDJjx4zKR9VeIkVc0R317
+         RWa+ZMqfMTRY00V4chUsRKvOHAgI8VHqczdgYcwtOMn8XI2MRUvSJ6C9cnVybzKCH+
+         OhUaECGB29VUFH07oSt0jCnqjeHAPNwzROQ/DcgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.19 102/106] Smack: Dont ignore other bprm->unsafe flags if LSM_UNSAFE_PTRACE is set
-Date:   Sun,  6 Oct 2019 19:21:48 +0200
-Message-Id: <20191006171204.088611292@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 104/106] NFC: fix attrs checks in netlink interface
+Date:   Sun,  6 Oct 2019 19:21:50 +0200
+Message-Id: <20191006171204.760312069@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -43,50 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
+commit 18917d51472fe3b126a3a8f756c6b18085eb8130 upstream.
 
-There is a logic bug in the current smack_bprm_set_creds():
-If LSM_UNSAFE_PTRACE is set, but the ptrace state is deemed to be
-acceptable (e.g. because the ptracer detached in the meantime), the other
-->unsafe flags aren't checked. As far as I can tell, this means that
-something like the following could work (but I haven't tested it):
+nfc_genl_deactivate_target() relies on the NFC_ATTR_TARGET_INDEX
+attribute being present, but doesn't check whether it is actually
+provided by the user. Same goes for nfc_genl_fw_download() and
+NFC_ATTR_FIRMWARE_NAME.
 
- - task A: create task B with fork()
- - task B: set NO_NEW_PRIVS
- - task B: install a seccomp filter that makes open() return 0 under some
-   conditions
- - task B: replace fd 0 with a malicious library
- - task A: attach to task B with PTRACE_ATTACH
- - task B: execve() a file with an SMACK64EXEC extended attribute
- - task A: while task B is still in the middle of execve(), exit (which
-   destroys the ptrace relationship)
+This patch adds appropriate checks.
 
-Make sure that if any flags other than LSM_UNSAFE_PTRACE are set in
-bprm->unsafe, we reject the execve().
+Found with syzkaller.
 
-Cc: stable@vger.kernel.org
-Fixes: 5663884caab1 ("Smack: unify all ptrace accesses in the smack")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/smack/smack_lsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/nfc/netlink.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -947,7 +947,8 @@ static int smack_bprm_set_creds(struct l
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -981,7 +981,8 @@ static int nfc_genl_dep_link_down(struct
+ 	int rc;
+ 	u32 idx;
  
- 		if (rc != 0)
- 			return rc;
--	} else if (bprm->unsafe)
-+	}
-+	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
- 		return -EPERM;
+-	if (!info->attrs[NFC_ATTR_DEVICE_INDEX])
++	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
++	    !info->attrs[NFC_ATTR_TARGET_INDEX])
+ 		return -EINVAL;
  
- 	bsp->smk_task = isp->smk_task;
+ 	idx = nla_get_u32(info->attrs[NFC_ATTR_DEVICE_INDEX]);
+@@ -1029,7 +1030,8 @@ static int nfc_genl_llc_get_params(struc
+ 	struct sk_buff *msg = NULL;
+ 	u32 idx;
+ 
+-	if (!info->attrs[NFC_ATTR_DEVICE_INDEX])
++	if (!info->attrs[NFC_ATTR_DEVICE_INDEX] ||
++	    !info->attrs[NFC_ATTR_FIRMWARE_NAME])
+ 		return -EINVAL;
+ 
+ 	idx = nla_get_u32(info->attrs[NFC_ATTR_DEVICE_INDEX]);
 
 
