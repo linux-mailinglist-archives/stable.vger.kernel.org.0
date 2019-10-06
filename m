@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5161CCD7E3
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C55CD79A
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728665AbfJFRy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:54:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51342 "EHLO mail.kernel.org"
+        id S1729131AbfJFRcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726918AbfJFRy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:28 -0400
+        id S1728349AbfJFRcK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8788B2247C;
-        Sun,  6 Oct 2019 17:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8407E2133F;
+        Sun,  6 Oct 2019 17:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383998;
-        bh=dTYb9XmPpGezQJA6U/RlhJTJ+F2VVzbzIQ64FdtB7Hw=;
+        s=default; t=1570383130;
+        bh=DAmgiiSZWCuRyI8VV23ospy6jJdpUUxcp04e1vpILr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PiDSBSg3AYUHNaVsZx8q9Xepic1liZ6Bn269ftTzvAAOkLKaoa9/XA3y7Y25+yFOq
-         8R5M3GNRIFHJkSAYF4tVZv35O9eq8CF2A42qXAw59Nm8gas/DukERhlB+UXou42nZX
-         sMaNhstYRcVioy2M7Q8RLyWiIccm1iC+QEzO5PiA=
+        b=dLGseiajWLaQg1WIC5MOv9yU8ejH1zAN1/mbPWXWXyhvPxSHZ7Ejm0PMzUr03j5dT
+         3t0q19XhyL5FKQ56qWU6Ty82TMJkaBcBJ14UWeBfVIxX2C9nI8IJ8qiwO8ZY2BcJrM
+         YldkxKPN3a2N/Var7Nt0b6pZG0J80ebpYzakL5VA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 137/166] nfc: fix memory leak in llcp_sock_bind()
-Date:   Sun,  6 Oct 2019 19:21:43 +0200
-Message-Id: <20191006171224.657266919@linuxfoundation.org>
+Subject: [PATCH 4.19 098/106] tipc: fix unlimited bundling of small messages
+Date:   Sun,  6 Oct 2019 19:21:44 +0200
+Message-Id: <20191006171202.606183179@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-References: <20191006171212.850660298@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit a0c2dc1fe63e2869b74c1c7f6a81d1745c8a695d ]
+[ Upstream commit e95584a889e1902fdf1ded9712e2c3c3083baf96 ]
 
-sysbot reported a memory leak after a bind() has failed.
+We have identified a problem with the "oversubscription" policy in the
+link transmission code.
 
-While we are at it, abort the operation if kmemdup() has failed.
+When small messages are transmitted, and the sending link has reached
+the transmit window limit, those messages will be bundled and put into
+the link backlog queue. However, bundles of data messages are counted
+at the 'CRITICAL' level, so that the counter for that level, instead of
+the counter for the real, bundled message's level is the one being
+increased.
+Subsequent, to-be-bundled data messages at non-CRITICAL levels continue
+to be tested against the unchanged counter for their own level, while
+contributing to an unrestrained increase at the CRITICAL backlog level.
 
-BUG: memory leak
-unreferenced object 0xffff888105d83ec0 (size 32):
-  comm "syz-executor067", pid 7207, jiffies 4294956228 (age 19.430s)
-  hex dump (first 32 bytes):
-    00 69 6c 65 20 72 65 61 64 00 6e 65 74 3a 5b 34  .ile read.net:[4
-    30 32 36 35 33 33 30 39 37 5d 00 00 00 00 00 00  026533097]......
-  backtrace:
-    [<0000000036bac473>] kmemleak_alloc_recursive /./include/linux/kmemleak.h:43 [inline]
-    [<0000000036bac473>] slab_post_alloc_hook /mm/slab.h:522 [inline]
-    [<0000000036bac473>] slab_alloc /mm/slab.c:3319 [inline]
-    [<0000000036bac473>] __do_kmalloc /mm/slab.c:3653 [inline]
-    [<0000000036bac473>] __kmalloc_track_caller+0x169/0x2d0 /mm/slab.c:3670
-    [<000000000cd39d07>] kmemdup+0x27/0x60 /mm/util.c:120
-    [<000000008e57e5fc>] kmemdup /./include/linux/string.h:432 [inline]
-    [<000000008e57e5fc>] llcp_sock_bind+0x1b3/0x230 /net/nfc/llcp_sock.c:107
-    [<000000009cb0b5d3>] __sys_bind+0x11c/0x140 /net/socket.c:1647
-    [<00000000492c3bbc>] __do_sys_bind /net/socket.c:1658 [inline]
-    [<00000000492c3bbc>] __se_sys_bind /net/socket.c:1656 [inline]
-    [<00000000492c3bbc>] __x64_sys_bind+0x1e/0x30 /net/socket.c:1656
-    [<0000000008704b2a>] do_syscall_64+0x76/0x1a0 /arch/x86/entry/common.c:296
-    [<000000009f4c57a4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This leaves a gap in congestion control algorithm for small messages
+that can result in starvation for other users or a "real" CRITICAL
+user. Even that eventually can lead to buffer exhaustion & link reset.
 
-Fixes: 30cc4587659e ("NFC: Move LLCP code to the NFC top level diirectory")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+We fix this by keeping a 'target_bskb' buffer pointer at each levels,
+then when bundling, we only bundle messages at the same importance
+level only. This way, we know exactly how many slots a certain level
+have occupied in the queue, so can manage level congestion accurately.
+
+By bundling messages at the same level, we even have more benefits. Let
+consider this:
+- One socket sends 64-byte messages at the 'CRITICAL' level;
+- Another sends 4096-byte messages at the 'LOW' level;
+
+When a 64-byte message comes and is bundled the first time, we put the
+overhead of message bundle to it (+ 40-byte header, data copy, etc.)
+for later use, but the next message can be a 4096-byte one that cannot
+be bundled to the previous one. This means the last bundle carries only
+one payload message which is totally inefficient, as for the receiver
+also! Later on, another 64-byte message comes, now we make a new bundle
+and the same story repeats...
+
+With the new bundling algorithm, this will not happen, the 64-byte
+messages will be bundled together even when the 4096-byte message(s)
+comes in between. However, if the 4096-byte messages are sent at the
+same level i.e. 'CRITICAL', the bundling algorithm will again cause the
+same overhead.
+
+Also, the same will happen even with only one socket sending small
+messages at a rate close to the link transmit's one, so that, when one
+message is bundled, it's transmitted shortly. Then, another message
+comes, a new bundle is created and so on...
+
+We will solve this issue radically by another patch.
+
+Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
+Reported-by: Hoang Le <hoang.h.le@dektech.com.au>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/tipc/link.c |   29 ++++++++++++++++++-----------
+ net/tipc/msg.c  |    5 +----
+ 2 files changed, 19 insertions(+), 15 deletions(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -107,9 +107,14 @@ static int llcp_sock_bind(struct socket
- 	llcp_sock->service_name = kmemdup(llcp_addr.service_name,
- 					  llcp_sock->service_name_len,
- 					  GFP_KERNEL);
--
-+	if (!llcp_sock->service_name) {
-+		ret = -ENOMEM;
-+		goto put_dev;
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -161,6 +161,7 @@ struct tipc_link {
+ 	struct {
+ 		u16 len;
+ 		u16 limit;
++		struct sk_buff *target_bskb;
+ 	} backlog[5];
+ 	u16 snd_nxt;
+ 	u16 last_retransm;
+@@ -846,6 +847,7 @@ static void link_prepare_wakeup(struct t
+ void tipc_link_reset(struct tipc_link *l)
+ {
+ 	struct sk_buff_head list;
++	u32 imp;
+ 
+ 	__skb_queue_head_init(&list);
+ 
+@@ -864,11 +866,10 @@ void tipc_link_reset(struct tipc_link *l
+ 	__skb_queue_purge(&l->transmq);
+ 	__skb_queue_purge(&l->deferdq);
+ 	__skb_queue_purge(&l->backlogq);
+-	l->backlog[TIPC_LOW_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_MEDIUM_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_HIGH_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_CRITICAL_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_SYSTEM_IMPORTANCE].len = 0;
++	for (imp = 0; imp <= TIPC_SYSTEM_IMPORTANCE; imp++) {
++		l->backlog[imp].len = 0;
++		l->backlog[imp].target_bskb = NULL;
 +	}
- 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
-+		kfree(llcp_sock->service_name);
-+		llcp_sock->service_name = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
+ 	kfree_skb(l->reasm_buf);
+ 	kfree_skb(l->failover_reasm_skb);
+ 	l->reasm_buf = NULL;
+@@ -909,7 +910,7 @@ int tipc_link_xmit(struct tipc_link *l,
+ 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
+ 	struct sk_buff_head *transmq = &l->transmq;
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+-	struct sk_buff *skb, *_skb, *bskb;
++	struct sk_buff *skb, *_skb, **tskb;
+ 	int pkt_cnt = skb_queue_len(list);
+ 	int rc = 0;
+ 
+@@ -955,19 +956,21 @@ int tipc_link_xmit(struct tipc_link *l,
+ 			seqno++;
+ 			continue;
+ 		}
+-		if (tipc_msg_bundle(skb_peek_tail(backlogq), hdr, mtu)) {
++		tskb = &l->backlog[imp].target_bskb;
++		if (tipc_msg_bundle(*tskb, hdr, mtu)) {
+ 			kfree_skb(__skb_dequeue(list));
+ 			l->stats.sent_bundled++;
+ 			continue;
+ 		}
+-		if (tipc_msg_make_bundle(&bskb, hdr, mtu, l->addr)) {
++		if (tipc_msg_make_bundle(tskb, hdr, mtu, l->addr)) {
+ 			kfree_skb(__skb_dequeue(list));
+-			__skb_queue_tail(backlogq, bskb);
+-			l->backlog[msg_importance(buf_msg(bskb))].len++;
++			__skb_queue_tail(backlogq, *tskb);
++			l->backlog[imp].len++;
+ 			l->stats.sent_bundled++;
+ 			l->stats.sent_bundles++;
+ 			continue;
+ 		}
++		l->backlog[imp].target_bskb = NULL;
+ 		l->backlog[imp].len += skb_queue_len(list);
+ 		skb_queue_splice_tail_init(list, backlogq);
  	}
+@@ -983,6 +986,7 @@ static void tipc_link_advance_backlog(st
+ 	u16 seqno = l->snd_nxt;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
++	u32 imp;
+ 
+ 	while (skb_queue_len(&l->transmq) < l->window) {
+ 		skb = skb_peek(&l->backlogq);
+@@ -993,7 +997,10 @@ static void tipc_link_advance_backlog(st
+ 			break;
+ 		__skb_dequeue(&l->backlogq);
+ 		hdr = buf_msg(skb);
+-		l->backlog[msg_importance(hdr)].len--;
++		imp = msg_importance(hdr);
++		l->backlog[imp].len--;
++		if (unlikely(skb == l->backlog[imp].target_bskb))
++			l->backlog[imp].target_bskb = NULL;
+ 		__skb_queue_tail(&l->transmq, skb);
+ 		__skb_queue_tail(xmitq, _skb);
+ 		TIPC_SKB_CB(skb)->ackers = l->ackers;
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -484,10 +484,7 @@ bool tipc_msg_make_bundle(struct sk_buff
+ 	bmsg = buf_msg(_skb);
+ 	tipc_msg_init(msg_prevnode(msg), bmsg, MSG_BUNDLER, 0,
+ 		      INT_H_SIZE, dnode);
+-	if (msg_isdata(msg))
+-		msg_set_importance(bmsg, TIPC_CRITICAL_IMPORTANCE);
+-	else
+-		msg_set_importance(bmsg, TIPC_SYSTEM_IMPORTANCE);
++	msg_set_importance(bmsg, msg_importance(msg));
+ 	msg_set_seqno(bmsg, msg_seqno(msg));
+ 	msg_set_ack(bmsg, msg_ack(msg));
+ 	msg_set_bcast_ack(bmsg, msg_bcast_ack(msg));
 
 
