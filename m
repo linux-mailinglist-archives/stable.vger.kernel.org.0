@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71824CD451
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC70ECD499
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbfJFRYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
+        id S1728489AbfJFR12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727899AbfJFRYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:24:33 -0400
+        id S1728157AbfJFR11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:27:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9913F20867;
-        Sun,  6 Oct 2019 17:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A507B2080F;
+        Sun,  6 Oct 2019 17:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382673;
-        bh=fHqOQJ6Mhd47oaOIPunjdLpumaaCH0jkysn3GhZIxdc=;
+        s=default; t=1570382846;
+        bh=NrOXkqzkscBJK1LYN1LMb/MLQQ894qt9mIUxz6ixMiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhhleIcnxbpSRU6rX4/knKeteegmrhe4euL09lNW35/Dg7RfBya2rl9dUhNirUdqy
-         0nJvj3J76Wnzz/B4Y1GtKDLatOnhrCtHVCqIlOWRyJduJ3gBYkScjdv3zECeFQo8uc
-         Tn/6iLb8MYPImBg8KIGpc3o5bh3bNrALYyMpwQaw=
+        b=t9YbOCfEt6RVp0agEJn4kCSk5Owb/osi4erEeBuOaIPjdhhYBOMrXxNOwRIuihlrk
+         8RxqlNfiEgop1Nopr060r28BopHgjsfRS+zOOaangKLTZGBevk68cMOSe0QGrLOOnJ
+         nbF1hTx/bFdTB5UnfzKDuLc8hf8dONmV0l8YQyZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com,
-        Eric Biggers <ebiggers@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.9 46/47] smack: use GFP_NOFS while holding inode_smack::smk_lock
-Date:   Sun,  6 Oct 2019 19:21:33 +0200
-Message-Id: <20191006172019.312676905@linuxfoundation.org>
+        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
+        Juergen Gross <jgross@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 61/68] xen-netfront: do not use ~0U as error return value for xennet_fill_frags()
+Date:   Sun,  6 Oct 2019 19:21:37 +0200
+Message-Id: <20191006171137.029403085@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
 
-commit e5bfad3d7acc5702f32aafeb388362994f4d7bd0 upstream.
+[ Upstream commit a761129e3625688310aecf26e1be9e98e85f8eb5 ]
 
-inode_smack::smk_lock is taken during smack_d_instantiate(), which is
-called during a filesystem transaction when creating a file on ext4.
-Therefore to avoid a deadlock, all code that takes this lock must use
-GFP_NOFS, to prevent memory reclaim from waiting for the filesystem
-transaction to complete.
+xennet_fill_frags() uses ~0U as return value when the sk_buff is not able
+to cache extra fragments. This is incorrect because the return type of
+xennet_fill_frags() is RING_IDX and 0xffffffff is an expected value for
+ring buffer index.
 
-Reported-by: syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+In the situation when the rsp_cons is approaching 0xffffffff, the return
+value of xennet_fill_frags() may become 0xffffffff which xennet_poll() (the
+caller) would regard as error. As a result, queue->rx.rsp_cons is set
+incorrectly because it is updated only when there is error. If there is no
+error, xennet_poll() would be responsible to update queue->rx.rsp_cons.
+Finally, queue->rx.rsp_cons would point to the rx ring buffer entries whose
+queue->rx_skbs[i] and queue->grant_rx_ref[i] are already cleared to NULL.
+This leads to NULL pointer access in the next iteration to process rx ring
+buffer entries.
+
+The symptom is similar to the one fixed in
+commit 00b368502d18 ("xen-netfront: do not assume sk_buff_head list is
+empty in error handling").
+
+This patch changes the return type of xennet_fill_frags() to indicate
+whether it is successful or failed. The queue->rx.rsp_cons will be
+always updated inside this function.
+
+Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- security/smack/smack_access.c |    4 ++--
- security/smack/smack_lsm.c    |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/xen-netfront.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/security/smack/smack_access.c
-+++ b/security/smack/smack_access.c
-@@ -474,7 +474,7 @@ char *smk_parse_smack(const char *string
- 	if (i == 0 || i >= SMK_LONGLABEL)
- 		return ERR_PTR(-EINVAL);
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -889,9 +889,9 @@ static int xennet_set_skb_gso(struct sk_
+ 	return 0;
+ }
  
--	smack = kzalloc(i + 1, GFP_KERNEL);
-+	smack = kzalloc(i + 1, GFP_NOFS);
- 	if (smack == NULL)
- 		return ERR_PTR(-ENOMEM);
+-static RING_IDX xennet_fill_frags(struct netfront_queue *queue,
+-				  struct sk_buff *skb,
+-				  struct sk_buff_head *list)
++static int xennet_fill_frags(struct netfront_queue *queue,
++			     struct sk_buff *skb,
++			     struct sk_buff_head *list)
+ {
+ 	RING_IDX cons = queue->rx.rsp_cons;
+ 	struct sk_buff *nskb;
+@@ -910,7 +910,7 @@ static RING_IDX xennet_fill_frags(struct
+ 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
+ 			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
+ 			kfree_skb(nskb);
+-			return ~0U;
++			return -ENOENT;
+ 		}
  
-@@ -545,7 +545,7 @@ struct smack_known *smk_import_entry(con
- 	if (skp != NULL)
- 		goto freeout;
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags,
+@@ -921,7 +921,9 @@ static RING_IDX xennet_fill_frags(struct
+ 		kfree_skb(nskb);
+ 	}
  
--	skp = kzalloc(sizeof(*skp), GFP_KERNEL);
-+	skp = kzalloc(sizeof(*skp), GFP_NOFS);
- 	if (skp == NULL) {
- 		skp = ERR_PTR(-ENOMEM);
- 		goto freeout;
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -268,7 +268,7 @@ static struct smack_known *smk_fetch(con
- 	if (!(ip->i_opflags & IOP_XATTR))
- 		return ERR_PTR(-EOPNOTSUPP);
+-	return cons;
++	queue->rx.rsp_cons = cons;
++
++	return 0;
+ }
  
--	buffer = kzalloc(SMK_LONGLABEL, GFP_KERNEL);
-+	buffer = kzalloc(SMK_LONGLABEL, GFP_NOFS);
- 	if (buffer == NULL)
- 		return ERR_PTR(-ENOMEM);
+ static int checksum_setup(struct net_device *dev, struct sk_buff *skb)
+@@ -1047,8 +1049,7 @@ err:
+ 		skb->data_len = rx->status;
+ 		skb->len += rx->status;
+ 
+-		i = xennet_fill_frags(queue, skb, &tmpq);
+-		if (unlikely(i == ~0U))
++		if (unlikely(xennet_fill_frags(queue, skb, &tmpq)))
+ 			goto err;
+ 
+ 		if (rx->flags & XEN_NETRXF_csum_blank)
+@@ -1058,7 +1059,7 @@ err:
+ 
+ 		__skb_queue_tail(&rxq, skb);
+ 
+-		queue->rx.rsp_cons = ++i;
++		i = ++queue->rx.rsp_cons;
+ 		work_done++;
+ 	}
  
 
 
