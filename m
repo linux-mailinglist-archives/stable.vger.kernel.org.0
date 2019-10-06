@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FDECD707
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28777CD6E8
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727564AbfJFRi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:38:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
+        id S1729447AbfJFRu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730699AbfJFRi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:38:58 -0400
+        id S1727265AbfJFRuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:50:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 961F720862;
-        Sun,  6 Oct 2019 17:38:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF53821872;
+        Sun,  6 Oct 2019 17:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383538;
-        bh=2xcT+VGmJXBcuipPn6QtCUyE9RS/qI0oh11nGPw+dAQ=;
+        s=default; t=1570383941;
+        bh=JtWgIdPbrxTIzhHvd5RJChyICdzkwyKEP1/c3Lj8kLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/mW7Gw/doEEH778eZK9J18F0fwcEYJNDchSamq/UjmGemKIU7lwXBEMxsCNgRxO/
-         14yr2z2ELTLPN9rQvE1mrf0GQarVau+sUrNe9Bu53lAYu2TYvPpGuMucI5fnvVOkRW
-         HHBY2SKyf4gb8xBZtkRg1mUvmbPvYXeZI2sPR9zQ=
+        b=Yh/br1eSJYr50P8lEDMtX28ytovq9sjAgEScWtZx4SOY1vSpMlFb0bQ5ksGn69jO8
+         8E9Xx2OQx0QHkpwGgR2ii86qQy+CddlnlP6ZT0VX9F8UvRssAe5QoEB6Zz1lICU+Z/
+         xcFI55FsoxdhFyQmKIz441GLPGRroHw71cxCorXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.2 134/137] kexec: bail out upon SIGKILL when allocating memory.
+        stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 152/166] ptp_qoriq: Initialize the registers spinlock before calling ptp_qoriq_settime
 Date:   Sun,  6 Oct 2019 19:21:58 +0200
-Message-Id: <20191006171220.547845343@linuxfoundation.org>
+Message-Id: <20191006171225.700840257@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-commit 7c3a6aedcd6aae0a32a527e68669f7dd667492d1 upstream.
+[ Upstream commit db34a4714c013b644eec2de0ec81b1f0373b8b93 ]
 
-syzbot found that a thread can stall for minutes inside kexec_load() after
-that thread was killed by SIGKILL [1].  It turned out that the reproducer
-was trying to allocate 2408MB of memory using kimage_alloc_page() from
-kimage_load_normal_segment().  Let's check for SIGKILL before doing memory
-allocation.
+Because ptp_qoriq_settime is being called prior to spin_lock_init, the
+following stack trace can be seen at driver probe time:
 
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
+[    2.269117] the code is fine but needs lockdep annotation.
+[    2.274569] turning off the locking correctness validator.
+[    2.280027] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc7-01478-g01eaa67a4797 #263
+[    2.288073] Hardware name: Freescale LS1021A
+[    2.292337] [<c0313cb4>] (unwind_backtrace) from [<c030e11c>] (show_stack+0x10/0x14)
+[    2.300045] [<c030e11c>] (show_stack) from [<c1219440>] (dump_stack+0xcc/0xf8)
+[    2.307235] [<c1219440>] (dump_stack) from [<c03b9b44>] (register_lock_class+0x730/0x73c)
+[    2.315372] [<c03b9b44>] (register_lock_class) from [<c03b6190>] (__lock_acquire+0x78/0x270c)
+[    2.323856] [<c03b6190>] (__lock_acquire) from [<c03b90cc>] (lock_acquire+0xe0/0x22c)
+[    2.331649] [<c03b90cc>] (lock_acquire) from [<c123c310>] (_raw_spin_lock_irqsave+0x54/0x68)
+[    2.340048] [<c123c310>] (_raw_spin_lock_irqsave) from [<c0e73fe4>] (ptp_qoriq_settime+0x38/0x80)
+[    2.348878] [<c0e73fe4>] (ptp_qoriq_settime) from [<c0e746d4>] (ptp_qoriq_init+0x1f8/0x484)
+[    2.357189] [<c0e746d4>] (ptp_qoriq_init) from [<c0e74aac>] (ptp_qoriq_probe+0xd0/0x184)
+[    2.365243] [<c0e74aac>] (ptp_qoriq_probe) from [<c0b0a07c>] (platform_drv_probe+0x48/0x9c)
+[    2.373555] [<c0b0a07c>] (platform_drv_probe) from [<c0b07a14>] (really_probe+0x1c4/0x400)
+[    2.381779] [<c0b07a14>] (really_probe) from [<c0b07e28>] (driver_probe_device+0x78/0x1b8)
+[    2.390003] [<c0b07e28>] (driver_probe_device) from [<c0b081d0>] (device_driver_attach+0x58/0x60)
+[    2.398832] [<c0b081d0>] (device_driver_attach) from [<c0b082d4>] (__driver_attach+0xfc/0x160)
+[    2.407402] [<c0b082d4>] (__driver_attach) from [<c0b05a84>] (bus_for_each_dev+0x68/0xb4)
+[    2.415539] [<c0b05a84>] (bus_for_each_dev) from [<c0b06b68>] (bus_add_driver+0x104/0x20c)
+[    2.423763] [<c0b06b68>] (bus_add_driver) from [<c0b0909c>] (driver_register+0x78/0x10c)
+[    2.431815] [<c0b0909c>] (driver_register) from [<c030313c>] (do_one_initcall+0x8c/0x3ac)
+[    2.439954] [<c030313c>] (do_one_initcall) from [<c1f013f4>] (kernel_init_freeable+0x468/0x548)
+[    2.448610] [<c1f013f4>] (kernel_init_freeable) from [<c12344d8>] (kernel_init+0x8/0x10c)
+[    2.456745] [<c12344d8>] (kernel_init) from [<c03010b4>] (ret_from_fork+0x14/0x20)
+[    2.464273] Exception stack(0xea89ffb0 to 0xea89fff8)
+[    2.469297] ffa0:                                     00000000 00000000 00000000 00000000
+[    2.477432] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    2.485566] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
 
-Link: http://lkml.kernel.org/r/993c9185-d324-2640-d061-bed2dd18b1f7@I-love.SAKURA.ne.jp
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ff54571a747b ("ptp_qoriq: convert to use ptp_qoriq_init/free")
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/kexec_core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ptp/ptp_qoriq.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -300,6 +300,8 @@ static struct page *kimage_alloc_pages(g
- {
- 	struct page *pages;
+--- a/drivers/ptp/ptp_qoriq.c
++++ b/drivers/ptp/ptp_qoriq.c
+@@ -507,6 +507,8 @@ int ptp_qoriq_init(struct ptp_qoriq *ptp
+ 		ptp_qoriq->regs.etts_regs = base + ETTS_REGS_OFFSET;
+ 	}
  
-+	if (fatal_signal_pending(current))
-+		return NULL;
- 	pages = alloc_pages(gfp_mask & ~__GFP_ZERO, order);
- 	if (pages) {
- 		unsigned int count, i;
++	spin_lock_init(&ptp_qoriq->lock);
++
+ 	ktime_get_real_ts64(&now);
+ 	ptp_qoriq_settime(&ptp_qoriq->caps, &now);
+ 
+@@ -514,7 +516,6 @@ int ptp_qoriq_init(struct ptp_qoriq *ptp
+ 	  (ptp_qoriq->tclk_period & TCLK_PERIOD_MASK) << TCLK_PERIOD_SHIFT |
+ 	  (ptp_qoriq->cksel & CKSEL_MASK) << CKSEL_SHIFT;
+ 
+-	spin_lock_init(&ptp_qoriq->lock);
+ 	spin_lock_irqsave(&ptp_qoriq->lock, flags);
+ 
+ 	regs = &ptp_qoriq->regs;
 
 
