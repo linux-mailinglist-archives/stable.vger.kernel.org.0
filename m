@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A73CD816
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D83CD7EE
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbfJFR63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:58:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58482 "EHLO mail.kernel.org"
+        id S1727272AbfJFRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729091AbfJFRcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:05 -0400
+        id S1727316AbfJFRy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:54:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E0E4214D9;
-        Sun,  6 Oct 2019 17:32:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D33C32247A;
+        Sun,  6 Oct 2019 17:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383124;
-        bh=lzf4NezQwvnIwgsemkILbMCirg6UhvXpkxXQMME+7bw=;
+        s=default; t=1570383995;
+        bh=35T8UIzRCNiDttKKFdbMJmiuJrtXjpVVa+1qrFBi4Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zx1MgU7WZsUGNr04bSLfnIDa4IIJ3Bft/25mLaoW7Dn4dwLlJckA0HPlMYpLjXU3g
-         s8p0R5qyMxV/cj/CjajZoo5zppGw82cfRjjkWeQKfdCFUtne/sMVCYdDr162Vm91Q5
-         PNGQiR06VuabL6Ph/tGCxxfXt8dFYuxu7W7UpKSw=
+        b=TbCGLDAciGvHzQgp81pYY1BN/lcFQ0DyTvYJ9mNJcN41t2tVomlTMYWgQ7JRI0L3L
+         gJP1hdqwpdkQHzYvYJi8eurWFYNqPs0fOahuDukGs4t5jo5xHzREETMA3VPI/uAZGm
+         O2+ni9NrRoa/qdI0v7HBGMKS9x783kxAwrvymct0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dotan Barak <dotanb@dev.mellanox.co.il>,
-        Sudhakar Dindukurti <sudhakar.dindukurti@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        Martin KaFai Lau <kafai@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 096/106] net/rds: Fix error handling in rds_ib_add_one()
+Subject: [PATCH 5.3 136/166] net: Unpublish sk from sk_reuseport_cb before call_rcu
 Date:   Sun,  6 Oct 2019 19:21:42 +0200
-Message-Id: <20191006171201.744213878@linuxfoundation.org>
+Message-Id: <20191006171224.590814877@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dotan Barak <dotanb@dev.mellanox.co.il>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit d64bf89a75b65f83f06be9fb8f978e60d53752db ]
+[ Upstream commit 8c7138b33e5c690c308b2a7085f6313fdcb3f616 ]
 
-rds_ibdev:ipaddr_list and rds_ibdev:conn_list are initialized
-after allocation some resources such as protection domain.
-If allocation of such resources fail, then these uninitialized
-variables are accessed in rds_ib_dev_free() in failure path. This
-can potentially crash the system. The code has been updated to
-initialize these variables very early in the function.
+The "reuse->sock[]" array is shared by multiple sockets.  The going away
+sk must unpublish itself from "reuse->sock[]" before making call_rcu()
+call.  However, this unpublish-action is currently done after a grace
+period and it may cause use-after-free.
 
-Signed-off-by: Dotan Barak <dotanb@dev.mellanox.co.il>
-Signed-off-by: Sudhakar Dindukurti <sudhakar.dindukurti@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+The fix is to move reuseport_detach_sock() to sk_destruct().
+Due to the above reason, any socket with sk_reuseport_cb has
+to go through the rcu grace period before freeing it.
+
+It is a rather old bug (~3 yrs).  The Fixes tag is not necessary
+the right commit but it is the one that introduced the SOCK_RCU_FREE
+logic and this fix is depending on it.
+
+Fixes: a4298e4522d6 ("net: add SOCK_RCU_FREE socket flag")
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rds/ib.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/core/sock.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/net/rds/ib.c
-+++ b/net/rds/ib.c
-@@ -143,6 +143,9 @@ static void rds_ib_add_one(struct ib_dev
- 	refcount_set(&rds_ibdev->refcount, 1);
- 	INIT_WORK(&rds_ibdev->free_work, rds_ib_dev_free);
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1700,8 +1700,6 @@ static void __sk_destruct(struct rcu_hea
+ 		sk_filter_uncharge(sk, filter);
+ 		RCU_INIT_POINTER(sk->sk_filter, NULL);
+ 	}
+-	if (rcu_access_pointer(sk->sk_reuseport_cb))
+-		reuseport_detach_sock(sk);
  
-+	INIT_LIST_HEAD(&rds_ibdev->ipaddr_list);
-+	INIT_LIST_HEAD(&rds_ibdev->conn_list);
+ 	sock_disable_timestamp(sk, SK_FLAGS_TIMESTAMP);
+ 
+@@ -1728,7 +1726,14 @@ static void __sk_destruct(struct rcu_hea
+ 
+ void sk_destruct(struct sock *sk)
+ {
+-	if (sock_flag(sk, SOCK_RCU_FREE))
++	bool use_call_rcu = sock_flag(sk, SOCK_RCU_FREE);
 +
- 	rds_ibdev->max_wrs = device->attrs.max_qp_wr;
- 	rds_ibdev->max_sge = min(device->attrs.max_send_sge, RDS_IB_MAX_SGE);
- 
-@@ -203,9 +206,6 @@ static void rds_ib_add_one(struct ib_dev
- 		device->name,
- 		rds_ibdev->use_fastreg ? "FRMR" : "FMR");
- 
--	INIT_LIST_HEAD(&rds_ibdev->ipaddr_list);
--	INIT_LIST_HEAD(&rds_ibdev->conn_list);
--
- 	down_write(&rds_ib_devices_lock);
- 	list_add_tail_rcu(&rds_ibdev->list, &rds_ib_devices);
- 	up_write(&rds_ib_devices_lock);
++	if (rcu_access_pointer(sk->sk_reuseport_cb)) {
++		reuseport_detach_sock(sk);
++		use_call_rcu = true;
++	}
++
++	if (use_call_rcu)
+ 		call_rcu(&sk->sk_rcu, __sk_destruct);
+ 	else
+ 		__sk_destruct(&sk->sk_rcu);
 
 
