@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CDE0CD41D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:23:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F553CD46C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726514AbfJFRW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:22:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47194 "EHLO mail.kernel.org"
+        id S1727452AbfJFRZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726508AbfJFRW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:22:57 -0400
+        id S1728087AbfJFRZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:25:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 299282080F;
-        Sun,  6 Oct 2019 17:22:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B1692077B;
+        Sun,  6 Oct 2019 17:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382576;
-        bh=AA3UGzytwFlaFFB0h7c09QGX5TW/ljwxPmgI+tY/N1Y=;
+        s=default; t=1570382741;
+        bh=eD6lV0qP68tXuMAX1bslxmo2XdVBf5W+00TM6BsEcZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/HGCrcJqWCBQ7WDDXuFCEz7HGK3Gxp7aA7p43ZVIP1Yj6KCcPblza3jvg0UPg+WB
-         YjjGCzJqTepM6jtYc7W5Wy6sZ65+0ETpfM3mh7aW3Tl+OxxwHJKkUZ72grX23u5jh/
-         p2227y3QBIkDnI8wUoiGhDxtvl9yQBdd4k2iikRo=
+        b=uHa06I17eVS8WgtCb1tBrvHo/4SfqMTiBpfysnvcNvQjq7nEjwpTQqoNY2+amdPXY
+         nyaltphchW8NrLR1zQezZ9jq1B4pGFNYK6pTHWS2izz9s/XpUzFqWYCwlZfYwXWryj
+         L4m0OTUYbXsvUxCtkP9jb2cSBuCDf8V2Bp4ip9H4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+        Ken Wang <Qingqing.Wang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 10/47] powerpc/pseries/mobility: use cond_resched when updating device tree
-Date:   Sun,  6 Oct 2019 19:20:57 +0200
-Message-Id: <20191006172017.431913166@linuxfoundation.org>
+Subject: [PATCH 4.14 22/68] drm/amdgpu/si: fix ASIC tests
+Date:   Sun,  6 Oct 2019 19:20:58 +0200
+Message-Id: <20191006171118.696415222@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit ccfb5bd71d3d1228090a8633800ae7cdf42a94ac ]
+[ Upstream commit 77efe48a729588527afb4d5811b9e0acb29f5e51 ]
 
-After a partition migration, pseries_devicetree_update() processes
-changes to the device tree communicated from the platform to
-Linux. This is a relatively heavyweight operation, with multiple
-device tree searches, memory allocations, and conversations with
-partition firmware.
+Comparing adev->family with CHIP constants is not correct.
+adev->family can only be compared with AMDGPU_FAMILY constants and
+adev->asic_type is the struct member to compare with CHIP constants.
+They are separate identification spaces.
 
-There's a few levels of nested loops which are bounded only by
-decisions made by the platform, outside of Linux's control, and indeed
-we have seen RCU stalls on large systems while executing this call
-graph. Use cond_resched() in these loops so that the cpu is yielded
-when needed.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802192926.19277-4-nathanl@linux.ibm.com
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 62a37553414a ("drm/amdgpu: add si implementation v10")
+Cc: Ken Wang <Qingqing.Wang@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/si.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index 3784a7abfcc80..74791e8382d22 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -11,6 +11,7 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/si.c b/drivers/gpu/drm/amd/amdgpu/si.c
+index 40520a968eaca..28eea8317e87d 100644
+--- a/drivers/gpu/drm/amd/amdgpu/si.c
++++ b/drivers/gpu/drm/amd/amdgpu/si.c
+@@ -1783,7 +1783,7 @@ static void si_program_aspm(struct amdgpu_device *adev)
+ 			if (orig != data)
+ 				si_pif_phy1_wreg(adev,PB1_PIF_PWRDOWN_1, data);
  
- #include <linux/kernel.h>
- #include <linux/kobject.h>
-+#include <linux/sched.h>
- #include <linux/smp.h>
- #include <linux/stat.h>
- #include <linux/completion.h>
-@@ -206,7 +207,11 @@ static int update_dt_node(__be32 phandle, s32 scope)
+-			if ((adev->family != CHIP_OLAND) && (adev->family != CHIP_HAINAN)) {
++			if ((adev->asic_type != CHIP_OLAND) && (adev->asic_type != CHIP_HAINAN)) {
+ 				orig = data = si_pif_phy0_rreg(adev,PB0_PIF_PWRDOWN_0);
+ 				data &= ~PLL_RAMP_UP_TIME_0_MASK;
+ 				if (orig != data)
+@@ -1832,14 +1832,14 @@ static void si_program_aspm(struct amdgpu_device *adev)
  
- 				prop_data += vd;
- 			}
-+
-+			cond_resched();
- 		}
-+
-+		cond_resched();
- 	} while (rtas_rc == 1);
+ 			orig = data = si_pif_phy0_rreg(adev,PB0_PIF_CNTL);
+ 			data &= ~LS2_EXIT_TIME_MASK;
+-			if ((adev->family == CHIP_OLAND) || (adev->family == CHIP_HAINAN))
++			if ((adev->asic_type == CHIP_OLAND) || (adev->asic_type == CHIP_HAINAN))
+ 				data |= LS2_EXIT_TIME(5);
+ 			if (orig != data)
+ 				si_pif_phy0_wreg(adev,PB0_PIF_CNTL, data);
  
- 	of_node_put(dn);
-@@ -282,8 +287,12 @@ int pseries_devicetree_update(s32 scope)
- 					add_dt_node(phandle, drc_index);
- 					break;
- 				}
-+
-+				cond_resched();
- 			}
- 		}
-+
-+		cond_resched();
- 	} while (rc == 1);
- 
- 	kfree(rtas_buf);
+ 			orig = data = si_pif_phy1_rreg(adev,PB1_PIF_CNTL);
+ 			data &= ~LS2_EXIT_TIME_MASK;
+-			if ((adev->family == CHIP_OLAND) || (adev->family == CHIP_HAINAN))
++			if ((adev->asic_type == CHIP_OLAND) || (adev->asic_type == CHIP_HAINAN))
+ 				data |= LS2_EXIT_TIME(5);
+ 			if (orig != data)
+ 				si_pif_phy1_wreg(adev,PB1_PIF_CNTL, data);
 -- 
 2.20.1
 
