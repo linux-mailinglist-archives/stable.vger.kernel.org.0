@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A74DCD7B3
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92558CD812
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727820AbfJFRdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
+        id S1728444AbfJFR5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729020AbfJFRdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:33:16 -0400
+        id S1726901AbfJFRdW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:33:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 726512080F;
-        Sun,  6 Oct 2019 17:33:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD27A2080F;
+        Sun,  6 Oct 2019 17:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383195;
-        bh=Pj1WsrKbE3QGlOuQcCB+vewEbuqvf4NO5sSOHCM9E2Q=;
+        s=default; t=1570383200;
+        bh=WafDeG03FZuQ8ymlh8TugRV6vjnTay+0zfMwIHrSdKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xu52/I19CtmMKa70d5dZN5D5/jtTJ9X9kUOEFwGn0doYARf+7pHjnNE+YGUz/srxS
-         pfbggjGFOV8tRi2PDCnEh2jG/5BVATCNdNOpGdMa4HG4CHCvAXcdejhiOPXSsHC36R
-         Ly/DVTEn0w/0Mmw5KJgEdb20q9rF+QHFjKo+nHu4=
+        b=cS4YBVNqQpfvzI0547YvssVIBo6h0QES0hMWzHcJlXVrSmY/nkLsMlB85l+6oFm+L
+         AGpFKo8FpuYy6yoo5fTkc4EN0bw9IxnTlwkzWyyoMNfvBVFlk8hQtzAM+qvm8cD3Oh
+         zKKOQ4pbAVpsWKm/qy0ZnWfEYGIo38yl+hvZghKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        Tuong Lien <tuong.t.lien@dektech.com.au>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Dexuan Cui <decui@microsoft.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 015/137] tipc: fix unlimited bundling of small messages
-Date:   Sun,  6 Oct 2019 19:19:59 +0200
-Message-Id: <20191006171210.719956563@linuxfoundation.org>
+Subject: [PATCH 5.2 017/137] vsock: Fix a lockdep warning in __vsock_release()
+Date:   Sun,  6 Oct 2019 19:20:01 +0200
+Message-Id: <20191006171210.848059234@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -45,171 +44,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuong Lien <tuong.t.lien@dektech.com.au>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit e95584a889e1902fdf1ded9712e2c3c3083baf96 ]
+[ Upstream commit 0d9138ffac24cf8b75366ede3a68c951e6dcc575 ]
 
-We have identified a problem with the "oversubscription" policy in the
-link transmission code.
+Lockdep is unhappy if two locks from the same class are held.
 
-When small messages are transmitted, and the sending link has reached
-the transmit window limit, those messages will be bundled and put into
-the link backlog queue. However, bundles of data messages are counted
-at the 'CRITICAL' level, so that the counter for that level, instead of
-the counter for the real, bundled message's level is the one being
-increased.
-Subsequent, to-be-bundled data messages at non-CRITICAL levels continue
-to be tested against the unchanged counter for their own level, while
-contributing to an unrestrained increase at the CRITICAL backlog level.
+Fix the below warning for hyperv and virtio sockets (vmci socket code
+doesn't have the issue) by using lock_sock_nested() when __vsock_release()
+is called recursively:
 
-This leaves a gap in congestion control algorithm for small messages
-that can result in starvation for other users or a "real" CRITICAL
-user. Even that eventually can lead to buffer exhaustion & link reset.
+============================================
+WARNING: possible recursive locking detected
+5.3.0+ #1 Not tainted
+--------------------------------------------
+server/1795 is trying to acquire lock:
+ffff8880c5158990 (sk_lock-AF_VSOCK){+.+.}, at: hvs_release+0x10/0x120 [hv_sock]
 
-We fix this by keeping a 'target_bskb' buffer pointer at each levels,
-then when bundling, we only bundle messages at the same importance
-level only. This way, we know exactly how many slots a certain level
-have occupied in the queue, so can manage level congestion accurately.
+but task is already holding lock:
+ffff8880c5158150 (sk_lock-AF_VSOCK){+.+.}, at: __vsock_release+0x2e/0xf0 [vsock]
 
-By bundling messages at the same level, we even have more benefits. Let
-consider this:
-- One socket sends 64-byte messages at the 'CRITICAL' level;
-- Another sends 4096-byte messages at the 'LOW' level;
+other info that might help us debug this:
+ Possible unsafe locking scenario:
 
-When a 64-byte message comes and is bundled the first time, we put the
-overhead of message bundle to it (+ 40-byte header, data copy, etc.)
-for later use, but the next message can be a 4096-byte one that cannot
-be bundled to the previous one. This means the last bundle carries only
-one payload message which is totally inefficient, as for the receiver
-also! Later on, another 64-byte message comes, now we make a new bundle
-and the same story repeats...
+       CPU0
+       ----
+  lock(sk_lock-AF_VSOCK);
+  lock(sk_lock-AF_VSOCK);
 
-With the new bundling algorithm, this will not happen, the 64-byte
-messages will be bundled together even when the 4096-byte message(s)
-comes in between. However, if the 4096-byte messages are sent at the
-same level i.e. 'CRITICAL', the bundling algorithm will again cause the
-same overhead.
+ *** DEADLOCK ***
 
-Also, the same will happen even with only one socket sending small
-messages at a rate close to the link transmit's one, so that, when one
-message is bundled, it's transmitted shortly. Then, another message
-comes, a new bundle is created and so on...
+ May be due to missing lock nesting notation
 
-We will solve this issue radically by another patch.
+2 locks held by server/1795:
+ #0: ffff8880c5d05ff8 (&sb->s_type->i_mutex_key#10){+.+.}, at: __sock_release+0x2d/0xa0
+ #1: ffff8880c5158150 (sk_lock-AF_VSOCK){+.+.}, at: __vsock_release+0x2e/0xf0 [vsock]
 
-Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
-Reported-by: Hoang Le <hoang.h.le@dektech.com.au>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
+stack backtrace:
+CPU: 5 PID: 1795 Comm: server Not tainted 5.3.0+ #1
+Call Trace:
+ dump_stack+0x67/0x90
+ __lock_acquire.cold.67+0xd2/0x20b
+ lock_acquire+0xb5/0x1c0
+ lock_sock_nested+0x6d/0x90
+ hvs_release+0x10/0x120 [hv_sock]
+ __vsock_release+0x24/0xf0 [vsock]
+ __vsock_release+0xa0/0xf0 [vsock]
+ vsock_release+0x12/0x30 [vsock]
+ __sock_release+0x37/0xa0
+ sock_close+0x14/0x20
+ __fput+0xc1/0x250
+ task_work_run+0x98/0xc0
+ do_exit+0x344/0xc60
+ do_group_exit+0x47/0xb0
+ get_signal+0x15c/0xc50
+ do_signal+0x30/0x720
+ exit_to_usermode_loop+0x50/0xa0
+ do_syscall_64+0x24e/0x270
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x7f4184e85f31
+
+Tested-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/link.c |   29 ++++++++++++++++++-----------
- net/tipc/msg.c  |    5 +----
- 2 files changed, 19 insertions(+), 15 deletions(-)
+ net/vmw_vsock/af_vsock.c                |   16 ++++++++++++----
+ net/vmw_vsock/hyperv_transport.c        |    2 +-
+ net/vmw_vsock/virtio_transport_common.c |    2 +-
+ 3 files changed, 14 insertions(+), 6 deletions(-)
 
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -163,6 +163,7 @@ struct tipc_link {
- 	struct {
- 		u16 len;
- 		u16 limit;
-+		struct sk_buff *target_bskb;
- 	} backlog[5];
- 	u16 snd_nxt;
- 	u16 prev_from;
-@@ -872,6 +873,7 @@ static void link_prepare_wakeup(struct t
- void tipc_link_reset(struct tipc_link *l)
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -638,7 +638,7 @@ struct sock *__vsock_create(struct net *
+ }
+ EXPORT_SYMBOL_GPL(__vsock_create);
+ 
+-static void __vsock_release(struct sock *sk)
++static void __vsock_release(struct sock *sk, int level)
  {
- 	struct sk_buff_head list;
-+	u32 imp;
+ 	if (sk) {
+ 		struct sk_buff *skb;
+@@ -648,9 +648,17 @@ static void __vsock_release(struct sock
+ 		vsk = vsock_sk(sk);
+ 		pending = NULL;	/* Compiler warning. */
  
- 	__skb_queue_head_init(&list);
++		/* The release call is supposed to use lock_sock_nested()
++		 * rather than lock_sock(), if a sock lock should be acquired.
++		 */
+ 		transport->release(vsk);
  
-@@ -893,11 +895,10 @@ void tipc_link_reset(struct tipc_link *l
- 	__skb_queue_purge(&l->deferdq);
- 	__skb_queue_purge(&l->backlogq);
- 	__skb_queue_purge(&l->failover_deferdq);
--	l->backlog[TIPC_LOW_IMPORTANCE].len = 0;
--	l->backlog[TIPC_MEDIUM_IMPORTANCE].len = 0;
--	l->backlog[TIPC_HIGH_IMPORTANCE].len = 0;
--	l->backlog[TIPC_CRITICAL_IMPORTANCE].len = 0;
--	l->backlog[TIPC_SYSTEM_IMPORTANCE].len = 0;
-+	for (imp = 0; imp <= TIPC_SYSTEM_IMPORTANCE; imp++) {
-+		l->backlog[imp].len = 0;
-+		l->backlog[imp].target_bskb = NULL;
-+	}
- 	kfree_skb(l->reasm_buf);
- 	kfree_skb(l->failover_reasm_skb);
- 	l->reasm_buf = NULL;
-@@ -938,7 +939,7 @@ int tipc_link_xmit(struct tipc_link *l,
- 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
- 	struct sk_buff_head *transmq = &l->transmq;
- 	struct sk_buff_head *backlogq = &l->backlogq;
--	struct sk_buff *skb, *_skb, *bskb;
-+	struct sk_buff *skb, *_skb, **tskb;
- 	int pkt_cnt = skb_queue_len(list);
- 	int rc = 0;
+-		lock_sock(sk);
++		/* When "level" is SINGLE_DEPTH_NESTING, use the nested
++		 * version to avoid the warning "possible recursive locking
++		 * detected". When "level" is 0, lock_sock_nested(sk, level)
++		 * is the same as lock_sock(sk).
++		 */
++		lock_sock_nested(sk, level);
+ 		sock_orphan(sk);
+ 		sk->sk_shutdown = SHUTDOWN_MASK;
  
-@@ -988,19 +989,21 @@ int tipc_link_xmit(struct tipc_link *l,
- 			seqno++;
- 			continue;
+@@ -659,7 +667,7 @@ static void __vsock_release(struct sock
+ 
+ 		/* Clean up any sockets that never were accepted. */
+ 		while ((pending = vsock_dequeue_accept(sk)) != NULL) {
+-			__vsock_release(pending);
++			__vsock_release(pending, SINGLE_DEPTH_NESTING);
+ 			sock_put(pending);
  		}
--		if (tipc_msg_bundle(skb_peek_tail(backlogq), hdr, mtu)) {
-+		tskb = &l->backlog[imp].target_bskb;
-+		if (tipc_msg_bundle(*tskb, hdr, mtu)) {
- 			kfree_skb(__skb_dequeue(list));
- 			l->stats.sent_bundled++;
- 			continue;
- 		}
--		if (tipc_msg_make_bundle(&bskb, hdr, mtu, l->addr)) {
-+		if (tipc_msg_make_bundle(tskb, hdr, mtu, l->addr)) {
- 			kfree_skb(__skb_dequeue(list));
--			__skb_queue_tail(backlogq, bskb);
--			l->backlog[msg_importance(buf_msg(bskb))].len++;
-+			__skb_queue_tail(backlogq, *tskb);
-+			l->backlog[imp].len++;
- 			l->stats.sent_bundled++;
- 			l->stats.sent_bundles++;
- 			continue;
- 		}
-+		l->backlog[imp].target_bskb = NULL;
- 		l->backlog[imp].len += skb_queue_len(list);
- 		skb_queue_splice_tail_init(list, backlogq);
- 	}
-@@ -1016,6 +1019,7 @@ static void tipc_link_advance_backlog(st
- 	u16 seqno = l->snd_nxt;
- 	u16 ack = l->rcv_nxt - 1;
- 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
-+	u32 imp;
  
- 	while (skb_queue_len(&l->transmq) < l->window) {
- 		skb = skb_peek(&l->backlogq);
-@@ -1026,7 +1030,10 @@ static void tipc_link_advance_backlog(st
- 			break;
- 		__skb_dequeue(&l->backlogq);
- 		hdr = buf_msg(skb);
--		l->backlog[msg_importance(hdr)].len--;
-+		imp = msg_importance(hdr);
-+		l->backlog[imp].len--;
-+		if (unlikely(skb == l->backlog[imp].target_bskb))
-+			l->backlog[imp].target_bskb = NULL;
- 		__skb_queue_tail(&l->transmq, skb);
- 		/* next retransmit attempt */
- 		if (link_is_bc_sndlink(l))
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -484,10 +484,7 @@ bool tipc_msg_make_bundle(struct sk_buff
- 	bmsg = buf_msg(_skb);
- 	tipc_msg_init(msg_prevnode(msg), bmsg, MSG_BUNDLER, 0,
- 		      INT_H_SIZE, dnode);
--	if (msg_isdata(msg))
--		msg_set_importance(bmsg, TIPC_CRITICAL_IMPORTANCE);
--	else
--		msg_set_importance(bmsg, TIPC_SYSTEM_IMPORTANCE);
-+	msg_set_importance(bmsg, msg_importance(msg));
- 	msg_set_seqno(bmsg, msg_seqno(msg));
- 	msg_set_ack(bmsg, msg_ack(msg));
- 	msg_set_bcast_ack(bmsg, msg_bcast_ack(msg));
+@@ -708,7 +716,7 @@ EXPORT_SYMBOL_GPL(vsock_stream_has_space
+ 
+ static int vsock_release(struct socket *sock)
+ {
+-	__vsock_release(sock->sk);
++	__vsock_release(sock->sk, 0);
+ 	sock->sk = NULL;
+ 	sock->state = SS_FREE;
+ 
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -528,7 +528,7 @@ static void hvs_release(struct vsock_soc
+ 	struct sock *sk = sk_vsock(vsk);
+ 	bool remove_sock;
+ 
+-	lock_sock(sk);
++	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	remove_sock = hvs_close_lock_held(vsk);
+ 	release_sock(sk);
+ 	if (remove_sock)
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -790,7 +790,7 @@ void virtio_transport_release(struct vso
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
+ 
+-	lock_sock(sk);
++	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
+ 
 
 
