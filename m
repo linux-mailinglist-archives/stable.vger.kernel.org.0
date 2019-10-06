@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68774CD78C
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3DDCD74C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729424AbfJFRb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:31:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57648 "EHLO mail.kernel.org"
+        id S1728358AbfJFR0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729412AbfJFRbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:31:25 -0400
+        id S1727499AbfJFR0t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:26:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 30A5E2080F;
-        Sun,  6 Oct 2019 17:31:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7C9A217D6;
+        Sun,  6 Oct 2019 17:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383083;
-        bh=6U0DUglx+sJiUGe4E43ESyfD7KbgwoFb8onbvz+2Zoc=;
+        s=default; t=1570382808;
+        bh=C5meCcaZstoOxSMj7yPA9/TVDxz7MLWcEOnv956Cqqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kbSlWCwfua3AAwvHFO9OL1C2mob/2Pw3clOWS28w4Yrjq1Wz0NKjZfVpGW4Du7+u
-         Ln31YxhZQnGUejceKu1S7wT5VKDh8rKyQhTjFv2b7V7e/93R99EfX+OhL2Rxlyv2t5
-         uIp4VxyIUvx7Imbmks9zoQN7qMkf7fdpMC/qTNUI=
+        b=cFCZj/UMxuZHl7ZHiNLkS259MdhjDRskqU4F3wyuhbanJzATsgLbNtVNXZpCrlEoC
+         J3kmDnebgfNNG27CGYQE8BfNQeW5Cn4v1iQ6xn8Xha8hGhp1qCj4dXwCsSBR5rSKSj
+         mJOAATgtJxXijWAYImirqRToo1z+GxhzcV/bvDMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Holmberg <Hans.Holmberg@wdc.com>,
-        Hans Holmberg <hans.holmberg@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/106] block: mq-deadline: Fix queue restart handling
+        stable@vger.kernel.org,
+        syzbot+bd3bba6ff3fcea7a6ec6@syzkaller.appspotmail.com,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Song Liu <songliubraving@fb.com>,
+        Zubin Mithra <zsm@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 48/68] bpf: fix use after free in prog symbol exposure
 Date:   Sun,  6 Oct 2019 19:21:24 +0200
-Message-Id: <20191006171156.638428126@linuxfoundation.org>
+Message-Id: <20191006171130.659189088@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +47,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit cb8acabbe33b110157955a7425ee876fb81e6bbc ]
+commit c751798aa224fadc5124b49eeb38fb468c0fa039 upstream.
 
-Commit 7211aef86f79 ("block: mq-deadline: Fix write completion
-handling") added a call to blk_mq_sched_mark_restart_hctx() in
-dd_dispatch_request() to make sure that write request dispatching does
-not stall when all target zones are locked. This fix left a subtle race
-when a write completion happens during a dispatch execution on another
-CPU:
+syzkaller managed to trigger the warning in bpf_jit_free() which checks via
+bpf_prog_kallsyms_verify_off() for potentially unlinked JITed BPF progs
+in kallsyms, and subsequently trips over GPF when walking kallsyms entries:
 
-CPU 0: Dispatch			CPU1: write completion
+  [...]
+  8021q: adding VLAN 0 to HW filter on device batadv0
+  8021q: adding VLAN 0 to HW filter on device batadv0
+  WARNING: CPU: 0 PID: 9869 at kernel/bpf/core.c:810 bpf_jit_free+0x1e8/0x2a0
+  Kernel panic - not syncing: panic_on_warn set ...
+  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Workqueue: events bpf_prog_free_deferred
+  Call Trace:
+   __dump_stack lib/dump_stack.c:77 [inline]
+   dump_stack+0x113/0x167 lib/dump_stack.c:113
+   panic+0x212/0x40b kernel/panic.c:214
+   __warn.cold.8+0x1b/0x38 kernel/panic.c:571
+   report_bug+0x1a4/0x200 lib/bug.c:186
+   fixup_bug arch/x86/kernel/traps.c:178 [inline]
+   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
+   do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
+   invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:973
+  RIP: 0010:bpf_jit_free+0x1e8/0x2a0
+  Code: 02 4c 89 e2 83 e2 07 38 d0 7f 08 84 c0 0f 85 86 00 00 00 48 ba 00 02 00 00 00 00 ad de 0f b6 43 02 49 39 d6 0f 84 5f fe ff ff <0f> 0b e9 58 fe ff ff 48 b8 00 00 00 00 00 fc ff df 4c 89 e2 48 c1
+  RSP: 0018:ffff888092f67cd8 EFLAGS: 00010202
+  RAX: 0000000000000007 RBX: ffffc90001947000 RCX: ffffffff816e9d88
+  RDX: dead000000000200 RSI: 0000000000000008 RDI: ffff88808769f7f0
+  RBP: ffff888092f67d00 R08: fffffbfff1394059 R09: fffffbfff1394058
+  R10: fffffbfff1394058 R11: ffffffff89ca02c7 R12: ffffc90001947002
+  R13: ffffc90001947020 R14: ffffffff881eca80 R15: ffff88808769f7e8
+  BUG: unable to handle kernel paging request at fffffbfff400d000
+  #PF error: [normal kernel read fault]
+  PGD 21ffee067 P4D 21ffee067 PUD 21ffed067 PMD 9f942067 PTE 0
+  Oops: 0000 [#1] PREEMPT SMP KASAN
+  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Workqueue: events bpf_prog_free_deferred
+  RIP: 0010:bpf_get_prog_addr_region kernel/bpf/core.c:495 [inline]
+  RIP: 0010:bpf_tree_comp kernel/bpf/core.c:558 [inline]
+  RIP: 0010:__lt_find include/linux/rbtree_latch.h:115 [inline]
+  RIP: 0010:latch_tree_find include/linux/rbtree_latch.h:208 [inline]
+  RIP: 0010:bpf_prog_kallsyms_find+0x107/0x2e0 kernel/bpf/core.c:632
+  Code: 00 f0 ff ff 44 38 c8 7f 08 84 c0 0f 85 fa 00 00 00 41 f6 45 02 01 75 02 0f 0b 48 39 da 0f 82 92 00 00 00 48 89 d8 48 c1 e8 03 <42> 0f b6 04 30 84 c0 74 08 3c 03 0f 8e 45 01 00 00 8b 03 48 c1 e0
+  [...]
 
-dd_dispatch_request()
-    lock(&dd->lock);
-    ...
-    lock(&dd->zone_lock);	dd_finish_request()
-    rq = find request		lock(&dd->zone_lock);
-    unlock(&dd->zone_lock);
-    				zone write unlock
-				unlock(&dd->zone_lock);
-				...
-				__blk_mq_free_request
-                                      check restart flag (not set)
-				      -> queue not run
-    ...
-    if (!rq && have writes)
-        blk_mq_sched_mark_restart_hctx()
-    unlock(&dd->lock)
+Upon further debugging, it turns out that whenever we trigger this
+issue, the kallsyms removal in bpf_prog_ksym_node_del() was /skipped/
+but yet bpf_jit_free() reported that the entry is /in use/.
 
-Since the dispatch context finishes after the write request completion
-handling, marking the queue as needing a restart is not seen from
-__blk_mq_free_request() and blk_mq_sched_restart() not executed leading
-to the dispatch stall under 100% write workloads.
+Problem is that symbol exposure via bpf_prog_kallsyms_add() but also
+perf_event_bpf_event() were done /after/ bpf_prog_new_fd(). Once the
+fd is exposed to the public, a parallel close request came in right
+before we attempted to do the bpf_prog_kallsyms_add().
 
-Fix this by moving the call to blk_mq_sched_mark_restart_hctx() from
-dd_dispatch_request() into dd_finish_request() under the zone lock to
-ensure full mutual exclusion between write request dispatch selection
-and zone unlock on write request completion.
+Given at this time the prog reference count is one, we start to rip
+everything underneath us via bpf_prog_release() -> bpf_prog_put().
+The memory is eventually released via deferred free, so we're seeing
+that bpf_jit_free() has a kallsym entry because we added it from
+bpf_prog_load() but /after/ bpf_prog_put() from the remote CPU.
 
-Fixes: 7211aef86f79 ("block: mq-deadline: Fix write completion handling")
-Cc: stable@vger.kernel.org
-Reported-by: Hans Holmberg <Hans.Holmberg@wdc.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Therefore, move both notifications /before/ we install the fd. The
+issue was never seen between bpf_prog_alloc_id() and bpf_prog_new_fd()
+because upon bpf_prog_get_fd_by_id() we'll take another reference to
+the BPF prog, so we're still holding the original reference from the
+bpf_prog_load().
+
+Fixes: 6ee52e2a3fe4 ("perf, bpf: Introduce PERF_RECORD_BPF_EVENT")
+Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
+Reported-by: syzbot+bd3bba6ff3fcea7a6ec6@syzkaller.appspotmail.com
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Song Liu <songliubraving@fb.com>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/mq-deadline.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ kernel/bpf/syscall.c | 30 ++++++++++++++++++------------
+ 1 file changed, 18 insertions(+), 12 deletions(-)
 
-diff --git a/block/mq-deadline.c b/block/mq-deadline.c
-index d5e21ce44d2cc..69094d6410623 100644
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -376,13 +376,6 @@ static struct request *__dd_dispatch_request(struct deadline_data *dd)
-  * hardware queue, but we may return a request that is for a
-  * different hardware queue. This is because mq-deadline has shared
-  * state for all hardware queues, in terms of sorting, FIFOs, etc.
-- *
-- * For a zoned block device, __dd_dispatch_request() may return NULL
-- * if all the queued write requests are directed at zones that are already
-- * locked due to on-going write requests. In this case, make sure to mark
-- * the queue as needing a restart to ensure that the queue is run again
-- * and the pending writes dispatched once the target zones for the ongoing
-- * write requests are unlocked in dd_finish_request().
-  */
- static struct request *dd_dispatch_request(struct blk_mq_hw_ctx *hctx)
- {
-@@ -391,9 +384,6 @@ static struct request *dd_dispatch_request(struct blk_mq_hw_ctx *hctx)
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 2d828d3469822..59d2e94ecb798 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1067,20 +1067,26 @@ static int bpf_prog_load(union bpf_attr *attr)
+ 	if (err)
+ 		goto free_used_maps;
  
- 	spin_lock(&dd->lock);
- 	rq = __dd_dispatch_request(dd);
--	if (!rq && blk_queue_is_zoned(hctx->queue) &&
--	    !list_empty(&dd->fifo_list[WRITE]))
--		blk_mq_sched_mark_restart_hctx(hctx);
- 	spin_unlock(&dd->lock);
- 
- 	return rq;
-@@ -559,6 +549,13 @@ static void dd_prepare_request(struct request *rq, struct bio *bio)
-  * spinlock so that the zone is never unlocked while deadline_fifo_request()
-  * or deadline_next_request() are executing. This function is called for
-  * all requests, whether or not these requests complete successfully.
-+ *
-+ * For a zoned block device, __dd_dispatch_request() may have stopped
-+ * dispatching requests if all the queued requests are write requests directed
-+ * at zones that are already locked due to on-going write requests. To ensure
-+ * write request dispatch progress in this case, mark the queue as needing a
-+ * restart to ensure that the queue is run again after completion of the
-+ * request and zones being unlocked.
-  */
- static void dd_finish_request(struct request *rq)
- {
-@@ -570,6 +567,12 @@ static void dd_finish_request(struct request *rq)
- 
- 		spin_lock_irqsave(&dd->zone_lock, flags);
- 		blk_req_zone_write_unlock(rq);
-+		if (!list_empty(&dd->fifo_list[WRITE])) {
-+			struct blk_mq_hw_ctx *hctx;
+-	err = bpf_prog_new_fd(prog);
+-	if (err < 0) {
+-		/* failed to allocate fd.
+-		 * bpf_prog_put() is needed because the above
+-		 * bpf_prog_alloc_id() has published the prog
+-		 * to the userspace and the userspace may
+-		 * have refcnt-ed it through BPF_PROG_GET_FD_BY_ID.
+-		 */
+-		bpf_prog_put(prog);
+-		return err;
+-	}
+-
++	/* Upon success of bpf_prog_alloc_id(), the BPF prog is
++	 * effectively publicly exposed. However, retrieving via
++	 * bpf_prog_get_fd_by_id() will take another reference,
++	 * therefore it cannot be gone underneath us.
++	 *
++	 * Only for the time /after/ successful bpf_prog_new_fd()
++	 * and before returning to userspace, we might just hold
++	 * one reference and any parallel close on that fd could
++	 * rip everything out. Hence, below notifications must
++	 * happen before bpf_prog_new_fd().
++	 *
++	 * Also, any failure handling from this point onwards must
++	 * be using bpf_prog_put() given the program is exposed.
++	 */
+ 	bpf_prog_kallsyms_add(prog);
+ 	trace_bpf_prog_load(prog, err);
 +
-+			hctx = blk_mq_map_queue(q, rq->mq_ctx->cpu);
-+			blk_mq_sched_mark_restart_hctx(hctx);
-+		}
- 		spin_unlock_irqrestore(&dd->zone_lock, flags);
- 	}
- }
++	err = bpf_prog_new_fd(prog);
++	if (err < 0)
++		bpf_prog_put(prog);
+ 	return err;
+ 
+ free_used_maps:
 -- 
 2.20.1
 
