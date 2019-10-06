@@ -2,34 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA247CD7F1
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4F1CD7F4
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbfJFRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:55:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51358 "EHLO mail.kernel.org"
+        id S1728314AbfJFRzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:55:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728611AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727404AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 6 Oct 2019 13:54:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE0F522466;
-        Sun,  6 Oct 2019 17:46:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32E252246B;
+        Sun,  6 Oct 2019 17:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383968;
-        bh=lcB1mFJcKFF8tbCYE5shlRbzQ7T708HoKSgtww14kP0=;
+        s=default; t=1570383973;
+        bh=2xcT+VGmJXBcuipPn6QtCUyE9RS/qI0oh11nGPw+dAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgHLO9rUSmNjHgHcMYwDbplbKrycCoKgj1WxVYXgPdtriWCrgK4d2N85u0Iw6pEfb
-         lXA3QanfuyXoYzDuY9OH3VscHtpdFfahr5H7xuAzcD0Kv4heGYMOk/Xm4+vNW65SCt
-         2aaZsePRbk+d4z3JowGkj63VgATSuJUq591XymXE=
+        b=ouCm3WsE5otx4NjaNk2/mVubec2abd6xE7Hapi8sFn0/WYDpF0FH7aU3bNOOr3G0f
+         OJ1Ys4Tlc6EIDcdbBmwO+5nbW+UMBMcXbXhLOxBdggp9y5xivugTGbuHb8Z/ntBEUH
+         3ydrUnGtXbmADV4H7x3hbnmEn2lOA6HYD3kXXBs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 5.3 161/166] dm zoned: fix invalid memory access
-Date:   Sun,  6 Oct 2019 19:22:07 +0200
-Message-Id: <20191006171226.412783993@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 163/166] kexec: bail out upon SIGKILL when allocating memory.
+Date:   Sun,  6 Oct 2019 19:22:09 +0200
+Message-Id: <20191006171226.582324852@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -42,27 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 0c8e9c2d668278652af028c3cc068c65f66342f4 upstream.
+commit 7c3a6aedcd6aae0a32a527e68669f7dd667492d1 upstream.
 
-Commit 75d66ffb48efb30f2dd42f041ba8b39c5b2bd115 ("dm zoned: properly
-handle backing device failure") triggers a coverity warning:
+syzbot found that a thread can stall for minutes inside kexec_load() after
+that thread was killed by SIGKILL [1].  It turned out that the reproducer
+was trying to allocate 2408MB of memory using kimage_alloc_page() from
+kimage_load_normal_segment().  Let's check for SIGKILL before doing memory
+allocation.
+
+[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
+
+Link: http://lkml.kernel.org/r/993c9185-d324-2640-d061-bed2dd18b1f7@I-love.SAKURA.ne.jp
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-target.c |    2 --
- 1 file changed, 2 deletions(-)
+ kernel/kexec_core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/dm-zoned-target.c
-+++ b/drivers/md/dm-zoned-target.c
-@@ -134,8 +134,6 @@ static int dmz_submit_bio(struct dmz_tar
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -300,6 +300,8 @@ static struct page *kimage_alloc_pages(g
+ {
+ 	struct page *pages;
  
- 	refcount_inc(&bioctx->ref);
- 	generic_make_request(clone);
--	if (clone->bi_status == BLK_STS_IOERR)
--		return -EIO;
- 
- 	if (bio_op(bio) == REQ_OP_WRITE && dmz_is_seq(zone))
- 		zone->wp_block += nr_blocks;
++	if (fatal_signal_pending(current))
++		return NULL;
+ 	pages = alloc_pages(gfp_mask & ~__GFP_ZERO, order);
+ 	if (pages) {
+ 		unsigned int count, i;
 
 
