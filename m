@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CF1CD4BD
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE3ECD47D
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:26:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728853AbfJFR2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:28:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
+        id S1727387AbfJFR0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728839AbfJFR2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:28:46 -0400
+        id S1726514AbfJFR0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:26:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4CC3C2080F;
-        Sun,  6 Oct 2019 17:28:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A70D2080F;
+        Sun,  6 Oct 2019 17:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382924;
-        bh=OuQyraHRTcW5Pfr4GQOsgbTEdxokYCLV74EwXmY0TbY=;
+        s=default; t=1570382783;
+        bh=6ns37Ob8BZRTnowWqkz997jdBf9E9CsNqMDuyBEwcRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbvlLFFSe3hrxeaA7Qg4LSE2V+yqmbxSPxKrK/Um4ok+ZVaqsr4aDGan/Jp2/QkmQ
-         ZV9ezNGL5Bk7VPHiHpqb+EJpcYOgTkawKob8ko/EjLq4VXekhAVsdApZ/I6p3FZZGn
-         XYVnOWRK/YGMg/CMQ0TCxzlYSRO0G7DzmC/YQaPY=
+        b=v4z/OxHEPO69EjKe4s+35K9431zLSYEP8M5DN+ULJyAwJ8yRWPNXxhY4dM+FyOuZq
+         oVwnhX5SuRZndVDztSSZenekjAw/FU3Xt+CvPQiZleN2Ob1ZsfxCCUlF88zlT7E1mM
+         bHsZROBEqttg+fpajDmI3Oy0WPCmDpK2CMDeVk7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Nie <jun.nie@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/106] clk: zx296718: Dont reference clk_init_data after registration
-Date:   Sun,  6 Oct 2019 19:20:27 +0200
-Message-Id: <20191006171136.024901509@linuxfoundation.org>
+Subject: [PATCH 4.14 05/68] drm/panel: simple: fix AUO g185han01 horizontal blanking
+Date:   Sun,  6 Oct 2019 19:20:41 +0200
+Message-Id: <20191006171111.113263768@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,285 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 1a4549c150e27dbc3aea762e879a88209df6d1a5 ]
+[ Upstream commit f8c6bfc612b56f02e1b8fae699dff12738aaf889 ]
 
-A future patch is going to change semantics of clk_register() so that
-clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
-referencing this member here so that we don't run into NULL pointer
-exceptions.
+The horizontal blanking periods are too short, as the values are
+specified for a single LVDS channel. Since this panel is dual LVDS
+they need to be doubled. With this change the panel reaches its
+nominal vrefresh rate of 60Fps, instead of the 64Fps with the
+current wrong blanking.
 
-Cc: Jun Nie <jun.nie@linaro.org>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190815160020.183334-3-sboyd@kernel.org
+Philipp Zabel added:
+The datasheet specifies 960 active clocks + 40/128/160 clocks blanking
+on each of the two LVDS channels (min/typical/max), so doubled this is
+now correct.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1562764060.23869.12.camel@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/zte/clk-zx296718.c | 109 +++++++++++++++------------------
- 1 file changed, 49 insertions(+), 60 deletions(-)
+ drivers/gpu/drm/panel/panel-simple.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/zte/clk-zx296718.c b/drivers/clk/zte/clk-zx296718.c
-index 354dd508c5169..8dfb8523b79db 100644
---- a/drivers/clk/zte/clk-zx296718.c
-+++ b/drivers/clk/zte/clk-zx296718.c
-@@ -567,6 +567,7 @@ static int __init top_clocks_init(struct device_node *np)
- {
- 	void __iomem *reg_base;
- 	int i, ret;
-+	const char *name;
- 
- 	reg_base = of_iomap(np, 0);
- 	if (!reg_base) {
-@@ -576,11 +577,10 @@ static int __init top_clocks_init(struct device_node *np)
- 
- 	for (i = 0; i < ARRAY_SIZE(zx296718_pll_clk); i++) {
- 		zx296718_pll_clk[i].reg_base += (uintptr_t)reg_base;
-+		name = zx296718_pll_clk[i].hw.init->name;
- 		ret = clk_hw_register(NULL, &zx296718_pll_clk[i].hw);
--		if (ret) {
--			pr_warn("top clk %s init error!\n",
--				zx296718_pll_clk[i].hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("top clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(top_ffactor_clk); i++) {
-@@ -588,11 +588,10 @@ static int __init top_clocks_init(struct device_node *np)
- 			top_hw_onecell_data.hws[top_ffactor_clk[i].id] =
- 					&top_ffactor_clk[i].factor.hw;
- 
-+		name = top_ffactor_clk[i].factor.hw.init->name;
- 		ret = clk_hw_register(NULL, &top_ffactor_clk[i].factor.hw);
--		if (ret) {
--			pr_warn("top clk %s init error!\n",
--				top_ffactor_clk[i].factor.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("top clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(top_mux_clk); i++) {
-@@ -601,11 +600,10 @@ static int __init top_clocks_init(struct device_node *np)
- 					&top_mux_clk[i].mux.hw;
- 
- 		top_mux_clk[i].mux.reg += (uintptr_t)reg_base;
-+		name = top_mux_clk[i].mux.hw.init->name;
- 		ret = clk_hw_register(NULL, &top_mux_clk[i].mux.hw);
--		if (ret) {
--			pr_warn("top clk %s init error!\n",
--				top_mux_clk[i].mux.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("top clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(top_gate_clk); i++) {
-@@ -614,11 +612,10 @@ static int __init top_clocks_init(struct device_node *np)
- 					&top_gate_clk[i].gate.hw;
- 
- 		top_gate_clk[i].gate.reg += (uintptr_t)reg_base;
-+		name = top_gate_clk[i].gate.hw.init->name;
- 		ret = clk_hw_register(NULL, &top_gate_clk[i].gate.hw);
--		if (ret) {
--			pr_warn("top clk %s init error!\n",
--				top_gate_clk[i].gate.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("top clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(top_div_clk); i++) {
-@@ -627,11 +624,10 @@ static int __init top_clocks_init(struct device_node *np)
- 					&top_div_clk[i].div.hw;
- 
- 		top_div_clk[i].div.reg += (uintptr_t)reg_base;
-+		name = top_div_clk[i].div.hw.init->name;
- 		ret = clk_hw_register(NULL, &top_div_clk[i].div.hw);
--		if (ret) {
--			pr_warn("top clk %s init error!\n",
--				top_div_clk[i].div.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("top clk %s init error!\n", name);
- 	}
- 
- 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
-@@ -757,6 +753,7 @@ static int __init lsp0_clocks_init(struct device_node *np)
- {
- 	void __iomem *reg_base;
- 	int i, ret;
-+	const char *name;
- 
- 	reg_base = of_iomap(np, 0);
- 	if (!reg_base) {
-@@ -770,11 +767,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
- 					&lsp0_mux_clk[i].mux.hw;
- 
- 		lsp0_mux_clk[i].mux.reg += (uintptr_t)reg_base;
-+		name = lsp0_mux_clk[i].mux.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp0_mux_clk[i].mux.hw);
--		if (ret) {
--			pr_warn("lsp0 clk %s init error!\n",
--				lsp0_mux_clk[i].mux.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp0 clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(lsp0_gate_clk); i++) {
-@@ -783,11 +779,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
- 					&lsp0_gate_clk[i].gate.hw;
- 
- 		lsp0_gate_clk[i].gate.reg += (uintptr_t)reg_base;
-+		name = lsp0_gate_clk[i].gate.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp0_gate_clk[i].gate.hw);
--		if (ret) {
--			pr_warn("lsp0 clk %s init error!\n",
--				lsp0_gate_clk[i].gate.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp0 clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(lsp0_div_clk); i++) {
-@@ -796,11 +791,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
- 					&lsp0_div_clk[i].div.hw;
- 
- 		lsp0_div_clk[i].div.reg += (uintptr_t)reg_base;
-+		name = lsp0_div_clk[i].div.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp0_div_clk[i].div.hw);
--		if (ret) {
--			pr_warn("lsp0 clk %s init error!\n",
--				lsp0_div_clk[i].div.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp0 clk %s init error!\n", name);
- 	}
- 
- 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
-@@ -865,6 +859,7 @@ static int __init lsp1_clocks_init(struct device_node *np)
- {
- 	void __iomem *reg_base;
- 	int i, ret;
-+	const char *name;
- 
- 	reg_base = of_iomap(np, 0);
- 	if (!reg_base) {
-@@ -878,11 +873,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
- 					&lsp0_mux_clk[i].mux.hw;
- 
- 		lsp1_mux_clk[i].mux.reg += (uintptr_t)reg_base;
-+		name = lsp1_mux_clk[i].mux.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp1_mux_clk[i].mux.hw);
--		if (ret) {
--			pr_warn("lsp1 clk %s init error!\n",
--				lsp1_mux_clk[i].mux.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp1 clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(lsp1_gate_clk); i++) {
-@@ -891,11 +885,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
- 					&lsp1_gate_clk[i].gate.hw;
- 
- 		lsp1_gate_clk[i].gate.reg += (uintptr_t)reg_base;
-+		name = lsp1_gate_clk[i].gate.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp1_gate_clk[i].gate.hw);
--		if (ret) {
--			pr_warn("lsp1 clk %s init error!\n",
--				lsp1_gate_clk[i].gate.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp1 clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(lsp1_div_clk); i++) {
-@@ -904,11 +897,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
- 					&lsp1_div_clk[i].div.hw;
- 
- 		lsp1_div_clk[i].div.reg += (uintptr_t)reg_base;
-+		name = lsp1_div_clk[i].div.hw.init->name;
- 		ret = clk_hw_register(NULL, &lsp1_div_clk[i].div.hw);
--		if (ret) {
--			pr_warn("lsp1 clk %s init error!\n",
--				lsp1_div_clk[i].div.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("lsp1 clk %s init error!\n", name);
- 	}
- 
- 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
-@@ -982,6 +974,7 @@ static int __init audio_clocks_init(struct device_node *np)
- {
- 	void __iomem *reg_base;
- 	int i, ret;
-+	const char *name;
- 
- 	reg_base = of_iomap(np, 0);
- 	if (!reg_base) {
-@@ -995,11 +988,10 @@ static int __init audio_clocks_init(struct device_node *np)
- 					&audio_mux_clk[i].mux.hw;
- 
- 		audio_mux_clk[i].mux.reg += (uintptr_t)reg_base;
-+		name = audio_mux_clk[i].mux.hw.init->name;
- 		ret = clk_hw_register(NULL, &audio_mux_clk[i].mux.hw);
--		if (ret) {
--			pr_warn("audio clk %s init error!\n",
--				audio_mux_clk[i].mux.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("audio clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(audio_adiv_clk); i++) {
-@@ -1008,11 +1000,10 @@ static int __init audio_clocks_init(struct device_node *np)
- 					&audio_adiv_clk[i].hw;
- 
- 		audio_adiv_clk[i].reg_base += (uintptr_t)reg_base;
-+		name = audio_adiv_clk[i].hw.init->name;
- 		ret = clk_hw_register(NULL, &audio_adiv_clk[i].hw);
--		if (ret) {
--			pr_warn("audio clk %s init error!\n",
--				audio_adiv_clk[i].hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("audio clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(audio_div_clk); i++) {
-@@ -1021,11 +1012,10 @@ static int __init audio_clocks_init(struct device_node *np)
- 					&audio_div_clk[i].div.hw;
- 
- 		audio_div_clk[i].div.reg += (uintptr_t)reg_base;
-+		name = audio_div_clk[i].div.hw.init->name;
- 		ret = clk_hw_register(NULL, &audio_div_clk[i].div.hw);
--		if (ret) {
--			pr_warn("audio clk %s init error!\n",
--				audio_div_clk[i].div.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("audio clk %s init error!\n", name);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(audio_gate_clk); i++) {
-@@ -1034,11 +1024,10 @@ static int __init audio_clocks_init(struct device_node *np)
- 					&audio_gate_clk[i].gate.hw;
- 
- 		audio_gate_clk[i].gate.reg += (uintptr_t)reg_base;
-+		name = audio_gate_clk[i].gate.hw.init->name;
- 		ret = clk_hw_register(NULL, &audio_gate_clk[i].gate.hw);
--		if (ret) {
--			pr_warn("audio clk %s init error!\n",
--				audio_gate_clk[i].gate.hw.init->name);
--		}
-+		if (ret)
-+			pr_warn("audio clk %s init error!\n", name);
- 	}
- 
- 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+diff --git a/drivers/gpu/drm/panel/panel-simple.c b/drivers/gpu/drm/panel/panel-simple.c
+index 7a0fd4e4e78d5..c1daed3fe8428 100644
+--- a/drivers/gpu/drm/panel/panel-simple.c
++++ b/drivers/gpu/drm/panel/panel-simple.c
+@@ -614,9 +614,9 @@ static const struct panel_desc auo_g133han01 = {
+ static const struct display_timing auo_g185han01_timings = {
+ 	.pixelclock = { 120000000, 144000000, 175000000 },
+ 	.hactive = { 1920, 1920, 1920 },
+-	.hfront_porch = { 18, 60, 74 },
+-	.hback_porch = { 12, 44, 54 },
+-	.hsync_len = { 10, 24, 32 },
++	.hfront_porch = { 36, 120, 148 },
++	.hback_porch = { 24, 88, 108 },
++	.hsync_len = { 20, 48, 64 },
+ 	.vactive = { 1080, 1080, 1080 },
+ 	.vfront_porch = { 6, 10, 40 },
+ 	.vback_porch = { 2, 5, 20 },
 -- 
 2.20.1
 
