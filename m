@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1A92CD879
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10593CD81E
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbfJFRXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48366 "EHLO mail.kernel.org"
+        id S1727484AbfJFR7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:59:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbfJFRXn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:43 -0400
+        id S1729319AbfJFRaz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:30:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0E2C20862;
-        Sun,  6 Oct 2019 17:23:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BAF0A2087E;
+        Sun,  6 Oct 2019 17:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382622;
-        bh=PPDmstfmed/iwj3WVROayGNX0+OLQQgHKBEx5HFlrS4=;
+        s=default; t=1570383054;
+        bh=2gPBfMWII0OWvFqrK7sGLODsKDP1B0Pq3OoGH8hKJS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Csdb/TFJFTPyRkQCCwH8z+vtb+80nHDZ2sJAWhiJRPsWxhA6V/AOOe11H0EZStUIt
-         flSxhswIn6mvthBv+ZounvbQ+ThgdFLRRSPysWXiwLt1KHuXdvym8d5wDx95juYxEc
-         YginDf54DNgQUA4l/vKwMFQbmE733/KDbhPtakeU=
+        b=Gos/dixyDfPZQvJeVcKRkriNpyADIzkmPBzrEtHBAk9gWX9vGxTBUFC2IMbFLz4aE
+         pLdZXvdsdNG7ffc/HHhga6Jfa5CjETWyp2LUbjS00VM7yE2zbYP/3vizepnAlz+cAc
+         ocnoJ2TNc5YD92qCQcQy+nqWJwqn4udT9GfAFKHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Jan Stancek <jstancek@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/47] fat: work around race with userspaces read via blockdev while mounting
-Date:   Sun,  6 Oct 2019 19:21:13 +0200
-Message-Id: <20191006172018.269281680@linuxfoundation.org>
+        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 068/106] pktcdvd: remove warning on attempting to register non-passthrough dev
+Date:   Sun,  6 Oct 2019 19:21:14 +0200
+Message-Id: <20191006171151.871099186@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,107 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 07bfa4415ab607e459b69bd86aa7e7602ce10b4f ]
+[ Upstream commit eb09b3cc464d2c3bbde9a6648603c8d599ea8582 ]
 
-If userspace reads the buffer via blockdev while mounting,
-sb_getblk()+modify can race with buffer read via blockdev.
+Anatoly reports that he gets the below warning when booting -git on
+a sparc64 box on debian unstable:
 
-For example,
+...
+[   13.352975] aes_sparc64: Using sparc64 aes opcodes optimized AES
+implementation
+[   13.428002] ------------[ cut here ]------------
+[   13.428081] WARNING: CPU: 21 PID: 586 at
+drivers/block/pktcdvd.c:2597 pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428147] Attempt to register a non-SCSI queue
+[   13.428184] Modules linked in: pktcdvd libdes cdrom aes_sparc64
+n2_rng md5_sparc64 sha512_sparc64 rng_core sha256_sparc64 flash
+sha1_sparc64 ip_tables x_tables ipv6 crc_ccitt nf_defrag_ipv6 autofs4
+ext4 crc16 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy
+async_pq async_xor xor async_tx raid6_pq raid1 raid0 multipath linear
+md_mod crc32c_sparc64
+[   13.428452] CPU: 21 PID: 586 Comm: pktsetup Not tainted
+5.3.0-10169-g574cc4539762 #1234
+[   13.428507] Call Trace:
+[   13.428542]  [00000000004635c0] __warn+0xc0/0x100
+[   13.428582]  [0000000000463634] warn_slowpath_fmt+0x34/0x60
+[   13.428626]  [000000001045b244] pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428674]  [000000001045ccf4] pkt_ctl_ioctl+0x94/0x220 [pktcdvd]
+[   13.428724]  [00000000006b95c8] do_vfs_ioctl+0x628/0x6e0
+[   13.428764]  [00000000006b96c8] ksys_ioctl+0x48/0x80
+[   13.428803]  [00000000006b9714] sys_ioctl+0x14/0x40
+[   13.428847]  [0000000000406294] linux_sparc_syscall+0x34/0x44
+[   13.428890] irq event stamp: 4181
+[   13.428924] hardirqs last  enabled at (4189): [<00000000004e0a74>]
+console_unlock+0x634/0x6c0
+[   13.428984] hardirqs last disabled at (4196): [<00000000004e0540>]
+console_unlock+0x100/0x6c0
+[   13.429048] softirqs last  enabled at (3978): [<0000000000b2e2d8>]
+__do_softirq+0x498/0x520
+[   13.429110] softirqs last disabled at (3967): [<000000000042cfb4>]
+do_softirq_own_stack+0x34/0x60
+[   13.429172] ---[ end trace 2220ca468f32967d ]---
+[   13.430018] pktcdvd: setup of pktcdvd device failed
+[   13.455589] des_sparc64: Using sparc64 des opcodes optimized DES
+implementation
+[   13.515334] camellia_sparc64: Using sparc64 camellia opcodes
+optimized CAMELLIA implementation
+[   13.522856] pktcdvd: setup of pktcdvd device failed
+[   13.529327] pktcdvd: setup of pktcdvd device failed
+[   13.532932] pktcdvd: setup of pktcdvd device failed
+[   13.536165] pktcdvd: setup of pktcdvd device failed
+[   13.539372] pktcdvd: setup of pktcdvd device failed
+[   13.542834] pktcdvd: setup of pktcdvd device failed
+[   13.546536] pktcdvd: setup of pktcdvd device failed
+[   15.431071] XFS (dm-0): Mounting V5 Filesystem
+...
 
-            FS                               userspace
-    bh = sb_getblk()
-    modify bh->b_data
-                                  read
-				    ll_rw_block(bh)
-				      fill bh->b_data by on-disk data
-				      /* lost modified data by FS */
-				      set_buffer_uptodate(bh)
-    set_buffer_uptodate(bh)
+Apparently debian auto-attaches any cdrom like device to pktcdvd, which
+can lead to the above warning. There's really no reason to warn for this
+situation, kill it.
 
-Userspace should not use the blockdev while mounting though, the udev
-seems to be already doing this.  Although I think the udev should try to
-avoid this, workaround the race by small overhead.
-
-Link: http://lkml.kernel.org/r/87pnk7l3sw.fsf_-_@mail.parknet.co.jp
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reported-by: Jan Stancek <jstancek@redhat.com>
-Tested-by: Jan Stancek <jstancek@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fat/dir.c    | 13 +++++++++++--
- fs/fat/fatent.c |  3 +++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/block/pktcdvd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/fat/dir.c b/fs/fat/dir.c
-index 81cecbe6d7cf6..971e369517a73 100644
---- a/fs/fat/dir.c
-+++ b/fs/fat/dir.c
-@@ -1097,8 +1097,11 @@ static int fat_zeroed_cluster(struct inode *dir, sector_t blknr, int nr_used,
- 			err = -ENOMEM;
- 			goto error;
- 		}
-+		/* Avoid race with userspace read via bdev */
-+		lock_buffer(bhs[n]);
- 		memset(bhs[n]->b_data, 0, sb->s_blocksize);
- 		set_buffer_uptodate(bhs[n]);
-+		unlock_buffer(bhs[n]);
- 		mark_buffer_dirty_inode(bhs[n], dir);
- 
- 		n++;
-@@ -1155,6 +1158,8 @@ int fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
- 	fat_time_unix2fat(sbi, ts, &time, &date, &time_cs);
- 
- 	de = (struct msdos_dir_entry *)bhs[0]->b_data;
-+	/* Avoid race with userspace read via bdev */
-+	lock_buffer(bhs[0]);
- 	/* filling the new directory slots ("." and ".." entries) */
- 	memcpy(de[0].name, MSDOS_DOT, MSDOS_NAME);
- 	memcpy(de[1].name, MSDOS_DOTDOT, MSDOS_NAME);
-@@ -1177,6 +1182,7 @@ int fat_alloc_new_dir(struct inode *dir, struct timespec *ts)
- 	de[0].size = de[1].size = 0;
- 	memset(de + 2, 0, sb->s_blocksize - 2 * sizeof(*de));
- 	set_buffer_uptodate(bhs[0]);
-+	unlock_buffer(bhs[0]);
- 	mark_buffer_dirty_inode(bhs[0], dir);
- 
- 	err = fat_zeroed_cluster(dir, blknr, 1, bhs, MAX_BUF_PER_PAGE);
-@@ -1234,11 +1240,14 @@ static int fat_add_new_entries(struct inode *dir, void *slots, int nr_slots,
- 
- 			/* fill the directory entry */
- 			copy = min(size, sb->s_blocksize);
-+			/* Avoid race with userspace read via bdev */
-+			lock_buffer(bhs[n]);
- 			memcpy(bhs[n]->b_data, slots, copy);
--			slots += copy;
--			size -= copy;
- 			set_buffer_uptodate(bhs[n]);
-+			unlock_buffer(bhs[n]);
- 			mark_buffer_dirty_inode(bhs[n], dir);
-+			slots += copy;
-+			size -= copy;
- 			if (!size)
- 				break;
- 			n++;
-diff --git a/fs/fat/fatent.c b/fs/fat/fatent.c
-index a9cad9b60790b..0129d4d07a544 100644
---- a/fs/fat/fatent.c
-+++ b/fs/fat/fatent.c
-@@ -389,8 +389,11 @@ static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
- 				err = -ENOMEM;
- 				goto error;
- 			}
-+			/* Avoid race with userspace read via bdev */
-+			lock_buffer(c_bh);
- 			memcpy(c_bh->b_data, bhs[n]->b_data, sb->s_blocksize);
- 			set_buffer_uptodate(c_bh);
-+			unlock_buffer(c_bh);
- 			mark_buffer_dirty_inode(c_bh, sbi->fat_inode);
- 			if (sb->s_flags & MS_SYNCHRONOUS)
- 				err = sync_dirty_buffer(c_bh);
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 6f1d25c1eb640..0bc344d22f013 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -2596,7 +2596,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	if (ret)
+ 		return ret;
+ 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
+-		WARN_ONCE(true, "Attempt to register a non-SCSI queue\n");
+ 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 		return -EINVAL;
+ 	}
 -- 
 2.20.1
 
