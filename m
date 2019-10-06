@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42134CD6E6
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 919BECD6CC
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730876AbfJFRkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
+        id S1730857AbfJFRkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:40:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730861AbfJFRkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:40:06 -0400
+        id S1730289AbfJFRkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:40:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E0E32087E;
-        Sun,  6 Oct 2019 17:40:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE9852053B;
+        Sun,  6 Oct 2019 17:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383605;
-        bh=RXz6wrou/rLsSHwyEPfyPMYLuJ/X2bB/HTRQZPCvBoU=;
+        s=default; t=1570383608;
+        bh=kJPCE82rI93/+BFjcENy+vQCcMAun9/PciZCTpTNdVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oRk5dfOfLyC6UxrqeVchT2t149EuQ68MH0+kfFMfLr7Xae2ASlZdE25eBgWC96BzV
-         UvDGq6EFIOZ8d5giFug/OYjUXTxgHSuX+TL85NU41KZT5meCZij8XJf9v/McYWZMVS
-         pknuOlajaLM0B80Ao6WPojQ0Qord/Zz2Bs1fiJUo=
+        b=Hah6bNepqhWg0TLaOjCkDIHU5Gms2+JiPdumr+GwSr14I8cQ9djKEC+I3r6lQvtho
+         PS8bGRkkXqFZjh+dYlqnkpJZuBj6hNEkDp/FDYq2Wv99EIaGI8OXbbW9vf2h+jCgLD
+         QSGYnPwRES9aHSCPtZKPdlZAX+W0ZBP78wXcRUkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        stable@vger.kernel.org, Bayan Zabihiyan <bayan.zabihiyan@amd.com>,
         Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 028/166] drm/amd/display: fix issue where 252-255 values are clipped
-Date:   Sun,  6 Oct 2019 19:19:54 +0200
-Message-Id: <20191006171215.436094819@linuxfoundation.org>
+Subject: [PATCH 5.3 029/166] drm/amd/display: Fix frames_to_insert math
+Date:   Sun,  6 Oct 2019 19:19:55 +0200
+Message-Id: <20191006171215.490909135@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,44 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <Anthony.Koo@amd.com>
+From: Bayan Zabihiyan <bayan.zabihiyan@amd.com>
 
-[ Upstream commit 1cbcfc975164f397b449efb17f59d81a703090db ]
+[ Upstream commit a463b263032f7c98c5912207db43be1aa34a6438 ]
 
 [Why]
-When endpoint is at the boundary of a region, such as at 2^0=1
-we find that the last segment has a sharp slope and some points
-are clipped at the top.
+The math on deciding on how many
+"frames to insert" sometimes sent us over the max refresh rate.
+Also integer overflow can occur if we have high refresh rates.
 
 [How]
-If end point is 1, which is exactly at the 2^0 region boundary, we
-need to program an additional region beyond this point.
+Instead of clipping the  frame duration such that it doesn’t go below the min,
+just remove a frame from the number of frames to insert. +
+Use unsigned long long for intermediate calculations to prevent
+integer overflow.
 
-Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
+Signed-off-by: Bayan Zabihiyan <bayan.zabihiyan@amd.com>
 Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
 Acked-by: Leo Li <sunpeng.li@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../amd/display/modules/freesync/freesync.c   | 27 ++++++++++++-------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-index 7469333a2c8a5..8166fdbacd732 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_cm_common.c
-@@ -357,9 +357,10 @@ bool cm_helper_translate_curve_to_hw_format(
- 		seg_distr[7] = 4;
- 		seg_distr[8] = 4;
- 		seg_distr[9] = 4;
-+		seg_distr[10] = 1;
+diff --git a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+index 7c20171a3b6da..a53666ff6cf89 100644
+--- a/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
++++ b/drivers/gpu/drm/amd/display/modules/freesync/freesync.c
+@@ -435,6 +435,12 @@ static void apply_below_the_range(struct core_freesync *core_freesync,
+ 		/* Either we've calculated the number of frames to insert,
+ 		 * or we need to insert min duration frames
+ 		 */
++		if (last_render_time_in_us / frames_to_insert <
++				in_out_vrr->min_duration_in_us){
++			frames_to_insert -= (frames_to_insert > 1) ?
++					1 : 0;
++		}
++
+ 		if (frames_to_insert > 0)
+ 			inserted_frame_duration_in_us = last_render_time_in_us /
+ 							frames_to_insert;
+@@ -887,8 +893,8 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	struct core_freesync *core_freesync = NULL;
+ 	unsigned long long nominal_field_rate_in_uhz = 0;
+ 	unsigned int refresh_range = 0;
+-	unsigned int min_refresh_in_uhz = 0;
+-	unsigned int max_refresh_in_uhz = 0;
++	unsigned long long min_refresh_in_uhz = 0;
++	unsigned long long max_refresh_in_uhz = 0;
  
- 		region_start = -10;
--		region_end = 0;
-+		region_end = 1;
- 	}
+ 	if (mod_freesync == NULL)
+ 		return;
+@@ -915,7 +921,7 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		min_refresh_in_uhz = nominal_field_rate_in_uhz;
  
- 	for (i = region_end - region_start; i < MAX_REGIONS_NUMBER ; i++)
+ 	if (!vrr_settings_require_update(core_freesync,
+-			in_config, min_refresh_in_uhz, max_refresh_in_uhz,
++			in_config, (unsigned int)min_refresh_in_uhz, (unsigned int)max_refresh_in_uhz,
+ 			in_out_vrr))
+ 		return;
+ 
+@@ -931,15 +937,15 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 		return;
+ 
+ 	} else {
+-		in_out_vrr->min_refresh_in_uhz = min_refresh_in_uhz;
++		in_out_vrr->min_refresh_in_uhz = (unsigned int)min_refresh_in_uhz;
+ 		in_out_vrr->max_duration_in_us =
+ 				calc_duration_in_us_from_refresh_in_uhz(
+-						min_refresh_in_uhz);
++						(unsigned int)min_refresh_in_uhz);
+ 
+-		in_out_vrr->max_refresh_in_uhz = max_refresh_in_uhz;
++		in_out_vrr->max_refresh_in_uhz = (unsigned int)max_refresh_in_uhz;
+ 		in_out_vrr->min_duration_in_us =
+ 				calc_duration_in_us_from_refresh_in_uhz(
+-						max_refresh_in_uhz);
++						(unsigned int)max_refresh_in_uhz);
+ 
+ 		refresh_range = in_out_vrr->max_refresh_in_uhz -
+ 				in_out_vrr->min_refresh_in_uhz;
+@@ -950,17 +956,18 @@ void mod_freesync_build_vrr_params(struct mod_freesync *mod_freesync,
+ 	in_out_vrr->fixed.ramping_active = in_config->ramping;
+ 
+ 	in_out_vrr->btr.btr_enabled = in_config->btr;
++
+ 	if (in_out_vrr->max_refresh_in_uhz <
+ 			2 * in_out_vrr->min_refresh_in_uhz)
+ 		in_out_vrr->btr.btr_enabled = false;
++
+ 	in_out_vrr->btr.btr_active = false;
+ 	in_out_vrr->btr.inserted_duration_in_us = 0;
+ 	in_out_vrr->btr.frames_to_insert = 0;
+ 	in_out_vrr->btr.frame_counter = 0;
+ 	in_out_vrr->btr.mid_point_in_us =
+-			in_out_vrr->min_duration_in_us +
+-				(in_out_vrr->max_duration_in_us -
+-				in_out_vrr->min_duration_in_us) / 2;
++				(in_out_vrr->min_duration_in_us +
++				 in_out_vrr->max_duration_in_us) / 2;
+ 
+ 	if (in_out_vrr->state == VRR_STATE_UNSUPPORTED) {
+ 		in_out_vrr->adjust.v_total_min = stream->timing.v_total;
 -- 
 2.20.1
 
