@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A04BCD573
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A24F8CD4E9
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727963AbfJFRgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35194 "EHLO mail.kernel.org"
+        id S1729257AbfJFRah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730276AbfJFRgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:24 -0400
+        id S1728018AbfJFRag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:30:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 831E520700;
-        Sun,  6 Oct 2019 17:36:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6DBF2087E;
+        Sun,  6 Oct 2019 17:30:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383384;
-        bh=2w4J4EU+vkn9b/OZxn8whPVPfDR0AZ6c1hgoTTdibcM=;
+        s=default; t=1570383035;
+        bh=r0VppsRO05cODlZfjJkNWNlLDib6ImkdtE/4yky8mDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIK2fuFqxAcXcoM2h0PGzfBMDUruIgWl/xdnYP2RqjIPTWSXYWBjdEFdvhZjzT3V0
-         /MWtVGVtvznS9oe2D76/I6FNA8ojLlDcm78atZhmnYgP1o/lrgZjOzKjaISt7XmNh9
-         3v31d4qZGdv9umUtR+LW//qTfoByyfmr7prCcyfM=
+        b=MTr95dv+viOkb2V5q6li7K9Qlome5l1VBC7zWcB1ZPvk7EpOzOlmkNYfE6kC/GmZ3
+         PKFh9TqhsUNW5aXCcf/j34CPZivxoex0+aT8u3RoniJ6cN3KjKBau5Pkk4hKSzsAXt
+         GiR+gZYXNxlRLtpufR2jDr9V26CZLhP4eBNkcC8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Shawn Guo <shawn.guo@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 082/137] clk: Make clk_bulk_get_all() return a valid "id"
-Date:   Sun,  6 Oct 2019 19:21:06 +0200
-Message-Id: <20191006171215.695568055@linuxfoundation.org>
+Subject: [PATCH 4.19 062/106] PCI: histb: Propagate errors for optional regulators
+Date:   Sun,  6 Oct 2019 19:21:08 +0200
+Message-Id: <20191006171150.122985520@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 7f81c2426587b34bf73e643c1a6d080dfa14cf8a ]
+[ Upstream commit 8f9e1641ba445437095411d9fda2324121110d5d ]
 
-The adreno driver expects the "id" field of the returned clk_bulk_data
-to be filled in with strings from the clock-names property.
+regulator_get_optional() can fail for a number of reasons besides probe
+deferral. It can for example return -ENOMEM if it runs out of memory as
+it tries to allocate data structures. Propagating only -EPROBE_DEFER is
+problematic because it results in these legitimately fatal errors being
+treated as "regulator not specified in DT".
 
-But due to the use of kmalloc_array() in of_clk_bulk_get_all() it
-receives a list of bogus pointers instead.
+What we really want is to ignore the optional regulators only if they
+have not been specified in DT. regulator_get_optional() returns -ENODEV
+in this case, so that's the special case that we need to handle. So we
+propagate all errors, except -ENODEV, so that real failures will still
+cause the driver to fail probe.
 
-Zero-initialize the "id" field and attempt to populate with strings from
-the clock-names property to resolve both these issues.
-
-Fixes: 616e45df7c4a ("clk: add new APIs to operate on all available clocks")
-Fixes: 8e3e791d20d2 ("drm/msm: Use generic bulk clock function")
-Cc: Dong Aisheng <aisheng.dong@nxp.com>
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lkml.kernel.org/r/20190913024029.2640-1-bjorn.andersson@linaro.org
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Cc: Shawn Guo <shawn.guo@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-bulk.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-histb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/clk-bulk.c b/drivers/clk/clk-bulk.c
-index 06499568cf076..db5096fa9a170 100644
---- a/drivers/clk/clk-bulk.c
-+++ b/drivers/clk/clk-bulk.c
-@@ -18,10 +18,13 @@ static int __must_check of_clk_bulk_get(struct device_node *np, int num_clks,
- 	int ret;
- 	int i;
+diff --git a/drivers/pci/controller/dwc/pcie-histb.c b/drivers/pci/controller/dwc/pcie-histb.c
+index 7b32e619b959c..a3489839a8fc3 100644
+--- a/drivers/pci/controller/dwc/pcie-histb.c
++++ b/drivers/pci/controller/dwc/pcie-histb.c
+@@ -340,8 +340,8 @@ static int histb_pcie_probe(struct platform_device *pdev)
  
--	for (i = 0; i < num_clks; i++)
-+	for (i = 0; i < num_clks; i++) {
-+		clks[i].id = NULL;
- 		clks[i].clk = NULL;
-+	}
+ 	hipcie->vpcie = devm_regulator_get_optional(dev, "vpcie");
+ 	if (IS_ERR(hipcie->vpcie)) {
+-		if (PTR_ERR(hipcie->vpcie) == -EPROBE_DEFER)
+-			return -EPROBE_DEFER;
++		if (PTR_ERR(hipcie->vpcie) != -ENODEV)
++			return PTR_ERR(hipcie->vpcie);
+ 		hipcie->vpcie = NULL;
+ 	}
  
- 	for (i = 0; i < num_clks; i++) {
-+		of_property_read_string_index(np, "clock-names", i, &clks[i].id);
- 		clks[i].clk = of_clk_get(np, i);
- 		if (IS_ERR(clks[i].clk)) {
- 			ret = PTR_ERR(clks[i].clk);
 -- 
 2.20.1
 
