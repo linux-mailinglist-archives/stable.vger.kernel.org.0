@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AD7CD80A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B4E0CD7D8
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727829AbfJFR4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33740 "EHLO mail.kernel.org"
+        id S1730152AbfJFRfg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:35:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728970AbfJFRfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:35:06 -0400
+        id S1730151AbfJFRfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:35:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45CBE2166E;
-        Sun,  6 Oct 2019 17:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DB0220700;
+        Sun,  6 Oct 2019 17:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383305;
-        bh=Z1FFPx6rPMa1a37d/+3Howuwq5SBIclNgoWtIm1mxP8=;
+        s=default; t=1570383335;
+        bh=f4rcsN3ybGO/sVNQMSjrifM4UThQhI6TFoiqf0tlzng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJPHwnHpGqpAzm7ZCRWxLEchqP+ubOzPMDr1Sr29bS02WXApou4HxiROvQ6IEdgZq
-         dls6FSaREm2n+XGWOkG9gk4TNxitfvET3asuyR+mopeZKMmUp++fiAzMmjQHdDzD1G
-         IqXoNqPN5R2uc+AHU/6M2phcchk7JFbnT6qLB09g=
+        b=1NJnYenf16qk8zCyW+1z37EzV6TJcTcUwxCaHe9FsJYH5mK1eUf4Bd22+kPD+2My2
+         SEXlAIqm3CewkFgHPGsc2uCbVZiVwGHoIOGriOSzvFsDHCqQj4aEOejz+XPsPADjdI
+         aBSGKGy9W4YAl+ZHxr2npHeZtGJQ3NvGW+2gGm9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Abel Vesa <abel.vesa@nxp.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 038/137] gpu: drm: radeon: Fix a possible null-pointer dereference in radeon_connector_set_property()
-Date:   Sun,  6 Oct 2019 19:20:22 +0200
-Message-Id: <20191006171212.237302580@linuxfoundation.org>
+Subject: [PATCH 5.2 039/137] clk: imx8mq: Mark AHB clock as critical
+Date:   Sun,  6 Oct 2019 19:20:23 +0200
+Message-Id: <20191006171212.294579334@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -44,43 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Abel Vesa <abel.vesa@nxp.com>
 
-[ Upstream commit f3eb9b8f67bc28783eddc142ad805ebdc53d6339 ]
+[ Upstream commit 9b9c60bed562c3718ae324a86f3f30a4ff983cf8 ]
 
-In radeon_connector_set_property(), there is an if statement on line 743
-to check whether connector->encoder is NULL:
-    if (connector->encoder)
+Initially, the TMU_ROOT clock was marked as critical, which automatically
+made the AHB clock to stay always on. Since the TMU_ROOT clock is not
+marked as critical anymore, following commit:
 
-When connector->encoder is NULL, it is used on line 755:
-    if (connector->encoder->crtc)
+"clk: imx8mq: Remove CLK_IS_CRITICAL flag for IMX8MQ_CLK_TMU_ROOT"
 
-Thus, a possible null-pointer dereference may occur.
+all the clocks that derive from ipg_root clock (and implicitly ahb clock)
+would also have to enable, along with their own gate, the AHB clock.
 
-To fix this bug, connector->encoder is checked before being used.
+But considering that AHB is actually a bus that has to be always on, we mark
+it as critical in the clock provider driver and then all the clocks that
+derive from it can be controlled through the dedicated per IP gate which
+follows after the ipg_root clock.
 
-This bug is found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+Tested-by: Daniel Baluta <daniel.baluta@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_connectors.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/imx/clk-imx8mq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
-index de1745adccccb..c7f2e073a82fd 100644
---- a/drivers/gpu/drm/radeon/radeon_connectors.c
-+++ b/drivers/gpu/drm/radeon/radeon_connectors.c
-@@ -752,7 +752,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
+diff --git a/drivers/clk/imx/clk-imx8mq.c b/drivers/clk/imx/clk-imx8mq.c
+index daf1841b2adb0..f29025c99c53b 100644
+--- a/drivers/clk/imx/clk-imx8mq.c
++++ b/drivers/clk/imx/clk-imx8mq.c
+@@ -396,7 +396,8 @@ static int imx8mq_clocks_probe(struct platform_device *pdev)
+ 	clks[IMX8MQ_CLK_NOC_APB] = imx8m_clk_composite_critical("noc_apb", imx8mq_noc_apb_sels, base + 0x8d80);
  
- 		radeon_encoder->output_csc = val;
+ 	/* AHB */
+-	clks[IMX8MQ_CLK_AHB] = imx8m_clk_composite("ahb", imx8mq_ahb_sels, base + 0x9000);
++	/* AHB clock is used by the AHB bus therefore marked as critical */
++	clks[IMX8MQ_CLK_AHB] = imx8m_clk_composite_critical("ahb", imx8mq_ahb_sels, base + 0x9000);
+ 	clks[IMX8MQ_CLK_AUDIO_AHB] = imx8m_clk_composite("audio_ahb", imx8mq_audio_ahb_sels, base + 0x9100);
  
--		if (connector->encoder->crtc) {
-+		if (connector->encoder && connector->encoder->crtc) {
- 			struct drm_crtc *crtc  = connector->encoder->crtc;
- 			struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
- 
+ 	/* IPG */
 -- 
 2.20.1
 
