@@ -2,53 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89589CD6FE
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA6FCD6CE
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730602AbfJFRiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:38:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37618 "EHLO mail.kernel.org"
+        id S1728925AbfJFRu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730600AbfJFRiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:38:23 -0400
+        id S1727321AbfJFRuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:50:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 277D72080F;
-        Sun,  6 Oct 2019 17:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ECA02087E;
+        Sun,  6 Oct 2019 17:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383502;
-        bh=w2whw1Hr/775putsFnagWM9RGPe7vXYrduAUtGNqhKA=;
+        s=default; t=1570383919;
+        bh=qbJambDLBU2iCC1IS1jCXXoXh7F8TMycRq4h3giH+D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ugRFQp/cd5K5EGcZztNDWs0/IkEh2S30RM/cWqAUaMSKqAljE91qkEs24zKoomLH
-         Sa8WhpO8cSgWrxLID5gsuKg0Ip5DlD29umepl/xkMIF2LOAa/ovCCnYxh0D+z58JhK
-         9IFDur/SgGDtQT7hEaX3DRp74bqZF8bHWpHqNqlI=
+        b=jgXzoPUKmb3HK6NcHyUiM9e4xQKZriUFIrflYM+TJrXHZB3MUuHiotCFqCOLrmiFL
+         sTIxfYWm/WxWSSWgqtQnXs2suSK8RDbycbYSkHx+8uhOA0ObPaNpYOc+502kBRsuV4
+         GXM6eFMLE/DaafD1+0bqrwzkf+cQXlNIZwjPy0UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        James Hogan <jhogan@kernel.org>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 126/137] mips: properly account for stack randomization and stack guard gap
-Date:   Sun,  6 Oct 2019 19:21:50 +0200
-Message-Id: <20191006171219.819609010@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 145/166] net: dsa: rtl8366: Check VLAN ID and not ports
+Date:   Sun,  6 Oct 2019 19:21:51 +0200
+Message-Id: <20191006171225.179123080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,71 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit b1f61b5bde3a1f50392c97b4c8513d1b8efb1cf2 ]
+[ Upstream commit e8521e53cca584ddf8ec4584d3c550a6c65f88c4 ]
 
-This commit takes care of stack randomization and stack guard gap when
-computing mmap base address and checks if the task asked for
-randomization.  This fixes the problem uncovered and not fixed for arm
-here: https://lkml.kernel.org/r/20170622200033.25714-1-riel@redhat.com
+There has been some confusion between the port number and
+the VLAN ID in this driver. What we need to check for
+validity is the VLAN ID, nothing else.
 
-Link: http://lkml.kernel.org/r/20190730055113.23635-10-alex@ghiti.fr
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: Kees Cook <keescook@chromium.org>
-Acked-by: Paul Burton <paul.burton@mips.com>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The current confusion came from assigning a few default
+VLANs for default routing and we need to rewrite that
+properly.
+
+Instead of checking if the port number is a valid VLAN
+ID, check the actual VLAN IDs passed in to the callback
+one by one as expected.
+
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mm/mmap.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/dsa/rtl8366.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/mm/mmap.c b/arch/mips/mm/mmap.c
-index d79f2b4323187..f5c778113384b 100644
---- a/arch/mips/mm/mmap.c
-+++ b/arch/mips/mm/mmap.c
-@@ -21,8 +21,9 @@ unsigned long shm_align_mask = PAGE_SIZE - 1;	/* Sane caches */
- EXPORT_SYMBOL(shm_align_mask);
- 
- /* gap between mmap and stack */
--#define MIN_GAP (128*1024*1024UL)
--#define MAX_GAP ((TASK_SIZE)/6*5)
-+#define MIN_GAP		(128*1024*1024UL)
-+#define MAX_GAP		((TASK_SIZE)/6*5)
-+#define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
- 
- static int mmap_is_legacy(struct rlimit *rlim_stack)
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -339,10 +339,12 @@ int rtl8366_vlan_prepare(struct dsa_swit
+ 			 const struct switchdev_obj_port_vlan *vlan)
  {
-@@ -38,6 +39,15 @@ static int mmap_is_legacy(struct rlimit *rlim_stack)
- static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
- {
- 	unsigned long gap = rlim_stack->rlim_cur;
-+	unsigned long pad = stack_guard_gap;
-+
-+	/* Account for stack randomization if necessary */
-+	if (current->flags & PF_RANDOMIZE)
-+		pad += (STACK_RND_MASK << PAGE_SHIFT);
-+
-+	/* Values close to RLIM_INFINITY can overflow. */
-+	if (gap + pad > gap)
-+		gap += pad;
+ 	struct realtek_smi *smi = ds->priv;
++	u16 vid;
+ 	int ret;
  
- 	if (gap < MIN_GAP)
- 		gap = MIN_GAP;
--- 
-2.20.1
-
+-	if (!smi->ops->is_vlan_valid(smi, port))
+-		return -EINVAL;
++	for (vid = vlan->vid_begin; vid < vlan->vid_end; vid++)
++		if (!smi->ops->is_vlan_valid(smi, vid))
++			return -EINVAL;
+ 
+ 	dev_info(smi->dev, "prepare VLANs %04x..%04x\n",
+ 		 vlan->vid_begin, vlan->vid_end);
+@@ -370,8 +372,9 @@ void rtl8366_vlan_add(struct dsa_switch
+ 	u16 vid;
+ 	int ret;
+ 
+-	if (!smi->ops->is_vlan_valid(smi, port))
+-		return;
++	for (vid = vlan->vid_begin; vid < vlan->vid_end; vid++)
++		if (!smi->ops->is_vlan_valid(smi, vid))
++			return;
+ 
+ 	dev_info(smi->dev, "add VLAN on port %d, %s, %s\n",
+ 		 port,
 
 
