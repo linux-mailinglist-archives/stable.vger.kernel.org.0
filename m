@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D1B1CD662
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9431CCD66B
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731633AbfJFRoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:44:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44374 "EHLO mail.kernel.org"
+        id S1727158AbfJFRr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:47:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731630AbfJFRoN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:44:13 -0400
+        id S1731639AbfJFRoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:44:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 647BC2087E;
-        Sun,  6 Oct 2019 17:44:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D0532080F;
+        Sun,  6 Oct 2019 17:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383851;
-        bh=0G3/eLs3KNEDlD69COogjkS7I/Hj3IAs5lEuVqVixIg=;
+        s=default; t=1570383854;
+        bh=VHqFPei1l3XYQuzGwjYB6MtsKq7T/Rtc2e+h2ot99yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=osNR05/Evrbl8AUHJV3NvB0bbfZdUbA0f884MndNCr5GTlwzSKGjqdauRnKUepBmL
-         flyCTiNNwQxkXJ4veBqbVFQ52gKXJm8HZYsdA5Upows4r6hqjbJeAn0ntdSzzE9V53
-         OBKBqVjfNMfguhSt/8R4ORvcrJZxqQOgw9lmWTVk=
+        b=XBO4zxpZEB9a2pxOB5mexcJJwR3WzM26gNJ7+MkOMADWFjorxsjruxnACtixX6VcD
+         4pBco0Rv3I1mZGMbycnuSZcZQTOifrOgUho1HPdMJ+QAsWleExEl1PvXsZp8efxB9e
+         2GX/vxpN3woPIvtmWP314WuW1k31pr5ix4hPPyus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Youquan Song <youquan.song@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 118/166] tools/power/x86/intel-speed-select: Fix high priority core mask over count
-Date:   Sun,  6 Oct 2019 19:21:24 +0200
-Message-Id: <20191006171223.241909827@linuxfoundation.org>
+Subject: [PATCH 5.3 119/166] crypto: hisilicon - Fix double free in sec_free_hw_sgl()
+Date:   Sun,  6 Oct 2019 19:21:25 +0200
+Message-Id: <20191006171223.331622817@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,45 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Youquan Song <youquan.song@intel.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 44460efe44e05eae2f21e57d06d542bbbb792e65 ]
+[ Upstream commit 24fbf7bad888767bed952f540ac963bc57e47e15 ]
 
-If the CPU package has the less logical CPU than topo_max_cpus, but un-present
-CPU's punit_cpu_core will be initiated to 0 and they will be count to core 0
+There are two problems in sec_free_hw_sgl():
 
-Like below, there are only 10 high priority cores (20 logical CPUs) in the CPU
-package, but it count to 27 logic CPUs.
+First, when sgl_current->next is valid, @hw_sgl will be freed in the
+first loop, but it free again after the loop.
 
-./intel-speed-select base-freq info -l 0 | grep mask
-        high-priority-cpu-mask:7f000179,f000179f
+Second, sgl_current and sgl_current->next_sgl is not match when
+dma_pool_free() is invoked, the third parameter should be the dma
+address of sgl_current, but sgl_current->next_sgl is the dma address
+of next chain, so use sgl_current->next_sgl is wrong.
 
-With the fix patch:
-./intel-speed-select base-freq info -l 0
-        high-priority-cpu-mask:00000179,f000179f
+Fix this by deleting the last dma_pool_free() in sec_free_hw_sgl(),
+modifying the condition for while loop, and matching the address for
+dma_pool_free().
 
-Signed-off-by: Youquan Song <youquan.song@intel.com>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 915e4e8413da ("crypto: hisilicon - SEC security accelerator driver")
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-config.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/crypto/hisilicon/sec/sec_algs.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
-index 6a10dea01eefc..696586407e83b 100644
---- a/tools/power/x86/intel-speed-select/isst-config.c
-+++ b/tools/power/x86/intel-speed-select/isst-config.c
-@@ -402,6 +402,9 @@ void set_cpu_mask_from_punit_coremask(int cpu, unsigned long long core_mask,
- 			int j;
+diff --git a/drivers/crypto/hisilicon/sec/sec_algs.c b/drivers/crypto/hisilicon/sec/sec_algs.c
+index 02768af0dccdd..8c789b8671fc4 100644
+--- a/drivers/crypto/hisilicon/sec/sec_algs.c
++++ b/drivers/crypto/hisilicon/sec/sec_algs.c
+@@ -215,17 +215,18 @@ static void sec_free_hw_sgl(struct sec_hw_sgl *hw_sgl,
+ 			    dma_addr_t psec_sgl, struct sec_dev_info *info)
+ {
+ 	struct sec_hw_sgl *sgl_current, *sgl_next;
++	dma_addr_t sgl_next_dma;
  
- 			for (j = 0; j < topo_max_cpus; ++j) {
-+				if (!CPU_ISSET_S(j, present_cpumask_size, present_cpumask))
-+					continue;
+-	if (!hw_sgl)
+-		return;
+ 	sgl_current = hw_sgl;
+-	while (sgl_current->next) {
++	while (sgl_current) {
+ 		sgl_next = sgl_current->next;
+-		dma_pool_free(info->hw_sgl_pool, sgl_current,
+-			      sgl_current->next_sgl);
++		sgl_next_dma = sgl_current->next_sgl;
 +
- 				if (cpu_map[j].pkg_id == pkg_id &&
- 				    cpu_map[j].die_id == die_id &&
- 				    cpu_map[j].punit_cpu_core == i) {
++		dma_pool_free(info->hw_sgl_pool, sgl_current, psec_sgl);
++
+ 		sgl_current = sgl_next;
++		psec_sgl = sgl_next_dma;
+ 	}
+-	dma_pool_free(info->hw_sgl_pool, hw_sgl, psec_sgl);
+ }
+ 
+ static int sec_alg_skcipher_setkey(struct crypto_skcipher *tfm,
 -- 
 2.20.1
 
