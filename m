@@ -2,170 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97717CCD72
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 02:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98201CCD85
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 02:39:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726946AbfJFAUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Oct 2019 20:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbfJFAUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Oct 2019 20:20:16 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A8FA222C5;
-        Sun,  6 Oct 2019 00:20:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570321215;
-        bh=UPGToWJQ+plG1YbUA3szUfefk4rsiaedpRnvrVDS/Ho=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tLgMi4oMMWlPjOPa1eQyh6MwFjXyFGG8wPwFDiZ5X1My7eje9KXBMgKRLdD2kAgpm
-         DfVMnpBKUi7y9wuONt/wSsLgMDGQ/FeGYYbjBemKvCcXklMM3lu4ceRtnBXkF9n1HG
-         3FoEdFvnS9ke6FGHx5jHYQrpyyfvGHD3P/hNDYpU=
-Date:   Sat, 5 Oct 2019 20:20:14 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Zubin Mithra <zsm@chromium.org>
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        groeck@chromium.org, daniel@iogearbox.net, songliubraving@fb.com,
-        ast@kernel.org
-Subject: Re: [v4.14.y] bpf: fix use after free in prog symbol exposure
-Message-ID: <20191006002014.GF25255@sasha-vm>
-References: <20191004174112.32217-1-zsm@chromium.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191004174112.32217-1-zsm@chromium.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1726925AbfJFAjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Oct 2019 20:39:06 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42792 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726957AbfJFAjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Oct 2019 20:39:05 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x960aYIR005524
+        for <stable@vger.kernel.org>; Sat, 5 Oct 2019 20:39:04 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vf5np87w2-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Sat, 05 Oct 2019 20:39:03 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Sun, 6 Oct 2019 01:39:00 +0100
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Sun, 6 Oct 2019 01:38:56 +0100
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x960ctYr57671800
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 6 Oct 2019 00:38:55 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 89019A4040;
+        Sun,  6 Oct 2019 00:38:55 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id E4502A404D;
+        Sun,  6 Oct 2019 00:38:53 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.134.152])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Sun,  6 Oct 2019 00:38:53 +0000 (GMT)
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        David Safford <david.safford@ge.com>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Date:   Sat, 05 Oct 2019 20:38:53 -0400
+In-Reply-To: <1570227068.17537.4.camel@HansenPartnership.com>
+References: <1570128827.5046.19.camel@linux.ibm.com>
+         <20191003215125.GA30511@linux.intel.com>
+         <20191003215743.GB30511@linux.intel.com>
+         <1570140491.5046.33.camel@linux.ibm.com>
+         <1570147177.10818.11.camel@HansenPartnership.com>
+         <20191004182216.GB6945@linux.intel.com>
+         <1570213491.3563.27.camel@HansenPartnership.com>
+         <20191004183342.y63qdvspojyf3m55@cantor>
+         <1570214574.3563.32.camel@HansenPartnership.com>
+         <20191004200728.xoj6jlgbhv57gepc@cantor>
+         <20191004201134.nuesk6hxtxajnxh2@cantor>
+         <1570227068.17537.4.camel@HansenPartnership.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19100600-0012-0000-0000-0000035467BF
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19100600-0013-0000-0000-0000218F7549
+Message-Id: <1570322333.5046.145.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-05_14:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1910060003
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 04, 2019 at 10:41:12AM -0700, Zubin Mithra wrote:
->From: Daniel Borkmann <daniel@iogearbox.net>
->
->commit c751798aa224fadc5124b49eeb38fb468c0fa039 upstream.
->
->syzkaller managed to trigger the warning in bpf_jit_free() which checks via
->bpf_prog_kallsyms_verify_off() for potentially unlinked JITed BPF progs
->in kallsyms, and subsequently trips over GPF when walking kallsyms entries:
->
->  [...]
->  8021q: adding VLAN 0 to HW filter on device batadv0
->  8021q: adding VLAN 0 to HW filter on device batadv0
->  WARNING: CPU: 0 PID: 9869 at kernel/bpf/core.c:810 bpf_jit_free+0x1e8/0x2a0
->  Kernel panic - not syncing: panic_on_warn set ...
->  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
->  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->  Workqueue: events bpf_prog_free_deferred
->  Call Trace:
->   __dump_stack lib/dump_stack.c:77 [inline]
->   dump_stack+0x113/0x167 lib/dump_stack.c:113
->   panic+0x212/0x40b kernel/panic.c:214
->   __warn.cold.8+0x1b/0x38 kernel/panic.c:571
->   report_bug+0x1a4/0x200 lib/bug.c:186
->   fixup_bug arch/x86/kernel/traps.c:178 [inline]
->   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:271
->   do_invalid_op+0x36/0x40 arch/x86/kernel/traps.c:290
->   invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:973
->  RIP: 0010:bpf_jit_free+0x1e8/0x2a0
->  Code: 02 4c 89 e2 83 e2 07 38 d0 7f 08 84 c0 0f 85 86 00 00 00 48 ba 00 02 00 00 00 00 ad de 0f b6 43 02 49 39 d6 0f 84 5f fe ff ff <0f> 0b e9 58 fe ff ff 48 b8 00 00 00 00 00 fc ff df 4c 89 e2 48 c1
->  RSP: 0018:ffff888092f67cd8 EFLAGS: 00010202
->  RAX: 0000000000000007 RBX: ffffc90001947000 RCX: ffffffff816e9d88
->  RDX: dead000000000200 RSI: 0000000000000008 RDI: ffff88808769f7f0
->  RBP: ffff888092f67d00 R08: fffffbfff1394059 R09: fffffbfff1394058
->  R10: fffffbfff1394058 R11: ffffffff89ca02c7 R12: ffffc90001947002
->  R13: ffffc90001947020 R14: ffffffff881eca80 R15: ffff88808769f7e8
->  BUG: unable to handle kernel paging request at fffffbfff400d000
->  #PF error: [normal kernel read fault]
->  PGD 21ffee067 P4D 21ffee067 PUD 21ffed067 PMD 9f942067 PTE 0
->  Oops: 0000 [#1] PREEMPT SMP KASAN
->  CPU: 0 PID: 9869 Comm: kworker/0:7 Not tainted 5.0.0-rc8+ #1
->  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
->  Workqueue: events bpf_prog_free_deferred
->  RIP: 0010:bpf_get_prog_addr_region kernel/bpf/core.c:495 [inline]
->  RIP: 0010:bpf_tree_comp kernel/bpf/core.c:558 [inline]
->  RIP: 0010:__lt_find include/linux/rbtree_latch.h:115 [inline]
->  RIP: 0010:latch_tree_find include/linux/rbtree_latch.h:208 [inline]
->  RIP: 0010:bpf_prog_kallsyms_find+0x107/0x2e0 kernel/bpf/core.c:632
->  Code: 00 f0 ff ff 44 38 c8 7f 08 84 c0 0f 85 fa 00 00 00 41 f6 45 02 01 75 02 0f 0b 48 39 da 0f 82 92 00 00 00 48 89 d8 48 c1 e8 03 <42> 0f b6 04 30 84 c0 74 08 3c 03 0f 8e 45 01 00 00 8b 03 48 c1 e0
->  [...]
->
->Upon further debugging, it turns out that whenever we trigger this
->issue, the kallsyms removal in bpf_prog_ksym_node_del() was /skipped/
->but yet bpf_jit_free() reported that the entry is /in use/.
->
->Problem is that symbol exposure via bpf_prog_kallsyms_add() but also
->perf_event_bpf_event() were done /after/ bpf_prog_new_fd(). Once the
->fd is exposed to the public, a parallel close request came in right
->before we attempted to do the bpf_prog_kallsyms_add().
->
->Given at this time the prog reference count is one, we start to rip
->everything underneath us via bpf_prog_release() -> bpf_prog_put().
->The memory is eventually released via deferred free, so we're seeing
->that bpf_jit_free() has a kallsym entry because we added it from
->bpf_prog_load() but /after/ bpf_prog_put() from the remote CPU.
->
->Therefore, move both notifications /before/ we install the fd. The
->issue was never seen between bpf_prog_alloc_id() and bpf_prog_new_fd()
->because upon bpf_prog_get_fd_by_id() we'll take another reference to
->the BPF prog, so we're still holding the original reference from the
->bpf_prog_load().
->
->Fixes: 6ee52e2a3fe4 ("perf, bpf: Introduce PERF_RECORD_BPF_EVENT")
->Fixes: 74451e66d516 ("bpf: make jited programs visible in traces")
->Reported-by: syzbot+bd3bba6ff3fcea7a6ec6@syzkaller.appspotmail.com
->Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
->Cc: Song Liu <songliubraving@fb.com>
->Signed-off-by: Zubin Mithra <zsm@chromium.org>
->---
->Notes:
->* Syzkaller triggered a WARNING on 4.14 kernels with the following
->stacktrace:
->Call Trace:
->  dump_stack+0x81/0xb3
->  panic+0x14a/0x2ad
->  ? refcount_error_report+0xf6/0xf6
->  ? set_fs+0x1a/0x29
->  ? bpf_jit_free+0x8b/0xce
->  __warn+0xde/0x112
->  ? bpf_jit_free+0x8b/0xce
->  report_bug+0x91/0xda
->  fixup_bug+0x2c/0x4c
->  do_error_trap+0xda/0x192
->  ? fixup_bug+0x4c/0x4c
->  ? hlock_class+0x6d/0x8b
->  ? mark_lock+0x3a/0x26d
->  ? trace_hardirqs_off_caller+0xf2/0xfb
->  ? trace_hardirqs_off_thunk+0x1a/0x1c
->  invalid_op+0x1b/0x40
->  ? bpf_jit_binary_free+0x15/0x20
->  ? bpf_jit_free+0x7b/0xce
->  process_one_work+0x484/0x793
->  ? wq_calc_node_cpumask.constprop.37+0x25/0x25
->  ? worker_clr_flags+0x52/0x88
->  worker_thread+0x2b8/0x3d1
->  ? rescuer_thread+0x425/0x425
->  kthread+0x192/0x1a2
->  ? __list_del_entry+0x41/0x41
->  ret_from_fork+0x3a/0x50
->
->* The commit is not present in linux-4.19.y. A backport has been sent
->separately.
->
->* The patch resolves conflicts inside bpf_prog_load that arise due to
->trace_bpf_prog_load() not being present upstream when c751798aa224 was
->applied and perf_event_bpf_event() not being present in linux-4.14.y.
->
->* Tests run: Chrome OS tryjobs, Syzkaller reproducer
+On Fri, 2019-10-04 at 15:11 -0700, James Bottomley wrote:
 
-I've queued this and the 4.14 one, thanks!
+> +
+> +/**
+> + * tpm_get_random() - get random bytes influenced by the TPM's RNG
+> + * @chip:	a &struct tpm_chip instance, %NULL for the default chip
+> + * @out:	destination buffer for the random bytes
+> + * @max:	the max number of bytes to write to @out
+> + *
+> + * Uses the TPM as a source of input to the kernel random number
+> + * generator and then takes @max bytes directly from the kernel.  In
+> + * the worst (no other entropy) case, this will return the pure TPM
+> + * random number, but if the kernel RNG has any entropy at all it will
+> + * return a mixed entropy output which doesn't rely on a single
+> + * source.
+> + *
+> + * Return: number of random bytes read or a negative error value.
+> + */
+> +int tpm_get_random(struct tpm_chip *chip, u8 *out, size_t max)
+> +{
+> +	int rc;
+> +
+> +	rc = __tpm_get_random(chip, out, max);
+> +	if (rc <= 0)
+> +		return rc;
+> +	/*
+> +	 * assume the TPM produces pure randomness, so the amount of
+> +	 * entropy is the number of bits returned
+> +	 */
+> +	add_hwgenerator_randomness(out, rc, rc * 8);
+> +	get_random_bytes(out, rc);
 
-A side note: the patch claims to fix 6ee52e2a3fe4 ("perf, bpf: Introduce
-PERF_RECORD_BPF_EVENT"), but since you've reproduced it on 4.19 which
-doesn't have that commit I've ignored that annotation.
+Using the TPM as a source of input to the kernel random number
+generator is fine, but please don't change the meaning of trusted
+keys.  The trusted-encrypted keys documentation clearly states
+"Trusted Keys use a TPM both to generate and to seal the keys."
 
--- 
-Thanks,
-Sasha
+If you really want to use a different random number source instead of
+the TPM, then define a new trusted key option (eg. rng=kernel), with
+the default being the TPM.
+
+Mimi
+
+
+> +
+> +	return rc;
+> +}
+>  EXPORT_SYMBOL_GPL(tpm_get_random);
+
