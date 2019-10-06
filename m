@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FA8CD75A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:01:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CECCD798
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbfJFR1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S1727447AbfJFRcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbfJFR1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:35 -0400
+        id S1729060AbfJFRb7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:31:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2EA52087E;
-        Sun,  6 Oct 2019 17:27:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7EB02080F;
+        Sun,  6 Oct 2019 17:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382854;
-        bh=4wqBNUuvysB2SkWx5KMjTRsw89Nhb/8OQY+pCz/jZmA=;
+        s=default; t=1570383119;
+        bh=qbJambDLBU2iCC1IS1jCXXoXh7F8TMycRq4h3giH+D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wB2QUbSPXPG4sp658oWa3gLs7dtWwetP2C4Hv58R+9nN8tNn3MY7hAIob+eg/15it
-         cZoRL9L4higvsDBQMwSxmhFg7nwjgMiGkeKB5nDcsONwHeyJBEvN4gvgCf83zKklnn
-         Do0RRyK828sNRVNkGxpqE3LEEf8WaAoLj7KWTWws=
+        b=rSsbawUNn75B0DOQpHEks7oYh2Vd27Ad+TYoe0Q8Ei0Z2QGaRjJkOypiZVzc1UXsf
+         flvXsZXE+t8bwqvP0oddjI+WaliWYNN1vgJcYeHsIz+1oY8T7FApIfWlXEPG2XHUYh
+         RW/TA/kmb8TtPXJC9tlrWli/57lwJeMFh7GAfTsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
-        David Ahern <dsahern@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 64/68] ipv6: Handle missing host route in __ipv6_ifa_notify
+Subject: [PATCH 4.19 094/106] net: dsa: rtl8366: Check VLAN ID and not ports
 Date:   Sun,  6 Oct 2019 19:21:40 +0200
-Message-Id: <20191006171138.315444337@linuxfoundation.org>
+Message-Id: <20191006171201.248363083@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 2d819d250a1393a3e725715425ab70a0e0772a71 ]
+[ Upstream commit e8521e53cca584ddf8ec4584d3c550a6c65f88c4 ]
 
-Rajendra reported a kernel panic when a link was taken down:
+There has been some confusion between the port number and
+the VLAN ID in this driver. What we need to check for
+validity is the VLAN ID, nothing else.
 
-    [ 6870.263084] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
-    [ 6870.271856] IP: [<ffffffff8efc5764>] __ipv6_ifa_notify+0x154/0x290
+The current confusion came from assigning a few default
+VLANs for default routing and we need to rewrite that
+properly.
 
-    <snip>
+Instead of checking if the port number is a valid VLAN
+ID, check the actual VLAN IDs passed in to the callback
+one by one as expected.
 
-    [ 6870.570501] Call Trace:
-    [ 6870.573238] [<ffffffff8efc58c6>] ? ipv6_ifa_notify+0x26/0x40
-    [ 6870.579665] [<ffffffff8efc98ec>] ? addrconf_dad_completed+0x4c/0x2c0
-    [ 6870.586869] [<ffffffff8efe70c6>] ? ipv6_dev_mc_inc+0x196/0x260
-    [ 6870.593491] [<ffffffff8efc9c6a>] ? addrconf_dad_work+0x10a/0x430
-    [ 6870.600305] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
-    [ 6870.606732] [<ffffffff8ea93a7a>] ? process_one_work+0x18a/0x430
-    [ 6870.613449] [<ffffffff8ea93d6d>] ? worker_thread+0x4d/0x490
-    [ 6870.619778] [<ffffffff8ea93d20>] ? process_one_work+0x430/0x430
-    [ 6870.626495] [<ffffffff8ea99dd9>] ? kthread+0xd9/0xf0
-    [ 6870.632145] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
-    [ 6870.638573] [<ffffffff8ea99d00>] ? kthread_park+0x60/0x60
-    [ 6870.644707] [<ffffffff8f01ae77>] ? ret_from_fork+0x57/0x70
-    [ 6870.650936] Code: 31 c0 31 d2 41 b9 20 00 08 02 b9 09 00 00 0
-
-addrconf_dad_work is kicked to be scheduled when a device is brought
-up. There is a race between addrcond_dad_work getting scheduled and
-taking the rtnl lock and a process taking the link down (under rtnl).
-The latter removes the host route from the inet6_addr as part of
-addrconf_ifdown which is run for NETDEV_DOWN. The former attempts
-to use the host route in __ipv6_ifa_notify. If the down event removes
-the host route due to the race to the rtnl, then the BUG listed above
-occurs.
-
-Since the DAD sequence can not be aborted, add a check for the missing
-host route in __ipv6_ifa_notify. The only way this should happen is due
-to the previously mentioned race. The host route is created when the
-address is added to an interface; it is only removed on a down event
-where the address is kept. Add a warning if the host route is missing
-AND the device is up; this is a situation that should never happen.
-
-Fixes: f1705ec197e7 ("net: ipv6: Make address flushing on ifdown optional")
-Reported-by: Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/dsa/rtl8366.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -5547,13 +5547,20 @@ static void __ipv6_ifa_notify(int event,
- 	switch (event) {
- 	case RTM_NEWADDR:
- 		/*
--		 * If the address was optimistic
--		 * we inserted the route at the start of
--		 * our DAD process, so we don't need
--		 * to do it again
-+		 * If the address was optimistic we inserted the route at the
-+		 * start of our DAD process, so we don't need to do it again.
-+		 * If the device was taken down in the middle of the DAD
-+		 * cycle there is a race where we could get here without a
-+		 * host route, so nothing to insert. That will be fixed when
-+		 * the device is brought up.
- 		 */
--		if (!rcu_access_pointer(ifp->rt->rt6i_node))
-+		if (ifp->rt && !rcu_access_pointer(ifp->rt->rt6i_node)) {
- 			ip6_ins_rt(ifp->rt);
-+		} else if (!ifp->rt && (ifp->idev->dev->flags & IFF_UP)) {
-+			pr_warn("BUG: Address %pI6c on device %s is missing its host route.\n",
-+				&ifp->addr, ifp->idev->dev->name);
-+		}
-+
- 		if (ifp->idev->cnf.forwarding)
- 			addrconf_join_anycast(ifp);
- 		if (!ipv6_addr_any(&ifp->peer_addr))
+--- a/drivers/net/dsa/rtl8366.c
++++ b/drivers/net/dsa/rtl8366.c
+@@ -339,10 +339,12 @@ int rtl8366_vlan_prepare(struct dsa_swit
+ 			 const struct switchdev_obj_port_vlan *vlan)
+ {
+ 	struct realtek_smi *smi = ds->priv;
++	u16 vid;
+ 	int ret;
+ 
+-	if (!smi->ops->is_vlan_valid(smi, port))
+-		return -EINVAL;
++	for (vid = vlan->vid_begin; vid < vlan->vid_end; vid++)
++		if (!smi->ops->is_vlan_valid(smi, vid))
++			return -EINVAL;
+ 
+ 	dev_info(smi->dev, "prepare VLANs %04x..%04x\n",
+ 		 vlan->vid_begin, vlan->vid_end);
+@@ -370,8 +372,9 @@ void rtl8366_vlan_add(struct dsa_switch
+ 	u16 vid;
+ 	int ret;
+ 
+-	if (!smi->ops->is_vlan_valid(smi, port))
+-		return;
++	for (vid = vlan->vid_begin; vid < vlan->vid_end; vid++)
++		if (!smi->ops->is_vlan_valid(smi, vid))
++			return;
+ 
+ 	dev_info(smi->dev, "add VLAN on port %d, %s, %s\n",
+ 		 port,
 
 
