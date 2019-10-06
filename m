@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5955ACD491
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71824CD451
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfJFR1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52556 "EHLO mail.kernel.org"
+        id S1727925AbfJFRYe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:24:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727729AbfJFR1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:13 -0400
+        id S1727899AbfJFRYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:24:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BF582087E;
-        Sun,  6 Oct 2019 17:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9913F20867;
+        Sun,  6 Oct 2019 17:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382832;
-        bh=1HkGendTTXSxnlp6Lr8nFsl4EaHWSMlfsJ0LFoC/HAw=;
+        s=default; t=1570382673;
+        bh=fHqOQJ6Mhd47oaOIPunjdLpumaaCH0jkysn3GhZIxdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1e2U/vsVnEvTlJoHDJloAoFZfPYHtwo0aQ36RU61eWPDrRllID+j1Un5jrLIjnVNN
-         GSh5MaPC1uZ0lqWZ1XRmtrGsshSklgwpJBGeTOxbUIYMeiVh9eldJHI5kboO7je90o
-         rwSBtfC3fIHPfD2S1FFlVBg+Bg/+EsQ+CsJ07Qic=
+        b=mhhleIcnxbpSRU6rX4/knKeteegmrhe4euL09lNW35/Dg7RfBya2rl9dUhNirUdqy
+         0nJvj3J76Wnzz/B4Y1GtKDLatOnhrCtHVCqIlOWRyJduJ3gBYkScjdv3zECeFQo8uc
+         Tn/6iLb8MYPImBg8KIGpc3o5bh3bNrALYyMpwQaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 56/68] nfc: fix memory leak in llcp_sock_bind()
-Date:   Sun,  6 Oct 2019 19:21:32 +0200
-Message-Id: <20191006171134.170525707@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.9 46/47] smack: use GFP_NOFS while holding inode_smack::smk_lock
+Date:   Sun,  6 Oct 2019 19:21:33 +0200
+Message-Id: <20191006172019.312676905@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit a0c2dc1fe63e2869b74c1c7f6a81d1745c8a695d ]
+commit e5bfad3d7acc5702f32aafeb388362994f4d7bd0 upstream.
 
-sysbot reported a memory leak after a bind() has failed.
+inode_smack::smk_lock is taken during smack_d_instantiate(), which is
+called during a filesystem transaction when creating a file on ext4.
+Therefore to avoid a deadlock, all code that takes this lock must use
+GFP_NOFS, to prevent memory reclaim from waiting for the filesystem
+transaction to complete.
 
-While we are at it, abort the operation if kmemdup() has failed.
-
-BUG: memory leak
-unreferenced object 0xffff888105d83ec0 (size 32):
-  comm "syz-executor067", pid 7207, jiffies 4294956228 (age 19.430s)
-  hex dump (first 32 bytes):
-    00 69 6c 65 20 72 65 61 64 00 6e 65 74 3a 5b 34  .ile read.net:[4
-    30 32 36 35 33 33 30 39 37 5d 00 00 00 00 00 00  026533097]......
-  backtrace:
-    [<0000000036bac473>] kmemleak_alloc_recursive /./include/linux/kmemleak.h:43 [inline]
-    [<0000000036bac473>] slab_post_alloc_hook /mm/slab.h:522 [inline]
-    [<0000000036bac473>] slab_alloc /mm/slab.c:3319 [inline]
-    [<0000000036bac473>] __do_kmalloc /mm/slab.c:3653 [inline]
-    [<0000000036bac473>] __kmalloc_track_caller+0x169/0x2d0 /mm/slab.c:3670
-    [<000000000cd39d07>] kmemdup+0x27/0x60 /mm/util.c:120
-    [<000000008e57e5fc>] kmemdup /./include/linux/string.h:432 [inline]
-    [<000000008e57e5fc>] llcp_sock_bind+0x1b3/0x230 /net/nfc/llcp_sock.c:107
-    [<000000009cb0b5d3>] __sys_bind+0x11c/0x140 /net/socket.c:1647
-    [<00000000492c3bbc>] __do_sys_bind /net/socket.c:1658 [inline]
-    [<00000000492c3bbc>] __se_sys_bind /net/socket.c:1656 [inline]
-    [<00000000492c3bbc>] __x64_sys_bind+0x1e/0x30 /net/socket.c:1656
-    [<0000000008704b2a>] do_syscall_64+0x76/0x1a0 /arch/x86/entry/common.c:296
-    [<000000009f4c57a4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 30cc4587659e ("NFC: Move LLCP code to the NFC top level diirectory")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/nfc/llcp_sock.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -119,9 +119,14 @@ static int llcp_sock_bind(struct socket
- 	llcp_sock->service_name = kmemdup(llcp_addr.service_name,
- 					  llcp_sock->service_name_len,
- 					  GFP_KERNEL);
--
-+	if (!llcp_sock->service_name) {
-+		ret = -ENOMEM;
-+		goto put_dev;
-+	}
- 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
-+		kfree(llcp_sock->service_name);
-+		llcp_sock->service_name = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
- 	}
+---
+ security/smack/smack_access.c |    4 ++--
+ security/smack/smack_lsm.c    |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -474,7 +474,7 @@ char *smk_parse_smack(const char *string
+ 	if (i == 0 || i >= SMK_LONGLABEL)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	smack = kzalloc(i + 1, GFP_KERNEL);
++	smack = kzalloc(i + 1, GFP_NOFS);
+ 	if (smack == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -545,7 +545,7 @@ struct smack_known *smk_import_entry(con
+ 	if (skp != NULL)
+ 		goto freeout;
+ 
+-	skp = kzalloc(sizeof(*skp), GFP_KERNEL);
++	skp = kzalloc(sizeof(*skp), GFP_NOFS);
+ 	if (skp == NULL) {
+ 		skp = ERR_PTR(-ENOMEM);
+ 		goto freeout;
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -268,7 +268,7 @@ static struct smack_known *smk_fetch(con
+ 	if (!(ip->i_opflags & IOP_XATTR))
+ 		return ERR_PTR(-EOPNOTSUPP);
+ 
+-	buffer = kzalloc(SMK_LONGLABEL, GFP_KERNEL);
++	buffer = kzalloc(SMK_LONGLABEL, GFP_NOFS);
+ 	if (buffer == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
 
 
