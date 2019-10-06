@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB22CD784
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF30CD84A
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729226AbfJFRaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:30:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56320 "EHLO mail.kernel.org"
+        id S1727456AbfJFSC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728405AbfJFRaZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:25 -0400
+        id S1728145AbfJFRZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:25:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2787B2087E;
-        Sun,  6 Oct 2019 17:30:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78DD82070B;
+        Sun,  6 Oct 2019 17:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383024;
-        bh=l7NP07G1Ea8ObzNjqXfvhMjFFJVuFFmr/gpg2A2d3/U=;
+        s=default; t=1570382757;
+        bh=amDmrhtd7S+OYG+hIT3jMeWRCF3PInftd+EiIusg/Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0NRMstMWEtcz8MeQO7fBSQb98B8iUPXL7fyNVG6UyOglLlLVOnUDWNzfyDt3/EiO
-         GwmI+wZGH8x47mdhPenyCnEK4lUf7xAtPRFsu/hpv1SGrVh6O9DHo1rXQDWSKQmEkp
-         SY/28PEKHZN/e26y1lAXfuBbkJPqp5ZsEJzMo/10=
+        b=IOdJXIi+KveRBwRLvKb0skfybm6F04fypK6dsZDWxUMJK8EK48WiztHvc4nAz3G8x
+         uaRovaGQ8idNI1pO8dQ2BkhJ9ZlmzmXBhCxPG+Yt62+zt4SxzaR2KJjm4X5IZAEk4S
+         LLLlIk0LddKI6Yim+sTzkczbRMNeogRCm79XExZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Sean Paul <seanpaul@chromium.org>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/106] rtc: snvs: fix possible race condition
+Subject: [PATCH 4.14 28/68] dma-buf/sw_sync: Synchronize signal vs syncpt free
 Date:   Sun,  6 Oct 2019 19:21:04 +0200
-Message-Id: <20191006171147.945904228@linuxfoundation.org>
+Message-Id: <20191006171120.827270506@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
+[ Upstream commit d3c6dd1fb30d3853c2012549affe75c930f4a2f9 ]
 
-The RTC IRQ is requested before the struct rtc_device is allocated,
-this may lead to a NULL pointer dereference in IRQ handler.
+During release of the syncpt, we remove it from the list of syncpt and
+the tree, but only if it is not already been removed. However, during
+signaling, we first remove the syncpt from the list. So, if we
+concurrently free and signal the syncpt, the free may decide that it is
+not part of the tree and immediately free itself -- meanwhile the
+signaler goes on to use the now freed datastructure.
 
-To fix this issue, allocating the rtc_device struct before requesting
-the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
-to register the RTC device.
+In particular, we get struck by commit 0e2f733addbf ("dma-buf: make
+dma_fence structure a bit smaller v2") as the cb_list is immediately
+clobbered by the kfree_rcu.
 
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+v2: Avoid calling into timeline_fence_release() from under the spinlock
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111381
+Fixes: d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Gustavo Padovan <gustavo@padovan.org>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: <stable@vger.kernel.org> # v4.14+
+Acked-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190812154247.20508-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-snvs.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/dma-buf/sw_sync.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
-index b2483a749ac45..3cf011e120530 100644
---- a/drivers/rtc/rtc-snvs.c
-+++ b/drivers/rtc/rtc-snvs.c
-@@ -273,6 +273,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 	if (!data)
- 		return -ENOMEM;
+diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
+index 24f83f9eeaedc..114b36674af42 100644
+--- a/drivers/dma-buf/sw_sync.c
++++ b/drivers/dma-buf/sw_sync.c
+@@ -141,17 +141,14 @@ static void timeline_fence_release(struct dma_fence *fence)
+ {
+ 	struct sync_pt *pt = dma_fence_to_sync_pt(fence);
+ 	struct sync_timeline *parent = dma_fence_parent(fence);
++	unsigned long flags;
  
-+	data->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(data->rtc))
-+		return PTR_ERR(data->rtc);
-+
- 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
- 
- 	if (IS_ERR(data->regmap)) {
-@@ -335,10 +339,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
- 		goto error_rtc_device_register;
++	spin_lock_irqsave(fence->lock, flags);
+ 	if (!list_empty(&pt->link)) {
+-		unsigned long flags;
+-
+-		spin_lock_irqsave(fence->lock, flags);
+-		if (!list_empty(&pt->link)) {
+-			list_del(&pt->link);
+-			rb_erase(&pt->node, &parent->pt_tree);
+-		}
+-		spin_unlock_irqrestore(fence->lock, flags);
++		list_del(&pt->link);
++		rb_erase(&pt->node, &parent->pt_tree);
  	}
++	spin_unlock_irqrestore(fence->lock, flags);
  
--	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
--					&snvs_rtc_ops, THIS_MODULE);
--	if (IS_ERR(data->rtc)) {
--		ret = PTR_ERR(data->rtc);
-+	data->rtc->ops = &snvs_rtc_ops;
-+	ret = rtc_register_device(data->rtc);
-+	if (ret) {
- 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
- 		goto error_rtc_device_register;
- 	}
+ 	sync_timeline_put(parent);
+ 	dma_fence_free(fence);
+@@ -275,7 +272,8 @@ static struct sync_pt *sync_pt_create(struct sync_timeline *obj,
+ 				p = &parent->rb_left;
+ 			} else {
+ 				if (dma_fence_get_rcu(&other->base)) {
+-					dma_fence_put(&pt->base);
++					sync_timeline_put(obj);
++					kfree(pt);
+ 					pt = other;
+ 					goto unlock;
+ 				}
 -- 
 2.20.1
 
