@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A328CD3F5
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D62CD408
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727346AbfJFRUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:20:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45944 "EHLO mail.kernel.org"
+        id S1727355AbfJFRUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727339AbfJFRUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:20:50 -0400
+        id S1727348AbfJFRUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:20:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 352632077B;
-        Sun,  6 Oct 2019 17:20:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF4962080F;
+        Sun,  6 Oct 2019 17:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382449;
-        bh=N9QFs/KP0RCjYYq/LG4A7GpA/CajXls59s95hKZ5nxw=;
+        s=default; t=1570382452;
+        bh=Nh3wZE+l7LKMMSdsMyWo2BxUCv0fangCori9jJaVLbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkdULzdQGjq+n8szn41B2jsjnX0KU2ul+6qb2UkKWS+WkhLzlg3I+GBdRXSdeOkvU
-         dBmuaWgjN7Orxw0Ii0iYdsEV24LfLnicgj+glw7dzoV0xwJArDRnkCGRohjV6z4csf
-         DNgKS2EJcGx19xQS+v+ybS+KYn9fPgjaDEf+VMvo=
+        b=XyZHjrRDm8WKCXb5f0Svb5p4u6w7ZWxXc7pQgWCLWgJ+f0vVj5D2c9mEB7Tvz0e4D
+         cvsCBXogxTN512VQvXKGH7+g7ShLmn4JEdrh6AruRaX4Yul0qUABL1A+ZScj1gv805
+         w2UotOf4nMJ1K0EohdobBFBvGlDEJdzui+XgprSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org,
+        syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
         Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.4 34/36] Smack: Dont ignore other bprm->unsafe flags if LSM_UNSAFE_PTRACE is set
-Date:   Sun,  6 Oct 2019 19:19:16 +0200
-Message-Id: <20191006171100.541305420@linuxfoundation.org>
+Subject: [PATCH 4.4 35/36] smack: use GFP_NOFS while holding inode_smack::smk_lock
+Date:   Sun,  6 Oct 2019 19:19:17 +0200
+Message-Id: <20191006171100.911332251@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -43,50 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
+commit e5bfad3d7acc5702f32aafeb388362994f4d7bd0 upstream.
 
-There is a logic bug in the current smack_bprm_set_creds():
-If LSM_UNSAFE_PTRACE is set, but the ptrace state is deemed to be
-acceptable (e.g. because the ptracer detached in the meantime), the other
-->unsafe flags aren't checked. As far as I can tell, this means that
-something like the following could work (but I haven't tested it):
+inode_smack::smk_lock is taken during smack_d_instantiate(), which is
+called during a filesystem transaction when creating a file on ext4.
+Therefore to avoid a deadlock, all code that takes this lock must use
+GFP_NOFS, to prevent memory reclaim from waiting for the filesystem
+transaction to complete.
 
- - task A: create task B with fork()
- - task B: set NO_NEW_PRIVS
- - task B: install a seccomp filter that makes open() return 0 under some
-   conditions
- - task B: replace fd 0 with a malicious library
- - task A: attach to task B with PTRACE_ATTACH
- - task B: execve() a file with an SMACK64EXEC extended attribute
- - task A: while task B is still in the middle of execve(), exit (which
-   destroys the ptrace relationship)
-
-Make sure that if any flags other than LSM_UNSAFE_PTRACE are set in
-bprm->unsafe, we reject the execve().
-
+Reported-by: syzbot+0eefc1e06a77d327a056@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-Fixes: 5663884caab1 ("Smack: unify all ptrace accesses in the smack")
-Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/smack/smack_lsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/smack/smack_access.c |    4 ++--
+ security/smack/smack_lsm.c    |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -474,7 +474,7 @@ char *smk_parse_smack(const char *string
+ 	if (i == 0 || i >= SMK_LONGLABEL)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	smack = kzalloc(i + 1, GFP_KERNEL);
++	smack = kzalloc(i + 1, GFP_NOFS);
+ 	if (smack == NULL)
+ 		return ERR_PTR(-ENOMEM);
+ 
+@@ -545,7 +545,7 @@ struct smack_known *smk_import_entry(con
+ 	if (skp != NULL)
+ 		goto freeout;
+ 
+-	skp = kzalloc(sizeof(*skp), GFP_KERNEL);
++	skp = kzalloc(sizeof(*skp), GFP_NOFS);
+ 	if (skp == NULL) {
+ 		skp = ERR_PTR(-ENOMEM);
+ 		goto freeout;
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -932,7 +932,8 @@ static int smack_bprm_set_creds(struct l
+@@ -268,7 +268,7 @@ static struct smack_known *smk_fetch(con
+ 	if (ip->i_op->getxattr == NULL)
+ 		return ERR_PTR(-EOPNOTSUPP);
  
- 		if (rc != 0)
- 			return rc;
--	} else if (bprm->unsafe)
-+	}
-+	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
- 		return -EPERM;
+-	buffer = kzalloc(SMK_LONGLABEL, GFP_KERNEL);
++	buffer = kzalloc(SMK_LONGLABEL, GFP_NOFS);
+ 	if (buffer == NULL)
+ 		return ERR_PTR(-ENOMEM);
  
- 	bsp->smk_task = isp->smk_task;
 
 
