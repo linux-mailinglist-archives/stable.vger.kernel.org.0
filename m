@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C95BCD6EB
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 901CCCD70B
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729020AbfJFRjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:39:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38566 "EHLO mail.kernel.org"
+        id S1728128AbfJFRvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729767AbfJFRjH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:07 -0400
+        id S1728061AbfJFRu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:50:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BADE4222BE;
-        Sun,  6 Oct 2019 17:39:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDF5D222C5;
+        Sun,  6 Oct 2019 17:45:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383546;
-        bh=mQyM+MYzJfX0sMNye8DCPt5zXmK09F28LgbBWbDWYCw=;
+        s=default; t=1570383949;
+        bh=k4xrTvtY0yDO2J2oqihcwC3dwQtRmjTOVkEiQCp45xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUiZ5cgOTjDAR/aAnvCPEBk+pdx+0uGQ6KJnWH0PHYB5ltx80IBEn7G3BhGAm2XNS
-         PX41yGr/108zRWPmd0xDdI7H1WlgmFKwNJV3l3zAHwF1Ywislk0Y2xPjy6YBQ/GPr3
-         3caKbNizFEG8EFw3cKZgZcvmE6rJ1OAs8XbrFDA4=
+        b=jIcqrWbnnlXCBK9Jusz9ABzjfNiHDCadDlLvCaDxiJBzAcEjsO58zWcdiB+BD5/RB
+         DWgcNbWpnHBjegwrmeHXC2x+4ayt+IbIJHWLN1s9ktmV4zpWtBv26k1XIPD29NOxct
+         I2P+Ze6jGCGXddb+Lmg/a6Z3uUcYQPpZA5+fxuy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+7d6a57304857423318a5@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Eric Biggers <ebiggers@google.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.2 137/137] vfs: set fs_context::user_ns for reconfigure
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 155/166] net: socionext: netsec: always grab descriptor lock
 Date:   Sun,  6 Oct 2019 19:22:01 +0200
-Message-Id: <20191006171220.808492952@linuxfoundation.org>
+Message-Id: <20191006171225.936955929@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,82 +46,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 1dd9bc08cf1420d466dd8dcfcc233777e61ca5d2 upstream.
+[ Upstream commit 55131dec2b1c7417d216f861ea7a29dc7c4d2d20 ]
 
-fs_context::user_ns is used by fuse_parse_param(), even during remount,
-so it needs to be set to the existing value for reconfigure.
+Always acquire tx descriptor spinlock even if a xdp program is not loaded
+on the netsec device since ndo_xdp_xmit can run concurrently with
+netsec_netdev_start_xmit and netsec_clean_tx_dring. This can happen
+loading a xdp program on a different device (e.g virtio-net) and
+xdp_do_redirect_map/xdp_do_redirect_slow can redirect to netsec even if
+we do not have a xdp program on it.
 
-Reproducer:
-
-	#include <fcntl.h>
-	#include <sys/mount.h>
-
-	int main()
-	{
-		char opts[128];
-		int fd = open("/dev/fuse", O_RDWR);
-
-		sprintf(opts, "fd=%d,rootmode=040000,user_id=0,group_id=0", fd);
-		mkdir("mnt", 0777);
-		mount("foo",  "mnt", "fuse.foo", 0, opts);
-		mount("foo", "mnt", "fuse.foo", MS_REMOUNT, opts);
-	}
-
-Crash:
-	BUG: kernel NULL pointer dereference, address: 0000000000000000
-	#PF: supervisor read access in kernel mode
-	#PF: error_code(0x0000) - not-present page
-	PGD 0 P4D 0
-	Oops: 0000 [#1] SMP
-	CPU: 0 PID: 129 Comm: syz_make_kuid Not tainted 5.3.0-rc5-next-20190821 #3
-	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-20181126_142135-anatol 04/01/2014
-	RIP: 0010:map_id_range_down+0xb/0xc0 kernel/user_namespace.c:291
-	[...]
-	Call Trace:
-	 map_id_down kernel/user_namespace.c:312 [inline]
-	 make_kuid+0xe/0x10 kernel/user_namespace.c:389
-	 fuse_parse_param+0x116/0x210 fs/fuse/inode.c:523
-	 vfs_parse_fs_param+0xdb/0x1b0 fs/fs_context.c:145
-	 vfs_parse_fs_string+0x6a/0xa0 fs/fs_context.c:188
-	 generic_parse_monolithic+0x85/0xc0 fs/fs_context.c:228
-	 parse_monolithic_mount_data+0x1b/0x20 fs/fs_context.c:708
-	 do_remount fs/namespace.c:2525 [inline]
-	 do_mount+0x39a/0xa60 fs/namespace.c:3107
-	 ksys_mount+0x7d/0xd0 fs/namespace.c:3325
-	 __do_sys_mount fs/namespace.c:3339 [inline]
-	 __se_sys_mount fs/namespace.c:3336 [inline]
-	 __x64_sys_mount+0x20/0x30 fs/namespace.c:3336
-	 do_syscall_64+0x4a/0x1a0 arch/x86/entry/common.c:290
-	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Reported-by: syzbot+7d6a57304857423318a5@syzkaller.appspotmail.com
-Fixes: 408cbe695350 ("vfs: Convert fuse to use the new mount API")
-Cc: David Howells <dhowells@redhat.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: David Howells <dhowells@redhat.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: ba2b232108d3 ("net: netsec: add XDP support")
+Tested-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Reviewed-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/fs_context.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c |   30 +++++++-----------------------
+ 1 file changed, 7 insertions(+), 23 deletions(-)
 
---- a/fs/fs_context.c
-+++ b/fs/fs_context.c
-@@ -279,10 +279,8 @@ static struct fs_context *alloc_fs_conte
- 		fc->user_ns = get_user_ns(reference->d_sb->s_user_ns);
- 		break;
- 	case FS_CONTEXT_FOR_RECONFIGURE:
--		/* We don't pin any namespaces as the superblock's
--		 * subscriptions cannot be changed at this point.
--		 */
- 		atomic_inc(&reference->d_sb->s_active);
-+		fc->user_ns = get_user_ns(reference->d_sb->s_user_ns);
- 		fc->root = dget(reference);
- 		break;
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -282,7 +282,6 @@ struct netsec_desc_ring {
+ 	void *vaddr;
+ 	u16 head, tail;
+ 	u16 xdp_xmit; /* netsec_xdp_xmit packets */
+-	bool is_xdp;
+ 	struct page_pool *page_pool;
+ 	struct xdp_rxq_info xdp_rxq;
+ 	spinlock_t lock; /* XDP tx queue locking */
+@@ -634,8 +633,7 @@ static bool netsec_clean_tx_dring(struct
+ 	unsigned int bytes;
+ 	int cnt = 0;
+ 
+-	if (dring->is_xdp)
+-		spin_lock(&dring->lock);
++	spin_lock(&dring->lock);
+ 
+ 	bytes = 0;
+ 	entry = dring->vaddr + DESC_SZ * tail;
+@@ -682,8 +680,8 @@ next:
+ 		entry = dring->vaddr + DESC_SZ * tail;
+ 		cnt++;
  	}
+-	if (dring->is_xdp)
+-		spin_unlock(&dring->lock);
++
++	spin_unlock(&dring->lock);
+ 
+ 	if (!cnt)
+ 		return false;
+@@ -799,9 +797,6 @@ static void netsec_set_tx_de(struct nets
+ 	de->data_buf_addr_lw = lower_32_bits(desc->dma_addr);
+ 	de->buf_len_info = (tx_ctrl->tcp_seg_len << 16) | desc->len;
+ 	de->attr = attr;
+-	/* under spin_lock if using XDP */
+-	if (!dring->is_xdp)
+-		dma_wmb();
+ 
+ 	dring->desc[idx] = *desc;
+ 	if (desc->buf_type == TYPE_NETSEC_SKB)
+@@ -1123,12 +1118,10 @@ static netdev_tx_t netsec_netdev_start_x
+ 	u16 tso_seg_len = 0;
+ 	int filled;
+ 
+-	if (dring->is_xdp)
+-		spin_lock_bh(&dring->lock);
++	spin_lock_bh(&dring->lock);
+ 	filled = netsec_desc_used(dring);
+ 	if (netsec_check_stop_tx(priv, filled)) {
+-		if (dring->is_xdp)
+-			spin_unlock_bh(&dring->lock);
++		spin_unlock_bh(&dring->lock);
+ 		net_warn_ratelimited("%s %s Tx queue full\n",
+ 				     dev_name(priv->dev), ndev->name);
+ 		return NETDEV_TX_BUSY;
+@@ -1161,8 +1154,7 @@ static netdev_tx_t netsec_netdev_start_x
+ 	tx_desc.dma_addr = dma_map_single(priv->dev, skb->data,
+ 					  skb_headlen(skb), DMA_TO_DEVICE);
+ 	if (dma_mapping_error(priv->dev, tx_desc.dma_addr)) {
+-		if (dring->is_xdp)
+-			spin_unlock_bh(&dring->lock);
++		spin_unlock_bh(&dring->lock);
+ 		netif_err(priv, drv, priv->ndev,
+ 			  "%s: DMA mapping failed\n", __func__);
+ 		ndev->stats.tx_dropped++;
+@@ -1177,8 +1169,7 @@ static netdev_tx_t netsec_netdev_start_x
+ 	netdev_sent_queue(priv->ndev, skb->len);
+ 
+ 	netsec_set_tx_de(priv, dring, &tx_ctrl, &tx_desc, skb);
+-	if (dring->is_xdp)
+-		spin_unlock_bh(&dring->lock);
++	spin_unlock_bh(&dring->lock);
+ 	netsec_write(priv, NETSEC_REG_NRM_TX_PKTCNT, 1); /* submit another tx */
+ 
+ 	return NETDEV_TX_OK;
+@@ -1262,7 +1253,6 @@ err:
+ static void netsec_setup_tx_dring(struct netsec_priv *priv)
+ {
+ 	struct netsec_desc_ring *dring = &priv->desc_ring[NETSEC_RING_TX];
+-	struct bpf_prog *xdp_prog = READ_ONCE(priv->xdp_prog);
+ 	int i;
+ 
+ 	for (i = 0; i < DESC_NUM; i++) {
+@@ -1275,12 +1265,6 @@ static void netsec_setup_tx_dring(struct
+ 		 */
+ 		de->attr = 1U << NETSEC_TX_SHIFT_OWN_FIELD;
+ 	}
+-
+-	if (xdp_prog)
+-		dring->is_xdp = true;
+-	else
+-		dring->is_xdp = false;
+-
+ }
+ 
+ static int netsec_setup_rx_dring(struct netsec_priv *priv)
 
 
