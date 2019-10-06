@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 547F5CD736
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A381CD704
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727129AbfJFRgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35076 "EHLO mail.kernel.org"
+        id S1730674AbfJFRir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730253AbfJFRgT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:19 -0400
+        id S1730664AbfJFRio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:38:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20F3F20700;
-        Sun,  6 Oct 2019 17:36:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A01EF217D6;
+        Sun,  6 Oct 2019 17:38:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383378;
-        bh=VuxlzBzhQeFjKHVvyyE52Ljx9pPrF9R8j1sj9Gw04SM=;
+        s=default; t=1570383524;
+        bh=7DJSolCrQCCDsfBhpfU09oTsWICrh81yjcangCFS3fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpyIZFEZI/200k6q42l233nOI9xaHaWVrwOpBWgMo1vt7JPTBSv/FFrOF6/M7hQIa
-         HPtG10P7zqj7Y/rcrj/XmH8EOfoxlT7lGNUookd67R+FwRuDomSrBpt0CeujbWzpqP
-         w1rJplvefc8OVOLzz23Xc7j0cs1b/jMe4fnWVfQo=
+        b=z7Xf81rJLMz7i5TfoUgVx/5Hhn46rjih+KqEH2BBcvmaaQrK/AySVJin4fYVXglIq
+         h8hsinKZBRYSLu8DVuXQxjpkIWXa8i62gDo49WncFU0bN5GWB3Er3yW3A4mphd3+9W
+         Ey3HgJSrfKrOa/BjYtGijrYQg9hwmgdbyoY2Jwes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Ganesh Goudar <ganeshgr@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 080/137] clk: imx: pll14xx: avoid glitch when set rate
-Date:   Sun,  6 Oct 2019 19:21:04 +0200
-Message-Id: <20191006171215.577395288@linuxfoundation.org>
+Subject: [PATCH 5.2 083/137] powerpc: dump kernel log before carrying out fadump or kdump
+Date:   Sun,  6 Oct 2019 19:21:07 +0200
+Message-Id: <20191006171215.763091783@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -44,88 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Ganesh Goudar <ganeshgr@linux.ibm.com>
 
-[ Upstream commit dee1bc9c23cd41fe32549c0adbe6cb57cab02282 ]
+[ Upstream commit e7ca44ed3ba77fc26cf32650bb71584896662474 ]
 
-According to PLL1443XA and PLL1416X spec,
-"When BYPASS is 0 and RESETB is changed from 0 to 1, FOUT starts to
-output unstable clock until lock time passes. PLL1416X/PLL1443XA may
-generate a glitch at FOUT."
+Since commit 4388c9b3a6ee ("powerpc: Do not send system reset request
+through the oops path"), pstore dmesg file is not updated when dump is
+triggered from HMC. This commit modified system reset (sreset) handler
+to invoke fadump or kdump (if configured), without pushing dmesg to
+pstore. This leaves pstore to have old dmesg data which won't be much
+of a help if kdump fails to capture the dump. This patch fixes that by
+calling kmsg_dump() before heading to fadump ot kdump.
 
-So set BYPASS when RESETB is changed from 0 to 1 to avoid glitch.
-In the end of set rate, BYPASS will be cleared.
-
-When prepare clock, also need to take care to avoid glitch. So
-we also follow Spec to set BYPASS before RESETB changed from 0 to 1.
-And add a check if the RESETB is already 0, directly return 0;
-
-Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lkml.kernel.org/r/1568043491-20680-2-git-send-email-peng.fan@nxp.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 4388c9b3a6ee ("powerpc: Do not send system reset request through the oops path")
+Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Ganesh Goudar <ganeshgr@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190904075949.15607-1-ganeshgr@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-pll14xx.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/traps.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
-index b7213023b238f..656f48b002dd3 100644
---- a/drivers/clk/imx/clk-pll14xx.c
-+++ b/drivers/clk/imx/clk-pll14xx.c
-@@ -191,6 +191,10 @@ static int clk_pll1416x_set_rate(struct clk_hw *hw, unsigned long drate,
- 	tmp &= ~RST_MASK;
- 	writel_relaxed(tmp, pll->base);
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 47df30982de1b..c8ea3a253b815 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -472,6 +472,7 @@ void system_reset_exception(struct pt_regs *regs)
+ 	if (debugger(regs))
+ 		goto out;
  
-+	/* Enable BYPASS */
-+	tmp |= BYPASS_MASK;
-+	writel(tmp, pll->base);
-+
- 	div_val = (rate->mdiv << MDIV_SHIFT) | (rate->pdiv << PDIV_SHIFT) |
- 		(rate->sdiv << SDIV_SHIFT);
- 	writel_relaxed(div_val, pll->base + 0x4);
-@@ -250,6 +254,10 @@ static int clk_pll1443x_set_rate(struct clk_hw *hw, unsigned long drate,
- 	tmp &= ~RST_MASK;
- 	writel_relaxed(tmp, pll->base);
- 
-+	/* Enable BYPASS */
-+	tmp |= BYPASS_MASK;
-+	writel_relaxed(tmp, pll->base);
-+
- 	div_val = (rate->mdiv << MDIV_SHIFT) | (rate->pdiv << PDIV_SHIFT) |
- 		(rate->sdiv << SDIV_SHIFT);
- 	writel_relaxed(div_val, pll->base + 0x4);
-@@ -283,16 +291,28 @@ static int clk_pll14xx_prepare(struct clk_hw *hw)
- {
- 	struct clk_pll14xx *pll = to_clk_pll14xx(hw);
- 	u32 val;
-+	int ret;
- 
++	kmsg_dump(KMSG_DUMP_OOPS);
  	/*
- 	 * RESETB = 1 from 0, PLL starts its normal
- 	 * operation after lock time
- 	 */
- 	val = readl_relaxed(pll->base + GNRL_CTL);
-+	if (val & RST_MASK)
-+		return 0;
-+	val |= BYPASS_MASK;
-+	writel_relaxed(val, pll->base + GNRL_CTL);
- 	val |= RST_MASK;
- 	writel_relaxed(val, pll->base + GNRL_CTL);
- 
--	return clk_pll14xx_wait_lock(pll);
-+	ret = clk_pll14xx_wait_lock(pll);
-+	if (ret)
-+		return ret;
-+
-+	val &= ~BYPASS_MASK;
-+	writel_relaxed(val, pll->base + GNRL_CTL);
-+
-+	return 0;
- }
- 
- static int clk_pll14xx_is_prepared(struct clk_hw *hw)
+ 	 * A system reset is a request to dump, so we always send
+ 	 * it through the crashdump code (if fadump or kdump are
 -- 
 2.20.1
 
