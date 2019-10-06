@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B53C2CD4A3
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB22CD5BF
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:39:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbfJFR1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53284 "EHLO mail.kernel.org"
+        id S1730756AbfJFRjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:39:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727580AbfJFR1s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:48 -0400
+        id S1730748AbfJFRjR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:39:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DB2B2133F;
-        Sun,  6 Oct 2019 17:27:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EFC620700;
+        Sun,  6 Oct 2019 17:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382867;
-        bh=Ffas5AgijVqWvr/TSM4XOh15N+KI9nuJSQvvBxjlz8c=;
+        s=default; t=1570383557;
+        bh=0KYDWk08WcsmjsqVyulm42NkijYLKrdWoD4u0javmU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQoKv2uIIr4SsnJP+GdDMrGAhj5qUGpm99z2bMWDKT+hIpxTMlRYta6xtehfTwsgk
-         uxsGqHxh6DSYKV7sWuMJtBs1rbv5L9vDNo9jTB2bR5PY9q+H2KSKsAwUSz2SjKwbjQ
-         KY3sqpVeS2t1GyrTL+N1EOFIb+26Ff1Idua90ZAo=
+        b=HCTKwrNBLa/w95FnigZENlmuQ1sL9Pn1Vyq3YzP5eXb0dZYgwgpHQ3+1ZPuopkYla
+         dmizBWqzkQFi95MLO/OK4q5xFec16ADAG1K5N2hiUHi/j2yd4wySDgecCFdyvz3X/c
+         +b92JYizTm/UsOMgyjpRGt0/+41+2PgYipw0Xwfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 68/68] kexec: bail out upon SIGKILL when allocating memory.
-Date:   Sun,  6 Oct 2019 19:21:44 +0200
-Message-Id: <20191006171139.593728777@linuxfoundation.org>
+        stable@vger.kernel.org, Marko Kohtala <marko.kohtala@okoko.fi>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 011/166] video: ssd1307fb: Start page range at page_offset
+Date:   Sun,  6 Oct 2019 19:19:37 +0200
+Message-Id: <20191006171213.549280228@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Marko Kohtala <marko.kohtala@okoko.fi>
 
-commit 7c3a6aedcd6aae0a32a527e68669f7dd667492d1 upstream.
+[ Upstream commit dd9782834dd9dde3624ff1acea8859f3d3e792d4 ]
 
-syzbot found that a thread can stall for minutes inside kexec_load() after
-that thread was killed by SIGKILL [1].  It turned out that the reproducer
-was trying to allocate 2408MB of memory using kimage_alloc_page() from
-kimage_load_normal_segment().  Let's check for SIGKILL before doing memory
-allocation.
+The page_offset was only applied to the end of the page range. This caused
+the display updates to cause a scrolling effect on the display because the
+amount of data written to the display did not match the range display
+expected.
 
-[1] https://syzkaller.appspot.com/bug?id=a0e3436829698d5824231251fad9d8e998f94f5e
-
-Link: http://lkml.kernel.org/r/993c9185-d324-2640-d061-bed2dd18b1f7@I-love.SAKURA.ne.jp
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: syzbot <syzbot+8ab2d0f39fb79fe6ca40@syzkaller.appspotmail.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 301bc0675b67 ("video: ssd1307fb: Make use of horizontal addressing mode")
+Signed-off-by: Marko Kohtala <marko.kohtala@okoko.fi>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Michal Vokáč <michal.vokac@ysoft.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190618074111.9309-4-marko.kohtala@okoko.fi
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kexec_core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/ssd1307fb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/kexec_core.c
-+++ b/kernel/kexec_core.c
-@@ -301,6 +301,8 @@ static struct page *kimage_alloc_pages(g
- {
- 	struct page *pages;
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index b674948e3bb8f..3f28e1b5d4221 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -432,7 +432,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 	if (ret < 0)
+ 		return ret;
  
-+	if (fatal_signal_pending(current))
-+		return NULL;
- 	pages = alloc_pages(gfp_mask & ~__GFP_ZERO, order);
- 	if (pages) {
- 		unsigned int count, i;
+-	ret = ssd1307fb_write_cmd(par->client, 0x0);
++	ret = ssd1307fb_write_cmd(par->client, par->page_offset);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-- 
+2.20.1
+
 
 
