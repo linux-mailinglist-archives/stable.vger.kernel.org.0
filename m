@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 525FACD56D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87259CD571
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728609AbfJFRgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34976 "EHLO mail.kernel.org"
+        id S1730268AbfJFRgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:36:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730250AbfJFRgO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:14 -0400
+        id S1730253AbfJFRgV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:36:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFD622064A;
-        Sun,  6 Oct 2019 17:36:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC0392064A;
+        Sun,  6 Oct 2019 17:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383373;
-        bh=OykuoBvG7eWAabm6JjGpW/J91pGbkUxRh6yTEZjST08=;
+        s=default; t=1570383381;
+        bh=vNJVuAcZSGd4JfMJeT1HcCWqm+jXlfUf9xrhXZuLZQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NU/XdnpA3XiYmiym6v9Ak3hj/7JexOktWTQCUxd4URjgVapHIXzxHpz7LPXdUWDKd
-         hbnoCT91Ckr1G3kxIJs5r9AqXJ9NZSQEIp3oSw5by7z1xXdDSfks4etSea4w6bImiP
-         0SAf39M+hR3eBNXkiFoPSY/o7aMrYt3RqpKoqM9U=
+        b=aJrwfydg2FKRy2Du4/460ZborG+lODzGxQKSfAqJZD+qai+f+dxwlVofXd+Hiz3I7
+         TwZDXev9IpgvD/kfxqdN+fFyfvEmuUDqWJTl5vHXFle8MPmfwRJuBwBUrUzhxqL6JC
+         mmE2QbL6eHEsT0LcfTiK4uKhRAsO1P2GAneSZLFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>, Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 078/137] arm64: fix unreachable code issue with cmpxchg
-Date:   Sun,  6 Oct 2019 19:21:02 +0200
-Message-Id: <20191006171215.465566322@linuxfoundation.org>
+Subject: [PATCH 5.2 081/137] clk: imx: clk-pll14xx: unbypass PLL by default
+Date:   Sun,  6 Oct 2019 19:21:05 +0200
+Message-Id: <20191006171215.641511098@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -46,67 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 920fdab7b3ce98c14c840261e364f490f3679a62 ]
+[ Upstream commit a9aa8306074d9519dd6e5fdf07240b01bac72e04 ]
 
-On arm64 build with clang, sometimes the __cmpxchg_mb is not inlined
-when CONFIG_OPTIMIZE_INLINING is set.
-Clang then fails a compile-time assertion, because it cannot tell at
-compile time what the size of the argument is:
+When registering the PLL, unbypass the PLL.
+The PLL has two bypass control bit, BYPASS and EXT_BYPASS.
+we will expose EXT_BYPASS to clk driver for mux usage, and keep
+BYPASS inside pll14xx usage. The PLL has a restriction that
+when M/P change, need to RESET/BYPASS pll to avoid glitch, so
+we could not expose BYPASS.
 
-mm/memcontrol.o: In function `__cmpxchg_mb':
-memcontrol.c:(.text+0x1a4c): undefined reference to `__compiletime_assert_175'
-memcontrol.c:(.text+0x1a4c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__compiletime_assert_175'
+To make it easy for clk driver usage, unbypass PLL which does
+not hurt current function.
 
-Mark all of the cmpxchg() style functions as __always_inline to
-ensure that the compiler can see the result.
-
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/648
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Tested-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 8646d4dcc7fb ("clk: imx: Add PLLs driver for imx8mm soc")
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lkml.kernel.org/r/1568043491-20680-3-git-send-email-peng.fan@nxp.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/cmpxchg.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/imx/clk-pll14xx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cmpxchg.h b/arch/arm64/include/asm/cmpxchg.h
-index 7a299a20f6dcc..7a8b8bc69e8d1 100644
---- a/arch/arm64/include/asm/cmpxchg.h
-+++ b/arch/arm64/include/asm/cmpxchg.h
-@@ -63,7 +63,7 @@ __XCHG_CASE( ,  ,  mb_, 64, dmb ish, nop,  , a, l, "memory")
- #undef __XCHG_CASE
+diff --git a/drivers/clk/imx/clk-pll14xx.c b/drivers/clk/imx/clk-pll14xx.c
+index 656f48b002dd3..7a815ec76aa5c 100644
+--- a/drivers/clk/imx/clk-pll14xx.c
++++ b/drivers/clk/imx/clk-pll14xx.c
+@@ -368,6 +368,7 @@ struct clk *imx_clk_pll14xx(const char *name, const char *parent_name,
+ 	struct clk_pll14xx *pll;
+ 	struct clk *clk;
+ 	struct clk_init_data init;
++	u32 val;
  
- #define __XCHG_GEN(sfx)							\
--static inline unsigned long __xchg##sfx(unsigned long x,		\
-+static __always_inline  unsigned long __xchg##sfx(unsigned long x,	\
- 					volatile void *ptr,		\
- 					int size)			\
- {									\
-@@ -105,7 +105,7 @@ __XCHG_GEN(_mb)
- #define arch_xchg(...)		__xchg_wrapper( _mb, __VA_ARGS__)
+ 	pll = kzalloc(sizeof(*pll), GFP_KERNEL);
+ 	if (!pll)
+@@ -399,6 +400,10 @@ struct clk *imx_clk_pll14xx(const char *name, const char *parent_name,
+ 	pll->rate_table = pll_clk->rate_table;
+ 	pll->rate_count = pll_clk->rate_count;
  
- #define __CMPXCHG_GEN(sfx)						\
--static inline unsigned long __cmpxchg##sfx(volatile void *ptr,		\
-+static __always_inline unsigned long __cmpxchg##sfx(volatile void *ptr,	\
- 					   unsigned long old,		\
- 					   unsigned long new,		\
- 					   int size)			\
-@@ -212,7 +212,7 @@ __CMPWAIT_CASE( ,  , 64);
- #undef __CMPWAIT_CASE
- 
- #define __CMPWAIT_GEN(sfx)						\
--static inline void __cmpwait##sfx(volatile void *ptr,			\
-+static __always_inline void __cmpwait##sfx(volatile void *ptr,		\
- 				  unsigned long val,			\
- 				  int size)				\
- {									\
++	val = readl_relaxed(pll->base + GNRL_CTL);
++	val &= ~BYPASS_MASK;
++	writel_relaxed(val, pll->base + GNRL_CTL);
++
+ 	clk = clk_register(NULL, &pll->hw);
+ 	if (IS_ERR(clk)) {
+ 		pr_err("%s: failed to register pll %s %lu\n",
 -- 
 2.20.1
 
