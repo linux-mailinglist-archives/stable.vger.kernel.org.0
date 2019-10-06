@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B041CD6B9
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A34CD6AC
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731182AbfJFRlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40986 "EHLO mail.kernel.org"
+        id S1731095AbfJFRky (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:40:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730540AbfJFRlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:20 -0400
+        id S1731091AbfJFRkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:40:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0085C2053B;
-        Sun,  6 Oct 2019 17:41:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46CA02133F;
+        Sun,  6 Oct 2019 17:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383679;
-        bh=ghPfPE3Dv9KM5BihfJgp2aHVM6ja4supiXXbg586G2g=;
+        s=default; t=1570383652;
+        bh=QEzS84l9KQQJCNWHSl88ZGBwPCWjjxkz8jzDybGM6bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbkwNFJKwUhyfg/syVNfTZgJX7zEc49Ci62Aj7RfadKBjwIhPyIlVkHcE3ABGpuFG
-         avhH3Oowg/uYtfzI896hDWu7aZUhP8fVOtq9bCrdlHt97SbGN21xErAkh9yTtk0ZAR
-         hE7hvKnLWwp4W6UIDtn2K1zxfV/KEpiLLD44+0Q0=
+        b=spYGapJmlQqoC0pR57YiVvwfgBNCPyJrYxXfblszcYw42hNbW8pcadcMQinHJMUPq
+         Eq1p18BJk8e3HtF6nqWpB5NDniG8DpVca7IkaGexKb6mE7q5T5G1pa7VodXpkWO4lG
+         uwEF04NI4A4ZxP3X5d4EIbvM5ynDC8ee1n/ZAdxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 038/166] clk: sunxi: Dont call clk_hw_get_name() on a hw that isnt registered
-Date:   Sun,  6 Oct 2019 19:20:04 +0200
-Message-Id: <20191006171216.122051307@linuxfoundation.org>
+Subject: [PATCH 5.3 046/166] pinctrl: tegra: Fix write barrier placement in pmx_writel
+Date:   Sun,  6 Oct 2019 19:20:12 +0200
+Message-Id: <20191006171216.864783027@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -44,46 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Sowjanya Komatineni <skomatineni@nvidia.com>
 
-[ Upstream commit a7b85ad25a97cf897b4819a121655c483d86156f ]
+[ Upstream commit c2cf351eba2ff6002ce8eb178452219d2521e38e ]
 
-The implementation of clk_hw_get_name() relies on the clk_core
-associated with the clk_hw pointer existing. If of_clk_hw_register()
-fails, there isn't a clk_core created yet, so calling clk_hw_get_name()
-here fails. Extract the name first so we can print it later.
+pmx_writel uses writel which inserts write barrier before the
+register write.
 
-Fixes: 1d80c14248d6 ("clk: sunxi-ng: Add common infrastructure")
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This patch has fix to replace writel with writel_relaxed followed
+by a readback and memory barrier to ensure write operation is
+completed for successful pinctrl change.
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Link: https://lore.kernel.org/r/1565984527-5272-2-git-send-email-skomatineni@nvidia.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi-ng/ccu_common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pinctrl/tegra/pinctrl-tegra.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/sunxi-ng/ccu_common.c b/drivers/clk/sunxi-ng/ccu_common.c
-index 7fe3ac980e5f9..2e20e650b6c01 100644
---- a/drivers/clk/sunxi-ng/ccu_common.c
-+++ b/drivers/clk/sunxi-ng/ccu_common.c
-@@ -97,14 +97,15 @@ int sunxi_ccu_probe(struct device_node *node, void __iomem *reg,
+diff --git a/drivers/pinctrl/tegra/pinctrl-tegra.c b/drivers/pinctrl/tegra/pinctrl-tegra.c
+index 186ef98e7b2b8..f1b523beec5b3 100644
+--- a/drivers/pinctrl/tegra/pinctrl-tegra.c
++++ b/drivers/pinctrl/tegra/pinctrl-tegra.c
+@@ -32,7 +32,9 @@ static inline u32 pmx_readl(struct tegra_pmx *pmx, u32 bank, u32 reg)
  
- 	for (i = 0; i < desc->hw_clks->num ; i++) {
- 		struct clk_hw *hw = desc->hw_clks->hws[i];
-+		const char *name;
+ static inline void pmx_writel(struct tegra_pmx *pmx, u32 val, u32 bank, u32 reg)
+ {
+-	writel(val, pmx->regs[bank] + reg);
++	writel_relaxed(val, pmx->regs[bank] + reg);
++	/* make sure pinmux register write completed */
++	pmx_readl(pmx, bank, reg);
+ }
  
- 		if (!hw)
- 			continue;
- 
-+		name = hw->init->name;
- 		ret = of_clk_hw_register(node, hw);
- 		if (ret) {
--			pr_err("Couldn't register clock %d - %s\n",
--			       i, clk_hw_get_name(hw));
-+			pr_err("Couldn't register clock %d - %s\n", i, name);
- 			goto err_clk_unreg;
- 		}
- 	}
+ static int tegra_pinctrl_get_groups_count(struct pinctrl_dev *pctldev)
 -- 
 2.20.1
 
