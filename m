@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A032CD4E6
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A04BCD573
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727999AbfJFRab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56406 "EHLO mail.kernel.org"
+        id S1727963AbfJFRgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:36:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727981AbfJFRab (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:31 -0400
+        id S1730276AbfJFRgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:36:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77BB32087E;
-        Sun,  6 Oct 2019 17:30:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 831E520700;
+        Sun,  6 Oct 2019 17:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383030;
-        bh=loZr7MLJpU4XU6TOPh2BVQXDVFm5QAyJaqArvekhQzo=;
+        s=default; t=1570383384;
+        bh=2w4J4EU+vkn9b/OZxn8whPVPfDR0AZ6c1hgoTTdibcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQ4Vt6xZkK/+gPLhJ0GqSt5BXK/R4s4H1y9S2ZVarnZVzWGndcPhlI7FHHYcgzyzL
-         qex7o631UgA6FNTopkYPEsYuoe7x9Sq2ckiZAqfgw1/60b0S85MjIn+GdhtacPUprY
-         NptodcaNucVzWKqbllxbixMwFbzxpVoU5bxwx/zg=
+        b=PIK2fuFqxAcXcoM2h0PGzfBMDUruIgWl/xdnYP2RqjIPTWSXYWBjdEFdvhZjzT3V0
+         /MWtVGVtvznS9oe2D76/I6FNA8ojLlDcm78atZhmnYgP1o/lrgZjOzKjaISt7XmNh9
+         3v31d4qZGdv9umUtR+LW//qTfoByyfmr7prCcyfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joao Moreno <mail@joaomoreno.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org, Dong Aisheng <aisheng.dong@nxp.com>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 060/106] HID: apple: Fix stuck function keys when using FN
+Subject: [PATCH 5.2 082/137] clk: Make clk_bulk_get_all() return a valid "id"
 Date:   Sun,  6 Oct 2019 19:21:06 +0200
-Message-Id: <20191006171149.254376705@linuxfoundation.org>
+Message-Id: <20191006171215.695568055@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Moreno <mail@joaomoreno.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit aec256d0ecd561036f188dbc8fa7924c47a9edfd ]
+[ Upstream commit 7f81c2426587b34bf73e643c1a6d080dfa14cf8a ]
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+The adreno driver expects the "id" field of the returned clk_bulk_data
+to be filled in with strings from the clock-names property.
 
-The repeated F5 key down events can be easily verified using xev.
+But due to the use of kmalloc_array() in of_clk_bulk_get_all() it
+receives a list of bogus pointers instead.
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
-Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Zero-initialize the "id" field and attempt to populate with strings from
+the clock-names property to resolve both these issues.
+
+Fixes: 616e45df7c4a ("clk: add new APIs to operate on all available clocks")
+Fixes: 8e3e791d20d2 ("drm/msm: Use generic bulk clock function")
+Cc: Dong Aisheng <aisheng.dong@nxp.com>
+Cc: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lkml.kernel.org/r/20190913024029.2640-1-bjorn.andersson@linaro.org
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ drivers/clk/clk-bulk.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 1cb41992aaa1f..d0a81a03ddbdd 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -57,7 +57,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
--	DECLARE_BITMAP(pressed_fn, KEY_CNT);
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
- };
+diff --git a/drivers/clk/clk-bulk.c b/drivers/clk/clk-bulk.c
+index 06499568cf076..db5096fa9a170 100644
+--- a/drivers/clk/clk-bulk.c
++++ b/drivers/clk/clk-bulk.c
+@@ -18,10 +18,13 @@ static int __must_check of_clk_bulk_get(struct device_node *np, int num_clks,
+ 	int ret;
+ 	int i;
  
-@@ -184,6 +183,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- {
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
-+	bool do_translate;
-+	u16 code = 0;
+-	for (i = 0; i < num_clks; i++)
++	for (i = 0; i < num_clks; i++) {
++		clks[i].id = NULL;
+ 		clks[i].clk = NULL;
++	}
  
- 	if (usage->code == KEY_FN) {
- 		asc->fn_on = !!value;
-@@ -192,8 +193,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 	}
- 
- 	if (fnmode) {
--		int do_translate;
--
- 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
- 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
- 			table = macbookair_fn_keys;
-@@ -205,25 +204,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
- 
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
--			else
--				do_translate = asc->fn_on;
--
--			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
--				input_event(input, usage->type, trans->to,
--						value);
--
--				return 1;
-+			if (test_bit(trans->from, input->key))
-+				code = trans->from;
-+			else if (test_bit(trans->to, input->key))
-+				code = trans->to;
-+
-+			if (!code) {
-+				if (trans->flags & APPLE_FLAG_FKEY) {
-+					switch (fnmode) {
-+					case 1:
-+						do_translate = !asc->fn_on;
-+						break;
-+					case 2:
-+						do_translate = asc->fn_on;
-+						break;
-+					default:
-+						/* should never happen */
-+						do_translate = false;
-+					}
-+				} else {
-+					do_translate = asc->fn_on;
-+				}
-+
-+				code = do_translate ? trans->to : trans->from;
- 			}
-+
-+			input_event(input, usage->type, code, value);
-+			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
+ 	for (i = 0; i < num_clks; i++) {
++		of_property_read_string_index(np, "clock-names", i, &clks[i].id);
+ 		clks[i].clk = of_clk_get(np, i);
+ 		if (IS_ERR(clks[i].clk)) {
+ 			ret = PTR_ERR(clks[i].clk);
 -- 
 2.20.1
 
