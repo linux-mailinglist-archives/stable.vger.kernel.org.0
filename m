@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8968CD822
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 089C8CD7D3
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725905AbfJFR7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:59:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S1727895AbfJFRfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbfJFRaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:16 -0400
+        id S1730087AbfJFRfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:35:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFF412133F;
-        Sun,  6 Oct 2019 17:30:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9537420700;
+        Sun,  6 Oct 2019 17:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383016;
-        bh=j8Ts51ouzUORb/g+SI+XF3GofZDMGyDqpfF2SFwJASg=;
+        s=default; t=1570383322;
+        bh=jujcImgHDYGHQ7uDDwkXOSgG2q4SgjbpIX6MY4h8sRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1AHsUn1zqXENJsKeZLjOfwk4Rf8DaJSraGNrDbKlrelekmY2guPNxj+ANzwuFRH0k
-         40MCh9bNszmk5WtQO7oXuuxlsr5YGKbxOFV39b2nE5axeqYlhasqdZWAFpVt1MZePp
-         +o3SW7dqHjZGOBBDnYoOosSwaiUpt/B5SwccWrn8=
+        b=zHgqQDX3zJJul7W+7CY++Dhn4AXcbZDcP0cSOm5NDqdMJ/D3oto5hFiKYb4ihJFFK
+         awwD1XF0Bg7upLDhYuSWUFiSZTW1JV8jbkMtvVG/ceiQHAK2sVVifCuK0Nfnh8HiJH
+         gJQSGLTsuFMIV7mO6rCg/5NK/jFkNuvMJSM8THuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/106] powerpc/pseries: correctly track irq state in default idle
-Date:   Sun,  6 Oct 2019 19:20:44 +0200
-Message-Id: <20191006171141.397412915@linuxfoundation.org>
+Subject: [PATCH 5.2 061/137] powerpc/eeh: Clear stale EEH_DEV_NO_HANDLER flag
+Date:   Sun,  6 Oct 2019 19:20:45 +0200
+Message-Id: <20191006171213.631387675@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Sam Bobroff <sbobroff@linux.ibm.com>
 
-[ Upstream commit 92c94dfb69e350471473fd3075c74bc68150879e ]
+[ Upstream commit aa06e3d60e245284d1e55497eb3108828092818d ]
 
-prep_irq_for_idle() is intended to be called before entering
-H_CEDE (and it is used by the pseries cpuidle driver). However the
-default pseries idle routine does not call it, leading to mismanaged
-lazy irq state when the cpuidle driver isn't in use. Manifestations of
-this include:
+The EEH_DEV_NO_HANDLER flag is used by the EEH system to prevent the
+use of driver callbacks in drivers that have been bound part way
+through the recovery process. This is necessary to prevent later stage
+handlers from being called when the earlier stage handlers haven't,
+which can be confusing for drivers.
 
-* Dropped IPIs in the time immediately after a cpu comes
-  online (before it has installed the cpuidle handler), making the
-  online operation block indefinitely waiting for the new cpu to
-  respond.
+However, the flag is set for all devices that are added after boot
+time and only cleared at the end of the EEH recovery process. This
+results in hot plugged devices erroneously having the flag set during
+the first recovery after they are added (causing their driver's
+handlers to be incorrectly ignored).
 
-* Hitting this WARN_ON in arch_local_irq_restore():
-	/*
-	 * We should already be hard disabled here. We had bugs
-	 * where that wasn't the case so let's dbl check it and
-	 * warn if we are wrong. Only do that when IRQ tracing
-	 * is enabled as mfmsr() can be costly.
-	 */
-	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
-		__hard_irq_disable();
+To remedy this, clear the flag at the beginning of recovery
+processing. The flag is still cleared at the end of recovery
+processing, although it is no longer really necessary.
 
-Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
-result.
+Also clear the flag during eeh_handle_special_event(), for the same
+reasons.
 
-Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/b8ca5629d27de74c957d4f4b250177d1b6fc4bbd.1565930772.git.sbobroff@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/kernel/eeh_driver.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index ba1791fd3234d..67f49159ea708 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -325,6 +325,9 @@ static void pseries_lpar_idle(void)
- 	 * low power mode by ceding processor to hypervisor
- 	 */
+diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
+index 89623962c7275..1fbe541856f5e 100644
+--- a/arch/powerpc/kernel/eeh_driver.c
++++ b/arch/powerpc/kernel/eeh_driver.c
+@@ -793,6 +793,10 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
+ 		result = PCI_ERS_RESULT_DISCONNECT;
+ 	}
  
-+	if (!prep_irq_for_idle())
-+		return;
++	eeh_for_each_pe(pe, tmp_pe)
++		eeh_pe_for_each_dev(tmp_pe, edev, tmp)
++			edev->mode &= ~EEH_DEV_NO_HANDLER;
 +
- 	/* Indicate to hypervisor that we are idle. */
- 	get_lppaca()->idle = 1;
+ 	/* Walk the various device drivers attached to this slot through
+ 	 * a reset sequence, giving each an opportunity to do what it needs
+ 	 * to accomplish the reset.  Each child gets a report of the
+@@ -981,7 +985,8 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
+  */
+ void eeh_handle_special_event(void)
+ {
+-	struct eeh_pe *pe, *phb_pe;
++	struct eeh_pe *pe, *phb_pe, *tmp_pe;
++	struct eeh_dev *edev, *tmp_edev;
+ 	struct pci_bus *bus;
+ 	struct pci_controller *hose;
+ 	unsigned long flags;
+@@ -1050,6 +1055,10 @@ void eeh_handle_special_event(void)
+ 				    (phb_pe->state & EEH_PE_RECOVERING))
+ 					continue;
  
++				eeh_for_each_pe(pe, tmp_pe)
++					eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
++						edev->mode &= ~EEH_DEV_NO_HANDLER;
++
+ 				/* Notify all devices to be down */
+ 				eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
+ 				eeh_set_channel_state(pe, pci_channel_io_perm_failure);
 -- 
 2.20.1
 
