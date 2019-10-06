@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F53CD68F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA02CD690
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731301AbfJFRl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41640 "EHLO mail.kernel.org"
+        id S1730311AbfJFRmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731296AbfJFRl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:57 -0400
+        id S1730882AbfJFRmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:42:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58F1E2080F;
-        Sun,  6 Oct 2019 17:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07FFC20700;
+        Sun,  6 Oct 2019 17:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383716;
-        bh=eSh8T2nSPy8y2TgRE1CffHRlokwH0nJvPtRMTdfQcbQ=;
+        s=default; t=1570383719;
+        bh=oZ/CdR4pk54TSdx6nW2duEampafCF/90uNe4q3GZa9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgqnxCslSRmk7tVBkR45eqJcdUbFSWW3GTnLpDwT9+zuf/XGJTLd/ls0zwOkoBhkP
-         2hO0voKkbWY9+yVQoL58dcZ0KXaABINe0q3SLdSm53Vo4tg+irn5CSTW75BtFMyTv7
-         8G7GajNAAC1WIJWgJrPjW6HfaTOxCLNEBZCrin4E=
+        b=u4cVwoFEe7dqN2L4qq1ne4ePPgRb99YYoW0xOOg/MIbu8ltHB/GYfdyGnbkMPQ9F7
+         IY5ikJY8thQ+ZqsoYigAL7zPnADtMYUZHkdVDQhN9kyvI/6D44OpUaxyHgLhVvlsox
+         Mujk4oyX9jXKI8r1072LRHUreW5xaJOUYlVZNJ1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 068/166] mailbox: mediatek: cmdq: clear the event in cmdq initial flow
-Date:   Sun,  6 Oct 2019 19:20:34 +0200
-Message-Id: <20191006171219.093809332@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 069/166] ARM: dts: dir685: Drop spi-cpol from the display
+Date:   Sun,  6 Oct 2019 19:20:35 +0200
+Message-Id: <20191006171219.185398266@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,86 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibby Hsieh <bibby.hsieh@mediatek.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 6058f11870b8e6d4f5cc7b591097c00bf69a000d ]
+[ Upstream commit 2a7326caab479ca257c4b9bd67db42d1d49079bf ]
 
-GCE hardware stored event information in own internal sysram,
-if the initial value in those sysram is not zero value
-it will cause a situation that gce can wait the event immediately
-after client ask gce to wait event but not really trigger the
-corresponding hardware.
+The D-Link DIR-685 had its clock polarity set as active
+low using the special SPI "spi-cpol" property.
 
-In order to make sure that the wait event function is
-exactly correct, we need to clear the sysram value in
-cmdq initial flow.
+This is not correct: the datasheet clearly states:
+"Fix SCL to GND level when not in use" which is
+indicative that this line is active high.
 
-Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+After a recent fix making the GPIO-based SPI driver
+force the clock line de-asserted at the beginning of
+each SPI transaction this reared its ugly head: now
+de-asserted was taken to mean the line should be
+driven high, but it should be driven low.
 
-Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Reviewed-by: CK Hu <ck.hu@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Fix this up in the DTS file and the display works again.
+
+Link: https://lore.kernel.org/r/20190915135444.11066-1-linus.walleij@linaro.org
+Cc: Mark Brown <broonie@kernel.org>
+Fixes: 2922d1cc1696 ("spi: gpio: Add SPI_MASTER_GPIO_SS flag")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mtk-cmdq-mailbox.c       | 5 +++++
- include/linux/mailbox/mtk-cmdq-mailbox.h | 3 +++
- include/linux/soc/mediatek/mtk-cmdq.h    | 3 ---
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/gemini-dlink-dir-685.dts | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
-index 00d5219094e5d..48bba49139523 100644
---- a/drivers/mailbox/mtk-cmdq-mailbox.c
-+++ b/drivers/mailbox/mtk-cmdq-mailbox.c
-@@ -22,6 +22,7 @@
- #define CMDQ_NUM_CMD(t)			(t->cmd_buf_size / CMDQ_INST_SIZE)
- 
- #define CMDQ_CURR_IRQ_STATUS		0x10
-+#define CMDQ_SYNC_TOKEN_UPDATE		0x68
- #define CMDQ_THR_SLOT_CYCLES		0x30
- #define CMDQ_THR_BASE			0x100
- #define CMDQ_THR_SIZE			0x80
-@@ -104,8 +105,12 @@ static void cmdq_thread_resume(struct cmdq_thread *thread)
- 
- static void cmdq_init(struct cmdq *cmdq)
- {
-+	int i;
-+
- 	WARN_ON(clk_enable(cmdq->clock) < 0);
- 	writel(CMDQ_THR_ACTIVE_SLOT_CYCLES, cmdq->base + CMDQ_THR_SLOT_CYCLES);
-+	for (i = 0; i <= CMDQ_MAX_EVENT; i++)
-+		writel(i, cmdq->base + CMDQ_SYNC_TOKEN_UPDATE);
- 	clk_disable(cmdq->clock);
- }
- 
-diff --git a/include/linux/mailbox/mtk-cmdq-mailbox.h b/include/linux/mailbox/mtk-cmdq-mailbox.h
-index ccb73422c2fa2..e6f54ef6698b1 100644
---- a/include/linux/mailbox/mtk-cmdq-mailbox.h
-+++ b/include/linux/mailbox/mtk-cmdq-mailbox.h
-@@ -20,6 +20,9 @@
- #define CMDQ_WFE_WAIT			BIT(15)
- #define CMDQ_WFE_WAIT_VALUE		0x1
- 
-+/** cmdq event maximum */
-+#define CMDQ_MAX_EVENT			0x3ff
-+
- /*
-  * CMDQ_CODE_MASK:
-  *   set write mask
-diff --git a/include/linux/soc/mediatek/mtk-cmdq.h b/include/linux/soc/mediatek/mtk-cmdq.h
-index 54ade13a9b157..4e8899972db4d 100644
---- a/include/linux/soc/mediatek/mtk-cmdq.h
-+++ b/include/linux/soc/mediatek/mtk-cmdq.h
-@@ -13,9 +13,6 @@
- 
- #define CMDQ_NO_TIMEOUT		0xffffffffu
- 
--/** cmdq event maximum */
--#define CMDQ_MAX_EVENT				0x3ff
--
- struct cmdq_pkt;
- 
- struct cmdq_client {
+diff --git a/arch/arm/boot/dts/gemini-dlink-dir-685.dts b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
+index bfaa2de63a100..e2030ba16512f 100644
+--- a/arch/arm/boot/dts/gemini-dlink-dir-685.dts
++++ b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
+@@ -72,7 +72,6 @@
+ 			reg = <0>;
+ 			/* 50 ns min period = 20 MHz */
+ 			spi-max-frequency = <20000000>;
+-			spi-cpol; /* Clock active low */
+ 			vcc-supply = <&vdisp>;
+ 			iovcc-supply = <&vdisp>;
+ 			vci-supply = <&vdisp>;
 -- 
 2.20.1
 
