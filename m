@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B80CD441
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8421FCD4A9
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727740AbfJFRX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
+        id S1728607AbfJFR2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727732AbfJFRX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:58 -0400
+        id S1728631AbfJFR17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:27:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B2422080F;
-        Sun,  6 Oct 2019 17:23:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CE4E2087E;
+        Sun,  6 Oct 2019 17:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382637;
-        bh=6QPtUIVWERq86ViWEnx4jphwcdTZYGRW02K4DAWvmN0=;
+        s=default; t=1570382878;
+        bh=4cRE8BoO5Dnzu1LM5gTDzH31eoGrRlvqL7fvAltIum8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHZJdYN+kllWSlXS1EYYXc2V6kz8y9kdWQKhin/EIQ3kPT64Z3lIT+HdkrqOztJxM
-         hdjLXhHlOd+GASvOgEXw9XmnwR+CRkiqYdfKs+JXtJsiLR7NEDzrmkGbxN2QThxMx6
-         e9YwY88dRgzBE5KzO/yBpCfvwHAocbEsCAWw+y8s=
+        b=gmW3t4tH50zvhNkoHeziDgwnM0XwBT+KRbZ8gcpnZTm2jm3tonh6Ref0E9iCZ/HKx
+         jjTYLY3qyIk13zOzBDoCGB6XFDKOVB9pf3/Q1iTn8rsGbrLsXnZVcg502zvlyKFGrL
+         N4MQwvlAjhcZWG9VYARkHXp3OdD9dpMMQLUi2wzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a2a3c4909716e271487e@syzkaller.appspotmail.com,
-        Martijn Coenen <maco@android.com>,
-        Mattias Nissler <mnissler@chromium.org>
-Subject: [PATCH 4.9 31/47] ANDROID: binder: synchronize_rcu() when using POLLFREE.
-Date:   Sun,  6 Oct 2019 19:21:18 +0200
-Message-Id: <20191006172018.533551246@linuxfoundation.org>
+        stable@vger.kernel.org, Anatoly Pugachev <matorola@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 43/68] pktcdvd: remove warning on attempting to register non-passthrough dev
+Date:   Sun,  6 Oct 2019 19:21:19 +0200
+Message-Id: <20191006171128.702814317@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martijn Coenen <maco@android.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 5eeb2ca02a2f6084fc57ae5c244a38baab07033a upstream.
+[ Upstream commit eb09b3cc464d2c3bbde9a6648603c8d599ea8582 ]
 
-To prevent races with ep_remove_waitqueue() removing the
-waitqueue at the same time.
+Anatoly reports that he gets the below warning when booting -git on
+a sparc64 box on debian unstable:
 
-Reported-by: syzbot+a2a3c4909716e271487e@syzkaller.appspotmail.com
-Signed-off-by: Martijn Coenen <maco@android.com>
-Cc: stable <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Mattias Nissler <mnissler@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+...
+[   13.352975] aes_sparc64: Using sparc64 aes opcodes optimized AES
+implementation
+[   13.428002] ------------[ cut here ]------------
+[   13.428081] WARNING: CPU: 21 PID: 586 at
+drivers/block/pktcdvd.c:2597 pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428147] Attempt to register a non-SCSI queue
+[   13.428184] Modules linked in: pktcdvd libdes cdrom aes_sparc64
+n2_rng md5_sparc64 sha512_sparc64 rng_core sha256_sparc64 flash
+sha1_sparc64 ip_tables x_tables ipv6 crc_ccitt nf_defrag_ipv6 autofs4
+ext4 crc16 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy
+async_pq async_xor xor async_tx raid6_pq raid1 raid0 multipath linear
+md_mod crc32c_sparc64
+[   13.428452] CPU: 21 PID: 586 Comm: pktsetup Not tainted
+5.3.0-10169-g574cc4539762 #1234
+[   13.428507] Call Trace:
+[   13.428542]  [00000000004635c0] __warn+0xc0/0x100
+[   13.428582]  [0000000000463634] warn_slowpath_fmt+0x34/0x60
+[   13.428626]  [000000001045b244] pkt_setup_dev+0x2e4/0x5a0 [pktcdvd]
+[   13.428674]  [000000001045ccf4] pkt_ctl_ioctl+0x94/0x220 [pktcdvd]
+[   13.428724]  [00000000006b95c8] do_vfs_ioctl+0x628/0x6e0
+[   13.428764]  [00000000006b96c8] ksys_ioctl+0x48/0x80
+[   13.428803]  [00000000006b9714] sys_ioctl+0x14/0x40
+[   13.428847]  [0000000000406294] linux_sparc_syscall+0x34/0x44
+[   13.428890] irq event stamp: 4181
+[   13.428924] hardirqs last  enabled at (4189): [<00000000004e0a74>]
+console_unlock+0x634/0x6c0
+[   13.428984] hardirqs last disabled at (4196): [<00000000004e0540>]
+console_unlock+0x100/0x6c0
+[   13.429048] softirqs last  enabled at (3978): [<0000000000b2e2d8>]
+__do_softirq+0x498/0x520
+[   13.429110] softirqs last disabled at (3967): [<000000000042cfb4>]
+do_softirq_own_stack+0x34/0x60
+[   13.429172] ---[ end trace 2220ca468f32967d ]---
+[   13.430018] pktcdvd: setup of pktcdvd device failed
+[   13.455589] des_sparc64: Using sparc64 des opcodes optimized DES
+implementation
+[   13.515334] camellia_sparc64: Using sparc64 camellia opcodes
+optimized CAMELLIA implementation
+[   13.522856] pktcdvd: setup of pktcdvd device failed
+[   13.529327] pktcdvd: setup of pktcdvd device failed
+[   13.532932] pktcdvd: setup of pktcdvd device failed
+[   13.536165] pktcdvd: setup of pktcdvd device failed
+[   13.539372] pktcdvd: setup of pktcdvd device failed
+[   13.542834] pktcdvd: setup of pktcdvd device failed
+[   13.546536] pktcdvd: setup of pktcdvd device failed
+[   15.431071] XFS (dm-0): Mounting V5 Filesystem
+...
+
+Apparently debian auto-attaches any cdrom like device to pktcdvd, which
+can lead to the above warning. There's really no reason to warn for this
+situation, kill it.
+
+Reported-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/android/binder.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/block/pktcdvd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -2641,6 +2641,15 @@ static int binder_free_thread(struct bin
- 		wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 11ec92e47455a..94944d063b372 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -2585,7 +2585,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	if (ret)
+ 		return ret;
+ 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
+-		WARN_ONCE(true, "Attempt to register a non-SCSI queue\n");
+ 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 		return -EINVAL;
  	}
- 
-+	/*
-+	 * This is needed to avoid races between wake_up_poll() above and
-+	 * and ep_remove_waitqueue() called for other reasons (eg the epoll file
-+	 * descriptor being closed); ep_remove_waitqueue() holds an RCU read
-+	 * lock, so we can be sure it's done after calling synchronize_rcu().
-+	 */
-+	if (thread->looper & BINDER_LOOPER_STATE_POLL)
-+		synchronize_rcu();
-+
- 	if (send_reply)
- 		binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
- 	binder_release_work(&thread->todo);
+-- 
+2.20.1
+
 
 
