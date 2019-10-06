@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9150ECD6BC
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B466CD6BD
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730543AbfJFRl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41062 "EHLO mail.kernel.org"
+        id S1729637AbfJFRlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731203AbfJFRlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:25 -0400
+        id S1731207AbfJFRl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:41:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56EB320700;
-        Sun,  6 Oct 2019 17:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3E2D2053B;
+        Sun,  6 Oct 2019 17:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383684;
-        bh=102bwutzRxcs2V9RTN9Y+pSZKhS2+svPGHXK6ShtJ24=;
+        s=default; t=1570383687;
+        bh=XBtLILC1EqGpUwxx8Twbl8rVA44ne2zeh7juqbZ4Re4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoHGKG0Gzb2ity1HtzC20if8rtvs+mpyw/WNgLQvHriRxjLJBYAe2MV6Sr/bpv4gg
-         TcFyoOd/uJ5jIqaUbu1iComSPOon8pf2SniYu6qAVWsU5TPThemy0MPoNEaF9Dg0sr
-         9hZA0p9uH2wMvse/YQTtKDL/BLYvgCbxpTCkpwVM=
+        b=k3uJhtWFJM+X6O3FMpbCdI5j0LKVajNqOhKgEJv/e3grJRj3V6bQx6TTZU2u/pN3K
+         sCrAHf4+8L7lQVhIs6scqw2wpdz8u5RmrdTpBkevj2T9OCDNQDPZmTEeS8vT0FjWDo
+         WlublA+8J1w+9TDlesCeKvafzpciIKtCw1maI+Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zi Yu Liao <ziyu.liao@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
+        stable@vger.kernel.org,
+        Yogesh Mohan Marimuthu <yogesh.mohanmarimuthu@amd.com>,
+        Anthony Koo <Anthony.Koo@amd.com>,
         Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 057/166] drm/amd/display: fix MPO HUBP underflow with Scatter Gather
-Date:   Sun,  6 Oct 2019 19:20:23 +0200
-Message-Id: <20191006171217.910059397@linuxfoundation.org>
+Subject: [PATCH 5.3 058/166] drm/amd/display: fix trigger not generated for freesync
+Date:   Sun,  6 Oct 2019 19:20:24 +0200
+Message-Id: <20191006171218.023647315@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,42 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zi Yu Liao <ziyu.liao@amd.com>
+From: Yogesh Mohan Marimuthu <yogesh.mohanmarimuthu@amd.com>
 
-[ Upstream commit 89cb5614736b9b5d3b833ca2237d10da6b4b0395 ]
+[ Upstream commit 1e7f100ce8c0640634b794604880d9204480c9f1 ]
 
-[why]
-With Scatter Gather enabled, HUBP underflows during MPO enabled video
-playback. hubp_init has a register write that fixes this problem, but
-the register is cleared when HUBP gets power gated.
+[Why]
+In newer hardware MANUAL_FLOW_CONTROL is not a trigger bit. Due to this
+front porch is fixed and in these hardware freesync does not work.
 
-[how]
-Make a call to hubp_init during enable_plane, so that the fix can
-be applied after HUBP powers back on again.
+[How]
+Change the programming to generate a pulse so that the event will be
+triggered, front porch will be cut short and freesync will work.
 
-Signed-off-by: Zi Yu Liao <ziyu.liao@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
+Signed-off-by: Yogesh Mohan Marimuthu <yogesh.mohanmarimuthu@amd.com>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
 Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 3 +++
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index f8abe98a576be..8fdb53a44bfb3 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1110,6 +1110,9 @@ void dcn20_enable_plane(
- 	/* enable DCFCLK current DCHUB */
- 	pipe_ctx->plane_res.hubp->funcs->hubp_clk_cntl(pipe_ctx->plane_res.hubp, true);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+index a546c2bc9129c..e365f2dd7f9a9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_optc.c
+@@ -824,6 +824,9 @@ void optc1_program_manual_trigger(struct timing_generator *optc)
  
-+	/* initialize HUBP on power up */
-+	pipe_ctx->plane_res.hubp->funcs->hubp_init(pipe_ctx->plane_res.hubp);
+ 	REG_SET(OTG_MANUAL_FLOW_CONTROL, 0,
+ 			MANUAL_FLOW_CONTROL, 1);
 +
- 	/* make sure OPP_PIPE_CLOCK_EN = 1 */
- 	pipe_ctx->stream_res.opp->funcs->opp_pipe_clock_control(
- 			pipe_ctx->stream_res.opp,
++	REG_SET(OTG_MANUAL_FLOW_CONTROL, 0,
++			MANUAL_FLOW_CONTROL, 0);
+ }
+ 
+ 
 -- 
 2.20.1
 
