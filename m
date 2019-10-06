@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3079FCD6F1
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8CC9CD6DA
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbfJFRvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38898 "EHLO mail.kernel.org"
+        id S1729872AbfJFRj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:39:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730783AbfJFRjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:25 -0400
+        id S1730795AbfJFRj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:39:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61562087E;
-        Sun,  6 Oct 2019 17:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D9F820700;
+        Sun,  6 Oct 2019 17:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383565;
-        bh=TcQJWdjIDXDwAH8RWD2Ob2jmrYxZ0FEDUkeX5eqwNmI=;
+        s=default; t=1570383567;
+        bh=5VSvU6HBfPNZEb5WDAIzTm+/cX7N3Y3hY73y1TIdwtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e16HH8BZmS3QtGPe4HgC1FsM2i/N82eFyxUJJ7ySdKc4riND8rqwEr4wA+aIL7ejD
-         CuyodP8dAzjULt6pNRmXu3jfvrb5QM5XKlpL222b3lLf0IJXnP8rOhp8PheDdLsZo1
-         s5fEoCkS4cj+HVBSeJjrI5kcYyqOWfNJdYagxaLc=
+        b=CovRT9CdoFfzah4jj6oqKMCmkDKyVAxJAHJCzFRXPsA+ISRY1f1YNsmvH3RmSbu50
+         hMjJUVW93X7eDmmNQ/hkxnuQBAWaaDVthZ3UUHFV5bUCGCr2gFgWIaRDenOn2Rrt9j
+         L+S4d2SPKzbV1WgW9a44kj4zjZB2yQrOC/zr7XXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Moysan <olivier.moysan@st.com>,
-        Jyri Sarha <jsarha@ti.com>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 014/166] drm/bridge: sii902x: fix missing reference to mclk clock
-Date:   Sun,  6 Oct 2019 19:19:40 +0200
-Message-Id: <20191006171213.963286832@linuxfoundation.org>
+Subject: [PATCH 5.3 015/166] drm/panel: check failure cases in the probe func
+Date:   Sun,  6 Oct 2019 19:19:41 +0200
+Message-Id: <20191006171214.306773906@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,36 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Moysan <olivier.moysan@st.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 365d28c92f8cd3d3860f8dd057a8c136e24b3698 ]
+[ Upstream commit afd6d4f5a52c16e1483328ac074abb1cde92c29f ]
 
-Add devm_clk_get call to retrieve reference to master clock.
+The following function calls may fail and return NULL, so the null check
+is added.
+of_graph_get_next_endpoint
+of_graph_get_remote_port_parent
+of_graph_get_remote_port
 
-Fixes: ff5781634c41 ("drm/bridge: sii902x: Implement HDMI audio support")
+Update: Thanks to Sam Ravnborg, for suggession on the use of goto to avoid
+leaking endpoint.
 
-Signed-off-by: Olivier Moysan <olivier.moysan@st.com>
-Reviewed-by: Jyri Sarha <jsarha@ti.com>
-Acked-by: Andrzej Hajda <a.hajda@samsung.com
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1563811560-29589-2-git-send-email-olivier.moysan@st.com
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190724195534.9303-1-navid.emamdoost@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/sii902x.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../gpu/drm/panel/panel-raspberrypi-touchscreen.c   | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/gpu/drm/bridge/sii902x.c b/drivers/gpu/drm/bridge/sii902x.c
-index dd7aa466b2805..36acc256e67e3 100644
---- a/drivers/gpu/drm/bridge/sii902x.c
-+++ b/drivers/gpu/drm/bridge/sii902x.c
-@@ -750,6 +750,7 @@ static int sii902x_audio_codec_init(struct sii902x *sii902x,
- 		sii902x->audio.i2s_fifo_sequence[i] |= audio_fifo_id[i] |
- 			i2s_lane_id[lanes[i]] |	SII902X_TPI_I2S_FIFO_ENABLE;
+diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+index 28c0620dfe0f9..b5b14aa059ea7 100644
+--- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
++++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+@@ -399,7 +399,13 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
  
-+	sii902x->audio.mclk = devm_clk_get(dev, "mclk");
- 	if (IS_ERR(sii902x->audio.mclk)) {
- 		dev_err(dev, "%s: No clock (audio mclk) found: %ld\n",
- 			__func__, PTR_ERR(sii902x->audio.mclk));
+ 	/* Look up the DSI host.  It needs to probe before we do. */
+ 	endpoint = of_graph_get_next_endpoint(dev->of_node, NULL);
++	if (!endpoint)
++		return -ENODEV;
++
+ 	dsi_host_node = of_graph_get_remote_port_parent(endpoint);
++	if (!dsi_host_node)
++		goto error;
++
+ 	host = of_find_mipi_dsi_host_by_node(dsi_host_node);
+ 	of_node_put(dsi_host_node);
+ 	if (!host) {
+@@ -408,6 +414,9 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
+ 	}
+ 
+ 	info.node = of_graph_get_remote_port(endpoint);
++	if (!info.node)
++		goto error;
++
+ 	of_node_put(endpoint);
+ 
+ 	ts->dsi = mipi_dsi_device_register_full(host, &info);
+@@ -428,6 +437,10 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
+ 		return ret;
+ 
+ 	return 0;
++
++error:
++	of_node_put(endpoint);
++	return -ENODEV;
+ }
+ 
+ static int rpi_touchscreen_remove(struct i2c_client *i2c)
 -- 
 2.20.1
 
