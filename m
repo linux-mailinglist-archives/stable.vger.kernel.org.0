@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AF6ACD777
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 706D9CD85C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729142AbfJFR3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:29:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55610 "EHLO mail.kernel.org"
+        id S1728084AbfJFRZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729056AbfJFR3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:29:50 -0400
+        id S1728083AbfJFRZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:25:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EBAC92080F;
-        Sun,  6 Oct 2019 17:29:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80BD20867;
+        Sun,  6 Oct 2019 17:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382989;
-        bh=xd9FKbZCNcSShJBGOLUkhgzrMnFgc/j0qXHYi6FfljA=;
+        s=default; t=1570382722;
+        bh=Y1mU3yamgEEqPOt5jB7Oj42CunCeU8jAvCNAfpFIBAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9TSdNp+VdDSA7qne2l80GgW+4cpfOAkAf9IHZcFdVFOLLqhwifKopILflvSlF1dE
-         WyVy3I9hoFcbfTyAy5kNmpsFmcSUGeKxCnr4kPhdxHFdRFBR/OLoUqLMwUK6ZfFJtN
-         h8R3WralV4LBL31KPgPeEiOe9yhQ4/ITbrEUhbPY=
+        b=KkE226AjfpCJsdQFjeK2bdtROAGMXqPnD/rd+xvDGLi9FRmdrGqGREyDAK0XHEYcu
+         394XmRbVeiZUBojgYqVk4fUVPygvvha3QMGmIoUyx8vBqF6ICDWffocYA9Vtdzg3R4
+         SUz6IqLLloFI6FlzsVmThw6GwlDRu6tnxVLw4fvw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/106] dma-buf/sw_sync: Synchronize signal vs syncpt free
+Subject: [PATCH 4.14 16/68] powerpc/rtas: use device model APIs and serialization during LPM
 Date:   Sun,  6 Oct 2019 19:20:52 +0200
-Message-Id: <20191006171143.424340388@linuxfoundation.org>
+Message-Id: <20191006171116.099196571@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,75 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit d3c6dd1fb30d3853c2012549affe75c930f4a2f9 ]
+[ Upstream commit a6717c01ddc259f6f73364779df058e2c67309f8 ]
 
-During release of the syncpt, we remove it from the list of syncpt and
-the tree, but only if it is not already been removed. However, during
-signaling, we first remove the syncpt from the list. So, if we
-concurrently free and signal the syncpt, the free may decide that it is
-not part of the tree and immediately free itself -- meanwhile the
-signaler goes on to use the now freed datastructure.
+The LPAR migration implementation and userspace-initiated cpu hotplug
+can interleave their executions like so:
 
-In particular, we get struck by commit 0e2f733addbf ("dma-buf: make
-dma_fence structure a bit smaller v2") as the cb_list is immediately
-clobbered by the kfree_rcu.
+1. Set cpu 7 offline via sysfs.
 
-v2: Avoid calling into timeline_fence_release() from under the spinlock
+2. Begin a partition migration, whose implementation requires the OS
+   to ensure all present cpus are online; cpu 7 is onlined:
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111381
-Fixes: d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Gustavo Padovan <gustavo@padovan.org>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: <stable@vger.kernel.org> # v4.14+
-Acked-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190812154247.20508-1-chris@chris-wilson.co.uk
+     rtas_ibm_suspend_me -> rtas_online_cpus_mask -> cpu_up
+
+   This sets cpu 7 online in all respects except for the cpu's
+   corresponding struct device; dev->offline remains true.
+
+3. Set cpu 7 online via sysfs. _cpu_up() determines that cpu 7 is
+   already online and returns success. The driver core (device_online)
+   sets dev->offline = false.
+
+4. The migration completes and restores cpu 7 to offline state:
+
+     rtas_ibm_suspend_me -> rtas_offline_cpus_mask -> cpu_down
+
+This leaves cpu7 in a state where the driver core considers the cpu
+device online, but in all other respects it is offline and
+unused. Attempts to online the cpu via sysfs appear to succeed but the
+driver core actually does not pass the request to the lower-level
+cpuhp support code. This makes the cpu unusable until the cpu device
+is manually set offline and then online again via sysfs.
+
+Instead of directly calling cpu_up/cpu_down, the migration code should
+use the higher-level device core APIs to maintain consistent state and
+serialize operations.
+
+Fixes: 120496ac2d2d ("powerpc: Bring all threads online prior to migration/hibernation")
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190802192926.19277-2-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/sw_sync.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/rtas.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
-index 53c1d6d36a642..81ba4eb348909 100644
---- a/drivers/dma-buf/sw_sync.c
-+++ b/drivers/dma-buf/sw_sync.c
-@@ -141,17 +141,14 @@ static void timeline_fence_release(struct dma_fence *fence)
- {
- 	struct sync_pt *pt = dma_fence_to_sync_pt(fence);
- 	struct sync_timeline *parent = dma_fence_parent(fence);
-+	unsigned long flags;
+diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+index 1643e9e536557..141d192c69538 100644
+--- a/arch/powerpc/kernel/rtas.c
++++ b/arch/powerpc/kernel/rtas.c
+@@ -874,15 +874,17 @@ static int rtas_cpu_state_change_mask(enum rtas_cpu_state state,
+ 		return 0;
  
-+	spin_lock_irqsave(fence->lock, flags);
- 	if (!list_empty(&pt->link)) {
--		unsigned long flags;
--
--		spin_lock_irqsave(fence->lock, flags);
--		if (!list_empty(&pt->link)) {
--			list_del(&pt->link);
--			rb_erase(&pt->node, &parent->pt_tree);
--		}
--		spin_unlock_irqrestore(fence->lock, flags);
-+		list_del(&pt->link);
-+		rb_erase(&pt->node, &parent->pt_tree);
- 	}
-+	spin_unlock_irqrestore(fence->lock, flags);
+ 	for_each_cpu(cpu, cpus) {
++		struct device *dev = get_cpu_device(cpu);
++
+ 		switch (state) {
+ 		case DOWN:
+-			cpuret = cpu_down(cpu);
++			cpuret = device_offline(dev);
+ 			break;
+ 		case UP:
+-			cpuret = cpu_up(cpu);
++			cpuret = device_online(dev);
+ 			break;
+ 		}
+-		if (cpuret) {
++		if (cpuret < 0) {
+ 			pr_debug("%s: cpu_%s for cpu#%d returned %d.\n",
+ 					__func__,
+ 					((state == UP) ? "up" : "down"),
+@@ -971,6 +973,8 @@ int rtas_ibm_suspend_me(u64 handle)
+ 	data.token = rtas_token("ibm,suspend-me");
+ 	data.complete = &done;
  
- 	sync_timeline_put(parent);
- 	dma_fence_free(fence);
-@@ -274,7 +271,8 @@ static struct sync_pt *sync_pt_create(struct sync_timeline *obj,
- 				p = &parent->rb_left;
- 			} else {
- 				if (dma_fence_get_rcu(&other->base)) {
--					dma_fence_put(&pt->base);
-+					sync_timeline_put(obj);
-+					kfree(pt);
- 					pt = other;
- 					goto unlock;
- 				}
++	lock_device_hotplug();
++
+ 	/* All present CPUs must be online */
+ 	cpumask_andnot(offline_mask, cpu_present_mask, cpu_online_mask);
+ 	cpuret = rtas_online_cpus_mask(offline_mask);
+@@ -1002,6 +1006,7 @@ int rtas_ibm_suspend_me(u64 handle)
+ 				__func__);
+ 
+ out:
++	unlock_device_hotplug();
+ 	free_cpumask_var(offline_mask);
+ 	return atomic_read(&data.error);
+ }
 -- 
 2.20.1
 
