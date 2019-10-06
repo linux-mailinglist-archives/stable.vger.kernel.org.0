@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE01CD43D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1AE0CD447
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727318AbfJFRXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48638 "EHLO mail.kernel.org"
+        id S1727830AbfJFRYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:24:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727710AbfJFRXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:53 -0400
+        id S1727826AbfJFRYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:24:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 213D52080F;
-        Sun,  6 Oct 2019 17:23:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6F8A2133F;
+        Sun,  6 Oct 2019 17:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382632;
-        bh=jP8I5CNRk/iM76spTAw03o6FHfCpfdMcnRg9jkQSMXE=;
+        s=default; t=1570382651;
+        bh=eIVYCmBoQuGrbToR78lQuZGyISQWFjO/9AvUGHo61Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXTiDZOxGyYn02E0XbybSe7TRCpb5MIj8VaBwSWTjLhSA3dB5ZweuHjbdBciGcj/p
-         Xb39OFLhb+JlSQhZxdlVe0PkaM/6fCVzsspJhm1inz63XtYJFy+6+wfg8WSKABR4HN
-         xfg6tVArP4jmueL7jyF9TNdiaueOMgvRDvzqbZCs=
+        b=V9aLaLN2BghP0jgfSPQm11ezVJwzrv/3xogp9gMtLe87L3VEUaoSFaBGlJfFDQz2K
+         E+tf++PMgkxDyUYPPEXwNzfB2RIQ+SUEhtR2sNAVanyuZneaM9ckpJ7l/3hbEBFlks
+         dYvDe6DeuPPunxlLOujlmvy2IsTojw7bmFMFEJHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/47] drm/radeon: Fix EEH during kexec
-Date:   Sun,  6 Oct 2019 19:20:50 +0200
-Message-Id: <20191006172017.068618321@linuxfoundation.org>
+Subject: [PATCH 4.9 04/47] gpu: drm: radeon: Fix a possible null-pointer dereference in radeon_connector_set_property()
+Date:   Sun,  6 Oct 2019 19:20:51 +0200
+Message-Id: <20191006172017.120186425@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
 References: <20191006172016.873463083@linuxfoundation.org>
@@ -44,45 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 6f7fe9a93e6c09bf988c5059403f5f88e17e21e6 ]
+[ Upstream commit f3eb9b8f67bc28783eddc142ad805ebdc53d6339 ]
 
-During kexec some adapters hit an EEH since they are not properly
-shut down in the radeon_pci_shutdown() function. Adding
-radeon_suspend_kms() fixes this issue.
+In radeon_connector_set_property(), there is an if statement on line 743
+to check whether connector->encoder is NULL:
+    if (connector->encoder)
 
-Signed-off-by: KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
+When connector->encoder is NULL, it is used on line 755:
+    if (connector->encoder->crtc)
+
+Thus, a possible null-pointer dereference may occur.
+
+To fix this bug, connector->encoder is checked before being used.
+
+This bug is found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/radeon/radeon_connectors.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
-index 30bd4a6a9d466..3ccf5b28b326e 100644
---- a/drivers/gpu/drm/radeon/radeon_drv.c
-+++ b/drivers/gpu/drm/radeon/radeon_drv.c
-@@ -366,11 +366,19 @@ radeon_pci_remove(struct pci_dev *pdev)
- static void
- radeon_pci_shutdown(struct pci_dev *pdev)
- {
-+	struct drm_device *ddev = pci_get_drvdata(pdev);
-+
- 	/* if we are running in a VM, make sure the device
- 	 * torn down properly on reboot/shutdown
- 	 */
- 	if (radeon_device_is_virtual())
- 		radeon_pci_remove(pdev);
-+
-+	/* Some adapters need to be suspended before a
-+	* shutdown occurs in order to prevent an error
-+	* during kexec.
-+	*/
-+	radeon_suspend_kms(ddev, true, true, false);
- }
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index c5e1aa5f1d8ea..efa875120071a 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -764,7 +764,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
  
- static int radeon_pmops_suspend(struct device *dev)
+ 		radeon_encoder->output_csc = val;
+ 
+-		if (connector->encoder->crtc) {
++		if (connector->encoder && connector->encoder->crtc) {
+ 			struct drm_crtc *crtc  = connector->encoder->crtc;
+ 			const struct drm_crtc_helper_funcs *crtc_funcs = crtc->helper_private;
+ 			struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
 -- 
 2.20.1
 
