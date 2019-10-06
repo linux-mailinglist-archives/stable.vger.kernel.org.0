@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C55CD79A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C411CD814
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729131AbfJFRcL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:32:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
+        id S1726804AbfJFR6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728349AbfJFRcK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:10 -0400
+        id S1728349AbfJFRcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8407E2133F;
-        Sun,  6 Oct 2019 17:32:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0B5F2133F;
+        Sun,  6 Oct 2019 17:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383130;
-        bh=DAmgiiSZWCuRyI8VV23ospy6jJdpUUxcp04e1vpILr8=;
+        s=default; t=1570383135;
+        bh=eGhmsYZKuBW2PvWz3EQXgbbJszC6F+ic1oPctoDG0lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dLGseiajWLaQg1WIC5MOv9yU8ejH1zAN1/mbPWXWXyhvPxSHZ7Ejm0PMzUr03j5dT
-         3t0q19XhyL5FKQ56qWU6Ty82TMJkaBcBJ14UWeBfVIxX2C9nI8IJ8qiwO8ZY2BcJrM
-         YldkxKPN3a2N/Var7Nt0b6pZG0J80ebpYzakL5VA=
+        b=FdKQbzENdUBzhXn1tkxQfHxz+suYHRoaPmYyCVM8cgTmlQOY3LyPgER1o21+Gf6To
+         hqocmdmBZwKycgpZWRDIERxlYI3ndKM5IOnUXMzDAWWTvjlxDGwPRKnyPmRktltJG+
+         iHD52sh0y+MRHx0vAfAurGIi4q2KFHRN1JsrUNeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
-        Jon Maloy <jon.maloy@ericsson.com>,
-        Tuong Lien <tuong.t.lien@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 098/106] tipc: fix unlimited bundling of small messages
-Date:   Sun,  6 Oct 2019 19:21:44 +0200
-Message-Id: <20191006171202.606183179@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 100/106] soundwire: Kconfig: fix help format
+Date:   Sun,  6 Oct 2019 19:21:46 +0200
+Message-Id: <20191006171202.852850922@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -45,171 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuong Lien <tuong.t.lien@dektech.com.au>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit e95584a889e1902fdf1ded9712e2c3c3083baf96 ]
+[ Upstream commit 9d7cd9d500826a14fc68fb6994db375432866c6a ]
 
-We have identified a problem with the "oversubscription" policy in the
-link transmission code.
+Move to the regular help format, --help-- is no longer recommended.
 
-When small messages are transmitted, and the sending link has reached
-the transmit window limit, those messages will be bundled and put into
-the link backlog queue. However, bundles of data messages are counted
-at the 'CRITICAL' level, so that the counter for that level, instead of
-the counter for the real, bundled message's level is the one being
-increased.
-Subsequent, to-be-bundled data messages at non-CRITICAL levels continue
-to be tested against the unchanged counter for their own level, while
-contributing to an unrestrained increase at the CRITICAL backlog level.
-
-This leaves a gap in congestion control algorithm for small messages
-that can result in starvation for other users or a "real" CRITICAL
-user. Even that eventually can lead to buffer exhaustion & link reset.
-
-We fix this by keeping a 'target_bskb' buffer pointer at each levels,
-then when bundling, we only bundle messages at the same importance
-level only. This way, we know exactly how many slots a certain level
-have occupied in the queue, so can manage level congestion accurately.
-
-By bundling messages at the same level, we even have more benefits. Let
-consider this:
-- One socket sends 64-byte messages at the 'CRITICAL' level;
-- Another sends 4096-byte messages at the 'LOW' level;
-
-When a 64-byte message comes and is bundled the first time, we put the
-overhead of message bundle to it (+ 40-byte header, data copy, etc.)
-for later use, but the next message can be a 4096-byte one that cannot
-be bundled to the previous one. This means the last bundle carries only
-one payload message which is totally inefficient, as for the receiver
-also! Later on, another 64-byte message comes, now we make a new bundle
-and the same story repeats...
-
-With the new bundling algorithm, this will not happen, the 64-byte
-messages will be bundled together even when the 4096-byte message(s)
-comes in between. However, if the 4096-byte messages are sent at the
-same level i.e. 'CRITICAL', the bundling algorithm will again cause the
-same overhead.
-
-Also, the same will happen even with only one socket sending small
-messages at a rate close to the link transmit's one, so that, when one
-message is bundled, it's transmitted shortly. Then, another message
-comes, a new bundle is created and so on...
-
-We will solve this issue radically by another patch.
-
-Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
-Reported-by: Hoang Le <hoang.h.le@dektech.com.au>
-Acked-by: Jon Maloy <jon.maloy@ericsson.com>
-Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/link.c |   29 ++++++++++++++++++-----------
- net/tipc/msg.c  |    5 +----
- 2 files changed, 19 insertions(+), 15 deletions(-)
+ drivers/soundwire/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/tipc/link.c
-+++ b/net/tipc/link.c
-@@ -161,6 +161,7 @@ struct tipc_link {
- 	struct {
- 		u16 len;
- 		u16 limit;
-+		struct sk_buff *target_bskb;
- 	} backlog[5];
- 	u16 snd_nxt;
- 	u16 last_retransm;
-@@ -846,6 +847,7 @@ static void link_prepare_wakeup(struct t
- void tipc_link_reset(struct tipc_link *l)
- {
- 	struct sk_buff_head list;
-+	u32 imp;
+diff --git a/drivers/soundwire/Kconfig b/drivers/soundwire/Kconfig
+index 19c8efb9a5ee7..84876a74874fb 100644
+--- a/drivers/soundwire/Kconfig
++++ b/drivers/soundwire/Kconfig
+@@ -4,7 +4,7 @@
  
- 	__skb_queue_head_init(&list);
- 
-@@ -864,11 +866,10 @@ void tipc_link_reset(struct tipc_link *l
- 	__skb_queue_purge(&l->transmq);
- 	__skb_queue_purge(&l->deferdq);
- 	__skb_queue_purge(&l->backlogq);
--	l->backlog[TIPC_LOW_IMPORTANCE].len = 0;
--	l->backlog[TIPC_MEDIUM_IMPORTANCE].len = 0;
--	l->backlog[TIPC_HIGH_IMPORTANCE].len = 0;
--	l->backlog[TIPC_CRITICAL_IMPORTANCE].len = 0;
--	l->backlog[TIPC_SYSTEM_IMPORTANCE].len = 0;
-+	for (imp = 0; imp <= TIPC_SYSTEM_IMPORTANCE; imp++) {
-+		l->backlog[imp].len = 0;
-+		l->backlog[imp].target_bskb = NULL;
-+	}
- 	kfree_skb(l->reasm_buf);
- 	kfree_skb(l->failover_reasm_skb);
- 	l->reasm_buf = NULL;
-@@ -909,7 +910,7 @@ int tipc_link_xmit(struct tipc_link *l,
- 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
- 	struct sk_buff_head *transmq = &l->transmq;
- 	struct sk_buff_head *backlogq = &l->backlogq;
--	struct sk_buff *skb, *_skb, *bskb;
-+	struct sk_buff *skb, *_skb, **tskb;
- 	int pkt_cnt = skb_queue_len(list);
- 	int rc = 0;
- 
-@@ -955,19 +956,21 @@ int tipc_link_xmit(struct tipc_link *l,
- 			seqno++;
- 			continue;
- 		}
--		if (tipc_msg_bundle(skb_peek_tail(backlogq), hdr, mtu)) {
-+		tskb = &l->backlog[imp].target_bskb;
-+		if (tipc_msg_bundle(*tskb, hdr, mtu)) {
- 			kfree_skb(__skb_dequeue(list));
- 			l->stats.sent_bundled++;
- 			continue;
- 		}
--		if (tipc_msg_make_bundle(&bskb, hdr, mtu, l->addr)) {
-+		if (tipc_msg_make_bundle(tskb, hdr, mtu, l->addr)) {
- 			kfree_skb(__skb_dequeue(list));
--			__skb_queue_tail(backlogq, bskb);
--			l->backlog[msg_importance(buf_msg(bskb))].len++;
-+			__skb_queue_tail(backlogq, *tskb);
-+			l->backlog[imp].len++;
- 			l->stats.sent_bundled++;
- 			l->stats.sent_bundles++;
- 			continue;
- 		}
-+		l->backlog[imp].target_bskb = NULL;
- 		l->backlog[imp].len += skb_queue_len(list);
- 		skb_queue_splice_tail_init(list, backlogq);
- 	}
-@@ -983,6 +986,7 @@ static void tipc_link_advance_backlog(st
- 	u16 seqno = l->snd_nxt;
- 	u16 ack = l->rcv_nxt - 1;
- 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
-+	u32 imp;
- 
- 	while (skb_queue_len(&l->transmq) < l->window) {
- 		skb = skb_peek(&l->backlogq);
-@@ -993,7 +997,10 @@ static void tipc_link_advance_backlog(st
- 			break;
- 		__skb_dequeue(&l->backlogq);
- 		hdr = buf_msg(skb);
--		l->backlog[msg_importance(hdr)].len--;
-+		imp = msg_importance(hdr);
-+		l->backlog[imp].len--;
-+		if (unlikely(skb == l->backlog[imp].target_bskb))
-+			l->backlog[imp].target_bskb = NULL;
- 		__skb_queue_tail(&l->transmq, skb);
- 		__skb_queue_tail(xmitq, _skb);
- 		TIPC_SKB_CB(skb)->ackers = l->ackers;
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -484,10 +484,7 @@ bool tipc_msg_make_bundle(struct sk_buff
- 	bmsg = buf_msg(_skb);
- 	tipc_msg_init(msg_prevnode(msg), bmsg, MSG_BUNDLER, 0,
- 		      INT_H_SIZE, dnode);
--	if (msg_isdata(msg))
--		msg_set_importance(bmsg, TIPC_CRITICAL_IMPORTANCE);
--	else
--		msg_set_importance(bmsg, TIPC_SYSTEM_IMPORTANCE);
-+	msg_set_importance(bmsg, msg_importance(msg));
- 	msg_set_seqno(bmsg, msg_seqno(msg));
- 	msg_set_ack(bmsg, msg_ack(msg));
- 	msg_set_bcast_ack(bmsg, msg_bcast_ack(msg));
+ menuconfig SOUNDWIRE
+ 	bool "SoundWire support"
+-	---help---
++	help
+ 	  SoundWire is a 2-Pin interface with data and clock line ratified
+ 	  by the MIPI Alliance. SoundWire is used for transporting data
+ 	  typically related to audio functions. SoundWire interface is
+-- 
+2.20.1
+
 
 
