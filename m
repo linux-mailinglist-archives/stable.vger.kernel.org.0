@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF30CD84A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE49FCD880
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727456AbfJFSC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 14:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50940 "EHLO mail.kernel.org"
+        id S1726714AbfJFRXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbfJFRZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:25:57 -0400
+        id S1727152AbfJFRXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78DD82070B;
-        Sun,  6 Oct 2019 17:25:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92B682077B;
+        Sun,  6 Oct 2019 17:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382757;
-        bh=amDmrhtd7S+OYG+hIT3jMeWRCF3PInftd+EiIusg/Hk=;
+        s=default; t=1570382598;
+        bh=dxLk9a93sLZR2vtiN9XBRjoI5HnSVSrWuGFCieEVcrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOdJXIi+KveRBwRLvKb0skfybm6F04fypK6dsZDWxUMJK8EK48WiztHvc4nAz3G8x
-         uaRovaGQ8idNI1pO8dQ2BkhJ9ZlmzmXBhCxPG+Yt62+zt4SxzaR2KJjm4X5IZAEk4S
-         LLLlIk0LddKI6Yim+sTzkczbRMNeogRCm79XExZM=
+        b=oLaNBkSNCHh8oDbWmANssZCb1gyZ6FsCgzHc/Z2UKgzgaR93ZUpnEa4xr9LlHXB6o
+         E5Y03jmhHZf1NxRmYTwAIabB4CDmh8mqKz20ZnTYfF/RX+iE87b2y3iPi7x9O5INvy
+         p+HbbUrtyR2VQ7mlc3U0WwlDbHWwsjFmCJ8VU8A8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Sumit Semwal <sumit.semwal@linaro.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        stable@vger.kernel.org, Jan Palus <jpalus@fastmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Hannes Reinecke <hare@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/68] dma-buf/sw_sync: Synchronize signal vs syncpt free
-Date:   Sun,  6 Oct 2019 19:21:04 +0200
-Message-Id: <20191006171120.827270506@linuxfoundation.org>
+Subject: [PATCH 4.9 18/47] scsi: core: Reduce memory required for SCSI logging
+Date:   Sun,  6 Oct 2019 19:21:05 +0200
+Message-Id: <20191006172017.847600543@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,75 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit d3c6dd1fb30d3853c2012549affe75c930f4a2f9 ]
+[ Upstream commit dccc96abfb21dc19d69e707c38c8ba439bba7160 ]
 
-During release of the syncpt, we remove it from the list of syncpt and
-the tree, but only if it is not already been removed. However, during
-signaling, we first remove the syncpt from the list. So, if we
-concurrently free and signal the syncpt, the free may decide that it is
-not part of the tree and immediately free itself -- meanwhile the
-signaler goes on to use the now freed datastructure.
+The data structure used for log messages is so large that it can cause a
+boot failure. Since allocations from that data structure can fail anyway,
+use kmalloc() / kfree() instead of that data structure.
 
-In particular, we get struck by commit 0e2f733addbf ("dma-buf: make
-dma_fence structure a bit smaller v2") as the cb_list is immediately
-clobbered by the kfree_rcu.
+See also https://bugzilla.kernel.org/show_bug.cgi?id=204119.
+See also commit ded85c193a39 ("scsi: Implement per-cpu logging buffer") # v4.0.
 
-v2: Avoid calling into timeline_fence_release() from under the spinlock
-
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111381
-Fixes: d3862e44daa7 ("dma-buf/sw-sync: Fix locking around sync_timeline lists")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Sumit Semwal <sumit.semwal@linaro.org>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Gustavo Padovan <gustavo@padovan.org>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: <stable@vger.kernel.org> # v4.14+
-Acked-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190812154247.20508-1-chris@chris-wilson.co.uk
+Reported-by: Jan Palus <jpalus@fastmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Jan Palus <jpalus@fastmail.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/sw_sync.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/scsi/scsi_logging.c | 48 +++----------------------------------
+ include/scsi/scsi_dbg.h     |  2 --
+ 2 files changed, 3 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/dma-buf/sw_sync.c b/drivers/dma-buf/sw_sync.c
-index 24f83f9eeaedc..114b36674af42 100644
---- a/drivers/dma-buf/sw_sync.c
-+++ b/drivers/dma-buf/sw_sync.c
-@@ -141,17 +141,14 @@ static void timeline_fence_release(struct dma_fence *fence)
- {
- 	struct sync_pt *pt = dma_fence_to_sync_pt(fence);
- 	struct sync_timeline *parent = dma_fence_parent(fence);
-+	unsigned long flags;
+diff --git a/drivers/scsi/scsi_logging.c b/drivers/scsi/scsi_logging.c
+index bd70339c1242e..03d9855a6afd7 100644
+--- a/drivers/scsi/scsi_logging.c
++++ b/drivers/scsi/scsi_logging.c
+@@ -16,57 +16,15 @@
+ #include <scsi/scsi_eh.h>
+ #include <scsi/scsi_dbg.h>
  
-+	spin_lock_irqsave(fence->lock, flags);
- 	if (!list_empty(&pt->link)) {
--		unsigned long flags;
+-#define SCSI_LOG_SPOOLSIZE 4096
 -
--		spin_lock_irqsave(fence->lock, flags);
--		if (!list_empty(&pt->link)) {
--			list_del(&pt->link);
--			rb_erase(&pt->node, &parent->pt_tree);
+-#if (SCSI_LOG_SPOOLSIZE / SCSI_LOG_BUFSIZE) > BITS_PER_LONG
+-#warning SCSI logging bitmask too large
+-#endif
+-
+-struct scsi_log_buf {
+-	char buffer[SCSI_LOG_SPOOLSIZE];
+-	unsigned long map;
+-};
+-
+-static DEFINE_PER_CPU(struct scsi_log_buf, scsi_format_log);
+-
+ static char *scsi_log_reserve_buffer(size_t *len)
+ {
+-	struct scsi_log_buf *buf;
+-	unsigned long map_bits = sizeof(buf->buffer) / SCSI_LOG_BUFSIZE;
+-	unsigned long idx = 0;
+-
+-	preempt_disable();
+-	buf = this_cpu_ptr(&scsi_format_log);
+-	idx = find_first_zero_bit(&buf->map, map_bits);
+-	if (likely(idx < map_bits)) {
+-		while (test_and_set_bit(idx, &buf->map)) {
+-			idx = find_next_zero_bit(&buf->map, map_bits, idx);
+-			if (idx >= map_bits)
+-				break;
 -		}
--		spin_unlock_irqrestore(fence->lock, flags);
-+		list_del(&pt->link);
-+		rb_erase(&pt->node, &parent->pt_tree);
- 	}
-+	spin_unlock_irqrestore(fence->lock, flags);
+-	}
+-	if (WARN_ON(idx >= map_bits)) {
+-		preempt_enable();
+-		return NULL;
+-	}
+-	*len = SCSI_LOG_BUFSIZE;
+-	return buf->buffer + idx * SCSI_LOG_BUFSIZE;
++	*len = 128;
++	return kmalloc(*len, GFP_ATOMIC);
+ }
  
- 	sync_timeline_put(parent);
- 	dma_fence_free(fence);
-@@ -275,7 +272,8 @@ static struct sync_pt *sync_pt_create(struct sync_timeline *obj,
- 				p = &parent->rb_left;
- 			} else {
- 				if (dma_fence_get_rcu(&other->base)) {
--					dma_fence_put(&pt->base);
-+					sync_timeline_put(obj);
-+					kfree(pt);
- 					pt = other;
- 					goto unlock;
- 				}
+ static void scsi_log_release_buffer(char *bufptr)
+ {
+-	struct scsi_log_buf *buf;
+-	unsigned long idx;
+-	int ret;
+-
+-	buf = this_cpu_ptr(&scsi_format_log);
+-	if (bufptr >= buf->buffer &&
+-	    bufptr < buf->buffer + SCSI_LOG_SPOOLSIZE) {
+-		idx = (bufptr - buf->buffer) / SCSI_LOG_BUFSIZE;
+-		ret = test_and_clear_bit(idx, &buf->map);
+-		WARN_ON(!ret);
+-	}
+-	preempt_enable();
++	kfree(bufptr);
+ }
+ 
+ static inline const char *scmd_name(const struct scsi_cmnd *scmd)
+diff --git a/include/scsi/scsi_dbg.h b/include/scsi/scsi_dbg.h
+index 56710e03101c6..1fcf14aee28a8 100644
+--- a/include/scsi/scsi_dbg.h
++++ b/include/scsi/scsi_dbg.h
+@@ -5,8 +5,6 @@ struct scsi_cmnd;
+ struct scsi_device;
+ struct scsi_sense_hdr;
+ 
+-#define SCSI_LOG_BUFSIZE 128
+-
+ extern void scsi_print_command(struct scsi_cmnd *);
+ extern size_t __scsi_format_command(char *, size_t,
+ 				   const unsigned char *, size_t);
 -- 
 2.20.1
 
