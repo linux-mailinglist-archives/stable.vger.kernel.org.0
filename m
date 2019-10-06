@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B28E3CD856
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7E7CD86E
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbfJFRZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
+        id S1727774AbfJFSD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:03:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727170AbfJFRZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:25:36 -0400
+        id S1727185AbfJFRY0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:24:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24DBC2080F;
-        Sun,  6 Oct 2019 17:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93B5120867;
+        Sun,  6 Oct 2019 17:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382735;
-        bh=LJFHYulFXPRz00hr0S/1MEy5i14KMx4YvcI4Bj48vZ4=;
+        s=default; t=1570382665;
+        bh=Uf2nDEV49yw4oowqLvdm31CnXpqTZwShAEMgAjBAvm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcV/rcE+Bq1ZAjD7PTsvSdqpELcW/9hKW5RfXHfBxn4TFY4JEyhM6TiRU4YgzM3bM
-         Sbu7kDwwxt/uFgvEzOC8ksQ+HN+g1DcOm1aXEXGVBCjYng0Ko0tKQVE3UJWqwnGYL8
-         Drzi68EL76doK6vBs5jxZ6gBPniVVIlK6+vDBGj0=
+        b=Qoc0Kxx1t+i2kcLL0luzSm3hrv1Yce18HhVTNCsEbEM1R9+xI2ph8LdA/bIjQf5p+
+         nFPumzGsbH67wDU8b4PxrIT1fF1zlMDEJilj4Qvdb9Fa00hwayZC24VxTfOQpe68JD
+         RdwAwdBeSvZIUDGZObrCbWMu8AlNlEsEnEAAYN4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hexin <hexin15@baidu.com>,
-        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/68] vfio_pci: Restore original state on release
+Subject: [PATCH 4.9 09/47] powerpc/futex: Fix warning: oldval may be used uninitialized in this function
 Date:   Sun,  6 Oct 2019 19:20:56 +0200
-Message-Id: <20191006171117.598258667@linuxfoundation.org>
+Message-Id: <20191006172017.379309036@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hexin <hexin.op@gmail.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
+[ Upstream commit 38a0d0cdb46d3f91534e5b9839ec2d67be14c59d ]
 
-vfio_pci_enable() saves the device's initial configuration information
-with the intent that it is restored in vfio_pci_disable().  However,
-the commit referenced in Fixes: below replaced the call to
-__pci_reset_function_locked(), which is not wrapped in a state save
-and restore, with pci_try_reset_function(), which overwrites the
-restored device state with the current state before applying it to the
-device.  Reinstate use of __pci_reset_function_locked() to return to
-the desired behavior.
+We see warnings such as:
+  kernel/futex.c: In function 'do_futex':
+  kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
+     return oldval == cmparg;
+                   ^
+  kernel/futex.c:1651:6: note: 'oldval' was declared here
+    int oldval, ret;
+        ^
 
-Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
-Signed-off-by: hexin <hexin15@baidu.com>
-Signed-off-by: Liu Qi <liuqi16@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+This is because arch_futex_atomic_op_inuser() only sets *oval if ret
+is 0 and GCC doesn't see that it will only use it when ret is 0.
+
+Anyway, the non-zero ret path is an error path that won't suffer from
+setting *oval, and as *oval is a local var in futex_atomic_op_inuser()
+it will have no impact.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+[mpe: reword change log slightly]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/86b72f0c134367b214910b27b9a6dd3321af93bb.1565774657.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/powerpc/include/asm/futex.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 6f5cc67e343e7..15b1cd4ef5a77 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -363,11 +363,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
+diff --git a/arch/powerpc/include/asm/futex.h b/arch/powerpc/include/asm/futex.h
+index f4c7467f74655..b73ab8a7ebc3f 100644
+--- a/arch/powerpc/include/asm/futex.h
++++ b/arch/powerpc/include/asm/futex.h
+@@ -60,8 +60,7 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
  
- 	/*
--	 * Try to reset the device.  The success of this is dependent on
--	 * being able to lock the device, which is not always possible.
-+	 * Try to get the locks ourselves to prevent a deadlock. The
-+	 * success of this is dependent on being able to lock the device,
-+	 * which is not always possible.
-+	 * We can not use the "try" reset interface here, which will
-+	 * overwrite the previously restored configuration information.
- 	 */
--	if (vdev->reset_works && !pci_try_reset_function(pdev))
--		vdev->needs_reset = false;
-+	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
-+		if (device_trylock(&pdev->dev)) {
-+			if (!__pci_reset_function_locked(pdev))
-+				vdev->needs_reset = false;
-+			device_unlock(&pdev->dev);
-+		}
-+		pci_cfg_access_unlock(pdev);
-+	}
+ 	pagefault_enable();
  
- 	pci_restore_state(pdev);
- out:
+-	if (!ret)
+-		*oval = oldval;
++	*oval = oldval;
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
