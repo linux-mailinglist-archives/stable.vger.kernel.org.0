@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78391CD7D4
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C255FCD78F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727789AbfJFRf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:35:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
+        id S1729454AbfJFRbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:31:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbfJFRfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:35:25 -0400
+        id S1729449AbfJFRbf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:31:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E6D320700;
-        Sun,  6 Oct 2019 17:35:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 547CB217D6;
+        Sun,  6 Oct 2019 17:31:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383324;
-        bh=C/gvul4pQ/MCqY9bjfcyrpOzvUH27jWmlmQUkP3PWqs=;
+        s=default; t=1570383094;
+        bh=on4MoXKLcBAAwcvGInINaSXEOabjhNW79FFPggjuvbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIyiXN1jAGKB7CLLGu0muG+VxM62qg5cJnRj1QcgPzfRNcfr6s0MapZipx2C3Sxsw
-         ZMowwsr7ktwf3PoRBVAP6KYookLa8wqWzhhvHWhgchFx908G/D0km0e83c9wnVaNji
-         Dcsu0UESaBOaLcnxlEfD42sS739hoIHCCUF5CCtU=
+        b=FvPBAyfLNUHa6+o8F/xHEHo/hkuigcvHt9Dm6P0IDwyk97YfrvnFwGoNHoR0cvdUS
+         uzpEXaMqMKJnDMUAUca2XUrEbBJKyrrCD5NZKfPj0MVtPDQUKzA30BufHKp15Waf5j
+         kICr735dlnyjzQ5v65tiItJcgsogGMwPHgBtEJDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, hexin <hexin15@baidu.com>,
-        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 062/137] vfio_pci: Restore original state on release
-Date:   Sun,  6 Oct 2019 19:20:46 +0200
-Message-Id: <20191006171213.689825178@linuxfoundation.org>
+Subject: [PATCH 4.19 041/106] clk: at91: select parent if main oscillator or bypass is enabled
+Date:   Sun,  6 Oct 2019 19:20:47 +0200
+Message-Id: <20191006171142.106751842@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +47,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hexin <hexin.op@gmail.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
+[ Upstream commit 69a6bcde7fd3fe6f3268ce26f31d9d9378384c98 ]
 
-vfio_pci_enable() saves the device's initial configuration information
-with the intent that it is restored in vfio_pci_disable().  However,
-the commit referenced in Fixes: below replaced the call to
-__pci_reset_function_locked(), which is not wrapped in a state save
-and restore, with pci_try_reset_function(), which overwrites the
-restored device state with the current state before applying it to the
-device.  Reinstate use of __pci_reset_function_locked() to return to
-the desired behavior.
+Selecting the right parent for the main clock is done using only
+main oscillator enabled bit.
+In case we have this oscillator bypassed by an external signal (no driving
+on the XOUT line), we still use external clock, but with BYPASS bit set.
+So, in this case we must select the same parent as before.
+Create a macro that will select the right parent considering both bits from
+the MOR register.
+Use this macro when looking for the right parent.
 
-Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
-Signed-off-by: hexin <hexin15@baidu.com>
-Signed-off-by: Liu Qi <liuqi16@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Link: https://lkml.kernel.org/r/1568042692-11784-2-git-send-email-eugen.hristev@microchip.com
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/clk/at91/clk-main.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 703948c9fbe10..02206162eaa9e 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -438,11 +438,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
+diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
+index c813c27f2e58c..2f97a843d6d6b 100644
+--- a/drivers/clk/at91/clk-main.c
++++ b/drivers/clk/at91/clk-main.c
+@@ -27,6 +27,10 @@
  
- 	/*
--	 * Try to reset the device.  The success of this is dependent on
--	 * being able to lock the device, which is not always possible.
-+	 * Try to get the locks ourselves to prevent a deadlock. The
-+	 * success of this is dependent on being able to lock the device,
-+	 * which is not always possible.
-+	 * We can not use the "try" reset interface here, which will
-+	 * overwrite the previously restored configuration information.
- 	 */
--	if (vdev->reset_works && !pci_try_reset_function(pdev))
--		vdev->needs_reset = false;
-+	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
-+		if (device_trylock(&pdev->dev)) {
-+			if (!__pci_reset_function_locked(pdev))
-+				vdev->needs_reset = false;
-+			device_unlock(&pdev->dev);
-+		}
-+		pci_cfg_access_unlock(pdev);
-+	}
+ #define MOR_KEY_MASK		(0xff << 16)
  
- 	pci_restore_state(pdev);
- out:
++#define clk_main_parent_select(s)	(((s) & \
++					(AT91_PMC_MOSCEN | \
++					AT91_PMC_OSCBYPASS)) ? 1 : 0)
++
+ struct clk_main_osc {
+ 	struct clk_hw hw;
+ 	struct regmap *regmap;
+@@ -119,7 +123,7 @@ static int clk_main_osc_is_prepared(struct clk_hw *hw)
+ 
+ 	regmap_read(regmap, AT91_PMC_SR, &status);
+ 
+-	return (status & AT91_PMC_MOSCS) && (tmp & AT91_PMC_MOSCEN);
++	return (status & AT91_PMC_MOSCS) && clk_main_parent_select(tmp);
+ }
+ 
+ static const struct clk_ops main_osc_ops = {
+@@ -530,7 +534,7 @@ static u8 clk_sam9x5_main_get_parent(struct clk_hw *hw)
+ 
+ 	regmap_read(clkmain->regmap, AT91_CKGR_MOR, &status);
+ 
+-	return status & AT91_PMC_MOSCEN ? 1 : 0;
++	return clk_main_parent_select(status);
+ }
+ 
+ static const struct clk_ops sam9x5_main_ops = {
+@@ -572,7 +576,7 @@ at91_clk_register_sam9x5_main(struct regmap *regmap,
+ 	clkmain->hw.init = &init;
+ 	clkmain->regmap = regmap;
+ 	regmap_read(clkmain->regmap, AT91_CKGR_MOR, &status);
+-	clkmain->parent = status & AT91_PMC_MOSCEN ? 1 : 0;
++	clkmain->parent = clk_main_parent_select(status);
+ 
+ 	hw = &clkmain->hw;
+ 	ret = clk_hw_register(NULL, &clkmain->hw);
 -- 
 2.20.1
 
