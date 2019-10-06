@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C38FDCD492
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:27:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C79CD4A4
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbfJFR1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52500 "EHLO mail.kernel.org"
+        id S1728597AbfJFR1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:27:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727505AbfJFR1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:10 -0400
+        id S1728590AbfJFR1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:27:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56C222077B;
-        Sun,  6 Oct 2019 17:27:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AC282087E;
+        Sun,  6 Oct 2019 17:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382829;
-        bh=rqIDfpoejZDcFJ9Lx/ILUg+s18yzaiLxAcuONLtaes8=;
+        s=default; t=1570382870;
+        bh=52ktN7g6S6O2/YgpXaOMp2KB0QwgIBBBwkG1RoYasK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ETczuUAT9DaaecaOtI9S7vGXmRs5MKlgQcqsDgKlpiU1HJHr0j3FmES7WxE6Wwr9V
-         d2lBQnHaMNClscaa0x/SRKkALxFJOr05MX1b7C7vmgwwNzdTxyRZSQYCPG23zkBvTW
-         UrFZFXhHiYSae5wZGMZ6q6SJBYEj9wtK7xDWsfLI=
+        b=HM6xhKkKi0VtuzOz6CT94gQBjGaqZ0FWzA7C5hdkGFVv/6kqi92RrzT66M3V52lq4
+         yPMo+ayfup/HX8eGXOh4CRWb+zIV8XmEJByhPJKboz/dIb/83tLwuGcwLFDHFNRH21
+         6ZhBScnAHlj6oDl5JGjx7gTt6RSB4dbVpfKbdhxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>, kernel@pengutronix.de,
-        linux-imx@nxp.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/68] PCI: imx6: Propagate errors for optional regulators
-Date:   Sun,  6 Oct 2019 19:21:14 +0200
-Message-Id: <20191006171126.248622294@linuxfoundation.org>
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 40/68] security: smack: Fix possible null-pointer dereferences in smack_socket_sock_rcv_skb()
+Date:   Sun,  6 Oct 2019 19:21:16 +0200
+Message-Id: <20191006171127.021772421@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
 References: <20191006171108.150129403@linuxfoundation.org>
@@ -50,52 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 2170a09fb4b0f66e06e5bcdcbc98c9ccbf353650 ]
+[ Upstream commit 3f4287e7d98a2954f20bf96c567fdffcd2b63eb9 ]
 
-regulator_get_optional() can fail for a number of reasons besides probe
-deferral. It can for example return -ENOMEM if it runs out of memory as
-it tries to allocate data structures. Propagating only -EPROBE_DEFER is
-problematic because it results in these legitimately fatal errors being
-treated as "regulator not specified in DT".
+In smack_socket_sock_rcv_skb(), there is an if statement
+on line 3920 to check whether skb is NULL:
+    if (skb && skb->secmark != 0)
 
-What we really want is to ignore the optional regulators only if they
-have not been specified in DT. regulator_get_optional() returns -ENODEV
-in this case, so that's the special case that we need to handle. So we
-propagate all errors, except -ENODEV, so that real failures will still
-cause the driver to fail probe.
+This check indicates skb can be NULL in some cases.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Cc: Richard Zhu <hongxing.zhu@nxp.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: kernel@pengutronix.de
-Cc: linux-imx@nxp.com
+But on lines 3931 and 3932, skb is used:
+    ad.a.u.net->netif = skb->skb_iif;
+    ipv6_skb_to_auditdata(skb, &ad.a, NULL);
+
+Thus, possible null-pointer dereferences may occur when skb is NULL.
+
+To fix these possible bugs, an if statement is added to check skb.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/dwc/pci-imx6.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/smack/smack_lsm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pci/dwc/pci-imx6.c b/drivers/pci/dwc/pci-imx6.c
-index 1f1069b70e45a..5509b6e2de94b 100644
---- a/drivers/pci/dwc/pci-imx6.c
-+++ b/drivers/pci/dwc/pci-imx6.c
-@@ -827,8 +827,8 @@ static int imx6_pcie_probe(struct platform_device *pdev)
- 
- 	imx6_pcie->vpcie = devm_regulator_get_optional(&pdev->dev, "vpcie");
- 	if (IS_ERR(imx6_pcie->vpcie)) {
--		if (PTR_ERR(imx6_pcie->vpcie) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(imx6_pcie->vpcie) != -ENODEV)
-+			return PTR_ERR(imx6_pcie->vpcie);
- 		imx6_pcie->vpcie = NULL;
- 	}
- 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 0d5ce7190b17e..09119c43525ed 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4031,6 +4031,8 @@ access_check:
+ 			skp = smack_ipv6host_label(&sadd);
+ 		if (skp == NULL)
+ 			skp = smack_net_ambient;
++		if (skb == NULL)
++			break;
+ #ifdef CONFIG_AUDIT
+ 		smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
+ 		ad.a.u.net->family = family;
 -- 
 2.20.1
 
