@@ -2,99 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39084CD9A1
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 01:28:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBF8CD9A9
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 01:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbfJFX2H convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 6 Oct 2019 19:28:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56760 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726150AbfJFX2H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 19:28:07 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EE02D3082E10
-        for <stable@vger.kernel.org>; Sun,  6 Oct 2019 23:28:06 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E65EE600C8
-        for <stable@vger.kernel.org>; Sun,  6 Oct 2019 23:28:06 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id D6F204E589;
-        Sun,  6 Oct 2019 23:28:06 +0000 (UTC)
-Date:   Sun, 6 Oct 2019 19:28:06 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Jeff Bastian <jbastian@redhat.com>,
-        Memory Management <mm-qe@redhat.com>
-Message-ID: <1178463299.3785809.1570404486626.JavaMail.zimbra@redhat.com>
-In-Reply-To: <cki.F7D7AF8291.B2RERZ8XG4@redhat.com>
-References: <cki.F7D7AF8291.B2RERZ8XG4@redhat.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_ke?=
- =?utf-8?Q?rnel_5.3.4-ed56826.cki_(stable)?=
+        id S1726227AbfJFXiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 19:38:09 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:52397 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726167AbfJFXiJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Oct 2019 19:38:09 -0400
+Received: by mail-wm1-f67.google.com with SMTP id r19so10635885wmh.2
+        for <stable@vger.kernel.org>; Sun, 06 Oct 2019 16:38:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2AVVZuP6kRpkgBFdGu0/PBs/Zxs8/JTnpS/uTskY5hQ=;
+        b=y698TBInYTFE/R40gSscvTxJJK0eRli/A6PDZ4EAVtidYLzwtM1KXLtWpGdwvvvAwG
+         rUR7E59KIY4V83CnXsLl/aWJElm1UurSbhuPDLSnVV0egqEKwI14WOtyg2yCm3UIGlqU
+         9K6EcCOn3RTz5vjPVDodxBIIdGkZlTqo7mhn9eiM/6gRsd/XZ1tzTDEBFakGpmSJhN3L
+         Q8WoOtJp2EuAM1PzrU7s7TmFZw9XK8NcHpw1EyAYQYfnGUmSd4KFIqmgudSPzO0UqIHu
+         siH5q64Yh/kEvbCmYGDDh1f3rHBhpXHdPvwHy92MbZOI/3yvilZZt5kW6H5A6KECJrRe
+         jZkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2AVVZuP6kRpkgBFdGu0/PBs/Zxs8/JTnpS/uTskY5hQ=;
+        b=uaqcRy674a53wQ+qNoWMDgSGNd1C43C/uKxmcJ8oeJnmsaDxlbixssJ/u1XkLVu6QU
+         96AA7HhCiHcFqzOX/DU+RYgsN1QsgrmcCPxa7sAz3hUgYDZtKy2006M/Qd7XZMGCjqy+
+         pG0uf/OU9PpwqBT9cI6nWLTSC0rB+MssSItTkIj+To6jHiUh3+h7jOxRuhEjm5OjYFBG
+         RlCiraEWJTzl2NdYxBMkjTt9k6vN9ifCdK+4CDpEogg8pamS6C0UDaPk2HWkqv55KaXm
+         Xl+PIJPsa+WF0nR+SWYLb0uL+hx2UrxBjEggWYCjRGuhMzFGRxA37rSEwFsu1kAVjsbZ
+         Rxog==
+X-Gm-Message-State: APjAAAV5GgL/QJtJfntq8CoZG1Fgyw4C83REBZQbLX6jAdSueNIEjVIf
+        3uP57LC4PRgANYoFahCF7CJn4sV5M0I=
+X-Google-Smtp-Source: APXvYqxh9KoqGeuyuPo7oFGXRx1m2bNcrmQhi4uF+OEDoYx7qsO+Z8WHcFjqI9ZPy0ZoMOJ27Fi2qw==
+X-Received: by 2002:a7b:c84f:: with SMTP id c15mr18986552wml.52.1570405087063;
+        Sun, 06 Oct 2019 16:38:07 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id m7sm10361259wrv.40.2019.10.06.16.38.06
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 06 Oct 2019 16:38:06 -0700 (PDT)
+Message-ID: <5d9a7ade.1c69fb81.5aa5b.d5a3@mx.google.com>
+Date:   Sun, 06 Oct 2019 16:38:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Originating-IP: [10.40.204.34, 10.4.195.5]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.3.4-ed56826.cki (stable)
-Thread-Index: DlwPCTbwxy74h88HTw4iNKpZaNTFKg==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Sun, 06 Oct 2019 23:28:06 +0000 (UTC)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.2.19-138-gc7a8121be8ef
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.2.y
+Subject: stable-rc/linux-5.2.y boot: 62 boots: 0 failed,
+ 61 passed with 1 untried/unknown (v5.2.19-138-gc7a8121be8ef)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.2.y boot: 62 boots: 0 failed, 61 passed with 1 untried/un=
+known (v5.2.19-138-gc7a8121be8ef)
 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.2.y/kernel/v5.2.19-138-gc7a8121be8ef/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.2.y=
+/kernel/v5.2.19-138-gc7a8121be8ef/
 
------ Original Message -----
-> Hardware testing
-> ----------------
-> We booted each kernel and ran the following tests:
-> 
->   aarch64:
->       Host 1:
->          ✅ Boot test
->          ✅ xfstests: ext4
->          ✅ xfstests: xfs
->          ✅ selinux-policy: serge-testsuite
->          ✅ lvm thinp sanity
->          ✅ storage: software RAID testing
->          🚧 ✅ Storage blktests
-> 
->       Host 2:
-> 
->          ⚡ Internal infrastructure issues prevented one or more tests (marked
->          with ⚡⚡⚡) from running on this architecture.
->          This is not the fault of the kernel that was tested.
-> 
->          ✅ Boot test
->          ✅ Podman system integration test (as root)
->          ✅ Podman system integration test (as user)
->          ✅ Loopdev Sanity
->          ✅ jvm test suite
->          ✅ Memory function: memfd_create
->          ✅ AMTU (Abstract Machine Test Utility)
->          ✅ Ethernet drivers sanity
->          ✅ Networking socket: fuzz
->          ✅ Networking sctp-auth: sockopts test
->          ✅ Networking: igmp conformance test
->          ✅ Networking TCP: keepalive test
->          ✅ Networking UDP: socket
->          ✅ Networking tunnel: gre basic
->          ✅ Networking tunnel: vxlan basic
->          ✅ audit: audit testsuite test
->          ✅ httpd: mod_ssl smoke sanity
->          ✅ iotop: sanity
->          ✅ tuned: tune-processes-through-perf
->          ✅ Usex - version 1.9-29
->          ✅ storage: SCSI VPD
->          🚧 ⚡⚡⚡ LTP lite
+Tree: stable-rc
+Branch: linux-5.2.y
+Git Describe: v5.2.19-138-gc7a8121be8ef
+Git Commit: c7a8121be8ef67066e07c79b2204dea12511b17b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 43 unique boards, 16 SoC families, 12 builds out of 209
 
-read_all_sys is triggering hard lockups on specific arm64 while reading /sys.
-LTP doesn't hit it 100%, but a plain "cat" or "hexdump" works reliable for me.
+Boot Regressions Detected:
 
-Doesn't seem to be recent, Fedora's 5.0.9-301.fc30.aarch64 hanged too on same file.
-I sent a description to arm list:
-  https://lore.kernel.org/linux-arm-kernel/1507592549.3785589.1570404050459.JavaMail.zimbra@redhat.com/
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s805x-p241:
+              lab-baylibre: new failure (last pass: v5.2.19-133-ga4c5f9f597=
+86)
+
+---
+For more info write to <info@kernelci.org>
