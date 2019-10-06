@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED414CD428
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E30CD433
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbfJFRXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47670 "EHLO mail.kernel.org"
+        id S1727231AbfJFRXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727152AbfJFRXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:16 -0400
+        id S1727602AbfJFRX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A8120862;
-        Sun,  6 Oct 2019 17:23:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C2F82077B;
+        Sun,  6 Oct 2019 17:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382595;
-        bh=on4MoXKLcBAAwcvGInINaSXEOabjhNW79FFPggjuvbA=;
+        s=default; t=1570382608;
+        bh=FQnyGHniUWZ8WUPvO966/aKiYAgXuWbjg5v6j5e9C98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKT/k98jo8nqXDOxR8KxmF1UMMJhOFtTrpMQJ8XOT0nCltk9C1Vc+Otsya0DnIARA
-         UYRFuYTphPnc2vMlzJ4a+VOCREoIemE8/YQofEqkdQAv0/xokJErxjIaSHuL6XCdoW
-         DSZfEFgNE61Ndyvup5YTggGv6H0KPLryUTuDWidg=
+        b=dl5f/R2WcWKdIoBc/3VvGIDbbX4BN4o1ZqPEgriY1Wtl7tblTxwv5aCbJrYbKQP6i
+         SlAH0ZW68xiBfPT9DpA5l1wWbGfQTut/rkTg9z+cB4woFHUrUoBsrrzcO0W+zsvZKu
+         66ZR3yrn3hrZrTjM66jI0P7aCnEz23tPU/jg+p7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Nishka Dasgupta <nishkadg.linux@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/47] clk: at91: select parent if main oscillator or bypass is enabled
-Date:   Sun,  6 Oct 2019 19:21:04 +0200
-Message-Id: <20191006172017.794851460@linuxfoundation.org>
+Subject: [PATCH 4.9 21/47] PCI: tegra: Fix OF node reference leak
+Date:   Sun,  6 Oct 2019 19:21:08 +0200
+Message-Id: <20191006172018.007602590@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
 References: <20191006172016.873463083@linuxfoundation.org>
@@ -47,71 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Nishka Dasgupta <nishkadg.linux@gmail.com>
 
-[ Upstream commit 69a6bcde7fd3fe6f3268ce26f31d9d9378384c98 ]
+[ Upstream commit 9e38e690ace3e7a22a81fc02652fc101efb340cf ]
 
-Selecting the right parent for the main clock is done using only
-main oscillator enabled bit.
-In case we have this oscillator bypassed by an external signal (no driving
-on the XOUT line), we still use external clock, but with BYPASS bit set.
-So, in this case we must select the same parent as before.
-Create a macro that will select the right parent considering both bits from
-the MOR register.
-Use this macro when looking for the right parent.
+Each iteration of for_each_child_of_node() executes of_node_put() on the
+previous node, but in some return paths in the middle of the loop
+of_node_put() is missing thus causing a reference leak.
 
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Link: https://lkml.kernel.org/r/1568042692-11784-2-git-send-email-eugen.hristev@microchip.com
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Hence stash these mid-loop return values in a variable 'err' and add a
+new label err_node_put which executes of_node_put() on the previous node
+and returns 'err' on failure.
+
+Change mid-loop return statements to point to jump to this label to
+fix the reference leak.
+
+Issue found with Coccinelle.
+
+Signed-off-by: Nishka Dasgupta <nishkadg.linux@gmail.com>
+[lorenzo.pieralisi@arm.com: rewrote commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pci/host/pci-tegra.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/at91/clk-main.c b/drivers/clk/at91/clk-main.c
-index c813c27f2e58c..2f97a843d6d6b 100644
---- a/drivers/clk/at91/clk-main.c
-+++ b/drivers/clk/at91/clk-main.c
-@@ -27,6 +27,10 @@
+diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+index 8dfccf7332411..8e101b19c4d6f 100644
+--- a/drivers/pci/host/pci-tegra.c
++++ b/drivers/pci/host/pci-tegra.c
+@@ -1898,14 +1898,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		err = of_pci_get_devfn(port);
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse address: %d\n", err);
+-			return err;
++			goto err_node_put;
+ 		}
  
- #define MOR_KEY_MASK		(0xff << 16)
+ 		index = PCI_SLOT(err);
  
-+#define clk_main_parent_select(s)	(((s) & \
-+					(AT91_PMC_MOSCEN | \
-+					AT91_PMC_OSCBYPASS)) ? 1 : 0)
+ 		if (index < 1 || index > soc->num_ports) {
+ 			dev_err(dev, "invalid port number: %d\n", index);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto err_node_put;
+ 		}
+ 
+ 		index--;
+@@ -1914,12 +1915,13 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse # of lanes: %d\n",
+ 				err);
+-			return err;
++			goto err_node_put;
+ 		}
+ 
+ 		if (value > 16) {
+ 			dev_err(dev, "invalid # of lanes: %u\n", value);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto err_node_put;
+ 		}
+ 
+ 		lanes |= value << (index << 3);
+@@ -1933,13 +1935,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		lane += value;
+ 
+ 		rp = devm_kzalloc(dev, sizeof(*rp), GFP_KERNEL);
+-		if (!rp)
+-			return -ENOMEM;
++		if (!rp) {
++			err = -ENOMEM;
++			goto err_node_put;
++		}
+ 
+ 		err = of_address_to_resource(port, 0, &rp->regs);
+ 		if (err < 0) {
+ 			dev_err(dev, "failed to parse address: %d\n", err);
+-			return err;
++			goto err_node_put;
+ 		}
+ 
+ 		INIT_LIST_HEAD(&rp->list);
+@@ -1966,6 +1970,10 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		return err;
+ 
+ 	return 0;
 +
- struct clk_main_osc {
- 	struct clk_hw hw;
- 	struct regmap *regmap;
-@@ -119,7 +123,7 @@ static int clk_main_osc_is_prepared(struct clk_hw *hw)
- 
- 	regmap_read(regmap, AT91_PMC_SR, &status);
- 
--	return (status & AT91_PMC_MOSCS) && (tmp & AT91_PMC_MOSCEN);
-+	return (status & AT91_PMC_MOSCS) && clk_main_parent_select(tmp);
++err_node_put:
++	of_node_put(port);
++	return err;
  }
  
- static const struct clk_ops main_osc_ops = {
-@@ -530,7 +534,7 @@ static u8 clk_sam9x5_main_get_parent(struct clk_hw *hw)
- 
- 	regmap_read(clkmain->regmap, AT91_CKGR_MOR, &status);
- 
--	return status & AT91_PMC_MOSCEN ? 1 : 0;
-+	return clk_main_parent_select(status);
- }
- 
- static const struct clk_ops sam9x5_main_ops = {
-@@ -572,7 +576,7 @@ at91_clk_register_sam9x5_main(struct regmap *regmap,
- 	clkmain->hw.init = &init;
- 	clkmain->regmap = regmap;
- 	regmap_read(clkmain->regmap, AT91_CKGR_MOR, &status);
--	clkmain->parent = status & AT91_PMC_MOSCEN ? 1 : 0;
-+	clkmain->parent = clk_main_parent_select(status);
- 
- 	hw = &clkmain->hw;
- 	ret = clk_hw_register(NULL, &clkmain->hw);
+ /*
 -- 
 2.20.1
 
