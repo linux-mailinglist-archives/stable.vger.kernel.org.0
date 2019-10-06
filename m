@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA02CD690
+	by mail.lfdr.de (Postfix) with ESMTP id A3AEDCD691
 	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730311AbfJFRmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S1730910AbfJFRmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730882AbfJFRmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:42:00 -0400
+        id S1730902AbfJFRmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:42:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07FFC20700;
-        Sun,  6 Oct 2019 17:41:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B81482080F;
+        Sun,  6 Oct 2019 17:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383719;
-        bh=oZ/CdR4pk54TSdx6nW2duEampafCF/90uNe4q3GZa9I=;
+        s=default; t=1570383722;
+        bh=OykuoBvG7eWAabm6JjGpW/J91pGbkUxRh6yTEZjST08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4cVwoFEe7dqN2L4qq1ne4ePPgRb99YYoW0xOOg/MIbu8ltHB/GYfdyGnbkMPQ9F7
-         IY5ikJY8thQ+ZqsoYigAL7zPnADtMYUZHkdVDQhN9kyvI/6D44OpUaxyHgLhVvlsox
-         Mujk4oyX9jXKI8r1072LRHUreW5xaJOUYlVZNJ1k=
+        b=D29NobGm5re8ei1L7ORz2E9fyMRHiKCOyeEvPk7tNYgNowDiXXAr5cgbiwKIzYrVr
+         +wylP/ZB7eftBKVFHE4A8YrFEaxZxvmHzb4Wi8RFlREPpoMzxWTo5XZ3H/PQxD5k88
+         QUr057NRhd/D1Lmv60OjQamMDwhquR3TtjfS3a1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 069/166] ARM: dts: dir685: Drop spi-cpol from the display
-Date:   Sun,  6 Oct 2019 19:20:35 +0200
-Message-Id: <20191006171219.185398266@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 070/166] arm64: fix unreachable code issue with cmpxchg
+Date:   Sun,  6 Oct 2019 19:20:36 +0200
+Message-Id: <20191006171219.278323490@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -44,47 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 2a7326caab479ca257c4b9bd67db42d1d49079bf ]
+[ Upstream commit 920fdab7b3ce98c14c840261e364f490f3679a62 ]
 
-The D-Link DIR-685 had its clock polarity set as active
-low using the special SPI "spi-cpol" property.
+On arm64 build with clang, sometimes the __cmpxchg_mb is not inlined
+when CONFIG_OPTIMIZE_INLINING is set.
+Clang then fails a compile-time assertion, because it cannot tell at
+compile time what the size of the argument is:
 
-This is not correct: the datasheet clearly states:
-"Fix SCL to GND level when not in use" which is
-indicative that this line is active high.
+mm/memcontrol.o: In function `__cmpxchg_mb':
+memcontrol.c:(.text+0x1a4c): undefined reference to `__compiletime_assert_175'
+memcontrol.c:(.text+0x1a4c): relocation truncated to fit: R_AARCH64_CALL26 against undefined symbol `__compiletime_assert_175'
 
-After a recent fix making the GPIO-based SPI driver
-force the clock line de-asserted at the beginning of
-each SPI transaction this reared its ugly head: now
-de-asserted was taken to mean the line should be
-driven high, but it should be driven low.
+Mark all of the cmpxchg() style functions as __always_inline to
+ensure that the compiler can see the result.
 
-Fix this up in the DTS file and the display works again.
-
-Link: https://lore.kernel.org/r/20190915135444.11066-1-linus.walleij@linaro.org
-Cc: Mark Brown <broonie@kernel.org>
-Fixes: 2922d1cc1696 ("spi: gpio: Add SPI_MASTER_GPIO_SS flag")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/648
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Tested-by: Andrew Murray <andrew.murray@arm.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/gemini-dlink-dir-685.dts | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/include/asm/cmpxchg.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/gemini-dlink-dir-685.dts b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-index bfaa2de63a100..e2030ba16512f 100644
---- a/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-+++ b/arch/arm/boot/dts/gemini-dlink-dir-685.dts
-@@ -72,7 +72,6 @@
- 			reg = <0>;
- 			/* 50 ns min period = 20 MHz */
- 			spi-max-frequency = <20000000>;
--			spi-cpol; /* Clock active low */
- 			vcc-supply = <&vdisp>;
- 			iovcc-supply = <&vdisp>;
- 			vci-supply = <&vdisp>;
+diff --git a/arch/arm64/include/asm/cmpxchg.h b/arch/arm64/include/asm/cmpxchg.h
+index 7a299a20f6dcc..7a8b8bc69e8d1 100644
+--- a/arch/arm64/include/asm/cmpxchg.h
++++ b/arch/arm64/include/asm/cmpxchg.h
+@@ -63,7 +63,7 @@ __XCHG_CASE( ,  ,  mb_, 64, dmb ish, nop,  , a, l, "memory")
+ #undef __XCHG_CASE
+ 
+ #define __XCHG_GEN(sfx)							\
+-static inline unsigned long __xchg##sfx(unsigned long x,		\
++static __always_inline  unsigned long __xchg##sfx(unsigned long x,	\
+ 					volatile void *ptr,		\
+ 					int size)			\
+ {									\
+@@ -105,7 +105,7 @@ __XCHG_GEN(_mb)
+ #define arch_xchg(...)		__xchg_wrapper( _mb, __VA_ARGS__)
+ 
+ #define __CMPXCHG_GEN(sfx)						\
+-static inline unsigned long __cmpxchg##sfx(volatile void *ptr,		\
++static __always_inline unsigned long __cmpxchg##sfx(volatile void *ptr,	\
+ 					   unsigned long old,		\
+ 					   unsigned long new,		\
+ 					   int size)			\
+@@ -212,7 +212,7 @@ __CMPWAIT_CASE( ,  , 64);
+ #undef __CMPWAIT_CASE
+ 
+ #define __CMPWAIT_GEN(sfx)						\
+-static inline void __cmpwait##sfx(volatile void *ptr,			\
++static __always_inline void __cmpwait##sfx(volatile void *ptr,		\
+ 				  unsigned long val,			\
+ 				  int size)				\
+ {									\
 -- 
 2.20.1
 
