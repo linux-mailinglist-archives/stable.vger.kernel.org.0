@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98DCACD754
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86494CD835
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728460AbfJFR1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
+        id S1727265AbfJFSBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:01:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728457AbfJFR1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:15 -0400
+        id S1727505AbfJFR1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:27:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB6652133F;
-        Sun,  6 Oct 2019 17:27:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC742077B;
+        Sun,  6 Oct 2019 17:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382835;
-        bh=6EJhm0EbcpkgQTDBb8j7GoPXvjaTxeRmKVXhZNeWiK4=;
+        s=default; t=1570382837;
+        bh=A5WALeZeWvec8xhZuwAQY2l0SGVZ/jHm8pZR/5Q0p8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twkRI07LswZSFO7F/1IyjBhP3HfnWlSmcotJ9qfHakHIhGkENulHV5w4H6i+0YG8M
-         pVEP/kHX+75vWq4a1YKoB7n2XhV7XedzHqFmESV+Mb+Yg4ooLGk5KB3fmnh4So7oDa
-         ePZdeclHMa62Cqpk3V/6JHMFJTJrqgDyCuc0k1tU=
+        b=QzFeWg0+t89NuRcmxyDvJN4ALn4Mkif/RCMVaEgU8ayiph5vJmHVhT83LcTE0valp
+         utRDlcw2vd0TC3AxDD4N1V15ivB6NolEpUCpGdjVoSPGIhBySZqUdlpMzUMNGTQmL2
+         xqU6GbighFTxrKvkA/X2jooRyJ12LumrrHb2OcfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reinhard Speyerer <rspmn@arcor.de>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 57/68] qmi_wwan: add support for Cinterion CLS8 devices
-Date:   Sun,  6 Oct 2019 19:21:33 +0200
-Message-Id: <20191006171134.358512447@linuxfoundation.org>
+Subject: [PATCH 4.14 58/68] sch_dsmark: fix potential NULL deref in dsmark_init()
+Date:   Sun,  6 Oct 2019 19:21:34 +0200
+Message-Id: <20191006171134.818232841@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
 References: <20191006171108.150129403@linuxfoundation.org>
@@ -44,56 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinhard Speyerer <rspmn@arcor.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit cf74ac6db25d4002089e85cc623ad149ecc25614 ]
+[ Upstream commit 474f0813a3002cb299bb73a5a93aa1f537a80ca8 ]
 
-Add support for Cinterion CLS8 devices.
-Use QMI_QUIRK_SET_DTR as required for Qualcomm MDM9x07 chipsets.
+Make sure TCA_DSMARK_INDICES was provided by the user.
 
-T:  Bus=01 Lev=03 Prnt=05 Port=01 Cnt=02 Dev#= 25 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00b0 Rev= 3.18
-S:  Manufacturer=GEMALTO
-S:  Product=USB Modem
-C:* #Ifs= 5 Cfg#= 1 Atr=80 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+syzbot reported :
 
-Signed-off-by: Reinhard Speyerer <rspmn@arcor.de>
-Acked-by: Bjørn Mork <bjorn@mork.no>
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8799 Comm: syz-executor235 Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:nla_get_u16 include/net/netlink.h:1501 [inline]
+RIP: 0010:dsmark_init net/sched/sch_dsmark.c:364 [inline]
+RIP: 0010:dsmark_init+0x193/0x640 net/sched/sch_dsmark.c:339
+Code: 85 db 58 0f 88 7d 03 00 00 e8 e9 1a ac fb 48 8b 9d 70 ff ff ff 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 04 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 ca
+RSP: 0018:ffff88809426f3b8 EFLAGS: 00010247
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff85c6eb09
+RDX: 0000000000000000 RSI: ffffffff85c6eb17 RDI: 0000000000000004
+RBP: ffff88809426f4b0 R08: ffff88808c4085c0 R09: ffffed1015d26159
+R10: ffffed1015d26158 R11: ffff8880ae930ac7 R12: ffff8880a7e96940
+R13: dffffc0000000000 R14: ffff88809426f8c0 R15: 0000000000000000
+FS:  0000000001292880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000080 CR3: 000000008ca1b000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ qdisc_create+0x4ee/0x1210 net/sched/sch_api.c:1237
+ tc_modify_qdisc+0x524/0x1c50 net/sched/sch_api.c:1653
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5223
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440369
+
+Fixes: 758cc43c6d73 ("[PKT_SCHED]: Fix dsmark to apply changes consistent")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_dsmark.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1275,6 +1275,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 4)},	/* Cinterion PHxx,PXxx (2 RmNet) */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0082, 5)},	/* Cinterion PHxx,PXxx (2 RmNet) */
- 	{QMI_FIXED_INTF(0x1e2d, 0x0083, 4)},	/* Cinterion PHxx,PXxx (1 RmNet + USB Audio)*/
-+	{QMI_QUIRK_SET_DTR(0x1e2d, 0x00b0, 4)},	/* Cinterion CLS8 */
- 	{QMI_FIXED_INTF(0x413c, 0x81a2, 8)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{QMI_FIXED_INTF(0x413c, 0x81a3, 8)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{QMI_FIXED_INTF(0x413c, 0x81a4, 8)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+--- a/net/sched/sch_dsmark.c
++++ b/net/sched/sch_dsmark.c
+@@ -353,6 +353,8 @@ static int dsmark_init(struct Qdisc *sch
+ 		goto errout;
+ 
+ 	err = -EINVAL;
++	if (!tb[TCA_DSMARK_INDICES])
++		goto errout;
+ 	indices = nla_get_u16(tb[TCA_DSMARK_INDICES]);
+ 
+ 	if (hweight32(indices) != 1)
 
 
