@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 562D2CD7AF
+	by mail.lfdr.de (Postfix) with ESMTP id C57D8CD7B0
 	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728519AbfJFRdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59702 "EHLO mail.kernel.org"
+        id S1727717AbfJFRdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728971AbfJFRdH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:33:07 -0400
+        id S1728971AbfJFRdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:33:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52BD92087E;
-        Sun,  6 Oct 2019 17:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05FF52087E;
+        Sun,  6 Oct 2019 17:33:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383186;
-        bh=1GXRpsymtWB9hZXLq9qatKt70j1f7y51F2Xh7rviJZE=;
+        s=default; t=1570383189;
+        bh=9+5/pSU1MkhE0geVkr6Lk8w7ROGXOoydMPFOb1UEw7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjIi25iM+b2eniJKdftrNlbdASiCZ+l6o6TzTMwbxvYmLW2CMZZ1LYTDu5ihmMkTP
-         zcoZ7RakRFj9MbWWkX9hfXsK2u2ittOhYJ1I9wJUPoY3t4QxU7PiOPBvpKdRzaG4HF
-         OFGjv8Nvd0xOqXEQV4PVeyspF04aVP+RuZzDzIOY=
+        b=d4KG70agHm9ofPdcLjDq+hz+Fc+Ok5lDIGQ7EtHuYVnvet9e0ZDBl9BoYmtdrDWpy
+         lsJjADxSSjQHDrKwmMTftkVJYqmYmD+xLcPJpRyb5vh4mlOLxbP4jnazo1Cu+EIVzp
+         EjFbWzwfNDT+ycC/CuIHeKufarhoeFLBkPgvrhEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 012/137] rxrpc: Fix rxrpc_recvmsg tracepoint
-Date:   Sun,  6 Oct 2019 19:19:56 +0200
-Message-Id: <20191006171210.521976424@linuxfoundation.org>
+Subject: [PATCH 5.2 013/137] sch_cbq: validate TCA_CBQ_WRROPT to avoid crash
+Date:   Sun,  6 Oct 2019 19:19:57 +0200
+Message-Id: <20191006171210.583738855@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -43,31 +44,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit db9b2e0af605e7c994784527abfd9276cabd718a ]
+[ Upstream commit e9789c7cc182484fc031fd88097eb14cb26c4596 ]
 
-Fix the rxrpc_recvmsg tracepoint to handle being called with a NULL call
-parameter.
+syzbot reported a crash in cbq_normalize_quanta() caused
+by an out of range cl->priority.
 
-Fixes: a25e21f0bcd2 ("rxrpc, afs: Use debug_ids rather than pointers in traces")
-Signed-off-by: David Howells <dhowells@redhat.com>
+iproute2 enforces this check, but malicious users do not.
+
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN PTI
+Modules linked in:
+CPU: 1 PID: 26447 Comm: syz-executor.1 Not tainted 5.3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:cbq_normalize_quanta.part.0+0x1fd/0x430 net/sched/sch_cbq.c:902
+RSP: 0018:ffff8801a5c333b0 EFLAGS: 00010206
+RAX: 0000000020000003 RBX: 00000000fffffff8 RCX: ffffc9000712f000
+RDX: 00000000000043bf RSI: ffffffff83be8962 RDI: 0000000100000018
+RBP: ffff8801a5c33420 R08: 000000000000003a R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 00000000000002ef
+R13: ffff88018da95188 R14: dffffc0000000000 R15: 0000000000000015
+FS:  00007f37d26b1700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000004c7cec CR3: 00000001bcd0a006 CR4: 00000000001626f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ [<ffffffff83be9d57>] cbq_normalize_quanta include/net/pkt_sched.h:27 [inline]
+ [<ffffffff83be9d57>] cbq_addprio net/sched/sch_cbq.c:1097 [inline]
+ [<ffffffff83be9d57>] cbq_set_wrr+0x2d7/0x450 net/sched/sch_cbq.c:1115
+ [<ffffffff83bee8a7>] cbq_change_class+0x987/0x225b net/sched/sch_cbq.c:1537
+ [<ffffffff83b96985>] tc_ctl_tclass+0x555/0xcd0 net/sched/sch_api.c:2329
+ [<ffffffff83a84655>] rtnetlink_rcv_msg+0x485/0xc10 net/core/rtnetlink.c:5248
+ [<ffffffff83cadf0a>] netlink_rcv_skb+0x17a/0x460 net/netlink/af_netlink.c:2510
+ [<ffffffff83a7db6d>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5266
+ [<ffffffff83cac2c6>] netlink_unicast_kernel net/netlink/af_netlink.c:1324 [inline]
+ [<ffffffff83cac2c6>] netlink_unicast+0x536/0x720 net/netlink/af_netlink.c:1350
+ [<ffffffff83cacd4a>] netlink_sendmsg+0x89a/0xd50 net/netlink/af_netlink.c:1939
+ [<ffffffff8399d46e>] sock_sendmsg_nosec net/socket.c:673 [inline]
+ [<ffffffff8399d46e>] sock_sendmsg+0x12e/0x170 net/socket.c:684
+ [<ffffffff8399f1fd>] ___sys_sendmsg+0x81d/0x960 net/socket.c:2359
+ [<ffffffff839a2d05>] __sys_sendmsg+0x105/0x1d0 net/socket.c:2397
+ [<ffffffff839a2df9>] SYSC_sendmsg net/socket.c:2406 [inline]
+ [<ffffffff839a2df9>] SyS_sendmsg+0x29/0x30 net/socket.c:2404
+ [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
+ [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/rxrpc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_cbq.c |   43 +++++++++++++++++++++++++++++--------------
+ 1 file changed, 29 insertions(+), 14 deletions(-)
 
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -1071,7 +1071,7 @@ TRACE_EVENT(rxrpc_recvmsg,
- 			     ),
+--- a/net/sched/sch_cbq.c
++++ b/net/sched/sch_cbq.c
+@@ -1127,6 +1127,33 @@ static const struct nla_policy cbq_polic
+ 	[TCA_CBQ_POLICE]	= { .len = sizeof(struct tc_cbq_police) },
+ };
  
- 	    TP_fast_assign(
--		    __entry->call = call->debug_id;
-+		    __entry->call = call ? call->debug_id : 0;
- 		    __entry->why = why;
- 		    __entry->seq = seq;
- 		    __entry->offset = offset;
++static int cbq_opt_parse(struct nlattr *tb[TCA_CBQ_MAX + 1],
++			 struct nlattr *opt,
++			 struct netlink_ext_ack *extack)
++{
++	int err;
++
++	if (!opt) {
++		NL_SET_ERR_MSG(extack, "CBQ options are required for this operation");
++		return -EINVAL;
++	}
++
++	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt,
++					  cbq_policy, extack);
++	if (err < 0)
++		return err;
++
++	if (tb[TCA_CBQ_WRROPT]) {
++		const struct tc_cbq_wrropt *wrr = nla_data(tb[TCA_CBQ_WRROPT]);
++
++		if (wrr->priority > TC_CBQ_MAXPRIO) {
++			NL_SET_ERR_MSG(extack, "priority is bigger than TC_CBQ_MAXPRIO");
++			err = -EINVAL;
++		}
++	}
++	return err;
++}
++
+ static int cbq_init(struct Qdisc *sch, struct nlattr *opt,
+ 		    struct netlink_ext_ack *extack)
+ {
+@@ -1139,13 +1166,7 @@ static int cbq_init(struct Qdisc *sch, s
+ 	hrtimer_init(&q->delay_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS_PINNED);
+ 	q->delay_timer.function = cbq_undelay;
+ 
+-	if (!opt) {
+-		NL_SET_ERR_MSG(extack, "CBQ options are required for this operation");
+-		return -EINVAL;
+-	}
+-
+-	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt, cbq_policy,
+-					  extack);
++	err = cbq_opt_parse(tb, opt, extack);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -1464,13 +1485,7 @@ cbq_change_class(struct Qdisc *sch, u32
+ 	struct cbq_class *parent;
+ 	struct qdisc_rate_table *rtab = NULL;
+ 
+-	if (!opt) {
+-		NL_SET_ERR_MSG(extack, "Mandatory qdisc options missing");
+-		return -EINVAL;
+-	}
+-
+-	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt, cbq_policy,
+-					  extack);
++	err = cbq_opt_parse(tb, opt, extack);
+ 	if (err < 0)
+ 		return err;
+ 
 
 
