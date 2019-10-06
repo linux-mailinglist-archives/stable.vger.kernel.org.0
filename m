@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABD52CD536
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D1CCCD4D2
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729831AbfJFRdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60500 "EHLO mail.kernel.org"
+        id S1728998AbfJFR3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:29:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726992AbfJFRdu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:33:50 -0400
+        id S1728193AbfJFR3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:29:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6744D2087E;
-        Sun,  6 Oct 2019 17:33:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E99792080F;
+        Sun,  6 Oct 2019 17:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383230;
-        bh=B//54cTN9ny2uyPRhgBIXUEIyTuOUXxy8EKcxT8jk1s=;
+        s=default; t=1570382970;
+        bh=PPtC1byf+ycl0gIBvOoGFB9Pn3P+DpibUDguInGQ/6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3E9uAJxFGSN5fIzDiuaS+Gw8TAU/Qc7GmSCe9r0Bgv+ic2NBWbGIU8JHJCPY7lXY
-         XcI0augCFLu/XDJedLm/ED/Z4PIq2CxUkEejYGaDOynOkByhZTPo7UxHhDLoTeuajD
-         pKGAN9K0NAZYl16X7M4Pk0hBzrM/SBzS54cfsBds=
+        b=AqFk6nnOw2nfqjSPWWY+sgd4HFpQgWEVtxbMX49NAK8Gj7HQ9ZWHiTcavuOy2Z4lO
+         /qblhaPWzPSvMmTsTyqNqCkVxRa/hnPnXVp+mMcWzBDOm0qdMk5O44PN7qT16EsMT1
+         cGquFOaBm+HDVO0+SDGZMVGEUXEqmT2lBCUWtQxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Tomi Valkeinen <tomi.valkeinen@ti.com>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Andrey Gusakov <andrey.gusakov@cogentembedded.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Cory Tusar <cory.tusar@zii.aero>,
-        Chris Healy <cphealy@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        dri-devel@lists.freedesktop.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 027/137] drm/bridge: tc358767: Increase AUX transfer length limit
+        stable@vger.kernel.org, Marko Kohtala <marko.kohtala@okoko.fi>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 005/106] video: ssd1307fb: Start page range at page_offset
 Date:   Sun,  6 Oct 2019 19:20:11 +0200
-Message-Id: <20191006171211.422546202@linuxfoundation.org>
+Message-Id: <20191006171127.025346157@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,50 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Marko Kohtala <marko.kohtala@okoko.fi>
 
-[ Upstream commit e0655feaec62d5139b6b13a7b1bbb1ab8f1c2d83 ]
+[ Upstream commit dd9782834dd9dde3624ff1acea8859f3d3e792d4 ]
 
-According to the datasheet tc358767 can transfer up to 16 bytes via
-its AUX channel, so the artificial limit of 8 appears to be too
-low. However only up to 15-bytes seem to be actually supported and
-trying to use 16-byte transfers results in transfers failing
-sporadically (with bogus status in case of I2C transfers), so limit it
-to 15.
+The page_offset was only applied to the end of the page range. This caused
+the display updates to cause a scrolling effect on the display because the
+amount of data written to the display did not match the range display
+expected.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Reviewed-by: Andrzej Hajda <a.hajda@samsung.com>
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: Andrey Gusakov <andrey.gusakov@cogentembedded.com>
-Cc: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Cory Tusar <cory.tusar@zii.aero>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190619052716.16831-9-andrew.smirnov@gmail.com
+Fixes: 301bc0675b67 ("video: ssd1307fb: Make use of horizontal addressing mode")
+Signed-off-by: Marko Kohtala <marko.kohtala@okoko.fi>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Michal Vokáč <michal.vokac@ysoft.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190618074111.9309-4-marko.kohtala@okoko.fi
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/tc358767.c | 2 +-
+ drivers/video/fbdev/ssd1307fb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/tc358767.c b/drivers/gpu/drm/bridge/tc358767.c
-index f59a51e19dab0..d515c7cebb9c4 100644
---- a/drivers/gpu/drm/bridge/tc358767.c
-+++ b/drivers/gpu/drm/bridge/tc358767.c
-@@ -293,7 +293,7 @@ static ssize_t tc_aux_transfer(struct drm_dp_aux *aux,
- 			       struct drm_dp_aux_msg *msg)
- {
- 	struct tc_data *tc = aux_to_tc(aux);
--	size_t size = min_t(size_t, 8, msg->size);
-+	size_t size = min_t(size_t, DP_AUX_MAX_PAYLOAD_BYTES - 1, msg->size);
- 	u8 request = msg->request & ~DP_AUX_I2C_MOT;
- 	u8 *buf = msg->buffer;
- 	u32 tmp = 0;
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index 6439231f2db22..da565f39c9b06 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -433,7 +433,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = ssd1307fb_write_cmd(par->client, 0x0);
++	ret = ssd1307fb_write_cmd(par->client, par->page_offset);
+ 	if (ret < 0)
+ 		return ret;
+ 
 -- 
 2.20.1
 
