@@ -2,39 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B84ECD57F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A10AFCD500
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbfJFRgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35760 "EHLO mail.kernel.org"
+        id S1728164AbfJFRbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:31:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbfJFRgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:54 -0400
+        id S1729395AbfJFRbT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:31:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 614B42080F;
-        Sun,  6 Oct 2019 17:36:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0DE8217D6;
+        Sun,  6 Oct 2019 17:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383413;
-        bh=DSnlGAxhxB7SSX6XqT2FqtNxf7JUGJ/CRstIzZireiI=;
+        s=default; t=1570383078;
+        bh=lDQ0vRak90qAKBGgcQOhzIF+hJtm9oHmlBRzBXpF70A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=StaAY6e86eJHWcdky0TgwRqwqeT5I1ZtyWNGcCsSi5WhLKoU2LStuiM4escgQxsZF
-         E+BvGxWJhzMwaUmqInBldB+ltAhVBl4jY2RLku84PaBZfWEsQX5q5iEuhcLb/pXsKf
-         0S+RoqfQuTv1SxVlVRMA04JPL+wZ8z4E+UAMPpfo=
+        b=lV8f1TN4k2H9itPQ78azVnEW9985qx4K6cCifXowQZn9AsjrOVUsdEJVkrt0LpGk9
+         2dcjZgIYcQqTYneCvaVcHMy0BWs7IQAkb1HRMnURJxw1s0C5WsuCjSlNZKmPBHHqn+
+         Axe5gDcMUbyNMz/FIOLB2UMSbSFd2SrrpGZnDf5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 096/137] HID: wacom: Fix several minor compiler warnings
-Date:   Sun,  6 Oct 2019 19:21:20 +0200
-Message-Id: <20191006171216.879540210@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
+        Kees Cook <keescook@chromium.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        James Hogan <jhogan@kernel.org>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 076/106] arm: properly account for stack randomization and stack guard gap
+Date:   Sun,  6 Oct 2019 19:21:22 +0200
+Message-Id: <20191006171155.937768661@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Alexandre Ghiti <alex@ghiti.fr>
 
-[ Upstream commit 073b50bccbbf99a3b79a1913604c656d0e1a56c9 ]
+[ Upstream commit af0f4297286f13a75edf93677b1fb2fc16c412a7 ]
 
-Addresses a few issues that were noticed when compiling with non-default
-warnings enabled. The trimmed-down warnings in the order they are fixed
-below are:
+This commit takes care of stack randomization and stack guard gap when
+computing mmap base address and checks if the task asked for
+randomization.  This fixes the problem uncovered and not fixed for arm
+here: https://lkml.kernel.org/r/20170622200033.25714-1-riel@redhat.com
 
-* declaration of 'size' shadows a parameter
-
-* '%s' directive output may be truncated writing up to 5 bytes into a
-  region of size between 1 and 64
-
-* pointer targets in initialization of 'char *' from 'unsigned char *'
-  differ in signedness
-
-* left shift of negative value
-
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: http://lkml.kernel.org/r/20190730055113.23635-7-alex@ghiti.fr
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Acked-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_sys.c | 7 ++++---
- drivers/hid/wacom_wac.c | 4 ++--
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/mm/mmap.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 53bddb50aebaf..602219a8710d0 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -88,7 +88,7 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
- }
+diff --git a/arch/arm/mm/mmap.c b/arch/arm/mm/mmap.c
+index f866870db749c..bff3d00bda5be 100644
+--- a/arch/arm/mm/mmap.c
++++ b/arch/arm/mm/mmap.c
+@@ -18,8 +18,9 @@
+ 	 (((pgoff)<<PAGE_SHIFT) & (SHMLBA-1)))
  
- static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
--		struct hid_report *report, u8 *raw_data, int size)
-+		struct hid_report *report, u8 *raw_data, int report_size)
+ /* gap between mmap and stack */
+-#define MIN_GAP (128*1024*1024UL)
+-#define MAX_GAP ((TASK_SIZE)/6*5)
++#define MIN_GAP		(128*1024*1024UL)
++#define MAX_GAP		((TASK_SIZE)/6*5)
++#define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
+ 
+ static int mmap_is_legacy(struct rlimit *rlim_stack)
  {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-@@ -149,7 +149,8 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
- 	if (flush)
- 		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
- 	else if (insert)
--		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
-+		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
-+				       raw_data, report_size);
- 
- 	return insert && !flush;
- }
-@@ -2176,7 +2177,7 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
+@@ -35,6 +36,15 @@ static int mmap_is_legacy(struct rlimit *rlim_stack)
+ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
  {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct wacom_features *features = &wacom_wac->features;
--	char name[WACOM_NAME_MAX];
-+	char name[WACOM_NAME_MAX - 20]; /* Leave some room for suffixes */
+ 	unsigned long gap = rlim_stack->rlim_cur;
++	unsigned long pad = stack_guard_gap;
++
++	/* Account for stack randomization if necessary */
++	if (current->flags & PF_RANDOMIZE)
++		pad += (STACK_RND_MASK << PAGE_SHIFT);
++
++	/* Values close to RLIM_INFINITY can overflow. */
++	if (gap + pad > gap)
++		gap += pad;
  
- 	/* Generic devices name unspecified */
- 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 58719461850de..6be98851edca4 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -251,7 +251,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
- 
- static int wacom_dtus_irq(struct wacom_wac *wacom)
- {
--	char *data = wacom->data;
-+	unsigned char *data = wacom->data;
- 	struct input_dev *input = wacom->pen_input;
- 	unsigned short prox, pressure = 0;
- 
-@@ -572,7 +572,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
- 		strip2 = ((data[3] & 0x1f) << 8) | data[4];
- 	}
- 
--	prox = (buttons & ~(~0 << nbuttons)) | (keys & ~(~0 << nkeys)) |
-+	prox = (buttons & ~(~0U << nbuttons)) | (keys & ~(~0U << nkeys)) |
- 	       (ring1 & 0x80) | (ring2 & 0x80) | strip1 | strip2;
- 
- 	wacom_report_numbered_buttons(input, nbuttons, buttons);
+ 	if (gap < MIN_GAP)
+ 		gap = MIN_GAP;
 -- 
 2.20.1
 
