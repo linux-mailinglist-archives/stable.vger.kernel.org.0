@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 863A5CD85A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF75BCD826
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727504AbfJFSCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 14:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50510 "EHLO mail.kernel.org"
+        id S1728540AbfJFR76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:59:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727416AbfJFRZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:25:28 -0400
+        id S1728325AbfJFR34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:29:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 305C320867;
-        Sun,  6 Oct 2019 17:25:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 479AD2080F;
+        Sun,  6 Oct 2019 17:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382727;
-        bh=7S9cQcW7htV2m9M+uWzsUFrMxQ5slCUenIdT6l0JSu8=;
+        s=default; t=1570382994;
+        bh=SQiPdMoGXan/kBILxp/c6ImMkLBLa+XfJ5YOUTLLxaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gk81U90Of6kqSkXG71/IfD9AcfT5AGJkawLHwh15e5JOyL2KzLZBYSYOo3vMQMjr6
-         Bc+BJvn2/Ya8tm3qECdg9uF1toN4VW0C+u79Vc73SHqeWycpl9AM38l8G41u69yA4d
-         e2i751WkNqb7LepozQxHAqIHBUBhBdTjEZh0AoFI=
+        b=uXI/eHrWv4tsVJwc0olaDEpwI390hr7X58HJP3MCtxlzkHSwBEXMO/50bhaiI5Say
+         U4Kk48CoTnJW3eEhoXzJt0HtRIB3i039OAMtBGbTdfM2/nMivlwR3DuWC93wmhGV3w
+         U0Q2Ds0g2Sij/CwPurae+vL+Gic20k04UCE1APFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zhou Yanjie <zhouyanjie@zoho.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        ralf@linux-mips.org, paul@crapouillou.net, jhogan@kernel.org,
+        malat@debian.org, tglx@linutronix.de, allison@lohutok.net,
+        syq@debian.org, chenhc@lemote.com, jiaxun.yang@flygoat.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/68] powerpc/pseries/mobility: use cond_resched when updating device tree
+Subject: [PATCH 4.19 048/106] MIPS: Ingenic: Disable broken BTB lookup optimization.
 Date:   Sun,  6 Oct 2019 19:20:54 +0200
-Message-Id: <20191006171116.817977900@linuxfoundation.org>
+Message-Id: <20191006171144.248358221@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Zhou Yanjie <zhouyanjie@zoho.com>
 
-[ Upstream commit ccfb5bd71d3d1228090a8633800ae7cdf42a94ac ]
+[ Upstream commit 053951dda71ecb4b554a2cdbe26f5f6f9bee9dd2 ]
 
-After a partition migration, pseries_devicetree_update() processes
-changes to the device tree communicated from the platform to
-Linux. This is a relatively heavyweight operation, with multiple
-device tree searches, memory allocations, and conversations with
-partition firmware.
+In order to further reduce power consumption, the XBurst core
+by default attempts to avoid branch target buffer lookups by
+detecting & special casing loops. This feature will cause
+BogoMIPS and lpj calculate in error. Set cp0 config7 bit 4 to
+disable this feature.
 
-There's a few levels of nested loops which are bounded only by
-decisions made by the platform, outside of Linux's control, and indeed
-we have seen RCU stalls on large systems while executing this call
-graph. Use cond_resched() in these loops so that the cpu is yielded
-when needed.
-
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802192926.19277-4-nathanl@linux.ibm.com
+Signed-off-by: Zhou Yanjie <zhouyanjie@zoho.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: ralf@linux-mips.org
+Cc: paul@crapouillou.net
+Cc: jhogan@kernel.org
+Cc: malat@debian.org
+Cc: gregkh@linuxfoundation.org
+Cc: tglx@linutronix.de
+Cc: allison@lohutok.net
+Cc: syq@debian.org
+Cc: chenhc@lemote.com
+Cc: jiaxun.yang@flygoat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/mips/include/asm/mipsregs.h | 4 ++++
+ arch/mips/kernel/cpu-probe.c     | 7 +++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
-index 4addc552eb33d..9739a055e5f7b 100644
---- a/arch/powerpc/platforms/pseries/mobility.c
-+++ b/arch/powerpc/platforms/pseries/mobility.c
-@@ -12,6 +12,7 @@
- #include <linux/cpu.h>
- #include <linux/kernel.h>
- #include <linux/kobject.h>
-+#include <linux/sched.h>
- #include <linux/smp.h>
- #include <linux/stat.h>
- #include <linux/completion.h>
-@@ -208,7 +209,11 @@ static int update_dt_node(__be32 phandle, s32 scope)
+diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
+index 01df9ad62fb83..1bb9448777c5c 100644
+--- a/arch/mips/include/asm/mipsregs.h
++++ b/arch/mips/include/asm/mipsregs.h
+@@ -688,6 +688,9 @@
+ #define MIPS_CONF7_IAR		(_ULCAST_(1) << 10)
+ #define MIPS_CONF7_AR		(_ULCAST_(1) << 16)
  
- 				prop_data += vd;
- 			}
++/* Ingenic Config7 bits */
++#define MIPS_CONF7_BTB_LOOP_EN	(_ULCAST_(1) << 4)
 +
-+			cond_resched();
- 		}
-+
-+		cond_resched();
- 	} while (rtas_rc == 1);
+ /* Config7 Bits specific to MIPS Technologies. */
  
- 	of_node_put(dn);
-@@ -317,8 +322,12 @@ int pseries_devicetree_update(s32 scope)
- 					add_dt_node(phandle, drc_index);
- 					break;
- 				}
-+
-+				cond_resched();
- 			}
- 		}
-+
-+		cond_resched();
- 	} while (rc == 1);
- 
- 	kfree(rtas_buf);
+ /* Performance counters implemented Per TC */
+@@ -2774,6 +2777,7 @@ __BUILD_SET_C0(status)
+ __BUILD_SET_C0(cause)
+ __BUILD_SET_C0(config)
+ __BUILD_SET_C0(config5)
++__BUILD_SET_C0(config7)
+ __BUILD_SET_C0(intcontrol)
+ __BUILD_SET_C0(intctl)
+ __BUILD_SET_C0(srsmap)
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index d535fc706a8b3..25cd8737e7fe0 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1879,6 +1879,13 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
+ 		c->cputype = CPU_JZRISC;
+ 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
+ 		__cpu_name[cpu] = "Ingenic JZRISC";
++		/*
++		 * The XBurst core by default attempts to avoid branch target
++		 * buffer lookups by detecting & special casing loops. This
++		 * feature will cause BogoMIPS and lpj calculate in error.
++		 * Set cp0 config7 bit 4 to disable this feature.
++		 */
++		set_c0_config7(MIPS_CONF7_BTB_LOOP_EN);
+ 		break;
+ 	default:
+ 		panic("Unknown Ingenic Processor ID!");
 -- 
 2.20.1
 
