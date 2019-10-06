@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0CECD4CF
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CFDCD50B
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727751AbfJFR3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55028 "EHLO mail.kernel.org"
+        id S1729502AbfJFRbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728969AbfJFR3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:29:20 -0400
+        id S1729497AbfJFRbs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:31:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2770C217D6;
-        Sun,  6 Oct 2019 17:29:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCB3B21479;
+        Sun,  6 Oct 2019 17:31:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382959;
-        bh=K4T6lRYMyRRepGM0P+BdfI9+GRjzZhv/1SdRP6HK8Lo=;
+        s=default; t=1570383108;
+        bh=xwr8Gf+ZGbLNOhIHlpy1MgCwANMR3tLyATZ+L+siVIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f96qSILktnJZ02/ghg3o1dJQgLdZ7wxfQlsVBsYMYxzxOU+/kdo+I3pt/4zZHqJio
-         DL9UmIXR1+8QKEkmPugmy0XdAENLNBg0S5IyooUR11lT4Mo0dIG1MGvVAI6QHdSocw
-         9rkOwOSr7YPq5662NJyhzzhv+gimdN2UgSc/zElI=
+        b=qc9437Gx7P+XPhxMDWvw245ccppvWjRvl2xw5i6a8Ea/XfZB3lVZa5pEvvAfTMeD9
+         6KNighCRHMdBlRGC6vjyPnzkMs08FxUpNR0ACGue04EYE0MTeKZtfC7SMMpqIUEYhe
+         cM1S8KE3kHRM5TVKQ3MyvVU5/S4N1Z9O0teUC6PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Charlene Liu <charlene.liu@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Deepa Dinamani <deepa.kernel@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeff Layton <jlayton@kernel.org>, anton@enomsg.org,
+        ccross@android.com, tony.luck@intel.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/106] drm/amd/display: support spdif
-Date:   Sun,  6 Oct 2019 19:20:39 +0200
-Message-Id: <20191006171140.114447492@linuxfoundation.org>
+Subject: [PATCH 4.19 036/106] pstore: fs superblock limits
+Date:   Sun,  6 Oct 2019 19:20:42 +0200
+Message-Id: <20191006171140.714722041@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -46,105 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charlene Liu <charlene.liu@amd.com>
+From: Deepa Dinamani <deepa.kernel@gmail.com>
 
-[ Upstream commit b5a41620bb88efb9fb31a4fa5e652e3d5bead7d4 ]
+[ Upstream commit 83b8a3fbe3aa82ac3c253b698ae6a9be2dbdd5e0 ]
 
-[Description]
-port spdif fix to staging:
- spdif hardwired to afmt inst 1.
- spdif func pointer
- spdif resource allocation (reserve last audio endpoint for spdif only)
+Leaving granularity at 1ns because it is dependent on the specific
+attached backing pstore module. ramoops has microsecond resolution.
 
-Signed-off-by: Charlene Liu <charlene.liu@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix the readback of ramoops fractional timestamp microseconds,
+which has incorrectly been reporting the value as nanoseconds.
+
+Fixes: 3f8f80f0cfeb ("pstore/ram: Read and write to the 'compressed' flag of pstore").
+
+Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Jeff Layton <jlayton@kernel.org>
+Cc: anton@enomsg.org
+Cc: ccross@android.com
+Cc: keescook@chromium.org
+Cc: tony.luck@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/core/dc_resource.c   | 17 ++++++++---------
- drivers/gpu/drm/amd/display/dc/dce/dce_audio.c  |  4 ++--
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ fs/pstore/ram.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index f0d68aa7c8fcc..d440b28ee43fb 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -229,12 +229,10 @@ bool resource_construct(
- 				DC_ERR("DC: failed to create audio!\n");
- 				return false;
- 			}
--
- 			if (!aud->funcs->endpoint_valid(aud)) {
- 				aud->funcs->destroy(&aud);
- 				break;
- 			}
--
- 			pool->audios[i] = aud;
- 			pool->audio_count++;
- 		}
-@@ -1703,24 +1701,25 @@ static struct audio *find_first_free_audio(
- 		const struct resource_pool *pool,
- 		enum engine_id id)
- {
--	int i;
--	for (i = 0; i < pool->audio_count; i++) {
-+	int i, available_audio_count;
-+
-+	available_audio_count = pool->audio_count;
-+
-+	for (i = 0; i < available_audio_count; i++) {
- 		if ((res_ctx->is_audio_acquired[i] == false) && (res_ctx->is_stream_enc_acquired[i] == true)) {
- 			/*we have enough audio endpoint, find the matching inst*/
- 			if (id != i)
- 				continue;
--
- 			return pool->audios[i];
- 		}
- 	}
- 
--    /* use engine id to find free audio */
--	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
-+	/* use engine id to find free audio */
-+	if ((id < available_audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
- 		return pool->audios[id];
- 	}
--
- 	/*not found the matching one, first come first serve*/
--	for (i = 0; i < pool->audio_count; i++) {
-+	for (i = 0; i < available_audio_count; i++) {
- 		if (res_ctx->is_audio_acquired[i] == false) {
- 			return pool->audios[i];
- 		}
-diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-index 7f6d724686f1a..abb559ce64085 100644
---- a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-+++ b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-@@ -611,6 +611,8 @@ void dce_aud_az_configure(
- 
- 	AZ_REG_WRITE(AZALIA_F0_CODEC_PIN_CONTROL_SINK_INFO1,
- 		value);
-+	DC_LOG_HW_AUDIO("\n\tAUDIO:az_configure: index: %u data, 0x%x, displayName %s: \n",
-+		audio->inst, value, audio_info->display_name);
- 
- 	/*
- 	*write the port ID:
-@@ -922,7 +924,6 @@ static const struct audio_funcs funcs = {
- 	.az_configure = dce_aud_az_configure,
- 	.destroy = dce_aud_destroy,
- };
--
- void dce_aud_destroy(struct audio **audio)
- {
- 	struct dce_audio *aud = DCE_AUD(*audio);
-@@ -953,7 +954,6 @@ struct audio *dce_audio_create(
- 	audio->regs = reg;
- 	audio->shifts = shifts;
- 	audio->masks = masks;
--
- 	return &audio->base;
- }
- 
+diff --git a/fs/pstore/ram.c b/fs/pstore/ram.c
+index 316c16463b20f..015d74ee31a03 100644
+--- a/fs/pstore/ram.c
++++ b/fs/pstore/ram.c
+@@ -162,6 +162,7 @@ static int ramoops_read_kmsg_hdr(char *buffer, struct timespec64 *time,
+ 	if (sscanf(buffer, RAMOOPS_KERNMSG_HDR "%lld.%lu-%c\n%n",
+ 		   (time64_t *)&time->tv_sec, &time->tv_nsec, &data_type,
+ 		   &header_length) == 3) {
++		time->tv_nsec *= 1000;
+ 		if (data_type == 'C')
+ 			*compressed = true;
+ 		else
+@@ -169,6 +170,7 @@ static int ramoops_read_kmsg_hdr(char *buffer, struct timespec64 *time,
+ 	} else if (sscanf(buffer, RAMOOPS_KERNMSG_HDR "%lld.%lu\n%n",
+ 			  (time64_t *)&time->tv_sec, &time->tv_nsec,
+ 			  &header_length) == 2) {
++		time->tv_nsec *= 1000;
+ 		*compressed = false;
+ 	} else {
+ 		time->tv_sec = 0;
 -- 
 2.20.1
 
