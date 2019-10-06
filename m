@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FE1CD415
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF381CD40A
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:21:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727416AbfJFRVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45578 "EHLO mail.kernel.org"
+        id S1727233AbfJFRUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727255AbfJFRUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:20:34 -0400
+        id S1727282AbfJFRUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:20:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E5822077B;
-        Sun,  6 Oct 2019 17:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D3302077B;
+        Sun,  6 Oct 2019 17:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382433;
-        bh=H1UlWTytnQ7kqdRX4mbQdL7bveS9FBSgwFgIlp3T5Ic=;
+        s=default; t=1570382439;
+        bh=soQbSKW5+xCY5CQPjiTWWRc2kvrDxX/CSHhOIYX/x8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IalJrVrCPkk+jH3Y08+r+SVb7XDMINuj14zh7zQpcZXk+wS85GVNPRWLjMWOyBcAF
-         w/dRGGRZ6yX2xjCJH1fjKxd/u4eZTwoIvCWFwFaLvpWoxyQqJT5REdI6nfgp9Tb/Zn
-         CncJMbGHQlyTpp0QxNhl3t0U2TnmV/M8sxABpBhQ=
+        b=jp6hCgYsCDKFarrqxZsQ+nZElrcnwPPjmMj/cIKCoWIW+FBNsyVz/ZxL1CvhyS6jH
+         dYWpjDKEDYeQOv0dOD+AJQhgG4ugpldse9kU/mrlnEEjziDZi502aSULLQL3Ww8G1m
+         JBulj8oMZXTUeW3SM9lGybxpl6I4oYQhkbiXDuC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 29/36] nfc: fix memory leak in llcp_sock_bind()
-Date:   Sun,  6 Oct 2019 19:19:11 +0200
-Message-Id: <20191006171058.216908056@linuxfoundation.org>
+Subject: [PATCH 4.4 30/36] sch_dsmark: fix potential NULL deref in dsmark_init()
+Date:   Sun,  6 Oct 2019 19:19:12 +0200
+Message-Id: <20191006171058.616113473@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -46,60 +46,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a0c2dc1fe63e2869b74c1c7f6a81d1745c8a695d ]
+[ Upstream commit 474f0813a3002cb299bb73a5a93aa1f537a80ca8 ]
 
-sysbot reported a memory leak after a bind() has failed.
+Make sure TCA_DSMARK_INDICES was provided by the user.
 
-While we are at it, abort the operation if kmemdup() has failed.
+syzbot reported :
 
-BUG: memory leak
-unreferenced object 0xffff888105d83ec0 (size 32):
-  comm "syz-executor067", pid 7207, jiffies 4294956228 (age 19.430s)
-  hex dump (first 32 bytes):
-    00 69 6c 65 20 72 65 61 64 00 6e 65 74 3a 5b 34  .ile read.net:[4
-    30 32 36 35 33 33 30 39 37 5d 00 00 00 00 00 00  026533097]......
-  backtrace:
-    [<0000000036bac473>] kmemleak_alloc_recursive /./include/linux/kmemleak.h:43 [inline]
-    [<0000000036bac473>] slab_post_alloc_hook /mm/slab.h:522 [inline]
-    [<0000000036bac473>] slab_alloc /mm/slab.c:3319 [inline]
-    [<0000000036bac473>] __do_kmalloc /mm/slab.c:3653 [inline]
-    [<0000000036bac473>] __kmalloc_track_caller+0x169/0x2d0 /mm/slab.c:3670
-    [<000000000cd39d07>] kmemdup+0x27/0x60 /mm/util.c:120
-    [<000000008e57e5fc>] kmemdup /./include/linux/string.h:432 [inline]
-    [<000000008e57e5fc>] llcp_sock_bind+0x1b3/0x230 /net/nfc/llcp_sock.c:107
-    [<000000009cb0b5d3>] __sys_bind+0x11c/0x140 /net/socket.c:1647
-    [<00000000492c3bbc>] __do_sys_bind /net/socket.c:1658 [inline]
-    [<00000000492c3bbc>] __se_sys_bind /net/socket.c:1656 [inline]
-    [<00000000492c3bbc>] __x64_sys_bind+0x1e/0x30 /net/socket.c:1656
-    [<0000000008704b2a>] do_syscall_64+0x76/0x1a0 /arch/x86/entry/common.c:296
-    [<000000009f4c57a4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8799 Comm: syz-executor235 Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:nla_get_u16 include/net/netlink.h:1501 [inline]
+RIP: 0010:dsmark_init net/sched/sch_dsmark.c:364 [inline]
+RIP: 0010:dsmark_init+0x193/0x640 net/sched/sch_dsmark.c:339
+Code: 85 db 58 0f 88 7d 03 00 00 e8 e9 1a ac fb 48 8b 9d 70 ff ff ff 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 04 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 ca
+RSP: 0018:ffff88809426f3b8 EFLAGS: 00010247
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff85c6eb09
+RDX: 0000000000000000 RSI: ffffffff85c6eb17 RDI: 0000000000000004
+RBP: ffff88809426f4b0 R08: ffff88808c4085c0 R09: ffffed1015d26159
+R10: ffffed1015d26158 R11: ffff8880ae930ac7 R12: ffff8880a7e96940
+R13: dffffc0000000000 R14: ffff88809426f8c0 R15: 0000000000000000
+FS:  0000000001292880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000080 CR3: 000000008ca1b000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ qdisc_create+0x4ee/0x1210 net/sched/sch_api.c:1237
+ tc_modify_qdisc+0x524/0x1c50 net/sched/sch_api.c:1653
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5223
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440369
 
-Fixes: 30cc4587659e ("NFC: Move LLCP code to the NFC top level diirectory")
+Fixes: 758cc43c6d73 ("[PKT_SCHED]: Fix dsmark to apply changes consistent")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/sched/sch_dsmark.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -118,9 +118,14 @@ static int llcp_sock_bind(struct socket
- 	llcp_sock->service_name = kmemdup(llcp_addr.service_name,
- 					  llcp_sock->service_name_len,
- 					  GFP_KERNEL);
--
-+	if (!llcp_sock->service_name) {
-+		ret = -ENOMEM;
-+		goto put_dev;
-+	}
- 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
-+		kfree(llcp_sock->service_name);
-+		llcp_sock->service_name = NULL;
- 		ret = -EADDRINUSE;
- 		goto put_dev;
- 	}
+--- a/net/sched/sch_dsmark.c
++++ b/net/sched/sch_dsmark.c
+@@ -362,6 +362,8 @@ static int dsmark_init(struct Qdisc *sch
+ 		goto errout;
+ 
+ 	err = -EINVAL;
++	if (!tb[TCA_DSMARK_INDICES])
++		goto errout;
+ 	indices = nla_get_u16(tb[TCA_DSMARK_INDICES]);
+ 
+ 	if (hweight32(indices) != 1)
 
 
