@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC86CD53D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2323CD53F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726992AbfJFReF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:34:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
+        id S1728721AbfJFReM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:34:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729876AbfJFReE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:34:04 -0400
+        id S1729895AbfJFReJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:34:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E2252087E;
-        Sun,  6 Oct 2019 17:34:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7DA02080F;
+        Sun,  6 Oct 2019 17:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383243;
-        bh=n8/k4oZ0PLenkMBuev9BeTxhWUwwjV3am2iTIBr4tZ0=;
+        s=default; t=1570383249;
+        bh=71Teq/z3em+Gqxx4C3IM9Ovs6Uia6I4586LFWmnZh5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhgsJivwZvhHpA3ijQlsoMQq3NhvFt3DIGg9oCp7OAvYd0QEmOixNbO+x6/3OHEUZ
-         HKjP7fIyN5Mpc0Yik/TGzxGcrVo5S5t5RCh7SBnGGeSVSHMyxWLyYAVBQ91E0XC/0Z
-         tIqFABlf9UF/4aJlp1KIuYZa9VJy9nETuqXpGdgQ=
+        b=hcbGaHbK2EPJRvdsCHedNgM2DZWVZHTXZbH7FvbfZ/s5FOq63my48ZP75mSc17mLX
+         fpqbpa/IwlWCm3e46Nt2H5FClN7DDJzElAbdoVbD7jQH/j3offF/5F0VxU6NG72Eo1
+         gzr2oa2KKwj6IB1qUjqXwBxJ3m/szq9dBOMxEpBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marko Kohtala <marko.kohtala@okoko.fi>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        David Airlie <airlied@linux.ie>,
-        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 031/137] video: ssd1307fb: Start page range at page_offset
-Date:   Sun,  6 Oct 2019 19:20:15 +0200
-Message-Id: <20191006171211.661002137@linuxfoundation.org>
+Subject: [PATCH 5.2 033/137] drm/stm: attach gem fence to atomic state
+Date:   Sun,  6 Oct 2019 19:20:17 +0200
+Message-Id: <20191006171211.782273431@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -49,42 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marko Kohtala <marko.kohtala@okoko.fi>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit dd9782834dd9dde3624ff1acea8859f3d3e792d4 ]
+[ Upstream commit 8fabc9c3109a71b3577959a05408153ae69ccd8d ]
 
-The page_offset was only applied to the end of the page range. This caused
-the display updates to cause a scrolling effect on the display because the
-amount of data written to the display did not match the range display
-expected.
+To properly synchronize with other devices the fence from the GEM
+object backing the framebuffer needs to be attached to the atomic
+state, so the commit work can wait on fence signaling.
 
-Fixes: 301bc0675b67 ("video: ssd1307fb: Make use of horizontal addressing mode")
-Signed-off-by: Marko Kohtala <marko.kohtala@okoko.fi>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Michal Vokáč <michal.vokac@ysoft.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190618074111.9309-4-marko.kohtala@okoko.fi
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712084228.8338-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/ssd1307fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/stm/ltdc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index 021b727e8b5c4..6afd0d3ae5690 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -432,7 +432,7 @@ static int ssd1307fb_init(struct ssd1307fb_par *par)
- 	if (ret < 0)
- 		return ret;
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index 32fd6a3b37fb1..6f1fef76671c8 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -25,6 +25,7 @@
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_cma_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+@@ -875,6 +876,7 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
+ };
  
--	ret = ssd1307fb_write_cmd(par->client, 0x0);
-+	ret = ssd1307fb_write_cmd(par->client, par->page_offset);
- 	if (ret < 0)
- 		return ret;
- 
+ static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
++	.prepare_fb = drm_gem_fb_prepare_fb,
+ 	.atomic_check = ltdc_plane_atomic_check,
+ 	.atomic_update = ltdc_plane_atomic_update,
+ 	.atomic_disable = ltdc_plane_atomic_disable,
 -- 
 2.20.1
 
