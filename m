@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 465AFCD524
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2413CD58C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728457AbfJFRc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59518 "EHLO mail.kernel.org"
+        id S1729505AbfJFRhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729677AbfJFRc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:56 -0400
+        id S1730428AbfJFRhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:37:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80FE92087E;
-        Sun,  6 Oct 2019 17:32:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 755232053B;
+        Sun,  6 Oct 2019 17:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383176;
-        bh=pUQzzgviHZAl9J4RPTZPd1/kHJ8JsYvcDV5EOmgKvJM=;
+        s=default; t=1570383441;
+        bh=Qh1KlvMoxLrpk6JpK1J4brdqfWQuG6tOYpJ91Mr/430=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMCK4o6kVrxEVt4u2OG6/9ZrRRbV2Iuu2l4xJY2ANvlE8uQ7CS4AA4rdhl/+5wYlW
-         x2WUhCMcB0Plg0gAcRND0Jrrmvk3naBblWmRBTduZi6HSiRCd3biLBU1Z4ar59zhcU
-         VnhQpb6wUxNQsx6biEwLu4RILzYY3l23D+Pgoe6k=
+        b=jJy8GZpqAYPa8xbuZ8lK9Y5W0rYeuDL1CeyUZ+PJueJ2w3Db9z8VjPsjHmpdUtfdj
+         ijWhch62O2DH1JMO9vl4Q+tqklRPyQ5UsYH6G6RArHiDfayKkjA36YY7kblJ9Mxlt+
+         MaZ8762ORyPQ/6zvIgF9ZVk4tEPYtHVMQJuEW7oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 082/106] hso: fix NULL-deref on tty open
-Date:   Sun,  6 Oct 2019 19:21:28 +0200
-Message-Id: <20191006171157.664209125@linuxfoundation.org>
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 105/137] rtc: snvs: fix possible race condition
+Date:   Sun,  6 Oct 2019 19:21:29 +0200
+Message-Id: <20191006171217.690483807@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 8353da9fa69722b54cba82b2ec740afd3d438748 ]
+[ Upstream commit 6fd4fe9b496d9ba3382992ff4fde3871d1b6f63d ]
 
-Fix NULL-pointer dereference on tty open due to a failure to handle a
-missing interrupt-in endpoint when probing modem ports:
+The RTC IRQ is requested before the struct rtc_device is allocated,
+this may lead to a NULL pointer dereference in IRQ handler.
 
-	BUG: kernel NULL pointer dereference, address: 0000000000000006
-	...
-	RIP: 0010:tiocmget_submit_urb+0x1c/0xe0 [hso]
-	...
-	Call Trace:
-	hso_start_serial_device+0xdc/0x140 [hso]
-	hso_serial_open+0x118/0x1b0 [hso]
-	tty_open+0xf1/0x490
+To fix this issue, allocating the rtc_device struct before requesting
+the RTC IRQ using devm_rtc_allocate_device, and use rtc_register_device
+to register the RTC device.
 
-Fixes: 542f54823614 ("tty: Modem functions for the HSO driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
+Link: https://lore.kernel.org/r/20190716071858.36750-1-Anson.Huang@nxp.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/rtc/rtc-snvs.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2634,14 +2634,18 @@ static struct hso_device *hso_create_bul
- 		 */
- 		if (serial->tiocmget) {
- 			tiocmget = serial->tiocmget;
-+			tiocmget->endp = hso_get_ep(interface,
-+						    USB_ENDPOINT_XFER_INT,
-+						    USB_DIR_IN);
-+			if (!tiocmget->endp) {
-+				dev_err(&interface->dev, "Failed to find INT IN ep\n");
-+				goto exit;
-+			}
+diff --git a/drivers/rtc/rtc-snvs.c b/drivers/rtc/rtc-snvs.c
+index 7ee673a25fd0a..4f9a107a04277 100644
+--- a/drivers/rtc/rtc-snvs.c
++++ b/drivers/rtc/rtc-snvs.c
+@@ -279,6 +279,10 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 	if (!data)
+ 		return -ENOMEM;
+ 
++	data->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(data->rtc))
++		return PTR_ERR(data->rtc);
 +
- 			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
- 			if (tiocmget->urb) {
- 				mutex_init(&tiocmget->mutex);
- 				init_waitqueue_head(&tiocmget->waitq);
--				tiocmget->endp = hso_get_ep(
--					interface,
--					USB_ENDPOINT_XFER_INT,
--					USB_DIR_IN);
- 			} else
- 				hso_free_tiomget(serial);
- 		}
+ 	data->regmap = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "regmap");
+ 
+ 	if (IS_ERR(data->regmap)) {
+@@ -343,10 +347,9 @@ static int snvs_rtc_probe(struct platform_device *pdev)
+ 		goto error_rtc_device_register;
+ 	}
+ 
+-	data->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					&snvs_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(data->rtc)) {
+-		ret = PTR_ERR(data->rtc);
++	data->rtc->ops = &snvs_rtc_ops;
++	ret = rtc_register_device(data->rtc);
++	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register rtc: %d\n", ret);
+ 		goto error_rtc_device_register;
+ 	}
+-- 
+2.20.1
+
 
 
