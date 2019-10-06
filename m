@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63549CD48F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E879ACD45C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728422AbfJFR1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52460 "EHLO mail.kernel.org"
+        id S1728029AbfJFRZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727505AbfJFR1H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:27:07 -0400
+        id S1727369AbfJFRY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:24:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE22D2077B;
-        Sun,  6 Oct 2019 17:27:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D053B20867;
+        Sun,  6 Oct 2019 17:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382827;
-        bh=UFY23L5eLiCo+2aJP3vZWsf8JbVPN0hHJcoBfya3n9g=;
+        s=default; t=1570382698;
+        bh=2j+/gI1kT0XXYZxN5raqCvPcTTi9Id+99HHXOsb92Q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dl9XgafFch6X0W+2NIcIMujWPhvQVCcnAYP5uQQFZCWB1pbEujgTdSn2s5yRYTbzi
-         kMWctCJxz2kMmtE+1hTlnkxLXR9fkJi/TPwI87SleEKFVkNqAzsQSzqy9CzM2fzGuJ
-         ba2EE4a7+z3xww+PhJgu+pKGgNI51FCbHp3ifc+g=
+        b=d9m+Ofo7RbgVFE0w8pKXAhc4ug9k5GdJd3sqCLsLWRLJ5XJnEDgsfXGqNpjZMcFci
+         O3G+OeLBfV6lbMGaAcr+VsRHvHD7N7j2cc40BGmAF38gHeFHWBbrCYgAaiuueSn9i3
+         i37rpQywBnh6j/BLX895xlqPJVU/D6biNwMaUVTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 55/68] net: Unpublish sk from sk_reuseport_cb before call_rcu
-Date:   Sun,  6 Oct 2019 19:21:31 +0200
-Message-Id: <20191006171133.399020893@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.9 45/47] Smack: Dont ignore other bprm->unsafe flags if LSM_UNSAFE_PTRACE is set
+Date:   Sun,  6 Oct 2019 19:21:32 +0200
+Message-Id: <20191006172019.260683324@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 8c7138b33e5c690c308b2a7085f6313fdcb3f616 ]
+commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
 
-The "reuse->sock[]" array is shared by multiple sockets.  The going away
-sk must unpublish itself from "reuse->sock[]" before making call_rcu()
-call.  However, this unpublish-action is currently done after a grace
-period and it may cause use-after-free.
+There is a logic bug in the current smack_bprm_set_creds():
+If LSM_UNSAFE_PTRACE is set, but the ptrace state is deemed to be
+acceptable (e.g. because the ptracer detached in the meantime), the other
+->unsafe flags aren't checked. As far as I can tell, this means that
+something like the following could work (but I haven't tested it):
 
-The fix is to move reuseport_detach_sock() to sk_destruct().
-Due to the above reason, any socket with sk_reuseport_cb has
-to go through the rcu grace period before freeing it.
+ - task A: create task B with fork()
+ - task B: set NO_NEW_PRIVS
+ - task B: install a seccomp filter that makes open() return 0 under some
+   conditions
+ - task B: replace fd 0 with a malicious library
+ - task A: attach to task B with PTRACE_ATTACH
+ - task B: execve() a file with an SMACK64EXEC extended attribute
+ - task A: while task B is still in the middle of execve(), exit (which
+   destroys the ptrace relationship)
 
-It is a rather old bug (~3 yrs).  The Fixes tag is not necessary
-the right commit but it is the one that introduced the SOCK_RCU_FREE
-logic and this fix is depending on it.
+Make sure that if any flags other than LSM_UNSAFE_PTRACE are set in
+bprm->unsafe, we reject the execve().
 
-Fixes: a4298e4522d6 ("net: add SOCK_RCU_FREE socket flag")
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 5663884caab1 ("Smack: unify all ptrace accesses in the smack")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/sock.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1561,8 +1561,6 @@ static void __sk_destruct(struct rcu_hea
- 		sk_filter_uncharge(sk, filter);
- 		RCU_INIT_POINTER(sk->sk_filter, NULL);
- 	}
--	if (rcu_access_pointer(sk->sk_reuseport_cb))
--		reuseport_detach_sock(sk);
+---
+ security/smack/smack_lsm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -949,7 +949,8 @@ static int smack_bprm_set_creds(struct l
  
- 	sock_disable_timestamp(sk, SK_FLAGS_TIMESTAMP);
- 
-@@ -1585,7 +1583,14 @@ static void __sk_destruct(struct rcu_hea
- 
- void sk_destruct(struct sock *sk)
- {
--	if (sock_flag(sk, SOCK_RCU_FREE))
-+	bool use_call_rcu = sock_flag(sk, SOCK_RCU_FREE);
-+
-+	if (rcu_access_pointer(sk->sk_reuseport_cb)) {
-+		reuseport_detach_sock(sk);
-+		use_call_rcu = true;
+ 		if (rc != 0)
+ 			return rc;
+-	} else if (bprm->unsafe)
 +	}
-+
-+	if (use_call_rcu)
- 		call_rcu(&sk->sk_rcu, __sk_destruct);
- 	else
- 		__sk_destruct(&sk->sk_rcu);
++	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
+ 		return -EPERM;
+ 
+ 	bsp->smk_task = isp->smk_task;
 
 
