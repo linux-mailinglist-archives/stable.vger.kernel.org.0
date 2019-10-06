@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1D0BCD65A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41717CD668
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728093AbfJFRr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:47:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
+        id S1729010AbfJFRrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:47:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731773AbfJFRpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:45:10 -0400
+        id S1730629AbfJFRpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:45:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3277F21479;
-        Sun,  6 Oct 2019 17:45:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1239B20862;
+        Sun,  6 Oct 2019 17:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383908;
-        bh=KLBHWMIMXGIh4d5zKw10HC37+Tl2RLCz896aN+C7AZc=;
+        s=default; t=1570383911;
+        bh=M2bf7Ft8fNTHC1Vhetd3p1u6IswodeWaBpJB2+Wy88g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3qMrgwziibut+1UVE/rfghCqjYqh+EiXyUA8XBJRcN2hPsMmXqWb3l0VKCd5Wgem
-         hG6Nz2FdLgJ7gYhEMKh/PZr8w7LT9EMAhzelZohyFE7gyLhg1lyN+2Xse+HSqvCBkg
-         wQc/6cfc3AQX3b/YsaseaL1mThxaS5LDTvqbCBoA=
+        b=ehAh6Rs68XkFfDatCS9qHO0+jpb1hTGrUwtn4BWnwS3oGmVRVIqq8E8Oq/mTpwsFH
+         dpGIhm+gUS89JzzQCZiar/O28+Yp6jGSyZ/BMTmdWUP/CjEjnnlDZvxvvzwsLqjWv1
+         o/658DW9s+vXlyGgKnxGkFzW0dUq61u66JOxUl1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Hoang Le <hoang.h.le@dektech.com.au>,
+        Jon Maloy <jon.maloy@ericsson.com>,
+        Tuong Lien <tuong.t.lien@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 141/166] sch_dsmark: fix potential NULL deref in dsmark_init()
-Date:   Sun,  6 Oct 2019 19:21:47 +0200
-Message-Id: <20191006171224.916529344@linuxfoundation.org>
+Subject: [PATCH 5.3 142/166] tipc: fix unlimited bundling of small messages
+Date:   Sun,  6 Oct 2019 19:21:48 +0200
+Message-Id: <20191006171224.981626967@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -44,73 +45,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tuong Lien <tuong.t.lien@dektech.com.au>
 
-[ Upstream commit 474f0813a3002cb299bb73a5a93aa1f537a80ca8 ]
+[ Upstream commit e95584a889e1902fdf1ded9712e2c3c3083baf96 ]
 
-Make sure TCA_DSMARK_INDICES was provided by the user.
+We have identified a problem with the "oversubscription" policy in the
+link transmission code.
 
-syzbot reported :
+When small messages are transmitted, and the sending link has reached
+the transmit window limit, those messages will be bundled and put into
+the link backlog queue. However, bundles of data messages are counted
+at the 'CRITICAL' level, so that the counter for that level, instead of
+the counter for the real, bundled message's level is the one being
+increased.
+Subsequent, to-be-bundled data messages at non-CRITICAL levels continue
+to be tested against the unchanged counter for their own level, while
+contributing to an unrestrained increase at the CRITICAL backlog level.
 
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 8799 Comm: syz-executor235 Not tainted 5.3.0+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:nla_get_u16 include/net/netlink.h:1501 [inline]
-RIP: 0010:dsmark_init net/sched/sch_dsmark.c:364 [inline]
-RIP: 0010:dsmark_init+0x193/0x640 net/sched/sch_dsmark.c:339
-Code: 85 db 58 0f 88 7d 03 00 00 e8 e9 1a ac fb 48 8b 9d 70 ff ff ff 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 04 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 ca
-RSP: 0018:ffff88809426f3b8 EFLAGS: 00010247
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff85c6eb09
-RDX: 0000000000000000 RSI: ffffffff85c6eb17 RDI: 0000000000000004
-RBP: ffff88809426f4b0 R08: ffff88808c4085c0 R09: ffffed1015d26159
-R10: ffffed1015d26158 R11: ffff8880ae930ac7 R12: ffff8880a7e96940
-R13: dffffc0000000000 R14: ffff88809426f8c0 R15: 0000000000000000
-FS:  0000000001292880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000020000080 CR3: 000000008ca1b000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- qdisc_create+0x4ee/0x1210 net/sched/sch_api.c:1237
- tc_modify_qdisc+0x524/0x1c50 net/sched/sch_api.c:1653
- rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5223
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x803/0x920 net/socket.c:2311
- __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
- __do_sys_sendmsg net/socket.c:2365 [inline]
- __se_sys_sendmsg net/socket.c:2363 [inline]
- __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
- do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x440369
+This leaves a gap in congestion control algorithm for small messages
+that can result in starvation for other users or a "real" CRITICAL
+user. Even that eventually can lead to buffer exhaustion & link reset.
 
-Fixes: 758cc43c6d73 ("[PKT_SCHED]: Fix dsmark to apply changes consistent")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+We fix this by keeping a 'target_bskb' buffer pointer at each levels,
+then when bundling, we only bundle messages at the same importance
+level only. This way, we know exactly how many slots a certain level
+have occupied in the queue, so can manage level congestion accurately.
+
+By bundling messages at the same level, we even have more benefits. Let
+consider this:
+- One socket sends 64-byte messages at the 'CRITICAL' level;
+- Another sends 4096-byte messages at the 'LOW' level;
+
+When a 64-byte message comes and is bundled the first time, we put the
+overhead of message bundle to it (+ 40-byte header, data copy, etc.)
+for later use, but the next message can be a 4096-byte one that cannot
+be bundled to the previous one. This means the last bundle carries only
+one payload message which is totally inefficient, as for the receiver
+also! Later on, another 64-byte message comes, now we make a new bundle
+and the same story repeats...
+
+With the new bundling algorithm, this will not happen, the 64-byte
+messages will be bundled together even when the 4096-byte message(s)
+comes in between. However, if the 4096-byte messages are sent at the
+same level i.e. 'CRITICAL', the bundling algorithm will again cause the
+same overhead.
+
+Also, the same will happen even with only one socket sending small
+messages at a rate close to the link transmit's one, so that, when one
+message is bundled, it's transmitted shortly. Then, another message
+comes, a new bundle is created and so on...
+
+We will solve this issue radically by another patch.
+
+Fixes: 365ad353c256 ("tipc: reduce risk of user starvation during link congestion")
+Reported-by: Hoang Le <hoang.h.le@dektech.com.au>
+Acked-by: Jon Maloy <jon.maloy@ericsson.com>
+Signed-off-by: Tuong Lien <tuong.t.lien@dektech.com.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_dsmark.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/tipc/link.c |   29 ++++++++++++++++++-----------
+ net/tipc/msg.c  |    5 +----
+ 2 files changed, 19 insertions(+), 15 deletions(-)
 
---- a/net/sched/sch_dsmark.c
-+++ b/net/sched/sch_dsmark.c
-@@ -361,6 +361,8 @@ static int dsmark_init(struct Qdisc *sch
- 		goto errout;
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -160,6 +160,7 @@ struct tipc_link {
+ 	struct {
+ 		u16 len;
+ 		u16 limit;
++		struct sk_buff *target_bskb;
+ 	} backlog[5];
+ 	u16 snd_nxt;
+ 	u16 window;
+@@ -866,6 +867,7 @@ static void link_prepare_wakeup(struct t
+ void tipc_link_reset(struct tipc_link *l)
+ {
+ 	struct sk_buff_head list;
++	u32 imp;
  
- 	err = -EINVAL;
-+	if (!tb[TCA_DSMARK_INDICES])
-+		goto errout;
- 	indices = nla_get_u16(tb[TCA_DSMARK_INDICES]);
+ 	__skb_queue_head_init(&list);
  
- 	if (hweight32(indices) != 1)
+@@ -887,11 +889,10 @@ void tipc_link_reset(struct tipc_link *l
+ 	__skb_queue_purge(&l->deferdq);
+ 	__skb_queue_purge(&l->backlogq);
+ 	__skb_queue_purge(&l->failover_deferdq);
+-	l->backlog[TIPC_LOW_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_MEDIUM_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_HIGH_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_CRITICAL_IMPORTANCE].len = 0;
+-	l->backlog[TIPC_SYSTEM_IMPORTANCE].len = 0;
++	for (imp = 0; imp <= TIPC_SYSTEM_IMPORTANCE; imp++) {
++		l->backlog[imp].len = 0;
++		l->backlog[imp].target_bskb = NULL;
++	}
+ 	kfree_skb(l->reasm_buf);
+ 	kfree_skb(l->failover_reasm_skb);
+ 	l->reasm_buf = NULL;
+@@ -931,7 +932,7 @@ int tipc_link_xmit(struct tipc_link *l,
+ 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
+ 	struct sk_buff_head *transmq = &l->transmq;
+ 	struct sk_buff_head *backlogq = &l->backlogq;
+-	struct sk_buff *skb, *_skb, *bskb;
++	struct sk_buff *skb, *_skb, **tskb;
+ 	int pkt_cnt = skb_queue_len(list);
+ 	int rc = 0;
+ 
+@@ -980,19 +981,21 @@ int tipc_link_xmit(struct tipc_link *l,
+ 			seqno++;
+ 			continue;
+ 		}
+-		if (tipc_msg_bundle(skb_peek_tail(backlogq), hdr, mtu)) {
++		tskb = &l->backlog[imp].target_bskb;
++		if (tipc_msg_bundle(*tskb, hdr, mtu)) {
+ 			kfree_skb(__skb_dequeue(list));
+ 			l->stats.sent_bundled++;
+ 			continue;
+ 		}
+-		if (tipc_msg_make_bundle(&bskb, hdr, mtu, l->addr)) {
++		if (tipc_msg_make_bundle(tskb, hdr, mtu, l->addr)) {
+ 			kfree_skb(__skb_dequeue(list));
+-			__skb_queue_tail(backlogq, bskb);
+-			l->backlog[msg_importance(buf_msg(bskb))].len++;
++			__skb_queue_tail(backlogq, *tskb);
++			l->backlog[imp].len++;
+ 			l->stats.sent_bundled++;
+ 			l->stats.sent_bundles++;
+ 			continue;
+ 		}
++		l->backlog[imp].target_bskb = NULL;
+ 		l->backlog[imp].len += skb_queue_len(list);
+ 		skb_queue_splice_tail_init(list, backlogq);
+ 	}
+@@ -1008,6 +1011,7 @@ static void tipc_link_advance_backlog(st
+ 	u16 seqno = l->snd_nxt;
+ 	u16 ack = l->rcv_nxt - 1;
+ 	u16 bc_ack = l->bc_rcvlink->rcv_nxt - 1;
++	u32 imp;
+ 
+ 	while (skb_queue_len(&l->transmq) < l->window) {
+ 		skb = skb_peek(&l->backlogq);
+@@ -1018,7 +1022,10 @@ static void tipc_link_advance_backlog(st
+ 			break;
+ 		__skb_dequeue(&l->backlogq);
+ 		hdr = buf_msg(skb);
+-		l->backlog[msg_importance(hdr)].len--;
++		imp = msg_importance(hdr);
++		l->backlog[imp].len--;
++		if (unlikely(skb == l->backlog[imp].target_bskb))
++			l->backlog[imp].target_bskb = NULL;
+ 		__skb_queue_tail(&l->transmq, skb);
+ 		/* next retransmit attempt */
+ 		if (link_is_bc_sndlink(l))
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -484,10 +484,7 @@ bool tipc_msg_make_bundle(struct sk_buff
+ 	bmsg = buf_msg(_skb);
+ 	tipc_msg_init(msg_prevnode(msg), bmsg, MSG_BUNDLER, 0,
+ 		      INT_H_SIZE, dnode);
+-	if (msg_isdata(msg))
+-		msg_set_importance(bmsg, TIPC_CRITICAL_IMPORTANCE);
+-	else
+-		msg_set_importance(bmsg, TIPC_SYSTEM_IMPORTANCE);
++	msg_set_importance(bmsg, msg_importance(msg));
+ 	msg_set_seqno(bmsg, msg_seqno(msg));
+ 	msg_set_ack(bmsg, msg_ack(msg));
+ 	msg_set_bcast_ack(bmsg, msg_bcast_ack(msg));
 
 
