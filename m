@@ -2,50 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3273CD64F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AADCCD655
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730716AbfJFRop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44954 "EHLO mail.kernel.org"
+        id S1731238AbfJFRo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:44:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731708AbfJFRoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:44:39 -0400
+        id S1731847AbfJFRo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:44:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2433F2080F;
-        Sun,  6 Oct 2019 17:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61CB32087E;
+        Sun,  6 Oct 2019 17:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383878;
-        bh=Rq5KCnNb5DcsX1r+Iur5At0kw9Uc65vXdmpWwLR0yhI=;
+        s=default; t=1570383898;
+        bh=UGUU/8QyejhUdLsO3Qp6xSfeNn8zrabgD53ZEOe+6Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUMpSkcx80g3zFFn03CZ6jckz0XaF21TROIVlV2yzN+HjPRd5IHze5ifboqJqjd2T
-         G1ikvPBVoh6CY1ZRUQXaRJFfC1WCcYKvWkBNIloWPe3F3OlLH1QQ/C6a8UtletiRNE
-         rnLTunuGPxFBTC6wXWFJ+0NOdah4vv3o3Acg1l80=
+        b=iGWuakhIRrNdao7f6AQsmWqcCk9Y3BXjBr2V/DiiHXmgdID3KEyz52aA2HV4O5FCs
+         f5L3/Rb901dlNJAi7oyYuVxegzfZ28AKNkkE1ZWgdlw3j6mWuXAAN3eyOYU5dm/9k7
+         g+g4HxeAPCaBVZl5v+Xq1B+60Ppg9refHh8wZ3hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        James Hogan <jhogan@kernel.org>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 127/166] arm: use STACK_TOP when computing mmap base address
-Date:   Sun,  6 Oct 2019 19:21:33 +0200
-Message-Id: <20191006171223.969132237@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 129/166] erspan: remove the incorrect mtu limit for erspan
+Date:   Sun,  6 Oct 2019 19:21:35 +0200
+Message-Id: <20191006171224.112956520@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -58,59 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
 
-[ Upstream commit 86e568e9c0525fc40e76d827212d5e9721cf7504 ]
+[ Upstream commit 0e141f757b2c78c983df893e9993313e2dc21e38 ]
 
-mmap base address must be computed wrt stack top address, using TASK_SIZE
-is wrong since STACK_TOP and TASK_SIZE are not equivalent.
+erspan driver calls ether_setup(), after commit 61e84623ace3
+("net: centralize net_device min/max MTU checking"), the range
+of mtu is [min_mtu, max_mtu], which is [68, 1500] by default.
 
-Link: http://lkml.kernel.org/r/20190730055113.23635-8-alex@ghiti.fr
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It causes the dev mtu of the erspan device to not be greater
+than 1500, this limit value is not correct for ipgre tap device.
+
+Tested:
+Before patch:
+# ip link set erspan0 mtu 1600
+Error: mtu greater than device maximum.
+After patch:
+# ip link set erspan0 mtu 1600
+# ip -d link show erspan0
+21: erspan0@NONE: <BROADCAST,MULTICAST> mtu 1600 qdisc noop state DOWN
+mode DEFAULT group default qlen 1000
+    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 0
+
+Fixes: 61e84623ace3 ("net: centralize net_device min/max MTU checking")
+Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/mmap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/ip_gre.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mm/mmap.c b/arch/arm/mm/mmap.c
-index bff3d00bda5be..0b94b674aa91f 100644
---- a/arch/arm/mm/mmap.c
-+++ b/arch/arm/mm/mmap.c
-@@ -19,7 +19,7 @@
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -1446,6 +1446,7 @@ static void erspan_setup(struct net_devi
+ 	struct ip_tunnel *t = netdev_priv(dev);
  
- /* gap between mmap and stack */
- #define MIN_GAP		(128*1024*1024UL)
--#define MAX_GAP		((TASK_SIZE)/6*5)
-+#define MAX_GAP		((STACK_TOP)/6*5)
- #define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
- 
- static int mmap_is_legacy(struct rlimit *rlim_stack)
-@@ -51,7 +51,7 @@ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
- 	else if (gap > MAX_GAP)
- 		gap = MAX_GAP;
- 
--	return PAGE_ALIGN(TASK_SIZE - gap - rnd);
-+	return PAGE_ALIGN(STACK_TOP - gap - rnd);
- }
- 
- /*
--- 
-2.20.1
-
+ 	ether_setup(dev);
++	dev->max_mtu = 0;
+ 	dev->netdev_ops = &erspan_netdev_ops;
+ 	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
 
 
