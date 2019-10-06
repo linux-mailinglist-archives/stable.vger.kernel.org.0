@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 882E7CD4BB
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CF1CD4BD
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727464AbfJFR2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:28:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54384 "EHLO mail.kernel.org"
+        id S1728853AbfJFR2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728829AbfJFR2n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:28:43 -0400
+        id S1728839AbfJFR2q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:28:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CF1F2087E;
-        Sun,  6 Oct 2019 17:28:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CC3C2080F;
+        Sun,  6 Oct 2019 17:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382922;
-        bh=imc0Q0pspsvYgj/52o+N72nnGePu1STZj1a8QPV/zXc=;
+        s=default; t=1570382924;
+        bh=OuQyraHRTcW5Pfr4GQOsgbTEdxokYCLV74EwXmY0TbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gB8/XH7Tov3QOPnEBDlfiX43WIx0XwGyPijUv9pscUylb2eAyNDOcIBIaYJyvtMVs
-         +TYMgF/tQNio4NHeT/GwM7SZv3GCQLSUSkFQcTZaWoKgHDrPOvMYp6wQCaByaa9eJp
-         Podi9fEopORmqHG/U0j3e6qxdA2OjU9mdhwYZYy4=
+        b=rbvlLFFSe3hrxeaA7Qg4LSE2V+yqmbxSPxKrK/Um4ok+ZVaqsr4aDGan/Jp2/QkmQ
+         ZV9ezNGL5Bk7VPHiHpqb+EJpcYOgTkawKob8ko/EjLq4VXekhAVsdApZ/I6p3FZZGn
+         XYVnOWRK/YGMg/CMQ0TCxzlYSRO0G7DzmC/YQaPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <zhang.chunyan@linaro.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
+        stable@vger.kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 020/106] clk: sprd: Dont reference clk_init_data after registration
-Date:   Sun,  6 Oct 2019 19:20:26 +0200
-Message-Id: <20191006171134.651188987@linuxfoundation.org>
+Subject: [PATCH 4.19 021/106] clk: zx296718: Dont reference clk_init_data after registration
+Date:   Sun,  6 Oct 2019 19:20:27 +0200
+Message-Id: <20191006171136.024901509@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -47,48 +47,283 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stephen Boyd <sboyd@kernel.org>
 
-[ Upstream commit f6c90df8e7e33c3dc33d4d7471bc42c232b0510e ]
+[ Upstream commit 1a4549c150e27dbc3aea762e879a88209df6d1a5 ]
 
 A future patch is going to change semantics of clk_register() so that
 clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
 referencing this member here so that we don't run into NULL pointer
 exceptions.
 
-Cc: Chunyan Zhang <zhang.chunyan@linaro.org>
-Cc: Baolin Wang <baolin.wang@linaro.org>
+Cc: Jun Nie <jun.nie@linaro.org>
+Cc: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190731193517.237136-8-sboyd@kernel.org
-Acked-by: Baolin Wang <baolin.wang@linaro.org>
-Acked-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+Link: https://lkml.kernel.org/r/20190815160020.183334-3-sboyd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sprd/common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/clk/zte/clk-zx296718.c | 109 +++++++++++++++------------------
+ 1 file changed, 49 insertions(+), 60 deletions(-)
 
-diff --git a/drivers/clk/sprd/common.c b/drivers/clk/sprd/common.c
-index e038b04472061..8bdab1c3013b8 100644
---- a/drivers/clk/sprd/common.c
-+++ b/drivers/clk/sprd/common.c
-@@ -71,16 +71,17 @@ int sprd_clk_probe(struct device *dev, struct clk_hw_onecell_data *clkhw)
- 	struct clk_hw *hw;
+diff --git a/drivers/clk/zte/clk-zx296718.c b/drivers/clk/zte/clk-zx296718.c
+index 354dd508c5169..8dfb8523b79db 100644
+--- a/drivers/clk/zte/clk-zx296718.c
++++ b/drivers/clk/zte/clk-zx296718.c
+@@ -567,6 +567,7 @@ static int __init top_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
  
- 	for (i = 0; i < clkhw->num; i++) {
-+		const char *name;
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -576,11 +577,10 @@ static int __init top_clocks_init(struct device_node *np)
  
- 		hw = clkhw->hws[i];
--
- 		if (!hw)
- 			continue;
- 
-+		name = hw->init->name;
- 		ret = devm_clk_hw_register(dev, hw);
- 		if (ret) {
- 			dev_err(dev, "Couldn't register clock %d - %s\n",
--				i, hw->init->name);
-+				i, name);
- 			return ret;
- 		}
+ 	for (i = 0; i < ARRAY_SIZE(zx296718_pll_clk); i++) {
+ 		zx296718_pll_clk[i].reg_base += (uintptr_t)reg_base;
++		name = zx296718_pll_clk[i].hw.init->name;
+ 		ret = clk_hw_register(NULL, &zx296718_pll_clk[i].hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				zx296718_pll_clk[i].hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
  	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_ffactor_clk); i++) {
+@@ -588,11 +588,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 			top_hw_onecell_data.hws[top_ffactor_clk[i].id] =
+ 					&top_ffactor_clk[i].factor.hw;
+ 
++		name = top_ffactor_clk[i].factor.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_ffactor_clk[i].factor.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_ffactor_clk[i].factor.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_mux_clk); i++) {
+@@ -601,11 +600,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_mux_clk[i].mux.hw;
+ 
+ 		top_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = top_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_gate_clk); i++) {
+@@ -614,11 +612,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_gate_clk[i].gate.hw;
+ 
+ 		top_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = top_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_div_clk); i++) {
+@@ -627,11 +624,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_div_clk[i].div.hw;
+ 
+ 		top_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = top_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -757,6 +753,7 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -770,11 +767,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_mux_clk[i].mux.hw;
+ 
+ 		lsp0_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = lsp0_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp0_gate_clk); i++) {
+@@ -783,11 +779,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_gate_clk[i].gate.hw;
+ 
+ 		lsp0_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = lsp0_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp0_div_clk); i++) {
+@@ -796,11 +791,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_div_clk[i].div.hw;
+ 
+ 		lsp0_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = lsp0_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -865,6 +859,7 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -878,11 +873,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp0_mux_clk[i].mux.hw;
+ 
+ 		lsp1_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = lsp1_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp1_gate_clk); i++) {
+@@ -891,11 +885,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp1_gate_clk[i].gate.hw;
+ 
+ 		lsp1_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = lsp1_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp1_div_clk); i++) {
+@@ -904,11 +897,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp1_div_clk[i].div.hw;
+ 
+ 		lsp1_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = lsp1_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -982,6 +974,7 @@ static int __init audio_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -995,11 +988,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_mux_clk[i].mux.hw;
+ 
+ 		audio_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = audio_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_adiv_clk); i++) {
+@@ -1008,11 +1000,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_adiv_clk[i].hw;
+ 
+ 		audio_adiv_clk[i].reg_base += (uintptr_t)reg_base;
++		name = audio_adiv_clk[i].hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_adiv_clk[i].hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_adiv_clk[i].hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_div_clk); i++) {
+@@ -1021,11 +1012,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_div_clk[i].div.hw;
+ 
+ 		audio_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = audio_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_gate_clk); i++) {
+@@ -1034,11 +1024,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_gate_clk[i].gate.hw;
+ 
+ 		audio_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = audio_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
 -- 
 2.20.1
 
