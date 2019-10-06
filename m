@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6BF5CD810
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58998CD765
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726720AbfJFR5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60730 "EHLO mail.kernel.org"
+        id S1727730AbfJFR2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729861AbfJFReB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:34:01 -0400
+        id S1728696AbfJFR2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:28:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54AC72087E;
-        Sun,  6 Oct 2019 17:34:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B78592133F;
+        Sun,  6 Oct 2019 17:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383240;
-        bh=J1zur49gsnGltUJR6USs8KZFsOWEQRy5Y0FIf5lKH6Q=;
+        s=default; t=1570382892;
+        bh=7OIGAHIn83en4J2dXz/6WX2xRncraPreUTj7vjD+EHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZ+NIy/7QS7N5nXRzDTY8JztRilzr6kbyhDTm3O3wrVf+sllCSNrbLxgi+vSVySY3
-         mdVt4uwsLefg6h4k1Jg+BjUZOji6Ey2uvHmQJ3gNtBZmuiRF/0bbAVwJzUJcDoVjkg
-         5grULKTLbSZtNfrNEGjI5CYeUl9Q248zyBFa2Tsc=
+        b=VakiIQTOBGdxim7NTtVjBkCAkQa52wEdhnwjuKel8cRmTtKJ7vW5FRDuVCWcUwUdg
+         NpgPQzMmEp5OJhQDFHlhH9g5Vs/MYPQ11KCzg52jkCSmfyZgEQB9hW4dZ5k8RGoWps
+         EjjgzeD6yEyyxGVZQhBuTauPMuG8udSLBGywuvA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <anthony.koo@amd.com>,
-        Charlene Liu <Charlene.Liu@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 030/137] drm/amd/display: add monitor patch to add T7 delay
-Date:   Sun,  6 Oct 2019 19:20:14 +0200
-Message-Id: <20191006171211.604415308@linuxfoundation.org>
+Subject: [PATCH 4.19 010/106] gpu: drm: radeon: Fix a possible null-pointer dereference in radeon_connector_set_property()
+Date:   Sun,  6 Oct 2019 19:20:16 +0200
+Message-Id: <20191006171129.783390713@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,62 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Koo <anthony.koo@amd.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 88eac241a1fc500ce5274a09ddc4bd5fc2b5adb6 ]
+[ Upstream commit f3eb9b8f67bc28783eddc142ad805ebdc53d6339 ]
 
-[Why]
-Specifically to one panel,
-TCON is able to accept active video signal quickly, but
-the Source Driver requires 2-3 frames of extra time.
+In radeon_connector_set_property(), there is an if statement on line 743
+to check whether connector->encoder is NULL:
+    if (connector->encoder)
 
-It is a Panel issue since TCON needs to take care of
-all Sink requirements including Source Driver. But in
-this case it does not.
+When connector->encoder is NULL, it is used on line 755:
+    if (connector->encoder->crtc)
 
-Customer is asking to add fixed T7 delay as panel
-workaround.
+Thus, a possible null-pointer dereference may occur.
 
-[How]
-Add monitor specific patch to add T7 delay
+To fix this bug, connector->encoder is checked before being used.
 
-Signed-off-by: Anthony Koo <anthony.koo@amd.com>
-Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
+This bug is found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c | 4 ++++
- drivers/gpu/drm/amd/display/dc/dc_types.h          | 1 +
- 2 files changed, 5 insertions(+)
+ drivers/gpu/drm/radeon/radeon_connectors.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-index b0dea759cd860..8aecf044e2ae8 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_hwss.c
-@@ -154,6 +154,10 @@ bool edp_receiver_ready_T7(struct dc_link *link)
- 			break;
- 		udelay(25); //MAx T7 is 50ms
- 	} while (++tries < 300);
-+
-+	if (link->local_sink->edid_caps.panel_patch.extra_t7_ms > 0)
-+		udelay(link->local_sink->edid_caps.panel_patch.extra_t7_ms * 1000);
-+
- 	return result;
- }
+diff --git a/drivers/gpu/drm/radeon/radeon_connectors.c b/drivers/gpu/drm/radeon/radeon_connectors.c
+index 414642e5b7a31..de656f5553839 100644
+--- a/drivers/gpu/drm/radeon/radeon_connectors.c
++++ b/drivers/gpu/drm/radeon/radeon_connectors.c
+@@ -751,7 +751,7 @@ static int radeon_connector_set_property(struct drm_connector *connector, struct
  
-diff --git a/drivers/gpu/drm/amd/display/dc/dc_types.h b/drivers/gpu/drm/amd/display/dc/dc_types.h
-index 6c2a3d9a4c2e7..283082666be51 100644
---- a/drivers/gpu/drm/amd/display/dc/dc_types.h
-+++ b/drivers/gpu/drm/amd/display/dc/dc_types.h
-@@ -202,6 +202,7 @@ struct dc_panel_patch {
- 	unsigned int dppowerup_delay;
- 	unsigned int extra_t12_ms;
- 	unsigned int extra_delay_backlight_off;
-+	unsigned int extra_t7_ms;
- };
+ 		radeon_encoder->output_csc = val;
  
- struct dc_edid_caps {
+-		if (connector->encoder->crtc) {
++		if (connector->encoder && connector->encoder->crtc) {
+ 			struct drm_crtc *crtc  = connector->encoder->crtc;
+ 			struct radeon_crtc *radeon_crtc = to_radeon_crtc(crtc);
+ 
 -- 
 2.20.1
 
