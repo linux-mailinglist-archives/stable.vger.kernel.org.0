@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53308CD746
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5106CD728
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:54:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728853AbfJFRyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
+        id S1730459AbfJFRhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:37:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728654AbfJFRya (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:30 -0400
+        id S1730466AbfJFRhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:37:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 479032247F;
-        Sun,  6 Oct 2019 17:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BD232080F;
+        Sun,  6 Oct 2019 17:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570384000;
-        bh=vTl9zJpljgQsfufSouxqoZf5478I80hsMeKWww/XdhA=;
+        s=default; t=1570383457;
+        bh=qGQ9HN8LkKwm6Kshzu4NmFigna+xkzLDeB9AZNaGBU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X656UE7n7eeOtW2ZeMwrL9K0cPE9mkh+sJO0GbIFJOkZ1KfSxRZJXbhG3SgkVGF8N
-         uavwq48llKLxEk/cUvJ+/KKJc9+W3XaJl8+Bzbfap1RUnZ/ovy6LP/2gr8Q1TZpm3l
-         rfUh1LZG5GDplrKxY18rI8CHTQUr2Lz0jcO6Uwgw=
+        b=ynoQF/Z1Dw62LMe3KGDHmmHR1mstyFKkrSnK1knR6ltzSdI6rISJz7aK45kT3q4H+
+         jrtzTLJ5qC/KCQ4tqBh0cmezGM5K5Ni8VCKsGrBAyzjFxx0k+NE9B/QELdHWDDJXDl
+         sdSQO/2BKRuNqT1J45MBaRGYd5ru1kNvuAF9re8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shahjada Abul Husain <shahjada@chelsio.com>,
-        Vishal Kulkarni <vishal@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 128/166] cxgb4:Fix out-of-bounds MSI-X info array access
-Date:   Sun,  6 Oct 2019 19:21:34 +0200
-Message-Id: <20191006171224.041409092@linuxfoundation.org>
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Shawn Guo <shawn.guo@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 111/137] PCI: histb: Propagate errors for optional regulators
+Date:   Sun,  6 Oct 2019 19:21:35 +0200
+Message-Id: <20191006171218.315934610@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-References: <20191006171212.850660298@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 6b517374f4ea5a3c6e307e1219ec5f35d42e6d00 ]
+[ Upstream commit 8f9e1641ba445437095411d9fda2324121110d5d ]
 
-When fetching free MSI-X vectors for ULDs, check for the error code
-before accessing MSI-X info array. Otherwise, an out-of-bounds access is
-attempted, which results in kernel panic.
+regulator_get_optional() can fail for a number of reasons besides probe
+deferral. It can for example return -ENOMEM if it runs out of memory as
+it tries to allocate data structures. Propagating only -EPROBE_DEFER is
+problematic because it results in these legitimately fatal errors being
+treated as "regulator not specified in DT".
 
-Fixes: 94cdb8bb993a ("cxgb4: Add support for dynamic allocation of resources for ULD")
-Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+What we really want is to ignore the optional regulators only if they
+have not been specified in DT. regulator_get_optional() returns -ENODEV
+in this case, so that's the special case that we need to handle. So we
+propagate all errors, except -ENODEV, so that real failures will still
+cause the driver to fail probe.
+
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Andrew Murray <andrew.murray@arm.com>
+Cc: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/pci/controller/dwc/pcie-histb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-@@ -137,13 +137,12 @@ static int uldrx_handler(struct sge_rspq
- static int alloc_uld_rxqs(struct adapter *adap,
- 			  struct sge_uld_rxq_info *rxq_info, bool lro)
- {
--	struct sge *s = &adap->sge;
- 	unsigned int nq = rxq_info->nrxq + rxq_info->nciq;
-+	int i, err, msi_idx, que_idx = 0, bmap_idx = 0;
- 	struct sge_ofld_rxq *q = rxq_info->uldrxq;
- 	unsigned short *ids = rxq_info->rspq_id;
--	unsigned int bmap_idx = 0;
-+	struct sge *s = &adap->sge;
- 	unsigned int per_chan;
--	int i, err, msi_idx, que_idx = 0;
+diff --git a/drivers/pci/controller/dwc/pcie-histb.c b/drivers/pci/controller/dwc/pcie-histb.c
+index 954bc2b74bbcd..811b5c6d62eae 100644
+--- a/drivers/pci/controller/dwc/pcie-histb.c
++++ b/drivers/pci/controller/dwc/pcie-histb.c
+@@ -340,8 +340,8 @@ static int histb_pcie_probe(struct platform_device *pdev)
  
- 	per_chan = rxq_info->nrxq / adap->params.nports;
+ 	hipcie->vpcie = devm_regulator_get_optional(dev, "vpcie");
+ 	if (IS_ERR(hipcie->vpcie)) {
+-		if (PTR_ERR(hipcie->vpcie) == -EPROBE_DEFER)
+-			return -EPROBE_DEFER;
++		if (PTR_ERR(hipcie->vpcie) != -ENODEV)
++			return PTR_ERR(hipcie->vpcie);
+ 		hipcie->vpcie = NULL;
+ 	}
  
-@@ -161,6 +160,10 @@ static int alloc_uld_rxqs(struct adapter
- 
- 		if (msi_idx >= 0) {
- 			bmap_idx = get_msix_idx_from_bmap(adap);
-+			if (bmap_idx < 0) {
-+				err = -ENOSPC;
-+				goto freeout;
-+			}
- 			msi_idx = adap->msix_info_ulds[bmap_idx].idx;
- 		}
- 		err = t4_sge_alloc_rxq(adap, &q->rspq, false,
+-- 
+2.20.1
+
 
 
