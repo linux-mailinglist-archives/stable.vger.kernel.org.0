@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66DACCD7E1
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C20CD882
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730186AbfJFRgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34928 "EHLO mail.kernel.org"
+        id S1726761AbfJFRXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730077AbfJFRgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:11 -0400
+        id S1726508AbfJFRXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2144220700;
-        Sun,  6 Oct 2019 17:36:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9C6E2077B;
+        Sun,  6 Oct 2019 17:23:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383370;
-        bh=eSh8T2nSPy8y2TgRE1CffHRlokwH0nJvPtRMTdfQcbQ=;
+        s=default; t=1570382587;
+        bh=yXB39dAJ0OPDeSOHA2m2wMUfQ/NcOLpxgJl/vscunP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1l7J1s1R6EZkeoSmRU7lbAlcV92TfoMsFRAKSpO2BvagD9jO99qirPUHb8X488DJ
-         IYWcIoan1RBzVTHwGwyUx0wqc6odA8ANsyenqjQS6rk4TY8mJZCC9f+Fd/WSEEDnQE
-         eDkTu5Zhsp1rLwB7GFeTG0ZjcCuDbHAn5rkuoZkI=
+        b=lUtG3X5AgSITwFxU1XEHWdrvjmQwemTgLQFkz/lUewfl4PCzs3vdyu8n6Hude72O/
+         MiYjdyHwaGO1VSwbOJ/LweUfQBu0Hd38VfZHcPYH8E0MiB+1cYnCpfBHxB0S/2kcOn
+         MJqzxI0S5b4/NitzkPBufe6Mm/525Z2NmyW3v69E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
-        CK Hu <ck.hu@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 077/137] mailbox: mediatek: cmdq: clear the event in cmdq initial flow
+Subject: [PATCH 4.9 14/47] powerpc/64s/exception: machine check use correct cfar for late handler
 Date:   Sun,  6 Oct 2019 19:21:01 +0200
-Message-Id: <20191006171215.411270398@linuxfoundation.org>
+Message-Id: <20191006172017.639416159@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibby Hsieh <bibby.hsieh@mediatek.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 6058f11870b8e6d4f5cc7b591097c00bf69a000d ]
+[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
 
-GCE hardware stored event information in own internal sysram,
-if the initial value in those sysram is not zero value
-it will cause a situation that gce can wait the event immediately
-after client ask gce to wait event but not really trigger the
-corresponding hardware.
+Bare metal machine checks run an "early" handler in real mode before
+running the main handler which reports the event.
 
-In order to make sure that the wait event function is
-exactly correct, we need to clear the sysram value in
-cmdq initial flow.
+The main handler runs exactly as a normal interrupt handler, after the
+"windup" which sets registers back as they were at interrupt entry.
+CFAR does not get restored by the windup code, so that will be wrong
+when the handler is run.
 
-Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
+Restore the CFAR to the saved value before running the late handler.
 
-Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
-Reviewed-by: CK Hu <ck.hu@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mtk-cmdq-mailbox.c       | 5 +++++
- include/linux/mailbox/mtk-cmdq-mailbox.h | 3 +++
- include/linux/soc/mediatek/mtk-cmdq.h    | 3 ---
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
-index 00d5219094e5d..48bba49139523 100644
---- a/drivers/mailbox/mtk-cmdq-mailbox.c
-+++ b/drivers/mailbox/mtk-cmdq-mailbox.c
-@@ -22,6 +22,7 @@
- #define CMDQ_NUM_CMD(t)			(t->cmd_buf_size / CMDQ_INST_SIZE)
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index 92474227262b4..0c8b966e80702 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -467,6 +467,10 @@ EXC_COMMON_BEGIN(machine_check_handle_early)
+ 	RFI_TO_USER_OR_KERNEL
+ 9:
+ 	/* Deliver the machine check to host kernel in V mode. */
++BEGIN_FTR_SECTION
++	ld	r10,ORIG_GPR3(r1)
++	mtspr	SPRN_CFAR,r10
++END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
+ 	MACHINE_CHECK_HANDLER_WINDUP
+ 	b	machine_check_pSeries
  
- #define CMDQ_CURR_IRQ_STATUS		0x10
-+#define CMDQ_SYNC_TOKEN_UPDATE		0x68
- #define CMDQ_THR_SLOT_CYCLES		0x30
- #define CMDQ_THR_BASE			0x100
- #define CMDQ_THR_SIZE			0x80
-@@ -104,8 +105,12 @@ static void cmdq_thread_resume(struct cmdq_thread *thread)
- 
- static void cmdq_init(struct cmdq *cmdq)
- {
-+	int i;
-+
- 	WARN_ON(clk_enable(cmdq->clock) < 0);
- 	writel(CMDQ_THR_ACTIVE_SLOT_CYCLES, cmdq->base + CMDQ_THR_SLOT_CYCLES);
-+	for (i = 0; i <= CMDQ_MAX_EVENT; i++)
-+		writel(i, cmdq->base + CMDQ_SYNC_TOKEN_UPDATE);
- 	clk_disable(cmdq->clock);
- }
- 
-diff --git a/include/linux/mailbox/mtk-cmdq-mailbox.h b/include/linux/mailbox/mtk-cmdq-mailbox.h
-index ccb73422c2fa2..e6f54ef6698b1 100644
---- a/include/linux/mailbox/mtk-cmdq-mailbox.h
-+++ b/include/linux/mailbox/mtk-cmdq-mailbox.h
-@@ -20,6 +20,9 @@
- #define CMDQ_WFE_WAIT			BIT(15)
- #define CMDQ_WFE_WAIT_VALUE		0x1
- 
-+/** cmdq event maximum */
-+#define CMDQ_MAX_EVENT			0x3ff
-+
- /*
-  * CMDQ_CODE_MASK:
-  *   set write mask
-diff --git a/include/linux/soc/mediatek/mtk-cmdq.h b/include/linux/soc/mediatek/mtk-cmdq.h
-index 54ade13a9b157..4e8899972db4d 100644
---- a/include/linux/soc/mediatek/mtk-cmdq.h
-+++ b/include/linux/soc/mediatek/mtk-cmdq.h
-@@ -13,9 +13,6 @@
- 
- #define CMDQ_NO_TIMEOUT		0xffffffffu
- 
--/** cmdq event maximum */
--#define CMDQ_MAX_EVENT				0x3ff
--
- struct cmdq_pkt;
- 
- struct cmdq_client {
 -- 
 2.20.1
 
