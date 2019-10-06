@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0915CD7E4
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 969D5CD7A9
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728745AbfJFRya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:54:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51354 "EHLO mail.kernel.org"
+        id S1728092AbfJFRcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728277AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:29 -0400
+        id S1727680AbfJFRcy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DC36222D2;
-        Sun,  6 Oct 2019 17:45:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C13692080F;
+        Sun,  6 Oct 2019 17:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383957;
-        bh=zCKmjyZlrLC7ANRYhp/52vjRW/jBssQmM8dBavnIWww=;
+        s=default; t=1570383173;
+        bh=YObjyu4dg2oNKw8aD2FnpyBOuVLnwL6K6CQg8iywsis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1ScnQNQXs+I1VLT3AWoD/Tyz8tjKjNY/Ci2iGgcNwbDJLDH8fkfBfh7vWKYRF1lq
-         XaCSVJqotSzzVIFn/hgDntgvRTuKJT/mvzcpT3J4Td7L+sjfCUmLxP6dzjXVpwWISc
-         2yyEwnX2l7LlRMTDe2o4BeQL9rr6SlBZoj9PnaLY=
+        b=ndeklQOU0+yoi7P4hbbYO1w+zqnZImgplmIC08Cos3GATHJsUnRp+L6JiSvkvqK2e
+         6udPdohSX2tmAK/Zm7i9ZnB1V5DYkCkpEJbGqx6iwtUvL00KMVaDhm7wx9k4fs8gpv
+         vrNL8+gS5DsKwi1g8NaWj9d1hG8Ykb0unC6cx0e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Florian Westphal <fw@strlen.de>,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 131/166] ipv6: drop incoming packets having a v4mapped source address
+Subject: [PATCH 4.19 091/106] sch_dsmark: fix potential NULL deref in dsmark_init()
 Date:   Sun,  6 Oct 2019 19:21:37 +0200
-Message-Id: <20191006171224.252589027@linuxfoundation.org>
+Message-Id: <20191006171200.275441258@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-References: <20191006171212.850660298@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,65 +46,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6af1799aaf3f1bc8defedddfa00df3192445bbf3 ]
+[ Upstream commit 474f0813a3002cb299bb73a5a93aa1f537a80ca8 ]
 
-This began with a syzbot report. syzkaller was injecting
-IPv6 TCP SYN packets having a v4mapped source address.
+Make sure TCA_DSMARK_INDICES was provided by the user.
 
-After an unsuccessful 4-tuple lookup, TCP creates a request
-socket (SYN_RECV) and calls reqsk_queue_hash_req()
+syzbot reported :
 
-reqsk_queue_hash_req() calls sk_ehashfn(sk)
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8799 Comm: syz-executor235 Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:nla_get_u16 include/net/netlink.h:1501 [inline]
+RIP: 0010:dsmark_init net/sched/sch_dsmark.c:364 [inline]
+RIP: 0010:dsmark_init+0x193/0x640 net/sched/sch_dsmark.c:339
+Code: 85 db 58 0f 88 7d 03 00 00 e8 e9 1a ac fb 48 8b 9d 70 ff ff ff 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 04 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 ca
+RSP: 0018:ffff88809426f3b8 EFLAGS: 00010247
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff85c6eb09
+RDX: 0000000000000000 RSI: ffffffff85c6eb17 RDI: 0000000000000004
+RBP: ffff88809426f4b0 R08: ffff88808c4085c0 R09: ffffed1015d26159
+R10: ffffed1015d26158 R11: ffff8880ae930ac7 R12: ffff8880a7e96940
+R13: dffffc0000000000 R14: ffff88809426f8c0 R15: 0000000000000000
+FS:  0000000001292880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020000080 CR3: 000000008ca1b000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ qdisc_create+0x4ee/0x1210 net/sched/sch_api.c:1237
+ tc_modify_qdisc+0x524/0x1c50 net/sched/sch_api.c:1653
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5223
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440369
 
-At this point we have AF_INET6 sockets, and the heuristic
-used by sk_ehashfn() to either hash the IPv4 or IPv6 addresses
-is to use ipv6_addr_v4mapped(&sk->sk_v6_daddr)
-
-For the particular spoofed packet, we end up hashing V4 addresses
-which were not initialized by the TCP IPv6 stack, so KMSAN fired
-a warning.
-
-I first fixed sk_ehashfn() to test both source and destination addresses,
-but then faced various problems, including user-space programs
-like packetdrill that had similar assumptions.
-
-Instead of trying to fix the whole ecosystem, it is better
-to admit that we have a dual stack behavior, and that we
-can not build linux kernels without V4 stack anyway.
-
-The dual stack API automatically forces the traffic to be IPv4
-if v4mapped addresses are used at bind() or connect(), so it makes
-no sense to allow IPv6 traffic to use the same v4mapped class.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 758cc43c6d73 ("[PKT_SCHED]: Fix dsmark to apply changes consistent")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
 Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_input.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/sched/sch_dsmark.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/ipv6/ip6_input.c
-+++ b/net/ipv6/ip6_input.c
-@@ -221,6 +221,16 @@ static struct sk_buff *ip6_rcv_core(stru
- 	if (ipv6_addr_is_multicast(&hdr->saddr))
- 		goto err;
+--- a/net/sched/sch_dsmark.c
++++ b/net/sched/sch_dsmark.c
+@@ -357,6 +357,8 @@ static int dsmark_init(struct Qdisc *sch
+ 		goto errout;
  
-+	/* While RFC4291 is not explicit about v4mapped addresses
-+	 * in IPv6 headers, it seems clear linux dual-stack
-+	 * model can not deal properly with these.
-+	 * Security models could be fooled by ::ffff:127.0.0.1 for example.
-+	 *
-+	 * https://tools.ietf.org/html/draft-itojun-v6ops-v4mapped-harmful-02
-+	 */
-+	if (ipv6_addr_v4mapped(&hdr->saddr))
-+		goto err;
-+
- 	skb->transport_header = skb->network_header + sizeof(*hdr);
- 	IP6CB(skb)->nhoff = offsetof(struct ipv6hdr, nexthdr);
+ 	err = -EINVAL;
++	if (!tb[TCA_DSMARK_INDICES])
++		goto errout;
+ 	indices = nla_get_u16(tb[TCA_DSMARK_INDICES]);
  
+ 	if (hweight32(indices) != 1)
 
 
