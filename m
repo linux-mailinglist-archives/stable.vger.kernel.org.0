@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AFEDCD6D5
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71647CD6D7
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730740AbfJFRjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
+        id S1730761AbfJFRjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:39:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730741AbfJFRjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:15 -0400
+        id S1730762AbfJFRjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:39:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9DE420700;
-        Sun,  6 Oct 2019 17:39:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56B9A20862;
+        Sun,  6 Oct 2019 17:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383554;
-        bh=UFgLiUOs6x9PlG4jSctQ9LRTyjHREDnXiqnZJRJ+uuk=;
+        s=default; t=1570383559;
+        bh=TmUVAbWSEcYcj+irDhRNLuE3zHUilfSwCYvlTjdtEr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDlwC+IMwUBGeC3H1L6qIw65i0CqOOOQb7+bfLdU/o+C0KywlvmOVGFYMxB8kFnu0
-         pE5d5o002KTYTWKfzLBpmmtzhp8M/qUAA1Qyqy7u/3uFqqhBWl62M5/5MuMZha9qZS
-         +nJx6KMlXWm01I6SdJ5aR3qFn30I7uYklcTbWXjw=
+        b=scefugTjikU8zgudTOdW7ib37UP3d4coLtn8x/EsG1JEnKgDIj2cGzozngLh6Ogz1
+         Xqpneq/ALr2tJ4/4Hdc8WQF7IBXFd3ZIhQax8W7pGlUXPXQ0PMAbWDhNtzAu3iu7V4
+         +1ytSeRIU+bmuGD7vmqk7fp71PG9PmdsiYXo554A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Hersen Wu <hersen.wu@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        David Lechner <david@lechnology.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 010/166] drm/amd/display: Copy GSL groups when committing a new context
-Date:   Sun,  6 Oct 2019 19:19:36 +0200
-Message-Id: <20191006171213.491744259@linuxfoundation.org>
+Subject: [PATCH 5.3 012/166] drm/tinydrm/Kconfig: drivers: Select BACKLIGHT_CLASS_DEVICE
+Date:   Sun,  6 Oct 2019 19:19:38 +0200
+Message-Id: <20191006171213.614339206@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,74 +45,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Noralf Trønnes <noralf@tronnes.org>
 
-[ Upstream commit 21ffcc94d5b3dc024fedac700f1e7f9dacf4ab4f ]
+[ Upstream commit 3389669ac5ea598562673c04971d7bb0fab0e9f1 ]
 
-[Why]
-DC configures the GSL group for the pipe when pipe_split is enabled
-and we're switching flip types (buffered <-> immediate flip) on DCN2.
+The mipi_dbi helper is missing a dependency on DRM_KMS_HELPER and putting
+that in revealed this problem:
 
-In order to record what GSL group the pipe is using DC stores it in
-the pipe's stream_res. DM is not aware of this internal grouping, nor
-is DC resource.
+drivers/video/fbdev/Kconfig:12:error: recursive dependency detected!
+drivers/video/fbdev/Kconfig:12: symbol FB is selected by DRM_KMS_FB_HELPER
+drivers/gpu/drm/Kconfig:75:     symbol DRM_KMS_FB_HELPER depends on DRM_KMS_HELPER
+drivers/gpu/drm/Kconfig:69:     symbol DRM_KMS_HELPER is selected by TINYDRM_MIPI_DBI
+drivers/gpu/drm/tinydrm/Kconfig:11:     symbol TINYDRM_MIPI_DBI is selected by TINYDRM_HX8357D
+drivers/gpu/drm/tinydrm/Kconfig:15:     symbol TINYDRM_HX8357D depends on BACKLIGHT_CLASS_DEVICE
+drivers/video/backlight/Kconfig:144:    symbol BACKLIGHT_CLASS_DEVICE is selected by FB_BACKLIGHT
+drivers/video/fbdev/Kconfig:187:        symbol FB_BACKLIGHT depends on FB
 
-So when DM creates a dc_state context and passes it to DC the current
-GSL group is lost - DM never knew about it in the first place.
+A symbol that selects DRM_KMS_HELPER can not depend on
+BACKLIGHT_CLASS_DEVICE. The reason for this is that DRM_KMS_FB_HELPER
+selects FB instead of depending on it.
 
-After 3 immediate flips we run out of GSL groups and we're no longer
-able to correctly perform *any* flip for multi-pipe scenarios.
+The tinydrm drivers have somehow gotten away with depending on
+BACKLIGHT_CLASS_DEVICE because DRM_TINYDRM selects DRM_KMS_HELPER and the
+drivers depend on that symbol.
 
-[How]
-The gsl_group needs to be copied to the new context.
+An audit shows that all DRM drivers that select DRM_KMS_HELPER and use
+BACKLIGHT_CLASS_DEVICE, selects it:
+  DRM_TILCDC, DRM_GMA500, DRM_SHMOBILE, DRM_NOUVEAU, DRM_FSL_DCU,
+  DRM_I915, DRM_RADEON, DRM_AMDGPU, DRM_PARADE_PS8622
 
-DM has no insight into GSL grouping and could even potentially create
-a brand new context without referencing current hardware state. So this
-makes the most sense to have happen in DC.
+Documentation/kbuild/kconfig-language.txt has a note regarding select:
+1. 'select should be used with care since it doesn't visit dependencies.'
+   This is not a problem since BACKLIGHT_CLASS_DEVICE doesn't have any
+   dependencies.
+2. 'In general use select only for non-visible symbols'
+   BACKLIGHT_CLASS_DEVICE is user visible.
 
-There are two places where DC can apply a new context:
-- dc_commit_state
-- dc_commit_updates_for_stream
+The real solution to this would be to have DRM_KMS_FB_HELPER depend on the
+user visible symbol FB. That is a can of worms I'm not willing to tackle.
+I fear that such a change will result in me handling difficult fallouts
+for the next weeks. So I'm following DRM suite here.
 
-But what's shared between both of these is apply_ctx_for_surface.
-
-This logic only matters for DCN2, so it can be placed in
-dcn20_apply_ctx_for_surface. Before doing any locking (where the GSL
-group is setup) we can copy over the GSL groups before committing the
-new context.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Hersen Wu <hersen.wu@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: David Lechner <david@lechnology.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190722104312.16184-7-noralf@tronnes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/gpu/drm/tinydrm/Kconfig | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index 2627e0a98a96a..f8abe98a576be 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -1319,6 +1319,18 @@ static void dcn20_apply_ctx_for_surface(
- 	if (!top_pipe_to_program)
- 		return;
- 
-+	/* Carry over GSL groups in case the context is changing. */
-+	for (i = 0; i < dc->res_pool->pipe_count; i++) {
-+		struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
-+		struct pipe_ctx *old_pipe_ctx =
-+			&dc->current_state->res_ctx.pipe_ctx[i];
-+
-+		if (pipe_ctx->stream == stream &&
-+		    pipe_ctx->stream == old_pipe_ctx->stream)
-+			pipe_ctx->stream_res.gsl_group =
-+				old_pipe_ctx->stream_res.gsl_group;
-+	}
-+
- 	tg = top_pipe_to_program->stream_res.tg;
- 
- 	interdependent_update = top_pipe_to_program->plane_state &&
+diff --git a/drivers/gpu/drm/tinydrm/Kconfig b/drivers/gpu/drm/tinydrm/Kconfig
+index 87819c82bcce8..f2f0739d1035d 100644
+--- a/drivers/gpu/drm/tinydrm/Kconfig
++++ b/drivers/gpu/drm/tinydrm/Kconfig
+@@ -14,8 +14,8 @@ config TINYDRM_MIPI_DBI
+ config TINYDRM_HX8357D
+ 	tristate "DRM support for HX8357D display panels"
+ 	depends on DRM_TINYDRM && SPI
+-	depends on BACKLIGHT_CLASS_DEVICE
+ 	select TINYDRM_MIPI_DBI
++	select BACKLIGHT_CLASS_DEVICE
+ 	help
+ 	  DRM driver for the following HX8357D panels:
+ 	  * YX350HV15-T 3.5" 340x350 TFT (Adafruit 3.5")
+@@ -35,8 +35,8 @@ config TINYDRM_ILI9225
+ config TINYDRM_ILI9341
+ 	tristate "DRM support for ILI9341 display panels"
+ 	depends on DRM_TINYDRM && SPI
+-	depends on BACKLIGHT_CLASS_DEVICE
+ 	select TINYDRM_MIPI_DBI
++	select BACKLIGHT_CLASS_DEVICE
+ 	help
+ 	  DRM driver for the following Ilitek ILI9341 panels:
+ 	  * YX240QV29-T 2.4" 240x320 TFT (Adafruit 2.4")
+@@ -46,8 +46,8 @@ config TINYDRM_ILI9341
+ config TINYDRM_MI0283QT
+ 	tristate "DRM support for MI0283QT"
+ 	depends on DRM_TINYDRM && SPI
+-	depends on BACKLIGHT_CLASS_DEVICE
+ 	select TINYDRM_MIPI_DBI
++	select BACKLIGHT_CLASS_DEVICE
+ 	help
+ 	  DRM driver for the Multi-Inno MI0283QT display panel
+ 	  If M is selected the module will be called mi0283qt.
+@@ -78,8 +78,8 @@ config TINYDRM_ST7586
+ config TINYDRM_ST7735R
+ 	tristate "DRM support for Sitronix ST7735R display panels"
+ 	depends on DRM_TINYDRM && SPI
+-	depends on BACKLIGHT_CLASS_DEVICE
+ 	select TINYDRM_MIPI_DBI
++	select BACKLIGHT_CLASS_DEVICE
+ 	help
+ 	  DRM driver Sitronix ST7735R with one of the following LCDs:
+ 	  * JD-T18003-T01 1.8" 128x160 TFT
 -- 
 2.20.1
 
