@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A849CD7BE
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6F4CD776
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfJFRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60556 "EHLO mail.kernel.org"
+        id S1728188AbfJFR3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:29:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729840AbfJFRdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:33:53 -0400
+        id S1728206AbfJFR3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:29:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 349B42133F;
-        Sun,  6 Oct 2019 17:33:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E442087E;
+        Sun,  6 Oct 2019 17:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383232;
-        bh=I/gA4q9CIaxKXPKZAn9zp6oLBe04zM00DICPM9pXiPE=;
+        s=default; t=1570382973;
+        bh=D+5+refmVJN0BInrZBrBKnq8Z+wMu8TansF66Q6t0aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5bexHOxXc3qRii735hUhaM4CzUIBdurvhZBttkmcYcpPDaO6Saf1fxyoiQNlfD1n
-         ePehTv8ynXpMN89Rh1XvHYMTC3u/fM7ozYqD6l4+A2rjU48kwZlJvEG92ztsIvA175
-         gdtvQg5L5nX/yT5tzw9S+StCi2UiOXuuMIJkoPUg=
+        b=Fngxx3+8MCfv9/o1lduR/MirpwFptbmv/uskw63JY9zZTd7FWq7nSeaWrzZZyT2/C
+         r9e4o/pP0Sye7b80BCg+Nwigi/90DVddpPXv/7n1GFAJN4vuvbnQUN9lLzMEMEzJf2
+         SIMDb67VmC+md3QZpoYNBWu8ayz4qRMbSFSkXgVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 028/137] drm/vkms: Avoid assigning 0 for possible_crtc
+Subject: [PATCH 4.19 006/106] drm/stm: attach gem fence to atomic state
 Date:   Sun,  6 Oct 2019 19:20:12 +0200
-Message-Id: <20191006171211.482805173@linuxfoundation.org>
+Message-Id: <20191006171128.006307663@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,109 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit e9d85f731de06a35d2ae6cdcf7d0e037c98ef41a ]
+[ Upstream commit 8fabc9c3109a71b3577959a05408153ae69ccd8d ]
 
-When vkms invoke drm_universal_plane_init(), it sets 0 for
-possible_crtcs parameter which means that planes can't be attached to
-any CRTC. It currently works due to some safeguard in the drm_crtc file;
-however, it is possible to identify the problem by trying to append a
-second connector. This patch fixes this issue by modifying
-vkms_plane_init() to accept an index parameter which makes the code a
-little bit more flexible and avoid set zero to possible_crtcs.
+To properly synchronize with other devices the fence from the GEM
+object backing the framebuffer needs to be attached to the atomic
+state, so the commit work can wait on fence signaling.
 
-Signed-off-by: Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/d67849c62a8d8ace1a0af455998b588798a4c45f.1561491964.git.rodrigosiqueiramelo@gmail.com
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Acked-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190712084228.8338-1-l.stach@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vkms/vkms_drv.c    | 2 +-
- drivers/gpu/drm/vkms/vkms_drv.h    | 4 ++--
- drivers/gpu/drm/vkms/vkms_output.c | 6 +++---
- drivers/gpu/drm/vkms/vkms_plane.c  | 4 ++--
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/stm/ltdc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/vkms/vkms_drv.c b/drivers/gpu/drm/vkms/vkms_drv.c
-index 738dd6206d85b..92296bd8f6233 100644
---- a/drivers/gpu/drm/vkms/vkms_drv.c
-+++ b/drivers/gpu/drm/vkms/vkms_drv.c
-@@ -92,7 +92,7 @@ static int vkms_modeset_init(struct vkms_device *vkmsdev)
- 	dev->mode_config.max_height = YRES_MAX;
- 	dev->mode_config.preferred_depth = 24;
- 
--	return vkms_output_init(vkmsdev);
-+	return vkms_output_init(vkmsdev, 0);
- }
- 
- static int __init vkms_init(void)
-diff --git a/drivers/gpu/drm/vkms/vkms_drv.h b/drivers/gpu/drm/vkms/vkms_drv.h
-index 3c7e06b19efd5..a0adcc86079f5 100644
---- a/drivers/gpu/drm/vkms/vkms_drv.h
-+++ b/drivers/gpu/drm/vkms/vkms_drv.h
-@@ -115,10 +115,10 @@ bool vkms_get_vblank_timestamp(struct drm_device *dev, unsigned int pipe,
- 			       int *max_error, ktime_t *vblank_time,
- 			       bool in_vblank_irq);
- 
--int vkms_output_init(struct vkms_device *vkmsdev);
-+int vkms_output_init(struct vkms_device *vkmsdev, int index);
- 
- struct drm_plane *vkms_plane_init(struct vkms_device *vkmsdev,
--				  enum drm_plane_type type);
-+				  enum drm_plane_type type, int index);
- 
- /* Gem stuff */
- struct drm_gem_object *vkms_gem_create(struct drm_device *dev,
-diff --git a/drivers/gpu/drm/vkms/vkms_output.c b/drivers/gpu/drm/vkms/vkms_output.c
-index 3b162b25312ec..1442b447c7070 100644
---- a/drivers/gpu/drm/vkms/vkms_output.c
-+++ b/drivers/gpu/drm/vkms/vkms_output.c
-@@ -36,7 +36,7 @@ static const struct drm_connector_helper_funcs vkms_conn_helper_funcs = {
- 	.get_modes    = vkms_conn_get_modes,
+diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+index 808d9fb627e97..477d0a27b9a5d 100644
+--- a/drivers/gpu/drm/stm/ltdc.c
++++ b/drivers/gpu/drm/stm/ltdc.c
+@@ -19,6 +19,7 @@
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_fb_cma_helper.h>
+ #include <drm/drm_gem_cma_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_bridge.h>
+ #include <drm/drm_plane_helper.h>
+@@ -825,6 +826,7 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
  };
  
--int vkms_output_init(struct vkms_device *vkmsdev)
-+int vkms_output_init(struct vkms_device *vkmsdev, int index)
- {
- 	struct vkms_output *output = &vkmsdev->output;
- 	struct drm_device *dev = &vkmsdev->drm;
-@@ -46,12 +46,12 @@ int vkms_output_init(struct vkms_device *vkmsdev)
- 	struct drm_plane *primary, *cursor = NULL;
- 	int ret;
- 
--	primary = vkms_plane_init(vkmsdev, DRM_PLANE_TYPE_PRIMARY);
-+	primary = vkms_plane_init(vkmsdev, DRM_PLANE_TYPE_PRIMARY, index);
- 	if (IS_ERR(primary))
- 		return PTR_ERR(primary);
- 
- 	if (enable_cursor) {
--		cursor = vkms_plane_init(vkmsdev, DRM_PLANE_TYPE_CURSOR);
-+		cursor = vkms_plane_init(vkmsdev, DRM_PLANE_TYPE_CURSOR, index);
- 		if (IS_ERR(cursor)) {
- 			ret = PTR_ERR(cursor);
- 			goto err_cursor;
-diff --git a/drivers/gpu/drm/vkms/vkms_plane.c b/drivers/gpu/drm/vkms/vkms_plane.c
-index 0e67d2d42f0cc..20ffc52f91940 100644
---- a/drivers/gpu/drm/vkms/vkms_plane.c
-+++ b/drivers/gpu/drm/vkms/vkms_plane.c
-@@ -168,7 +168,7 @@ static const struct drm_plane_helper_funcs vkms_primary_helper_funcs = {
- };
- 
- struct drm_plane *vkms_plane_init(struct vkms_device *vkmsdev,
--				  enum drm_plane_type type)
-+				  enum drm_plane_type type, int index)
- {
- 	struct drm_device *dev = &vkmsdev->drm;
- 	const struct drm_plane_helper_funcs *funcs;
-@@ -190,7 +190,7 @@ struct drm_plane *vkms_plane_init(struct vkms_device *vkmsdev,
- 		funcs = &vkms_primary_helper_funcs;
- 	}
- 
--	ret = drm_universal_plane_init(dev, plane, 0,
-+	ret = drm_universal_plane_init(dev, plane, 1 << index,
- 				       &vkms_plane_funcs,
- 				       formats, nformats,
- 				       NULL, type, NULL);
+ static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
++	.prepare_fb = drm_gem_fb_prepare_fb,
+ 	.atomic_check = ltdc_plane_atomic_check,
+ 	.atomic_update = ltdc_plane_atomic_update,
+ 	.atomic_disable = ltdc_plane_atomic_disable,
 -- 
 2.20.1
 
