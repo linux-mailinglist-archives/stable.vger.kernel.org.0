@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42707CD6F9
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6F2CD741
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbfJFRh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:37:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37050 "EHLO mail.kernel.org"
+        id S1728721AbfJFRya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:54:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729133AbfJFRh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:37:56 -0400
+        id S1728637AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:54:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7220A2053B;
-        Sun,  6 Oct 2019 17:37:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2875522478;
+        Sun,  6 Oct 2019 17:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383475;
-        bh=mEX6m77D5xfNKL3qk0Z81bvRU50ZjzXX9ZeCSI33gmo=;
+        s=default; t=1570383992;
+        bh=xXalf5xqeX1/i6O/O50rC1iTJLzLihvL1a3MH8qpFyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziPO3uNaJafIo83bVBTKgLGTyO+fptOuUwtszwLwfumuuPAKsZZ5OtEOhFZvutWxS
-         ukchm2ThgVE6KWI3Ns0Bqi5tqKeb8B8c9O33t3kKbfddYcqy9ls8s9t8TChuDGfVj9
-         KmV1e2hOyI8SxjBovFDfeH/ZQjmaYIlH2VkHsyf4=
+        b=C2ikIAyrdlUGkuyxuwzPJPcZzPUSTQoBd/3rCOytCcqBxrOwTDj0g6gWsa52VMKlv
+         gHABzYTrbqtCBPTwFedydmI4jLx9rfffwGhtwDU4z5/tWwDWYedWY3IbbGQuO1Ea1K
+         moFVNRat/2An1aZRy0312AZJEQt3J+PzNpDhkIOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 117/137] ARM: 8903/1: ensure that usable memory in bank 0 starts from a PMD-aligned address
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 135/166] net: sched: taprio: Fix potential integer overflow in taprio_set_picos_per_byte
 Date:   Sun,  6 Oct 2019 19:21:41 +0200
-Message-Id: <20191006171218.964237881@linuxfoundation.org>
+Message-Id: <20191006171224.523399591@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <mike.rapoport@gmail.com>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-[ Upstream commit 00d2ec1e6bd82c0538e6dd3e4a4040de93ba4fef ]
+[ Upstream commit 68ce6688a5baefde30914fc07fc27292dbbe8320 ]
 
-The calculation of memblock_limit in adjust_lowmem_bounds() assumes that
-bank 0 starts from a PMD-aligned address. However, the beginning of the
-first bank may be NOMAP memory and the start of usable memory
-will be not aligned to PMD boundary. In such case the memblock_limit will
-be set to the end of the NOMAP region, which will prevent any memblock
-allocations.
+The speed divisor is used in a context expecting an s64, but it is
+evaluated using 32-bit arithmetic.
 
-Mark the region between the end of the NOMAP area and the next PMD-aligned
-address as NOMAP as well, so that the usable memory will start at
-PMD-aligned address.
+To avoid that happening, instead of multiplying by 1,000,000 in the
+first place, simplify the fraction and do a standard 32 bit division
+instead.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f04b514c0ce2 ("taprio: Set default link speed to 10 Mbps in taprio_set_picos_per_byte")
+Reported-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/mmu.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/sched/sch_taprio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
-index 1aa2586fa597b..13233c7917fe7 100644
---- a/arch/arm/mm/mmu.c
-+++ b/arch/arm/mm/mmu.c
-@@ -1177,6 +1177,22 @@ void __init adjust_lowmem_bounds(void)
- 	 */
- 	vmalloc_limit = (u64)(uintptr_t)vmalloc_min - PAGE_OFFSET + PHYS_OFFSET;
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -965,8 +965,7 @@ static void taprio_set_picos_per_byte(st
+ 		speed = ecmd.base.speed;
  
-+	/*
-+	 * The first usable region must be PMD aligned. Mark its start
-+	 * as MEMBLOCK_NOMAP if it isn't
-+	 */
-+	for_each_memblock(memory, reg) {
-+		if (!memblock_is_nomap(reg)) {
-+			if (!IS_ALIGNED(reg->base, PMD_SIZE)) {
-+				phys_addr_t len;
-+
-+				len = round_up(reg->base, PMD_SIZE) - reg->base;
-+				memblock_mark_nomap(reg->base, len);
-+			}
-+			break;
-+		}
-+	}
-+
- 	for_each_memblock(memory, reg) {
- 		phys_addr_t block_start = reg->base;
- 		phys_addr_t block_end = reg->base + reg->size;
--- 
-2.20.1
-
+ skip:
+-	picos_per_byte = div64_s64(NSEC_PER_SEC * 1000LL * 8,
+-				   speed * 1000 * 1000);
++	picos_per_byte = (USEC_PER_SEC * 8) / speed;
+ 
+ 	atomic64_set(&q->picos_per_byte, picos_per_byte);
+ 	netdev_dbg(dev, "taprio: set %s's picos_per_byte to: %lld, linkspeed: %d\n",
 
 
