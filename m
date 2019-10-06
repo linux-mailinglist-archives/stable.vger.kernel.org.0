@@ -2,53 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16780CD501
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3FFCD582
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729404AbfJFRbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57562 "EHLO mail.kernel.org"
+        id S1727380AbfJFRhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729392AbfJFRbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:31:21 -0400
+        id S1730375AbfJFRhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:37:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59E14217F9;
-        Sun,  6 Oct 2019 17:31:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 680CE20862;
+        Sun,  6 Oct 2019 17:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383080;
-        bh=Rq5KCnNb5DcsX1r+Iur5At0kw9Uc65vXdmpWwLR0yhI=;
+        s=default; t=1570383421;
+        bh=RZZgYD1fyG5xCQcGnFdd9/9L3RDH6oeyniowEFWObRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xoIT2BO6mitQI+wpfqQw/9Jr/th/VBJd9htemLcSmTBwX5T7sbsTh/6e89cNotjzX
-         qFOImprsTKDaqJGnT8uhygtwyvqgOjqmbuM8i1URqY9y15GgZLCaS+2QtSBWfIaahn
-         IV6o8aRENotMae8xoZ6BKxLfQyiUHBXNiO0twfAY=
+        b=b2pWoeB66I2Ih/JNislZf+A3FUSvO0Roz+xJL81hucJsADdTjA9+06VhdHdcvRgSf
+         BMQbFrhOpYR9zcKCabbZa85OCxFmh3GrrEDeMdL41WdY3d7LEYpWD3N2ksQo9kV08B
+         l84FJneQbV0qWEV3axhwr9Zonf81wLhC6WG2bFXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Kees Cook <keescook@chromium.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        James Hogan <jhogan@kernel.org>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Xiaowei Bao <xiaowei.bao@nxp.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/106] arm: use STACK_TOP when computing mmap base address
+Subject: [PATCH 5.2 099/137] PCI: layerscape: Add the bar_fixed_64bit property to the endpoint driver
 Date:   Sun,  6 Oct 2019 19:21:23 +0200
-Message-Id: <20191006171156.465795869@linuxfoundation.org>
+Message-Id: <20191006171217.159263456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,57 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Xiaowei Bao <xiaowei.bao@nxp.com>
 
-[ Upstream commit 86e568e9c0525fc40e76d827212d5e9721cf7504 ]
+[ Upstream commit fd5d16531a39322c3d7433d9f8a36203c9aaeddc ]
 
-mmap base address must be computed wrt stack top address, using TASK_SIZE
-is wrong since STACK_TOP and TASK_SIZE are not equivalent.
+The layerscape PCIe controller have 4 BARs.
 
-Link: http://lkml.kernel.org/r/20190730055113.23635-8-alex@ghiti.fr
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ BAR0 and BAR1 are 32bit, BAR2 and BAR4 are 64bit and that's a
+fixed hardware configuration.
+
+Set the bar_fixed_64bit variable accordingly.
+
+Signed-off-by: Xiaowei Bao <xiaowei.bao@nxp.com>
+[lorenzo.pieralisi@arm.com: commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/mmap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/controller/dwc/pci-layerscape-ep.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mm/mmap.c b/arch/arm/mm/mmap.c
-index bff3d00bda5be..0b94b674aa91f 100644
---- a/arch/arm/mm/mmap.c
-+++ b/arch/arm/mm/mmap.c
-@@ -19,7 +19,7 @@
+diff --git a/drivers/pci/controller/dwc/pci-layerscape-ep.c b/drivers/pci/controller/dwc/pci-layerscape-ep.c
+index be61d96cc95ed..ca9aa4501e7e9 100644
+--- a/drivers/pci/controller/dwc/pci-layerscape-ep.c
++++ b/drivers/pci/controller/dwc/pci-layerscape-ep.c
+@@ -44,6 +44,7 @@ static const struct pci_epc_features ls_pcie_epc_features = {
+ 	.linkup_notifier = false,
+ 	.msi_capable = true,
+ 	.msix_capable = false,
++	.bar_fixed_64bit = (1 << BAR_2) | (1 << BAR_4),
+ };
  
- /* gap between mmap and stack */
- #define MIN_GAP		(128*1024*1024UL)
--#define MAX_GAP		((TASK_SIZE)/6*5)
-+#define MAX_GAP		((STACK_TOP)/6*5)
- #define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
- 
- static int mmap_is_legacy(struct rlimit *rlim_stack)
-@@ -51,7 +51,7 @@ static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
- 	else if (gap > MAX_GAP)
- 		gap = MAX_GAP;
- 
--	return PAGE_ALIGN(TASK_SIZE - gap - rnd);
-+	return PAGE_ALIGN(STACK_TOP - gap - rnd);
- }
- 
- /*
+ static const struct pci_epc_features*
 -- 
 2.20.1
 
