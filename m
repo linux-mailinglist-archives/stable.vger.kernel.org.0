@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5A9CD78B
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7020ACD837
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729378AbfJFRbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:31:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
+        id S1727307AbfJFSBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:01:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727473AbfJFRbN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:31:13 -0400
+        id S1728332AbfJFR0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:26:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BE7D2133F;
-        Sun,  6 Oct 2019 17:31:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D4722070B;
+        Sun,  6 Oct 2019 17:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383073;
-        bh=tCk26d+T+swVc3fMXQW/oo8S60/G6LbT8f9nF49ey3U=;
+        s=default; t=1570382802;
+        bh=+7ukwZYjRuqp0HaB2giqWF8t5YMps7LpkoRS2U8DhoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABqGAh9n61vwPNYvV2mFuM2X6wEFGSrYixA6Kj6nLtyWjm0ViDTxd+CI8uS5xXlF/
-         YXQ1S8OCPlv6EnWbLUXr4TnhdX5IacQmpNuqbb/I1IZEw0Maw9h5zULMGYc6owAhbS
-         2Vc+P4O/H2c3IgvK8uqml0vLH3eSsEMqMrBXnTCg=
+        b=LQ+OvHzKIlEE24Q67ypjMvrtpgw51FlO1Sv7laxX3qtkwyGTvWvq+5DGB1xYwLa5q
+         mNkWIofojJRdWQh2SA09wojxYY8pQHXEuYOXPW3kFgb0pDlsoLIP9mo1aiXLtfrgJN
+         dp2K5luKuarBRJsGW0z3cn4bLR3LV3QQh+o/3c4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Ghiti <alex@ghiti.fr>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Burton <paul.burton@mips.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        James Hogan <jhogan@kernel.org>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Changwei Ge <gechangwei@live.cn>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/106] mips: properly account for stack randomization and stack guard gap
-Date:   Sun,  6 Oct 2019 19:21:21 +0200
-Message-Id: <20191006171155.204874463@linuxfoundation.org>
+Subject: [PATCH 4.14 46/68] ocfs2: wait for recovering done after direct unlock request
+Date:   Sun,  6 Oct 2019 19:21:22 +0200
+Message-Id: <20191006171129.936624789@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,69 +49,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Ghiti <alex@ghiti.fr>
+From: Changwei Ge <gechangwei@live.cn>
 
-[ Upstream commit b1f61b5bde3a1f50392c97b4c8513d1b8efb1cf2 ]
+[ Upstream commit 0a3775e4f883912944481cf2ef36eb6383a9cc74 ]
 
-This commit takes care of stack randomization and stack guard gap when
-computing mmap base address and checks if the task asked for
-randomization.  This fixes the problem uncovered and not fixed for arm
-here: https://lkml.kernel.org/r/20170622200033.25714-1-riel@redhat.com
+There is a scenario causing ocfs2 umount hang when multiple hosts are
+rebooting at the same time.
 
-Link: http://lkml.kernel.org/r/20190730055113.23635-10-alex@ghiti.fr
-Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
-Acked-by: Kees Cook <keescook@chromium.org>
-Acked-by: Paul Burton <paul.burton@mips.com>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Palmer Dabbelt <palmer@sifive.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Will Deacon <will.deacon@arm.com>
+NODE1                           NODE2               NODE3
+send unlock requset to NODE2
+                                dies
+                                                    become recovery master
+                                                    recover NODE2
+find NODE2 dead
+mark resource RECOVERING
+directly remove lock from grant list
+calculate usage but RECOVERING marked
+**miss the window of purging
+clear RECOVERING
+
+To reproduce this issue, crash a host and then umount ocfs2
+from another node.
+
+To solve this, just let unlock progress wait for recovery done.
+
+Link: http://lkml.kernel.org/r/1550124866-20367-1-git-send-email-gechangwei@live.cn
+Signed-off-by: Changwei Ge <gechangwei@live.cn>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/mmap.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/ocfs2/dlm/dlmunlock.c | 23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/mm/mmap.c b/arch/mips/mm/mmap.c
-index 1b705fb2f10c4..233033f99d8fc 100644
---- a/arch/mips/mm/mmap.c
-+++ b/arch/mips/mm/mmap.c
-@@ -21,8 +21,9 @@ unsigned long shm_align_mask = PAGE_SIZE - 1;	/* Sane caches */
- EXPORT_SYMBOL(shm_align_mask);
+diff --git a/fs/ocfs2/dlm/dlmunlock.c b/fs/ocfs2/dlm/dlmunlock.c
+index 63d701cd1e2e7..c8e9b7031d9ad 100644
+--- a/fs/ocfs2/dlm/dlmunlock.c
++++ b/fs/ocfs2/dlm/dlmunlock.c
+@@ -105,7 +105,8 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
+ 	enum dlm_status status;
+ 	int actions = 0;
+ 	int in_use;
+-        u8 owner;
++	u8 owner;
++	int recovery_wait = 0;
  
- /* gap between mmap and stack */
--#define MIN_GAP (128*1024*1024UL)
--#define MAX_GAP ((TASK_SIZE)/6*5)
-+#define MIN_GAP		(128*1024*1024UL)
-+#define MAX_GAP		((TASK_SIZE)/6*5)
-+#define STACK_RND_MASK	(0x7ff >> (PAGE_SHIFT - 12))
+ 	mlog(0, "master_node = %d, valblk = %d\n", master_node,
+ 	     flags & LKM_VALBLK);
+@@ -208,9 +209,12 @@ static enum dlm_status dlmunlock_common(struct dlm_ctxt *dlm,
+ 		}
+ 		if (flags & LKM_CANCEL)
+ 			lock->cancel_pending = 0;
+-		else
+-			lock->unlock_pending = 0;
+-
++		else {
++			if (!lock->unlock_pending)
++				recovery_wait = 1;
++			else
++				lock->unlock_pending = 0;
++		}
+ 	}
  
- static int mmap_is_legacy(struct rlimit *rlim_stack)
- {
-@@ -38,6 +39,15 @@ static int mmap_is_legacy(struct rlimit *rlim_stack)
- static unsigned long mmap_base(unsigned long rnd, struct rlimit *rlim_stack)
- {
- 	unsigned long gap = rlim_stack->rlim_cur;
-+	unsigned long pad = stack_guard_gap;
+ 	/* get an extra ref on lock.  if we are just switching
+@@ -244,6 +248,17 @@ leave:
+ 	spin_unlock(&res->spinlock);
+ 	wake_up(&res->wq);
+ 
++	if (recovery_wait) {
++		spin_lock(&res->spinlock);
++		/* Unlock request will directly succeed after owner dies,
++		 * and the lock is already removed from grant list. We have to
++		 * wait for RECOVERING done or we miss the chance to purge it
++		 * since the removement is much faster than RECOVERING proc.
++		 */
++		__dlm_wait_on_lockres_flags(res, DLM_LOCK_RES_RECOVERING);
++		spin_unlock(&res->spinlock);
++	}
 +
-+	/* Account for stack randomization if necessary */
-+	if (current->flags & PF_RANDOMIZE)
-+		pad += (STACK_RND_MASK << PAGE_SHIFT);
-+
-+	/* Values close to RLIM_INFINITY can overflow. */
-+	if (gap + pad > gap)
-+		gap += pad;
- 
- 	if (gap < MIN_GAP)
- 		gap = MIN_GAP;
+ 	/* let the caller's final dlm_lock_put handle the actual kfree */
+ 	if (actions & DLM_UNLOCK_FREE_LOCK) {
+ 		/* this should always be coupled with list removal */
 -- 
 2.20.1
 
