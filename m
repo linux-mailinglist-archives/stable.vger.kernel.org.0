@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22D68CD3EF
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5F6CD409
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727303AbfJFRUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45746 "EHLO mail.kernel.org"
+        id S1727317AbfJFRUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727300AbfJFRUm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:20:42 -0400
+        id S1727300AbfJFRUp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:20:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3002B20862;
-        Sun,  6 Oct 2019 17:20:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA4ED2077B;
+        Sun,  6 Oct 2019 17:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382441;
-        bh=J+cyFnyKLWK0/kJ1+ufnTyqwGSkc7/zvvSzD47UPj4g=;
+        s=default; t=1570382444;
+        bh=Et3wyky9bvgsjOmfjzljAIoCrgdSOzKGvc+Q1bXaq5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q8OTqDO+LQ6NOYe8ISJuDMNSlPQqLPEnIOzKXWWAv3+vXn31MRtO0sFDaEMyMXOKr
-         tV5z785eYePgfrhx+owsQdTcs6ey+CFhzk5ykz7W4AcBRzlQhnF1xH4XdbXrVFscsf
-         YaPn/EdoZsDkoCa5+BAvCpO9wtD2Bn8+kfUhFzN0=
+        b=k+h+MYlnLztFEqCvMWE1gSsiNdOLXh0NxsAWt8IBrcxUvcwupntsSAqNcP+ox6gQL
+         QF6eCDlOZrtaIkxj2pAZBWlsYmbHHR+vr1Q6ZS0GM3CRgWmmw9vKIKdydYJxg4Io6/
+         5jXlpJig20xnD/rEv6pzY3Ik+kT6hxZ6ZvbLZ0Qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
+        stable@vger.kernel.org, Dotan Barak <dotanb@dev.mellanox.co.il>,
+        Sudhakar Dindukurti <sudhakar.dindukurti@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 31/36] xen-netfront: do not use ~0U as error return value for xennet_fill_frags()
-Date:   Sun,  6 Oct 2019 19:19:13 +0200
-Message-Id: <20191006171059.679886068@linuxfoundation.org>
+Subject: [PATCH 4.4 32/36] net/rds: Fix error handling in rds_ib_add_one()
+Date:   Sun,  6 Oct 2019 19:19:14 +0200
+Message-Id: <20191006171100.002296063@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -44,95 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongli Zhang <dongli.zhang@oracle.com>
+From: Dotan Barak <dotanb@dev.mellanox.co.il>
 
-[ Upstream commit a761129e3625688310aecf26e1be9e98e85f8eb5 ]
+[ Upstream commit d64bf89a75b65f83f06be9fb8f978e60d53752db ]
 
-xennet_fill_frags() uses ~0U as return value when the sk_buff is not able
-to cache extra fragments. This is incorrect because the return type of
-xennet_fill_frags() is RING_IDX and 0xffffffff is an expected value for
-ring buffer index.
+rds_ibdev:ipaddr_list and rds_ibdev:conn_list are initialized
+after allocation some resources such as protection domain.
+If allocation of such resources fail, then these uninitialized
+variables are accessed in rds_ib_dev_free() in failure path. This
+can potentially crash the system. The code has been updated to
+initialize these variables very early in the function.
 
-In the situation when the rsp_cons is approaching 0xffffffff, the return
-value of xennet_fill_frags() may become 0xffffffff which xennet_poll() (the
-caller) would regard as error. As a result, queue->rx.rsp_cons is set
-incorrectly because it is updated only when there is error. If there is no
-error, xennet_poll() would be responsible to update queue->rx.rsp_cons.
-Finally, queue->rx.rsp_cons would point to the rx ring buffer entries whose
-queue->rx_skbs[i] and queue->grant_rx_ref[i] are already cleared to NULL.
-This leads to NULL pointer access in the next iteration to process rx ring
-buffer entries.
-
-The symptom is similar to the one fixed in
-commit 00b368502d18 ("xen-netfront: do not assume sk_buff_head list is
-empty in error handling").
-
-This patch changes the return type of xennet_fill_frags() to indicate
-whether it is successful or failed. The queue->rx.rsp_cons will be
-always updated inside this function.
-
-Fixes: ad4f15dc2c70 ("xen/netfront: don't bug in case of too many frags")
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Dotan Barak <dotanb@dev.mellanox.co.il>
+Signed-off-by: Sudhakar Dindukurti <sudhakar.dindukurti@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/xen-netfront.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ net/rds/ib.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -874,9 +874,9 @@ static int xennet_set_skb_gso(struct sk_
- 	return 0;
- }
+--- a/net/rds/ib.c
++++ b/net/rds/ib.c
+@@ -146,6 +146,9 @@ static void rds_ib_add_one(struct ib_dev
+ 	atomic_set(&rds_ibdev->refcount, 1);
+ 	INIT_WORK(&rds_ibdev->free_work, rds_ib_dev_free);
  
--static RING_IDX xennet_fill_frags(struct netfront_queue *queue,
--				  struct sk_buff *skb,
--				  struct sk_buff_head *list)
-+static int xennet_fill_frags(struct netfront_queue *queue,
-+			     struct sk_buff *skb,
-+			     struct sk_buff_head *list)
- {
- 	RING_IDX cons = queue->rx.rsp_cons;
- 	struct sk_buff *nskb;
-@@ -895,7 +895,7 @@ static RING_IDX xennet_fill_frags(struct
- 		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS)) {
- 			queue->rx.rsp_cons = ++cons + skb_queue_len(list);
- 			kfree_skb(nskb);
--			return ~0U;
-+			return -ENOENT;
- 		}
- 
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags,
-@@ -906,7 +906,9 @@ static RING_IDX xennet_fill_frags(struct
- 		kfree_skb(nskb);
- 	}
- 
--	return cons;
-+	queue->rx.rsp_cons = cons;
++	INIT_LIST_HEAD(&rds_ibdev->ipaddr_list);
++	INIT_LIST_HEAD(&rds_ibdev->conn_list);
 +
-+	return 0;
- }
+ 	rds_ibdev->max_wrs = dev_attr->max_qp_wr;
+ 	rds_ibdev->max_sge = min(dev_attr->max_sge, RDS_IB_MAX_SGE);
  
- static int checksum_setup(struct net_device *dev, struct sk_buff *skb)
-@@ -1032,8 +1034,7 @@ err:
- 		skb->data_len = rx->status;
- 		skb->len += rx->status;
+@@ -187,9 +190,6 @@ static void rds_ib_add_one(struct ib_dev
+ 		 rds_ibdev->fmr_max_remaps, rds_ibdev->max_1m_fmrs,
+ 		 rds_ibdev->max_8k_fmrs);
  
--		i = xennet_fill_frags(queue, skb, &tmpq);
--		if (unlikely(i == ~0U))
-+		if (unlikely(xennet_fill_frags(queue, skb, &tmpq)))
- 			goto err;
- 
- 		if (rx->flags & XEN_NETRXF_csum_blank)
-@@ -1043,7 +1044,7 @@ err:
- 
- 		__skb_queue_tail(&rxq, skb);
- 
--		queue->rx.rsp_cons = ++i;
-+		i = ++queue->rx.rsp_cons;
- 		work_done++;
- 	}
- 
+-	INIT_LIST_HEAD(&rds_ibdev->ipaddr_list);
+-	INIT_LIST_HEAD(&rds_ibdev->conn_list);
+-
+ 	down_write(&rds_ib_devices_lock);
+ 	list_add_tail_rcu(&rds_ibdev->list, &rds_ib_devices);
+ 	up_write(&rds_ib_devices_lock);
 
 
