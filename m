@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39A9ACD785
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53EFBCD848
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729239AbfJFRac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:30:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
+        id S1728158AbfJFR0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727783AbfJFRa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:28 -0400
+        id S1728151AbfJFR0A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:26:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD1832133F;
-        Sun,  6 Oct 2019 17:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB4C2077B;
+        Sun,  6 Oct 2019 17:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383027;
-        bh=SZIa8j9CJhCBRyj+SHTyx1EHRbuknY5E3dcb6CrkBkc=;
+        s=default; t=1570382759;
+        bh=P3WkhO3G6h+D3zdNU95Zo/yNNpyRu695qymatgVIGik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZE2Y1avhzMjDcdd74ZDkxcPz7TznF1uPzYE170RpDsJOHbJFwXbb/xFLX18Zz0KB
-         22rs1RJpbUM3ODsF5Kzpupm7sOBKRlrMV5mpHcYaSlLwjNAhgcdYk7C4jvdiWZWJkf
-         btedxBVuxC1RknBzDl0MEtFSCGhNJnv5u1kfeLls=
+        b=UpE+fOHogjwZ1Tk+dnHokcEZ7teKN7WYoanStW4QDtEt0EPIqRUn4Opx5B3X1ZlLq
+         L+uyL2BLqlfABXrFgr4uDYDkrFEYde8i8SRIJd4K2F2jdEpSJy3rrL6tZabUZTpbLi
+         mxzwD8NeO+s1Ng2ZKK9L3aHUCb3unRipH0eWIvuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-mips@vger.kernel.org, clang-built-linux@googlegroups.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/106] rtc: pcf85363/pcf85263: fix regmap error in set_time
+Subject: [PATCH 4.14 29/68] MIPS: tlbex: Explicitly cast _PAGE_NO_EXEC to a boolean
 Date:   Sun,  6 Oct 2019 19:21:05 +0200
-Message-Id: <20191006171149.162400490@linuxfoundation.org>
+Message-Id: <20191006171121.475693129@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
+[ Upstream commit c59ae0a1055127dd3828a88e111a0db59b254104 ]
 
-Issue:
-    - # hwclock -w
-      hwclock: RTC_SET_TIME: Invalid argument
+clang warns:
 
-Why:
-    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
-      writeable before writing operations"), this patch
-      will always check for unwritable registers, it will compare reg
-      with max_register in regmap_writeable.
+arch/mips/mm/tlbex.c:634:19: error: use of logical '&&' with constant
+operand [-Werror,-Wconstant-logical-operand]
+        if (cpu_has_rixi && _PAGE_NO_EXEC) {
+                         ^  ~~~~~~~~~~~~~
+arch/mips/mm/tlbex.c:634:19: note: use '&' for a bitwise operation
+        if (cpu_has_rixi && _PAGE_NO_EXEC) {
+                         ^~
+                         &
+arch/mips/mm/tlbex.c:634:19: note: remove constant to silence this
+warning
+        if (cpu_has_rixi && _PAGE_NO_EXEC) {
+                        ~^~~~~~~~~~~~~~~~
+1 error generated.
 
-    - The pcf85363/pcf85263 has the capability of address wrapping
-      which means if you access an address outside the allowed range
-      (0x00-0x2f) hardware actually wraps the access to a lower address.
-      The rtc-pcf85363 driver will use this feature to configure the time
-      and execute 2 actions in the same i2c write operation (stopping the
-      clock and configure the time). However the driver has also
-      configured the `regmap maxregister` protection mechanism that will
-      block accessing addresses outside valid range (0x00-0x2f).
+Explicitly cast this value to a boolean so that clang understands we
+intend for this to be a non-zero value.
 
-How:
-    - Split of writing regs to two parts, first part writes control
-      registers about stop_enable and resets, second part writes
-      RTC time and date registers.
-
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 00bf1c691d08 ("MIPS: tlbex: Avoid placing software PTE bits in Entry* PFN fields")
+Link: https://github.com/ClangBuiltLinux/linux/issues/609
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: clang-built-linux@googlegroups.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf85363.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/mips/mm/tlbex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
-index c04a1edcd5716..c3702684b3426 100644
---- a/drivers/rtc/rtc-pcf85363.c
-+++ b/drivers/rtc/rtc-pcf85363.c
-@@ -169,7 +169,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
- 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
+diff --git a/arch/mips/mm/tlbex.c b/arch/mips/mm/tlbex.c
+index c2a6869418f77..dc495578d44d3 100644
+--- a/arch/mips/mm/tlbex.c
++++ b/arch/mips/mm/tlbex.c
+@@ -634,7 +634,7 @@ static __maybe_unused void build_convert_pte_to_entrylo(u32 **p,
+ 		return;
+ 	}
  
- 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
--				tmp, sizeof(tmp));
-+				tmp, 2);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
-+				buf, sizeof(tmp) - 2);
- 	if (ret)
- 		return ret;
- 
+-	if (cpu_has_rixi && _PAGE_NO_EXEC) {
++	if (cpu_has_rixi && !!_PAGE_NO_EXEC) {
+ 		if (fill_includes_sw_bits) {
+ 			UASM_i_ROTR(p, reg, reg, ilog2(_PAGE_GLOBAL));
+ 		} else {
 -- 
 2.20.1
 
