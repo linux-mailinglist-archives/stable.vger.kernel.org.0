@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6F4CD776
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F42CD829
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728188AbfJFR3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:29:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55274 "EHLO mail.kernel.org"
+        id S1727795AbfJFSAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:00:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728206AbfJFR3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:29:33 -0400
+        id S1728203AbfJFR3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:29:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89E442087E;
-        Sun,  6 Oct 2019 17:29:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F1372080F;
+        Sun,  6 Oct 2019 17:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382973;
-        bh=D+5+refmVJN0BInrZBrBKnq8Z+wMu8TansF66Q6t0aY=;
+        s=default; t=1570382975;
+        bh=qqZxm8KNU3bkkqJKEYWUqs8sTqIDkTaNn9u3huRE85Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fngxx3+8MCfv9/o1lduR/MirpwFptbmv/uskw63JY9zZTd7FWq7nSeaWrzZZyT2/C
-         r9e4o/pP0Sye7b80BCg+Nwigi/90DVddpPXv/7n1GFAJN4vuvbnQUN9lLzMEMEzJf2
-         SIMDb67VmC+md3QZpoYNBWu8ayz4qRMbSFSkXgVc=
+        b=NqmX/2lj0ruEqh/hH10rDgml1pvWSma2L20uPKwwyehyTEfNSp1IcLQNmrMs7Ljp4
+         idul9JaOqHSu6b4QkHHFb3u+92/yq3tjkwPZ9SXC3QEQBpVA2ie0JG+Q4srzB2atVJ
+         IwRH5JHhnFQMfwER9FlqI21rpI2Lg4t3ktho8spg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Philippe Cornu <philippe.cornu@st.com>,
-        Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 006/106] drm/stm: attach gem fence to atomic state
-Date:   Sun,  6 Oct 2019 19:20:12 +0200
-Message-Id: <20191006171128.006307663@linuxfoundation.org>
+Subject: [PATCH 4.19 007/106] drm/panel: check failure cases in the probe func
+Date:   Sun,  6 Oct 2019 19:20:13 +0200
+Message-Id: <20191006171128.466992420@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -46,45 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 8fabc9c3109a71b3577959a05408153ae69ccd8d ]
+[ Upstream commit afd6d4f5a52c16e1483328ac074abb1cde92c29f ]
 
-To properly synchronize with other devices the fence from the GEM
-object backing the framebuffer needs to be attached to the atomic
-state, so the commit work can wait on fence signaling.
+The following function calls may fail and return NULL, so the null check
+is added.
+of_graph_get_next_endpoint
+of_graph_get_remote_port_parent
+of_graph_get_remote_port
 
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Philippe Cornu <philippe.cornu@st.com>
-Tested-by: Philippe Cornu <philippe.cornu@st.com>
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190712084228.8338-1-l.stach@pengutronix.de
+Update: Thanks to Sam Ravnborg, for suggession on the use of goto to avoid
+leaking endpoint.
+
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190724195534.9303-1-navid.emamdoost@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/stm/ltdc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../gpu/drm/panel/panel-raspberrypi-touchscreen.c   | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
-index 808d9fb627e97..477d0a27b9a5d 100644
---- a/drivers/gpu/drm/stm/ltdc.c
-+++ b/drivers/gpu/drm/stm/ltdc.c
-@@ -19,6 +19,7 @@
- #include <drm/drm_crtc_helper.h>
- #include <drm/drm_fb_cma_helper.h>
- #include <drm/drm_gem_cma_helper.h>
-+#include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_of.h>
- #include <drm/drm_bridge.h>
- #include <drm/drm_plane_helper.h>
-@@ -825,6 +826,7 @@ static const struct drm_plane_funcs ltdc_plane_funcs = {
- };
+diff --git a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+index 2c9c9722734f5..9a2cb8aeab3a4 100644
+--- a/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
++++ b/drivers/gpu/drm/panel/panel-raspberrypi-touchscreen.c
+@@ -400,7 +400,13 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
  
- static const struct drm_plane_helper_funcs ltdc_plane_helper_funcs = {
-+	.prepare_fb = drm_gem_fb_prepare_fb,
- 	.atomic_check = ltdc_plane_atomic_check,
- 	.atomic_update = ltdc_plane_atomic_update,
- 	.atomic_disable = ltdc_plane_atomic_disable,
+ 	/* Look up the DSI host.  It needs to probe before we do. */
+ 	endpoint = of_graph_get_next_endpoint(dev->of_node, NULL);
++	if (!endpoint)
++		return -ENODEV;
++
+ 	dsi_host_node = of_graph_get_remote_port_parent(endpoint);
++	if (!dsi_host_node)
++		goto error;
++
+ 	host = of_find_mipi_dsi_host_by_node(dsi_host_node);
+ 	of_node_put(dsi_host_node);
+ 	if (!host) {
+@@ -409,6 +415,9 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
+ 	}
+ 
+ 	info.node = of_graph_get_remote_port(endpoint);
++	if (!info.node)
++		goto error;
++
+ 	of_node_put(endpoint);
+ 
+ 	ts->dsi = mipi_dsi_device_register_full(host, &info);
+@@ -429,6 +438,10 @@ static int rpi_touchscreen_probe(struct i2c_client *i2c,
+ 		return ret;
+ 
+ 	return 0;
++
++error:
++	of_node_put(endpoint);
++	return -ENODEV;
+ }
+ 
+ static int rpi_touchscreen_remove(struct i2c_client *i2c)
 -- 
 2.20.1
 
