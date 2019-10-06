@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A566ECD545
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6A4FCD5CC
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729937AbfJFReX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32942 "EHLO mail.kernel.org"
+        id S1730962AbfJFRj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:39:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbfJFReX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:34:23 -0400
+        id S1730956AbfJFRj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:39:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21BB32087E;
-        Sun,  6 Oct 2019 17:34:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3298820700;
+        Sun,  6 Oct 2019 17:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383262;
-        bh=rAh7C3nWLJ9QF2K6jvkBAOzHcHw8VBn7HfXRASN2AEI=;
+        s=default; t=1570383597;
+        bh=bNCnRboeCVn87mOl7ww26nNSv6sQjpBOKLRnr2WZNgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGIQXyefyiwdD6x76MkuXvdXUk6fZeSbJFD9G6ueVxtUxELz7fdu8U5OX39B9li14
-         kxUXIf6s/mzr5bH+Z7nyUSWJvV28p7Jf3V1TFo9+ulzq1w2PTKDFr8Nzj1ive/iGXn
-         HfL2axpwh2sd6mEr9Xy6y02qwX9XCrtIWvq9Pig0=
+        b=brvip0M5BkFXEnZLFwM6Z+h1WLLAY2K+RY2A7nt65HQN3M9MFmZjTjVJ8RKm8FOLQ
+         l/TANzw3O81Ysh+QrCpq54B1qrg6UplCaV0ljuu/7dfAdVfZwxN2rgOwtRrcyrlvRF
+         xzU57Us/5Q9lruHnVNuq2we42jPT7QQwigfHTy14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 006/137] net: ipv4: avoid mixed n_redirects and rate_tokens usage
-Date:   Sun,  6 Oct 2019 19:19:50 +0200
-Message-Id: <20191006171210.112714685@linuxfoundation.org>
+        stable@vger.kernel.org, clang-built-linux@googlegroups.com,
+        Nathan Huckleberry <nhuck@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Scott Wood <oss@buserror.net>, Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 025/166] clk: qoriq: Fix -Wunused-const-variable
+Date:   Sun,  6 Oct 2019 19:19:51 +0200
+Message-Id: <20191006171215.243938906@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Nathan Huckleberry <nhuck@google.com>
 
-[ Upstream commit b406472b5ad79ede8d10077f0c8f05505ace8b6d ]
+[ Upstream commit a95fb581b144b5e73da382eaedb2e32027610597 ]
 
-Since commit c09551c6ff7f ("net: ipv4: use a dedicated counter
-for icmp_v4 redirect packets") we use 'n_redirects' to account
-for redirect packets, but we still use 'rate_tokens' to compute
-the redirect packets exponential backoff.
+drivers/clk/clk-qoriq.c:138:38: warning: unused variable
+'p5020_cmux_grp1' [-Wunused-const-variable] static const struct
+clockgen_muxinfo p5020_cmux_grp1
 
-If the device sent to the relevant peer any ICMP error packet
-after sending a redirect, it will also update 'rate_token' according
-to the leaking bucket schema; typically 'rate_token' will raise
-above BITS_PER_LONG and the redirect packets backoff algorithm
-will produce undefined behavior.
+drivers/clk/clk-qoriq.c:146:38: warning: unused variable
+'p5020_cmux_grp2' [-Wunused-const-variable] static const struct
+clockgen_muxinfo p5020_cmux_grp2
 
-Fix the issue using 'n_redirects' to compute the exponential backoff
-in ip_rt_send_redirect().
+In the definition of the p5020 chip, the p2041 chip's info was used
+instead.  The p5020 and p2041 chips have different info. This is most
+likely a typo.
 
-Note that we still clear rate_tokens after a redirect silence period,
-to avoid changing an established behaviour.
-
-The root cause predates git history; before the mentioned commit in
-the critical scenario, the kernel stopped sending redirects, after
-the mentioned commit the behavior more randomic.
-
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: c09551c6ff7f ("net: ipv4: use a dedicated counter for icmp_v4 redirect packets")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/525
+Cc: clang-built-linux@googlegroups.com
+Signed-off-by: Nathan Huckleberry <nhuck@google.com>
+Link: https://lkml.kernel.org/r/20190627220642.78575-1-nhuck@google.com
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/clk/clk-qoriq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -915,16 +915,15 @@ void ip_rt_send_redirect(struct sk_buff
- 	if (peer->rate_tokens == 0 ||
- 	    time_after(jiffies,
- 		       (peer->rate_last +
--			(ip_rt_redirect_load << peer->rate_tokens)))) {
-+			(ip_rt_redirect_load << peer->n_redirects)))) {
- 		__be32 gw = rt_nexthop(rt, ip_hdr(skb)->daddr);
- 
- 		icmp_send(skb, ICMP_REDIRECT, ICMP_REDIR_HOST, gw);
- 		peer->rate_last = jiffies;
--		++peer->rate_tokens;
- 		++peer->n_redirects;
- #ifdef CONFIG_IP_ROUTE_VERBOSE
- 		if (log_martians &&
--		    peer->rate_tokens == ip_rt_redirect_number)
-+		    peer->n_redirects == ip_rt_redirect_number)
- 			net_warn_ratelimited("host %pI4/if%d ignores redirects for %pI4 to %pI4\n",
- 					     &ip_hdr(skb)->saddr, inet_iif(skb),
- 					     &ip_hdr(skb)->daddr, &gw);
+diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
+index 07f3b252f3e0c..bed140f7375f0 100644
+--- a/drivers/clk/clk-qoriq.c
++++ b/drivers/clk/clk-qoriq.c
+@@ -686,7 +686,7 @@ static const struct clockgen_chipinfo chipinfo[] = {
+ 		.guts_compat = "fsl,qoriq-device-config-1.0",
+ 		.init_periph = p5020_init_periph,
+ 		.cmux_groups = {
+-			&p2041_cmux_grp1, &p2041_cmux_grp2
++			&p5020_cmux_grp1, &p5020_cmux_grp2
+ 		},
+ 		.cmux_to_group = {
+ 			0, 1, -1
+-- 
+2.20.1
+
 
 
