@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C86BCD657
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D0BCD65A
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731763AbfJFRpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45588 "EHLO mail.kernel.org"
+        id S1728093AbfJFRr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731759AbfJFRpH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:45:07 -0400
+        id S1731773AbfJFRpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:45:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8443F20862;
-        Sun,  6 Oct 2019 17:45:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3277F21479;
+        Sun,  6 Oct 2019 17:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383906;
-        bh=9+5/pSU1MkhE0geVkr6Lk8w7ROGXOoydMPFOb1UEw7A=;
+        s=default; t=1570383908;
+        bh=KLBHWMIMXGIh4d5zKw10HC37+Tl2RLCz896aN+C7AZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rx4M0dB+0Zr6gu4MnWDnzJ5VtTyv8FtqJql1K9keWvQ4uyteSACjQ36+6mMUHhPY5
-         9wcVSRHz9g9ed2dBoq4CemBTlUM89uSv7o/gEGGCYL7IIn8NCJYJ7350dLRiauZsL3
-         0KIsjrQlK8dBGZSq4RcPoIs1vUczop8Ig/pk/wNw=
+        b=g3qMrgwziibut+1UVE/rfghCqjYqh+EiXyUA8XBJRcN2hPsMmXqWb3l0VKCd5Wgem
+         hG6Nz2FdLgJ7gYhEMKh/PZr8w7LT9EMAhzelZohyFE7gyLhg1lyN+2Xse+HSqvCBkg
+         wQc/6cfc3AQX3b/YsaseaL1mThxaS5LDTvqbCBoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 140/166] sch_cbq: validate TCA_CBQ_WRROPT to avoid crash
-Date:   Sun,  6 Oct 2019 19:21:46 +0200
-Message-Id: <20191006171224.851780316@linuxfoundation.org>
+Subject: [PATCH 5.3 141/166] sch_dsmark: fix potential NULL deref in dsmark_init()
+Date:   Sun,  6 Oct 2019 19:21:47 +0200
+Message-Id: <20191006171224.916529344@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,126 +46,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e9789c7cc182484fc031fd88097eb14cb26c4596 ]
+[ Upstream commit 474f0813a3002cb299bb73a5a93aa1f537a80ca8 ]
 
-syzbot reported a crash in cbq_normalize_quanta() caused
-by an out of range cl->priority.
+Make sure TCA_DSMARK_INDICES was provided by the user.
 
-iproute2 enforces this check, but malicious users do not.
+syzbot reported :
 
 kasan: CONFIG_KASAN_INLINE enabled
 kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-Modules linked in:
-CPU: 1 PID: 26447 Comm: syz-executor.1 Not tainted 5.3+ #0
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 8799 Comm: syz-executor235 Not tainted 5.3.0+ #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:cbq_normalize_quanta.part.0+0x1fd/0x430 net/sched/sch_cbq.c:902
-RSP: 0018:ffff8801a5c333b0 EFLAGS: 00010206
-RAX: 0000000020000003 RBX: 00000000fffffff8 RCX: ffffc9000712f000
-RDX: 00000000000043bf RSI: ffffffff83be8962 RDI: 0000000100000018
-RBP: ffff8801a5c33420 R08: 000000000000003a R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 00000000000002ef
-R13: ffff88018da95188 R14: dffffc0000000000 R15: 0000000000000015
-FS:  00007f37d26b1700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
+RIP: 0010:nla_get_u16 include/net/netlink.h:1501 [inline]
+RIP: 0010:dsmark_init net/sched/sch_dsmark.c:364 [inline]
+RIP: 0010:dsmark_init+0x193/0x640 net/sched/sch_dsmark.c:339
+Code: 85 db 58 0f 88 7d 03 00 00 e8 e9 1a ac fb 48 8b 9d 70 ff ff ff 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 04 48 89 fa 48 c1 ea 03 <0f> b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 ca
+RSP: 0018:ffff88809426f3b8 EFLAGS: 00010247
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff85c6eb09
+RDX: 0000000000000000 RSI: ffffffff85c6eb17 RDI: 0000000000000004
+RBP: ffff88809426f4b0 R08: ffff88808c4085c0 R09: ffffed1015d26159
+R10: ffffed1015d26158 R11: ffff8880ae930ac7 R12: ffff8880a7e96940
+R13: dffffc0000000000 R14: ffff88809426f8c0 R15: 0000000000000000
+FS:  0000000001292880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
 CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000004c7cec CR3: 00000001bcd0a006 CR4: 00000000001626f0
+CR2: 0000000020000080 CR3: 000000008ca1b000 CR4: 00000000001406e0
 DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
 DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- [<ffffffff83be9d57>] cbq_normalize_quanta include/net/pkt_sched.h:27 [inline]
- [<ffffffff83be9d57>] cbq_addprio net/sched/sch_cbq.c:1097 [inline]
- [<ffffffff83be9d57>] cbq_set_wrr+0x2d7/0x450 net/sched/sch_cbq.c:1115
- [<ffffffff83bee8a7>] cbq_change_class+0x987/0x225b net/sched/sch_cbq.c:1537
- [<ffffffff83b96985>] tc_ctl_tclass+0x555/0xcd0 net/sched/sch_api.c:2329
- [<ffffffff83a84655>] rtnetlink_rcv_msg+0x485/0xc10 net/core/rtnetlink.c:5248
- [<ffffffff83cadf0a>] netlink_rcv_skb+0x17a/0x460 net/netlink/af_netlink.c:2510
- [<ffffffff83a7db6d>] rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5266
- [<ffffffff83cac2c6>] netlink_unicast_kernel net/netlink/af_netlink.c:1324 [inline]
- [<ffffffff83cac2c6>] netlink_unicast+0x536/0x720 net/netlink/af_netlink.c:1350
- [<ffffffff83cacd4a>] netlink_sendmsg+0x89a/0xd50 net/netlink/af_netlink.c:1939
- [<ffffffff8399d46e>] sock_sendmsg_nosec net/socket.c:673 [inline]
- [<ffffffff8399d46e>] sock_sendmsg+0x12e/0x170 net/socket.c:684
- [<ffffffff8399f1fd>] ___sys_sendmsg+0x81d/0x960 net/socket.c:2359
- [<ffffffff839a2d05>] __sys_sendmsg+0x105/0x1d0 net/socket.c:2397
- [<ffffffff839a2df9>] SYSC_sendmsg net/socket.c:2406 [inline]
- [<ffffffff839a2df9>] SyS_sendmsg+0x29/0x30 net/socket.c:2404
- [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
- [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
+ qdisc_create+0x4ee/0x1210 net/sched/sch_api.c:1237
+ tc_modify_qdisc+0x524/0x1c50 net/sched/sch_api.c:1653
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5223
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5241
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440369
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 758cc43c6d73 ("[PKT_SCHED]: Fix dsmark to apply changes consistent")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cbq.c |   43 +++++++++++++++++++++++++++++--------------
- 1 file changed, 29 insertions(+), 14 deletions(-)
+ net/sched/sch_dsmark.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -1127,6 +1127,33 @@ static const struct nla_policy cbq_polic
- 	[TCA_CBQ_POLICE]	= { .len = sizeof(struct tc_cbq_police) },
- };
+--- a/net/sched/sch_dsmark.c
++++ b/net/sched/sch_dsmark.c
+@@ -361,6 +361,8 @@ static int dsmark_init(struct Qdisc *sch
+ 		goto errout;
  
-+static int cbq_opt_parse(struct nlattr *tb[TCA_CBQ_MAX + 1],
-+			 struct nlattr *opt,
-+			 struct netlink_ext_ack *extack)
-+{
-+	int err;
-+
-+	if (!opt) {
-+		NL_SET_ERR_MSG(extack, "CBQ options are required for this operation");
-+		return -EINVAL;
-+	}
-+
-+	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt,
-+					  cbq_policy, extack);
-+	if (err < 0)
-+		return err;
-+
-+	if (tb[TCA_CBQ_WRROPT]) {
-+		const struct tc_cbq_wrropt *wrr = nla_data(tb[TCA_CBQ_WRROPT]);
-+
-+		if (wrr->priority > TC_CBQ_MAXPRIO) {
-+			NL_SET_ERR_MSG(extack, "priority is bigger than TC_CBQ_MAXPRIO");
-+			err = -EINVAL;
-+		}
-+	}
-+	return err;
-+}
-+
- static int cbq_init(struct Qdisc *sch, struct nlattr *opt,
- 		    struct netlink_ext_ack *extack)
- {
-@@ -1139,13 +1166,7 @@ static int cbq_init(struct Qdisc *sch, s
- 	hrtimer_init(&q->delay_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS_PINNED);
- 	q->delay_timer.function = cbq_undelay;
+ 	err = -EINVAL;
++	if (!tb[TCA_DSMARK_INDICES])
++		goto errout;
+ 	indices = nla_get_u16(tb[TCA_DSMARK_INDICES]);
  
--	if (!opt) {
--		NL_SET_ERR_MSG(extack, "CBQ options are required for this operation");
--		return -EINVAL;
--	}
--
--	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt, cbq_policy,
--					  extack);
-+	err = cbq_opt_parse(tb, opt, extack);
- 	if (err < 0)
- 		return err;
- 
-@@ -1464,13 +1485,7 @@ cbq_change_class(struct Qdisc *sch, u32
- 	struct cbq_class *parent;
- 	struct qdisc_rate_table *rtab = NULL;
- 
--	if (!opt) {
--		NL_SET_ERR_MSG(extack, "Mandatory qdisc options missing");
--		return -EINVAL;
--	}
--
--	err = nla_parse_nested_deprecated(tb, TCA_CBQ_MAX, opt, cbq_policy,
--					  extack);
-+	err = cbq_opt_parse(tb, opt, extack);
- 	if (err < 0)
- 		return err;
- 
+ 	if (hweight32(indices) != 1)
 
 
