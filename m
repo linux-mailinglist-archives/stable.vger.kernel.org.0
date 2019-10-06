@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 113B4CD794
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95E2CD85F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728264AbfJFRbn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57964 "EHLO mail.kernel.org"
+        id S1728072AbfJFRZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729467AbfJFRbk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:31:40 -0400
+        id S1727518AbfJFRZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:25:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4F0A2087E;
-        Sun,  6 Oct 2019 17:31:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10CA2077B;
+        Sun,  6 Oct 2019 17:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383100;
-        bh=JpYnaaRnpqG1IJ9LpF43Ky4t2CfiGETqsYi76zPHC88=;
+        s=default; t=1570382714;
+        bh=TkRXmpHdZvwNp4jqEj1dbBI2v217kXfJTlu2W7Axhqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7O6W5dSXPbSKfiMKeR3+zfkflS/yMdEay4OqQgANHpm3mXZALn+OaWLt8svpVNqq
-         Glv7nW/04fevPgKOFfu2ylanIcrGTNa6IySFX3ShXYrWZ08A74iMSWcLV4YUDzj1KF
-         GTx1T9iZyVTgbNooJNoEXPNwRKwNvLuMIX38yIz8=
+        b=xFnGKSo2yBqZ4HTY0svjbAcjuZFPbM5qxm6ZXQB9O/nJR5ERrGuZVOfrqEXGa3Jax
+         lUU3IHU3YjxwO+vy97xtY9+jltY8VawjcivdpokbVhJbFajVkAb9UCAVZOemYqSUaU
+         AwfJYpwzj7uiEYgBq2hGhSZQ52B2ZsP13dPSjCT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Guo Zeng <Guo.Zeng@csr.com>,
+        Barry Song <Baohua.Song@csr.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 043/106] mbox: qcom: add APCS child device for QCS404
+Subject: [PATCH 4.14 13/68] clk: sirf: Dont reference clk_init_data after registration
 Date:   Sun,  6 Oct 2019 19:20:49 +0200
-Message-Id: <20191006171142.875607212@linuxfoundation.org>
+Message-Id: <20191006171114.923802523@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Stephen Boyd <sboyd@kernel.org>
 
-[ Upstream commit 78c86458a440ff356073c21b568cb58ddb67b82b ]
+[ Upstream commit af55dadfbce35b4f4c6247244ce3e44b2e242b84 ]
 
-There is clock controller functionality in the APCS hardware block of
-qcs404 devices similar to msm8916.
+A future patch is going to change semantics of clk_register() so that
+clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
+referencing this member here so that we don't run into NULL pointer
+exceptions.
 
-Co-developed-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Cc: Guo Zeng <Guo.Zeng@csr.com>
+Cc: Barry Song <Baohua.Song@csr.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20190731193517.237136-6-sboyd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/qcom-apcs-ipc-mailbox.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/clk/sirf/clk-common.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mailbox/qcom-apcs-ipc-mailbox.c b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-index 333ed4a9d4b8f..5255dcb551a78 100644
---- a/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-+++ b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
-@@ -55,7 +55,6 @@ static const struct mbox_chan_ops qcom_apcs_ipc_ops = {
- 
- static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+diff --git a/drivers/clk/sirf/clk-common.c b/drivers/clk/sirf/clk-common.c
+index 77e1e2491689b..edb7197cc4b4d 100644
+--- a/drivers/clk/sirf/clk-common.c
++++ b/drivers/clk/sirf/clk-common.c
+@@ -298,9 +298,10 @@ static u8 dmn_clk_get_parent(struct clk_hw *hw)
  {
--	struct device_node *np = pdev->dev.of_node;
- 	struct qcom_apcs_ipc *apcs;
- 	struct regmap *regmap;
- 	struct resource *res;
-@@ -63,6 +62,11 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- 	void __iomem *base;
- 	unsigned long i;
- 	int ret;
-+	const struct of_device_id apcs_clk_match_table[] = {
-+		{ .compatible = "qcom,msm8916-apcs-kpss-global", },
-+		{ .compatible = "qcom,qcs404-apcs-apps-global", },
-+		{}
-+	};
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
  
- 	apcs = devm_kzalloc(&pdev->dev, sizeof(*apcs), GFP_KERNEL);
- 	if (!apcs)
-@@ -97,7 +101,7 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return 4;
  
--	if (of_device_is_compatible(np, "qcom,msm8916-apcs-kpss-global")) {
-+	if (of_match_device(apcs_clk_match_table, &pdev->dev)) {
- 		apcs->clk = platform_device_register_data(&pdev->dev,
- 							  "qcom-apcs-msm8916-clk",
- 							  -1, NULL, 0);
+ 	WARN_ON((cfg & (BIT(3) - 1)) > 4);
+@@ -312,9 +313,10 @@ static int dmn_clk_set_parent(struct clk_hw *hw, u8 parent)
+ {
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	u32 cfg = clkc_readl(clk->regofs);
++	const char *name = clk_hw_get_name(hw);
+ 
+ 	/* parent of io domain can only be pll3 */
+-	if (strcmp(hw->init->name, "io") == 0)
++	if (strcmp(name, "io") == 0)
+ 		return -EINVAL;
+ 
+ 	cfg &= ~(BIT(3) - 1);
+@@ -354,7 +356,8 @@ static long dmn_clk_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = *parent_rate;
+ 	ratio = fin / rate;
+@@ -376,7 +379,8 @@ static int dmn_clk_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	struct clk_dmn *clk = to_dmnclk(hw);
+ 	unsigned long fin;
+ 	unsigned ratio, wait, hold, reg;
+-	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
++	const char *name = clk_hw_get_name(hw);
++	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
+ 
+ 	fin = parent_rate;
+ 	ratio = fin / rate;
 -- 
 2.20.1
 
