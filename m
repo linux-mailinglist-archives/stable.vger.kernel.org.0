@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93A52CD7F3
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF935CD7EF
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728034AbfJFRzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51352 "EHLO mail.kernel.org"
+        id S1727509AbfJFRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:55:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728359AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:29 -0400
+        id S1727101AbfJFRy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:54:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3A9422459;
-        Sun,  6 Oct 2019 17:45:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29C842077B;
+        Sun,  6 Oct 2019 17:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383960;
-        bh=tQiSvNVTkjv8Ne/BbocQ9GxSGV/1O9mRi+mOMl8LBM4=;
+        s=default; t=1570383965;
+        bh=BH/a5c+bXXYLg/uA0RRJfRa6LSxsadgUgOffxgQNYPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoysWNZhRF4xeeTVy0QMREhX0WUqU4w7gP8JgiXkaeBoeGTWIpntUW/nYX0+/lsZH
-         KmNLOPHbKtcP7GtmsS0TLe6scUnwqmOyZ+AsBJt5aS5idCNL9ZNmLKg73xYevZLNc8
-         QC555pdytUOszLc4ZRWUyjYmHPUXfK+L7K8Y9nGQ=
+        b=GQfLimJ5aC0pLiFBUaKmxAkvQO0ShxEPSEBJIfEqOPmWypLb/uqXvAf+Jh+zA0DCW
+         Oh6mGxwZRSSlV4mYEAWoxoWUCWYBQ2u9ZEPGkM8COwhhUyJA3nzDKPtmVUQY6SO4cz
+         7v53pdX67adRTVueXiiWvfA00Hf8QELHZdQVeLq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 5.3 158/166] Smack: Dont ignore other bprm->unsafe flags if LSM_UNSAFE_PTRACE is set
-Date:   Sun,  6 Oct 2019 19:22:04 +0200
-Message-Id: <20191006171226.169743782@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.3 160/166] dm raid: fix updating of max_discard_sectors limit
+Date:   Sun,  6 Oct 2019 19:22:06 +0200
+Message-Id: <20191006171226.329297991@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -43,50 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
+commit c8156fc77d0796ba2618936dbb3084e769e916c1 upstream.
 
-There is a logic bug in the current smack_bprm_set_creds():
-If LSM_UNSAFE_PTRACE is set, but the ptrace state is deemed to be
-acceptable (e.g. because the ptracer detached in the meantime), the other
-->unsafe flags aren't checked. As far as I can tell, this means that
-something like the following could work (but I haven't tested it):
+Unit of 'chunk_size' is byte, instead of sector, so fix it by setting
+the queue_limits' max_discard_sectors to rs->md.chunk_sectors.  Also,
+rename chunk_size to chunk_size_bytes.
 
- - task A: create task B with fork()
- - task B: set NO_NEW_PRIVS
- - task B: install a seccomp filter that makes open() return 0 under some
-   conditions
- - task B: replace fd 0 with a malicious library
- - task A: attach to task B with PTRACE_ATTACH
- - task B: execve() a file with an SMACK64EXEC extended attribute
- - task A: while task B is still in the middle of execve(), exit (which
-   destroys the ptrace relationship)
+Without this fix, too big max_discard_sectors is applied on the request
+queue of dm-raid, finally raid code has to split the bio again.
 
-Make sure that if any flags other than LSM_UNSAFE_PTRACE are set in
-bprm->unsafe, we reject the execve().
+This re-split done by raid causes the following nested clone_endio:
 
+1) one big bio 'A' is submitted to dm queue, and served as the original
+bio
+
+2) one new bio 'B' is cloned from the original bio 'A', and .map()
+is run on this bio of 'B', and B's original bio points to 'A'
+
+3) raid code sees that 'B' is too big, and split 'B' and re-submit
+the remainded part of 'B' to dm-raid queue via generic_make_request().
+
+4) now dm will handle 'B' as new original bio, then allocate a new
+clone bio of 'C' and run .map() on 'C'. Meantime C's original bio
+points to 'B'.
+
+5) suppose now 'C' is completed by raid directly, then the following
+clone_endio() is called recursively:
+
+	clone_endio(C)
+		->clone_endio(B)		#B is original bio of 'C'
+			->bio_endio(A)
+
+'A' can be big enough to make hundreds of nested clone_endio(), then
+stack can be corrupted easily.
+
+Fixes: 61697a6abd24a ("dm: eliminate 'split_discard_bios' flag from DM target interface")
 Cc: stable@vger.kernel.org
-Fixes: 5663884caab1 ("Smack: unify all ptrace accesses in the smack")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/smack/smack_lsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/dm-raid.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -937,7 +937,8 @@ static int smack_bprm_set_creds(struct l
+--- a/drivers/md/dm-raid.c
++++ b/drivers/md/dm-raid.c
+@@ -3738,18 +3738,18 @@ static int raid_iterate_devices(struct d
+ static void raid_io_hints(struct dm_target *ti, struct queue_limits *limits)
+ {
+ 	struct raid_set *rs = ti->private;
+-	unsigned int chunk_size = to_bytes(rs->md.chunk_sectors);
++	unsigned int chunk_size_bytes = to_bytes(rs->md.chunk_sectors);
  
- 		if (rc != 0)
- 			return rc;
--	} else if (bprm->unsafe)
-+	}
-+	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
- 		return -EPERM;
+-	blk_limits_io_min(limits, chunk_size);
+-	blk_limits_io_opt(limits, chunk_size * mddev_data_stripes(rs));
++	blk_limits_io_min(limits, chunk_size_bytes);
++	blk_limits_io_opt(limits, chunk_size_bytes * mddev_data_stripes(rs));
  
- 	bsp->smk_task = isp->smk_task;
+ 	/*
+ 	 * RAID1 and RAID10 personalities require bio splitting,
+ 	 * RAID0/4/5/6 don't and process large discard bios properly.
+ 	 */
+ 	if (rs_is_raid1(rs) || rs_is_raid10(rs)) {
+-		limits->discard_granularity = chunk_size;
+-		limits->max_discard_sectors = chunk_size;
++		limits->discard_granularity = chunk_size_bytes;
++		limits->max_discard_sectors = rs->md.chunk_sectors;
+ 	}
+ }
+ 
 
 
