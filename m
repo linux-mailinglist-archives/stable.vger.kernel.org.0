@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B63CD84E
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DACCD7E1
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727588AbfJFRZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
+        id S1730186AbfJFRgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:36:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbfJFRZr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:25:47 -0400
+        id S1730077AbfJFRgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:36:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D3820867;
-        Sun,  6 Oct 2019 17:25:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2144220700;
+        Sun,  6 Oct 2019 17:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382746;
-        bh=WZWvLpu91GzMfveMKVhwBFKltwv+EJOdKuq185tjW3k=;
+        s=default; t=1570383370;
+        bh=eSh8T2nSPy8y2TgRE1CffHRlokwH0nJvPtRMTdfQcbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vx7vrifXKHhenN1d0pSTYsAtJesxDnciZ1b3adfa53GgFVDLt8MChmli6ZY10jKo
-         G121WVGYjcuNPVj9/5Em5fdcrB/zW7T/kZ1IgSPBZutn1pIsyUYfm+d/SfDBOhBUbZ
-         lCmW6TVF+XJA/WcxRu3//CHyuO3PTpRrOiksZko4=
+        b=a1l7J1s1R6EZkeoSmRU7lbAlcV92TfoMsFRAKSpO2BvagD9jO99qirPUHb8X488DJ
+         IYWcIoan1RBzVTHwGwyUx0wqc6odA8ANsyenqjQS6rk4TY8mJZCC9f+Fd/WSEEDnQE
+         eDkTu5Zhsp1rLwB7GFeTG0ZjcCuDbHAn5rkuoZkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Bibby Hsieh <bibby.hsieh@mediatek.com>,
+        CK Hu <ck.hu@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/68] powerpc/pseries: correctly track irq state in default idle
-Date:   Sun,  6 Oct 2019 19:21:00 +0200
-Message-Id: <20191006171119.261595375@linuxfoundation.org>
+Subject: [PATCH 5.2 077/137] mailbox: mediatek: cmdq: clear the event in cmdq initial flow
+Date:   Sun,  6 Oct 2019 19:21:01 +0200
+Message-Id: <20191006171215.411270398@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Bibby Hsieh <bibby.hsieh@mediatek.com>
 
-[ Upstream commit 92c94dfb69e350471473fd3075c74bc68150879e ]
+[ Upstream commit 6058f11870b8e6d4f5cc7b591097c00bf69a000d ]
 
-prep_irq_for_idle() is intended to be called before entering
-H_CEDE (and it is used by the pseries cpuidle driver). However the
-default pseries idle routine does not call it, leading to mismanaged
-lazy irq state when the cpuidle driver isn't in use. Manifestations of
-this include:
+GCE hardware stored event information in own internal sysram,
+if the initial value in those sysram is not zero value
+it will cause a situation that gce can wait the event immediately
+after client ask gce to wait event but not really trigger the
+corresponding hardware.
 
-* Dropped IPIs in the time immediately after a cpu comes
-  online (before it has installed the cpuidle handler), making the
-  online operation block indefinitely waiting for the new cpu to
-  respond.
+In order to make sure that the wait event function is
+exactly correct, we need to clear the sysram value in
+cmdq initial flow.
 
-* Hitting this WARN_ON in arch_local_irq_restore():
-	/*
-	 * We should already be hard disabled here. We had bugs
-	 * where that wasn't the case so let's dbl check it and
-	 * warn if we are wrong. Only do that when IRQ tracing
-	 * is enabled as mfmsr() can be costly.
-	 */
-	if (WARN_ON_ONCE(mfmsr() & MSR_EE))
-		__hard_irq_disable();
+Fixes: 623a6143a845 ("mailbox: mediatek: Add Mediatek CMDQ driver")
 
-Call prep_irq_for_idle() from pseries_lpar_idle() and honor its
-result.
-
-Fixes: 363edbe2614a ("powerpc: Default arch idle could cede processor on pseries")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190910225244.25056-1-nathanl@linux.ibm.com
+Signed-off-by: Bibby Hsieh <bibby.hsieh@mediatek.com>
+Reviewed-by: CK Hu <ck.hu@mediatek.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/setup.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mailbox/mtk-cmdq-mailbox.c       | 5 +++++
+ include/linux/mailbox/mtk-cmdq-mailbox.h | 3 +++
+ include/linux/soc/mediatek/mtk-cmdq.h    | 3 ---
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-index 6a0ad56e89b93..7a9945b350536 100644
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -307,6 +307,9 @@ static void pseries_lpar_idle(void)
- 	 * low power mode by ceding processor to hypervisor
- 	 */
+diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
+index 00d5219094e5d..48bba49139523 100644
+--- a/drivers/mailbox/mtk-cmdq-mailbox.c
++++ b/drivers/mailbox/mtk-cmdq-mailbox.c
+@@ -22,6 +22,7 @@
+ #define CMDQ_NUM_CMD(t)			(t->cmd_buf_size / CMDQ_INST_SIZE)
  
-+	if (!prep_irq_for_idle())
-+		return;
+ #define CMDQ_CURR_IRQ_STATUS		0x10
++#define CMDQ_SYNC_TOKEN_UPDATE		0x68
+ #define CMDQ_THR_SLOT_CYCLES		0x30
+ #define CMDQ_THR_BASE			0x100
+ #define CMDQ_THR_SIZE			0x80
+@@ -104,8 +105,12 @@ static void cmdq_thread_resume(struct cmdq_thread *thread)
+ 
+ static void cmdq_init(struct cmdq *cmdq)
+ {
++	int i;
 +
- 	/* Indicate to hypervisor that we are idle. */
- 	get_lppaca()->idle = 1;
+ 	WARN_ON(clk_enable(cmdq->clock) < 0);
+ 	writel(CMDQ_THR_ACTIVE_SLOT_CYCLES, cmdq->base + CMDQ_THR_SLOT_CYCLES);
++	for (i = 0; i <= CMDQ_MAX_EVENT; i++)
++		writel(i, cmdq->base + CMDQ_SYNC_TOKEN_UPDATE);
+ 	clk_disable(cmdq->clock);
+ }
  
+diff --git a/include/linux/mailbox/mtk-cmdq-mailbox.h b/include/linux/mailbox/mtk-cmdq-mailbox.h
+index ccb73422c2fa2..e6f54ef6698b1 100644
+--- a/include/linux/mailbox/mtk-cmdq-mailbox.h
++++ b/include/linux/mailbox/mtk-cmdq-mailbox.h
+@@ -20,6 +20,9 @@
+ #define CMDQ_WFE_WAIT			BIT(15)
+ #define CMDQ_WFE_WAIT_VALUE		0x1
+ 
++/** cmdq event maximum */
++#define CMDQ_MAX_EVENT			0x3ff
++
+ /*
+  * CMDQ_CODE_MASK:
+  *   set write mask
+diff --git a/include/linux/soc/mediatek/mtk-cmdq.h b/include/linux/soc/mediatek/mtk-cmdq.h
+index 54ade13a9b157..4e8899972db4d 100644
+--- a/include/linux/soc/mediatek/mtk-cmdq.h
++++ b/include/linux/soc/mediatek/mtk-cmdq.h
+@@ -13,9 +13,6 @@
+ 
+ #define CMDQ_NO_TIMEOUT		0xffffffffu
+ 
+-/** cmdq event maximum */
+-#define CMDQ_MAX_EVENT				0x3ff
+-
+ struct cmdq_pkt;
+ 
+ struct cmdq_client {
 -- 
 2.20.1
 
