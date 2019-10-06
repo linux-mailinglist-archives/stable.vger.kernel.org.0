@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B09FFCD587
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 465AFCD524
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbfJFRhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36222 "EHLO mail.kernel.org"
+        id S1728457AbfJFRc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729505AbfJFRhQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:37:16 -0400
+        id S1729677AbfJFRc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C3B82080F;
-        Sun,  6 Oct 2019 17:37:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80FE92087E;
+        Sun,  6 Oct 2019 17:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383435;
-        bh=082BMeEI5De5r+ZXqfTJEGduL6z/t1hEjdp/Pelq80c=;
+        s=default; t=1570383176;
+        bh=pUQzzgviHZAl9J4RPTZPd1/kHJ8JsYvcDV5EOmgKvJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOOMYWIH+Rr0o1f2FvBfxsfO35S72BSFRm5w5hWnE+3tNJ/AHFUoD7XPnsjRxrQHn
-         dsQTGOTOfhIBENz63H/m5LW2gfLIRV3aQUX17ml1CWXVRsWW4xxmPuE4Wz36rMBsBI
-         mPp4HmRev8HtPzleqwuB3aGcPvX6+/uDwo1yh8v8=
+        b=JMCK4o6kVrxEVt4u2OG6/9ZrRRbV2Iuu2l4xJY2ANvlE8uQ7CS4AA4rdhl/+5wYlW
+         x2WUhCMcB0Plg0gAcRND0Jrrmvk3naBblWmRBTduZi6HSiRCd3biLBU1Z4ar59zhcU
+         VnhQpb6wUxNQsx6biEwLu4RILzYY3l23D+Pgoe6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 103/137] soundwire: intel: fix channel number reported by hardware
-Date:   Sun,  6 Oct 2019 19:21:27 +0200
-Message-Id: <20191006171217.508937732@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 082/106] hso: fix NULL-deref on tty open
+Date:   Sun,  6 Oct 2019 19:21:28 +0200
+Message-Id: <20191006171157.664209125@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 18046335643de6d21327f5ae034c8fb8463f6715 ]
+[ Upstream commit 8353da9fa69722b54cba82b2ec740afd3d438748 ]
 
-On all released Intel controllers (CNL/CML/ICL), PDI2 reports an
-invalid count, force the correct hardware-supported value
+Fix NULL-pointer dereference on tty open due to a failure to handle a
+missing interrupt-in endpoint when probing modem ports:
 
-This may have to be revisited with platform-specific values if the
-hardware changes, but for now this is good enough.
+	BUG: kernel NULL pointer dereference, address: 0000000000000006
+	...
+	RIP: 0010:tiocmget_submit_urb+0x1c/0xe0 [hso]
+	...
+	Call Trace:
+	hso_start_serial_device+0xdc/0x140 [hso]
+	hso_serial_open+0x118/0x1b0 [hso]
+	tty_open+0xf1/0x490
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190806005522.22642-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 542f54823614 ("tty: Modem functions for the HSO driver")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/intel.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/usb/hso.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index 60293a00a14ee..8a670bc86c0ce 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -283,6 +283,16 @@ intel_pdi_get_ch_cap(struct sdw_intel *sdw, unsigned int pdi_num, bool pcm)
- 
- 	if (pcm) {
- 		count = intel_readw(shim, SDW_SHIM_PCMSYCHC(link_id, pdi_num));
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2634,14 +2634,18 @@ static struct hso_device *hso_create_bul
+ 		 */
+ 		if (serial->tiocmget) {
+ 			tiocmget = serial->tiocmget;
++			tiocmget->endp = hso_get_ep(interface,
++						    USB_ENDPOINT_XFER_INT,
++						    USB_DIR_IN);
++			if (!tiocmget->endp) {
++				dev_err(&interface->dev, "Failed to find INT IN ep\n");
++				goto exit;
++			}
 +
-+		/*
-+		 * WORKAROUND: on all existing Intel controllers, pdi
-+		 * number 2 reports channel count as 1 even though it
-+		 * supports 8 channels. Performing hardcoding for pdi
-+		 * number 2.
-+		 */
-+		if (pdi_num == 2)
-+			count = 7;
-+
- 	} else {
- 		count = intel_readw(shim, SDW_SHIM_PDMSCAP(link_id));
- 		count = ((count & SDW_SHIM_PDMSCAP_CPSS) >>
--- 
-2.20.1
-
+ 			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
+ 			if (tiocmget->urb) {
+ 				mutex_init(&tiocmget->mutex);
+ 				init_waitqueue_head(&tiocmget->waitq);
+-				tiocmget->endp = hso_get_ep(
+-					interface,
+-					USB_ENDPOINT_XFER_INT,
+-					USB_DIR_IN);
+ 			} else
+ 				hso_free_tiomget(serial);
+ 		}
 
 
