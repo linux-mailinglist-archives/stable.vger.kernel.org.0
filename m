@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D23C1CD687
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D9B5CD67C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731375AbfJFRml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
+        id S1731382AbfJFRmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728607AbfJFRml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:42:41 -0400
+        id S1730392AbfJFRmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:42:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A54D2087E;
-        Sun,  6 Oct 2019 17:42:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 347AB2133F;
+        Sun,  6 Oct 2019 17:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383760;
-        bh=krP95kJpB0a0xTJ3F8JGhh+MB+OwJOuNWiIa/d8ubwc=;
+        s=default; t=1570383762;
+        bh=I8B5kB4woAS8zeIX3RW9KSgJ4z9Xq/XpjsL8Ffdl0vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZIux8tvqDxGTtVhy+UXj5wMkivSySMB26HDTEet+f0nAq6aS1bgWaMGTln4MROX/
-         58JlPNF+SOYSgxWxGJmVqHeeZngkS2QGp0a5dSVJPKOOpHD3pF0yIX3ACNV/f9Olyi
-         kwd5SKmM5nMmVRN9UVIpNZumcklA9lZzX5Nnx9ys=
+        b=nhqYum3kTr/i5LqWzaAxBR4sWgSTPxAtMNjW1Bn2AkoVMxctqKJTbema5Age0GF3P
+         dfEKqxtowqJc0qrLntNT5dKnNcRhvqttktboM4dYgrkGJ8r+V0yqDjuEASch93BM6r
+         9RsPEgV9Ugqc3L+IY+GjjzdDfosyZyGn7jBNWHn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 041/166] powerpc/ptdump: fix walk_pagetables() address mismatch
-Date:   Sun,  6 Oct 2019 19:20:07 +0200
-Message-Id: <20191006171216.397435417@linuxfoundation.org>
+Subject: [PATCH 5.3 042/166] powerpc/futex: Fix warning: oldval may be used uninitialized in this function
+Date:   Sun,  6 Oct 2019 19:20:08 +0200
+Message-Id: <20191006171216.487058904@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,53 +46,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit e033829d2aaad85cb7cf46986c3be0bcc72f791e ]
+[ Upstream commit 38a0d0cdb46d3f91534e5b9839ec2d67be14c59d ]
 
-walk_pagetables() always walk the entire pgdir from address 0
-but considers PAGE_OFFSET or KERN_VIRT_START as the starting
-address of the walk, resulting in a possible mismatch in the
-displayed addresses.
+We see warnings such as:
+  kernel/futex.c: In function 'do_futex':
+  kernel/futex.c:1676:17: warning: 'oldval' may be used uninitialized in this function [-Wmaybe-uninitialized]
+     return oldval == cmparg;
+                   ^
+  kernel/futex.c:1651:6: note: 'oldval' was declared here
+    int oldval, ret;
+        ^
 
-Ex: on PPC32, when KERN_VIRT_START was locally defined as
-PAGE_OFFSET, ptdump displayed 0x80000000
-instead of 0xc0000000 for the first kernel page,
-because 0xc0000000 + 0xc0000000 = 0x80000000
+This is because arch_futex_atomic_op_inuser() only sets *oval if ret
+is 0 and GCC doesn't see that it will only use it when ret is 0.
 
-Start the walk at st->start_address instead of starting at 0.
+Anyway, the non-zero ret path is an error path that won't suffer from
+setting *oval, and as *oval is a local var in futex_atomic_op_inuser()
+it will have no impact.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+[mpe: reword change log slightly]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5aa2ac513295f594cce8ddb1c649f61947bd063d.1565786091.git.christophe.leroy@c-s.fr
+Link: https://lore.kernel.org/r/86b72f0c134367b214910b27b9a6dd3321af93bb.1565774657.git.christophe.leroy@c-s.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/ptdump/ptdump.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/powerpc/include/asm/futex.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/mm/ptdump/ptdump.c b/arch/powerpc/mm/ptdump/ptdump.c
-index 6a88a9f585d4f..5d6111a9ee0e7 100644
---- a/arch/powerpc/mm/ptdump/ptdump.c
-+++ b/arch/powerpc/mm/ptdump/ptdump.c
-@@ -299,17 +299,15 @@ static void walk_pud(struct pg_state *st, pgd_t *pgd, unsigned long start)
+diff --git a/arch/powerpc/include/asm/futex.h b/arch/powerpc/include/asm/futex.h
+index 3a6aa57b9d901..eea28ca679dbb 100644
+--- a/arch/powerpc/include/asm/futex.h
++++ b/arch/powerpc/include/asm/futex.h
+@@ -60,8 +60,7 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
  
- static void walk_pagetables(struct pg_state *st)
- {
--	pgd_t *pgd = pgd_offset_k(0UL);
- 	unsigned int i;
--	unsigned long addr;
--
--	addr = st->start_address;
-+	unsigned long addr = st->start_address & PGDIR_MASK;
-+	pgd_t *pgd = pgd_offset_k(addr);
+ 	pagefault_enable();
  
- 	/*
- 	 * Traverse the linux pagetable structure and dump pages that are in
- 	 * the hash pagetable.
- 	 */
--	for (i = 0; i < PTRS_PER_PGD; i++, pgd++, addr += PGDIR_SIZE) {
-+	for (i = pgd_index(addr); i < PTRS_PER_PGD; i++, pgd++, addr += PGDIR_SIZE) {
- 		if (!pgd_none(*pgd) && !pgd_is_leaf(*pgd))
- 			/* pgd exists */
- 			walk_pud(st, pgd, addr);
+-	if (!ret)
+-		*oval = oldval;
++	*oval = oldval;
+ 
+ 	prevent_write_to_user(uaddr, sizeof(*uaddr));
+ 	return ret;
 -- 
 2.20.1
 
