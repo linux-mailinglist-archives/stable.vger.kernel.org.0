@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80629CD7AB
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83469CD7B6
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729677AbfJFRdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59580 "EHLO mail.kernel.org"
+        id S1729179AbfJFRd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:33:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729680AbfJFRc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:59 -0400
+        id S1729048AbfJFRd3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:33:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 290E82080F;
-        Sun,  6 Oct 2019 17:32:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06C7D2087E;
+        Sun,  6 Oct 2019 17:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383178;
-        bh=vTl9zJpljgQsfufSouxqoZf5478I80hsMeKWww/XdhA=;
+        s=default; t=1570383208;
+        bh=UGUU/8QyejhUdLsO3Qp6xSfeNn8zrabgD53ZEOe+6Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ug57ZVKub4wFoRaIDI01AeIMhA4vPauOm5cj+ZqJiPKWFXWyf9+cGo6KpRpWo7IWy
-         jIfU2v6TFH+B+CCNni3s8lUBhTww1274T1C0cErgSP4xBzk0EUDHl+ZdPRMkNXmUYe
-         0STEwm6MOHXv50ylYtaUe/cdtFy6KFOPg64QllLE=
+        b=zq/EeK9OSeTLQycDP9B4GlHKOcTmWTSSdqmSTIc4QjEbZIjWrrjFuYMhzCny7POQf
+         jIZm9FNcV5IjXz8Rv1H46z1vPVXcT5FFMHkUtCepE/oUqS05bYqY7x1lK3KxAeeLLM
+         TsLferWlH3FXR8rQSwUFTma/EcSxiO8seNHfcf3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Shahjada Abul Husain <shahjada@chelsio.com>,
-        Vishal Kulkarni <vishal@chelsio.com>,
+        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 001/137] cxgb4:Fix out-of-bounds MSI-X info array access
-Date:   Sun,  6 Oct 2019 19:19:45 +0200
-Message-Id: <20191006171209.642515911@linuxfoundation.org>
+Subject: [PATCH 5.2 002/137] erspan: remove the incorrect mtu limit for erspan
+Date:   Sun,  6 Oct 2019 19:19:46 +0200
+Message-Id: <20191006171209.761851478@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,51 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
 
-[ Upstream commit 6b517374f4ea5a3c6e307e1219ec5f35d42e6d00 ]
+[ Upstream commit 0e141f757b2c78c983df893e9993313e2dc21e38 ]
 
-When fetching free MSI-X vectors for ULDs, check for the error code
-before accessing MSI-X info array. Otherwise, an out-of-bounds access is
-attempted, which results in kernel panic.
+erspan driver calls ether_setup(), after commit 61e84623ace3
+("net: centralize net_device min/max MTU checking"), the range
+of mtu is [min_mtu, max_mtu], which is [68, 1500] by default.
 
-Fixes: 94cdb8bb993a ("cxgb4: Add support for dynamic allocation of resources for ULD")
-Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>
+It causes the dev mtu of the erspan device to not be greater
+than 1500, this limit value is not correct for ipgre tap device.
+
+Tested:
+Before patch:
+# ip link set erspan0 mtu 1600
+Error: mtu greater than device maximum.
+After patch:
+# ip link set erspan0 mtu 1600
+# ip -d link show erspan0
+21: erspan0@NONE: <BROADCAST,MULTICAST> mtu 1600 qdisc noop state DOWN
+mode DEFAULT group default qlen 1000
+    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 0
+
+Fixes: 61e84623ace3 ("net: centralize net_device min/max MTU checking")
+Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/ipv4/ip_gre.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-@@ -137,13 +137,12 @@ static int uldrx_handler(struct sge_rspq
- static int alloc_uld_rxqs(struct adapter *adap,
- 			  struct sge_uld_rxq_info *rxq_info, bool lro)
- {
--	struct sge *s = &adap->sge;
- 	unsigned int nq = rxq_info->nrxq + rxq_info->nciq;
-+	int i, err, msi_idx, que_idx = 0, bmap_idx = 0;
- 	struct sge_ofld_rxq *q = rxq_info->uldrxq;
- 	unsigned short *ids = rxq_info->rspq_id;
--	unsigned int bmap_idx = 0;
-+	struct sge *s = &adap->sge;
- 	unsigned int per_chan;
--	int i, err, msi_idx, que_idx = 0;
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -1446,6 +1446,7 @@ static void erspan_setup(struct net_devi
+ 	struct ip_tunnel *t = netdev_priv(dev);
  
- 	per_chan = rxq_info->nrxq / adap->params.nports;
- 
-@@ -161,6 +160,10 @@ static int alloc_uld_rxqs(struct adapter
- 
- 		if (msi_idx >= 0) {
- 			bmap_idx = get_msix_idx_from_bmap(adap);
-+			if (bmap_idx < 0) {
-+				err = -ENOSPC;
-+				goto freeout;
-+			}
- 			msi_idx = adap->msix_info_ulds[bmap_idx].idx;
- 		}
- 		err = t4_sge_alloc_rxq(adap, &q->rspq, false,
+ 	ether_setup(dev);
++	dev->max_mtu = 0;
+ 	dev->netdev_ops = &erspan_netdev_ops;
+ 	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+ 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
 
 
