@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 639CDCD43F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49B80CD441
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727711AbfJFRX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48700 "EHLO mail.kernel.org"
+        id S1727740AbfJFRX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727717AbfJFRX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:56 -0400
+        id S1727732AbfJFRX6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAF222080F;
-        Sun,  6 Oct 2019 17:23:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B2422080F;
+        Sun,  6 Oct 2019 17:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382635;
-        bh=/7Y+A3zi2z3Cmfpukxe6iEBE6UJaBfI64iHRMUpeFEg=;
+        s=default; t=1570382637;
+        bh=6QPtUIVWERq86ViWEnx4jphwcdTZYGRW02K4DAWvmN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2biKQmHBY0g1FaVZMrcm0hrPdPaNJ5vD7B1SAtsepgaoR/YX8EHw+ki+RlLzKUnJ
-         //jddaReLuV7PYiy9FlFnJLpzCCiL5JMShTd+5Tz4x5T6O9wuc1+3VQbWP//H1OMYk
-         TaZmYcpj5fOqmxjzU52fLBMagGIH2QzviIR4rhq4=
+        b=EHZJdYN+kllWSlXS1EYYXc2V6kz8y9kdWQKhin/EIQ3kPT64Z3lIT+HdkrqOztJxM
+         hdjLXhHlOd+GASvOgEXw9XmnwR+CRkiqYdfKs+JXtJsiLR7NEDzrmkGbxN2QThxMx6
+         e9YwY88dRgzBE5KzO/yBpCfvwHAocbEsCAWw+y8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org,
+        syzbot+a2a3c4909716e271487e@syzkaller.appspotmail.com,
+        Martijn Coenen <maco@android.com>,
         Mattias Nissler <mnissler@chromium.org>
-Subject: [PATCH 4.9 30/47] ANDROID: binder: remove waitqueue when thread exits.
-Date:   Sun,  6 Oct 2019 19:21:17 +0200
-Message-Id: <20191006172018.480360174@linuxfoundation.org>
+Subject: [PATCH 4.9 31/47] ANDROID: binder: synchronize_rcu() when using POLLFREE.
+Date:   Sun,  6 Oct 2019 19:21:18 +0200
+Message-Id: <20191006172018.533551246@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
 References: <20191006172016.873463083@linuxfoundation.org>
@@ -46,68 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martijn Coenen <maco@android.com>
 
-commit f5cb779ba16334b45ba8946d6bfa6d9834d1527f upstream.
+commit 5eeb2ca02a2f6084fc57ae5c244a38baab07033a upstream.
 
-binder_poll() passes the thread->wait waitqueue that
-can be slept on for work. When a thread that uses
-epoll explicitly exits using BINDER_THREAD_EXIT,
-the waitqueue is freed, but it is never removed
-from the corresponding epoll data structure. When
-the process subsequently exits, the epoll cleanup
-code tries to access the waitlist, which results in
-a use-after-free.
+To prevent races with ep_remove_waitqueue() removing the
+waitqueue at the same time.
 
-Prevent this by using POLLFREE when the thread exits.
-
+Reported-by: syzbot+a2a3c4909716e271487e@syzkaller.appspotmail.com
 Signed-off-by: Martijn Coenen <maco@android.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: stable <stable@vger.kernel.org> # 4.14
-[backport BINDER_LOOPER_STATE_POLL logic as well]
+Cc: stable <stable@vger.kernel.org> # 4.14+
 Signed-off-by: Mattias Nissler <mnissler@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/android/binder.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/android/binder.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
 --- a/drivers/android/binder.c
 +++ b/drivers/android/binder.c
-@@ -334,7 +334,8 @@ enum {
- 	BINDER_LOOPER_STATE_EXITED      = 0x04,
- 	BINDER_LOOPER_STATE_INVALID     = 0x08,
- 	BINDER_LOOPER_STATE_WAITING     = 0x10,
--	BINDER_LOOPER_STATE_NEED_RETURN = 0x20
-+	BINDER_LOOPER_STATE_NEED_RETURN = 0x20,
-+	BINDER_LOOPER_STATE_POLL	= 0x40,
- };
- 
- struct binder_thread {
-@@ -2628,6 +2629,18 @@ static int binder_free_thread(struct bin
- 		} else
- 			BUG();
+@@ -2641,6 +2641,15 @@ static int binder_free_thread(struct bin
+ 		wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
  	}
-+
+ 
 +	/*
-+	 * If this thread used poll, make sure we remove the waitqueue
-+	 * from any epoll data structures holding it with POLLFREE.
-+	 * waitqueue_active() is safe to use here because we're holding
-+	 * the inner lock.
++	 * This is needed to avoid races between wake_up_poll() above and
++	 * and ep_remove_waitqueue() called for other reasons (eg the epoll file
++	 * descriptor being closed); ep_remove_waitqueue() holds an RCU read
++	 * lock, so we can be sure it's done after calling synchronize_rcu().
 +	 */
-+	if ((thread->looper & BINDER_LOOPER_STATE_POLL) &&
-+	    waitqueue_active(&thread->wait)) {
-+		wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
-+	}
++	if (thread->looper & BINDER_LOOPER_STATE_POLL)
++		synchronize_rcu();
 +
  	if (send_reply)
  		binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
  	binder_release_work(&thread->todo);
-@@ -2651,6 +2664,8 @@ static unsigned int binder_poll(struct f
- 		return POLLERR;
- 	}
- 
-+	thread->looper |= BINDER_LOOPER_STATE_POLL;
-+
- 	wait_for_proc_work = thread->transaction_stack == NULL &&
- 		list_empty(&thread->todo) && thread->return_error == BR_OK;
- 
 
 
