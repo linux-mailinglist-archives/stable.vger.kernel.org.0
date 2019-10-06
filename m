@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FE9ACD69F
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 415BACD5D0
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730623AbfJFRlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
+        id S1730269AbfJFRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39570 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730904AbfJFRjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:53 -0400
+        id S1730262AbfJFRkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:40:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC6F020700;
-        Sun,  6 Oct 2019 17:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94FEA2053B;
+        Sun,  6 Oct 2019 17:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383592;
-        bh=/P72MjB8XhN4/ZZi1bmLbv5QAnQz2BwhA6RjE5T6u/4=;
+        s=default; t=1570383603;
+        bh=PnbnIcgZjtEdYqUlBBBWYErDr6FSx8IYXnn0vmGA5PY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UByN6hUw8+16soSfpBR1tScePHSYCMBpLPc+2ccI9VHDr7gF6N0OY9Gnoukqes24h
-         dM0D5oiCrf8lpMtkuCiyEuuys2YpNHzRvG1sE4GnmhCd38JpKWG+TwWwUUYoe7IaKF
-         0Pe8rSUoRSc3BxfJ1rL8l654C9x++9QE+tT0OZOM=
+        b=Y6r/1mPbvmIR2ggNjRx//96bi0qTacFDDqAqCSZmDyeCv7CcM+RL4ldKOfDg8bV2p
+         J8CU25WMEVM/Qf1Qk09HxnY1hZCgkh4kg2keCGjlamd6V3dfmCDHNsOYBp69txMOzu
+         mqK5YxuFdlMy9tbYM5IJoHt9uQEjhHumQ0ZspBcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Torgue <alexandre.torgue@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 023/166] pinctrl: stmfx: update pinconf settings
-Date:   Sun,  6 Oct 2019 19:19:49 +0200
-Message-Id: <20191006171215.115873449@linuxfoundation.org>
+Subject: [PATCH 5.3 027/166] clk: sunxi-ng: v3s: add missing clock slices for MMC2 module clocks
+Date:   Sun,  6 Oct 2019 19:19:53 +0200
+Message-Id: <20191006171215.381887646@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,88 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Torgue <alexandre.torgue@st.com>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit a502b343ebd0eab38f3cb33fbb84011847cf5aac ]
+[ Upstream commit 720099603d1f62e37b789366d7e89824b009ca28 ]
 
-According to the following tab (coming from STMFX datasheet), updates
-have to done in stmfx_pinconf_set function:
+The MMC2 clock slices are currently not defined in V3s CCU driver, which
+makes MMC2 not working.
 
--"type" has to be set when "bias" is configured as "pull-up or pull-down"
--PIN_CONFIG_DRIVE_PUSH_PULL should only be used when gpio is configured as
- output. There is so no need to check direction.
+Fix this issue.
 
-DIR | TYPE | PUPD | MFX GPIO configuration
-----|------|------|---------------------------------------------------
-1   | 1    | 1    | OUTPUT open drain with internal pull-up resistor
-----|------|------|---------------------------------------------------
-1   | 1    | 0    | OUTPUT open drain with internal pull-down resistor
-----|------|------|---------------------------------------------------
-1   | 0    | 0/1  | OUTPUT push pull no pull
-----|------|------|---------------------------------------------------
-0   | 1    | 1    | INPUT with internal pull-up resistor
-----|------|------|---------------------------------------------------
-0   | 1    | 0    | INPUT with internal pull-down resistor
-----|------|------|---------------------------------------------------
-0   | 0    | 1    | INPUT floating
-----|------|------|---------------------------------------------------
-0   | 0    | 0    | analog (GPIO not used, default setting)
-
-Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Link: https://lore.kernel.org/r/1564053416-32192-1-git-send-email-amelie.delaunay@st.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: d0f11d14b0bc ("clk: sunxi-ng: add support for V3s CCU")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-stmfx.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/clk/sunxi-ng/ccu-sun8i-v3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-stmfx.c b/drivers/pinctrl/pinctrl-stmfx.c
-index d3332da356372..31b6e511670fc 100644
---- a/drivers/pinctrl/pinctrl-stmfx.c
-+++ b/drivers/pinctrl/pinctrl-stmfx.c
-@@ -296,29 +296,29 @@ static int stmfx_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
- 		switch (param) {
- 		case PIN_CONFIG_BIAS_PULL_PIN_DEFAULT:
- 		case PIN_CONFIG_BIAS_DISABLE:
-+		case PIN_CONFIG_DRIVE_PUSH_PULL:
-+			ret = stmfx_pinconf_set_type(pctl, pin, 0);
-+			if (ret)
-+				return ret;
-+			break;
- 		case PIN_CONFIG_BIAS_PULL_DOWN:
-+			ret = stmfx_pinconf_set_type(pctl, pin, 1);
-+			if (ret)
-+				return ret;
- 			ret = stmfx_pinconf_set_pupd(pctl, pin, 0);
- 			if (ret)
- 				return ret;
- 			break;
- 		case PIN_CONFIG_BIAS_PULL_UP:
--			ret = stmfx_pinconf_set_pupd(pctl, pin, 1);
-+			ret = stmfx_pinconf_set_type(pctl, pin, 1);
- 			if (ret)
- 				return ret;
--			break;
--		case PIN_CONFIG_DRIVE_OPEN_DRAIN:
--			if (!dir)
--				ret = stmfx_pinconf_set_type(pctl, pin, 1);
--			else
--				ret = stmfx_pinconf_set_type(pctl, pin, 0);
-+			ret = stmfx_pinconf_set_pupd(pctl, pin, 1);
- 			if (ret)
- 				return ret;
- 			break;
--		case PIN_CONFIG_DRIVE_PUSH_PULL:
--			if (!dir)
--				ret = stmfx_pinconf_set_type(pctl, pin, 0);
--			else
--				ret = stmfx_pinconf_set_type(pctl, pin, 1);
-+		case PIN_CONFIG_DRIVE_OPEN_DRAIN:
-+			ret = stmfx_pinconf_set_type(pctl, pin, 1);
- 			if (ret)
- 				return ret;
- 			break;
+diff --git a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+index 9b3939fc7faa6..5ca4d34b4094f 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
++++ b/drivers/clk/sunxi-ng/ccu-sun8i-v3s.c
+@@ -502,6 +502,9 @@ static struct clk_hw_onecell_data sun8i_v3s_hw_clks = {
+ 		[CLK_MMC1]		= &mmc1_clk.common.hw,
+ 		[CLK_MMC1_SAMPLE]	= &mmc1_sample_clk.common.hw,
+ 		[CLK_MMC1_OUTPUT]	= &mmc1_output_clk.common.hw,
++		[CLK_MMC2]		= &mmc2_clk.common.hw,
++		[CLK_MMC2_SAMPLE]	= &mmc2_sample_clk.common.hw,
++		[CLK_MMC2_OUTPUT]	= &mmc2_output_clk.common.hw,
+ 		[CLK_CE]		= &ce_clk.common.hw,
+ 		[CLK_SPI0]		= &spi0_clk.common.hw,
+ 		[CLK_USB_PHY0]		= &usb_phy0_clk.common.hw,
 -- 
 2.20.1
 
