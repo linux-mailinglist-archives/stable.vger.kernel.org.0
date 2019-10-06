@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E744BCD40D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD0FDCD417
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726839AbfJFRTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44592 "EHLO mail.kernel.org"
+        id S1727504AbfJFRVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:21:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726828AbfJFRTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:19:41 -0400
+        id S1726855AbfJFRTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:19:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D74AE20867;
-        Sun,  6 Oct 2019 17:19:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 881972077B;
+        Sun,  6 Oct 2019 17:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382379;
-        bh=/wtT50R0UKvcqlogRMTdX1nI/luz4NZEppunw+LMaHs=;
+        s=default; t=1570382382;
+        bh=FRowA1mgth8qSVn5n86QD5RHhQy4jDtxItqvkVd170Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYyldBNPk6POuuz3IxeI7/kfa+K4aH+29AvqAkOJZVW2D0LQFNeqaVu+IzarKKtSy
-         sBqMTnRF6PNbMxI/6zcO6qFd2I7QdTrs4OT4Le8CydYS9CVRMNc4pexYqXTQmq9fkc
-         8sfDtgkIJjD+nMnHTTYfFn6hwxdrxmuhiXGzv0O4=
+        b=1+JzWi4haKkRNyqssaNB0/8kCTTu13cQZ9WtXD2KOcK8/D60ktqLRYiFczDMWtFmj
+         cLqexSntgliJyX5rBcNMd3LDta/lbhLnd17fhXVE8TnftENg4mpYE52Wy3nD7Q+l11
+         CGWjT0uVKtWZxE6K9KhhL5IRMXzKSvfZt54nj3v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Palus <jpalus@fastmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/36] scsi: core: Reduce memory required for SCSI logging
-Date:   Sun,  6 Oct 2019 19:18:56 +0200
-Message-Id: <20191006171050.131237139@linuxfoundation.org>
+Subject: [PATCH 4.4 15/36] mfd: intel-lpss: Remove D3cold delay
+Date:   Sun,  6 Oct 2019 19:18:57 +0200
+Message-Id: <20191006171050.488742985@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -49,109 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit dccc96abfb21dc19d69e707c38c8ba439bba7160 ]
+[ Upstream commit 76380a607ba0b28627c9b4b55cd47a079a59624b ]
 
-The data structure used for log messages is so large that it can cause a
-boot failure. Since allocations from that data structure can fail anyway,
-use kmalloc() / kfree() instead of that data structure.
+Goodix touchpad may drop its first couple input events when
+i2c-designware-platdrv and intel-lpss it connects to took too long to
+runtime resume from runtime suspended state.
 
-See also https://bugzilla.kernel.org/show_bug.cgi?id=204119.
-See also commit ded85c193a39 ("scsi: Implement per-cpu logging buffer") # v4.0.
+This issue happens becuase the touchpad has a rather small buffer to
+store up to 13 input events, so if the host doesn't read those events in
+time (i.e. runtime resume takes too long), events are dropped from the
+touchpad's buffer.
 
-Reported-by: Jan Palus <jpalus@fastmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Jan Palus <jpalus@fastmail.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The bottleneck is D3cold delay it waits when transitioning from D3cold
+to D0, hence remove the delay to make the resume faster. I've tested
+some systems with intel-lpss and haven't seen any regression.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202683
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_logging.c | 48 +++----------------------------------
- include/scsi/scsi_dbg.h     |  2 --
- 2 files changed, 3 insertions(+), 47 deletions(-)
+ drivers/mfd/intel-lpss-pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/scsi_logging.c b/drivers/scsi/scsi_logging.c
-index bd70339c1242e..03d9855a6afd7 100644
---- a/drivers/scsi/scsi_logging.c
-+++ b/drivers/scsi/scsi_logging.c
-@@ -16,57 +16,15 @@
- #include <scsi/scsi_eh.h>
- #include <scsi/scsi_dbg.h>
+diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
+index 5bfdfccbb9a1a..032c95157497f 100644
+--- a/drivers/mfd/intel-lpss-pci.c
++++ b/drivers/mfd/intel-lpss-pci.c
+@@ -38,6 +38,8 @@ static int intel_lpss_pci_probe(struct pci_dev *pdev,
+ 	info->mem = &pdev->resource[0];
+ 	info->irq = pdev->irq;
  
--#define SCSI_LOG_SPOOLSIZE 4096
--
--#if (SCSI_LOG_SPOOLSIZE / SCSI_LOG_BUFSIZE) > BITS_PER_LONG
--#warning SCSI logging bitmask too large
--#endif
--
--struct scsi_log_buf {
--	char buffer[SCSI_LOG_SPOOLSIZE];
--	unsigned long map;
--};
--
--static DEFINE_PER_CPU(struct scsi_log_buf, scsi_format_log);
--
- static char *scsi_log_reserve_buffer(size_t *len)
- {
--	struct scsi_log_buf *buf;
--	unsigned long map_bits = sizeof(buf->buffer) / SCSI_LOG_BUFSIZE;
--	unsigned long idx = 0;
--
--	preempt_disable();
--	buf = this_cpu_ptr(&scsi_format_log);
--	idx = find_first_zero_bit(&buf->map, map_bits);
--	if (likely(idx < map_bits)) {
--		while (test_and_set_bit(idx, &buf->map)) {
--			idx = find_next_zero_bit(&buf->map, map_bits, idx);
--			if (idx >= map_bits)
--				break;
--		}
--	}
--	if (WARN_ON(idx >= map_bits)) {
--		preempt_enable();
--		return NULL;
--	}
--	*len = SCSI_LOG_BUFSIZE;
--	return buf->buffer + idx * SCSI_LOG_BUFSIZE;
-+	*len = 128;
-+	return kmalloc(*len, GFP_ATOMIC);
- }
++	pdev->d3cold_delay = 0;
++
+ 	/* Probably it is enough to set this for iDMA capable devices only */
+ 	pci_set_master(pdev);
  
- static void scsi_log_release_buffer(char *bufptr)
- {
--	struct scsi_log_buf *buf;
--	unsigned long idx;
--	int ret;
--
--	buf = this_cpu_ptr(&scsi_format_log);
--	if (bufptr >= buf->buffer &&
--	    bufptr < buf->buffer + SCSI_LOG_SPOOLSIZE) {
--		idx = (bufptr - buf->buffer) / SCSI_LOG_BUFSIZE;
--		ret = test_and_clear_bit(idx, &buf->map);
--		WARN_ON(!ret);
--	}
--	preempt_enable();
-+	kfree(bufptr);
- }
- 
- static inline const char *scmd_name(const struct scsi_cmnd *scmd)
-diff --git a/include/scsi/scsi_dbg.h b/include/scsi/scsi_dbg.h
-index f8170e90b49d2..bbe71a6361db9 100644
---- a/include/scsi/scsi_dbg.h
-+++ b/include/scsi/scsi_dbg.h
-@@ -5,8 +5,6 @@ struct scsi_cmnd;
- struct scsi_device;
- struct scsi_sense_hdr;
- 
--#define SCSI_LOG_BUFSIZE 128
--
- extern void scsi_print_command(struct scsi_cmnd *);
- extern size_t __scsi_format_command(char *, size_t,
- 				   const unsigned char *, size_t);
 -- 
 2.20.1
 
