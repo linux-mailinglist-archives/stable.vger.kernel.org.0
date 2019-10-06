@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FFDCD560
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AACA3CD4C5
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728889AbfJFRen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33308 "EHLO mail.kernel.org"
+        id S1728858AbfJFR24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726678AbfJFRem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:34:42 -0400
+        id S1728879AbfJFR24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:28:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15A292087E;
-        Sun,  6 Oct 2019 17:34:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F056B2087E;
+        Sun,  6 Oct 2019 17:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383281;
-        bh=QA3A+3Ww5ZMOklyCmgg4fHcKDk+6JhqJYNEF2E2pmg8=;
+        s=default; t=1570382935;
+        bh=sl7eYppt5JD2Oe9j+O+g6Z0CQlmLnKpi+odQ+86tqXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uODyfXcrwS92ehThqUcot2YZRLA7/e84B9Seb/t5m1zwEW34DksmTljLbY+l7badR
-         eXDlyfLXqVYx8dqY5Y45bQa3taBHpDgACm1gKwn17Jr49YmYh7aTHWvDM0jVnEFTgp
-         7UFnHFORd/KgomlDX4/XOr5v1mSgWcKy9A04/AT8=
+        b=CukaWyr1+jZW+3/Sp7qqLA22xNMOPnoibV2GJLbjFbtm4DAZCoTuqkW2L+ci2fpyQ
+         StZQNAP58Zo1+9L1BS9mS4yotRZm2B7dhF9iB/H5QJA9sXz+V/6yCt5dVLUcC8P/7v
+         vHd8NnHiC5jS9IF7zmxgHuTDGODNRqB+fny893XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lewis Huang <Lewis.Huang@amd.com>,
-        Jun Lei <Jun.Lei@amd.com>, Eric Yang <eric.yang2@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 047/137] drm/amd/display: reprogram VM config when system resume
+Subject: [PATCH 4.19 025/106] powerpc/pseries/mobility: use cond_resched when updating device tree
 Date:   Sun,  6 Oct 2019 19:20:31 +0200
-Message-Id: <20191006171212.788579887@linuxfoundation.org>
+Message-Id: <20191006171137.364190930@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lewis Huang <Lewis.Huang@amd.com>
+From: Nathan Lynch <nathanl@linux.ibm.com>
 
-[ Upstream commit e5382701c3520b3ed66169a6e4aa6ce5df8c56e0 ]
+[ Upstream commit ccfb5bd71d3d1228090a8633800ae7cdf42a94ac ]
 
-[Why]
-The vm config will be clear to 0 when system enter S4. It will
-cause hubbub didn't know how to fetch data when system resume.
-The flip always pending because earliest_inuse_address and
-request_address are different.
+After a partition migration, pseries_devicetree_update() processes
+changes to the device tree communicated from the platform to
+Linux. This is a relatively heavyweight operation, with multiple
+device tree searches, memory allocations, and conversations with
+partition firmware.
 
-[How]
-Reprogram VM config when system resume
+There's a few levels of nested loops which are bounded only by
+decisions made by the platform, outside of Linux's control, and indeed
+we have seen RCU stalls on large systems while executing this call
+graph. Use cond_resched() in these loops so that the cpu is yielded
+when needed.
 
-Signed-off-by: Lewis Huang <Lewis.Huang@amd.com>
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
-Acked-by: Eric Yang <eric.yang2@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190802192926.19277-4-nathanl@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/platforms/pseries/mobility.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 0a7adc2925e35..191f5757ded1f 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -2016,6 +2016,14 @@ void dc_set_power_state(
- 		dc_resource_state_construct(dc, dc->current_state);
+diff --git a/arch/powerpc/platforms/pseries/mobility.c b/arch/powerpc/platforms/pseries/mobility.c
+index 7b60fcf04dc47..e4ea713833832 100644
+--- a/arch/powerpc/platforms/pseries/mobility.c
++++ b/arch/powerpc/platforms/pseries/mobility.c
+@@ -12,6 +12,7 @@
+ #include <linux/cpu.h>
+ #include <linux/kernel.h>
+ #include <linux/kobject.h>
++#include <linux/sched.h>
+ #include <linux/smp.h>
+ #include <linux/stat.h>
+ #include <linux/completion.h>
+@@ -209,7 +210,11 @@ static int update_dt_node(__be32 phandle, s32 scope)
  
- 		dc->hwss.init_hw(dc);
+ 				prop_data += vd;
+ 			}
 +
-+#ifdef CONFIG_DRM_AMD_DC_DCN2_0
-+		if (dc->hwss.init_sys_ctx != NULL &&
-+			dc->vm_pa_config.valid) {
-+			dc->hwss.init_sys_ctx(dc->hwseq, dc, &dc->vm_pa_config);
-+		}
-+#endif
++			cond_resched();
+ 		}
 +
- 		break;
- 	default:
- 		ASSERT(dc->current_state->stream_count == 0);
++		cond_resched();
+ 	} while (rtas_rc == 1);
+ 
+ 	of_node_put(dn);
+@@ -318,8 +323,12 @@ int pseries_devicetree_update(s32 scope)
+ 					add_dt_node(phandle, drc_index);
+ 					break;
+ 				}
++
++				cond_resched();
+ 			}
+ 		}
++
++		cond_resched();
+ 	} while (rc == 1);
+ 
+ 	kfree(rtas_buf);
 -- 
 2.20.1
 
