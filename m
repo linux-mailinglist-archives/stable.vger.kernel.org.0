@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6474CD7ED
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C70CD7F2
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727036AbfJFRzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:55:00 -0400
+        id S1727981AbfJFRzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:55:03 -0400
 Received: from mail.kernel.org ([198.145.29.99]:51348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728703AbfJFRya (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:30 -0400
+        id S1727543AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:54:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 989622246F;
-        Sun,  6 Oct 2019 17:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 510AF22470;
+        Sun,  6 Oct 2019 17:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383979;
-        bh=bDeYkcfrCcYDblr5V5cTyF4lXsdHjxrarOQYWZLL9S0=;
+        s=default; t=1570383981;
+        bh=mQyM+MYzJfX0sMNye8DCPt5zXmK09F28LgbBWbDWYCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CNO9bKJ0rFlbDnxliCl1NzI/YcigZu1XLEN6Avr9YmoCMtDCkJbHn+rdQ/ctz14SH
-         TZR4J+VPTjC0knYioZsEOoUf4KTPTCLIXAGh+Eezmvxd+QlBZHBJDcMfxoDUrU81If
-         T+7T8rjksOfgNrmGH943xrKCUhdqWWvtVL7zYyeo=
+        b=aKGDYh6vzjWWxC6jHpSptQOQGnJwixZpEoN7qzjGCuKqyeznPibwGG7m74e2gVyJv
+         BW5LCn2mDFbFabAxhRCI6ShARu+uywMamIYrJ3k7NshZGWMNd9p48SXE3PjsdAOjjP
+         f60LeyqeuuH9ClSnJdWCsaZrjD6Qvk0JwEM811aI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+3a030a73b6c1e9833815@syzkaller.appspotmail.com,
-        Bharath Vedartham <linux.bhar@gmail.com>,
-        Dominique Martinet <dominique.martinet@cea.fr>
-Subject: [PATCH 5.3 165/166] 9p/cache.c: Fix memory leak in v9fs_cache_session_get_cookie
-Date:   Sun,  6 Oct 2019 19:22:11 +0200
-Message-Id: <20191006171226.753077885@linuxfoundation.org>
+        syzbot+7d6a57304857423318a5@syzkaller.appspotmail.com,
+        David Howells <dhowells@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Eric Biggers <ebiggers@google.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.3 166/166] vfs: set fs_context::user_ns for reconfigure
+Date:   Sun,  6 Oct 2019 19:22:12 +0200
+Message-Id: <20191006171226.825928317@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,44 +47,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bharath Vedartham <linux.bhar@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 962a991c5de18452d6c429d99f3039387cf5cbb0 upstream.
+commit 1dd9bc08cf1420d466dd8dcfcc233777e61ca5d2 upstream.
 
-v9fs_cache_session_get_cookie assigns a random cachetag to v9ses->cachetag,
-if the cachetag is not assigned previously.
+fs_context::user_ns is used by fuse_parse_param(), even during remount,
+so it needs to be set to the existing value for reconfigure.
 
-v9fs_random_cachetag allocates memory to v9ses->cachetag with kmalloc and uses
-scnprintf to fill it up with a cachetag.
+Reproducer:
 
-But if scnprintf fails, v9ses->cachetag is not freed in the current
-code causing a memory leak.
+	#include <fcntl.h>
+	#include <sys/mount.h>
 
-Fix this by freeing v9ses->cachetag it v9fs_random_cachetag fails.
+	int main()
+	{
+		char opts[128];
+		int fd = open("/dev/fuse", O_RDWR);
 
-This was reported by syzbot, the link to the report is below:
-https://syzkaller.appspot.com/bug?id=f012bdf297a7a4c860c38a88b44fbee43fd9bbf3
+		sprintf(opts, "fd=%d,rootmode=040000,user_id=0,group_id=0", fd);
+		mkdir("mnt", 0777);
+		mount("foo",  "mnt", "fuse.foo", 0, opts);
+		mount("foo", "mnt", "fuse.foo", MS_REMOUNT, opts);
+	}
 
-Link: http://lkml.kernel.org/r/20190522194519.GA5313@bharath12345-Inspiron-5559
-Reported-by: syzbot+3a030a73b6c1e9833815@syzkaller.appspotmail.com
-Signed-off-by: Bharath Vedartham <linux.bhar@gmail.com>
-Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
+Crash:
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	#PF: supervisor read access in kernel mode
+	#PF: error_code(0x0000) - not-present page
+	PGD 0 P4D 0
+	Oops: 0000 [#1] SMP
+	CPU: 0 PID: 129 Comm: syz_make_kuid Not tainted 5.3.0-rc5-next-20190821 #3
+	Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-20181126_142135-anatol 04/01/2014
+	RIP: 0010:map_id_range_down+0xb/0xc0 kernel/user_namespace.c:291
+	[...]
+	Call Trace:
+	 map_id_down kernel/user_namespace.c:312 [inline]
+	 make_kuid+0xe/0x10 kernel/user_namespace.c:389
+	 fuse_parse_param+0x116/0x210 fs/fuse/inode.c:523
+	 vfs_parse_fs_param+0xdb/0x1b0 fs/fs_context.c:145
+	 vfs_parse_fs_string+0x6a/0xa0 fs/fs_context.c:188
+	 generic_parse_monolithic+0x85/0xc0 fs/fs_context.c:228
+	 parse_monolithic_mount_data+0x1b/0x20 fs/fs_context.c:708
+	 do_remount fs/namespace.c:2525 [inline]
+	 do_mount+0x39a/0xa60 fs/namespace.c:3107
+	 ksys_mount+0x7d/0xd0 fs/namespace.c:3325
+	 __do_sys_mount fs/namespace.c:3339 [inline]
+	 __se_sys_mount fs/namespace.c:3336 [inline]
+	 __x64_sys_mount+0x20/0x30 fs/namespace.c:3336
+	 do_syscall_64+0x4a/0x1a0 arch/x86/entry/common.c:290
+	 entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Reported-by: syzbot+7d6a57304857423318a5@syzkaller.appspotmail.com
+Fixes: 408cbe695350 ("vfs: Convert fuse to use the new mount API")
+Cc: David Howells <dhowells@redhat.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/9p/cache.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/fs_context.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/fs/9p/cache.c
-+++ b/fs/9p/cache.c
-@@ -51,6 +51,8 @@ void v9fs_cache_session_get_cookie(struc
- 	if (!v9ses->cachetag) {
- 		if (v9fs_random_cachetag(v9ses) < 0) {
- 			v9ses->fscache = NULL;
-+			kfree(v9ses->cachetag);
-+			v9ses->cachetag = NULL;
- 			return;
- 		}
+--- a/fs/fs_context.c
++++ b/fs/fs_context.c
+@@ -279,10 +279,8 @@ static struct fs_context *alloc_fs_conte
+ 		fc->user_ns = get_user_ns(reference->d_sb->s_user_ns);
+ 		break;
+ 	case FS_CONTEXT_FOR_RECONFIGURE:
+-		/* We don't pin any namespaces as the superblock's
+-		 * subscriptions cannot be changed at this point.
+-		 */
+ 		atomic_inc(&reference->d_sb->s_active);
++		fc->user_ns = get_user_ns(reference->d_sb->s_user_ns);
+ 		fc->root = dget(reference);
+ 		break;
  	}
 
 
