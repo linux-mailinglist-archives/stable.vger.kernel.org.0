@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F27CD3E3
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5B1CD410
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726927AbfJFRTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:19:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
+        id S1727170AbfJFRUT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:20:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726895AbfJFRTs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:19:48 -0400
+        id S1727127AbfJFRUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:20:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7D1D2077B;
-        Sun,  6 Oct 2019 17:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF01C21835;
+        Sun,  6 Oct 2019 17:20:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382387;
-        bh=fn1W6DM1VZqlD8bGq5EDAS5JqU3+VCwob7WeUZs8YE4=;
+        s=default; t=1570382417;
+        bh=C6AbjV4f8ptNOGIJz+ANPjxCKhBIdSX/ugZ/YNSZmgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiPRjsjZpN+J+yn/cHQt6S/ttE6Ig+3hiOzf1LY0BsHkrKg9z6FqsQQWjdnOmLudr
-         kGzVTA0gDlbhKCw/CzJJb3NjqN+yHUrciky5mtces1WBWInSRt080sOPF2Oc6I4GIA
-         SkMKzAk32RjyylmGXQJMsy2zbE6CG+QBCviDPgb8=
+        b=WHaLORJfhGXH/nu/Zyzn1DtkZPLTm5jXzSl8DZ6iwj0tnqS1bxq7T2xFIPx2XDi1F
+         f9YlccdAqVUkk2urplPZ/lzk2BO1Zv/ZwV0mnr18fsqykQW9MRk1Y8mta9atqQV525
+         1BR5J1jSXJ8qRxa9CycOddIHbpC/yaLqSyF/asIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joao Moreno <mail@joaomoreno.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/36] HID: apple: Fix stuck function keys when using FN
-Date:   Sun,  6 Oct 2019 19:18:59 +0200
-Message-Id: <20191006171051.570514181@linuxfoundation.org>
+        stable@vger.kernel.org, Martijn Coenen <maco@android.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Mattias Nissler <mnissler@chromium.org>
+Subject: [PATCH 4.4 23/36] ANDROID: binder: remove waitqueue when thread exits.
+Date:   Sun,  6 Oct 2019 19:19:05 +0200
+Message-Id: <20191006171054.595539874@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
 References: <20191006171038.266461022@linuxfoundation.org>
@@ -44,111 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Moreno <mail@joaomoreno.com>
+From: Martijn Coenen <maco@android.com>
 
-[ Upstream commit aec256d0ecd561036f188dbc8fa7924c47a9edfd ]
+commit f5cb779ba16334b45ba8946d6bfa6d9834d1527f upstream.
 
-This fixes an issue in which key down events for function keys would be
-repeatedly emitted even after the user has raised the physical key. For
-example, the driver fails to emit the F5 key up event when going through
-the following steps:
-- fnmode=1: hold FN, hold F5, release FN, release F5
-- fnmode=2: hold F5, hold FN, release F5, release FN
+binder_poll() passes the thread->wait waitqueue that
+can be slept on for work. When a thread that uses
+epoll explicitly exits using BINDER_THREAD_EXIT,
+the waitqueue is freed, but it is never removed
+from the corresponding epoll data structure. When
+the process subsequently exits, the epoll cleanup
+code tries to access the waitlist, which results in
+a use-after-free.
 
-The repeated F5 key down events can be easily verified using xev.
+Prevent this by using POLLFREE when the thread exits.
 
-Signed-off-by: Joao Moreno <mail@joaomoreno.com>
-Co-developed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Martijn Coenen <maco@android.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: stable <stable@vger.kernel.org> # 4.14
+[backport BINDER_LOOPER_STATE_POLL logic as well]
+Signed-off-by: Mattias Nissler <mnissler@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-apple.c | 49 +++++++++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ drivers/android/binder.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 884d82f9190e2..8af87dc05f2a5 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -55,7 +55,6 @@ MODULE_PARM_DESC(swap_opt_cmd, "Swap the Option (\"Alt\") and Command (\"Flag\")
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
--	DECLARE_BITMAP(pressed_fn, KEY_CNT);
- 	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -334,7 +334,8 @@ enum {
+ 	BINDER_LOOPER_STATE_EXITED      = 0x04,
+ 	BINDER_LOOPER_STATE_INVALID     = 0x08,
+ 	BINDER_LOOPER_STATE_WAITING     = 0x10,
+-	BINDER_LOOPER_STATE_NEED_RETURN = 0x20
++	BINDER_LOOPER_STATE_NEED_RETURN = 0x20,
++	BINDER_LOOPER_STATE_POLL	= 0x40,
  };
  
-@@ -182,6 +181,8 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- {
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
-+	bool do_translate;
-+	u16 code = 0;
- 
- 	if (usage->code == KEY_FN) {
- 		asc->fn_on = !!value;
-@@ -190,8 +191,6 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ struct binder_thread {
+@@ -2610,6 +2611,18 @@ static int binder_free_thread(struct bin
+ 		} else
+ 			BUG();
+ 	}
++
++	/*
++	 * If this thread used poll, make sure we remove the waitqueue
++	 * from any epoll data structures holding it with POLLFREE.
++	 * waitqueue_active() is safe to use here because we're holding
++	 * the inner lock.
++	 */
++	if ((thread->looper & BINDER_LOOPER_STATE_POLL) &&
++	    waitqueue_active(&thread->wait)) {
++		wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
++	}
++
+ 	if (send_reply)
+ 		binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
+ 	binder_release_work(&thread->todo);
+@@ -2633,6 +2646,8 @@ static unsigned int binder_poll(struct f
+ 		return POLLERR;
  	}
  
- 	if (fnmode) {
--		int do_translate;
--
- 		if (hid->product >= USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI &&
- 				hid->product <= USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS)
- 			table = macbookair_fn_keys;
-@@ -203,25 +202,33 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		trans = apple_find_translation (table, usage->code);
++	thread->looper |= BINDER_LOOPER_STATE_POLL;
++
+ 	wait_for_proc_work = thread->transaction_stack == NULL &&
+ 		list_empty(&thread->todo) && thread->return_error == BR_OK;
  
- 		if (trans) {
--			if (test_bit(usage->code, asc->pressed_fn))
--				do_translate = 1;
--			else if (trans->flags & APPLE_FLAG_FKEY)
--				do_translate = (fnmode == 2 && asc->fn_on) ||
--					(fnmode == 1 && !asc->fn_on);
--			else
--				do_translate = asc->fn_on;
--
--			if (do_translate) {
--				if (value)
--					set_bit(usage->code, asc->pressed_fn);
--				else
--					clear_bit(usage->code, asc->pressed_fn);
--
--				input_event(input, usage->type, trans->to,
--						value);
--
--				return 1;
-+			if (test_bit(trans->from, input->key))
-+				code = trans->from;
-+			else if (test_bit(trans->to, input->key))
-+				code = trans->to;
-+
-+			if (!code) {
-+				if (trans->flags & APPLE_FLAG_FKEY) {
-+					switch (fnmode) {
-+					case 1:
-+						do_translate = !asc->fn_on;
-+						break;
-+					case 2:
-+						do_translate = asc->fn_on;
-+						break;
-+					default:
-+						/* should never happen */
-+						do_translate = false;
-+					}
-+				} else {
-+					do_translate = asc->fn_on;
-+				}
-+
-+				code = do_translate ? trans->to : trans->from;
- 			}
-+
-+			input_event(input, usage->type, code, value);
-+			return 1;
- 		}
- 
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
--- 
-2.20.1
-
 
 
