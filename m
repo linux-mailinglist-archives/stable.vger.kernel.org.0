@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41D8CD861
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D368FCD80C
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbfJFSDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 14:03:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50070 "EHLO mail.kernel.org"
+        id S1726992AbfJFR4n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:56:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727261AbfJFRZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:25:04 -0400
+        id S1730103AbfJFRe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:34:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 287EE2077B;
-        Sun,  6 Oct 2019 17:25:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E0E12087E;
+        Sun,  6 Oct 2019 17:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382703;
-        bh=N+J1JOiT3RQJX4iI4oitW5psWbsSuic/cVu2aPWEJ1A=;
+        s=default; t=1570383297;
+        bh=vw8QC3vuvRyhhmM7FsufE5EY78S4mly+jhmZczP11nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DE25HR3YeGNlgtuS5IU+/CxvXAPNuq0ZK783O5KY0Vzvmt4bWB7KIUDB6KNeGQsnU
-         C6ZbRXt2nKIw3+HstaT3MAIA771D5DRzSWvegnjLlsnpfDu8FNmm5+T7Vfc+f/xCyQ
-         EZHgHIanIvJ10MOHK8sZG6dbe2u63ZCFCOh3Bt5I=
+        b=rjrR1BiX15McoU1I1LxRzuf91P2tVwRAMEE0laooDzJzmv+9hdhYtX4KqFc+vgaAO
+         hD9EDoeRj156U15mScwXzjNYD1P7Ci4AUeXRInaQUJlmeNQlgSgwN4ULNl7Xh80dRA
+         RI915EHSAEhKxooHSsUhjAPcUUhHQAnAL6sDoSdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        stable@vger.kernel.org, Jun Nie <jun.nie@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/68] tpm: migrate pubek_show to struct tpm_buf
+Subject: [PATCH 5.2 053/137] clk: zx296718: Dont reference clk_init_data after registration
 Date:   Sun,  6 Oct 2019 19:20:37 +0200
-Message-Id: <20191006171108.940143373@linuxfoundation.org>
+Message-Id: <20191006171213.150986275@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,173 +45,285 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-commit da379f3c1db0c9a1fd27b11d24c9894b5edc7c75 upstream
+[ Upstream commit 1a4549c150e27dbc3aea762e879a88209df6d1a5 ]
 
-Migrated pubek_show to struct tpm_buf and cleaned up its implementation.
-Previously the output parameter structure was declared but left
-completely unused. Now it is used to refer different fields of the
-output. We can move it to tpm-sysfs.c as it does not have any use
-outside of that file.
+A future patch is going to change semantics of clk_register() so that
+clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
+referencing this member here so that we don't run into NULL pointer
+exceptions.
 
-Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Jun Nie <jun.nie@linaro.org>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/20190815160020.183334-3-sboyd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm-sysfs.c | 87 ++++++++++++++++++++----------------
- drivers/char/tpm/tpm.h       | 13 ------
- 2 files changed, 48 insertions(+), 52 deletions(-)
+ drivers/clk/zte/clk-zx296718.c | 109 +++++++++++++++------------------
+ 1 file changed, 49 insertions(+), 60 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm-sysfs.c b/drivers/char/tpm/tpm-sysfs.c
-index 86f38d239476a..83a77a4455380 100644
---- a/drivers/char/tpm/tpm-sysfs.c
-+++ b/drivers/char/tpm/tpm-sysfs.c
-@@ -20,44 +20,48 @@
- #include <linux/device.h>
- #include "tpm.h"
- 
--#define READ_PUBEK_RESULT_SIZE 314
-+struct tpm_readpubek_out {
-+	u8 algorithm[4];
-+	u8 encscheme[2];
-+	u8 sigscheme[2];
-+	__be32 paramsize;
-+	u8 parameters[12];
-+	__be32 keysize;
-+	u8 modulus[256];
-+	u8 checksum[20];
-+} __packed;
-+
- #define READ_PUBEK_RESULT_MIN_BODY_SIZE (28 + 256)
- #define TPM_ORD_READPUBEK 124
--static const struct tpm_input_header tpm_readpubek_header = {
--	.tag = cpu_to_be16(TPM_TAG_RQU_COMMAND),
--	.length = cpu_to_be32(30),
--	.ordinal = cpu_to_be32(TPM_ORD_READPUBEK)
--};
-+
- static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
- 			  char *buf)
+diff --git a/drivers/clk/zte/clk-zx296718.c b/drivers/clk/zte/clk-zx296718.c
+index fd6c347bec6a7..dd7045bc48c15 100644
+--- a/drivers/clk/zte/clk-zx296718.c
++++ b/drivers/clk/zte/clk-zx296718.c
+@@ -564,6 +564,7 @@ static int __init top_clocks_init(struct device_node *np)
  {
--	u8 *data;
--	struct tpm_cmd_t tpm_cmd;
--	ssize_t err;
--	int i, rc;
-+	struct tpm_buf tpm_buf;
-+	struct tpm_readpubek_out *out;
-+	ssize_t rc;
-+	int i;
- 	char *str = buf;
- 	struct tpm_chip *chip = to_tpm_chip(dev);
-+	char anti_replay[20];
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
  
--	memset(&tpm_cmd, 0, sizeof(tpm_cmd));
--
--	tpm_cmd.header.in = tpm_readpubek_header;
--	err = tpm_transmit_cmd(chip, NULL, &tpm_cmd, READ_PUBEK_RESULT_SIZE,
--			       READ_PUBEK_RESULT_MIN_BODY_SIZE, 0,
--			       "attempting to read the PUBEK");
--	if (err)
--		goto out;
--
--	/*
--	   ignore header 10 bytes
--	   algorithm 32 bits (1 == RSA )
--	   encscheme 16 bits
--	   sigscheme 16 bits
--	   parameters (RSA 12->bytes: keybit, #primes, expbit)
--	   keylenbytes 32 bits
--	   256 byte modulus
--	   ignore checksum 20 bytes
--	 */
--	data = tpm_cmd.params.readpubek_out_buffer;
-+	memset(&anti_replay, 0, sizeof(anti_replay));
-+
-+	rc = tpm_buf_init(&tpm_buf, TPM_TAG_RQU_COMMAND, TPM_ORD_READPUBEK);
-+	if (rc)
-+		return rc;
-+
-+	tpm_buf_append(&tpm_buf, anti_replay, sizeof(anti_replay));
-+
-+	rc = tpm_transmit_cmd(chip, NULL, tpm_buf.data, PAGE_SIZE,
-+			      READ_PUBEK_RESULT_MIN_BODY_SIZE, 0,
-+			      "attempting to read the PUBEK");
-+	if (rc) {
-+		tpm_buf_destroy(&tpm_buf);
-+		return 0;
-+	}
-+
-+	out = (struct tpm_readpubek_out *)&tpm_buf.data[10];
- 	str +=
- 	    sprintf(str,
- 		    "Algorithm: %02X %02X %02X %02X\n"
-@@ -68,21 +72,26 @@ static ssize_t pubek_show(struct device *dev, struct device_attribute *attr,
- 		    "%02X %02X %02X %02X\n"
- 		    "Modulus length: %d\n"
- 		    "Modulus:\n",
--		    data[0], data[1], data[2], data[3],
--		    data[4], data[5],
--		    data[6], data[7],
--		    data[12], data[13], data[14], data[15],
--		    data[16], data[17], data[18], data[19],
--		    data[20], data[21], data[22], data[23],
--		    be32_to_cpu(*((__be32 *) (data + 24))));
-+		    out->algorithm[0], out->algorithm[1], out->algorithm[2],
-+		    out->algorithm[3],
-+		    out->encscheme[0], out->encscheme[1],
-+		    out->sigscheme[0], out->sigscheme[1],
-+		    out->parameters[0], out->parameters[1],
-+		    out->parameters[2], out->parameters[3],
-+		    out->parameters[4], out->parameters[5],
-+		    out->parameters[6], out->parameters[7],
-+		    out->parameters[8], out->parameters[9],
-+		    out->parameters[10], out->parameters[11],
-+		    be32_to_cpu(out->keysize));
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -573,11 +574,10 @@ static int __init top_clocks_init(struct device_node *np)
  
- 	for (i = 0; i < 256; i++) {
--		str += sprintf(str, "%02X ", data[i + 28]);
-+		str += sprintf(str, "%02X ", out->modulus[i]);
- 		if ((i + 1) % 16 == 0)
- 			str += sprintf(str, "\n");
+ 	for (i = 0; i < ARRAY_SIZE(zx296718_pll_clk); i++) {
+ 		zx296718_pll_clk[i].reg_base += (uintptr_t)reg_base;
++		name = zx296718_pll_clk[i].hw.init->name;
+ 		ret = clk_hw_register(NULL, &zx296718_pll_clk[i].hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				zx296718_pll_clk[i].hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
  	}
--out:
-+
- 	rc = str - buf;
-+	tpm_buf_destroy(&tpm_buf);
- 	return rc;
- }
- static DEVICE_ATTR_RO(pubek);
-diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-index 4bb9b4aa9b49c..d53d12f3df6d6 100644
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -351,17 +351,6 @@ enum tpm_sub_capabilities {
- 	TPM_CAP_PROP_TIS_DURATION = 0x120,
- };
  
--struct	tpm_readpubek_params_out {
--	u8	algorithm[4];
--	u8	encscheme[2];
--	u8	sigscheme[2];
--	__be32	paramsize;
--	u8	parameters[12]; /*assuming RSA*/
--	__be32	keysize;
--	u8	modulus[256];
--	u8	checksum[20];
--} __packed;
--
- typedef union {
- 	struct	tpm_input_header in;
- 	struct	tpm_output_header out;
-@@ -391,8 +380,6 @@ struct tpm_getrandom_in {
- } __packed;
+ 	for (i = 0; i < ARRAY_SIZE(top_ffactor_clk); i++) {
+@@ -585,11 +585,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 			top_hw_onecell_data.hws[top_ffactor_clk[i].id] =
+ 					&top_ffactor_clk[i].factor.hw;
  
- typedef union {
--	struct	tpm_readpubek_params_out readpubek_out;
--	u8	readpubek_out_buffer[sizeof(struct tpm_readpubek_params_out)];
- 	struct	tpm_pcrread_in	pcrread_in;
- 	struct	tpm_pcrread_out	pcrread_out;
- 	struct	tpm_getrandom_in getrandom_in;
++		name = top_ffactor_clk[i].factor.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_ffactor_clk[i].factor.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_ffactor_clk[i].factor.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_mux_clk); i++) {
+@@ -598,11 +597,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_mux_clk[i].mux.hw;
+ 
+ 		top_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = top_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_gate_clk); i++) {
+@@ -611,11 +609,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_gate_clk[i].gate.hw;
+ 
+ 		top_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = top_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(top_div_clk); i++) {
+@@ -624,11 +621,10 @@ static int __init top_clocks_init(struct device_node *np)
+ 					&top_div_clk[i].div.hw;
+ 
+ 		top_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = top_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &top_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("top clk %s init error!\n",
+-				top_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("top clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -754,6 +750,7 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -767,11 +764,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_mux_clk[i].mux.hw;
+ 
+ 		lsp0_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = lsp0_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp0_gate_clk); i++) {
+@@ -780,11 +776,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_gate_clk[i].gate.hw;
+ 
+ 		lsp0_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = lsp0_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp0_div_clk); i++) {
+@@ -793,11 +788,10 @@ static int __init lsp0_clocks_init(struct device_node *np)
+ 					&lsp0_div_clk[i].div.hw;
+ 
+ 		lsp0_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = lsp0_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp0_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("lsp0 clk %s init error!\n",
+-				lsp0_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp0 clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -862,6 +856,7 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -875,11 +870,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp0_mux_clk[i].mux.hw;
+ 
+ 		lsp1_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = lsp1_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp1_gate_clk); i++) {
+@@ -888,11 +882,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp1_gate_clk[i].gate.hw;
+ 
+ 		lsp1_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = lsp1_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(lsp1_div_clk); i++) {
+@@ -901,11 +894,10 @@ static int __init lsp1_clocks_init(struct device_node *np)
+ 					&lsp1_div_clk[i].div.hw;
+ 
+ 		lsp1_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = lsp1_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &lsp1_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("lsp1 clk %s init error!\n",
+-				lsp1_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("lsp1 clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
+@@ -979,6 +971,7 @@ static int __init audio_clocks_init(struct device_node *np)
+ {
+ 	void __iomem *reg_base;
+ 	int i, ret;
++	const char *name;
+ 
+ 	reg_base = of_iomap(np, 0);
+ 	if (!reg_base) {
+@@ -992,11 +985,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_mux_clk[i].mux.hw;
+ 
+ 		audio_mux_clk[i].mux.reg += (uintptr_t)reg_base;
++		name = audio_mux_clk[i].mux.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_mux_clk[i].mux.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_mux_clk[i].mux.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_adiv_clk); i++) {
+@@ -1005,11 +997,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_adiv_clk[i].hw;
+ 
+ 		audio_adiv_clk[i].reg_base += (uintptr_t)reg_base;
++		name = audio_adiv_clk[i].hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_adiv_clk[i].hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_adiv_clk[i].hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_div_clk); i++) {
+@@ -1018,11 +1009,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_div_clk[i].div.hw;
+ 
+ 		audio_div_clk[i].div.reg += (uintptr_t)reg_base;
++		name = audio_div_clk[i].div.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_div_clk[i].div.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_div_clk[i].div.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(audio_gate_clk); i++) {
+@@ -1031,11 +1021,10 @@ static int __init audio_clocks_init(struct device_node *np)
+ 					&audio_gate_clk[i].gate.hw;
+ 
+ 		audio_gate_clk[i].gate.reg += (uintptr_t)reg_base;
++		name = audio_gate_clk[i].gate.hw.init->name;
+ 		ret = clk_hw_register(NULL, &audio_gate_clk[i].gate.hw);
+-		if (ret) {
+-			pr_warn("audio clk %s init error!\n",
+-				audio_gate_clk[i].gate.hw.init->name);
+-		}
++		if (ret)
++			pr_warn("audio clk %s init error!\n", name);
+ 	}
+ 
+ 	ret = of_clk_add_hw_provider(np, of_clk_hw_onecell_get,
 -- 
 2.20.1
 
