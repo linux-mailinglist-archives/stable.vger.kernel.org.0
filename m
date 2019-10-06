@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CFFCCD6B0
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 836D7CD6B3
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731121AbfJFRlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40688 "EHLO mail.kernel.org"
+        id S1727838AbfJFRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729468AbfJFRlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:04 -0400
+        id S1730483AbfJFRlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:41:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0655F2053B;
-        Sun,  6 Oct 2019 17:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B89B62053B;
+        Sun,  6 Oct 2019 17:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383663;
-        bh=GMQqub5xp0/4XAi4fDZg0COcqBv/GhT/CjZ1rK/+jCo=;
+        s=default; t=1570383666;
+        bh=xnovLF+3uh2WwoA52FYSiy8zjjoMSiF+mmojNkCbgjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQuKQPmNCPHzj3idgxjJLfAXgm9bWzg90PVkuvJIGjD1a//Lby9VVxqPoLU46W4Iy
-         Xe2godVNO0ro81+VzTWNVsihJo1eOYdqNbMICEsSSDFm2Cs4gZFfBc8BY9IkWGnl3L
-         2uOZvdSkx2YAHZckY2JXKcgAhnPeRTtZYv++iNaE=
+        b=X2dAcUk/Z8FBTf7rnNyeAmNNJCwPkjDfQ/R81D1903xKn7MGabSC5uhzKSQmGjCPP
+         pd26wXnRrUgUyOYu9vdJaye1sD594Qx8MEPIOgBvZ1MQctQs67LklDbq2L3iccbGIm
+         Y7KUYCcZggk+JEvFbx8Mh/jMlzhsDqLg6Txq2thA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Mark Menzynski <mmenzyns@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 050/166] drm/nouveau/kms/tu102-: disable input lut when input is already FP16
-Date:   Sun,  6 Oct 2019 19:20:16 +0200
-Message-Id: <20191006171217.241742953@linuxfoundation.org>
+Subject: [PATCH 5.3 051/166] drm/nouveau/volt: Fix for some cards having 0 maximum voltage
+Date:   Sun,  6 Oct 2019 19:20:17 +0200
+Message-Id: <20191006171217.339950274@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -43,38 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Mark Menzynski <mmenzyns@redhat.com>
 
-[ Upstream commit 1e339ab2ac3c769c1b06b9fb7d532f8495ebc56d ]
+[ Upstream commit a1af2afbd244089560794c260b2d4326a86e39b6 ]
 
-On Turing, an input LUT is required to transform inputs in fixed-point
-formats to FP16 for the internal display pipe.  We provide an identity
-mapping whenever a window is enabled for this reason.
+Some, mostly Fermi, vbioses appear to have zero max voltage. That causes Nouveau to not parse voltage entries, thus users not being able to set higher clocks.
 
-HW has error checks to ensure when the input is already FP16, that the
-input LUT is also disabled.
+When changing this value Nvidia driver still appeared to ignore it, and I wasn't able to find out why, thus the code is ignoring the value if it is zero.
 
+CC: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Mark Menzynski <mmenzyns@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
 Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/wndw.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.c b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-index 283ff690350ea..50303ec194bbc 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-@@ -320,7 +320,9 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw,
- 		asyh->wndw.olut &= ~BIT(wndw->id);
- 	}
- 
--	if (!ilut && wndw->func->ilut_identity) {
-+	if (!ilut && wndw->func->ilut_identity &&
-+	    asyw->state.fb->format->format != DRM_FORMAT_XBGR16161616F &&
-+	    asyw->state.fb->format->format != DRM_FORMAT_ABGR16161616F) {
- 		static struct drm_property_blob dummy = {};
- 		ilut = &dummy;
- 	}
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
+index 7143ea4611aa3..33a9fb5ac5585 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
+@@ -96,6 +96,8 @@ nvbios_volt_parse(struct nvkm_bios *bios, u8 *ver, u8 *hdr, u8 *cnt, u8 *len,
+ 		info->min     = min(info->base,
+ 				    info->base + info->step * info->vidmask);
+ 		info->max     = nvbios_rd32(bios, volt + 0x0e);
++		if (!info->max)
++			info->max = max(info->base, info->base + info->step * info->vidmask);
+ 		break;
+ 	case 0x50:
+ 		info->min     = nvbios_rd32(bios, volt + 0x0a);
 -- 
 2.20.1
 
