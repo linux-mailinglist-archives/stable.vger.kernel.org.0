@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AEB0CD743
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E32CD6F8
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728438AbfJFRyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:54:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S1730517AbfJFRhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:37:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbfJFRy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:54:29 -0400
+        id S1730496AbfJFRhv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:37:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADA9422475;
-        Sun,  6 Oct 2019 17:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E0B72053B;
+        Sun,  6 Oct 2019 17:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383987;
-        bh=wilHd7f3424w3wg25Q+jpu88/mbdRfTrzNJ1RzgXKXA=;
+        s=default; t=1570383470;
+        bh=aZliCapHq0JTn6jAEA0jo5fj/W6N/vFQStGVfGggpZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKdvftyn61snBTCpySaofS0coNCxNHrTB3VAsKbDsqy476O2vung7CF/zcY67Vvt5
-         hkhCa9+aEU88mJMGF6ZA0F7ruVnPE5Cli3mYZ2EMzl+Jn9NxmkHsgE10dE+yi6wZlA
-         8k+6k6bK3MtTzx19UU/qu+t2sm0rEp348rM7JsKo=
+        b=fj27/mijGtf3SPkzhnC7wKDIkZK1D240Mm3TFi+Di97s7Dqo0hMI+X6zkq2A/HrhH
+         UHjeJJuo+Qf7onP2bAOYCoOoI6BwzR+TX8ExCmzeAi77Z3vqkv35dJLGS1WfKBbLLq
+         nU5arr9kksfKZytrWbfR6dVEtHFKiuUftniJncfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 133/166] net: ipv4: avoid mixed n_redirects and rate_tokens usage
+        stable@vger.kernel.org, Krzysztof Wilczynski <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 115/137] PCI: Use static const struct, not const static struct
 Date:   Sun,  6 Oct 2019 19:21:39 +0200
-Message-Id: <20191006171224.389581438@linuxfoundation.org>
+Message-Id: <20191006171218.741239098@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-References: <20191006171212.850660298@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Krzysztof Wilczynski <kw@linux.com>
 
-[ Upstream commit b406472b5ad79ede8d10077f0c8f05505ace8b6d ]
+[ Upstream commit 8050f3f6645ae0f7e4c1304593f6f7eb2ee7d85c ]
 
-Since commit c09551c6ff7f ("net: ipv4: use a dedicated counter
-for icmp_v4 redirect packets") we use 'n_redirects' to account
-for redirect packets, but we still use 'rate_tokens' to compute
-the redirect packets exponential backoff.
+Move the static keyword to the front of declarations of pci_regs_behavior[]
+and pcie_cap_regs_behavior[], which resolves compiler warnings when
+building with "W=1":
 
-If the device sent to the relevant peer any ICMP error packet
-after sending a redirect, it will also update 'rate_token' according
-to the leaking bucket schema; typically 'rate_token' will raise
-above BITS_PER_LONG and the redirect packets backoff algorithm
-will produce undefined behavior.
+  drivers/pci/pci-bridge-emul.c:41:1: warning: ‘static’ is not at beginning of
+  declaration [-Wold-style-declaration]
+   const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+   ^
+  drivers/pci/pci-bridge-emul.c:176:1: warning: ‘static’ is not at beginning of
+  declaration [-Wold-style-declaration]
+   const static struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+   ^
 
-Fix the issue using 'n_redirects' to compute the exponential backoff
-in ip_rt_send_redirect().
-
-Note that we still clear rate_tokens after a redirect silence period,
-to avoid changing an established behaviour.
-
-The root cause predates git history; before the mentioned commit in
-the critical scenario, the kernel stopped sending redirects, after
-the mentioned commit the behavior more randomic.
-
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: c09551c6ff7f ("net: ipv4: use a dedicated counter for icmp_v4 redirect packets")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Acked-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20190826151436.4672-1-kw@linux.com
+Link: https://lore.kernel.org/r/20190828131733.5817-1-kw@linux.com
+Signed-off-by: Krzysztof Wilczynski <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/pci/pci-bridge-emul.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -916,16 +916,15 @@ void ip_rt_send_redirect(struct sk_buff
- 	if (peer->rate_tokens == 0 ||
- 	    time_after(jiffies,
- 		       (peer->rate_last +
--			(ip_rt_redirect_load << peer->rate_tokens)))) {
-+			(ip_rt_redirect_load << peer->n_redirects)))) {
- 		__be32 gw = rt_nexthop(rt, ip_hdr(skb)->daddr);
+diff --git a/drivers/pci/pci-bridge-emul.c b/drivers/pci/pci-bridge-emul.c
+index 83fb077d0b41f..702966e4fcaa4 100644
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -38,7 +38,7 @@ struct pci_bridge_reg_behavior {
+ 	u32 rsvd;
+ };
  
- 		icmp_send(skb, ICMP_REDIRECT, ICMP_REDIR_HOST, gw);
- 		peer->rate_last = jiffies;
--		++peer->rate_tokens;
- 		++peer->n_redirects;
- #ifdef CONFIG_IP_ROUTE_VERBOSE
- 		if (log_martians &&
--		    peer->rate_tokens == ip_rt_redirect_number)
-+		    peer->n_redirects == ip_rt_redirect_number)
- 			net_warn_ratelimited("host %pI4/if%d ignores redirects for %pI4 to %pI4\n",
- 					     &ip_hdr(skb)->saddr, inet_iif(skb),
- 					     &ip_hdr(skb)->daddr, &gw);
+-const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
++static const struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+ 	[PCI_VENDOR_ID / 4] = { .ro = ~0 },
+ 	[PCI_COMMAND / 4] = {
+ 		.rw = (PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
+@@ -173,7 +173,7 @@ const static struct pci_bridge_reg_behavior pci_regs_behavior[] = {
+ 	},
+ };
+ 
+-const static struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
++static const struct pci_bridge_reg_behavior pcie_cap_regs_behavior[] = {
+ 	[PCI_CAP_LIST_ID / 4] = {
+ 		/*
+ 		 * Capability ID, Next Capability Pointer and
+-- 
+2.20.1
+
 
 
