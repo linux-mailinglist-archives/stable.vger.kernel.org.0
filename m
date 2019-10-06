@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD258CD685
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696E1CD6A2
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727229AbfJFRs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42808 "EHLO mail.kernel.org"
+        id S1727649AbfJFRtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:49:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731401AbfJFRmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:42:54 -0400
+        id S1729552AbfJFRlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:41:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DD4B20862;
-        Sun,  6 Oct 2019 17:42:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 521AC20700;
+        Sun,  6 Oct 2019 17:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383773;
-        bh=2q6xEFHuaBCJckqpbWV8+FPNL6zSQ5+BT+Wwq/4urfg=;
+        s=default; t=1570383708;
+        bh=3loIcDQngfLweMnZa6U8G6TzR0+So+oYGalFp8PX9FM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fohcY4F6xt0IKkYA8Q42kwfO+1ZNe2QkVpw+SStqj9/RzPZV8rH7nW4NnDWmyQJ9r
-         1BjK1V8brQyMIFKTssOheT++MWMP+wugLJliT8hlxoBGCrasLV/WBE++TKPjbbrT/8
-         97RIqWDrSixlVhdIfWSJHq1ZgxmExWekEHb4lhv4=
+        b=1KpzlXiLOPGtgyYzXVpy1KTUNFegCQC9FcqOH5PBx0hKL7X9w2LynZUK9hFdDNnJH
+         PXowLGcqOPh7Qp/bcF5Ryem+vR7kVQgFMvrO4ZMnPvRdkg3jCeGCXaf7fm1ChJ9+we
+         9XDW2aXkvxNectXGXUyjTAWwit91l5bJMxJwobBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <zhang.chunyan@linaro.org>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 036/166] clk: sprd: Dont reference clk_init_data after registration
-Date:   Sun,  6 Oct 2019 19:20:02 +0200
-Message-Id: <20191006171215.967153034@linuxfoundation.org>
+Subject: [PATCH 5.3 039/166] powerpc/xmon: Check for HV mode when dumping XIVE info from OPAL
+Date:   Sun,  6 Oct 2019 19:20:05 +0200
+Message-Id: <20191006171216.209559166@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -45,50 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit f6c90df8e7e33c3dc33d4d7471bc42c232b0510e ]
+[ Upstream commit c3e0dbd7f780a58c4695f1cd8fc8afde80376737 ]
 
-A future patch is going to change semantics of clk_register() so that
-clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
-referencing this member here so that we don't run into NULL pointer
-exceptions.
+Currently, the xmon 'dx' command calls OPAL to dump the XIVE state in
+the OPAL logs and also outputs some of the fields of the internal XIVE
+structures in Linux. The OPAL calls can only be done on baremetal
+(PowerNV) and they crash a pseries machine. Fix by checking the
+hypervisor feature of the CPU.
 
-Cc: Chunyan Zhang <zhang.chunyan@linaro.org>
-Cc: Baolin Wang <baolin.wang@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190731193517.237136-8-sboyd@kernel.org
-Acked-by: Baolin Wang <baolin.wang@linaro.org>
-Acked-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190814154754.23682-2-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sprd/common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/xmon/xmon.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/sprd/common.c b/drivers/clk/sprd/common.c
-index a5bdca1de5d07..9d56eac43832a 100644
---- a/drivers/clk/sprd/common.c
-+++ b/drivers/clk/sprd/common.c
-@@ -76,16 +76,17 @@ int sprd_clk_probe(struct device *dev, struct clk_hw_onecell_data *clkhw)
- 	struct clk_hw *hw;
- 
- 	for (i = 0; i < clkhw->num; i++) {
-+		const char *name;
- 
- 		hw = clkhw->hws[i];
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index 14e56c25879fa..25d4adccf750f 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -2534,13 +2534,16 @@ static void dump_pacas(void)
+ static void dump_one_xive(int cpu)
+ {
+ 	unsigned int hwid = get_hard_smp_processor_id(cpu);
 -
- 		if (!hw)
- 			continue;
+-	opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
+-	opal_xive_dump(XIVE_DUMP_VP, hwid);
+-	opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	bool hv = cpu_has_feature(CPU_FTR_HVMODE);
++
++	if (hv) {
++		opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
++		opal_xive_dump(XIVE_DUMP_VP, hwid);
++		opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	}
  
-+		name = hw->init->name;
- 		ret = devm_clk_hw_register(dev, hw);
- 		if (ret) {
- 			dev_err(dev, "Couldn't register clock %d - %s\n",
--				i, hw->init->name);
-+				i, name);
- 			return ret;
- 		}
- 	}
+ 	if (setjmp(bus_error_jmp) != 0) {
+ 		catch_memory_errors = 0;
 -- 
 2.20.1
 
