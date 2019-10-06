@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E6DCD87D
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1EB3CD83E
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727615AbfJFRXd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48132 "EHLO mail.kernel.org"
+        id S1727435AbfJFR0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727602AbfJFRXc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:32 -0400
+        id S1728236AbfJFR0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:26:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E473D2077B;
-        Sun,  6 Oct 2019 17:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EC982077B;
+        Sun,  6 Oct 2019 17:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382611;
-        bh=v1uxMpEy4OhIiDtMAhQTqznuWJsOzOI/p4DPGLEgCXc=;
+        s=default; t=1570382775;
+        bh=QAeX3pYl1wm9N0GeIoBGX1XUJSECbBcflCV8F8zifwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FkaxiT7YAmY7BbYey4uqau3wUjnJgj7dJCapVf38JFrmE3IRSdOEor+cDZgQXsq7j
-         ZbLmFQYTRgQWItNt6iLGKpP7n6WkPIvVYgTNAZR8d8z6BU4qtuCXoK5p6+fJMaaIqo
-         gee7aQKfrvoM5faDAk//Jn0x51y8+jJy8qfsvRkI=
+        b=agS+mN0T5crT/ZIt5E+k4wSEbeZjzgoe8rB89ntkcCQBMsx/+B2ASbQePuQmA7W+C
+         n/cTONITq2G/vCbWfSrMEvzlvBsHJzHJX+Y99RANJvn9dBChvrCv11VM+SvuEIlb/I
+         wLdKiEbqOanQ44woW8mv46iJvHpHPhETlgKynblw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Will Deacon <will@kernel.org>,
         Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 22/47] ARM: 8898/1: mm: Dont treat faults reported from cache maintenance as writes
-Date:   Sun,  6 Oct 2019 19:21:09 +0200
-Message-Id: <20191006172018.061722941@linuxfoundation.org>
+Subject: [PATCH 4.14 34/68] ARM: 8898/1: mm: Dont treat faults reported from cache maintenance as writes
+Date:   Sun,  6 Oct 2019 19:21:10 +0200
+Message-Id: <20191006171124.524201751@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,10 +79,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index 5ca207ada8524..2539c8f9fb3fa 100644
+index 49b1b80486358..9bb446cc135d1 100644
 --- a/arch/arm/mm/fault.c
 +++ b/arch/arm/mm/fault.c
-@@ -214,7 +214,7 @@ static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
+@@ -215,7 +215,7 @@ static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
  {
  	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
  
@@ -91,7 +91,7 @@ index 5ca207ada8524..2539c8f9fb3fa 100644
  		mask = VM_WRITE;
  	if (fsr & FSR_LNX_PF)
  		mask = VM_EXEC;
-@@ -284,7 +284,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
+@@ -285,7 +285,7 @@ do_page_fault(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
  
  	if (user_mode(regs))
  		flags |= FAULT_FLAG_USER;
@@ -101,10 +101,10 @@ index 5ca207ada8524..2539c8f9fb3fa 100644
  
  	/*
 diff --git a/arch/arm/mm/fault.h b/arch/arm/mm/fault.h
-index afc1f84e763b2..9bc272642d55a 100644
+index c063708fa5032..9ecc2097a87a0 100644
 --- a/arch/arm/mm/fault.h
 +++ b/arch/arm/mm/fault.h
-@@ -5,6 +5,7 @@
+@@ -6,6 +6,7 @@
   * Fault status register encodings.  We steal bit 31 for our own purposes.
   */
  #define FSR_LNX_PF		(1 << 31)
