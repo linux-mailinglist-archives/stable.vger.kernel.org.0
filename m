@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D60F1CD485
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:26:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B04CBCD439
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728284AbfJFR0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51916 "EHLO mail.kernel.org"
+        id S1727675AbfJFRXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728329AbfJFR0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:26:40 -0400
+        id S1727664AbfJFRXp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4B8C2133F;
-        Sun,  6 Oct 2019 17:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 502802080F;
+        Sun,  6 Oct 2019 17:23:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382800;
-        bh=Ul1IQzv9UVldGMU3yhp2umsQMRA6lOxZbadI+W5eHfI=;
+        s=default; t=1570382624;
+        bh=1xmyzwQAzoyVvQOqY0GRDWplegq/1md/Px3CgQEdzOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gX4OoC8aFenJeKTeIwOJCWA/LKVAsYa9hOYm+8z9b2+7hU665UlpJ5TeAYUriapQS
-         M86Xae3RlMYjePsgMtmxvNfcjCUR1JykTH97fdrM/zCH6nNgeXhXqsFzElPs3MlSXJ
-         KjJQfo1/g+CpXeHnWA47xG34zLjuGkffdW8vmaa4=
+        b=HOZ788+BajqYuhtdxGoGped7l3fo3vkrboIuLH8iAX9CAaT+2WorqYgTt8oa1mdkw
+         p2/l1eujScp+iQ5FlNmvvlJFtrIOZBu1bRhrwH2IQ8e2DloG+4UrgPNSkHSA58cxOX
+         AI+346W4uGwWlNrx9Nm6xRoNpsSddM2Xub3i6Nn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-        Thierry Reding <treding@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        linux-rockchip@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 37/68] PCI: rockchip: Propagate errors for optional regulators
-Date:   Sun,  6 Oct 2019 19:21:13 +0200
-Message-Id: <20191006171126.183069965@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        linux-s390@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 27/47] hypfs: Fix error number left in struct pointer member
+Date:   Sun,  6 Oct 2019 19:21:14 +0200
+Message-Id: <20191006172018.321876174@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
-References: <20191006171108.150129403@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,78 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 0e3ff0ac5f71bdb6be2a698de0ed0c7e6e738269 ]
+[ Upstream commit b54c64f7adeb241423cd46598f458b5486b0375e ]
 
-regulator_get_optional() can fail for a number of reasons besides probe
-deferral. It can for example return -ENOMEM if it runs out of memory as
-it tries to allocate data structures. Propagating only -EPROBE_DEFER is
-problematic because it results in these legitimately fatal errors being
-treated as "regulator not specified in DT".
+In hypfs_fill_super(), if hypfs_create_update_file() fails,
+sbi->update_file is left holding an error number.  This is passed to
+hypfs_kill_super() which doesn't check for this.
 
-What we really want is to ignore the optional regulators only if they
-have not been specified in DT. regulator_get_optional() returns -ENODEV
-in this case, so that's the special case that we need to handle. So we
-propagate all errors, except -ENODEV, so that real failures will still
-cause the driver to fail probe.
+Fix this by not setting sbi->update_value until after we've checked for
+error.
 
-Tested-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Acked-by: Shawn Lin <shawn.lin@rock-chips.com>
-Cc: Shawn Lin <shawn.lin@rock-chips.com>
-Cc: Heiko Stuebner <heiko@sntech.de>
-Cc: linux-rockchip@lists.infradead.org
+Fixes: 24bbb1faf3f0 ("[PATCH] s390_hypfs filesystem")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+cc: linux-s390@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pcie-rockchip.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/s390/hypfs/inode.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/host/pcie-rockchip.c b/drivers/pci/host/pcie-rockchip.c
-index 9051c6c8fea49..d3f9e7d247275 100644
---- a/drivers/pci/host/pcie-rockchip.c
-+++ b/drivers/pci/host/pcie-rockchip.c
-@@ -1129,29 +1129,29 @@ static int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
+diff --git a/arch/s390/hypfs/inode.c b/arch/s390/hypfs/inode.c
+index 2a17123130d30..224aeda1e8ccf 100644
+--- a/arch/s390/hypfs/inode.c
++++ b/arch/s390/hypfs/inode.c
+@@ -267,7 +267,7 @@ static int hypfs_show_options(struct seq_file *s, struct dentry *root)
+ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ {
+ 	struct inode *root_inode;
+-	struct dentry *root_dentry;
++	struct dentry *root_dentry, *update_file;
+ 	int rc = 0;
+ 	struct hypfs_sb_info *sbi;
  
- 	rockchip->vpcie12v = devm_regulator_get_optional(dev, "vpcie12v");
- 	if (IS_ERR(rockchip->vpcie12v)) {
--		if (PTR_ERR(rockchip->vpcie12v) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(rockchip->vpcie12v) != -ENODEV)
-+			return PTR_ERR(rockchip->vpcie12v);
- 		dev_info(dev, "no vpcie12v regulator found\n");
- 	}
- 
- 	rockchip->vpcie3v3 = devm_regulator_get_optional(dev, "vpcie3v3");
- 	if (IS_ERR(rockchip->vpcie3v3)) {
--		if (PTR_ERR(rockchip->vpcie3v3) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(rockchip->vpcie3v3) != -ENODEV)
-+			return PTR_ERR(rockchip->vpcie3v3);
- 		dev_info(dev, "no vpcie3v3 regulator found\n");
- 	}
- 
- 	rockchip->vpcie1v8 = devm_regulator_get_optional(dev, "vpcie1v8");
- 	if (IS_ERR(rockchip->vpcie1v8)) {
--		if (PTR_ERR(rockchip->vpcie1v8) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(rockchip->vpcie1v8) != -ENODEV)
-+			return PTR_ERR(rockchip->vpcie1v8);
- 		dev_info(dev, "no vpcie1v8 regulator found\n");
- 	}
- 
- 	rockchip->vpcie0v9 = devm_regulator_get_optional(dev, "vpcie0v9");
- 	if (IS_ERR(rockchip->vpcie0v9)) {
--		if (PTR_ERR(rockchip->vpcie0v9) == -EPROBE_DEFER)
--			return -EPROBE_DEFER;
-+		if (PTR_ERR(rockchip->vpcie0v9) != -ENODEV)
-+			return PTR_ERR(rockchip->vpcie0v9);
- 		dev_info(dev, "no vpcie0v9 regulator found\n");
- 	}
- 
+@@ -298,9 +298,10 @@ static int hypfs_fill_super(struct super_block *sb, void *data, int silent)
+ 		rc = hypfs_diag_create_files(root_dentry);
+ 	if (rc)
+ 		return rc;
+-	sbi->update_file = hypfs_create_update_file(root_dentry);
+-	if (IS_ERR(sbi->update_file))
+-		return PTR_ERR(sbi->update_file);
++	update_file = hypfs_create_update_file(root_dentry);
++	if (IS_ERR(update_file))
++		return PTR_ERR(update_file);
++	sbi->update_file = update_file;
+ 	hypfs_update_update(sb);
+ 	pr_info("Hypervisor filesystem mounted\n");
+ 	return 0;
 -- 
 2.20.1
 
