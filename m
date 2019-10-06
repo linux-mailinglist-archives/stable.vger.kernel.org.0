@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB77ACD6AD
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45049CD6AE
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730443AbfJFRk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:40:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
+        id S1730428AbfJFRlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731104AbfJFRk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:40:56 -0400
+        id S1730436AbfJFRk7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:40:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F36720862;
-        Sun,  6 Oct 2019 17:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE5D62080F;
+        Sun,  6 Oct 2019 17:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383655;
-        bh=jujcImgHDYGHQ7uDDwkXOSgG2q4SgjbpIX6MY4h8sRk=;
+        s=default; t=1570383658;
+        bh=C/gvul4pQ/MCqY9bjfcyrpOzvUH27jWmlmQUkP3PWqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05F3owToAOijjxr87I/c+1BI8mKCliDPjJCSpDt1kB4SzdHn6avLVCcJbJK53OXTP
-         1uA8iC2csxdQ5D11MLLNQp0+n7/zw0N+DtwrccFCQVCMakGAXSBPeul2N/ARb/nCOu
-         O4MaB/p6SVolZfArHI8RyEsq8HMn31QJzMvXD0Lo=
+        b=mYxBil6Og076GAYLKSIUct0XN+HppkH++EVvgyQ5FGxh6alMLtcpReyBlxty91NEH
+         rpaYMjKW1JXC839+fTBEVviOasqFoLc9MAEt13CvEwChKsVolT8p05TkuzlV1SKCam
+         T1SiEPe2BFZj+bgdxHzOfFmvnWN3oy95ipbCz8Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bobroff <sbobroff@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, hexin <hexin15@baidu.com>,
+        Liu Qi <liuqi16@baidu.com>, Zhang Yu <zhangyu31@baidu.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 047/166] powerpc/eeh: Clear stale EEH_DEV_NO_HANDLER flag
-Date:   Sun,  6 Oct 2019 19:20:13 +0200
-Message-Id: <20191006171216.961971960@linuxfoundation.org>
+Subject: [PATCH 5.3 048/166] vfio_pci: Restore original state on release
+Date:   Sun,  6 Oct 2019 19:20:14 +0200
+Message-Id: <20191006171217.062817068@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -44,73 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Bobroff <sbobroff@linux.ibm.com>
+From: hexin <hexin.op@gmail.com>
 
-[ Upstream commit aa06e3d60e245284d1e55497eb3108828092818d ]
+[ Upstream commit 92c8026854c25093946e0d7fe536fd9eac440f06 ]
 
-The EEH_DEV_NO_HANDLER flag is used by the EEH system to prevent the
-use of driver callbacks in drivers that have been bound part way
-through the recovery process. This is necessary to prevent later stage
-handlers from being called when the earlier stage handlers haven't,
-which can be confusing for drivers.
+vfio_pci_enable() saves the device's initial configuration information
+with the intent that it is restored in vfio_pci_disable().  However,
+the commit referenced in Fixes: below replaced the call to
+__pci_reset_function_locked(), which is not wrapped in a state save
+and restore, with pci_try_reset_function(), which overwrites the
+restored device state with the current state before applying it to the
+device.  Reinstate use of __pci_reset_function_locked() to return to
+the desired behavior.
 
-However, the flag is set for all devices that are added after boot
-time and only cleared at the end of the EEH recovery process. This
-results in hot plugged devices erroneously having the flag set during
-the first recovery after they are added (causing their driver's
-handlers to be incorrectly ignored).
-
-To remedy this, clear the flag at the beginning of recovery
-processing. The flag is still cleared at the end of recovery
-processing, although it is no longer really necessary.
-
-Also clear the flag during eeh_handle_special_event(), for the same
-reasons.
-
-Signed-off-by: Sam Bobroff <sbobroff@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/b8ca5629d27de74c957d4f4b250177d1b6fc4bbd.1565930772.git.sbobroff@linux.ibm.com
+Fixes: 890ed578df82 ("vfio-pci: Use pci "try" reset interface")
+Signed-off-by: hexin <hexin15@baidu.com>
+Signed-off-by: Liu Qi <liuqi16@baidu.com>
+Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/eeh_driver.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/kernel/eeh_driver.c b/arch/powerpc/kernel/eeh_driver.c
-index 89623962c7275..1fbe541856f5e 100644
---- a/arch/powerpc/kernel/eeh_driver.c
-+++ b/arch/powerpc/kernel/eeh_driver.c
-@@ -793,6 +793,10 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
- 		result = PCI_ERS_RESULT_DISCONNECT;
- 	}
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 703948c9fbe10..02206162eaa9e 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -438,11 +438,20 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ 	pci_write_config_word(pdev, PCI_COMMAND, PCI_COMMAND_INTX_DISABLE);
  
-+	eeh_for_each_pe(pe, tmp_pe)
-+		eeh_pe_for_each_dev(tmp_pe, edev, tmp)
-+			edev->mode &= ~EEH_DEV_NO_HANDLER;
-+
- 	/* Walk the various device drivers attached to this slot through
- 	 * a reset sequence, giving each an opportunity to do what it needs
- 	 * to accomplish the reset.  Each child gets a report of the
-@@ -981,7 +985,8 @@ void eeh_handle_normal_event(struct eeh_pe *pe)
-  */
- void eeh_handle_special_event(void)
- {
--	struct eeh_pe *pe, *phb_pe;
-+	struct eeh_pe *pe, *phb_pe, *tmp_pe;
-+	struct eeh_dev *edev, *tmp_edev;
- 	struct pci_bus *bus;
- 	struct pci_controller *hose;
- 	unsigned long flags;
-@@ -1050,6 +1055,10 @@ void eeh_handle_special_event(void)
- 				    (phb_pe->state & EEH_PE_RECOVERING))
- 					continue;
+ 	/*
+-	 * Try to reset the device.  The success of this is dependent on
+-	 * being able to lock the device, which is not always possible.
++	 * Try to get the locks ourselves to prevent a deadlock. The
++	 * success of this is dependent on being able to lock the device,
++	 * which is not always possible.
++	 * We can not use the "try" reset interface here, which will
++	 * overwrite the previously restored configuration information.
+ 	 */
+-	if (vdev->reset_works && !pci_try_reset_function(pdev))
+-		vdev->needs_reset = false;
++	if (vdev->reset_works && pci_cfg_access_trylock(pdev)) {
++		if (device_trylock(&pdev->dev)) {
++			if (!__pci_reset_function_locked(pdev))
++				vdev->needs_reset = false;
++			device_unlock(&pdev->dev);
++		}
++		pci_cfg_access_unlock(pdev);
++	}
  
-+				eeh_for_each_pe(pe, tmp_pe)
-+					eeh_pe_for_each_dev(tmp_pe, edev, tmp_edev)
-+						edev->mode &= ~EEH_DEV_NO_HANDLER;
-+
- 				/* Notify all devices to be down */
- 				eeh_pe_state_clear(pe, EEH_PE_PRI_BUS, true);
- 				eeh_set_channel_state(pe, pci_channel_io_perm_failure);
+ 	pci_restore_state(pdev);
+ out:
 -- 
 2.20.1
 
