@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1F1CD786
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B242CD87B
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727745AbfJFRao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56728 "EHLO mail.kernel.org"
+        id S1727243AbfJFRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:23:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726901AbfJFRao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:30:44 -0400
+        id S1727270AbfJFRXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D858A2080F;
-        Sun,  6 Oct 2019 17:30:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 428EE20862;
+        Sun,  6 Oct 2019 17:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383043;
-        bh=Rfxn0Jyw9+iChjaphz3c7XHtw/BM1cry81LxMvSeVTo=;
+        s=default; t=1570382616;
+        bh=k0WRcftLWCJFmPtrnYj3DMs1DmJ+wd/GPgYnzJMQtT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJvk9QCtBUzNYF3bRpNu5o1UeEISY3MIxbFaR3QrledK+ZtQB2ffBdzjQx8LKB0eh
-         wg++8nl/Qyh8UuGysSxObSw7WcQOjuFTznxOUOYo/dbQvHj6KdjC1+u/7+dnHVX4XW
-         Ss7+YayGQcdoOgQGvj/eAZnSBdQ2bwri6qnzysMc=
+        b=imM9SydDtJHkmAgjnlweRkLL2fOGGp83qkkXdABxjPmzBvMag+FQc9Cv9uoMZObRT
+         7tgjFK9wCn1xAAHHWbIi96/Od/lkgmd6VCoBYAO9ccp3jFVZheftkBisRbtuOBw4eq
+         iEyt7y27B1vcqrohkZC/BOKURKJinPBsLIKqkkm4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/106] security: smack: Fix possible null-pointer dereferences in smack_socket_sock_rcv_skb()
+Subject: [PATCH 4.9 24/47] security: smack: Fix possible null-pointer dereferences in smack_socket_sock_rcv_skb()
 Date:   Sun,  6 Oct 2019 19:21:11 +0200
-Message-Id: <20191006171150.857654535@linuxfoundation.org>
+Message-Id: <20191006172018.166510775@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+References: <20191006172016.873463083@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,10 +72,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 017c47eb795eb..120bd56e5d89e 100644
+index aeb3ba70f9077..19d1702aa9856 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -4005,6 +4005,8 @@ access_check:
+@@ -4037,6 +4037,8 @@ access_check:
  			skp = smack_ipv6host_label(&sadd);
  		if (skp == NULL)
  			skp = smack_net_ambient;
