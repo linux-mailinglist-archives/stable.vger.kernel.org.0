@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D00CD555
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:35:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B0CECD4CF
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbfJFRfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:35:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33662 "EHLO mail.kernel.org"
+        id S1727751AbfJFR3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730126AbfJFRfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:35:03 -0400
+        id S1728969AbfJFR3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:29:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B0DE2080F;
-        Sun,  6 Oct 2019 17:35:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2770C217D6;
+        Sun,  6 Oct 2019 17:29:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383303;
-        bh=+MlfoAtoWLCe3LiiFPezhp7+K5aRv9eFB+47gTDeinA=;
+        s=default; t=1570382959;
+        bh=K4T6lRYMyRRepGM0P+BdfI9+GRjzZhv/1SdRP6HK8Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6FKPxUHmF++TT1VaJfLvviLhzq2lxPkn+bCoSzRbxeVCW6sF5mpO/DXfDFtAI7Cr
-         /+fFpxhc/eNewBmWLIft2onwKswMSR1y+u688QgGDuIxdsy88rnr/VEajWSCvhWuZO
-         FcC5r/1owpZHnLt6wlw64qy5vH7JCIahGxhozKuY=
+        b=f96qSILktnJZ02/ghg3o1dJQgLdZ7wxfQlsVBsYMYxzxOU+/kdo+I3pt/4zZHqJio
+         DL9UmIXR1+8QKEkmPugmy0XdAENLNBg0S5IyooUR11lT4Mo0dIG1MGvVAI6QHdSocw
+         9rkOwOSr7YPq5662NJyhzzhv+gimdN2UgSc/zElI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Charlene Liu <charlene.liu@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 055/137] powerpc/rtas: use device model APIs and serialization during LPM
+Subject: [PATCH 4.19 033/106] drm/amd/display: support spdif
 Date:   Sun,  6 Oct 2019 19:20:39 +0200
-Message-Id: <20191006171213.287244692@linuxfoundation.org>
+Message-Id: <20191006171140.114447492@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Charlene Liu <charlene.liu@amd.com>
 
-[ Upstream commit a6717c01ddc259f6f73364779df058e2c67309f8 ]
+[ Upstream commit b5a41620bb88efb9fb31a4fa5e652e3d5bead7d4 ]
 
-The LPAR migration implementation and userspace-initiated cpu hotplug
-can interleave their executions like so:
+[Description]
+port spdif fix to staging:
+ spdif hardwired to afmt inst 1.
+ spdif func pointer
+ spdif resource allocation (reserve last audio endpoint for spdif only)
 
-1. Set cpu 7 offline via sysfs.
-
-2. Begin a partition migration, whose implementation requires the OS
-   to ensure all present cpus are online; cpu 7 is onlined:
-
-     rtas_ibm_suspend_me -> rtas_online_cpus_mask -> cpu_up
-
-   This sets cpu 7 online in all respects except for the cpu's
-   corresponding struct device; dev->offline remains true.
-
-3. Set cpu 7 online via sysfs. _cpu_up() determines that cpu 7 is
-   already online and returns success. The driver core (device_online)
-   sets dev->offline = false.
-
-4. The migration completes and restores cpu 7 to offline state:
-
-     rtas_ibm_suspend_me -> rtas_offline_cpus_mask -> cpu_down
-
-This leaves cpu7 in a state where the driver core considers the cpu
-device online, but in all other respects it is offline and
-unused. Attempts to online the cpu via sysfs appear to succeed but the
-driver core actually does not pass the request to the lower-level
-cpuhp support code. This makes the cpu unusable until the cpu device
-is manually set offline and then online again via sysfs.
-
-Instead of directly calling cpu_up/cpu_down, the migration code should
-use the higher-level device core APIs to maintain consistent state and
-serialize operations.
-
-Fixes: 120496ac2d2d ("powerpc: Bring all threads online prior to migration/hibernation")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190802192926.19277-2-nathanl@linux.ibm.com
+Signed-off-by: Charlene Liu <charlene.liu@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/rtas.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ .../gpu/drm/amd/display/dc/core/dc_resource.c   | 17 ++++++++---------
+ drivers/gpu/drm/amd/display/dc/dce/dce_audio.c  |  4 ++--
+ 2 files changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
-index fff2eb22427d0..65cd96c3b1d60 100644
---- a/arch/powerpc/kernel/rtas.c
-+++ b/arch/powerpc/kernel/rtas.c
-@@ -871,15 +871,17 @@ static int rtas_cpu_state_change_mask(enum rtas_cpu_state state,
- 		return 0;
- 
- 	for_each_cpu(cpu, cpus) {
-+		struct device *dev = get_cpu_device(cpu);
-+
- 		switch (state) {
- 		case DOWN:
--			cpuret = cpu_down(cpu);
-+			cpuret = device_offline(dev);
- 			break;
- 		case UP:
--			cpuret = cpu_up(cpu);
-+			cpuret = device_online(dev);
- 			break;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+index f0d68aa7c8fcc..d440b28ee43fb 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
+@@ -229,12 +229,10 @@ bool resource_construct(
+ 				DC_ERR("DC: failed to create audio!\n");
+ 				return false;
+ 			}
+-
+ 			if (!aud->funcs->endpoint_valid(aud)) {
+ 				aud->funcs->destroy(&aud);
+ 				break;
+ 			}
+-
+ 			pool->audios[i] = aud;
+ 			pool->audio_count++;
  		}
--		if (cpuret) {
-+		if (cpuret < 0) {
- 			pr_debug("%s: cpu_%s for cpu#%d returned %d.\n",
- 					__func__,
- 					((state == UP) ? "up" : "down"),
-@@ -968,6 +970,8 @@ int rtas_ibm_suspend_me(u64 handle)
- 	data.token = rtas_token("ibm,suspend-me");
- 	data.complete = &done;
- 
-+	lock_device_hotplug();
+@@ -1703,24 +1701,25 @@ static struct audio *find_first_free_audio(
+ 		const struct resource_pool *pool,
+ 		enum engine_id id)
+ {
+-	int i;
+-	for (i = 0; i < pool->audio_count; i++) {
++	int i, available_audio_count;
 +
- 	/* All present CPUs must be online */
- 	cpumask_andnot(offline_mask, cpu_present_mask, cpu_online_mask);
- 	cpuret = rtas_online_cpus_mask(offline_mask);
-@@ -1007,6 +1011,7 @@ out_hotplug_enable:
- 				__func__);
++	available_audio_count = pool->audio_count;
++
++	for (i = 0; i < available_audio_count; i++) {
+ 		if ((res_ctx->is_audio_acquired[i] == false) && (res_ctx->is_stream_enc_acquired[i] == true)) {
+ 			/*we have enough audio endpoint, find the matching inst*/
+ 			if (id != i)
+ 				continue;
+-
+ 			return pool->audios[i];
+ 		}
+ 	}
  
- out:
-+	unlock_device_hotplug();
- 	free_cpumask_var(offline_mask);
- 	return atomic_read(&data.error);
+-    /* use engine id to find free audio */
+-	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
++	/* use engine id to find free audio */
++	if ((id < available_audio_count) && (res_ctx->is_audio_acquired[id] == false)) {
+ 		return pool->audios[id];
+ 	}
+-
+ 	/*not found the matching one, first come first serve*/
+-	for (i = 0; i < pool->audio_count; i++) {
++	for (i = 0; i < available_audio_count; i++) {
+ 		if (res_ctx->is_audio_acquired[i] == false) {
+ 			return pool->audios[i];
+ 		}
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
+index 7f6d724686f1a..abb559ce64085 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
+@@ -611,6 +611,8 @@ void dce_aud_az_configure(
+ 
+ 	AZ_REG_WRITE(AZALIA_F0_CODEC_PIN_CONTROL_SINK_INFO1,
+ 		value);
++	DC_LOG_HW_AUDIO("\n\tAUDIO:az_configure: index: %u data, 0x%x, displayName %s: \n",
++		audio->inst, value, audio_info->display_name);
+ 
+ 	/*
+ 	*write the port ID:
+@@ -922,7 +924,6 @@ static const struct audio_funcs funcs = {
+ 	.az_configure = dce_aud_az_configure,
+ 	.destroy = dce_aud_destroy,
+ };
+-
+ void dce_aud_destroy(struct audio **audio)
+ {
+ 	struct dce_audio *aud = DCE_AUD(*audio);
+@@ -953,7 +954,6 @@ struct audio *dce_audio_create(
+ 	audio->regs = reg;
+ 	audio->shifts = shifts;
+ 	audio->masks = masks;
+-
+ 	return &audio->base;
  }
+ 
 -- 
 2.20.1
 
