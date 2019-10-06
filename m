@@ -2,52 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A45CD4FA
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:31:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B84ECD57F
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:36:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728506AbfJFRbI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:31:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57224 "EHLO mail.kernel.org"
+        id S1728594AbfJFRgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:36:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729364AbfJFRbI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:31:08 -0400
+        id S1730365AbfJFRgy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:36:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DB272087E;
-        Sun,  6 Oct 2019 17:31:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 614B42080F;
+        Sun,  6 Oct 2019 17:36:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383067;
-        bh=LbLyWpx1LAX4yaF3lZ06T0Ps5gzxnKDuVca7dt58IrQ=;
+        s=default; t=1570383413;
+        bh=DSnlGAxhxB7SSX6XqT2FqtNxf7JUGJ/CRstIzZireiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBlnZwn8onX23s8gMAgMCKPAQytdDtIkuYP4CQgQqE3T5oV+hSJbaAPT4RfbxX4We
-         9QLOhwX7Q3TW1oZDW2Y63pH1IfLdJw5W+BiX5hE216w9clWMeSTdthOR+zJw9d38dH
-         ju/AGppFHxzsmsGyPuPZSHYBoltuIE9+1YbLi2vw=
+        b=StaAY6e86eJHWcdky0TgwRqwqeT5I1ZtyWNGcCsSi5WhLKoU2LStuiM4escgQxsZF
+         E+BvGxWJhzMwaUmqInBldB+ltAhVBl4jY2RLku84PaBZfWEsQX5q5iEuhcLb/pXsKf
+         0S+RoqfQuTv1SxVlVRMA04JPL+wZ8z4E+UAMPpfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Kees Cook <keescook@chromium.org>,
-        Petr Mladek <pmladek@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/106] kmemleak: increase DEBUG_KMEMLEAK_EARLY_LOG_SIZE default to 16K
-Date:   Sun,  6 Oct 2019 19:21:19 +0200
-Message-Id: <20191006171153.881465237@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.2 096/137] HID: wacom: Fix several minor compiler warnings
+Date:   Sun,  6 Oct 2019 19:21:20 +0200
+Message-Id: <20191006171216.879540210@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,55 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit b751c52bb587ae66f773b15204ef7a147467f4c7 ]
+[ Upstream commit 073b50bccbbf99a3b79a1913604c656d0e1a56c9 ]
 
-The current default value (400) is too low on many systems (e.g.  some
-ARM64 platform takes up 1000+ entries).
+Addresses a few issues that were noticed when compiling with non-default
+warnings enabled. The trimmed-down warnings in the order they are fixed
+below are:
 
-syzbot uses 16000 as default value, and has proved to be enough on beefy
-configurations, so let's pick that value.
+* declaration of 'size' shadows a parameter
 
-This consumes more RAM on boot (each entry is 160 bytes, so in total
-~2.5MB of RAM), but the memory would later be freed (early_log is
-__initdata).
+* '%s' directive output may be truncated writing up to 5 bytes into a
+  region of size between 1 and 64
 
-Link: http://lkml.kernel.org/r/20190730154027.101525-1-drinkcat@chromium.org
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Suggested-by: Dmitry Vyukov <dvyukov@google.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Acked-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+* pointer targets in initialization of 'char *' from 'unsigned char *'
+  differ in signedness
+
+* left shift of negative value
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_sys.c | 7 ++++---
+ drivers/hid/wacom_wac.c | 4 ++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 3dea52f7be9c1..46a910acce3f0 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -570,7 +570,7 @@ config DEBUG_KMEMLEAK_EARLY_LOG_SIZE
- 	int "Maximum kmemleak early log entries"
- 	depends on DEBUG_KMEMLEAK
- 	range 200 40000
--	default 400
-+	default 16000
- 	help
- 	  Kmemleak must track all the memory allocations to avoid
- 	  reporting false positives. Since memory may be allocated or
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 53bddb50aebaf..602219a8710d0 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -88,7 +88,7 @@ static void wacom_wac_queue_flush(struct hid_device *hdev,
+ }
+ 
+ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+-		struct hid_report *report, u8 *raw_data, int size)
++		struct hid_report *report, u8 *raw_data, int report_size)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+@@ -149,7 +149,8 @@ static int wacom_wac_pen_serial_enforce(struct hid_device *hdev,
+ 	if (flush)
+ 		wacom_wac_queue_flush(hdev, &wacom_wac->pen_fifo);
+ 	else if (insert)
+-		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo, raw_data, size);
++		wacom_wac_queue_insert(hdev, &wacom_wac->pen_fifo,
++				       raw_data, report_size);
+ 
+ 	return insert && !flush;
+ }
+@@ -2176,7 +2177,7 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
+ {
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct wacom_features *features = &wacom_wac->features;
+-	char name[WACOM_NAME_MAX];
++	char name[WACOM_NAME_MAX - 20]; /* Leave some room for suffixes */
+ 
+ 	/* Generic devices name unspecified */
+ 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 58719461850de..6be98851edca4 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -251,7 +251,7 @@ static int wacom_dtu_irq(struct wacom_wac *wacom)
+ 
+ static int wacom_dtus_irq(struct wacom_wac *wacom)
+ {
+-	char *data = wacom->data;
++	unsigned char *data = wacom->data;
+ 	struct input_dev *input = wacom->pen_input;
+ 	unsigned short prox, pressure = 0;
+ 
+@@ -572,7 +572,7 @@ static int wacom_intuos_pad(struct wacom_wac *wacom)
+ 		strip2 = ((data[3] & 0x1f) << 8) | data[4];
+ 	}
+ 
+-	prox = (buttons & ~(~0 << nbuttons)) | (keys & ~(~0 << nkeys)) |
++	prox = (buttons & ~(~0U << nbuttons)) | (keys & ~(~0U << nkeys)) |
+ 	       (ring1 & 0x80) | (ring2 & 0x80) | strip1 | strip2;
+ 
+ 	wacom_report_numbered_buttons(input, nbuttons, buttons);
 -- 
 2.20.1
 
