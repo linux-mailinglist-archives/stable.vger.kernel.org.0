@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A82DCD708
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7329CD70E
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:53:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730708AbfJFRjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38442 "EHLO mail.kernel.org"
+        id S1729504AbfJFRvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730707AbfJFRjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:01 -0400
+        id S1727840AbfJFRu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:50:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F2D12087E;
-        Sun,  6 Oct 2019 17:39:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39A0E222BE;
+        Sun,  6 Oct 2019 17:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383540;
-        bh=ccq2Zvw7Cswo0qu9PcmFIXaAvuTiz0QRI1+smMgNg/c=;
+        s=default; t=1570383946;
+        bh=ab/650njBQ21/h5fy4o51oMZSKILe8Zt+y0PvRGsxZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFNEX33TbloRFZULNlaVhPloTrKS9l5XLSBToNrRU+ZlFwrpt2qnlPC1xyHxlAa9z
-         75FX7QCKPhPJKLqWqkFo3qhv6deO4e+ci/koUS0g+07mcXk2UFWbDvurXEuODvPYZO
-         +I4wsa4w8gV1DSKpP+fV1AEomGqbDWU2WbG4AaxY=
+        b=xmQwcA4WePSOvK8JD/PDU2mf8J/ZpA6F34zSCBAkq5zuWba42p4SKTd7qRxf24E7q
+         Ge/ghob1BCNoehfTWSoBhS9CA9UdWXtJnCdLxWg3mnzVfayVt/TvUhAHpClUu9hhjv
+         hcuvCWOeCGvZZ/weDeVv7G4P15eyxTs+LihRFxKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+dff25ee91f0c7d5c1695@syzkaller.appspotmail.com,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH 5.2 135/137] KVM: hyperv: Fix Direct Synthetic timers assert an interrupt w/o lapic_in_kernel
-Date:   Sun,  6 Oct 2019 19:21:59 +0200
-Message-Id: <20191006171220.642085179@linuxfoundation.org>
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 154/166] net: dsa: sja1105: Prevent leaking memory
+Date:   Sun,  6 Oct 2019 19:22:00 +0200
+Message-Id: <20191006171225.866005334@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
+References: <20191006171212.850660298@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,73 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit a073d7e3ad687a7ef32b65affe80faa7ce89bf92 upstream.
+[ Upstream commit 68501df92d116b760777a2cfda314789f926476f ]
 
-Reported by syzkaller:
+In sja1105_static_config_upload, in two cases memory is leaked: when
+static_config_buf_prepare_for_upload fails and when sja1105_inhibit_tx
+fails. In both cases config_buf should be released.
 
-	kasan: GPF could be caused by NULL-ptr deref or user memory access
-	general protection fault: 0000 [#1] PREEMPT SMP KASAN
-	RIP: 0010:__apic_accept_irq+0x46/0x740 arch/x86/kvm/lapic.c:1029
-	Call Trace:
-	kvm_apic_set_irq+0xb4/0x140 arch/x86/kvm/lapic.c:558
-	stimer_notify_direct arch/x86/kvm/hyperv.c:648 [inline]
-	stimer_expiration arch/x86/kvm/hyperv.c:659 [inline]
-	kvm_hv_process_stimers+0x594/0x1650 arch/x86/kvm/hyperv.c:686
-	vcpu_enter_guest+0x2b2a/0x54b0 arch/x86/kvm/x86.c:7896
-	vcpu_run+0x393/0xd40 arch/x86/kvm/x86.c:8152
-	kvm_arch_vcpu_ioctl_run+0x636/0x900 arch/x86/kvm/x86.c:8360
-	kvm_vcpu_ioctl+0x6cf/0xaf0 arch/x86/kvm/../../../virt/kvm/kvm_main.c:2765
-
-The testcase programs HV_X64_MSR_STIMERn_CONFIG/HV_X64_MSR_STIMERn_COUNT,
-in addition, there is no lapic in the kernel, the counters value are small
-enough in order that kvm_hv_process_stimers() inject this already-expired
-timer interrupt into the guest through lapic in the kernel which triggers
-the NULL deferencing. This patch fixes it by don't advertise direct mode
-synthetic timers and discarding the inject when lapic is not in kernel.
-
-syzkaller source: https://syzkaller.appspot.com/x/repro.c?x=1752fe0a600000
-
-Reported-by: syzbot+dff25ee91f0c7d5c1695@syzkaller.appspotmail.com
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
+Fixes: 1a4c69406cc1 ("net: dsa: sja1105: Prevent PHY jabbering during switch reset")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/kvm/hyperv.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_spi.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -645,7 +645,9 @@ static int stimer_notify_direct(struct k
- 		.vector = stimer->config.apic_vector
- 	};
- 
--	return !kvm_apic_set_irq(vcpu, &irq, NULL);
-+	if (lapic_in_kernel(vcpu))
-+		return !kvm_apic_set_irq(vcpu, &irq, NULL);
-+	return 0;
- }
- 
- static void stimer_expiration(struct kvm_vcpu_hv_stimer *stimer)
-@@ -1854,7 +1856,13 @@ int kvm_vcpu_ioctl_get_hv_cpuid(struct k
- 
- 			ent->edx |= HV_FEATURE_FREQUENCY_MSRS_AVAILABLE;
- 			ent->edx |= HV_FEATURE_GUEST_CRASH_MSR_AVAILABLE;
--			ent->edx |= HV_STIMER_DIRECT_MODE_AVAILABLE;
-+
-+			/*
-+			 * Direct Synthetic timers only make sense with in-kernel
-+			 * LAPIC
-+			 */
-+			if (lapic_in_kernel(vcpu))
-+				ent->edx |= HV_STIMER_DIRECT_MODE_AVAILABLE;
- 
- 			break;
- 
+--- a/drivers/net/dsa/sja1105/sja1105_spi.c
++++ b/drivers/net/dsa/sja1105/sja1105_spi.c
+@@ -409,7 +409,8 @@ int sja1105_static_config_upload(struct
+ 	rc = static_config_buf_prepare_for_upload(priv, config_buf, buf_len);
+ 	if (rc < 0) {
+ 		dev_err(dev, "Invalid config, cannot upload\n");
+-		return -EINVAL;
++		rc = -EINVAL;
++		goto out;
+ 	}
+ 	/* Prevent PHY jabbering during switch reset by inhibiting
+ 	 * Tx on all ports and waiting for current packet to drain.
+@@ -418,7 +419,8 @@ int sja1105_static_config_upload(struct
+ 	rc = sja1105_inhibit_tx(priv, port_bitmap, true);
+ 	if (rc < 0) {
+ 		dev_err(dev, "Failed to inhibit Tx on ports\n");
+-		return -ENXIO;
++		rc = -ENXIO;
++		goto out;
+ 	}
+ 	/* Wait for an eventual egress packet to finish transmission
+ 	 * (reach IFG). It is guaranteed that a second one will not
 
 
