@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B51CD7DC
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4D8CD851
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727868AbfJFRgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34778 "EHLO mail.kernel.org"
+        id S1727415AbfJFSCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 14:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730231AbfJFRgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:36:01 -0400
+        id S1728096AbfJFRZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:25:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6066E20700;
-        Sun,  6 Oct 2019 17:35:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ACDA2077B;
+        Sun,  6 Oct 2019 17:25:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383359;
-        bh=ufQvx7ZNex7e9L1n3iz0qxl2DPV4jX3rgvJ6+P7qKWY=;
+        s=default; t=1570382743;
+        bh=z9UtvtB1+9egErQtQisaNM4KXdtr1rv4rpMpXyL4+Ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJAoh8P4MWFfwNeYFXUtTt5o+WhTBUgVm5PqJ1e0jx5x/WjmszafyZK01Ji7BLPju
-         WlEt9r3a1uWlQ3PK9I+LA1U9r2/pgdQYIPalnRXHpkwgvSDb7Ia+J3F0hlSW8xcI+h
-         2nOemzjQhWioGA0xA6E0/9RVjx9EArWe9Ido3HTI=
+        b=xbU42G/IcSzBVv/2TasmUUZSC/AuwERGqrkLgxSsFcSdCfHc9RqpfFSxWRrvw03gp
+         hIEcHRJ6u/ImWdQRTOLzEoYX+SBuuT53ZmvFmXmroPvrjItd6RMPr8OAtbRl8f3/Iw
+         J0hbcLrUPlU+lEiLuNkLkG51FBrQ+4bZ7lfavHrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Taniya Das <tdas@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 074/137] clk: qcom: gcc-sdm845: Use floor ops for sdcc clks
-Date:   Sun,  6 Oct 2019 19:20:58 +0200
-Message-Id: <20191006171215.232413868@linuxfoundation.org>
+Subject: [PATCH 4.14 23/68] powerpc/64s/exception: machine check use correct cfar for late handler
+Date:   Sun,  6 Oct 2019 19:20:59 +0200
+Message-Id: <20191006171118.849635053@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 5e4b7e82d497580bc430576c4c9bce157dd72512 ]
+[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
 
-Some MMC cards fail to enumerate properly when inserted into an MMC slot
-on sdm845 devices. This is because the clk ops for qcom clks round the
-frequency up to the nearest rate instead of down to the nearest rate.
-For example, the MMC driver requests a frequency of 52MHz from
-clk_set_rate() but the qcom implementation for these clks rounds 52MHz
-up to the next supported frequency of 100MHz. The MMC driver could be
-modified to request clk rate ranges but for now we can fix this in the
-clk driver by changing the rounding policy for this clk to be round down
-instead of round up.
+Bare metal machine checks run an "early" handler in real mode before
+running the main handler which reports the event.
 
-Fixes: 06391eddb60a ("clk: qcom: Add Global Clock controller (GCC) driver for SDM845")
-Reported-by: Douglas Anderson <dianders@chromium.org>
-Cc: Taniya Das <tdas@codeaurora.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lkml.kernel.org/r/20190830195142.103564-1-swboyd@chromium.org
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+The main handler runs exactly as a normal interrupt handler, after the
+"windup" which sets registers back as they were at interrupt entry.
+CFAR does not get restored by the windup code, so that will be wrong
+when the handler is run.
+
+Restore the CFAR to the saved value before running the late handler.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sdm845.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/clk/qcom/gcc-sdm845.c b/drivers/clk/qcom/gcc-sdm845.c
-index 7131dcf9b0603..95be125c3bddf 100644
---- a/drivers/clk/qcom/gcc-sdm845.c
-+++ b/drivers/clk/qcom/gcc-sdm845.c
-@@ -685,7 +685,7 @@ static struct clk_rcg2 gcc_sdcc2_apps_clk_src = {
- 		.name = "gcc_sdcc2_apps_clk_src",
- 		.parent_names = gcc_parent_names_10,
- 		.num_parents = 5,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
- };
- 
-@@ -709,7 +709,7 @@ static struct clk_rcg2 gcc_sdcc4_apps_clk_src = {
- 		.name = "gcc_sdcc4_apps_clk_src",
- 		.parent_names = gcc_parent_names_0,
- 		.num_parents = 4,
--		.ops = &clk_rcg2_ops,
-+		.ops = &clk_rcg2_floor_ops,
- 	},
- };
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index 43cde6c602795..cdc53fd905977 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -464,6 +464,10 @@ EXC_COMMON_BEGIN(machine_check_handle_early)
+ 	RFI_TO_USER_OR_KERNEL
+ 9:
+ 	/* Deliver the machine check to host kernel in V mode. */
++BEGIN_FTR_SECTION
++	ld	r10,ORIG_GPR3(r1)
++	mtspr	SPRN_CFAR,r10
++END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
+ 	MACHINE_CHECK_HANDLER_WINDUP
+ 	b	machine_check_pSeries
  
 -- 
 2.20.1
