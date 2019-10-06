@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FF1CD6A5
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D635CD5ED
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731207AbfJFRli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41256 "EHLO mail.kernel.org"
+        id S1731237AbfJFRlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731228AbfJFRlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:36 -0400
+        id S1730579AbfJFRlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:41:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15A242053B;
-        Sun,  6 Oct 2019 17:41:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF9782053B;
+        Sun,  6 Oct 2019 17:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383695;
-        bh=n4EK9lFlhG+7vx2FsuKOoovwxv61xtY/g7zcyr254u0=;
+        s=default; t=1570383698;
+        bh=EwefwZg1gkRd5D8AdLXuQmAzwpk0VAcJjXwCvpznLlA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFTDEWk+xriKIWc9iqi6BUvYQOCLnmlNSbUcZKfwnTKOSEXI/JQrPISq2qGM1FeEb
-         Y/7q5vA6qa4jiqTaJdmQ34iYwvB/2HmqHq3XKH30cpn7bE7eDcBTiHR4RV55xsWV1F
-         2HMwfNEbbvEdx35WRdip7cc2pPcbgv0ahCKMjE7o=
+        b=xhgZXXsFh60aclNlhFqaIKUusMUJojxLk8nNNd4nmfJ3SiCAB2CKj5Q1VtTMoMPz0
+         sw+9ME1Jowa2cz+3ylr55iVRY3ADKa7kErmtrEyDp1g8pnFid7o06FVt9uzeAyweeh
+         twP+k7tr5v9XDkanNkImv+z0NafuhKtqNEkgOWlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-        Ken Wang <Qingqing.Wang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        "David (ChunMing) Zhou" <David1.Zhou@amd.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 061/166] drm/amdgpu/si: fix ASIC tests
-Date:   Sun,  6 Oct 2019 19:20:27 +0200
-Message-Id: <20191006171218.320981702@linuxfoundation.org>
+Subject: [PATCH 5.3 062/166] powerpc/64s/exception: machine check use correct cfar for late handler
+Date:   Sun,  6 Oct 2019 19:20:28 +0200
+Message-Id: <20191006171218.439787495@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -47,57 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 77efe48a729588527afb4d5811b9e0acb29f5e51 ]
+[ Upstream commit 0b66370c61fcf5fcc1d6901013e110284da6e2bb ]
 
-Comparing adev->family with CHIP constants is not correct.
-adev->family can only be compared with AMDGPU_FAMILY constants and
-adev->asic_type is the struct member to compare with CHIP constants.
-They are separate identification spaces.
+Bare metal machine checks run an "early" handler in real mode before
+running the main handler which reports the event.
 
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Fixes: 62a37553414a ("drm/amdgpu: add si implementation v10")
-Cc: Ken Wang <Qingqing.Wang@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: "David (ChunMing) Zhou" <David1.Zhou@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The main handler runs exactly as a normal interrupt handler, after the
+"windup" which sets registers back as they were at interrupt entry.
+CFAR does not get restored by the windup code, so that will be wrong
+when the handler is run.
+
+Restore the CFAR to the saved value before running the late handler.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190802105709.27696-8-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/si.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/si.c b/drivers/gpu/drm/amd/amdgpu/si.c
-index 4d74453f3cfbd..602397016b641 100644
---- a/drivers/gpu/drm/amd/amdgpu/si.c
-+++ b/drivers/gpu/drm/amd/amdgpu/si.c
-@@ -1881,7 +1881,7 @@ static void si_program_aspm(struct amdgpu_device *adev)
- 			if (orig != data)
- 				si_pif_phy1_wreg(adev,PB1_PIF_PWRDOWN_1, data);
- 
--			if ((adev->family != CHIP_OLAND) && (adev->family != CHIP_HAINAN)) {
-+			if ((adev->asic_type != CHIP_OLAND) && (adev->asic_type != CHIP_HAINAN)) {
- 				orig = data = si_pif_phy0_rreg(adev,PB0_PIF_PWRDOWN_0);
- 				data &= ~PLL_RAMP_UP_TIME_0_MASK;
- 				if (orig != data)
-@@ -1930,14 +1930,14 @@ static void si_program_aspm(struct amdgpu_device *adev)
- 
- 			orig = data = si_pif_phy0_rreg(adev,PB0_PIF_CNTL);
- 			data &= ~LS2_EXIT_TIME_MASK;
--			if ((adev->family == CHIP_OLAND) || (adev->family == CHIP_HAINAN))
-+			if ((adev->asic_type == CHIP_OLAND) || (adev->asic_type == CHIP_HAINAN))
- 				data |= LS2_EXIT_TIME(5);
- 			if (orig != data)
- 				si_pif_phy0_wreg(adev,PB0_PIF_CNTL, data);
- 
- 			orig = data = si_pif_phy1_rreg(adev,PB1_PIF_CNTL);
- 			data &= ~LS2_EXIT_TIME_MASK;
--			if ((adev->family == CHIP_OLAND) || (adev->family == CHIP_HAINAN))
-+			if ((adev->asic_type == CHIP_OLAND) || (adev->asic_type == CHIP_HAINAN))
- 				data |= LS2_EXIT_TIME(5);
- 			if (orig != data)
- 				si_pif_phy1_wreg(adev,PB1_PIF_CNTL, data);
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index 6ba3cc2ef8abc..36c8a3652cf3a 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -1211,6 +1211,10 @@ FTR_SECTION_ELSE
+ ALT_FTR_SECTION_END_IFSET(CPU_FTR_HVMODE)
+ 9:
+ 	/* Deliver the machine check to host kernel in V mode. */
++BEGIN_FTR_SECTION
++	ld	r10,ORIG_GPR3(r1)
++	mtspr	SPRN_CFAR,r10
++END_FTR_SECTION_IFSET(CPU_FTR_CFAR)
+ 	MACHINE_CHECK_HANDLER_WINDUP
+ 	EXCEPTION_PROLOG_0 PACA_EXMC
+ 	b	machine_check_pSeries_0
 -- 
 2.20.1
 
