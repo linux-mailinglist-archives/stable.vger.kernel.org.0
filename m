@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8D6CD79B
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280F9CD79D
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728806AbfJFRcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58764 "EHLO mail.kernel.org"
+        id S1729561AbfJFRcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728005AbfJFRcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:32:19 -0400
+        id S1729557AbfJFRcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:32:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B9B92080F;
-        Sun,  6 Oct 2019 17:32:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22C822133F;
+        Sun,  6 Oct 2019 17:32:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383138;
-        bh=U96cZagmbCkN7R1eK0pRJ3y3+87rAh1edE3u8Bb4/Ec=;
+        s=default; t=1570383143;
+        bh=fjJrdjq9ByRxGdjY6wKrvDvBEtcNvBtzbjBhKXMgaT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IiLzthYdInfxvY/Y+dy0vDCF3NI3yzsT0CgKn4QVrss1USiSuCkVOv6PEbsZwo4Ne
-         jWVqpH9Cxqt2wcpxDvrEDBdcaIGuwX7pCyormlfQ0cOT5/X0PR5kmjojuLgMNzw0BS
-         p9QVhbxKXQsWQ4of7SNwGm0U5TKVuZot7g8D3+Jc=
+        b=UzMuSkyD+PMAWEA7YppHXXThhuWfkFyXh+920M3jWGLioyfD5alQmpRge4i+BnnmI
+         I0kpifbFPoDek2A4LQEOVQx9g6KdgS8KE1TfIyPEqB0ftgKLXqpT2LC4nnlQthjrm6
+         KbgqopKPS/UOPdxckewjC4TWXWcKtTvVmLr5TOuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 101/106] soundwire: fix regmap dependencies and align with other serial links
-Date:   Sun,  6 Oct 2019 19:21:47 +0200
-Message-Id: <20191006171203.501329692@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.19 102/106] Smack: Dont ignore other bprm->unsafe flags if LSM_UNSAFE_PTRACE is set
+Date:   Sun,  6 Oct 2019 19:21:48 +0200
+Message-Id: <20191006171204.088611292@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -44,92 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 8676b3ca4673517650fd509d7fa586aff87b3c28 ]
+commit 3675f052b43ba51b99b85b073c7070e083f3e6fb upstream.
 
-The existing code has a mixed select/depend usage which makes no sense.
+There is a logic bug in the current smack_bprm_set_creds():
+If LSM_UNSAFE_PTRACE is set, but the ptrace state is deemed to be
+acceptable (e.g. because the ptracer detached in the meantime), the other
+->unsafe flags aren't checked. As far as I can tell, this means that
+something like the following could work (but I haven't tested it):
 
-config SOUNDWIRE_BUS
-       tristate
-       select REGMAP_SOUNDWIRE
+ - task A: create task B with fork()
+ - task B: set NO_NEW_PRIVS
+ - task B: install a seccomp filter that makes open() return 0 under some
+   conditions
+ - task B: replace fd 0 with a malicious library
+ - task A: attach to task B with PTRACE_ATTACH
+ - task B: execve() a file with an SMACK64EXEC extended attribute
+ - task A: while task B is still in the middle of execve(), exit (which
+   destroys the ptrace relationship)
 
-config REGMAP_SOUNDWIRE
-        tristate
-        depends on SOUNDWIRE_BUS
+Make sure that if any flags other than LSM_UNSAFE_PTRACE are set in
+bprm->unsafe, we reject the execve().
 
-Let's remove one layer of Kconfig definitions and align with the
-solutions used by all other serial links.
+Cc: stable@vger.kernel.org
+Fixes: 5663884caab1 ("Smack: unify all ptrace accesses in the smack")
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190718230215.18675-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/regmap/Kconfig | 2 +-
- drivers/soundwire/Kconfig   | 7 +------
- drivers/soundwire/Makefile  | 2 +-
- 3 files changed, 3 insertions(+), 8 deletions(-)
+ security/smack/smack_lsm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/regmap/Kconfig b/drivers/base/regmap/Kconfig
-index 6ad5ef48b61ee..8cd2ac650b505 100644
---- a/drivers/base/regmap/Kconfig
-+++ b/drivers/base/regmap/Kconfig
-@@ -44,7 +44,7 @@ config REGMAP_IRQ
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -947,7 +947,8 @@ static int smack_bprm_set_creds(struct l
  
- config REGMAP_SOUNDWIRE
- 	tristate
--	depends on SOUNDWIRE_BUS
-+	depends on SOUNDWIRE
+ 		if (rc != 0)
+ 			return rc;
+-	} else if (bprm->unsafe)
++	}
++	if (bprm->unsafe & ~LSM_UNSAFE_PTRACE)
+ 		return -EPERM;
  
- config REGMAP_SCCB
- 	tristate
-diff --git a/drivers/soundwire/Kconfig b/drivers/soundwire/Kconfig
-index 84876a74874fb..1ba1556f19878 100644
---- a/drivers/soundwire/Kconfig
-+++ b/drivers/soundwire/Kconfig
-@@ -3,7 +3,7 @@
- #
- 
- menuconfig SOUNDWIRE
--	bool "SoundWire support"
-+	tristate "SoundWire support"
- 	help
- 	  SoundWire is a 2-Pin interface with data and clock line ratified
- 	  by the MIPI Alliance. SoundWire is used for transporting data
-@@ -16,17 +16,12 @@ if SOUNDWIRE
- 
- comment "SoundWire Devices"
- 
--config SOUNDWIRE_BUS
--	tristate
--	select REGMAP_SOUNDWIRE
--
- config SOUNDWIRE_CADENCE
- 	tristate
- 
- config SOUNDWIRE_INTEL
- 	tristate "Intel SoundWire Master driver"
- 	select SOUNDWIRE_CADENCE
--	select SOUNDWIRE_BUS
- 	depends on X86 && ACPI && SND_SOC
- 	---help---
- 	  SoundWire Intel Master driver.
-diff --git a/drivers/soundwire/Makefile b/drivers/soundwire/Makefile
-index 5817beaca0e1f..1e2c00163142e 100644
---- a/drivers/soundwire/Makefile
-+++ b/drivers/soundwire/Makefile
-@@ -4,7 +4,7 @@
- 
- #Bus Objs
- soundwire-bus-objs := bus_type.o bus.o slave.o mipi_disco.o stream.o
--obj-$(CONFIG_SOUNDWIRE_BUS) += soundwire-bus.o
-+obj-$(CONFIG_SOUNDWIRE) += soundwire-bus.o
- 
- #Cadence Objs
- soundwire-cadence-objs := cadence_master.o
--- 
-2.20.1
-
+ 	bsp->smk_task = isp->smk_task;
 
 
