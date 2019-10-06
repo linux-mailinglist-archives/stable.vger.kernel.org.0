@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E6F6CD444
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6302CCD4AB
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727781AbfJFRYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:24:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
+        id S1727912AbfJFR2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727775AbfJFRYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:24:04 -0400
+        id S1728643AbfJFR2E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:28:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C13792080F;
-        Sun,  6 Oct 2019 17:24:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C4E821479;
+        Sun,  6 Oct 2019 17:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382643;
-        bh=ppJ0K7b5tcpn+P3qP40QoML9Ow9z2C5gs0uOZpdL25o=;
+        s=default; t=1570382884;
+        bh=p/RHvbDV/1tIo8Or4RuVoQrBkcui4L3WwhNnxozAR/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJWn/Fbk7ast0lPT2Zu72h4en3d9WqbxoM+7dU/62jJlQ1r5LolwO9gFMZ0dZ067S
-         d+5aqYFyp8DliH2xXw0l7rn1pO67u2jnaCa+xyU7JXOPAPdCIuWe/ncLc8wWx2xTGT
-         J4xVmJUZhfQVEBzmgg2n2co0Id8w8lSsYnyWjQYw=
+        b=D2/HNBvp65qQZgtu5OzqyQ7DzByWDByzznlQIbd52hje4JTWN7AD6IIWn3dn/blmC
+         OnXJu4hkQ+MBf7ClbJfikpJQWGfdPLAO2JKW671/2XURBbxJpzVfRM49/vuQox2o7G
+         kCcNjxBspyU6X+MDew9hJcV8vFDfrTMXhQLDA+1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 33/47] hso: fix NULL-deref on tty open
-Date:   Sun,  6 Oct 2019 19:21:20 +0200
-Message-Id: <20191006172018.639604059@linuxfoundation.org>
+        stable@vger.kernel.org, Greg Thelen <gthelen@google.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 45/68] kbuild: clean compressed initramfs image
+Date:   Sun,  6 Oct 2019 19:21:21 +0200
+Message-Id: <20191006171129.768138686@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171108.150129403@linuxfoundation.org>
+References: <20191006171108.150129403@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Greg Thelen <gthelen@google.com>
 
-[ Upstream commit 8353da9fa69722b54cba82b2ec740afd3d438748 ]
+[ Upstream commit 6279eb3dd7946c69346a3b98473ed13d3a44adb5 ]
 
-Fix NULL-pointer dereference on tty open due to a failure to handle a
-missing interrupt-in endpoint when probing modem ports:
+Since 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
+"make clean" leaves behind compressed initramfs images.  Example:
 
-	BUG: kernel NULL pointer dereference, address: 0000000000000006
-	...
-	RIP: 0010:tiocmget_submit_urb+0x1c/0xe0 [hso]
-	...
-	Call Trace:
-	hso_start_serial_device+0xdc/0x140 [hso]
-	hso_serial_open+0x118/0x1b0 [hso]
-	tty_open+0xf1/0x490
+  $ make defconfig
+  $ sed -i 's|CONFIG_INITRAMFS_SOURCE=""|CONFIG_INITRAMFS_SOURCE="/tmp/ir.cpio"|' .config
+  $ make olddefconfig
+  $ make -s
+  $ make -s clean
+  $ git clean -ndxf | grep initramfs
+  Would remove usr/initramfs_data.cpio.gz
 
-Fixes: 542f54823614 ("tty: Modem functions for the HSO driver")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+clean rules do not have CONFIG_* context so they do not know which
+compression format was used.  Thus they don't know which files to delete.
+
+Tell clean to delete all possible compression formats.
+
+Once patched usr/initramfs_data.cpio.gz and friends are deleted by
+"make clean".
+
+Link: http://lkml.kernel.org/r/20190722063251.55541-1-gthelen@google.com
+Fixes: 9e3596b0c653 ("kbuild: initramfs cleanup, set target from Kconfig")
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ usr/Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2635,14 +2635,18 @@ static struct hso_device *hso_create_bul
- 		 */
- 		if (serial->tiocmget) {
- 			tiocmget = serial->tiocmget;
-+			tiocmget->endp = hso_get_ep(interface,
-+						    USB_ENDPOINT_XFER_INT,
-+						    USB_DIR_IN);
-+			if (!tiocmget->endp) {
-+				dev_err(&interface->dev, "Failed to find INT IN ep\n");
-+				goto exit;
-+			}
-+
- 			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
- 			if (tiocmget->urb) {
- 				mutex_init(&tiocmget->mutex);
- 				init_waitqueue_head(&tiocmget->waitq);
--				tiocmget->endp = hso_get_ep(
--					interface,
--					USB_ENDPOINT_XFER_INT,
--					USB_DIR_IN);
- 			} else
- 				hso_free_tiomget(serial);
- 		}
+diff --git a/usr/Makefile b/usr/Makefile
+index 237a028693ce9..5f1bc5b23b14c 100644
+--- a/usr/Makefile
++++ b/usr/Makefile
+@@ -11,6 +11,9 @@ datafile_y = initramfs_data.cpio$(suffix_y)
+ datafile_d_y = .$(datafile_y).d
+ AFLAGS_initramfs_data.o += -DINITRAMFS_IMAGE="usr/$(datafile_y)"
+ 
++# clean rules do not have CONFIG_INITRAMFS_COMPRESSION.  So clean up after all
++# possible compression formats.
++clean-files += initramfs_data.cpio*
+ 
+ # Generate builtin.o based on initramfs_data.o
+ obj-$(CONFIG_BLK_DEV_INITRD) := initramfs_data.o
+-- 
+2.20.1
+
 
 
