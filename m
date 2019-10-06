@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A83ECD76A
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A882CD7DE
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728812AbfJFR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:28:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S1730053AbfJFRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728804AbfJFR2f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:28:35 -0400
+        id S1730056AbfJFRgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:36:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99990217D6;
-        Sun,  6 Oct 2019 17:28:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE0FC20700;
+        Sun,  6 Oct 2019 17:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382914;
-        bh=VZnmPg5IckIkj42+lltGSiTdBTdV0VvKLXMECgyNU+E=;
+        s=default; t=1570383365;
+        bh=11lJkN1wtJ5AhK02O4kXnVotVpGg6k+q3v4S5ecZOKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PP1+i57VwXe55SzaBmyFFBN6uC1eqlN7b6Ye4JBVOOIpuQteP5eIcjh7e+rOkLEeI
-         CMuGr2xL7xA7+PcQVWowiO4xnPO2jug/4DrDyyH/G6fJeLiHxPtHgz6SlW8KsESEcK
-         Qp8dYVWmFWfzW6Ucy2O40t+pJbnczhdlbbfksnoE=
+        b=qYWp2gcAkHbDF/8OH/+a0AkTieCUC8qlL4oOyXRfKtnLL0dZfHIu2jSCyxuIwfsu5
+         Nd18v9XviXlbW5PPUFYhtMrOx7hWZOH0OWGhD+xy3WQPjNIhBNrNjHbDc8oNNkBwsC
+         aIJqp2eh1MLGuBDcp2W3UzXSq5QVeQhi1yyWhMD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Joel Savitz <jsavitz@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 018/106] clk: actions: Dont reference clk_init_data after registration
+Subject: [PATCH 5.2 040/137] PCI: rpaphp: Avoid a sometimes-uninitialized warning
 Date:   Sun,  6 Oct 2019 19:20:24 +0200
-Message-Id: <20191006171132.803572044@linuxfoundation.org>
+Message-Id: <20191006171212.356941548@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
-References: <20191006171124.641144086@linuxfoundation.org>
+In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
+References: <20191006171209.403038733@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit cf9ec1fc6d7cceb73e7f1efd079d2eae173fdf57 ]
+[ Upstream commit 0df3e42167caaf9f8c7b64de3da40a459979afe8 ]
 
-A future patch is going to change semantics of clk_register() so that
-clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
-referencing this member here so that we don't run into NULL pointer
-exceptions.
+When building with -Wsometimes-uninitialized, clang warns:
 
-Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190731193517.237136-2-sboyd@kernel.org
-[sboyd@kernel.org: Move name to after checking for error or NULL hw]
-Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+drivers/pci/hotplug/rpaphp_core.c:243:14: warning: variable 'fndit' is
+used uninitialized whenever 'for' loop exits because its condition is
+false [-Wsometimes-uninitialized]
+        for (j = 0; j < entries; j++) {
+                    ^~~~~~~~~~~
+drivers/pci/hotplug/rpaphp_core.c:256:6: note: uninitialized use occurs
+here
+        if (fndit)
+            ^~~~~
+drivers/pci/hotplug/rpaphp_core.c:243:14: note: remove the condition if
+it is always true
+        for (j = 0; j < entries; j++) {
+                    ^~~~~~~~~~~
+drivers/pci/hotplug/rpaphp_core.c:233:14: note: initialize the variable
+'fndit' to silence this warning
+        int j, fndit;
+                    ^
+                     = 0
+
+fndit is only used to gate a sprintf call, which can be moved into the
+loop to simplify the code and eliminate the local variable, which will
+fix this warning.
+
+Fixes: 2fcf3ae508c2 ("hotplug/drc-info: Add code to search ibm,drc-info property")
+Suggested-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Acked-by: Joel Savitz <jsavitz@redhat.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/504
+Link: https://lore.kernel.org/r/20190603221157.58502-1-natechancellor@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/actions/owl-common.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/rpaphp_core.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/clk/actions/owl-common.c b/drivers/clk/actions/owl-common.c
-index 61c1071b5180a..e9be34b17f3f5 100644
---- a/drivers/clk/actions/owl-common.c
-+++ b/drivers/clk/actions/owl-common.c
-@@ -67,16 +67,17 @@ int owl_clk_probe(struct device *dev, struct clk_hw_onecell_data *hw_clks)
- 	struct clk_hw *hw;
+diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
+index bcd5d357ca238..c3899ee1db995 100644
+--- a/drivers/pci/hotplug/rpaphp_core.c
++++ b/drivers/pci/hotplug/rpaphp_core.c
+@@ -230,7 +230,7 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
+ 	struct of_drc_info drc;
+ 	const __be32 *value;
+ 	char cell_drc_name[MAX_DRC_NAME_LEN];
+-	int j, fndit;
++	int j;
  
- 	for (i = 0; i < hw_clks->num; i++) {
-+		const char *name;
+ 	info = of_find_property(dn->parent, "ibm,drc-info", NULL);
+ 	if (info == NULL)
+@@ -245,17 +245,13 @@ static int rpaphp_check_drc_props_v2(struct device_node *dn, char *drc_name,
  
- 		hw = hw_clks->hws[i];
+ 		/* Should now know end of current entry */
+ 
+-		if (my_index > drc.last_drc_index)
+-			continue;
 -
- 		if (IS_ERR_OR_NULL(hw))
- 			continue;
- 
-+		name = hw->init->name;
- 		ret = devm_clk_hw_register(dev, hw);
- 		if (ret) {
- 			dev_err(dev, "Couldn't register clock %d - %s\n",
--				i, hw->init->name);
-+				i, name);
- 			return ret;
- 		}
+-		fndit = 1;
+-		break;
++		/* Found it */
++		if (my_index <= drc.last_drc_index) {
++			sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,
++				my_index);
++			break;
++		}
  	}
+-	/* Found it */
+-
+-	if (fndit)
+-		sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix, 
+-			my_index);
+ 
+ 	if (((drc_name == NULL) ||
+ 	     (drc_name && !strcmp(drc_name, cell_drc_name))) &&
 -- 
 2.20.1
 
