@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15729CD6B2
+	by mail.lfdr.de (Postfix) with ESMTP id F17E2CD6B4
 	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728604AbfJFRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40758 "EHLO mail.kernel.org"
+        id S1731159AbfJFRlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729468AbfJFRlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:41:09 -0400
+        id S1731149AbfJFRlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:41:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569D92053B;
-        Sun,  6 Oct 2019 17:41:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00DF12053B;
+        Sun,  6 Oct 2019 17:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383668;
-        bh=2Qwsm8loPfoLwUa6cnWbCON9/e9C/jsrHa0Bssbv39I=;
+        s=default; t=1570383671;
+        bh=bSxSZR+V3L5L3KCQ7M6cYOUgKsuuT07h+lzgj35jKmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gWuM87Tr9tnL7wVvpvYbPovV9Y+cRbHkipc3jpV6l5nJeaUor5PLEmhwhm0NNMaxb
-         PQF3MV/+A0+5m77hb89SpiIO7rTwD3ISvs9GpF5K3vIbfH1PR+ip+ENV3TELIdCYFU
-         o+MS8zmWu4E8HsxUAc8vIfBb5FNTUSWNMwa4jDII=
+        b=S1/Ad60D59IK8N2trQtB5YlNfgT8EmTEOdA8tJWE5c1CSJxJuSbidLuYzHHvd7efB
+         uufgzma94zLrF2Cd7Ix8k6oXI3I28Xu5RU4jx5zPufQRjiLJlnr2j5jffZVQZM4iCX
+         F2SD5sgWqPCqykny3ugLunfap7tuo4yR6iNRT8iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 052/166] pinctrl: amd: disable spurious-firing GPIO IRQs
-Date:   Sun,  6 Oct 2019 19:20:18 +0200
-Message-Id: <20191006171217.440320663@linuxfoundation.org>
+Subject: [PATCH 5.3 053/166] clk: renesas: mstp: Set GENPD_FLAG_ALWAYS_ON for clock domain
+Date:   Sun,  6 Oct 2019 19:20:19 +0200
+Message-Id: <20191006171217.530118796@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -44,72 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit d21b8adbd475dba19ac2086d3306327b4a297418 ]
+[ Upstream commit a459a184c978ca9ad538aab93aafdde873953f30 ]
 
-When cold-booting Asus X434DA, GPIO 7 is found to be already configured
-as an interrupt, and the GPIO level is found to be in a state that
-causes the interrupt to fire.
+The CPG/MSTP Clock Domain driver does not implement the
+generic_pm_domain.power_{on,off}() callbacks, as the domain itself
+cannot be powered down.  Hence the domain should be marked as always-on
+by setting the GENPD_FLAG_ALWAYS_ON flag, to prevent the core PM Domain
+code from considering it for power-off, and doing unnessary processing.
 
-As soon as pinctrl-amd probes, this interrupt fires and invokes
-amd_gpio_irq_handler(). The IRQ is acked, but no GPIO-IRQ handler was
-invoked, so the GPIO level being unchanged just causes another interrupt
-to fire again immediately after.
+This also gets rid of a boot warning when the Clock Domain contains an
+IRQ-safe device, e.g. on RZ/A1:
 
-This results in an interrupt storm causing this platform to hang
-during boot, right after pinctrl-amd is probed.
+    sh_mtu2 fcff0000.timer: PM domain cpg_clocks will not be powered off
 
-Detect this situation and disable the GPIO interrupt when this happens.
-This enables the affected platform to boot as normal. GPIO 7 actually is
-the I2C touchpad interrupt line, and later on, i2c-multitouch loads and
-re-enables this interrupt when it is ready to handle it.
-
-Instead of this approach, I considered disabling all GPIO interrupts at
-probe time, however that seems a little risky, and I also confirmed that
-Windows does not seem to have this behaviour: the same 41 GPIO IRQs are
-enabled under both Linux and Windows, which is a far larger collection
-than the GPIOs referenced by the DSDT on this platform.
-
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Link: https://lore.kernel.org/r/20190814090540.7152-1-drake@endlessm.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/clk/renesas/clk-mstp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 9b9c61e3f0652..977792654e017 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -565,15 +565,25 @@ static irqreturn_t amd_gpio_irq_handler(int irq, void *dev_id)
- 			    !(regval & BIT(INTERRUPT_MASK_OFF)))
- 				continue;
- 			irq = irq_find_mapping(gc->irq.domain, irqnr + i);
--			generic_handle_irq(irq);
-+			if (irq != 0)
-+				generic_handle_irq(irq);
+diff --git a/drivers/clk/renesas/clk-mstp.c b/drivers/clk/renesas/clk-mstp.c
+index 2db9093546c60..e326e6dc09fce 100644
+--- a/drivers/clk/renesas/clk-mstp.c
++++ b/drivers/clk/renesas/clk-mstp.c
+@@ -334,7 +334,8 @@ void __init cpg_mstp_add_clk_domain(struct device_node *np)
+ 		return;
  
- 			/* Clear interrupt.
- 			 * We must read the pin register again, in case the
- 			 * value was changed while executing
- 			 * generic_handle_irq() above.
-+			 * If we didn't find a mapping for the interrupt,
-+			 * disable it in order to avoid a system hang caused
-+			 * by an interrupt storm.
- 			 */
- 			raw_spin_lock_irqsave(&gpio_dev->lock, flags);
- 			regval = readl(regs + i);
-+			if (irq == 0) {
-+				regval &= ~BIT(INTERRUPT_ENABLE_OFF);
-+				dev_dbg(&gpio_dev->pdev->dev,
-+					"Disabling spurious GPIO IRQ %d\n",
-+					irqnr + i);
-+			}
- 			writel(regval, regs + i);
- 			raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
- 			ret = IRQ_HANDLED;
+ 	pd->name = np->name;
+-	pd->flags = GENPD_FLAG_PM_CLK | GENPD_FLAG_ACTIVE_WAKEUP;
++	pd->flags = GENPD_FLAG_PM_CLK | GENPD_FLAG_ALWAYS_ON |
++		    GENPD_FLAG_ACTIVE_WAKEUP;
+ 	pd->attach_dev = cpg_mstp_attach_dev;
+ 	pd->detach_dev = cpg_mstp_detach_dev;
+ 	pm_genpd_init(pd, &pm_domain_always_on_gov, false);
 -- 
 2.20.1
 
