@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83469CD7B6
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B0ACD7C0
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729179AbfJFRd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:33:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60074 "EHLO mail.kernel.org"
+        id S1729855AbfJFReA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729048AbfJFRd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:33:29 -0400
+        id S1729275AbfJFRd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:33:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06C7D2087E;
-        Sun,  6 Oct 2019 17:33:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 955A22133F;
+        Sun,  6 Oct 2019 17:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383208;
-        bh=UGUU/8QyejhUdLsO3Qp6xSfeNn8zrabgD53ZEOe+6Z8=;
+        s=default; t=1570383238;
+        bh=2wb1uq+QHh0LuGSRjL9ECKM78xBue/wLBVnlI1ciBn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zq/EeK9OSeTLQycDP9B4GlHKOcTmWTSSdqmSTIc4QjEbZIjWrrjFuYMhzCny7POQf
-         jIZm9FNcV5IjXz8Rv1H46z1vPVXcT5FFMHkUtCepE/oUqS05bYqY7x1lK3KxAeeLLM
-         TsLferWlH3FXR8rQSwUFTma/EcSxiO8seNHfcf3s=
+        b=zv3WlkbQ6c5827sogXj7FDk3DJV5s4QEhr6b9gOITUbc/lOwttBmG2T80mhhmOtKb
+         PKZwm35CmUMgYIKuz6GZhF3dpoqystPmAUO32/tYrb0ka8LLienjYHvyUrz7+SKwcz
+         TyccsHb4i+LOtCSvbUPXKtuKIUVYEju8wWVgp26o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 002/137] erspan: remove the incorrect mtu limit for erspan
-Date:   Sun,  6 Oct 2019 19:19:46 +0200
-Message-Id: <20191006171209.761851478@linuxfoundation.org>
+Subject: [PATCH 5.2 003/137] hso: fix NULL-deref on tty open
+Date:   Sun,  6 Oct 2019 19:19:47 +0200
+Message-Id: <20191006171209.915264872@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -44,45 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 0e141f757b2c78c983df893e9993313e2dc21e38 ]
+[ Upstream commit 8353da9fa69722b54cba82b2ec740afd3d438748 ]
 
-erspan driver calls ether_setup(), after commit 61e84623ace3
-("net: centralize net_device min/max MTU checking"), the range
-of mtu is [min_mtu, max_mtu], which is [68, 1500] by default.
+Fix NULL-pointer dereference on tty open due to a failure to handle a
+missing interrupt-in endpoint when probing modem ports:
 
-It causes the dev mtu of the erspan device to not be greater
-than 1500, this limit value is not correct for ipgre tap device.
+	BUG: kernel NULL pointer dereference, address: 0000000000000006
+	...
+	RIP: 0010:tiocmget_submit_urb+0x1c/0xe0 [hso]
+	...
+	Call Trace:
+	hso_start_serial_device+0xdc/0x140 [hso]
+	hso_serial_open+0x118/0x1b0 [hso]
+	tty_open+0xf1/0x490
 
-Tested:
-Before patch:
-# ip link set erspan0 mtu 1600
-Error: mtu greater than device maximum.
-After patch:
-# ip link set erspan0 mtu 1600
-# ip -d link show erspan0
-21: erspan0@NONE: <BROADCAST,MULTICAST> mtu 1600 qdisc noop state DOWN
-mode DEFAULT group default qlen 1000
-    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff promiscuity 0 minmtu 68 maxmtu 0
-
-Fixes: 61e84623ace3 ("net: centralize net_device min/max MTU checking")
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Fixes: 542f54823614 ("tty: Modem functions for the HSO driver")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_gre.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/usb/hso.c |   12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -1446,6 +1446,7 @@ static void erspan_setup(struct net_devi
- 	struct ip_tunnel *t = netdev_priv(dev);
- 
- 	ether_setup(dev);
-+	dev->max_mtu = 0;
- 	dev->netdev_ops = &erspan_netdev_ops;
- 	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
- 	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2620,14 +2620,18 @@ static struct hso_device *hso_create_bul
+ 		 */
+ 		if (serial->tiocmget) {
+ 			tiocmget = serial->tiocmget;
++			tiocmget->endp = hso_get_ep(interface,
++						    USB_ENDPOINT_XFER_INT,
++						    USB_DIR_IN);
++			if (!tiocmget->endp) {
++				dev_err(&interface->dev, "Failed to find INT IN ep\n");
++				goto exit;
++			}
++
+ 			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
+ 			if (tiocmget->urb) {
+ 				mutex_init(&tiocmget->mutex);
+ 				init_waitqueue_head(&tiocmget->waitq);
+-				tiocmget->endp = hso_get_ep(
+-					interface,
+-					USB_ENDPOINT_XFER_INT,
+-					USB_DIR_IN);
+ 			} else
+ 				hso_free_tiomget(serial);
+ 		}
 
 
