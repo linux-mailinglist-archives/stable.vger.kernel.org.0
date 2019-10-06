@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7543CD7C6
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C942CD7AD
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729954AbfJFRe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:34:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33054 "EHLO mail.kernel.org"
+        id S1729694AbfJFRdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728792AbfJFRe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:34:28 -0400
+        id S1729681AbfJFRdB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:33:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 980602087E;
-        Sun,  6 Oct 2019 17:34:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAE4D2087E;
+        Sun,  6 Oct 2019 17:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383268;
-        bh=rO5Ymxks7kg5ZyiaqSYr7HLsnVe6+q4sVurNX5WsIzE=;
+        s=default; t=1570383181;
+        bh=dTYb9XmPpGezQJA6U/RlhJTJ+F2VVzbzIQ64FdtB7Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Td3zVIYhEyZZ5XTFH1vp/WcRqdFMZqUAJ0ThPpiYgkW79c1uPv76s4ASSwNrZFP2L
-         t12/Q9bCPf6ACCoQfOeoEgqeAFugN3TcMilb2s5gEZtaGDIM8qjj3C3SNrI3RKbFoM
-         DDMu+Hsi4TCzLa2XozFUiDHc1BseAtoNSGEMgjtU=
+        b=GaOlcHjIn+h5xYIEGUxzelsJLQ88wzAGt7pUfoI//N33/PndC7NoclZBcj024ulgE
+         D0WQJmBhQnyx2+DnIDndhAq6C6dZupf1sb3/k8z15e4lo8N4QQJfjhb/9V7ZF8zDqU
+         7x5uq8AdkPN2GhBg+/WjNFsE+YZpEuB/p3v+q2PQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.2 008/137] net: sched: taprio: Fix potential integer overflow in taprio_set_picos_per_byte
-Date:   Sun,  6 Oct 2019 19:19:52 +0200
-Message-Id: <20191006171210.257170105@linuxfoundation.org>
+Subject: [PATCH 5.2 010/137] nfc: fix memory leak in llcp_sock_bind()
+Date:   Sun,  6 Oct 2019 19:19:54 +0200
+Message-Id: <20191006171210.378920663@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
 References: <20191006171209.403038733@linuxfoundation.org>
@@ -47,39 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 68ce6688a5baefde30914fc07fc27292dbbe8320 ]
+[ Upstream commit a0c2dc1fe63e2869b74c1c7f6a81d1745c8a695d ]
 
-The speed divisor is used in a context expecting an s64, but it is
-evaluated using 32-bit arithmetic.
+sysbot reported a memory leak after a bind() has failed.
 
-To avoid that happening, instead of multiplying by 1,000,000 in the
-first place, simplify the fraction and do a standard 32 bit division
-instead.
+While we are at it, abort the operation if kmemdup() has failed.
 
-Fixes: f04b514c0ce2 ("taprio: Set default link speed to 10 Mbps in taprio_set_picos_per_byte")
-Reported-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Acked-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+BUG: memory leak
+unreferenced object 0xffff888105d83ec0 (size 32):
+  comm "syz-executor067", pid 7207, jiffies 4294956228 (age 19.430s)
+  hex dump (first 32 bytes):
+    00 69 6c 65 20 72 65 61 64 00 6e 65 74 3a 5b 34  .ile read.net:[4
+    30 32 36 35 33 33 30 39 37 5d 00 00 00 00 00 00  026533097]......
+  backtrace:
+    [<0000000036bac473>] kmemleak_alloc_recursive /./include/linux/kmemleak.h:43 [inline]
+    [<0000000036bac473>] slab_post_alloc_hook /mm/slab.h:522 [inline]
+    [<0000000036bac473>] slab_alloc /mm/slab.c:3319 [inline]
+    [<0000000036bac473>] __do_kmalloc /mm/slab.c:3653 [inline]
+    [<0000000036bac473>] __kmalloc_track_caller+0x169/0x2d0 /mm/slab.c:3670
+    [<000000000cd39d07>] kmemdup+0x27/0x60 /mm/util.c:120
+    [<000000008e57e5fc>] kmemdup /./include/linux/string.h:432 [inline]
+    [<000000008e57e5fc>] llcp_sock_bind+0x1b3/0x230 /net/nfc/llcp_sock.c:107
+    [<000000009cb0b5d3>] __sys_bind+0x11c/0x140 /net/socket.c:1647
+    [<00000000492c3bbc>] __do_sys_bind /net/socket.c:1658 [inline]
+    [<00000000492c3bbc>] __se_sys_bind /net/socket.c:1656 [inline]
+    [<00000000492c3bbc>] __x64_sys_bind+0x1e/0x30 /net/socket.c:1656
+    [<0000000008704b2a>] do_syscall_64+0x76/0x1a0 /arch/x86/entry/common.c:296
+    [<000000009f4c57a4>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 30cc4587659e ("NFC: Move LLCP code to the NFC top level diirectory")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_taprio.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/nfc/llcp_sock.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -672,8 +672,7 @@ static void taprio_set_picos_per_byte(st
- 		speed = ecmd.base.speed;
- 
- skip:
--	picos_per_byte = div64_s64(NSEC_PER_SEC * 1000LL * 8,
--				   speed * 1000 * 1000);
-+	picos_per_byte = (USEC_PER_SEC * 8) / speed;
- 
- 	atomic64_set(&q->picos_per_byte, picos_per_byte);
- 	netdev_dbg(dev, "taprio: set %s's picos_per_byte to: %lld, linkspeed: %d\n",
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -107,9 +107,14 @@ static int llcp_sock_bind(struct socket
+ 	llcp_sock->service_name = kmemdup(llcp_addr.service_name,
+ 					  llcp_sock->service_name_len,
+ 					  GFP_KERNEL);
+-
++	if (!llcp_sock->service_name) {
++		ret = -ENOMEM;
++		goto put_dev;
++	}
+ 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
++		kfree(llcp_sock->service_name);
++		llcp_sock->service_name = NULL;
+ 		ret = -EADDRINUSE;
+ 		goto put_dev;
+ 	}
 
 
