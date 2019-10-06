@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6A4FCD5CC
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F2CCD5CE
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 19:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730962AbfJFRj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:39:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39464 "EHLO mail.kernel.org"
+        id S1730970AbfJFRkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730956AbfJFRj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:39:58 -0400
+        id S1730967AbfJFRkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:40:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3298820700;
-        Sun,  6 Oct 2019 17:39:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC9B92087E;
+        Sun,  6 Oct 2019 17:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383597;
-        bh=bNCnRboeCVn87mOl7ww26nNSv6sQjpBOKLRnr2WZNgI=;
+        s=default; t=1570383600;
+        bh=UAfTYj9dSSWlNwqhJHR1m9xmDES6sax0XfOL7/szap8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brvip0M5BkFXEnZLFwM6Z+h1WLLAY2K+RY2A7nt65HQN3M9MFmZjTjVJ8RKm8FOLQ
-         l/TANzw3O81Ysh+QrCpq54B1qrg6UplCaV0ljuu/7dfAdVfZwxN2rgOwtRrcyrlvRF
-         xzU57Us/5Q9lruHnVNuq2we42jPT7QQwigfHTy14=
+        b=cG+Re7QleUuPwYWPTGjOlV+Mt4LswALube3/NKTmJ0KekTWKj89k3Ya/OU5UbUGiZ
+         S2xgvZZcLyE0e/A7NVaTHiZjeQIw5eULn8Ko1ZWYTxOePmAC3STuocqvxI1MqBDGQh
+         upfH4rBNQuN+gmsMDIZZhzzueB4ODoCiVMc1uTyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nathan Huckleberry <nhuck@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Scott Wood <oss@buserror.net>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 025/166] clk: qoriq: Fix -Wunused-const-variable
-Date:   Sun,  6 Oct 2019 19:19:51 +0200
-Message-Id: <20191006171215.243938906@linuxfoundation.org>
+Subject: [PATCH 5.3 026/166] clk: ingenic/jz4740: Fix "pll half" divider not read/written properly
+Date:   Sun,  6 Oct 2019 19:19:52 +0200
+Message-Id: <20191006171215.318003328@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
 References: <20191006171212.850660298@linuxfoundation.org>
@@ -46,47 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Huckleberry <nhuck@google.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit a95fb581b144b5e73da382eaedb2e32027610597 ]
+[ Upstream commit 568b9de48d80bcf1a92e2c4fa67651abbb8ebfe2 ]
 
-drivers/clk/clk-qoriq.c:138:38: warning: unused variable
-'p5020_cmux_grp1' [-Wunused-const-variable] static const struct
-clockgen_muxinfo p5020_cmux_grp1
+The code was setting the bit 21 of the CPCCR register to use a divider
+of 2 for the "pll half" clock, and clearing the bit to use a divider
+of 1.
 
-drivers/clk/clk-qoriq.c:146:38: warning: unused variable
-'p5020_cmux_grp2' [-Wunused-const-variable] static const struct
-clockgen_muxinfo p5020_cmux_grp2
+This is the opposite of how this register field works: a cleared bit
+means that the /2 divider is used, and a set bit means that the divider
+is 1.
 
-In the definition of the p5020 chip, the p2041 chip's info was used
-instead.  The p5020 and p2041 chips have different info. This is most
-likely a typo.
+Restore the correct behaviour using the newly introduced .div_table
+field.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/525
-Cc: clang-built-linux@googlegroups.com
-Signed-off-by: Nathan Huckleberry <nhuck@google.com>
-Link: https://lkml.kernel.org/r/20190627220642.78575-1-nhuck@google.com
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lkml.kernel.org/r/20190701113606.4130-1-paul@crapouillou.net
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-qoriq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/ingenic/jz4740-cgu.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-qoriq.c b/drivers/clk/clk-qoriq.c
-index 07f3b252f3e0c..bed140f7375f0 100644
---- a/drivers/clk/clk-qoriq.c
-+++ b/drivers/clk/clk-qoriq.c
-@@ -686,7 +686,7 @@ static const struct clockgen_chipinfo chipinfo[] = {
- 		.guts_compat = "fsl,qoriq-device-config-1.0",
- 		.init_periph = p5020_init_periph,
- 		.cmux_groups = {
--			&p2041_cmux_grp1, &p2041_cmux_grp2
-+			&p5020_cmux_grp1, &p5020_cmux_grp2
- 		},
- 		.cmux_to_group = {
- 			0, 1, -1
+diff --git a/drivers/clk/ingenic/jz4740-cgu.c b/drivers/clk/ingenic/jz4740-cgu.c
+index 4c0a20949c2c2..9b27d75d9485c 100644
+--- a/drivers/clk/ingenic/jz4740-cgu.c
++++ b/drivers/clk/ingenic/jz4740-cgu.c
+@@ -53,6 +53,10 @@ static const u8 jz4740_cgu_cpccr_div_table[] = {
+ 	1, 2, 3, 4, 6, 8, 12, 16, 24, 32,
+ };
+ 
++static const u8 jz4740_cgu_pll_half_div_table[] = {
++	2, 1,
++};
++
+ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
+ 
+ 	/* External clocks */
+@@ -86,7 +90,10 @@ static const struct ingenic_cgu_clk_info jz4740_cgu_clocks[] = {
+ 	[JZ4740_CLK_PLL_HALF] = {
+ 		"pll half", CGU_CLK_DIV,
+ 		.parents = { JZ4740_CLK_PLL, -1, -1, -1 },
+-		.div = { CGU_REG_CPCCR, 21, 1, 1, -1, -1, -1 },
++		.div = {
++			CGU_REG_CPCCR, 21, 1, 1, -1, -1, -1,
++			jz4740_cgu_pll_half_div_table,
++		},
+ 	},
+ 
+ 	[JZ4740_CLK_CCLK] = {
 -- 
 2.20.1
 
