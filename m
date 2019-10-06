@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F86CD7D5
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 113B4CD794
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727870AbfJFRfc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:35:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34148 "EHLO mail.kernel.org"
+        id S1728264AbfJFRbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729345AbfJFRfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:35:30 -0400
+        id S1729467AbfJFRbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:31:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB80420700;
-        Sun,  6 Oct 2019 17:35:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4F0A2087E;
+        Sun,  6 Oct 2019 17:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570383330;
-        bh=xnovLF+3uh2WwoA52FYSiy8zjjoMSiF+mmojNkCbgjQ=;
+        s=default; t=1570383100;
+        bh=JpYnaaRnpqG1IJ9LpF43Ky4t2CfiGETqsYi76zPHC88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxTgIkAEdqfHOWBPWwhR8D01bAtUaTBprTO8vob6z56tJWz30Snx/e9Jd3s9cjQKg
-         d9aPFODfeTqg7sY3y5dWfyYpzcyuSf0/XUbcZ2TXrHO/XQIUbAeSt0lQ5Y88sCuBNC
-         ZphIrhvqJYsYIuJHjF1cKdXmR+RwyktAix8v6nRo=
+        b=a7O6W5dSXPbSKfiMKeR3+zfkflS/yMdEay4OqQgANHpm3mXZALn+OaWLt8svpVNqq
+         Glv7nW/04fevPgKOFfu2ylanIcrGTNa6IySFX3ShXYrWZ08A74iMSWcLV4YUDzj1KF
+         GTx1T9iZyVTgbNooJNoEXPNwRKwNvLuMIX38yIz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Mark Menzynski <mmenzyns@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.2 064/137] drm/nouveau/volt: Fix for some cards having 0 maximum voltage
-Date:   Sun,  6 Oct 2019 19:20:48 +0200
-Message-Id: <20191006171214.267322903@linuxfoundation.org>
+Subject: [PATCH 4.19 043/106] mbox: qcom: add APCS child device for QCS404
+Date:   Sun,  6 Oct 2019 19:20:49 +0200
+Message-Id: <20191006171142.875607212@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006171209.403038733@linuxfoundation.org>
-References: <20191006171209.403038733@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,36 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Menzynski <mmenzyns@redhat.com>
+From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 
-[ Upstream commit a1af2afbd244089560794c260b2d4326a86e39b6 ]
+[ Upstream commit 78c86458a440ff356073c21b568cb58ddb67b82b ]
 
-Some, mostly Fermi, vbioses appear to have zero max voltage. That causes Nouveau to not parse voltage entries, thus users not being able to set higher clocks.
+There is clock controller functionality in the APCS hardware block of
+qcs404 devices similar to msm8916.
 
-When changing this value Nvidia driver still appeared to ignore it, and I wasn't able to find out why, thus the code is ignoring the value if it is zero.
-
-CC: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Mark Menzynski <mmenzyns@redhat.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Co-developed-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mailbox/qcom-apcs-ipc-mailbox.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
-index 7143ea4611aa3..33a9fb5ac5585 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bios/volt.c
-@@ -96,6 +96,8 @@ nvbios_volt_parse(struct nvkm_bios *bios, u8 *ver, u8 *hdr, u8 *cnt, u8 *len,
- 		info->min     = min(info->base,
- 				    info->base + info->step * info->vidmask);
- 		info->max     = nvbios_rd32(bios, volt + 0x0e);
-+		if (!info->max)
-+			info->max = max(info->base, info->base + info->step * info->vidmask);
- 		break;
- 	case 0x50:
- 		info->min     = nvbios_rd32(bios, volt + 0x0a);
+diff --git a/drivers/mailbox/qcom-apcs-ipc-mailbox.c b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
+index 333ed4a9d4b8f..5255dcb551a78 100644
+--- a/drivers/mailbox/qcom-apcs-ipc-mailbox.c
++++ b/drivers/mailbox/qcom-apcs-ipc-mailbox.c
+@@ -55,7 +55,6 @@ static const struct mbox_chan_ops qcom_apcs_ipc_ops = {
+ 
+ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+ 	struct qcom_apcs_ipc *apcs;
+ 	struct regmap *regmap;
+ 	struct resource *res;
+@@ -63,6 +62,11 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ 	void __iomem *base;
+ 	unsigned long i;
+ 	int ret;
++	const struct of_device_id apcs_clk_match_table[] = {
++		{ .compatible = "qcom,msm8916-apcs-kpss-global", },
++		{ .compatible = "qcom,qcs404-apcs-apps-global", },
++		{}
++	};
+ 
+ 	apcs = devm_kzalloc(&pdev->dev, sizeof(*apcs), GFP_KERNEL);
+ 	if (!apcs)
+@@ -97,7 +101,7 @@ static int qcom_apcs_ipc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	if (of_device_is_compatible(np, "qcom,msm8916-apcs-kpss-global")) {
++	if (of_match_device(apcs_clk_match_table, &pdev->dev)) {
+ 		apcs->clk = platform_device_register_data(&pdev->dev,
+ 							  "qcom-apcs-msm8916-clk",
+ 							  -1, NULL, 0);
 -- 
 2.20.1
 
