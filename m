@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B2C7DCD831
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15D69CD76B
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727096AbfJFSAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 14:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54284 "EHLO mail.kernel.org"
+        id S1727682AbfJFR2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:28:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727786AbfJFR2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:28:37 -0400
+        id S1728829AbfJFR2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:28:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45ED92080F;
-        Sun,  6 Oct 2019 17:28:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED2D32080F;
+        Sun,  6 Oct 2019 17:28:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382916;
-        bh=QupKWh7rUQgJ8ktqyzVPLYtsgPGbrWH0XN6BQUvicMk=;
+        s=default; t=1570382927;
+        bh=5lYBYQErhoDdewYb9pa08pxgaKFhrGjw/6K40H1MAkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfRhGgmPG0zejX+fgKRlOirRMCk9MmE+xNFxiTIefV/xwRHqeJvIqh2k/wT3w0uVj
-         3ZsGQXkLb7iZTWsCkaPHkcdHMZ0uKVYnhCJnlN/IM72cLYWocA+f7O977uTp8mlb9P
-         095mX9ookbVsA79CD9hzLPiu45hvYV42rvIGTj1o=
+        b=PZc68iCXulRqh5Zs90pxkhGv8guE5lv1jlsXbNxAg11e+qlPfONAlvWvuI844reyP
+         C7iS7xuM3ceRuNVKAO21pfYUfFutnjsTfiX6oNBRI/mRSqBKGXyBZShZMGkPWIpbWl
+         E8BMPrASz29Kw/pm+GP22hFhaCnj9P+vAb7x02R8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Zeng <Guo.Zeng@csr.com>,
-        Barry Song <Baohua.Song@csr.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 019/106] clk: sirf: Dont reference clk_init_data after registration
-Date:   Sun,  6 Oct 2019 19:20:25 +0200
-Message-Id: <20191006171133.286486882@linuxfoundation.org>
+Subject: [PATCH 4.19 022/106] powerpc/xmon: Check for HV mode when dumping XIVE info from OPAL
+Date:   Sun,  6 Oct 2019 19:20:28 +0200
+Message-Id: <20191006171136.250744397@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
 References: <20191006171124.641144086@linuxfoundation.org>
@@ -45,72 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <sboyd@kernel.org>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit af55dadfbce35b4f4c6247244ce3e44b2e242b84 ]
+[ Upstream commit c3e0dbd7f780a58c4695f1cd8fc8afde80376737 ]
 
-A future patch is going to change semantics of clk_register() so that
-clk_hw::init is guaranteed to be NULL after a clk is registered. Avoid
-referencing this member here so that we don't run into NULL pointer
-exceptions.
+Currently, the xmon 'dx' command calls OPAL to dump the XIVE state in
+the OPAL logs and also outputs some of the fields of the internal XIVE
+structures in Linux. The OPAL calls can only be done on baremetal
+(PowerNV) and they crash a pseries machine. Fix by checking the
+hypervisor feature of the CPU.
 
-Cc: Guo Zeng <Guo.Zeng@csr.com>
-Cc: Barry Song <Baohua.Song@csr.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lkml.kernel.org/r/20190731193517.237136-6-sboyd@kernel.org
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190814154754.23682-2-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sirf/clk-common.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/powerpc/xmon/xmon.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/sirf/clk-common.c b/drivers/clk/sirf/clk-common.c
-index d8f9efa5129ad..25351d6a55ba2 100644
---- a/drivers/clk/sirf/clk-common.c
-+++ b/drivers/clk/sirf/clk-common.c
-@@ -298,9 +298,10 @@ static u8 dmn_clk_get_parent(struct clk_hw *hw)
+diff --git a/arch/powerpc/xmon/xmon.c b/arch/powerpc/xmon/xmon.c
+index 74cfc1be04d6e..bb5db7bfd8539 100644
+--- a/arch/powerpc/xmon/xmon.c
++++ b/arch/powerpc/xmon/xmon.c
+@@ -2497,13 +2497,16 @@ static void dump_pacas(void)
+ static void dump_one_xive(int cpu)
  {
- 	struct clk_dmn *clk = to_dmnclk(hw);
- 	u32 cfg = clkc_readl(clk->regofs);
-+	const char *name = clk_hw_get_name(hw);
+ 	unsigned int hwid = get_hard_smp_processor_id(cpu);
++	bool hv = cpu_has_feature(CPU_FTR_HVMODE);
  
- 	/* parent of io domain can only be pll3 */
--	if (strcmp(hw->init->name, "io") == 0)
-+	if (strcmp(name, "io") == 0)
- 		return 4;
+-	opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
+-	opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
+-	opal_xive_dump(XIVE_DUMP_VP, hwid);
+-	opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	if (hv) {
++		opal_xive_dump(XIVE_DUMP_TM_HYP, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_POOL, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_OS, hwid);
++		opal_xive_dump(XIVE_DUMP_TM_USER, hwid);
++		opal_xive_dump(XIVE_DUMP_VP, hwid);
++		opal_xive_dump(XIVE_DUMP_EMU_STATE, hwid);
++	}
  
- 	WARN_ON((cfg & (BIT(3) - 1)) > 4);
-@@ -312,9 +313,10 @@ static int dmn_clk_set_parent(struct clk_hw *hw, u8 parent)
- {
- 	struct clk_dmn *clk = to_dmnclk(hw);
- 	u32 cfg = clkc_readl(clk->regofs);
-+	const char *name = clk_hw_get_name(hw);
- 
- 	/* parent of io domain can only be pll3 */
--	if (strcmp(hw->init->name, "io") == 0)
-+	if (strcmp(name, "io") == 0)
- 		return -EINVAL;
- 
- 	cfg &= ~(BIT(3) - 1);
-@@ -354,7 +356,8 @@ static long dmn_clk_round_rate(struct clk_hw *hw, unsigned long rate,
- {
- 	unsigned long fin;
- 	unsigned ratio, wait, hold;
--	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
-+	const char *name = clk_hw_get_name(hw);
-+	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
- 
- 	fin = *parent_rate;
- 	ratio = fin / rate;
-@@ -376,7 +379,8 @@ static int dmn_clk_set_rate(struct clk_hw *hw, unsigned long rate,
- 	struct clk_dmn *clk = to_dmnclk(hw);
- 	unsigned long fin;
- 	unsigned ratio, wait, hold, reg;
--	unsigned bits = (strcmp(hw->init->name, "mem") == 0) ? 3 : 4;
-+	const char *name = clk_hw_get_name(hw);
-+	unsigned bits = (strcmp(name, "mem") == 0) ? 3 : 4;
- 
- 	fin = parent_rate;
- 	ratio = fin / rate;
+ 	if (setjmp(bus_error_jmp) != 0) {
+ 		catch_memory_errors = 0;
 -- 
 2.20.1
 
