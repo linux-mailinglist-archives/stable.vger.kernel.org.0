@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE49FCD880
-	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39A9ACD785
+	for <lists+stable@lfdr.de>; Sun,  6 Oct 2019 20:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726714AbfJFRXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 13:23:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47740 "EHLO mail.kernel.org"
+        id S1729239AbfJFRac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 13:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727152AbfJFRXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 13:23:19 -0400
+        id S1727783AbfJFRa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 13:30:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92B682077B;
-        Sun,  6 Oct 2019 17:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD1832133F;
+        Sun,  6 Oct 2019 17:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570382598;
-        bh=dxLk9a93sLZR2vtiN9XBRjoI5HnSVSrWuGFCieEVcrY=;
+        s=default; t=1570383027;
+        bh=SZIa8j9CJhCBRyj+SHTyx1EHRbuknY5E3dcb6CrkBkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLaNBkSNCHh8oDbWmANssZCb1gyZ6FsCgzHc/Z2UKgzgaR93ZUpnEa4xr9LlHXB6o
-         E5Y03jmhHZf1NxRmYTwAIabB4CDmh8mqKz20ZnTYfF/RX+iE87b2y3iPi7x9O5INvy
-         p+HbbUrtyR2VQ7mlc3U0WwlDbHWwsjFmCJ8VU8A8=
+        b=WZE2Y1avhzMjDcdd74ZDkxcPz7TznF1uPzYE170RpDsJOHbJFwXbb/xFLX18Zz0KB
+         22rs1RJpbUM3ODsF5Kzpupm7sOBKRlrMV5mpHcYaSlLwjNAhgcdYk7C4jvdiWZWJkf
+         btedxBVuxC1RknBzDl0MEtFSCGhNJnv5u1kfeLls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Palus <jpalus@fastmail.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Hannes Reinecke <hare@suse.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 18/47] scsi: core: Reduce memory required for SCSI logging
+Subject: [PATCH 4.19 059/106] rtc: pcf85363/pcf85263: fix regmap error in set_time
 Date:   Sun,  6 Oct 2019 19:21:05 +0200
-Message-Id: <20191006172017.847600543@linuxfoundation.org>
+Message-Id: <20191006171149.162400490@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
-References: <20191006172016.873463083@linuxfoundation.org>
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,109 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Biwen Li <biwen.li@nxp.com>
 
-[ Upstream commit dccc96abfb21dc19d69e707c38c8ba439bba7160 ]
+[ Upstream commit 7ef66122bdb3b839e9f51b76d7e600b6e21ef648 ]
 
-The data structure used for log messages is so large that it can cause a
-boot failure. Since allocations from that data structure can fail anyway,
-use kmalloc() / kfree() instead of that data structure.
+Issue:
+    - # hwclock -w
+      hwclock: RTC_SET_TIME: Invalid argument
 
-See also https://bugzilla.kernel.org/show_bug.cgi?id=204119.
-See also commit ded85c193a39 ("scsi: Implement per-cpu logging buffer") # v4.0.
+Why:
+    - Relative commit: 8b9f9d4dc511 ("regmap: verify if register is
+      writeable before writing operations"), this patch
+      will always check for unwritable registers, it will compare reg
+      with max_register in regmap_writeable.
 
-Reported-by: Jan Palus <jpalus@fastmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Jan Palus <jpalus@fastmail.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+    - The pcf85363/pcf85263 has the capability of address wrapping
+      which means if you access an address outside the allowed range
+      (0x00-0x2f) hardware actually wraps the access to a lower address.
+      The rtc-pcf85363 driver will use this feature to configure the time
+      and execute 2 actions in the same i2c write operation (stopping the
+      clock and configure the time). However the driver has also
+      configured the `regmap maxregister` protection mechanism that will
+      block accessing addresses outside valid range (0x00-0x2f).
+
+How:
+    - Split of writing regs to two parts, first part writes control
+      registers about stop_enable and resets, second part writes
+      RTC time and date registers.
+
+Signed-off-by: Biwen Li <biwen.li@nxp.com>
+Link: https://lore.kernel.org/r/20190829021418.4607-1-biwen.li@nxp.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_logging.c | 48 +++----------------------------------
- include/scsi/scsi_dbg.h     |  2 --
- 2 files changed, 3 insertions(+), 47 deletions(-)
+ drivers/rtc/rtc-pcf85363.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_logging.c b/drivers/scsi/scsi_logging.c
-index bd70339c1242e..03d9855a6afd7 100644
---- a/drivers/scsi/scsi_logging.c
-+++ b/drivers/scsi/scsi_logging.c
-@@ -16,57 +16,15 @@
- #include <scsi/scsi_eh.h>
- #include <scsi/scsi_dbg.h>
+diff --git a/drivers/rtc/rtc-pcf85363.c b/drivers/rtc/rtc-pcf85363.c
+index c04a1edcd5716..c3702684b3426 100644
+--- a/drivers/rtc/rtc-pcf85363.c
++++ b/drivers/rtc/rtc-pcf85363.c
+@@ -169,7 +169,12 @@ static int pcf85363_rtc_set_time(struct device *dev, struct rtc_time *tm)
+ 	buf[DT_YEARS] = bin2bcd(tm->tm_year % 100);
  
--#define SCSI_LOG_SPOOLSIZE 4096
--
--#if (SCSI_LOG_SPOOLSIZE / SCSI_LOG_BUFSIZE) > BITS_PER_LONG
--#warning SCSI logging bitmask too large
--#endif
--
--struct scsi_log_buf {
--	char buffer[SCSI_LOG_SPOOLSIZE];
--	unsigned long map;
--};
--
--static DEFINE_PER_CPU(struct scsi_log_buf, scsi_format_log);
--
- static char *scsi_log_reserve_buffer(size_t *len)
- {
--	struct scsi_log_buf *buf;
--	unsigned long map_bits = sizeof(buf->buffer) / SCSI_LOG_BUFSIZE;
--	unsigned long idx = 0;
--
--	preempt_disable();
--	buf = this_cpu_ptr(&scsi_format_log);
--	idx = find_first_zero_bit(&buf->map, map_bits);
--	if (likely(idx < map_bits)) {
--		while (test_and_set_bit(idx, &buf->map)) {
--			idx = find_next_zero_bit(&buf->map, map_bits, idx);
--			if (idx >= map_bits)
--				break;
--		}
--	}
--	if (WARN_ON(idx >= map_bits)) {
--		preempt_enable();
--		return NULL;
--	}
--	*len = SCSI_LOG_BUFSIZE;
--	return buf->buffer + idx * SCSI_LOG_BUFSIZE;
-+	*len = 128;
-+	return kmalloc(*len, GFP_ATOMIC);
- }
+ 	ret = regmap_bulk_write(pcf85363->regmap, CTRL_STOP_EN,
+-				tmp, sizeof(tmp));
++				tmp, 2);
++	if (ret)
++		return ret;
++
++	ret = regmap_bulk_write(pcf85363->regmap, DT_100THS,
++				buf, sizeof(tmp) - 2);
+ 	if (ret)
+ 		return ret;
  
- static void scsi_log_release_buffer(char *bufptr)
- {
--	struct scsi_log_buf *buf;
--	unsigned long idx;
--	int ret;
--
--	buf = this_cpu_ptr(&scsi_format_log);
--	if (bufptr >= buf->buffer &&
--	    bufptr < buf->buffer + SCSI_LOG_SPOOLSIZE) {
--		idx = (bufptr - buf->buffer) / SCSI_LOG_BUFSIZE;
--		ret = test_and_clear_bit(idx, &buf->map);
--		WARN_ON(!ret);
--	}
--	preempt_enable();
-+	kfree(bufptr);
- }
- 
- static inline const char *scmd_name(const struct scsi_cmnd *scmd)
-diff --git a/include/scsi/scsi_dbg.h b/include/scsi/scsi_dbg.h
-index 56710e03101c6..1fcf14aee28a8 100644
---- a/include/scsi/scsi_dbg.h
-+++ b/include/scsi/scsi_dbg.h
-@@ -5,8 +5,6 @@ struct scsi_cmnd;
- struct scsi_device;
- struct scsi_sense_hdr;
- 
--#define SCSI_LOG_BUFSIZE 128
--
- extern void scsi_print_command(struct scsi_cmnd *);
- extern size_t __scsi_format_command(char *, size_t,
- 				   const unsigned char *, size_t);
 -- 
 2.20.1
 
