@@ -2,106 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 584D3CE971
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:40:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37476CE972
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:41:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728028AbfJGQkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 12:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbfJGQkl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 12:40:41 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D16042067B;
-        Mon,  7 Oct 2019 16:40:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570466440;
-        bh=L1Fcgw+r6ziJgdybi8ZNtmff+CPPTFueBYgIdOr7isM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lnSRZkGw7cQGuY+xEU9oH85qsMC7P7yjO/clU/BRmencGOTMv4SfeqigKr2zX5KUW
-         puHN++6yq7grp4Mg9oBZ+uGcZECEil7sOs5V4rhpY0aNBVDaN/8OGZfLk+pXUwyadC
-         5eVQ/N4JV4OvyW3fBtaeit0d5PUkoZzqsibTsV98=
-Date:   Mon, 7 Oct 2019 18:40:37 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Mark Salyzyn <salyzyn@android.com>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        linux-unionfs@vger.kernel.org
-Subject: Re: [PATCH] ovl: filter of trusted xattr results in audit
-Message-ID: <20191007164037.GA1012698@kroah.com>
-References: <20191007160918.29504-1-salyzyn@android.com>
- <20191007161616.GA988623@kroah.com>
- <20191007161725.GB988623@kroah.com>
+        id S1728019AbfJGQl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 12:41:26 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:39932 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727801AbfJGQl0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 12:41:26 -0400
+Received: by mail-lj1-f196.google.com with SMTP id y3so14424103ljj.6;
+        Mon, 07 Oct 2019 09:41:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=jI/iLcOzPQTe2f97TrWx71MZt1CEPA+WREXnjknhy+c=;
+        b=eAHeAGQvB0yjKcC+675QO0viA5bq9QiSHfGf62JaiFxze/uqvjwwoETHfjC9kSZW9v
+         Rg4OpvFaytYRyl0oneg5MLure+OuT8WB6+elc6E/PVhGFQW0i9WsYQIRZCSWZiE7k2Kb
+         GQ8spupna243F1U/ExGKl2mDxHXJyjANSD5dDiu19T8XjlipjTZP4NOIgKI2sy5R3txR
+         wg2qruN6gpiDFlggTA3zM1lE/bkGFRsbklmpljT6lyn0ohFy0oHn8ZijbzI8zRUDqd1X
+         dGRyFCGvnc6hRXMNGg5GRZYul0UtGEgVILEskDuKVCOA9nvuyGiehzKU4+1sOMMtjeQ+
+         4eJQ==
+X-Gm-Message-State: APjAAAWK5KEtfuPYHkkpTtbhtlUhi5Sv5XnJHv10+v4VNLKPsHvAcQq7
+        00rfqfKHv+h9dgdPkkPAn2DgaqWK
+X-Google-Smtp-Source: APXvYqyNv2VKLAXOA9KNrpBz/Cds2AegDowgIvxaSpQnmeZebACb49uKRiLDPsG28obB29nUOBT/MQ==
+X-Received: by 2002:a2e:7e05:: with SMTP id z5mr19566975ljc.8.1570466483459;
+        Mon, 07 Oct 2019 09:41:23 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id g3sm3137094lja.61.2019.10.07.09.41.22
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 09:41:22 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@xi.terra>)
+        id 1iHW4f-0001YL-4G; Mon, 07 Oct 2019 18:41:29 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     netdev@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Andrey Rusalin <arusalin@dev.rtsoft.ru>,
+        Lars Poeschel <poeschel@lemonage.de>,
+        linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH] NFC: pn533: fix use-after-free and memleaks
+Date:   Mon,  7 Oct 2019 18:40:59 +0200
+Message-Id: <20191007164059.5927-1-johan@kernel.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <000000000000f0d74d0594536e2c@google.com>
+References: <000000000000f0d74d0594536e2c@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191007161725.GB988623@kroah.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 06:17:25PM +0200, Greg Kroah-Hartman wrote:
-> On Mon, Oct 07, 2019 at 06:16:16PM +0200, Greg Kroah-Hartman wrote:
-> > On Mon, Oct 07, 2019 at 09:09:16AM -0700, Mark Salyzyn wrote:
-> > > When filtering xattr list for reading, presence of trusted xattr
-> > > results in a security audit log.  However, if there is other content
-> > > no errno will be set, and if there isn't, the errno will be -ENODATA
-> > > and not -EPERM as is usually associated with a lack of capability.
-> > > The check does not block the request to list the xattrs present.
-> > > 
-> > > Switch to has_capability_noaudit to reflect a more appropriate check.
-> > > 
-> > > Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-> > > Cc: linux-security-module@vger.kernel.org
-> > > Cc: kernel-team@android.com
-> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Cc: stable@vger.kernel.org # v3.18
-> > > Fixes: upstream a082c6f680da ("ovl: filter trusted xattr for non-admin")
-> > > Fixes: 3.18 4bcc9b4b3a0a ("ovl: filter trusted xattr for non-admin")
-> > > ---
-> > > Replaced ns_capable_noaudit with 3.18.y tree specific
-> > > has_capability_noaudit present in original submission to kernel.org
-> > > commit 5c2e9f346b815841f9bed6029ebcb06415caf640
-> > > ("ovl: filter of trusted xattr results in audit")
-> > > 
-> > >  fs/overlayfs/inode.c | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-> > > index a01ec1836a72..1175efa5e956 100644
-> > > --- a/fs/overlayfs/inode.c
-> > > +++ b/fs/overlayfs/inode.c
-> > > @@ -265,7 +265,8 @@ static bool ovl_can_list(const char *s)
-> > >  		return true;
-> > >  
-> > >  	/* Never list trusted.overlay, list other trusted for superuser only */
-> > > -	return !ovl_is_private_xattr(s) && capable(CAP_SYS_ADMIN);
-> > > +	return !ovl_is_private_xattr(s) &&
-> > > +	       has_capability_noaudit(current, CAP_SYS_ADMIN);
-> > >  }
-> > >  
-> > >  ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
-> > > -- 
-> > > 2.23.0.581.g78d2f28ef7-goog
-> > > 
-> > 
-> > Thanks for the backport, this one worked!
-> 
-> I spoke too soon:
-> 
-> ERROR: "has_capability_noaudit" [fs/overlayfs/overlay.ko] undefined!
-> 
-> That function isn't exported for modules :(
+The driver would fail to deregister and its class device and free
+related resources on late probe errors.
 
-But, if this really is needed, and it fixes the issue, I'll go export
-that symbol with EXPORT_SYMBOL_GPL() to fix the problem.  Any
-objections?
+Reported-by: syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com
+Fixes: 32ecc75ded72 ("NFC: pn533: change order operations in dev registation")
+Cc: stable <stable@vger.kernel.org>	# 4.11
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/nfc/pn533/usb.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-thanks,
+diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
+index c5289eaf17ee..e897e4d768ef 100644
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -547,18 +547,25 @@ static int pn533_usb_probe(struct usb_interface *interface,
+ 
+ 	rc = pn533_finalize_setup(priv);
+ 	if (rc)
+-		goto error;
++		goto err_deregister;
+ 
+ 	usb_set_intfdata(interface, phy);
+ 
+ 	return 0;
+ 
++err_deregister:
++	pn533_unregister_device(phy->priv);
+ error:
++	usb_kill_urb(phy->in_urb);
++	usb_kill_urb(phy->out_urb);
++	usb_kill_urb(phy->ack_urb);
++
+ 	usb_free_urb(phy->in_urb);
+ 	usb_free_urb(phy->out_urb);
+ 	usb_free_urb(phy->ack_urb);
+ 	usb_put_dev(phy->udev);
+ 	kfree(in_buf);
++	kfree(phy->ack_buffer);
+ 
+ 	return rc;
+ }
+-- 
+2.23.0
 
-greg k-h
