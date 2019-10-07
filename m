@@ -2,55 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7DBCE5BA
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC34FCE5DC
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:51:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728829AbfJGOtz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:49:55 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:44543 "EHLO
+        id S1727970AbfJGOuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:50:54 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:44479 "EHLO
         Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728804AbfJGOty (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:54 -0400
+        with ESMTP id S1728594AbfJGOtl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:41 -0400
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1iHUK8-0005yu-As; Mon, 07 Oct 2019 16:49:20 +0200
+        id 1iHUKE-00060L-Dd; Mon, 07 Oct 2019 16:49:26 +0200
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 9AC7F1C0DCB;
-        Mon,  7 Oct 2019 16:49:15 +0200 (CEST)
-Date:   Mon, 07 Oct 2019 14:49:15 -0000
-From:   "tip-bot2 for Steve MacLean" <tip-bot2@linutronix.de>
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B6EBB1C08B3;
+        Mon,  7 Oct 2019 16:49:16 +0200 (CEST)
+Date:   Mon, 07 Oct 2019 14:49:16 -0000
+From:   "tip-bot2 for Ian Rogers" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf inject jit: Fix JIT_CODE_MOVE filename
+Subject: [tip: perf/urgent] perf llvm: Don't access out-of-scope array
 Cc:     stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
-        v4.6+@tip-bot2.tec.linutronix.de,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Jiri Olsa <jolsa@kernel.org>,
+        v4.4+@tip-bot2.tec.linutronix.de, Ian Rogers <irogers@google.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Brian Robbins <brianrob@microsoft.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "Eric Saint-Etienne" <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
         Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
+        Wang Nan <wangnan0@huawei.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
         linux-kernel@vger.kernel.org
-In-Reply-To: =?utf-8?q?=3CBN8PR21MB1362FF8F127B31DBF4121528F7800=40BN8PR21MB?=
- =?utf-8?q?1362=2Enamprd21=2Eprod=2Eoutlook=2Ecom=3E?=
-References: =?utf-8?q?=3CBN8PR21MB1362FF8F127B31DBF4121528F7800=40BN8PR21M?=
- =?utf-8?q?B1362=2Enamprd21=2Eprod=2Eoutlook=2Ecom=3E?=
+In-Reply-To: <20190926220018.25402-1-irogers@google.com>
+References: <20190926220018.25402-1-irogers@google.com>
 MIME-Version: 1.0
-Message-ID: <157045975560.9978.11908955377927615460.tip-bot2@tip-bot2>
+Message-ID: <157045975668.9978.5510721864819545114.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -66,76 +54,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     b59711e9b0d22fd47abfa00602fd8c365cdd3ab7
-Gitweb:        https://git.kernel.org/tip/b59711e9b0d22fd47abfa00602fd8c365cdd3ab7
-Author:        Steve MacLean <Steve.MacLean@microsoft.com>
-AuthorDate:    Sat, 28 Sep 2019 01:41:18 
+Commit-ID:     7d4c85b7035eb2f9ab217ce649dcd1bfaf0cacd3
+Gitweb:        https://git.kernel.org/tip/7d4c85b7035eb2f9ab217ce649dcd1bfaf0cacd3
+Author:        Ian Rogers <irogers@google.com>
+AuthorDate:    Thu, 26 Sep 2019 15:00:18 -07:00
 Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitterDate: Mon, 30 Sep 2019 17:29:49 -03:00
+CommitterDate: Mon, 30 Sep 2019 17:29:35 -03:00
 
-perf inject jit: Fix JIT_CODE_MOVE filename
+perf llvm: Don't access out-of-scope array
 
-During perf inject --jit, JIT_CODE_MOVE records were injecting MMAP records
-with an incorrect filename. Specifically it was missing the ".so" suffix.
+The 'test_dir' variable is assigned to the 'release' array which is
+out-of-scope 3 lines later.
 
-Further the JIT_CODE_LOAD record were silently truncating the
-jr->load.code_index field to 32 bits before generating the filename.
+Extend the scope of the 'release' array so that an out-of-scope array
+isn't accessed.
 
-Make both records emit the same filename based on the full 64 bit
-code_index field.
+Bug detected by clang's address sanitizer.
 
-Fixes: 9b07e27f88b9 ("perf inject: Add jitdump mmap injection support")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
+Fixes: 07bc5c699a3d ("perf tools: Make fetch_kernel_version() publicly available")
+Cc: stable@vger.kernel.org # v4.4+
+Signed-off-by: Ian Rogers <irogers@google.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Brian Robbins <brianrob@microsoft.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
 Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB1362FF8F127B31DBF4121528F7800@BN8PR21MB1362.namprd21.prod.outlook.com
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20190926220018.25402-1-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- tools/perf/util/jitdump.c | 6 +++---
+ tools/perf/util/llvm-utils.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/jitdump.c b/tools/perf/util/jitdump.c
-index 1bdf4c6..e3ccb0c 100644
---- a/tools/perf/util/jitdump.c
-+++ b/tools/perf/util/jitdump.c
-@@ -395,7 +395,7 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
- 	size_t size;
- 	u16 idr_size;
- 	const char *sym;
--	uint32_t count;
-+	uint64_t count;
- 	int ret, csize, usize;
- 	pid_t pid, tid;
- 	struct {
-@@ -418,7 +418,7 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
- 		return -1;
+diff --git a/tools/perf/util/llvm-utils.c b/tools/perf/util/llvm-utils.c
+index 8d04e3d..8b14e4a 100644
+--- a/tools/perf/util/llvm-utils.c
++++ b/tools/perf/util/llvm-utils.c
+@@ -233,14 +233,14 @@ static int detect_kbuild_dir(char **kbuild_dir)
+ 	const char *prefix_dir = "";
+ 	const char *suffix_dir = "";
  
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%u.so",
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 			jd->dir,
- 			pid,
- 			count);
-@@ -529,7 +529,7 @@ static int jit_repipe_code_move(struct jit_buf_desc *jd, union jr_entry *jr)
- 		return -1;
++	/* _UTSNAME_LENGTH is 65 */
++	char release[128];
++
+ 	char *autoconf_path;
  
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%"PRIu64,
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 	         jd->dir,
- 	         pid,
- 		 jr->move.code_index);
+ 	int err;
+ 
+ 	if (!test_dir) {
+-		/* _UTSNAME_LENGTH is 65 */
+-		char release[128];
+-
+ 		err = fetch_kernel_version(NULL, release,
+ 					   sizeof(release));
+ 		if (err)
