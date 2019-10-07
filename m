@@ -2,121 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 852D8CDE3C
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 11:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C7FDCDE47
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 11:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbfJGJcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 05:32:02 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:39422 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727491AbfJGJcA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 05:32:00 -0400
-Received: by mail-lf1-f67.google.com with SMTP id 72so8741187lfh.6
-        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 02:31:57 -0700 (PDT)
+        id S1726010AbfJGJeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 05:34:08 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:35767 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727350AbfJGJeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 05:34:08 -0400
+Received: by mail-lf1-f66.google.com with SMTP id w6so8752745lfl.2
+        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 02:34:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=android.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=CjJb4Lw1u4Pakm4DYiGRG6UBYCd5/SKc3snKb7a41eY=;
-        b=L+w7i+/XSvQwHJCGQG27QQxfMFppLPlg08famGOQUJibMHc12TXh9PR5l+7yance/0
-         em4sgYjEaGwuw0fqCfGB+DLaXvS+cjs1JDbAsnbhgrEO3PyC3dFCvbuR1KUgvWgLsDM1
-         /aecwOZUsR4lB30qJ+AUgV+WmYvWzqfJSXVq2D5V7BHushGRfodmeoIJFjU8cn6NOdYe
-         7idKl1uC7u98t8KKQWO5/i5qWpUS9AuyvyKYf3ZAv/I/7IojgZj6lfC93W9oegZ6eyY8
-         0VXWLUww674RNY4tyOZlKE6OCKLZLXN768i4vuhZhtlGJYp+RD0rQXO2/cZJhMzOpVtI
-         9ggg==
+        bh=pW/v9rAZUFz/EoQTWrEX0OSxD6rEJBtSsejlmsLkopw=;
+        b=PmV+hGbVTsXwOx8ggwlU7N7+Z/R0TZ8g/q9zQs7etcACngKWx7QjRF/8Se581PyHZo
+         u3fYJ1mAIOm7+YB2mk5oZtKwfXOzhWYHNQUKWRoa97aoIfbHRSJ4JxWzPsYymBurA3Mi
+         Oey+WAMkyy36ll1cVpLCpGcSQZH9vSct27qk350b9oa3xb4SAw8nI0aGFKQbv4dAnZaU
+         2dg4S56+G5bSvHXcin4rivmXG1Djkk1+V+vy6gok2S/UekWotIujENAlroppSFUkFuIF
+         h+zbfpWdH9XV6tq2lk0V6AGe4oaDPsONzIUv1pWUqfTutbr7YH0TJ6MZq9mrxXVeDA6v
+         8USw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=CjJb4Lw1u4Pakm4DYiGRG6UBYCd5/SKc3snKb7a41eY=;
-        b=goc2fGjHXnd2+GVB7yj6bDN4a+HzwcqH5iK3jrU7BMwudEtBVQNqLRjwcNwNUcCUjm
-         0VUw4T2jZr2+25JPELUXGQExxmdsK3D0S7SqSCSKkgvPiB3LTZUtK2YpdBCMRmEARXFn
-         xAWDmFmscX8pfCSvSJEZLIUw3bZuGHnQihxEAEiFWWv+mu5RdnPgIIADBY+YJZI5ROSs
-         njzO3YggJP6MBRDIyP86Qeyf8Fe99fwebGalgYYOZGEv8+aGJ8fLJyiggEWNkou/WotF
-         r3xAvBHSJueEeiUfcORsmVhCjLsMF+R85Ndnr42fTG4EINmjitsx0aCuJCwqTJ8BcWVo
-         iyEQ==
-X-Gm-Message-State: APjAAAUpdPRNSRwaAMAO3IMFrZ1ObZAl9vMYcJGZ0ncIsirUtczxm7OX
-        dJ+C+CQrMj28jxwjEJw2ZgnftFNjjRvyPYRXGj4j3jFV
-X-Google-Smtp-Source: APXvYqwXSdg79nM61/yrNU4LIMp21a2m4WX62zPPo3IuTua6nuJzwDg70f31wxHvltrmiSsd8wCBM7RhFA4de6TXKEc=
-X-Received: by 2002:a19:7605:: with SMTP id c5mr16903890lff.114.1570440717212;
- Mon, 07 Oct 2019 02:31:57 -0700 (PDT)
+        bh=pW/v9rAZUFz/EoQTWrEX0OSxD6rEJBtSsejlmsLkopw=;
+        b=tmyzbGmqcqMdB6hzjM6s5WTk95kiDizK+FMp6+0ANGr4uI9dEAG3hV3NNaNA1vShoL
+         GsAzrACdBbbHAdrYlODuscuADt7fT8ag5QZLwOxbi5cpV66LiKIbo2nyphWPtuxrMA8Q
+         kwemGkWiEt4pgpGW5dJAb7ARmN4EVARG+OelyKSffGbJbTzpq4vBNNGzWMV+RoJLpp58
+         qcbCcJvUSrOXPplEba4HndwMTD+G8zLrYz2/JVfib7VBQ+PWKI79QMXucdgu0rWppVC/
+         ZfgCeyJKRiwwdV0cJHTVVHme2pCitlLZXfZ0llFZo8DKQ1/2MkIr2zLewk1Hf8y2ivNk
+         LUqw==
+X-Gm-Message-State: APjAAAUdQXw2MvP+LZXAZQKVVOPEEvAOXi5tuaR2Gdc+SUjTBYkD825Z
+        vgCtmI9yVA5XttaELB7Qihhm/P3sDyVzeNMcVqVuFQ==
+X-Google-Smtp-Source: APXvYqxqDny/0zgM/+tgxZ/E60Ozfjkfc7OLYNZZbgTXgeXtW8BH3ZhM+bjalWIqj/Sw5sCvH+97gPy9f+DdcOaWjsk=
+X-Received: by 2002:a19:f617:: with SMTP id x23mr15911101lfe.97.1570440844243;
+ Mon, 07 Oct 2019 02:34:04 -0700 (PDT)
 MIME-Version: 1.0
 References: <20191006172016.873463083@linuxfoundation.org> <20191006172018.480360174@linuxfoundation.org>
- <20191006173202.GA832@sol.localdomain> <20191006182433.GA217738@kroah.com> <CAKUbbxKbR6R_VM233pkw7_rxv_DMJoBPC_U5ZgVkR6GpXVAScw@mail.gmail.com>
-In-Reply-To: <CAKUbbxKbR6R_VM233pkw7_rxv_DMJoBPC_U5ZgVkR6GpXVAScw@mail.gmail.com>
+In-Reply-To: <20191006172018.480360174@linuxfoundation.org>
 From:   Martijn Coenen <maco@android.com>
-Date:   Mon, 7 Oct 2019 11:31:46 +0200
-Message-ID: <CAB0TPYGjhzqAK5pAP3rjgqq9=9LA4z2Xpv+QG8sDrEkd+HWDyA@mail.gmail.com>
+Date:   Mon, 7 Oct 2019 11:33:53 +0200
+Message-ID: <CAB0TPYGO8Nm_Qz0kzSvX69NApiPwu4xV19F=KhyLe5DO3DoLTw@mail.gmail.com>
 Subject: Re: [PATCH 4.9 30/47] ANDROID: binder: remove waitqueue when thread exits.
-To:     Mattias Nissler <mnissler@chromium.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Todd Kjos <tkjos@google.com>,
-        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        syzbot <syzkaller@googlegroups.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Mattias Nissler <mnissler@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 7, 2019 at 8:28 AM Mattias Nissler <mnissler@chromium.org> wrote:
-> Jann's PoC calls the BINDER_THREAD_EXIT ioctl to free the
-> binder_thread which will then cause the UAF, and this is cut off by
-> the patch. IIUC, you are worried about a similar AUF on the proc->wait
-> access. I am not 100% sure, but I think the binder_proc lifetime
-> matches the corresponding struct file instance, so it shouldn't be
-> possible to get the binder_proc deallocated while still being able to
-> access it via filp->private_data.
+On Sun, Oct 6, 2019 at 7:23 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> From: Martijn Coenen <maco@android.com>
+>
+> commit f5cb779ba16334b45ba8946d6bfa6d9834d1527f upstream.
+>
+> binder_poll() passes the thread->wait waitqueue that
+> can be slept on for work. When a thread that uses
+> epoll explicitly exits using BINDER_THREAD_EXIT,
+> the waitqueue is freed, but it is never removed
+> from the corresponding epoll data structure. When
+> the process subsequently exits, the epoll cleanup
+> code tries to access the waitlist, which results in
+> a use-after-free.
+>
+> Prevent this by using POLLFREE when the thread exits.
+>
+> Signed-off-by: Martijn Coenen <maco@android.com>
+> Reported-by: syzbot <syzkaller@googlegroups.com>
+> Cc: stable <stable@vger.kernel.org> # 4.14
+> [backport BINDER_LOOPER_STATE_POLL logic as well]
+> Signed-off-by: Mattias Nissler <mnissler@chromium.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/android/binder.c |   17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+>
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -334,7 +334,8 @@ enum {
+>         BINDER_LOOPER_STATE_EXITED      = 0x04,
+>         BINDER_LOOPER_STATE_INVALID     = 0x08,
+>         BINDER_LOOPER_STATE_WAITING     = 0x10,
+> -       BINDER_LOOPER_STATE_NEED_RETURN = 0x20
+> +       BINDER_LOOPER_STATE_NEED_RETURN = 0x20,
+> +       BINDER_LOOPER_STATE_POLL        = 0x40,
+>  };
+>
+>  struct binder_thread {
+> @@ -2628,6 +2629,18 @@ static int binder_free_thread(struct bin
+>                 } else
+>                         BUG();
+>         }
+> +
+> +       /*
+> +        * If this thread used poll, make sure we remove the waitqueue
+> +        * from any epoll data structures holding it with POLLFREE.
+> +        * waitqueue_active() is safe to use here because we're holding
+> +        * the inner lock.
 
-Yes, I think this is correct; either the binder fd is closed first, in
-which case eventpoll_release() removes the waitqueue from the list
-before it is freed (before binder's release() is called); instead if
-the epoll fd is closed first, it will likewise remove the waitqueue
-itself, before binder_proc can be freed.. I don't know the __fput()
-code that well, but at first glance it seems these two can't overlap.
+This should be "global lock" in 4.9 and 4.4 :)
 
-The whole problem with BINDER_THREAD_EXIT was that the returned
-waitqueue wasn't tied to the lifetime of the underlying file.
+Otherwise LGTM, thanks!
 
-Apologies for not spotting this needed a backport BTW - I refactored
-the wait code heavily somewhere between 4.9 and 4.14, and somehow
-didn't realize the same problem existed in the old code.
-
-Thanks,
 Martijn
 
+> +        */
+> +       if ((thread->looper & BINDER_LOOPER_STATE_POLL) &&
+> +           waitqueue_active(&thread->wait)) {
+> +               wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
+> +       }
+> +
+>         if (send_reply)
+>                 binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
+>         binder_release_work(&thread->todo);
+> @@ -2651,6 +2664,8 @@ static unsigned int binder_poll(struct f
+>                 return POLLERR;
+>         }
 >
-> > >
-> > >         wait_for_proc_work = thread->transaction_stack == NULL &&
-> > >                 list_empty(&thread->todo) && thread->return_error == BR_OK;
-> > >
-> > >         binder_unlock(__func__);
-> > >
-> > >         if (wait_for_proc_work) {
-> > >                 if (binder_has_proc_work(proc, thread))
-> > >                         return POLLIN;
-> > >                 poll_wait(filp, &proc->wait, wait);
-> > >                 if (binder_has_proc_work(proc, thread))
-> > >                         return POLLIN;
-> > >         } else {
-> > >                 if (binder_has_thread_work(thread))
-> > >                         return POLLIN;
-> > >                 poll_wait(filp, &thread->wait, wait);
-> > >                 if (binder_has_thread_work(thread))
-> > >                         return POLLIN;
-> > >         }
-> > >         return 0;
-> >
-> > I _think_ the backport is correct, and I know someone has verified that
-> > the 4.4.y backport works properly and I don't see much difference here
-> > from that version.
-> >
-> > But I will defer to Todd and Martijn here, as they know this code _WAY_
-> > better than I do.  The codebase has changed a lot from 4.9.y to 4.14.y
-> > so it makes it hard to do equal comparisons simply.
-> >
-> > Todd and Martijn, thoughts?
-> >
-> > thanks,
-> >
-> > greg k-h
+> +       thread->looper |= BINDER_LOOPER_STATE_POLL;
+> +
+>         wait_for_proc_work = thread->transaction_stack == NULL &&
+>                 list_empty(&thread->todo) && thread->return_error == BR_OK;
+>
+>
+>
