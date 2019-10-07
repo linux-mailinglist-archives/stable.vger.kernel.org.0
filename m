@@ -2,119 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11625CE458
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 15:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B86B7CE490
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727985AbfJGNze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 09:55:34 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:50164 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727442AbfJGNze (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 09:55:34 -0400
-Received: from [185.66.195.251] (helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iHTU1-00010o-QS; Mon, 07 Oct 2019 13:55:29 +0000
-Date:   Mon, 7 Oct 2019 15:55:28 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Dmitry Vyukov <dvyukov@google.com>
-Cc:     Andrea Parri <parri.andrea@gmail.com>, bsingharora@gmail.com,
-        Marco Elver <elver@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzbot <syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] taskstats: fix data-race
-Message-ID: <20191007135527.qd5ibfyajnihsrsh@wittgenstein>
-References: <20191007104039.GA16085@andrea.guest.corp.microsoft.com>
- <20191007110117.1096-1-christian.brauner@ubuntu.com>
- <20191007131804.GA19242@andrea.guest.corp.microsoft.com>
- <CACT4Y+YG23qbL16MYH3GTK4hOPsM9tDfbLzrTZ7k_ocR2ABa6A@mail.gmail.com>
+        id S1727685AbfJGOCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:02:43 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:42782 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727490AbfJGOCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:02:43 -0400
+Received: by mail-lj1-f196.google.com with SMTP id y23so13769253lje.9;
+        Mon, 07 Oct 2019 07:02:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=uJ53ip/908aA3HmGvsys5J4NL/0eR3dq/ckq75H04zI=;
+        b=HMXMrJuMLPiU45E41j6HPFsZGOqxRfrkCm1Z69ILxNOdUrYBGy54qEXqQOjvf4DRtv
+         OU8f4lf+ydtEDnrbkFLu6F7SXzhmz8K5vgOAKnd4+akqX94ULo6+jCxh4gxGCfEVKMcK
+         yI3kaOyfy2LceXS0kXhXtBNpe/boVqlL91G+etZgpGDE3zg1LIi15GF/4tKbeLMmCjRx
+         EZLiTf+lqdp5uQRYVUNh7l/vvzM9Zq/i2iH/eXxpWPYDF+7xhoxyo6ZUQZgrqTh3+lgY
+         xa1Owxfbdr53FoqjvyGbeo6XvzNIIJsgDmgbgrpQp9jFLcKXCqx6mgZZ/hmOVv0Hknig
+         hSNQ==
+X-Gm-Message-State: APjAAAX4zoUL09+W1Q1PbW9Mu4SKSvJFCCfN+OVHuIN6NSbonACbSNr7
+        FD03NmI23aPw60TAQ1qGxnk=
+X-Google-Smtp-Source: APXvYqxyu6LEWOsBLBLqNL/Yy7/hQoo+9oWhfCoiMPoDsP7o8om6eu3mKqihAFWrW72hDFm1vmgH4Q==
+X-Received: by 2002:a05:651c:1ae:: with SMTP id c14mr18699129ljn.169.1570456960868;
+        Mon, 07 Oct 2019 07:02:40 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id l7sm3116545lji.46.2019.10.07.07.02.39
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 07:02:39 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@kernel.org>)
+        id 1iHTb3-0005zB-CB; Mon, 07 Oct 2019 16:02:46 +0200
+Date:   Mon, 7 Oct 2019 16:02:45 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        "# v5 . 3" <stable@vger.kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 8/8] xhci: Fix NULL pointer dereference in
+ xhci_clear_tt_buffer_complete()
+Message-ID: <20191007140245.GD13531@localhost>
+References: <1570190373-30684-1-git-send-email-mathias.nyman@linux.intel.com>
+ <1570190373-30684-9-git-send-email-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACT4Y+YG23qbL16MYH3GTK4hOPsM9tDfbLzrTZ7k_ocR2ABa6A@mail.gmail.com>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <1570190373-30684-9-git-send-email-mathias.nyman@linux.intel.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 03:50:47PM +0200, Dmitry Vyukov wrote:
-> On Mon, Oct 7, 2019 at 3:18 PM Andrea Parri <parri.andrea@gmail.com> wrote:
-> >
-> > On Mon, Oct 07, 2019 at 01:01:17PM +0200, Christian Brauner wrote:
-> > > When assiging and testing taskstats in taskstats_exit() there's a race
-> > > when writing and reading sig->stats when a thread-group with more than
-> > > one thread exits:
-> > >
-> > > cpu0:
-> > > thread catches fatal signal and whole thread-group gets taken down
-> > >  do_exit()
-> > >  do_group_exit()
-> > >  taskstats_exit()
-> > >  taskstats_tgid_alloc()
-> > > The tasks reads sig->stats holding sighand lock seeing garbage.
-> >
-> > You meant "without holding sighand lock" here, right?
-> >
-> >
-> > >
-> > > cpu1:
-> > > task calls exit_group()
-> > >  do_exit()
-> > >  do_group_exit()
-> > >  taskstats_exit()
-> > >  taskstats_tgid_alloc()
-> > > The task takes sighand lock and assigns new stats to sig->stats.
-> > >
-> > > Fix this by using READ_ONCE() and smp_store_release().
-> > >
-> > > Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-> > > Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> > > Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-> > > Link: https://lore.kernel.org/r/20191006235216.7483-1-christian.brauner@ubuntu.com
-> > > ---
-> > > /* v1 */
-> > > Link: https://lore.kernel.org/r/20191005112806.13960-1-christian.brauner@ubuntu.com
-> > >
-> > > /* v2 */
-> > > - Dmitry Vyukov <dvyukov@google.com>, Marco Elver <elver@google.com>:
-> > >   - fix the original double-checked locking using memory barriers
-> > >
-> > > /* v3 */
-> > > - Andrea Parri <parri.andrea@gmail.com>:
-> > >   - document memory barriers to make checkpatch happy
-> > > ---
-> > >  kernel/taskstats.c | 21 ++++++++++++---------
-> > >  1 file changed, 12 insertions(+), 9 deletions(-)
-> > >
-> > > diff --git a/kernel/taskstats.c b/kernel/taskstats.c
-> > > index 13a0f2e6ebc2..978d7931fb65 100644
-> > > --- a/kernel/taskstats.c
-> > > +++ b/kernel/taskstats.c
-> > > @@ -554,24 +554,27 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
-> > >  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
-> > >  {
-> > >       struct signal_struct *sig = tsk->signal;
-> > > -     struct taskstats *stats;
-> > > +     struct taskstats *stats_new, *stats;
-> > >
-> > > -     if (sig->stats || thread_group_empty(tsk))
-> > > -             goto ret;
-> > > +     /* Pairs with smp_store_release() below. */
-> > > +     stats = READ_ONCE(sig->stats);
-> >
-> > This pairing suggests that the READ_ONCE() is heading an address
-> > dependency, but I fail to identify it: what is the target memory
-> > access of such a (putative) dependency?
+[ +CC: Alan ]
+
+On Fri, Oct 04, 2019 at 02:59:33PM +0300, Mathias Nyman wrote:
+> udev stored in ep->hcpriv might be NULL if tt buffer is cleared
+> due to a halted control endpoint during device enumeration
 > 
-> I would assume callers of this function access *stats. So the
-> dependency is between loading stats and accessing *stats.
+> xhci_clear_tt_buffer_complete is called by hub_tt_work() once it's
+> scheduled,  and by then usb core might have freed and allocated a
+> new udev for the next enumeration attempt.
+>
+> Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+> Cc: <stable@vger.kernel.org> # v5.3
+> Reported-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> ---
+>  drivers/usb/host/xhci.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> index 00f3804f7aa7..517ec3206f6e 100644
+> --- a/drivers/usb/host/xhci.c
+> +++ b/drivers/usb/host/xhci.c
+> @@ -5238,8 +5238,16 @@ static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+>  	unsigned int ep_index;
+>  	unsigned long flags;
+>  
+> +	/*
+> +	 * udev might be NULL if tt buffer is cleared during a failed device
+> +	 * enumeration due to a halted control endpoint. Usb core might
+> +	 * have allocated a new udev for the next enumeration attempt.
+> +	 */
+> +
+>  	xhci = hcd_to_xhci(hcd);
+>  	udev = (struct usb_device *)ep->hcpriv;
+> +	if (!udev)
+> +		return;
 
-Right, but why READ_ONCE() and not smp_load_acquire here?
+I didn't have time to look into this myself last week, or comment on the
+patch before Greg picked it up, but this clearly isn't the right fix.
 
-Christian
+As your comment suggests, ep->hcpriv may indeed be NULL here if USB core
+have allocated a new udev. But this only happens after USB has freed the
+old usb_device and the new one happens to get the same address.
+
+Note that even the usb_host_endpoint itself (ep) has then been freed and
+reallocated since it is member of struct usb_device, and it is the
+use-after-free that needs fixing.
+
+I've even been able to trigger another NULL-deref in this function
+before a new udev has been allocated, due to the virt dev having been
+freed by xhci_free_dev as part of usb_release_dev:
+
+[   19.627771] usb 2-2.4: unable to read config index 0 descriptor/start: -32
+[   19.627966] usb 2-2.4: chopping to 0 config(s)
+[   19.628133] usb 2-2.4: can't read configurations, error -32
+[   19.629017] usb 2-2.4: usb_release_dev - udev = ffff930b14d82000
+
+udev is freed here
+
+[   19.629258] usb 2-2-port4: attempt power cycle
+[   19.629461] xhci_clear_tt_buffer_complete - udev = ffff930b14d82000
+
+use-after-free when tt work is scheduled (note than udev is non-NULL
+since udev hasn't been reallocated and initialised yet):
+
+[   19.629643] xhci_clear_tt_buffer_complete - xhci->devs[4] = 0000000000000000
+
+virt dev is NULL after having been freed by xhci_free_dev()
+
+[   19.629876] BUG: kernel NULL pointer dereference, address: 0000000000000030
+
+and is later dereferenced
+
+[   19.630034] #PF: supervisor write access in kernel mode
+[   19.630155] #PF: error_code(0x0002) - not-present page
+[   19.630270] PGD 0 P4D 0 
+[   19.630341] Oops: 0002 [#1] SMP
+[   19.630425] CPU: 2 PID: 110 Comm: kworker/2:2 Not tainted 5.4.0-rc1 #28
+[   19.630572] Hardware name:  /D34010WYK, BIOS WYLPT10H.86A.0051.2019.0322.1320 03/22/2019
+[   19.636141] Workqueue: events hub_tt_work
+[   19.638125] RIP: 0010:xhci_clear_tt_buffer_complete.cold.69+0x9b/0xcd
+
+It seems the xhci clear-tt implementation was incomplete since it did
+not take care to wait for any ongoing work before disabling the
+endpoint. EHCI does this in ehci_endpoint_disable(), but xhci doesn't
+even implement that callback.
+
+As this may be something you could end up hitting in other paths as
+well, perhaps we should even consider reverting the offending commit
+pending a more complete implementation?
+
+>  	slot_id = udev->slot_id;
+>  	ep_index = xhci_get_endpoint_index(&ep->desc);
+
+For reference, my original report is here:
+
+	https://lkml.kernel.org/r/20190930103107.GC13531@localhost
+
+Johan
