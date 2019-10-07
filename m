@@ -2,61 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5535CEE92
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 23:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E82CEEB0
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 23:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729419AbfJGVqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 17:46:39 -0400
-Received: from mga06.intel.com ([134.134.136.31]:7617 "EHLO mga06.intel.com"
+        id S1729482AbfJGV7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 17:59:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbfJGVqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 17:46:38 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Oct 2019 14:46:37 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,269,1566889200"; 
-   d="scan'208";a="199639433"
-Received: from tstruk-mobl1.jf.intel.com ([10.24.10.78])
-  by FMSMGA003.fm.intel.com with ESMTP; 07 Oct 2019 14:46:37 -0700
-Subject: [PATCH] tpm: add check after commands attribs tab allocation
-From:   Tadeusz Struk <tadeusz.struk@intel.com>
-To:     jarkko.sakkinen@linux.intel.com
-Cc:     linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, tadeusz.struk@intel.com
-Date:   Mon, 07 Oct 2019 14:46:37 -0700
-Message-ID: <157048479752.25182.17480591993061064051.stgit@tstruk-mobl1.jf.intel.com>
-User-Agent: StGit/unknown-version
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+        id S1728422AbfJGV7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 17:59:04 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16ED6206C0;
+        Mon,  7 Oct 2019 21:59:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570485543;
+        bh=vccaCfLekIcqrg8RQFT5wkIkeO9fGglQMnl9ddohi3I=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DN+h02cpgv8d+Ejd5EN5YVKMhepec70IQOiCXb9JSCch6mASL0uEQB7yMuQHMEBvT
+         l7Jbk1GmZ8HyfHw2sXhUVm7teniTYmTFqrgq/Qtt1gY5Hz1ruYREBCug0GS+PgJIoq
+         CICr5sHeej3dbaCyraAh0n/gN7lxLsld/R41sB+k=
+Date:   Mon, 7 Oct 2019 14:59:02 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Michal Hocko <mhocko@kernel.org>
+Cc:     Qian Cai <cai@lca.pw>, tj@kernel.org, vdavydov.dev@gmail.com,
+        hannes@cmpxchg.org, guro@fb.com, cl@linux.com, penberg@kernel.org,
+        rientjes@google.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/slub: fix a deadlock in show_slab_objects()
+Message-Id: <20191007145902.a1ae6aac11c29d466a445a94@linux-foundation.org>
+In-Reply-To: <20191007081621.GE2381@dhcp22.suse.cz>
+References: <1570192309-10132-1-git-send-email-cai@lca.pw>
+        <20191004125701.GJ9578@dhcp22.suse.cz>
+        <20191007081621.GE2381@dhcp22.suse.cz>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-devm_kcalloc() can fail and return NULL so we need to check for that.
+On Mon, 7 Oct 2019 10:16:21 +0200 Michal Hocko <mhocko@kernel.org> wrote:
 
-Fixes: 58472f5cd4f6f ("tpm: validate TPM 2.0 commands")
-Signed-off-by: Tadeusz Struk <tadeusz.struk@intel.com>
----
- drivers/char/tpm/tpm2-cmd.c |    4 ++++
- 1 file changed, 4 insertions(+)
+> On Fri 04-10-19 14:57:01, Michal Hocko wrote:
+> > On Fri 04-10-19 08:31:49, Qian Cai wrote:
+> > > Long time ago, there fixed a similar deadlock in show_slab_objects()
+> > > [1]. However, it is apparently due to the commits like 01fb58bcba63
+> > > ("slab: remove synchronous synchronize_sched() from memcg cache
+> > > deactivation path") and 03afc0e25f7f ("slab: get_online_mems for
+> > > kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
+> > > just reading files in /sys/kernel/slab which will generate a lockdep
+> > > splat below.
+> > > 
+> > > Since the "mem_hotplug_lock" here is only to obtain a stable online node
+> > > mask while racing with NUMA node hotplug, in the worst case, the results
+> > > may me miscalculated while doing NUMA node hotplug, but they shall be
+> > > corrected by later reads of the same files.
+> > 
+> > I think it is important to mention that this doesn't expose the
+> > show_slab_objects to use-after-free. There is only a single path that
+> > might really race here and that is the slab hotplug notifier callback
+> > __kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
+> > doesn't really destroy kmem_cache_node data structures.
 
-diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
-index ba9acae83bff..5817dfe5c5d2 100644
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -939,6 +939,10 @@ static int tpm2_get_cc_attrs_tbl(struct tpm_chip *chip)
+Yes, I noted this during review.  It's a bit subtle and is worthy of
+more than a changelog note, I think.  How about this?
+
+--- a/mm/slub.c~mm-slub-fix-a-deadlock-in-show_slab_objects-fix
++++ a/mm/slub.c
+@@ -4851,6 +4851,10 @@ static ssize_t show_slab_objects(struct
+ 	 * already held which will conflict with an existing lock order:
+ 	 *
+ 	 * mem_hotplug_lock->slab_mutex->kernfs_mutex
++	 *
++	 * We don't really need mem_hotplug_lock (to hold off
++	 * slab_mem_going_offline_callback()) here because slab's memory hot
++	 * unplug code doesn't destroy the kmem_cache->node[] data.
+ 	 */
  
- 	chip->cc_attrs_tbl = devm_kcalloc(&chip->dev, 4, nr_commands,
- 					  GFP_KERNEL);
-+	if (!chip->cc_attrs_tbl) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
- 
- 	rc = tpm_buf_init(&buf, TPM2_ST_NO_SESSIONS, TPM2_CC_GET_CAPABILITY);
- 	if (rc)
+ #ifdef CONFIG_SLUB_DEBUG
+_
 
+> Andrew, please add this to the changelog so that we do not have to
+> scratch heads again when looking into that code.
+
+I did that as well.
