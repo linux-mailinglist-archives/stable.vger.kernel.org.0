@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA6DDCE5E3
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D43CE5D2
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729039AbfJGOvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:51:09 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:44442 "EHLO
+        id S1728626AbfJGOtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:49:41 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:44463 "EHLO
         Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728516AbfJGOth (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:37 -0400
+        with ESMTP id S1728556AbfJGOtk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:40 -0400
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1iHUJy-0005pZ-KG; Mon, 07 Oct 2019 16:49:10 +0200
+        id 1iHUJy-0005pU-64; Mon, 07 Oct 2019 16:49:10 +0200
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F07241C08B3;
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id D3C031C08B0;
         Mon,  7 Oct 2019 16:49:09 +0200 (CEST)
 Date:   Mon, 07 Oct 2019 14:49:09 -0000
 From:   "tip-bot2 for Peter Jones" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: efi/urgent] efi/tpm: Don't access event->count when it isn't mapped
+Subject: [tip: efi/urgent] efi/tpm: Don't traverse an event log with no events
 Cc:     Lyude Paul <lyude@redhat.com>, Peter Jones <pjones@redhat.com>,
         Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -40,10 +40,10 @@ Cc:     Lyude Paul <lyude@redhat.com>, Peter Jones <pjones@redhat.com>,
         linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
         stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
         Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20191002165904.8819-4-ard.biesheuvel@linaro.org>
-References: <20191002165904.8819-4-ard.biesheuvel@linaro.org>
+In-Reply-To: <20191002165904.8819-5-ard.biesheuvel@linaro.org>
+References: <20191002165904.8819-5-ard.biesheuvel@linaro.org>
 MIME-Version: 1.0
-Message-ID: <157045974993.9978.18070605431254154051.tip-bot2@tip-bot2>
+Message-ID: <157045974981.9978.10521392421826592930.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -59,22 +59,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the efi/urgent branch of tip:
 
-Commit-ID:     047d50aee341d940350897c85799e56ae57c3849
-Gitweb:        https://git.kernel.org/tip/047d50aee341d940350897c85799e56ae57c3849
+Commit-ID:     05c8c1ff81ed2eb9bad7c27cf92e55c864c16df8
+Gitweb:        https://git.kernel.org/tip/05c8c1ff81ed2eb9bad7c27cf92e55c864c16df8
 Author:        Peter Jones <pjones@redhat.com>
-AuthorDate:    Wed, 02 Oct 2019 18:59:00 +02:00
+AuthorDate:    Wed, 02 Oct 2019 18:59:01 +02:00
 Committer:     Ingo Molnar <mingo@kernel.org>
 CommitterDate: Mon, 07 Oct 2019 15:24:35 +02:00
 
-efi/tpm: Don't access event->count when it isn't mapped
+efi/tpm: Don't traverse an event log with no events
 
-Some machines generate a lot of event log entries.  When we're
-iterating over them, the code removes the old mapping and adds a
-new one, so once we cross the page boundary we're unmapping the page
-with the count on it.  Hilarity ensues.
+When there are no entries to put into the final event log, some machines
+will return the template they would have populated anyway.  In this case
+the nr_events field is 0, but the rest of the log is just garbage.
 
-This patch keeps the info from the header in local variables so we don't
-need to access that page again or keep track of if it's mapped.
+This patch stops us from trying to iterate the table with
+__calc_tpm2_event_size() when the number of events in the table is 0.
 
 Tested-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Peter Jones <pjones@redhat.com>
@@ -95,59 +94,36 @@ Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: linux-efi@vger.kernel.org
 Cc: linux-integrity@vger.kernel.org
 Cc: stable@vger.kernel.org
-Fixes: 44038bc514a2 ("tpm: Abstract crypto agile event size calculations")
-Link: https://lkml.kernel.org/r/20191002165904.8819-4-ard.biesheuvel@linaro.org
-[ Minor edits. ]
+Fixes: c46f3405692d ("tpm: Reserve the TPM final events table")
+Link: https://lkml.kernel.org/r/20191002165904.8819-5-ard.biesheuvel@linaro.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 ---
- include/linux/tpm_eventlog.h | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/firmware/efi/tpm.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
-index 63238c8..b50cc3a 100644
---- a/include/linux/tpm_eventlog.h
-+++ b/include/linux/tpm_eventlog.h
-@@ -170,6 +170,7 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 	u16 halg;
- 	int i;
- 	int j;
-+	u32 count, event_type;
- 
- 	marker = event;
- 	marker_start = marker;
-@@ -190,16 +191,22 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 	}
- 
- 	event = (struct tcg_pcr_event2_head *)mapping;
-+	/*
-+	 * The loop below will unmap these fields if the log is larger than
-+	 * one page, so save them here for reference:
-+	 */
-+	count = READ_ONCE(event->count);
-+	event_type = READ_ONCE(event->event_type);
- 
- 	efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
- 
- 	/* Check if event is malformed. */
--	if (event->count > efispecid->num_algs) {
-+	if (count > efispecid->num_algs) {
- 		size = 0;
+diff --git a/drivers/firmware/efi/tpm.c b/drivers/firmware/efi/tpm.c
+index 1d3f5ca..b9ae5c6 100644
+--- a/drivers/firmware/efi/tpm.c
++++ b/drivers/firmware/efi/tpm.c
+@@ -75,11 +75,16 @@ int __init efi_tpm_eventlog_init(void)
  		goto out;
  	}
  
--	for (i = 0; i < event->count; i++) {
-+	for (i = 0; i < count; i++) {
- 		halg_size = sizeof(event->digests[i].alg_id);
- 
- 		/* Map the digest's algorithm identifier */
-@@ -256,8 +263,9 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
- 		+ event_field->event_size;
- 	size = marker - marker_start;
- 
--	if ((event->event_type == 0) && (event_field->event_size == 0))
-+	if (event_type == 0 && event_field->event_size == 0)
- 		size = 0;
+-	tbl_size = tpm2_calc_event_log_size((void *)efi.tpm_final_log
+-					    + sizeof(final_tbl->version)
+-					    + sizeof(final_tbl->nr_events),
+-					    final_tbl->nr_events,
+-					    log_tbl->log);
++	tbl_size = 0;
++	if (final_tbl->nr_events != 0) {
++		void *events = (void *)efi.tpm_final_log
++				+ sizeof(final_tbl->version)
++				+ sizeof(final_tbl->nr_events);
 +
- out:
- 	if (do_mapping)
- 		TPM_MEMUNMAP(mapping, mapping_size);
++		tbl_size = tpm2_calc_event_log_size(events,
++						    final_tbl->nr_events,
++						    log_tbl->log);
++	}
+ 	memblock_reserve((unsigned long)final_tbl,
+ 			 tbl_size + sizeof(*final_tbl));
+ 	early_memunmap(final_tbl, sizeof(*final_tbl));
