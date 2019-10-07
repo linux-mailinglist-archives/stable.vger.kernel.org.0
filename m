@@ -2,111 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F20CD9C4
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 01:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7878CD9CA
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 02:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfJFXwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 19:52:46 -0400
-Received: from mga14.intel.com ([192.55.52.115]:3412 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726741AbfJFXwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 19:52:45 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Oct 2019 16:52:44 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,265,1566889200"; 
-   d="scan'208";a="204901648"
-Received: from mwebb1-mobl.ger.corp.intel.com (HELO localhost) ([10.251.93.103])
-  by orsmga002.jf.intel.com with ESMTP; 06 Oct 2019 16:52:38 -0700
-Date:   Mon, 7 Oct 2019 02:52:38 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        David Safford <david.safford@ge.com>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
-        David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191006235238.GA16641@linux.intel.com>
-References: <1570140491.5046.33.camel@linux.ibm.com>
- <1570147177.10818.11.camel@HansenPartnership.com>
- <20191004182216.GB6945@linux.intel.com>
- <1570213491.3563.27.camel@HansenPartnership.com>
- <20191004183342.y63qdvspojyf3m55@cantor>
- <1570214574.3563.32.camel@HansenPartnership.com>
- <20191004200728.xoj6jlgbhv57gepc@cantor>
- <20191004201134.nuesk6hxtxajnxh2@cantor>
- <1570227068.17537.4.camel@HansenPartnership.com>
- <1570322333.5046.145.camel@linux.ibm.com>
+        id S1726489AbfJGABU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 6 Oct 2019 20:01:20 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:37648 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726150AbfJGABU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 6 Oct 2019 20:01:20 -0400
+Received: by mail-wr1-f65.google.com with SMTP id p14so12137092wro.4
+        for <stable@vger.kernel.org>; Sun, 06 Oct 2019 17:01:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=8A/b/buLvgq885sAoN7Nr0i+KAjyO9HJlZWwmpkzPBM=;
+        b=WaZ49LUblvFIfMvFw/zQrha2Gu/0bUasotvpoLH54PdQvaMX/AQvQJVxby8EgF8dPA
+         51DU9Ote9sOvhs4/jic85DXGz3anNOfxGyjkgbeSVVoNRMnSdd4kcsS5sThQmwUnUGl7
+         4ieJL/UUJcyUEH/fplSBvI1UkJ9x0bb63Wv2o4xsx73OxOfG3NNAtbwWwKvtQgv+jwK0
+         rN/RcVwZMD8YKit9FDMYntFrFq64TyExgRiOefxXJuhB6VGcR92nuJdJ9KrxFvMUKQws
+         gzHp5En3AXRq3c6r81BM+xp85LwQxnGtCovaEHFL0moUb/ROyj72Ict6En/aN9s0od1f
+         A6VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=8A/b/buLvgq885sAoN7Nr0i+KAjyO9HJlZWwmpkzPBM=;
+        b=ugzQr3j9kaz7yltE1WXPX99rnxEMHeVUKGyh2JPGzAObbKRxjW3i+b2v9VfZecpJs1
+         N9g6zTH1Dk3YMcgNuDA/GQ3wHCzcGCV/NALUyZmlo1B6oLRLmwjS5K+v0o2AWWreCGdK
+         VCEZF4I0EIqWOLdDLJIYE8OQNYpelfO4/aYIcNF/nk0NBP63BXsQMkexkU9v4DpWzZnJ
+         jQqPqC9WqN6TUKN1JgfTVcWEfI0wf9JcA5r2WzwI/IykXdkAzkVPde/2hr7j6Wjqy6uB
+         r47nlZKkDF60+PwUlAnQ7HFE6Av2abdU22lb1Hf5YFy1kIJWczHgINe8HKH2rWtf/dBz
+         pv+Q==
+X-Gm-Message-State: APjAAAVQl/l9++ctlieJYqa+PK4c3mGmj7XuvaArNQZALMWIxzYcCAjE
+        7ujn1FJ36LaAHqxRFRVFEo8LFg==
+X-Google-Smtp-Source: APXvYqyT+osXHm4zxc/ZrBzht6GDZ1DzEJEIwzpu3A3usSFzEHJfzlJBvMXFUdidEn07lEqvd/mYIw==
+X-Received: by 2002:adf:cd86:: with SMTP id q6mr11221308wrj.153.1570406478717;
+        Sun, 06 Oct 2019 17:01:18 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o4sm25830666wre.91.2019.10.06.17.01.17
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 06 Oct 2019 17:01:18 -0700 (PDT)
+Message-ID: <5d9a804e.1c69fb81.cf4b6.33e6@mx.google.com>
+Date:   Sun, 06 Oct 2019 17:01:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1570322333.5046.145.camel@linux.ibm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.77-107-g61e72e79b84d
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+In-Reply-To: <20191006171124.641144086@linuxfoundation.org>
+References: <20191006171124.641144086@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 000/106] 4.19.78-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 05, 2019 at 08:38:53PM -0400, Mimi Zohar wrote:
-> On Fri, 2019-10-04 at 15:11 -0700, James Bottomley wrote:
-> 
-> > +
-> > +/**
-> > + * tpm_get_random() - get random bytes influenced by the TPM's RNG
-> > + * @chip:	a &struct tpm_chip instance, %NULL for the default chip
-> > + * @out:	destination buffer for the random bytes
-> > + * @max:	the max number of bytes to write to @out
-> > + *
-> > + * Uses the TPM as a source of input to the kernel random number
-> > + * generator and then takes @max bytes directly from the kernel.  In
-> > + * the worst (no other entropy) case, this will return the pure TPM
-> > + * random number, but if the kernel RNG has any entropy at all it will
-> > + * return a mixed entropy output which doesn't rely on a single
-> > + * source.
-> > + *
-> > + * Return: number of random bytes read or a negative error value.
-> > + */
-> > +int tpm_get_random(struct tpm_chip *chip, u8 *out, size_t max)
-> > +{
-> > +	int rc;
-> > +
-> > +	rc = __tpm_get_random(chip, out, max);
-> > +	if (rc <= 0)
-> > +		return rc;
-> > +	/*
-> > +	 * assume the TPM produces pure randomness, so the amount of
-> > +	 * entropy is the number of bits returned
-> > +	 */
-> > +	add_hwgenerator_randomness(out, rc, rc * 8);
-> > +	get_random_bytes(out, rc);
-> 
-> Using the TPM as a source of input to the kernel random number
-> generator is fine, but please don't change the meaning of trusted
-> keys.  The trusted-encrypted keys documentation clearly states
-> "Trusted Keys use a TPM both to generate and to seal the keys."
-> 
-> If you really want to use a different random number source instead of
-> the TPM, then define a new trusted key option (eg. rng=kernel), with
-> the default being the TPM.
+stable-rc/linux-4.19.y boot: 56 boots: 0 failed, 56 passed (v4.19.77-107-g6=
+1e72e79b84d)
 
-I'll add a patch that updates the documentation because it is clearly
-not a good practice to use TPM to generate keys that are not keys
-residing inside the TPM.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.77-107-g61e72e79b84d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.77-107-g61e72e79b84d/
 
-With TEE coming in, TPM is not the only hardware measure anymore sealing
-the keys and we don't want a mess where every hardware asset does their
-own proprietary key generation. The proprietary technology should only
-take care of the sealing part.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.77-107-g61e72e79b84d
+Git Commit: 61e72e79b84d3a2519ad88c10964d7e4fa11ef1d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 39 unique boards, 16 SoC families, 12 builds out of 206
 
-/Jarkko
+---
+For more info write to <info@kernelci.org>
