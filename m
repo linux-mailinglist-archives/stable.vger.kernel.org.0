@@ -2,138 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDF6CE981
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317BACE98A
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728588AbfJGQnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 12:43:06 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:41249 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727970AbfJGQnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 12:43:06 -0400
-Received: by mail-pf1-f195.google.com with SMTP id q7so8993023pfh.8
-        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 09:43:05 -0700 (PDT)
+        id S1728028AbfJGQnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 12:43:55 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:38433 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727830AbfJGQnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 12:43:53 -0400
+Received: by mail-lj1-f193.google.com with SMTP id b20so14431488ljj.5
+        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 09:43:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=DqRaKKb4MIDZkPIzMIF26YB72N9deabH6QrKCDZ4VYg=;
-        b=FpFHy4peK4L70f64OcM9wSee5GAAbdr7kct1DpldnL87yT1hCZqb7C0VCWf4+b4t1K
-         m2Gt4RHACh7KJdMxbnHVgbHN1E4eyp46IJDFySJl5gKSaXFspgau0JGltITbFAd10qr5
-         k8+hb7KPJHZfyhXXVhSQ6D1YpEZc4SIh8jKU5f4BX6qF3jvaSKNSs4290NYCBD3FaEhF
-         /KbgTDIx7dE2pzirfxZS+3aXejWSaw9I8blAqhnR4ud6KZxHgIy5UyX0KlgR9xucLRTo
-         zmcEl/M5GRgA9u7h0aY5OIFpHjdeySpzLImv3Y8Kq2GizltfOww40DIfER4lL3+YQyXT
-         MiZg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=7Zqyp+EzMxcNslBkEtpTkjVzHDniuE8hee0J+iYqh3k=;
+        b=aBQB7O1P30QBMIkkPZhqXSR1LSNwIFJunCsW0X06VXb6Bvn7XGsj+dfsdmKJd3CiyH
+         q4YvufUqrT1Hl2obL2UFRAJ0wxp6agBulsApTGbnil8AS4Np7O9esp+A5jY5NwIg0JSd
+         RpBHTMJRN/H+4aVNuNC5hqI0Qu/sjY/LPbTozg6YRYLbF782F+gyGqNIMOoKNJpwoVpy
+         ta5VuMWLvsa9ZciN2uga5H197TX2KmRWtRzJicu9jUjZ+Bokh7Xx7sl09aUOAtPXJcMz
+         +aOwcQygCF0lmSh5PDuNNQekjaI73UMxFU81oRTqcD+8ihU/wRPI7ju9ANoRCRE717vY
+         BYUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=DqRaKKb4MIDZkPIzMIF26YB72N9deabH6QrKCDZ4VYg=;
-        b=kBF1oHLyie2WB0dstseaU1/mYRHHCfrkw8KSWG8JN6vn89ZinuAzIgzN0mdjE/YyEL
-         65aVtMC2mwTypB7g7JQB4KFVEc14PFHsOqMIBhQ8bDqyJgp4cFr0D1RCg1kViWhoQ8/+
-         mYbqClasXFRDH1nbBKr8+J+mDgW5H+7+ez8kAFrI8G8wrQBXlXdhoVfqeAaxZpBRsM1Y
-         3zEG0ougAIS65nXcpd+Y7bn0lLcoKzcNxBYiqzWpLZ3OnPwN+SkdxP+BCVwUeQ8ETjC8
-         PMoxkjCLC1TAAKupkOfRn0xrRJQKLAw/RkYgHDyGxVqCgP/157BDC457ihjEkZU0EWkV
-         rn7Q==
-X-Gm-Message-State: APjAAAUxk+LQ7bwcPMT745Eopku6DBLu1z5i1F9FbXia0s4mzNXFuNaU
-        027EcSjaLm5FO85EW6fMcc0i+A==
-X-Google-Smtp-Source: APXvYqyIFfiIX8M8ZKiZ25hUlwGaFhNL6pVrJMMdwvYiiyg8No4RMZKuFIF8exLb9Ld1x7axYzWV+A==
-X-Received: by 2002:a63:e558:: with SMTP id z24mr6194458pgj.379.1570466585019;
-        Mon, 07 Oct 2019 09:43:05 -0700 (PDT)
-Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
-        by smtp.googlemail.com with ESMTPSA id k5sm14054281pgb.11.2019.10.07.09.43.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Oct 2019 09:43:04 -0700 (PDT)
-Subject: Re: [PATCH] ovl: filter of trusted xattr results in audit
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
-        linux-security-module@vger.kernel.org, stable@vger.kernel.org,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        linux-unionfs@vger.kernel.org
-References: <20191007160918.29504-1-salyzyn@android.com>
- <20191007161616.GA988623@kroah.com> <20191007161725.GB988623@kroah.com>
- <20191007164037.GA1012698@kroah.com>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <75330715-b83c-fa26-5dbd-745f71e9d592@android.com>
-Date:   Mon, 7 Oct 2019 09:43:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7Zqyp+EzMxcNslBkEtpTkjVzHDniuE8hee0J+iYqh3k=;
+        b=fu+iX2vPckeKqzfwK3BYwgjlobkfVJREKHOyzDBfgZ71s0F+dfN4brJb07syzh/U/t
+         MKzi9Xu2Bj/ZR5gBnS3jxOJj8woRbjq3CVHojPeZKQBVrw3UmZi/yRDJEZZi9YFPCF4G
+         a+tdIK/D3mhXoa1r731GOlbRaHKY0lXTNNYNJ5LGtz7Sqtot1HxNuTCsrgT3xMNw6QOZ
+         muKC7X+cnC+rHmJUVQR057jcQF7887IEo8e+a/QoD/0kRCnplSL0GCZVqsSOhL8zawnn
+         c9UZtb11VY+tGWVYUzhrn0iXY5th70py0GHefUUglDAR2y9C8hj9siTQ80LlmIRvwXbR
+         RcEA==
+X-Gm-Message-State: APjAAAUW9hECzzFTINB0I0uut+GmLYBbaklLmPjXXq8biJZNtW6050nY
+        0rAP5Vm+g3Ilb/7mmOkadF+xHOb3nDPR2ljDZGTuTg==
+X-Google-Smtp-Source: APXvYqwPaGHjD2F43p7X3DF5o0DsdFVhMZoHPQhp/6xiPe8/10mLuBDcg6DzDAbtohD03hpCeRgCA2gh2dbsFQ2DPJA=
+X-Received: by 2002:a2e:9a4e:: with SMTP id k14mr15666974ljj.129.1570466631777;
+ Mon, 07 Oct 2019 09:43:51 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191007164037.GA1012698@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+References: <20191006171212.850660298@linuxfoundation.org> <7148ff93-bac0-f78a-df3a-b9dbbee3db1a@linaro.org>
+In-Reply-To: <7148ff93-bac0-f78a-df3a-b9dbbee3db1a@linaro.org>
+From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
+Date:   Mon, 7 Oct 2019 11:43:39 -0500
+Message-ID: <CAEUSe79aYVt1=MUqsWefBWQsucskuG6NpP5KRxQsjouJw+yXJQ@mail.gmail.com>
+Subject: Re: [PATCH 5.3 000/166] 5.3.5-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>
+Cc:     Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/7/19 9:40 AM, Greg Kroah-Hartman wrote:
-> On Mon, Oct 07, 2019 at 06:17:25PM +0200, Greg Kroah-Hartman wrote:
->> On Mon, Oct 07, 2019 at 06:16:16PM +0200, Greg Kroah-Hartman wrote:
->>> On Mon, Oct 07, 2019 at 09:09:16AM -0700, Mark Salyzyn wrote:
->>>> When filtering xattr list for reading, presence of trusted xattr
->>>> results in a security audit log.  However, if there is other content
->>>> no errno will be set, and if there isn't, the errno will be -ENODATA
->>>> and not -EPERM as is usually associated with a lack of capability.
->>>> The check does not block the request to list the xattrs present.
->>>>
->>>> Switch to has_capability_noaudit to reflect a more appropriate check.
->>>>
->>>> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
->>>> Cc: linux-security-module@vger.kernel.org
->>>> Cc: kernel-team@android.com
->>>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>> Cc: stable@vger.kernel.org # v3.18
->>>> Fixes: upstream a082c6f680da ("ovl: filter trusted xattr for non-admin")
->>>> Fixes: 3.18 4bcc9b4b3a0a ("ovl: filter trusted xattr for non-admin")
->>>> ---
->>>> Replaced ns_capable_noaudit with 3.18.y tree specific
->>>> has_capability_noaudit present in original submission to kernel.org
->>>> commit 5c2e9f346b815841f9bed6029ebcb06415caf640
->>>> ("ovl: filter of trusted xattr results in audit")
->>>>
->>>>   fs/overlayfs/inode.c | 3 ++-
->>>>   1 file changed, 2 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
->>>> index a01ec1836a72..1175efa5e956 100644
->>>> --- a/fs/overlayfs/inode.c
->>>> +++ b/fs/overlayfs/inode.c
->>>> @@ -265,7 +265,8 @@ static bool ovl_can_list(const char *s)
->>>>   		return true;
->>>>   
->>>>   	/* Never list trusted.overlay, list other trusted for superuser only */
->>>> -	return !ovl_is_private_xattr(s) && capable(CAP_SYS_ADMIN);
->>>> +	return !ovl_is_private_xattr(s) &&
->>>> +	       has_capability_noaudit(current, CAP_SYS_ADMIN);
->>>>   }
->>>>   
->>>>   ssize_t ovl_listxattr(struct dentry *dentry, char *list, size_t size)
->>>> -- 
->>>> 2.23.0.581.g78d2f28ef7-goog
->>>>
->>> Thanks for the backport, this one worked!
->> I spoke too soon:
->>
->> ERROR: "has_capability_noaudit" [fs/overlayfs/overlay.ko] undefined!
->>
->> That function isn't exported for modules :(
-> But, if this really is needed, and it fixes the issue, I'll go export
-> that symbol with EXPORT_SYMBOL_GPL() to fix the problem.  Any
-> objections?
+Hello!
+
+On Mon, 7 Oct 2019 at 11:25, Daniel D=C3=ADaz <daniel.diaz@linaro.org> wrot=
+e:
+> Results from Linaro=E2=80=99s test farm.
+> Regressions detected.
+
+My bad. Should read: "No regressions detected" here, in line with the
+other reports.
+
+Greetings!
+
+Daniel D=C3=ADaz
+daniel.diaz@linaro.org
+
+
+> As mentioned, we found a problem with the mismatch of kselftests 5.3.1 an=
+d net/udpgso.sh, but everything is fine.
 >
-> thanks,
+> Summary
+> ------------------------------------------------------------------------
 >
-> greg k-h
-
-Ok, you just answered my question in cross-emails. Yes, 
-EXPORT_SYMBOL_GPL() (my option 2).
-
-
-Thanks
-
-
--- Mark Salyzyn
-
+> kernel: 5.3.5-rc1
+> git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+> git branch: linux-5.3.y
+> git commit: a2703e78c28a6166f8796b4733620c6d0b8f479a
+> git describe: v5.3.4-167-ga2703e78c28a
+> Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/b=
+uild/v5.3.4-167-ga2703e78c28a
+>
+> No regressions (compared to build v5.3.4)
+>
+> No fixes (compared to build v5.3.4)
+>
+> Ran 25519 total tests in the following environments and test suites.
+>
+> Environments
+> --------------
+> - dragonboard-410c
+> - hi6220-hikey
+> - i386
+> - juno-r2
+> - qemu_arm
+> - qemu_arm64
+> - qemu_i386
+> - qemu_x86_64
+> - x15
+> - x86
+>
+> Test Suites
+> -----------
+> * build
+> * install-android-platform-tools-r2600
+> * kselftest
+> * libgpiod
+> * libhugetlbfs
+> * ltp-cap_bounds-tests
+> * ltp-commands-tests
+> * ltp-containers-tests
+> * ltp-cpuhotplug-tests
+> * ltp-cve-tests
+> * ltp-dio-tests
+> * ltp-fcntl-locktests-tests
+> * ltp-filecaps-tests
+> * ltp-fs_bind-tests
+> * ltp-fs_perms_simple-tests
+> * ltp-fsx-tests
+> * ltp-hugetlb-tests
+> * ltp-io-tests
+> * ltp-ipc-tests
+> * ltp-math-tests
+> * ltp-mm-tests
+> * ltp-nptl-tests
+> * ltp-pty-tests
+> * ltp-sched-tests
+> * ltp-securebits-tests
+> * ltp-syscalls-tests
+> * ltp-timers-tests
+> * perf
+> * spectre-meltdown-checker-test
+> * v4l2-compliance
+> * ltp-fs-tests
+> * network-basic-tests
+> * ltp-open-posix-tests
+> * kvm-unit-tests
+> * kselftest-vsyscall-mode-native
+> * kselftest-vsyscall-mode-none
+> * ssuite
+>
+>
+> Greetings!
+>
+> Daniel D=C3=ADaz
+> daniel.diaz@linaro.org
+>
+>
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
