@@ -2,129 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17AA7CE925
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B96CE95C
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 18:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727975AbfJGQ1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 12:27:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34468 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbfJGQ1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 12:27:16 -0400
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F319206C0;
-        Mon,  7 Oct 2019 16:27:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570465635;
-        bh=qkPwaifvDP84GW7cD+F3JRfGMTnA8T3MOxCOa4QrBpU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1fPp3LLq8WpQ3cVRHDVr1luJR17NmuqeTva4l2taEfkyZ1QAwT8/xIu2UEiWgRi5b
-         EpAJTPPWL72mKGJqgZlHdhKbmvyW3gcWiN5QWC/teWy1c6/Ppe7o0FShfQIgo+UunD
-         vg9v5LjwZ5tKqn9FIIdIO6E4esYz5aQm2I1qvNww=
-Date:   Mon, 7 Oct 2019 17:27:10 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        andreyknvl@google.com, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Kostya Serebryany <kcc@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] media: uvc: Avoid cyclic entity chains due to malformed
- USB descriptors
-Message-ID: <20191007162709.3vrtbcpoymmnqikl@willie-the-truck>
-References: <20191002112753.21630-1-will@kernel.org>
- <20191002130913.GA5262@pendragon.ideasonboard.com>
- <20191002131928.yp5r4tyvtvwvuoba@willie-the-truck>
- <20191002185604.GF5262@pendragon.ideasonboard.com>
+        id S1728462AbfJGQhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 12:37:07 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:44543 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727801AbfJGQhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 12:37:06 -0400
+Received: by mail-ot1-f66.google.com with SMTP id 21so11499310otj.11
+        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 09:37:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=IZLWASCjbu6D/P+ZICftXZeMrq/yAGXEHUQsfndiqNQ=;
+        b=Ege9LyT2tOY9wE7hQ5zQr5KhCevVdL0L9EeqjZoxWdaoQsjwlJJr+fWYZ3MRouDy71
+         61qyMgC44wt82yrVC/gs1TyHwUYNKR/Cw86VN3P0UoPLjebaYTWCYUhV6K2+03wT5GLS
+         arUx/S5D6NAplPdNu+hk5Mg4jyJvKZTW0PlDfqChIp/3rKYI4ll7GOGvINjMWPSwigKo
+         9HdrLPhS10dq09/i8IlSmxVmkD1HPDUtwycEP9tAMqXZz9JprDLddCpCHJDQctVI1Yft
+         GJ6Z9uzoy1aZEvNIPsULUFPa1bQsYUwZGeDKQSnWvGAMG6oMgnRTgr22u04hsaNmeWeT
+         3RHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=IZLWASCjbu6D/P+ZICftXZeMrq/yAGXEHUQsfndiqNQ=;
+        b=B4os1yJSv+rLk/fliDzX6xFgSjGnTd536RmaO4kOoOo2/z++d5nfaa3foc/ZJ0DGWj
+         fgNN18KWDrKoa1tUg5UsFbuiHwgXSjY9OTeIm93psIpUy3uK+eAIkDYzxgMR9f/Aj2D5
+         WMV5AZB2BR6erkqPSZfL19Uo0evJhpCaYCXyJEnTU7SSOX0Tvg/XRnCoZWHYc/SLXg9X
+         XCP4zTk9UMGZR289IRlVn5vMRGzEXY6UoJ9s7Rlr9BSET/3lqiOd7f1Q0MRfYtELVd+J
+         wkH2kxVQyufptC/fVbalznCVS5yM2SikGmFg7tt3SONgKWkx4skp5uaqWJCZjxUIma7D
+         xJ5w==
+X-Gm-Message-State: APjAAAVUrNtcREI42+9J//EFh84E/o1xfwsoS/TXOqDPY9S9bHps4Uwt
+        WFIIPo/5mHgOyAAN/XxgsqzIXT3EnE35Lw==
+X-Google-Smtp-Source: APXvYqxeX+GkedQBIlrnuDolFQSEic6i804WIcVagavp2bVA6UvcVs7eXpXNMsjmwLuWElyQBf8Cfw==
+X-Received: by 2002:a05:6830:14d5:: with SMTP id t21mr13122141otq.352.1570466223690;
+        Mon, 07 Oct 2019 09:37:03 -0700 (PDT)
+Received: from [192.168.17.59] (CableLink-189-218-29-211.Hosts.InterCable.net. [189.218.29.211])
+        by smtp.gmail.com with ESMTPSA id m25sm4428432oie.39.2019.10.07.09.37.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 09:37:02 -0700 (PDT)
+Subject: Re: [PATCH 4.4 00/36] 4.4.196-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191006171038.266461022@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <785ba642-2e01-2a1c-dd33-8d39c18bb90b@linaro.org>
+Date:   Mon, 7 Oct 2019 11:37:01 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191002185604.GF5262@pendragon.ideasonboard.com>
-User-Agent: NeoMutt/20170113 (1.7.2)
+In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Laurent,
+Hello!
 
-Sorry for the delay, I got tied up with other patches.
 
-On Wed, Oct 02, 2019 at 09:56:04PM +0300, Laurent Pinchart wrote:
-> On Wed, Oct 02, 2019 at 02:19:29PM +0100, Will Deacon wrote:
-> > > uvc_scan_chain_forward() is then called (from uvc_scan_chain()), and
-> > > iterates over all entities connected to the entity being scanned.
-> > > 
-> > > 	while (1) {
-> > > 		forward = uvc_entity_by_reference(chain->dev, entity->id,
-> > > 			forward);
-> > 
-> > Yes.
-> > 
-> > > At this point forward may be equal to entity, if entity references
-> > > itself.
-> > 
-> > Correct -- that's indicative of a malformed entity which we want to reject,
-> > right?
+On 10/6/19 12:18 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.196 release.
+> There are 36 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Right. We can reject the whole chain in that case. There's one case
-> where we still want to succeed though, which is handled by
-> uvc_scan_fallback().
+> Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
+> Anything received after that time might be too late.
 > 
-> Looking at the code, uvc_scan_device() does
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.196-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
 > 
->                 if (uvc_scan_chain(chain, term) < 0) {
->                         kfree(chain);
->                         continue;
->                 }
+> thanks,
 > 
-> It seems that's missing removal of all entities that would have been
-> successfully added to the chain. This prevents, I think,
-> uvc_scan_fallback() from working properly in some cases.
+> greg k-h
 
-I started trying to hack something up here, but I'm actually not sure
-there's anything to do!
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I agree that 'uvc_scan_chain()' can fail after adding entities to the
-chain, however, 'uvc_scan_fallback()' allocates a new chain and calls
-only 'uvc_scan_chain_entity()' to add entities to it. This doesn't fail
-on pre-existing 'list_head' structures, so the dangling pointers shouldn't
-pose a problem there. My patch only adds the checks to
-'uvc_scan_chain_forward()' and 'uvc_scan_chain_backward()', neither of
-which are invoked on the fallback path.
+Summary
+------------------------------------------------------------------------
 
-The fallback also seems like a best-effort thing, since it isn't even
-invoked if we managed to initialise *any* chains successfully.
+kernel: 4.4.196-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+git branch: linux-4.4.y
+git commit: 13cac61d31df3572c7a2c88f2f40c59e0a92baf2
+git describe: v4.4.195-37-g13cac61d31df
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/build/v4.4.195-37-g13cac61d31df
 
-Does that make sense, or did you have another failure case in mind?
 
-> > > 		if (forward == NULL)
-> > > 			break;
-> > > 		if (forward == prev)
-> > > 			continue;
-> > > 		if (forward->chain.next || forward->chain.prev) {
-> > > 			uvc_trace(UVC_TRACE_DESCR, "Found reference to "
-> > > 				"entity %d already in chain.\n", forward->id);
-> > > 			return -EINVAL;
-> > > 		}
-> > > 
-> > > But then this check should trigger, as forward == entity and entity is
-> > > in the chain's list of entities.
-> > 
-> > Right, but this code is added by my patch, no? In mainline, the code only
-> > has the first two checks, which both end up comparing against NULL the first
-> > time around:
-> > 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/media/usb/uvc/uvc_driver.c#n1489
-> > 
-> > Or are you referring to somewhere else?
-> 
-> Oops. This is embarassing... :-) You're of course right. The second hunk
-> seems fine too, even if I would have preferred centralising the check in
-> a single place. That should be possible, but it would involve
-> refactoring that isn't worth it at the moment.
+No regressions (compared to build v4.4.195)
 
-Agreed, thanks.
+No fixes (compared to build v4.4.195)
 
-Will
+Ran 18597 total tests in the following environments and test suites.
+
+Environments
+--------------
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-timers-tests
+* network-basic-tests
+* prep-tmp-disk
+* spectre-meltdown-checker-test
+* kvm-unit-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* install-android-platform-tools-r2600
+* kselftest-vsyscall-mode-native
+* ssuite
+
+Summary
+------------------------------------------------------------------------
+
+kernel: 4.4.196-rc1
+git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
+git branch: 4.4.196-rc1-hikey-20191006-575
+git commit: 49d2751d5f3cdb81b162d5c1f7ffb0fe210f005c
+git describe: 4.4.196-rc1-hikey-20191006-575
+Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4-oe/build/4.4.196-rc1-hikey-20191006-575
+
+
+No regressions (compared to build 4.4.195-rc1-hikey-20191003-572)
+
+No fixes (compared to build 4.4.195-rc1-hikey-20191003-572)
+
+Ran 1520 total tests in the following environments and test suites.
+
+Environments
+--------------
+- hi6220-hikey - arm64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
