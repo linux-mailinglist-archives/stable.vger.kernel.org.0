@@ -2,100 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6283CDECB
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 12:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C65FACDF12
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 12:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727691AbfJGKJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 06:09:10 -0400
-Received: from hqemgate15.nvidia.com ([216.228.121.64]:18164 "EHLO
-        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727262AbfJGKJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 06:09:10 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5d9b0ece0000>; Mon, 07 Oct 2019 03:09:18 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Mon, 07 Oct 2019 03:09:09 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Mon, 07 Oct 2019 03:09:09 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 7 Oct
- 2019 10:09:09 +0000
-Received: from [10.21.133.51] (172.20.13.39) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 7 Oct 2019
- 10:09:06 +0000
-Subject: Re: [PATCH 5.3 000/166] 5.3.5-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191006171212.850660298@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <b71f3543-ba23-9e23-40aa-f958c0012182@nvidia.com>
-Date:   Mon, 7 Oct 2019 11:09:04 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1727390AbfJGKR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 06:17:59 -0400
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:35688 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727324AbfJGKR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 06:17:59 -0400
+Received: by mail-qk1-f194.google.com with SMTP id w2so12025092qkf.2
+        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 03:17:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=A9Mvf3SvxfZZFNz/T17+KXuwp8jc+McicCxE/Wgq4O8=;
+        b=UVVCE8+9YK0ymoEeE/pkvuU8muUk2rsY1QXZhzbAtHHnljHiOUFxyNoKYi4DOeYg4G
+         +nU1Hpz193CeeJ+vztY4v8xtYIxRQDhVCfOKaHGH1oWdqeojGXJj2+aSgr+Ufv0PXn+d
+         ti/UxK2BrxZNNzIpGSYFp8T3wF+GKcMhv+WMxg8UoEDE9LrHdG+1QCVr6RqTtFG406WP
+         YC4UFmDW67OPg9ZxKbSvEr2gJLtdOtHzZPnDNYvIZARSPWTJCXaD8lSrDGhf1GNU+gqT
+         gmInLxzr/JuDwQX7iDQBxMcyKARon/pRG460XjMsrCjClTwTcjd4CsVmuWIpl0fckQX+
+         aGZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=A9Mvf3SvxfZZFNz/T17+KXuwp8jc+McicCxE/Wgq4O8=;
+        b=cS1S/m16nRr+GB7+syJDqXbMA4Hds7bAskv7K5DLMJH/E9iVzjouxPrnl6i071YcPe
+         4O7DqI8EB9Law02qhZDoL+cJ4MHL/uBkWeBdnxFSEKAnC/yfOVIbZ+e+IvqszIYO16oy
+         1EoySa0iKyQZ3oWBi+nE4stqoimFk6DROsHsfDXuXMy5ISx9Wo6Wm6pDpK3qKZcaYPN1
+         UZkaOqoHsb+j6oReioFBFnLWTbdDq+HlqIDC02VD+Y52vs8iF+YHnMtESAMKpQ09IaW4
+         3Yu8bIV3h2hLy5CUsd1meaDOaz15oe/g/Aw+55tuC7SXKDzUoUlfY20XIpqYaafnI3LR
+         CGtw==
+X-Gm-Message-State: APjAAAXMY66Y8jP+Y/8Aiv6DNkrRzcuQPGxLeBybzimmlww8OZR5dZTa
+        6Fc1ZCy/LXrcKFyzoaBqOw9feWa0OiCMSxDvXjU=
+X-Google-Smtp-Source: APXvYqwfPAXygte77nEs+q4cFp6R2MSL3t1rnaZDtsGie+ChOEVIdqHgxjjnoer0guuOS3CLOWikQfu7DV4qv6jdOsE=
+X-Received: by 2002:a37:b702:: with SMTP id h2mr23038430qkf.166.1570443478325;
+ Mon, 07 Oct 2019 03:17:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1570442958; bh=VozzKtlqX2N3epaOgA57RUukBHtTSD9rzkZ9uNledCA=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=oS5k35WbVU9mIEJkumYodEqydmRZzImrlKUKxAjTLZZRzJCTptTiwITI5lrg+Yb6V
-         c3s69l/OkNfEkvS8rVdGqokeZGF1L5HftCJ58bHPGOesAtHTypJC7DDIYEx4Uy7/0q
-         8V37p+Sy5JMXNjec56ysUqiIRQp66FcBNw7HkedxH50O1gEVbyhOj+7IEujx5bJ9sN
-         XaY9ll3W+UVCwQgO8a/Kg3MmJcRXXs1EYFgq0agSawRHy9svaBDxA4or3QOVb1gdQ2
-         /1NGU8pmuUtWo8CiRHwebfyQt+VDgU7Q8pddC6QJq2v8jCDZ10crv2bsFYam0rX89H
-         VgRWXr86LbdTw==
+Received: by 2002:ac8:6615:0:0:0:0:0 with HTTP; Mon, 7 Oct 2019 03:17:57 -0700 (PDT)
+Reply-To: eddywilliam0005@gmail.com
+From:   eddy william <ed7293954@gmail.com>
+Date:   Mon, 7 Oct 2019 12:17:57 +0200
+Message-ID: <CAN9EptJ8DjE0jxAAQHrKTUZLmFB6_htowtSuajahXffUoxX_Lg@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hallo
 
-On 06/10/2019 18:19, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.5 release.
-> There are 166 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.5-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Mein Name ist Eddy William. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
+(8,5 Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
 
-All tests are passing for Tegra ...
+Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
+bei einem Autounfall ums Leben gekommen ist
+und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
+nd 50%
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: eddywilliam0005gmail.com
 
-Test results for stable-v5.3:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
+Vielen Dank im Voraus,
+Mr. Eddy William,
 
-Linux version:	5.3.5-rc1-ga2703e78c28a
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
 
-Cheers
-Jon
+Hello
 
--- 
-nvpublic
+My name is Eddy William I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($8.5 Million)
+dollars my client left in the bank before his death.
+
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:eddywilliam0005gmail.=
+com
+
+Many thanks in advance,
+Mr.Eddy William,
