@@ -2,110 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC34FCE5DC
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1F3CE5B8
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbfJGOuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:50:54 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:44479 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728594AbfJGOtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:41 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iHUKE-00060L-Dd; Mon, 07 Oct 2019 16:49:26 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id B6EBB1C08B3;
-        Mon,  7 Oct 2019 16:49:16 +0200 (CEST)
-Date:   Mon, 07 Oct 2019 14:49:16 -0000
-From:   "tip-bot2 for Ian Rogers" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf llvm: Don't access out-of-scope array
-Cc:     stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
-        v4.4+@tip-bot2.tec.linutronix.de, Ian Rogers <irogers@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20190926220018.25402-1-irogers@google.com>
-References: <20190926220018.25402-1-irogers@google.com>
+        id S1728839AbfJGOtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:49:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56756 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728827AbfJGOtz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 10:49:55 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 795EB21721;
+        Mon,  7 Oct 2019 14:49:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570459794;
+        bh=r4K7HAwLnCeGJFkWlb4lenJOAqclCLAOXkLixnCX080=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=D52K+4pPEnFckx8ZJgeQB5pQg9bw/NPoVMCLRzoJC/bFTaCjswMxxBhdMP2PqRmNX
+         MXB9/A1fV1FaZ8fb8tfslbeiQR+vEv2T9gP+0vyMEr5b7n/nBALrofKtuhOozThz28
+         mYWblVLt26i79NTfFjiVgatl2Jswp0V47JYfdWhI=
+Date:   Mon, 7 Oct 2019 16:49:51 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/36] 4.4.196-stable review
+Message-ID: <20191007144951.GB966828@kroah.com>
+References: <20191006171038.266461022@linuxfoundation.org>
+ <d3e1e6ae-8ca4-a43b-d30d-9a9a9a7e5752@roeck-us.net>
 MIME-Version: 1.0
-Message-ID: <157045975668.9978.5510721864819545114.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d3e1e6ae-8ca4-a43b-d30d-9a9a9a7e5752@roeck-us.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
+On Mon, Oct 07, 2019 at 05:53:55AM -0700, Guenter Roeck wrote:
+> On 10/6/19 10:18 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.4.196 release.
+> > There are 36 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
+> > Anything received after that time might be too late.
+> > 
+> 
+> powerpc:defconfig fails to build.
+> 
+> arch/powerpc/kernel/eeh_driver.c: In function ‘eeh_handle_normal_event’:
+> arch/powerpc/kernel/eeh_driver.c:678:2: error: implicit declaration of function ‘eeh_for_each_pe’; did you mean ‘bus_for_each_dev’?
+> 
+> It has a point:
+> 
+> ... HEAD is now at 13cac61d31df Linux 4.4.196-rc1
+> $ git grep eeh_for_each_pe
+> arch/powerpc/kernel/eeh_driver.c:       eeh_for_each_pe(pe, tmp_pe)
+> arch/powerpc/kernel/eeh_driver.c:                               eeh_for_each_pe(pe, tmp_pe)
+> 
+> Caused by commit 3fb431be8de3a ("powerpc/eeh: Clear stale EEH_DEV_NO_HANDLER flag").
+> Full report will follow later.
 
-Commit-ID:     7d4c85b7035eb2f9ab217ce649dcd1bfaf0cacd3
-Gitweb:        https://git.kernel.org/tip/7d4c85b7035eb2f9ab217ce649dcd1bfaf0cacd3
-Author:        Ian Rogers <irogers@google.com>
-AuthorDate:    Thu, 26 Sep 2019 15:00:18 -07:00
-Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitterDate: Mon, 30 Sep 2019 17:29:35 -03:00
+Thanks for letting me know, I've dropped this from the queue now and
+pushed out a -rc2 with that removed.
 
-perf llvm: Don't access out-of-scope array
+Sasha, I thought your builder would have caught stuff like this?
 
-The 'test_dir' variable is assigned to the 'release' array which is
-out-of-scope 3 lines later.
+thanks,
 
-Extend the scope of the 'release' array so that an out-of-scope array
-isn't accessed.
-
-Bug detected by clang's address sanitizer.
-
-Fixes: 07bc5c699a3d ("perf tools: Make fetch_kernel_version() publicly available")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Ian Rogers <irogers@google.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: http://lore.kernel.org/lkml/20190926220018.25402-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/util/llvm-utils.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/tools/perf/util/llvm-utils.c b/tools/perf/util/llvm-utils.c
-index 8d04e3d..8b14e4a 100644
---- a/tools/perf/util/llvm-utils.c
-+++ b/tools/perf/util/llvm-utils.c
-@@ -233,14 +233,14 @@ static int detect_kbuild_dir(char **kbuild_dir)
- 	const char *prefix_dir = "";
- 	const char *suffix_dir = "";
- 
-+	/* _UTSNAME_LENGTH is 65 */
-+	char release[128];
-+
- 	char *autoconf_path;
- 
- 	int err;
- 
- 	if (!test_dir) {
--		/* _UTSNAME_LENGTH is 65 */
--		char release[128];
--
- 		err = fetch_kernel_version(NULL, release,
- 					   sizeof(release));
- 		if (err)
+greg k-h
