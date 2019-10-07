@@ -2,66 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8C85CDCC5
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 10:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDFDFCDCF7
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 10:16:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727439AbfJGIC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 04:02:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35222 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727224AbfJGIC3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 04:02:29 -0400
-Received: from [10.33.87.18] (twin.jikos.cz [91.219.245.39])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CECD20867;
-        Mon,  7 Oct 2019 08:02:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570435348;
-        bh=DbrpAfomurrCCdFD0IJeUwRw1yWRYID3uypVq0D8MQw=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=ILBNzhemPwPmbQnaC2LVrUnAx54C/R93wfWv1G86UaG8h1UKlITDQ2NQj8Y09JZjM
-         B6xS9BAgcVSnQ/aOy+/+snNJS3s0TNmJiUt4QkMuI+50OcVJ03oqyCnztKugeo0x4g
-         R+lPPA2M1btyA+m1tgijqbN/px5ni5HfUoG7g40Q=
-Date:   Mon, 7 Oct 2019 10:02:11 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Will Deacon <will@kernel.org>
-cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Petr Mladek <pmladek@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Feng Tang <feng.tang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, contact@xogium.me
-Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
-In-Reply-To: <20191004104947.vbxe5kv3nbjxqs55@willie-the-truck>
-Message-ID: <nycvar.YEU.7.76.1910071000170.15186@gjva.wvxbf.pm>
-References: <20191002123538.22609-1-will@kernel.org> <201910021355.E578D2FFAF@keescook> <20191003205633.w26geqhq67u4ysit@willie-the-truck> <20191004091142.57iylai22aqpu6lu@pathway.suse.cz> <20191004092917.GY25745@shell.armlinux.org.uk>
- <20191004104947.vbxe5kv3nbjxqs55@willie-the-truck>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S1727028AbfJGIQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 04:16:26 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56004 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726889AbfJGIQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 04:16:25 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 1DC79AD45;
+        Mon,  7 Oct 2019 08:16:23 +0000 (UTC)
+Date:   Mon, 7 Oct 2019 10:16:21 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Qian Cai <cai@lca.pw>
+Cc:     akpm@linux-foundation.org, tj@kernel.org, vdavydov.dev@gmail.com,
+        hannes@cmpxchg.org, guro@fb.com, cl@linux.com, penberg@kernel.org,
+        rientjes@google.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/slub: fix a deadlock in show_slab_objects()
+Message-ID: <20191007081621.GE2381@dhcp22.suse.cz>
+References: <1570192309-10132-1-git-send-email-cai@lca.pw>
+ <20191004125701.GJ9578@dhcp22.suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191004125701.GJ9578@dhcp22.suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 4 Oct 2019, Will Deacon wrote:
+On Fri 04-10-19 14:57:01, Michal Hocko wrote:
+> On Fri 04-10-19 08:31:49, Qian Cai wrote:
+> > Long time ago, there fixed a similar deadlock in show_slab_objects()
+> > [1]. However, it is apparently due to the commits like 01fb58bcba63
+> > ("slab: remove synchronous synchronize_sched() from memcg cache
+> > deactivation path") and 03afc0e25f7f ("slab: get_online_mems for
+> > kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
+> > just reading files in /sys/kernel/slab which will generate a lockdep
+> > splat below.
+> > 
+> > Since the "mem_hotplug_lock" here is only to obtain a stable online node
+> > mask while racing with NUMA node hotplug, in the worst case, the results
+> > may me miscalculated while doing NUMA node hotplug, but they shall be
+> > corrected by later reads of the same files.
+> 
+> I think it is important to mention that this doesn't expose the
+> show_slab_objects to use-after-free. There is only a single path that
+> might really race here and that is the slab hotplug notifier callback
+> __kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
+> doesn't really destroy kmem_cache_node data structures.
 
-> Indeed, and I think the LED blinking is already unreliable if the
-> brightness operation needs to sleep. 
+Andrew, please add this to the changelog so that we do not have to
+scratch heads again when looking into that code.
 
-One thing is that led_set_brightness() can probably be forced to avoid the 
-workqueue scheduling, by setting LED_BLINK_SW on the device (e.g. by 
-issuing led_set_software_blink() during panic).
-
-But I am afraid this still won't solve the issue completely, as USB 
-keyboards need workqueues for blinking the LEDs in for URB management.
-
+Thanks!
 -- 
-Jiri Kosina
+Michal Hocko
 SUSE Labs
