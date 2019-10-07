@@ -2,80 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F663CDCA5
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 09:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C85CDCC5
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 10:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727252AbfJGHzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 03:55:13 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:34805 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727028AbfJGHzN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 03:55:13 -0400
-X-IronPort-AV: E=Sophos;i="5.67,265,1566831600"; 
-   d="scan'208";a="28464183"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 07 Oct 2019 16:55:11 +0900
-Received: from localhost.localdomain (unknown [10.166.17.210])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 18114400A107;
-        Mon,  7 Oct 2019 16:55:11 +0900 (JST)
-From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-To:     kishon@ti.com
-Cc:     linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH v2] phy: renesas: rcar-gen3-usb2: Fix sysfs interface of "role"
-Date:   Mon,  7 Oct 2019 16:55:10 +0900
-Message-Id: <1570434910-15343-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-X-Mailer: git-send-email 2.7.4
+        id S1727439AbfJGIC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 04:02:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35222 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727224AbfJGIC3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 04:02:29 -0400
+Received: from [10.33.87.18] (twin.jikos.cz [91.219.245.39])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CECD20867;
+        Mon,  7 Oct 2019 08:02:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570435348;
+        bh=DbrpAfomurrCCdFD0IJeUwRw1yWRYID3uypVq0D8MQw=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=ILBNzhemPwPmbQnaC2LVrUnAx54C/R93wfWv1G86UaG8h1UKlITDQ2NQj8Y09JZjM
+         B6xS9BAgcVSnQ/aOy+/+snNJS3s0TNmJiUt4QkMuI+50OcVJ03oqyCnztKugeo0x4g
+         R+lPPA2M1btyA+m1tgijqbN/px5ni5HfUoG7g40Q=
+Date:   Mon, 7 Oct 2019 10:02:11 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Will Deacon <will@kernel.org>
+cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        Petr Mladek <pmladek@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Feng Tang <feng.tang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, contact@xogium.me
+Subject: Re: [PATCH] panic: Ensure preemption is disabled during panic()
+In-Reply-To: <20191004104947.vbxe5kv3nbjxqs55@willie-the-truck>
+Message-ID: <nycvar.YEU.7.76.1910071000170.15186@gjva.wvxbf.pm>
+References: <20191002123538.22609-1-will@kernel.org> <201910021355.E578D2FFAF@keescook> <20191003205633.w26geqhq67u4ysit@willie-the-truck> <20191004091142.57iylai22aqpu6lu@pathway.suse.cz> <20191004092917.GY25745@shell.armlinux.org.uk>
+ <20191004104947.vbxe5kv3nbjxqs55@willie-the-truck>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the role_store() uses strncmp(), it's possible to refer
-out-of-memory if the sysfs data size is smaller than strlen("host").
-This patch fixes it by using sysfs_streq() instead of strncmp().
+On Fri, 4 Oct 2019, Will Deacon wrote:
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Fixes: 9bb86777fb71 ("phy: rcar-gen3-usb2: add sysfs for usb role swap")
-Cc: <stable@vger.kernel.org> # v4.10+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Pavel Machek <pavel@denx.de>
----
- Changes from v1:
- - Rebase on v5.4-rc2.
- - Add Reviewed-by and Acked-by tags.
- https://patchwork.kernel.org/patch/11067371/
+> Indeed, and I think the LED blinking is already unreliable if the
+> brightness operation needs to sleep. 
 
+One thing is that led_set_brightness() can probably be forced to avoid the 
+workqueue scheduling, by setting LED_BLINK_SW on the device (e.g. by 
+issuing led_set_software_blink() during panic).
 
- drivers/phy/renesas/phy-rcar-gen3-usb2.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+But I am afraid this still won't solve the issue completely, as USB 
+keyboards need workqueues for blinking the LEDs in for URB management.
 
-diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-index b7f6b13..6fd1390 100644
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -21,6 +21,7 @@
- #include <linux/platform_device.h>
- #include <linux/pm_runtime.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/string.h>
- #include <linux/usb/of.h>
- #include <linux/workqueue.h>
- 
-@@ -320,9 +321,9 @@ static ssize_t role_store(struct device *dev, struct device_attribute *attr,
- 	if (!ch->is_otg_channel || !rcar_gen3_is_any_rphy_initialized(ch))
- 		return -EIO;
- 
--	if (!strncmp(buf, "host", strlen("host")))
-+	if (sysfs_streq(buf, "host"))
- 		new_mode = PHY_MODE_USB_HOST;
--	else if (!strncmp(buf, "peripheral", strlen("peripheral")))
-+	else if (sysfs_streq(buf, "peripheral"))
- 		new_mode = PHY_MODE_USB_DEVICE;
- 	else
- 		return -EINVAL;
 -- 
-2.7.4
-
+Jiri Kosina
+SUSE Labs
