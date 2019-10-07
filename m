@@ -2,174 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7DACDBDC
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 08:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75179CDC69
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 09:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726984AbfJGG2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 02:28:53 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:46763 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726202AbfJGG2w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 02:28:52 -0400
-Received: by mail-io1-f67.google.com with SMTP id c6so25967637ioo.13
-        for <stable@vger.kernel.org>; Sun, 06 Oct 2019 23:28:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=F+oN7OhnQuDvPSd+hXHX3nHOZPOSv2CcWvqNvOXGack=;
-        b=d5LjPYjP+oNF04YEV5GbXFOT9tv6SH9ye5Tbl6yGeP0zjdpS+DlWNLTBe0M/MDPXqU
-         R0F1KG0AnpPuAqsEq4RR2+ddYspdUw5CZKPJfJEKsF68KIA4nvRK1nEGQz2nmeqlXNBJ
-         4S2D7ehGpwiiCuqug+J03fCCb1b3fpOvFcSIs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=F+oN7OhnQuDvPSd+hXHX3nHOZPOSv2CcWvqNvOXGack=;
-        b=E32wSbmrEeKELq/kIk1kxVZthzIfIiqoC1XNX5zorGXJHbBwlGSrqOEuMCq1w159Oy
-         ZKkPJMI6gX2uS1+co6gQ0GR8sm/hIn29Z6pvQixBKwhrQ9IWO+CVmG///gvO0RZph48W
-         WSMFlk9FrBriEZX2DtIMva8f+4EA4MkTk5SF0FXqWtSKWs4w6N0AHSUz3BxHWGOUZd1S
-         8lz3gM7ZTWm+i2wuD1oj/pNF69sOSzyYDmR84vWkZ5yJ9lgyD5GI9G+Tj3+IwneELwwi
-         SSOlOxe3RZVdZZhnKtY6eT+2PZh8TOMTdAXxav3gtR1vKChayRC81gmF2qSvamG//EZo
-         pmjg==
-X-Gm-Message-State: APjAAAXzv2ss1nIFwW0dou74AuNfgEK8XTpB6JfA6bpVfbmwFbvaAwiS
-        zQY18NMwhy46UF8JiElg84K4Th8AaE6c4a1Aj9uV7A==
-X-Google-Smtp-Source: APXvYqyKVIPCD1bpT+A3W2k0M7W9D8lrhhjDLqSK6n+0PrJuZ2ksgWc+AfWhMWKW5xHnyCK35m4ZP3jAL3uh28nm/TQ=
-X-Received: by 2002:a92:d847:: with SMTP id h7mr10737243ilq.85.1570429731325;
- Sun, 06 Oct 2019 23:28:51 -0700 (PDT)
+        id S1727103AbfJGHcF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 7 Oct 2019 03:32:05 -0400
+Received: from skedge04.snt-world.com ([91.208.41.69]:58854 "EHLO
+        skedge04.snt-world.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726960AbfJGHcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 03:32:05 -0400
+X-Greylist: delayed 538 seconds by postgrey-1.27 at vger.kernel.org; Mon, 07 Oct 2019 03:32:04 EDT
+Received: from sntmail12r.snt-is.com (unknown [10.203.32.182])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by skedge04.snt-world.com (Postfix) with ESMTPS id 7DAC767A7D3;
+        Mon,  7 Oct 2019 09:23:03 +0200 (CEST)
+Received: from sntmail12r.snt-is.com (10.203.32.182) by sntmail12r.snt-is.com
+ (10.203.32.182) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1713.5; Mon, 7 Oct 2019
+ 09:23:03 +0200
+Received: from sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305]) by
+ sntmail12r.snt-is.com ([fe80::e551:8750:7bba:3305%3]) with mapi id
+ 15.01.1713.004; Mon, 7 Oct 2019 09:23:03 +0200
+From:   Schrempf Frieder <frieder.schrempf@kontron.de>
+To:     Han Xu <han.xu@nxp.com>, Mark Brown <broonie@kernel.org>
+CC:     Schrempf Frieder <frieder.schrempf@kontron.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] spi: spi-fsl-qspi: Clear TDH bits in FLSHCR register
+Thread-Topic: [PATCH] spi: spi-fsl-qspi: Clear TDH bits in FLSHCR register
+Thread-Index: AQHVfOAOADpafN6rX02KBDhfRCqXYw==
+Date:   Mon, 7 Oct 2019 07:23:02 +0000
+Message-ID: <20191007071933.26786-1-frieder.schrempf@kontron.de>
+Accept-Language: de-DE, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.17.1
+x-originating-ip: [172.25.9.193]
+x-c2processedorg: 51b406b7-48a2-4d03-b652-521f56ac89f3
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20191006172016.873463083@linuxfoundation.org> <20191006172018.480360174@linuxfoundation.org>
- <20191006173202.GA832@sol.localdomain> <20191006182433.GA217738@kroah.com>
-In-Reply-To: <20191006182433.GA217738@kroah.com>
-From:   Mattias Nissler <mnissler@chromium.org>
-Date:   Sun, 6 Oct 2019 23:28:40 -0700
-Message-ID: <CAKUbbxKbR6R_VM233pkw7_rxv_DMJoBPC_U5ZgVkR6GpXVAScw@mail.gmail.com>
-Subject: Re: [PATCH 4.9 30/47] ANDROID: binder: remove waitqueue when thread exits.
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Todd Kjos <tkjos@google.com>, Martijn Coenen <maco@android.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot <syzkaller@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+X-SnT-MailScanner-Information: Please contact the ISP for more information
+X-SnT-MailScanner-ID: 7DAC767A7D3.AF040
+X-SnT-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-SnT-MailScanner-SpamCheck: 
+X-SnT-MailScanner-From: frieder.schrempf@kontron.de
+X-SnT-MailScanner-To: broonie@kernel.org, han.xu@nxp.com,
+        linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org,
+        stable@vger.kernel.org
+X-Spam-Status: No
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-(resend, apologies for accidental HTML reply)
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-On Sun, Oct 6, 2019 at 11:24 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Sun, Oct 06, 2019 at 10:32:02AM -0700, Eric Biggers wrote:
-> > On Sun, Oct 06, 2019 at 07:21:17PM +0200, Greg Kroah-Hartman wrote:
-> > > From: Martijn Coenen <maco@android.com>
-> > >
-> > > commit f5cb779ba16334b45ba8946d6bfa6d9834d1527f upstream.
-> > >
-> > > binder_poll() passes the thread->wait waitqueue that
-> > > can be slept on for work. When a thread that uses
-> > > epoll explicitly exits using BINDER_THREAD_EXIT,
-> > > the waitqueue is freed, but it is never removed
-> > > from the corresponding epoll data structure. When
-> > > the process subsequently exits, the epoll cleanup
-> > > code tries to access the waitlist, which results in
-> > > a use-after-free.
-> > >
-> > > Prevent this by using POLLFREE when the thread exits.
-> > >
-> > > Signed-off-by: Martijn Coenen <maco@android.com>
-> > > Reported-by: syzbot <syzkaller@googlegroups.com>
-> > > Cc: stable <stable@vger.kernel.org> # 4.14
-> > > [backport BINDER_LOOPER_STATE_POLL logic as well]
-> > > Signed-off-by: Mattias Nissler <mnissler@chromium.org>
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > ---
-> > >  drivers/android/binder.c |   17 ++++++++++++++++-
-> > >  1 file changed, 16 insertions(+), 1 deletion(-)
-> > >
-> > > --- a/drivers/android/binder.c
-> > > +++ b/drivers/android/binder.c
-> > > @@ -334,7 +334,8 @@ enum {
-> > >     BINDER_LOOPER_STATE_EXITED      = 0x04,
-> > >     BINDER_LOOPER_STATE_INVALID     = 0x08,
-> > >     BINDER_LOOPER_STATE_WAITING     = 0x10,
-> > > -   BINDER_LOOPER_STATE_NEED_RETURN = 0x20
-> > > +   BINDER_LOOPER_STATE_NEED_RETURN = 0x20,
-> > > +   BINDER_LOOPER_STATE_POLL        = 0x40,
-> > >  };
-> > >
-> > >  struct binder_thread {
-> > > @@ -2628,6 +2629,18 @@ static int binder_free_thread(struct bin
-> > >             } else
-> > >                     BUG();
-> > >     }
-> > > +
-> > > +   /*
-> > > +    * If this thread used poll, make sure we remove the waitqueue
-> > > +    * from any epoll data structures holding it with POLLFREE.
-> > > +    * waitqueue_active() is safe to use here because we're holding
-> > > +    * the inner lock.
-> > > +    */
-> > > +   if ((thread->looper & BINDER_LOOPER_STATE_POLL) &&
-> > > +       waitqueue_active(&thread->wait)) {
-> > > +           wake_up_poll(&thread->wait, POLLHUP | POLLFREE);
-> > > +   }
-> > > +
-> > >     if (send_reply)
-> > >             binder_send_failed_reply(send_reply, BR_DEAD_REPLY);
-> > >     binder_release_work(&thread->todo);
-> > > @@ -2651,6 +2664,8 @@ static unsigned int binder_poll(struct f
-> > >             return POLLERR;
-> > >     }
-> > >
-> > > +   thread->looper |= BINDER_LOOPER_STATE_POLL;
-> > > +
-> > >     wait_for_proc_work = thread->transaction_stack == NULL &&
-> > >             list_empty(&thread->todo) && thread->return_error == BR_OK;
-> > >
-> >
-> > Are you sure this backport is correct, given that in 4.9, binder_poll()
-> > sometimes uses proc->wait instead of thread->wait?:
+Later versions of the QSPI controller (e.g. in i.MX6UL/ULL and i.MX7)
+seem to have an additional TDH setting in the FLSHCR register, that
+needs to be set in accordance with the access mode that is used (DDR
+or SDR).
 
-Jann's PoC calls the BINDER_THREAD_EXIT ioctl to free the
-binder_thread which will then cause the UAF, and this is cut off by
-the patch. IIUC, you are worried about a similar AUF on the proc->wait
-access. I am not 100% sure, but I think the binder_proc lifetime
-matches the corresponding struct file instance, so it shouldn't be
-possible to get the binder_proc deallocated while still being able to
-access it via filp->private_data.
+Previous bootstages such as BootROM or bootloader might have used the
+DDR mode to access the flash. As we currently only use SDR mode, we
+need to make sure the TDH bits are cleared upon initialization.
 
-> >
-> >         wait_for_proc_work = thread->transaction_stack == NULL &&
-> >                 list_empty(&thread->todo) && thread->return_error == BR_OK;
-> >
-> >         binder_unlock(__func__);
-> >
-> >         if (wait_for_proc_work) {
-> >                 if (binder_has_proc_work(proc, thread))
-> >                         return POLLIN;
-> >                 poll_wait(filp, &proc->wait, wait);
-> >                 if (binder_has_proc_work(proc, thread))
-> >                         return POLLIN;
-> >         } else {
-> >                 if (binder_has_thread_work(thread))
-> >                         return POLLIN;
-> >                 poll_wait(filp, &thread->wait, wait);
-> >                 if (binder_has_thread_work(thread))
-> >                         return POLLIN;
-> >         }
-> >         return 0;
->
-> I _think_ the backport is correct, and I know someone has verified that
-> the 4.4.y backport works properly and I don't see much difference here
-> from that version.
->
-> But I will defer to Todd and Martijn here, as they know this code _WAY_
-> better than I do.  The codebase has changed a lot from 4.9.y to 4.14.y
-> so it makes it hard to do equal comparisons simply.
->
-> Todd and Martijn, thoughts?
->
-> thanks,
->
-> greg k-h
+Fixes: 84d043185dbe ("spi: Add a driver for the Freescale/NXP QuadSPI controller")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+---
+ drivers/spi/spi-fsl-qspi.c | 38 +++++++++++++++++++++++++++++++++-----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/spi/spi-fsl-qspi.c b/drivers/spi/spi-fsl-qspi.c
+index c02e24c01136..63c9f7edaf6c 100644
+--- a/drivers/spi/spi-fsl-qspi.c
++++ b/drivers/spi/spi-fsl-qspi.c
+@@ -63,6 +63,11 @@
+ #define QUADSPI_IPCR			0x08
+ #define QUADSPI_IPCR_SEQID(x)		((x) << 24)
+ 
++#define QUADSPI_FLSHCR			0x0c
++#define QUADSPI_FLSHCR_TCSS_MASK	GENMASK(3, 0)
++#define QUADSPI_FLSHCR_TCSH_MASK	GENMASK(11, 8)
++#define QUADSPI_FLSHCR_TDH_MASK		GENMASK(17, 16)
++
+ #define QUADSPI_BUF3CR			0x1c
+ #define QUADSPI_BUF3CR_ALLMST_MASK	BIT(31)
+ #define QUADSPI_BUF3CR_ADATSZ(x)	((x) << 8)
+@@ -95,6 +100,9 @@
+ #define QUADSPI_FR			0x160
+ #define QUADSPI_FR_TFF_MASK		BIT(0)
+ 
++#define QUADSPI_RSER			0x164
++#define QUADSPI_RSER_TFIE		BIT(0)
++
+ #define QUADSPI_SPTRCLR			0x16c
+ #define QUADSPI_SPTRCLR_IPPTRC		BIT(8)
+ #define QUADSPI_SPTRCLR_BFPTRC		BIT(0)
+@@ -112,9 +120,6 @@
+ #define QUADSPI_LCKER_LOCK		BIT(0)
+ #define QUADSPI_LCKER_UNLOCK		BIT(1)
+ 
+-#define QUADSPI_RSER			0x164
+-#define QUADSPI_RSER_TFIE		BIT(0)
+-
+ #define QUADSPI_LUT_BASE		0x310
+ #define QUADSPI_LUT_OFFSET		(SEQID_LUT * 4 * 4)
+ #define QUADSPI_LUT_REG(idx) \
+@@ -181,6 +186,12 @@
+  */
+ #define QUADSPI_QUIRK_BASE_INTERNAL	BIT(4)
+ 
++/*
++ * Controller uses TDH bits in register QUADSPI_FLSHCR.
++ * They need to be set in accordance with the DDR/SDR mode.
++ */
++#define QUADSPI_QUIRK_USE_TDH_SETTING	BIT(5)
++
+ struct fsl_qspi_devtype_data {
+ 	unsigned int rxfifo;
+ 	unsigned int txfifo;
+@@ -209,7 +220,8 @@ static const struct fsl_qspi_devtype_data imx7d_data = {
+ 	.rxfifo = SZ_128,
+ 	.txfifo = SZ_512,
+ 	.ahb_buf_size = SZ_1K,
+-	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK,
++	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
++		  QUADSPI_QUIRK_USE_TDH_SETTING,
+ 	.little_endian = true,
+ };
+ 
+@@ -217,7 +229,8 @@ static const struct fsl_qspi_devtype_data imx6ul_data = {
+ 	.rxfifo = SZ_128,
+ 	.txfifo = SZ_512,
+ 	.ahb_buf_size = SZ_1K,
+-	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK,
++	.quirks = QUADSPI_QUIRK_TKT253890 | QUADSPI_QUIRK_4X_INT_CLK |
++		  QUADSPI_QUIRK_USE_TDH_SETTING,
+ 	.little_endian = true,
+ };
+ 
+@@ -275,6 +288,11 @@ static inline int needs_amba_base_offset(struct fsl_qspi *q)
+ 	return !(q->devtype_data->quirks & QUADSPI_QUIRK_BASE_INTERNAL);
+ }
+ 
++static inline int needs_tdh_setting(struct fsl_qspi *q)
++{
++	return q->devtype_data->quirks & QUADSPI_QUIRK_USE_TDH_SETTING;
++}
++
+ /*
+  * An IC bug makes it necessary to rearrange the 32-bit data.
+  * Later chips, such as IMX6SLX, have fixed this bug.
+@@ -710,6 +728,16 @@ static int fsl_qspi_default_setup(struct fsl_qspi *q)
+ 	qspi_writel(q, QUADSPI_MCR_MDIS_MASK | QUADSPI_MCR_RESERVED_MASK,
+ 		    base + QUADSPI_MCR);
+ 
++	/*
++	 * Previous boot stages (BootROM, bootloader) might have used DDR
++	 * mode and did not clear the TDH bits. As we currently use SDR mode
++	 * only, clear the TDH bits if necessary.
++	 */
++	if (needs_tdh_setting(q))
++		qspi_writel(q, qspi_readl(q, base + QUADSPI_FLSHCR) &
++			    ~QUADSPI_FLSHCR_TDH_MASK,
++			    base + QUADSPI_FLSHCR);
++
+ 	reg = qspi_readl(q, base + QUADSPI_SMPR);
+ 	qspi_writel(q, reg & ~(QUADSPI_SMPR_FSDLY_MASK
+ 			| QUADSPI_SMPR_FSPHS_MASK
+-- 
+2.17.1
