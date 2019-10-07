@@ -2,94 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C340ACE4F6
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 404CECE541
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727903AbfJGOSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:18:39 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:34061 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727490AbfJGOSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:18:39 -0400
-Received: by mail-qt1-f195.google.com with SMTP id 3so19378469qta.1
-        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 07:18:38 -0700 (PDT)
+        id S1727951AbfJGObI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:31:08 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:40012 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727715AbfJGObI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:31:08 -0400
+Received: by mail-pg1-f196.google.com with SMTP id d26so8328377pgl.7;
+        Mon, 07 Oct 2019 07:31:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=L0aGd5iGzy7oTR3viDB2jBKpSZXW/T11Qmx88FocAp0=;
-        b=BLIJFSTB/G0hTxSyuUcChHQTUG4TktVTAMCyTFc/UM7op4sD0B69rpMXeOIiGf6kRI
-         Z1zzsxjlfbahk/UR802rSVa+3rdsfua1CFa44/pN48dPKOoNoEx8PZVnmS4QBu1yA53o
-         4HvslXk7uZ8b75qpxBOGtgVZLEuVRfY1ZoBu/2z3PxABOv3H3/r0ZIqoMMaJr85jAPxI
-         al7Mm3ECcO+MVagXddXp6mQFUludyxrKGHF6IqEhA5qe8VwsK5a/NOOUtYcl+Hv6KVAl
-         6gvDtZsTbtfIH7ZBl5+HUZtwiwVEjYu6kSq9BRnUvKZzNcRksoDGCvQBYI/dJkAulJjV
-         6z1Q==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=2At1y9KA5mfpevHWnQPZHB4PFv/Qu4O9Kv2KCvAKsps=;
+        b=L2WmlKJdQwNgVbcJE119/1KVF0saNnxUt37UU5+ZoaigA1ONIEaGNemRqxwetnWLg4
+         hjauTVSezFQ9CVITC25sj/x/OMWVMoSbpaw+ypTcc2WeFfkLrLXppP5XyKVr2mC6tRAL
+         0kaKpmcpTUutQyoFrmq1Q/rsCvEXw0Ne/51/mhl0TwcWMCF7aO2sHGT7DKjpUi0RHM7D
+         dhHOHMQZxWUO3YeL9Me9bsiIMRfPgSkY37o7MjwlcHX7t6X/tDcAQM+3vtnlXFxBNRFW
+         vWhHYIJthKdtfXAcdKnVNbSkpaDWUyQ5vbwdBcQHAqfIJA1bDJNJsGfP50jRsVWAtsr/
+         5BgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=L0aGd5iGzy7oTR3viDB2jBKpSZXW/T11Qmx88FocAp0=;
-        b=pm2xYGlE64t/yx+IMm7oK0N8bP39KHQj1FUVLmBJ8dDrblRjflCiXWhlkDw969EJoA
-         8OI8wlXdKnb/pwY9CG7TnBKt8wXADTk7RqKVgwAy/TBICy9eMwPOhJOtyfnnnhWmO488
-         HgMsBiARNmEVbkuiPtdJ9Tto69ufenznQlLbAVi3Iio/CsAhb7rwhzKsoDw6AUFaDmVb
-         AD/HEIoF3TEIqYN8aEdKJ7H//WjttqDcj+eVSImHrHzg0uPrAVIWIu/g+eL8n+kmn1Mi
-         xDepfjrpLG1z72SW0FnXnR6AKeD+xQ3DdKOUF922wP2ygfuVuoae+UTW7oq0BU2OD81C
-         pItA==
-X-Gm-Message-State: APjAAAVceGfrSFol17LkgJep6rOq4W+xJPPhIJAjCgy/yS4N7j5xe0wb
-        +Z2CsytveV6+9JdBbse64usvpABF5fogIVVYFCwmbQ==
-X-Google-Smtp-Source: APXvYqyCkMof+lfWuP5KA6qlI2H3Fjv46/wLvsY4rIyhiAcrcHG0FOMjuLe5Y/7mZugp/EJEMPLLjieK3rPinWTysy4=
-X-Received: by 2002:ac8:7646:: with SMTP id i6mr30548962qtr.50.1570457917819;
- Mon, 07 Oct 2019 07:18:37 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=2At1y9KA5mfpevHWnQPZHB4PFv/Qu4O9Kv2KCvAKsps=;
+        b=P8or9Zovd3vH0QHn5aJueOJWUMF6X3gXqjaznlWFHwbshYJYXYfFisqO+gPyKyvNnX
+         IxRqMkn/TliIMSjFe+oYcaDZ+TJLwdWpInD2z+WhXsnk/9JdbTl1Zll7X6FMhbgpTL0n
+         Y7KiAV35a4RlkuYis9llElYPl1IGDoPWejskuGOM2MMeliW2xhk0QYichAsIhmOMXrae
+         5VW6V/gYtauPZuOVpczRsT+HxJHozt4pS1OBWm4av1UGO73HzCnrLlbELGEW7xwrzzYM
+         EUwlV2ocE1Pymit8Lx7kArm8heACQBLA8/G1rcPFitGQ+XoK5Qddj/dI99UOBiMJDyVz
+         bshQ==
+X-Gm-Message-State: APjAAAXgdf112m2o22KBv+dGH1LQC0HKgKlnUeM+nJauUuFufrs5w6ow
+        YoXB3Oyo8QK4OpbDpGlnaY8w3IDg
+X-Google-Smtp-Source: APXvYqx64FT9QppAhB7enRcsSabhlyFsHm44WhyzbdH+gp62HQYN+7mxnXvhJlmmysbod3QfzjNuEg==
+X-Received: by 2002:a63:6c89:: with SMTP id h131mr30521423pgc.380.1570458665503;
+        Mon, 07 Oct 2019 07:31:05 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i74sm18525272pfe.28.2019.10.07.07.31.03
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 07:31:04 -0700 (PDT)
+Subject: Re: [PATCH 4.4 00/36] 4.4.196-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191006171038.266461022@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <2ae37179-5896-35bc-e272-ed617f847524@roeck-us.net>
+Date:   Mon, 7 Oct 2019 07:31:03 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20191007104039.GA16085@andrea.guest.corp.microsoft.com>
- <20191007110117.1096-1-christian.brauner@ubuntu.com> <20191007131804.GA19242@andrea.guest.corp.microsoft.com>
- <CACT4Y+YG23qbL16MYH3GTK4hOPsM9tDfbLzrTZ7k_ocR2ABa6A@mail.gmail.com> <20191007141432.GA22083@andrea.guest.corp.microsoft.com>
-In-Reply-To: <20191007141432.GA22083@andrea.guest.corp.microsoft.com>
-From:   Dmitry Vyukov <dvyukov@google.com>
-Date:   Mon, 7 Oct 2019 16:18:26 +0200
-Message-ID: <CACT4Y+avbYvtF9mHiX=R8Y2=YsP1_QsN6i_FpjLM7UxCKv6vxA@mail.gmail.com>
-Subject: Re: [PATCH v2] taskstats: fix data-race
-To:     Andrea Parri <parri.andrea@gmail.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        bsingharora@gmail.com, Marco Elver <elver@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzbot <syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191006171038.266461022@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 7, 2019 at 4:14 PM Andrea Parri <parri.andrea@gmail.com> wrote:
->
-> > > >  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
-> > > >  {
-> > > >       struct signal_struct *sig = tsk->signal;
-> > > > -     struct taskstats *stats;
-> > > > +     struct taskstats *stats_new, *stats;
-> > > >
-> > > > -     if (sig->stats || thread_group_empty(tsk))
-> > > > -             goto ret;
-> > > > +     /* Pairs with smp_store_release() below. */
-> > > > +     stats = READ_ONCE(sig->stats);
-> > >
-> > > This pairing suggests that the READ_ONCE() is heading an address
-> > > dependency, but I fail to identify it: what is the target memory
-> > > access of such a (putative) dependency?
-> >
-> > I would assume callers of this function access *stats. So the
-> > dependency is between loading stats and accessing *stats.
->
-> AFAICT, the only caller of the function in 5.4-rc2 is taskstats_exit(),
-> which 'casts' the return value to a boolean (so I really don't see how
-> any address dependency could be carried over/relied upon here).
+On 10/6/19 10:18 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.196 release.
+> There are 36 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
+> Anything received after that time might be too late.
+> 
 
-This does not make sense.
+Build results:
+	total: 170 pass: 169 fail: 1
+Failed builds:
+	powerpc:defconfig
+Qemu test results:
+	total: 324 pass: 313 fail: 11
+Failed tests:
+	ppc64:mac99:ppc64_book3s_defconfig:nosmp:initrd
+	ppc64:mac99:ppc64_book3s_defconfig:smp:initrd
+	ppc64:mac99:ppc64_book3s_defconfig:smp:ide:rootfs
+	ppc64:mac99:ppc64_book3s_defconfig:smp:sdhci:mmc:rootfs
+	ppc64:mac99:ppc64_book3s_defconfig:smp:nvme:rootfs
+	ppc64:mac99:ppc64_book3s_defconfig:smp:scsi[DC395]:rootfs
+	ppc64:pseries:pseries_defconfig:initrd
+	ppc64:pseries:pseries_defconfig:scsi:rootfs
+	ppc64:pseries:pseries_defconfig:usb:rootfs
+	ppc64:pseries:pseries_defconfig:sdhci:mmc:rootfs
+	ppc64:pseries:pseries_defconfig:nvme:rootfs
 
-But later taskstats_exit does:
+Failure as already reported.
 
-memcpy(stats, tsk->signal->stats, sizeof(*stats));
+arch/powerpc/kernel/eeh_driver.c: In function ‘eeh_handle_normal_event’:
+arch/powerpc/kernel/eeh_driver.c:678:2: error: implicit declaration of function ‘eeh_for_each_pe’
 
-Perhaps it's supposed to use stats returned by taskstats_tgid_alloc?
+Guenter
