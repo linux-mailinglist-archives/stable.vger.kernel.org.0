@@ -2,85 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3CC6CE555
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:34:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6DDCE5E3
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727715AbfJGOeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:34:14 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:40086 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726334AbfJGOeO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:34:14 -0400
-Received: by mail-pf1-f195.google.com with SMTP id x127so8779699pfb.7;
-        Mon, 07 Oct 2019 07:34:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=/JlUG/JC37ASFXVOEGLWFjO5CG+I+2T1GLGK2/eC31Q=;
-        b=jyFHAyRKQJX/41bjJGhSJhmOteqJuA9vB4uHKru/ypb7X2RCKC0bJr60VtY+5IXrV5
-         nsV+I4Pcv7KRlc6xBEyzUPwQaHu+dbOTKEbQw2P31DGGDMit3UfxwPhGEDyajAv7zhqc
-         Z2yAdInsWyencynTwJO62K6s+099kixr5dqq29dOMZlDc+RAolPKlL0I2BbDHYf76iRN
-         7ahGPGrDiNTvcyqqC5/b+uY8ozjzrf6wpJJA86wSl1YHczU3fEU/9GXwKUClwYP9ILLD
-         JwBWCoZmRRi1SfzewU8bLEiWGET1pnFEyFX+5+4f40IIaiy2djxutpm4rvDO6Douema1
-         waDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=/JlUG/JC37ASFXVOEGLWFjO5CG+I+2T1GLGK2/eC31Q=;
-        b=NF+Wl1Th7uD+EzcKWGTecq211DZWUh7LRGm8VQFQzDrYP0EJd7CxqJwR49r9yBWXQP
-         rI10hT36OIWwHLcxW5sWwTF5DpZuXFNXzI6ZjjOqzWvK7Quq5R1OO7Xz5smbYU95A4h2
-         v6jMNh6OfsKg0JHNA3dO/bnl5naVlLCpM+WyA0ArOab+pwiUdn0xQzFAUz5af0qPsrFa
-         NJ8Zukv3MnY/bhg6RD0Un+/ovHXw+EeyyYly6bflhS9iXOcdRPJ0c43c3OZ656DkRJNR
-         J6w5u5xlYGBX6KiJ2gTntJAlzW9FD8e6WdBNyyMZ9NOx/ruQ18OvGTBXt4Tpya7IQeXK
-         nqDw==
-X-Gm-Message-State: APjAAAVaDATxKTGbI08zzyFpTyboYyQPhUetNEVZr/6tTb7K3TSEN/HS
-        +Z6q6AdpCeIKtjDJklwpCJRcNnPQ
-X-Google-Smtp-Source: APXvYqyokcDaQH56U1aIL07HTI3wOUZyU9sDJrvs2qGxQokjbmLsKhxuqGiXVcuAXTIBGfw5dY1htA==
-X-Received: by 2002:a63:d250:: with SMTP id t16mr2933443pgi.278.1570458853674;
-        Mon, 07 Oct 2019 07:34:13 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id k15sm3459765pgt.25.2019.10.07.07.34.12
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Oct 2019 07:34:13 -0700 (PDT)
-Subject: Re: [PATCH 5.3 000/166] 5.3.5-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20191006171212.850660298@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <499f5926-a2f0-465b-9e28-466832e6f701@roeck-us.net>
-Date:   Mon, 7 Oct 2019 07:34:12 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1729039AbfJGOvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:51:09 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:44442 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728516AbfJGOth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:37 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iHUJy-0005pZ-KG; Mon, 07 Oct 2019 16:49:10 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id F07241C08B3;
+        Mon,  7 Oct 2019 16:49:09 +0200 (CEST)
+Date:   Mon, 07 Oct 2019 14:49:09 -0000
+From:   "tip-bot2 for Peter Jones" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: efi/urgent] efi/tpm: Don't access event->count when it isn't mapped
+Cc:     Lyude Paul <lyude@redhat.com>, Peter Jones <pjones@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Matthew Garrett <mjg59@google.com>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dave Young <dyoung@redhat.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lukas Wunner <lukas@wunner.de>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Scott Talbert <swt@techie.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20191002165904.8819-4-ard.biesheuvel@linaro.org>
+References: <20191002165904.8819-4-ard.biesheuvel@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20191006171212.850660298@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Message-ID: <157045974993.9978.18070605431254154051.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/6/19 10:19 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.5 release.
-> There are 166 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
-> Anything received after that time might be too late.
-> 
+The following commit has been merged into the efi/urgent branch of tip:
 
-Build results:
-	total: 158 pass: 158 fail: 0
-Qemu test results:
-	total: 391 pass: 391 fail: 0
+Commit-ID:     047d50aee341d940350897c85799e56ae57c3849
+Gitweb:        https://git.kernel.org/tip/047d50aee341d940350897c85799e56ae57c3849
+Author:        Peter Jones <pjones@redhat.com>
+AuthorDate:    Wed, 02 Oct 2019 18:59:00 +02:00
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Mon, 07 Oct 2019 15:24:35 +02:00
 
-Guenter
+efi/tpm: Don't access event->count when it isn't mapped
+
+Some machines generate a lot of event log entries.  When we're
+iterating over them, the code removes the old mapping and adds a
+new one, so once we cross the page boundary we're unmapping the page
+with the count on it.  Hilarity ensues.
+
+This patch keeps the info from the header in local variables so we don't
+need to access that page again or keep track of if it's mapped.
+
+Tested-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Peter Jones <pjones@redhat.com>
+Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Acked-by: Matthew Garrett <mjg59@google.com>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Scott Talbert <swt@techie.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux-integrity@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 44038bc514a2 ("tpm: Abstract crypto agile event size calculations")
+Link: https://lkml.kernel.org/r/20191002165904.8819-4-ard.biesheuvel@linaro.org
+[ Minor edits. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+---
+ include/linux/tpm_eventlog.h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/tpm_eventlog.h b/include/linux/tpm_eventlog.h
+index 63238c8..b50cc3a 100644
+--- a/include/linux/tpm_eventlog.h
++++ b/include/linux/tpm_eventlog.h
+@@ -170,6 +170,7 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+ 	u16 halg;
+ 	int i;
+ 	int j;
++	u32 count, event_type;
+ 
+ 	marker = event;
+ 	marker_start = marker;
+@@ -190,16 +191,22 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+ 	}
+ 
+ 	event = (struct tcg_pcr_event2_head *)mapping;
++	/*
++	 * The loop below will unmap these fields if the log is larger than
++	 * one page, so save them here for reference:
++	 */
++	count = READ_ONCE(event->count);
++	event_type = READ_ONCE(event->event_type);
+ 
+ 	efispecid = (struct tcg_efi_specid_event_head *)event_header->event;
+ 
+ 	/* Check if event is malformed. */
+-	if (event->count > efispecid->num_algs) {
++	if (count > efispecid->num_algs) {
+ 		size = 0;
+ 		goto out;
+ 	}
+ 
+-	for (i = 0; i < event->count; i++) {
++	for (i = 0; i < count; i++) {
+ 		halg_size = sizeof(event->digests[i].alg_id);
+ 
+ 		/* Map the digest's algorithm identifier */
+@@ -256,8 +263,9 @@ static inline int __calc_tpm2_event_size(struct tcg_pcr_event2_head *event,
+ 		+ event_field->event_size;
+ 	size = marker - marker_start;
+ 
+-	if ((event->event_type == 0) && (event_field->event_size == 0))
++	if (event_type == 0 && event_field->event_size == 0)
+ 		size = 0;
++
+ out:
+ 	if (do_mapping)
+ 		TPM_MEMUNMAP(mapping, mapping_size);
