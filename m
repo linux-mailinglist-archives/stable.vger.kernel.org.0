@@ -2,123 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 745F8CDFC7
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 13:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E06A5CE00E
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 13:17:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727565AbfJGLB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 07:01:26 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:44598 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727317AbfJGLB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 07:01:26 -0400
-Received: from [185.66.195.251] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iHQlX-0004pK-8t; Mon, 07 Oct 2019 11:01:23 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     parri.andrea@gmail.com
-Cc:     bsingharora@gmail.com, christian.brauner@ubuntu.com,
-        dvyukov@google.com, elver@google.com, linux-kernel@vger.kernel.org,
-        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
-        syzkaller-bugs@googlegroups.com, stable@vger.kernel.org
-Subject: [PATCH v2] taskstats: fix data-race
-Date:   Mon,  7 Oct 2019 13:01:17 +0200
-Message-Id: <20191007110117.1096-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191007104039.GA16085@andrea.guest.corp.microsoft.com>
-References: <20191007104039.GA16085@andrea.guest.corp.microsoft.com>
+        id S1727394AbfJGLR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 07:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47730 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727317AbfJGLR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 07:17:56 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B03521655;
+        Mon,  7 Oct 2019 11:17:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570447074;
+        bh=r+vLgFtRiNBdOslFnz2p04PFe5zb8gDhJ5YnivaVaUY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UHyRWvhtEhmiGVo9uSRtjPrcdlBE95mlvJCePL9S79N6JNcY5f8eFGKBzFU5SOUll
+         CkB1jBN3d6gQQzwY3Q7aMMMBImsQX8GQoUG85d2uDoF9R1A1/Iq0b0QtzctFH+6Fx6
+         QC/9pP8DKzm1raC0FD/IoY6lMN9uvzUaCZJVGJ7M=
+Date:   Mon, 7 Oct 2019 13:17:52 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jon Hunter <jonathanh@nvidia.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
+        linux-tegra <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.3 000/166] 5.3.5-stable review
+Message-ID: <20191007111752.GA669414@kroah.com>
+References: <20191006171212.850660298@linuxfoundation.org>
+ <b71f3543-ba23-9e23-40aa-f958c0012182@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b71f3543-ba23-9e23-40aa-f958c0012182@nvidia.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When assiging and testing taskstats in taskstats_exit() there's a race
-when writing and reading sig->stats when a thread-group with more than
-one thread exits:
+On Mon, Oct 07, 2019 at 11:09:04AM +0100, Jon Hunter wrote:
+> 
+> On 06/10/2019 18:19, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.3.5 release.
+> > There are 166 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.5-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> All tests are passing for Tegra ...
+> 
+> Test results for stable-v5.3:
+>     12 builds:	12 pass, 0 fail
+>     22 boots:	22 pass, 0 fail
+>     38 tests:	38 pass, 0 fail
+> 
+> Linux version:	5.3.5-rc1-ga2703e78c28a
+> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+>                 tegra194-p2972-0000, tegra20-ventana,
+>                 tegra210-p2371-2180, tegra30-cardhu-a04
 
-cpu0:
-thread catches fatal signal and whole thread-group gets taken down
- do_exit()
- do_group_exit()
- taskstats_exit()
- taskstats_tgid_alloc()
-The tasks reads sig->stats holding sighand lock seeing garbage.
+Thanks for testing all of these and letting me know
 
-cpu1:
-task calls exit_group()
- do_exit()
- do_group_exit()
- taskstats_exit()
- taskstats_tgid_alloc()
-The task takes sighand lock and assigns new stats to sig->stats.
-
-Fix this by using READ_ONCE() and smp_store_release().
-
-Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Link: https://lore.kernel.org/r/20191006235216.7483-1-christian.brauner@ubuntu.com
----
-/* v1 */
-Link: https://lore.kernel.org/r/20191005112806.13960-1-christian.brauner@ubuntu.com
-
-/* v2 */
-- Dmitry Vyukov <dvyukov@google.com>, Marco Elver <elver@google.com>:
-  - fix the original double-checked locking using memory barriers
-
-/* v3 */
-- Andrea Parri <parri.andrea@gmail.com>:
-  - document memory barriers to make checkpatch happy
----
- kernel/taskstats.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
-
-diff --git a/kernel/taskstats.c b/kernel/taskstats.c
-index 13a0f2e6ebc2..978d7931fb65 100644
---- a/kernel/taskstats.c
-+++ b/kernel/taskstats.c
-@@ -554,24 +554,27 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
- static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
- {
- 	struct signal_struct *sig = tsk->signal;
--	struct taskstats *stats;
-+	struct taskstats *stats_new, *stats;
- 
--	if (sig->stats || thread_group_empty(tsk))
--		goto ret;
-+	/* Pairs with smp_store_release() below. */
-+	stats = READ_ONCE(sig->stats);
-+	if (stats || thread_group_empty(tsk))
-+		return stats;
- 
- 	/* No problem if kmem_cache_zalloc() fails */
--	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-+	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
- 
- 	spin_lock_irq(&tsk->sighand->siglock);
- 	if (!sig->stats) {
--		sig->stats = stats;
--		stats = NULL;
-+		/* Pairs with READ_ONCE() above. */
-+		smp_store_release(&sig->stats, stats_new);
-+		stats_new = NULL;
- 	}
- 	spin_unlock_irq(&tsk->sighand->siglock);
- 
--	if (stats)
--		kmem_cache_free(taskstats_cache, stats);
--ret:
-+	if (stats_new)
-+		kmem_cache_free(taskstats_cache, stats_new);
-+
- 	return sig->stats;
- }
- 
--- 
-2.23.0
-
+greg k-h
