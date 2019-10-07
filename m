@@ -2,49 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BADD0CE600
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:52:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7DBCE5BA
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 16:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729145AbfJGOvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 10:51:36 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:44366 "EHLO
+        id S1728829AbfJGOtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 10:49:55 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:44543 "EHLO
         Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728436AbfJGOtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:33 -0400
+        with ESMTP id S1728804AbfJGOty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 10:49:54 -0400
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1iHUJy-0005pa-Iy; Mon, 07 Oct 2019 16:49:10 +0200
+        id 1iHUK8-0005yu-As; Mon, 07 Oct 2019 16:49:20 +0200
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 1E9F31C0DC9;
-        Mon,  7 Oct 2019 16:49:10 +0200 (CEST)
-Date:   Mon, 07 Oct 2019 14:49:10 -0000
-From:   "tip-bot2 for Ard Biesheuvel" <tip-bot2@linutronix.de>
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 9AC7F1C0DCB;
+        Mon,  7 Oct 2019 16:49:15 +0200 (CEST)
+Date:   Mon, 07 Oct 2019 14:49:15 -0000
+From:   "tip-bot2 for Steve MacLean" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: efi/urgent] efivar/ssdt: Don't iterate over EFI vars if no SSDT
- override was specified
-Cc:     Scott Talbert <swt@techie.net>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        <stable@vger.kernel.org>, Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
+Subject: [tip: perf/urgent] perf inject jit: Fix JIT_CODE_MOVE filename
+Cc:     stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
+        v4.6+@tip-bot2.tec.linutronix.de,
+        Steve MacLean <Steve.MacLean@Microsoft.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Brian Robbins <brianrob@microsoft.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "Eric Saint-Etienne" <eric.saint.etienne@oracle.com>,
+        John Keeping <john@metanate.com>,
+        John Salem <josalem@microsoft.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Tom McDonald <thomas.mcdonald@microsoft.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20191002165904.8819-3-ard.biesheuvel@linaro.org>
-References: <20191002165904.8819-3-ard.biesheuvel@linaro.org>
+In-Reply-To: =?utf-8?q?=3CBN8PR21MB1362FF8F127B31DBF4121528F7800=40BN8PR21MB?=
+ =?utf-8?q?1362=2Enamprd21=2Eprod=2Eoutlook=2Ecom=3E?=
+References: =?utf-8?q?=3CBN8PR21MB1362FF8F127B31DBF4121528F7800=40BN8PR21M?=
+ =?utf-8?q?B1362=2Enamprd21=2Eprod=2Eoutlook=2Ecom=3E?=
 MIME-Version: 1.0
-Message-ID: <157045975007.9978.12389827950739449033.tip-bot2@tip-bot2>
+Message-ID: <157045975560.9978.11908955377927615460.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -58,64 +64,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the efi/urgent branch of tip:
+The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     c05f8f92b701576b615f30aac31fabdc0648649b
-Gitweb:        https://git.kernel.org/tip/c05f8f92b701576b615f30aac31fabdc0648649b
-Author:        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-AuthorDate:    Wed, 02 Oct 2019 18:58:59 +02:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Mon, 07 Oct 2019 15:24:35 +02:00
+Commit-ID:     b59711e9b0d22fd47abfa00602fd8c365cdd3ab7
+Gitweb:        https://git.kernel.org/tip/b59711e9b0d22fd47abfa00602fd8c365cdd3ab7
+Author:        Steve MacLean <Steve.MacLean@microsoft.com>
+AuthorDate:    Sat, 28 Sep 2019 01:41:18 
+Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
+CommitterDate: Mon, 30 Sep 2019 17:29:49 -03:00
 
-efivar/ssdt: Don't iterate over EFI vars if no SSDT override was specified
+perf inject jit: Fix JIT_CODE_MOVE filename
 
-The kernel command line option efivar_ssdt= allows the name to be
-specified of an EFI variable containing an ACPI SSDT table that should
-be loaded into memory by the OS, and treated as if it was provided by
-the firmware.
+During perf inject --jit, JIT_CODE_MOVE records were injecting MMAP records
+with an incorrect filename. Specifically it was missing the ".so" suffix.
 
-Currently, that code will always iterate over the EFI variables and
-compare each name with the provided name, even if the command line
-option wasn't set to begin with.
+Further the JIT_CODE_LOAD record were silently truncating the
+jr->load.code_index field to 32 bits before generating the filename.
 
-So bail early when no variable name was provided. This works around a
-boot regression on the 2012 Mac Pro, as reported by Scott.
+Make both records emit the same filename based on the full 64 bit
+code_index field.
 
-Tested-by: Scott Talbert <swt@techie.net>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Peter Jones <pjones@redhat.com>
+Fixes: 9b07e27f88b9 ("perf inject: Add jitdump mmap injection support")
+Cc: stable@vger.kernel.org # v4.6+
+Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Brian Robbins <brianrob@microsoft.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
+Cc: John Keeping <john@metanate.com>
+Cc: John Salem <josalem@microsoft.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Cc: linux-integrity@vger.kernel.org
-Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
-Link: https://lkml.kernel.org/r/20191002165904.8819-3-ard.biesheuvel@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
+Link: http://lore.kernel.org/lkml/BN8PR21MB1362FF8F127B31DBF4121528F7800@BN8PR21MB1362.namprd21.prod.outlook.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- drivers/firmware/efi/efi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/jitdump.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 8d3e778..69f00f7 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -267,6 +267,9 @@ static __init int efivar_ssdt_load(void)
- 	void *data;
- 	int ret;
+diff --git a/tools/perf/util/jitdump.c b/tools/perf/util/jitdump.c
+index 1bdf4c6..e3ccb0c 100644
+--- a/tools/perf/util/jitdump.c
++++ b/tools/perf/util/jitdump.c
+@@ -395,7 +395,7 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
+ 	size_t size;
+ 	u16 idr_size;
+ 	const char *sym;
+-	uint32_t count;
++	uint64_t count;
+ 	int ret, csize, usize;
+ 	pid_t pid, tid;
+ 	struct {
+@@ -418,7 +418,7 @@ static int jit_repipe_code_load(struct jit_buf_desc *jd, union jr_entry *jr)
+ 		return -1;
  
-+	if (!efivar_ssdt[0])
-+		return 0;
-+
- 	ret = efivar_init(efivar_ssdt_iter, &entries, true, &entries);
+ 	filename = event->mmap2.filename;
+-	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%u.so",
++	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
+ 			jd->dir,
+ 			pid,
+ 			count);
+@@ -529,7 +529,7 @@ static int jit_repipe_code_move(struct jit_buf_desc *jd, union jr_entry *jr)
+ 		return -1;
  
- 	list_for_each_entry_safe(entry, aux, &entries, list) {
+ 	filename = event->mmap2.filename;
+-	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%"PRIu64,
++	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
+ 	         jd->dir,
+ 	         pid,
+ 		 jr->move.code_index);
