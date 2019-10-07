@@ -2,91 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E82CEEB0
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 23:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F61FCEEED
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 00:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbfJGV7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 17:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40318 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728422AbfJGV7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 17:59:04 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16ED6206C0;
-        Mon,  7 Oct 2019 21:59:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570485543;
-        bh=vccaCfLekIcqrg8RQFT5wkIkeO9fGglQMnl9ddohi3I=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=DN+h02cpgv8d+Ejd5EN5YVKMhepec70IQOiCXb9JSCch6mASL0uEQB7yMuQHMEBvT
-         l7Jbk1GmZ8HyfHw2sXhUVm7teniTYmTFqrgq/Qtt1gY5Hz1ruYREBCug0GS+PgJIoq
-         CICr5sHeej3dbaCyraAh0n/gN7lxLsld/R41sB+k=
-Date:   Mon, 7 Oct 2019 14:59:02 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Qian Cai <cai@lca.pw>, tj@kernel.org, vdavydov.dev@gmail.com,
-        hannes@cmpxchg.org, guro@fb.com, cl@linux.com, penberg@kernel.org,
-        rientjes@google.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2] mm/slub: fix a deadlock in show_slab_objects()
-Message-Id: <20191007145902.a1ae6aac11c29d466a445a94@linux-foundation.org>
-In-Reply-To: <20191007081621.GE2381@dhcp22.suse.cz>
-References: <1570192309-10132-1-git-send-email-cai@lca.pw>
-        <20191004125701.GJ9578@dhcp22.suse.cz>
-        <20191007081621.GE2381@dhcp22.suse.cz>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S1729465AbfJGWOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 18:14:08 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37062 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728654AbfJGWOI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 18:14:08 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x97LwWjW140478;
+        Mon, 7 Oct 2019 18:13:05 -0400
+Received: from ppma03wdc.us.ibm.com (ba.79.3fa9.ip4.static.sl-reverse.com [169.63.121.186])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2vg9h81far-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Oct 2019 18:13:04 -0400
+Received: from pps.filterd (ppma03wdc.us.ibm.com [127.0.0.1])
+        by ppma03wdc.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id x97MAt9w016380;
+        Mon, 7 Oct 2019 22:13:03 GMT
+Received: from b03cxnp08025.gho.boulder.ibm.com (b03cxnp08025.gho.boulder.ibm.com [9.17.130.17])
+        by ppma03wdc.us.ibm.com with ESMTP id 2vejt6meww-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 07 Oct 2019 22:13:03 +0000
+Received: from b03ledav006.gho.boulder.ibm.com (b03ledav006.gho.boulder.ibm.com [9.17.130.237])
+        by b03cxnp08025.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x97MD2VT58065340
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 7 Oct 2019 22:13:02 GMT
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5A58AC60B2;
+        Mon,  7 Oct 2019 22:13:02 +0000 (GMT)
+Received: from b03ledav006.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DF4BFC60B7;
+        Mon,  7 Oct 2019 22:13:01 +0000 (GMT)
+Received: from [9.2.202.93] (unknown [9.2.202.93])
+        by b03ledav006.gho.boulder.ibm.com (Postfix) with ESMTP;
+        Mon,  7 Oct 2019 22:13:01 +0000 (GMT)
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "Safford, David (GE Global Research, US)" <david.safford@ge.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+ <1570024819.4999.119.camel@linux.ibm.com>
+ <20191003114119.GF8933@linux.intel.com>
+ <1570107752.4421.183.camel@linux.ibm.com>
+ <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+ <20191004182711.GC6945@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+ <20191007000520.GA17116@linux.intel.com>
+From:   Ken Goldman <kgold@linux.ibm.com>
+Message-ID: <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+Date:   Mon, 7 Oct 2019 18:13:01 -0400
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20191007000520.GA17116@linux.intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-07_04:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=882 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1910070196
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 7 Oct 2019 10:16:21 +0200 Michal Hocko <mhocko@kernel.org> wrote:
+The TPM library specification states that the TPM must comply with NIST 
+SP800-90 A.
 
-> On Fri 04-10-19 14:57:01, Michal Hocko wrote:
-> > On Fri 04-10-19 08:31:49, Qian Cai wrote:
-> > > Long time ago, there fixed a similar deadlock in show_slab_objects()
-> > > [1]. However, it is apparently due to the commits like 01fb58bcba63
-> > > ("slab: remove synchronous synchronize_sched() from memcg cache
-> > > deactivation path") and 03afc0e25f7f ("slab: get_online_mems for
-> > > kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
-> > > just reading files in /sys/kernel/slab which will generate a lockdep
-> > > splat below.
-> > > 
-> > > Since the "mem_hotplug_lock" here is only to obtain a stable online node
-> > > mask while racing with NUMA node hotplug, in the worst case, the results
-> > > may me miscalculated while doing NUMA node hotplug, but they shall be
-> > > corrected by later reads of the same files.
-> > 
-> > I think it is important to mention that this doesn't expose the
-> > show_slab_objects to use-after-free. There is only a single path that
-> > might really race here and that is the slab hotplug notifier callback
-> > __kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
-> > doesn't really destroy kmem_cache_node data structures.
+https://trustedcomputinggroup.org/membership/certification/tpm-certified-products/
 
-Yes, I noted this during review.  It's a bit subtle and is worthy of
-more than a changelog note, I think.  How about this?
+shows that the TPMs get third party certification, Common Criteria EAL 4+.
 
---- a/mm/slub.c~mm-slub-fix-a-deadlock-in-show_slab_objects-fix
-+++ a/mm/slub.c
-@@ -4851,6 +4851,10 @@ static ssize_t show_slab_objects(struct
- 	 * already held which will conflict with an existing lock order:
- 	 *
- 	 * mem_hotplug_lock->slab_mutex->kernfs_mutex
-+	 *
-+	 * We don't really need mem_hotplug_lock (to hold off
-+	 * slab_mem_going_offline_callback()) here because slab's memory hot
-+	 * unplug code doesn't destroy the kmem_cache->node[] data.
- 	 */
- 
- #ifdef CONFIG_SLUB_DEBUG
-_
+While it's theoretically possible that an attacker could compromise
+both the TPM vendors and the evaluation agencies, we do have EAL 4+ 
+assurance against both 1 and 2.
 
-> Andrew, please add this to the changelog so that we do not have to
-> scratch heads again when looking into that code.
+On 10/6/2019 8:05 PM, Jarkko Sakkinen wrote:
+> 
+> Kernel has the random number generator for two reasons:
+> 
+> 1. To protect against bugs in hwrng's.
+> 2. To protect against deliberate backdoors in hwrng's.
+> 
+> How TPM RNG is guaranteed to protect against both 1 and 2?
 
-I did that as well.
