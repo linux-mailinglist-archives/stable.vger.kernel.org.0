@@ -2,90 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C65FACDF12
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 12:18:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B63C9CDF67
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 12:33:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727390AbfJGKR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 06:17:59 -0400
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:35688 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727324AbfJGKR7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 06:17:59 -0400
-Received: by mail-qk1-f194.google.com with SMTP id w2so12025092qkf.2
-        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 03:17:58 -0700 (PDT)
+        id S1727390AbfJGKd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 06:33:26 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:36744 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727252AbfJGKdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 06:33:25 -0400
+Received: by mail-lj1-f196.google.com with SMTP id v24so13057316ljj.3;
+        Mon, 07 Oct 2019 03:33:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=A9Mvf3SvxfZZFNz/T17+KXuwp8jc+McicCxE/Wgq4O8=;
-        b=UVVCE8+9YK0ymoEeE/pkvuU8muUk2rsY1QXZhzbAtHHnljHiOUFxyNoKYi4DOeYg4G
-         +nU1Hpz193CeeJ+vztY4v8xtYIxRQDhVCfOKaHGH1oWdqeojGXJj2+aSgr+Ufv0PXn+d
-         ti/UxK2BrxZNNzIpGSYFp8T3wF+GKcMhv+WMxg8UoEDE9LrHdG+1QCVr6RqTtFG406WP
-         YC4UFmDW67OPg9ZxKbSvEr2gJLtdOtHzZPnDNYvIZARSPWTJCXaD8lSrDGhf1GNU+gqT
-         gmInLxzr/JuDwQX7iDQBxMcyKARon/pRG460XjMsrCjClTwTcjd4CsVmuWIpl0fckQX+
-         aGZg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oNNig/APpXlzsgQf4/4zikU/t/X44sqLM8yD3yPV7Z4=;
+        b=a6/c32y8W+2OO4I6umBjXsfYmAjr1wzq5ZHhKiIZm4Em48taC2TXmnilorIClfKHaO
+         RSmxzvD8Xs9fFNWqWqMrgleX8F0IxuyIxwH1d9TyD7vMeV3yPBJehBnUP3Lfh7mprb3c
+         9b8wzQwf0QnO24TOfK2zUJKNaulHRMaWc2qN787jm9FNi2sc5hlCzXobCuA0HVTyK12D
+         /qqGSIztyF/WpWSBLhqXD9Sb1XwyKVK4uiix35kPRM7S4UaTzPcREo0x+u1WhX1lhin8
+         EI/ymKpfMHY/b8ZnavARPa21x+ufuCtjZ2NegaQj+mZGtpsQyVbXypQS5qliNRaaQqn5
+         Dy+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=A9Mvf3SvxfZZFNz/T17+KXuwp8jc+McicCxE/Wgq4O8=;
-        b=cS1S/m16nRr+GB7+syJDqXbMA4Hds7bAskv7K5DLMJH/E9iVzjouxPrnl6i071YcPe
-         4O7DqI8EB9Law02qhZDoL+cJ4MHL/uBkWeBdnxFSEKAnC/yfOVIbZ+e+IvqszIYO16oy
-         1EoySa0iKyQZ3oWBi+nE4stqoimFk6DROsHsfDXuXMy5ISx9Wo6Wm6pDpK3qKZcaYPN1
-         UZkaOqoHsb+j6oReioFBFnLWTbdDq+HlqIDC02VD+Y52vs8iF+YHnMtESAMKpQ09IaW4
-         3Yu8bIV3h2hLy5CUsd1meaDOaz15oe/g/Aw+55tuC7SXKDzUoUlfY20XIpqYaafnI3LR
-         CGtw==
-X-Gm-Message-State: APjAAAXMY66Y8jP+Y/8Aiv6DNkrRzcuQPGxLeBybzimmlww8OZR5dZTa
-        6Fc1ZCy/LXrcKFyzoaBqOw9feWa0OiCMSxDvXjU=
-X-Google-Smtp-Source: APXvYqwfPAXygte77nEs+q4cFp6R2MSL3t1rnaZDtsGie+ChOEVIdqHgxjjnoer0guuOS3CLOWikQfu7DV4qv6jdOsE=
-X-Received: by 2002:a37:b702:: with SMTP id h2mr23038430qkf.166.1570443478325;
- Mon, 07 Oct 2019 03:17:58 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oNNig/APpXlzsgQf4/4zikU/t/X44sqLM8yD3yPV7Z4=;
+        b=AUTF1YmG9s9Nvjq8lV+7TqUEuF/PkGD6i/Z2zZt/Zqdq3Xik3ii0IgAADIU/x8Ozk7
+         /Xquw4J/G2O0tWl2+ijCV+/tPKs/+gxTIBQxaWEtFmRH/6tpIe1rJbsJL1D0VZuDvhuH
+         f276mGqh3tGAFEIhZ5i3n5cedSQI2+1Iv/pZsDGt/iqyRHUqIglGBJGtQUqttPYqGwiZ
+         vjlxDyhclYgyIMZBiz3W8GM2p33RIxLZFxh94ayf7VOQNa2Ylp4ONTQk0Gn1DyMHFBLO
+         gmfBTnT1SMnki+Ki+tJ8V8paStNyfAkI5VOJkJffzaOi/8mi9jIO84zU+VNR1RPWqSEA
+         r+0A==
+X-Gm-Message-State: APjAAAV7TNNNnRZUZ59sqMpnGelwTtMUOxATEt7UZU/5ZAaopfKEmPRT
+        cCEnu9IKAatZ51nc1dVf1pQ+hofjdQMIPtXtWlw=
+X-Google-Smtp-Source: APXvYqxSWwZ3uEPxII3m5erP4rL+4mMFDIzGpozY/SmRULvAvFf0dEbcTOqNDO98GfiRUqXydlHQYNsktRgveYZyj2U=
+X-Received: by 2002:a2e:9854:: with SMTP id e20mr17397616ljj.72.1570444403274;
+ Mon, 07 Oct 2019 03:33:23 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:ac8:6615:0:0:0:0:0 with HTTP; Mon, 7 Oct 2019 03:17:57 -0700 (PDT)
-Reply-To: eddywilliam0005@gmail.com
-From:   eddy william <ed7293954@gmail.com>
-Date:   Mon, 7 Oct 2019 12:17:57 +0200
-Message-ID: <CAN9EptJ8DjE0jxAAQHrKTUZLmFB6_htowtSuajahXffUoxX_Lg@mail.gmail.com>
-Subject: hello
-To:     undisclosed-recipients:;
+References: <20190926171601.30404-1-jarkko.sakkinen@linux.intel.com>
+ <1570024819.4999.119.camel@linux.ibm.com> <20191003114119.GF8933@linux.intel.com>
+In-Reply-To: <20191003114119.GF8933@linux.intel.com>
+From:   Janne Karhunen <janne.karhunen@gmail.com>
+Date:   Mon, 7 Oct 2019 13:33:11 +0300
+Message-ID: <CAE=NcrY3BTvD-L2XP6bsO=9oAJLtSD0wYpUymVkAGAnYObsPzQ@mail.gmail.com>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
+On Thu, Oct 3, 2019 at 2:41 PM Jarkko Sakkinen
+<jarkko.sakkinen@linux.intel.com> wrote:
 
-Mein Name ist Eddy William. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
-Ihnen anbieten
-die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
-(8,5 Millionen US-Dollar)
-Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
+> > At what point during boot is the kernel random pool available?  Does
+> > this imply that you're planning on changing trusted keys as well?
+>
+> Well trusted keys *must* be changed to use it. It is not a choice
+> because using a proprietary random number generator instead of defacto
+> one in the kernel can be categorized as a *regression*.
+>
+> Also, TEE trusted keys cannot use the TPM option.
+>
+> If it was not initialized early enough we would need fix that too.
 
-Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
-bei einem Autounfall ums Leben gekommen ist
-und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
-nd 50%
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
-Informationen: eddywilliam0005gmail.com
-
-Vielen Dank im Voraus,
-Mr. Eddy William,
+Note that especially IMA and fs encryptions are pretty annoying in
+this sense. You probably want to keep your keys device specific and
+you really need the keys around the time when the filesystems mount
+for the first time. This is very early on..
 
 
-Hello
-
-My name is Eddy William I am a lawyer by profession. I wish to offer you
-the next of kin to my client. You will inherit the sum of ($8.5 Million)
-dollars my client left in the bank before his death.
-
-My client is a citizen of your country who died in auto crash with his wife
-and only son. I will be entitled with 50% of the total fund while 50% will
-be for you.
-Please contact my private email here for more details:eddywilliam0005gmail.=
-com
-
-Many thanks in advance,
-Mr.Eddy William,
+--
+Janne
