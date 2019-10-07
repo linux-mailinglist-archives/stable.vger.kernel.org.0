@@ -2,159 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACF49CE702
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 17:14:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1064CE840
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 17:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727711AbfJGPOc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 11:14:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47180 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbfJGPOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Oct 2019 11:14:32 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 61ECDC0546F2;
-        Mon,  7 Oct 2019 15:14:31 +0000 (UTC)
-Received: from pauld.bos.csb (dhcp-17-51.bos.redhat.com [10.18.17.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6881F5D9CC;
-        Mon,  7 Oct 2019 15:14:27 +0000 (UTC)
-Date:   Mon, 7 Oct 2019 11:14:25 -0400
-From:   Phil Auld <pauld@redhat.com>
-To:     Xuewei Zhang <xueweiz@google.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        trivial@kernel.org
-Subject: Re: [PATCH] sched/fair: scale quota and period without losing
- quota/period ratio precision
-Message-ID: <20191007151425.GD22412@pauld.bos.csb>
-References: <20191004001243.140897-1-xueweiz@google.com>
+        id S1728506AbfJGPtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 11:49:07 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:39961 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727814AbfJGPtG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 11:49:06 -0400
+Received: by mail-oi1-f196.google.com with SMTP id k9so12073675oib.7
+        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 08:49:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=lqdycZwAUgSnFpwK58qs3gb8tItxjMETyqFXTQ1z01w=;
+        b=foJTk12zlYM7YGOv/O1ov+SYFoGnSGvv8XTyXhhbhxzcrv3GC2s9/nV4bXwKQG6a6d
+         vXyL/+YICgCFc2rXboVLYobwa/Wh7i5/u6sazz0IS94L7L7WFusQ1U/QJKYT8y4eX8EZ
+         OCQfNcBer+T+f5qwS77cvORv8fYSpLcxCeZF3bexDIQ2G9700IWiM4uMB/iQV1pG4Tol
+         7HFWXo6QOFEFikpBqiSU4y8IUBFif1k46nZebdbzH1QK/ZFcricvvG5HF8ArIzaTYUTP
+         Deo8uE66hov5s+xg9RY+yR/ZZ0Cm7bBKRTyUtW0CtQNem29WaL/gSKzx3CocDdekimBB
+         ZXWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=lqdycZwAUgSnFpwK58qs3gb8tItxjMETyqFXTQ1z01w=;
+        b=mK1WuelDIVMn1jv7U0s0d/5220iqCuZWq7LdOuefIFItXslA4oohLry9wwfDV+mfzz
+         zEQe4mXwdklwf1/q5Y14EfmPz32bwL4evGnqwRm55koi7lGmelaJEGyJJw+e1uz04AP9
+         7kJ6MT1eyA4gYCaPnDj66PJ2OHkFzu1UyON9V/vmH+J76RPyHYcQm9PAFopNRl2KPr5y
+         d1DRwOIvdH+Nu66G5wLO2IhC/0aGwUrO3L6/M/pXrBTFeugQIJtnEcj6woOEzcFlMPbz
+         pPgnM08AVz7W34ROXpRxkhV/jBg1qUiPvayqKNmmAcH7L7Sv7JgGrPLvn91LuWYPdGnV
+         Y6xA==
+X-Gm-Message-State: APjAAAVotdATIlqb9SrOJ+B49LV2d1RM0xlblH/bkRjvx0DhTZlhb5GS
+        +Ogk1kSdGxIEP/5HTmX1NWF8SktrsJM=
+X-Google-Smtp-Source: APXvYqyLu+ZxQLtY0z98LGGU4aZ9g+j64raLKyccytCbUoZcvgofZr8J5hqnbAYA4jHmShe7+wbPyg==
+X-Received: by 2002:a54:4483:: with SMTP id v3mr17723716oiv.41.1570463343919;
+        Mon, 07 Oct 2019 08:49:03 -0700 (PDT)
+Received: from [192.168.17.59] (CableLink-189-218-29-211.Hosts.InterCable.net. [189.218.29.211])
+        by smtp.gmail.com with ESMTPSA id w20sm4539170otk.73.2019.10.07.08.49.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 07 Oct 2019 08:49:03 -0700 (PDT)
+Subject: Re: [PATCH 4.9 00/47] 4.9.196-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191006172016.873463083@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <f53672a3-efad-0bcc-0cde-b66ed1172a66@linaro.org>
+Date:   Mon, 7 Oct 2019 10:49:01 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191004001243.140897-1-xueweiz@google.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Mon, 07 Oct 2019 15:14:31 +0000 (UTC)
+In-Reply-To: <20191006172016.873463083@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 03, 2019 at 05:12:43PM -0700 Xuewei Zhang wrote:
-> quota/period ratio is used to ensure a child task group won't get more
-> bandwidth than the parent task group, and is calculated as:
-> normalized_cfs_quota() = [(quota_us << 20) / period_us]
+Hello!
+
+
+On 10/6/19 12:20 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.196 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> If the quota/period ratio was changed during this scaling due to
-> precision loss, it will cause inconsistency between parent and child
-> task groups. See below example:
-> A userspace container manager (kubelet) does three operations:
-> 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
-> 2) Create a few children cgroups.
-> 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
+> Responses should be made by Tue 08 Oct 2019 05:19:59 PM UTC.
+> Anything received after that time might be too late.
 > 
-> These operations are expected to succeed. However, if the scaling of
-> 147/128 happens before step 3), quota and period of the parent cgroup
-> will be changed:
-> new_quota: 1148437ns, 1148us
-> new_period: 11484375ns, 11484us
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.196-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
 > 
-> And when step 3) comes in, the ratio of the child cgroup will be 104857,
-> which will be larger than the parent cgroup ratio (104821), and will
-> fail.
+> thanks,
 > 
-> Scaling them by a factor of 2 will fix the problem.
-> 
-> Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-> Signed-off-by: Xuewei Zhang <xueweiz@google.com>
+> greg k-h
 
 
-I managed to get it to trigger the second case. It took 50,000 children (20x my initial tests).
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-[ 1367.850630] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 4340, cfs_quota_us = 250000)
-[ 1370.390832] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 8680, cfs_quota_us = 500000)
-[ 1372.914689] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 17360, cfs_quota_us = 1000000)
-[ 1375.447431] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 34720, cfs_quota_us = 2000000)
-[ 1377.982785] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 69440, cfs_quota_us = 4000000)
-[ 1380.481702] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 138880, cfs_quota_us = 8000000)
-[ 1382.894692] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 277760, cfs_quota_us = 16000000)
-[ 1385.264872] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 555520, cfs_quota_us = 32000000)
-[ 1393.965140] cfs_period_timer[cpu11]: period too short, but cannot scale up without losing precision (cfs_period_us = 555520, cfs_quota_us = 32000000)
+Summary
+------------------------------------------------------------------------
 
-I suspect going higher could cause the original lockup, but that'd be the case with the old code as well. 
-And this also gets us out of it faster.
+kernel: 4.9.196-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+git branch: linux-4.9.y
+git commit: ce2cf4ffcd946bd02d4afd26f17f425dc921448e
+git describe: v4.9.195-48-gce2cf4ffcd94
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/build/v4.9.195-48-gce2cf4ffcd94
+
+No regressions (compared to build v4.9.195)
+
+No fixes (compared to build v4.9.195)
+
+Ran 21656 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* ltp-open-posix-tests
+* prep-tmp-disk
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* ssuite
 
 
-Tested-by: Phil Auld <pauld@redhat.com>
+Greetings!
 
+Daniel Díaz
+daniel.diaz@linaro.org
 
-Cheers,
-Phil
-
-
-> ---
->  kernel/sched/fair.c | 36 ++++++++++++++++++++++--------------
->  1 file changed, 22 insertions(+), 14 deletions(-)
-> 
-> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-> index 83ab35e2374f..b3d3d0a231cd 100644
-> --- a/kernel/sched/fair.c
-> +++ b/kernel/sched/fair.c
-> @@ -4926,20 +4926,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
->  		if (++count > 3) {
->  			u64 new, old = ktime_to_ns(cfs_b->period);
->  
-> -			new = (old * 147) / 128; /* ~115% */
-> -			new = min(new, max_cfs_quota_period);
-> -
-> -			cfs_b->period = ns_to_ktime(new);
-> -
-> -			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
-> -			cfs_b->quota *= new;
-> -			cfs_b->quota = div64_u64(cfs_b->quota, old);
-> -
-> -			pr_warn_ratelimited(
-> -	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
-> -				smp_processor_id(),
-> -				div_u64(new, NSEC_PER_USEC),
-> -				div_u64(cfs_b->quota, NSEC_PER_USEC));
-> +			/*
-> +			 * Grow period by a factor of 2 to avoid lossing precision.
-> +			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
-> +			 * to fail.
-> +			 */
-> +			new = old * 2;
-> +			if (new < max_cfs_quota_period) {
-> +				cfs_b->period = ns_to_ktime(new);
-> +				cfs_b->quota *= 2;
-> +
-> +				pr_warn_ratelimited(
-> +	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-> +					smp_processor_id(),
-> +					div_u64(new, NSEC_PER_USEC),
-> +					div_u64(cfs_b->quota, NSEC_PER_USEC));
-> +			} else {
-> +				pr_warn_ratelimited(
-> +	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-> +					smp_processor_id(),
-> +					div_u64(old, NSEC_PER_USEC),
-> +					div_u64(cfs_b->quota, NSEC_PER_USEC));
-> +			}
->  
->  			/* reset count so we don't come right back in here */
->  			count = 0;
-> -- 
-> 2.23.0.581.g78d2f28ef7-goog
-> 
 
 -- 
+Linaro LKFT
+https://lkft.linaro.org
