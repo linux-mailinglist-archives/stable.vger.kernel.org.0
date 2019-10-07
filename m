@@ -2,126 +2,273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC45CDA0A
-	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 02:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CFACCDA0C
+	for <lists+stable@lfdr.de>; Mon,  7 Oct 2019 03:05:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726852AbfJGA61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 6 Oct 2019 20:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54202 "EHLO mail.kernel.org"
+        id S1726739AbfJGBFg convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 6 Oct 2019 21:05:36 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:35636 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726605AbfJGA61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 6 Oct 2019 20:58:27 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726266AbfJGBFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 6 Oct 2019 21:05:36 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D54A20867;
-        Mon,  7 Oct 2019 00:58:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570409906;
-        bh=y6QJSbXiHv+0apP/0rWQdi9vPUN+I8hKekNScjU15C0=;
-        h=Date:From:To:Subject:From;
-        b=O5602jjPC7rp2b9jyaqJBSZ2MKp3s4CQVpwLPRgvLa/pihS57tBZgqVCYXuAHFdQt
-         4ilywe/wwyWIBDxpKSliwqanYZF0UGhcClJI4aVF4ZQmz4W3Onbo7bQBSCfL+8DhjD
-         Fu1/2weMu9pZrmVAGmQD1Q/I9R0LiNFyfxgoZmlM=
-Date:   Sun, 06 Oct 2019 17:58:25 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, alexander.duyck@gmail.com,
-        borntraeger@de.ibm.com, cai@lca.pw, gor@linux.ibm.com,
-        heiko.carstens@de.ibm.com, kirill@shutemov.name, mhocko@suse.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 12/18] mm/page_alloc.c: fix a crash in
- free_pages_prepare()
-Message-ID: <20191007005825.EKKQ5-6pR%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mx1.redhat.com (Postfix) with ESMTPS id 2CAE485540
+        for <stable@vger.kernel.org>; Mon,  7 Oct 2019 01:05:36 +0000 (UTC)
+Received: from [172.54.19.159] (cpt-1010.paas.prod.upshift.rdu2.redhat.com [10.0.19.32])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9BD725DA5B;
+        Mon,  7 Oct 2019 01:05:33 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.3.5-rc1-a2703e7.cki
+ (stable)
+CC:     Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.5C601A391A.QTS3NSPK5Z@redhat.com>
+X-Gitlab-Pipeline-ID: 209984
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/209984
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Mon, 07 Oct 2019 01:05:36 +0000 (UTC)
+Date:   Sun, 6 Oct 2019 21:05:36 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
-Subject: mm/page_alloc.c: fix a crash in free_pages_prepare()
 
-On architectures like s390, arch_free_page() could mark the page unused
-(set_page_unused()) and any access later would trigger a kernel panic. 
-Fix it by moving arch_free_page() after all possible accessing calls.
+Hello,
 
- Hardware name: IBM 2964 N96 400 (z/VM 6.4.0)
- Krnl PSW : 0404e00180000000 0000000026c2b96e
-(__free_pages_ok+0x34e/0x5d8)
-            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
- Krnl GPRS: 0000000088d43af7 0000000000484000 000000000000007c
- 000000000000000f
-            000003d080012100 000003d080013fc0 0000000000000000
- 0000000000100000
-            00000000275cca48 0000000000000100 0000000000000008
- 000003d080010000
-            00000000000001d0 000003d000000000 0000000026c2b78a
- 000000002717fdb0
- Krnl Code: 0000000026c2b95c: ec1100b30659 risbgn %r1,%r1,0,179,6
-            0000000026c2b962: e32014000036 pfd 2,1024(%r1)
-           #0000000026c2b968: d7ff10001000 xc 0(256,%r1),0(%r1)
-           >0000000026c2b96e: 41101100  la %r1,256(%r1)
-            0000000026c2b972: a737fff8  brctg %r3,26c2b962
-            0000000026c2b976: d7ff10001000 xc 0(256,%r1),0(%r1)
-            0000000026c2b97c: e31003400004 lg %r1,832
-            0000000026c2b982: ebff1430016a asi 5168(%r1),-1
- Call Trace:
- __free_pages_ok+0x16a/0x5d8)
- memblock_free_all+0x206/0x290
- mem_init+0x58/0x120
- start_kernel+0x2b0/0x570
- startup_continue+0x6a/0xc0
- INFO: lockdep is turned off.
- Last Breaking-Event-Address:
- __free_pages_ok+0x372/0x5d8
- Kernel panic - not syncing: Fatal exception: panic_on_oops
-00: HCPGIR450W CP entered; disabled wait PSW 00020001 80000000 00000000
-26A2379C
+We ran automated tests on a recent commit from this kernel tree:
 
-In the past, only kernel_poison_pages() would trigger this but it needs
-"page_poison=on" kernel cmdline, and I suspect nobody tested that on
-s390.  Recently, kernel_init_free_pages() (commit 6471384af2a6 ("mm:
-security: introduce init_on_alloc=1 and init_on_free=1 boot options"))
-was added and could trigger this as well.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: a2703e78c28a - Linux 5.3.5-rc1
 
-[akpm@linux-foundation.org: add comment]
-Link: http://lkml.kernel.org/r/1569613623-16820-1-git-send-email-cai@lca.pw
-Fixes: 8823b1dbc05f ("mm/page_poison.c: enable PAGE_POISONING as a separate option")
-Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: "Kirill A. Shutemov" <kirill@shutemov.name>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.3+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+The results of these automated tests are provided below.
 
- mm/page_alloc.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
---- a/mm/page_alloc.c~mm-page_alloc-fix-a-crash-in-free_pages_prepare
-+++ a/mm/page_alloc.c
-@@ -1175,11 +1175,17 @@ static __always_inline bool free_pages_p
- 		debug_check_no_obj_freed(page_address(page),
- 					   PAGE_SIZE << order);
- 	}
--	arch_free_page(page, order);
- 	if (want_init_on_free())
- 		kernel_init_free_pages(page, 1 << order);
- 
- 	kernel_poison_pages(page, 1 << order, 0);
-+	/*
-+	 * arch_free_page() can make the page's contents inaccessible.  s390
-+	 * does this.  So nothing which can access the page's contents should
-+	 * happen after this.
-+	 */
-+	arch_free_page(page, order);
-+
- 	if (debug_pagealloc_enabled())
- 		kernel_map_pages(page, 1 << order, 0);
- 
-_
+All kernel binaries, config files, and logs are available for download here:
+
+  https://artifacts.cki-project.org/pipelines/209984
+
+One or more kernel tests failed:
+
+    ppc64le:
+      ❌ xfstests: xfs
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking ipsec: basic netns tunnel
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+
+      Host 2:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ❌ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ Storage blktests
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ Storage SAN device stress - megaraid_sas
+
+      Host 2:
+         ✅ Boot test
+         ✅ Storage SAN device stress - mpt3sas driver
+
+      Host 3:
+         ✅ Boot test
+         🚧 ✅ IPMI driver test
+         🚧 ✅ IPMItool loop stress test
+
+      Host 4:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ Loopdev Sanity
+         ✅ jvm test suite
+         ✅ Memory function: memfd_create
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ Ethernet drivers sanity
+         ✅ Networking socket: fuzz
+         ✅ Networking sctp-auth: sockopts test
+         ✅ Networking: igmp conformance test
+         ✅ Networking TCP: keepalive test
+         ✅ Networking UDP: socket
+         ✅ Networking tunnel: gre basic
+         ✅ Networking tunnel: vxlan basic
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ storage: SCSI VPD
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+         🚧 ✅ CIFS Connectathon
+         🚧 ✅ POSIX pjd-fstest suites
+         🚧 ✅ Memory function: kaslr
+         🚧 ✅ Networking bridge: sanity
+         🚧 ✅ Networking MACsec: sanity
+         🚧 ✅ Networking route: pmtu
+         🚧 ✅ Networking tunnel: geneve basic test
+         🚧 ✅ L2TP basic test
+         🚧 ✅ Networking vnic: ipvlan/basic
+         🚧 ✅ ALSA PCM loopback test
+         🚧 ✅ ALSA Control (mixer) Userspace Element test
+         🚧 ✅ storage: dm/common
+         🚧 ✅ trace: ftrace/tracer
+         🚧 ✅ Networking route_func: local
+         🚧 ✅ Networking route_func: forward
+         🚧 ✅ Networking ipsec: basic netns transport
+         🚧 ✅ Networking ipsec: basic netns tunnel
+
+      Host 5:
+         ✅ Boot test
+         ✅ xfstests: ext4
+         ✅ xfstests: xfs
+         ✅ selinux-policy: serge-testsuite
+         ✅ lvm thinp sanity
+         ✅ storage: software RAID testing
+         🚧 ✅ IOMMU boot test
+         🚧 ✅ Storage blktests
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
+
