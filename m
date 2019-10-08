@@ -2,112 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 497B5D02C0
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 23:20:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B13FBD02D9
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 23:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730722AbfJHVUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 17:20:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55910 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730720AbfJHVUp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 17:20:45 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 31D218030B; Tue,  8 Oct 2019 23:20:28 +0200 (CEST)
-Date:   Tue, 8 Oct 2019 23:20:41 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     "H. Peter Anvin" <hpa@zytor.com>
-Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
-        "x86@kernel.org" <x86@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Juergen Gross <jgross@suse.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ingo Molnar <mingo@redhat.com>, Chen Yu <yu.c.chen@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrew Cooper <andrew.cooper3@citrix.com>,
-        Borislav Petkov <bp@suse.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [tip: x86/urgent] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
- family 15h/16h
-Message-ID: <20191008212041.GA7222@amd>
-References: <7543af91666f491547bd86cebb1e17c66824ab9f.1566229943.git.thomas.lendacky@amd.com>
- <156652264945.9541.4969272027980914591.tip-bot2@tip-bot2>
- <20190824181929.GA18551@amd>
- <409703ae-6d70-3f6a-d6fc-b7dada3c2797@zytor.com>
+        id S1730720AbfJHV3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 17:29:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56834 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730523AbfJHV3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 17:29:46 -0400
+Received: from localhost (unknown [131.107.159.163])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D4CD21721;
+        Tue,  8 Oct 2019 21:29:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570570184;
+        bh=f7XVbDLpFmAD4Xl0xpwWSVizeSVRTOEy+b9x6pPH9Ss=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KU55GiyhZD7rQCwbWg+1nx4bIlXF2vwAO3K23T8wnZyMeK4k6EsyGRdoXJXaRZPZg
+         IuQMXIyo/UK2UQN5K2T8RBoJ3efYWHeIJXbxAA6HqeNWCUHlnyPRvtZRajAI21oT12
+         2NvZG+fPPpQJcKxGatoGHZcpY9TYw/edOTUZ7AuQ=
+Date:   Tue, 8 Oct 2019 17:29:44 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ilya Dryomov <idryomov@gmail.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Dongsheng Yang <dongsheng.yang@easystack.cn>,
+        Ceph Development <ceph-devel@vger.kernel.org>,
+        linux-block <linux-block@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.3 15/71] rbd: fix response length parameter for
+ encoded strings
+Message-ID: <20191008212944.GD1396@sasha-vm>
+References: <20191001163922.14735-1-sashal@kernel.org>
+ <20191001163922.14735-15-sashal@kernel.org>
+ <CAOi1vP-2iSHxJVOabN05+NCiSZ0DxBC9fGN=5cx98mk5RvaDZA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <409703ae-6d70-3f6a-d6fc-b7dada3c2797@zytor.com>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <CAOi1vP-2iSHxJVOabN05+NCiSZ0DxBC9fGN=5cx98mk5RvaDZA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 01, 2019 at 07:15:49PM +0200, Ilya Dryomov wrote:
+>On Tue, Oct 1, 2019 at 6:39 PM Sasha Levin <sashal@kernel.org> wrote:
+>>
+>> From: Dongsheng Yang <dongsheng.yang@easystack.cn>
+>>
+>> [ Upstream commit 5435d2069503e2aa89c34a94154f4f2fa4a0c9c4 ]
+>>
+>> rbd_dev_image_id() allocates space for length but passes a smaller
+>> value to rbd_obj_method_sync().  rbd_dev_v2_object_prefix() doesn't
+>> allocate space for length.  Fix both to be consistent.
+>>
+>> Signed-off-by: Dongsheng Yang <dongsheng.yang@easystack.cn>
+>> Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+>> Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/block/rbd.c | 10 ++++++----
+>>  1 file changed, 6 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+>> index c8fb886aebd4e..69db7385c8df5 100644
+>> --- a/drivers/block/rbd.c
+>> +++ b/drivers/block/rbd.c
+>> @@ -5669,17 +5669,20 @@ static int rbd_dev_v2_image_size(struct rbd_device *rbd_dev)
+>>
+>>  static int rbd_dev_v2_object_prefix(struct rbd_device *rbd_dev)
+>>  {
+>> +       size_t size;
+>>         void *reply_buf;
+>>         int ret;
+>>         void *p;
+>>
+>> -       reply_buf = kzalloc(RBD_OBJ_PREFIX_LEN_MAX, GFP_KERNEL);
+>> +       /* Response will be an encoded string, which includes a length */
+>> +       size = sizeof(__le32) + RBD_OBJ_PREFIX_LEN_MAX;
+>> +       reply_buf = kzalloc(size, GFP_KERNEL);
+>>         if (!reply_buf)
+>>                 return -ENOMEM;
+>>
+>>         ret = rbd_obj_method_sync(rbd_dev, &rbd_dev->header_oid,
+>>                                   &rbd_dev->header_oloc, "get_object_prefix",
+>> -                                 NULL, 0, reply_buf, RBD_OBJ_PREFIX_LEN_MAX);
+>> +                                 NULL, 0, reply_buf, size);
+>>         dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
+>>         if (ret < 0)
+>>                 goto out;
+>> @@ -6696,7 +6699,6 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
+>>         dout("rbd id object name is %s\n", oid.name);
+>>
+>>         /* Response will be an encoded string, which includes a length */
+>> -
+>>         size = sizeof (__le32) + RBD_IMAGE_ID_LEN_MAX;
+>>         response = kzalloc(size, GFP_NOIO);
+>>         if (!response) {
+>> @@ -6708,7 +6710,7 @@ static int rbd_dev_image_id(struct rbd_device *rbd_dev)
+>>
+>>         ret = rbd_obj_method_sync(rbd_dev, &oid, &rbd_dev->header_oloc,
+>>                                   "get_id", NULL, 0,
+>> -                                 response, RBD_IMAGE_ID_LEN_MAX);
+>> +                                 response, size);
+>>         dout("%s: rbd_obj_method_sync returned %d\n", __func__, ret);
+>>         if (ret == -ENOENT) {
+>>                 image_id = kstrdup("", GFP_KERNEL);
+>
+>Hi Sasha,
+>
+>This patch just made things consistent, there was no bug here.  I don't
+>think it should be backported.
 
---Nq2Wo0NMKNjxTN9z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I'll drop it, thanks!
 
-Hi!
-
-> >> x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h
-> >>
-> >> There have been reports of RDRAND issues after resuming from suspend on
-> >> some AMD family 15h and family 16h systems. This issue stems from a BI=
-OS
-> >> not performing the proper steps during resume to ensure RDRAND continu=
-es
-> >> to function properly.
-> >=20
-> > There are quite a few unanswered questions here.
-> >=20
-> > a) Is there/should there be CVE for this?
-> >=20
-> > b) Can we perform proper steps in kernel, thus making RDRAND usable
-> > even when BIOS is buggy?
-> >=20
->=20
-> The kernel should at least be able to set its internal "CPUID" bit, visib=
-le
-> through /proc/cpuinfo.
-
-Actually, with hindsight I see two possible improvements here:
-
-1) Not having enabled s2ram in config does not mean machine was not
-suspended/resumed, then new kernel executed via kexec.
-
-2) We really can continue using the RDRAND: we know how it fails
-(constant pattern) so we can check for the failure in kernel, and can
-continue to use it... It will certainly work until first suspend, and
-there's good chance it will work after that, too. (We still need to
-prevent userspace from using it).
-
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---Nq2Wo0NMKNjxTN9z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl2c/akACgkQMOfwapXb+vIAIgCfTtdPEk+einOr1l0u8g3JJUIR
-Hw8An3EIBITYsbuZfkKzqYAG/mjHPUe/
-=XIae
------END PGP SIGNATURE-----
-
---Nq2Wo0NMKNjxTN9z--
+-- 
+Thanks,
+Sasha
