@@ -2,108 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BD45CF00C
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 02:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6F5CF0A4
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 03:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729588AbfJHA56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Oct 2019 20:57:58 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:47031 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729285AbfJHA56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Oct 2019 20:57:58 -0400
-Received: by mail-wr1-f67.google.com with SMTP id o18so17270084wrv.13
-        for <stable@vger.kernel.org>; Mon, 07 Oct 2019 17:57:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vcx2znhFA7fNRFtWB4PnFWwsAnkGhsL1J7hP6Jz4W4w=;
-        b=K92Jbdme7LnOL0zXgkw/FUEQt/cs9GQ39lPQsXAkW/S9W+0KQrUPK6M0+8J3kw3C7I
-         C9PUQ6p6XcKhv2WqwAdPcW7vkb0A4W4f69sNo/exZdEc8nCnnvQ8exXNzp2ROpaEiXVt
-         z7N5B7mN/40iUtW1x+CAFMRAFnTNbeSxd7e98CjwHR3eDsoHSr42x8wd6TpFYCsXokD3
-         rgcSa86e+fa4PqPXZQaZMNz2EW7x//vVzsBMAczqy7VP2kX4gC44/zyOyjwdJzvS/b7R
-         QjCO3USHW8HoXxWjrxCeuB/40BRbAEzffdfVmy2YvmJMehIyXbsxL009rZdLhnRA0NKU
-         IAQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vcx2znhFA7fNRFtWB4PnFWwsAnkGhsL1J7hP6Jz4W4w=;
-        b=ScqnqPl9p0Df1zbEvO16qMsjNEdpXYKM5yanqBB2YDYB//CRAwfzH9rB5iK2aFuxjK
-         /uFvn2msyNswR+ffRKv3muFxELElUpS6fnXKQySKRyWBKu/INzGLBJ6t9upAMWVgGl0Z
-         Uv7lCyPzBW3A3HMZ/LFRMZgTkKhgAVyuLEMbNIdUqDDgCaNWSULprLsczjxbZYZEET8q
-         V4vIQbVX9bZKhjSct6HR449WJfCkUU2Kj1K/H84SsboNxA8NM0rdKVfSj+ngE4lRZdzy
-         qzUVDoOIu4c6fm3abUhz7Ryuo+oZMm6Wv9Gvk9mWP5PVwcromrOqzruyiRm3Lz0uVem6
-         Nu1g==
-X-Gm-Message-State: APjAAAX55EDkd/iGdQwpwtvBmg7fUQpvEaZWAgkdY0GNMhjYOLh+Oihm
-        EW4LJygC6S5gxOLwrgzIKwau0VJge9O3rg==
-X-Google-Smtp-Source: APXvYqxUxrp1VbtL5F10rs/JKDESmdG8w2smXrZKit1AdN0pbrx0XByVBTadE8DCIPcDLoza0G0cbQ==
-X-Received: by 2002:a5d:6347:: with SMTP id b7mr19021331wrw.131.1570496275754;
-        Mon, 07 Oct 2019 17:57:55 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r2sm2205165wma.1.2019.10.07.17.57.55
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 07 Oct 2019 17:57:55 -0700 (PDT)
-Message-ID: <5d9bdf13.1c69fb81.c88a8.b917@mx.google.com>
-Date:   Mon, 07 Oct 2019 17:57:55 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1729285AbfJHBt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Oct 2019 21:49:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53804 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726917AbfJHBt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Oct 2019 21:49:57 -0400
+Received: from localhost (unknown [216.9.110.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF9EF20835;
+        Tue,  8 Oct 2019 01:49:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570499396;
+        bh=cFjDcRdNYug32NXchWp9aEpXNbMiQH0Y5DH9uQ/EtSQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=07+iTFYw5GUk75foY3KUq7udBBXdj/iWmY4zMeY2JlqzDTTHOMAWg/nhyKkR/SPTT
+         zPmlzDe6qiBcPHfeYWK9j1ZZZB4apgERFmvGGxhvmTAuur1r5zofzc8wWgUEAj90Je
+         KYXG9zCAsf9mVUyAEdF2IGVog6VIFgjo5rIQLLy0=
+Date:   Mon, 7 Oct 2019 21:49:54 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/36] 4.4.196-stable review
+Message-ID: <20191008014954.GB1396@sasha-vm>
+References: <20191006171038.266461022@linuxfoundation.org>
+ <d3e1e6ae-8ca4-a43b-d30d-9a9a9a7e5752@roeck-us.net>
+ <20191007144951.GB966828@kroah.com>
+ <20191007230708.GA1396@sasha-vm>
+ <35f5fb99-6c35-9afd-1a4e-3fa7d4ba213a@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.195-36-g898f6e5cf82f
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 48 boots: 3 failed,
- 44 passed with 1 conflict (v4.4.195-36-g898f6e5cf82f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <35f5fb99-6c35-9afd-1a4e-3fa7d4ba213a@roeck-us.net>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 48 boots: 3 failed, 44 passed with 1 conflict (=
-v4.4.195-36-g898f6e5cf82f)
+On Mon, Oct 07, 2019 at 04:16:51PM -0700, Guenter Roeck wrote:
+>On 10/7/19 4:07 PM, Sasha Levin wrote:
+>>On Mon, Oct 07, 2019 at 04:49:51PM +0200, Greg Kroah-Hartman wrote:
+>>>On Mon, Oct 07, 2019 at 05:53:55AM -0700, Guenter Roeck wrote:
+>>>>On 10/6/19 10:18 AM, Greg Kroah-Hartman wrote:
+>>>>> This is the start of the stable review cycle for the 4.4.196 release.
+>>>>> There are 36 patches in this series, all will be posted as a response
+>>>>> to this one.  If anyone has any issues with these being applied, please
+>>>>> let me know.
+>>>>>
+>>>>> Responses should be made by Tue 08 Oct 2019 05:07:10 PM UTC.
+>>>>> Anything received after that time might be too late.
+>>>>>
+>>>>
+>>>>powerpc:defconfig fails to build.
+>>>>
+>>>>arch/powerpc/kernel/eeh_driver.c: In function ‘eeh_handle_normal_event’:
+>>>>arch/powerpc/kernel/eeh_driver.c:678:2: error: implicit declaration of function ‘eeh_for_each_pe’; did you mean ‘bus_for_each_dev’?
+>>>>
+>>>>It has a point:
+>>>>
+>>>>... HEAD is now at 13cac61d31df Linux 4.4.196-rc1
+>>>>$ git grep eeh_for_each_pe
+>>>>arch/powerpc/kernel/eeh_driver.c:       eeh_for_each_pe(pe, tmp_pe)
+>>>>arch/powerpc/kernel/eeh_driver.c:                               eeh_for_each_pe(pe, tmp_pe)
+>>>>
+>>>>Caused by commit 3fb431be8de3a ("powerpc/eeh: Clear stale EEH_DEV_NO_HANDLER flag").
+>>>>Full report will follow later.
+>>>
+>>>Thanks for letting me know, I've dropped this from the queue now and
+>>>pushed out a -rc2 with that removed.
+>>>
+>>>Sasha, I thought your builder would have caught stuff like this?
+>>
+>>Interesting, the 4.4 build fails for me with vanilla 4.4 LTS kernel
+>>(which is why this was missed):
+>>
+>>  AS      arch/powerpc/kernel/systbl.o
+>>arch/powerpc/kernel/exceptions-64s.S: Assembler messages:
+>>arch/powerpc/kernel/exceptions-64s.S:1599: Warning: invalid register expression
+>>arch/powerpc/kernel/exceptions-64s.S:1640: Warning: invalid register expression
+>>arch/powerpc/kernel/exceptions-64s.S:839: Error: attempt to move .org backwards
+>>arch/powerpc/kernel/exceptions-64s.S:840: Error: attempt to move .org backwards
+>>arch/powerpc/kernel/exceptions-64s.S:864: Error: attempt to move .org backwards
+>>arch/powerpc/kernel/exceptions-64s.S:865: Error: attempt to move .org backwards
+>>scripts/Makefile.build:375: recipe for target 'arch/powerpc/kernel/head_64.o' failed
+>>
+>
+>Is this allmodconfig ? That is correct - it won't build in 4.4.y, and it would not be
+>easy to fix.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.195-36-g898f6e5cf82f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.195-36-g898f6e5cf82f/
+Oh, interesting, so no allmodconfig? I've disabled everything but
+allmodconfig on a few architectures in an attempt to save to build time.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.195-36-g898f6e5cf82f
-Git Commit: 898f6e5cf82f30ecceeb81b0f2ec112f242e19fd
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 22 unique boards, 10 SoC families, 11 builds out of 190
-
-Boot Failures Detected:
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-baylibre: FAIL (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-            lab-collabora: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
