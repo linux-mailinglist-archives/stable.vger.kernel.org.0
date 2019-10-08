@@ -2,123 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29680D00C8
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:44:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F11ED00E3
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:57:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727336AbfJHSoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 14:44:16 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:41411 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726138AbfJHSoQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 14:44:16 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 61E7121785;
-        Tue,  8 Oct 2019 14:44:15 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 14:44:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GVxgzG
-        YUMCspn8M6BCU7j0tfw4K9wS4Tbf2ZV0ZagaI=; b=UaUHt6TVJ3eMiiO+4ARmWw
-        cL8GkZMaaTykfFY+E9lwZyJUk0UVSOztHRdc3fXbldtAGC3cBNqcRZUqzDI4wCd+
-        HEEgLA9KuZWpAXpMi00sNbf/T2V4xGg6QhkJzJlUyT5ZVazzeDWWd4XbRY3dX1rt
-        U3KE8y9EqG1iZ9x5Hlxctx6OyD5Gw31d14+uXb3d1gBqC+fgX3iJjPfeJL6dfoCo
-        W9FojqVUfd6ERKMESs1zp6Je0b6vXoyO2Z2SXL2Eq63tKaLY4OtxNz9U1HmYhaEF
-        Jf+OKPNxLea14AyErLrNxEUk9tVy4JJ3t44CXkQiaivdrYzCZwDRr4Cjke80RLvQ
-        ==
-X-ME-Sender: <xms:_ticXXCCFWpIgpg0Vr7hnaE34P7IxcxRuKDDdBlcsDN51c9WgcVV3A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgddufeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:_ticXYDRVIjgzBddzJlMlUbYEGd9lCjo93oO88Mm0wYBvZVnJoQtYQ>
-    <xmx:_ticXfjQe6iv-xXDraoKpqReB81RcSPPXhk_mFnbf1YpKXx72aqBog>
-    <xmx:_ticXceQg8ptbwNRuTbuPJYCqCAaUwWj6p7FTrn4vrmmXXJ57Xo8Mw>
-    <xmx:_9icXTDYjwQl_EpBFvMoy0c4kgT-EDZfxjlpnrNMaMQvTT4M5utN9g>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1F0F5D60066;
-        Tue,  8 Oct 2019 14:44:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Flush extra hard after writing relocations through" failed to apply to 5.3-stable tree
-To:     chris@chris-wilson.co.uk, prathap.kumar.valsan@intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 20:44:12 +0200
-Message-ID: <157056025210325@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1727126AbfJHS5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 14:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726098AbfJHS5Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 14:57:24 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0297E21721;
+        Tue,  8 Oct 2019 18:57:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570561043;
+        bh=c4YRXWdPGFNd5hBHtGyc54K1HGpFH30decmaD1YI6dg=;
+        h=Date:From:To:Subject:From;
+        b=OfJPRjzSUMhNLFZ1HFaO2lw93gsmoAsOwywLJi/bnXJp8SBLm3nU12WPzAtixqdcN
+         47IV6TlLjXkFJZizwInfJX778MaCPQYcVhDw+INnSdATx/iKHPvxdGuzkbign0rYZw
+         usI5B3NZpws3UMUokgeXITFjqx9hbyejybMf4wVs=
+Date:   Tue, 08 Oct 2019 11:57:22 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        mgorman@techsingularity.net, fw@deneb.enyo.de, david@fromorbit.com,
+        vbabka@suse.cz
+Subject:  +
+ mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch added to
+ -mm tree
+Message-ID: <20191008185722.Nef03%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+The patch titled
+     Subject: mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
+has been added to the -mm tree.  Its filename is
+     mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
 
-thanks,
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
 
-greg k-h
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
------------------- original commit in Linus's tree ------------------
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-From 576f05865581f82ac988ffec70e4e2ebd31165db Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Tue, 30 Jul 2019 12:21:51 +0100
-Subject: [PATCH] drm/i915: Flush extra hard after writing relocations through
- the GTT
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Recently discovered in commit bdae33b8b82b ("drm/i915: Use maximum write
-flush for pwrite_gtt") was that we needed to our full write barrier
-before changing the GGTT PTE to ensure that our indirect writes through
-the GTT landed before the PTE changed (and the writes end up in a
-different page). That also applies to our GGTT relocation path.
+------------------------------------------------------
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
 
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: stable@vger.kernel.org
-Reviewed-by: Prathap Kumar Valsan <prathap.kumar.valsan@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190730112151.5633-4-chris@chris-wilson.co.uk
+Florian and Dave reported [1] a NULL pointer dereference in
+__reset_isolation_pfn().  While the exact cause is unclear, staring at the
+code revealed two bugs, which might be related.
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-index cbd7c6e3a1f8..4db4463089ce 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1014,11 +1014,12 @@ static void reloc_cache_reset(struct reloc_cache *cache)
- 		kunmap_atomic(vaddr);
- 		i915_gem_object_finish_access((struct drm_i915_gem_object *)cache->node.mm);
- 	} else {
--		wmb();
-+		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
-+
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __iomem *)vaddr);
--		if (cache->node.allocated) {
--			struct i915_ggtt *ggtt = cache_to_ggtt(cache);
+One bug is that if zone starts in the middle of pageblock, block_page
+might correspond to different pfn than block_pfn, and then the
+pfn_valid_within() checks will check different pfn's than those accessed
+via struct page.  This might result in acessing an unitialized page in
+CONFIG_HOLES_IN_ZONE configs.
+
+The other bug is that end_page refers to the first page of next pageblock
+and not last page of current pageblock.  The online and valid check is
+then wrong and with sections, the while (page < end_page) loop might
+wander off actual struct page arrays.
+
+[1] https://lore.kernel.org/linux-xfs/87o8z1fvqu.fsf@mid.deneb.enyo.de/
+
+Link: http://lkml.kernel.org/r/20191008152915.24704-1-vbabka@suse.cz
+Fixes: 6b0868c820ff ("mm/compaction.c: correct zone boundary handling when resetting pageblock skip hints")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Florian Weimer <fw@deneb.enyo.de>
+Reported-by: Dave Chinner <david@fromorbit.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/compaction.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+--- a/mm/compaction.c~mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn
++++ a/mm/compaction.c
+@@ -270,14 +270,15 @@ __reset_isolation_pfn(struct zone *zone,
  
-+		if (cache->node.allocated) {
- 			ggtt->vm.clear_range(&ggtt->vm,
- 					     cache->node.start,
- 					     cache->node.size);
-@@ -1073,6 +1074,7 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
- 	void *vaddr;
+ 	/* Ensure the start of the pageblock or zone is online and valid */
+ 	block_pfn = pageblock_start_pfn(pfn);
+-	block_page = pfn_to_online_page(max(block_pfn, zone->zone_start_pfn));
++	block_pfn = max(block_pfn, zone->zone_start_pfn);
++	block_page = pfn_to_online_page(block_pfn);
+ 	if (block_page) {
+ 		page = block_page;
+ 		pfn = block_pfn;
+ 	}
  
- 	if (cache->vaddr) {
-+		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 		io_mapping_unmap_atomic((void __force __iomem *) unmask_page(cache->vaddr));
- 	} else {
- 		struct i915_vma *vma;
-@@ -1114,7 +1116,6 @@ static void *reloc_iomap(struct drm_i915_gem_object *obj,
+ 	/* Ensure the end of the pageblock or zone is online and valid */
+-	block_pfn += pageblock_nr_pages;
++	block_pfn = pageblock_end_pfn(pfn) - 1;
+ 	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
+ 	end_page = pfn_to_online_page(block_pfn);
+ 	if (!end_page)
+@@ -303,7 +304,7 @@ __reset_isolation_pfn(struct zone *zone,
  
- 	offset = cache->node.start;
- 	if (cache->node.allocated) {
--		wmb();
- 		ggtt->vm.insert_page(&ggtt->vm,
- 				     i915_gem_object_get_dma_address(obj, page),
- 				     offset, I915_CACHE_NONE, 0);
+ 		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
+ 		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
+-	} while (page < end_page);
++	} while (page <= end_page);
+ 
+ 	return false;
+ }
+_
+
+Patches currently in -mm which might be from vbabka@suse.cz are
+
+mm-page_owner-fix-off-by-one-error-in-__set_page_owner_handle.patch
+mm-page_owner-decouple-freeing-stack-trace-from-debug_pagealloc.patch
+mm-page_owner-decouple-freeing-stack-trace-from-debug_pagealloc-v3.patch
+mm-page_owner-rename-flag-indicating-that-page-is-allocated.patch
+mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
 
