@@ -2,165 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DD6CFB71
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 15:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9F9CFB83
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 15:43:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725989AbfJHNho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 09:37:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42692 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725917AbfJHNho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 09:37:44 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 32451803D4; Tue,  8 Oct 2019 15:37:27 +0200 (CEST)
-Date:   Tue, 8 Oct 2019 15:37:41 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Charlene Liu <charlene.liu@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 033/106] drm/amd/display: support spdif
-Message-ID: <20191008133741.GG608@amd>
-References: <20191006171124.641144086@linuxfoundation.org>
- <20191006171140.114447492@linuxfoundation.org>
+        id S1725987AbfJHNno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 09:43:44 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33444 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725866AbfJHNno (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 09:43:44 -0400
+Received: by mail-wr1-f66.google.com with SMTP id b9so19522904wrs.0
+        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 06:43:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=c8kcWUAfadtCN4Xb4q0OD1Jf6vwT54HWporY6S9Lg0U=;
+        b=GwL6i9PrE3KZATdeQMThsXWoyqa7LvFSIdhZX5B5sJ41G+3PWwnSLpfdGpBexxL+Gs
+         upEznj9kO/4S9GJmi3AvRb91MzsDy7h+IDQTppHBKWewFlXFbU788MW8J30cVntKojVp
+         AhfDI+ygyCpSRfQfOwuX4gAJD69fjNMDc7tTA8GRRlObLzUf5dk28pmEvcMLaF3rEXBW
+         +A5WOUdIdSLgBXqpKowOgoqm3eSv9faI+oKD2KI1XuMch9zTukZuUgiVoz9oAkqxtCZD
+         ek4/A9/sqsNurirJ00k2Hjapdis895OdrPfgAgEMd5hiwePaasCBLxvrExQTgWjjXwgj
+         njxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=c8kcWUAfadtCN4Xb4q0OD1Jf6vwT54HWporY6S9Lg0U=;
+        b=KS5sAk/8j+QXt8y1wZeNzuLW3k+rwnIdySCTxNs64bG0BiesELXRzcxj9SqctEm6xI
+         9TBdyMsqdnlivGlc94/O3ByDNvJgFCZyK48mMh2i4ZYgJifNoEu9W/Zcng8D/RjOZunK
+         zl8EJrwNZEbDj1I8Fo/nY+O4saJBNZgq4E+Cvp6xGNGpPihDK59R++8hXCe7W6auaQVh
+         Ih+2C+eoHvo6okFGYTSGr7AQ1/GUQxF2Hckw1LoXi5mQTXDYaAXwCJp+14y7lRI8puJ9
+         c6FV6NyuJFymD/tIGlUuEdDbRHAKyswjbeGOoOYPOXPtgDhM0fpAay1uwqChHNzzDX3Q
+         bp9w==
+X-Gm-Message-State: APjAAAUoBhUphpk7WxxxI5HEWvQxfyALKDq8HG5g6u6mraUQ4l1p+p70
+        50nd4Fyw7sYal8okVsF+VLVJw7pvdIIgHw==
+X-Google-Smtp-Source: APXvYqxrjHZF5dgEFjUpjPXedHIU3NWVSh5OZ4gH6Qj9EqvtzWYNmIU+E0JbfS60Nuw4ypuryfh9/g==
+X-Received: by 2002:a5d:424d:: with SMTP id s13mr28755906wrr.26.1570542222375;
+        Tue, 08 Oct 2019 06:43:42 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u7sm19983265wrp.19.2019.10.08.06.43.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Oct 2019 06:43:41 -0700 (PDT)
+Message-ID: <5d9c928d.1c69fb81.f9a5e.9427@mx.google.com>
+Date:   Tue, 08 Oct 2019 06:43:41 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="UTZ8bGhNySVQ9LYl"
-Content-Disposition: inline
-In-Reply-To: <20191006171140.114447492@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.196
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y boot: 42 boots: 3 failed,
+ 37 passed with 2 conflicts (v4.4.196)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y boot: 42 boots: 3 failed, 37 passed with 2 conflicts =
+(v4.4.196)
 
---UTZ8bGhNySVQ9LYl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.196/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.196/
 
-Hi!
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.196
+Git Commit: c61ebb668f2ce3c22d1cfe6df28bd3198eabbdd7
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 22 unique boards, 10 SoC families, 11 builds out of 190
 
-> [ Upstream commit b5a41620bb88efb9fb31a4fa5e652e3d5bead7d4 ]
->=20
-> [Description]
-> port spdif fix to staging:
->  spdif hardwired to afmt inst 1.
->  spdif func pointer
->  spdif resource allocation (reserve last audio endpoint for spdif only)
+Boot Failures Detected:
 
-I'm sorry, but I don't understand this changelog. Code below modifies
-whitespace, adds a debug output, and uses local variable for
-pool->audio_count.
+arm:
+    imx_v4_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-Does not seem to be a bugfix, and does not seem to do anything with
-staging.
+    multi_v5_defconfig:
+        gcc-8:
+            imx27-phytec-phycard-s-rdk: 1 failed lab
 
-Best regards,
-								Pavel
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
 
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
 
-> +++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-> @@ -229,12 +229,10 @@ bool resource_construct(
->  				DC_ERR("DC: failed to create audio!\n");
->  				return false;
->  			}
-> -
->  			if (!aud->funcs->endpoint_valid(aud)) {
->  				aud->funcs->destroy(&aud);
->  				break;
->  			}
-> -
->  			pool->audios[i] =3D aud;
->  			pool->audio_count++;
->  		}
-> @@ -1703,24 +1701,25 @@ static struct audio *find_first_free_audio(
->  		const struct resource_pool *pool,
->  		enum engine_id id)
->  {
-> -	int i;
-> -	for (i =3D 0; i < pool->audio_count; i++) {
-> +	int i, available_audio_count;
-> +
-> +	available_audio_count =3D pool->audio_count;
-> +
-> +	for (i =3D 0; i < available_audio_count; i++) {
->  		if ((res_ctx->is_audio_acquired[i] =3D=3D false) && (res_ctx->is_strea=
-m_enc_acquired[i] =3D=3D true)) {
->  			/*we have enough audio endpoint, find the matching inst*/
->  			if (id !=3D i)
->  				continue;
-> -
->  			return pool->audios[i];
->  		}
->  	}
-> =20
-> -    /* use engine id to find free audio */
-> -	if ((id < pool->audio_count) && (res_ctx->is_audio_acquired[id] =3D=3D =
-false)) {
-> +	/* use engine id to find free audio */
-> +	if ((id < available_audio_count) && (res_ctx->is_audio_acquired[id] =3D=
-=3D false)) {
->  		return pool->audios[id];
->  	}
-> -
->  	/*not found the matching one, first come first serve*/
-> -	for (i =3D 0; i < pool->audio_count; i++) {
-> +	for (i =3D 0; i < available_audio_count; i++) {
->  		if (res_ctx->is_audio_acquired[i] =3D=3D false) {
->  			return pool->audios[i];
->  		}
-> diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c b/drivers/gpu=
-/drm/amd/display/dc/dce/dce_audio.c
-> index 7f6d724686f1a..abb559ce64085 100644
-> --- a/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-> +++ b/drivers/gpu/drm/amd/display/dc/dce/dce_audio.c
-> @@ -611,6 +611,8 @@ void dce_aud_az_configure(
-> =20
->  	AZ_REG_WRITE(AZALIA_F0_CODEC_PIN_CONTROL_SINK_INFO1,
->  		value);
-> +	DC_LOG_HW_AUDIO("\n\tAUDIO:az_configure: index: %u data, 0x%x, displayN=
-ame %s: \n",
-> +		audio->inst, value, audio_info->display_name);
-> =20
->  	/*
->  	*write the port ID:
-> @@ -922,7 +924,6 @@ static const struct audio_funcs funcs =3D {
->  	.az_configure =3D dce_aud_az_configure,
->  	.destroy =3D dce_aud_destroy,
->  };
-> -
->  void dce_aud_destroy(struct audio **audio)
->  {
->  	struct dce_audio *aud =3D DCE_AUD(*audio);
-> @@ -953,7 +954,6 @@ struct audio *dce_audio_create(
->  	audio->regs =3D reg;
->  	audio->shifts =3D shifts;
->  	audio->masks =3D masks;
-> -
->  	return &audio->base;
->  }
-> =20
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-baylibre: FAIL (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
 
---UTZ8bGhNySVQ9LYl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl2ckSUACgkQMOfwapXb+vKPEQCfW9gdJcW3g3C2l2dL7ITgHNmr
-xQAAnAmvNSky0C+OBdgfsTc1S85NfylU
-=EbfI
------END PGP SIGNATURE-----
-
---UTZ8bGhNySVQ9LYl--
+---
+For more info write to <info@kernelci.org>
