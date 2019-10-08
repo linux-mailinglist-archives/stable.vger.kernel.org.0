@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F57CF3E7
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F19CF3F0
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730283AbfJHHcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:32:33 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34427 "EHLO
+        id S1730351AbfJHHe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 03:34:28 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37593 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730279AbfJHHcd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:32:33 -0400
+        by vger.kernel.org with ESMTP id S1730144AbfJHHe2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:34:28 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8DD9E55D;
-        Tue,  8 Oct 2019 03:32:32 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:32:32 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 4E21755D;
+        Tue,  8 Oct 2019 03:34:27 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:34:27 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GfAIc+
-        KC8ivNlcKimmFoLmvRA5KpkjPrspMUpzn8a7A=; b=I/u/f1bx6lqZjTrRv7FYcm
-        PERaQfjw0MUBV1K6TQy2Ru37x+d3BgAVLbsIBnmicxODGhoCYqSyznoy8CpImUyp
-        VelfmGX+wFyQhWqasBrOOcuTeXDN+4uRD6jMKyorQ7TVLqZacNhq1833exinKWcX
-        udRkVZE4Cbns7oS1bD6aGjJY4VyqqIWaq8wtxs/rr/DJLR/7fNXeN3l23EUFbbco
-        tVj4Eq6ddYaNhFV3GaQiqoPwTTCq53Holta5EIUHn0uUP1QnwrrwVn+BIgmpuIoL
-        fhgpccg6olUSC5FNXL7TK7Vk0S/WVhSmQDUzPOoeXz69c+pq5tAiJLj6wMUz/Z/g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=D1Mm4U
+        yxM0DPmdj7NBIbYQK+o1B0cvF6FXGhqlk4Rrk=; b=Yk3g2hMzTtCeznTcH5+zNz
+        15KDtsUmatnWb2v86Nnuv3sqXzlMhWUKS5GModl6CyNgBowM+XXNLWwbvt1SEe+k
+        fLG6KyWLwq0/Yogt/5hql98AwJKq34/6+4/G0Eczw47UX6cTcq1K/0Rp1tMsKRzN
+        5yr9SY5C/6hxMx+qJH5yZ4+dPmfM3netfUHOg6WRyBPnOF65aEcmZ/e91T6PIhw+
+        hhgkRk4+872AAqqKyWK5e1cm2DQvBdGotN6iYQFYlAW31R6qRvwFBosDMPZgjdRm
+        8FISApJRzVSMpT7adgtjuSZejKWGFkBgDjTFk2uMumpwhBsZ82GvRBzNDGF8t1Ug
         ==
-X-ME-Sender: <xms:kDucXRem5EgouE0Ty0nQSJi3xtBGfhUteKDf73JovT0jpVoKFIypWg>
+X-ME-Sender: <xms:AjycXYiaw6THBMfKglYP__k_l9q5IFNJwFH4358AlESkAkM-t9Q6wQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:kDucXavsjsjQ7fqeznyhJoWqEElJiMyL9WkLJvK4kFSI2PcmfyHidg>
-    <xmx:kDucXfm1QqjIZd-NbGf2a2khdhFVfuLqVXG6pVcEx8kWJQOjYOSZVg>
-    <xmx:kDucXZ79AsVHI-5TpvB4ZWjpzq03RB9vFqQGnU1EZpmxF7EtPvTiQA>
-    <xmx:kDucXX3XtRu8d80knRB_CDvdEXaW0S_4cKBvdhRvEdcKMqDauYmnNA>
+    ucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:AjycXbFbzJvD0xd1QTrQpfir5GEBVZrR6yirAFoyDJJpSm8PpeToUg>
+    <xmx:AjycXf9ramk-XVPYeOhILkHnquvUQIf9lNUA8Cz1eIV9EpsSrIir_A>
+    <xmx:AjycXawQ1L47ANfA22Iqg3-HkgL0bLgmUPeJeSOR702vENTe63lxEw>
+    <xmx:AjycXeInzeAN8OVXnB41DGii2mxgIPCdTQc1M9xaL-wFpgEyIKOGxA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B23B48005C;
-        Tue,  8 Oct 2019 03:32:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/book3s64/radix: Rename CPU_FTR_P9_TLBIE_BUG feature" failed to apply to 4.19-stable tree
-To:     aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8884BD60057;
+        Tue,  8 Oct 2019 03:34:26 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tools lib traceevent: Do not free tep->cmdlines in" failed to apply to 4.9-stable tree
+To:     rostedt@goodmis.org, acme@redhat.com, akpm@linux-foundation.org,
+        jolsa@redhat.com, namhyung@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:32:30 +0200
-Message-ID: <1570519950118156@kroah.com>
+Date:   Tue, 08 Oct 2019 09:34:17 +0200
+Message-ID: <15705200572147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,112 +69,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 Mon Sep 17 00:00:00 2001
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Date: Tue, 24 Sep 2019 09:22:52 +0530
-Subject: [PATCH] powerpc/book3s64/radix: Rename CPU_FTR_P9_TLBIE_BUG feature
- flag
+From b0215e2d6a18d8331b2d4a8b38ccf3eff783edb1 Mon Sep 17 00:00:00 2001
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Date: Wed, 28 Aug 2019 15:05:28 -0400
+Subject: [PATCH] tools lib traceevent: Do not free tep->cmdlines in
+ add_new_comm() on failure
 
-Rename the #define to indicate this is related to store vs tlbie
-ordering issue. In the next patch, we will be adding another feature
-flag that is used to handles ERAT flush vs tlbie ordering issue.
+If the re-allocation of tep->cmdlines succeeds, then the previous
+allocation of tep->cmdlines will be freed. If we later fail in
+add_new_comm(), we must not free cmdlines, and also should assign
+tep->cmdlines to the new allocation. Otherwise when freeing tep, the
+tep->cmdlines will be pointing to garbage.
 
-Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on POWER9")
-Cc: stable@vger.kernel.org # v4.16+
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.com
+Fixes: a6d2a61ac653a ("tools lib traceevent: Remove some die() calls")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: linux-trace-devel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Link: http://lkml.kernel.org/r/20190828191819.970121417@goodmis.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
-index a1ebcbc3931f..f080fba48619 100644
---- a/arch/powerpc/include/asm/cputable.h
-+++ b/arch/powerpc/include/asm/cputable.h
-@@ -209,7 +209,7 @@ static inline void cpu_feature_keys_init(void) { }
- #define CPU_FTR_POWER9_DD2_1		LONG_ASM_CONST(0x0000080000000000)
- #define CPU_FTR_P9_TM_HV_ASSIST		LONG_ASM_CONST(0x0000100000000000)
- #define CPU_FTR_P9_TM_XER_SO_BUG	LONG_ASM_CONST(0x0000200000000000)
--#define CPU_FTR_P9_TLBIE_BUG		LONG_ASM_CONST(0x0000400000000000)
-+#define CPU_FTR_P9_TLBIE_STQ_BUG	LONG_ASM_CONST(0x0000400000000000)
- #define CPU_FTR_P9_TIDR			LONG_ASM_CONST(0x0000800000000000)
- 
- #ifndef __ASSEMBLY__
-@@ -457,7 +457,7 @@ static inline void cpu_feature_keys_init(void) { }
- 	    CPU_FTR_CFAR | CPU_FTR_HVMODE | CPU_FTR_VMX_COPY | \
- 	    CPU_FTR_DBELL | CPU_FTR_HAS_PPR | CPU_FTR_ARCH_207S | \
- 	    CPU_FTR_TM_COMP | CPU_FTR_ARCH_300 | CPU_FTR_PKEY | \
--	    CPU_FTR_P9_TLBIE_BUG | CPU_FTR_P9_TIDR)
-+	    CPU_FTR_P9_TLBIE_STQ_BUG | CPU_FTR_P9_TIDR)
- #define CPU_FTRS_POWER9_DD2_0 CPU_FTRS_POWER9
- #define CPU_FTRS_POWER9_DD2_1 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1)
- #define CPU_FTRS_POWER9_DD2_2 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1 | \
-diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
-index 5fc1b527de46..a86486390c70 100644
---- a/arch/powerpc/kernel/dt_cpu_ftrs.c
-+++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
-@@ -706,14 +706,14 @@ static __init void update_tlbie_feature_flag(unsigned long pvr)
- 		if ((pvr & 0xe000) == 0) {
- 			/* Nimbus */
- 			if ((pvr & 0xfff) < 0x203)
--				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
-+				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
- 		} else if ((pvr & 0xc000) == 0) {
- 			/* Cumulus */
- 			if ((pvr & 0xfff) < 0x103)
--				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
-+				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
- 		} else {
- 			WARN_ONCE(1, "Unknown PVR");
--			cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
-+			cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
- 		}
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index b36b536a9fcb..13fd9fdf91e0 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -269,10 +269,10 @@ static int add_new_comm(struct tep_handle *tep,
+ 		errno = ENOMEM;
+ 		return -1;
  	}
++	tep->cmdlines = cmdlines;
+ 
+ 	cmdlines[tep->cmdline_count].comm = strdup(comm);
+ 	if (!cmdlines[tep->cmdline_count].comm) {
+-		free(cmdlines);
+ 		errno = ENOMEM;
+ 		return -1;
+ 	}
+@@ -283,7 +283,6 @@ static int add_new_comm(struct tep_handle *tep,
+ 		tep->cmdline_count++;
+ 
+ 	qsort(cmdlines, tep->cmdline_count, sizeof(*cmdlines), cmdline_cmp);
+-	tep->cmdlines = cmdlines;
+ 
+ 	return 0;
  }
-diff --git a/arch/powerpc/kvm/book3s_hv_rm_mmu.c b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-index 7186c65c61c9..cfdf232aac34 100644
---- a/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-+++ b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
-@@ -451,7 +451,7 @@ static void do_tlbies(struct kvm *kvm, unsigned long *rbvalues,
- 				     "r" (rbvalues[i]), "r" (kvm->arch.lpid));
- 		}
- 
--		if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
-+		if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
- 			/*
- 			 * Need the extra ptesync to make sure we don't
- 			 * re-order the tlbie
-diff --git a/arch/powerpc/mm/book3s64/hash_native.c b/arch/powerpc/mm/book3s64/hash_native.c
-index 90ab4f31e2b3..02568dae4695 100644
---- a/arch/powerpc/mm/book3s64/hash_native.c
-+++ b/arch/powerpc/mm/book3s64/hash_native.c
-@@ -199,7 +199,7 @@ static inline unsigned long  ___tlbie(unsigned long vpn, int psize,
- 
- static inline void fixup_tlbie(unsigned long vpn, int psize, int apsize, int ssize)
- {
--	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
-+	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
- 		/* Need the extra ptesync to ensure we don't reorder tlbie*/
- 		asm volatile("ptesync": : :"memory");
- 		___tlbie(vpn, psize, apsize, ssize);
-diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-index 631be42abd33..69fdc004d83f 100644
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -201,7 +201,7 @@ static inline void fixup_tlbie(void)
- 	unsigned long pid = 0;
- 	unsigned long va = ((1UL << 52) - 1);
- 
--	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
-+	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
- 		asm volatile("ptesync": : :"memory");
- 		__tlbie_va(va, pid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
- 	}
-@@ -211,7 +211,7 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
- {
- 	unsigned long va = ((1UL << 52) - 1);
- 
--	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
-+	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
- 		asm volatile("ptesync": : :"memory");
- 		__tlbie_lpid_va(va, lpid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
- 	}
 
