@@ -2,134 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F11ED00E3
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:57:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D43BD00E4
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbfJHS5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 14:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59654 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726098AbfJHS5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 14:57:24 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0297E21721;
-        Tue,  8 Oct 2019 18:57:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570561043;
-        bh=c4YRXWdPGFNd5hBHtGyc54K1HGpFH30decmaD1YI6dg=;
-        h=Date:From:To:Subject:From;
-        b=OfJPRjzSUMhNLFZ1HFaO2lw93gsmoAsOwywLJi/bnXJp8SBLm3nU12WPzAtixqdcN
-         47IV6TlLjXkFJZizwInfJX778MaCPQYcVhDw+INnSdATx/iKHPvxdGuzkbign0rYZw
-         usI5B3NZpws3UMUokgeXITFjqx9hbyejybMf4wVs=
-Date:   Tue, 08 Oct 2019 11:57:22 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mgorman@techsingularity.net, fw@deneb.enyo.de, david@fromorbit.com,
-        vbabka@suse.cz
-Subject:  +
- mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch added to
- -mm tree
-Message-ID: <20191008185722.Nef03%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.11
+        id S1727180AbfJHS5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 14:57:53 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55975 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726098AbfJHS5x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 14:57:53 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 12B44216C5;
+        Tue,  8 Oct 2019 14:57:52 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 14:57:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=N/GJHW/jVwZLDPbUsyjXJDc5wg+
+        9rdi3j4sU/Vmwt/U=; b=YVZJs7m8+nT10upVwRHRrvN/s20nM7R2dPSyxemvK6c
+        AoM/JCNtjR1M+1HTwuyLbhFzBjCejEcQhb4fxW6rGDgpXm2MwU2X/yhiHecVb1gH
+        NZT4qLY1B5E0wJGBEz/LAneQXcoeks/s4GLtUpGbry3Jlad8ynqZRaPCTmD2kV3/
+        cdN2gfSo2u00pB8zHw1etVdTwlzvH7zLDIDkH8RFrR4bHRaFpacIPimFiuBt06tG
+        ZG8zGTGjb1fsrEXgZQchHsI/EXMSFuajbPUdPs/y6hUtioDINfvnF4fILw6goJeK
+        f4erzXgKyA+1mzFPn3X8PSN4VqANdbMW3ObV8XArmBQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N/GJHW
+        /jVwZLDPbUsyjXJDc5wg+9rdi3j4sU/Vmwt/U=; b=FszMLj1Dy+oVhHdQKLbb1Q
+        N56SosYDf1qEiTuO5Metlz3oFgu4TdXGsGCUvE6K0qBU5K5CX2wPJEEHbgW3cSDN
+        IGK2h+NeLN//P1n4XKT7dZhT8GOuXQP0NFC0GkxAzZ2I5yHBPleGZ9HV3Y93w73N
+        sI/Oo2HGyzQWA6H0bS3hlVyBcMhL6bCU6WBL6Gv++aNP6dCLqh3WeCBlkNIIkL+9
+        bUqVjG5QwmLR6axqxxg3M667KTzWRiS0B4RMuLe/tOlXCCT3J2OcyNzk7qWnrGqA
+        bX0O2FxuW9dxgGR+1d2PxK19kZRZxI904a9Hoylke9yRDqq3vB3E3nYWq0ghWgYg
+        ==
+X-ME-Sender: <xms:L9ycXTMAkkdY9PJxOhtZeE7XNEBAg7ubFb9aEYvTDNeyfOLe3hA14A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgddufeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:L9ycXSG7H56lgfgudTQiQmEj2XL3wIWkPGVLJx5Y5M7aea95rX6juA>
+    <xmx:L9ycXd0SPzksOJNQB0ZeIjOO21rqqy2IiOrrM8yXOr8I8nsvw0JVLw>
+    <xmx:L9ycXZ8ZkJbpAX9vx9uGY2p9JsCMYaHop22K_ikxBdsgh-WDprI7hg>
+    <xmx:MNycXfnhH2LbmoNEASWKCwIkHkpkjsJW7vyN6aYCofeKyYEJfn5Wyw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 583DED60068;
+        Tue,  8 Oct 2019 14:57:51 -0400 (EDT)
+Date:   Tue, 8 Oct 2019 20:57:49 +0200
+From:   Greg KH <greg@kroah.com>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.3
+Message-ID: <20191008185749.GA3061104@kroah.com>
+References: <cki.D359265187.BIMX0KAWTD@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cki.D359265187.BIMX0KAWTD@redhat.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 08, 2019 at 02:03:35PM -0400, CKI Project wrote:
+> 
+> Hello,
+> 
+> We ran automated tests on a patchset that was proposed for merging into this
+> kernel tree. The patches were applied to:
+> 
+>        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+>             Commit: 52020d3f6633 - Linux 5.3.5
+> 
+> The results of these automated tests are provided below.
+> 
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: FAILED
 
-The patch titled
-     Subject: mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
-has been added to the -mm tree.  Its filename is
-     mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
+My fault, again, your builders are faster than mine :)
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
-
-Florian and Dave reported [1] a NULL pointer dereference in
-__reset_isolation_pfn().  While the exact cause is unclear, staring at the
-code revealed two bugs, which might be related.
-
-One bug is that if zone starts in the middle of pageblock, block_page
-might correspond to different pfn than block_pfn, and then the
-pfn_valid_within() checks will check different pfn's than those accessed
-via struct page.  This might result in acessing an unitialized page in
-CONFIG_HOLES_IN_ZONE configs.
-
-The other bug is that end_page refers to the first page of next pageblock
-and not last page of current pageblock.  The online and valid check is
-then wrong and with sections, the while (page < end_page) loop might
-wander off actual struct page arrays.
-
-[1] https://lore.kernel.org/linux-xfs/87o8z1fvqu.fsf@mid.deneb.enyo.de/
-
-Link: http://lkml.kernel.org/r/20191008152915.24704-1-vbabka@suse.cz
-Fixes: 6b0868c820ff ("mm/compaction.c: correct zone boundary handling when resetting pageblock skip hints")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Florian Weimer <fw@deneb.enyo.de>
-Reported-by: Dave Chinner <david@fromorbit.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/compaction.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
---- a/mm/compaction.c~mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn
-+++ a/mm/compaction.c
-@@ -270,14 +270,15 @@ __reset_isolation_pfn(struct zone *zone,
- 
- 	/* Ensure the start of the pageblock or zone is online and valid */
- 	block_pfn = pageblock_start_pfn(pfn);
--	block_page = pfn_to_online_page(max(block_pfn, zone->zone_start_pfn));
-+	block_pfn = max(block_pfn, zone->zone_start_pfn);
-+	block_page = pfn_to_online_page(block_pfn);
- 	if (block_page) {
- 		page = block_page;
- 		pfn = block_pfn;
- 	}
- 
- 	/* Ensure the end of the pageblock or zone is online and valid */
--	block_pfn += pageblock_nr_pages;
-+	block_pfn = pageblock_end_pfn(pfn) - 1;
- 	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
- 	end_page = pfn_to_online_page(block_pfn);
- 	if (!end_page)
-@@ -303,7 +304,7 @@ __reset_isolation_pfn(struct zone *zone,
- 
- 		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
- 		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
--	} while (page < end_page);
-+	} while (page <= end_page);
- 
- 	return false;
- }
-_
-
-Patches currently in -mm which might be from vbabka@suse.cz are
-
-mm-page_owner-fix-off-by-one-error-in-__set_page_owner_handle.patch
-mm-page_owner-decouple-freeing-stack-trace-from-debug_pagealloc.patch
-mm-page_owner-decouple-freeing-stack-trace-from-debug_pagealloc-v3.patch
-mm-page_owner-rename-flag-indicating-that-page-is-allocated.patch
-mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
-
+Fixing this now...
