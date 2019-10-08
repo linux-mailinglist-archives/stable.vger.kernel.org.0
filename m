@@ -2,119 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42725CF4DC
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 10:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24796CF4F3
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 10:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730492AbfJHITo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 04:19:44 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:47249 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730453AbfJHITo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 04:19:44 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iHkiT-000531-Bu; Tue, 08 Oct 2019 10:19:33 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 05D281C0325;
-        Tue,  8 Oct 2019 10:19:33 +0200 (CEST)
-Date:   Tue, 08 Oct 2019 08:19:32 -0000
-From:   "tip-bot2 for Janakarajan Natarajan" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/asm: Fix MWAITX C-state hint value
-Cc:     Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        <stable@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>,
-        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20191007190011.4859-1-Janakarajan.Natarajan@amd.com>
-References: <20191007190011.4859-1-Janakarajan.Natarajan@amd.com>
-MIME-Version: 1.0
-Message-ID: <157052277295.9978.2993482656720588753.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+        id S1730415AbfJHIYP convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 8 Oct 2019 04:24:15 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:48292 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730167AbfJHIYO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 04:24:14 -0400
+Received: from mail-pl1-f200.google.com ([209.85.214.200])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1iHkmz-0005x3-4g
+        for stable@vger.kernel.org; Tue, 08 Oct 2019 08:24:13 +0000
+Received: by mail-pl1-f200.google.com with SMTP id d2so10386178pll.0
+        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 01:24:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=EpUnbaIFIsvPdXiYRFuIt+BLr84ee69Iv1VzaPWhcis=;
+        b=Qud25b8P4aEhLkre6WcfTXFH+EyeueD+7rYx0rfg0U3YTbyJoTyfJLO3QHmE2tLS0K
+         d1/gLQNIMDfQHoLW1KZ5bdhsUCOt0ucyRLmh6UeZRAQ+b8rQAnt/We/J+DSCvBsM7J8g
+         Zpnf/QpOtXXWRy6SItd4AKJKEWr5aVHrn6p0toNAOTRss27/e606ctlfStLaJY6QGzeC
+         tbTaDRixQObSMxLXCENaEP03uuRjeObVyigsBvLoI18BRM1P3k3Y1+wH+WlmdsL2Z9KM
+         xjbyjtpF166tR9Ni462W6k86DyAX+SkSXuOq7iYE+cEbhgZZQNR+LkAmU4ndMrBPI3hT
+         oZDQ==
+X-Gm-Message-State: APjAAAXdByx10O8p77PJzdhlygqbAAv/o9aXLaOzab5OUawCuNrPA4X+
+        CuZz28L5+CjUHoAz6QEfoCRohH4cIPpJWYTVpkpEdDXPzn7eQCaLwnP4S77r4uiDBp58gfe7Ncv
+        R4UitX/wcpvXUI4NNCL9R5S+MyFTepoyCPQ==
+X-Received: by 2002:a63:5020:: with SMTP id e32mr1929504pgb.302.1570523051556;
+        Tue, 08 Oct 2019 01:24:11 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqz8lfZOtmUGBUaLob+ysCYWb5ZUJKfV0ywa+5MiQ2rXppPua31DNuu2dIyLeNUpx64VLUVV7w==
+X-Received: by 2002:a63:5020:: with SMTP id e32mr1929478pgb.302.1570523051170;
+        Tue, 08 Oct 2019 01:24:11 -0700 (PDT)
+Received: from 2001-b011-380f-3c42-1138-6cd0-3dc6-cfa2.dynamic-ip6.hinet.net (2001-b011-380f-3c42-1138-6cd0-3dc6-cfa2.dynamic-ip6.hinet.net. [2001:b011:380f:3c42:1138:6cd0:3dc6:cfa2])
+        by smtp.gmail.com with ESMTPSA id w189sm17403666pfw.101.2019.10.08.01.24.09
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 08 Oct 2019 01:24:10 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3594.4.19\))
+Subject: Re: [PATCH] drm/edid: Add 6 bpc quirk for SDC panel in Lenovo G50
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+In-Reply-To: <54557F79-6DE1-4AA4-895A-C0F014926590@canonical.com>
+Date:   Tue, 8 Oct 2019 16:24:08 +0800
+Cc:     dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E40AB4FE-7F61-48C9-A1C9-C24454FE0586@canonical.com>
+References: <20190402033037.21877-1-kai.heng.feng@canonical.com>
+ <54557F79-6DE1-4AA4-895A-C0F014926590@canonical.com>
+To:     maarten.lankhorst@linux.intel.com, maxime.ripard@bootlin.com,
+        sean@poorly.run, airlied@linux.ie, daniel@ffwll.ch
+X-Mailer: Apple Mail (2.3594.4.19)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     9b69cab42e5d14b8f0467566e3d97e682365db2d
-Gitweb:        https://git.kernel.org/tip/9b69cab42e5d14b8f0467566e3d97e682365db2d
-Author:        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
-AuthorDate:    Mon, 07 Oct 2019 19:00:22 
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 08 Oct 2019 09:48:09 +02:00
 
-x86/asm: Fix MWAITX C-state hint value
+> On Jun 6, 2019, at 16:04, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+> Hi,
+> 
+> at 11:30, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+>> Another panel that needs 6BPC quirk.
+> 
+> Please include this patch if possible.
 
-As per "AMD64 Architecture Programmer's Manual Volume 3: General-Purpose
-and System Instructions", MWAITX EAX[7:4]+1 specifies the optional hint
-of the optimized C-state. For C0 state, EAX[7:4] should be set to 0xf.
+Another gentle ping.
 
-Currently, a value of 0xf is set for EAX[3:0] instead of EAX[7:4]. Fix
-this by changing MWAITX_DISABLE_CSTATES from 0xf to 0xf0.
+> 
+> Kai-Heng
+> 
+>> 
+>> BugLink: https://bugs.launchpad.net/bugs/1819968
+>> Cc: <stable@vger.kernel.org> # v4.8+
+>> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+>> ---
+>> drivers/gpu/drm/drm_edid.c | 3 +++
+>> 1 file changed, 3 insertions(+)
+>> 
+>> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+>> index 990b1909f9d7..1cb4d0052efe 100644
+>> --- a/drivers/gpu/drm/drm_edid.c
+>> +++ b/drivers/gpu/drm/drm_edid.c
+>> @@ -166,6 +166,9 @@ static const struct edid_quirk {
+>> 	/* Medion MD 30217 PG */
+>> 	{ "MED", 0x7b8, EDID_QUIRK_PREFER_LARGE_75 },
+>> 
+>> +	/* Lenovo G50 */
+>> +	{ "SDC", 18514, EDID_QUIRK_FORCE_6BPC },
+>> +
+>> 	/* Panel in Samsung NP700G7A-S01PL notebook reports 6bpc */
+>> 	{ "SEC", 0xd033, EDID_QUIRK_FORCE_8BPC },
+>> 
+>> -- 
+>> 2.17.1
+> 
+> 
 
-This hasn't had any implications so far because setting reserved bits in
-EAX is simply ignored by the CPU.
-
- [ bp: Fixup comment in delay_mwaitx() and massage. ]
-
-Signed-off-by: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "x86@kernel.org" <x86@kernel.org>
-Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20191007190011.4859-1-Janakarajan.Natarajan@amd.com
----
- arch/x86/include/asm/mwait.h | 2 +-
- arch/x86/lib/delay.c         | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/include/asm/mwait.h b/arch/x86/include/asm/mwait.h
-index e28f8b7..9d5252c 100644
---- a/arch/x86/include/asm/mwait.h
-+++ b/arch/x86/include/asm/mwait.h
-@@ -21,7 +21,7 @@
- #define MWAIT_ECX_INTERRUPT_BREAK	0x1
- #define MWAITX_ECX_TIMER_ENABLE		BIT(1)
- #define MWAITX_MAX_LOOPS		((u32)-1)
--#define MWAITX_DISABLE_CSTATES		0xf
-+#define MWAITX_DISABLE_CSTATES		0xf0
- 
- static inline void __monitor(const void *eax, unsigned long ecx,
- 			     unsigned long edx)
-diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
-index b7375dc..c126571 100644
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -113,8 +113,8 @@ static void delay_mwaitx(unsigned long __loops)
- 		__monitorx(raw_cpu_ptr(&cpu_tss_rw), 0, 0);
- 
- 		/*
--		 * AMD, like Intel, supports the EAX hint and EAX=0xf
--		 * means, do not enter any deep C-state and we use it
-+		 * AMD, like Intel's MWAIT version, supports the EAX hint and
-+		 * EAX=0xf0 means, do not enter any deep C-state and we use it
- 		 * here in delay() to minimize wakeup latency.
- 		 */
- 		__mwaitx(MWAITX_DISABLE_CSTATES, delay, MWAITX_ECX_TIMER_ENABLE);
