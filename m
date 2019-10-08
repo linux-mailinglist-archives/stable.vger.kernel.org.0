@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D55CF3F6
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833A2CF3FC
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730304AbfJHHfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:35:05 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37527 "EHLO
+        id S1730292AbfJHHfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 03:35:13 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:58695 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730171AbfJHHfF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:35:05 -0400
+        by vger.kernel.org with ESMTP id S1730171AbfJHHfN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:35:13 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2D4955C6;
-        Tue,  8 Oct 2019 03:35:04 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id EFFD85C1;
+        Tue,  8 Oct 2019 03:35:11 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:35:04 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:35:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=euARRN
-        VIcHi1lhUqAJh73/lJ0LWrPNtFIKP7yT8xOLg=; b=edVJOWvGi7jR9jIj8S8v7T
-        RhRd6Y/nheGbIOFvVaJ3Hud57nOtZ7lCjp4DUaxPOxDCVUMjB+MMrh0cjOL1ROPj
-        ssNhjjqI9ltBlPjKPR3ZebFNTdVYRrcxEoTZU9THPztSOf6hSStd6Qy6Kan68kQZ
-        gMLiL0SuwL6p489S/0K85fabub4ihd+Qzvg/B8m3NIa1BvHoeAkx8qwTvVEP/9K/
-        sY1q6Ob5YxXdrp+J4HdOG0piY08K0JoiFsWjNyfN9kVrD1vqbxH6eVzOuUZCx/U7
-        /lPxJ8xOLfd7fuGZI4UbOxpZrQn1GdYCZ4A89HZ4jd33RCEZlslMYcJtA87zW81w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=pQ1Q9z
+        EhrsibqefjZyl+JLWZ2v/VAMTOq8+YKzMU9oY=; b=L8pgTsu/Nnc4IkdHfseeyQ
+        XsFLrTtBN4GC6wrBhFTi0JkQxhAL5kzivGcefg82hqvWI+YGJbQaG9Ar0AO40UWL
+        ebgVgCJmgjdk5RjQXOpyTfKh1fgWSLjtnhnjFqavJmuvYrumBYjZduv4DAfebqYz
+        RjW4JvZBq+nGaMG5895kd7HkaApG7+dmS0UtWEBjbzUThZqwUdTUeZhxZKAlriPB
+        b9hL/9seXh24dZTgmgAjOgS6DbNse68TwTOzDavepoMibcusuNOH40YStnafx/zA
+        j9RGGme43N+52gTbNrKXIczaZPKyw9Vd1pw+ISBO/X1HFnwv0gPUlmAcVNfQcXyA
         ==
-X-ME-Sender: <xms:JzycXVEPggql63O5YLBm0K7U0jlihVaW8gaDjtiADxQh21c72QVzIA>
+X-ME-Sender: <xms:LzycXYFILFeSh18CgSgdUKe0O0z3HeTx95b_gxgIsB0pbNVgERmL2w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:JzycXelA9FC3DQ9Iy5vwr6sBz66TqdALdLwe9kg8OsmVMFLsM9Hv_Q>
-    <xmx:JzycXSLmx5C6XHNCqvxfzxLFFzCLziKgQEK-6mt-DBSKtniQ5qv4FQ>
-    <xmx:JzycXfaRNvAlGi2GBRoHDz5lqG3P6h17ccnqoHo9LcmVv-1oAyjGZQ>
-    <xmx:JzycXbZV3rVvM2npZvs-Wysd529tsDITdJUmFweHpvmxUVH4kwmcEQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:LzycXdAS7jABp5o3_wNxdZiGoaEdsjs9ue8T5HcOq9a6brdRXJWcmA>
+    <xmx:LzycXVyAQCxc4kcPag4MVQ0CHqkFr22Tr3TOd7BVgf7v2VYpi8U1Jw>
+    <xmx:LzycXaUdm9RTvcaSTH1Ov2lGVuA-1nCJ7iT41MjC48FQm9Fc8HBbsQ>
+    <xmx:LzycXWnVbCq50RCL-AQrQ1GNMPbZ0TyLgz6E597I8G29nb-gy4TKOw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 13BB3D60063;
-        Tue,  8 Oct 2019 03:35:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] crypto: skcipher - Unmap pages after an external error" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 491BED6005E;
+        Tue,  8 Oct 2019 03:35:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] crypto: skcipher - Unmap pages after an external error" failed to apply to 4.9-stable tree
 To:     herbert@gondor.apana.org.au, ard.biesheuvel@linaro.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:35:01 +0200
-Message-ID: <1570520101101253@kroah.com>
+Date:   Tue, 08 Oct 2019 09:35:02 +0200
+Message-ID: <15705201025117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
