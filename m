@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 540EFCFFA8
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D19CFFAC
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725966AbfJHRS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 13:18:56 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:43895 "EHLO
+        id S1726822AbfJHRUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 13:20:35 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:53423 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725917AbfJHRSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:18:55 -0400
+        by vger.kernel.org with ESMTP id S1726138AbfJHRUf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:20:35 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D5DF721EA7;
-        Tue,  8 Oct 2019 13:18:54 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 708BC21EAD;
+        Tue,  8 Oct 2019 13:20:34 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:18:54 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:20:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=HJoVVU
-        XFPUI/uZZgkHEnoBz95bGyKx5CBLEWBusMIsI=; b=UfxAvJmFFYrYXxhP+5WcT1
-        xCmrZ1pveM4TrtY7C+XghmqNHVeJQnpnXsd1k6C95wKlnWlJ4aTEtwKnTseuNDLq
-        F5C7Ggar9ACr2Lhh4RXGOxpK7CIi7dDzGtzAEDLRUHfV6oE2esv1DoB7QFkq4IH7
-        ZCd82HrsPKpbeVdZ8otyanwn7GsIW4nWn3EP7a01Kp58lCvpJjIam01ngNn8b58O
-        4YBPDluRg2IdDF9Trctl4/Cv2eERvWFjjnZ5VYb+S1nTON6S/fMj/j1X2DL6cbqE
-        /GgwAGF9uFTzGUxCouw8B2wK6g7zpWLYp59dlWA3lf1xG8bjRTojMBP8LAED+x4A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=VaznyI
+        32H4GoS4/he4/K4W7gBj9MBO4LqpYODNqz3Qo=; b=v0F/wtJsGth6bM9kiWo20Z
+        tFO8ocY5YrdKXPg0Z37E+w4+KWEG+F2jWLpFkXkcCgpiNF6Hp8MkZ5n5sqvS2b/z
+        m2xfGOiWYKugfSxB0VK8kD8DUF7ztw1PABvxDvbuc0CnxyMgbeDi8/zwKm7EbXAw
+        BzuT8KI6GPeY5UjsSfYRR4wN2ARI6IVmqy0fdBOiB3NYJT2VohjV+GOSnUdbMI4i
+        N829baXnp0VZp4w6EIaOfkhS839MUvVJ02ooz3U3ho2Z5YFn9GQb1HXvEX/Q8lGV
+        jXDgCjGSaJVft2+M5TjIFvh2mMB3cho16n3Xy0leOuFqfcUo+R+LMxKAlRZ5mpjA
         ==
-X-ME-Sender: <xms:_sScXSJ7DTl7NFD9AsC2k61iQ67cq_sgO1vgKo0d1Kgh_7nqCY2RaQ>
+X-ME-Sender: <xms:YcWcXWAVIYB1H_8HfSs0I_vE8QAqkim63HmS7hECgwzAW8F_WnfMzA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:_sScXZQ0QS_sz2Kj-8nVO1wbrX_Pv3xSVXqHLA_NxpG959TvcfxOWg>
-    <xmx:_sScXXtt7n4goMNoqoB5GXsjFeh_H9uHep3KmcEZ-C0tJkWCmwrCmA>
-    <xmx:_sScXW8ySXM4QQOKWDJUgHPFemwFZJB7X9wuWE2aYpJBVHHZrw0BbA>
-    <xmx:_sScXXF653slPs8lXmEsPYZgMhF9cABmoWtCgKjaNpVypt0geqP3ww>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:YcWcXUxP79yKSuKDZx69GjqKv9Tt5kiNAMfwK7qy4ZRJkzPJ7WsQ1Q>
+    <xmx:YcWcXUn43dabFbOt0MCFPA3b_5V5NXgHSAEaHjwUDc1_RvxzfU0OlA>
+    <xmx:YcWcXZFW3ymrZRooC8hbz_A9rA7HU0uGNpWWQRKEXxihzikjg87Wng>
+    <xmx:YsWcXZohFl5JejsC5nzPQTPlXjL-VKClKzbo57SkkNG5NPt82wEr-A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 56B3D80060;
-        Tue,  8 Oct 2019 13:18:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: hv: Avoid use of hv_pci_dev->pci_slot after freeing it" failed to apply to 4.14-stable tree
-To:     decui@microsoft.com, lorenzo.pieralisi@arm.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1BD2B80066;
+        Tue,  8 Oct 2019 13:20:33 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf tools: Fix segfault in cpu_cache_level__read()" failed to apply to 4.19-stable tree
+To:     jolsa@kernel.org, acme@redhat.com,
+        alexander.shishkin@linux.intel.com, mpetlan@redhat.com,
+        namhyung@kernel.org, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 19:18:44 +0200
-Message-ID: <15705551249325@kroah.com>
+Date:   Tue, 08 Oct 2019 19:20:31 +0200
+Message-ID: <1570555231157141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,31 +70,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 533ca1feed98b0bf024779a14760694c7cb4d431 Mon Sep 17 00:00:00 2001
-From: Dexuan Cui <decui@microsoft.com>
-Date: Fri, 2 Aug 2019 22:50:20 +0000
-Subject: [PATCH] PCI: hv: Avoid use of hv_pci_dev->pci_slot after freeing it
+From 0216234c2eed1367a318daeb9f4a97d8217412a0 Mon Sep 17 00:00:00 2001
+From: Jiri Olsa <jolsa@kernel.org>
+Date: Thu, 12 Sep 2019 12:52:35 +0200
+Subject: [PATCH] perf tools: Fix segfault in cpu_cache_level__read()
 
-The slot must be removed before the pci_dev is removed, otherwise a panic
-can happen due to use-after-free.
+We release wrong pointer on error path in cpu_cache_level__read
+function, leading to segfault:
 
-Fixes: 15becc2b56c6 ("PCI: hv: Add hv_pci_remove_slots() when we unload the driver")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
+  (gdb) r record ls
+  Starting program: /root/perf/tools/perf/perf record ls
+  ...
+  [ perf record: Woken up 1 times to write data ]
+  double free or corruption (out)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index 40b625458afa..2b53976cd9f9 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -2701,8 +2701,8 @@ static int hv_pci_remove(struct hv_device *hdev)
- 		/* Remove the bus from PCI's point of view. */
- 		pci_lock_rescan_remove();
- 		pci_stop_root_bus(hbus->pci_bus);
--		pci_remove_root_bus(hbus->pci_bus);
- 		hv_pci_remove_slots(hbus);
-+		pci_remove_root_bus(hbus->pci_bus);
- 		pci_unlock_rescan_remove();
- 		hbus->state = hv_pcibus_removed;
+  Thread 1 "perf" received signal SIGABRT, Aborted.
+  0x00007ffff7463798 in raise () from /lib64/power9/libc.so.6
+  (gdb) bt
+  #0  0x00007ffff7463798 in raise () from /lib64/power9/libc.so.6
+  #1  0x00007ffff7443bac in abort () from /lib64/power9/libc.so.6
+  #2  0x00007ffff74af8bc in __libc_message () from /lib64/power9/libc.so.6
+  #3  0x00007ffff74b92b8 in malloc_printerr () from /lib64/power9/libc.so.6
+  #4  0x00007ffff74bb874 in _int_free () from /lib64/power9/libc.so.6
+  #5  0x0000000010271260 in __zfree (ptr=0x7fffffffa0b0) at ../../lib/zalloc..
+  #6  0x0000000010139340 in cpu_cache_level__read (cache=0x7fffffffa090, cac..
+  #7  0x0000000010143c90 in build_caches (cntp=0x7fffffffa118, size=<optimiz..
+  ...
+
+Releasing the proper pointer.
+
+Fixes: 720e98b5faf1 ("perf tools: Add perf data cache feature")
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org: # v4.6+
+Link: http://lore.kernel.org/lkml/20190912105235.10689-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+
+diff --git a/tools/perf/util/header.c b/tools/perf/util/header.c
+index 5722ff717777..0167f9697172 100644
+--- a/tools/perf/util/header.c
++++ b/tools/perf/util/header.c
+@@ -1073,7 +1073,7 @@ static int cpu_cache_level__read(struct cpu_cache_level *cache, u32 cpu, u16 lev
+ 
+ 	scnprintf(file, PATH_MAX, "%s/shared_cpu_list", path);
+ 	if (sysfs__read_str(file, &cache->map, &len)) {
+-		zfree(&cache->map);
++		zfree(&cache->size);
+ 		zfree(&cache->type);
+ 		return -1;
  	}
 
