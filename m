@@ -2,60 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4928CFA88
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 14:55:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90881CFA65
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 14:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730646AbfJHMzo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 8 Oct 2019 08:55:44 -0400
-Received: from mx0a-0030aa01.pphosted.com ([67.231.144.44]:5736 "EHLO
-        mx0a-0030aa01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730555AbfJHMzo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 08:55:44 -0400
-X-Greylist: delayed 77208 seconds by postgrey-1.27 at vger.kernel.org; Tue, 08 Oct 2019 08:55:43 EDT
-Received: from pps.filterd (m0146909.ppops.net [127.0.0.1])
-        by mx0a-0030aa01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x97FPYNs012224;
-        Mon, 7 Oct 2019 08:28:11 -0700
-Received: from admin.localhost ([167.119.248.26])
-        by mx0a-0030aa01.pphosted.com with ESMTP id 2vepscu13a-26
-        (version=TLSv1 cipher=AES256-SHA bits=256 verify=NOT);
-        Mon, 07 Oct 2019 08:28:11 -0700
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1730958AbfJHMvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 08:51:23 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:41171 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730541AbfJHMvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 08:51:23 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 01A4680311; Tue,  8 Oct 2019 14:51:05 +0200 (CEST)
+Date:   Tue, 8 Oct 2019 14:51:20 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Alexander Steffen <Alexander.Steffen@infineon.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 001/106] tpm: use tpm_try_get_ops() in tpm-sysfs.c.
+Message-ID: <20191008125120.GF608@amd>
+References: <20191006171124.641144086@linuxfoundation.org>
+ <20191006171125.167365005@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Hello
-To:     Recipient <mail@tfs.com>
-From:   "Triverton" <mail@tfs.com>
-Date:   Mon, 07 Oct 2019 23:27:48 +0800
-Reply-To: eleon_loanexpert@sanfranmail.com
-X-Antivirus: Avast (VPS 191007-2, 10/07/2019), Outbound message
-X-Antivirus-Status: Clean
-Message-ID: <2vepscu13a-26@m0146909.ppops.net>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
- definitions=2019-10-07_03:2019-10-07,2019-10-07 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_spam policy=outbound score=76 spamscore=76 clxscore=1015
- mlxlogscore=-48 phishscore=0 suspectscore=1 adultscore=0 impostorscore=0
- bulkscore=0 malwarescore=0 lowpriorityscore=0 mlxscore=76
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1908290000 definitions=main-1910070152
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="0rSojgWGcpz+ezC3"
+Content-Disposition: inline
+In-Reply-To: <20191006171125.167365005@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Morning!
 
- I strongly apologize for delving into your privacy. I am Elizabeth Leon, Loan Expert at Triverton Financial Service, Montreal, Canada. 
+--0rSojgWGcpz+ezC3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We are offering all kind of loans at low interest rate. Respond for more details, and our website will be unveil to you for application.
+On Sun 2019-10-06 19:20:07, Greg Kroah-Hartman wrote:
+> From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>=20
+> commit 2677ca98ae377517930c183248221f69f771c921 upstream
+>=20
+> Use tpm_try_get_ops() in tpm-sysfs.c so that we can consider moving
+> other decorations (locking, localities, power management for example)
+> inside it. This direction can be of course taken only after other call
+> sites for tpm_transmit() have been treated in the same way.
 
-Best Regards,
+This changes locking completely:
 
-Mrs. Elizabeth Leon
-Loan Expert and Loan Processing Officer
-Triverton Financial Service
+> @@ -244,10 +274,12 @@ static ssize_t cancel_store(struct device *dev, str=
+uct device_attribute *attr,
+>  			    const char *buf, size_t count)
+>  {
+>  	struct tpm_chip *chip =3D to_tpm_chip(dev);
+> -	if (chip =3D=3D NULL)
+> +
+> +	if (tpm_try_get_ops(chip))
+>  		return 0;
+> =20
+>  	chip->ops->cancel(chip);
+> +	tpm_put_ops(chip);
+>  	return count;
+>  }
+>  static DEVICE_ATTR_WO(cancel);
 
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
+For example this did not have any locking, and is now protected by
 
+        get_device(&chip->dev);
+
+        down_read(&chip->ops_sem);
+
+=2E Is that intended? Is this known to fix any bugs?
+
+Best regards,
+									Pavel
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--0rSojgWGcpz+ezC3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl2chkgACgkQMOfwapXb+vL3pwCeK3IF82vko0V0QD9OjQKUm4xq
+NgAAoLRw/Djduv5WqrwpppO/tYpmYyCQ
+=HN91
+-----END PGP SIGNATURE-----
+
+--0rSojgWGcpz+ezC3--
