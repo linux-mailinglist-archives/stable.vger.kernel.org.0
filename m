@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA656CF3E1
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F57CF3E7
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:32:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730199AbfJHHbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:31:12 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33369 "EHLO
+        id S1730283AbfJHHcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 03:32:33 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:34427 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730112AbfJHHbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:31:12 -0400
+        by vger.kernel.org with ESMTP id S1730279AbfJHHcd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:32:33 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8C23B31E;
-        Tue,  8 Oct 2019 03:31:11 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 8DD9E55D;
+        Tue,  8 Oct 2019 03:32:32 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:31:11 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:32:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=QheNJ8
-        q8d3SMNWvq6676gVZgix+nEAk+n4uLWcZoB5E=; b=AWKr+BLV6vBxE3Wn3HdnLP
-        EweB+OXwhjYXyhAeWepqn0Ht98ts+u+drA9+w5uvp1tYXLtSKToLtKvhAzPmeg80
-        oelKkcKYCGgxkELnpfi+6twtvXsSS55YjDAZHbuSJXkPAB9QUJH2NFRqJcUwS42/
-        x8zv8eVV5hH3b3aXeJ1wo/gx9bjIyNPitoEJsEzxJvVV8ncr46eYF++37M9VC1Wh
-        hTHCpv2JxE2gbNo4EL0riWc+X5fROEb7FpLadcmWENFEpuBKgZD3TdfcSUnEmL1n
-        kU4TPd1J5w/hU5nLw9+PeLxpbmAHxgpNeLad7d1Wbpvhhb+K8OphUa7KqiiEroPQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=GfAIc+
+        KC8ivNlcKimmFoLmvRA5KpkjPrspMUpzn8a7A=; b=I/u/f1bx6lqZjTrRv7FYcm
+        PERaQfjw0MUBV1K6TQy2Ru37x+d3BgAVLbsIBnmicxODGhoCYqSyznoy8CpImUyp
+        VelfmGX+wFyQhWqasBrOOcuTeXDN+4uRD6jMKyorQ7TVLqZacNhq1833exinKWcX
+        udRkVZE4Cbns7oS1bD6aGjJY4VyqqIWaq8wtxs/rr/DJLR/7fNXeN3l23EUFbbco
+        tVj4Eq6ddYaNhFV3GaQiqoPwTTCq53Holta5EIUHn0uUP1QnwrrwVn+BIgmpuIoL
+        fhgpccg6olUSC5FNXL7TK7Vk0S/WVhSmQDUzPOoeXz69c+pq5tAiJLj6wMUz/Z/g
         ==
-X-ME-Sender: <xms:PzucXfEp17Y3enDh7XeGnMehbco0syhWkVKpPumyYLVLPxZlwcxwoQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:kDucXRem5EgouE0Ty0nQSJi3xtBGfhUteKDf73JovT0jpVoKFIypWg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeeg
-X-ME-Proxy: <xmx:PzucXYFL3-r4UHeSbosETy7oo2zSEK5kiB2UYhWJU74qiZfIfAP-MA>
-    <xmx:PzucXUtBdqqQrwCvlO64D5Ro6BbOYjRQXfQXarxsXfD8Kty-JsEt6w>
-    <xmx:PzucXYzETkPOHxFocG00N_NXo7BLZEh8i9U_SobB2OcZlStauj1RAQ>
-    <xmx:PzucXfQAvbubB_2ZR_VNID6vkP3eiNnyV-DtaUK_NXQCg4fkr2lcgw>
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:kDucXavsjsjQ7fqeznyhJoWqEElJiMyL9WkLJvK4kFSI2PcmfyHidg>
+    <xmx:kDucXfm1QqjIZd-NbGf2a2khdhFVfuLqVXG6pVcEx8kWJQOjYOSZVg>
+    <xmx:kDucXZ79AsVHI-5TpvB4ZWjpzq03RB9vFqQGnU1EZpmxF7EtPvTiQA>
+    <xmx:kDucXX3XtRu8d80knRB_CDvdEXaW0S_4cKBvdhRvEdcKMqDauYmnNA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9F00F8005C;
-        Tue,  8 Oct 2019 03:31:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/pseries: Fix cpu_hotplug_lock acquisition in" failed to apply to 4.19-stable tree
-To:     ego@linux.vnet.ibm.com, aneesh.kumar@linux.ibm.com,
-        mpe@ellerman.id.au
+        by mail.messagingengine.com (Postfix) with ESMTPA id B23B48005C;
+        Tue,  8 Oct 2019 03:32:31 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/book3s64/radix: Rename CPU_FTR_P9_TLBIE_BUG feature" failed to apply to 4.19-stable tree
+To:     aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:31:09 +0200
-Message-ID: <157051986923180@kroah.com>
+Date:   Tue, 08 Oct 2019 09:32:30 +0200
+Message-ID: <1570519950118156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -69,169 +68,112 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c784be435d5dae28d3b03db31753dd7a18733f0c Mon Sep 17 00:00:00 2001
-From: "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>
-Date: Wed, 15 May 2019 13:15:52 +0530
-Subject: [PATCH] powerpc/pseries: Fix cpu_hotplug_lock acquisition in
- resize_hpt()
+From 09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 Mon Sep 17 00:00:00 2001
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Date: Tue, 24 Sep 2019 09:22:52 +0530
+Subject: [PATCH] powerpc/book3s64/radix: Rename CPU_FTR_P9_TLBIE_BUG feature
+ flag
 
-The calls to arch_add_memory()/arch_remove_memory() are always made
-with the read-side cpu_hotplug_lock acquired via memory_hotplug_begin().
-On pSeries, arch_add_memory()/arch_remove_memory() eventually call
-resize_hpt() which in turn calls stop_machine() which acquires the
-read-side cpu_hotplug_lock again, thereby resulting in the recursive
-acquisition of this lock.
+Rename the #define to indicate this is related to store vs tlbie
+ordering issue. In the next patch, we will be adding another feature
+flag that is used to handles ERAT flush vs tlbie ordering issue.
 
-In the absence of CONFIG_PROVE_LOCKING, we hadn't observed a system
-lockup during a memory hotplug operation because cpus_read_lock() is a
-per-cpu rwsem read, which, in the fast-path (in the absence of the
-writer, which in our case is a CPU-hotplug operation) simply
-increments the read_count on the semaphore. Thus a recursive read in
-the fast-path doesn't cause any problems.
-
-However, we can hit this problem in practice if there is a concurrent
-CPU-Hotplug operation in progress which is waiting to acquire the
-write-side of the lock. This will cause the second recursive read to
-block until the writer finishes. While the writer is blocked since the
-first read holds the lock. Thus both the reader as well as the writers
-fail to make any progress thereby blocking both CPU-Hotplug as well as
-Memory Hotplug operations.
-
-Memory-Hotplug				CPU-Hotplug
-CPU 0					CPU 1
-------                                  ------
-
-1. down_read(cpu_hotplug_lock.rw_sem)
-   [memory_hotplug_begin]
-					2. down_write(cpu_hotplug_lock.rw_sem)
-					[cpu_up/cpu_down]
-3. down_read(cpu_hotplug_lock.rw_sem)
-   [stop_machine()]
-
-Lockdep complains as follows in these code-paths.
-
- swapper/0/1 is trying to acquire lock:
- (____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: stop_machine+0x2c/0x60
-
-but task is already holding lock:
-(____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: mem_hotplug_begin+0x20/0x50
-
- other info that might help us debug this:
-  Possible unsafe locking scenario:
-
-        CPU0
-        ----
-   lock(cpu_hotplug_lock.rw_sem);
-   lock(cpu_hotplug_lock.rw_sem);
-
-  *** DEADLOCK ***
-
-  May be due to missing lock nesting notation
-
- 3 locks held by swapper/0/1:
-  #0: (____ptrval____) (&dev->mutex){....}, at: __driver_attach+0x12c/0x1b0
-  #1: (____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: mem_hotplug_begin+0x20/0x50
-  #2: (____ptrval____) (mem_hotplug_lock.rw_sem){++++}, at: percpu_down_write+0x54/0x1a0
-
-stack backtrace:
- CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.0.0-rc5-58373-gbc99402235f3-dirty #166
- Call Trace:
-   dump_stack+0xe8/0x164 (unreliable)
-   __lock_acquire+0x1110/0x1c70
-   lock_acquire+0x240/0x290
-   cpus_read_lock+0x64/0xf0
-   stop_machine+0x2c/0x60
-   pseries_lpar_resize_hpt+0x19c/0x2c0
-   resize_hpt_for_hotplug+0x70/0xd0
-   arch_add_memory+0x58/0xfc
-   devm_memremap_pages+0x5e8/0x8f0
-   pmem_attach_disk+0x764/0x830
-   nvdimm_bus_probe+0x118/0x240
-   really_probe+0x230/0x4b0
-   driver_probe_device+0x16c/0x1e0
-   __driver_attach+0x148/0x1b0
-   bus_for_each_dev+0x90/0x130
-   driver_attach+0x34/0x50
-   bus_add_driver+0x1a8/0x360
-   driver_register+0x108/0x170
-   __nd_driver_register+0xd0/0xf0
-   nd_pmem_driver_init+0x34/0x48
-   do_one_initcall+0x1e0/0x45c
-   kernel_init_freeable+0x540/0x64c
-   kernel_init+0x2c/0x160
-   ret_from_kernel_thread+0x5c/0x68
-
-Fix this issue by
-  1) Requiring all the calls to pseries_lpar_resize_hpt() be made
-     with cpu_hotplug_lock held.
-
-  2) In pseries_lpar_resize_hpt() invoke stop_machine_cpuslocked()
-     as a consequence of 1)
-
-  3) To satisfy 1), in hpt_order_set(), call mmu_hash_ops.resize_hpt()
-     with cpu_hotplug_lock held.
-
-Fixes: dbcf929c0062 ("powerpc/pseries: Add support for hash table resizing")
-Cc: stable@vger.kernel.org # v4.11+
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on POWER9")
+Cc: stable@vger.kernel.org # v4.16+
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1557906352-29048-1-git-send-email-ego@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.com
 
-diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
-index e6d471058597..c363e850550e 100644
---- a/arch/powerpc/mm/book3s64/hash_utils.c
-+++ b/arch/powerpc/mm/book3s64/hash_utils.c
-@@ -34,6 +34,7 @@
- #include <linux/libfdt.h>
- #include <linux/pkeys.h>
- #include <linux/hugetlb.h>
-+#include <linux/cpu.h>
+diff --git a/arch/powerpc/include/asm/cputable.h b/arch/powerpc/include/asm/cputable.h
+index a1ebcbc3931f..f080fba48619 100644
+--- a/arch/powerpc/include/asm/cputable.h
++++ b/arch/powerpc/include/asm/cputable.h
+@@ -209,7 +209,7 @@ static inline void cpu_feature_keys_init(void) { }
+ #define CPU_FTR_POWER9_DD2_1		LONG_ASM_CONST(0x0000080000000000)
+ #define CPU_FTR_P9_TM_HV_ASSIST		LONG_ASM_CONST(0x0000100000000000)
+ #define CPU_FTR_P9_TM_XER_SO_BUG	LONG_ASM_CONST(0x0000200000000000)
+-#define CPU_FTR_P9_TLBIE_BUG		LONG_ASM_CONST(0x0000400000000000)
++#define CPU_FTR_P9_TLBIE_STQ_BUG	LONG_ASM_CONST(0x0000400000000000)
+ #define CPU_FTR_P9_TIDR			LONG_ASM_CONST(0x0000800000000000)
  
- #include <asm/debugfs.h>
- #include <asm/processor.h>
-@@ -1931,10 +1932,16 @@ static int hpt_order_get(void *data, u64 *val)
- 
- static int hpt_order_set(void *data, u64 val)
- {
-+	int ret;
-+
- 	if (!mmu_hash_ops.resize_hpt)
- 		return -ENODEV;
- 
--	return mmu_hash_ops.resize_hpt(val);
-+	cpus_read_lock();
-+	ret = mmu_hash_ops.resize_hpt(val);
-+	cpus_read_unlock();
-+
-+	return ret;
+ #ifndef __ASSEMBLY__
+@@ -457,7 +457,7 @@ static inline void cpu_feature_keys_init(void) { }
+ 	    CPU_FTR_CFAR | CPU_FTR_HVMODE | CPU_FTR_VMX_COPY | \
+ 	    CPU_FTR_DBELL | CPU_FTR_HAS_PPR | CPU_FTR_ARCH_207S | \
+ 	    CPU_FTR_TM_COMP | CPU_FTR_ARCH_300 | CPU_FTR_PKEY | \
+-	    CPU_FTR_P9_TLBIE_BUG | CPU_FTR_P9_TIDR)
++	    CPU_FTR_P9_TLBIE_STQ_BUG | CPU_FTR_P9_TIDR)
+ #define CPU_FTRS_POWER9_DD2_0 CPU_FTRS_POWER9
+ #define CPU_FTRS_POWER9_DD2_1 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1)
+ #define CPU_FTRS_POWER9_DD2_2 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1 | \
+diff --git a/arch/powerpc/kernel/dt_cpu_ftrs.c b/arch/powerpc/kernel/dt_cpu_ftrs.c
+index 5fc1b527de46..a86486390c70 100644
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -706,14 +706,14 @@ static __init void update_tlbie_feature_flag(unsigned long pvr)
+ 		if ((pvr & 0xe000) == 0) {
+ 			/* Nimbus */
+ 			if ((pvr & 0xfff) < 0x203)
+-				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
++				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
+ 		} else if ((pvr & 0xc000) == 0) {
+ 			/* Cumulus */
+ 			if ((pvr & 0xfff) < 0x103)
+-				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
++				cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
+ 		} else {
+ 			WARN_ONCE(1, "Unknown PVR");
+-			cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_BUG;
++			cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
+ 		}
+ 	}
  }
+diff --git a/arch/powerpc/kvm/book3s_hv_rm_mmu.c b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
+index 7186c65c61c9..cfdf232aac34 100644
+--- a/arch/powerpc/kvm/book3s_hv_rm_mmu.c
++++ b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
+@@ -451,7 +451,7 @@ static void do_tlbies(struct kvm *kvm, unsigned long *rbvalues,
+ 				     "r" (rbvalues[i]), "r" (kvm->arch.lpid));
+ 		}
  
- DEFINE_DEBUGFS_ATTRIBUTE(fops_hpt_order, hpt_order_get, hpt_order_set, "%llu\n");
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 09bb878c21e0..4f76e5f30c97 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -1413,7 +1413,10 @@ static int pseries_lpar_resize_hpt_commit(void *data)
- 	return 0;
- }
+-		if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
++		if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 			/*
+ 			 * Need the extra ptesync to make sure we don't
+ 			 * re-order the tlbie
+diff --git a/arch/powerpc/mm/book3s64/hash_native.c b/arch/powerpc/mm/book3s64/hash_native.c
+index 90ab4f31e2b3..02568dae4695 100644
+--- a/arch/powerpc/mm/book3s64/hash_native.c
++++ b/arch/powerpc/mm/book3s64/hash_native.c
+@@ -199,7 +199,7 @@ static inline unsigned long  ___tlbie(unsigned long vpn, int psize,
  
--/* Must be called in user context */
-+/*
-+ * Must be called in process context. The caller must hold the
-+ * cpus_lock.
-+ */
- static int pseries_lpar_resize_hpt(unsigned long shift)
+ static inline void fixup_tlbie(unsigned long vpn, int psize, int apsize, int ssize)
  {
- 	struct hpt_resize_state state = {
-@@ -1467,7 +1470,8 @@ static int pseries_lpar_resize_hpt(unsigned long shift)
+-	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		/* Need the extra ptesync to ensure we don't reorder tlbie*/
+ 		asm volatile("ptesync": : :"memory");
+ 		___tlbie(vpn, psize, apsize, ssize);
+diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
+index 631be42abd33..69fdc004d83f 100644
+--- a/arch/powerpc/mm/book3s64/radix_tlb.c
++++ b/arch/powerpc/mm/book3s64/radix_tlb.c
+@@ -201,7 +201,7 @@ static inline void fixup_tlbie(void)
+ 	unsigned long pid = 0;
+ 	unsigned long va = ((1UL << 52) - 1);
  
- 	t1 = ktime_get();
+-	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		asm volatile("ptesync": : :"memory");
+ 		__tlbie_va(va, pid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
+ 	}
+@@ -211,7 +211,7 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
+ {
+ 	unsigned long va = ((1UL << 52) - 1);
  
--	rc = stop_machine(pseries_lpar_resize_hpt_commit, &state, NULL);
-+	rc = stop_machine_cpuslocked(pseries_lpar_resize_hpt_commit,
-+				     &state, NULL);
- 
- 	t2 = ktime_get();
- 
+-	if (cpu_has_feature(CPU_FTR_P9_TLBIE_BUG)) {
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		asm volatile("ptesync": : :"memory");
+ 		__tlbie_lpid_va(va, lpid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
+ 	}
 
