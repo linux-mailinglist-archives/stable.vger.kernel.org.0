@@ -2,237 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3C9CF41B
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78E2CF4BC
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 10:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730329AbfJHHmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:42:47 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:37981 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730355AbfJHHmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:42:46 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D73FD5AD;
-        Tue,  8 Oct 2019 03:42:45 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:42:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=bTpoxc
-        LZ/JFLigs9kFKTC+Xx5kx25ynpCMnGThQ2UIk=; b=t1fkJEPAltu/N76S2rrYdZ
-        +mzdP/KSWKq0pBaJ/BTJpymJVFUTNSCuZ05OfkT4xTlsBjxO/+iPzDp07dNL2YVM
-        XshXibd60TlzrDFiFKwlN2tAb+lg1YJeyyaxLWom4aO71AzFJRqUb4Deh1RlcqVr
-        LcjJ2fd71CcidUqRsC2btzjtfP+fDG5Z7AZFLzSK2u7Hk9TDgHBVNHoPHN80y1yX
-        YEDTNh6zApATsLQ/M3jnxMCyKxEDYcqBiriVJAWgDI3abbZFcRwE/2xUrVmz6b8t
-        TGcFfLOAx34ZHoU7v7kaUTwPwDpsev19Vg5EHVeeiKOUMJ5gSrPDLfB4dhdqlW9A
-        ==
-X-ME-Sender: <xms:9T2cXSO3s3EK2Sdj6N7yOKRB_J7ydi_gnuBJ-T5NSceK1oWmkVaAmQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduvdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:9T2cXS8y79HIhlC6xnk7j9zvD1fH5QBBguC3OHKuxmjmQDRF8gT0pQ>
-    <xmx:9T2cXSHvdhBc1C-li6GWECeGrCDFxfVzpARCO6-B1nYy61m6Oqpv4Q>
-    <xmx:9T2cXanjwK_2VPpBp61dvZWcoKCnK8Bit8yXcls1eKQI9nhsY_SMPg>
-    <xmx:9T2cXVXeBW5tpL-66wj7O8tgWGC2nMku7dahT7k5P2MHAtd9qNwaRA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0D71080060;
-        Tue,  8 Oct 2019 03:42:44 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tick: broadcast-hrtimer: Fix a race in bc_set_next" failed to apply to 4.9-stable tree
-To:     balasubramani_vivekanandan@mentor.com, tglx@linutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:42:38 +0200
-Message-ID: <157052055860233@kroah.com>
+        id S1730411AbfJHIN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 04:13:59 -0400
+Received: from mga09.intel.com ([134.134.136.24]:50936 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730384AbfJHIN7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 04:13:59 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Oct 2019 01:13:58 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,270,1566889200"; 
+   d="scan'208";a="218208996"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
+  by fmsmga004.fm.intel.com with ESMTP; 08 Oct 2019 01:13:56 -0700
+Subject: Re: [PATCH 8/8] xhci: Fix NULL pointer dereference in
+ xhci_clear_tt_buffer_complete()
+To:     Johan Hovold <johan@kernel.org>
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        "# v5 . 3" <stable@vger.kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+References: <1570190373-30684-1-git-send-email-mathias.nyman@linux.intel.com>
+ <1570190373-30684-9-git-send-email-mathias.nyman@linux.intel.com>
+ <20191007140245.GD13531@localhost>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <c0b1f81f-db1a-8f12-6880-a686cb9c35a7@linux.intel.com>
+Date:   Tue, 8 Oct 2019 11:15:58 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191007140245.GD13531@localhost>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 7.10.2019 17.02, Johan Hovold wrote:
+> [ +CC: Alan ]
+> 
+> On Fri, Oct 04, 2019 at 02:59:33PM +0300, Mathias Nyman wrote:
+>> udev stored in ep->hcpriv might be NULL if tt buffer is cleared
+>> due to a halted control endpoint during device enumeration
+>>
+>> xhci_clear_tt_buffer_complete is called by hub_tt_work() once it's
+>> scheduled,  and by then usb core might have freed and allocated a
+>> new udev for the next enumeration attempt.
+>>
+>> Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+>> Cc: <stable@vger.kernel.org> # v5.3
+>> Reported-by: Johan Hovold <johan@kernel.org>
+>> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+>> ---
+>>   drivers/usb/host/xhci.c | 8 ++++++++
+>>   1 file changed, 8 insertions(+)
+>>
+>> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+>> index 00f3804f7aa7..517ec3206f6e 100644
+>> --- a/drivers/usb/host/xhci.c
+>> +++ b/drivers/usb/host/xhci.c
+>> @@ -5238,8 +5238,16 @@ static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+>>   	unsigned int ep_index;
+>>   	unsigned long flags;
+>>   
+>> +	/*
+>> +	 * udev might be NULL if tt buffer is cleared during a failed device
+>> +	 * enumeration due to a halted control endpoint. Usb core might
+>> +	 * have allocated a new udev for the next enumeration attempt.
+>> +	 */
+>> +
+>>   	xhci = hcd_to_xhci(hcd);
+>>   	udev = (struct usb_device *)ep->hcpriv;
+>> +	if (!udev)
+>> +		return;
+> 
+> I didn't have time to look into this myself last week, or comment on the
+> patch before Greg picked it up, but this clearly isn't the right fix.
+> 
+> As your comment suggests, ep->hcpriv may indeed be NULL here if USB core
+> have allocated a new udev. But this only happens after USB has freed the
+> old usb_device and the new one happens to get the same address.
+> 
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+You're right, that fix doesn't solve the actual issue, it avoids a few specific
+null pointer dereference cases, but leaves both root cause and several other
+use-after-free cases open.
 
-thanks,
+> Note that even the usb_host_endpoint itself (ep) has then been freed and
+> reallocated since it is member of struct usb_device, and it is the
+> use-after-free that needs fixing.
+> 
+> I've even been able to trigger another NULL-deref in this function
+> before a new udev has been allocated, due to the virt dev having been
+> freed by xhci_free_dev as part of usb_release_dev:
+> 
+> It seems the xhci clear-tt implementation was incomplete since it did
+> not take care to wait for any ongoing work before disabling the
+> endpoint. EHCI does this in ehci_endpoint_disable(), but xhci doesn't
+> even implement that callback.
+> 
 
-greg k-h
+So it seems, it might be possible to remove pending clear_tt work for
+most endpoints in the .drop_endpoint callbacks, but ep0 is different,
+it isn't dropped, we might need to implement the endpoint_disable()
+callback for this.
 
------------------- original commit in Linus's tree ------------------
+> As this may be something you could end up hitting in other paths as
+> well, perhaps we should even consider reverting the offending commit
+> pending a more complete implementation?
 
-From b9023b91dd020ad7e093baa5122b6968c48cc9e0 Mon Sep 17 00:00:00 2001
-From: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
-Date: Thu, 26 Sep 2019 15:51:01 +0200
-Subject: [PATCH] tick: broadcast-hrtimer: Fix a race in bc_set_next
+Possibly, if we can't find a working solution early enough in this release cycle
 
-When a cpu requests broadcasting, before starting the tick broadcast
-hrtimer, bc_set_next() checks if the timer callback (bc_handler) is active
-using hrtimer_try_to_cancel(). But hrtimer_try_to_cancel() does not provide
-the required synchronization when the callback is active on other core.
-
-The callback could have already executed tick_handle_oneshot_broadcast()
-and could have also returned. But still there is a small time window where
-the hrtimer_try_to_cancel() returns -1. In that case bc_set_next() returns
-without doing anything, but the next_event of the tick broadcast clock
-device is already set to a timeout value.
-
-In the race condition diagram below, CPU #1 is running the timer callback
-and CPU #2 is entering idle state and so calls bc_set_next().
-
-In the worst case, the next_event will contain an expiry time, but the
-hrtimer will not be started which happens when the racing callback returns
-HRTIMER_NORESTART. The hrtimer might never recover if all further requests
-from the CPUs to subscribe to tick broadcast have timeout greater than the
-next_event of tick broadcast clock device. This leads to cascading of
-failures and finally noticed as rcu stall warnings
-
-Here is a depiction of the race condition
-
-CPU #1 (Running timer callback)                   CPU #2 (Enter idle
-                                                  and subscribe to
-                                                  tick broadcast)
----------------------                             ---------------------
-
-__run_hrtimer()                                   tick_broadcast_enter()
-
-  bc_handler()                                      __tick_broadcast_oneshot_control()
-
-    tick_handle_oneshot_broadcast()
-
-      raw_spin_lock(&tick_broadcast_lock);
-
-      dev->next_event = KTIME_MAX;                  //wait for tick_broadcast_lock
-      //next_event for tick broadcast clock
-      set to KTIME_MAX since no other cores
-      subscribed to tick broadcasting
-
-      raw_spin_unlock(&tick_broadcast_lock);
-
-    if (dev->next_event == KTIME_MAX)
-      return HRTIMER_NORESTART
-    // callback function exits without
-       restarting the hrtimer                      //tick_broadcast_lock acquired
-                                                   raw_spin_lock(&tick_broadcast_lock);
-
-                                                   tick_broadcast_set_event()
-
-                                                     clockevents_program_event()
-
-                                                       dev->next_event = expires;
-
-                                                       bc_set_next()
-
-                                                         hrtimer_try_to_cancel()
-                                                         //returns -1 since the timer
-                                                         callback is active. Exits without
-                                                         restarting the timer
-  cpu_base->running = NULL;
-
-The comment that hrtimer cannot be armed from within the callback is
-wrong. It is fine to start the hrtimer from within the callback. Also it is
-safe to start the hrtimer from the enter/exit idle code while the broadcast
-handler is active. The enter/exit idle code and the broadcast handler are
-synchronized using tick_broadcast_lock. So there is no need for the
-existing try to cancel logic. All this can be removed which will eliminate
-the race condition as well.
-
-Fixes: 5d1638acb9f6 ("tick: Introduce hrtimer based broadcast")
-Originally-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20190926135101.12102-2-balasubramani_vivekanandan@mentor.com
-
-diff --git a/kernel/time/tick-broadcast-hrtimer.c b/kernel/time/tick-broadcast-hrtimer.c
-index c1f5bb590b5e..b5a65e212df2 100644
---- a/kernel/time/tick-broadcast-hrtimer.c
-+++ b/kernel/time/tick-broadcast-hrtimer.c
-@@ -42,39 +42,39 @@ static int bc_shutdown(struct clock_event_device *evt)
-  */
- static int bc_set_next(ktime_t expires, struct clock_event_device *bc)
- {
--	int bc_moved;
- 	/*
--	 * We try to cancel the timer first. If the callback is on
--	 * flight on some other cpu then we let it handle it. If we
--	 * were able to cancel the timer nothing can rearm it as we
--	 * own broadcast_lock.
-+	 * This is called either from enter/exit idle code or from the
-+	 * broadcast handler. In all cases tick_broadcast_lock is held.
- 	 *
--	 * However we can also be called from the event handler of
--	 * ce_broadcast_hrtimer itself when it expires. We cannot
--	 * restart the timer because we are in the callback, but we
--	 * can set the expiry time and let the callback return
--	 * HRTIMER_RESTART.
-+	 * hrtimer_cancel() cannot be called here neither from the
-+	 * broadcast handler nor from the enter/exit idle code. The idle
-+	 * code can run into the problem described in bc_shutdown() and the
-+	 * broadcast handler cannot wait for itself to complete for obvious
-+	 * reasons.
- 	 *
--	 * Since we are in the idle loop at this point and because
--	 * hrtimer_{start/cancel} functions call into tracing,
--	 * calls to these functions must be bound within RCU_NONIDLE.
-+	 * Each caller tries to arm the hrtimer on its own CPU, but if the
-+	 * hrtimer callbback function is currently running, then
-+	 * hrtimer_start() cannot move it and the timer stays on the CPU on
-+	 * which it is assigned at the moment.
-+	 *
-+	 * As this can be called from idle code, the hrtimer_start()
-+	 * invocation has to be wrapped with RCU_NONIDLE() as
-+	 * hrtimer_start() can call into tracing.
- 	 */
--	RCU_NONIDLE(
--		{
--			bc_moved = hrtimer_try_to_cancel(&bctimer) >= 0;
--			if (bc_moved) {
--				hrtimer_start(&bctimer, expires,
--					      HRTIMER_MODE_ABS_PINNED_HARD);
--			}
--		}
--	);
--
--	if (bc_moved) {
--		/* Bind the "device" to the cpu */
--		bc->bound_on = smp_processor_id();
--	} else if (bc->bound_on == smp_processor_id()) {
--		hrtimer_set_expires(&bctimer, expires);
--	}
-+	RCU_NONIDLE( {
-+		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
-+		/*
-+		 * The core tick broadcast mode expects bc->bound_on to be set
-+		 * correctly to prevent a CPU which has the broadcast hrtimer
-+		 * armed from going deep idle.
-+		 *
-+		 * As tick_broadcast_lock is held, nothing can change the cpu
-+		 * base which was just established in hrtimer_start() above. So
-+		 * the below access is safe even without holding the hrtimer
-+		 * base lock.
-+		 */
-+		bc->bound_on = bctimer.base->cpu_base->cpu;
-+	} );
- 	return 0;
- }
- 
-@@ -100,10 +100,6 @@ static enum hrtimer_restart bc_handler(struct hrtimer *t)
- {
- 	ce_broadcast_hrtimer.event_handler(&ce_broadcast_hrtimer);
- 
--	if (clockevent_state_oneshot(&ce_broadcast_hrtimer))
--		if (ce_broadcast_hrtimer.next_event != KTIME_MAX)
--			return HRTIMER_RESTART;
--
- 	return HRTIMER_NORESTART;
- }
- 
-
+-Mathias
