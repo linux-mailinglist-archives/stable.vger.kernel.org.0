@@ -2,124 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40027D0207
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 22:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497B5D02C0
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 23:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730737AbfJHUTv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 16:19:51 -0400
-Received: from inva020.nxp.com ([92.121.34.13]:49078 "EHLO inva020.nxp.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727835AbfJHUTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 16:19:51 -0400
-Received: from inva020.nxp.com (localhost [127.0.0.1])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 5E7C31A099B;
-        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
-Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
-        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 49D001A008A;
-        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
-Received: from fsr-ub1864-014.ea.freescale.net (fsr-ub1864-014.ea.freescale.net [10.171.95.219])
-        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 1AE9B205DB;
-        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
-From:   =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4, 4.9] crypto: caam - fix concurrency issue in givencrypt descriptor
-Date:   Tue,  8 Oct 2019 23:19:41 +0300
-Message-Id: <20191008201941.17526-1-horia.geanta@nxp.com>
-X-Mailer: git-send-email 2.17.1
+        id S1730722AbfJHVUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 17:20:46 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55910 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730720AbfJHVUp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 17:20:45 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 31D218030B; Tue,  8 Oct 2019 23:20:28 +0200 (CEST)
+Date:   Tue, 8 Oct 2019 23:20:41 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     "H. Peter Anvin" <hpa@zytor.com>
+Cc:     linux-kernel@vger.kernel.org, linux-tip-commits@vger.kernel.org,
+        "x86@kernel.org" <x86@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Juergen Gross <jgross@suse.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Ingo Molnar <mingo@redhat.com>, Chen Yu <yu.c.chen@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [tip: x86/urgent] x86/CPU/AMD: Clear RDRAND CPUID bit on AMD
+ family 15h/16h
+Message-ID: <20191008212041.GA7222@amd>
+References: <7543af91666f491547bd86cebb1e17c66824ab9f.1566229943.git.thomas.lendacky@amd.com>
+ <156652264945.9541.4969272027980914591.tip-bot2@tip-bot2>
+ <20190824181929.GA18551@amd>
+ <409703ae-6d70-3f6a-d6fc-b7dada3c2797@zytor.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+Content-Disposition: inline
+In-Reply-To: <409703ae-6d70-3f6a-d6fc-b7dada3c2797@zytor.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
 
-IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
-to be scheduled before the data transfer from ofifo to external memory
-(set up at [38]:
+--Nq2Wo0NMKNjxTN9z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[29] 10FA0004           ld: ind-nfifo (len=4) imm
-[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
-[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
-[32] 00000010               data:0x00000010
-[33] 8210010D    operation: cls1-op aes cbc init-final enc
-[34] A8080B04         math: (seqin + math0)->vseqout len=4
-[35] 28000010    seqfifold: skip len=16
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[38] 69300000   seqfifostr: msg len=vseqoutsz
-[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+Hi!
 
-If ofifo -> external memory transfer happens first, DECO will hang
-(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
-data availability in ofifo for the ofifo -> c2 ififo transfer.
+> >> x86/CPU/AMD: Clear RDRAND CPUID bit on AMD family 15h/16h
+> >>
+> >> There have been reports of RDRAND issues after resuming from suspend on
+> >> some AMD family 15h and family 16h systems. This issue stems from a BI=
+OS
+> >> not performing the proper steps during resume to ensure RDRAND continu=
+es
+> >> to function properly.
+> >=20
+> > There are quite a few unanswered questions here.
+> >=20
+> > a) Is there/should there be CVE for this?
+> >=20
+> > b) Can we perform proper steps in kernel, thus making RDRAND usable
+> > even when BIOS is buggy?
+> >=20
+>=20
+> The kernel should at least be able to set its internal "CPUID" bit, visib=
+le
+> through /proc/cpuinfo.
 
-Make sure IV transfer happens first by waiting for all CAAM internal
-transfers to end before starting payload transfer.
+Actually, with hindsight I see two possible improvements here:
 
-New descriptor with jump command inserted at [37]:
+1) Not having enabled s2ram in config does not mean machine was not
+suspended/resumed, then new kernel executed via kexec.
 
-[..]
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
-[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[39] 69300000   seqfifostr: msg len=vseqoutsz
-[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+2) We really can continue using the RDRAND: we know how it fails
+(constant pattern) so we can check for the failure in kernel, and can
+continue to use it... It will certainly work until first suspend, and
+there's good chance it will work after that, too. (We still need to
+prevent userspace from using it).
 
-[Note: the issue is present in the descriptor from the very beginning
-(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
-maintained kernel that the patch applies clean against.]
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-Cc: <stable@vger.kernel.org> # v4.19+
-Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[Horia: backport to v4.4, v4.9]
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
----
- drivers/crypto/caam/caamalg.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+--Nq2Wo0NMKNjxTN9z
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
-index f8ac768ed5d7..413e1f35773f 100644
---- a/drivers/crypto/caam/caamalg.c
-+++ b/drivers/crypto/caam/caamalg.c
-@@ -75,7 +75,7 @@
- #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
- #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
- #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
--#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 9 * CAAM_CMD_SZ)
-+#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 10 * CAAM_CMD_SZ)
- 
- /* Note: Nonce is counted in enckeylen */
- #define DESC_AEAD_CTR_RFC3686_LEN	(4 * CAAM_CMD_SZ)
-@@ -474,6 +474,7 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
- 	u32 geniv, moveiv;
- 	u32 ctx1_iv_off = 0;
- 	u32 *desc;
-+	u32 *wait_cmd;
- 	const bool ctr_mode = ((ctx->class1_alg_type & OP_ALG_AAI_MASK) ==
- 			       OP_ALG_AAI_CTR_MOD128);
- 	const bool is_rfc3686 = alg->caam.rfc3686;
-@@ -736,6 +737,14 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
- 
- 	/* Will read cryptlen */
- 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
-+
-+	/*
-+	 * Wait for IV transfer (ofifo -> class2) to finish before starting
-+	 * ciphertext transfer (ofifo -> external memory).
-+	 */
-+	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
-+	set_jump_tgt_here(desc, wait_cmd);
-+
- 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
- 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
- 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
--- 
-2.17.1
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iEYEARECAAYFAl2c/akACgkQMOfwapXb+vIAIgCfTtdPEk+einOr1l0u8g3JJUIR
+Hw8An3EIBITYsbuZfkKzqYAG/mjHPUe/
+=XIae
+-----END PGP SIGNATURE-----
+
+--Nq2Wo0NMKNjxTN9z--
