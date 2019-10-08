@@ -2,112 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88590CF817
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 13:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24BC5CF84D
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 13:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730156AbfJHL0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 07:26:39 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:59516 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729876AbfJHL0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 07:26:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=QzG9uxqVaWu2Py++vRepIVOXKbIJ3yM+1U+4xpiRQXU=; b=JjllhKoY7qqd4rYbCBXvE6gNh
-        qv27J0/uXStkQWkcXHLPXLt8u53loVBn+pBWo1PcUzZ3fu4V2+HrhI4ZI0NeclHZ08G5VyLDfxYSz
-        MJb2c6aOEX4oJt/S8dLjXnWe91nzdInaMbOf73mgxpJzaC1UVUnwJCuVKPoTh2RECfbtllWD1RrkU
-        KboP/7ZXTEmrgy3gpWO40uJqIyk+gzGJ8rlRrC1sGts3fXHgUXDEkpCfTTbNir5c5jR2eW69QQ7Ki
-        t2SyUN6vfrkOT8JgqDAtJ72yS6+50BQeE9mSmxUizjg0EXpIopYDHTl1ZBVsqZCIX7vrVbI+kH9ia
-        obuCjHKEA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
-        id 1iHnd7-0004LE-2M; Tue, 08 Oct 2019 11:26:13 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 513C2305E1D;
-        Tue,  8 Oct 2019 13:25:18 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id A3C3529BBAD03; Tue,  8 Oct 2019 13:26:09 +0200 (CEST)
-Date:   Tue, 8 Oct 2019 13:26:09 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Phil Auld <pauld@redhat.com>
-Cc:     Xuewei Zhang <xueweiz@google.com>, Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        id S1730664AbfJHLdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 07:33:33 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:47829 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730640AbfJHLdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 07:33:32 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iHnk3-0008DV-JQ; Tue, 08 Oct 2019 13:33:23 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 4793E1C0895;
+        Tue,  8 Oct 2019 13:33:23 +0200 (CEST)
+Date:   Tue, 08 Oct 2019 11:33:23 -0000
+From:   "tip-bot2 for Janakarajan Natarajan" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/asm: Fix MWAITX C-state hint value
+Cc:     Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        trivial@kernel.org
-Subject: Re: [PATCH] sched/fair: scale quota and period without losing
- quota/period ratio precision
-Message-ID: <20191008112609.GL2294@hirez.programming.kicks-ass.net>
-References: <20191004001243.140897-1-xueweiz@google.com>
- <20191007151425.GD22412@pauld.bos.csb>
+        "x86@kernel.org" <x86@kernel.org>,
+        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        <stable@vger.kernel.org>, Ingo Molnar <mingo@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20191007190011.4859-1-Janakarajan.Natarajan@amd.com>
+References: <20191007190011.4859-1-Janakarajan.Natarajan@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191007151425.GD22412@pauld.bos.csb>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <157053440322.9978.15261700276165265873.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 11:14:25AM -0400, Phil Auld wrote:
-> On Thu, Oct 03, 2019 at 05:12:43PM -0700 Xuewei Zhang wrote:
-> > quota/period ratio is used to ensure a child task group won't get more
-> > bandwidth than the parent task group, and is calculated as:
-> > normalized_cfs_quota() = [(quota_us << 20) / period_us]
-> > 
-> > If the quota/period ratio was changed during this scaling due to
-> > precision loss, it will cause inconsistency between parent and child
-> > task groups. See below example:
-> > A userspace container manager (kubelet) does three operations:
-> > 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
-> > 2) Create a few children cgroups.
-> > 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
-> > 
-> > These operations are expected to succeed. However, if the scaling of
-> > 147/128 happens before step 3), quota and period of the parent cgroup
-> > will be changed:
-> > new_quota: 1148437ns, 1148us
-> > new_period: 11484375ns, 11484us
-> > 
-> > And when step 3) comes in, the ratio of the child cgroup will be 104857,
-> > which will be larger than the parent cgroup ratio (104821), and will
-> > fail.
-> > 
-> > Scaling them by a factor of 2 will fix the problem.
-> > 
-> > Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-> > Signed-off-by: Xuewei Zhang <xueweiz@google.com>
-> 
-> 
-> I managed to get it to trigger the second case. It took 50,000 children (20x my initial tests).
-> 
-> [ 1367.850630] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 4340, cfs_quota_us = 250000)
-> [ 1370.390832] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 8680, cfs_quota_us = 500000)
-> [ 1372.914689] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 17360, cfs_quota_us = 1000000)
-> [ 1375.447431] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 34720, cfs_quota_us = 2000000)
-> [ 1377.982785] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 69440, cfs_quota_us = 4000000)
-> [ 1380.481702] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 138880, cfs_quota_us = 8000000)
-> [ 1382.894692] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 277760, cfs_quota_us = 16000000)
-> [ 1385.264872] cfs_period_timer[cpu11]: period too short, scaling up (new cfs_period_us = 555520, cfs_quota_us = 32000000)
-> [ 1393.965140] cfs_period_timer[cpu11]: period too short, but cannot scale up without losing precision (cfs_period_us = 555520, cfs_quota_us = 32000000)
-> 
-> I suspect going higher could cause the original lockup, but that'd be the case with the old code as well. 
-> And this also gets us out of it faster.
-> 
-> 
-> Tested-by: Phil Auld <pauld@redhat.com>
+The following commit has been merged into the x86/urgent branch of tip:
 
-Thanks!
+Commit-ID:     454de1e7d970d6bc567686052329e4814842867c
+Gitweb:        https://git.kernel.org/tip/454de1e7d970d6bc567686052329e4814842867c
+Author:        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+AuthorDate:    Mon, 07 Oct 2019 19:00:22 
+Committer:     Ingo Molnar <mingo@kernel.org>
+CommitterDate: Tue, 08 Oct 2019 13:25:24 +02:00
+
+x86/asm: Fix MWAITX C-state hint value
+
+As per "AMD64 Architecture Programmer's Manual Volume 3: General-Purpose
+and System Instructions", MWAITX EAX[7:4]+1 specifies the optional hint
+of the optimized C-state. For C0 state, EAX[7:4] should be set to 0xf.
+
+Currently, a value of 0xf is set for EAX[3:0] instead of EAX[7:4]. Fix
+this by changing MWAITX_DISABLE_CSTATES from 0xf to 0xf0.
+
+This hasn't had any implications so far because setting reserved bits in
+EAX is simply ignored by the CPU.
+
+ [ bp: Fixup comment in delay_mwaitx() and massage. ]
+
+Signed-off-by: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "x86@kernel.org" <x86@kernel.org>
+Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20191007190011.4859-1-Janakarajan.Natarajan@amd.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+---
+ arch/x86/include/asm/mwait.h | 2 +-
+ arch/x86/lib/delay.c         | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/include/asm/mwait.h b/arch/x86/include/asm/mwait.h
+index e28f8b7..9d5252c 100644
+--- a/arch/x86/include/asm/mwait.h
++++ b/arch/x86/include/asm/mwait.h
+@@ -21,7 +21,7 @@
+ #define MWAIT_ECX_INTERRUPT_BREAK	0x1
+ #define MWAITX_ECX_TIMER_ENABLE		BIT(1)
+ #define MWAITX_MAX_LOOPS		((u32)-1)
+-#define MWAITX_DISABLE_CSTATES		0xf
++#define MWAITX_DISABLE_CSTATES		0xf0
+ 
+ static inline void __monitor(const void *eax, unsigned long ecx,
+ 			     unsigned long edx)
+diff --git a/arch/x86/lib/delay.c b/arch/x86/lib/delay.c
+index b7375dc..c126571 100644
+--- a/arch/x86/lib/delay.c
++++ b/arch/x86/lib/delay.c
+@@ -113,8 +113,8 @@ static void delay_mwaitx(unsigned long __loops)
+ 		__monitorx(raw_cpu_ptr(&cpu_tss_rw), 0, 0);
+ 
+ 		/*
+-		 * AMD, like Intel, supports the EAX hint and EAX=0xf
+-		 * means, do not enter any deep C-state and we use it
++		 * AMD, like Intel's MWAIT version, supports the EAX hint and
++		 * EAX=0xf0 means, do not enter any deep C-state and we use it
+ 		 * here in delay() to minimize wakeup latency.
+ 		 */
+ 		__mwaitx(MWAITX_DISABLE_CSTATES, delay, MWAITX_ECX_TIMER_ENABLE);
