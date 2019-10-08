@@ -2,223 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4E36CFF2E
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41DD8CFF73
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728567AbfJHQoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 12:44:54 -0400
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:43253 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725966AbfJHQoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:44:54 -0400
-Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Tue, 8 Oct 2019 09:44:51 -0700
-Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 49F7240C00;
-        Tue,  8 Oct 2019 09:44:48 -0700 (PDT)
-From:   Ajay Kaher <akaher@vmware.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <torvalds@linux-foundation.org>, <punit.agrawal@arm.com>,
-        <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
-        <willy@infradead.org>, <will.deacon@arm.com>,
-        <mszeredi@redhat.com>, <stable@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
-        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
-        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
-        <srostedt@vmware.com>, <akaher@vmware.com>, <stable@kernel.org>
-Subject: [PATCH v2 8/8] fs: prevent page refcount overflow in pipe_buf_get
-Date:   Wed, 9 Oct 2019 06:14:23 +0530
-Message-ID: <1570581863-12090-9-git-send-email-akaher@vmware.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1570581863-12090-1-git-send-email-akaher@vmware.com>
-References: <1570581863-12090-1-git-send-email-akaher@vmware.com>
+        id S1729677AbfJHQ77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 12:59:59 -0400
+Received: from mx0b-00082601.pphosted.com ([67.231.153.30]:63946 "EHLO
+        mx0b-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725917AbfJHQ77 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:59:59 -0400
+Received: from pps.filterd (m0148460.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x98Gx0OG004905
+        for <stable@vger.kernel.org>; Tue, 8 Oct 2019 09:59:58 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=facebook;
+ bh=CSwWYGEHn/p8GU5NchIMh59uuf9oyBV2cYSTpXdWu7M=;
+ b=nj8H4WwqcTrH4Ay+mLYmeFQr4/SokBvxH4SvkNnQzgMxBIpi7j1uMiXHm0NEfUzm4Qu2
+ 3bGhCyiKHpa9MLo5Ve6I7La2Rm62Ml08kTLqi2oKtvSwnxIpfe/uKI/slGdywA5Rq8lU
+ ZiYby2bsXYrrgXbDOLK4YJE88ljpPpaBf/o= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 2vgvbys08u-2
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 09:59:58 -0700
+Received: from 2401:db00:2050:5076:face:0:9:0 (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::6) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 8 Oct 2019 09:59:57 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id 5A5FE62E122D; Tue,  8 Oct 2019 09:59:56 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-kernel@vger.kernel.org>
+CC:     <kernel-team@fb.com>, Song Liu <songliubraving@fb.com>,
+        <stable@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH v2] perf/core: fix corner case in perf_rotate_context()
+Date:   Tue, 8 Oct 2019 09:59:49 -0700
+Message-ID: <20191008165949.920548-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+X-FB-Internal: Safe
 MIME-Version: 1.0
 Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
- designate permitted sender hosts)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
+ definitions=2019-10-08_06:2019-10-08,2019-10-08 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 impostorscore=0
+ spamscore=0 priorityscore=1501 adultscore=0 bulkscore=0 lowpriorityscore=0
+ malwarescore=0 clxscore=1015 suspectscore=1 mlxlogscore=999 phishscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1908290000 definitions=main-1910080140
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox <willy@infradead.org>
+In perf_rotate_context(), when the first cpu flexible event fail to
+schedule, cpu_rotate is 1, while cpu_event is NULL. Since cpu_event is
+NULL, perf_rotate_context will _NOT_ call cpu_ctx_sched_out(), thus
+cpuctx->ctx.is_active will have EVENT_FLEXIBLE set. Then, the next
+perf_event_sched_in() will skip all cpu flexible events because of the
+EVENT_FLEXIBLE bit.
 
-commit 15fab63e1e57be9fdb5eec1bbc5916e9825e9acb upstream.
+In the next call of perf_rotate_context(), cpu_rotate stays 1, and
+cpu_event stays NULL, so this process repeats. The end result is, flexible
+events on this cpu will not be scheduled (until another event being added
+to the cpuctx).
 
-Change pipe_buf_get() to return a bool indicating whether it succeeded
-in raising the refcount of the page (if the thing in the pipe is a page).
-This removes another mechanism for overflowing the page refcount.  All
-callers converted to handle a failure.
+Here is an easy repro of this issue. On Intel CPUs, where ref-cycles
+could only use one counter, run one pinned event for ref-cycles, one
+flexible event for ref-cycles, and one flexible event for cycles. The
+flexible ref-cycles is never scheduled, which is expected. However,
+because of this issue, the cycles event is never scheduled either.
 
-Reported-by: Jann Horn <jannh@google.com>
-Signed-off-by: Matthew Wilcox <willy@infradead.org>
-Cc: stable@kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ 4.4.y backport notes:
-  Regarding the change in generic_pipe_buf_get(), note that
-  page_cache_get() is the same as get_page(). See mainline commit
-  09cbfeaf1a5a6 "mm, fs: get rid of PAGE_CACHE_* and
-  page_cache_{get,release} macros" for context. ]
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Reviewed-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+perf stat -e ref-cycles:D,ref-cycles,cycles -C 5 -I 1000
+           time             counts unit events
+    1.000152973         15,412,480      ref-cycles:D
+    1.000152973      <not counted>      ref-cycles     (0.00%)
+    1.000152973      <not counted>      cycles         (0.00%)
+    2.000486957         18,263,120      ref-cycles:D
+    2.000486957      <not counted>      ref-cycles     (0.00%)
+    2.000486957      <not counted>      cycles         (0.00%)
+
+To fix this, when the flexible_active list is empty, try rotate the
+first event in the flexible_groups. Also, rename ctx_first_active() to
+ctx_event_to_rotate(), which is more accurate.
+
+Fixes: 8d5bce0c37fa ("perf/core: Optimize perf_rotate_context() event scheduling")
+Cc: stable@vger.kernel.org # v4.17+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 ---
- fs/fuse/dev.c             | 12 ++++++------
- fs/pipe.c                 |  4 ++--
- fs/splice.c               | 12 ++++++++++--
- include/linux/pipe_fs_i.h | 10 ++++++----
- kernel/trace/trace.c      |  6 +++++-
- 5 files changed, 29 insertions(+), 15 deletions(-)
+ kernel/events/core.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 36a5df9..16891f5 100644
---- a/fs/fuse/dev.c
-+++ b/fs/fuse/dev.c
-@@ -2031,10 +2031,8 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 		rem += pipe->bufs[(pipe->curbuf + idx) & (pipe->buffers - 1)].len;
- 
- 	ret = -EINVAL;
--	if (rem < len) {
--		pipe_unlock(pipe);
--		goto out;
--	}
-+	if (rem < len)
-+		goto out_free;
- 
- 	rem = len;
- 	while (rem) {
-@@ -2052,7 +2050,9 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 			pipe->curbuf = (pipe->curbuf + 1) & (pipe->buffers - 1);
- 			pipe->nrbufs--;
- 		} else {
--			pipe_buf_get(pipe, ibuf);
-+			if (!pipe_buf_get(pipe, ibuf))
-+				goto out_free;
-+
- 			*obuf = *ibuf;
- 			obuf->flags &= ~PIPE_BUF_FLAG_GIFT;
- 			obuf->len = rem;
-@@ -2075,13 +2075,13 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
- 	ret = fuse_dev_do_write(fud, &cs, len);
- 
- 	pipe_lock(pipe);
-+out_free:
- 	for (idx = 0; idx < nbuf; idx++) {
- 		struct pipe_buffer *buf = &bufs[idx];
- 		buf->ops->release(pipe, buf);
- 	}
- 	pipe_unlock(pipe);
- 
--out:
- 	kfree(bufs);
- 	return ret;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 3f0cb82e4fbc..b96cefed4fb2 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3779,11 +3779,21 @@ static void rotate_ctx(struct perf_event_context *ctx, struct perf_event *event)
+ 	perf_event_groups_insert(&ctx->flexible_groups, event);
  }
-diff --git a/fs/pipe.c b/fs/pipe.c
-index 1e7263b..6534470 100644
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -178,9 +178,9 @@ EXPORT_SYMBOL(generic_pipe_buf_steal);
-  *	in the tee() system call, when we duplicate the buffers in one
-  *	pipe into another.
-  */
--void generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
-+bool generic_pipe_buf_get(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
+ 
++/* pick an event from the flexible_groups to rotate */
+ static inline struct perf_event *
+-ctx_first_active(struct perf_event_context *ctx)
++ctx_event_to_rotate(struct perf_event_context *ctx)
  {
--	page_cache_get(buf->page);
-+	return try_get_page(buf->page);
+-	return list_first_entry_or_null(&ctx->flexible_active,
+-					struct perf_event, active_list);
++	struct perf_event *event;
++
++	/* pick the first active flexible event */
++	event = list_first_entry_or_null(&ctx->flexible_active,
++					 struct perf_event, active_list);
++
++	/* if no active flexible event, pick the first event */
++	if (!event)
++		event = rb_entry_safe(rb_first(&ctx->flexible_groups.tree),
++				      typeof(*event), group_node);
++	return event;
  }
- EXPORT_SYMBOL(generic_pipe_buf_get);
  
-diff --git a/fs/splice.c b/fs/splice.c
-index fde1263..57ccc58 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1876,7 +1876,11 @@ retry:
- 			 * Get a reference to this pipe buffer,
- 			 * so we can copy the contents over.
- 			 */
--			pipe_buf_get(ipipe, ibuf);
-+			if (!pipe_buf_get(ipipe, ibuf)) {
-+				if (ret == 0)
-+					ret = -EFAULT;
-+				break;
-+			}
- 			*obuf = *ibuf;
+ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
+@@ -3808,9 +3818,9 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
+ 	perf_pmu_disable(cpuctx->ctx.pmu);
  
- 			/*
-@@ -1948,7 +1952,11 @@ static int link_pipe(struct pipe_inode_info *ipipe,
- 		 * Get a reference to this pipe buffer,
- 		 * so we can copy the contents over.
- 		 */
--		pipe_buf_get(ipipe, ibuf);
-+		if (!pipe_buf_get(ipipe, ibuf)) {
-+			if (ret == 0)
-+				ret = -EFAULT;
-+			break;
-+		}
+ 	if (task_rotate)
+-		task_event = ctx_first_active(task_ctx);
++		task_event = ctx_event_to_rotate(task_ctx);
+ 	if (cpu_rotate)
+-		cpu_event = ctx_first_active(&cpuctx->ctx);
++		cpu_event = ctx_event_to_rotate(&cpuctx->ctx);
  
- 		obuf = opipe->bufs + nbuf;
- 		*obuf = *ibuf;
-diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
-index 10876f3..0b28b65 100644
---- a/include/linux/pipe_fs_i.h
-+++ b/include/linux/pipe_fs_i.h
-@@ -112,18 +112,20 @@ struct pipe_buf_operations {
  	/*
- 	 * Get a reference to the pipe buffer.
- 	 */
--	void (*get)(struct pipe_inode_info *, struct pipe_buffer *);
-+	bool (*get)(struct pipe_inode_info *, struct pipe_buffer *);
- };
- 
- /**
-  * pipe_buf_get - get a reference to a pipe_buffer
-  * @pipe:	the pipe that the buffer belongs to
-  * @buf:	the buffer to get a reference to
-+ *
-+ * Return: %true if the reference was successfully obtained.
-  */
--static inline void pipe_buf_get(struct pipe_inode_info *pipe,
-+static inline __must_check bool pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
--	buf->ops->get(pipe, buf);
-+	return buf->ops->get(pipe, buf);
- }
- 
- /* Differs from PIPE_BUF in that PIPE_SIZE is the length of the actual
-@@ -148,7 +150,7 @@ struct pipe_inode_info *alloc_pipe_info(void);
- void free_pipe_info(struct pipe_inode_info *);
- 
- /* Generic pipe buffer ops functions */
--void generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
-+bool generic_pipe_buf_get(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_confirm(struct pipe_inode_info *, struct pipe_buffer *);
- int generic_pipe_buf_steal(struct pipe_inode_info *, struct pipe_buffer *);
- void generic_pipe_buf_release(struct pipe_inode_info *, struct pipe_buffer *);
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index ae00e68..7fe8d04 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5731,12 +5731,16 @@ static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
- 	buf->private = 0;
- }
- 
--static void buffer_pipe_buf_get(struct pipe_inode_info *pipe,
-+static bool buffer_pipe_buf_get(struct pipe_inode_info *pipe,
- 				struct pipe_buffer *buf)
- {
- 	struct buffer_ref *ref = (struct buffer_ref *)buf->private;
- 
-+	if (ref->ref > INT_MAX/2)
-+		return false;
-+
- 	ref->ref++;
-+	return true;
- }
- 
- /* Pipe buffer operations for a buffer. */
+ 	 * As per the order given at ctx_resched() first 'pop' task flexible
 -- 
-2.7.4
+2.17.1
 
