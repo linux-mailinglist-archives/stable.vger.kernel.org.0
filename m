@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1561ECF3BB
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE5ACF3D5
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:29:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730330AbfJHH2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:28:35 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43785 "EHLO
+        id S1730180AbfJHH30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 03:29:26 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43667 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730180AbfJHH2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:28:35 -0400
+        by vger.kernel.org with ESMTP id S1730171AbfJHH30 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:29:26 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D5E4A5B9;
-        Tue,  8 Oct 2019 03:28:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:28:34 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 2E0E64B5;
+        Tue,  8 Oct 2019 03:29:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:29:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=0GnwHN
-        zin6LS4ytboF9zxqG5YQsPV6wfPscPqTJwBeE=; b=ww6qVaaNuwxdszto0Nh07L
-        wNsdw2vRtZQvOdTz8VeLxFi1/WxNF4rdcAVPb0O4U7ER2YG0OPlGi63H2z5XHSYV
-        wgY4GvJkiHaNqI53+htZF0PqRSAjp+DQ/2gZ5CZFvz3yzJjp1aSgI665EywZxUP1
-        5CKmtXFOBlLfiuDST3Bk84daKxkZrWeiOZO+OVQXCG4zdDh91x7/VCx+EK7H2Vuy
-        yx7SPugPt5Z2wponBCyNDrwZWkOyNUU4lRl6N16isKz7DsRECuCTITzjzhkwS+pV
-        FBdQrjc5mOlF41MaXzvdhbmpDKmObbnxjiV/GlVOppXjODeDpwaCHxO+GEUw1ihw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=cT6uKA
+        m+axEldR6f+VdBaFhKXct2EXi2pvKiO1HA33k=; b=lr9ebMsJCg/cuugW1+Lfgt
+        4zBhy3klrqMoyfsArZh41fQehoS+cTQODZP+CkXWxEV4HwszOq28crHetrnFNTbc
+        zhKp4d6A/UxWh6cZaXczDFBdawdJ/ZSMYeuyh+r4hsszBY6BKnYtLb0OEMVzK2iW
+        cicbHlsELUBBhwjsbQDwONUUnMzsmbNVtM3Z70s+4lwogP5ZY1PZm50D8uhzYJz3
+        HAhGmLWNvErlg4Xn3fuN2RKsZBePTdWif8UzsVH2lBpCZALpJ0/qdDaaysACHkf1
+        7PpkQJjvbc3GIdU5449Iq3+uwB0HTUo7vACJNtOvZ/K30FuKOH185wTAiAOO7iQg
         ==
-X-ME-Sender: <xms:oTqcXak16cj2nQuAUA-9CdWkpLiYlP1DZH__7me2Sg1fN3CbxaSmGQ>
+X-ME-Sender: <xms:1DqcXUQM5qEF8oFYgzvhb1XCtMp_H2y5m1lyJe6v8KzTZZzXbavMUQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpnhigphdrtghomhenucfkphepke
-    efrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhr
-    ohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:oTqcXWHMEYmHaSy9z1qfd3Q_oklfTFj05htmwliNgNLVN29CpKrtSA>
-    <xmx:oTqcXUAJjfikkZZL3tT9kYv4p5z9a0YZsVYeLMqMlnfncxdmgeBOcQ>
-    <xmx:oTqcXbcoD-e9OMcu8dEtlkiowsFo22ORuPmEmZeUKHHT_WhroIGsnw>
-    <xmx:oTqcXa_5f8LQvC5Xsdl-omR9nlzYE0Pq9BJa1YDLZTuRLYNsMm6HFw>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:1DqcXTcA9smcQ6AUt4TxoyP2TdrhMQlVqoz1VY3tnKudrFiQFhjLxg>
+    <xmx:1DqcXRQnLlZ0xaDR77WLPC5sI1y2iv9mNLoEckjyedIrM0iIqoQavw>
+    <xmx:1DqcXRpRkczH1NePfoTcGnWUu8ft4ZBfF8644C1kfKyrRBdvYsjCnw>
+    <xmx:1DqcXYj1I7uZnbIqyGiUhzOdq0AIhQRYrICf30uJl0ZG86g4S8nDtg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E90A08005B;
-        Tue,  8 Oct 2019 03:28:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ASoC: sgtl5000: Improve VAG power and mute control" failed to apply to 4.4-stable tree
-To:     oleksandr.suvorov@toradex.com, broonie@kernel.org,
-        cezary.rojewski@intel.com, festevam@gmail.com,
-        marcel.ziswiler@toradex.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id DAFB0D6005E;
+        Tue,  8 Oct 2019 03:29:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] powerpc/xive: Implement get_irqchip_state method for XIVE to" failed to apply to 4.19-stable tree
+To:     paulus@ozlabs.org, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:28:29 +0200
-Message-ID: <1570519709213166@kroah.com>
+Date:   Tue, 08 Oct 2019 09:29:22 +0200
+Message-ID: <157051976215070@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,329 +68,392 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b1f373a11d25fc9a5f7679c9b85799fe09b0dc4a Mon Sep 17 00:00:00 2001
-From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Date: Fri, 19 Jul 2019 10:05:31 +0000
-Subject: [PATCH] ASoC: sgtl5000: Improve VAG power and mute control
+From da15c03b047dca891d37b9f4ef9ca14d84a6484f Mon Sep 17 00:00:00 2001
+From: Paul Mackerras <paulus@ozlabs.org>
+Date: Tue, 13 Aug 2019 20:06:48 +1000
+Subject: [PATCH] powerpc/xive: Implement get_irqchip_state method for XIVE to
+ fix shutdown race
 
-VAG power control is improved to fit the manual [1]. This patch fixes as
-minimum one bug: if customer muxes Headphone to Line-In right after boot,
-the VAG power remains off that leads to poor sound quality from line-in.
+Testing has revealed the existence of a race condition where a XIVE
+interrupt being shut down can be in one of the XIVE interrupt queues
+(of which there are up to 8 per CPU, one for each priority) at the
+point where free_irq() is called.  If this happens, can return an
+interrupt number which has been shut down.  This can lead to various
+symptoms:
 
-I.e. after boot:
-  - Connect sound source to Line-In jack;
-  - Connect headphone to HP jack;
-  - Run following commands:
-  $ amixer set 'Headphone' 80%
-  $ amixer set 'Headphone Mux' LINE_IN
+- irq_to_desc(irq) can be NULL.  In this case, no end-of-interrupt
+  function gets called, resulting in the CPU's elevated interrupt
+  priority (numerically lowered CPPR) never gets reset.  That then
+  means that the CPU stops processing interrupts, causing device
+  timeouts and other errors in various device drivers.
 
-Change VAG power on/off control according to the following algorithm:
-  - turn VAG power ON on the 1st incoming event.
-  - keep it ON if there is any active VAG consumer (ADC/DAC/HP/Line-In).
-  - turn VAG power OFF when there is the latest consumer's pre-down event
-    come.
-  - always delay after VAG power OFF to avoid pop.
-  - delay after VAG power ON if the initiative consumer is Line-In, this
-    prevents pop during line-in muxing.
+- The irq descriptor or related data structures can be in the process
+  of being freed as the interrupt code is using them.  This typically
+  leads to crashes due to bad pointer dereferences.
 
-According to the data sheet [1], to avoid any pops/clicks,
-the outputs should be muted during input/output
-routing changes.
+This race is basically what commit 62e0468650c3 ("genirq: Add optional
+hardware synchronization for shutdown", 2019-06-28) is intended to
+fix, given a get_irqchip_state() method for the interrupt controller
+being used.  It works by polling the interrupt controller when an
+interrupt is being freed until the controller says it is not pending.
 
-[1] https://www.nxp.com/docs/en/data-sheet/SGTL5000.pdf
+With XIVE, the PQ bits of the interrupt source indicate the state of
+the interrupt source, and in particular the P bit goes from 0 to 1 at
+the point where the hardware writes an entry into the interrupt queue
+that this interrupt is directed towards.  Normally, the code will then
+process the interrupt and do an end-of-interrupt (EOI) operation which
+will reset PQ to 00 (assuming another interrupt hasn't been generated
+in the meantime).  However, there are situations where the code resets
+P even though a queue entry exists (for example, by setting PQ to 01,
+which disables the interrupt source), and also situations where the
+code leaves P at 1 after removing the queue entry (for example, this
+is done for escalation interrupts so they cannot fire again until
+they are explicitly re-enabled).
 
-Cc: stable@vger.kernel.org
-Fixes: 9b34e6cc3bc2 ("ASoC: Add Freescale SGTL5000 codec support")
-Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Link: https://lore.kernel.org/r/20190719100524.23300-3-oleksandr.suvorov@toradex.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The code already has a 'saved_p' flag for the interrupt source which
+indicates that a queue entry exists, although it isn't maintained
+consistently.  This patch adds a 'stale_p' flag to indicate that
+P has been left at 1 after processing a queue entry, and adds code
+to set and clear saved_p and stale_p as necessary to maintain a
+consistent indication of whether a queue entry may or may not exist.
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index a6a4748c97f9..34cc85e49003 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -31,6 +31,13 @@
- #define SGTL5000_DAP_REG_OFFSET	0x0100
- #define SGTL5000_MAX_REG_OFFSET	0x013A
+With this, we can implement xive_get_irqchip_state() by looking at
+stale_p, saved_p and the ESB PQ bits for the interrupt.
+
+There is some additional code to handle escalation interrupts
+properly; because they are enabled and disabled in KVM assembly code,
+which does not have access to the xive_irq_data struct for the
+escalation interrupt.  Hence, stale_p may be incorrect when the
+escalation interrupt is freed in kvmppc_xive_{,native_}cleanup_vcpu().
+Fortunately, we can fix it up by looking at vcpu->arch.xive_esc_on,
+with some careful attention to barriers in order to ensure the correct
+result if xive_esc_irq() races with kvmppc_xive_cleanup_vcpu().
+
+Finally, this adds code to make noise on the console (pr_crit and
+WARN_ON(1)) if we find an interrupt queue entry for an interrupt
+which does not have a descriptor.  While this won't catch the race
+reliably, if it does get triggered it will be an indication that
+the race is occurring and needs to be debugged.
+
+Fixes: 243e25112d06 ("powerpc/xive: Native exploitation of the XIVE interrupt controller")
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190813100648.GE9567@blackberry
+
+diff --git a/arch/powerpc/include/asm/xive.h b/arch/powerpc/include/asm/xive.h
+index e4016985764e..efb0e597b272 100644
+--- a/arch/powerpc/include/asm/xive.h
++++ b/arch/powerpc/include/asm/xive.h
+@@ -46,7 +46,15 @@ struct xive_irq_data {
  
-+/* Delay for the VAG ramp up */
-+#define SGTL5000_VAG_POWERUP_DELAY 500 /* ms */
-+/* Delay for the VAG ramp down */
-+#define SGTL5000_VAG_POWERDOWN_DELAY 500 /* ms */
-+
-+#define SGTL5000_OUTPUTS_MUTE (SGTL5000_HP_MUTE | SGTL5000_LINE_OUT_MUTE)
-+
- /* default value of sgtl5000 registers */
- static const struct reg_default sgtl5000_reg_defaults[] = {
- 	{ SGTL5000_CHIP_DIG_POWER,		0x0000 },
-@@ -123,6 +130,13 @@ enum  {
- 	I2S_SCLK_STRENGTH_HIGH,
- };
- 
-+enum {
-+	HP_POWER_EVENT,
-+	DAC_POWER_EVENT,
-+	ADC_POWER_EVENT,
-+	LAST_POWER_EVENT = ADC_POWER_EVENT
-+};
-+
- /* sgtl5000 private structure in codec */
- struct sgtl5000_priv {
- 	int sysclk;	/* sysclk rate */
-@@ -137,8 +151,109 @@ struct sgtl5000_priv {
- 	u8 micbias_voltage;
- 	u8 lrclk_strength;
- 	u8 sclk_strength;
-+	u16 mute_state[LAST_POWER_EVENT + 1];
- };
- 
-+static inline int hp_sel_input(struct snd_soc_component *component)
-+{
-+	return (snd_soc_component_read32(component, SGTL5000_CHIP_ANA_CTRL) &
-+		SGTL5000_HP_SEL_MASK) >> SGTL5000_HP_SEL_SHIFT;
-+}
-+
-+static inline u16 mute_output(struct snd_soc_component *component,
-+			      u16 mute_mask)
-+{
-+	u16 mute_reg = snd_soc_component_read32(component,
-+					      SGTL5000_CHIP_ANA_CTRL);
-+
-+	snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_CTRL,
-+			    mute_mask, mute_mask);
-+	return mute_reg;
-+}
-+
-+static inline void restore_output(struct snd_soc_component *component,
-+				  u16 mute_mask, u16 mute_reg)
-+{
-+	snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_CTRL,
-+		mute_mask, mute_reg);
-+}
-+
-+static void vag_power_on(struct snd_soc_component *component, u32 source)
-+{
-+	if (snd_soc_component_read32(component, SGTL5000_CHIP_ANA_POWER) &
-+	    SGTL5000_VAG_POWERUP)
-+		return;
-+
-+	snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_POWER,
-+			    SGTL5000_VAG_POWERUP, SGTL5000_VAG_POWERUP);
-+
-+	/* When VAG powering on to get local loop from Line-In, the sleep
-+	 * is required to avoid loud pop.
-+	 */
-+	if (hp_sel_input(component) == SGTL5000_HP_SEL_LINE_IN &&
-+	    source == HP_POWER_EVENT)
-+		msleep(SGTL5000_VAG_POWERUP_DELAY);
-+}
-+
-+static int vag_power_consumers(struct snd_soc_component *component,
-+			       u16 ana_pwr_reg, u32 source)
-+{
-+	int consumers = 0;
-+
-+	/* count dac/adc consumers unconditional */
-+	if (ana_pwr_reg & SGTL5000_DAC_POWERUP)
-+		consumers++;
-+	if (ana_pwr_reg & SGTL5000_ADC_POWERUP)
-+		consumers++;
-+
+ 	/* Setup/used by frontend */
+ 	int target;
 +	/*
-+	 * If the event comes from HP and Line-In is selected,
-+	 * current action is 'DAC to be powered down'.
-+	 * As HP_POWERUP is not set when HP muxed to line-in,
-+	 * we need to keep VAG power ON.
++	 * saved_p means that there is a queue entry for this interrupt
++	 * in some CPU's queue (not including guest vcpu queues), even
++	 * if P is not set in the source ESB.
++	 * stale_p means that there is no queue entry for this interrupt
++	 * in some CPU's queue, even if P is set in the source ESB.
 +	 */
-+	if (source == HP_POWER_EVENT) {
-+		if (hp_sel_input(component) == SGTL5000_HP_SEL_LINE_IN)
-+			consumers++;
-+	} else {
-+		if (ana_pwr_reg & SGTL5000_HP_POWERUP)
-+			consumers++;
-+	}
+ 	bool saved_p;
++	bool stale_p;
+ };
+ #define XIVE_IRQ_FLAG_STORE_EOI	0x01
+ #define XIVE_IRQ_FLAG_LSI	0x02
+diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
+index 586867e46e51..591bfb4bfd0f 100644
+--- a/arch/powerpc/kvm/book3s_xive.c
++++ b/arch/powerpc/kvm/book3s_xive.c
+@@ -166,6 +166,9 @@ static irqreturn_t xive_esc_irq(int irq, void *data)
+ 	 */
+ 	vcpu->arch.xive_esc_on = false;
+ 
++	/* This orders xive_esc_on = false vs. subsequent stale_p = true */
++	smp_wmb();	/* goes with smp_mb() in cleanup_single_escalation */
 +
-+	return consumers;
-+}
-+
-+static void vag_power_off(struct snd_soc_component *component, u32 source)
-+{
-+	u16 ana_pwr = snd_soc_component_read32(component,
-+					     SGTL5000_CHIP_ANA_POWER);
-+
-+	if (!(ana_pwr & SGTL5000_VAG_POWERUP))
-+		return;
-+
-+	/*
-+	 * This function calls when any of VAG power consumers is disappearing.
-+	 * Thus, if there is more than one consumer at the moment, as minimum
-+	 * one consumer will definitely stay after the end of the current
-+	 * event.
-+	 * Don't clear VAG_POWERUP if 2 or more consumers of VAG present:
-+	 * - LINE_IN (for HP events) / HP (for DAC/ADC events)
-+	 * - DAC
-+	 * - ADC
-+	 * (the current consumer is disappearing right now)
-+	 */
-+	if (vag_power_consumers(component, ana_pwr, source) >= 2)
-+		return;
-+
-+	snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_POWER,
-+		SGTL5000_VAG_POWERUP, 0);
-+	/* In power down case, we need wait 400-1000 ms
-+	 * when VAG fully ramped down.
-+	 * As longer we wait, as smaller pop we've got.
-+	 */
-+	msleep(SGTL5000_VAG_POWERDOWN_DELAY);
-+}
-+
- /*
-  * mic_bias power on/off share the same register bits with
-  * output impedance of mic bias, when power on mic bias, we
-@@ -170,36 +285,46 @@ static int mic_bias_event(struct snd_soc_dapm_widget *w,
- 	return 0;
+ 	return IRQ_HANDLED;
  }
  
--/*
-- * As manual described, ADC/DAC only works when VAG powerup,
-- * So enabled VAG before ADC/DAC up.
-- * In power down case, we need wait 400ms when vag fully ramped down.
-- */
--static int power_vag_event(struct snd_soc_dapm_widget *w,
--	struct snd_kcontrol *kcontrol, int event)
-+static int vag_and_mute_control(struct snd_soc_component *component,
-+				 int event, int event_source)
- {
--	struct snd_soc_component *component = snd_soc_dapm_to_component(w->dapm);
--	const u32 mask = SGTL5000_DAC_POWERUP | SGTL5000_ADC_POWERUP;
-+	static const u16 mute_mask[] = {
-+		/*
-+		 * Mask for HP_POWER_EVENT.
-+		 * Muxing Headphones have to be wrapped with mute/unmute
-+		 * headphones only.
-+		 */
-+		SGTL5000_HP_MUTE,
-+		/*
-+		 * Masks for DAC_POWER_EVENT/ADC_POWER_EVENT.
-+		 * Muxing DAC or ADC block have to wrapped with mute/unmute
-+		 * both headphones and line-out.
-+		 */
-+		SGTL5000_OUTPUTS_MUTE,
-+		SGTL5000_OUTPUTS_MUTE
-+	};
-+
-+	struct sgtl5000_priv *sgtl5000 =
-+		snd_soc_component_get_drvdata(component);
- 
- 	switch (event) {
-+	case SND_SOC_DAPM_PRE_PMU:
-+		sgtl5000->mute_state[event_source] =
-+			mute_output(component, mute_mask[event_source]);
-+		break;
- 	case SND_SOC_DAPM_POST_PMU:
--		snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_POWER,
--			SGTL5000_VAG_POWERUP, SGTL5000_VAG_POWERUP);
--		msleep(400);
-+		vag_power_on(component, event_source);
-+		restore_output(component, mute_mask[event_source],
-+			       sgtl5000->mute_state[event_source]);
- 		break;
--
- 	case SND_SOC_DAPM_PRE_PMD:
--		/*
--		 * Don't clear VAG_POWERUP, when both DAC and ADC are
--		 * operational to prevent inadvertently starving the
--		 * other one of them.
--		 */
--		if ((snd_soc_component_read32(component, SGTL5000_CHIP_ANA_POWER) &
--				mask) != mask) {
--			snd_soc_component_update_bits(component, SGTL5000_CHIP_ANA_POWER,
--				SGTL5000_VAG_POWERUP, 0);
--			msleep(400);
--		}
-+		sgtl5000->mute_state[event_source] =
-+			mute_output(component, mute_mask[event_source]);
-+		vag_power_off(component, event_source);
-+		break;
-+	case SND_SOC_DAPM_POST_PMD:
-+		restore_output(component, mute_mask[event_source],
-+			       sgtl5000->mute_state[event_source]);
- 		break;
- 	default:
- 		break;
-@@ -208,6 +333,41 @@ static int power_vag_event(struct snd_soc_dapm_widget *w,
- 	return 0;
+@@ -1119,6 +1122,31 @@ void kvmppc_xive_disable_vcpu_interrupts(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.xive_esc_raddr = 0;
  }
  
 +/*
-+ * Mute Headphone when power it up/down.
-+ * Control VAG power on HP power path.
++ * In single escalation mode, the escalation interrupt is marked so
++ * that EOI doesn't re-enable it, but just sets the stale_p flag to
++ * indicate that the P bit has already been dealt with.  However, the
++ * assembly code that enters the guest sets PQ to 00 without clearing
++ * stale_p (because it has no easy way to address it).  Hence we have
++ * to adjust stale_p before shutting down the interrupt.
 + */
-+static int headphone_pga_event(struct snd_soc_dapm_widget *w,
-+	struct snd_kcontrol *kcontrol, int event)
++void xive_cleanup_single_escalation(struct kvm_vcpu *vcpu,
++				    struct kvmppc_xive_vcpu *xc, int irq)
 +{
-+	struct snd_soc_component *component =
-+		snd_soc_dapm_to_component(w->dapm);
++	struct irq_data *d = irq_get_irq_data(irq);
++	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
 +
-+	return vag_and_mute_control(component, event, HP_POWER_EVENT);
++	/*
++	 * This slightly odd sequence gives the right result
++	 * (i.e. stale_p set if xive_esc_on is false) even if
++	 * we race with xive_esc_irq() and xive_irq_eoi().
++	 */
++	xd->stale_p = false;
++	smp_mb();		/* paired with smb_wmb in xive_esc_irq */
++	if (!vcpu->arch.xive_esc_on)
++		xd->stale_p = true;
 +}
 +
-+/* As manual describes, ADC/DAC powering up/down requires
-+ * to mute outputs to avoid pops.
-+ * Control VAG power on ADC/DAC power path.
-+ */
-+static int adc_updown_depop(struct snd_soc_dapm_widget *w,
-+	struct snd_kcontrol *kcontrol, int event)
-+{
-+	struct snd_soc_component *component =
-+		snd_soc_dapm_to_component(w->dapm);
-+
-+	return vag_and_mute_control(component, event, ADC_POWER_EVENT);
-+}
-+
-+static int dac_updown_depop(struct snd_soc_dapm_widget *w,
-+	struct snd_kcontrol *kcontrol, int event)
-+{
-+	struct snd_soc_component *component =
-+		snd_soc_dapm_to_component(w->dapm);
-+
-+	return vag_and_mute_control(component, event, DAC_POWER_EVENT);
-+}
-+
- /* input sources for ADC */
- static const char *adc_mux_text[] = {
- 	"MIC_IN", "LINE_IN"
-@@ -280,7 +440,10 @@ static const struct snd_soc_dapm_widget sgtl5000_dapm_widgets[] = {
- 			    mic_bias_event,
- 			    SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
+ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+@@ -1143,6 +1171,9 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
+ 	/* Free escalations */
+ 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
+ 		if (xc->esc_virq[i]) {
++			if (xc->xive->single_escalation)
++				xive_cleanup_single_escalation(vcpu, xc,
++							xc->esc_virq[i]);
+ 			free_irq(xc->esc_virq[i], vcpu);
+ 			irq_dispose_mapping(xc->esc_virq[i]);
+ 			kfree(xc->esc_virq_names[i]);
+diff --git a/arch/powerpc/kvm/book3s_xive.h b/arch/powerpc/kvm/book3s_xive.h
+index 50494d0ee375..955b820ffd6d 100644
+--- a/arch/powerpc/kvm/book3s_xive.h
++++ b/arch/powerpc/kvm/book3s_xive.h
+@@ -282,6 +282,8 @@ int kvmppc_xive_select_target(struct kvm *kvm, u32 *server, u8 prio);
+ int kvmppc_xive_attach_escalation(struct kvm_vcpu *vcpu, u8 prio,
+ 				  bool single_escalation);
+ struct kvmppc_xive *kvmppc_xive_get_device(struct kvm *kvm, u32 type);
++void xive_cleanup_single_escalation(struct kvm_vcpu *vcpu,
++				    struct kvmppc_xive_vcpu *xc, int irq);
  
--	SND_SOC_DAPM_PGA("HP", SGTL5000_CHIP_ANA_POWER, 4, 0, NULL, 0),
-+	SND_SOC_DAPM_PGA_E("HP", SGTL5000_CHIP_ANA_POWER, 4, 0, NULL, 0,
-+			   headphone_pga_event,
-+			   SND_SOC_DAPM_PRE_POST_PMU |
-+			   SND_SOC_DAPM_PRE_POST_PMD),
- 	SND_SOC_DAPM_PGA("LO", SGTL5000_CHIP_ANA_POWER, 0, 0, NULL, 0),
+ #endif /* CONFIG_KVM_XICS */
+ #endif /* _KVM_PPC_BOOK3S_XICS_H */
+diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
+index 11b91b46fc39..f0cab43e6f4b 100644
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -71,6 +71,9 @@ void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu)
+ 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
+ 		/* Free the escalation irq */
+ 		if (xc->esc_virq[i]) {
++			if (xc->xive->single_escalation)
++				xive_cleanup_single_escalation(vcpu, xc,
++							xc->esc_virq[i]);
+ 			free_irq(xc->esc_virq[i], vcpu);
+ 			irq_dispose_mapping(xc->esc_virq[i]);
+ 			kfree(xc->esc_virq_names[i]);
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index 1cdb39575eae..be86fce1a84e 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -135,7 +135,7 @@ static u32 xive_read_eq(struct xive_q *q, bool just_peek)
+ static u32 xive_scan_interrupts(struct xive_cpu *xc, bool just_peek)
+ {
+ 	u32 irq = 0;
+-	u8 prio;
++	u8 prio = 0;
  
- 	SND_SOC_DAPM_MUX("Capture Mux", SND_SOC_NOPM, 0, 0, &adc_mux),
-@@ -301,11 +464,12 @@ static const struct snd_soc_dapm_widget sgtl5000_dapm_widgets[] = {
- 				0, SGTL5000_CHIP_DIG_POWER,
- 				1, 0),
+ 	/* Find highest pending priority */
+ 	while (xc->pending_prio != 0) {
+@@ -148,8 +148,19 @@ static u32 xive_scan_interrupts(struct xive_cpu *xc, bool just_peek)
+ 		irq = xive_read_eq(&xc->queue[prio], just_peek);
  
--	SND_SOC_DAPM_ADC("ADC", "Capture", SGTL5000_CHIP_ANA_POWER, 1, 0),
--	SND_SOC_DAPM_DAC("DAC", "Playback", SGTL5000_CHIP_ANA_POWER, 3, 0),
+ 		/* Found something ? That's it */
+-		if (irq)
+-			break;
++		if (irq) {
++			if (just_peek || irq_to_desc(irq))
++				break;
++			/*
++			 * We should never get here; if we do then we must
++			 * have failed to synchronize the interrupt properly
++			 * when shutting it down.
++			 */
++			pr_crit("xive: got interrupt %d without descriptor, dropping\n",
++				irq);
++			WARN_ON(1);
++			continue;
++		}
+ 
+ 		/* Clear pending bits */
+ 		xc->pending_prio &= ~(1 << prio);
+@@ -307,6 +318,7 @@ static void xive_do_queue_eoi(struct xive_cpu *xc)
+  */
+ static void xive_do_source_eoi(u32 hw_irq, struct xive_irq_data *xd)
+ {
++	xd->stale_p = false;
+ 	/* If the XIVE supports the new "store EOI facility, use it */
+ 	if (xd->flags & XIVE_IRQ_FLAG_STORE_EOI)
+ 		xive_esb_write(xd, XIVE_ESB_STORE_EOI, 0);
+@@ -350,7 +362,7 @@ static void xive_do_source_eoi(u32 hw_irq, struct xive_irq_data *xd)
+ 	}
+ }
+ 
+-/* irq_chip eoi callback */
++/* irq_chip eoi callback, called with irq descriptor lock held */
+ static void xive_irq_eoi(struct irq_data *d)
+ {
+ 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+@@ -366,6 +378,8 @@ static void xive_irq_eoi(struct irq_data *d)
+ 	if (!irqd_irq_disabled(d) && !irqd_is_forwarded_to_vcpu(d) &&
+ 	    !(xd->flags & XIVE_IRQ_NO_EOI))
+ 		xive_do_source_eoi(irqd_to_hwirq(d), xd);
++	else
++		xd->stale_p = true;
+ 
+ 	/*
+ 	 * Clear saved_p to indicate that it's no longer occupying
+@@ -397,11 +411,16 @@ static void xive_do_source_set_mask(struct xive_irq_data *xd,
+ 	 */
+ 	if (mask) {
+ 		val = xive_esb_read(xd, XIVE_ESB_SET_PQ_01);
+-		xd->saved_p = !!(val & XIVE_ESB_VAL_P);
+-	} else if (xd->saved_p)
++		if (!xd->stale_p && !!(val & XIVE_ESB_VAL_P))
++			xd->saved_p = true;
++		xd->stale_p = false;
++	} else if (xd->saved_p) {
+ 		xive_esb_read(xd, XIVE_ESB_SET_PQ_10);
+-	else
++		xd->saved_p = false;
++	} else {
+ 		xive_esb_read(xd, XIVE_ESB_SET_PQ_00);
++		xd->stale_p = false;
++	}
+ }
+ 
+ /*
+@@ -541,6 +560,8 @@ static unsigned int xive_irq_startup(struct irq_data *d)
+ 	unsigned int hw_irq = (unsigned int)irqd_to_hwirq(d);
+ 	int target, rc;
+ 
++	xd->saved_p = false;
++	xd->stale_p = false;
+ 	pr_devel("xive_irq_startup: irq %d [0x%x] data @%p\n",
+ 		 d->irq, hw_irq, d);
+ 
+@@ -587,6 +608,7 @@ static unsigned int xive_irq_startup(struct irq_data *d)
+ 	return 0;
+ }
+ 
++/* called with irq descriptor lock held */
+ static void xive_irq_shutdown(struct irq_data *d)
+ {
+ 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+@@ -601,16 +623,6 @@ static void xive_irq_shutdown(struct irq_data *d)
+ 	/* Mask the interrupt at the source */
+ 	xive_do_source_set_mask(xd, true);
+ 
+-	/*
+-	 * The above may have set saved_p. We clear it otherwise it
+-	 * will prevent re-enabling later on. It is ok to forget the
+-	 * fact that the interrupt might be in a queue because we are
+-	 * accounting that already in xive_dec_target_count() and will
+-	 * be re-routing it to a new queue with proper accounting when
+-	 * it's started up again
+-	 */
+-	xd->saved_p = false;
 -
--	SND_SOC_DAPM_PRE("VAG_POWER_PRE", power_vag_event),
--	SND_SOC_DAPM_POST("VAG_POWER_POST", power_vag_event),
-+	SND_SOC_DAPM_ADC_E("ADC", "Capture", SGTL5000_CHIP_ANA_POWER, 1, 0,
-+			   adc_updown_depop, SND_SOC_DAPM_PRE_POST_PMU |
-+			   SND_SOC_DAPM_PRE_POST_PMD),
-+	SND_SOC_DAPM_DAC_E("DAC", "Playback", SGTL5000_CHIP_ANA_POWER, 3, 0,
-+			   dac_updown_depop, SND_SOC_DAPM_PRE_POST_PMU |
-+			   SND_SOC_DAPM_PRE_POST_PMD),
+ 	/*
+ 	 * Mask the interrupt in HW in the IVT/EAS and set the number
+ 	 * to be the "bad" IRQ number
+@@ -797,6 +809,10 @@ static int xive_irq_retrigger(struct irq_data *d)
+ 	return 1;
+ }
+ 
++/*
++ * Caller holds the irq descriptor lock, so this won't be called
++ * concurrently with xive_get_irqchip_state on the same interrupt.
++ */
+ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ {
+ 	struct xive_irq_data *xd = irq_data_get_irq_handler_data(d);
+@@ -820,6 +836,10 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ 
+ 		/* Set it to PQ=10 state to prevent further sends */
+ 		pq = xive_esb_read(xd, XIVE_ESB_SET_PQ_10);
++		if (!xd->stale_p) {
++			xd->saved_p = !!(pq & XIVE_ESB_VAL_P);
++			xd->stale_p = !xd->saved_p;
++		}
+ 
+ 		/* No target ? nothing to do */
+ 		if (xd->target == XIVE_INVALID_TARGET) {
+@@ -827,7 +847,7 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ 			 * An untargetted interrupt should have been
+ 			 * also masked at the source
+ 			 */
+-			WARN_ON(pq & 2);
++			WARN_ON(xd->saved_p);
+ 
+ 			return 0;
+ 		}
+@@ -847,9 +867,8 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ 		 * This saved_p is cleared by the host EOI, when we know
+ 		 * for sure the queue slot is no longer in use.
+ 		 */
+-		if (pq & 2) {
+-			pq = xive_esb_read(xd, XIVE_ESB_SET_PQ_11);
+-			xd->saved_p = true;
++		if (xd->saved_p) {
++			xive_esb_read(xd, XIVE_ESB_SET_PQ_11);
+ 
+ 			/*
+ 			 * Sync the XIVE source HW to ensure the interrupt
+@@ -862,8 +881,7 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ 			 */
+ 			if (xive_ops->sync_source)
+ 				xive_ops->sync_source(hw_irq);
+-		} else
+-			xd->saved_p = false;
++		}
+ 	} else {
+ 		irqd_clr_forwarded_to_vcpu(d);
+ 
+@@ -914,6 +932,23 @@ static int xive_irq_set_vcpu_affinity(struct irq_data *d, void *state)
+ 	return 0;
+ }
+ 
++/* Called with irq descriptor lock held. */
++static int xive_get_irqchip_state(struct irq_data *data,
++				  enum irqchip_irq_state which, bool *state)
++{
++	struct xive_irq_data *xd = irq_data_get_irq_handler_data(data);
++
++	switch (which) {
++	case IRQCHIP_STATE_ACTIVE:
++		*state = !xd->stale_p &&
++			 (xd->saved_p ||
++			  !!(xive_esb_read(xd, XIVE_ESB_GET) & XIVE_ESB_VAL_P));
++		return 0;
++	default:
++		return -EINVAL;
++	}
++}
++
+ static struct irq_chip xive_irq_chip = {
+ 	.name = "XIVE-IRQ",
+ 	.irq_startup = xive_irq_startup,
+@@ -925,6 +960,7 @@ static struct irq_chip xive_irq_chip = {
+ 	.irq_set_type = xive_irq_set_type,
+ 	.irq_retrigger = xive_irq_retrigger,
+ 	.irq_set_vcpu_affinity = xive_irq_set_vcpu_affinity,
++	.irq_get_irqchip_state = xive_get_irqchip_state,
  };
  
- /* routes for sgtl5000 */
+ bool is_xive_irq(struct irq_chip *chip)
+@@ -1337,6 +1373,11 @@ static void xive_flush_cpu_queue(unsigned int cpu, struct xive_cpu *xc)
+ 		raw_spin_lock(&desc->lock);
+ 		xd = irq_desc_get_handler_data(desc);
+ 
++		/*
++		 * Clear saved_p to indicate that it's no longer pending
++		 */
++		xd->saved_p = false;
++
+ 		/*
+ 		 * For LSIs, we EOI, this will cause a resend if it's
+ 		 * still asserted. Otherwise do an MSI retrigger.
 
