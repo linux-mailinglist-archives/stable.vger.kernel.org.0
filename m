@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8647CF396
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 999E8CF39E
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 09:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730150AbfJHHUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 03:20:38 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:48699 "EHLO
+        id S1730199AbfJHHVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 03:21:15 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:35005 "EHLO
         wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730144AbfJHHUi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:20:38 -0400
+        by vger.kernel.org with ESMTP id S1730167AbfJHHVP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 03:21:15 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 2379D5D0;
-        Tue,  8 Oct 2019 03:20:37 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id ECD2031F;
+        Tue,  8 Oct 2019 03:21:13 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:20:37 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 03:21:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=wrnR0A
-        E37MWko/TJVP3MKi8SY/98/LOeMtl1pPxsPVY=; b=immymcjLjKyBJ1OyG0XWSr
-        TQZ2sFEmgukEup0mz2HpNTlEoJjIyJSSiX3ctd2ZZfNeXwrrgSOyq8y/WSPzRr+p
-        n919Uy89kox8LXKTyb69kOEpt78q7vo2sOHpl94m6y1jV40kHRcb2VG+esINfgYC
-        cYV4m10Ybln1BtrTuPVaZ/tvGRIx9mSZ/GyaNpvsA+hdI3313H+gOTaRSIU90X/M
-        hIpby67TwWyuX4wumWcwWc03EXZA0VwD0VG/2CCsqSxjzf2pM6KS4p9wnkFKljKo
-        mEj4jWzEI39Z+eHCT7CYf6WrXumQ52yOyicN02ZZobqFUohMeTBx4wi6jLEOzaWw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NZEOtG
+        IpkZydIqrt3VjjIuLak+6B9AchMcHTmFrehF0=; b=dsTMIC6xm/a0ACSnwJ9XH9
+        zqg86q63fS56Oj0XywNttVFyW15GpiiIqeqr/RNyQsLmGO9ZSMuji7afleHZ1FzF
+        Asmb9rq0sddRl2lsIA+uRK6CK9hWqALfukqxnmAiPbXeM4072hht4qUP2oI7Uc9P
+        ONWR/1lXWmsQFMuz0idkb+cun2C8rwN58Ycv/2zJh5YZL4c/si907FjzrcgLzUZY
+        cjLwe219KZ1sHffv/YBiaeaFT1kfNPudWXtF6DO1exY71dPi53iVp9YcrKUV1bjo
+        s0MMq+9hAK5Nra2oWG/InViCho3f3ajC5djmN588kB7tZraKQx5HBq7tkEFKYICg
         ==
-X-ME-Sender: <xms:xDicXa-kdCapQMLIfZEWra0msqV9fhdscJoZtEQJEQziNiJHIC252w>
+X-ME-Sender: <xms:6TicXS-CxIZ_qvi6eZ1egEiDY7zsoH9xoGhscqX7QJT-49sxWL8Ehw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheekgdduudeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehrmhhhrghnughlvghrshdrshgspdhkvghrnhgvlhdrohhrgh
-    enucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehg
-    rhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:xDicXTAPtn4DBgNKurEqpocFAN-InI3J_WxwcAIVi7-Q8zvPdm0jOA>
-    <xmx:xDicXaAe0KjhN3Jd-58ZZ53BpP-YZN0i7Obm6KXC99GfcEI-ShTbpg>
-    <xmx:xDicXQS0CPFLfUSkWyaWph5AEovqaQe0EzxRfXumdUMHBfuOemmmwg>
-    <xmx:xDicXRcc08QhJYubmixpvimRicLK2thoKjRsdOmqDzpQS5KmDYRfuw>
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:6TicXd7l9IMdEilAMTpVZj8q4-1H8pDi1QvdfhNYhxMLYGDFWinsYw>
+    <xmx:6TicXb3Rq97Aa2JNSgNGJ9WxGFyym2TPq9_FpY2Ecw8gSOICZO3Hpg>
+    <xmx:6TicXUwhgUxDGvkVqmRlVPpDxF_Mu0uWJccm06yEqnNCeM5Wb0HMNw>
+    <xmx:6TicXZ16ehRToyBeWpBz2ZzAzHR3Fs4vPb_lSpR_-tFJ1XEU8yUM0Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 28A90D6005F;
-        Tue,  8 Oct 2019 03:20:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S HV: Don't push XIVE context when not using" failed to apply to 4.14-stable tree
-To:     paulus@ozlabs.org, clg@kaod.org, mpe@ellerman.id.au
+        by mail.messagingengine.com (Postfix) with ESMTPA id 37366D6005A;
+        Tue,  8 Oct 2019 03:21:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S HV: Check for MMU ready on piggybacked" failed to apply to 4.14-stable tree
+To:     paulus@ozlabs.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 09:20:35 +0200
-Message-ID: <15705192352691@kroah.com>
+Date:   Tue, 08 Oct 2019 09:21:11 +0200
+Message-ID: <1570519271221165@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -68,89 +67,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8d4ba9c931bc384bcc6889a43915aaaf19d3e499 Mon Sep 17 00:00:00 2001
+From d28eafc5a64045c78136162af9d4ba42f8230080 Mon Sep 17 00:00:00 2001
 From: Paul Mackerras <paulus@ozlabs.org>
-Date: Tue, 13 Aug 2019 20:01:00 +1000
-Subject: [PATCH] KVM: PPC: Book3S HV: Don't push XIVE context when not using
- XIVE device
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date: Tue, 27 Aug 2019 11:31:37 +1000
+Subject: [PATCH] KVM: PPC: Book3S HV: Check for MMU ready on piggybacked
+ virtual cores
 
-At present, when running a guest on POWER9 using HV KVM but not using
-an in-kernel interrupt controller (XICS or XIVE), for example if QEMU
-is run with the kernel_irqchip=off option, the guest entry code goes
-ahead and tries to load the guest context into the XIVE hardware, even
-though no context has been set up.
+When we are running multiple vcores on the same physical core, they
+could be from different VMs and so it is possible that one of the
+VMs could have its arch.mmu_ready flag cleared (for example by a
+concurrent HPT resize) when we go to run it on a physical core.
+We currently check the arch.mmu_ready flag for the primary vcore
+but not the flags for the other vcores that will be run alongside
+it.  This adds that check, and also a check when we select the
+secondary vcores from the preempted vcores list.
 
-To fix this, we check that the "CAM word" is non-zero before pushing
-it to the hardware.  The CAM word is initialized to a non-zero value
-in kvmppc_xive_connect_vcpu() and kvmppc_xive_native_connect_vcpu(),
-and is now cleared in kvmppc_xive_{,native_}cleanup_vcpu.
-
-Fixes: 5af50993850a ("KVM: PPC: Book3S HV: Native usage of the XIVE interrupt controller")
-Cc: stable@vger.kernel.org # v4.12+
-Reported-by: Cédric Le Goater <clg@kaod.org>
+Cc: stable@vger.kernel.org # v4.14+
+Fixes: 38c53af85306 ("KVM: PPC: Book3S HV: Fix exclusion between HPT resizing and other HPT updates")
 Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190813100100.GC9567@blackberry
 
-diff --git a/arch/powerpc/kvm/book3s_hv_rmhandlers.S b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-index 2e7e788eb0cf..07181d0dfcb7 100644
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -942,6 +942,8 @@ ALT_FTR_SECTION_END_IFCLR(CPU_FTR_ARCH_300)
- 	ld	r11, VCPU_XIVE_SAVED_STATE(r4)
- 	li	r9, TM_QW1_OS
- 	lwz	r8, VCPU_XIVE_CAM_WORD(r4)
-+	cmpwi	r8, 0
-+	beq	no_xive
- 	li	r7, TM_QW1_OS + TM_WORD2
- 	mfmsr	r0
- 	andi.	r0, r0, MSR_DR		/* in real mode? */
-diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
-index 09f838aa3138..586867e46e51 100644
---- a/arch/powerpc/kvm/book3s_xive.c
-+++ b/arch/powerpc/kvm/book3s_xive.c
-@@ -67,8 +67,14 @@ void kvmppc_xive_push_vcpu(struct kvm_vcpu *vcpu)
- 	void __iomem *tima = local_paca->kvm_hstate.xive_tima_virt;
- 	u64 pq;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index cde3f5a4b3e4..36d72e9faddf 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2860,7 +2860,7 @@ static void collect_piggybacks(struct core_info *cip, int target_threads)
+ 		if (!spin_trylock(&pvc->lock))
+ 			continue;
+ 		prepare_threads(pvc);
+-		if (!pvc->n_runnable) {
++		if (!pvc->n_runnable || !pvc->kvm->arch.mmu_ready) {
+ 			list_del_init(&pvc->preempt_list);
+ 			if (pvc->runner == NULL) {
+ 				pvc->vcore_state = VCORE_INACTIVE;
+@@ -2881,15 +2881,20 @@ static void collect_piggybacks(struct core_info *cip, int target_threads)
+ 	spin_unlock(&lp->lock);
+ }
  
--	if (!tima)
-+	/*
-+	 * Nothing to do if the platform doesn't have a XIVE
-+	 * or this vCPU doesn't have its own XIVE context
-+	 * (e.g. because it's not using an in-kernel interrupt controller).
-+	 */
-+	if (!tima || !vcpu->arch.xive_cam_word)
- 		return;
-+
- 	eieio();
- 	__raw_writeq(vcpu->arch.xive_saved_state.w01, tima + TM_QW1_OS);
- 	__raw_writel(vcpu->arch.xive_cam_word, tima + TM_QW1_OS + TM_WORD2);
-@@ -1146,6 +1152,9 @@ void kvmppc_xive_cleanup_vcpu(struct kvm_vcpu *vcpu)
- 	/* Disable the VP */
- 	xive_native_disable_vp(xc->vp_id);
+-static bool recheck_signals(struct core_info *cip)
++static bool recheck_signals_and_mmu(struct core_info *cip)
+ {
+ 	int sub, i;
+ 	struct kvm_vcpu *vcpu;
++	struct kvmppc_vcore *vc;
  
-+	/* Clear the cam word so guest entry won't try to push context */
-+	vcpu->arch.xive_cam_word = 0;
-+
- 	/* Free the queues */
- 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
- 		struct xive_q *q = &xc->queues[i];
-diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
-index 368427fcad20..11b91b46fc39 100644
---- a/arch/powerpc/kvm/book3s_xive_native.c
-+++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -81,6 +81,9 @@ void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu)
- 	/* Disable the VP */
- 	xive_native_disable_vp(xc->vp_id);
+-	for (sub = 0; sub < cip->n_subcores; ++sub)
+-		for_each_runnable_thread(i, vcpu, cip->vc[sub])
++	for (sub = 0; sub < cip->n_subcores; ++sub) {
++		vc = cip->vc[sub];
++		if (!vc->kvm->arch.mmu_ready)
++			return true;
++		for_each_runnable_thread(i, vcpu, vc)
+ 			if (signal_pending(vcpu->arch.run_task))
+ 				return true;
++	}
+ 	return false;
+ }
  
-+	/* Clear the cam word so guest entry won't try to push context */
-+	vcpu->arch.xive_cam_word = 0;
-+
- 	/* Free the queues */
- 	for (i = 0; i < KVMPPC_XIVE_Q_COUNT; i++) {
- 		kvmppc_xive_native_cleanup_queue(vcpu, i);
+@@ -3119,7 +3124,7 @@ static noinline void kvmppc_run_core(struct kvmppc_vcore *vc)
+ 	local_irq_disable();
+ 	hard_irq_disable();
+ 	if (lazy_irq_pending() || need_resched() ||
+-	    recheck_signals(&core_info) || !vc->kvm->arch.mmu_ready) {
++	    recheck_signals_and_mmu(&core_info)) {
+ 		local_irq_enable();
+ 		vc->vcore_state = VCORE_INACTIVE;
+ 		/* Unlock all except the primary vcore */
 
