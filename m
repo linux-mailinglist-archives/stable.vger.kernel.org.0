@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCB29CF63E
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 11:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 483E2CF661
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 11:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729928AbfJHJlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 05:41:25 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:35673 "EHLO
+        id S1729790AbfJHJp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 05:45:57 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:35805 "EHLO
         atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729790AbfJHJlY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 05:41:24 -0400
+        with ESMTP id S1728866AbfJHJp5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 05:45:57 -0400
 Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 2EE0C803E2; Tue,  8 Oct 2019 11:41:07 +0200 (CEST)
-Date:   Tue, 8 Oct 2019 11:41:21 +0200
+        id E468C803E2; Tue,  8 Oct 2019 11:45:39 +0200 (CEST)
+Date:   Tue, 8 Oct 2019 11:45:54 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vadim Sukhomlinov <sukhomlinov@google.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Joel Savitz <jsavitz@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 002/106] tpm: Fix TPM 1.2 Shutdown sequence to
- prevent future TPM operations
-Message-ID: <20191008094121.GA608@amd>
+Subject: Re: [PATCH 4.19 011/106] PCI: rpaphp: Avoid a
+ sometimes-uninitialized warning
+Message-ID: <20191008094554.GB608@amd>
 References: <20191006171124.641144086@linuxfoundation.org>
- <20191006171126.123065744@linuxfoundation.org>
+ <20191006171129.951697403@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="0F1p//8PRICkK4MW"
+        protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
 Content-Disposition: inline
-In-Reply-To: <20191006171126.123065744@linuxfoundation.org>
+In-Reply-To: <20191006171129.951697403@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -38,63 +40,88 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---0F1p//8PRICkK4MW
+--qlTNgmc+xy1dBmNv
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Vadim Sukhomlinov <sukhomlinov@google.com>
+> From: Nathan Chancellor <natechancellor@gmail.com>
 >=20
-> commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+> [ Upstream commit 0df3e42167caaf9f8c7b64de3da40a459979afe8 ]
 >=20
-> TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
-> future TPM operations. TPM 1.2 behavior was different, future TPM
-> operations weren't disabled, causing rare issues. This patch ensures
-> that future TPM operations are disabled.
+> When building with -Wsometimes-uninitialized, clang warns:
+>=20
+> drivers/pci/hotplug/rpaphp_core.c:243:14: warning: variable 'fndit' is
+> used uninitialized whenever 'for' loop exits because its condition is
+> false [-Wsometimes-uninitialized]
+>         for (j =3D 0; j < entries; j++) {
+>                     ^~~~~~~~~~~
 =2E..
+> fndit is only used to gate a sprintf call, which can be moved into the
+> loop to simplify the code and eliminate the local variable, which will
+> fix this warning.
 
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -187,12 +187,13 @@ static int tpm_class_shutdown(struct device *dev)
->  {
->  	struct tpm_chip *chip =3D container_of(dev, struct tpm_chip, dev);
+Well, you fixed the warning, but the code is still buggy:
+
+> +++ b/drivers/pci/hotplug/rpaphp_core.c
+> @@ -230,7 +230,7 @@ static int rpaphp_check_drc_props_v2(struct device_no=
+de *dn, char *drc_name,
+>  	struct of_drc_info drc;
+>  	const __be32 *value;
+>  	char cell_drc_name[MAX_DRC_NAME_LEN];
+> -	int j, fndit;
+> +	int j;
 > =20
-> +	down_write(&chip->ops_sem);
->  	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
-> -		down_write(&chip->ops_sem);
->  		tpm2_shutdown(chip, TPM2_SU_CLEAR);
->  		chip->ops =3D NULL;
-> -		up_write(&chip->ops_sem);
+>  	info =3D of_find_property(dn->parent, "ibm,drc-info", NULL);
+>  	if (info =3D=3D NULL)
+> @@ -245,17 +245,13 @@ static int rpaphp_check_drc_props_v2(struct device_=
+node *dn, char *drc_name,
+> =20
+>  		/* Should now know end of current entry */
+> =20
+> -		if (my_index > drc.last_drc_index)
+> -			continue;
+> -
+> -		fndit =3D 1;
+> -		break;
+> +		/* Found it */
+> +		if (my_index <=3D drc.last_drc_index) {
+> +			sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,
+> +				my_index);
+> +			break;
+> +		}
 >  	}
-> +	chip->ops =3D NULL;
-> +	up_write(&chip->ops_sem);
+> -	/* Found it */
+> -
+> -	if (fndit)
+> -		sprintf(cell_drc_name, "%s%d", drc.drc_name_prefix,=20
+> -			my_index);
 > =20
->  	return 0;
->  }
+>  	if (((drc_name =3D=3D NULL) ||
+>  	     (drc_name && !strcmp(drc_name, cell_drc_name))) &&
 
-Still can be improved -- chip->ops =3D NULL; is done twice, copy inside
-the if {} is redundant...
+In case we do not find it, cell_drc_name is not initialized, yet we
+use it in strcmp(). Same bug exists in the mainline.
 
 Best regards,
 									Pavel
-
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---0F1p//8PRICkK4MW
+--qlTNgmc+xy1dBmNv
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAl2cWcEACgkQMOfwapXb+vLbYgCffR+Ik90cUuBHAYxxqbhhX8S4
-ir0An1MyxGfX0btyAtBfH9oInfWUUBFA
-=XvM4
+iEYEARECAAYFAl2cWtIACgkQMOfwapXb+vLErgCfcqCv/v2ppCMwY/lzYyPR6qMH
+ONkAni6v57Wf59ytP1Kv6o7X9zW8nf7Y
+=3Dox
 -----END PGP SIGNATURE-----
 
---0F1p//8PRICkK4MW--
+--qlTNgmc+xy1dBmNv--
