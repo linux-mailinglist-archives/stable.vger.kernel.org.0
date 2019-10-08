@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D46CFFBA
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E0FFCFFBB
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:21:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727876AbfJHRV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 13:21:56 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56029 "EHLO
+        id S1727920AbfJHRV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 13:21:57 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39659 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727920AbfJHRV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:21:56 -0400
+        by vger.kernel.org with ESMTP id S1725900AbfJHRV5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:21:57 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E2E1A21F41;
-        Tue,  8 Oct 2019 13:21:54 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:21:54 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id A456F21C46;
+        Tue,  8 Oct 2019 13:21:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:21:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=BBrQDi
-        oTOT5pTiu++eJODHC4yfczkRNXeyfnF37/o/E=; b=lDlKDwXbU2/s15aXFWUJaE
-        QKR1mEaB0UWFA5yRqdf5MV0qaTICjXHO+G3K3+YM+K8j7QWehXPqcmp1ewo2J+SS
-        ZqEkaYe1IoPAmHiijv8pDBpsmlHsJmjDLu5+59sa94mLjqRRueXbS4nJ1urEHT3P
-        ketOOJSLlMb0FEXlAwj8Xqn8yUfym4y6KAIHEANB3Z9xgz5WI7g73IqGV0bjnw64
-        3iZ+aP4/vZ0kQ8iMcWM/8nz397sykHT+Fl4FXIGxjzv1xvM8H9t9+5ItKSCmojoc
-        C1a6TB/VHaCx10hAm9sgCRD++9qwXC6MyU1DF4jpmk3CdqsUTlLsd85ww6dkujQw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=FdK2NX
+        n7CtxBCRub6ZjQAmfnmPOSq1HIDnSDELO+vPk=; b=ftPBQeIydqvfQ1hFbn94SO
+        B1949gu5Mrny6QobZ76Xcj045xFhpafecCwoD5C/VH6JBJXcgA024IKygRlUltO+
+        Q5MOzkJOzdGuIvhAdgk1S5Vva5w7X2atsicc7zUxOm1ORPOvCT56dcuDkT4jyAjA
+        1jx86XMsZOORzh7b1wRzclBAYJYZh5yUfkzL5BHVdC4bFHdwVAoYzhHzZA1TlHWz
+        ai708Pzci79cPEkAI0HwwjjRcdDECa5NcYH+F369u4m6RIkiv9rc3cD+X13u80YR
+        KDrl1O7yL0/wWkYLRYHFrOjLYP9woc0ieEhbQzKwKjaoUtRSHQVF6SKsNkqCDjOQ
         ==
-X-ME-Sender: <xms:ssWcXY2KTrEnZesP8BFrhoV4UrDKuPHaDmhpiuFfU0LUb9X7AydofA>
+X-ME-Sender: <xms:tMWcXZJqdg0U6DFootoUG24hy7rqn4kwPPXXFmYReVsJQe84XI9lig>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpeek
-X-ME-Proxy: <xmx:ssWcXUYFMKvBmNoXwQ2txHiwewhbI56Eo3glN7tl4rXa5spzhqW8GA>
-    <xmx:ssWcXTVq4WasOUQJeucVncnGNh56_sdOyCaYAgPnpath697_H-XUOw>
-    <xmx:ssWcXXcW_3ofXRwHYIj0crpKbl6p-8ioIQpaXAiJtYqzZADYxyM2Lw>
-    <xmx:ssWcXXTjns_RRW1IAyKjvDUR7Zr3_b36fBWdf-GujgCjbt-CROeMyw>
+    ucevlhhushhtvghrufhiiigvpedutd
+X-ME-Proxy: <xmx:tMWcXc9HExiSL7HAUxr7tflmSBvi85RZ9AsfsnVvbC8NsVjc70RZlQ>
+    <xmx:tMWcXdEl0rGqK_y18IKVZcXOuBbaSiO5HF0VTM7_id7RR99gYbtEvw>
+    <xmx:tMWcXUM45Mn0TIlKkWXAvEUKQzyn14EdDTII0fGwCRU7vpkyrBQUPw>
+    <xmx:tMWcXePspmpNUenqnBlDsZ_QByaFs699z0mnG-6SQPrBcw10nIwfrQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 751858005A;
-        Tue,  8 Oct 2019 13:21:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] perf stat: Reset previous counts on repeat with interval" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 41CACD60057;
+        Tue,  8 Oct 2019 13:21:56 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] perf stat: Reset previous counts on repeat with interval" failed to apply to 4.4-stable tree
 To:     srikar@linux.vnet.ibm.com, acme@redhat.com, eranian@google.com,
         jolsa@kernel.org, namhyung@kernel.org,
         naveen.n.rao@linux.vnet.ibm.com, ravi.bangoria@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 19:21:47 +0200
-Message-ID: <1570555307188229@kroah.com>
+Date:   Tue, 08 Oct 2019 19:21:48 +0200
+Message-ID: <157055530848253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
