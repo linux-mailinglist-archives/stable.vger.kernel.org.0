@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87347CFDD0
+	by mail.lfdr.de (Postfix) with ESMTP id F07E3CFDD1
 	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 17:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbfJHPkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 11:40:12 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:38411 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726057AbfJHPkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 11:40:12 -0400
-Received: by mail-wr1-f66.google.com with SMTP id w12so19987870wro.5
-        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 08:40:10 -0700 (PDT)
+        id S1725908AbfJHPkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 11:40:14 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:36550 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725966AbfJHPkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 11:40:14 -0400
+Received: by mail-wm1-f65.google.com with SMTP id m18so3632917wmc.1
+        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 08:40:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=j2vH7NxScJDJcgais+WV+dY6yPF0+trUdQf6sN03YYQ=;
-        b=akoxP6v69U5JfF0hRfeGvOgkbYBnvBnftCVcuLFKkqbcShNQh3iuI2xHPyxEFI/4dh
-         hVLOvqh+6QQmFbxJt/xejTD0xZJL2GWkjSob7waLjyJM3tY2DKAlknToUy6kQx/O7sNq
-         0wis12WTbE/cWUw0feNsYsVYFn+n5pjD9oVS+F7a668Snl5xD2VrV7u86Z6+uScS58S5
-         cw214xAEnWTsvdeVaPwtoRrCZw5GBzOELBSVN1U6jEOyK0hZqPpJZkQk0yFerouRQ008
-         RMhbE4UKPqP8RXPjoMn7mO1nfo0Wdodsd+NwRY32Uf88u2hn3ZfDlgTDU7cQwohDfmXB
-         pnmg==
+        bh=vlkvgAe6OU2SyP/lheTB8VxvmIpD5b5cXJef0MiMX6o=;
+        b=zpvFE5a2NFSDbMYsqOpKPMN35GbqVUTCAraS8sL5Uq/qf0d0Qt4mupK+Hy8Yrh1qAK
+         +V+9nWWbSsGn2fFn5rizGP86Uryprd1JO0lrwYTW/M3/V4uUx5NkjSqxJLXzp6y9PpdR
+         m/2G5hNtKlmR52nJ4fu80wISO15saJ4Zf9GrYhgXvZJ3Fhnbwjzzj3fgEUn7+QC2RJrE
+         bFsM9QFX6qVqOduiL1fphIisJEgmB02S74Z3GtEdSBO3UFoAcIeEy2gAYNHG3+lT5UZf
+         WMI6hEZkYeFscgMPCjOsE02XtWT7CEgyHvXwfOPGlvBwElDQF6zWXXpYtBOf5sjsSt3x
+         Ceug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=j2vH7NxScJDJcgais+WV+dY6yPF0+trUdQf6sN03YYQ=;
-        b=fVDfYVJg25UVxO4g2RgiWFimPwxQaWO/w65y0jIjNszVSIRGltLiL/j0mNErmoXfnw
-         zpF0B1rXcayMsefNf/8TDnSJNnwudfEpxelFqVOq6PHVQd9Ojw4wC5fi87dTrllUwroe
-         4Eu0p5azEP/NyJFI+rFK60R1oRiUkaWwhHRoeetMiMTDYR52Ut0tigbK6ns+GFi1wgD+
-         5L5926SLzkEGoliKIn3sqSSG659MVeZaWNqzByM6LvuTDAAGjphfnnHRJSwRZnfSoRUh
-         S+KZZcNTocxSeRy4wbxGWeSGSGrVeLvfuK0KwphopjFKhCmB3XrfOFil6JL/tEy3U1la
-         YZYQ==
-X-Gm-Message-State: APjAAAXEZDkEQO2NfKYqCYi+qN8aP1lLKfY07zXcPb9i26IXmkWIVcWc
-        JuXI3c3CERx/trqr2WVO8e5iPg==
-X-Google-Smtp-Source: APXvYqxr8mQo1nqgLTQoZQXQJ+PtO4Jau0pdD6NE7rShoudolIFdwxyvgnj4tfmDIqzjxeMDVBq6sw==
-X-Received: by 2002:adf:f104:: with SMTP id r4mr7815003wro.128.1570549209430;
-        Tue, 08 Oct 2019 08:40:09 -0700 (PDT)
+        bh=vlkvgAe6OU2SyP/lheTB8VxvmIpD5b5cXJef0MiMX6o=;
+        b=YwcJKgAbSBaauWw5D+LjdGNiWzw+Q7iEPeX09IJAUIsVQT1ofc0tkOawFWECVDrClR
+         vuu5ih5OSn+wzWn5wT/4TUhkwnDjbPH0ylbVoRwW8N2aYan9kArQUWcUc/7B/VFw2wmq
+         vHK9PuhQ19e6+pZxh8dxSSIy9fbMFPvDdjFNv4HTBceb5vrVDveX7JcYmMelzboEarDA
+         W0Mw85Q0/xvlLUjKiv9bcDw+lPxZ1p0ybtSziwfdcnq8j47gCYe6NqH0LaGCu/TaIimJ
+         LYiNsqYY4NpfOUjucwW1z0l99AopFV0FLlFYFHLDfDZ2mQWKJixH7FJrrI4x40E0mP0O
+         ypvQ==
+X-Gm-Message-State: APjAAAX6CL4AFL/HgPz92+LABQnTnp6JcT9xi8NRWIj3S5nEEcjKzbA/
+        G+PivNmgTjK5FhnXaPHFRso0Tw==
+X-Google-Smtp-Source: APXvYqyIoYw3dXgCYkz1oYvIgDKmr3yn197OFUAZ4mMzUH1q8m3V/O2x+PVHgPpnYc6oF7fdlMnDEA==
+X-Received: by 2002:a1c:7902:: with SMTP id l2mr4278694wme.55.1570549210703;
+        Tue, 08 Oct 2019 08:40:10 -0700 (PDT)
 Received: from localhost.localdomain (laubervilliers-657-1-83-120.w92-154.abo.wanadoo.fr. [92.154.90.120])
-        by smtp.gmail.com with ESMTPSA id x16sm16784723wrl.32.2019.10.08.08.40.08
+        by smtp.gmail.com with ESMTPSA id x16sm16784723wrl.32.2019.10.08.08.40.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Oct 2019 08:40:08 -0700 (PDT)
+        Tue, 08 Oct 2019 08:40:09 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org
 Cc:     stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Catalin Marinas <catalin.marinas@arm.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH for-stable-v4.19 01/16] arm64: cpufeature: Detect SSBS and advertise to userspace
-Date:   Tue,  8 Oct 2019 17:39:15 +0200
-Message-Id: <20191008153930.15386-2-ard.biesheuvel@linaro.org>
+Subject: [PATCH for-stable-v4.19 02/16] arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3
+Date:   Tue,  8 Oct 2019 17:39:16 +0200
+Message-Id: <20191008153930.15386-3-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191008153930.15386-1-ard.biesheuvel@linaro.org>
 References: <20191008153930.15386-1-ard.biesheuvel@linaro.org>
@@ -65,187 +64,308 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit d71be2b6c0e19180b5f80a6d42039cc074a693a2 ]
+[ Upstream commit 8f04e8e6e29c93421a95b61cad62e3918425eac7 ]
 
-Armv8.5 introduces a new PSTATE bit known as Speculative Store Bypass
-Safe (SSBS) which can be used as a mitigation against Spectre variant 4.
+On CPUs with support for PSTATE.SSBS, the kernel can toggle the SSBD
+state without needing to call into firmware.
 
-Additionally, a CPU may provide instructions to manipulate PSTATE.SSBS
-directly, so that userspace can toggle the SSBS control without trapping
-to the kernel.
+This patch hooks into the existing SSBD infrastructure so that SSBS is
+used on CPUs that support it, but it's all made horribly complicated by
+the very real possibility of big/little systems that don't uniformly
+provide the new capability.
 
-This patch probes for the existence of SSBS and advertise the new instructions
-to userspace if they exist.
-
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm64/include/asm/cpucaps.h    |  3 ++-
- arch/arm64/include/asm/sysreg.h     | 16 ++++++++++++----
- arch/arm64/include/uapi/asm/hwcap.h |  1 +
- arch/arm64/kernel/cpufeature.c      | 19 +++++++++++++++++--
- arch/arm64/kernel/cpuinfo.c         |  1 +
- 5 files changed, 33 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/processor.h   |  7 +++
+ arch/arm64/include/asm/ptrace.h      |  1 +
+ arch/arm64/include/asm/sysreg.h      |  3 ++
+ arch/arm64/include/uapi/asm/ptrace.h |  1 +
+ arch/arm64/kernel/cpu_errata.c       | 26 ++++++++++-
+ arch/arm64/kernel/cpufeature.c       | 45 ++++++++++++++++++++
+ arch/arm64/kernel/process.c          |  4 ++
+ arch/arm64/kernel/ssbd.c             | 21 +++++++++
+ 8 files changed, 106 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
-index 25ce9056cf64..c3de0bbf0e9a 100644
---- a/arch/arm64/include/asm/cpucaps.h
-+++ b/arch/arm64/include/asm/cpucaps.h
-@@ -52,7 +52,8 @@
- #define ARM64_MISMATCHED_CACHE_TYPE		31
- #define ARM64_HAS_STAGE2_FWB			32
- #define ARM64_WORKAROUND_1463225		33
-+#define ARM64_SSBS				34
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index def5a5e807f0..ad208bd402f7 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -182,6 +182,10 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
+ {
+ 	start_thread_common(regs, pc);
+ 	regs->pstate = PSR_MODE_EL0t;
++
++	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
++		regs->pstate |= PSR_SSBS_BIT;
++
+ 	regs->sp = sp;
+ }
  
--#define ARM64_NCAPS				34
-+#define ARM64_NCAPS				35
+@@ -198,6 +202,9 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
+ 	regs->pstate |= PSR_AA32_E_BIT;
+ #endif
  
- #endif /* __ASM_CPUCAPS_H */
++	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
++		regs->pstate |= PSR_AA32_SSBS_BIT;
++
+ 	regs->compat_sp = sp;
+ }
+ #endif
+diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
+index 177b851ca6d9..6bc43889d11e 100644
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -50,6 +50,7 @@
+ #define PSR_AA32_I_BIT		0x00000080
+ #define PSR_AA32_A_BIT		0x00000100
+ #define PSR_AA32_E_BIT		0x00000200
++#define PSR_AA32_SSBS_BIT	0x00800000
+ #define PSR_AA32_DIT_BIT	0x01000000
+ #define PSR_AA32_Q_BIT		0x08000000
+ #define PSR_AA32_V_BIT		0x10000000
 diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index c1470931b897..2fc6242baf11 100644
+index 2fc6242baf11..3091ae5975a3 100644
 --- a/arch/arm64/include/asm/sysreg.h
 +++ b/arch/arm64/include/asm/sysreg.h
-@@ -419,6 +419,7 @@
- #define SYS_ICH_LR15_EL2		__SYS__LR8_EL2(7)
+@@ -86,11 +86,14 @@
  
- /* Common SCTLR_ELx flags. */
-+#define SCTLR_ELx_DSSBS	(1UL << 44)
- #define SCTLR_ELx_EE    (1 << 25)
- #define SCTLR_ELx_IESB	(1 << 21)
- #define SCTLR_ELx_WXN	(1 << 19)
-@@ -439,7 +440,7 @@
- 			 (1 << 10) | (1 << 13) | (1 << 14) | (1 << 15) | \
- 			 (1 << 17) | (1 << 20) | (1 << 24) | (1 << 26) | \
- 			 (1 << 27) | (1 << 30) | (1 << 31) | \
--			 (0xffffffffUL << 32))
-+			 (0xffffefffUL << 32))
+ #define REG_PSTATE_PAN_IMM		sys_reg(0, 0, 4, 0, 4)
+ #define REG_PSTATE_UAO_IMM		sys_reg(0, 0, 4, 0, 3)
++#define REG_PSTATE_SSBS_IMM		sys_reg(0, 3, 4, 0, 1)
  
- #ifdef CONFIG_CPU_BIG_ENDIAN
- #define ENDIAN_SET_EL2		SCTLR_ELx_EE
-@@ -453,7 +454,7 @@
- #define SCTLR_EL2_SET	(SCTLR_ELx_IESB   | ENDIAN_SET_EL2   | SCTLR_EL2_RES1)
- #define SCTLR_EL2_CLEAR	(SCTLR_ELx_M      | SCTLR_ELx_A    | SCTLR_ELx_C   | \
- 			 SCTLR_ELx_SA     | SCTLR_ELx_I    | SCTLR_ELx_WXN | \
--			 ENDIAN_CLEAR_EL2 | SCTLR_EL2_RES0)
-+			 SCTLR_ELx_DSSBS | ENDIAN_CLEAR_EL2 | SCTLR_EL2_RES0)
+ #define SET_PSTATE_PAN(x) __emit_inst(0xd5000000 | REG_PSTATE_PAN_IMM |	\
+ 				      (!!x)<<8 | 0x1f)
+ #define SET_PSTATE_UAO(x) __emit_inst(0xd5000000 | REG_PSTATE_UAO_IMM |	\
+ 				      (!!x)<<8 | 0x1f)
++#define SET_PSTATE_SSBS(x) __emit_inst(0xd5000000 | REG_PSTATE_SSBS_IMM | \
++				       (!!x)<<8 | 0x1f)
  
- #if (SCTLR_EL2_SET ^ SCTLR_EL2_CLEAR) != 0xffffffffffffffff
- #error "Inconsistent SCTLR_EL2 set/clear bits"
-@@ -477,7 +478,7 @@
- 			 (1 << 29))
- #define SCTLR_EL1_RES0  ((1 << 6)  | (1 << 10) | (1 << 13) | (1 << 17) | \
- 			 (1 << 27) | (1 << 30) | (1 << 31) | \
--			 (0xffffffffUL << 32))
-+			 (0xffffefffUL << 32))
+ #define SYS_DC_ISW			sys_insn(1, 0, 7, 6, 2)
+ #define SYS_DC_CSW			sys_insn(1, 0, 7, 10, 2)
+diff --git a/arch/arm64/include/uapi/asm/ptrace.h b/arch/arm64/include/uapi/asm/ptrace.h
+index 5dff8eccd17d..b0fd1d300154 100644
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -46,6 +46,7 @@
+ #define PSR_I_BIT	0x00000080
+ #define PSR_A_BIT	0x00000100
+ #define PSR_D_BIT	0x00000200
++#define PSR_SSBS_BIT	0x00001000
+ #define PSR_PAN_BIT	0x00400000
+ #define PSR_UAO_BIT	0x00800000
+ #define PSR_V_BIT	0x10000000
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index dc6c535cbd13..7fe3a60d1086 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -312,6 +312,14 @@ void __init arm64_enable_wa2_handling(struct alt_instr *alt,
  
- #ifdef CONFIG_CPU_BIG_ENDIAN
- #define ENDIAN_SET_EL1		(SCTLR_EL1_E0E | SCTLR_ELx_EE)
-@@ -494,7 +495,7 @@
- 			 ENDIAN_SET_EL1 | SCTLR_EL1_UCI  | SCTLR_EL1_RES1)
- #define SCTLR_EL1_CLEAR	(SCTLR_ELx_A   | SCTLR_EL1_CP15BEN | SCTLR_EL1_ITD    |\
- 			 SCTLR_EL1_UMA | SCTLR_ELx_WXN     | ENDIAN_CLEAR_EL1 |\
--			 SCTLR_EL1_RES0)
-+			 SCTLR_ELx_DSSBS | SCTLR_EL1_RES0)
- 
- #if (SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != 0xffffffffffffffff
- #error "Inconsistent SCTLR_EL1 set/clear bits"
-@@ -544,6 +545,13 @@
- #define ID_AA64PFR0_EL0_64BIT_ONLY	0x1
- #define ID_AA64PFR0_EL0_32BIT_64BIT	0x2
- 
-+/* id_aa64pfr1 */
-+#define ID_AA64PFR1_SSBS_SHIFT		4
+ void arm64_set_ssbd_mitigation(bool state)
+ {
++	if (this_cpu_has_cap(ARM64_SSBS)) {
++		if (state)
++			asm volatile(SET_PSTATE_SSBS(0));
++		else
++			asm volatile(SET_PSTATE_SSBS(1));
++		return;
++	}
 +
-+#define ID_AA64PFR1_SSBS_PSTATE_NI	0
-+#define ID_AA64PFR1_SSBS_PSTATE_ONLY	1
-+#define ID_AA64PFR1_SSBS_PSTATE_INSNS	2
-+
- /* id_aa64mmfr0 */
- #define ID_AA64MMFR0_TGRAN4_SHIFT	28
- #define ID_AA64MMFR0_TGRAN64_SHIFT	24
-diff --git a/arch/arm64/include/uapi/asm/hwcap.h b/arch/arm64/include/uapi/asm/hwcap.h
-index 17c65c8f33cb..2bcd6e4f3474 100644
---- a/arch/arm64/include/uapi/asm/hwcap.h
-+++ b/arch/arm64/include/uapi/asm/hwcap.h
-@@ -48,5 +48,6 @@
- #define HWCAP_USCAT		(1 << 25)
- #define HWCAP_ILRCPC		(1 << 26)
- #define HWCAP_FLAGM		(1 << 27)
-+#define HWCAP_SSBS		(1 << 28)
+ 	switch (psci_ops.conduit) {
+ 	case PSCI_CONDUIT_HVC:
+ 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_2, state, NULL);
+@@ -336,6 +344,11 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
  
- #endif /* _UAPI__ASM_HWCAP_H */
+ 	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
+ 
++	if (this_cpu_has_cap(ARM64_SSBS)) {
++		required = false;
++		goto out_printmsg;
++	}
++
+ 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0) {
+ 		ssbd_state = ARM64_SSBD_UNKNOWN;
+ 		return false;
+@@ -384,7 +397,6 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
+ 
+ 	switch (ssbd_state) {
+ 	case ARM64_SSBD_FORCE_DISABLE:
+-		pr_info_once("%s disabled from command-line\n", entry->desc);
+ 		arm64_set_ssbd_mitigation(false);
+ 		required = false;
+ 		break;
+@@ -397,7 +409,6 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
+ 		break;
+ 
+ 	case ARM64_SSBD_FORCE_ENABLE:
+-		pr_info_once("%s forced from command-line\n", entry->desc);
+ 		arm64_set_ssbd_mitigation(true);
+ 		required = true;
+ 		break;
+@@ -407,6 +418,17 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
+ 		break;
+ 	}
+ 
++out_printmsg:
++	switch (ssbd_state) {
++	case ARM64_SSBD_FORCE_DISABLE:
++		pr_info_once("%s disabled from command-line\n", entry->desc);
++		break;
++
++	case ARM64_SSBD_FORCE_ENABLE:
++		pr_info_once("%s forced from command-line\n", entry->desc);
++		break;
++	}
++
+ 	return required;
+ }
+ #endif	/* CONFIG_ARM64_SSBD */
 diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index a897efdb3ddd..d7552bbdf963 100644
+index d7552bbdf963..9c756a1657aa 100644
 --- a/arch/arm64/kernel/cpufeature.c
 +++ b/arch/arm64/kernel/cpufeature.c
-@@ -164,6 +164,11 @@ static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
- 	ARM64_FTR_END,
- };
+@@ -1071,6 +1071,48 @@ static void cpu_has_fwb(const struct arm64_cpu_capabilities *__unused)
+ 	WARN_ON(val & (7 << 27 | 7 << 21));
+ }
  
-+static const struct arm64_ftr_bits ftr_id_aa64pfr1[] = {
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR1_SSBS_SHIFT, 4, ID_AA64PFR1_SSBS_PSTATE_NI),
-+	ARM64_FTR_END,
++#ifdef CONFIG_ARM64_SSBD
++static int ssbs_emulation_handler(struct pt_regs *regs, u32 instr)
++{
++	if (user_mode(regs))
++		return 1;
++
++	if (instr & BIT(CRm_shift))
++		regs->pstate |= PSR_SSBS_BIT;
++	else
++		regs->pstate &= ~PSR_SSBS_BIT;
++
++	arm64_skip_faulting_instruction(regs, 4);
++	return 0;
++}
++
++static struct undef_hook ssbs_emulation_hook = {
++	.instr_mask	= ~(1U << CRm_shift),
++	.instr_val	= 0xd500001f | REG_PSTATE_SSBS_IMM,
++	.fn		= ssbs_emulation_handler,
 +};
 +
- static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
- 	/*
- 	 * We already refuse to boot CPUs that don't support our configured
-@@ -379,7 +384,7 @@ static const struct __ftr_reg_entry {
- 
- 	/* Op1 = 0, CRn = 0, CRm = 4 */
- 	ARM64_FTR_REG(SYS_ID_AA64PFR0_EL1, ftr_id_aa64pfr0),
--	ARM64_FTR_REG(SYS_ID_AA64PFR1_EL1, ftr_raz),
-+	ARM64_FTR_REG(SYS_ID_AA64PFR1_EL1, ftr_id_aa64pfr1),
- 	ARM64_FTR_REG(SYS_ID_AA64ZFR0_EL1, ftr_raz),
- 
- 	/* Op1 = 0, CRn = 0, CRm = 5 */
-@@ -669,7 +674,6 @@ void update_cpu_features(int cpu,
- 
- 	/*
- 	 * EL3 is not our concern.
--	 * ID_AA64PFR1 is currently RES0.
- 	 */
- 	taint |= check_update_ftr_reg(SYS_ID_AA64PFR0_EL1, cpu,
- 				      info->reg_id_aa64pfr0, boot->reg_id_aa64pfr0);
-@@ -1254,6 +1258,16 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
++static void cpu_enable_ssbs(const struct arm64_cpu_capabilities *__unused)
++{
++	static bool undef_hook_registered = false;
++	static DEFINE_SPINLOCK(hook_lock);
++
++	spin_lock(&hook_lock);
++	if (!undef_hook_registered) {
++		register_undef_hook(&ssbs_emulation_hook);
++		undef_hook_registered = true;
++	}
++	spin_unlock(&hook_lock);
++
++	if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE) {
++		sysreg_clear_set(sctlr_el1, 0, SCTLR_ELx_DSSBS);
++		arm64_set_ssbd_mitigation(false);
++	} else {
++		arm64_set_ssbd_mitigation(true);
++	}
++}
++#endif /* CONFIG_ARM64_SSBD */
++
+ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 	{
+ 		.desc = "GIC system register CPU interface",
+@@ -1258,6 +1300,7 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
  		.cpu_enable = cpu_enable_hw_dbm,
  	},
  #endif
-+	{
-+		.desc = "Speculative Store Bypassing Safe (SSBS)",
-+		.capability = ARM64_SSBS,
-+		.type = ARM64_CPUCAP_WEAK_LOCAL_CPU_FEATURE,
-+		.matches = has_cpuid_feature,
-+		.sys_reg = SYS_ID_AA64PFR1_EL1,
-+		.field_pos = ID_AA64PFR1_SSBS_SHIFT,
-+		.sign = FTR_UNSIGNED,
-+		.min_field_value = ID_AA64PFR1_SSBS_PSTATE_ONLY,
-+	},
++#ifdef CONFIG_ARM64_SSBD
+ 	{
+ 		.desc = "Speculative Store Bypassing Safe (SSBS)",
+ 		.capability = ARM64_SSBS,
+@@ -1267,7 +1310,9 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 		.field_pos = ID_AA64PFR1_SSBS_SHIFT,
+ 		.sign = FTR_UNSIGNED,
+ 		.min_field_value = ID_AA64PFR1_SSBS_PSTATE_ONLY,
++		.cpu_enable = cpu_enable_ssbs,
+ 	},
++#endif
  	{},
  };
  
-@@ -1299,6 +1313,7 @@ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
- #ifdef CONFIG_ARM64_SVE
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_SVE_SHIFT, FTR_UNSIGNED, ID_AA64PFR0_SVE, CAP_HWCAP, HWCAP_SVE),
- #endif
-+	HWCAP_CAP(SYS_ID_AA64PFR1_EL1, ID_AA64PFR1_SSBS_SHIFT, FTR_UNSIGNED, ID_AA64PFR1_SSBS_PSTATE_INSNS, CAP_HWCAP, HWCAP_SSBS),
- 	{},
- };
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index 7f1628effe6d..ce99c58cd1f1 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -358,6 +358,10 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
+ 		if (IS_ENABLED(CONFIG_ARM64_UAO) &&
+ 		    cpus_have_const_cap(ARM64_HAS_UAO))
+ 			childregs->pstate |= PSR_UAO_BIT;
++
++		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
++			childregs->pstate |= PSR_SSBS_BIT;
++
+ 		p->thread.cpu_context.x19 = stack_start;
+ 		p->thread.cpu_context.x20 = stk_sz;
+ 	}
+diff --git a/arch/arm64/kernel/ssbd.c b/arch/arm64/kernel/ssbd.c
+index 388f8fc13080..f496fb2f7122 100644
+--- a/arch/arm64/kernel/ssbd.c
++++ b/arch/arm64/kernel/ssbd.c
+@@ -3,13 +3,31 @@
+  * Copyright (C) 2018 ARM Ltd, All Rights Reserved.
+  */
  
-diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
-index e9ab7b3ed317..dce971f2c167 100644
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -81,6 +81,7 @@ static const char *const hwcap_str[] = {
- 	"uscat",
- 	"ilrcpc",
- 	"flagm",
-+	"ssbs",
- 	NULL
- };
++#include <linux/compat.h>
+ #include <linux/errno.h>
+ #include <linux/prctl.h>
+ #include <linux/sched.h>
++#include <linux/sched/task_stack.h>
+ #include <linux/thread_info.h>
  
+ #include <asm/cpufeature.h>
+ 
++static void ssbd_ssbs_enable(struct task_struct *task)
++{
++	u64 val = is_compat_thread(task_thread_info(task)) ?
++		  PSR_AA32_SSBS_BIT : PSR_SSBS_BIT;
++
++	task_pt_regs(task)->pstate |= val;
++}
++
++static void ssbd_ssbs_disable(struct task_struct *task)
++{
++	u64 val = is_compat_thread(task_thread_info(task)) ?
++		  PSR_AA32_SSBS_BIT : PSR_SSBS_BIT;
++
++	task_pt_regs(task)->pstate &= ~val;
++}
++
+ /*
+  * prctl interface for SSBD
+  * FIXME: Drop the below ifdefery once merged in 4.18.
+@@ -47,12 +65,14 @@ static int ssbd_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 			return -EPERM;
+ 		task_clear_spec_ssb_disable(task);
+ 		clear_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_enable(task);
+ 		break;
+ 	case PR_SPEC_DISABLE:
+ 		if (state == ARM64_SSBD_FORCE_DISABLE)
+ 			return -EPERM;
+ 		task_set_spec_ssb_disable(task);
+ 		set_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_disable(task);
+ 		break;
+ 	case PR_SPEC_FORCE_DISABLE:
+ 		if (state == ARM64_SSBD_FORCE_DISABLE)
+@@ -60,6 +80,7 @@ static int ssbd_prctl_set(struct task_struct *task, unsigned long ctrl)
+ 		task_set_spec_ssb_disable(task);
+ 		task_set_spec_ssb_force_disable(task);
+ 		set_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_disable(task);
+ 		break;
+ 	default:
+ 		return -ERANGE;
 -- 
 2.20.1
 
