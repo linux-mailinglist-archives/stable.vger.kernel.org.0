@@ -2,95 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A04A9D0110
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 21:18:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40027D0207
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 22:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728054AbfJHTSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 15:18:21 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:43196 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726439AbfJHTSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 15:18:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=ME1BnonkhshqxMfctofPIhF2CHKZ2ZAEIXQ0ulRQ3lE=; b=o1O6FNkZzqWDcXwvJ3hHDOq0o
-        BMkJQzyt6YzaVcyMuCfeC9jgl8zgqJ+gzVrQoF8DjbgxM+b6eVIzIKscRV2QVQAvdWFGu6k5MpXca
-        u/QPjUfbHMlQ/iy6d0geZ1TVMCU5Vmoa4yRhy4anVHM+hfWj3ElKYBAZRXk+iTRKglgDtSRduQ3j+
-        1zZyfxnd7YQisu13+bG13p7383jY+VR514dHVsxTYDqwZ0Yhp6ZJMD3e93OSznC8Y+qpCMIj6SLnl
-        4qhBAKyoF8UVP6FCMiO4jC6iVErOhZGe2QrRX+UDoXKhDcYKiZCJw3JdxbTw3ihIUYL1laD6iinuz
-        EpmRMA0pA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.2 #3 (Red Hat Linux))
-        id 1iHuzv-0005Va-H5; Tue, 08 Oct 2019 19:18:15 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9009D30034F;
-        Tue,  8 Oct 2019 21:17:21 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 14806202448A4; Tue,  8 Oct 2019 21:18:13 +0200 (CEST)
-Date:   Tue, 8 Oct 2019 21:18:13 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Song Liu <songliubraving@fb.com>
-Cc:     linux-kernel@vger.kernel.org, kernel-team@fb.com,
-        stable@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2] perf/core: fix corner case in perf_rotate_context()
-Message-ID: <20191008191813.GG2328@hirez.programming.kicks-ass.net>
-References: <20191008165949.920548-1-songliubraving@fb.com>
+        id S1730737AbfJHUTv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 16:19:51 -0400
+Received: from inva020.nxp.com ([92.121.34.13]:49078 "EHLO inva020.nxp.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727835AbfJHUTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 16:19:51 -0400
+Received: from inva020.nxp.com (localhost [127.0.0.1])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 5E7C31A099B;
+        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
+Received: from inva024.eu-rdc02.nxp.com (inva024.eu-rdc02.nxp.com [134.27.226.22])
+        by inva020.eu-rdc02.nxp.com (Postfix) with ESMTP id 49D001A008A;
+        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
+Received: from fsr-ub1864-014.ea.freescale.net (fsr-ub1864-014.ea.freescale.net [10.171.95.219])
+        by inva024.eu-rdc02.nxp.com (Postfix) with ESMTP id 1AE9B205DB;
+        Tue,  8 Oct 2019 22:19:48 +0200 (CEST)
+From:   =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4, 4.9] crypto: caam - fix concurrency issue in givencrypt descriptor
+Date:   Tue,  8 Oct 2019 23:19:41 +0300
+Message-Id: <20191008201941.17526-1-horia.geanta@nxp.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191008165949.920548-1-songliubraving@fb.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 08, 2019 at 09:59:49AM -0700, Song Liu wrote:
-> In perf_rotate_context(), when the first cpu flexible event fail to
-> schedule, cpu_rotate is 1, while cpu_event is NULL. Since cpu_event is
-> NULL, perf_rotate_context will _NOT_ call cpu_ctx_sched_out(), thus
-> cpuctx->ctx.is_active will have EVENT_FLEXIBLE set. Then, the next
-> perf_event_sched_in() will skip all cpu flexible events because of the
-> EVENT_FLEXIBLE bit.
-> 
-> In the next call of perf_rotate_context(), cpu_rotate stays 1, and
-> cpu_event stays NULL, so this process repeats. The end result is, flexible
-> events on this cpu will not be scheduled (until another event being added
-> to the cpuctx).
-> 
-> Here is an easy repro of this issue. On Intel CPUs, where ref-cycles
-> could only use one counter, run one pinned event for ref-cycles, one
-> flexible event for ref-cycles, and one flexible event for cycles. The
-> flexible ref-cycles is never scheduled, which is expected. However,
-> because of this issue, the cycles event is never scheduled either.
-> 
-> perf stat -e ref-cycles:D,ref-cycles,cycles -C 5 -I 1000
->            time             counts unit events
->     1.000152973         15,412,480      ref-cycles:D
->     1.000152973      <not counted>      ref-cycles     (0.00%)
->     1.000152973      <not counted>      cycles         (0.00%)
->     2.000486957         18,263,120      ref-cycles:D
->     2.000486957      <not counted>      ref-cycles     (0.00%)
->     2.000486957      <not counted>      cycles         (0.00%)
-> 
-> To fix this, when the flexible_active list is empty, try rotate the
-> first event in the flexible_groups. Also, rename ctx_first_active() to
-> ctx_event_to_rotate(), which is more accurate.
-> 
-> Fixes: 8d5bce0c37fa ("perf/core: Optimize perf_rotate_context() event scheduling")
-> Cc: stable@vger.kernel.org # v4.17+
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Sasha Levin <sashal@kernel.org>
-> Signed-off-by: Song Liu <songliubraving@fb.com>
+commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
 
-Thanks!
+IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
+to be scheduled before the data transfer from ofifo to external memory
+(set up at [38]:
+
+[29] 10FA0004           ld: ind-nfifo (len=4) imm
+[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
+[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
+[32] 00000010               data:0x00000010
+[33] 8210010D    operation: cls1-op aes cbc init-final enc
+[34] A8080B04         math: (seqin + math0)->vseqout len=4
+[35] 28000010    seqfifold: skip len=16
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[38] 69300000   seqfifostr: msg len=vseqoutsz
+[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+
+If ofifo -> external memory transfer happens first, DECO will hang
+(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
+data availability in ofifo for the ofifo -> c2 ififo transfer.
+
+Make sure IV transfer happens first by waiting for all CAAM internal
+transfers to end before starting payload transfer.
+
+New descriptor with jump command inserted at [37]:
+
+[..]
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
+[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[39] 69300000   seqfifostr: msg len=vseqoutsz
+[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+
+[Note: the issue is present in the descriptor from the very beginning
+(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
+maintained kernel that the patch applies clean against.]
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[Horia: backport to v4.4, v4.9]
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+---
+ drivers/crypto/caam/caamalg.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
+index f8ac768ed5d7..413e1f35773f 100644
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -75,7 +75,7 @@
+ #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
+ #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
+ #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
+-#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 9 * CAAM_CMD_SZ)
++#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 10 * CAAM_CMD_SZ)
+ 
+ /* Note: Nonce is counted in enckeylen */
+ #define DESC_AEAD_CTR_RFC3686_LEN	(4 * CAAM_CMD_SZ)
+@@ -474,6 +474,7 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
+ 	u32 geniv, moveiv;
+ 	u32 ctx1_iv_off = 0;
+ 	u32 *desc;
++	u32 *wait_cmd;
+ 	const bool ctr_mode = ((ctx->class1_alg_type & OP_ALG_AAI_MASK) ==
+ 			       OP_ALG_AAI_CTR_MOD128);
+ 	const bool is_rfc3686 = alg->caam.rfc3686;
+@@ -736,6 +737,14 @@ static int aead_set_sh_desc(struct crypto_aead *aead)
+ 
+ 	/* Will read cryptlen */
+ 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
++
++	/*
++	 * Wait for IV transfer (ofifo -> class2) to finish before starting
++	 * ciphertext transfer (ofifo -> external memory).
++	 */
++	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
++	set_jump_tgt_here(desc, wait_cmd);
++
+ 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
+ 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
+ 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
+-- 
+2.17.1
+
