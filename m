@@ -2,68 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEAF3CF6DF
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 12:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3634CF6E9
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 12:21:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729958AbfJHKSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 06:18:07 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:4760 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730118AbfJHKSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 06:18:07 -0400
-X-IronPort-AV: E=Sophos;i="5.67,270,1566831600"; 
-   d="scan'208";a="28576496"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 08 Oct 2019 19:18:05 +0900
-Received: from localhost.localdomain (unknown [10.166.17.210])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id 32BF3400C0B0;
-        Tue,  8 Oct 2019 19:18:05 +0900 (JST)
-From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-To:     horms@verge.net.au, linux-pci@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH] PCI: rcar: Fix writing the MACCTLR register value
-Date:   Tue,  8 Oct 2019 19:18:04 +0900
-Message-Id: <1570529884-20888-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-X-Mailer: git-send-email 2.7.4
+        id S1729989AbfJHKVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 06:21:40 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33987 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729958AbfJHKVj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 06:21:39 -0400
+Received: by mail-lf1-f65.google.com with SMTP id r22so11547452lfm.1
+        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 03:21:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=VmP4t6Nkr9v/B1z1zla8wNSvSBHiglNNEGF3yF1dQs4=;
+        b=d3I75n2dM04F24A1XAFN4rWJvNOYgwAwrPz2hmme5z7oAN1E5ZXrfd2IyxgU7dRd2O
+         5sPMXU1uRk+mRE3FtGCctuKHMbpBmWzm/Ok9invc4v977U4FI2Pxx1LN2X6yE3Uw083o
+         cYNjDIgO84Ttz+IgLkpadw5k0nOEaK1bzsjnpOfF+tJA4HyP3NrsqZUdI3yRdjxeQfG0
+         jvAixolcWMGueeyIZG6LQNN/1uMhjy2awAQ16C52JqWHaI22KQwsHlnvqMxyF7+Fu8W0
+         6uAInFXlTsoAvjiulKx9CXzTw5Mjo+vOrp3jCXAUWmsgGCndciha3zaaVEG/zyZXwl6Q
+         aaHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=VmP4t6Nkr9v/B1z1zla8wNSvSBHiglNNEGF3yF1dQs4=;
+        b=O8mZZbpsZNaqIwD0zoMRpjB2qkxzTxV5VuMT8nE2ZfAQMofJ80Em1P1r6mJCxFkwjG
+         nZhsw7xbY+S8C613+6a3nkArgSD+JFQyfv5xRaI6fWyOVTkGfu4VovioU7djqFGijeIE
+         oNrCDk+XEjBF/TOqig2smWITBxOlAd9miSV+EAyXXBYz+YaBRhKm4K4smjCIGPscHhJ4
+         WoA12eOg70F0IGUTskzUNol+HOeV6ESYUgCTpXRkhi8PUTKjWAAdFQuMT6K5c+YUEHzL
+         51KhX4aMM6D+Qcafi/KpxhupxYpTizHKe5LYJBX8zwqq8y1JdKWYZbOIZHJCQfosLaJo
+         wXvw==
+X-Gm-Message-State: APjAAAVN7+RkDeYJkUxIh2CejuRf6s24GDoL8nu4lsbK7cKwd3lO1fS1
+        bIAS5YE0Te3Kl4OfbkKueY4Wlo71wSvgPp2lMl1pdQ==
+X-Google-Smtp-Source: APXvYqzwz/4XmZT3SGnz4wjhHoMtGLfj6qzYF0MMxHm2D0XudYpGMVU8eHOWbKtuGFOdPHt/jvC2Llb4mU7TgJcH05I=
+X-Received: by 2002:a19:ec02:: with SMTP id b2mr19561701lfa.163.1570530098123;
+ Tue, 08 Oct 2019 03:21:38 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a2e:978a:0:0:0:0:0 with HTTP; Tue, 8 Oct 2019 03:21:37 -0700 (PDT)
+Reply-To: edithbrown0257@gmail.com
+From:   Edith Brown <luckyhoke1@gmail.com>
+Date:   Tue, 8 Oct 2019 11:21:37 +0100
+Message-ID: <CAPzY5zzqF2Jk+fYLaQhey0bJRHACkia2jPTAYHL1juWsuiQksA@mail.gmail.com>
+Subject: Hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to the R-Car Gen2/3 manual, the bit 0 of MACCTLR register
-should be written by 0. To avoid unexpected behaviors from this
-incorrect setting, this patch fixes it.
-
-Fixes: b3327f7fae66 ("PCI: rcar: Try increasing PCIe link speed to 5 GT/s at boot")
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
----
- drivers/pci/controller/pcie-rcar.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-index f6a669a..9eb9b25 100644
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -93,6 +93,7 @@
- #define  LINK_SPEED_2_5GTS	(1 << 16)
- #define  LINK_SPEED_5_0GTS	(2 << 16)
- #define MACCTLR			0x011058
-+#define  MACCTLR_RESERVED	BIT(0)
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
- #define PMSR			0x01105c
-@@ -427,7 +428,8 @@ static void rcar_pcie_force_speedup(struct rcar_pcie *pcie)
- 		rcar_pci_write_reg(pcie, macsr, MACSR);
- 
- 	/* Start link speed change */
--	rcar_rmw32(pcie, MACCTLR, SPEED_CHANGE, SPEED_CHANGE);
-+	rcar_rmw32(pcie, MACCTLR, SPEED_CHANGE | MACCTLR_RESERVED,
-+		   SPEED_CHANGE);
- 
- 	while (timeout--) {
- 		macsr = rcar_pci_read_reg(pcie, MACSR);
 -- 
-2.7.4
-
+Hello dear
+how are you?
+my name is Edith Brown
+i am a U.S military woman
+is my pleasure meeting you here
+best regards
