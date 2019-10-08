@@ -2,70 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FFB6D046E
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 01:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3063ED0477
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 01:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729600AbfJHXtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 19:49:41 -0400
-Received: from mga04.intel.com ([192.55.52.120]:8641 "EHLO mga04.intel.com"
+        id S1727715AbfJHXx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 19:53:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726068AbfJHXtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 19:49:41 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Oct 2019 16:49:41 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,273,1566889200"; 
-   d="scan'208";a="197846974"
-Received: from jhogan1-mobl.ger.corp.intel.com (HELO localhost) ([10.252.2.221])
-  by orsmga006.jf.intel.com with ESMTP; 08 Oct 2019 16:49:36 -0700
-Date:   Wed, 9 Oct 2019 02:49:35 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Ken Goldman <kgold@linux.ibm.com>
-Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191008234935.GA13926@linux.intel.com>
-References: <1570024819.4999.119.camel@linux.ibm.com>
- <20191003114119.GF8933@linux.intel.com>
- <1570107752.4421.183.camel@linux.ibm.com>
- <20191003175854.GB19679@linux.intel.com>
- <1570128827.5046.19.camel@linux.ibm.com>
- <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
- <20191004182711.GC6945@linux.intel.com>
- <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
- <20191007000520.GA17116@linux.intel.com>
- <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+        id S1726068AbfJHXx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 19:53:29 -0400
+Received: from localhost (unknown [131.107.159.163])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0FDC20674;
+        Tue,  8 Oct 2019 23:53:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570578807;
+        bh=Lpy3NYwSAzPBGCnwUhBnvx3bxwe+YtQ77gfXWVSIyuo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2UQAB2vo9xQmqtch0m7o1qIC/w/s6LWCVOL76UPrsQp0vXUmqM0KuoAK8Ely2GoFm
+         +X5LNUlECo/xvkobVXoDCzDiCq6Jf47+CsujvfZEeQwAk1XdLqSjPWVzhLU8GMB/qF
+         EwNBeV1JfpLPKYEGVSP+112sBK7zUEwbLLBQOyB4=
+Date:   Tue, 8 Oct 2019 19:53:27 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     srikar@linux.vnet.ibm.com, acme@redhat.com, jolsa@kernel.org,
+        namhyung@kernel.org, naveen.n.rao@linux.vnet.ibm.com,
+        ravi.bangoria@linux.ibm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] perf stat: Fix a segmentation fault when
+ using repeat forever" failed to apply to 4.14-stable tree
+Message-ID: <20191008235327.GN1396@sasha-vm>
+References: <157055528553188@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <157055528553188@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 07, 2019 at 06:13:01PM -0400, Ken Goldman wrote:
-> The TPM library specification states that the TPM must comply with NIST
-> SP800-90 A.
-> 
-> https://trustedcomputinggroup.org/membership/certification/tpm-certified-products/
-> 
-> shows that the TPMs get third party certification, Common Criteria EAL 4+.
-> 
-> While it's theoretically possible that an attacker could compromise
-> both the TPM vendors and the evaluation agencies, we do have EAL 4+
-> assurance against both 1 and 2.
+On Tue, Oct 08, 2019 at 07:21:25PM +0200, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.14-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 443f2d5ba13d65ccfd879460f77941875159d154 Mon Sep 17 00:00:00 2001
+>From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+>Date: Wed, 4 Sep 2019 15:17:38 +0530
+>Subject: [PATCH] perf stat: Fix a segmentation fault when using repeat forever
+>
+>Observe a segmentation fault when 'perf stat' is asked to repeat forever
+>with the interval option.
+>
+>Without fix:
+>
+>  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
+>  #           time             counts unit events
+>       5.000211692  3,13,89,82,34,157      cycles
+>      10.000380119  1,53,98,52,22,294      cycles
+>      10.040467280       17,16,79,265      cycles
+>  Segmentation fault
+>
+>This problem was only observed when we use forever option aka -r 0 and
+>works with limited repeats. Calling print_counter with ts being set to
+>NULL, is not a correct option when interval is set. Hence avoid
+>print_counter(NULL,..)  if interval is set.
+>
+>With fix:
+>
+>  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
+>   #           time             counts unit events
+>       5.019866622  3,15,14,43,08,697      cycles
+>      10.039865756  3,15,16,31,95,261      cycles
+>      10.059950628     1,26,05,47,158      cycles
+>       5.009902655  3,14,52,62,33,932      cycles
+>      10.019880228  3,14,52,22,89,154      cycles
+>      10.030543876       66,90,18,333      cycles
+>       5.009848281  3,14,51,98,25,437      cycles
+>      10.029854402  3,15,14,93,04,918      cycles
+>       5.009834177  3,14,51,95,92,316      cycles
+>
+>Committer notes:
+>
+>Did the 'git bisect' to find the cset introducing the problem to add the
+>Fixes tag below, and at that time the problem reproduced as:
+>
+>  (gdb) run stat -r0 -I500 sleep 1
+>  <SNIP>
+>  Program received signal SIGSEGV, Segmentation fault.
+>  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
+>  866		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, csv_sep);
+>  (gdb) bt
+>  #0  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
+>  #1  0x000000000041860a in print_counters (ts=ts@entry=0x0, argc=argc@entry=2, argv=argv@entry=0x7fffffffd640) at builtin-stat.c:938
+>  #2  0x0000000000419a7f in cmd_stat (argc=2, argv=0x7fffffffd640, prefix=<optimized out>) at builtin-stat.c:1411
+>  #3  0x000000000045c65a in run_builtin (p=p@entry=0x6291b8 <commands+216>, argc=argc@entry=5, argv=argv@entry=0x7fffffffd640) at perf.c:370
+>  #4  0x000000000045c893 in handle_internal_command (argc=5, argv=0x7fffffffd640) at perf.c:429
+>  #5  0x000000000045c8f1 in run_argv (argcp=argcp@entry=0x7fffffffd4ac, argv=argv@entry=0x7fffffffd4a0) at perf.c:473
+>  #6  0x000000000045cac9 in main (argc=<optimized out>, argv=<optimized out>) at perf.c:588
+>  (gdb)
+>
+>Mostly the same as just before this patch:
+>
+>  Program received signal SIGSEGV, Segmentation fault.
+>  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
+>  964		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, config->csv_sep);
+>  (gdb) bt
+>  #0  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
+>  #1  0x0000000000588047 in perf_evlist__print_counters (evlist=0xbc9b90, config=0xa1f2a0 <stat_config>, _target=0xa1f0c0 <target>, ts=0x0, argc=2, argv=0x7fffffffd670)
+>      at util/stat-display.c:1172
+>  #2  0x000000000045390f in print_counters (ts=0x0, argc=2, argv=0x7fffffffd670) at builtin-stat.c:656
+>  #3  0x0000000000456bb5 in cmd_stat (argc=2, argv=0x7fffffffd670) at builtin-stat.c:1960
+>  #4  0x00000000004dd2e0 in run_builtin (p=0xa30e00 <commands+288>, argc=5, argv=0x7fffffffd670) at perf.c:310
+>  #5  0x00000000004dd54d in handle_internal_command (argc=5, argv=0x7fffffffd670) at perf.c:362
+>  #6  0x00000000004dd694 in run_argv (argcp=0x7fffffffd4cc, argv=0x7fffffffd4c0) at perf.c:406
+>  #7  0x00000000004dda11 in main (argc=5, argv=0x7fffffffd670) at perf.c:531
+>  (gdb)
+>
+>Fixes: d4f63a4741a8 ("perf stat: Introduce print_counters function")
+>Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+>Acked-by: Jiri Olsa <jolsa@kernel.org>
+>Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+>Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+>Cc: Namhyung Kim <namhyung@kernel.org>
+>Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+>Cc: stable@vger.kernel.org # v4.2+
+>Link: http://lore.kernel.org/lkml/20190904094738.9558-3-srikar@linux.vnet.ibm.com
+>Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-Certifications do not equal to trust.
+Fixed up and queued it for 4.14-4.4.
 
-/Jarkko
+-- 
+Thanks,
+Sasha
