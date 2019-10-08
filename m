@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DC3D00A0
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1AD2D00A1
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727180AbfJHSUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 14:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
+        id S1727865AbfJHSUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 14:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726138AbfJHSUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 14:20:18 -0400
+        id S1726138AbfJHSUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 14:20:23 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2AE0217D7;
-        Tue,  8 Oct 2019 18:20:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F15122070B;
+        Tue,  8 Oct 2019 18:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570558816;
-        bh=01nlXakLi8cBSKtxF4hn/rYRk8wPMODRn200BfMUs0k=;
+        s=default; t=1570558822;
+        bh=fMw84pxmgj75Bzka45vfPFE6cn3lddDqJ2sc7t6gK9w=;
         h=Date:From:To:Subject:From;
-        b=Zsm/RMDrDFXbr94i+c6kuXHy2TZjJP2AJ4CKXWW551XkfCAjm/6bjp0V0XLQkG24Y
-         W0JNFhyI79blqYnnhaoyzOsyavgRQRXbKaNJTX/LjZjibXqNSpM0YW3f55mi4Do9/Q
-         MdMVR5qdrn2Gj2gaj7BKyjW8BDKRJTNnqMLs6vkw=
-Date:   Tue, 08 Oct 2019 11:20:03 -0700
+        b=imPmGtzW10Kaq8i99tBBK0YUwSLWZHlQiOIaHQvGxx+WF3ltXjFizNfRiIkN3L4Lu
+         xvoqkwAj7wfWpmE4nZXAqUhK4u44c/UfWO+szRNCtmMi4yzUB6YoXyNkEYhd1WO8n7
+         zw2tjvWJY8qOOQRzCw0S4Im4QqQMdr+Or5Lw3Y6E=
+Date:   Tue, 08 Oct 2019 11:20:21 -0700
 From:   akpm@linux-foundation.org
-To:     contact@xogium.me, feng.tang@intel.com, gregkh@linuxfoundation.org,
-        keescook@chromium.org, linux@armlinux.org.uk, mingo@redhat.com,
-        mm-commits@vger.kernel.org, pmladek@suse.com,
-        stable@vger.kernel.org, will@kernel.org
+To:     axboe@kernel.dk, clm@fb.com, jack@suse.cz,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org, tj@kernel.org
 Subject:  [merged]
- panic-ensure-preemption-is-disabled-during-panic.patch removed from -mm
- tree
-Message-ID: <20191008182003.BZ0YmsDAm%akpm@linux-foundation.org>
+ writeback-fix-use-after-free-in-finish_writeback_work.patch removed from
+ -mm tree
+Message-ID: <20191008182021.lLWTftq0F%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,87 +39,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: panic: ensure preemption is disabled during panic()
+     Subject: writeback: fix use-after-free in finish_writeback_work()
 has been removed from the -mm tree.  Its filename was
-     panic-ensure-preemption-is-disabled-during-panic.patch
+     writeback-fix-use-after-free-in-finish_writeback_work.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Will Deacon <will@kernel.org>
-Subject: panic: ensure preemption is disabled during panic()
+From: Tejun Heo <tj@kernel.org>
+Subject: writeback: fix use-after-free in finish_writeback_work()
 
-Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the calling
-CPU in an infinite loop, but with interrupts and preemption enabled.  From
-this state, userspace can continue to be scheduled, despite the system
-being "dead" as far as the kernel is concerned.  This is easily
-reproducible on arm64 when booting with "nosmp" on the command line; a
-couple of shell scripts print out a periodic "Ping" message whilst another
-triggers a crash by writing to /proc/sysrq-trigger:
+finish_writeback_work() reads @done->waitq after decrementing @done->cnt. 
+However, once @done->cnt reaches zero, @done may be freed (from stack) at
+any moment and @done->waitq can contain something unrelated by the time
+finish_writeback_work() tries to read it.  This led to the following
+crash.
 
-  | sysrq: Trigger a crash
-  | Kernel panic - not syncing: sysrq triggered crash
-  | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
-  | Hardware name: linux,dummy-virt (DT)
-  | Call trace:
-  |  dump_backtrace+0x0/0x148
-  |  show_stack+0x14/0x20
-  |  dump_stack+0xa0/0xc4
-  |  panic+0x140/0x32c
-  |  sysrq_handle_reboot+0x0/0x20
-  |  __handle_sysrq+0x124/0x190
-  |  write_sysrq_trigger+0x64/0x88
-  |  proc_reg_write+0x60/0xa8
-  |  __vfs_write+0x18/0x40
-  |  vfs_write+0xa4/0x1b8
-  |  ksys_write+0x64/0xf0
-  |  __arm64_sys_write+0x14/0x20
-  |  el0_svc_common.constprop.0+0xb0/0x168
-  |  el0_svc_handler+0x28/0x78
-  |  el0_svc+0x8/0xc
-  | Kernel Offset: disabled
-  | CPU features: 0x0002,24002004
-  | Memory Limit: none
-  | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
-  |  Ping 2!
-  |  Ping 1!
-  |  Ping 1!
-  |  Ping 2!
+  "BUG: kernel NULL pointer dereference, address: 0000000000000002"
+  #PF: supervisor write access in kernel mode
+  #PF: error_code(0x0002) - not-present page
+  PGD 0 P4D 0
+  Oops: 0002 [#1] SMP DEBUG_PAGEALLOC
+  CPU: 40 PID: 555153 Comm: kworker/u98:50 Kdump: loaded Not tainted
+  ...
+  Workqueue: writeback wb_workfn (flush-btrfs-1)
+  RIP: 0010:_raw_spin_lock_irqsave+0x10/0x30
+  Code: 48 89 d8 5b c3 e8 50 db 6b ff eb f4 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 9c 5b fa 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 05 48 89 d8 5b c3 89 c6 e8 fe ca 6b ff eb f2 66 90
+  RSP: 0018:ffffc90049b27d98 EFLAGS: 00010046
+  RAX: 0000000000000000 RBX: 0000000000000246 RCX: 0000000000000000
+  RDX: 0000000000000001 RSI: 0000000000000003 RDI: 0000000000000002
+  RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
+  R10: ffff889fff407600 R11: ffff88ba9395d740 R12: 000000000000e300
+  R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
+  FS:  0000000000000000(0000) GS:ffff88bfdfa00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000002 CR3: 0000000002409005 CR4: 00000000001606e0
+  Call Trace:
+   __wake_up_common_lock+0x63/0xc0
+   wb_workfn+0xd2/0x3e0
+   process_one_work+0x1f5/0x3f0
+   worker_thread+0x2d/0x3d0
+   kthread+0x111/0x130
+   ret_from_fork+0x1f/0x30
 
-The issue can also be triggered on x86 kernels if CONFIG_SMP=n, otherwise
-local interrupts are disabled in 'smp_send_stop()'.
+Fix it by reading and caching @done->waitq before decrementing
+@done->cnt.
 
-Disable preemption in 'panic()' before re-enabling interrupts.
-
-Link: http://lkml.kernel.org/r/20191002123538.22609-1-will@kernel.org
-Link: https://lore.kernel.org/r/BX1W47JXPMR8.58IYW53H6M5N@dragonstone
-Signed-off-by: Will Deacon <will@kernel.org>
-Reported-by: Xogium <contact@xogium.me>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: <stable@vger.kernel.org>
+Link: http://lkml.kernel.org/r/20190924010631.GH2233839@devbig004.ftw2.facebook.com
+Fixes: 5b9cce4c7eb069 ("writeback: Generalize and expose wb_completion")
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Debugged-by: Chris Mason <clm@fb.com>
+Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>	[5.2+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/panic.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/fs-writeback.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/kernel/panic.c~panic-ensure-preemption-is-disabled-during-panic
-+++ a/kernel/panic.c
-@@ -180,6 +180,7 @@ void panic(const char *fmt, ...)
- 	 * after setting panic_cpu) from invoking panic() again.
- 	 */
- 	local_irq_disable();
-+	preempt_disable_notrace();
+--- a/fs/fs-writeback.c~writeback-fix-use-after-free-in-finish_writeback_work
++++ a/fs/fs-writeback.c
+@@ -164,8 +164,13 @@ static void finish_writeback_work(struct
  
- 	/*
- 	 * It's possible to come here directly from a panic-assertion and
+ 	if (work->auto_free)
+ 		kfree(work);
+-	if (done && atomic_dec_and_test(&done->cnt))
+-		wake_up_all(done->waitq);
++	if (done) {
++		wait_queue_head_t *waitq = done->waitq;
++
++		/* @done can't be accessed after the following dec */
++		if (atomic_dec_and_test(&done->cnt))
++			wake_up_all(waitq);
++	}
+ }
+ 
+ static void wb_queue_work(struct bdi_writeback *wb,
 _
 
-Patches currently in -mm which might be from will@kernel.org are
+Patches currently in -mm which might be from tj@kernel.org are
 
 
