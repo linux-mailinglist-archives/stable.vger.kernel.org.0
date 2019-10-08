@@ -2,91 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 212A0CFE6C
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80EA8CFEA4
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726253AbfJHQCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 12:02:40 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41014 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726211AbfJHQCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:02:40 -0400
-Received: by mail-wr1-f66.google.com with SMTP id q9so20062744wrm.8
-        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 09:02:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ipMlOIhPbpmOovLAksJ0ZPwQkcHR6yNjdTe3CBl2o1s=;
-        b=daotUWsShNSJs+3ErQulMuxd576Vm8y/XCsS5FRs+H4BntwVb+bWpNT8eqm6OuOJsT
-         kAlwY8GH9BXaHeJRoK83/EFkxT3eAhpeLXdltnT6heddRR7Zbhyl3S1++WPErc/ZsQJZ
-         05Hh7+j17DnQAltUUvaXY3xzmbk1r/ftgwnTwVqfQsvy/Cqqa91GFUn8FumY3FBfQJZF
-         9xPIapTZrVDvFcmQcSGRcdWghGQP+JGhE2l8JvwPfEfqDck+MAStUbA8WQmzE3czscOK
-         GeR8VkPHe19WLHVlpu2U3gzpWfdm4ho61D9Tv30MWWRN54osVjWzRE1R8hbKXRGrJ5zx
-         TyUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ipMlOIhPbpmOovLAksJ0ZPwQkcHR6yNjdTe3CBl2o1s=;
-        b=DqfDhMCIcKyfliu4HNnKTFEYl6aa2U7kRNG/seSq8briGv69sNenPCF6Qi8QukcQSl
-         3pmnQykJD+4b9ymyfZkCV34dtcsHXsjfIuTkTxLsyK7GCuWJnk0CApTWugBpb8XfXRMt
-         4sceSvhx5mQ3Ke9hS4MHaomJ4wyNy/wzjaj8Yukfk3rcdE41Vbdo9ZLVjRGfVQaunPtU
-         bdI3SS8mNahtkqDPV70adlbu7UvBREkHJKA1uWzULZuViqAI9/C3S4ZULRUWryHuxUMb
-         +xtfDRkTu3SsK5Bo1ibNMVqvrclxxprpUMi3TC91Q2NROUtftKLKiKMUSkKI6R+/KtXL
-         7cbw==
-X-Gm-Message-State: APjAAAWMXlo1aTuO5stFt2KTCQ6gxYVGqoISL/wE30uWrry3KUs1Vpyw
-        r84H4fSrORxJPn/tEPhyG+B10ZQfeLZmoQ==
-X-Google-Smtp-Source: APXvYqx5PqYqWnu0YZf5jvB5wuIHUOxamJlZOBgtnQsKniW5QozJ8f6WvfQqbhirWgVB+kIXXMo5Sg==
-X-Received: by 2002:a5d:4647:: with SMTP id j7mr28518063wrs.106.1570550556545;
-        Tue, 08 Oct 2019 09:02:36 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id p5sm3411218wmi.4.2019.10.08.09.02.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Oct 2019 09:02:35 -0700 (PDT)
-Message-ID: <5d9cb31b.1c69fb81.d44ed.0b4f@mx.google.com>
-Date:   Tue, 08 Oct 2019 09:02:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726138AbfJHQOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 12:14:21 -0400
+Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:46899 "EHLO
+        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725989AbfJHQOU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:14:20 -0400
+Received: from sc9-mailhost2.vmware.com (10.113.161.72) by
+ EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
+ 15.0.1156.6; Tue, 8 Oct 2019 09:14:17 -0700
+Received: from akaher-virtual-machine.eng.vmware.com (unknown [10.197.103.239])
+        by sc9-mailhost2.vmware.com (Postfix) with ESMTP id 296E3B2BE2;
+        Tue,  8 Oct 2019 12:14:19 -0400 (EDT)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <dchinner@redhat.com>
+CC:     <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
+        <srostedt@vmware.com>, <srivatsab@vmware.com>,
+        <srivatsa@csail.mit.edu>, <amakhalov@vmware.com>,
+        <srinidhir@vmware.com>, <bvikas@vmware.com>, <anishs@vmware.com>,
+        <vsirnapalli@vmware.com>, <akaher@vmware.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: [PATCH 4.4.y] xfs: clear sb->s_fs_info on mount failure
+Date:   Tue, 8 Oct 2019 21:39:08 +0530
+Message-ID: <1570550948-3364-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.78
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y boot: 64 boots: 0 failed,
- 63 passed with 1 untried/unknown (v4.19.78)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 64 boots: 0 failed, 63 passed with 1 untried/u=
-nknown (v4.19.78)
+From: Dave Chinner <dchinner@redhat.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.78/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.78/
+commit c9fbd7bbc23dbdd73364be4d045e5d3612cf6e82 upstream.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.78
-Git Commit: 58fce20645303bee01d74144ec00e405be43b1ca
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 42 unique boards, 16 SoC families, 15 builds out of 206
+We recently had an oops reported on a 4.14 kernel in
+xfs_reclaim_inodes_count() where sb->s_fs_info pointed to garbage
+and so the m_perag_tree lookup walked into lala land.
 
-Boot Regressions Detected:
+Essentially, the machine was under memory pressure when the mount
+was being run, xfs_fs_fill_super() failed after allocating the
+xfs_mount and attaching it to sb->s_fs_info. It then cleaned up and
+freed the xfs_mount, but the sb->s_fs_info field still pointed to
+the freed memory. Hence when the superblock shrinker then ran
+it fell off the bad pointer.
 
-arm:
+With the superblock shrinker problem fixed at teh VFS level, this
+stale s_fs_info pointer is still a problem - we use it
+unconditionally in ->put_super when the superblock is being torn
+down, and hence we can still trip over it after a ->fill_super
+call failure. Hence we need to clear s_fs_info if
+xfs-fs_fill_super() fails, and we need to check if it's valid in
+the places it can potentially be dereferenced after a ->fill_super
+failure.
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-drue: new failure (last pass: v4.19.77-107-g61e72e79b84d)
-
+Signed-Off-By: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
 ---
-For more info write to <info@kernelci.org>
+ fs/xfs/xfs_super.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+index ef64a1e..ff3f581 100644
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -1572,6 +1572,7 @@ xfs_fs_fill_super(
+  out_close_devices:
+ 	xfs_close_devices(mp);
+  out_free_fsname:
++	sb->s_fs_info = NULL;
+ 	xfs_free_fsname(mp);
+ 	kfree(mp);
+  out:
+@@ -1589,6 +1590,10 @@ xfs_fs_put_super(
+ {
+ 	struct xfs_mount	*mp = XFS_M(sb);
+ 
++	/* if ->fill_super failed, we have no mount to tear down */
++	if (!sb->s_fs_info)
++		return;
++
+ 	xfs_notice(mp, "Unmounting Filesystem");
+ 	xfs_filestream_unmount(mp);
+ 	xfs_unmountfs(mp);
+@@ -1598,6 +1603,8 @@ xfs_fs_put_super(
+ 	xfs_destroy_percpu_counters(mp);
+ 	xfs_destroy_mount_workqueues(mp);
+ 	xfs_close_devices(mp);
++
++	sb->s_fs_info = NULL;
+ 	xfs_free_fsname(mp);
+ 	kfree(mp);
+ }
+@@ -1617,6 +1624,9 @@ xfs_fs_nr_cached_objects(
+ 	struct super_block	*sb,
+ 	struct shrink_control	*sc)
+ {
++	/* Paranoia: catch incorrect calls during mount setup or teardown */
++	if (WARN_ON_ONCE(!sb->s_fs_info))
++		return 0;
+ 	return xfs_reclaim_inodes_count(XFS_M(sb));
+ }
+ 
+-- 
+2.7.4
+
