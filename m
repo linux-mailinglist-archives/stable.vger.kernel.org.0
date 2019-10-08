@@ -2,106 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 981A5CFE10
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 17:48:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E25ECFE4D
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727931AbfJHPsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 11:48:03 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:40775 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727107AbfJHPsD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 11:48:03 -0400
-Received: by mail-wr1-f67.google.com with SMTP id h4so11275363wrv.7
-        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 08:48:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=u0VAEBRb2O1Pjv9C+1Sie8S6X3qYUq0lz1XToS858UI=;
-        b=yj+EGtp+qEmlSAey2Lt8N2ygAYpisguWkckUYSG8AwRfPwcpHKtnA6uWsS38LPQTwV
-         fhcBN/2IMl3sHeFgxEd60Ddh5VML/70mwpI69MXgbpcJpisvXSg6AS6G50bNlRmiDUy2
-         T/lmrlWhpTjxHeeQbmA0doLFpz6f+qrNy+SOCaoYNqhDJILoBTD0Z3Pq84ueGVlmEKEI
-         z2ZuA6v8vrW9vKd+rscZSSXeUENrHf982P/e3+J0OHlaYqLRCzHmTVNnj47cKvJxjyqa
-         GXrxHefbmTZ5SHIXMtllh0pU678e+MzBw7Uzvk0QFHGd56RI37gljeyVPUbHNuX4SqwH
-         zjeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=u0VAEBRb2O1Pjv9C+1Sie8S6X3qYUq0lz1XToS858UI=;
-        b=ARSj4LVISgK/9mt7f1gGfVVQcPp31LybKIoTXo2VtjurkXemf4q2qjX2nX/AALWIjB
-         oLHBWarRGroN2L+xwxfcync4e4cci8w7s/JITI4xlxOgK+op3ZNsjuVaOR5SudyzzGhb
-         psg5ILPdqR19+0YqEKVVC8UBmStcdTSFvAiK5fPrbzwX3RyBmHi6NUh1aCW+5/B6b8W1
-         PaA3bPD1Mv49cDgnCBEBlyQ1ZRwRgsMNNqnVNFgUO+xJi1EGhIH53sdnItfE53CPSAQH
-         WKg/VudcfCVA831QX6+DYE7nPfRE8uvK0EMKvAHF4Ge/08QbdXMDE/VBtBf+ZUZJxsjH
-         uvxQ==
-X-Gm-Message-State: APjAAAUlOKrTY7zpnrOj+cToG0oNYbS2TixAv2R6w2LJi2VXehGiAQTZ
-        TAhLMtOegyV63UarYRsGF5ZlgIAVG/8FvQ==
-X-Google-Smtp-Source: APXvYqwN5aLoIe4nTrptsh/cprIDpu6a5DgU7fdEfWpkGcYdEnvaJJ8sZUCXxLGYELXPOVUu4OefQw==
-X-Received: by 2002:a5d:67cc:: with SMTP id n12mr26621027wrw.359.1570549681378;
-        Tue, 08 Oct 2019 08:48:01 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h17sm3198079wmb.33.2019.10.08.08.48.00
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Oct 2019 08:48:00 -0700 (PDT)
-Message-ID: <5d9cafb0.1c69fb81.eb068.f70f@mx.google.com>
-Date:   Tue, 08 Oct 2019 08:48:00 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726490AbfJHQAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 12:00:40 -0400
+Received: from outbound-smtp26.blacknight.com ([81.17.249.194]:35060 "EHLO
+        outbound-smtp26.blacknight.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726066AbfJHQAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:00:40 -0400
+X-Greylist: delayed 519 seconds by postgrey-1.27 at vger.kernel.org; Tue, 08 Oct 2019 12:00:39 EDT
+Received: from mail.blacknight.com (pemlinmail04.blacknight.ie [81.17.254.17])
+        by outbound-smtp26.blacknight.com (Postfix) with ESMTPS id E348BB8839
+        for <stable@vger.kernel.org>; Tue,  8 Oct 2019 16:51:58 +0100 (IST)
+Received: (qmail 5557 invoked from network); 8 Oct 2019 15:51:58 -0000
+Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.19.210])
+  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 8 Oct 2019 15:51:58 -0000
+Date:   Tue, 8 Oct 2019 16:51:56 +0100
+From:   Mel Gorman <mgorman@techsingularity.net>
+To:     Vlastimil Babka <vbabka@suse.cz>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Dave Chinner <david@fromorbit.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] mm, compaction: fix wrong pfn handling in
+ __reset_isolation_pfn()
+Message-ID: <20191008155156.GD3321@techsingularity.net>
+References: <20191008152915.24704-1-vbabka@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.3.y
-Subject: stable-rc/linux-5.3.y boot: 71 boots: 3 failed, 68 passed (v5.3.5)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <20191008152915.24704-1-vbabka@suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 71 boots: 3 failed, 68 passed (v5.3.5)
+On Tue, Oct 08, 2019 at 05:29:15PM +0200, Vlastimil Babka wrote:
+> Florian and Dave reported [1] a NULL pointer dereference in
+> __reset_isolation_pfn(). While the exact cause is unclear, staring at the code
+> revealed two bugs, which might be related.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.5/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.5/
+I think the fix is a good fit. Even if the problem still occurs, it
+eliminates an important possibility.
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.5
-Git Commit: dc073f193b70176b16ae3e6e8afccee07a13df90
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 48 unique boards, 17 SoC families, 15 builds out of 208
+> One bug is that if zone starts in the middle of pageblock, block_page might
+> correspond to different pfn than block_pfn, and then the pfn_valid_within()
+> checks will check different pfn's than those accessed via struct page. This
+> might result in acessing an unitialized page in CONFIG_HOLES_IN_ZONE configs.
+> 
 
-Boot Regressions Detected:
+s/acessing/accessing/
 
-i386:
+Aside from HOLES_IN_ZONE, the patch addresses an issue if the start
+of the zone is not pageblock-aligned. While this is common, it's not
+guaranteed. I don't think this needs to be clarified in the changelog as
+your example is valid. I'm commenting in case someone decides not to try
+the patch because they feel HOLES_IN_ZONE is required.
 
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v5.3.4-167-ga2703e78c28=
-a)
+> The other bug is that end_page refers to the first page of next pageblock and
+> not last page of current pageblock. The online and valid check is then wrong
+> and with sections, the while (page < end_page) loop might wander off actual
+> struct page arrays.
+> 
+> [1] https://lore.kernel.org/linux-xfs/87o8z1fvqu.fsf@mid.deneb.enyo.de/
+> 
+> Reported-by: Florian Weimer <fw@deneb.enyo.de>
+> Reported-by: Dave Chinner <david@fromorbit.com>
+> Fixes: 6b0868c820ff ("mm/compaction.c: correct zone boundary handling when resetting pageblock skip hints")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
 
-Boot Failures Detected:
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
 
-arm:
-    imx_v6_v7_defconfig:
-        gcc-8:
-            imx53-qsrb: 1 failed lab
+Just one minor irrelevant note below.
 
-    multi_v7_defconfig:
-        gcc-8:
-            imx53-qsrb: 1 failed lab
+> ---
+>  mm/compaction.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/mm/compaction.c b/mm/compaction.c
+> index ce08b39d85d4..672d3c78c6ab 100644
+> --- a/mm/compaction.c
+> +++ b/mm/compaction.c
+> @@ -270,14 +270,15 @@ __reset_isolation_pfn(struct zone *zone, unsigned long pfn, bool check_source,
+>  
+>  	/* Ensure the start of the pageblock or zone is online and valid */
+>  	block_pfn = pageblock_start_pfn(pfn);
+> -	block_page = pfn_to_online_page(max(block_pfn, zone->zone_start_pfn));
+> +	block_pfn = max(block_pfn, zone->zone_start_pfn);
+> +	block_page = pfn_to_online_page(block_pfn);
+>  	if (block_page) {
+>  		page = block_page;
+>  		pfn = block_pfn;
+>  	}
+>  
+>  	/* Ensure the end of the pageblock or zone is online and valid */
+> -	block_pfn += pageblock_nr_pages;
+> +	block_pfn = pageblock_end_pfn(pfn) - 1;
+>  	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
+>  	end_page = pfn_to_online_page(block_pfn);
+>  	if (!end_page)
 
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
+This is fine and is definetly fixing a potential issue.
 
----
-For more info write to <info@kernelci.org>
+> @@ -303,7 +304,7 @@ __reset_isolation_pfn(struct zone *zone, unsigned long pfn, bool check_source,
+>  
+>  		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
+>  		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
+> -	} while (page < end_page);
+> +	} while (page <= end_page);
+>  
+>  	return false;
+>  }
+
+I think this is also ok as it's appropriate for PFN walkers in general of
+this style. However, I think it's unlikely to fix anything given that we
+are walking in steps of (1 << PAGE_ALLOC_COSTLY_ORDER) and the final page
+is not necessarily aligned on that boundary. Still, it's an improvement.
+
+Thanks
+
+-- 
+Mel Gorman
+SUSE Labs
