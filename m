@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3DD8CFFBF
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E77B2CFFC2
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726253AbfJHRYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 13:24:08 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:48915 "EHLO
+        id S1726138AbfJHRZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 13:25:15 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:39375 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725900AbfJHRYH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:24:07 -0400
+        by vger.kernel.org with ESMTP id S1725900AbfJHRZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:25:15 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id ADD0921F2E;
-        Tue,  8 Oct 2019 13:24:06 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:24:06 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 40E5121F32;
+        Tue,  8 Oct 2019 13:25:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:25:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ga50vS
-        kgz7Cx4nwx/9zfkAUZtfnAQfGBfNcwl04Pfz0=; b=EzZMIsD2MXi7736Qv2I/Bn
-        6bZzchffP1aKcAtxWKg3yrWp0C+wUrPNtAXKtpU8q4oPNFfPAsJzWEfLdkqt49Hd
-        MPbKQiJe+Zsoof1v21ohYG+1myWyjjEIvxHobrzeisRA49Wp7Sg6GY3vHKxUmde+
-        RY/KweTFQ4N2ZP6tjnSNn8uDrWB5dt/imWYrwmwlhKHkasnJOxxyPCn+4tnAvNyh
-        h9MumhDJ+l+pBLKZ44PakJmqW2ikChiL8FGeVaIEWHJrdW5B9026kt0SCJNLQRBb
-        AxeVX+tSpC8tmHuQyKgIoWkWpLw3WtRlqTojGAkNfADwSVfwUifHUGst7nO5Bl8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tJ1a5d
+        k8PcoWAGObf5bQSd1FxOoz3I3FsSc1UVjvFBk=; b=NvgRZR6gUCbxTOFwDVut8t
+        EVecKb70fiEYGeosWwojCGq+Brco9clnPXoiuxBf1YPaxKpAhoMQyXQ0nyt00ji9
+        kXNFfJ7ad5qSDsP6wq1+/TF9hppR1Y+aLUJ7psYSxRppLDPnERpvt14gXAhXXDYU
+        pEkJT3vNrVqpeDi1od6dkeGLlxjom4adUg/z+tQK8iTVKgOGzR584/5NiQ8lk/SL
+        6atlgiPeoiITpzBfJt7jxopPZ5J4Cp3y9xz3VKwuvVlElgFVJ2l+l1j73SfCS5UZ
+        0xQg8tAY9/LYvNN5KMR4rOMezISiTW92ix7eyjEBJo2eKZi/7hKBNfKFsdyREWYg
         ==
-X-ME-Sender: <xms:NsacXcITCwoIZcTxqz6Jm1A3rvLEZTcKBshJtzbBTTQWZ5hPA8s2_g>
+X-ME-Sender: <xms:esacXSHnz4J1QQUbrDkyEcLt0LcBQkeCHzhdWL1fWIC61WOwp5duPw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:NsacXZsBkjKAouKEOGU-xPgDK2WJvW11I_4LP-lhFjgEpCB4qsNQMQ>
-    <xmx:NsacXWMCFTK2VigPYlxBH2As6P4OgVqTtsfxl3Gupos2SeqUpr8wnQ>
-    <xmx:NsacXSUCKucTfFSpVFW2_75EZlidnXXktbXwkXnifBpwyzIBVE9Ebw>
-    <xmx:NsacXeJ2NmH3aFym7afuZ_we2fyJ0RA8jj_liV3fTk6REvMHfAwsYA>
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
+    hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
+    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:esacXaZgeJjplwrJUFhNAj79o3k8FNdNitA-BwRLEeXK-ZUxdjluwg>
+    <xmx:esacXQ1vRUzofg-8yKM4HJ4taDQvZKcFreIzL18U0Q8EhR_Fp8DnAg>
+    <xmx:esacXb-6ZBDSv1gSGjBLK7XUmLqm49AS2H0ph0yaddmm6D5ibCZVfg>
+    <xmx:esacXWE_O3ltiEOIsmg1d-88ASRQDaUdS9IwrJzzH-wYn7ImLB1VhQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id D7315D60057;
-        Tue,  8 Oct 2019 13:24:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amd/powerplay: add sensor lock support for smu" failed to apply to 5.3-stable tree
-To:     kevin1.wang@amd.com, alexander.deucher@amd.com,
-        kenneth.feng@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id B17158005B;
+        Tue,  8 Oct 2019 13:25:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 4.14-stable tree
+To:     chris@chris-wilson.co.uk, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 19:24:04 +0200
-Message-ID: <1570555444202158@kroah.com>
+Date:   Tue, 08 Oct 2019 19:25:04 +0200
+Message-ID: <157055550440248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,114 +68,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 00921306751001b539ebee34171485cd9c749024 Mon Sep 17 00:00:00 2001
-From: Kevin Wang <kevin1.wang@amd.com>
-Date: Thu, 26 Sep 2019 16:22:13 +0800
-Subject: [PATCH] drm/amd/powerplay: add sensor lock support for smu
+From cb6d7c7dc7ff8cace666ddec66334117a6068ce2 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Mon, 8 Jul 2019 15:03:27 +0100
+Subject: [PATCH] drm/i915/userptr: Acquire the page lock around
+ set_page_dirty()
 
-when multithreading access sysfs of amdgpu_pm_info at the sametime.
-the swsmu driver cause smu firmware hang.
+set_page_dirty says:
 
-eg:
-single thread access:
-Message A + Param A ==> right
-Message B + Param B ==> right
-Message C + Param C ==> right
-multithreading access:
-Message A + Param B ==> error
-Message B + Param A ==> error
-Message C + Param C ==> right
+	For pages with a mapping this should be done under the page lock
+	for the benefit of asynchronous memory errors who prefer a
+	consistent dirty state. This rule can be broken in some special
+	cases, but should be better not to.
 
-the patch will add sensor lock(mutex) to avoid this error.
+Under those rules, it is only safe for us to use the plain set_page_dirty
+calls for shmemfs/anonymous memory. Userptr may be used with real
+mappings and so needs to use the locked version (set_page_dirty_lock).
 
-Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.3.x
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
+References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
 
-diff --git a/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c b/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-index 33960fb38a5d..4acf139ea014 100644
---- a/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/powerplay/amdgpu_smu.c
-@@ -843,6 +843,8 @@ static int smu_sw_init(void *handle)
- 	smu->smu_baco.state = SMU_BACO_STATE_EXIT;
- 	smu->smu_baco.platform_support = false;
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 16ccec7fb7da..32d208ede343 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -665,7 +665,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
  
-+	mutex_init(&smu->sensor_lock);
-+
- 	smu->watermarks_bitmap = 0;
- 	smu->power_profile_mode = PP_SMC_POWER_PROFILE_BOOTUP_DEFAULT;
- 	smu->default_power_profile_mode = PP_SMC_POWER_PROFILE_BOOTUP_DEFAULT;
-diff --git a/drivers/gpu/drm/amd/powerplay/arcturus_ppt.c b/drivers/gpu/drm/amd/powerplay/arcturus_ppt.c
-index f1f072012fac..d493a3f8c07a 100644
---- a/drivers/gpu/drm/amd/powerplay/arcturus_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/arcturus_ppt.c
-@@ -1018,6 +1018,7 @@ static int arcturus_read_sensor(struct smu_context *smu,
- 	if (!data || !size)
- 		return -EINVAL;
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+ 		if (obj->mm.dirty)
+-			set_page_dirty(page);
++			/*
++			 * As this may not be anonymous memory (e.g. shmem)
++			 * but exist on a real mapping, we have to lock
++			 * the page in order to dirty it -- holding
++			 * the page reference is not sufficient to
++			 * prevent the inode from being truncated.
++			 * Play safe and take the lock.
++			 */
++			set_page_dirty_lock(page);
  
-+	mutex_lock(&smu->sensor_lock);
- 	switch (sensor) {
- 	case AMDGPU_PP_SENSOR_MAX_FAN_RPM:
- 		*(uint32_t *)data = pptable->FanMaximumRpm;
-@@ -1044,6 +1045,7 @@ static int arcturus_read_sensor(struct smu_context *smu,
- 	default:
- 		ret = smu_smc_read_sensor(smu, sensor, data, size);
- 	}
-+	mutex_unlock(&smu->sensor_lock);
- 
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/amd/powerplay/inc/amdgpu_smu.h b/drivers/gpu/drm/amd/powerplay/inc/amdgpu_smu.h
-index 6109815a0401..23171a4d9a31 100644
---- a/drivers/gpu/drm/amd/powerplay/inc/amdgpu_smu.h
-+++ b/drivers/gpu/drm/amd/powerplay/inc/amdgpu_smu.h
-@@ -344,6 +344,7 @@ struct smu_context
- 	const struct smu_funcs		*funcs;
- 	const struct pptable_funcs	*ppt_funcs;
- 	struct mutex			mutex;
-+	struct mutex			sensor_lock;
- 	uint64_t pool_size;
- 
- 	struct smu_table_context	smu_table;
-diff --git a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-index 2574f7186e16..0b461404af6b 100644
---- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-@@ -1386,6 +1386,7 @@ static int navi10_read_sensor(struct smu_context *smu,
- 	if(!data || !size)
- 		return -EINVAL;
- 
-+	mutex_lock(&smu->sensor_lock);
- 	switch (sensor) {
- 	case AMDGPU_PP_SENSOR_MAX_FAN_RPM:
- 		*(uint32_t *)data = pptable->FanMaximumRpm;
-@@ -1409,6 +1410,7 @@ static int navi10_read_sensor(struct smu_context *smu,
- 	default:
- 		ret = smu_smc_read_sensor(smu, sensor, data, size);
- 	}
-+	mutex_unlock(&smu->sensor_lock);
- 
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/amd/powerplay/vega20_ppt.c b/drivers/gpu/drm/amd/powerplay/vega20_ppt.c
-index 64386ee3f878..bbd8ebd58434 100644
---- a/drivers/gpu/drm/amd/powerplay/vega20_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/vega20_ppt.c
-@@ -3023,6 +3023,7 @@ static int vega20_read_sensor(struct smu_context *smu,
- 	if(!data || !size)
- 		return -EINVAL;
- 
-+	mutex_lock(&smu->sensor_lock);
- 	switch (sensor) {
- 	case AMDGPU_PP_SENSOR_MAX_FAN_RPM:
- 		*(uint32_t *)data = pptable->FanMaximumRpm;
-@@ -3048,6 +3049,7 @@ static int vega20_read_sensor(struct smu_context *smu,
- 	default:
- 		ret = smu_smc_read_sensor(smu, sensor, data, size);
- 	}
-+	mutex_unlock(&smu->sensor_lock);
- 
- 	return ret;
- }
+ 		mark_page_accessed(page);
+ 		put_page(page);
 
