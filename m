@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 465E9D00A3
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:20:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91683D00A4
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 20:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbfJHSUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 14:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54642 "EHLO mail.kernel.org"
+        id S1726353AbfJHSUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 14:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726138AbfJHSUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 14:20:34 -0400
+        id S1726138AbfJHSUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Oct 2019 14:20:37 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BA3A217D7;
-        Tue,  8 Oct 2019 18:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D04E521835;
+        Tue,  8 Oct 2019 18:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570558832;
-        bh=BiwBA9C0DR0h/CKEVQkHu9kkyAvnt3wxcjcso4wDyRE=;
+        s=default; t=1570558836;
+        bh=ofjwxv0pHxAW/2Kj6VOGKPwGXWGM6U1TqkhKnnLpGJo=;
         h=Date:From:To:Subject:From;
-        b=D434keaOVv8vFD5csIaI/QX3JvEF3l5oxmAMIhNAM0yDExhUOeE6NbLGqV/giF7HW
-         WJ1mG0/dezjm3Kd6oSTIOj4Wsiff/6WYlZvxLc3rOjXu0XsB6lLSZGAaYLBnfqw1Nh
-         xKGB5QEp0/Ziy5KsfuOWoYKDZSwCtRrQb2FOA7Yc=
-Date:   Tue, 08 Oct 2019 11:20:32 -0700
+        b=vrBEQgNuObGyacasHRV08cgCciTZud1lHreivriN7XzAnPFM97NNeyYW9gTcK1Iwf
+         xmvfj0yetNbzOJtUKd9a588Y00aO6P2Gjzu3WL54/vcXuhry15HOoZVJKyJS/2uLh8
+         pfdWb/VZEkpTqn8R6JBZyQ8LxNyC0Y4neCzMBdOw=
+Date:   Tue, 08 Oct 2019 11:20:35 -0700
 From:   akpm@linux-foundation.org
-To:     ddstreet@ieee.org, henrywolfeburns@gmail.com,
-        markus.linnala@gmail.com, mm-commits@vger.kernel.org,
-        shakeelb@google.com, stable@vger.kernel.org, vbabka@suse.cz,
-        vitalywool@gmail.com
-Subject:  [merged] z3fold-claim-page-in-the-beginning-of-free.patch
- removed from -mm tree
-Message-ID: <20191008182032.N_XVt4Rzq%akpm@linux-foundation.org>
+To:     alexander.duyck@gmail.com, borntraeger@de.ibm.com, cai@lca.pw,
+        gor@linux.ibm.com, heiko.carstens@de.ibm.com, kirill@shutemov.name,
+        mhocko@suse.com, mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  [merged]
+ mm-page_alloc-fix-a-crash-in-free_pages_prepare.patch removed from -mm tree
+Message-ID: <20191008182035.nGcWlvGY-%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,96 +39,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/z3fold.c: claim page in the beginning of free
+     Subject: mm/page_alloc.c: fix a crash in free_pages_prepare()
 has been removed from the -mm tree.  Its filename was
-     z3fold-claim-page-in-the-beginning-of-free.patch
+     mm-page_alloc-fix-a-crash-in-free_pages_prepare.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Vitaly Wool <vitalywool@gmail.com>
-Subject: mm/z3fold.c: claim page in the beginning of free
+From: Qian Cai <cai@lca.pw>
+Subject: mm/page_alloc.c: fix a crash in free_pages_prepare()
 
-There's a really hard to reproduce race in z3fold between z3fold_free()
-and z3fold_reclaim_page().  z3fold_reclaim_page() can claim the page after
-z3fold_free() has checked if the page was claimed and z3fold_free() will
-then schedule this page for compaction which may in turn lead to random
-page faults (since that page would have been reclaimed by then).  Fix that
-by claiming page in the beginning of z3fold_free() and not forgetting to
-clear the claim in the end.
+On architectures like s390, arch_free_page() could mark the page unused
+(set_page_unused()) and any access later would trigger a kernel panic. 
+Fix it by moving arch_free_page() after all possible accessing calls.
 
-[vitalywool@gmail.com: v2]
-  Link: http://lkml.kernel.org/r/20190928113456.152742cf@bigdell
-Link: http://lkml.kernel.org/r/20190926104844.4f0c6efa1366b8f5741eaba9@gmail.com
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Reported-by: Markus Linnala <markus.linnala@gmail.com>
-Cc: Dan Streetman <ddstreet@ieee.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Markus Linnala <markus.linnala@gmail.com>
-Cc: <stable@vger.kernel.org>
+ Hardware name: IBM 2964 N96 400 (z/VM 6.4.0)
+ Krnl PSW : 0404e00180000000 0000000026c2b96e
+(__free_pages_ok+0x34e/0x5d8)
+            R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:2 PM:0 RI:0 EA:3
+ Krnl GPRS: 0000000088d43af7 0000000000484000 000000000000007c
+ 000000000000000f
+            000003d080012100 000003d080013fc0 0000000000000000
+ 0000000000100000
+            00000000275cca48 0000000000000100 0000000000000008
+ 000003d080010000
+            00000000000001d0 000003d000000000 0000000026c2b78a
+ 000000002717fdb0
+ Krnl Code: 0000000026c2b95c: ec1100b30659 risbgn %r1,%r1,0,179,6
+            0000000026c2b962: e32014000036 pfd 2,1024(%r1)
+           #0000000026c2b968: d7ff10001000 xc 0(256,%r1),0(%r1)
+           >0000000026c2b96e: 41101100  la %r1,256(%r1)
+            0000000026c2b972: a737fff8  brctg %r3,26c2b962
+            0000000026c2b976: d7ff10001000 xc 0(256,%r1),0(%r1)
+            0000000026c2b97c: e31003400004 lg %r1,832
+            0000000026c2b982: ebff1430016a asi 5168(%r1),-1
+ Call Trace:
+ __free_pages_ok+0x16a/0x5d8)
+ memblock_free_all+0x206/0x290
+ mem_init+0x58/0x120
+ start_kernel+0x2b0/0x570
+ startup_continue+0x6a/0xc0
+ INFO: lockdep is turned off.
+ Last Breaking-Event-Address:
+ __free_pages_ok+0x372/0x5d8
+ Kernel panic - not syncing: Fatal exception: panic_on_oops
+00: HCPGIR450W CP entered; disabled wait PSW 00020001 80000000 00000000
+26A2379C
+
+In the past, only kernel_poison_pages() would trigger this but it needs
+"page_poison=on" kernel cmdline, and I suspect nobody tested that on
+s390.  Recently, kernel_init_free_pages() (commit 6471384af2a6 ("mm:
+security: introduce init_on_alloc=1 and init_on_free=1 boot options"))
+was added and could trigger this as well.
+
+[akpm@linux-foundation.org: add comment]
+Link: http://lkml.kernel.org/r/1569613623-16820-1-git-send-email-cai@lca.pw
+Fixes: 8823b1dbc05f ("mm/page_poison.c: enable PAGE_POISONING as a separate option")
+Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: "Kirill A. Shutemov" <kirill@shutemov.name>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.3+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/z3fold.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ mm/page_alloc.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/mm/z3fold.c~z3fold-claim-page-in-the-beginning-of-free
-+++ a/mm/z3fold.c
-@@ -998,9 +998,11 @@ static void z3fold_free(struct z3fold_po
- 	struct z3fold_header *zhdr;
- 	struct page *page;
- 	enum buddy bud;
-+	bool page_claimed;
+--- a/mm/page_alloc.c~mm-page_alloc-fix-a-crash-in-free_pages_prepare
++++ a/mm/page_alloc.c
+@@ -1175,11 +1175,17 @@ static __always_inline bool free_pages_p
+ 		debug_check_no_obj_freed(page_address(page),
+ 					   PAGE_SIZE << order);
+ 	}
+-	arch_free_page(page, order);
+ 	if (want_init_on_free())
+ 		kernel_init_free_pages(page, 1 << order);
  
- 	zhdr = handle_to_z3fold_header(handle);
- 	page = virt_to_page(zhdr);
-+	page_claimed = test_and_set_bit(PAGE_CLAIMED, &page->private);
- 
- 	if (test_bit(PAGE_HEADLESS, &page->private)) {
- 		/* if a headless page is under reclaim, just leave.
-@@ -1008,7 +1010,7 @@ static void z3fold_free(struct z3fold_po
- 		 * has not been set before, we release this page
- 		 * immediately so we don't care about its value any more.
- 		 */
--		if (!test_and_set_bit(PAGE_CLAIMED, &page->private)) {
-+		if (!page_claimed) {
- 			spin_lock(&pool->lock);
- 			list_del(&page->lru);
- 			spin_unlock(&pool->lock);
-@@ -1044,13 +1046,15 @@ static void z3fold_free(struct z3fold_po
- 		atomic64_dec(&pool->pages_nr);
- 		return;
- 	}
--	if (test_bit(PAGE_CLAIMED, &page->private)) {
-+	if (page_claimed) {
-+		/* the page has not been claimed by us */
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
- 	if (unlikely(PageIsolated(page)) ||
- 	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
- 		z3fold_page_unlock(zhdr);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 	if (zhdr->cpu < 0 || !cpu_online(zhdr->cpu)) {
-@@ -1060,10 +1064,12 @@ static void z3fold_free(struct z3fold_po
- 		zhdr->cpu = -1;
- 		kref_get(&zhdr->refcount);
- 		do_compact_page(zhdr, true);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 	kref_get(&zhdr->refcount);
- 	queue_work_on(zhdr->cpu, pool->compact_wq, &zhdr->work);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
- }
+ 	kernel_poison_pages(page, 1 << order, 0);
++	/*
++	 * arch_free_page() can make the page's contents inaccessible.  s390
++	 * does this.  So nothing which can access the page's contents should
++	 * happen after this.
++	 */
++	arch_free_page(page, order);
++
+ 	if (debug_pagealloc_enabled())
+ 		kernel_map_pages(page, 1 << order, 0);
  
 _
 
-Patches currently in -mm which might be from vitalywool@gmail.com are
+Patches currently in -mm which might be from cai@lca.pw are
 
+mm-slub-fix-a-deadlock-in-show_slab_objects.patch
 
