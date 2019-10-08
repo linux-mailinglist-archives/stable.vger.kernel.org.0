@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D97CFFE4
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0478CFFF5
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726086AbfJHRa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 13:30:26 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38037 "EHLO
+        id S1726086AbfJHRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 13:33:56 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:38919 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725917AbfJHRa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:30:26 -0400
+        by vger.kernel.org with ESMTP id S1726066AbfJHRd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:33:56 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6AB4521EA7;
-        Tue,  8 Oct 2019 13:30:25 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 6B29721C7D;
+        Tue,  8 Oct 2019 13:33:55 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:30:25 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:33:55 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dyfkOv
-        Sk76MJ8ZKJI/M4zNW7AYmdHi27qyTQkNX0Z/o=; b=M68XuMJe9OJLvNupCEbaqe
-        VxN0dSXiul71dozbd+V6BCW2jYuk67uiapRIB2ykPywxDpH8ZryOS/oLwdmmcVxr
-        dKKew651u0hTmkjFvDERgmPi8w3vQD8HSRY6/5383PmnRCtq/pNOgh6fVmi9Yr99
-        LHjRPMw3amzZZJBvd6bE8JGjIuwU53QVoKDO31f86tFrCP8ZtkjLT+kG7KbjZnS6
-        XCtNmMbz/IwU8UeZjX3/KsFY4O1y0lIgsRDP4LJ2mJx9CHmCrxcXX7MXgN2zHlFy
-        vQUT7BV3uo85YtLtkMVAOIf2rGFXE+1oLD3M62B5kro8a2GFQHSfRuD9KcCczX5A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=g/EFa9
+        PXwV5Mxul0ti4m9gNhBNfUo1oGXoZr3c0puys=; b=ewZc8feIXxOZfi0XrkiSmS
+        Vy2jDxsEMRKb4lohgj1ULzbnq61iAiNVVmeuDugEj5z2ENF53xU5MQorSYLl9MM0
+        M55PoiRT3hDKiP2vYDdh8k4g6mOJUr5sReDVyg7oEmG6nrqFXEoZ8HxYZFXmEa/X
+        mIMlOrBCAMIdKkJSMpVSG6juiY5zW+R3GXI7k+Ap5WxBkQnlDCyw9N8BCzIMQpEj
+        NZtHMZeAHKfLzAk4iADLEFzUUL7WH9T/tIciDu7R6GqV+nNQq/sEeEoCrm0R7CYR
+        rTKwxcrhnwy3lMtPMLu29RvPyNw6TmGe/IOD87oau+rtu8gyiYzZ8O3C9SNjD06g
         ==
-X-ME-Sender: <xms:scecXXybtbjjyTJxxu1UvZoqloic3lkbvSskLFe08ahSBZLk1H6H0w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:gsicXQ1DVP4EL2gVtm1TxL-w0xMBPllKGU_yxHnsa4HL6lfaw4UzDA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:scecXaVCSRPgUda5Z5ojmkJ69Ppe4H3EulcWrNsYe7Lnr7J_Woj07g>
-    <xmx:scecXZYtsmdQSO-0Js2nnY9DodRhOtIqtP6N5S3slZkOuGf-NKd2Gg>
-    <xmx:scecXTxmggKTt7bq-Gj4dCz0hPs1rjHrqhdLYOQX_Nc2NmxY-AvxzA>
-    <xmx:scecXeTQUa8213ZcXjl47mv8Ve6CyeoNFC5eTnIKvCsKdaRUIQLBcQ>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:gsicXfUvP7X432krg1DSOrRjd4v7EwOTkXXn8B4G-K0uGsmd6Iopgw>
+    <xmx:gsicXT52hF4NbSH1yn5tGWMsFmNdZy0WiDzqp2KZ5HnQ_HTiCzLqLQ>
+    <xmx:gsicXeIVyRRVuJ6o1CAFpsfdaidwO3g35uiklOA0Sjf0lYP2opueiw>
+    <xmx:g8icXYDVB8TuYIANhmOvjiWNdh5xxMzpQxWiSYlWrrJabcDrJwRb9Q>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9D4D58005C;
-        Tue,  8 Oct 2019 13:30:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: sdhci: Let drivers define their DMA mask" failed to apply to 4.19-stable tree
-To:     adrian.hunter@intel.com, nicoleotsuka@gmail.com,
-        treding@nvidia.com, ulf.hansson@linaro.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6D23A8005C;
+        Tue,  8 Oct 2019 13:33:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] nl80211: validate beacon head" failed to apply to 4.19-stable tree
+To:     johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 19:30:21 +0200
-Message-ID: <1570555821228116@kroah.com>
+Date:   Tue, 08 Oct 2019 19:33:52 +0200
+Message-ID: <157055603221237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,57 +68,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4ee7dde4c777f14cb0f98dd201491bf6cc15899b Mon Sep 17 00:00:00 2001
-From: Adrian Hunter <adrian.hunter@intel.com>
-Date: Mon, 23 Sep 2019 12:08:09 +0200
-Subject: [PATCH] mmc: sdhci: Let drivers define their DMA mask
+From f88eb7c0d002a67ef31aeb7850b42ff69abc46dc Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Fri, 20 Sep 2019 21:54:17 +0200
+Subject: [PATCH] nl80211: validate beacon head
 
-Add host operation ->set_dma_mask() so that drivers can define their own
-DMA masks.
+We currently don't validate the beacon head, i.e. the header,
+fixed part and elements that are to go in front of the TIM
+element. This means that the variable elements there can be
+malformed, e.g. have a length exceeding the buffer size, but
+most downstream code from this assumes that this has already
+been checked.
 
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Tested-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Cc: stable@vger.kernel.org # v4.15 +
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Add the necessary checks to the netlink policy.
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 922a5b594c5e..b056400e34b1 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -3781,18 +3781,14 @@ int sdhci_setup_host(struct sdhci_host *host)
- 		host->flags &= ~SDHCI_USE_ADMA;
- 	}
+Cc: stable@vger.kernel.org
+Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
+Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index d21b1581a665..7386421e2ad3 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -201,6 +201,38 @@ cfg80211_get_dev_from_info(struct net *netns, struct genl_info *info)
+ 	return __cfg80211_rdev_from_attrs(netns, info->attrs);
+ }
  
--	/*
--	 * It is assumed that a 64-bit capable device has set a 64-bit DMA mask
--	 * and *must* do 64-bit DMA.  A driver has the opportunity to change
--	 * that during the first call to ->enable_dma().  Similarly
--	 * SDHCI_QUIRK2_BROKEN_64_BIT_DMA must be left to the drivers to
--	 * implement.
--	 */
- 	if (sdhci_can_64bit_dma(host))
- 		host->flags |= SDHCI_USE_64_BIT_DMA;
++static int validate_beacon_head(const struct nlattr *attr,
++				struct netlink_ext_ack *extack)
++{
++	const u8 *data = nla_data(attr);
++	unsigned int len = nla_len(attr);
++	const struct element *elem;
++	const struct ieee80211_mgmt *mgmt = (void *)data;
++	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
++					 u.beacon.variable);
++
++	if (len < fixedlen)
++		goto err;
++
++	if (ieee80211_hdrlen(mgmt->frame_control) !=
++	    offsetof(struct ieee80211_mgmt, u.beacon))
++		goto err;
++
++	data += fixedlen;
++	len -= fixedlen;
++
++	for_each_element(elem, data, len) {
++		/* nothing */
++	}
++
++	if (for_each_element_completed(elem, data, len))
++		return 0;
++
++err:
++	NL_SET_ERR_MSG_ATTR(extack, attr, "malformed beacon head");
++	return -EINVAL;
++}
++
+ static int validate_ie_attr(const struct nlattr *attr,
+ 			    struct netlink_ext_ack *extack)
+ {
+@@ -338,8 +370,9 @@ const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
  
- 	if (host->flags & (SDHCI_USE_SDMA | SDHCI_USE_ADMA)) {
--		ret = sdhci_set_dma_mask(host);
-+		if (host->ops->set_dma_mask)
-+			ret = host->ops->set_dma_mask(host);
-+		else
-+			ret = sdhci_set_dma_mask(host);
- 
- 		if (!ret && host->ops->enable_dma)
- 			ret = host->ops->enable_dma(host);
-diff --git a/drivers/mmc/host/sdhci.h b/drivers/mmc/host/sdhci.h
-index a29c4cd2d92e..0ed3e0eaef5f 100644
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -622,6 +622,7 @@ struct sdhci_ops {
- 
- 	u32		(*irq)(struct sdhci_host *host, u32 intmask);
- 
-+	int		(*set_dma_mask)(struct sdhci_host *host);
- 	int		(*enable_dma)(struct sdhci_host *host);
- 	unsigned int	(*get_max_clock)(struct sdhci_host *host);
- 	unsigned int	(*get_min_clock)(struct sdhci_host *host);
+ 	[NL80211_ATTR_BEACON_INTERVAL] = { .type = NLA_U32 },
+ 	[NL80211_ATTR_DTIM_PERIOD] = { .type = NLA_U32 },
+-	[NL80211_ATTR_BEACON_HEAD] = { .type = NLA_BINARY,
+-				       .len = IEEE80211_MAX_DATA_LEN },
++	[NL80211_ATTR_BEACON_HEAD] =
++		NLA_POLICY_VALIDATE_FN(NLA_BINARY, validate_beacon_head,
++				       IEEE80211_MAX_DATA_LEN),
+ 	[NL80211_ATTR_BEACON_TAIL] =
+ 		NLA_POLICY_VALIDATE_FN(NLA_BINARY, validate_ie_attr,
+ 				       IEEE80211_MAX_DATA_LEN),
 
