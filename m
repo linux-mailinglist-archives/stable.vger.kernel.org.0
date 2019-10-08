@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AC03CFFC4
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C46CFFD6
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 19:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726322AbfJHRZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 13:25:18 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:46849 "EHLO
+        id S1727496AbfJHR1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 13:27:54 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:55025 "EHLO
         out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725900AbfJHRZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:25:18 -0400
+        by vger.kernel.org with ESMTP id S1726057AbfJHR1y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 13:27:54 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 09CE021F57;
-        Tue,  8 Oct 2019 13:25:18 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 0D6B42073F;
+        Tue,  8 Oct 2019 13:27:54 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:25:18 -0400
+  by compute6.internal (MEProxy); Tue, 08 Oct 2019 13:27:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=J0MReE
-        PqjDHMgD1oSjzvjB0IY09Pl8/yLTPp7loH+zc=; b=Bjhfu1h9dPwyCMm3TPK1ww
-        yUOwwP+HX9pu1WFt5DbU3ZnYQMR//3nws6XhdKvcUASrsoEbj3VC+JgjhuR9IHan
-        oGcpoXEM1DxvcdaI7fcXtF0dTY382upf4JqY/+QUfkot8Jr4/dPiSNzTryG/Ux5y
-        FU6/GerIWY8QgE8CxKgeU4PQr6To5fX+fTbaW+oNZmltuAP4IRrULMLjvFTnd8Vp
-        teaMlvJVzcmshDQljbcwJlo7mNXaJ6zjp5++G3mVDZn1ArQ2imPDGys9z/S0Mdav
-        6slju3lnPvWAfsRZ4fE2p1uuH83yxyKgc7x72XMTx7Fp9IlOrCpCaGzK9XxBwhSA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ON82FO
+        WjZFeBCzAYMUAyt98HmMSb5sB6Dls7mALiYis=; b=aa99YQFqEScu2SW1B+4/O/
+        9boS7/At8PysB40rLl85YeN/HM8YptCfa0cj3pJbx0QAjs8619q1gok7xtBQ2JAW
+        QvKTXqsUz+C/NKcKvSGdgsolWOxa+Ex8ItD0QXNHBkKllNg/uFrdEOb+wSdfVHac
+        ZQUmJr4bmQ0XNTeXpOEGp02FuWIT7EzHkwpt1irzbvd4wQtkUA/vMgQCvZB3Zmh0
+        wnKAzx/EInBOM5+nkHLWEvhYF4Aey7M1W0WtQL3p0b7Q3MaXwkUhMgM4pCgtKg8W
+        IdYiDmkROXzgTVr8RrQgHYUosdarRNF7wttJroTWHkyMS06oCZwTX1gBb87MDAhg
         ==
-X-ME-Sender: <xms:fcacXU_PEeTEkeFIXkNHzglFGmFf1jmtBnDkbWvoM_bglDbhmYekYw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudehucetufdoteggodetrfdotf
+X-ME-Sender: <xms:GcecXamVTOddlwWws5kPrNZtRFnnTb2liIu80bqcBcnox0p8TTKwHA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrheelgdduudeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
-    hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
-    pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:fcacXYYV91XSWDt4QFRpk2wMzAwLvucpnGZYHVtbaEku_RatbB0ofw>
-    <xmx:fcacXQ6GhG-vhT06F0Bau1Q228WgQhV553w_D5tbnVE7gOltWKKk1Q>
-    <xmx:fcacXZRospJmG_fS0s6_ZPD3R8_nZR2odwfbmpCJFkdRe2S6z8WheQ>
-    <xmx:fsacXYcdAuS7xczoBzzV6Huwvq0NWoNskxVJEymyBfrnGwSNn9PSgg>
+    gheqnecuffhomhgrihhnpegvnhhtrhihrdhssgenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:GcecXdYaVLVATPC0EPoX3g_1I1OS6U1UgUvB1fpws4V6dDsXjbX3Fg>
+    <xmx:GcecXQe6eEHsguKULtsgNlkwR3caeGsYb8z1KmsXACzWoHe4VpN-dw>
+    <xmx:GcecXV45nH6jVs677hPDvPgeoJb8FszF0BQPg4MEEL9dd-mbkXOAyQ>
+    <xmx:GsecXbgOxpi__xQmg5Ki4fNhfvDLvAL3UxZwiNGBWCw6WQElZs5Xdw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9DC4CD6005D;
-        Tue,  8 Oct 2019 13:25:17 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock around" failed to apply to 4.9-stable tree
-To:     chris@chris-wilson.co.uk, tvrtko.ursulin@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id A8E8CD6005B;
+        Tue,  8 Oct 2019 13:27:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] riscv: Avoid interrupts being erroneously enabled in" failed to apply to 4.19-stable tree
+To:     vincent.chen@sifive.com, david.abdurachmanov@sifive.com,
+        palmer@sifive.com, paul.walmsley@sifive.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Oct 2019 19:25:05 +0200
-Message-ID: <1570555505226224@kroah.com>
+Date:   Tue, 08 Oct 2019 19:27:44 +0200
+Message-ID: <1570555664227250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,51 +69,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cb6d7c7dc7ff8cace666ddec66334117a6068ce2 Mon Sep 17 00:00:00 2001
-From: Chris Wilson <chris@chris-wilson.co.uk>
-Date: Mon, 8 Jul 2019 15:03:27 +0100
-Subject: [PATCH] drm/i915/userptr: Acquire the page lock around
- set_page_dirty()
+From c82dd6d078a2bb29d41eda032bb96d05699a524d Mon Sep 17 00:00:00 2001
+From: Vincent Chen <vincent.chen@sifive.com>
+Date: Mon, 16 Sep 2019 16:47:41 +0800
+Subject: [PATCH] riscv: Avoid interrupts being erroneously enabled in
+ handle_exception()
 
-set_page_dirty says:
+When the handle_exception function addresses an exception, the interrupts
+will be unconditionally enabled after finishing the context save. However,
+It may erroneously enable the interrupts if the interrupts are disabled
+before entering the handle_exception.
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
+For example, one of the WARN_ON() condition is satisfied in the scheduling
+where the interrupt is disabled and rq.lock is locked. The WARN_ON will
+trigger a break exception and the handle_exception function will enable the
+interrupts before entering do_trap_break function. During the procedure, if
+a timer interrupt is pending, it will be taken when interrupts are enabled.
+In this case, it may cause a deadlock problem if the rq.lock is locked
+again in the timer ISR.
 
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
+Hence, the handle_exception() can only enable interrupts when the state of
+sstatus.SPIE is 1.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
-References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+This patch is tested on HiFive Unleashed board.
+
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+[paul.walmsley@sifive.com: updated to apply]
+Fixes: bcae803a21317 ("RISC-V: Enable IRQ during exception handling")
+Cc: David Abdurachmanov <david.abdurachmanov@sifive.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-index 16ccec7fb7da..32d208ede343 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-@@ -665,7 +665,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index 74ccfd464071..da7aa88113c2 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -166,9 +166,13 @@ ENTRY(handle_exception)
+ 	move a0, sp /* pt_regs */
+ 	tail do_IRQ
+ 1:
+-	/* Exceptions run with interrupts enabled */
++	/* Exceptions run with interrupts enabled or disabled
++	   depending on the state of sstatus.SR_SPIE */
++	andi t0, s1, SR_SPIE
++	beqz t0, 1f
+ 	csrs CSR_SSTATUS, SR_SIE
  
- 	for_each_sgt_page(page, sgt_iter, pages) {
- 		if (obj->mm.dirty)
--			set_page_dirty(page);
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 */
-+			set_page_dirty_lock(page);
- 
- 		mark_page_accessed(page);
- 		put_page(page);
++1:
+ 	/* Handle syscalls */
+ 	li t0, EXC_SYSCALL
+ 	beq s4, t0, handle_syscall
 
