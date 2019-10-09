@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F73BD157B
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A776DD1583
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:24:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731542AbfJIRXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:23:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47952 "EHLO mail.kernel.org"
+        id S1732005AbfJIRX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbfJIRXx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:23:53 -0400
+        id S1731991AbfJIRX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:23:56 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 126CA206BB;
-        Wed,  9 Oct 2019 17:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4890C2196E;
+        Wed,  9 Oct 2019 17:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641833;
-        bh=BnNP/S94t0ycyVIws48GAEBsgOMeY35JYl69u3+93fc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kU6CQGlrQqr5rwGxHL3NP8rtMt8jQRFHeJcBGjHpZkp9ry50kUKJs9rL2p3hWTihu
-         tT+/xZgCS1iO/FqE8mKljpiJju3puOerUBhhuY13uy3st7nM9WHd00Nt5XyneaES2/
-         4khjHPm+/pgHD9XJkm77SZiL+hpfjr9WMHEoMuNU=
+        s=default; t=1570641835;
+        bh=mqorUQN+cdr1Eu4q/RLzx0/E236qnHRyOfcEwcMOZpw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GvKxjycxuerqhaoq03DkHst1b2I2cDVYLhY/VNCuVUB3DNIJADBn1UjAV5aFhIKcX
+         eaOqQGxNio+g9yN4RVyah+6LbV6ErI2S/zPMYdBrpcTZf2+4IXcYjqep4Av4lu1PEc
+         4S+ZJwhvoWcOpC/1JreNpwf/jVZpeMB/ivxsTcKk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zenghui Yu <yuzenghui@huawei.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 01/68] KVM: arm/arm64: vgic: Use the appropriate TRACE_INCLUDE_PATH
-Date:   Wed,  9 Oct 2019 13:04:40 -0400
-Message-Id: <20191009170547.32204-1-sashal@kernel.org>
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 07/68] scsi: ufs: skip shutdown if hba is not powered
+Date:   Wed,  9 Oct 2019 13:04:46 -0400
+Message-Id: <20191009170547.32204-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191009170547.32204-1-sashal@kernel.org>
+References: <20191009170547.32204-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,36 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit aac60f1a867773de9eb164013d89c99f3ea1f009 ]
+[ Upstream commit f51913eef23f74c3bd07899dc7f1ed6df9e521d8 ]
 
-Commit 49dfe94fe5ad ("KVM: arm/arm64: Fix TRACE_INCLUDE_PATH") fixes
-TRACE_INCLUDE_PATH to the correct relative path to the define_trace.h
-and explains why did the old one work.
+In some cases, hba may go through shutdown flow without successful
+initialization and then make system hang.
 
-The same fix should be applied to virt/kvm/arm/vgic/trace.h.
+For example, if ufshcd_change_power_mode() gets error and leads to
+ufshcd_hba_exit() to release resources of the host, future shutdown flow
+may hang the system since the host register will be accessed in unpowered
+state.
 
-Reviewed-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
+To solve this issue, simply add checking to skip shutdown for above kind of
+situation.
+
+Link: https://lore.kernel.org/r/1568780438-28753-1-git-send-email-stanley.chu@mediatek.com
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Acked-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/vgic/trace.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/virt/kvm/arm/vgic/trace.h b/virt/kvm/arm/vgic/trace.h
-index 55fed77a9f739..4fd4f6db181b0 100644
---- a/virt/kvm/arm/vgic/trace.h
-+++ b/virt/kvm/arm/vgic/trace.h
-@@ -30,7 +30,7 @@ TRACE_EVENT(vgic_update_irq_pending,
- #endif /* _TRACE_VGIC_H */
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 029da74bb2f5c..e674f6148f698 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8095,6 +8095,9 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ {
+ 	int ret = 0;
  
- #undef TRACE_INCLUDE_PATH
--#define TRACE_INCLUDE_PATH ../../../virt/kvm/arm/vgic
-+#define TRACE_INCLUDE_PATH ../../virt/kvm/arm/vgic
- #undef TRACE_INCLUDE_FILE
- #define TRACE_INCLUDE_FILE trace
++	if (!hba->is_powered)
++		goto out;
++
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
  
 -- 
 2.20.1
