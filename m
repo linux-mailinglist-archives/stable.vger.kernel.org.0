@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6693D169A
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:31:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3C3D1698
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732088AbfJIRYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
+        id S1732692AbfJIRbM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731995AbfJIRYB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:01 -0400
+        id S1732096AbfJIRYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:04 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45E8321D7C;
-        Wed,  9 Oct 2019 17:24:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C89FA21929;
+        Wed,  9 Oct 2019 17:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641841;
-        bh=NNl2VEcS5iXIkcI2f5gpfTalyoIENeQKXES09/ID1C8=;
+        s=default; t=1570641843;
+        bh=HqvXM5KNaKG/zgmqzl+/ZTz93tY+4j8tnfWyNVjau/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jH/BU0hBjW7mRS/bT+t2ndJ1fZw31uybVEqAgUW74xQV5yCmCWQlIPQjs7B7ATO3X
-         kmMH5SKlVTxINbktVu9aVEqkcSSXfuL+qBQd3P/jhdLIPZV/jUx6qI/qy3sW9Rz8eJ
-         ra21LFfN1KOb1lSRqYXCpfiUcKeIzwJ3+sD2A61I=
+        b=rB5L71OlaJzeuc1a/F/Pbtv9Vc7iaYO+SZdYz6wCuOFoix7ep6I7vNivjCxCBBS71
+         HdVP5OkKi6AYGku9I9EE/dqhh5sMKEaD8G+AEAANn7sT1GQcdVdFG+K79m7gudPJUw
+         bSyb7VCEwXH/D6iaKfeZ3OWFbLbxwKr+NXYijJP8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 28/68] KVM: x86: Expose XSAVEERPTR to the guest
-Date:   Wed,  9 Oct 2019 13:05:07 -0400
-Message-Id: <20191009170547.32204-28-sashal@kernel.org>
+Cc:     Balbir Singh <sblbir@amzn.com>, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 02/26] nvme-pci: Fix a race in controller removal
+Date:   Wed,  9 Oct 2019 13:05:34 -0400
+Message-Id: <20191009170558.32517-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191009170547.32204-1-sashal@kernel.org>
-References: <20191009170547.32204-1-sashal@kernel.org>
+In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
+References: <20191009170558.32517-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,38 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Balbir Singh <sblbir@amzn.com>
 
-[ Upstream commit 504ce1954fba888936c9d13ccc1e3db9b8f613d5 ]
+[ Upstream commit b224726de5e496dbf78147a66755c3d81e28bdd2 ]
 
-I was surprised to see that the guest reported `fxsave_leak' while the
-host did not. After digging deeper I noticed that the bits are simply
-masked out during enumeration.
+User space programs like udevd may try to read to partitions at the
+same time the driver detects a namespace is unusable, and may deadlock
+if revalidate_disk() is called while such a process is waiting to
+enter the frozen queue. On detecting a dead namespace, move the disk
+revalidate after unblocking dispatchers that may be holding bd_butex.
 
-The XSAVEERPTR feature is actually a bug fix on AMD which means the
-kernel can disable a workaround.
-
-Pass XSAVEERPTR to the guest if available on the host.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+changelog Suggested-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Balbir Singh <sblbir@amzn.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/cpuid.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/nvme/host/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index fd1b8db8bf242..59b66e343fa5a 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -479,6 +479,7 @@ static inline int __do_cpuid_func(struct kvm_cpuid_entry2 *entry, u32 function,
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index ae0b01059fc6d..5d0f99bcc987f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -111,10 +111,13 @@ static void nvme_set_queue_dying(struct nvme_ns *ns)
+ 	 */
+ 	if (!ns->disk || test_and_set_bit(NVME_NS_DEAD, &ns->flags))
+ 		return;
+-	revalidate_disk(ns->disk);
+ 	blk_set_queue_dying(ns->queue);
+ 	/* Forcibly unquiesce queues to avoid blocking dispatch */
+ 	blk_mq_unquiesce_queue(ns->queue);
++	/*
++	 * Revalidate after unblocking dispatchers that may be holding bd_butex
++	 */
++	revalidate_disk(ns->disk);
+ }
  
- 	/* cpuid 0x80000008.ebx */
- 	const u32 kvm_cpuid_8000_0008_ebx_x86_features =
-+		F(XSAVEERPTR) |
- 		F(WBNOINVD) | F(AMD_IBPB) | F(AMD_IBRS) | F(AMD_SSBD) | F(VIRT_SSBD) |
- 		F(AMD_SSB_NO) | F(AMD_STIBP) | F(AMD_STIBP_ALWAYS_ON);
- 
+ static void nvme_queue_scan(struct nvme_ctrl *ctrl)
 -- 
 2.20.1
 
