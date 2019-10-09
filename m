@@ -2,85 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4FC8D1733
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A015D1766
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 20:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728804AbfJIR5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:57:18 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:37207 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730546AbfJIR5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 13:57:17 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w67so2335565lff.4
-        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 10:57:16 -0700 (PDT)
+        id S1731173AbfJISPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 14:15:13 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:39383 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728804AbfJISPN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 14:15:13 -0400
+Received: by mail-qt1-f195.google.com with SMTP id n7so4743158qtb.6
+        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 11:15:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=o8boM57nsIRzYbBpN0Z2Y51IdQe2gX/7UPNvVMmUq/U=;
-        b=h0bAzS/dV9bQ6OnmXiwCK9ZIyyBp1EgxxpfnZdS3eiJkJ4Cjz7v9qeZ5N91ha6cYYN
-         sdAGRVz3vOBIiPXxDatCim0mPu9JCDWAHWzCx9srQuMd9i2Of+bFJ7pwT0s3HSW9A+uI
-         g3PA1uiN+F7kYnzzhfntyPIl5pCuME5B6pPLI=
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+lyTSZwX5XY7B2NrAxQvliQeI28fCgCMHjPWEUXwpgA=;
+        b=hTzT6OVdd6PD3fdZnfkL8h6nk13LQVIR3bOnyceDIM8hVSJFGVdzMWXWUz9mjyi4fc
+         eG/uCgkAvKyPLNAQ4jXB5m07DlU578vgsDa18R7CrflLLYQxUc/MwkKckGztUCZcuNnb
+         716dHo2hPaVChQbWXE7FrNEmVS6BjSGONIQQGnnKseLiPVgpmP9JyZ0VRm3yxrwnQiTn
+         es7+Qfv+9ZgYXM2tb1chLRyaCkTLz0JlH5Op3QzxQ1k0F8MklGvszZwsQEi2fBKxWbqL
+         je4h7M1HAIVtx0MffQywcUGWjM8RmENv1wbPJ7ya4jU+ujeuHKtTjIDaCayY2+0qDjmY
+         BXuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=o8boM57nsIRzYbBpN0Z2Y51IdQe2gX/7UPNvVMmUq/U=;
-        b=DHJX1O2PTEUIX/Tw4FsP66Ch9I6h7EMOkz5MJaKkzUsaFxkYkkaQy5WatJ6MV71Bkc
-         MrHG8+nrW5rncaJyX2459FEZXbWc9XqH3jsfsa2ifE+ce1sbF2JtqCzRHbIsLHwBCKf4
-         XKHwMrj8F1HXb7ClXJ+rsJP6jIyNDfJ4CuHKJ6z6Ylap4pN/fw/0X90wYJe5+wZSz9Ax
-         pvnAQToByhgEdqNkjk2fZ2c6lU9S7N+BmesvV+7FCK+SO7XmLordtau9p7VKTYrIZfHy
-         DqqAxYC107Td1Xt685RZJ+z/yuhR5x+C46dGAeBEJCcfnDhT11ajwcyxlXl8SbBRGqB3
-         t5PA==
-X-Gm-Message-State: APjAAAWV0e2xFVdkJcE/boT1JES9qhqqnhPJ37sdRY7lnCyt1ODz1pwr
-        RsTRQxEvc3qcV1cdYN0QDAMphX1dTWQ=
-X-Google-Smtp-Source: APXvYqwR7HaaCe8bdU75ZPtLFfXK4sqJXNlQVliV03cZrmKwRS7GB5xa1AHqRBB1nLc2gskV96gCnw==
-X-Received: by 2002:a19:4bcf:: with SMTP id y198mr2892790lfa.168.1570643834886;
-        Wed, 09 Oct 2019 10:57:14 -0700 (PDT)
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
-        by smtp.gmail.com with ESMTPSA id l5sm610627lfk.17.2019.10.09.10.57.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Oct 2019 10:57:13 -0700 (PDT)
-Received: by mail-lj1-f172.google.com with SMTP id a22so3457544ljd.0
-        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 10:57:13 -0700 (PDT)
-X-Received: by 2002:a2e:9848:: with SMTP id e8mr3209250ljj.148.1570643832712;
- Wed, 09 Oct 2019 10:57:12 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+lyTSZwX5XY7B2NrAxQvliQeI28fCgCMHjPWEUXwpgA=;
+        b=Ixmo1WiXn6S+EG/2Oz1ztmM07av0f7Yuvf7g+DbIfZ+z+17iiQR8hE+diSQSuo84gw
+         jksCstHjZDSYzOh3u9T7q0dMn7HSukkLUDZLsPVmj99HcXf03lGqilyJM/JSs6BAvyXc
+         A1bXSDXfOiRBxQvA1Db1CLztuTAzkHnF+iDsjAbY6zij6Vx1+1iAXrbrt9Fi/RzWA/Cz
+         6qbVE+y4WY8hqrgNDNWjwPJx1nc95gK7ZdYNylltl5/0oF5efvdSvoGVrDAPcgcL9pl8
+         XxE0GCcPRwt4inxkdk8lap1/PiTCO1WJ08tR2BMF+7Li2eZIZTGGHp+ZpJpsZ4SDNDym
+         rl0w==
+X-Gm-Message-State: APjAAAUSPGn69otfBer7GUv9AhpJQaB2C1C6Eblygl674Uh7FLklS6lp
+        cK+QM0L964fwx2jFSCUGAXp11bS1
+X-Google-Smtp-Source: APXvYqzWvRAfhYx4iNs2faVfsK+kH7tw1F/hz+AT/k2dV4IYDLnOm3NqWylJBtsxKiSA9MGrdKHEBQ==
+X-Received: by 2002:ac8:240c:: with SMTP id c12mr5146364qtc.361.1570644912328;
+        Wed, 09 Oct 2019 11:15:12 -0700 (PDT)
+Received: from localhost.localdomain ([71.51.171.205])
+        by smtp.gmail.com with ESMTPSA id n4sm1325553qkc.61.2019.10.09.11.15.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Oct 2019 11:15:11 -0700 (PDT)
+From:   Alex Deucher <alexdeucher@gmail.com>
+X-Google-Original-From: Alex Deucher <alexander.deucher@amd.com>
+To:     amd-gfx@lists.freedesktop.org, kmahlkuc@linux.vnet.ibm.com
+Cc:     Alex Deucher <alexander.deucher@amd.com>, stable@vger.kernel.org
+Subject: [PATCH] Revert "drm/radeon: Fix EEH during kexec"
+Date:   Wed,  9 Oct 2019 13:15:03 -0500
+Message-Id: <20191009181503.20381-1-alexander.deucher@amd.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <20191009170558.32517-1-sashal@kernel.org> <20191009170558.32517-26-sashal@kernel.org>
-In-Reply-To: <20191009170558.32517-26-sashal@kernel.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 9 Oct 2019 10:56:56 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiVe+nxotYXExXRxhvCSTCqyRuZUto6UrvR2oHfeGrJ+g@mail.gmail.com>
-Message-ID: <CAHk-=wiVe+nxotYXExXRxhvCSTCqyRuZUto6UrvR2oHfeGrJ+g@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.19 26/26] Make filldir[64]() verify the
- directory entry filename is valid
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jann Horn <jannh@google.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 9, 2019 at 10:24 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: Linus Torvalds <torvalds@linux-foundation.org>
->
-> [ Upstream commit 8a23eb804ca4f2be909e372cf5a9e7b30ae476cd ]
+This reverts commit 6f7fe9a93e6c09bf988c5059403f5f88e17e21e6.
 
-I didn't mark this for stable because I expect things to still change
-- particularly the WARN_ON_ONCE() should be removed before final 5.4,
-I just wanted to see if anybody could trigger it with testing etc.
+This breaks some boards.  Maybe just enable this on PPC for
+now?
 
-(At least syzbot did trigger it).
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205147
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/radeon/radeon_drv.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-If you do want to take it, take it without the WARN_ON_ONCE() calls
-and note that in the commit message..
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 4267cb55bc33..2bc56f829bf7 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -378,19 +378,11 @@ radeon_pci_remove(struct pci_dev *pdev)
+ static void
+ radeon_pci_shutdown(struct pci_dev *pdev)
+ {
+-	struct drm_device *ddev = pci_get_drvdata(pdev);
+-
+ 	/* if we are running in a VM, make sure the device
+ 	 * torn down properly on reboot/shutdown
+ 	 */
+ 	if (radeon_device_is_virtual())
+ 		radeon_pci_remove(pdev);
+-
+-	/* Some adapters need to be suspended before a
+-	* shutdown occurs in order to prevent an error
+-	* during kexec.
+-	*/
+-	radeon_suspend_kms(ddev, true, true, false);
+ }
+ 
+ static int radeon_pmops_suspend(struct device *dev)
+-- 
+2.20.1
 
-           Linus
