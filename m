@@ -2,96 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2566FD0893
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 09:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CC6DD08C2
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 09:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730217AbfJIHlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 03:41:40 -0400
-Received: from mga05.intel.com ([192.55.52.43]:10388 "EHLO mga05.intel.com"
+        id S1725848AbfJIHrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 03:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729983AbfJIHlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 03:41:39 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Oct 2019 00:41:38 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,273,1566889200"; 
-   d="scan'208";a="277350156"
-Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.125])
-  by orsmga001.jf.intel.com with ESMTP; 09 Oct 2019 00:41:34 -0700
-Date:   Wed, 9 Oct 2019 10:41:33 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Ken Goldman <kgold@linux.ibm.com>
-Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191009074133.GA6202@linux.intel.com>
-References: <20191003175854.GB19679@linux.intel.com>
- <1570128827.5046.19.camel@linux.ibm.com>
- <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
- <20191004182711.GC6945@linux.intel.com>
- <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
- <20191007000520.GA17116@linux.intel.com>
- <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
- <20191008234935.GA13926@linux.intel.com>
- <20191008235339.GB13926@linux.intel.com>
- <20191009073315.GA5884@linux.intel.com>
+        id S1725440AbfJIHrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 03:47:47 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BDD020B7C;
+        Wed,  9 Oct 2019 07:47:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570607266;
+        bh=NGL/1f7ZuWs2O39sGH/f7QSgqDVNJKllc9lHdfzwi0c=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mfBODdTXL/UbL+UClqwWaqBNqXWe2OZf/o39uKIjW3EsWnnkBgqN8DSl8fmblQQuy
+         kSc7gUKqhgWX8EJbc0o8vNeYtM5BWyPsBKFVvh6V23dftquCmx9IrsSQ/1QzBVhgTd
+         lbPSbEyP8KZGwHKWzzmRipCmJMjhAXzcSryce6vc=
+Date:   Wed, 9 Oct 2019 09:47:44 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     sean.j.christopherson@intel.com, jmattson@google.com,
+        namit@vmware.com, pbonzini@redhat.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] KVM: nVMX: Fix consistency check on
+ injected exception error" failed to apply to 5.3-stable tree
+Message-ID: <20191009074744.GA3843287@kroah.com>
+References: <1570519311128161@kroah.com>
+ <20191008221527.GF1396@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191009073315.GA5884@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191008221527.GF1396@sasha-vm>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 09, 2019 at 10:33:15AM +0300, Jarkko Sakkinen wrote:
-> On Wed, Oct 09, 2019 at 02:53:39AM +0300, Jarkko Sakkinen wrote:
-> > On Wed, Oct 09, 2019 at 02:49:35AM +0300, Jarkko Sakkinen wrote:
-> > > On Mon, Oct 07, 2019 at 06:13:01PM -0400, Ken Goldman wrote:
-> > > > The TPM library specification states that the TPM must comply with NIST
-> > > > SP800-90 A.
-> > > > 
-> > > > https://trustedcomputinggroup.org/membership/certification/tpm-certified-products/
-> > > > 
-> > > > shows that the TPMs get third party certification, Common Criteria EAL 4+.
-> > > > 
-> > > > While it's theoretically possible that an attacker could compromise
-> > > > both the TPM vendors and the evaluation agencies, we do have EAL 4+
-> > > > assurance against both 1 and 2.
-> > > 
-> > > Certifications do not equal to trust.
+On Tue, Oct 08, 2019 at 06:15:27PM -0400, Sasha Levin wrote:
+> On Tue, Oct 08, 2019 at 09:21:51AM +0200, gregkh@linuxfoundation.org wrote:
 > > 
-> > And for trusted keys the least trust solution is to do generation
-> > with the kernel assets and sealing with TPM. With TEE the least
-> > trust solution is equivalent.
+> > The patch below does not apply to the 5.3-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
 > > 
-> > Are you proposing that the kernel random number generation should
-> > be removed? That would be my conclusion of this discussion if I
-> > would agree any of this (I don't).
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > > From 567926cca99ba1750be8aae9c4178796bf9bb90b Mon Sep 17 00:00:00 2001
+> > From: Sean Christopherson <sean.j.christopherson@intel.com>
+> > Date: Tue, 1 Oct 2019 09:21:23 -0700
+> > Subject: [PATCH] KVM: nVMX: Fix consistency check on injected exception error
+> > code
+> > 
+> > Current versions of Intel's SDM incorrectly state that "bits 31:15 of
+> > the VM-Entry exception error-code field" must be zero.  In reality, bits
+> > 31:16 must be zero, i.e. error codes are 16-bit values.
+> > 
+> > The bogus error code check manifests as an unexpected VM-Entry failure
+> > due to an invalid code field (error number 7) in L1, e.g. when injecting
+> > a #GP with error_code=0x9f00.
+> > 
+> > Nadav previously reported the bug[*], both to KVM and Intel, and fixed
+> > the associated kvm-unit-test.
+> > 
+> > [*] https://patchwork.kernel.org/patch/11124749/
+> > 
+> > Reported-by: Nadav Amit <namit@vmware.com>
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> > Reviewed-by: Jim Mattson <jmattson@google.com>
+> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > 
-> The whole point of rng in kernel has been to use multiple entropy
-> sources in order to disclose the trust issue.
-> 
-> Even with weaker entropy than TPM RNG it is still a better choice for
-> *non-TPM* keys because of better trustworthiness. Using only TPM RNG is
-> a design flaw that has existed probably because when trusted keys were
-> introduced TPM was more niche than it is today.
-> 
-> Please remember that a trusted key is not a TPM key. The reality
-> distortion field is strong here it seems.
+> There were minor conflicts due to missing tracepoint in 5.3 and code
+> movement in 4.19. I've fixed it up.
 
-And why not use RDRAND on x86 instead of TPM RNG here? It is also FIPS
-compliant and has less latency than TPM RNG. :-) If we go with this
-route, lets pick the HRNG that performs best.
+Thanks for fixing these, and all of the other FAILED: issues.
 
-/Jarkko
+thanks,
+
+greg k-h
