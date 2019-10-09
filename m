@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BE9D1675
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE72DD1659
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732004AbfJIRaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:30:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S1732162AbfJIRYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:24:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbfJIRYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:08 -0400
+        id S1732155AbfJIRYJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:09 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4888921A4A;
+        by mail.kernel.org (Postfix) with ESMTPSA id BAC9121D71;
         Wed,  9 Oct 2019 17:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1570641848;
-        bh=IUj/HxYB2rHKVhwAa6+OElvjVYWfgUzquy9H1go8RzY=;
+        bh=5AlLPhD4yO09XfSZ0TEnVnoz8yf0tp9B6US8uShCF+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvfyTwF+qi7cb2S5vNnRVSz94NSpvxfLCE//wAFIVJPLiV4YNdtAxRL5lCqxoCHd+
-         RYK3r5UTjExM3HQ5IirQJqR3K5JvtCwuYHWTYuo+FtNtE9prXlzs1VWoqX1fi+v0lu
-         7B0Bw5+uvUkpO6ID9tEmO6MekfhZRO8Q2vaU/roY=
+        b=YLNpg9A/SHR3tM5p/tM7wrvACU7rA4bV58ZK7r5xJgH1PJS3o7rM1vX/PHksNG/yc
+         4Dy6SNneYdGov+7XV+JLTSoMxV94zLJ/rs9twuoiHBz1omUKBd2EMYZmyEoTFganr7
+         fEcyseZ8g6Zy8O9Gk39CyuVoyf6VpmW/DffcGUKo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 14/26] xen/efi: Set nonblocking callbacks
-Date:   Wed,  9 Oct 2019 13:05:46 -0400
-Message-Id: <20191009170558.32517-14-sashal@kernel.org>
+Cc:     Jim Mattson <jmattson@google.com>, Marc Orr <marcorr@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 15/26] kvm: vmx: Limit guest PMCs to those supported on the host
+Date:   Wed,  9 Oct 2019 13:05:47 -0400
+Message-Id: <20191009170558.32517-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
 References: <20191009170558.32517-1-sashal@kernel.org>
@@ -43,52 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Lagerwall <ross.lagerwall@citrix.com>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit df359f0d09dc029829b66322707a2f558cb720f7 ]
+[ Upstream commit e1fba49cc1e965a3dacd897367ba1e7b340cf0f4 ]
 
-Other parts of the kernel expect these nonblocking EFI callbacks to
-exist and crash when running under Xen. Since the implementations of
-xen_efi_set_variable() and xen_efi_query_variable_info() do not take any
-locks, use them for the nonblocking callbacks too.
+KVM can only virtualize as many PMCs as the host supports.
 
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Limit the number of generic counters and fixed counters to the number
+of corresponding counters supported on the host, rather than to
+INTEL_PMC_MAX_GENERIC and INTEL_PMC_MAX_FIXED, respectively.
+
+Note that INTEL_PMC_MAX_GENERIC is currently 32, which exceeds the 18
+contiguous MSR indices reserved by Intel for event selectors. Since
+the existing code relies on a contiguous range of MSR indices for
+event selectors, it can't possibly work for more than 18 general
+purpose counters.
+
+Fixes: f5132b01386b5a ("KVM: Expose a version 2 architectural PMU to a guests")
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/xen/efi.c | 2 ++
- arch/x86/xen/efi.c | 2 ++
- 2 files changed, 4 insertions(+)
+ arch/x86/kvm/pmu_intel.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/xen/efi.c b/arch/arm/xen/efi.c
-index b4d78959cadf0..bc9a37b3cecd6 100644
---- a/arch/arm/xen/efi.c
-+++ b/arch/arm/xen/efi.c
-@@ -31,7 +31,9 @@ void __init xen_efi_runtime_setup(void)
- 	efi.get_variable             = xen_efi_get_variable;
- 	efi.get_next_variable        = xen_efi_get_next_variable;
- 	efi.set_variable             = xen_efi_set_variable;
-+	efi.set_variable_nonblocking = xen_efi_set_variable;
- 	efi.query_variable_info      = xen_efi_query_variable_info;
-+	efi.query_variable_info_nonblocking = xen_efi_query_variable_info;
- 	efi.update_capsule           = xen_efi_update_capsule;
- 	efi.query_capsule_caps       = xen_efi_query_capsule_caps;
- 	efi.get_next_high_mono_count = xen_efi_get_next_high_mono_count;
-diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
-index 1804b27f9632a..66bcdeeee639a 100644
---- a/arch/x86/xen/efi.c
-+++ b/arch/x86/xen/efi.c
-@@ -77,7 +77,9 @@ static efi_system_table_t __init *xen_efi_probe(void)
- 	efi.get_variable             = xen_efi_get_variable;
- 	efi.get_next_variable        = xen_efi_get_next_variable;
- 	efi.set_variable             = xen_efi_set_variable;
-+	efi.set_variable_nonblocking = xen_efi_set_variable;
- 	efi.query_variable_info      = xen_efi_query_variable_info;
-+	efi.query_variable_info_nonblocking = xen_efi_query_variable_info;
- 	efi.update_capsule           = xen_efi_update_capsule;
- 	efi.query_capsule_caps       = xen_efi_query_capsule_caps;
- 	efi.get_next_high_mono_count = xen_efi_get_next_high_mono_count;
+diff --git a/arch/x86/kvm/pmu_intel.c b/arch/x86/kvm/pmu_intel.c
+index c3f103e2b08e1..0fd2a511605b5 100644
+--- a/arch/x86/kvm/pmu_intel.c
++++ b/arch/x86/kvm/pmu_intel.c
+@@ -265,6 +265,7 @@ static int intel_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_pmu *pmu = vcpu_to_pmu(vcpu);
++	struct x86_pmu_capability x86_pmu;
+ 	struct kvm_cpuid_entry2 *entry;
+ 	union cpuid10_eax eax;
+ 	union cpuid10_edx edx;
+@@ -286,8 +287,10 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
+ 	if (!pmu->version)
+ 		return;
+ 
++	perf_get_x86_pmu_capability(&x86_pmu);
++
+ 	pmu->nr_arch_gp_counters = min_t(int, eax.split.num_counters,
+-					INTEL_PMC_MAX_GENERIC);
++					 x86_pmu.num_counters_gp);
+ 	pmu->counter_bitmask[KVM_PMC_GP] = ((u64)1 << eax.split.bit_width) - 1;
+ 	pmu->available_event_types = ~entry->ebx &
+ 					((1ull << eax.split.mask_length) - 1);
+@@ -297,7 +300,7 @@ static void intel_pmu_refresh(struct kvm_vcpu *vcpu)
+ 	} else {
+ 		pmu->nr_arch_fixed_counters =
+ 			min_t(int, edx.split.num_counters_fixed,
+-				INTEL_PMC_MAX_FIXED);
++			      x86_pmu.num_counters_fixed);
+ 		pmu->counter_bitmask[KVM_PMC_FIXED] =
+ 			((u64)1 << edx.split.bit_width_fixed) - 1;
+ 	}
 -- 
 2.20.1
 
