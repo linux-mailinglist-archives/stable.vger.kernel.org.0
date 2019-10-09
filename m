@@ -2,74 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 272F2D1A35
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 22:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2F7D1AAB
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 23:15:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731936AbfJIU6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 16:58:43 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:27278 "EHLO
+        id S1731937AbfJIVPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 17:15:16 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:25527 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731781AbfJIU6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 16:58:42 -0400
+        with ESMTP id S1731916AbfJIVPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 17:15:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1570654721;
+        s=mimecast20190719; t=1570655714;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SXdPrh5SQBY2g5E44Kbwxu0eoL2g32/Mh7xHjPoo0bo=;
-        b=b+MkdQxgCXYhaf2rMUnZAHqJRzXZvIRdOzD3b3+scqFmOtDYAJLkuQJc8LNG5jR8P7mj/T
-        xbphmPiVKibSfZZkEgMnESKqIHNgmH9KRse0b3T529Y/ajhGhFXh1VcZAiYm9YDgzYYwd4
-        3TmuD4vCyVaXxAJddXEqM8E9YzFDN/k=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-196-xDXekkO7PBSylIjXzmqaEQ-1; Wed, 09 Oct 2019 16:58:40 -0400
-Received: by mail-wm1-f70.google.com with SMTP id o8so1595954wmc.2
-        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 13:58:39 -0700 (PDT)
+         in-reply-to:in-reply-to:references:references:openpgp:openpgp;
+        bh=7VmgJlX8pTLTmeUK2iuzqG3qzkbe72v0AjNOA3U4FSc=;
+        b=F105KaKWPHqMzppfSmfp+5U/ZXXDIj+JZMyuMJtA4wY8uDI/nXcTLiy0gyTdvL/soOQpN0
+        r+eqY6MTwOWgpAgr5uWSNkKoVRz25kBCvmB2tYmr5eRSKpVYCydT18Xfo7pq42Bg7WDmFf
+        CSjn1CffjrjCmm+1Ck7PbA5YJyOvAQI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-201-sR5cpQTZMkSSXzYn-3Kswg-1; Wed, 09 Oct 2019 17:15:10 -0400
+Received: by mail-wm1-f72.google.com with SMTP id g67so1140278wmg.4
+        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 14:15:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=MZCiTiFbtDiMRheTU38K9dij6O6J26jyHcq0IPo3YkI=;
-        b=koiD6NVh7TqRtlOMQKGZA+WigmRKmGArrccY+67UidCIZvsYVUCCgR3EUGyQqJjiaI
-         SCYO/h/3IkchqcKnH8g0q3aTCj+NsIaY52PLuzcj5kNbwIIXRdzmf7XpljFMQb2xbV5y
-         Dd+/axV9SHOaZnlqsIW3m9WzVMJc9Pps0wXCfyTUqZ+pp428nME1+7oKUtmssEl3zXeQ
-         V4EBGD4/TLZ2jSxrjblu5ndegifiQgA2JDyW7A5ANTGNdByzTia3tmrBFq0+qjFs0A3V
-         jnP6QDjqU/4HSG3eeQMZshid3xu2sBqBW58H0KfF7U/PU1GUzmoCc7tl74PDy0YeGcFv
-         hh6Q==
-X-Gm-Message-State: APjAAAUK+b2zoO6iUE1nu8AWVGP1FM14+UuUsmpKF9q5/ftDDZtBmK3o
-        PYLB0gJPraHuIOuVj0813hEd6whKX4VKTOnm2tozO3ugF+2ng15FwaPik1ieovIaIc5STZGJiMq
-        EcdI7qbwl9hd0ukSr
-X-Received: by 2002:a5d:544a:: with SMTP id w10mr2258715wrv.271.1570654718001;
-        Wed, 09 Oct 2019 13:58:38 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxX7JfRvkV9uOOZ0iYaYnAdc1Oax5CH0j4BaeLo2KW73O0Nr1ynOw/1ZdsltoZnfUbPMApWTw==
-X-Received: by 2002:a5d:544a:: with SMTP id w10mr2258693wrv.271.1570654717701;
-        Wed, 09 Oct 2019 13:58:37 -0700 (PDT)
+        bh=i6l3KX7zHJ5HDKx9SqXKsfD5zGuc3xvROj8VyAucjM0=;
+        b=TwqWA0f15+xRv0mU+c4d49BS0IqWniinqs6hPeR3WV3Qo3LN6twIuLJ75HayEJP6Hf
+         dDhRJR48bXtljQDd/qs0mBNI1kAxZDu+zVa+QMlHsw43zSwl2JBMfiv/uKuCm/pSHJFf
+         v76uyJZEQtIi2PRQULgg+ur8CBgc4zOxk+n7m4NaUeeMIetf7ecMpSAxPDpu8hIF5xL0
+         MlM0p0+vkBJFs5IapMLWDBpiM84+Jn6mD7Ml2hhBizexTY73uQVCrf7AoUtwTY1ORwiX
+         JQurbfR9r4bcGFNx5dNSmg3zP8OTLHPE6oEad89CjC3uG7lGRhHdNtAfelfAkW7pSSx0
+         TXYA==
+X-Gm-Message-State: APjAAAVCPD6RISIcGvPbTMuQD+Y+HVMCUAlFuNsZ2m1jEDCvRw+YY0f/
+        qyWpxq+vMKBjXIuzXgrdijTdaKfEsmlZ6QJCKnIZw56h6G14fqXLTUL1DmXI9vJefTApVS8E8ev
+        keQuE+0AXuQepdo5/
+X-Received: by 2002:a7b:cb54:: with SMTP id v20mr4103779wmj.91.1570655709796;
+        Wed, 09 Oct 2019 14:15:09 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqyZjJA1LTm5EeJ/fmz3nZAMmXsY1yAaPjxR1Gi2GVNEpEkekFZxvaPx1RlKODkjSwiZVB8kTw==
+X-Received: by 2002:a7b:cb54:: with SMTP id v20mr4103761wmj.91.1570655709497;
+        Wed, 09 Oct 2019 14:15:09 -0700 (PDT)
 Received: from ?IPv6:2001:b07:6468:f312:1032:7ea1:7f8f:1e5? ([2001:b07:6468:f312:1032:7ea1:7f8f:1e5])
-        by smtp.gmail.com with ESMTPSA id o9sm5463455wrh.46.2019.10.09.13.58.36
+        by smtp.gmail.com with ESMTPSA id l9sm2821110wme.45.2019.10.09.14.15.08
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Oct 2019 13:58:37 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 4.19 08/26] kvm: x86: Improve emulation of CPUID
- leaves 0BH and 1FH
+        Wed, 09 Oct 2019 14:15:08 -0700 (PDT)
+Subject: Re: [PATCH AUTOSEL 5.3 28/68] KVM: x86: Expose XSAVEERPTR to the
+ guest
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Cc:     Jim Mattson <jmattson@google.com>, Marc Orr <marcorr@google.com>,
-        Peter Shier <pshier@google.com>,
-        Jacob Xu <jacobhxu@google.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
+Cc:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         kvm@vger.kernel.org
-References: <20191009170558.32517-1-sashal@kernel.org>
- <20191009170558.32517-8-sashal@kernel.org>
+References: <20191009170547.32204-1-sashal@kernel.org>
+ <20191009170547.32204-28-sashal@kernel.org>
 From:   Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <5fcb0e38-3542-dd39-6a1c-449b4f9f435e@redhat.com>
-Date:   Wed, 9 Oct 2019 22:58:35 +0200
+Openpgp: preference=signencrypt
+Message-ID: <05acd554-dd0a-d7cd-e17c-90627fa0ec67@redhat.com>
+Date:   Wed, 9 Oct 2019 23:15:07 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20191009170558.32517-8-sashal@kernel.org>
+In-Reply-To: <20191009170547.32204-28-sashal@kernel.org>
 Content-Language: en-US
-X-MC-Unique: xDXekkO7PBSylIjXzmqaEQ-1
+X-MC-Unique: sR5cpQTZMkSSXzYn-3Kswg-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
@@ -79,36 +77,45 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On 09/10/19 19:05, Sasha Levin wrote:
-> From: Jim Mattson <jmattson@google.com>
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 >=20
-> [ Upstream commit 43561123ab3759eb6ff47693aec1a307af0aef83 ]
+> [ Upstream commit 504ce1954fba888936c9d13ccc1e3db9b8f613d5 ]
 >=20
-> For these CPUID leaves, the EDX output is not dependent on the ECX
-> input (i.e. the SIGNIFCANT_INDEX flag doesn't apply to
-> EDX). Furthermore, the low byte of the ECX output is always identical
-> to the low byte of the ECX input. KVM does not produce the correct ECX
-> and EDX outputs for any undefined subleaves beyond the first.
+> I was surprised to see that the guest reported `fxsave_leak' while the
+> host did not. After digging deeper I noticed that the bits are simply
+> masked out during enumeration.
 >=20
-> Special-case these CPUID leaves in kvm_cpuid, so that the ECX and EDX
-> outputs are properly generated for all undefined subleaves.
+> The XSAVEERPTR feature is actually a bug fix on AMD which means the
+> kernel can disable a workaround.
 >=20
-> Fixes: 0771671749b59a ("KVM: Enhance guest cpuid management")
-> Fixes: a87f2d3a6eadab ("KVM: x86: Add Intel CPUID.1F cpuid emulation supp=
-ort")
-> Signed-off-by: Jim Mattson <jmattson@google.com>
-> Reviewed-by: Marc Orr <marcorr@google.com>
-> Reviewed-by: Peter Shier <pshier@google.com>
-> Reviewed-by: Jacob Xu <jacobhxu@google.com>
-> Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Pass XSAVEERPTR to the guest if available on the host.
+>=20
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
->  arch/x86/kvm/cpuid.c | 83 +++++++++++++++++++++++++-------------------
->  1 file changed, 47 insertions(+), 36 deletions(-)
+>  arch/x86/kvm/cpuid.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+> index fd1b8db8bf242..59b66e343fa5a 100644
+> --- a/arch/x86/kvm/cpuid.c
+> +++ b/arch/x86/kvm/cpuid.c
+> @@ -479,6 +479,7 @@ static inline int __do_cpuid_func(struct kvm_cpuid_en=
+try2 *entry, u32 function,
+> =20
+>  =09/* cpuid 0x80000008.ebx */
+>  =09const u32 kvm_cpuid_8000_0008_ebx_x86_features =3D
+> +=09=09F(XSAVEERPTR) |
+>  =09=09F(WBNOINVD) | F(AMD_IBPB) | F(AMD_IBRS) | F(AMD_SSBD) | F(VIRT_SSB=
+D) |
+>  =09=09F(AMD_SSB_NO) | F(AMD_STIBP) | F(AMD_STIBP_ALWAYS_ON);
+> =20
+>=20
 
-This is absolutely not stable material.  Is it possible for KVM to opt
-out of this AUTOSEL nonsense?
+Yet another example of a patch that shouldn't be stable material (in
+this case it's fine, but there can certainly be cases where just adding
+a single flag depends on core kernel changes).
 
 Paolo
 
