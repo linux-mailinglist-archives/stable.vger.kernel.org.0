@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24602D16D5
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:33:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE55D16C5
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:32:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732235AbfJIRcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48018 "EHLO mail.kernel.org"
+        id S1732013AbfJIRX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731985AbfJIRXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:23:55 -0400
+        id S1731995AbfJIRX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:23:56 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D76E2190F;
+        by mail.kernel.org (Postfix) with ESMTPSA id C1FC121E6F;
         Wed,  9 Oct 2019 17:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1570641835;
-        bh=u1QY37GQqiMRz3nMqJTL9xuwt1CVrLfwwm/6Qk4iZPM=;
+        bh=NGjSbI2cPKdmC/6lFM2rFaIZI5zwvy98Jj9zrIDJtwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJbjEGac3/M1WXVOHXDrlX/BsDB6t+4wt6/wJf+eDuaS+Gqtwj+YpZZDJOAt2+EM6
-         1YGKCjYP+vQksjEGWb8XQjafxTenA26VCg1pSDyqhDLlYEITayxtFoJ4rF8Qe4Yoiq
-         uqbXS4iZWJYDgY/J4bBMkQGCkZiDDZeCerntZbDU=
+        b=mtcXeumk0OpqU8h4QJ80STM8ly13tm5W/AZ9zKqWI4ErAvFjxm9JvSSQfLLFwaR3m
+         QLPid6223wgtDoPlvft720tcFnI7t9nT3YQAwYA/uSnBzjjF9Yrt+srIdshrGoCzqU
+         lyMPgU1nkqT5UWxpQGvGIFEWfDkxqLao5qz7tvzA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Balbir Singh <sblbir@amzn.com>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 06/68] nvme-pci: Fix a race in controller removal
-Date:   Wed,  9 Oct 2019 13:04:45 -0400
-Message-Id: <20191009170547.32204-6-sashal@kernel.org>
+Cc:     Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 09/68] scsi: qla2xxx: Silence fwdump template message
+Date:   Wed,  9 Oct 2019 13:04:48 -0400
+Message-Id: <20191009170547.32204-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170547.32204-1-sashal@kernel.org>
 References: <20191009170547.32204-1-sashal@kernel.org>
@@ -43,44 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Balbir Singh <sblbir@amzn.com>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit b224726de5e496dbf78147a66755c3d81e28bdd2 ]
+[ Upstream commit 248a445adfc8c33ffd67cf1f2e336578e34f9e21 ]
 
-User space programs like udevd may try to read to partitions at the
-same time the driver detects a namespace is unusable, and may deadlock
-if revalidate_disk() is called while such a process is waiting to
-enter the frozen queue. On detecting a dead namespace, move the disk
-revalidate after unblocking dispatchers that may be holding bd_butex.
+Print if fwdt template is present or not, only when
+ql2xextended_error_logging is enabled.
 
-changelog Suggested-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Balbir Singh <sblbir@amzn.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Link: https://lore.kernel.org/r/20190912180918.6436-2-hmadhani@marvell.com
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index d3d6b7bd69033..28217cee5e762 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -103,10 +103,13 @@ static void nvme_set_queue_dying(struct nvme_ns *ns)
- 	 */
- 	if (!ns->disk || test_and_set_bit(NVME_NS_DEAD, &ns->flags))
- 		return;
--	revalidate_disk(ns->disk);
- 	blk_set_queue_dying(ns->queue);
- 	/* Forcibly unquiesce queues to avoid blocking dispatch */
- 	blk_mq_unquiesce_queue(ns->queue);
-+	/*
-+	 * Revalidate after unblocking dispatchers that may be holding bd_butex
-+	 */
-+	revalidate_disk(ns->disk);
- }
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index afcd9a8858845..3fbe909744a8f 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -3268,7 +3268,7 @@ try_eft:
  
- static void nvme_queue_scan(struct nvme_ctrl *ctrl)
+ 		for (j = 0; j < 2; j++, fwdt++) {
+ 			if (!fwdt->template) {
+-				ql_log(ql_log_warn, vha, 0x00ba,
++				ql_dbg(ql_dbg_init, vha, 0x00ba,
+ 				    "-> fwdt%u no template\n", j);
+ 				continue;
+ 			}
 -- 
 2.20.1
 
