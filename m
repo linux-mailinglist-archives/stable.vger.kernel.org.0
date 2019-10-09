@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F3AD15C8
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F8DD15B2
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731923AbfJIRZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49998 "EHLO mail.kernel.org"
+        id S1732537AbfJIRY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732521AbfJIRY5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:57 -0400
+        id S1732042AbfJIRY7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:59 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC26521A4A;
-        Wed,  9 Oct 2019 17:24:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51DAF206BB;
+        Wed,  9 Oct 2019 17:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641896;
-        bh=7fAjbK0SIu6mwvNpnw29B0AVcrZ6A43tQQapzgn8thA=;
+        s=default; t=1570641898;
+        bh=7//GOyKEzo7xrJIfyzR+9RrVrjKnqDbQZAYgTiMrUSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QrBn27MRlShQGzvqaPrxut8VdShtRhH/PNZiayZuiWYsq1AJEuS9yMvhYNIeDMF3c
-         9wIuI4QcRfat80WhLOxpIzGu1tXmtydB2n3dcjZbU25czMn8Z/FYpwh3ylGrcs+qv+
-         5fRVtoruPbbxvEUcJoe8TJxZYBWESAYZa1Sk3WZw=
+        b=Y9CYzRtfOatTcoTg7dbx90cXRXwFKiTfjGjfkkM+JS50wqFF+OFPoj7dH8pdQuTiG
+         EpOOv14cybRq6lFg/iu/y8hcqmtceNvtaV652Z2WEgeJdbe72Nys9wPV5VbpvKmIFY
+         MxlgqaIsFs5BmiQoUhO/zlwzjhFD7VvvN4oTzE50=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yizhuo <yzhai003@ucr.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 09/11] net: hisilicon: Fix usage of uninitialized variable in function mdio_sc_cfg_reg_write()
-Date:   Wed,  9 Oct 2019 13:06:43 -0400
-Message-Id: <20191009170646.696-9-sashal@kernel.org>
+Cc:     Jacob Keller <jacob.e.keller@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 10/11] namespace: fix namespace.pl script to support relative paths
+Date:   Wed,  9 Oct 2019 13:06:44 -0400
+Message-Id: <20191009170646.696-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170646.696-1-sashal@kernel.org>
 References: <20191009170646.696-1-sashal@kernel.org>
@@ -43,43 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo <yzhai003@ucr.edu>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 53de429f4e88f538f7a8ec2b18be8c0cd9b2c8e1 ]
+[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
 
-In function mdio_sc_cfg_reg_write(), variable "reg_value" could be
-uninitialized if regmap_read() fails. However, "reg_value" is used
-to decide the control flow later in the if statement, which is
-potentially unsafe.
+The namespace.pl script does not work properly if objtree is not set to
+an absolute path. The do_nm function is run from within the find
+function, which changes directories.
 
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Because of this, appending objtree, $File::Find::dir, and $source, will
+return a path which is not valid from the current directory.
+
+This used to work when objtree was set to an absolute path when using
+"make namespacecheck". It appears to have not worked when calling
+./scripts/namespace.pl directly.
+
+This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
+for $(objtree)", 2014-05-14)
+
+Rather than fixing the Makefile to set objtree to an absolute path, just
+fix namespace.pl to work when srctree and objtree are relative. Also fix
+the script to use an absolute path for these by default.
+
+Use the File::Spec module for this purpose. It's been part of perl
+5 since 5.005.
+
+The curdir() function is used to get the current directory when the
+objtree and srctree aren't set in the environment.
+
+rel2abs() is used to convert possibly relative objtree and srctree
+environment variables to absolute paths.
+
+Finally, the catfile() function is used instead of string appending
+paths together, since this is more robust when joining paths together.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns_mdio.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ scripts/namespace.pl | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns_mdio.c b/drivers/net/ethernet/hisilicon/hns_mdio.c
-index 6ff13c559e527..09fcc821b7da9 100644
---- a/drivers/net/ethernet/hisilicon/hns_mdio.c
-+++ b/drivers/net/ethernet/hisilicon/hns_mdio.c
-@@ -156,11 +156,15 @@ static int mdio_sc_cfg_reg_write(struct hns_mdio_device *mdio_dev,
- {
- 	u32 time_cnt;
- 	u32 reg_value;
-+	int ret;
+diff --git a/scripts/namespace.pl b/scripts/namespace.pl
+index a71be6b7cdec5..9a2a32ce8a3b4 100755
+--- a/scripts/namespace.pl
++++ b/scripts/namespace.pl
+@@ -65,13 +65,14 @@
+ require 5;	# at least perl 5
+ use strict;
+ use File::Find;
++use File::Spec;
  
- 	regmap_write(mdio_dev->subctrl_vbase, cfg_reg, set_val);
+ my $nm = ($ENV{'NM'} || "nm") . " -p";
+ my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+-my $srctree = "";
+-my $objtree = "";
+-$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+-$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
++my $srctree = File::Spec->curdir();
++my $objtree = File::Spec->curdir();
++$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
++$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
  
- 	for (time_cnt = MDIO_TIMEOUT; time_cnt; time_cnt--) {
--		regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		ret = regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		if (ret)
-+			return ret;
-+
- 		reg_value &= st_msk;
- 		if ((!!check_st) == (!!reg_value))
- 			break;
+ if ($#ARGV != -1) {
+ 	print STDERR "usage: $0 takes no parameters\n";
+@@ -229,9 +230,9 @@ sub do_nm
+ 	}
+ 	($source = $basename) =~ s/\.o$//;
+ 	if (-e "$source.c" || -e "$source.S") {
+-		$source = "$objtree$File::Find::dir/$source";
++		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
+ 	} else {
+-		$source = "$srctree$File::Find::dir/$source";
++		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
+ 	}
+ 	if (! -e "$source.c" && ! -e "$source.S") {
+ 		# No obvious source, exclude the object if it is conglomerate
 -- 
 2.20.1
 
