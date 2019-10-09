@@ -2,77 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC79D0FF6
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 15:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A14EFD1049
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 15:37:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731175AbfJIN0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 09:26:20 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:33186 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731083AbfJIN0U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 09:26:20 -0400
-Received: from [213.220.153.21] (helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iIBys-0007l0-8m; Wed, 09 Oct 2019 13:26:18 +0000
-Date:   Wed, 9 Oct 2019 15:26:17 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     bsingharora@gmail.com, dvyukov@google.com, elver@google.com,
-        linux-kernel@vger.kernel.org, parri.andrea@gmail.com,
-        stable@vger.kernel.org,
-        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
-        syzkaller-bugs@googlegroups.com
-Subject: Re: [PATCH v5] taskstats: fix data-race
-Message-ID: <20191009132616.at3yspm6y3mzp5wg@wittgenstein>
-References: <20191009113134.5171-1-christian.brauner@ubuntu.com>
- <20191009114809.8643-1-christian.brauner@ubuntu.com>
+        id S1731240AbfJINhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 09:37:00 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:45757 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731183AbfJINhA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 09:37:00 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 5713A220A3;
+        Wed,  9 Oct 2019 09:36:59 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 09 Oct 2019 09:36:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=gnm5/K6BRLhl7sZoyC43VeoPAfO
+        sZBL7QWezS01zOds=; b=Gm27DKQONrTQtBnT66x0EunKtcGf+tYiYGfKpR6tkL5
+        AvrIvxDUboP+C9ik4QPOCkT7iN2jQZk20uX/ulRKMykmAbqTM5i9hUzI0Z5Z2iVZ
+        tuIVeKv3qy6Q0axtWo43kbHTOXuq4WtDqasS91mEVWaVfyJ/untTaHZ4xsfy+zlj
+        veccRMjbJ34xtI/vkWy/biy1ZM92TjEprEhDmHUjhFqfI1iZI1Oc0haRfwNeqidE
+        Bgu7P52ysUqIL09xb/32UHsyXHk34kWvaR15tAo0wenGezYYG/m+yw06wAx6Uugn
+        qXxyscLjKN7BizIEhzFAarz0+aZsMhVZAsqT1SZr/Eg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gnm5/K
+        6BRLhl7sZoyC43VeoPAfOsZBL7QWezS01zOds=; b=cOsv+pemqGCDJRZs/5uZcj
+        9eE8Zq4rJeSOPjnNB4AlvCwqQnTwkOYot+oJ42bJGuvufsuCkoRLm9V9NVu2S0mG
+        HeFAM1mP+jlN9H5/JvCrYHFHYl3ag3vW5LfujHQI/GxEG9NyiEAjt6INSuN4VDZI
+        2uwOstIyNo2jFXYEun8u4tDyreFhtgvv6IS5oCN648BohIm7TYZBBLCxmp/9twe7
+        eVpIg2m+6YNpDgtrYjRi4xk7vUbc3M7P7qAsdS1+M5sPXWBENjJon+Sxm+w+xCTE
+        ioOPELn8/Ut333v7rvyf0QMWZOEiWMhgd8zNZ4Mua8HJe+ZOthf+JqCXcUgs7JuA
+        ==
+X-ME-Sender: <xms:euKdXSX5tqWfegw0GURgQNV6xG8vY4EJplFT8NeAxtO_v9HaNaEG4w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedriedugdegvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrddutd
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:euKdXdpNREWBgaWAu0Wj3wRB84-E7mIMi-JUfdRY4kBwJ69_2Vp8Rw>
+    <xmx:euKdXcm_i0BfW2QyWvBj5Lj8oshbzX3r0GWaLwiDjYht-gAnyGsv8A>
+    <xmx:euKdXV1cBJqZ2bISU28Pf9CYqTs3nA-0cflnithf_J1v_J3EBeLChQ>
+    <xmx:e-KdXT6DlCgnHuBQTqsfLvowvDy6iHGMOg9n-ODet_VmTpxmCVinlQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AB255D6005B;
+        Wed,  9 Oct 2019 09:36:58 -0400 (EDT)
+Date:   Wed, 9 Oct 2019 15:36:56 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4, 4.9, 4.14, 4.19] nl80211: validate beacon head
+Message-ID: <20191009133656.GA58233@kroah.com>
+References: <1570603265-@changeid>
+ <20191009094310.GA3945119@kroah.com>
+ <fd0c407c9507ba22741af5a9360ddba79971af29.camel@sipsolutions.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191009114809.8643-1-christian.brauner@ubuntu.com>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <fd0c407c9507ba22741af5a9360ddba79971af29.camel@sipsolutions.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 09, 2019 at 01:48:09PM +0200, Christian Brauner wrote:
-> When assiging and testing taskstats in taskstats_exit() there's a race
-> when writing and reading sig->stats when a thread-group with more than
-> one thread exits:
+On Wed, Oct 09, 2019 at 11:44:03AM +0200, Johannes Berg wrote:
+> On Wed, 2019-10-09 at 11:43 +0200, Greg KH wrote:
+> > 
+> > > +	for_each_element(elem, data, len) {
+> > > +		/* nothing */
+> > > +	}
+> > 
+> > for_each_element() is not in 4.4, 4.9, 4.14, or 4.19, so this breaks the
+> > build :(
 > 
-> cpu0:
-> thread catches fatal signal and whole thread-group gets taken down
->  do_exit()
->  do_group_exit()
->  taskstats_exit()
->  taskstats_tgid_alloc()
-> The tasks reads sig->stats without holding sighand lock seeing garbage.
+> Oh, right. I had previously also said:
 > 
-> cpu1:
-> task calls exit_group()
->  do_exit()
->  do_group_exit()
->  taskstats_exit()
->  taskstats_tgid_alloc()
-> The task takes sighand lock and assigns new stats to sig->stats.
+> You also need to cherry-pick
+> 0f3b07f027f8 ("cfg80211: add and use strongly typed element iteration macros")
+> 7388afe09143 ("cfg80211: Use const more consistently in for_each_element macros")
 > 
-> Fix this by using smp_load_acquire() and smp_store_release().
-> 
-> Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-> Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-> Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+> as dependencies - the latter doesn't apply cleanly as it has a change
+> that doesn't apply, but that part of the change isn't necessary.
 
-Applied to:
-https://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git/log/?h=taskstats_syzbot
+Ok, that worked, thanks.  Well, almost worked, I had to do a bit more
+effort for 4.4.y, but all looks good now.
 
-Merged into:
-https://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git/log/?h=fixes
+thanks,
 
-Targeting v5.4-rc3.
-
-Thanks!
-Christian
+greg k-h
