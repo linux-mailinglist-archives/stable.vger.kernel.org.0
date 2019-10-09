@@ -2,63 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF4B4D0E95
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 14:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3D7D0F88
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 15:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727878AbfJIMVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 08:21:07 -0400
-Received: from mail-yb1-f193.google.com ([209.85.219.193]:38778 "EHLO
-        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727286AbfJIMVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 08:21:06 -0400
-Received: by mail-yb1-f193.google.com with SMTP id r68so650963ybf.5
-        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 05:21:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=WBCLNQiFQyuo2cV0Xm2avqQ3zS+VIEEGQPWgv9W7cNY=;
-        b=cwWyYLayIoaVS7GPvy4GzzJyf2zszNE2gckmuwIoKPLu6sGNEWzi3bF0RFV39WmAiq
-         9NYNaX8BA3/d6O1WypO3iH9jOgzO6KBAUCM7+D4aaPYYCPMPrjm46Nun2MaE5wgj/zbA
-         505BSNnuheYA0APeXjwdg31/NurYdmXu1IIToqI06tUWsu4I1SvEcmlxOuROueSpS/6H
-         aQjigr99g7iXmLQBch9NQjWfY1CgHLHkYblPym7oqf/B7ZuhFEOErETOxfMmU2v1g6Gl
-         IqvUdZsn/cRkyeZX+VmCbzYQjSxE6Qxp3r4Q2KcQdikGY1yzZvlvJPxAMlNZAQAY52rD
-         kkGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=WBCLNQiFQyuo2cV0Xm2avqQ3zS+VIEEGQPWgv9W7cNY=;
-        b=hM8VT3jsrAat1Jm8y2/TYxubvl4Mth3A7k9203tHQsdp1Ll0bjUWe1POjKmfDd5lVO
-         BXqT3zDnSuDqMhR2g7gVJ4HZJdG6q+WYmiyBTnuZTqJIDwM1quH4SNUaEk40y6r10Ntf
-         718fQq4Lnd5ZaTBtilSCPGNEkiDPDUgFnqOczADG2ESy5Giyopgf6i/ot6j7GrL5N+QL
-         Ri+aBIf/KqwEKzEQ0hP6PaYSOJc6YuQwH1Ve+41tQRkjiFHXwYqqcJZfe8DzefnpuIsD
-         WmTIjFJ9SbHz3eICiESyeg8Ms59xchu2IsxKiaeahTGLrKRuIYfJqeQjvpUhrYJ+AGKz
-         SJdQ==
-X-Gm-Message-State: APjAAAWav0Zpmv4aIFHiSTVtsltkuislzkuu9TSCsAJRBOG8wmJ50Qvj
-        671e7Bu9WjrXk1Dt9IUTBqvCZiFxv8VCy+Daioc=
-X-Google-Smtp-Source: APXvYqwrcPuSw3S2sPE1wuCGjyAjohIX5cDLInYeta4TEUcf1NirWJ8+SbPzWTd+F/CNmmKPOxjaThQxTmmXT0JfuCY=
-X-Received: by 2002:a25:3755:: with SMTP id e82mr1673907yba.161.1570623665969;
- Wed, 09 Oct 2019 05:21:05 -0700 (PDT)
+        id S1731355AbfJINDH convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 9 Oct 2019 09:03:07 -0400
+Received: from mx0b-00176a03.pphosted.com ([67.231.157.48]:41762 "EHLO
+        mx0a-00176a03.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730901AbfJINDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 09:03:06 -0400
+X-Greylist: delayed 3109 seconds by postgrey-1.27 at vger.kernel.org; Wed, 09 Oct 2019 09:03:05 EDT
+Received: from pps.filterd (m0048205.ppops.net [127.0.0.1])
+        by m0048205.ppops.net-00176a03. (8.16.0.27/8.16.0.27) with SMTP id x99C9XgY029449;
+        Wed, 9 Oct 2019 08:11:15 -0400
+From:   "Safford, David (GE Global Research, US)" <david.safford@ge.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Ken Goldman <kgold@linux.ibm.com>
+CC:     Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Thread-Topic: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Thread-Index: AQHVdI4g9L3xPAeMJki3mq4fpV79C6dHrWSAgAFrf4CAABaxAIAAUs4AgAAPVoCAAOxxAIAAnnWA///LRNCAA7fgAIABcvOAgAGtUICAAAEjgIAAiUkQ
+Date:   Wed, 9 Oct 2019 12:11:06 +0000
+Message-ID: <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2B995@ALPMBAPA12.e2k.ad.ge.com>
+References: <20191003114119.GF8933@linux.intel.com>
+ <1570107752.4421.183.camel@linux.ibm.com>
+ <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+ <20191004182711.GC6945@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+ <20191007000520.GA17116@linux.intel.com>
+ <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+ <20191008234935.GA13926@linux.intel.com>
+ <20191008235339.GB13926@linux.intel.com>
+In-Reply-To: <20191008235339.GB13926@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-dg-ref: =?us-ascii?Q?PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcMjEyNDczOTUw?=
+ =?us-ascii?Q?XGFwcGRhdGFccm9hbWluZ1wwOWQ4NDliNi0zMmQzLTRhNDAtODVlZS02Yjg0?=
+ =?us-ascii?Q?YmEyOWUzNWJcbXNnc1xtc2ctZGRkMDhkMzItZWE4ZC0xMWU5LThlNjQtYTRj?=
+ =?us-ascii?Q?M2YwYjU5OGE2XGFtZS10ZXN0XGRkZDA4ZDM0LWVhOGQtMTFlOS04ZTY0LWE0?=
+ =?us-ascii?Q?YzNmMGI1OThhNmJvZHkudHh0IiBzej0iMjA5NSIgdD0iMTMyMTUwOTY2NjU0?=
+ =?us-ascii?Q?NTEyMTE0IiBoPSJOeUxXaXhaaHFjUHNKaXhDWEppNWF4MkppRkE9IiBpZD0i?=
+ =?us-ascii?Q?IiBibD0iMCIgYm89IjEiIGNpPSJjQUFBQUVSSFUxUlNSVUZOQ2dVQUFFb0NB?=
+ =?us-ascii?Q?QUR5cXlxZ21uN1ZBZGZLMWFPdHBmaG4xOHJWbzYybCtHY0RBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBSEFBQUFEYUFRQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBRUFBUUFCQUFBQUZ0R2VRd0FBQUFBQUFBQUFBQUFBQUo0QUFBQm5BR1VB?=
+ =?us-ascii?Q?WHdCakFHOEFiZ0JtQUdrQVpBQmxBRzRBZEFCcEFHRUFiQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFFQUFBQUFBQUFBQWdBQUFBQUFuZ0FBQUdjQVpRQmZBR2dBYVFCbkFHZ0Fi?=
+ =?us-ascii?Q?QUI1QUdNQWJ3QnVBR1lBYVFCa0FHVUFiZ0IwQUdrQVlRQnNBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUUFBQUFBQUFBQUNB?=
+ =?us-ascii?Q?QUFBQUFDZUFBQUFad0JsQUY4QWJnQnZBRzRBY0FCMUFHSUFiQUJwQUdNQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQkFBQUFBQUFBQUFJQUFBQUFBQT09Ii8+PC9t?=
+ =?us-ascii?Q?ZXRhPg=3D=3D?=
+x-dg-rorf: 
+x-originating-ip: [3.159.16.111]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Received: by 2002:a25:ad8a:0:0:0:0:0 with HTTP; Wed, 9 Oct 2019 05:21:05 -0700 (PDT)
-Reply-To: peacemaurice54@gmail.com
-From:   Peace Maurice <lisajasterlj1@gmail.com>
-Date:   Wed, 9 Oct 2019 12:21:05 +0000
-Message-ID: <CAG8QeR4UnxmOi44Lb-daFb20VEu0nh4vN9SVM_33Rgoe+uqp4Q@mail.gmail.com>
-Subject: Cher
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-09_05:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
+ definitions=main-1910090115
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DO YOU SPEAK ENGLISH?
-Cher, je suis la paix Maurice, ce serait un plaisir de vous conna=C3=AEtre,
-j=E2=80=99ai une question tr=C3=A8s importante et confidentielle dont je ve=
-ux
-discuter avec vous, r=C3=A9pondez-moi pour plus de discussions.
-Cordialement,
-Paix.
+
+> From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Sent: Tuesday, October 8, 2019 7:54 PM
+> To: Ken Goldman <kgold@linux.ibm.com>
+> Cc: Safford, David (GE Global Research, US) <david.safford@ge.com>; Mimi
+> Zohar <zohar@linux.ibm.com>; linux-integrity@vger.kernel.org;
+> stable@vger.kernel.org; open list:ASYMMETRIC KEYS
+> <keyrings@vger.kernel.org>; open list:CRYPTO API <linux-
+> crypto@vger.kernel.org>; open list <linux-kernel@vger.kernel.org>
+> Subject: EXT: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+> 
+> On Wed, Oct 09, 2019 at 02:49:35AM +0300, Jarkko Sakkinen wrote:
+> > On Mon, Oct 07, 2019 at 06:13:01PM -0400, Ken Goldman wrote:
+> > > The TPM library specification states that the TPM must comply with
+> > > NIST
+> > > SP800-90 A.
+> > >
+> > > https://trustedcomputinggroup.org/membership/certification/tpm-certi
+> > > fied-products/
+> > >
+> > > shows that the TPMs get third party certification, Common Criteria EAL 4+.
+> > >
+> > > While it's theoretically possible that an attacker could compromise
+> > > both the TPM vendors and the evaluation agencies, we do have EAL 4+
+> > > assurance against both 1 and 2.
+> >
+> > Certifications do not equal to trust.
+> 
+> And for trusted keys the least trust solution is to do generation with the kernel
+> assets and sealing with TPM. With TEE the least trust solution is equivalent.
+> 
+> Are you proposing that the kernel random number generation should be
+> removed? That would be my conclusion of this discussion if I would agree any
+> of this (I don't).
+> 
+> /Jarkko
+
+No one is suggesting that.
+
+You are suggesting changing the documented behavior of trusted keys, and
+that would cause problems for some of our use cases. While certification
+may not in your mind be equal to trust, it is equal to compliance with 
+mandatory regulations.
+
+Perhaps rather than arguing past each other, we should look into 
+providing users the ability to choose, as an argument to keyctl?
+
+dave
