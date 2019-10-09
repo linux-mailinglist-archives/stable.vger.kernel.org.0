@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A94AD164B
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F74DD1634
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732293AbfJIR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:29:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48884 "EHLO mail.kernel.org"
+        id S1732299AbfJIR2T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:28:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731824AbfJIRYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:18 -0400
+        id S1732294AbfJIRYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:25 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A19521D71;
-        Wed,  9 Oct 2019 17:24:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEE4A21D82;
+        Wed,  9 Oct 2019 17:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641857;
-        bh=2LmyhbCXVxyjU1oqCpnEO3Teoc6Sz9N58R4YWqEugEQ=;
+        s=default; t=1570641864;
+        bh=NPNT9I5o/4emtMTJrnusg3gedRhNDoLKH7IfGRjATXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odpt3Pm0k+Kn6r4xNY2WcraKUYqflhxmkBEdGVQ6S5eV4KKcW13BnwnniWln+cvEF
-         v8Mxmj9R7WtlrDX8O9K47IgkSOD+zg96qGTbyJcBK5A/JbhBbVB9mm2b8CfEi06QRW
-         iSb5fC+DEhxDO03pJVNkUwuL71MFuDjJFZnLXGQc=
+        b=1hVVk+DcC9NedQxXaz2xftpU3pSgQ0ZCqlZd80utf46EJiwiWeIcgrH+wNjFUGIeD
+         ewwNJCMVmA/pQWbGmau1pbCPoWorSZ35h8/On75Ebn+bsdh8XxP9G1kZ2t+mUDN5tT
+         RdEykr1zMCDmkII9oLsglvElJU4ByOSqvfvG+Fso=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacob Keller <jacob.e.keller@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 25/26] namespace: fix namespace.pl script to support relative paths
-Date:   Wed,  9 Oct 2019 13:05:57 -0400
-Message-Id: <20191009170558.32517-25-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/21] ARM: OMAP2+: Fix missing reset done flag for am3 and am43
+Date:   Wed,  9 Oct 2019 13:05:58 -0400
+Message-Id: <20191009170615.32750-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
-References: <20191009170558.32517-1-sashal@kernel.org>
+In-Reply-To: <20191009170615.32750-1-sashal@kernel.org>
+References: <20191009170615.32750-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,84 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
+[ Upstream commit 8ad8041b98c665b6147e607b749586d6e20ba73a ]
 
-The namespace.pl script does not work properly if objtree is not set to
-an absolute path. The do_nm function is run from within the find
-function, which changes directories.
+For ti,sysc-omap4 compatible devices with no sysstatus register, we do have
+reset done status available in the SOFTRESET bit that clears when the reset
+is done. This is documented for example in am437x TRM for DMTIMER_TIOCP_CFG
+register. The am335x TRM just says that SOFTRESET bit value 1 means reset is
+ongoing, but it behaves the same way clearing after reset is done.
 
-Because of this, appending objtree, $File::Find::dir, and $source, will
-return a path which is not valid from the current directory.
+With the ti-sysc driver handling this automatically based on no sysstatus
+register defined, we see warnings if SYSC_HAS_RESET_STATUS is missing in the
+legacy platform data:
 
-This used to work when objtree was set to an absolute path when using
-"make namespacecheck". It appears to have not worked when calling
-./scripts/namespace.pl directly.
+ti-sysc 48042000.target-module: sysc_flags 00000222 != 00000022
+ti-sysc 48044000.target-module: sysc_flags 00000222 != 00000022
+ti-sysc 48046000.target-module: sysc_flags 00000222 != 00000022
+...
 
-This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
-for $(objtree)", 2014-05-14)
+Let's fix these warnings by adding SYSC_HAS_RESET_STATUS. Let's also
+remove the useless parentheses while at it.
 
-Rather than fixing the Makefile to set objtree to an absolute path, just
-fix namespace.pl to work when srctree and objtree are relative. Also fix
-the script to use an absolute path for these by default.
+If it turns out we do have ti,sysc-omap4 compatible devices without a
+working SOFTRESET bit we can set up additional quirk handling for it.
 
-Use the File::Spec module for this purpose. It's been part of perl
-5 since 5.005.
-
-The curdir() function is used to get the current directory when the
-objtree and srctree aren't set in the environment.
-
-rel2abs() is used to convert possibly relative objtree and srctree
-environment variables to absolute paths.
-
-Finally, the catfile() function is used instead of string appending
-paths together, since this is more robust when joining paths together.
-
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/namespace.pl | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/namespace.pl b/scripts/namespace.pl
-index 6135574a6f394..1da7bca201a42 100755
---- a/scripts/namespace.pl
-+++ b/scripts/namespace.pl
-@@ -65,13 +65,14 @@
- use warnings;
- use strict;
- use File::Find;
-+use File::Spec;
- 
- my $nm = ($ENV{'NM'} || "nm") . " -p";
- my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
--my $srctree = "";
--my $objtree = "";
--$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
--$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
-+my $srctree = File::Spec->curdir();
-+my $objtree = File::Spec->curdir();
-+$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
-+$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
- 
- if ($#ARGV != -1) {
- 	print STDERR "usage: $0 takes no parameters\n";
-@@ -231,9 +232,9 @@ sub do_nm
- 	}
- 	($source = $basename) =~ s/\.o$//;
- 	if (-e "$source.c" || -e "$source.S") {
--		$source = "$objtree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
- 	} else {
--		$source = "$srctree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
- 	}
- 	if (! -e "$source.c" && ! -e "$source.S") {
- 		# No obvious source, exclude the object if it is conglomerate
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
+index de06a1d5ffab5..e61c14f590634 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
+@@ -966,7 +966,8 @@ static struct omap_hwmod_class_sysconfig am33xx_timer_sysc = {
+ 	.rev_offs	= 0x0000,
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+-	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET),
++	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
++			  SYSC_HAS_RESET_STATUS,
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
+ 			  SIDLE_SMART_WKUP),
+ 	.sysc_fields	= &omap_hwmod_sysc_type2,
 -- 
 2.20.1
 
