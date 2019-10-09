@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA9C6D1602
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC37BD15FB
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:26:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732216AbfJIR0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:26:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
+        id S1732393AbfJIRYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:24:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732377AbfJIRYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:35 -0400
+        id S1731878AbfJIRYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:37 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DB9221920;
-        Wed,  9 Oct 2019 17:24:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D80121929;
+        Wed,  9 Oct 2019 17:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641874;
-        bh=uG3ifd4LdU/S4tdk5jXdV8M3Xx9rLvJA2I7pmFRBINY=;
+        s=default; t=1570641876;
+        bh=+FTIqJfSl5gV5KQzwpjj7t5RyVOYnsyRblb+nrJ5iJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SspeWhi0CajVZ39KNWCMCrWeKG04DChsiP8OY2cdRqJJyFE726GwTWNVU3WmC5oTw
-         BFoxcWzAqr6RioEo75NWzQKl+rTgYZtx5iZ7oUPgLy3DQsgX3O44MKzFaxhlYwWp2m
-         IxafM9od+qU/TfURaAw9eDjmVCn7nkAH0tGe5oSQ=
+        b=QO86CM2KT66nhDhKSaerhaQ6W/+f99pVNrN/u1QTj7S4Z4JfczGtxv17pYinss8I4
+         NED0YC1nMSOTabZxEm2JVZEx5mOhuAkqaAHHJCDBpUuxVGuLQXEMdTOYHsm/uzBIml
+         nQ22dhtmpwAmuePf7MTjDpQpsH+wsc9+4ssyKdVU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 19/21] r8152: Set macpassthru in reset_resume callback
-Date:   Wed,  9 Oct 2019 13:06:12 -0400
-Message-Id: <20191009170615.32750-19-sashal@kernel.org>
+Cc:     Jacob Keller <jacob.e.keller@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 20/21] namespace: fix namespace.pl script to support relative paths
+Date:   Wed,  9 Oct 2019 13:06:13 -0400
+Message-Id: <20191009170615.32750-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170615.32750-1-sashal@kernel.org>
 References: <20191009170615.32750-1-sashal@kernel.org>
@@ -44,44 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit a54cdeeb04fc719e4c7f19d6e28dba7ea86cee5b ]
+[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
 
-r8152 may fail to establish network connection after resume from system
-suspend.
+The namespace.pl script does not work properly if objtree is not set to
+an absolute path. The do_nm function is run from within the find
+function, which changes directories.
 
-If the USB port connects to r8152 lost its power during system suspend,
-the MAC address was written before is lost. The reason is that The MAC
-address doesn't get written again in its reset_resume callback.
+Because of this, appending objtree, $File::Find::dir, and $source, will
+return a path which is not valid from the current directory.
 
-So let's set MAC address again in reset_resume callback. Also remove
-unnecessary lock as no other locking attempt will happen during
-reset_resume.
+This used to work when objtree was set to an absolute path when using
+"make namespacecheck". It appears to have not worked when calling
+./scripts/namespace.pl directly.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
+for $(objtree)", 2014-05-14)
+
+Rather than fixing the Makefile to set objtree to an absolute path, just
+fix namespace.pl to work when srctree and objtree are relative. Also fix
+the script to use an absolute path for these by default.
+
+Use the File::Spec module for this purpose. It's been part of perl
+5 since 5.005.
+
+The curdir() function is used to get the current directory when the
+objtree and srctree aren't set in the environment.
+
+rel2abs() is used to convert possibly relative objtree and srctree
+environment variables to absolute paths.
+
+Finally, the catfile() function is used instead of string appending
+paths together, since this is more robust when joining paths together.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ scripts/namespace.pl | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 455eec3c46942..c0964281ab983 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -4465,10 +4465,9 @@ static int rtl8152_reset_resume(struct usb_interface *intf)
- 	struct r8152 *tp = usb_get_intfdata(intf);
+diff --git a/scripts/namespace.pl b/scripts/namespace.pl
+index 729c547fc9e1e..30c43e639db8a 100755
+--- a/scripts/namespace.pl
++++ b/scripts/namespace.pl
+@@ -65,13 +65,14 @@
+ use warnings;
+ use strict;
+ use File::Find;
++use File::Spec;
  
- 	clear_bit(SELECTIVE_SUSPEND, &tp->flags);
--	mutex_lock(&tp->control);
- 	tp->rtl_ops.init(tp);
- 	queue_delayed_work(system_long_wq, &tp->hw_phy_work, 0);
--	mutex_unlock(&tp->control);
-+	set_ethernet_addr(tp);
- 	return rtl8152_resume(intf);
- }
+ my $nm = ($ENV{'NM'} || "nm") . " -p";
+ my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+-my $srctree = "";
+-my $objtree = "";
+-$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+-$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
++my $srctree = File::Spec->curdir();
++my $objtree = File::Spec->curdir();
++$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
++$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
  
+ if ($#ARGV != -1) {
+ 	print STDERR "usage: $0 takes no parameters\n";
+@@ -231,9 +232,9 @@ sub do_nm
+ 	}
+ 	($source = $basename) =~ s/\.o$//;
+ 	if (-e "$source.c" || -e "$source.S") {
+-		$source = "$objtree$File::Find::dir/$source";
++		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
+ 	} else {
+-		$source = "$srctree$File::Find::dir/$source";
++		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
+ 	}
+ 	if (! -e "$source.c" && ! -e "$source.S") {
+ 		# No obvious source, exclude the object if it is conglomerate
 -- 
 2.20.1
 
