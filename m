@@ -2,84 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5CED1660
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A9CD16E2
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732115AbfJIR3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:29:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48634 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732190AbfJIRYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:11 -0400
-Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF5F521929;
-        Wed,  9 Oct 2019 17:24:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641851;
-        bh=KSTyBycvaBF6MzT0NdhfrBGaaI+TnTsiPM3uavlCd/I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I3lqMqqhVA+N+MauuJeWQ6SudcOstHVY8l0aEFLPrvdxySfp7ElASLrcscLbd2Ax5
-         sv2Za9atazSSVP3Uxda0IPghJ18FYasoJ9y/DyysRPOF4UzhmiOHhkA9GaA2KWKODe
-         Db+LBp2wAXp47kltmAhKIvFq5oZoEiX2gQcdneGc=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yizhuo <yzhai003@ucr.edu>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/26] net: hisilicon: Fix usage of uninitialized variable in function mdio_sc_cfg_reg_write()
-Date:   Wed,  9 Oct 2019 13:05:53 -0400
-Message-Id: <20191009170558.32517-21-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
-References: <20191009170558.32517-1-sashal@kernel.org>
+        id S1731940AbfJIRfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:35:46 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:44872 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731145AbfJIRfq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 13:35:46 -0400
+Received: by mail-pg1-f196.google.com with SMTP id u12so1837081pgb.11;
+        Wed, 09 Oct 2019 10:35:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nj9rSb6+A9rvujRfiVZZzuEm43YQDU7Btaig5FdBlVs=;
+        b=p2naQpfKkUyVP/r5NFyocBbjnhvhMPF5uKg/TmLzNENbyRQacdtHkqs9NGbt3/y8jS
+         mfEeh2IfnCdEggqSHkgvLj6oQNAfjlNZS5V5sh5GLcP9ZAuAO7J3B042ax3MCWgywu/n
+         oDdicrt2Fn/77UkZb9yYKGciGardpeP4A/IaMF+iw0+CRmQ/cTkeNzoH57lhmHQhulZu
+         afNycQref9u0f9yqBIankmiWXYMglH1V0cUbItuy74Z6V+Ql7g5rmLNTFr5/+L7VKfQ+
+         2AFAxOMmvm+KgRvkEWdRZn1dSxjM6GODEKmLCk5ygMUnPVmQ8griVlsHMOQl9f7YISJt
+         JnMg==
+X-Gm-Message-State: APjAAAUElkOb4UnqilooKd9S0D7ftIa6aEjsmMWvEhOWiTHOSpAvBV4a
+        A2cy+avmpMTzrMLkomMbn0o=
+X-Google-Smtp-Source: APXvYqycBmCFvgBWin/59P0yH6yBKADVg4UJZBU0cr3asYVbdrEcEgsOycsuSlQ5QHrDbwNsFOPy9g==
+X-Received: by 2002:a63:231e:: with SMTP id j30mr5734299pgj.419.1570642544058;
+        Wed, 09 Oct 2019 10:35:44 -0700 (PDT)
+Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
+        by smtp.gmail.com with ESMTPSA id c11sm4161190pfj.114.2019.10.09.10.35.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Oct 2019 10:35:43 -0700 (PDT)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     "Martin K . Petersen" <martin.petersen@oracle.com>,
+        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>
+Cc:     linux-scsi@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Rob Turk <robtu@rtist.nl>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.de>, stable@vger.kernel.org
+Subject: [PATCH] ch: Make it again possible to open a ch device two or more times
+Date:   Wed,  9 Oct 2019 10:35:36 -0700
+Message-Id: <20191009173536.247889-1-bvanassche@acm.org>
+X-Mailer: git-send-email 2.23.0.581.g78d2f28ef7-goog
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo <yzhai003@ucr.edu>
+Clearing ch->device in ch_release() is wrong because that pointer must
+remain valid until ch_remove() is called. This patch fixes the following
+crash the second time a ch device is opened:
 
-[ Upstream commit 53de429f4e88f538f7a8ec2b18be8c0cd9b2c8e1 ]
+BUG: kernel NULL pointer dereference, address: 0000000000000790
+RIP: 0010:scsi_device_get+0x5/0x60
+Call Trace:
+ ch_open+0x4c/0xa0 [ch]
+ chrdev_open+0xa2/0x1c0
+ do_dentry_open+0x13a/0x380
+ path_openat+0x591/0x1470
+ do_filp_open+0x91/0x100
+ do_sys_open+0x184/0x220
+ do_syscall_64+0x5f/0x1a0
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-In function mdio_sc_cfg_reg_write(), variable "reg_value" could be
-uninitialized if regmap_read() fails. However, "reg_value" is used
-to decide the control flow later in the if statement, which is
-potentially unsafe.
-
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Rob Turk <robtu@rtist.nl>
+Suggested-by: Rob Turk <robtu@rtist.nl>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: <stable@vger.kernel.org>
+Fixes: 085e56766f74 ("scsi: ch: add refcounting")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
- drivers/net/ethernet/hisilicon/hns_mdio.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/ch.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns_mdio.c b/drivers/net/ethernet/hisilicon/hns_mdio.c
-index baf5cc251f329..9a3bc0994a1db 100644
---- a/drivers/net/ethernet/hisilicon/hns_mdio.c
-+++ b/drivers/net/ethernet/hisilicon/hns_mdio.c
-@@ -156,11 +156,15 @@ static int mdio_sc_cfg_reg_write(struct hns_mdio_device *mdio_dev,
- {
- 	u32 time_cnt;
- 	u32 reg_value;
-+	int ret;
+diff --git a/drivers/scsi/ch.c b/drivers/scsi/ch.c
+index 5f8153c37f77..76751d6c7f0d 100644
+--- a/drivers/scsi/ch.c
++++ b/drivers/scsi/ch.c
+@@ -579,7 +579,6 @@ ch_release(struct inode *inode, struct file *file)
+ 	scsi_changer *ch = file->private_data;
  
- 	regmap_write(mdio_dev->subctrl_vbase, cfg_reg, set_val);
- 
- 	for (time_cnt = MDIO_TIMEOUT; time_cnt; time_cnt--) {
--		regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		ret = regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		if (ret)
-+			return ret;
-+
- 		reg_value &= st_msk;
- 		if ((!!check_st) == (!!reg_value))
- 			break;
+ 	scsi_device_put(ch->device);
+-	ch->device = NULL;
+ 	file->private_data = NULL;
+ 	kref_put(&ch->ref, ch_destroy);
+ 	return 0;
 -- 
-2.20.1
+2.23.0.581.g78d2f28ef7-goog
 
