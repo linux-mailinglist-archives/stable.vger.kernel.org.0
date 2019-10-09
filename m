@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB3C3D1698
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8189AD1695
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732692AbfJIRbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48510 "EHLO mail.kernel.org"
+        id S1731889AbfJIRbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:31:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732096AbfJIRYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1732099AbfJIRYE (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 9 Oct 2019 13:24:04 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C89FA21929;
-        Wed,  9 Oct 2019 17:24:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ED5321D56;
+        Wed,  9 Oct 2019 17:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641843;
-        bh=HqvXM5KNaKG/zgmqzl+/ZTz93tY+4j8tnfWyNVjau/s=;
+        s=default; t=1570641844;
+        bh=7thJGh8wgTLrA4H1iy8iuAhzw2uXgJIQcuahMt884cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rB5L71OlaJzeuc1a/F/Pbtv9Vc7iaYO+SZdYz6wCuOFoix7ep6I7vNivjCxCBBS71
-         HdVP5OkKi6AYGku9I9EE/dqhh5sMKEaD8G+AEAANn7sT1GQcdVdFG+K79m7gudPJUw
-         bSyb7VCEwXH/D6iaKfeZ3OWFbLbxwKr+NXYijJP8=
+        b=Dwcc1q+WUP01Tjxg3bQb9aM80WxTBvtiXz0mwALwEnBgXYHYniuGelO83uU12skh9
+         XpB6W82e3MqUsbDO92nYWm+we57sSKI3fqBWcRMtrufql4XkS/KWLSiWpHcy7+d6es
+         a3UBol6gBu+EB+bW6BwS8UBS+/LWKmxSC5UDxeAU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Balbir Singh <sblbir@amzn.com>, Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 02/26] nvme-pci: Fix a race in controller removal
-Date:   Wed,  9 Oct 2019 13:05:34 -0400
-Message-Id: <20191009170558.32517-2-sashal@kernel.org>
+Cc:     Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 03/26] scsi: ufs: skip shutdown if hba is not powered
+Date:   Wed,  9 Oct 2019 13:05:35 -0400
+Message-Id: <20191009170558.32517-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
 References: <20191009170558.32517-1-sashal@kernel.org>
@@ -43,44 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Balbir Singh <sblbir@amzn.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit b224726de5e496dbf78147a66755c3d81e28bdd2 ]
+[ Upstream commit f51913eef23f74c3bd07899dc7f1ed6df9e521d8 ]
 
-User space programs like udevd may try to read to partitions at the
-same time the driver detects a namespace is unusable, and may deadlock
-if revalidate_disk() is called while such a process is waiting to
-enter the frozen queue. On detecting a dead namespace, move the disk
-revalidate after unblocking dispatchers that may be holding bd_butex.
+In some cases, hba may go through shutdown flow without successful
+initialization and then make system hang.
 
-changelog Suggested-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Balbir Singh <sblbir@amzn.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+For example, if ufshcd_change_power_mode() gets error and leads to
+ufshcd_hba_exit() to release resources of the host, future shutdown flow
+may hang the system since the host register will be accessed in unpowered
+state.
+
+To solve this issue, simply add checking to skip shutdown for above kind of
+situation.
+
+Link: https://lore.kernel.org/r/1568780438-28753-1-git-send-email-stanley.chu@mediatek.com
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Acked-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ae0b01059fc6d..5d0f99bcc987f 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -111,10 +111,13 @@ static void nvme_set_queue_dying(struct nvme_ns *ns)
- 	 */
- 	if (!ns->disk || test_and_set_bit(NVME_NS_DEAD, &ns->flags))
- 		return;
--	revalidate_disk(ns->disk);
- 	blk_set_queue_dying(ns->queue);
- 	/* Forcibly unquiesce queues to avoid blocking dispatch */
- 	blk_mq_unquiesce_queue(ns->queue);
-+	/*
-+	 * Revalidate after unblocking dispatchers that may be holding bd_butex
-+	 */
-+	revalidate_disk(ns->disk);
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index b8b59cfeacd1f..4aaba3e030554 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -7874,6 +7874,9 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ {
+ 	int ret = 0;
  
- static void nvme_queue_scan(struct nvme_ctrl *ctrl)
++	if (!hba->is_powered)
++		goto out;
++
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
+ 
 -- 
 2.20.1
 
