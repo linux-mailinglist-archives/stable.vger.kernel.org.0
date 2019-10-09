@@ -2,78 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53449D0850
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 09:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231C4D0854
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 09:33:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725776AbfJIHdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 03:33:13 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:33181 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725440AbfJIHdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 03:33:13 -0400
-Received: by mail-io1-f66.google.com with SMTP id z19so2902383ior.0
-        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 00:33:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=dRMNN5ObO6voCpYJzyq3YxZhdXJMdZa7k7WRJfugbpU=;
-        b=rDf5ns46ybez81jAgVU1UDFs/IF4+tsagBrom0MGajN4Vpp0L1qOcb4ymKhNuEblU8
-         f0aEdm55QD4+tv+19o8TsoidEdOJXxeC+6PuuAw31fNeNje1P1mgFMxNGS3d208iiJrb
-         k2+QqhImebfNNMYPjHSKr1fmM0Sq5uIusYCi7FZSdCHeJf4OrpwcTp2XiKeFjPnsSYeq
-         3uxSoyRQkjd9dWpmYs1bryP7VSmT9wzD62bZLNN5sUu62lqvfeYwkwzGAt3qgDlJFf1c
-         YzElkzorEf/Q4S9psmh603yYKPyud8HMWJrZz8pOOVt+cForPWGHeIAR8vSzpUm2fyqI
-         AN/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=dRMNN5ObO6voCpYJzyq3YxZhdXJMdZa7k7WRJfugbpU=;
-        b=nnnw7n1ZfNCUGMAuj3uVzCQLQXPBV+7yUsUKDuL7xuOpEcgC5LZioiZ6nhorrYOmfp
-         hbuZS9uHDncvMGAmSg2NOGkXhbCWhNroONiKxN1l+Gh4ijBdAGmkMYVK2eYu5nPtU9DV
-         OAQ7rMyia/88gjIw0EYpp3IFot21SjCwiS/Oz7bNA/QljiUl5praO8Od5kSM17KmoSHs
-         vax8ZG/VDelSAdxOT+ZWH3PECMh3+nX3TQmVFjg/6H0Lx3LJYmMfsqO7A/Kl1zVlgBMV
-         n3RnO6lhP+EZhHhtE64g2zrJxndOh7v8Yr9a51Smk19Mi78w1MD34BN5D71qx8eL+jxs
-         4LUQ==
-X-Gm-Message-State: APjAAAXzII1hdS5dB49cSTsMFG8KoVEVJaggYBeaJZXq3RHXx+ZTWyfp
-        g9mb3+hwUQDKc0q7mheWRLO+cphys7rJJxCuOtU=
-X-Google-Smtp-Source: APXvYqyezELIhnpf+UzzMHkh7uaWlTLHr/QcrjRpKujEO3/4/NQaxHtIUID40BeBb11Pec4XAD0HUUqgFneEI9gVEmI=
-X-Received: by 2002:a92:8953:: with SMTP id n80mr1968581ild.77.1570606392460;
- Wed, 09 Oct 2019 00:33:12 -0700 (PDT)
+        id S1725879AbfJIHdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 03:33:20 -0400
+Received: from mga12.intel.com ([192.55.52.136]:34804 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725440AbfJIHdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 03:33:20 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Oct 2019 00:33:20 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,273,1566889200"; 
+   d="scan'208";a="345280689"
+Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.125])
+  by orsmga004.jf.intel.com with ESMTP; 09 Oct 2019 00:33:16 -0700
+Date:   Wed, 9 Oct 2019 10:33:15 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Ken Goldman <kgold@linux.ibm.com>
+Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191009073315.GA5884@linux.intel.com>
+References: <1570107752.4421.183.camel@linux.ibm.com>
+ <20191003175854.GB19679@linux.intel.com>
+ <1570128827.5046.19.camel@linux.ibm.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+ <20191004182711.GC6945@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+ <20191007000520.GA17116@linux.intel.com>
+ <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+ <20191008234935.GA13926@linux.intel.com>
+ <20191008235339.GB13926@linux.intel.com>
 MIME-Version: 1.0
-Received: by 2002:a02:cac2:0:0:0:0:0 with HTTP; Wed, 9 Oct 2019 00:33:11 -0700 (PDT)
-Reply-To: GhaziAhmed@mail.com
-From:   Ghazi Ahmed <ghazia500@gmail.com>
-Date:   Wed, 9 Oct 2019 00:33:11 -0700
-Message-ID: <CAOo=X59oq0ypmzLfRCz=i4xX1a0_DySY+kA2kL_3tLTKMB_7kA@mail.gmail.com>
-Subject: Dear Friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191008235339.GB13926@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I have a business proposal in the tune of $10.2m USD for you to handle
-with me. I have opportunity to transfer this abandon fund to your bank
-account in your country which belongs to our client.
+On Wed, Oct 09, 2019 at 02:53:39AM +0300, Jarkko Sakkinen wrote:
+> On Wed, Oct 09, 2019 at 02:49:35AM +0300, Jarkko Sakkinen wrote:
+> > On Mon, Oct 07, 2019 at 06:13:01PM -0400, Ken Goldman wrote:
+> > > The TPM library specification states that the TPM must comply with NIST
+> > > SP800-90 A.
+> > > 
+> > > https://trustedcomputinggroup.org/membership/certification/tpm-certified-products/
+> > > 
+> > > shows that the TPMs get third party certification, Common Criteria EAL 4+.
+> > > 
+> > > While it's theoretically possible that an attacker could compromise
+> > > both the TPM vendors and the evaluation agencies, we do have EAL 4+
+> > > assurance against both 1 and 2.
+> > 
+> > Certifications do not equal to trust.
+> 
+> And for trusted keys the least trust solution is to do generation
+> with the kernel assets and sealing with TPM. With TEE the least
+> trust solution is equivalent.
+> 
+> Are you proposing that the kernel random number generation should
+> be removed? That would be my conclusion of this discussion if I
+> would agree any of this (I don't).
 
-I am inviting you in this transaction where this money can be shared
-between us at ratio of 60/40% and help the needy around us don=E2=80=99t be
-afraid of anything I am with you I will instruct you what you will do
-to maintain this fund.
+The whole point of rng in kernel has been to use multiple entropy
+sources in order to disclose the trust issue.
 
-Please kindly contact me with your information's if you are interested
-in this tranasction for more details(GhaziAhmed@mail.com  )
+Even with weaker entropy than TPM RNG it is still a better choice for
+*non-TPM* keys because of better trustworthiness. Using only TPM RNG is
+a design flaw that has existed probably because when trusted keys were
+introduced TPM was more niche than it is today.
 
-1. Your Full Name.....................
-2. Your Address......................
-3. Your Country of Origin.............
-4. What do you do for living ...............
-5. Your Age..........................
-6. Gender.........................
-7. Your ID card copy and telephone number for easy communication...........=
-....
+Please remember that a trusted key is not a TPM key. The reality
+distortion field is strong here it seems.
 
-Mr.Ghazi Ahmed
+/Jarkko
