@@ -2,76 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA6AD04F7
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 03:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDFB7D0508
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 03:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729859AbfJIBAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 21:00:43 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:33059 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729700AbfJIBAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 21:00:43 -0400
-Received: by mail-io1-f66.google.com with SMTP id z19so1267800ior.0
-        for <stable@vger.kernel.org>; Tue, 08 Oct 2019 18:00:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sifive.com; s=google;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=LJCDARiFiBLpdpxYJIryjnohhQYmgsyU7CX764JVeEA=;
-        b=ASRaVdcnYAUi71S2QQYygps/Fckw/LI0/elZq3dsaiZDrTuC1cG19KBsKVUiVeNb44
-         R6AJ1rbK3s50ZBbjib3L2pSpd0X8LC+/1U/lD3nlIQ/5SDyUIfiSHKvIPbo5+jfJ+idD
-         ysFvFXo5Kz4a2jAPOsqWShmf39yyZk95PMEAMeilsw+8rFfpAirRlmVU2+EKzrerhpKI
-         9V6H6r0lq5bliHaovUxZTLt+hg/Qnu1b/nFwOs361hFNPcUemQ2MmlltMnQaGpttLkjh
-         7smbwrhshxCuGpwajmlmCZtAUUqTowQbe+HJs3plV8qr3kbHKiOi9Kbgi5OmPt+FAt7d
-         tsrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=LJCDARiFiBLpdpxYJIryjnohhQYmgsyU7CX764JVeEA=;
-        b=Hsz9Z4mPuUe1n+W/7S07JGtXx61NmIpJ7htx4ccXVvyb9pxH0NH7IgrVYpf9ZVpoR5
-         PVlY2/JHlzpiIGb/lRGcVdO7zd/ZLO/SuJltvX0Bcu2k7Bcn3adS/CNJJxQqyGCIacuk
-         On7kIS3x+/YT9qWxIyk6jLpgbYv2x9JThJqr7F36AjI/dbpxI0G3IEbAAl7NIRh4kx43
-         K29eIFG8ckp10MZHprBLF2gTkip739Bd83+HX9DbHJ6WsxLR8vxhjCR8Z3tAaH9do0MW
-         /JAMlE3XCPdr1wWzmPrZ8tvaWoqImPkCjTHkC/CqVbF3PEk7RTgkL7DTA+Bx0jVc6RMs
-         shiQ==
-X-Gm-Message-State: APjAAAUbq2x6mzKACZBLCTcUG7jGEnYujEmoy8gNUSb090w5RTRyn2fX
-        /sVMP5z8Ujd154k+ZS4QhxWaEA==
-X-Google-Smtp-Source: APXvYqxSmPLVOUTb1rkthXBaScN1BKC9Tv8hRSvuzqu4A6/qmTI0qaQM0LNVTjnm6I+6BqAUGNpShQ==
-X-Received: by 2002:a5d:9359:: with SMTP id i25mr1087359ioo.184.1570582842686;
-        Tue, 08 Oct 2019 18:00:42 -0700 (PDT)
-Received: from localhost ([64.62.168.194])
-        by smtp.gmail.com with ESMTPSA id f189sm410708ilh.71.2019.10.08.18.00.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Oct 2019 18:00:42 -0700 (PDT)
-Date:   Tue, 8 Oct 2019 18:00:36 -0700 (PDT)
-From:   Paul Walmsley <paul.walmsley@sifive.com>
-X-X-Sender: paulw@viisi.sifive.com
-To:     Sasha Levin <sashal@kernel.org>
-cc:     gregkh@linuxfoundation.org, vincent.chen@sifive.com,
-        david.abdurachmanov@sifive.com, palmer@sifive.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] riscv: Avoid interrupts being erroneously
- enabled in" failed to apply to 5.3-stable tree
-In-Reply-To: <20191009005252.GQ1396@sasha-vm>
-Message-ID: <alpine.DEB.2.21.9999.1910081759550.972@viisi.sifive.com>
-References: <1570555664182195@kroah.com> <20191009005252.GQ1396@sasha-vm>
-User-Agent: Alpine 2.21.9999 (DEB 301 2018-08-15)
+        id S1729883AbfJIBIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 21:08:48 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:55174 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729601AbfJIBIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 21:08:48 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id BD627609D1; Wed,  9 Oct 2019 01:08:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570583327;
+        bh=bYjOELDTmiw0q27UcfMSd3+dbrYeqDhUhvNkC3AoPGo=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=RZxu1lpRTYgTHOKizSOgdIt5xErmBAcmksKhD+IDtMptn2YwUlK7a0cjsTtdbSfgQ
+         zMW7ft6xpVyiCqCQo++x0xOy6vWHs9AT2XnF1THdJwujfcdQSIo+LBvx/ZXBhuyOih
+         UHN/3iEUg6B+yhbNacVVZAn1LPMeJr0tRq8qnNow=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from [192.168.142.6] (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: clew@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id D5BC960709;
+        Wed,  9 Oct 2019 01:08:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570583327;
+        bh=bYjOELDTmiw0q27UcfMSd3+dbrYeqDhUhvNkC3AoPGo=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=RZxu1lpRTYgTHOKizSOgdIt5xErmBAcmksKhD+IDtMptn2YwUlK7a0cjsTtdbSfgQ
+         zMW7ft6xpVyiCqCQo++x0xOy6vWHs9AT2XnF1THdJwujfcdQSIo+LBvx/ZXBhuyOih
+         UHN/3iEUg6B+yhbNacVVZAn1LPMeJr0tRq8qnNow=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org D5BC960709
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=clew@codeaurora.org
+Subject: Re: [PATCH v2 5/6] rpmsg: glink: Don't send pending rx_done during
+ remove
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>
+Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20191004222702.8632-1-bjorn.andersson@linaro.org>
+ <20191004222702.8632-6-bjorn.andersson@linaro.org>
+From:   Chris Lew <clew@codeaurora.org>
+Message-ID: <3e4a7fe5-fc7a-b7d5-19bf-7fb8a26d8e55@codeaurora.org>
+Date:   Tue, 8 Oct 2019 18:08:46 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20191004222702.8632-6-bjorn.andersson@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 8 Oct 2019, Sasha Levin wrote:
-
-> I might be missing something here, but wasn't the label "1" already
-> declared a few lines above?
-
-See the "Local Labels" section of 
-
-https://sourceware.org/binutils/docs-2.24/as/Symbol-Names.html#Symbol-Names
 
 
-- Paul
+On 10/4/2019 3:27 PM, Bjorn Andersson wrote:
+> Attempting to transmit rx_done messages after the GLINK instance is
+> being torn down will cause use after free and memory leaks. So cancel
+> the intent_work and free up the pending intents.
+> 
+> With this there are no concurrent accessors of the channel left during
+> qcom_glink_native_remove() and there is therefor no need to hold the
+> spinlock during this operation - which would prohibit the use of
+> cancel_work_sync() in the release function. So remove this.
+> 
+> Fixes: 1d2ea36eead9 ("rpmsg: glink: Add rx done command")
+> Cc: stable@vger.kernel.org
+> Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+
+Acked-By: Chris Lew <clew@codeaurora.org>
+
+-- 
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
