@@ -2,87 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B65CD04D5
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 02:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10DD2D04DE
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 02:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729567AbfJIAkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 20:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727051AbfJIAkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Oct 2019 20:40:13 -0400
-Received: from localhost (unknown [131.107.159.163])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1729742AbfJIAtc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 20:49:32 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:48536 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727051AbfJIAtc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 20:49:32 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 0206560ACA; Wed,  9 Oct 2019 00:49:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570582171;
+        bh=H6YaNArkGuc3fuAMFOk1zbKLBbvYg8Y8HDQPakVxx04=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZdZLIS4Q8T7M7aCIdidVevKxJywkhvXp6g5dtBrNuNKwQlmDqgAnU6muc83VsK2H9
+         BX9RmNBNHulMTmcxd4j7EVABSk1ff+LyGzxdVQU81Ol4POJr3f5GLBM86R/o7I+D/o
+         u70siJ1WRb3dHSx3wWmSA7Oo7JdXURn9t38uff1k=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from [192.168.142.6] (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8C7120859;
-        Wed,  9 Oct 2019 00:40:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570581612;
-        bh=jeumQEEYtKwWj7qBx4yIZ1yzV5MYEDEXaPah+wn/xW0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VJVKM1ZbuuF9YFaZ45ZyOOjAcghN+cZIiJA/9d9BUeZWxfxF4cWPWcpW/ZJYvbo+4
-         dSMF2yFk2Mmoma/frpzxUKlyQsfORz1rgmmGxpkM1hH67BnYxlPwdBzj6Jw9I7fWYu
-         idIjK2F2dXaUl++NTaBNRem5RXbCnJqakLnWHI2E=
-Date:   Tue, 8 Oct 2019 20:40:12 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     chris@chris-wilson.co.uk, tvrtko.ursulin@intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] drm/i915/userptr: Acquire the page lock
- around" failed to apply to 4.19-stable tree
-Message-ID: <20191009004012.GP1396@sasha-vm>
-References: <157055550499113@kroah.com>
+        (Authenticated sender: clew@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 59011602C8;
+        Wed,  9 Oct 2019 00:49:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570582170;
+        bh=H6YaNArkGuc3fuAMFOk1zbKLBbvYg8Y8HDQPakVxx04=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=QLjzV1hlQo9QdIh7pR8i2L0CtssDRtDQaTOA+UelrN4QzEIoe3COu+w4mmMErzf9D
+         UWvyzDgZ6oEOrqRyl1Tc1TQ/imfqq4V3F3fGhdX6gn3n7gUi3doi3F+5RrlOcekmR/
+         khIv6Hn6IA/Vj1AIKQj/tROOXeZHhg9KJaVpGdNs=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 59011602C8
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=clew@codeaurora.org
+Subject: Re: [PATCH v2 1/6] rpmsg: glink: Fix reuse intents memory leak issue
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Ohad Ben-Cohen <ohad@wizery.com>
+Cc:     linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20191004222702.8632-1-bjorn.andersson@linaro.org>
+ <20191004222702.8632-2-bjorn.andersson@linaro.org>
+From:   Chris Lew <clew@codeaurora.org>
+Message-ID: <22fc76bf-9d2e-f016-fb63-a481f69f0a6c@codeaurora.org>
+Date:   Tue, 8 Oct 2019 17:49:29 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157055550499113@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191004222702.8632-2-bjorn.andersson@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 08, 2019 at 07:25:04PM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.19-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From cb6d7c7dc7ff8cace666ddec66334117a6068ce2 Mon Sep 17 00:00:00 2001
->From: Chris Wilson <chris@chris-wilson.co.uk>
->Date: Mon, 8 Jul 2019 15:03:27 +0100
->Subject: [PATCH] drm/i915/userptr: Acquire the page lock around
-> set_page_dirty()
->
->set_page_dirty says:
->
->	For pages with a mapping this should be done under the page lock
->	for the benefit of asynchronous memory errors who prefer a
->	consistent dirty state. This rule can be broken in some special
->	cases, but should be better not to.
->
->Under those rules, it is only safe for us to use the plain set_page_dirty
->calls for shmemfs/anonymous memory. Userptr may be used with real
->mappings and so needs to use the locked version (set_page_dirty_lock).
->
->Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
->Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
->References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
->Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
->Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
->Cc: stable@vger.kernel.org
->Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
->Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
 
-File got moved around. I've fixed it up and queued for 4.19-4.4.
+
+On 10/4/2019 3:26 PM, Bjorn Andersson wrote:
+> From: Arun Kumar Neelakantam <aneela@codeaurora.org>
+> 
+> Memory allocated for re-usable intents are not freed during channel
+> cleanup which causes memory leak in system.
+> 
+> Check and free all re-usable memory to avoid memory leak.
+> 
+> Fixes: 933b45da5d1d ("rpmsg: glink: Add support for TX intents")
+> Cc: stable@vger.kernel.org
+> Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> Signed-off-by: Arun Kumar Neelakantam <aneela@codeaurora.org>
+> Reported-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+
+Acked-By: Chris Lew <clew@codeaurora.org>
 
 -- 
-Thanks,
-Sasha
+Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
+a Linux Foundation Collaborative Project
