@@ -2,75 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A374D0B5C
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 11:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA82D0B8F
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 11:43:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730302AbfJIJfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 05:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41566 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725942AbfJIJfu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 05:35:50 -0400
+        id S1727219AbfJIJnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 05:43:14 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37027 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726579AbfJIJnO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 05:43:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 2202A4D6;
+        Wed,  9 Oct 2019 05:43:13 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 09 Oct 2019 05:43:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=w/1gU/6feiD6Ow0s4cE+tnjiLAI
+        dE9nHmPgN4uVKBEg=; b=Yva0+YeBpXFlwqNWgCEt0edcYIvsO40QHa4yXxlHdfx
+        7fT6GTx9Hc0OyNuhLqI6+aF8ivC3hOsRtxgw9oovLUoTIrq6L289rx5l4eljmslz
+        8HC1T8lxLR4hXAwHSv7rIDW9DhMfoBsC3PDWBl1BkPWsmjdn3dWSgNdl8xrG6BUt
+        hx4mZVF0BPbhmuYdjMSdcKBIERiv9dcoLdgC3INsulGKwECJsP7GjnLS7GmIJYNO
+        dcVV9iVg25wsJpNCra3yTLB9qn2/cEH4evP6fDPfLN6RAUf57sf3lmQwGUVO+Rj+
+        LcwK7/O0E/ihNhqNyvb1xh6EQXNo/6I6iA9k9o3I11Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=w/1gU/
+        6feiD6Ow0s4cE+tnjiLAIdE9nHmPgN4uVKBEg=; b=PqVvVHXlE0dPeV2tEzgNjb
+        FA3rqNgs9BaIG/RzihQgjZ/f0IVieUp8a605dUEu8x8iKDhAGBjLb7TEc5rCzH8f
+        h5QtJenn7HrWsdxNtKaFY3xW+B0T7UjaHzhzWWMpkoNV7lxTtdyq5m2LwwEfNnEZ
+        JJWteSh0bB/0h9AbnwWm9Pcp7ykabQ+OFLEzujj6ui98CPbbPY7dmPH20p8ky8UC
+        E/mfTvWJcK8NFyRtty9xUGfvd9/laRf75TtFSpX0TXm2d2FCoelTP7JueE97jNBt
+        wAEKD+m+bPZpAmXVlPMoF6kn3J9APVGwRfHQljtZrgp2R44ra5c4piMW/hwdlEAA
+        ==
+X-ME-Sender: <xms:sKudXRxVGlEbUo4wrm7F_0LKijnUbUz733z7WRd2jWnkc29jxFAPvA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedriedtgddugeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:sKudXQNqqIKlM_5EuMqJwaIHVoglBHDPdfQVpq648CC6vjxQLi4UjA>
+    <xmx:sKudXXZIYnntKBa9CaALLgQ9vcVHERv_INp78srsVux73hgrGg-MCA>
+    <xmx:sKudXXBOnn1nOUiAArUhYtj8ypbMRJbDiLGUE6O9Q0PqNc5rL40JRg>
+    <xmx:sKudXT16GjWgzQBS7Hh1Qcy2ooU5t8g9CF55wQY2X3HPlQfFUM6tKw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E01621835;
-        Wed,  9 Oct 2019 09:35:49 +0000 (UTC)
-Date:   Wed, 9 Oct 2019 11:35:47 +0200
+        by mail.messagingengine.com (Postfix) with ESMTPA id DD94C8005C;
+        Wed,  9 Oct 2019 05:43:11 -0400 (EDT)
+Date:   Wed, 9 Oct 2019 11:43:10 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        suzuki.poulose@arm.com, andrew.murray@arm.com
-Subject: Re: [PATCH] coresight: etm4x: Use explicit barriers on enable/disable
-Message-ID: <20191009093547.GE3901624@kroah.com>
-References: <20191001171411.16602-1-mathieu.poirier@linaro.org>
+To:     Johannes Berg <johannes@sipsolutions.net>
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: Re: [PATCH 4.4, 4.9, 4.14, 4.19] nl80211: validate beacon head
+Message-ID: <20191009094310.GA3945119@kroah.com>
+References: <1570603265-@changeid>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191001171411.16602-1-mathieu.poirier@linaro.org>
+In-Reply-To: <1570603265-@changeid>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 01, 2019 at 11:14:11AM -0600, Mathieu Poirier wrote:
-> From: Andrew Murray <andrew.murray@arm.com>
+On Wed, Oct 09, 2019 at 08:41:09AM +0200, Johannes Berg wrote:
+> From: Johannes Berg <johannes.berg@intel.com>
 > 
-> commit 1004ce4c255fc3eb3ad9145ddd53547d1b7ce327 upstream
+> Commit 8a3347aa110c76a7f87771999aed491d1d8779a8 upstream.
 > 
-> Synchronization is recommended before disabling the trace registers
-> to prevent any start or stop points being speculative at the point
-> of disabling the unit (section 7.3.77 of ARM IHI 0064D).
+> We currently don't validate the beacon head, i.e. the header,
+> fixed part and elements that are to go in front of the TIM
+> element. This means that the variable elements there can be
+> malformed, e.g. have a length exceeding the buffer size, but
+> most downstream code from this assumes that this has already
+> been checked.
 > 
-> Synchronization is also recommended after programming the trace
-> registers to ensure all updates are committed prior to normal code
-> resuming (section 4.3.7 of ARM IHI 0064D).
+> Add the necessary checks to the netlink policy.
 > 
-> Let's ensure these syncronization points are present in the code
-> and clearly commented.
-> 
-> Note that we could rely on the barriers in CS_LOCK and
-> coresight_disclaim_device_unlocked or the context switch to user
-> space - however coresight may be of use in the kernel.
-> 
-> On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
-> only used on armv8 let's directly use dsb(sy) instead of mb(). This
-> removes some ambiguity and makes it easier to correlate the code with
-> the TRM.
-> 
-> Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-> Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-> [Fixed capital letter for "use" in title]
-> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Link: https://lore.kernel.org/r/20190829202842.580-11-mathieu.poirier@linaro.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: stable@vger.kernel.org # 4.9+
-> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Cc: stable@vger.kernel.org
+> Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
+> Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
+> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 > ---
->  drivers/hwtracing/coresight/coresight-etm4x.c | 14 ++++++++++++--
->  1 file changed, 12 insertions(+), 2 deletions(-)
+>  net/wireless/nl80211.c | 38 ++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+> 
+> diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+> index 6168db3c35e4..4a10ab388e0b 100644
+> --- a/net/wireless/nl80211.c
+> +++ b/net/wireless/nl80211.c
+> @@ -200,6 +200,38 @@ cfg80211_get_dev_from_info(struct net *netns, struct genl_info *info)
+>  	return __cfg80211_rdev_from_attrs(netns, info->attrs);
+>  }
+>  
+> +static int validate_beacon_head(const struct nlattr *attr,
+> +				struct netlink_ext_ack *extack)
+> +{
+> +	const u8 *data = nla_data(attr);
+> +	unsigned int len = nla_len(attr);
+> +	const struct element *elem;
+> +	const struct ieee80211_mgmt *mgmt = (void *)data;
+> +	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
+> +					 u.beacon.variable);
+> +
+> +	if (len < fixedlen)
+> +		goto err;
+> +
+> +	if (ieee80211_hdrlen(mgmt->frame_control) !=
+> +	    offsetof(struct ieee80211_mgmt, u.beacon))
+> +		goto err;
+> +
+> +	data += fixedlen;
+> +	len -= fixedlen;
+> +
+> +	for_each_element(elem, data, len) {
+> +		/* nothing */
+> +	}
 
-Now queued up, thanks.
+for_each_element() is not in 4.4, 4.9, 4.14, or 4.19, so this breaks the
+build :(
+
+I'll drop this from my queues for now.
+
+thanks,
 
 greg k-h
