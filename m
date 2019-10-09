@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE9CED16D4
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B849AD16C9
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732450AbfJIRcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47968 "EHLO mail.kernel.org"
+        id S1731976AbfJIRXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731145AbfJIRXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:23:55 -0400
+        id S1730490AbfJIRXy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:23:54 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE394218DE;
-        Wed,  9 Oct 2019 17:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 119A121920;
+        Wed,  9 Oct 2019 17:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641833;
-        bh=K02rh1HsZkrO5DpDzfg0K9uNvLOc6lHlJ8tW9pFGt+0=;
+        s=default; t=1570641834;
+        bh=/4mMuhJyPwKfQfkFTTqyLam8OguJfnlyat4cAdt/7VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cd6Q9R6iyZSwnf2sUjMSrLHYgtSpWVD5esuQnyhbfK7iEoIDHW2b8CjpKiva6XWhK
-         cAUskU5vGFLgMo/ivHt9vquVSexuBFOqeax8W8deZNeNzHCwZd6awcxXDGSRK/vT2/
-         3ba3Ijblb/bYtAXtLWlSYG3+W52FaJhApWpy8K6c=
+        b=A6GS984hK9CM5ZnARTBXIjvK6o0cJl8roJSSmMXGxyPdViHpTRvz4T82OrdPDfOhL
+         cr+hLkjOHi8RyQFbbrFg5583BmCCDUZ08U7j40MZY/BGD2nphT4vXN9zD76Oru/vS/
+         owwuI5j8DQRv1Gtdx6VllZzfqo8jHOTd33YRCXFI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Lowry Li (Arm Technology China)" <Lowry.Li@arm.com>,
-        Lowry Li <lowry.li@arm.com>, Liviu Dudau <liviu.dudau@arm.com>,
+        Lowry Li <lowry.li@arm.com>,
+        Brian Starkey <brian.starkey@arm.com>,
         James Qian Wang <james.qian.wang@arm.com>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-sh@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 02/68] drm: Free the writeback_job when it with an empty fb
-Date:   Wed,  9 Oct 2019 13:04:41 -0400
-Message-Id: <20191009170547.32204-2-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 03/68] drm: Clear the fence pointer when writeback job signaled
+Date:   Wed,  9 Oct 2019 13:04:42 -0400
+Message-Id: <20191009170547.32204-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170547.32204-1-sashal@kernel.org>
 References: <20191009170547.32204-1-sashal@kernel.org>
@@ -47,134 +48,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Lowry Li (Arm Technology China)" <Lowry.Li@arm.com>
 
-[ Upstream commit 8581d51055a08cc6eb061c8856062290e8582ce4 ]
+[ Upstream commit b1066a123538044117f0a78ba8c6a50cf5a04c86 ]
 
-Adds the check if the writeback_job with an empty fb, then it should
-be freed in atomic_check phase.
+During it signals the completion of a writeback job, after releasing
+the out_fence, we'd clear the pointer.
 
-With this change, the driver users will not check empty fb case any more.
-So refined accordingly.
+Check if fence left over in drm_writeback_cleanup_job(), release it.
 
 Signed-off-by: Lowry Li (Arm Technology China) <lowry.li@arm.com>
-Reviewed-by: Liviu Dudau <liviu.dudau@arm.com>
+Reviewed-by: Brian Starkey <brian.starkey@arm.com>
 Reviewed-by: James Qian Wang (Arm Technology China) <james.qian.wang@arm.com>
 Signed-off-by: james qian wang (Arm Technology China) <james.qian.wang@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1564571048-15029-2-git-send-email-lowry.li@arm.com
+Link: https://patchwork.freedesktop.org/patch/msgid/1564571048-15029-3-git-send-email-lowry.li@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/arm/display/komeda/komeda_wb_connector.c    |  3 +--
- drivers/gpu/drm/arm/malidp_mw.c                     |  4 ++--
- drivers/gpu/drm/drm_atomic.c                        | 13 +++++++++----
- drivers/gpu/drm/rcar-du/rcar_du_writeback.c         |  4 ++--
- drivers/gpu/drm/vc4/vc4_txp.c                       |  5 ++---
- 5 files changed, 16 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/drm_writeback.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c b/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-index 2851cac94d869..23fbee268119f 100644
---- a/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-+++ b/drivers/gpu/drm/arm/display/komeda/komeda_wb_connector.c
-@@ -43,9 +43,8 @@ komeda_wb_encoder_atomic_check(struct drm_encoder *encoder,
- 	struct komeda_data_flow_cfg dflow;
- 	int err;
+diff --git a/drivers/gpu/drm/drm_writeback.c b/drivers/gpu/drm/drm_writeback.c
+index ff138b6ec48ba..43d9e3bb3a943 100644
+--- a/drivers/gpu/drm/drm_writeback.c
++++ b/drivers/gpu/drm/drm_writeback.c
+@@ -324,6 +324,9 @@ void drm_writeback_cleanup_job(struct drm_writeback_job *job)
+ 	if (job->fb)
+ 		drm_framebuffer_put(job->fb);
  
--	if (!writeback_job || !writeback_job->fb) {
-+	if (!writeback_job)
- 		return 0;
--	}
- 
- 	if (!crtc_st->active) {
- 		DRM_DEBUG_ATOMIC("Cannot write the composition result out on a inactive CRTC.\n");
-diff --git a/drivers/gpu/drm/arm/malidp_mw.c b/drivers/gpu/drm/arm/malidp_mw.c
-index 2e812525025dd..a59227b2cdb55 100644
---- a/drivers/gpu/drm/arm/malidp_mw.c
-+++ b/drivers/gpu/drm/arm/malidp_mw.c
-@@ -130,7 +130,7 @@ malidp_mw_encoder_atomic_check(struct drm_encoder *encoder,
- 	struct drm_framebuffer *fb;
- 	int i, n_planes;
- 
--	if (!conn_state->writeback_job || !conn_state->writeback_job->fb)
-+	if (!conn_state->writeback_job)
- 		return 0;
- 
- 	fb = conn_state->writeback_job->fb;
-@@ -247,7 +247,7 @@ void malidp_mw_atomic_commit(struct drm_device *drm,
- 
- 	mw_state = to_mw_state(conn_state);
- 
--	if (conn_state->writeback_job && conn_state->writeback_job->fb) {
-+	if (conn_state->writeback_job) {
- 		struct drm_framebuffer *fb = conn_state->writeback_job->fb;
- 
- 		DRM_DEV_DEBUG_DRIVER(drm->dev,
-diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
-index 419381abbdd16..14aeaf7363210 100644
---- a/drivers/gpu/drm/drm_atomic.c
-+++ b/drivers/gpu/drm/drm_atomic.c
-@@ -430,10 +430,15 @@ static int drm_atomic_connector_check(struct drm_connector *connector,
- 		return -EINVAL;
- 	}
- 
--	if (writeback_job->out_fence && !writeback_job->fb) {
--		DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] requesting out-fence without framebuffer\n",
--				 connector->base.id, connector->name);
--		return -EINVAL;
-+	if (!writeback_job->fb) {
-+		if (writeback_job->out_fence) {
-+			DRM_DEBUG_ATOMIC("[CONNECTOR:%d:%s] requesting out-fence without framebuffer\n",
-+					 connector->base.id, connector->name);
-+			return -EINVAL;
-+		}
++	if (job->out_fence)
++		dma_fence_put(job->out_fence);
 +
-+		drm_writeback_cleanup_job(writeback_job);
-+		state->writeback_job = NULL;
- 	}
+ 	kfree(job);
+ }
+ EXPORT_SYMBOL(drm_writeback_cleanup_job);
+@@ -366,25 +369,29 @@ drm_writeback_signal_completion(struct drm_writeback_connector *wb_connector,
+ {
+ 	unsigned long flags;
+ 	struct drm_writeback_job *job;
++	struct dma_fence *out_fence;
  
- 	return 0;
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_writeback.c b/drivers/gpu/drm/rcar-du/rcar_du_writeback.c
-index ae07290bba6a4..04efa78d70b6e 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_writeback.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_writeback.c
-@@ -147,7 +147,7 @@ static int rcar_du_wb_enc_atomic_check(struct drm_encoder *encoder,
- 	struct drm_device *dev = encoder->dev;
- 	struct drm_framebuffer *fb;
+ 	spin_lock_irqsave(&wb_connector->job_lock, flags);
+ 	job = list_first_entry_or_null(&wb_connector->job_queue,
+ 				       struct drm_writeback_job,
+ 				       list_entry);
+-	if (job) {
++	if (job)
+ 		list_del(&job->list_entry);
+-		if (job->out_fence) {
+-			if (status)
+-				dma_fence_set_error(job->out_fence, status);
+-			dma_fence_signal(job->out_fence);
+-			dma_fence_put(job->out_fence);
+-		}
+-	}
++
+ 	spin_unlock_irqrestore(&wb_connector->job_lock, flags);
  
--	if (!conn_state->writeback_job || !conn_state->writeback_job->fb)
-+	if (!conn_state->writeback_job)
- 		return 0;
- 
- 	fb = conn_state->writeback_job->fb;
-@@ -221,7 +221,7 @@ void rcar_du_writeback_setup(struct rcar_du_crtc *rcrtc,
- 	unsigned int i;
- 
- 	state = rcrtc->writeback.base.state;
--	if (!state || !state->writeback_job || !state->writeback_job->fb)
-+	if (!state || !state->writeback_job)
+ 	if (WARN_ON(!job))
  		return;
  
- 	fb = state->writeback_job->fb;
-diff --git a/drivers/gpu/drm/vc4/vc4_txp.c b/drivers/gpu/drm/vc4/vc4_txp.c
-index 96f91c1b4b6e6..e92fa12750343 100644
---- a/drivers/gpu/drm/vc4/vc4_txp.c
-+++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -229,7 +229,7 @@ static int vc4_txp_connector_atomic_check(struct drm_connector *conn,
- 	int i;
- 
- 	conn_state = drm_atomic_get_new_connector_state(state, conn);
--	if (!conn_state->writeback_job || !conn_state->writeback_job->fb)
-+	if (!conn_state->writeback_job)
- 		return 0;
- 
- 	crtc_state = drm_atomic_get_new_crtc_state(state, conn_state->crtc);
-@@ -269,8 +269,7 @@ static void vc4_txp_connector_atomic_commit(struct drm_connector *conn,
- 	u32 ctrl;
- 	int i;
- 
--	if (WARN_ON(!conn_state->writeback_job ||
--		    !conn_state->writeback_job->fb))
-+	if (WARN_ON(!conn_state->writeback_job))
- 		return;
- 
- 	mode = &conn_state->crtc->state->adjusted_mode;
++	out_fence = job->out_fence;
++	if (out_fence) {
++		if (status)
++			dma_fence_set_error(out_fence, status);
++		dma_fence_signal(out_fence);
++		dma_fence_put(out_fence);
++		job->out_fence = NULL;
++	}
++
+ 	INIT_WORK(&job->cleanup_work, cleanup_work);
+ 	queue_work(system_long_wq, &job->cleanup_work);
+ }
 -- 
 2.20.1
 
