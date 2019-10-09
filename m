@@ -2,93 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A67CFF1C
-	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD740CFF1B
+	for <lists+stable@lfdr.de>; Tue,  8 Oct 2019 18:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729147AbfJHQnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Oct 2019 12:43:33 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:36983 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727514AbfJHQnd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:43:33 -0400
-Received: by mail-ot1-f66.google.com with SMTP id k32so14583436otc.4;
-        Tue, 08 Oct 2019 09:43:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vS/5fB54XstU4rdvgpJKZPrhcUUHcFJDqzPvMYzq7Aw=;
-        b=dmqKzUE9oRZZBh7/aqQoqcQw7cmx9ZH8reWN0u5DAQ1yhGtTTDAfVtLTtDVQk3kZ71
-         FLDy/oU/nkBnpvRU2nNbRHRbk8khRAwLeJ9frv/61Vhp8Mc7OuFpkxPBWeXkmieiOQfn
-         Vjzoga+VgBNxrsz2HzB9o9wHPb2Irhnw6QyFqN5us7cXz5dUswzmrZwr4V9cf5Aimigz
-         ftWa/J98qlgoDbr+mxKh8j3cqPiR6oHame+DRdEQ4nE9UDzE4qLQ/eT7rkBgCDU6gg0l
-         vAT1P9j7awYGpupDYnYx+OtrmlhysiaCmsKrTHn9rMDgz+cUiuqHVU1yCO0zyzIvqxL9
-         1L8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vS/5fB54XstU4rdvgpJKZPrhcUUHcFJDqzPvMYzq7Aw=;
-        b=JzWP3vYJs7HW3FNJZOozUQBP2UJSX0KiijxJEXHVjo/TOesnDTDHB9xmpSsKzjjDhl
-         wyVfB9XU6bx4cGiFnHSc1oyp3mY+qYrOHlhWCye/QF/0ebRu5bCWQsOzcUGctlZVnHCj
-         yB066udb4eBnaUl9hKEcTK/muyVzyzUqKuBVCjXgi+6jTHfjkWJEg8gaTGa5KIBa3KSr
-         tOaAnQiajx8H5G5AevvUO6gH3xsiigjANd1Gip2qIhdAcRv2nr9PYJKT29/gmath62hJ
-         jRGyhD2Ryim69bAHwXhngTqZadbHqdpvbwgC7zv7jV2emSl9vaYkqiQVMmnkZMSRNJz9
-         Yc/A==
-X-Gm-Message-State: APjAAAUMmnwReKUB5Noz7IeCYlgHrq19foZlSESAC4kMJeEpumZEUA6X
-        7o2WQ3HLUJByKurZdPc2q+NlhQJS
-X-Google-Smtp-Source: APXvYqyDq/0iYUbTxfT10aEUY65SgeenNxyo9GuSQpVtPKIiHov/xAO5zWJZIkIAzQq1BcUPeUHg1Q==
-X-Received: by 2002:a9d:6155:: with SMTP id c21mr16819491otk.370.1570553010857;
-        Tue, 08 Oct 2019 09:43:30 -0700 (PDT)
-Received: from localhost.localdomain (cpe-70-114-247-242.austin.res.rr.com. [70.114.247.242])
-        by smtp.gmail.com with ESMTPSA id j31sm5680961ota.13.2019.10.08.09.43.29
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 08 Oct 2019 09:43:30 -0700 (PDT)
-From:   Denis Kenzior <denkenz@gmail.com>
-To:     linux-wireless@vger.kernel.org, johannes@sipsolutions.net
-Cc:     Denis Kenzior <denkenz@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] mac80211: More strictly validate .abort_scan
-Date:   Tue,  8 Oct 2019 11:33:24 -0500
-Message-Id: <20191008163324.2614-1-denkenz@gmail.com>
-X-Mailer: git-send-email 2.21.0
+        id S1729099AbfJHQn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Oct 2019 12:43:28 -0400
+Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:8260 "EHLO
+        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727514AbfJHQn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Oct 2019 12:43:28 -0400
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
+ 15.0.1156.6; Tue, 8 Oct 2019 09:43:23 -0700
+Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 1624D40C43;
+        Tue,  8 Oct 2019 09:43:20 -0700 (PDT)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <torvalds@linux-foundation.org>, <punit.agrawal@arm.com>,
+        <akpm@linux-foundation.org>, <kirill.shutemov@linux.intel.com>,
+        <willy@infradead.org>, <will.deacon@arm.com>,
+        <mszeredi@redhat.com>, <stable@vger.kernel.org>,
+        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+        <srivatsab@vmware.com>, <srivatsa@csail.mit.edu>,
+        <amakhalov@vmware.com>, <srinidhir@vmware.com>,
+        <bvikas@vmware.com>, <anishs@vmware.com>, <vsirnapalli@vmware.com>,
+        <srostedt@vmware.com>, <akaher@vmware.com>
+Subject: [PATCH v2 0/8] Backported fixes for 4.4 stable tree
+Date:   Wed, 9 Oct 2019 06:14:15 +0530
+Message-ID: <1570581863-12090-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-nl80211 requires NL80211_CMD_ABORT_SCAN to have a wdev or netdev
-attribute present and checks that if netdev is provided it is UP.
-However, mac80211 does not check that an ongoing scan actually belongs
-to the netdev/wdev provided by the user.  In other words, it is possible
-for an application to cancel scans on an interface it doesn't manage.
+These patches include few backported fixes for the 4.4 stable
+tree.
+I would appreciate if you could kindly consider including them in the
+next release.
 
-Signed-off-by: Denis Kenzior <denkenz@gmail.com>
-Cc: stable@vger.kernel.org
+Ajay
+
 ---
- net/mac80211/cfg.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
-index 70739e746c13..ece344f9e9ca 100644
---- a/net/mac80211/cfg.c
-+++ b/net/mac80211/cfg.c
-@@ -2333,7 +2333,13 @@ static int ieee80211_scan(struct wiphy *wiphy,
- 
- static void ieee80211_abort_scan(struct wiphy *wiphy, struct wireless_dev *wdev)
- {
--	ieee80211_scan_cancel(wiphy_priv(wiphy));
-+	struct ieee80211_local *local = wiphy_priv(wiphy);
-+	struct ieee80211_sub_if_data *sdata =
-+					IEEE80211_WDEV_TO_SUB_IF(wdev);
-+	bool cancel_scan = rcu_access_pointer(local->scan_sdata) == sdata;
-+
-+	if (cancel_scan)
-+		ieee80211_scan_cancel(local);
- }
- 
- static int
--- 
-2.21.0
+[Changes from v1]: No changes, only answering Greg's below queries:
+
+>> Why are these needed?  From what I remember, the last patch here is only
+>> needed for machines that are "HUGE" and for those, you shouldn't be
+>> using 4.4.y anymore anyway, right?  You just end up saving so much more
+>> speed and energy using a newer kernel, why would you want to waste it
+>> using an older one?
+>>
+>> So I need a really good reason why to accept these :)
+>
+> It's been a week, so I'm dropping this from my queue now.  Please resend
+> with this information if you still want these in the tree.
+
+> thanks,
+> greg k-h
+
+Indeed, the machine needs to have about 140 GB of RAM to exploit
+this vulnerability (CVE-2019-11487). However, Photon OS doesn't
+impose any limits on the amount of RAM that it supports, so we would
+like to safeguard the kernel against this CVE. Also, while newer
+versions of Photon OS are on more recent kernels, Photon OS 1.0 uses
+the 4.4 stable series, so it would be great to get these patches
+included in an upcoming 4.4 stable release.
+    
+We would also like to have the following patches that are for machines
+that are huge:
+    
+Patch 1: Introduced page_ref_zero_or_close_to_overflow() which helps to
+check for small underflows (or _very_ close to overflowing), and ignore
+overflows which have strayed into negative territory.
+And this is being used inside get_page() and get_page_foll() to reduce the
+possibility of overflowing.  
+    
+Patch 6: Attacker could do direct IO on a page multiple times to trigger 
+an overflowing. This patch makes get_user_pages() refuse to if there is
+an overflow.
+    
+Patch 8: This removes another mechanism for overflowing the page refcount
+inside pipe_buf_get().
+    
+---
+
+[PATCH v2 1/8]:
+Backporting of upstream commit f958d7b528b1:
+mm: make page ref count overflow check tighter and more explicit
+
+[PATCH v2 2/8]:
+Backporting of upstream commit 88b1a17dfc3e:
+mm: add 'try_get_page()' helper function
+
+[PATCH v2 3/8]:
+Backporting of upstream commit 7aef4172c795:
+mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton
+
+[PATCH v2 4/8]:
+Backporting of upstream commit a3e328556d41:
+mm, gup: remove broken VM_BUG_ON_PAGE compound check for hugepages
+
+[PATCH v2 5/8]:
+Backporting of upstream commit d63206ee32b6:
+mm, gup: ensure real head page is ref-counted when using hugepages
+
+[PATCH v2 6/8]:
+Backporting of upstream commit 8fde12ca79af:
+mm: prevent get_user_pages() from overflowing page refcount
+
+[PATCH v2 7/8]:
+Backporting of upstream commit 7bf2d1df8082:
+pipe: add pipe_buf_get() helper
+
+[PATCH v2 8/8]:
+Backporting of upstream commit 15fab63e1e57:
+fs: prevent page refcount overflow in pipe_buf_get
 
