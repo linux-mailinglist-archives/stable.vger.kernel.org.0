@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33308D164F
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31709D1638
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:28:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732539AbfJIR3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48848 "EHLO mail.kernel.org"
+        id S1732294AbfJIR21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:28:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732221AbfJIRYQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:24:16 -0400
+        id S1732284AbfJIRYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:24:24 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FC812196E;
-        Wed,  9 Oct 2019 17:24:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D9A621920;
+        Wed,  9 Oct 2019 17:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570641856;
-        bh=a+jnrrLUjZCnLTg1MYH2H3uUUeyvZnRqF6KjRTHV+GY=;
+        s=default; t=1570641864;
+        bh=LW+VhAvO5inmcOI9PKMnX5A3MCYkSC9vy+BBhmlKkKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a80hqOndue49JhE9aBAcvhgUtSd+2kXohLai90K5PFJxng0Ak0Mm4skb1uOwn+AzV
-         d+pLBc7w8Xbqv24cwCgUtdKIoZGZHDwg/7X4nTN2tALigSnlpHc1NJG0ecjNGc45a7
-         /VhK+Q46uz5VZUzSi8d9hc8lXyWTyvkVcZgc17yM=
+        b=G6K36boCtDzdPHMH0qXNrFtCyY8muapBHJnze+O4pMVlarS4OSoAut+woG6IDZrp4
+         ArMXrcs5hLCV1hc4x4X1kd9jaquHDgiww5t0ncTCQSI2etCvFimPsoDUebwxYNiNx8
+         rZ6e110mfpkpGuxPVT7x+btfHUNZldVenv1QHAOs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/26] r8152: Set macpassthru in reset_resume callback
+Cc:     Xiang Chen <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/21] scsi: megaraid: disable device when probe failed after enabled device
 Date:   Wed,  9 Oct 2019 13:05:56 -0400
-Message-Id: <20191009170558.32517-24-sashal@kernel.org>
+Message-Id: <20191009170615.32750-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191009170558.32517-1-sashal@kernel.org>
-References: <20191009170558.32517-1-sashal@kernel.org>
+In-Reply-To: <20191009170615.32750-1-sashal@kernel.org>
+References: <20191009170615.32750-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,43 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit a54cdeeb04fc719e4c7f19d6e28dba7ea86cee5b ]
+[ Upstream commit 70054aa39a013fa52eff432f2223b8bd5c0048f8 ]
 
-r8152 may fail to establish network connection after resume from system
-suspend.
+For pci device, need to disable device when probe failed after enabled
+device.
 
-If the USB port connects to r8152 lost its power during system suspend,
-the MAC address was written before is lost. The reason is that The MAC
-address doesn't get written again in its reset_resume callback.
-
-So let's set MAC address again in reset_resume callback. Also remove
-unnecessary lock as no other locking attempt will happen during
-reset_resume.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/1567818450-173315-1-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/megaraid.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index a065a6184f7e4..a291e5f2daef6 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -4474,10 +4474,9 @@ static int rtl8152_reset_resume(struct usb_interface *intf)
- 	struct r8152 *tp = usb_get_intfdata(intf);
- 
- 	clear_bit(SELECTIVE_SUSPEND, &tp->flags);
--	mutex_lock(&tp->control);
- 	tp->rtl_ops.init(tp);
- 	queue_delayed_work(system_long_wq, &tp->hw_phy_work, 0);
--	mutex_unlock(&tp->control);
-+	set_ethernet_addr(tp);
- 	return rtl8152_resume(intf);
- }
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index 9b6f5d024dbae..f5c09bbf93741 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -4221,11 +4221,11 @@ megaraid_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		 */
+ 		if (pdev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ &&
+ 		    pdev->subsystem_device == 0xC000)
+-		   	return -ENODEV;
++			goto out_disable_device;
+ 		/* Now check the magic signature byte */
+ 		pci_read_config_word(pdev, PCI_CONF_AMISIG, &magic);
+ 		if (magic != HBA_SIGNATURE_471 && magic != HBA_SIGNATURE)
+-			return -ENODEV;
++			goto out_disable_device;
+ 		/* Ok it is probably a megaraid */
+ 	}
  
 -- 
 2.20.1
