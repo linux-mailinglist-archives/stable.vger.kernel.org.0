@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B849AD16C9
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B69D16D1
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 19:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731976AbfJIRXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 13:23:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47978 "EHLO mail.kernel.org"
+        id S1731923AbfJIRcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 13:32:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730490AbfJIRXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Oct 2019 13:23:54 -0400
+        id S1731973AbfJIRXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Oct 2019 13:23:55 -0400
 Received: from sasha-vm.mshome.net (unknown [167.220.2.234])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 119A121920;
+        by mail.kernel.org (Postfix) with ESMTPSA id 58DC521924;
         Wed,  9 Oct 2019 17:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1570641834;
-        bh=/4mMuhJyPwKfQfkFTTqyLam8OguJfnlyat4cAdt/7VI=;
+        bh=KfIBcyEnuRceF3vKSjN16F7+m+qFJm3bdbFB9alfQcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6GS984hK9CM5ZnARTBXIjvK6o0cJl8roJSSmMXGxyPdViHpTRvz4T82OrdPDfOhL
-         cr+hLkjOHi8RyQFbbrFg5583BmCCDUZ08U7j40MZY/BGD2nphT4vXN9zD76Oru/vS/
-         owwuI5j8DQRv1Gtdx6VllZzfqo8jHOTd33YRCXFI=
+        b=Xc6xD5fto+m6fkpJsNkNSYrywQhsSHUDrej8sYLjT7EJ0Su9yVlGjKIUNtCmsu2zO
+         PXlqdlfYZwG/ZFpJK/xWzYZGq7WG3z5jIKC6UZIt6UZ+Fh+nLPShuuR48DKLTx1T/M
+         s7OFm2zRdjNB9/FM8/dwjDfqUpOqi+YWB6MDFSB0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Lowry Li (Arm Technology China)" <Lowry.Li@arm.com>,
-        Lowry Li <lowry.li@arm.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        James Qian Wang <james.qian.wang@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 03/68] drm: Clear the fence pointer when writeback job signaled
-Date:   Wed,  9 Oct 2019 13:04:42 -0400
-Message-Id: <20191009170547.32204-3-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, linux-clk@vger.kernel.org,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>, Suman Anna <s-anna@ti.com>,
+        Tero Kristo <t-kristo@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 04/68] clk: ti: dra7: Fix mcasp8 clock bits
+Date:   Wed,  9 Oct 2019 13:04:43 -0400
+Message-Id: <20191009170547.32204-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191009170547.32204-1-sashal@kernel.org>
 References: <20191009170547.32204-1-sashal@kernel.org>
@@ -46,77 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Lowry Li (Arm Technology China)" <Lowry.Li@arm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b1066a123538044117f0a78ba8c6a50cf5a04c86 ]
+[ Upstream commit dd8882a255388ba66175098b1560d4f81c100d30 ]
 
-During it signals the completion of a writeback job, after releasing
-the out_fence, we'd clear the pointer.
+There's a typo for dra7 mcasp clkctrl bit, it should be 22 like the other
+macasp instances, and not 24. And in dra7xx_clks[] we have the bits wrong
+way around.
 
-Check if fence left over in drm_writeback_cleanup_job(), release it.
-
-Signed-off-by: Lowry Li (Arm Technology China) <lowry.li@arm.com>
-Reviewed-by: Brian Starkey <brian.starkey@arm.com>
-Reviewed-by: James Qian Wang (Arm Technology China) <james.qian.wang@arm.com>
-Signed-off-by: james qian wang (Arm Technology China) <james.qian.wang@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1564571048-15029-3-git-send-email-lowry.li@arm.com
+Fixes: dffa9051d546 ("clk: ti: dra7: add new clkctrl data")
+Cc: linux-clk@vger.kernel.org
+Cc: Michael Turquette <mturquette@baylibre.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Suman Anna <s-anna@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_writeback.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/clk/ti/clk-7xx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_writeback.c b/drivers/gpu/drm/drm_writeback.c
-index ff138b6ec48ba..43d9e3bb3a943 100644
---- a/drivers/gpu/drm/drm_writeback.c
-+++ b/drivers/gpu/drm/drm_writeback.c
-@@ -324,6 +324,9 @@ void drm_writeback_cleanup_job(struct drm_writeback_job *job)
- 	if (job->fb)
- 		drm_framebuffer_put(job->fb);
- 
-+	if (job->out_fence)
-+		dma_fence_put(job->out_fence);
-+
- 	kfree(job);
- }
- EXPORT_SYMBOL(drm_writeback_cleanup_job);
-@@ -366,25 +369,29 @@ drm_writeback_signal_completion(struct drm_writeback_connector *wb_connector,
- {
- 	unsigned long flags;
- 	struct drm_writeback_job *job;
-+	struct dma_fence *out_fence;
- 
- 	spin_lock_irqsave(&wb_connector->job_lock, flags);
- 	job = list_first_entry_or_null(&wb_connector->job_queue,
- 				       struct drm_writeback_job,
- 				       list_entry);
--	if (job) {
-+	if (job)
- 		list_del(&job->list_entry);
--		if (job->out_fence) {
--			if (status)
--				dma_fence_set_error(job->out_fence, status);
--			dma_fence_signal(job->out_fence);
--			dma_fence_put(job->out_fence);
--		}
--	}
-+
- 	spin_unlock_irqrestore(&wb_connector->job_lock, flags);
- 
- 	if (WARN_ON(!job))
- 		return;
- 
-+	out_fence = job->out_fence;
-+	if (out_fence) {
-+		if (status)
-+			dma_fence_set_error(out_fence, status);
-+		dma_fence_signal(out_fence);
-+		dma_fence_put(out_fence);
-+		job->out_fence = NULL;
-+	}
-+
- 	INIT_WORK(&job->cleanup_work, cleanup_work);
- 	queue_work(system_long_wq, &job->cleanup_work);
- }
+diff --git a/drivers/clk/ti/clk-7xx.c b/drivers/clk/ti/clk-7xx.c
+index b57fe09b428be..9dd6185a4b4e2 100644
+--- a/drivers/clk/ti/clk-7xx.c
++++ b/drivers/clk/ti/clk-7xx.c
+@@ -683,7 +683,7 @@ static const struct omap_clkctrl_reg_data dra7_l4per2_clkctrl_regs[] __initconst
+ 	{ DRA7_L4PER2_MCASP2_CLKCTRL, dra7_mcasp2_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0154:22" },
+ 	{ DRA7_L4PER2_MCASP3_CLKCTRL, dra7_mcasp3_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:015c:22" },
+ 	{ DRA7_L4PER2_MCASP5_CLKCTRL, dra7_mcasp5_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:016c:22" },
+-	{ DRA7_L4PER2_MCASP8_CLKCTRL, dra7_mcasp8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0184:24" },
++	{ DRA7_L4PER2_MCASP8_CLKCTRL, dra7_mcasp8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0184:22" },
+ 	{ DRA7_L4PER2_MCASP4_CLKCTRL, dra7_mcasp4_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:018c:22" },
+ 	{ DRA7_L4PER2_UART7_CLKCTRL, dra7_uart7_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:01c4:24" },
+ 	{ DRA7_L4PER2_UART8_CLKCTRL, dra7_uart8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:01d4:24" },
+@@ -828,8 +828,8 @@ static struct ti_dt_clk dra7xx_clks[] = {
+ 	DT_CLK(NULL, "mcasp6_aux_gfclk_mux", "l4per2-clkctrl:01f8:22"),
+ 	DT_CLK(NULL, "mcasp7_ahclkx_mux", "l4per2-clkctrl:01fc:24"),
+ 	DT_CLK(NULL, "mcasp7_aux_gfclk_mux", "l4per2-clkctrl:01fc:22"),
+-	DT_CLK(NULL, "mcasp8_ahclkx_mux", "l4per2-clkctrl:0184:22"),
+-	DT_CLK(NULL, "mcasp8_aux_gfclk_mux", "l4per2-clkctrl:0184:24"),
++	DT_CLK(NULL, "mcasp8_ahclkx_mux", "l4per2-clkctrl:0184:24"),
++	DT_CLK(NULL, "mcasp8_aux_gfclk_mux", "l4per2-clkctrl:0184:22"),
+ 	DT_CLK(NULL, "mmc1_clk32k", "l3init-clkctrl:0008:8"),
+ 	DT_CLK(NULL, "mmc1_fclk_div", "l3init-clkctrl:0008:25"),
+ 	DT_CLK(NULL, "mmc1_fclk_mux", "l3init-clkctrl:0008:24"),
 -- 
 2.20.1
 
