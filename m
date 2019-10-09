@@ -2,141 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 887F8D1313
-	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 17:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A33D1367
+	for <lists+stable@lfdr.de>; Wed,  9 Oct 2019 18:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731168AbfJIPi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 11:38:59 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:39471 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730256AbfJIPi6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 11:38:58 -0400
-Received: by mail-lj1-f196.google.com with SMTP id y3so2972650ljj.6;
-        Wed, 09 Oct 2019 08:38:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=HWGhrR9zQu1kilGXu57u8nXDF16dj6cYe7KVAB6aMHE=;
-        b=BlRdKv4v90THg+nkgbe0I7PiRPG5nFa35/cCKTTPuR8NT4eqYCEbcMHWhQ++QJzhDq
-         +AiDZ2rQZLi3Xp8RcaSZAicwJYADaAvAIfC2aaZjrcuxcAgh4oQaKNcqsX154yf64BDj
-         FX0cB6QuZ8c2JDFOhTeYcdWqohQkLw2qyraRTmaXSDkMVXvV2HsGkh1Z6TqPycnWiwz+
-         xO8n+t8VgyigUvDbUTO0iOqrjpjuvcHP0fTs8wbnGWS3/rzB7NlhQEJJGBRoZLls+ujm
-         DfQSRfseAIrOEoN7jE1pXbyDbiKAG6WzDCV9cUI+dC5jEtYrKduWJLTusRWsibQNsQ3Z
-         JB1A==
-X-Gm-Message-State: APjAAAVZ7Rj/3g3TUIlFBG5+r1QJTluY9HtOYUrh2wH0wsvzMPixB+T5
-        3g+GoucYnYLfy6KnCWMfl2c=
-X-Google-Smtp-Source: APXvYqzgDRhvqsI7XYqf5WepTJJQPmEGHKpTr7OeYL0U2W3l+9ztSYKra5VsB2hq888+pTB4gD8J/g==
-X-Received: by 2002:a2e:b17b:: with SMTP id a27mr2765429ljm.7.1570635535414;
-        Wed, 09 Oct 2019 08:38:55 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id 4sm557492ljv.87.2019.10.09.08.38.51
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 09 Oct 2019 08:38:53 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@xi.terra>)
-        id 1iIE3J-0002HB-Kq; Wed, 09 Oct 2019 17:39:01 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, Keith Packard <keithp@keithp.com>,
-        Juergen Stuber <starblue@users.sourceforge.net>,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH 5/5] USB: yurex: fix NULL-derefs on disconnect
-Date:   Wed,  9 Oct 2019 17:38:48 +0200
-Message-Id: <20191009153848.8664-6-johan@kernel.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191009153848.8664-1-johan@kernel.org>
-References: <20191009153848.8664-1-johan@kernel.org>
+        id S1731426AbfJIQAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Oct 2019 12:00:37 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:48268 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729644AbfJIQAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 12:00:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=ZkEZaeUG2LDB7osCCzA5SGc46/Ti4vNDPD35O8V/wEU=; b=fRSoG5IPBwTlf8+/uwewnaoO2
+        PPQAsKxb3vydNdYfAmppcADKDWbo4O4IFN7Cb7o6wx2ZXI3BWi+soz5OkrNa/QbPb+2dFqQkwGhLU
+        aSdjW9JvtHnotZOkP5i9r5Mp6oiT008KhxfV6TPVeVGY9XJjAVNVQrbmDgrQpx8euT7Ig=;
+Received: from 188.29.185.136.threembb.co.uk ([188.29.185.136] helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1iIENy-00059v-Ow; Wed, 09 Oct 2019 16:00:22 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id 97E72D03ED3; Wed,  9 Oct 2019 17:00:21 +0100 (BST)
+Date:   Wed, 9 Oct 2019 17:00:21 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Jaroslav Kysela <perex@perex.cz>,
+        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Takashi Iwai <tiwai@suse.com>,
+        Liam Girdwood <lgirdwood@gmail.com>
+Subject: Re: [PATCH 0/1] [for 4.4/4.9] VAG power control improvement for
+ sgtl5000 codec
+Message-ID: <20191009160021.GI2036@sirena.org.uk>
+References: <20191009142822.14808-1-oleksandr.suvorov@toradex.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yqoYZO0eSM9FLp66"
+Content-Disposition: inline
+In-Reply-To: <20191009142822.14808-1-oleksandr.suvorov@toradex.com>
+X-Cookie: Be careful!  UGLY strikes 9 out of 10!
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag, but was setting it to NULL without making sure all
-code paths that used it were done with it.
 
-Before commit ef61eb43ada6 ("USB: yurex: Fix protection fault after
-device removal") this included the interrupt-in completion handler, but
-there are further accesses in dev_err and dev_dbg statements in
-yurex_write() and the driver-data destructor (sic!).
+--yqoYZO0eSM9FLp66
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fix this by unconditionally stopping also the control URB at disconnect
-and by using a dedicated disconnected flag.
+On Wed, Oct 09, 2019 at 02:28:36PM +0000, Oleksandr Suvorov wrote:
+>=20
+> This is a backport to stable kernel versions 4.4 and 4.9.
 
-Note that we need to take a reference to the struct usb_interface to
-avoid a use-after-free in the destructor whenever the device was
-disconnected while the character device was still open.
+Please don't send cover letters for single patches, if there is anything
+that needs saying put it in the changelog of the patch or after the ---
+if it's administrative stuff.  This reduces mail volume and ensures that=20
+any important information is recorded in the changelog rather than being
+lost.=20
 
-Fixes: aadd6472d904 ("USB: yurex.c: remove dbg() usage")
-Fixes: 45714104b9e8 ("USB: yurex.c: remove err() usage")
-Cc: stable <stable@vger.kernel.org>     # 3.5: ef61eb43ada6
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/usb/misc/yurex.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+--yqoYZO0eSM9FLp66
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/usb/misc/yurex.c b/drivers/usb/misc/yurex.c
-index 8d52d4336c29..be0505b8b5d4 100644
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -60,6 +60,7 @@ struct usb_yurex {
- 
- 	struct kref		kref;
- 	struct mutex		io_mutex;
-+	unsigned long		disconnected:1;
- 	struct fasync_struct	*async_queue;
- 	wait_queue_head_t	waitq;
- 
-@@ -107,6 +108,7 @@ static void yurex_delete(struct kref *kref)
- 				dev->int_buffer, dev->urb->transfer_dma);
- 		usb_free_urb(dev->urb);
- 	}
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev);
- }
-@@ -205,7 +207,7 @@ static int yurex_probe(struct usb_interface *interface, const struct usb_device_
- 	init_waitqueue_head(&dev->waitq);
- 
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	iface_desc = interface->cur_altsetting;
-@@ -316,8 +318,9 @@ static void yurex_disconnect(struct usb_interface *interface)
- 
- 	/* prevent more I/O from starting */
- 	usb_poison_urb(dev->urb);
-+	usb_poison_urb(dev->cntl_urb);
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	/* wakeup waiters */
-@@ -405,7 +408,7 @@ static ssize_t yurex_read(struct file *file, char __user *buffer, size_t count,
- 	dev = file->private_data;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		return -ENODEV;
- 	}
-@@ -440,7 +443,7 @@ static ssize_t yurex_write(struct file *file, const char __user *user_buffer,
- 		goto error;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
--- 
-2.23.0
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2eBBIACgkQJNaLcl1U
+h9AbxAf+MlzUGC3a6HyTWNrYD7RjNIuqO5iMIsQXvmAOjQQaQcKxIokPtRdZ0DQF
+hm0TpNMj97hj0LUvY8P17SP3CJcSJbfsj+ikz2gRL4C1dTmwEIYpeUzvt2ujR58r
+mxqx612RmrOalJymH6BKYjw6NUElAjIvO9+bHWCjww3PzfMNj4y9WLZoA9v+BENa
+eHNBLuay5ropZOJqhMc6GMNi9EKGnONc1wxw9bFVMGfGK7FiVB9MCOYoeMGVDjvh
+5hjeiSmi41giMyjsOQ1NQPtbTW6ymSmT2VPSBEkbulwO0B2oz35hrI9J/JWJmxHh
+RofXuI2v8EOT61r3XR7bevxA8PxT8g==
+=Psvc
+-----END PGP SIGNATURE-----
+
+--yqoYZO0eSM9FLp66--
