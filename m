@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79090D24AD
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F05DD24D4
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389808AbfJJIt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56012 "EHLO mail.kernel.org"
+        id S2390070AbfJJIvE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:51:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389279AbfJJItZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:25 -0400
+        id S2390067AbfJJIvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:51:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DA58218AC;
-        Thu, 10 Oct 2019 08:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BC4E20679;
+        Thu, 10 Oct 2019 08:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697365;
-        bh=7tld6r4njYlcCBmeGgYzIQgVbZE6ybfWh0j0vccDjpc=;
+        s=default; t=1570697463;
+        bh=bY2jc3nxBIDvZpaERL5o1qwHDvDvHBnQDEO6tckBch0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0a/7PuSsFODGKQKHov/uq4EyH8cC0U6sDB3h+ND6ee2FnAPmskWBpJR0+2ycPCFWA
-         wVbNOZojkCGYgW8tHxI4MDMe6FLgd+dYOJbnTiEa5Xz74nfman2JFYWV2kSocTMYrf
-         uJe/GOKiDdF2Ezscf/6sUCJjndzL6U1w7cdvXTdA=
+        b=WOX0rdjZE1NXwzF5pS4a6Oag0AnC1aW73Bup6TxhQXgfrSEhYspTo8XCf2uIzxYah
+         8SitcnI8ib0BlXVmn833tWEro+NGVztn70InXhykbNUjUaXVDtit0pTwgmPAMIcSxH
+         aQrDsl7hPw/V3NlQncRj5SlwanPwmqxm0mz2M+eI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 114/114] nl80211: validate beacon head
-Date:   Thu, 10 Oct 2019 10:37:01 +0200
-Message-Id: <20191010083614.334354467@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 37/61] pNFS: Ensure we do clear the return-on-close layout stateid on fatal errors
+Date:   Thu, 10 Oct 2019 10:37:02 +0200
+Message-Id: <20191010083514.261620353@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit f88eb7c0d002a67ef31aeb7850b42ff69abc46dc upstream.
+[ Upstream commit 9c47b18cf722184f32148784189fca945a7d0561 ]
 
-We currently don't validate the beacon head, i.e. the header,
-fixed part and elements that are to go in front of the TIM
-element. This means that the variable elements there can be
-malformed, e.g. have a length exceeding the buffer size, but
-most downstream code from this assumes that this has already
-been checked.
+IF the server rejected our layout return with a state error such as
+NFS4ERR_BAD_STATEID, or even a stale inode error, then we do want
+to clear out all the remaining layout segments and mark that stateid
+as invalid.
 
-Add the necessary checks to the netlink policy.
-
-Cc: stable@vger.kernel.org
-Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
-Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1c5bd76d17cca ("pNFS: Enable layoutreturn operation for...")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c |   38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ fs/nfs/pnfs.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -200,6 +200,38 @@ cfg80211_get_dev_from_info(struct net *n
- 	return __cfg80211_rdev_from_attrs(netns, info->attrs);
- }
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 96867fb159bf7..ec04cce31814b 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1319,10 +1319,15 @@ void pnfs_roc_release(struct nfs4_layoutreturn_args *args,
+ 	const nfs4_stateid *res_stateid = NULL;
+ 	struct nfs4_xdr_opaque_data *ld_private = args->ld_private;
  
-+static int validate_beacon_head(const struct nlattr *attr,
-+				struct netlink_ext_ack *extack)
-+{
-+	const u8 *data = nla_data(attr);
-+	unsigned int len = nla_len(attr);
-+	const struct element *elem;
-+	const struct ieee80211_mgmt *mgmt = (void *)data;
-+	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
-+					 u.beacon.variable);
-+
-+	if (len < fixedlen)
-+		goto err;
-+
-+	if (ieee80211_hdrlen(mgmt->frame_control) !=
-+	    offsetof(struct ieee80211_mgmt, u.beacon))
-+		goto err;
-+
-+	data += fixedlen;
-+	len -= fixedlen;
-+
-+	for_each_element(elem, data, len) {
-+		/* nothing */
-+	}
-+
-+	if (for_each_element_completed(elem, data, len))
-+		return 0;
-+
-+err:
-+	NL_SET_ERR_MSG_ATTR(extack, attr, "malformed beacon head");
-+	return -EINVAL;
-+}
-+
- /* policy for the attributes */
- static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
- 	[NL80211_ATTR_WIPHY] = { .type = NLA_U32 },
-@@ -4016,6 +4048,12 @@ static int nl80211_parse_beacon(struct n
- 	memset(bcn, 0, sizeof(*bcn));
- 
- 	if (attrs[NL80211_ATTR_BEACON_HEAD]) {
-+		int ret = validate_beacon_head(attrs[NL80211_ATTR_BEACON_HEAD],
-+					       NULL);
-+
-+		if (ret)
-+			return ret;
-+
- 		bcn->head = nla_data(attrs[NL80211_ATTR_BEACON_HEAD]);
- 		bcn->head_len = nla_len(attrs[NL80211_ATTR_BEACON_HEAD]);
- 		if (!bcn->head_len)
+-	if (ret == 0) {
+-		arg_stateid = &args->stateid;
++	switch (ret) {
++	case -NFS4ERR_NOMATCHING_LAYOUT:
++		break;
++	case 0:
+ 		if (res->lrs_present)
+ 			res_stateid = &res->stateid;
++		/* Fallthrough */
++	default:
++		arg_stateid = &args->stateid;
+ 	}
+ 	pnfs_layoutreturn_free_lsegs(lo, arg_stateid, &args->range,
+ 			res_stateid);
+-- 
+2.20.1
+
 
 
