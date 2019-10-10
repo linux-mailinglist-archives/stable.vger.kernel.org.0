@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD84D24A0
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACEBAD24BA
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387484AbfJJIsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54736 "EHLO mail.kernel.org"
+        id S2389924AbfJJIuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389651AbfJJIsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:30 -0400
+        id S2389911AbfJJIuM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:50:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B54632064A;
-        Thu, 10 Oct 2019 08:48:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0C0921A4C;
+        Thu, 10 Oct 2019 08:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697310;
-        bh=8/k19fIZ0kkjZNWVifZ4eztuH6N6F6LNK7/z2zqspQM=;
+        s=default; t=1570697411;
+        bh=H0g6wd8iHFVMW6T+O08Km+OKeHzABQybpIi8NdBKT/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iP8jm4F8iUj1sU2k2cOVgqnpqWlStKjmZBuX7ppedxWW1X+L/kry5KaSpGxln9uBM
-         sD9ylUVby2ZOPqwJIOVJEs9foRtyFlqGZGD1l+CXI9mmbVWejz11carR8lUrXkvZv2
-         WWw2m1/GmjNdJVFXj72ECgvBopwkdPqZL52D0bFA=
+        b=pwlIsCnxIGnJbviAcJqC0Bomc/EbXU4MYn60qmvQXUOrm6QoNz6/dc7zArB3KLBM0
+         pa3lvMUgBAI82KLq6xUMOilYKIk2ZJBmnvmAcgdCSHW6S958mP4d9ndklZMDG26Ngq
+         HOOAMLDMHhEEd6Nf8iSNYnciEc4LPfc5bnpoumtc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 096/114] arm64: Always enable ssb vulnerability detection
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.14 18/61] usercopy: Avoid HIGHMEM pfn warning
 Date:   Thu, 10 Oct 2019 10:36:43 +0200
-Message-Id: <20191010083613.231594675@linuxfoundation.org>
+Message-Id: <20191010083501.010966866@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,84 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit d42281b6e49510f078ace15a8ea10f71e6262581 ]
+commit 314eed30ede02fa925990f535652254b5bad6b65 upstream.
 
-Ensure we are always able to detect whether or not the CPU is affected
-by SSB, so that we can later advertise this to userspace.
+When running on a system with >512MB RAM with a 32-bit kernel built with:
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-[will: Use IS_ENABLED instead of #ifdef]
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+	CONFIG_DEBUG_VIRTUAL=y
+	CONFIG_HIGHMEM=y
+	CONFIG_HARDENED_USERCOPY=y
+
+all execve()s will fail due to argv copying into kmap()ed pages, and on
+usercopy checking the calls ultimately of virt_to_page() will be looking
+for "bad" kmap (highmem) pointers due to CONFIG_DEBUG_VIRTUAL=y:
+
+ ------------[ cut here ]------------
+ kernel BUG at ../arch/x86/mm/physaddr.c:83!
+ invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
+ CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc8 #6
+ Hardware name: Dell Inc. Inspiron 1318/0C236D, BIOS A04 01/15/2009
+ EIP: __phys_addr+0xaf/0x100
+ ...
+ Call Trace:
+  __check_object_size+0xaf/0x3c0
+  ? __might_sleep+0x80/0xa0
+  copy_strings+0x1c2/0x370
+  copy_strings_kernel+0x2b/0x40
+  __do_execve_file+0x4ca/0x810
+  ? kmem_cache_alloc+0x1c7/0x370
+  do_execve+0x1b/0x20
+  ...
+
+The check is from arch/x86/mm/physaddr.c:
+
+	VIRTUAL_BUG_ON((phys_addr >> PAGE_SHIFT) > max_low_pfn);
+
+Due to the kmap() in fs/exec.c:
+
+		kaddr = kmap(kmapped_page);
+	...
+	if (copy_from_user(kaddr+offset, str, bytes_to_copy)) ...
+
+Now we can fetch the correct page to avoid the pfn check. In both cases,
+hardened usercopy will need to walk the page-span checker (if enabled)
+to do sanity checking.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: f5509cc18daa ("mm: Hardened usercopy")
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lore.kernel.org/r/201909171056.7F2FFD17@keescook
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/cpufeature.h |    4 ----
- arch/arm64/kernel/cpu_errata.c      |    9 +++++----
- 2 files changed, 5 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -525,11 +525,7 @@ static inline int arm64_get_ssbd_state(v
- #endif
- }
+---
+ mm/usercopy.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+--- a/mm/usercopy.c
++++ b/mm/usercopy.c
+@@ -15,6 +15,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
--#ifdef CONFIG_ARM64_SSBD
- void arm64_set_ssbd_mitigation(bool state);
--#else
--static inline void arm64_set_ssbd_mitigation(bool state) {}
--#endif
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/sched/task.h>
+@@ -203,7 +204,12 @@ static inline const char *check_heap_obj
+ 	if (!virt_addr_valid(ptr))
+ 		return NULL;
  
- #endif /* __ASSEMBLY__ */
+-	page = virt_to_head_page(ptr);
++	/*
++	 * When CONFIG_HIGHMEM=y, kmap_to_page() will give either the
++	 * highmem page or fallback to virt_to_page(). The following
++	 * is effectively a highmem-aware virt_to_head_page().
++	 */
++	page = compound_head(kmap_to_page((void *)ptr));
  
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -239,7 +239,6 @@ enable_smccc_arch_workaround_1(const str
- }
- #endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
- 
--#ifdef CONFIG_ARM64_SSBD
- DEFINE_PER_CPU_READ_MOSTLY(u64, arm64_ssbd_callback_required);
- 
- int ssbd_state __read_mostly = ARM64_SSBD_KERNEL;
-@@ -312,6 +311,11 @@ void __init arm64_enable_wa2_handling(st
- 
- void arm64_set_ssbd_mitigation(bool state)
- {
-+	if (!IS_ENABLED(CONFIG_ARM64_SSBD)) {
-+		pr_info_once("SSBD disabled by kernel configuration\n");
-+		return;
-+	}
-+
- 	if (this_cpu_has_cap(ARM64_SSBS)) {
- 		if (state)
- 			asm volatile(SET_PSTATE_SSBS(0));
-@@ -431,7 +435,6 @@ out_printmsg:
- 
- 	return required;
- }
--#endif	/* CONFIG_ARM64_SSBD */
- 
- #ifdef CONFIG_ARM64_ERRATUM_1463225
- DEFINE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
-@@ -710,14 +713,12 @@ const struct arm64_cpu_capabilities arm6
- 		ERRATA_MIDR_RANGE_LIST(arm64_harden_el2_vectors),
- 	},
- #endif
--#ifdef CONFIG_ARM64_SSBD
- 	{
- 		.desc = "Speculative Store Bypass Disable",
- 		.capability = ARM64_SSBD,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = has_ssbd_mitigation,
- 	},
--#endif
- #ifdef CONFIG_ARM64_ERRATUM_1463225
- 	{
- 		.desc = "ARM erratum 1463225",
+ 	/* Check slab allocator for flags and size. */
+ 	if (PageSlab(page))
 
 
