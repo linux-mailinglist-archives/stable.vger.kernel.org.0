@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1086D25A7
+	by mail.lfdr.de (Postfix) with ESMTP id 551D9D25A6
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388224AbfJJIk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:40:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45178 "EHLO mail.kernel.org"
+        id S2388223AbfJJIlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:41:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388223AbfJJIk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:40:58 -0400
+        id S2388235AbfJJIlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:41:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE3B32054F;
-        Thu, 10 Oct 2019 08:40:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B52EF21D6C;
+        Thu, 10 Oct 2019 08:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696857;
-        bh=YCv08OtIP8ALu1K/EyVpY57KtMBqX6VgQaWNOZT7QrU=;
+        s=default; t=1570696860;
+        bh=yCL7vknIl3cVtddlPXzUFN41K9u1QH75+TsucXHQe44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6yeVNSs6AaQKAHGHH2qM+ywMTj6c5L6385PdBrlxAf/VMBv36n3xBi87GLP6OPAz
-         v/c6+D3JWlNCazjAtLU5hYiJgIsSoaXZ7IJj3Si2FXrUpBNUceCGpVxo0GtK7w6n00
-         m9lEEnufom0u/hRXp6AsnbkIKIZeUn7UofGo82uM=
+        b=rKXObDomHbv/hqSfksqmeUsSTCN7llShLlpKgb2mgWcZIYHm4tCeyoh90zx1JNDNX
+         GEQhe+rx0lizlyb1fvhJvx1bCR5fJ0p7TDBlfN711A4rMPZKv0MAbbKtxd2ipOAs4S
+         Cr80mUTzoJtVCGfbi+t85RTQXNzE98kHcrWtAGLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.3 076/148] mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
-Date:   Thu, 10 Oct 2019 10:35:37 +0200
-Message-Id: <20191010083615.965680999@linuxfoundation.org>
+Subject: [PATCH 5.3 077/148] mmc: sdhci: Let drivers define their DMA mask
+Date:   Thu, 10 Oct 2019 10:35:38 +0200
+Message-Id: <20191010083616.016416989@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,74 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 121bd08b029e03404c451bb237729cdff76eafed upstream.
+commit 4ee7dde4c777f14cb0f98dd201491bf6cc15899b upstream.
 
-We must not unconditionally set the DMA snoop bit; if the DMA API is
-assuming that the device is not DMA coherent, and the device snoops the
-CPU caches, the device can see stale cache lines brought in by
-speculative prefetch.
+Add host operation ->set_dma_mask() so that drivers can define their own
+DMA masks.
 
-This leads to the device seeing stale data, potentially resulting in
-corrupted data transfers.  Commonly, this results in a descriptor fetch
-error such as:
-
-mmc0: ADMA error
-mmc0: sdhci: ============ SDHCI REGISTER DUMP ===========
-mmc0: sdhci: Sys addr:  0x00000000 | Version:  0x00002202
-mmc0: sdhci: Blk size:  0x00000008 | Blk cnt:  0x00000001
-mmc0: sdhci: Argument:  0x00000000 | Trn mode: 0x00000013
-mmc0: sdhci: Present:   0x01f50008 | Host ctl: 0x00000038
-mmc0: sdhci: Power:     0x00000003 | Blk gap:  0x00000000
-mmc0: sdhci: Wake-up:   0x00000000 | Clock:    0x000040d8
-mmc0: sdhci: Timeout:   0x00000003 | Int stat: 0x00000001
-mmc0: sdhci: Int enab:  0x037f108f | Sig enab: 0x037f108b
-mmc0: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00002202
-mmc0: sdhci: Caps:      0x35fa0000 | Caps_1:   0x0000af00
-mmc0: sdhci: Cmd:       0x0000333a | Max curr: 0x00000000
-mmc0: sdhci: Resp[0]:   0x00000920 | Resp[1]:  0x001d8a33
-mmc0: sdhci: Resp[2]:   0x325b5900 | Resp[3]:  0x3f400e00
-mmc0: sdhci: Host ctl2: 0x00000000
-mmc0: sdhci: ADMA Err:  0x00000009 | ADMA Ptr: 0x000000236d43820c
-mmc0: sdhci: ============================================
-mmc0: error -5 whilst initialising SD card
-
-but can lead to other errors, and potentially direct the SDHCI
-controller to read/write data to other memory locations (e.g. if a valid
-descriptor is visible to the device in a stale cache line.)
-
-Fix this by ensuring that the DMA snoop bit corresponds with the
-behaviour of the DMA API.  Since the driver currently only supports DT,
-use of_dma_is_coherent().  Note that device_get_dma_attr() can not be
-used as that risks re-introducing this bug if/when the driver is
-converted to ACPI.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Tested-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Cc: stable@vger.kernel.org # v4.15 +
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci.c |   12 ++++--------
+ drivers/mmc/host/sdhci.h |    1 +
+ 2 files changed, 5 insertions(+), 8 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -495,7 +495,12 @@ static int esdhc_of_enable_dma(struct sd
- 		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -3763,18 +3763,14 @@ int sdhci_setup_host(struct sdhci_host *
+ 		host->flags &= ~SDHCI_USE_ADMA;
+ 	}
  
- 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
--	value |= ESDHC_DMA_SNOOP;
-+
-+	if (of_dma_is_coherent(dev->of_node))
-+		value |= ESDHC_DMA_SNOOP;
-+	else
-+		value &= ~ESDHC_DMA_SNOOP;
-+
- 	sdhci_writel(host, value, ESDHC_DMA_SYSCTL);
- 	return 0;
- }
+-	/*
+-	 * It is assumed that a 64-bit capable device has set a 64-bit DMA mask
+-	 * and *must* do 64-bit DMA.  A driver has the opportunity to change
+-	 * that during the first call to ->enable_dma().  Similarly
+-	 * SDHCI_QUIRK2_BROKEN_64_BIT_DMA must be left to the drivers to
+-	 * implement.
+-	 */
+ 	if (sdhci_can_64bit_dma(host))
+ 		host->flags |= SDHCI_USE_64_BIT_DMA;
+ 
+ 	if (host->flags & (SDHCI_USE_SDMA | SDHCI_USE_ADMA)) {
+-		ret = sdhci_set_dma_mask(host);
++		if (host->ops->set_dma_mask)
++			ret = host->ops->set_dma_mask(host);
++		else
++			ret = sdhci_set_dma_mask(host);
+ 
+ 		if (!ret && host->ops->enable_dma)
+ 			ret = host->ops->enable_dma(host);
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -622,6 +622,7 @@ struct sdhci_ops {
+ 
+ 	u32		(*irq)(struct sdhci_host *host, u32 intmask);
+ 
++	int		(*set_dma_mask)(struct sdhci_host *host);
+ 	int		(*enable_dma)(struct sdhci_host *host);
+ 	unsigned int	(*get_max_clock)(struct sdhci_host *host);
+ 	unsigned int	(*get_min_clock)(struct sdhci_host *host);
 
 
