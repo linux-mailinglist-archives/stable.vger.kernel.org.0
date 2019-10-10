@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 581A8D2531
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9EDD252C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387928AbfJJIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
+        id S2388368AbfJJIy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389824AbfJJIta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:30 -0400
+        id S2389870AbfJJItw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2130218AC;
-        Thu, 10 Oct 2019 08:49:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B58AC2064A;
+        Thu, 10 Oct 2019 08:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697370;
-        bh=65FrNbLESZ8v+zraZfQvP46y83UiFJA0O6qpT20PisE=;
+        s=default; t=1570697392;
+        bh=mYrFo0W9gI8djX/nmVkmDQqAzDr5zN+mypISr36JtF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9V3g4RNqdV6SfBc0gPm2i2kBCVq2eTF07IBg1VghzMhg4TTLAyqYsTbaqXbkT38I
-         QXos9BKf5Qgc6dN+bGqi3ICGTvccv+8eHAiEJ4fVsTuMQ5EXXYFgyAIEy9vaSgqvqQ
-         fu3TjTjdoQfQeiHnMj1T7MSdH9QqhUv+Nj3hPcKw=
+        b=nYJWiiKpur8gqnYsjiscfjrQZvU+XL7mClstSEMxkkJe4hJLMFNFHY1blNF2VE0Oq
+         O9i8l5GVelv9KHwUpYF88kojmdiqrJBIboZrrzyjLNutwtwe6WEACcwWovzXD+A64A
+         BCzo4nGx0Cpk1OZceT1DI3660YxR9pph9MUq5C1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        David Abdurachmanov <david.abdurachmanov@sifive.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/114] riscv: Avoid interrupts being erroneously enabled in handle_exception()
-Date:   Thu, 10 Oct 2019 10:36:35 +0200
-Message-Id: <20191010083612.720750989@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.14 11/61] can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
+Date:   Thu, 10 Oct 2019 10:36:36 +0200
+Message-Id: <20191010083456.241092643@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit c82dd6d078a2bb29d41eda032bb96d05699a524d ]
+commit d84ea2123f8d27144e3f4d58cd88c9c6ddc799de upstream.
 
-When the handle_exception function addresses an exception, the interrupts
-will be unconditionally enabled after finishing the context save. However,
-It may erroneously enable the interrupts if the interrupts are disabled
-before entering the handle_exception.
+Some boards take longer than 5ms to power up after a reset, so allow
+some retries attempts before giving up.
 
-For example, one of the WARN_ON() condition is satisfied in the scheduling
-where the interrupt is disabled and rq.lock is locked. The WARN_ON will
-trigger a break exception and the handle_exception function will enable the
-interrupts before entering do_trap_break function. During the procedure, if
-a timer interrupt is pending, it will be taken when interrupts are enabled.
-In this case, it may cause a deadlock problem if the rq.lock is locked
-again in the timer ISR.
+Fixes: ff06d611a31c ("can: mcp251x: Improve mcp251x_hw_reset()")
+Cc: linux-stable <stable@vger.kernel.org>
+Tested-by: Sean Nyekjaer <sean@geanix.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Hence, the handle_exception() can only enable interrupts when the state of
-sstatus.SPIE is 1.
-
-This patch is tested on HiFive Unleashed board.
-
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
-[paul.walmsley@sifive.com: updated to apply]
-Fixes: bcae803a21317 ("RISC-V: Enable IRQ during exception handling")
-Cc: David Abdurachmanov <david.abdurachmanov@sifive.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/entry.S | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/can/spi/mcp251x.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index fa2c08e3c05e6..a03821b2656aa 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -171,9 +171,13 @@ ENTRY(handle_exception)
- 	move a1, s4 /* scause */
- 	tail do_IRQ
- 1:
--	/* Exceptions run with interrupts enabled */
-+	/* Exceptions run with interrupts enabled or disabled
-+	   depending on the state of sstatus.SR_SPIE */
-+	andi t0, s1, SR_SPIE
-+	beqz t0, 1f
- 	csrs sstatus, SR_SIE
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -627,7 +627,7 @@ static int mcp251x_setup(struct net_devi
+ static int mcp251x_hw_reset(struct spi_device *spi)
+ {
+ 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+-	u8 reg;
++	unsigned long timeout;
+ 	int ret;
  
-+1:
- 	/* Handle syscalls */
- 	li t0, EXC_SYSCALL
- 	beq s4, t0, handle_syscall
--- 
-2.20.1
-
+ 	/* Wait for oscillator startup timer after power up */
+@@ -641,10 +641,19 @@ static int mcp251x_hw_reset(struct spi_d
+ 	/* Wait for oscillator startup timer after reset */
+ 	mdelay(MCP251X_OST_DELAY_MS);
+ 
+-	reg = mcp251x_read_reg(spi, CANSTAT);
+-	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
+-		return -ENODEV;
+-
++	/* Wait for reset to finish */
++	timeout = jiffies + HZ;
++	while ((mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) !=
++	       CANCTRL_REQOP_CONF) {
++		usleep_range(MCP251X_OST_DELAY_MS * 1000,
++			     MCP251X_OST_DELAY_MS * 1000 * 2);
++
++		if (time_after(jiffies, timeout)) {
++			dev_err(&spi->dev,
++				"MCP251x didn't enter in conf mode after reset\n");
++			return -EBUSY;
++		}
++	}
+ 	return 0;
+ }
+ 
 
 
