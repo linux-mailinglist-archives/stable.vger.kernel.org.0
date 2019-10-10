@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1EAD25D3
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DCFBD259F
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387706AbfJJIiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41862 "EHLO mail.kernel.org"
+        id S2387929AbfJJJBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 05:01:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387635AbfJJIiu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:50 -0400
+        id S2388296AbfJJIlT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:41:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA6E620B7C;
-        Thu, 10 Oct 2019 08:38:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A28F521D7A;
+        Thu, 10 Oct 2019 08:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696729;
-        bh=7ICmKWHcVsxa7fjU9//oUnyZkEX5xHC61tndE/5jLus=;
+        s=default; t=1570696879;
+        bh=CGfWLHfDS5/I7M2lr6cE4KD8mzrZscQTZT50x3qj0yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAMDi4lFgVBRQs4zophgeUB1/Uoztx86N0RZDTuJ0BT0GygFwzx50G+NPtN6J51kn
-         dJ+sm9Rmb/2bnVwxgPdcqT6Jo8ZAxdtJJyscuE4jsP41EHg0w+MtWvg9chVEeusz7I
-         XFWbSvm2BAsx45KAXrFyvGuVovh9yX5R9afwci7s=
+        b=1WhQgIj/1bwX9FidizXpkT1B9+DAsRsQXdhu1RoGzF50eUyxcUecdGvnbkv7o5Jc/
+         iNBJ78IPEL02VDzIIN8BhHAOPx5xDbuuA9US3fm/Dycyn+JNk00Pc+2p4eYsbF2OUo
+         uCpa2yYXB+mFQ+6u4NPUaoDPi1uhTX2OtGZYWM/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org, "Erhard F." <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 030/148] powerpc/kasan: Fix parallel loading of modules.
-Date:   Thu, 10 Oct 2019 10:34:51 +0200
-Message-Id: <20191010083612.957788488@linuxfoundation.org>
+Subject: [PATCH 5.3 031/148] powerpc/kasan: Fix shadow area set up for modules.
+Date:   Thu, 10 Oct 2019 10:34:52 +0200
+Message-Id: <20191010083613.034078157@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -45,72 +46,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 45ff3c55958542c3b76075d59741297b8cb31cbb upstream.
+commit 663c0c9496a69f80011205ba3194049bcafd681d upstream.
 
-Parallel loading of modules may lead to bad setup of shadow page table
-entries.
+When loading modules, from time to time an Oops is encountered during
+the init of shadow area for globals. This is due to the last page not
+always being mapped depending on the exact distance between the start
+and the end of the shadow area and the alignment with the page
+addresses.
 
-First, lets align modules so that two modules never share the same
-shadow page.
-
-Second, ensure that two modules cannot allocate two page tables for
-the same PMD entry at the same time. This is done by using
-init_mm.page_table_lock in the same way as __pte_alloc_kernel()
+Fix this by aligning the starting address with the page address.
 
 Fixes: 2edb16efc899 ("powerpc/32: Add KASAN support")
 Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Erhard F. <erhard_f@mailbox.org>
 Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c97284f912128cbc3f2fe09d68e90e65fb3e6026.1565361876.git.christophe.leroy@c-s.fr
+Link: https://lore.kernel.org/r/4f887e9b77d0d725cbb52035c7ece485c1c5fc14.1565361881.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/kasan/kasan_init_32.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/kasan/kasan_init_32.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/arch/powerpc/mm/kasan/kasan_init_32.c
 +++ b/arch/powerpc/mm/kasan/kasan_init_32.c
-@@ -5,6 +5,7 @@
- #include <linux/kasan.h>
- #include <linux/printk.h>
- #include <linux/memblock.h>
-+#include <linux/moduleloader.h>
- #include <linux/sched/task.h>
- #include <linux/vmalloc.h>
- #include <asm/pgalloc.h>
-@@ -46,7 +47,19 @@ static int __ref kasan_init_shadow_page_
- 			kasan_populate_pte(new, PAGE_READONLY);
- 		else
- 			kasan_populate_pte(new, PAGE_KERNEL_RO);
--		pmd_populate_kernel(&init_mm, pmd, new);
-+
-+		smp_wmb(); /* See comment in __pte_alloc */
-+
-+		spin_lock(&init_mm.page_table_lock);
-+			/* Has another populated it ? */
-+		if (likely((void *)pmd_page_vaddr(*pmd) == kasan_early_shadow_pte)) {
-+			pmd_populate_kernel(&init_mm, pmd, new);
-+			new = NULL;
-+		}
-+		spin_unlock(&init_mm.page_table_lock);
-+
-+		if (new && slab_is_available())
-+			pte_free_kernel(&init_mm, new);
- 	}
- 	return 0;
- }
-@@ -137,7 +150,11 @@ void __init kasan_init(void)
- #ifdef CONFIG_MODULES
- void *module_alloc(unsigned long size)
- {
--	void *base = vmalloc_exec(size);
-+	void *base;
-+
-+	base = __vmalloc_node_range(size, MODULE_ALIGN, VMALLOC_START, VMALLOC_END,
-+				    GFP_KERNEL, PAGE_KERNEL_EXEC, VM_FLUSH_RESET_PERMS,
-+				    NUMA_NO_NODE, __builtin_return_address(0));
+@@ -87,7 +87,7 @@ static int __ref kasan_init_region(void
+ 	if (!slab_is_available())
+ 		block = memblock_alloc(k_end - k_start, PAGE_SIZE);
  
- 	if (!base)
- 		return NULL;
+-	for (k_cur = k_start; k_cur < k_end; k_cur += PAGE_SIZE) {
++	for (k_cur = k_start & PAGE_MASK; k_cur < k_end; k_cur += PAGE_SIZE) {
+ 		pmd_t *pmd = pmd_offset(pud_offset(pgd_offset_k(k_cur), k_cur), k_cur);
+ 		void *va = block ? block + k_cur - k_start : kasan_get_one_page();
+ 		pte_t pte = pfn_pte(PHYS_PFN(__pa(va)), PAGE_KERNEL);
 
 
