@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7FDED2471
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD1CD2470
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387687AbfJJIpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388361AbfJJIpP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 10 Oct 2019 04:45:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50782 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389081AbfJJIpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:11 -0400
+        id S2388040AbfJJIpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B555B2190F;
-        Thu, 10 Oct 2019 08:45:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A66B21A4A;
+        Thu, 10 Oct 2019 08:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697111;
-        bh=AeqJ5tmv4YwVwMSoBXqkp2XYljEqJPW8+tr6/fYaEbg=;
+        s=default; t=1570697113;
+        bh=VRTYunhUV9afr/tTCD6DJ8MgAzp+H1ZkWoEb2EMleVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEtkKtTW9Wv6AxM7eZS5LoBKl/KQG9IEGHs5IW7CQnr+eym6AMvqSMzqPQBtCbvJi
-         GqST7V998OcFyJQQjh88FsWA1S8/3abzUTfQAvvW0L7be3Iy1QekMzT0Xj7BiNW+Eq
-         s8BbWGQJlzo2iOwMk4LOdLldqTfx80eJPYW/8Mxc=
+        b=vwqA2OYLupTHdqwspQjFxH9IkUpnIQtG3/ARvu++Nl9HmsGcJmziuKb2ViJmnD+0h
+         CAqY9kLeurAkyeSfrxOplt3S62oGMwHuxr5XzDO3K4xq7+wzCcyKmmB5al5OGaFD1j
+         i/f70UvOdtINYWJmrUKTJMtSHuWAOJ7rHXuyN5ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 022/114] crypto: skcipher - Unmap pages after an external error
-Date:   Thu, 10 Oct 2019 10:35:29 +0200
-Message-Id: <20191010083554.519074263@linuxfoundation.org>
+Subject: [PATCH 4.19 023/114] crypto: cavium/zip - Add missing single_release()
+Date:   Thu, 10 Oct 2019 10:35:30 +0200
+Message-Id: <20191010083554.686449141@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -43,121 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 0ba3c026e685573bd3534c17e27da7c505ac99c4 upstream.
+commit c552ffb5c93d9d65aaf34f5f001c4e7e8484ced1 upstream.
 
-skcipher_walk_done may be called with an error by internal or
-external callers.  For those internal callers we shouldn't unmap
-pages but for external callers we must unmap any pages that are
-in use.
+When using single_open() for opening, single_release() should be
+used instead of seq_release(), otherwise there is a memory leak.
 
-This patch distinguishes between the two cases by checking whether
-walk->nbytes is zero or not.  For internal callers, we now set
-walk->nbytes to zero prior to the call.  For external callers,
-walk->nbytes has always been non-zero (as zero is used to indicate
-the termination of a walk).
-
-Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Fixes: 5cde0af2a982 ("[CRYPTO] cipher: Added block cipher type")
+Fixes: 09ae5d37e093 ("crypto: zip - Add Compression/Decompression statistics")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- crypto/skcipher.c |   42 +++++++++++++++++++++++-------------------
- 1 file changed, 23 insertions(+), 19 deletions(-)
+ drivers/crypto/cavium/zip/zip_main.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/crypto/skcipher.c
-+++ b/crypto/skcipher.c
-@@ -95,7 +95,7 @@ static inline u8 *skcipher_get_spot(u8 *
- 	return max(start, end_page);
- }
+--- a/drivers/crypto/cavium/zip/zip_main.c
++++ b/drivers/crypto/cavium/zip/zip_main.c
+@@ -593,6 +593,7 @@ static const struct file_operations zip_
+ 	.owner = THIS_MODULE,
+ 	.open  = zip_stats_open,
+ 	.read  = seq_read,
++	.release = single_release,
+ };
  
--static void skcipher_done_slow(struct skcipher_walk *walk, unsigned int bsize)
-+static int skcipher_done_slow(struct skcipher_walk *walk, unsigned int bsize)
- {
- 	u8 *addr;
+ static int zip_clear_open(struct inode *inode, struct file *file)
+@@ -604,6 +605,7 @@ static const struct file_operations zip_
+ 	.owner = THIS_MODULE,
+ 	.open  = zip_clear_open,
+ 	.read  = seq_read,
++	.release = single_release,
+ };
  
-@@ -103,19 +103,21 @@ static void skcipher_done_slow(struct sk
- 	addr = skcipher_get_spot(addr, bsize);
- 	scatterwalk_copychunks(addr, &walk->out, bsize,
- 			       (walk->flags & SKCIPHER_WALK_PHYS) ? 2 : 1);
-+	return 0;
- }
+ static int zip_regs_open(struct inode *inode, struct file *file)
+@@ -615,6 +617,7 @@ static const struct file_operations zip_
+ 	.owner = THIS_MODULE,
+ 	.open  = zip_regs_open,
+ 	.read  = seq_read,
++	.release = single_release,
+ };
  
- int skcipher_walk_done(struct skcipher_walk *walk, int err)
- {
--	unsigned int n; /* bytes processed */
--	bool more;
-+	unsigned int n = walk->nbytes;
-+	unsigned int nbytes = 0;
- 
--	if (unlikely(err < 0))
-+	if (!n)
- 		goto finish;
- 
--	n = walk->nbytes - err;
--	walk->total -= n;
--	more = (walk->total != 0);
-+	if (likely(err >= 0)) {
-+		n -= err;
-+		nbytes = walk->total - n;
-+	}
- 
- 	if (likely(!(walk->flags & (SKCIPHER_WALK_PHYS |
- 				    SKCIPHER_WALK_SLOW |
-@@ -131,7 +133,7 @@ unmap_src:
- 		memcpy(walk->dst.virt.addr, walk->page, n);
- 		skcipher_unmap_dst(walk);
- 	} else if (unlikely(walk->flags & SKCIPHER_WALK_SLOW)) {
--		if (err) {
-+		if (err > 0) {
- 			/*
- 			 * Didn't process all bytes.  Either the algorithm is
- 			 * broken, or this was the last step and it turned out
-@@ -139,27 +141,29 @@ unmap_src:
- 			 * the algorithm requires it.
- 			 */
- 			err = -EINVAL;
--			goto finish;
--		}
--		skcipher_done_slow(walk, n);
--		goto already_advanced;
-+			nbytes = 0;
-+		} else
-+			n = skcipher_done_slow(walk, n);
- 	}
- 
-+	if (err > 0)
-+		err = 0;
-+
-+	walk->total = nbytes;
-+	walk->nbytes = 0;
-+
- 	scatterwalk_advance(&walk->in, n);
- 	scatterwalk_advance(&walk->out, n);
--already_advanced:
--	scatterwalk_done(&walk->in, 0, more);
--	scatterwalk_done(&walk->out, 1, more);
-+	scatterwalk_done(&walk->in, 0, nbytes);
-+	scatterwalk_done(&walk->out, 1, nbytes);
- 
--	if (more) {
-+	if (nbytes) {
- 		crypto_yield(walk->flags & SKCIPHER_WALK_SLEEP ?
- 			     CRYPTO_TFM_REQ_MAY_SLEEP : 0);
- 		return skcipher_walk_next(walk);
- 	}
--	err = 0;
--finish:
--	walk->nbytes = 0;
- 
-+finish:
- 	/* Short-circuit for the common/fast path. */
- 	if (!((unsigned long)walk->buffer | (unsigned long)walk->page))
- 		goto out;
+ /* Root directory for thunderx_zip debugfs entry */
 
 
