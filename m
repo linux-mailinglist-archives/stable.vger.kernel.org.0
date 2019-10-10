@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F4ED250E
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E29D24A5
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387738AbfJJIwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:52:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60164 "EHLO mail.kernel.org"
+        id S2388801AbfJJItE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:49:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389707AbfJJIwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:52:17 -0400
+        id S2388165AbfJJItA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5971420B7C;
-        Thu, 10 Oct 2019 08:52:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E243F2064A;
+        Thu, 10 Oct 2019 08:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697536;
-        bh=QpR1/10jKNxxHHlEsodxsXoxMK9wQijIJ/gKND8ySxc=;
+        s=default; t=1570697340;
+        bh=AlzBdA8/4AmqnMFPRJWpA+uiooPBTPN0m2UkF6AWhYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Q7ZOFtULp8Lw8RNV37/K7FnPvbJMPLQyTE0K60hLpNRZNqyDwuOjQTLVvefyEmQC
-         RF8Srl4+65wOFc8a1u6q5yVVdrgf/GILb/vWo87o1zhQyusbm7Ze7o1UETwjWHstEW
-         8Ej8toOQlCfXl5iBYDNQRPQTXXwX+o8NtTfMQ8K0=
+        b=HquXPDhJpjAPX2ik2T0iOCJInKwDu987PyCz2MnQ4viivlq8eEf2ailMvCB0WNszc
+         yxnFwByQmcjdPGQUALF2njn0n1epup1+pajh+1yCQ9RWuseySItnPzdOV1YWDP3SwW
+         j31UI5ea4LgWf/HTxqC6/xpCuaMvVPXr1BNY1+yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 27/61] cfg80211: initialize on-stack chandefs
-Date:   Thu, 10 Oct 2019 10:36:52 +0200
-Message-Id: <20191010083506.939760520@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 106/114] vfs: Fix EOVERFLOW testing in put_compat_statfs64
+Date:   Thu, 10 Oct 2019 10:36:53 +0200
+Message-Id: <20191010083613.843593568@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Eric Sandeen <sandeen@redhat.com>
 
-commit f43e5210c739fe76a4b0ed851559d6902f20ceb1 upstream.
+commit cc3a7bfe62b947b423fcb2cfe89fcba92bf48fa3 upstream.
 
-In a few places we don't properly initialize on-stack chandefs,
-resulting in EDMG data to be non-zero, which broke things.
+Today, put_compat_statfs64() disallows nearly any field value over
+2^32 if f_bsize is only 32 bits, but that makes no sense.
+compat_statfs64 is there for the explicit purpose of providing 64-bit
+fields for f_files, f_ffree, etc.  And f_bsize is always only 32 bits.
 
-Additionally, in a few places we rely on the driver to init the
-data completely, but perhaps we shouldn't as non-EDMG drivers
-may not initialize the EDMG data, also initialize it there.
+As a result, 32-bit userspace gets -EOVERFLOW for i.e.  large file
+counts even with -D_FILE_OFFSET_BITS=64 set.
 
-Cc: stable@vger.kernel.org
-Fixes: 2a38075cd0be ("nl80211: Add support for EDMG channels")
-Reported-by: Dmitry Osipenko <digetx@gmail.com>
-Tested-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/1569239475-I2dcce394ecf873376c386a78f31c2ec8b538fa25@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+In reality, only f_bsize and f_frsize can legitimately overflow
+(fields like f_type and f_namelen should never be large), so test
+only those fields.
+
+This bug was discussed at length some time ago, and this is the proposal
+Al suggested at https://lkml.org/lkml/2018/8/6/640.  It seemed to get
+dropped amid the discussion of other related changes, but this
+part seems obviously correct on its own, so I've picked it up and
+sent it, for expediency.
+
+Fixes: 64d2ab32efe3 ("vfs: fix put_compat_statfs64() does not handle errors")
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/nl80211.c     |    4 +++-
- net/wireless/reg.c         |    2 +-
- net/wireless/wext-compat.c |    2 +-
- 3 files changed, 5 insertions(+), 3 deletions(-)
+ fs/statfs.c |   17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -2111,6 +2111,8 @@ static int nl80211_parse_chandef(struct
- 
- 	control_freq = nla_get_u32(info->attrs[NL80211_ATTR_WIPHY_FREQ]);
- 
-+	memset(chandef, 0, sizeof(*chandef));
+--- a/fs/statfs.c
++++ b/fs/statfs.c
+@@ -304,19 +304,10 @@ COMPAT_SYSCALL_DEFINE2(fstatfs, unsigned
+ static int put_compat_statfs64(struct compat_statfs64 __user *ubuf, struct kstatfs *kbuf)
+ {
+ 	struct compat_statfs64 buf;
+-	if (sizeof(ubuf->f_bsize) == 4) {
+-		if ((kbuf->f_type | kbuf->f_bsize | kbuf->f_namelen |
+-		     kbuf->f_frsize | kbuf->f_flags) & 0xffffffff00000000ULL)
+-			return -EOVERFLOW;
+-		/* f_files and f_ffree may be -1; it's okay
+-		 * to stuff that into 32 bits */
+-		if (kbuf->f_files != 0xffffffffffffffffULL
+-		 && (kbuf->f_files & 0xffffffff00000000ULL))
+-			return -EOVERFLOW;
+-		if (kbuf->f_ffree != 0xffffffffffffffffULL
+-		 && (kbuf->f_ffree & 0xffffffff00000000ULL))
+-			return -EOVERFLOW;
+-	}
 +
- 	chandef->chan = ieee80211_get_channel(&rdev->wiphy, control_freq);
- 	chandef->width = NL80211_CHAN_WIDTH_20_NOHT;
- 	chandef->center_freq1 = control_freq;
-@@ -2580,7 +2582,7 @@ static int nl80211_send_iface(struct sk_
- 
- 	if (rdev->ops->get_channel) {
- 		int ret;
--		struct cfg80211_chan_def chandef;
-+		struct cfg80211_chan_def chandef = {};
- 
- 		ret = rdev_get_channel(rdev, wdev, &chandef);
- 		if (ret == 0) {
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -1567,7 +1567,7 @@ static void reg_call_notifier(struct wip
- 
- static bool reg_wdev_chan_valid(struct wiphy *wiphy, struct wireless_dev *wdev)
- {
--	struct cfg80211_chan_def chandef;
-+	struct cfg80211_chan_def chandef = {};
- 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
- 	enum nl80211_iftype iftype;
- 
---- a/net/wireless/wext-compat.c
-+++ b/net/wireless/wext-compat.c
-@@ -800,7 +800,7 @@ static int cfg80211_wext_giwfreq(struct
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
- 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
--	struct cfg80211_chan_def chandef;
-+	struct cfg80211_chan_def chandef = {};
- 	int ret;
- 
- 	switch (wdev->iftype) {
++	if ((kbuf->f_bsize | kbuf->f_frsize) & 0xffffffff00000000ULL)
++		return -EOVERFLOW;
++
+ 	memset(&buf, 0, sizeof(struct compat_statfs64));
+ 	buf.f_type = kbuf->f_type;
+ 	buf.f_bsize = kbuf->f_bsize;
 
 
