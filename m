@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 692B9D2540
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0DE3D256C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388742AbfJJI4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
+        id S2387860AbfJJIn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389586AbfJJIsE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:04 -0400
+        id S2388001AbfJJIn0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84CD1208C3;
-        Thu, 10 Oct 2019 08:48:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DF602190F;
+        Thu, 10 Oct 2019 08:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697283;
-        bh=1CMaj+LpTVy5pHO7YmSeoVhwnG/cUfOzjBBtOkqBePg=;
+        s=default; t=1570697004;
+        bh=sdWjKc7950Ix1oAlzn3Bdm8pbL63ww+3W/0cLP/FqRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwOflXpxEhBOC3AA/3A1Is8CeL7WscXHPVHFcbrK9X4xr9lZd8JIrZAEoZf4wCuah
-         dwToeuQTegufY/zWRQJd27YgHcC/Ne3FPua03IZVTqQP6ID8MzzZrfjfqUrXjlcxQK
-         UCC3LK9nzh+cVOCQBd457JDxfCYoqZmXZfebq+WI=
+        b=oYzKSRa3MMRLJgHq8dHKJ9HOypNhv8l8D9tuAfET54JVsR5NeVcsCIwzsH5Vtqby8
+         3Run2qM0p3qYF8x3QrlwPDmJfwUFyD8OO25fOrnR2lxerQmoZW0iK1/9wmEAND0on1
+         MR2UrSuZbincpYMyRkujTs9Hor43oxf8izOi8ct0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 041/114] mmc: sdhci: improve ADMA error reporting
-Date:   Thu, 10 Oct 2019 10:35:48 +0200
-Message-Id: <20191010083605.914102098@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Amit Kucheria <amit.kucheria@linaro.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 088/148] drivers: thermal: qcom: tsens: Fix memory leak from qfprom read
+Date:   Thu, 10 Oct 2019 10:35:49 +0200
+Message-Id: <20191010083616.685532154@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +46,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-commit d1c536e3177390da43d99f20143b810c35433d1f upstream.
+[ Upstream commit 6b8249abb093551ef173d13a25ed0044d5dd33e0 ]
 
-ADMA errors are potentially data corrupting events; although we print
-the register state, we do not usefully print the ADMA descriptors.
-Worse than that, we print them by referencing their virtual address
-which is meaningless when the register state gives us the DMA address
-of the failing descriptor.
+memory returned as part of nvmem_read via qfprom_read should be
+freed by the consumer once done.
+Existing code is not doing it so fix it.
 
-Print the ADMA descriptors giving their DMA addresses rather than their
-virtual addresses, and print them using SDHCI_DUMP() rather than DBG().
+Below memory leak detected by kmemleak
+   [<ffffff80088b7658>] kmemleak_alloc+0x50/0x84
+    [<ffffff80081df120>] __kmalloc+0xe8/0x168
+    [<ffffff80086db350>] nvmem_cell_read+0x30/0x80
+    [<ffffff8008632790>] qfprom_read+0x4c/0x7c
+    [<ffffff80086335a4>] calibrate_v1+0x34/0x204
+    [<ffffff8008632518>] tsens_probe+0x164/0x258
+    [<ffffff80084e0a1c>] platform_drv_probe+0x80/0xa0
+    [<ffffff80084de4f4>] really_probe+0x208/0x248
+    [<ffffff80084de2c4>] driver_probe_device+0x98/0xc0
+    [<ffffff80084dec54>] __device_attach_driver+0x9c/0xac
+    [<ffffff80084dca74>] bus_for_each_drv+0x60/0x8c
+    [<ffffff80084de634>] __device_attach+0x8c/0x100
+    [<ffffff80084de6c8>] device_initial_probe+0x20/0x28
+    [<ffffff80084dcbb8>] bus_probe_device+0x34/0x7c
+    [<ffffff80084deb08>] deferred_probe_work_func+0x6c/0x98
+    [<ffffff80080c3da8>] process_one_work+0x160/0x2f8
 
-We also do not show the correct value of the interrupt status register;
-the register dump shows the current value, after we have cleared the
-pending interrupts we are going to service.  What is more useful is to
-print the interrupts that _were_ pending at the time the ADMA error was
-encountered.  Fix that too.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Acked-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/thermal/qcom/tsens-8960.c |  2 ++
+ drivers/thermal/qcom/tsens-v0_1.c | 12 ++++++++++--
+ drivers/thermal/qcom/tsens-v1.c   |  1 +
+ drivers/thermal/qcom/tsens.h      |  1 +
+ 4 files changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2720,6 +2720,7 @@ static void sdhci_cmd_irq(struct sdhci_h
- static void sdhci_adma_show_error(struct sdhci_host *host)
- {
- 	void *desc = host->adma_table;
-+	dma_addr_t dma = host->adma_addr;
+diff --git a/drivers/thermal/qcom/tsens-8960.c b/drivers/thermal/qcom/tsens-8960.c
+index 8d9b721dadb65..e46a4e3f25c42 100644
+--- a/drivers/thermal/qcom/tsens-8960.c
++++ b/drivers/thermal/qcom/tsens-8960.c
+@@ -229,6 +229,8 @@ static int calibrate_8960(struct tsens_priv *priv)
+ 	for (i = 0; i < num_read; i++, s++)
+ 		s->offset = data[i];
  
- 	sdhci_dumpregs(host);
++	kfree(data);
++
+ 	return 0;
+ }
  
-@@ -2727,18 +2728,21 @@ static void sdhci_adma_show_error(struct
- 		struct sdhci_adma2_64_desc *dma_desc = desc;
+diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
+index 6f26fadf4c279..055647bcee67d 100644
+--- a/drivers/thermal/qcom/tsens-v0_1.c
++++ b/drivers/thermal/qcom/tsens-v0_1.c
+@@ -145,8 +145,10 @@ static int calibrate_8916(struct tsens_priv *priv)
+ 		return PTR_ERR(qfprom_cdata);
  
- 		if (host->flags & SDHCI_USE_64_BIT_DMA)
--			DBG("%p: DMA 0x%08x%08x, LEN 0x%04x, Attr=0x%02x\n",
--			    desc, le32_to_cpu(dma_desc->addr_hi),
-+			SDHCI_DUMP("%08llx: DMA 0x%08x%08x, LEN 0x%04x, Attr=0x%02x\n",
-+			    (unsigned long long)dma,
-+			    le32_to_cpu(dma_desc->addr_hi),
- 			    le32_to_cpu(dma_desc->addr_lo),
- 			    le16_to_cpu(dma_desc->len),
- 			    le16_to_cpu(dma_desc->cmd));
- 		else
--			DBG("%p: DMA 0x%08x, LEN 0x%04x, Attr=0x%02x\n",
--			    desc, le32_to_cpu(dma_desc->addr_lo),
-+			SDHCI_DUMP("%08llx: DMA 0x%08x, LEN 0x%04x, Attr=0x%02x\n",
-+			    (unsigned long long)dma,
-+			    le32_to_cpu(dma_desc->addr_lo),
- 			    le16_to_cpu(dma_desc->len),
- 			    le16_to_cpu(dma_desc->cmd));
+ 	qfprom_csel = (u32 *)qfprom_read(priv->dev, "calib_sel");
+-	if (IS_ERR(qfprom_csel))
++	if (IS_ERR(qfprom_csel)) {
++		kfree(qfprom_cdata);
+ 		return PTR_ERR(qfprom_csel);
++	}
  
- 		desc += host->desc_sz;
-+		dma += host->desc_sz;
+ 	mode = (qfprom_csel[0] & MSM8916_CAL_SEL_MASK) >> MSM8916_CAL_SEL_SHIFT;
+ 	dev_dbg(priv->dev, "calibration mode is %d\n", mode);
+@@ -181,6 +183,8 @@ static int calibrate_8916(struct tsens_priv *priv)
+ 	}
  
- 		if (dma_desc->cmd & cpu_to_le16(ADMA2_END))
- 			break;
-@@ -2814,7 +2818,8 @@ static void sdhci_data_irq(struct sdhci_
- 			!= MMC_BUS_TEST_R)
- 		host->data->error = -EILSEQ;
- 	else if (intmask & SDHCI_INT_ADMA_ERROR) {
--		pr_err("%s: ADMA error\n", mmc_hostname(host->mmc));
-+		pr_err("%s: ADMA error: 0x%08x\n", mmc_hostname(host->mmc),
-+		       intmask);
- 		sdhci_adma_show_error(host);
- 		host->data->error = -EIO;
- 		if (host->ops->adma_workaround)
+ 	compute_intercept_slope(priv, p1, p2, mode);
++	kfree(qfprom_cdata);
++	kfree(qfprom_csel);
+ 
+ 	return 0;
+ }
+@@ -198,8 +202,10 @@ static int calibrate_8974(struct tsens_priv *priv)
+ 		return PTR_ERR(calib);
+ 
+ 	bkp = (u32 *)qfprom_read(priv->dev, "calib_backup");
+-	if (IS_ERR(bkp))
++	if (IS_ERR(bkp)) {
++		kfree(calib);
+ 		return PTR_ERR(bkp);
++	}
+ 
+ 	calib_redun_sel =  bkp[1] & BKP_REDUN_SEL;
+ 	calib_redun_sel >>= BKP_REDUN_SHIFT;
+@@ -313,6 +319,8 @@ static int calibrate_8974(struct tsens_priv *priv)
+ 	}
+ 
+ 	compute_intercept_slope(priv, p1, p2, mode);
++	kfree(calib);
++	kfree(bkp);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/thermal/qcom/tsens-v1.c b/drivers/thermal/qcom/tsens-v1.c
+index 10b595d4f6199..870f502f2cb6c 100644
+--- a/drivers/thermal/qcom/tsens-v1.c
++++ b/drivers/thermal/qcom/tsens-v1.c
+@@ -138,6 +138,7 @@ static int calibrate_v1(struct tsens_priv *priv)
+ 	}
+ 
+ 	compute_intercept_slope(priv, p1, p2, mode);
++	kfree(qfprom_cdata);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/thermal/qcom/tsens.h b/drivers/thermal/qcom/tsens.h
+index 2fd94997245bf..b89083b61c383 100644
+--- a/drivers/thermal/qcom/tsens.h
++++ b/drivers/thermal/qcom/tsens.h
+@@ -17,6 +17,7 @@
+ 
+ #include <linux/thermal.h>
+ #include <linux/regmap.h>
++#include <linux/slab.h>
+ 
+ struct tsens_priv;
+ 
+-- 
+2.20.1
+
 
 
