@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D34C6D2361
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE868D23DB
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387725AbfJJIlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46356 "EHLO mail.kernel.org"
+        id S2388692AbfJJIql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388414AbfJJIlt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:41:49 -0400
+        id S2389356AbfJJIqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:46:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E061021BE5;
-        Thu, 10 Oct 2019 08:41:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CDD42064A;
+        Thu, 10 Oct 2019 08:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696909;
-        bh=au7RXpazVKg8aDvc0+r3dLxy0AhQ6+CZk+Ol5BMAo6c=;
+        s=default; t=1570697198;
+        bh=2h/G3cPVDK6EdxonOzXEtqQZ4ws9hg2mdfT/W1q1IDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVKa4tWZPmZ4xfXKZDmkyXI+eizSyCeByXgVeMmo11Ma+SUOmgrAf+4DHPwYHHaXg
-         RXTuKZDN+EiU65yzqaZrwAJar+btKyJw1Ld0shahTA6C9DyPdXBDLG4fO2SEpIhvEK
-         Tt8DGIcXZQAgWYGvVByF0ZqjuyRHYQOIv3VK+AP0=
+        b=BAp7ySKadS6Kvy+vSL3sXCPg4C/s5z3kS4kMrlIke3RNDK0I5WY8X35VezTHruc4k
+         KoXd9vnpbQMgjUX4S1QVmjWWeWXE31kFxZLYuVjw814BbG59FKEYhhR9IXnyMT5iLW
+         l+Qa29Nn7HFjEHJ4NMCWxB9exzTmpvwRAIpr8vtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeff Layton <jlayton@kernel.org>,
         Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 098/148] ceph: fix directories inode i_blkbits initialization
-Date:   Thu, 10 Oct 2019 10:35:59 +0200
-Message-Id: <20191010083617.195609047@linuxfoundation.org>
+Subject: [PATCH 4.19 055/114] ceph: fix directories inode i_blkbits initialization
+Date:   Thu, 10 Oct 2019 10:36:02 +0200
+Message-Id: <20191010083608.573514350@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 18500edefc56f..3b537e7038c7a 100644
+index c06845237cbaa..8196c21d8623c 100644
 --- a/fs/ceph/inode.c
 +++ b/fs/ceph/inode.c
-@@ -801,7 +801,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+@@ -807,7 +807,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
  
  	/* update inode */
  	inode->i_rdev = le32_to_cpu(info->rdev);
