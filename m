@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96754D2489
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66BDD258C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389362AbfJJIqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:46:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52568 "EHLO mail.kernel.org"
+        id S2388474AbfJJImH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389356AbfJJIqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:46:45 -0400
+        id S2387736AbfJJImG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:42:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 923C62064A;
-        Thu, 10 Oct 2019 08:46:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38C002190F;
+        Thu, 10 Oct 2019 08:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697204;
-        bh=aaNRKxMCl//SOoWE0xPCzikii769S93wd/C/5cBbHWM=;
+        s=default; t=1570696925;
+        bh=VS50HS4GAI4UbJUyzF+xJ0UN7GNEKsohNTeuNnlWgOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puXgLFVar6SZSrCTzwWzu0bTjI6+/zAx971C+XuWCa+bQqonHTjEpQ901EQpwHI5k
-         3a8tKhrnzJUxxUfCH6wSbUtdZl1g3SlQb7NECN2YGsQi/rs+mwzJ9yekK7Ims9n5OZ
-         q4dthD7NiNOrdWgdfnGPbvuvK1wvAO5DJHNIGq9s=
+        b=dEQXK27X63OZwjOz7m3oKNc2NFMfkQF967QV7sMw1yJ/ET4M3f6aQ9+VA6F6OnxOL
+         dT5PDeB61kCH8aNchSxuibJ9l5edf8NSPqd/nf0+9ZivZ1aIMGK8gMwmNAU9KC5qDW
+         QQe2PvgkJdz0vryEwSWOt31jPJqTPcJQNxmgKtnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Yan, Zheng" <zyan@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/114] ceph: reconnect connection if session hang in opening state
-Date:   Thu, 10 Oct 2019 10:36:03 +0200
-Message-Id: <20191010083608.788126503@linuxfoundation.org>
+Subject: [PATCH 5.3 103/148] netfilter: nf_tables: allow lookups in dynamic sets
+Date:   Thu, 10 Oct 2019 10:36:04 +0200
+Message-Id: <20191010083617.454672527@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erqi Chen <chenerqi@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 71a228bc8d65900179e37ac309e678f8c523f133 ]
+[ Upstream commit acab713177377d9e0889c46bac7ff0cfb9a90c4d ]
 
-If client mds session is evicted in CEPH_MDS_SESSION_OPENING state,
-mds won't send session msg to client, and delayed_work skip
-CEPH_MDS_SESSION_OPENING state session, the session hang forever.
+This un-breaks lookups in sets that have the 'dynamic' flag set.
+Given this active example configuration:
 
-Allow ceph_con_keepalive to reconnect a session in OPENING to avoid
-session hang. Also, ensure that we skip sessions in RESTARTING and
-REJECTED states since those states can't be resurrected by issuing
-a keepalive.
+table filter {
+  set set1 {
+    type ipv4_addr
+    size 64
+    flags dynamic,timeout
+    timeout 1m
+  }
 
-Link: https://tracker.ceph.com/issues/41551
-Signed-off-by: Erqi Chen chenerqi@gmail.com
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+  chain input {
+     type filter hook input priority 0; policy accept;
+  }
+}
+
+... this works:
+nft add rule ip filter input add @set1 { ip saddr }
+
+-> whenever rule is triggered, the source ip address is inserted
+into the set (if it did not exist).
+
+This won't work:
+nft add rule ip filter input ip saddr @set1 counter
+Error: Could not process rule: Operation not supported
+
+In other words, we can add entries to the set, but then can't make
+matching decision based on that set.
+
+That is just wrong -- all set backends support lookups (else they would
+not be very useful).
+The failure comes from an explicit rejection in nft_lookup.c.
+
+Looking at the history, it seems like NFT_SET_EVAL used to mean
+'set contains expressions' (aka. "is a meter"), for instance something like
+
+ nft add rule ip filter input meter example { ip saddr limit rate 10/second }
+ or
+ nft add rule ip filter input meter example { ip saddr counter }
+
+The actual meaning of NFT_SET_EVAL however, is
+'set can be updated from the packet path'.
+
+'meters' and packet-path insertions into sets, such as
+'add @set { ip saddr }' use exactly the same kernel code (nft_dynset.c)
+and thus require a set backend that provides the ->update() function.
+
+The only set that provides this also is the only one that has the
+NFT_SET_EVAL feature flag.
+
+Removing the wrong check makes the above example work.
+While at it, also fix the flag check during set instantiation to
+allow supported combinations only.
+
+Fixes: 8aeff920dcc9b3f ("netfilter: nf_tables: add stateful object reference to set elements")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 7 +++++--
+ net/netfilter/nft_lookup.c    | 3 ---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index bfcf11c70bfad..09db6d08614d2 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3640,7 +3640,9 @@ static void delayed_work(struct work_struct *work)
- 				pr_info("mds%d hung\n", s->s_mds);
- 			}
- 		}
--		if (s->s_state < CEPH_MDS_SESSION_OPEN) {
-+		if (s->s_state == CEPH_MDS_SESSION_NEW ||
-+		    s->s_state == CEPH_MDS_SESSION_RESTARTING ||
-+		    s->s_state == CEPH_MDS_SESSION_REJECTED) {
- 			/* this mds is failed or recovering, just wait */
- 			ceph_put_mds_session(s);
- 			continue;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index d47469f824a10..3b81323fa0171 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3562,8 +3562,11 @@ static int nf_tables_newset(struct net *net, struct sock *nlsk,
+ 			      NFT_SET_OBJECT))
+ 			return -EINVAL;
+ 		/* Only one of these operations is supported */
+-		if ((flags & (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT)) ==
+-			     (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT))
++		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
++			     (NFT_SET_MAP | NFT_SET_OBJECT))
++			return -EOPNOTSUPP;
++		if ((flags & (NFT_SET_EVAL | NFT_SET_OBJECT)) ==
++			     (NFT_SET_EVAL | NFT_SET_OBJECT))
+ 			return -EOPNOTSUPP;
+ 	}
+ 
+diff --git a/net/netfilter/nft_lookup.c b/net/netfilter/nft_lookup.c
+index c0560bf3c31bd..660bad688e2bc 100644
+--- a/net/netfilter/nft_lookup.c
++++ b/net/netfilter/nft_lookup.c
+@@ -73,9 +73,6 @@ static int nft_lookup_init(const struct nft_ctx *ctx,
+ 	if (IS_ERR(set))
+ 		return PTR_ERR(set);
+ 
+-	if (set->flags & NFT_SET_EVAL)
+-		return -EOPNOTSUPP;
+-
+ 	priv->sreg = nft_parse_register(tb[NFTA_LOOKUP_SREG]);
+ 	err = nft_validate_register_load(priv->sreg, set->klen);
+ 	if (err < 0)
 -- 
 2.20.1
 
