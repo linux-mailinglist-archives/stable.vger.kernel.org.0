@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CAAD22F2
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C14A3D22F4
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387532AbfJJIiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40938 "EHLO mail.kernel.org"
+        id S1733294AbfJJIiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387498AbfJJIiJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:09 -0400
+        id S2387556AbfJJIiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02FBC218AC;
-        Thu, 10 Oct 2019 08:38:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6257221920;
+        Thu, 10 Oct 2019 08:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696688;
-        bh=s9LQjxudcIhOXT71s3GlOhEPsdGOco/H+iJNyFCdFtE=;
+        s=default; t=1570696693;
+        bh=GtMRWRCTCaUF8bzZEMfioAD/OxeWiiYhyTZDSfSYQV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G8CSppoghimMVbclNtK2Ml6sPI+EEdxK0hCnXSFTPB52RDF22fVmQ2mDlVhJI5uWj
-         YdcD68t9LOhsDEm7fqZaWCcq2MiNIheVZ9sQR4oNDWQig34Qs0ASeUzz8H5OEW2uyA
-         xabGRHIn5bGjKqj32VBlCiB4rK70Gkt5wUM69dHs=
+        b=vt68Wt0NTXkmfUTQ5uNvQVx4OifyRVaRl5k3CpKzotgzoSzjFeJBVMZIs5y4Hh9+k
+         Xq542MwXFUQLnVw3tFECEGyKGgqJrpvvYwwVGxYZeubU6RIhQ/FyzMYcRtxEx1QiEs
+         11uGUBDUTvi1pNp4oOy++eGblowhdB9RXf5bBylM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.3 017/148] nbd: fix max number of supported devs
-Date:   Thu, 10 Oct 2019 10:34:38 +0200
-Message-Id: <20191010083612.153232421@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.3 019/148] ASoC: Define a set of DAPM pre/post-up events
+Date:   Thu, 10 Oct 2019 10:34:40 +0200
+Message-Id: <20191010083612.269223452@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,159 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <mchristi@redhat.com>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4 upstream.
+commit cfc8f568aada98f9608a0a62511ca18d647613e2 upstream.
 
-This fixes a bug added in 4.10 with commit:
-
-commit 9561a7ade0c205bc2ee035a2ac880478dcc1a024
-Author: Josef Bacik <jbacik@fb.com>
-Date:   Tue Nov 22 14:04:40 2016 -0500
-
-    nbd: add multi-connection support
-
-that limited the number of devices to 256. Before the patch we could
-create 1000s of devices, but the patch switched us from using our
-own thread to using a work queue which has a default limit of 256
-active works.
-
-The problem is that our recv_work function sits in a loop until
-disconnection but only handles IO for one connection. The work is
-started when the connection is started/restarted, but if we end up
-creating 257 or more connections, the queue_work call just queues
-connection257+'s recv_work and that waits for connection 1 - 256's
-recv_work to be disconnected and that work instance completing.
-
-Instead of reverting back to kthreads, this has us allocate a
-workqueue_struct per device, so we can block in the work.
+Prepare to use SND_SOC_DAPM_PRE_POST_PMU definition to
+reduce coming code size and make it more readable.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20190719100524.23300-2-oleksandr.suvorov@toradex.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/nbd.c |   39 +++++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 14 deletions(-)
+ include/sound/soc-dapm.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -108,6 +108,7 @@ struct nbd_device {
- 	struct nbd_config *config;
- 	struct mutex config_lock;
- 	struct gendisk *disk;
-+	struct workqueue_struct *recv_workq;
+--- a/include/sound/soc-dapm.h
++++ b/include/sound/soc-dapm.h
+@@ -353,6 +353,8 @@ struct device;
+ #define SND_SOC_DAPM_WILL_PMD   0x80    /* called at start of sequence */
+ #define SND_SOC_DAPM_PRE_POST_PMD \
+ 				(SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD)
++#define SND_SOC_DAPM_PRE_POST_PMU \
++				(SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU)
  
- 	struct list_head list;
- 	struct task_struct *task_recv;
-@@ -138,7 +139,6 @@ static struct dentry *nbd_dbg_dir;
- 
- static unsigned int nbds_max = 16;
- static int max_part = 16;
--static struct workqueue_struct *recv_workqueue;
- static int part_shift;
- 
- static int nbd_dev_dbg_init(struct nbd_device *nbd);
-@@ -1038,7 +1038,7 @@ static int nbd_reconnect_socket(struct n
- 		/* We take the tx_mutex in an error path in the recv_work, so we
- 		 * need to queue_work outside of the tx_mutex.
- 		 */
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 
- 		atomic_inc(&config->live_connections);
- 		wake_up(&config->conn_wait);
-@@ -1139,6 +1139,10 @@ static void nbd_config_put(struct nbd_de
- 		kfree(nbd->config);
- 		nbd->config = NULL;
- 
-+		if (nbd->recv_workq)
-+			destroy_workqueue(nbd->recv_workq);
-+		nbd->recv_workq = NULL;
-+
- 		nbd->tag_set.timeout = 0;
- 		nbd->disk->queue->limits.discard_granularity = 0;
- 		nbd->disk->queue->limits.discard_alignment = 0;
-@@ -1167,6 +1171,14 @@ static int nbd_start_device(struct nbd_d
- 		return -EINVAL;
- 	}
- 
-+	nbd->recv_workq = alloc_workqueue("knbd%d-recv",
-+					  WQ_MEM_RECLAIM | WQ_HIGHPRI |
-+					  WQ_UNBOUND, 0, nbd->index);
-+	if (!nbd->recv_workq) {
-+		dev_err(disk_to_dev(nbd->disk), "Could not allocate knbd recv work queue.\n");
-+		return -ENOMEM;
-+	}
-+
- 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
- 	nbd->task_recv = current;
- 
-@@ -1197,7 +1209,7 @@ static int nbd_start_device(struct nbd_d
- 		INIT_WORK(&args->work, recv_work);
- 		args->nbd = nbd;
- 		args->index = i;
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 	}
- 	nbd_size_update(nbd);
- 	return error;
-@@ -1217,8 +1229,10 @@ static int nbd_start_device_ioctl(struct
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
-+		flush_workqueue(nbd->recv_workq);
-+	}
- 	mutex_lock(&nbd->config_lock);
- 	nbd_bdev_reset(bdev);
- 	/* user requested, ignore socket errors */
-@@ -1877,6 +1891,12 @@ static void nbd_disconnect_and_put(struc
- 	nbd_disconnect(nbd);
- 	nbd_clear_sock(nbd);
- 	mutex_unlock(&nbd->config_lock);
-+	/*
-+	 * Make sure recv thread has finished, so it does not drop the last
-+	 * config ref and try to destroy the workqueue from inside the work
-+	 * queue.
-+	 */
-+	flush_workqueue(nbd->recv_workq);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
-@@ -2263,20 +2283,12 @@ static int __init nbd_init(void)
- 
- 	if (nbds_max > 1UL << (MINORBITS - part_shift))
- 		return -EINVAL;
--	recv_workqueue = alloc_workqueue("knbd-recv",
--					 WQ_MEM_RECLAIM | WQ_HIGHPRI |
--					 WQ_UNBOUND, 0);
--	if (!recv_workqueue)
--		return -ENOMEM;
- 
--	if (register_blkdev(NBD_MAJOR, "nbd")) {
--		destroy_workqueue(recv_workqueue);
-+	if (register_blkdev(NBD_MAJOR, "nbd"))
- 		return -EIO;
--	}
- 
- 	if (genl_register_family(&nbd_genl_family)) {
- 		unregister_blkdev(NBD_MAJOR, "nbd");
--		destroy_workqueue(recv_workqueue);
- 		return -EINVAL;
- 	}
- 	nbd_dbg_init();
-@@ -2318,7 +2330,6 @@ static void __exit nbd_cleanup(void)
- 
- 	idr_destroy(&nbd_index_idr);
- 	genl_unregister_family(&nbd_genl_family);
--	destroy_workqueue(recv_workqueue);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
- }
- 
+ /* convenience event type detection */
+ #define SND_SOC_DAPM_EVENT_ON(e)	\
 
 
