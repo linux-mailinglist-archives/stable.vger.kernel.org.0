@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E54D25CC
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CD8D25D2
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387579AbfJJIiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41112 "EHLO mail.kernel.org"
+        id S2387693AbfJJIis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387574AbfJJIiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:18 -0400
+        id S2387635AbfJJIir (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EAF221920;
-        Thu, 10 Oct 2019 08:38:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F448218AC;
+        Thu, 10 Oct 2019 08:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696696;
-        bh=oBREHTCqD/gGEukiA0iqbonD4Urkz3cKma22LzCtM84=;
+        s=default; t=1570696726;
+        bh=yWUB2eFyF+kAE8u9QcoZelZzL2qmlHqCLVLd+kbIucg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8rUlvqmGFxfiflHAFEklvdePFWJ4OaYkhmZ6IOXXyZp8ZQUgDvzn+6wZjjWWLnnF
-         j3OCWdg6R02yyeoqCVoWYgHKvPDwH2YrguOxY89O4U+NEf+h26WeTYYjq/4e/OeT/s
-         +YcKROVsWDIs+vvDyjZ1KiJbKg0aMnzoKga8QVoE=
+        b=Zsu7SMD+12c7LlAgFf6Xydvng47bmiWaIWY7NMjrPv//1AslQLNrOX/VYcH6NOUwg
+         Ngz50/fr49ognbmlclNF6CCPORW9sYQyBMRNcDuG7nBZbOGOeuoU8eO+1KauXKz5X4
+         uzVkuaDhP/76pbpBa+4BJ9R2vRgVv8t3ODlrRMK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Philipp Rudo <prudo@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.3 002/148] s390/sclp: Fix bit checked for has_sipl
-Date:   Thu, 10 Oct 2019 10:34:23 +0200
-Message-Id: <20191010083610.090992036@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 5.3 003/148] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
+Date:   Thu, 10 Oct 2019 10:34:24 +0200
+Message-Id: <20191010083610.398134531@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,31 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 4df9a82549cfed5b52da21e7d007b79b2ea1769a upstream.
+commit a13b03bbb4575b350b46090af4dfd30e735aaed1 upstream.
 
-Fixes: c9896acc7851 ("s390/ipl: Provide has_secure sysfs attribute")
-Cc: stable@vger.kernel.org # 5.2+
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
+then there is certainly a bug in the calling userspace application.
+We check for wrong access registers, but only if the vCPU was already
+in the access register mode before (i.e. the SIE block has recorded
+it). The check is also buried somewhere deep in the calling chain (in
+the function ar_translation()), so this is somewhat hard to find.
+
+It's better to always report an error to the userspace in case this
+field is set wrong, and it's safer in the KVM code if we block wrong
+values here early instead of relying on a check somewhere deep down
+the calling chain, so let's add another check to kvm_s390_guest_mem_op()
+directly.
+
+We also should check that the "size" is non-zero here (thanks to Janosch
+Frank for the hint!). If we do not check the size, we could call vmalloc()
+with this 0 value, and this will cause a kernel warning.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lkml.kernel.org/r/20190829122517.31042-1-thuth@redhat.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/char/sclp_early.c |    2 +-
+ arch/s390/kvm/kvm-s390.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/s390/char/sclp_early.c
-+++ b/drivers/s390/char/sclp_early.c
-@@ -40,7 +40,7 @@ static void __init sclp_early_facilities
- 	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
- 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
- 	sclp.has_kss = !!(sccb->fac98 & 0x01);
--	sclp.has_sipl = !!(sccb->cbl & 0x02);
-+	sclp.has_sipl = !!(sccb->cbl & 0x4000);
- 	if (sccb->fac85 & 0x02)
- 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
- 	if (sccb->fac91 & 0x40)
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4257,7 +4257,7 @@ static long kvm_s390_guest_mem_op(struct
+ 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+ 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+ 
+-	if (mop->flags & ~supported_flags)
++	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
+ 		return -EINVAL;
+ 
+ 	if (mop->size > MEM_OP_MAX_SIZE)
 
 
