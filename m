@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 679AED255E
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1086D25A7
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387832AbfJJI6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51106 "EHLO mail.kernel.org"
+        id S2388224AbfJJIk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387710AbfJJIpa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:30 -0400
+        id S2388223AbfJJIk6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:40:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF51021A4A;
-        Thu, 10 Oct 2019 08:45:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE3B32054F;
+        Thu, 10 Oct 2019 08:40:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697130;
-        bh=WfoyCfdIo3r6xcNuaQI/cVJPvfzJANcGm0c2yQ8l61M=;
+        s=default; t=1570696857;
+        bh=YCv08OtIP8ALu1K/EyVpY57KtMBqX6VgQaWNOZT7QrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JF/OY2SJvMtYkMekangTKcmu5IFr62atZz7dA3MshOdtmAxnRFAzJKBwW3X5jt9X
-         wPg1jZY1Q0Xi/95QwFSubiyhLTvf+bPwfiqGzaXLXuLU7dImaodjWlSZZbxKX2v2xq
-         poGfMsV2mxvHyJQw91uONgfw6Ev+poNAjQBP1MW4=
+        b=Z6yeVNSs6AaQKAHGHH2qM+ywMTj6c5L6385PdBrlxAf/VMBv36n3xBi87GLP6OPAz
+         v/c6+D3JWlNCazjAtLU5hYiJgIsSoaXZ7IJj3Si2FXrUpBNUceCGpVxo0GtK7w6n00
+         m9lEEnufom0u/hRXp6AsnbkIKIZeUn7UofGo82uM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Nosthoff <committed@heine.so>,
-        Brian Norris <briannorris@chromium.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.19 029/114] power: supply: sbs-battery: only return health when battery present
-Date:   Thu, 10 Oct 2019 10:35:36 +0200
-Message-Id: <20191010083559.078712124@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.3 076/148] mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
+Date:   Thu, 10 Oct 2019 10:35:37 +0200
+Message-Id: <20191010083615.965680999@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Nosthoff <committed@heine.so>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit fe55e770327363304c4111423e6f7ff3c650136d upstream.
+commit 121bd08b029e03404c451bb237729cdff76eafed upstream.
 
-when the battery is set to sbs-mode and  no gpio detection is enabled
-"health" is always returning a value even when the battery is not present.
-All other fields return "not present".
-This leads to a scenario where the driver is constantly switching between
-"present" and "not present" state. This generates a lot of constant
-traffic on the i2c.
+We must not unconditionally set the DMA snoop bit; if the DMA API is
+assuming that the device is not DMA coherent, and the device snoops the
+CPU caches, the device can see stale cache lines brought in by
+speculative prefetch.
 
-This commit changes the response of "health" to an error when the battery
-is not responding leading to a consistent "not present" state.
+This leads to the device seeing stale data, potentially resulting in
+corrupted data transfers.  Commonly, this results in a descriptor fetch
+error such as:
 
-Fixes: 76b16f4cdfb8 ("power: supply: sbs-battery: don't assume MANUFACTURER_DATA formats")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Michael Nosthoff <committed@heine.so>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+mmc0: ADMA error
+mmc0: sdhci: ============ SDHCI REGISTER DUMP ===========
+mmc0: sdhci: Sys addr:  0x00000000 | Version:  0x00002202
+mmc0: sdhci: Blk size:  0x00000008 | Blk cnt:  0x00000001
+mmc0: sdhci: Argument:  0x00000000 | Trn mode: 0x00000013
+mmc0: sdhci: Present:   0x01f50008 | Host ctl: 0x00000038
+mmc0: sdhci: Power:     0x00000003 | Blk gap:  0x00000000
+mmc0: sdhci: Wake-up:   0x00000000 | Clock:    0x000040d8
+mmc0: sdhci: Timeout:   0x00000003 | Int stat: 0x00000001
+mmc0: sdhci: Int enab:  0x037f108f | Sig enab: 0x037f108b
+mmc0: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00002202
+mmc0: sdhci: Caps:      0x35fa0000 | Caps_1:   0x0000af00
+mmc0: sdhci: Cmd:       0x0000333a | Max curr: 0x00000000
+mmc0: sdhci: Resp[0]:   0x00000920 | Resp[1]:  0x001d8a33
+mmc0: sdhci: Resp[2]:   0x325b5900 | Resp[3]:  0x3f400e00
+mmc0: sdhci: Host ctl2: 0x00000000
+mmc0: sdhci: ADMA Err:  0x00000009 | ADMA Ptr: 0x000000236d43820c
+mmc0: sdhci: ============================================
+mmc0: error -5 whilst initialising SD card
+
+but can lead to other errors, and potentially direct the SDHCI
+controller to read/write data to other memory locations (e.g. if a valid
+descriptor is visible to the device in a stale cache line.)
+
+Fix this by ensuring that the DMA snoop bit corresponds with the
+behaviour of the DMA API.  Since the driver currently only supports DT,
+use of_dma_is_coherent().  Note that device_get_dma_attr() can not be
+used as that risks re-introducing this bug if/when the driver is
+converted to ACPI.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/power/supply/sbs-battery.c |   25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/mmc/host/sdhci-of-esdhc.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/power/supply/sbs-battery.c
-+++ b/drivers/power/supply/sbs-battery.c
-@@ -323,17 +323,22 @@ static int sbs_get_battery_presence_and_
- {
- 	int ret;
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -495,7 +495,12 @@ static int esdhc_of_enable_dma(struct sd
+ 		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
  
--	if (psp == POWER_SUPPLY_PROP_PRESENT) {
--		/* Dummy command; if it succeeds, battery is present. */
--		ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
--		if (ret < 0)
--			val->intval = 0; /* battery disconnected */
--		else
--			val->intval = 1; /* battery present */
--	} else { /* POWER_SUPPLY_PROP_HEALTH */
-+	/* Dummy command; if it succeeds, battery is present. */
-+	ret = sbs_read_word_data(client, sbs_data[REG_STATUS].addr);
+ 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
+-	value |= ESDHC_DMA_SNOOP;
 +
-+	if (ret < 0) { /* battery not present*/
-+		if (psp == POWER_SUPPLY_PROP_PRESENT) {
-+			val->intval = 0;
-+			return 0;
-+		}
-+		return ret;
-+	}
++	if (of_dma_is_coherent(dev->of_node))
++		value |= ESDHC_DMA_SNOOP;
++	else
++		value &= ~ESDHC_DMA_SNOOP;
 +
-+	if (psp == POWER_SUPPLY_PROP_PRESENT)
-+		val->intval = 1; /* battery present */
-+	else /* POWER_SUPPLY_PROP_HEALTH */
- 		/* SBS spec doesn't have a general health command. */
- 		val->intval = POWER_SUPPLY_HEALTH_UNKNOWN;
--	}
- 
+ 	sdhci_writel(host, value, ESDHC_DMA_SYSCTL);
  	return 0;
  }
-@@ -635,6 +640,8 @@ static int sbs_get_property(struct power
- 		else
- 			ret = sbs_get_battery_presence_and_health(client, psp,
- 								  val);
-+
-+		/* this can only be true if no gpio is used */
- 		if (psp == POWER_SUPPLY_PROP_PRESENT)
- 			return 0;
- 		break;
 
 
