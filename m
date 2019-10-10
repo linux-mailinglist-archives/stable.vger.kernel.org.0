@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE868D23DB
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A64D23DE
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388692AbfJJIql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:46:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
+        id S2389386AbfJJIqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389356AbfJJIqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:46:39 -0400
+        id S2389383AbfJJIqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:46:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CDD42064A;
-        Thu, 10 Oct 2019 08:46:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6B62218AC;
+        Thu, 10 Oct 2019 08:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697198;
-        bh=2h/G3cPVDK6EdxonOzXEtqQZ4ws9hg2mdfT/W1q1IDY=;
+        s=default; t=1570697212;
+        bh=9KK+zWA/y/bDSujiZFJZWo7AuGxM4XHwDzPBWNMWyak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAp7ySKadS6Kvy+vSL3sXCPg4C/s5z3kS4kMrlIke3RNDK0I5WY8X35VezTHruc4k
-         KoXd9vnpbQMgjUX4S1QVmjWWeWXE31kFxZLYuVjw814BbG59FKEYhhR9IXnyMT5iLW
-         l+Qa29Nn7HFjEHJ4NMCWxB9exzTmpvwRAIpr8vtE=
+        b=crjeCEYhwIO8ztkHGm5Brpe2RokHfu2KpQWdGY3c/9xRl150gA72CPE4aL0YdQJ8A
+         4oTxVnwVIydxL3Vlf0OaOrnAnhul0la3/WTOqUnZoClOGsuvZ3Pn4IqRUgy9PX9A6w
+         EcOAj9P5me+1QAN/rPSIXVcZFjNYQenjiM0/2Mfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 055/114] ceph: fix directories inode i_blkbits initialization
-Date:   Thu, 10 Oct 2019 10:36:02 +0200
-Message-Id: <20191010083608.573514350@linuxfoundation.org>
+Subject: [PATCH 4.19 059/114] drm/amdgpu: Fix KFD-related kernel oops on Hawaii
+Date:   Thu, 10 Oct 2019 10:36:06 +0200
+Message-Id: <20191010083609.241241569@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -45,48 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Henriques <lhenriques@suse.com>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 750670341a24cb714e624e0fd7da30900ad93752 ]
+[ Upstream commit dcafbd50f2e4d5cc964aae409fb5691b743fba23 ]
 
-When filling an inode with info from the MDS, i_blkbits is being
-initialized using fl_stripe_unit, which contains the stripe unit in
-bytes.  Unfortunately, this doesn't make sense for directories as they
-have fl_stripe_unit set to '0'.  This means that i_blkbits will be set
-to 0xff, causing an UBSAN undefined behaviour in i_blocksize():
+Hawaii needs to flush caches explicitly, submitting an IB in a user
+VMID from kernel mode. There is no s_fence in this case.
 
-  UBSAN: Undefined behaviour in ./include/linux/fs.h:731:12
-  shift exponent 255 is too large for 32-bit type 'int'
-
-Fix this by initializing i_blkbits to CEPH_BLOCK_SHIFT if fl_stripe_unit
-is zero.
-
-Signed-off-by: Luis Henriques <lhenriques@suse.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: eb3961a57424 ("drm/amdgpu: remove fence context from the job")
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/inode.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index c06845237cbaa..8196c21d8623c 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -807,7 +807,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
- 
- 	/* update inode */
- 	inode->i_rdev = le32_to_cpu(info->rdev);
--	inode->i_blkbits = fls(le32_to_cpu(info->layout.fl_stripe_unit)) - 1;
-+	/* directories have fl_stripe_unit set to zero */
-+	if (le32_to_cpu(info->layout.fl_stripe_unit))
-+		inode->i_blkbits =
-+			fls(le32_to_cpu(info->layout.fl_stripe_unit)) - 1;
-+	else
-+		inode->i_blkbits = CEPH_BLOCK_SHIFT;
- 
- 	__ceph_update_quota(ci, iinfo->max_bytes, iinfo->max_files);
- 
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
+index 51b5e977ca885..f4e9d1b10e3ed 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
+@@ -139,7 +139,8 @@ int amdgpu_ib_schedule(struct amdgpu_ring *ring, unsigned num_ibs,
+ 	/* ring tests don't use a job */
+ 	if (job) {
+ 		vm = job->vm;
+-		fence_ctx = job->base.s_fence->scheduled.context;
++		fence_ctx = job->base.s_fence ?
++			job->base.s_fence->scheduled.context : 0;
+ 	} else {
+ 		vm = NULL;
+ 		fence_ctx = 0;
 -- 
 2.20.1
 
