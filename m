@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B2CD2415
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73786D246C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389715AbfJJIs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55308 "EHLO mail.kernel.org"
+        id S2388075AbfJJIpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389713AbfJJIsz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:55 -0400
+        id S2388017AbfJJIpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69DC22064A;
-        Thu, 10 Oct 2019 08:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6326F218AC;
+        Thu, 10 Oct 2019 08:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697334;
-        bh=S+0Okuy49xg+IxUOb8mc1qP1Q2gPrQqsCjKimb1zDNI=;
+        s=default; t=1570697102;
+        bh=HDXKVj0kZnZoD7sKDl4RBMVc8tZMENrl1siljZP0ouI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yq6Ck7RClMeZdbGEkk7oSbNVvgPsxu+weTGT1uba8Sd3X8N8N6H0OU2KfqOgczcPC
-         KkxUiu5stn5Z1Wndsw7cgHKUliGHIyjqHA3mF7riZ3EI81SNLySUMWYlVGYic2kSrb
-         FSekAmFkaoJ6n7rNEAQrhIpAaHxKAfgUjjHIQRhU=
+        b=0DVzLnTizQymkUhOECflqsd2eIBgUCvhxn4RpXLDTRJFCPSJecAObVNMon4o/f/9L
+         Efvl+TFt1yXfXJn9Rt8nhCHliCKourtRQi3GlOZB5/aqxrAkI/JSHNDzruyK0H+9bu
+         rlvG6X6NkcdF/KCMb+tUirBl8vuLeY2cis7sFRUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 104/114] arm64: Use firmware to detect CPUs that are not affected by Spectre-v2
-Date:   Thu, 10 Oct 2019 10:36:51 +0200
-Message-Id: <20191010083613.719382595@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4.19 002/114] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
+Date:   Thu, 10 Oct 2019 10:35:09 +0200
+Message-Id: <20191010083545.461298554@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -48,76 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 517953c2c47f9c00a002f588ac856a5bc70cede3 upstream.
+commit a13b03bbb4575b350b46090af4dfd30e735aaed1 upstream.
 
-The SMCCC ARCH_WORKAROUND_1 service can indicate that although the
-firmware knows about the Spectre-v2 mitigation, this particular
-CPU is not vulnerable, and it is thus not necessary to call
-the firmware on this CPU.
+If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
+then there is certainly a bug in the calling userspace application.
+We check for wrong access registers, but only if the vCPU was already
+in the access register mode before (i.e. the SIE block has recorded
+it). The check is also buried somewhere deep in the calling chain (in
+the function ar_translation()), so this is somewhat hard to find.
 
-Let's use this information to our benefit.
+It's better to always report an error to the userspace in case this
+field is set wrong, and it's safer in the KVM code if we block wrong
+values here early instead of relying on a check somewhere deep down
+the calling chain, so let's add another check to kvm_s390_guest_mem_op()
+directly.
 
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+We also should check that the "size" is non-zero here (thanks to Janosch
+Frank for the hint!). If we do not check the size, we could call vmalloc()
+with this 0 value, and this will cause a kernel warning.
+
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lkml.kernel.org/r/20190829122517.31042-1-thuth@redhat.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/cpu_errata.c |   32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -198,22 +198,36 @@ static int detect_harden_bp_fw(void)
- 	case PSCI_CONDUIT_HVC:
- 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
--		if ((int)res.a0 < 0)
-+		switch ((int)res.a0) {
-+		case 1:
-+			/* Firmware says we're just fine */
-+			return 0;
-+		case 0:
-+			cb = call_hvc_arch_workaround_1;
-+			/* This is a guest, no need to patch KVM vectors */
-+			smccc_start = NULL;
-+			smccc_end = NULL;
-+			break;
-+		default:
- 			return -1;
--		cb = call_hvc_arch_workaround_1;
--		/* This is a guest, no need to patch KVM vectors */
--		smccc_start = NULL;
--		smccc_end = NULL;
-+		}
- 		break;
+---
+ arch/s390/kvm/kvm-s390.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3890,7 +3890,7 @@ static long kvm_s390_guest_mem_op(struct
+ 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+ 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
  
- 	case PSCI_CONDUIT_SMC:
- 		arm_smccc_1_1_smc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
--		if ((int)res.a0 < 0)
-+		switch ((int)res.a0) {
-+		case 1:
-+			/* Firmware says we're just fine */
-+			return 0;
-+		case 0:
-+			cb = call_smc_arch_workaround_1;
-+			smccc_start = __smccc_workaround_1_smc_start;
-+			smccc_end = __smccc_workaround_1_smc_end;
-+			break;
-+		default:
- 			return -1;
--		cb = call_smc_arch_workaround_1;
--		smccc_start = __smccc_workaround_1_smc_start;
--		smccc_end = __smccc_workaround_1_smc_end;
-+		}
- 		break;
+-	if (mop->flags & ~supported_flags)
++	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
+ 		return -EINVAL;
  
- 	default:
+ 	if (mop->size > MEM_OP_MAX_SIZE)
 
 
