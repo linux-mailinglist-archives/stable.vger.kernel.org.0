@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A1DD2542
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F46AD2574
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388103AbfJJI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
+        id S2388034AbfJJInG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387775AbfJJIrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:47:47 -0400
+        id S2388660AbfJJInG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AB2C218AC;
-        Thu, 10 Oct 2019 08:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20CD021D6C;
+        Thu, 10 Oct 2019 08:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697266;
-        bh=g1EwKsoWRrIPN9pIi5JHek7BXpKp8hPNF+sPHViPCJc=;
+        s=default; t=1570696985;
+        bh=TL5VNSrOH9sU1p+lbWLVJM3knuc/7lE8kUQH1zlcJFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yVFgVeqHqVSBHaMMMVcSgBK6NCukrRb9+DfGN6vD2PX09qP0weYwYmJ/PL2U4vNaw
-         y+b9Kv0D/+naohLSXzVUF4euTKge86RaeEbw5LQ47rs3yLo0qkmI6a0trI3Lsj2Odn
-         c3uHV/YJJiho52LzyjDEhvfLRA0tUTKkSOr5ffvc=
+        b=AwLhQnUup2ChTCxjiDkAlAAcH3MhF4COLrEMRtdlCoWRfDzpDf3+Rf50aVcqYX9pJ
+         mAsZBAsUrPUzx83+casI4n4+ANb5VJRHVcCcqJWlXP1WP6bu9OVbEyHIx9gr2zxyKG
+         AWnNGI28I2UCbp8UCEIf0tfPxckXyLl4RnpsERuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Andreas Krebbel <krebbel@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/114] drm/radeon: Bail earlier when radeon.cik_/si_support=0 is passed
+Subject: [PATCH 5.3 123/148] perf build: Add detection of java-11-openjdk-devel package
 Date:   Thu, 10 Oct 2019 10:36:24 +0200
-Message-Id: <20191010083612.035029947@linuxfoundation.org>
+Message-Id: <20191010083618.511322426@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,114 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 9dbc88d013b79c62bd845cb9e7c0256e660967c5 ]
+[ Upstream commit 815c1560bf8fd522b8d93a1d727868b910c1cc24 ]
 
-Bail from the pci_driver probe function instead of from the drm_driver
-load function.
+With Java 11 there is no seperate JRE anymore.
 
-This avoid /dev/dri/card0 temporarily getting registered and then
-unregistered again, sending unwanted add / remove udev events to
-userspace.
+Details:
 
-Specifically this avoids triggering the (userspace) bug fixed by this
-plymouth merge-request:
-https://gitlab.freedesktop.org/plymouth/plymouth/merge_requests/59
+  https://coderanch.com/t/701603/java/JRE-JDK
 
-Note that despite that being an userspace bug, not sending unnecessary
-udev events is a good idea in general.
+Therefore the detection of the JRE needs to be adapted.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1490490
-Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This change works for s390 and x86.  I have not tested other platforms.
+
+Committer testing:
+
+Continues to work with the OpenJDK 8:
+
+  $ rm -f ~acme/lib64/libperf-jvmti.so
+  $ rpm -qa | grep jdk-devel
+  java-1.8.0-openjdk-devel-1.8.0.222.b10-0.fc30.x86_64
+  $ git log --oneline -1
+  a51937170f33 (HEAD -> perf/core) perf build: Add detection of java-11-openjdk-devel package
+  $ rm -rf /tmp/build/perf ; mkdir -p /tmp/build/perf ; make -C tools/perf O=/tmp/build/perf install > /dev/null 2>1
+  $ ls -la ~acme/lib64/libperf-jvmti.so
+  -rwxr-xr-x. 1 acme acme 230744 Sep 24 16:46 /home/acme/lib64/libperf-jvmti.so
+  $
+
+Suggested-by: Andreas Krebbel <krebbel@linux.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20190909114116.50469-4-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_drv.c | 31 +++++++++++++++++++++++++++++
- drivers/gpu/drm/radeon/radeon_kms.c | 25 -----------------------
- 2 files changed, 31 insertions(+), 25 deletions(-)
+ tools/perf/Makefile.config | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
-index 25b5407c74b5a..d83310751a8e4 100644
---- a/drivers/gpu/drm/radeon/radeon_drv.c
-+++ b/drivers/gpu/drm/radeon/radeon_drv.c
-@@ -340,8 +340,39 @@ static int radeon_kick_out_firmware_fb(struct pci_dev *pdev)
- static int radeon_pci_probe(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
-+	unsigned long flags = 0;
- 	int ret;
- 
-+	if (!ent)
-+		return -ENODEV; /* Avoid NULL-ptr deref in drm_get_pci_dev */
-+
-+	flags = ent->driver_data;
-+
-+	if (!radeon_si_support) {
-+		switch (flags & RADEON_FAMILY_MASK) {
-+		case CHIP_TAHITI:
-+		case CHIP_PITCAIRN:
-+		case CHIP_VERDE:
-+		case CHIP_OLAND:
-+		case CHIP_HAINAN:
-+			dev_info(&pdev->dev,
-+				 "SI support disabled by module param\n");
-+			return -ENODEV;
-+		}
-+	}
-+	if (!radeon_cik_support) {
-+		switch (flags & RADEON_FAMILY_MASK) {
-+		case CHIP_KAVERI:
-+		case CHIP_BONAIRE:
-+		case CHIP_HAWAII:
-+		case CHIP_KABINI:
-+		case CHIP_MULLINS:
-+			dev_info(&pdev->dev,
-+				 "CIK support disabled by module param\n");
-+			return -ENODEV;
-+		}
-+	}
-+
- 	if (vga_switcheroo_client_probe_defer(pdev))
- 		return -EPROBE_DEFER;
- 
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index 6a8fb6fd183c3..3ff835767ac58 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -95,31 +95,6 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
- 	struct radeon_device *rdev;
- 	int r, acpi_status;
- 
--	if (!radeon_si_support) {
--		switch (flags & RADEON_FAMILY_MASK) {
--		case CHIP_TAHITI:
--		case CHIP_PITCAIRN:
--		case CHIP_VERDE:
--		case CHIP_OLAND:
--		case CHIP_HAINAN:
--			dev_info(dev->dev,
--				 "SI support disabled by module param\n");
--			return -ENODEV;
--		}
--	}
--	if (!radeon_cik_support) {
--		switch (flags & RADEON_FAMILY_MASK) {
--		case CHIP_KAVERI:
--		case CHIP_BONAIRE:
--		case CHIP_HAWAII:
--		case CHIP_KABINI:
--		case CHIP_MULLINS:
--			dev_info(dev->dev,
--				 "CIK support disabled by module param\n");
--			return -ENODEV;
--		}
--	}
--
- 	rdev = kzalloc(sizeof(struct radeon_device), GFP_KERNEL);
- 	if (rdev == NULL) {
- 		return -ENOMEM;
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 89ac5a1f1550e..3da3749118527 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -908,7 +908,7 @@ ifndef NO_JVMTI
+     JDIR=$(shell /usr/sbin/update-java-alternatives -l | head -1 | awk '{print $$3}')
+   else
+     ifneq (,$(wildcard /usr/sbin/alternatives))
+-      JDIR=$(shell /usr/sbin/alternatives --display java | tail -1 | cut -d' ' -f 5 | sed 's%/jre/bin/java.%%g')
++      JDIR=$(shell /usr/sbin/alternatives --display java | tail -1 | cut -d' ' -f 5 | sed -e 's%/jre/bin/java.%%g' -e 's%/bin/java.%%g')
+     endif
+   endif
+   ifndef JDIR
 -- 
 2.20.1
 
