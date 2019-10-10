@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD49D292A
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 14:18:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B066D2942
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 14:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387517AbfJJMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 08:18:09 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:35291 "EHLO
+        id S2387721AbfJJMS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 08:18:29 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:40471 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387444AbfJJMSI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 08:18:08 -0400
+        with ESMTP id S1733250AbfJJMSN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 08:18:13 -0400
 Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
         by metis.ext.pengutronix.de with esmtp (Exim 4.92)
         (envelope-from <mkl@pengutronix.de>)
-        id 1iIXOK-0006Lw-Mr; Thu, 10 Oct 2019 14:18:00 +0200
+        id 1iIXOM-0006Lw-8P; Thu, 10 Oct 2019 14:18:02 +0200
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     netdev@vger.kernel.org, linux-can <linux-can@vger.kernel.org>
 Cc:     davem@davemloft.net, kernel@pengutronix.de,
         jhofstee@victronenergy.com,
         =?UTF-8?q?Martin=20Hundeb=C3=B8ll?= <martin@geanix.com>,
         Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Wolfgang Grandegger <wg@grandegger.com>,
+        Joe Burmeister <joe.burmeister@devtank.co.uk>,
         linux-stable <stable@vger.kernel.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 06/29] can: peak_usb: fix a potential out-of-sync while decoding packets
-Date:   Thu, 10 Oct 2019 14:17:27 +0200
-Message-Id: <20191010121750.27237-7-mkl@pengutronix.de>
+Subject: [PATCH 08/29] can: c_can: c_can_poll(): only read status register after status IRQ
+Date:   Thu, 10 Oct 2019 14:17:29 +0200
+Message-Id: <20191010121750.27237-9-mkl@pengutronix.de>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010121750.27237-1-mkl@pengutronix.de>
 References: <20191010121750.27237-1-mkl@pengutronix.de>
@@ -41,79 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
 
-When decoding a buffer received from PCAN-USB, the first timestamp read in
-a packet is a 16-bit coded time base, and the next ones are an 8-bit
-offset to this base, regardless of the type of packet read.
+When the status register is read without the status IRQ pending, the
+chip may not raise the interrupt line for an upcoming status interrupt
+and the driver may miss a status interrupt.
 
-This patch corrects a potential loss of synchronization by using a
-timestamp index read from the buffer, rather than an index of received
-data packets, to determine on the sizeof the timestamp to be read from the
-packet being decoded.
+It is critical that the BUSOFF status interrupt is forwarded to the
+higher layers, since no more interrupts will follow without
+intervention.
 
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Fixes: 46be265d3388 ("can: usb: PEAK-System Technik PCAN-USB specific part")
+Thanks to Wolfgang and Joe for bringing up the first idea.
+
+Signed-off-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Cc: Wolfgang Grandegger <wg@grandegger.com>
+Cc: Joe Burmeister <joe.burmeister@devtank.co.uk>
+Fixes: fa39b54ccf28 ("can: c_can: Get rid of pointless interrupts")
 Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- drivers/net/can/usb/peak_usb/pcan_usb.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/can/c_can/c_can.c | 25 ++++++++++++++++++++-----
+ drivers/net/can/c_can/c_can.h |  1 +
+ 2 files changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb.c b/drivers/net/can/usb/peak_usb/pcan_usb.c
-index 617da295b6c1..5a66c9f53aae 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
-@@ -100,7 +100,7 @@ struct pcan_usb_msg_context {
- 	u8 *end;
- 	u8 rec_cnt;
- 	u8 rec_idx;
--	u8 rec_data_idx;
-+	u8 rec_ts_idx;
- 	struct net_device *netdev;
- 	struct pcan_usb *pdev;
- };
-@@ -547,10 +547,15 @@ static int pcan_usb_decode_status(struct pcan_usb_msg_context *mc,
- 	mc->ptr += PCAN_USB_CMD_ARGS;
+diff --git a/drivers/net/can/c_can/c_can.c b/drivers/net/can/c_can/c_can.c
+index 606b7d8ffe13..9b61bfbea6cd 100644
+--- a/drivers/net/can/c_can/c_can.c
++++ b/drivers/net/can/c_can/c_can.c
+@@ -97,6 +97,9 @@
+ #define BTR_TSEG2_SHIFT		12
+ #define BTR_TSEG2_MASK		(0x7 << BTR_TSEG2_SHIFT)
  
- 	if (status_len & PCAN_USB_STATUSLEN_TIMESTAMP) {
--		int err = pcan_usb_decode_ts(mc, !mc->rec_idx);
-+		int err = pcan_usb_decode_ts(mc, !mc->rec_ts_idx);
- 
- 		if (err)
- 			return err;
++/* interrupt register */
++#define INT_STS_PENDING		0x8000
 +
-+		/* Next packet in the buffer will have a timestamp on a single
-+		 * byte
-+		 */
-+		mc->rec_ts_idx++;
- 	}
+ /* brp extension register */
+ #define BRP_EXT_BRPE_MASK	0x0f
+ #define BRP_EXT_BRPE_SHIFT	0
+@@ -1029,10 +1032,16 @@ static int c_can_poll(struct napi_struct *napi, int quota)
+ 	u16 curr, last = priv->last_status;
+ 	int work_done = 0;
  
- 	switch (f) {
-@@ -632,10 +637,13 @@ static int pcan_usb_decode_data(struct pcan_usb_msg_context *mc, u8 status_len)
+-	priv->last_status = curr = priv->read_reg(priv, C_CAN_STS_REG);
+-	/* Ack status on C_CAN. D_CAN is self clearing */
+-	if (priv->type != BOSCH_D_CAN)
+-		priv->write_reg(priv, C_CAN_STS_REG, LEC_UNUSED);
++	/* Only read the status register if a status interrupt was pending */
++	if (atomic_xchg(&priv->sie_pending, 0)) {
++		priv->last_status = curr = priv->read_reg(priv, C_CAN_STS_REG);
++		/* Ack status on C_CAN. D_CAN is self clearing */
++		if (priv->type != BOSCH_D_CAN)
++			priv->write_reg(priv, C_CAN_STS_REG, LEC_UNUSED);
++	} else {
++		/* no change detected ... */
++		curr = last;
++	}
  
- 	cf->can_dlc = get_can_dlc(rec_len);
+ 	/* handle state changes */
+ 	if ((curr & STATUS_EWARN) && (!(last & STATUS_EWARN))) {
+@@ -1083,10 +1092,16 @@ static irqreturn_t c_can_isr(int irq, void *dev_id)
+ {
+ 	struct net_device *dev = (struct net_device *)dev_id;
+ 	struct c_can_priv *priv = netdev_priv(dev);
++	int reg_int;
  
--	/* first data packet timestamp is a word */
--	if (pcan_usb_decode_ts(mc, !mc->rec_data_idx))
-+	/* Only first packet timestamp is a word */
-+	if (pcan_usb_decode_ts(mc, !mc->rec_ts_idx))
- 		goto decode_failed;
+-	if (!priv->read_reg(priv, C_CAN_INT_REG))
++	reg_int = priv->read_reg(priv, C_CAN_INT_REG);
++	if (!reg_int)
+ 		return IRQ_NONE;
  
-+	/* Next packet in the buffer will have a timestamp on a single byte */
-+	mc->rec_ts_idx++;
++	/* save for later use */
++	if (reg_int & INT_STS_PENDING)
++		atomic_set(&priv->sie_pending, 1);
 +
- 	/* read data */
- 	memset(cf->data, 0x0, sizeof(cf->data));
- 	if (status_len & PCAN_USB_STATUSLEN_RTR) {
-@@ -688,7 +696,6 @@ static int pcan_usb_decode_msg(struct peak_usb_device *dev, u8 *ibuf, u32 lbuf)
- 		/* handle normal can frames here */
- 		} else {
- 			err = pcan_usb_decode_data(&mc, sl);
--			mc.rec_data_idx++;
- 		}
- 	}
- 
+ 	/* disable all interrupts and schedule the NAPI */
+ 	c_can_irq_control(priv, false);
+ 	napi_schedule(&priv->napi);
+diff --git a/drivers/net/can/c_can/c_can.h b/drivers/net/can/c_can/c_can.h
+index 8acdc7fa4792..d5567a7c1c6d 100644
+--- a/drivers/net/can/c_can/c_can.h
++++ b/drivers/net/can/c_can/c_can.h
+@@ -198,6 +198,7 @@ struct c_can_priv {
+ 	struct net_device *dev;
+ 	struct device *device;
+ 	atomic_t tx_active;
++	atomic_t sie_pending;
+ 	unsigned long tx_dir;
+ 	int last_status;
+ 	u16 (*read_reg) (const struct c_can_priv *priv, enum reg index);
 -- 
 2.23.0
 
