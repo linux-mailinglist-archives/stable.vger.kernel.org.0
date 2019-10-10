@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E27C9D24AE
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E85BD251E
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389822AbfJJIt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
+        id S2389854AbfJJIyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389816AbfJJIt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:29 -0400
+        id S2390020AbfJJIuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:50:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 393DD2190F;
-        Thu, 10 Oct 2019 08:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DCFD222BE;
+        Thu, 10 Oct 2019 08:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697367;
-        bh=2L6z+YucNVtGSXTpTVYqs4wYjrBZz8a4o9AYczD3IjE=;
+        s=default; t=1570697444;
+        bh=I6/6pJHbXOXxKmeOfdPcM5EIQbL1be+Fe2jPyAx4KTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NsrHM7IltGWCClouiMdwlq7ZW6cT8vg15O5mv1e2fnVLaexdrd6/vDpLzZZ5RXO58
-         0HmKicjtn+y9/sVhkB6WmUX2duo2JvXhtKVIKlf5PV8F6jSxWtNcbCNbvImPJFdB74
-         z/8VhqO099UjUK1Sr/ILi7IxBZJb3/aBZjFWw0tM=
+        b=plIX2m7QfVGCNdZqo6OZiRR6ziBFPKb1fkJ9iqMJMRqo1Gwk3qhF2xBCL3Q+jZiVM
+         CZBkDfLIBW6qnfgzKA0gnR5airfWzqwQzvkQMpSxKatDA/xEbNjOK6xYNgMSPdfvi+
+         KveS5DylkDandLko4+/W07RI1xb/UzkPSWg1WQB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/114] drm/i915/userptr: Acquire the page lock around set_page_dirty()
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 09/61] ASoC: Define a set of DAPM pre/post-up events
 Date:   Thu, 10 Oct 2019 10:36:34 +0200
-Message-Id: <20191010083612.658211813@linuxfoundation.org>
+Message-Id: <20191010083454.834064082@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
 
-[ Upstream commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2 ]
+commit cfc8f568aada98f9608a0a62511ca18d647613e2 upstream.
 
-set_page_dirty says:
+Prepare to use SND_SOC_DAPM_PRE_POST_PMU definition to
+reduce coming code size and make it more readable.
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
-
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Reviewed-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Reviewed-by: Igor Opaniuk <igor.opaniuk@toradex.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20190719100524.23300-2-oleksandr.suvorov@toradex.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/i915/i915_gem_userptr.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ include/sound/soc-dapm.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/i915/i915_gem_userptr.c b/drivers/gpu/drm/i915/i915_gem_userptr.c
-index 2c9b284036d10..e13ea2ecd669c 100644
---- a/drivers/gpu/drm/i915/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/i915_gem_userptr.c
-@@ -692,7 +692,15 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+--- a/include/sound/soc-dapm.h
++++ b/include/sound/soc-dapm.h
+@@ -349,6 +349,8 @@ struct device;
+ #define SND_SOC_DAPM_WILL_PMD   0x80    /* called at start of sequence */
+ #define SND_SOC_DAPM_PRE_POST_PMD \
+ 				(SND_SOC_DAPM_PRE_PMD | SND_SOC_DAPM_POST_PMD)
++#define SND_SOC_DAPM_PRE_POST_PMU \
++				(SND_SOC_DAPM_PRE_PMU | SND_SOC_DAPM_POST_PMU)
  
- 	for_each_sgt_page(page, sgt_iter, pages) {
- 		if (obj->mm.dirty)
--			set_page_dirty(page);
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 */
-+			set_page_dirty_lock(page);
- 
- 		mark_page_accessed(page);
- 		put_page(page);
--- 
-2.20.1
-
+ /* convenience event type detection */
+ #define SND_SOC_DAPM_EVENT_ON(e)	\
 
 
