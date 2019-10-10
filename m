@@ -2,90 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EE7D2E91
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 18:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116E5D2F31
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 19:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbfJJQ07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 12:26:59 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:43466 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbfJJQ07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 12:26:59 -0400
-Received: by mail-pl1-f194.google.com with SMTP id f21so3029619plj.10
-        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 09:26:57 -0700 (PDT)
+        id S1726743AbfJJREz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 13:04:55 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:34929 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726702AbfJJREz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 13:04:55 -0400
+Received: by mail-lj1-f195.google.com with SMTP id m7so7003520lji.2
+        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 10:04:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/3L9d8Hq5e07DU4XHZuzPz1Kd0iVbIQrEZ53Rw3PFwc=;
-        b=oMNG8OFlEGU3PWXGkW4uWbQiN1c4TgfEUV4U5ZaRnieGiVh9zJFF289MPunGMy0uQa
-         seUQM8U2tTTWjYTuqnWM1hjDfz4EQSu6HMMR+BLW3eWSh4BlEZczW9TkQZKEJ/hk3f8b
-         1JFjuInD9NbbsOx1TTAGItzyuIrtHBAw+AvyLljpiKbRSLyrTzWMOLnm4O599EaVohmY
-         qyXHpkXA478RmdObxZO9bhYjjODG2+x1geIWOUjM1C4N9VKcwAJdm2FwBoPqZPyewoBt
-         HCAcvkfg29toUTW1/GIlRSFNFLn9cq68xGT5V8C627JjNT5+CYI49sBWZkhztGviM0xZ
-         RQqA==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=+crOUQhON9pq1abW0XzG6pam/66+6kNGOuIM8ailCOQ=;
+        b=DrlcWV6XF/nqUZSlIwUGrTTxIb2vEtlqBcofdgDRdtOWPz6fEmUmPsUMUzKkZoSmoO
+         0Cgv8xQtTAUSAO/jq90lRegoJ+yK/9Gf2+DMzuJPLp/EJnnmzgv8ZxVztrICVtwcoI2u
+         l1S2hcEPLKY9sDQbXUycSJq2QnJtWZTy5H1mpazm9S+0QDlvozm+Kr3yk5iVS6U81tW/
+         pG/stmkrMmgcTYjIbJYfdNeRNvvBTA0oQ8+fhx2ALqNcZVdwscdEpWzxPgROhBIWGHQe
+         YjAfH1dTUehBh3GIl6fPPcSg8jKG6P2nAQg1U5Mz5Rrqc7CRE8VeT/FKfYu6CEOCY5O9
+         iKrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=/3L9d8Hq5e07DU4XHZuzPz1Kd0iVbIQrEZ53Rw3PFwc=;
-        b=HwRH5/j8VC3l2LSvWLqqhIJQs6jEo6XcwTftrnQmBTbnsyMg01BgZvCCQGcqdqEEWI
-         WBz+0KFlI6SKxZyDV7yaT5UxXyoeojxw+6E6RNvWR8pFW24/olGNn3CyBk5IuLYyUx0Y
-         0HPuB+Bp2c/+vHF4e5xpqoXwt88L/36XQ2PmCCtlNCmnGwKBDCBHGznjHWRwEIuy7zdd
-         HD99xeMIxNge5izsREwEzk8uaO/j9DDLrI8Z9wLioqNcMQQip9opS5Mnvz7fP8KxNbpA
-         6Z2W6q2wUyAT0HXJHABialDT2MjjVhJD2flX8+e+iIDjpdD2pQnJWc71ATBtBSwf9628
-         TjtQ==
-X-Gm-Message-State: APjAAAXDwpFrrH5z/d8U4x7aw9v8fRsGmwzdRZt+1CUcUPe5P+rlC/R9
-        i1aN+LTGZCz0FVhEiG0M1PEylpehB0M=
-X-Google-Smtp-Source: APXvYqzUtSx9TXYj7cPELtcJoIFrQb9QmW162prSdvzhCjMi66kmK7ihqlK1y9torULncYYjxLcW0w==
-X-Received: by 2002:a17:902:904b:: with SMTP id w11mr8623273plz.182.1570724816801;
-        Thu, 10 Oct 2019 09:26:56 -0700 (PDT)
-Received: from localhost.localdomain (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
-        by smtp.gmail.com with ESMTPSA id o15sm6148342pjs.14.2019.10.10.09.26.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Oct 2019 09:26:56 -0700 (PDT)
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] ath10k: Correct error check of dma_map_single()
-Date:   Thu, 10 Oct 2019 09:26:53 -0700
-Message-Id: <20191010162653.141303-1-bjorn.andersson@linaro.org>
-X-Mailer: git-send-email 2.23.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+crOUQhON9pq1abW0XzG6pam/66+6kNGOuIM8ailCOQ=;
+        b=Y60r9FG/RIc60d/AqEcDa3wDgZJ60YqtqN7RbbyQxZGStwSnLAQkQzjT9RFnA1vGi1
+         AoLNM5C+9UWx13txzpQU2QSk4ssGUr8Je3a8ARhVo/0bJeJFP0TpAV0MLstmG2mnZpCW
+         d/joNP/rN9ddmLOtYalcst7nkTpAOKXOq3xkmPJpChQFCT0gAXr4fIXZU2ymekAQwyLG
+         ZDstlKegwHw1367nbsnx0+oKRMRuQ0/2M6cmgNOCbTu/0LWhwD7bivDteAYzbkd1MIbJ
+         91JQoJ4/2ovcj9spdka+Kxq38BrInyhkz23gm3yfFk8FT4Idxfy5qg6iZsVknt9ZjCTB
+         M+CA==
+X-Gm-Message-State: APjAAAUBvOsfDh8fMNuNjpc3qod6CI6fAezAfZuSQf7S1xjf7B7VhKUH
+        d0vvQ22OSuEY9p3F/v0pZmfOiAW3NaIubjpNutsORg==
+X-Google-Smtp-Source: APXvYqytmHu6QkNyGaviwCa5Sdhht695pZZMHlFdWWT/g04Rr2YwgtaSzIk0KPOvgZY7oH6cythk4cQn+Kee8bMX1Hw=
+X-Received: by 2002:a2e:5354:: with SMTP id t20mr6948459ljd.227.1570727093055;
+ Thu, 10 Oct 2019 10:04:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 10 Oct 2019 22:34:39 +0530
+Message-ID: <CA+G9fYsSVQM127F9vofKrmfF9Q_SHb04T=tedsVp_5SiXd1QVA@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/114] 4.19.79-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The return value of dma_map_single() should be checked for errors using
-dma_mapping_error(), rather than testing for NULL. Correct this.
+On Thu, 10 Oct 2019 at 14:16, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.79 release.
+> There are 114 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.79-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
-Cc: stable@vger.kernel.org
-Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
----
- drivers/net/wireless/ath/ath10k/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 3d2c8fcba952..a01868938692 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3904,7 +3904,7 @@ void ath10k_mgmt_over_wmi_tx_work(struct work_struct *work)
- 			     ar->running_fw->fw_file.fw_features)) {
- 			paddr = dma_map_single(ar->dev, skb->data,
- 					       skb->len, DMA_TO_DEVICE);
--			if (!paddr)
-+			if (dma_mapping_error(ar->dev, paddr))
- 				continue;
- 			ret = ath10k_wmi_mgmt_tx_send(ar, skb, paddr);
- 			if (ret) {
--- 
-2.23.0
+Summary
+------------------------------------------------------------------------
 
+kernel: 4.19.79-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 4d84b0bb68d49edd179af2b16d4b912c1568a182
+git describe: v4.19.78-115-g4d84b0bb68d4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe/bu=
+ild/v4.19.78-115-g4d84b0bb68d4
+
+
+No regressions (compared to build v4.19.78)
+
+No fixes (compared to build v4.19.78)
+
+Ran 23612 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* ssuite
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
