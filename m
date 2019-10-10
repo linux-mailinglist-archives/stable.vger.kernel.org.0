@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE683D24D0
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99BA6D24AB
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390050AbfJJIu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58276 "EHLO mail.kernel.org"
+        id S2389792AbfJJItX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:49:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390044AbfJJIu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:58 -0400
+        id S2389779AbfJJItW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A29520679;
-        Thu, 10 Oct 2019 08:50:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF1F7208C3;
+        Thu, 10 Oct 2019 08:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697457;
-        bh=EeiAg+K/3A2Za8StxoLCNIy6rbE/vHV061xjoJvSjzU=;
+        s=default; t=1570697362;
+        bh=sM3Wr3zVQ7EdeHm9RwfGI0Vd2qTrSWfuQy/KnR/Pc/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8fC819kcwv6fCXkU8W298jmA5KMmmGh7dF+Jy8ou3R2l0dxnlyA8aRThiU2MYxX9
-         iDLPfTRBS+Leb4oijlW4bEfvY0SYw0oGjFhLCpj6lNMNSohBvF2hLSdDrSBnnz09Oi
-         TNadZhwjPToh+IkW49wWzEneBydn1eupbLKoMjpU=
+        b=otezSDsrHgT46jQdF5roczXDrKZFmIum8p7mm66gYDc5diwANYxqbLwx7pmoGIg/2
+         KTncIry86Y656FKcFSKolN+cDxBK2Z4ECxJRrZGu7WnP/Zs6JUBiehLsBmY4pzT6yu
+         iokbz+e9B4WltHo54dGkb+hGhmzS9o0iRz9kkJaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/61] netfilter: nf_tables: allow lookups in dynamic sets
+        stable@vger.kernel.org, Jouni Malinen <j@w1.fi>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 113/114] cfg80211: Use const more consistently in for_each_element macros
 Date:   Thu, 10 Oct 2019 10:37:00 +0200
-Message-Id: <20191010083512.320042206@linuxfoundation.org>
+Message-Id: <20191010083614.281295593@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Jouni Malinen <j@w1.fi>
 
-[ Upstream commit acab713177377d9e0889c46bac7ff0cfb9a90c4d ]
+commit 7388afe09143210f555bdd6c75035e9acc1fab96 upstream.
 
-This un-breaks lookups in sets that have the 'dynamic' flag set.
-Given this active example configuration:
+Enforce the first argument to be a correct type of a pointer to struct
+element and avoid unnecessary typecasts from const to non-const pointers
+(the change in validate_ie_attr() is needed to make this part work). In
+addition, avoid signed/unsigned comparison within for_each_element() and
+mark struct element packed just in case.
 
-table filter {
-  set set1 {
-    type ipv4_addr
-    size 64
-    flags dynamic,timeout
-    timeout 1m
-  }
+Signed-off-by: Jouni Malinen <j@w1.fi>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  chain input {
-     type filter hook input priority 0; policy accept;
-  }
-}
-
-... this works:
-nft add rule ip filter input add @set1 { ip saddr }
-
--> whenever rule is triggered, the source ip address is inserted
-into the set (if it did not exist).
-
-This won't work:
-nft add rule ip filter input ip saddr @set1 counter
-Error: Could not process rule: Operation not supported
-
-In other words, we can add entries to the set, but then can't make
-matching decision based on that set.
-
-That is just wrong -- all set backends support lookups (else they would
-not be very useful).
-The failure comes from an explicit rejection in nft_lookup.c.
-
-Looking at the history, it seems like NFT_SET_EVAL used to mean
-'set contains expressions' (aka. "is a meter"), for instance something like
-
- nft add rule ip filter input meter example { ip saddr limit rate 10/second }
- or
- nft add rule ip filter input meter example { ip saddr counter }
-
-The actual meaning of NFT_SET_EVAL however, is
-'set can be updated from the packet path'.
-
-'meters' and packet-path insertions into sets, such as
-'add @set { ip saddr }' use exactly the same kernel code (nft_dynset.c)
-and thus require a set backend that provides the ->update() function.
-
-The only set that provides this also is the only one that has the
-NFT_SET_EVAL feature flag.
-
-Removing the wrong check makes the above example work.
-While at it, also fix the flag check during set instantiation to
-allow supported combinations only.
-
-Fixes: 8aeff920dcc9b3f ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 7 +++++--
- net/netfilter/nft_lookup.c    | 3 ---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/ieee80211.h |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index b149a72190846..7ef126489d4ed 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3131,8 +3131,11 @@ static int nf_tables_newset(struct net *net, struct sock *nlsk,
- 			      NFT_SET_OBJECT))
- 			return -EINVAL;
- 		/* Only one of these operations is supported */
--		if ((flags & (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT)) ==
--			     (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT))
-+		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
-+			     (NFT_SET_MAP | NFT_SET_OBJECT))
-+			return -EOPNOTSUPP;
-+		if ((flags & (NFT_SET_EVAL | NFT_SET_OBJECT)) ==
-+			     (NFT_SET_EVAL | NFT_SET_OBJECT))
- 			return -EOPNOTSUPP;
- 	}
+--- a/include/linux/ieee80211.h
++++ b/include/linux/ieee80211.h
+@@ -3189,16 +3189,16 @@ struct element {
+ 	u8 id;
+ 	u8 datalen;
+ 	u8 data[];
+-};
++} __packed;
  
-diff --git a/net/netfilter/nft_lookup.c b/net/netfilter/nft_lookup.c
-index 475570e89ede7..44015a151ad69 100644
---- a/net/netfilter/nft_lookup.c
-+++ b/net/netfilter/nft_lookup.c
-@@ -76,9 +76,6 @@ static int nft_lookup_init(const struct nft_ctx *ctx,
- 	if (IS_ERR(set))
- 		return PTR_ERR(set);
+ /* element iteration helpers */
+-#define for_each_element(element, _data, _datalen)			\
+-	for (element = (void *)(_data);					\
+-	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
+-		sizeof(*element) &&					\
+-	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
+-		sizeof(*element) + element->datalen;			\
+-	     element = (void *)(element->data + element->datalen))
++#define for_each_element(_elem, _data, _datalen)			\
++	for (_elem = (const struct element *)(_data);			\
++	     (const u8 *)(_data) + (_datalen) - (const u8 *)_elem >=	\
++		(int)sizeof(*_elem) &&					\
++	     (const u8 *)(_data) + (_datalen) - (const u8 *)_elem >=	\
++		(int)sizeof(*_elem) + _elem->datalen;			\
++	     _elem = (const struct element *)(_elem->data + _elem->datalen))
  
--	if (set->flags & NFT_SET_EVAL)
--		return -EOPNOTSUPP;
--
- 	priv->sreg = nft_parse_register(tb[NFTA_LOOKUP_SREG]);
- 	err = nft_validate_register_load(priv->sreg, set->klen);
- 	if (err < 0)
--- 
-2.20.1
-
+ #define for_each_element_id(element, _id, data, datalen)		\
+ 	for_each_element(element, data, datalen)			\
+@@ -3235,7 +3235,7 @@ struct element {
+ static inline bool for_each_element_completed(const struct element *element,
+ 					      const void *data, size_t datalen)
+ {
+-	return (u8 *)element == (u8 *)data + datalen;
++	return (const u8 *)element == (const u8 *)data + datalen;
+ }
+ 
+ #endif /* LINUX_IEEE80211_H */
 
 
