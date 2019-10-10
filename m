@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93704D240F
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 173ACD239B
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389686AbfJJIsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54970 "EHLO mail.kernel.org"
+        id S2388851AbfJJIoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:44:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389157AbfJJIsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:42 -0400
+        id S2388863AbfJJIoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:44:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B833121929;
-        Thu, 10 Oct 2019 08:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B58621D6C;
+        Thu, 10 Oct 2019 08:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697321;
-        bh=IyVvloWswiwb0rHjj5ssPaCzfOBHQsDBo6CZ5n2dG7o=;
+        s=default; t=1570697045;
+        bh=SK+ymYoHt8VuP9JTcyD+lBr6qJGjIaD88NCxiqurxLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siq/iEVaQlSVNtjn/p3JBKEpbkKzNDmrrbS7Dr4V1H7jjz8KRLH4VupRd166e8NFu
-         Vwb73Y4t4AicllntYTo4FFd15md9UrqbGoHVjsb4/D99gUkNfK1Lf9rcs5a++o0PNI
-         MqBk/LxYP9i3uN1NrsznUHgYLT6pOprpY7G/ahxs=
+        b=v4nv8B7E2XiL5vgoUTWZ+17jiaCzAAzCndvUR0nez28ssr+63AYF4apqIRw8qaMeh
+         bZsUmfRc/iBYeEfqJzyw9ITmW5DDWaZ+ucykRzjAVc33hcykjeSSiQiOslnCTsrOiH
+         0ND7it/ncXxXJUKkwRHRsfcNjc/imNNDMogWW0mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 100/114] arm64: add sysfs vulnerability show for spectre-v2
-Date:   Thu, 10 Oct 2019 10:36:47 +0200
-Message-Id: <20191010083613.477591447@linuxfoundation.org>
+        stable@vger.kernel.org, Gao Xiang <gaoxiang25@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>
+Subject: [PATCH 5.3 147/148] staging: erofs: detect potential multiref due to corrupted images
+Date:   Thu, 10 Oct 2019 10:36:48 +0200
+Message-Id: <20191010083621.175170071@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,89 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-[ Upstream commit d2532e27b5638bb2e2dd52b80b7ea2ec65135377 ]
+commit e12a0ce2fa69798194f3a8628baf6edfbd5c548f upstream.
 
-Track whether all the cores in the machine are vulnerable to Spectre-v2,
-and whether all the vulnerable cores have been mitigated. We then expose
-this information to userspace via sysfs.
+As reported by erofs-utils fuzzer, currently, multiref
+(ondisk deduplication) hasn't been supported for now,
+we should forbid it properly.
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Link: https://lore.kernel.org/r/20190821140152.229648-1-gaoxiang25@huawei.com
+[ Gao Xiang: Since earlier kernels don't define EFSCORRUPTED,
+             let's use EIO instead. ]
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/staging/erofs/unzip_vle.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -480,6 +480,10 @@ has_cortex_a76_erratum_1463225(const str
- 	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,			\
- 	CAP_MIDR_RANGE_LIST(midr_list)
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -943,6 +943,7 @@ repeat:
+ 	for (i = 0; i < nr_pages; ++i)
+ 		pages[i] = NULL;
  
-+/* Track overall mitigation state. We are only mitigated if all cores are ok */
-+static bool __hardenbp_enab = true;
-+static bool __spectrev2_safe = true;
-+
- /*
-  * Generic helper for handling capabilties with multiple (match,enable) pairs
-  * of call backs, sharing the same capability bit.
-@@ -522,6 +526,10 @@ static const struct midr_range spectre_v
- 	{ /* sentinel */ }
- };
++	err = 0;
+ 	z_erofs_pagevec_ctor_init(&ctor, Z_EROFS_NR_INLINE_PAGEVECS,
+ 				  work->pagevec, 0);
  
-+/*
-+ * Track overall bp hardening for all heterogeneous cores in the machine.
-+ * We are only considered "safe" if all booted cores are known safe.
-+ */
- static bool __maybe_unused
- check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
- {
-@@ -543,6 +551,8 @@ check_branch_predictor(const struct arm6
- 	if (!need_wa)
- 		return false;
+@@ -964,8 +965,17 @@ repeat:
+ 			pagenr = z_erofs_onlinepage_index(page);
  
-+	__spectrev2_safe = false;
-+
- 	if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
- 		pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
- 		__hardenbp_enab = false;
-@@ -552,11 +562,14 @@ check_branch_predictor(const struct arm6
- 	/* forced off */
- 	if (__nospectre_v2) {
- 		pr_info_once("spectrev2 mitigation disabled by command line option\n");
-+		__hardenbp_enab = false;
- 		return false;
+ 		DBG_BUGON(pagenr >= nr_pages);
+-		DBG_BUGON(pages[pagenr]);
+ 
++		/*
++		 * currently EROFS doesn't support multiref(dedup),
++		 * so here erroring out one multiref page.
++		 */
++		if (pages[pagenr]) {
++			DBG_BUGON(1);
++			SetPageError(pages[pagenr]);
++			z_erofs_onlinepage_endio(pages[pagenr]);
++			err = -EIO;
++		}
+ 		pages[pagenr] = page;
  	}
+ 	sparsemem_pages = i;
+@@ -975,7 +985,6 @@ repeat:
+ 	overlapped = false;
+ 	compressed_pages = grp->compressed_pages;
  
--	if (need_wa < 0)
-+	if (need_wa < 0) {
- 		pr_warn_once("ARM_SMCCC_ARCH_WORKAROUND_1 missing from firmware\n");
-+		__hardenbp_enab = false;
-+	}
+-	err = 0;
+ 	for (i = 0; i < clusterpages; ++i) {
+ 		unsigned int pagenr;
  
- 	return (need_wa > 0);
- }
-@@ -753,3 +766,15 @@ ssize_t cpu_show_spectre_v1(struct devic
- {
- 	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
- }
-+
-+ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
-+		char *buf)
-+{
-+	if (__spectrev2_safe)
-+		return sprintf(buf, "Not affected\n");
-+
-+	if (__hardenbp_enab)
-+		return sprintf(buf, "Mitigation: Branch predictor hardening\n");
-+
-+	return sprintf(buf, "Vulnerable\n");
-+}
+@@ -999,7 +1008,12 @@ repeat:
+ 			pagenr = z_erofs_onlinepage_index(page);
+ 
+ 			DBG_BUGON(pagenr >= nr_pages);
+-			DBG_BUGON(pages[pagenr]);
++			if (pages[pagenr]) {
++				DBG_BUGON(1);
++				SetPageError(pages[pagenr]);
++				z_erofs_onlinepage_endio(pages[pagenr]);
++				err = -EIO;
++			}
+ 			++sparsemem_pages;
+ 			pages[pagenr] = page;
+ 
 
 
