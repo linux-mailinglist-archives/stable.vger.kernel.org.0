@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6124FD245C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E53CD2460
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388894AbfJJIoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:44:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49336 "EHLO mail.kernel.org"
+        id S2388229AbfJJIoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:44:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388225AbfJJIoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:44:14 -0400
+        id S2387838AbfJJIoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:44:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AEC0218AC;
-        Thu, 10 Oct 2019 08:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DD8E21929;
+        Thu, 10 Oct 2019 08:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697053;
-        bh=ttfL22i8VOJxOo90cM3zwNu7cL+4VRkRFVC1uGUgjM8=;
+        s=default; t=1570697056;
+        bh=aH6ctXhIndO4xFNADjyeEW+RHGG7RRX4yg9ZHsOaVNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHfdPqfi58tG63I6BsYI6bV9pmRqBH12GxbBcmNeaO3kpIFCh5UrcD2huSl+3AVbd
-         AByTSUKEg5pLZwdYwqkVa3Rk5C8LOgIAOXzUcAb93+rws38EvGHeBa71qY+zReYA5k
-         +nfZx777XRSYi3mNBYvyEN6YcpyxlAEvDYST5FHM=
+        b=ZETNqqyGFHTJVcCLBGc+ac/orl+ptqUekYmV6PsXOOhkwvRGAlLP328mm07hZH/7c
+         QISX1spb9wZ+a0Ht4eL9Tly3nmvCOVnc5fLckczaV88vQQH2v7sKEEc+UENnjxO8ik
+         /ePcXErit5gogOU7txtV+o68dvDW1G1GXdFLr7Kw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        George McCollister <george.mccollister@gmail.com>,
-        Tristram Ha <Tristram.Ha@microchip.com>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Woojung Huh <woojung.huh@microchip.com>,
+        stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 130/148] net: dsa: microchip: Always set regmap stride to 1
-Date:   Thu, 10 Oct 2019 10:36:31 +0200
-Message-Id: <20191010083620.254162893@linuxfoundation.org>
+Subject: [PATCH 5.3 131/148] i2c: qcom-geni: Disable DMA processing on the Lenovo Yoga C630
+Date:   Thu, 10 Oct 2019 10:36:32 +0200
+Message-Id: <20191010083620.317468522@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -50,49 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit a3aa6e65beebf3780026753ebf39db19f4c92990 ]
+[ Upstream commit 127068abe85bf3dee50df51cb039a5a987a4a666 ]
 
-The regmap stride is set to 1 for regmap describing 8bit registers already.
-However, for 16/32/64bit registers, the stride is 2/4/8 respectively. This
-is not correct, as the switch protocol supports unaligned register reads
-and writes and the KSZ87xx even uses such unaligned register accesses to
-read e.g. MIB counter.
+We have a production-level laptop (Lenovo Yoga C630) which is exhibiting
+a rather horrific bug.  When I2C HID devices are being scanned for at
+boot-time the QCom Geni based I2C (Serial Engine) attempts to use DMA.
+When it does, the laptop reboots and the user never sees the OS.
 
-This patch fixes MIB counter access on KSZ87xx.
+Attempts are being made to debug the reason for the spontaneous reboot.
+No luck so far, hence the requirement for this hot-fix.  This workaround
+will be removed once we have a viable fix.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: George McCollister <george.mccollister@gmail.com>
-Cc: Tristram Ha <Tristram.Ha@microchip.com>
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Cc: Woojung Huh <woojung.huh@microchip.com>
-Fixes: 46558d601cb6 ("net: dsa: microchip: Initial SPI regmap support")
-Fixes: 255b59ad0db2 ("net: dsa: microchip: Factor out regmap config generation into common header")
-Reviewed-by: George McCollister <george.mccollister@gmail.com>
-Tested-by: George McCollister <george.mccollister@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Tested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/microchip/ksz_common.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz_common.h b/drivers/net/dsa/microchip/ksz_common.h
-index 72ec250b95408..823f544add0a3 100644
---- a/drivers/net/dsa/microchip/ksz_common.h
-+++ b/drivers/net/dsa/microchip/ksz_common.h
-@@ -130,7 +130,7 @@ static inline void ksz_pwrite32(struct ksz_device *dev, int port, int offset,
- 	{								\
- 		.name = #width,						\
- 		.val_bits = (width),					\
--		.reg_stride = (width) / 8,				\
-+		.reg_stride = 1,					\
- 		.reg_bits = (regbits) + (regalign),			\
- 		.pad_bits = (regpad),					\
- 		.max_register = BIT(regbits) - 1,			\
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index a89bfce5388ee..17abf60c94aeb 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -355,11 +355,13 @@ static int geni_i2c_rx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t rx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
+@@ -394,11 +396,13 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+ {
+ 	dma_addr_t tx_dma;
+ 	unsigned long time_left;
+-	void *dma_buf;
++	void *dma_buf = NULL;
+ 	struct geni_se *se = &gi2c->se;
+ 	size_t len = msg->len;
+ 
+-	dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++	if (!of_machine_is_compatible("lenovo,yoga-c630"))
++		dma_buf = i2c_get_dma_safe_msg_buf(msg, 32);
++
+ 	if (dma_buf)
+ 		geni_se_select_mode(se, GENI_SE_DMA);
+ 	else
 -- 
 2.20.1
 
