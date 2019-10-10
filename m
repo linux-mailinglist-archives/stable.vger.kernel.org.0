@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FBE1D241F
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E4C4D2422
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388887AbfJJItP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S2389230AbfJJItS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:49:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387852AbfJJItO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:14 -0400
+        id S2389779AbfJJItR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D2E921BE5;
-        Thu, 10 Oct 2019 08:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C5C3208C3;
+        Thu, 10 Oct 2019 08:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697354;
-        bh=eOqJJYWi5gKKm+VNaiyCcYT8uePCyikSSZ5h372H0lk=;
+        s=default; t=1570697356;
+        bh=LPDyqPT34TTOsmmoYa3rudWJ9auqCzGCwt+nhqhUr9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mzo6nUcuul9mUGhZp80xb7v+b2AonYNnLjZ2APXvUlNbCBP+G8nzD0kVZaY7kHoH5
-         lnXBAcjGfvWz3C37YLQgSi4WLWX4cBXu0bHpYsBg9EKP/TLu22njyT9ABrd7xDzGLE
-         umBZ6BhpDMHfwfM55XsWYLoNubkpwRl1wwq3qzZU=
+        b=x1e46fP61GARMDMIJGWR1d/u2IRgOVY8JUpBazXPvbxVnk67Gr5kg1GDHpJfQU7Qp
+         LKlcfBLbyjsd5DVzfxcAOc6f5cDm54ZxGm2+9XlQ/AfYlGCgrBl3z+b9wV8n3U2PLl
+         Cf397XfBZMBdMhsJQPudrCx3Cqi0Pajhyrs8dOIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <gaoxiang25@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH 4.19 111/114] staging: erofs: detect potential multiref due to corrupted images
-Date:   Thu, 10 Oct 2019 10:36:58 +0200
-Message-Id: <20191010083614.153173033@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 112/114] cfg80211: add and use strongly typed element iteration macros
+Date:   Thu, 10 Oct 2019 10:36:59 +0200
+Message-Id: <20191010083614.215870522@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -43,77 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit e12a0ce2fa69798194f3a8628baf6edfbd5c548f upstream.
+commit 0f3b07f027f87a38ebe5c436490095df762819be upstream.
 
-As reported by erofs-utils fuzzer, currently, multiref
-(ondisk deduplication) hasn't been supported for now,
-we should forbid it properly.
+Rather than always iterating elements from frames with pure
+u8 pointers, add a type "struct element" that encapsulates
+the id/datalen/data format of them.
 
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190821140152.229648-1-gaoxiang25@huawei.com
-[ Gao Xiang: Since earlier kernels don't define EFSCORRUPTED,
-             let's use EIO instead. ]
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Then, add the element iteration macros
+ * for_each_element
+ * for_each_element_id
+ * for_each_element_extid
+
+which take, as their first 'argument', such a structure and
+iterate through a given u8 array interpreting it as elements.
+
+While at it and since we'll need it, also add
+ * for_each_subelement
+ * for_each_subelement_id
+ * for_each_subelement_extid
+
+which instead of taking data/length just take an outer element
+and use its data/datalen.
+
+Also add for_each_element_completed() to determine if any of
+the loops above completed, i.e. it was able to parse all of
+the elements successfully and no data remained.
+
+Use for_each_element_id() in cfg80211_find_ie_match() as the
+first user of this.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/staging/erofs/unzip_vle.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -857,6 +857,7 @@ repeat:
- 	for (i = 0; i < nr_pages; ++i)
- 		pages[i] = NULL;
+---
+ include/linux/ieee80211.h |   53 ++++++++++++++++++++++++++++++++++++++++++++++
+ net/wireless/scan.c       |   14 +++++-------
+ 2 files changed, 59 insertions(+), 8 deletions(-)
+
+--- a/include/linux/ieee80211.h
++++ b/include/linux/ieee80211.h
+@@ -3185,4 +3185,57 @@ static inline bool ieee80211_action_cont
+ 	return true;
+ }
  
-+	err = 0;
- 	z_erofs_pagevec_ctor_init(&ctor,
- 		Z_EROFS_VLE_INLINE_PAGEVECS, work->pagevec, 0);
++struct element {
++	u8 id;
++	u8 datalen;
++	u8 data[];
++};
++
++/* element iteration helpers */
++#define for_each_element(element, _data, _datalen)			\
++	for (element = (void *)(_data);					\
++	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
++		sizeof(*element) &&					\
++	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
++		sizeof(*element) + element->datalen;			\
++	     element = (void *)(element->data + element->datalen))
++
++#define for_each_element_id(element, _id, data, datalen)		\
++	for_each_element(element, data, datalen)			\
++		if (element->id == (_id))
++
++#define for_each_element_extid(element, extid, data, datalen)		\
++	for_each_element(element, data, datalen)			\
++		if (element->id == WLAN_EID_EXTENSION &&		\
++		    element->datalen > 0 &&				\
++		    element->data[0] == (extid))
++
++#define for_each_subelement(sub, element)				\
++	for_each_element(sub, (element)->data, (element)->datalen)
++
++#define for_each_subelement_id(sub, id, element)			\
++	for_each_element_id(sub, id, (element)->data, (element)->datalen)
++
++#define for_each_subelement_extid(sub, extid, element)			\
++	for_each_element_extid(sub, extid, (element)->data, (element)->datalen)
++
++/**
++ * for_each_element_completed - determine if element parsing consumed all data
++ * @element: element pointer after for_each_element() or friends
++ * @data: same data pointer as passed to for_each_element() or friends
++ * @datalen: same data length as passed to for_each_element() or friends
++ *
++ * This function returns %true if all the data was parsed or considered
++ * while walking the elements. Only use this if your for_each_element()
++ * loop cannot be broken out of, otherwise it always returns %false.
++ *
++ * If some data was malformed, this returns %false since the last parsed
++ * element will not fill the whole remaining data.
++ */
++static inline bool for_each_element_completed(const struct element *element,
++					      const void *data, size_t datalen)
++{
++	return (u8 *)element == (u8 *)data + datalen;
++}
++
+ #endif /* LINUX_IEEE80211_H */
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -484,6 +484,8 @@ const u8 *cfg80211_find_ie_match(u8 eid,
+ 				 const u8 *match, int match_len,
+ 				 int match_offset)
+ {
++	const struct element *elem;
++
+ 	/* match_offset can't be smaller than 2, unless match_len is
+ 	 * zero, in which case match_offset must be zero as well.
+ 	 */
+@@ -491,14 +493,10 @@ const u8 *cfg80211_find_ie_match(u8 eid,
+ 		    (!match_len && match_offset)))
+ 		return NULL;
  
-@@ -878,8 +879,17 @@ repeat:
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 		DBG_BUGON(pagenr >= nr_pages);
--		DBG_BUGON(pages[pagenr]);
- 
-+		/*
-+		 * currently EROFS doesn't support multiref(dedup),
-+		 * so here erroring out one multiref page.
-+		 */
-+		if (pages[pagenr]) {
-+			DBG_BUGON(1);
-+			SetPageError(pages[pagenr]);
-+			z_erofs_onlinepage_endio(pages[pagenr]);
-+			err = -EIO;
-+		}
- 		pages[pagenr] = page;
+-	while (len >= 2 && len >= ies[1] + 2) {
+-		if ((ies[0] == eid) &&
+-		    (ies[1] + 2 >= match_offset + match_len) &&
+-		    !memcmp(ies + match_offset, match, match_len))
+-			return ies;
+-
+-		len -= ies[1] + 2;
+-		ies += ies[1] + 2;
++	for_each_element_id(elem, eid, ies, len) {
++		if (elem->datalen >= match_offset - 2 + match_len &&
++		    !memcmp(elem->data + match_offset - 2, match, match_len))
++			return (void *)elem;
  	}
- 	sparsemem_pages = i;
-@@ -889,7 +899,6 @@ repeat:
- 	overlapped = false;
- 	compressed_pages = grp->compressed_pages;
  
--	err = 0;
- 	for (i = 0; i < clusterpages; ++i) {
- 		unsigned pagenr;
- 
-@@ -915,7 +924,12 @@ repeat:
- 			pagenr = z_erofs_onlinepage_index(page);
- 
- 			DBG_BUGON(pagenr >= nr_pages);
--			DBG_BUGON(pages[pagenr]);
-+			if (pages[pagenr]) {
-+				DBG_BUGON(1);
-+				SetPageError(pages[pagenr]);
-+				z_erofs_onlinepage_endio(pages[pagenr]);
-+				err = -EIO;
-+			}
- 			++sparsemem_pages;
- 			pages[pagenr] = page;
- 
+ 	return NULL;
 
 
