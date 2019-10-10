@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 903A7D233F
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D070D2343
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388140AbfJJIkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44706 "EHLO mail.kernel.org"
+        id S2387560AbfJJIkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388130AbfJJIkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:40:36 -0400
+        id S2388163AbfJJIko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:40:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27CF120B7C;
-        Thu, 10 Oct 2019 08:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EE072196E;
+        Thu, 10 Oct 2019 08:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696835;
-        bh=oa2NT2zv5l9tMMIX6F4HpjCTpgWSGAsS/4FodnBtrSg=;
+        s=default; t=1570696843;
+        bh=n/e/vaObw3kyd5fTVUpqKkcLIwSibsqLEzhB8D8JkZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywK8vEgViQKSaMhBYGKQJ0rVSrsNzFqXsHxG0BOnoMnDpIGZ1eUiWH174W+DswwoL
-         vRDsKYbuUernABN1sJkfdzZXnAuTub4zNfeLnswss9v97rKeovxF1eygAYtPj4+VsQ
-         uZYizPHEACyd9tFxKQRgg887KvR+4rHcP4+tg4WE=
+        b=xAMtAQ38DRE7S+bIT7cDqPdzG7LW8pbHbeBJx52Hy4upWweyRGxBF2T11s0TvL79l
+         AI2gopr8q1D0aHYLdqh5vrZWcsWbNWQpOtbXFJUp4k4IJ/ypjtT3+hemIKpWwUngL+
+         GzXoBwggt11kWYZNHmshJaTAXsn0fRQog7AS7DSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.3 069/148] drm/amd/powerplay: change metrics update period from 1ms to 100ms
-Date:   Thu, 10 Oct 2019 10:35:30 +0200
-Message-Id: <20191010083615.605747762@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.3 071/148] drm/i915/userptr: Acquire the page lock around set_page_dirty()
+Date:   Thu, 10 Oct 2019 10:35:32 +0200
+Message-Id: <20191010083615.708820027@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,37 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Wang <kevin1.wang@amd.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit e0e4a2ce7a059d051c66cd7c94314fef3cd91aea upstream.
+commit cb6d7c7dc7ff8cace666ddec66334117a6068ce2 upstream.
 
-v2:
-change period from 10ms to 100ms (typo error)
+set_page_dirty says:
 
-too high frequence to update mertrics table will cause smu firmware
-error,so change mertrics table update period from 1ms to 100ms
-(navi10, 12, 14)
+	For pages with a mapping this should be done under the page lock
+	for the benefit of asynchronous memory errors who prefer a
+	consistent dirty state. This rule can be broken in some special
+	cases, but should be better not to.
 
-Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.3.x
+Under those rules, it is only safe for us to use the plain set_page_dirty
+calls for shmemfs/anonymous memory. Userptr may be used with real
+mappings and so needs to use the locked version (set_page_dirty_lock).
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video memory (userptr) ioctl")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190708140327.26825-1-chris@chris-wilson.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/navi10_ppt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_userptr.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-+++ b/drivers/gpu/drm/amd/powerplay/navi10_ppt.c
-@@ -532,7 +532,7 @@ static int navi10_get_metrics_table(stru
- 	struct smu_table_context *smu_table= &smu->smu_table;
- 	int ret = 0;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -664,7 +664,15 @@ i915_gem_userptr_put_pages(struct drm_i9
  
--	if (!smu_table->metrics_time || time_after(jiffies, smu_table->metrics_time + HZ / 1000)) {
-+	if (!smu_table->metrics_time || time_after(jiffies, smu_table->metrics_time + msecs_to_jiffies(100))) {
- 		ret = smu_update_table(smu, SMU_TABLE_SMU_METRICS, 0,
- 				(void *)smu_table->metrics_table, false);
- 		if (ret) {
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+ 		if (obj->mm.dirty)
+-			set_page_dirty(page);
++			/*
++			 * As this may not be anonymous memory (e.g. shmem)
++			 * but exist on a real mapping, we have to lock
++			 * the page in order to dirty it -- holding
++			 * the page reference is not sufficient to
++			 * prevent the inode from being truncated.
++			 * Play safe and take the lock.
++			 */
++			set_page_dirty_lock(page);
+ 
+ 		mark_page_accessed(page);
+ 		put_page(page);
 
 
