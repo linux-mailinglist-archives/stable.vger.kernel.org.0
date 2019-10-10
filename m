@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E735D2587
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F1DD2548
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388528AbfJJImV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:42:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46886 "EHLO mail.kernel.org"
+        id S2389451AbfJJI5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:57:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbfJJImU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:42:20 -0400
+        id S2387660AbfJJIrE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:47:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61CE2190F;
-        Thu, 10 Oct 2019 08:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78853218AC;
+        Thu, 10 Oct 2019 08:47:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696939;
-        bh=Y9uQYymY0eFnLevhi+Oh+Vqc/2hn+dwDMy63dOaerEA=;
+        s=default; t=1570697223;
+        bh=WIl6W8ebQcojUGSsK88TdAJ9kurCE2C5egXd6emtgqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVSBX+7Z41l/GG5m4TpsawKvOJJmMaANGz0rDYp3jf03SZdRzUyxLC8G+7LqEUVnB
-         rzIHriLEWNrlnvh1jUkTURh5vEBDQw/6keCxFoo4EM4jeqfaQwnQHcZfsBzIoO8pgq
-         Cc9rHdsr8QmbW5U9450NYtSzxSxSJKXbIvckHuf8=
+        b=inGKHgFlGGWVDtXUFxkfOmv3HkuY/YBpORsGv3H4TNaM6wQEBBib8iWalBB0bmbah
+         d1S9DFSf4emTNB3D48bxoeOuap27J8CyJVs+DmLk3WQGEut+07LUurEGj+ShMYj7P9
+         M3HxkUNoQgLp1ngcIVXvDq9UxW5qp53+Xzm5g9p0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 108/148] SUNRPC: Dont try to parse incomplete RPC messages
-Date:   Thu, 10 Oct 2019 10:36:09 +0200
-Message-Id: <20191010083617.709024171@linuxfoundation.org>
+        stable@vger.kernel.org, Arvind Sankar <nivedita@alum.mit.edu>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 063/114] x86/purgatory: Disable the stackleak GCC plugin for the purgatory
+Date:   Thu, 10 Oct 2019 10:36:10 +0200
+Message-Id: <20191010083609.872858848@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Arvind Sankar <nivedita@alum.mit.edu>
 
-[ Upstream commit 9ba828861c56a21d211d5d10f5643774b1ea330d ]
+[ Upstream commit ca14c996afe7228ff9b480cf225211cc17212688 ]
 
-If the copy of the RPC reply into our buffers did not complete, and
-we could end up with a truncated message. In that case, just resend
-the call.
+Since commit:
 
-Fixes: a0584ee9aed80 ("SUNRPC: Use struct xdr_stream when decoding...")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+  b059f801a937 ("x86/purgatory: Use CFLAGS_REMOVE rather than reset KBUILD_CFLAGS")
+
+kexec breaks if GCC_PLUGIN_STACKLEAK=y is enabled, as the purgatory
+contains undefined references to stackleak_track_stack.
+
+Attempting to load a kexec kernel results in this failure:
+
+  kexec: Undefined symbol: stackleak_track_stack
+  kexec-bzImage64: Loading purgatory failed
+
+Fix this by disabling the stackleak plugin for the purgatory.
+
+Signed-off-by: Arvind Sankar <nivedita@alum.mit.edu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: b059f801a937 ("x86/purgatory: Use CFLAGS_REMOVE rather than reset KBUILD_CFLAGS")
+Link: https://lkml.kernel.org/r/20190923171753.GA2252517@rani.riverdale.lan
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ arch/x86/purgatory/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index e7fdc400506e8..f7f78566be463 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2482,6 +2482,7 @@ call_decode(struct rpc_task *task)
- 	struct rpc_clnt	*clnt = task->tk_client;
- 	struct rpc_rqst	*req = task->tk_rqstp;
- 	struct xdr_stream xdr;
-+	int err;
+diff --git a/arch/x86/purgatory/Makefile b/arch/x86/purgatory/Makefile
+index 10fb42da0007e..b81b5172cf994 100644
+--- a/arch/x86/purgatory/Makefile
++++ b/arch/x86/purgatory/Makefile
+@@ -23,6 +23,7 @@ KCOV_INSTRUMENT := n
  
- 	dprint_status(task);
+ PURGATORY_CFLAGS_REMOVE := -mcmodel=kernel
+ PURGATORY_CFLAGS := -mcmodel=large -ffreestanding -fno-zero-initialized-in-bss
++PURGATORY_CFLAGS += $(DISABLE_STACKLEAK_PLUGIN)
  
-@@ -2504,6 +2505,15 @@ call_decode(struct rpc_task *task)
- 	 * before it changed req->rq_reply_bytes_recvd.
- 	 */
- 	smp_rmb();
-+
-+	/*
-+	 * Did we ever call xprt_complete_rqst()? If not, we should assume
-+	 * the message is incomplete.
-+	 */
-+	err = -EAGAIN;
-+	if (!req->rq_reply_bytes_recvd)
-+		goto out;
-+
- 	req->rq_rcv_buf.len = req->rq_private_buf.len;
- 
- 	/* Check that the softirq receive buffer is valid */
-@@ -2512,7 +2522,9 @@ call_decode(struct rpc_task *task)
- 
- 	xdr_init_decode(&xdr, &req->rq_rcv_buf,
- 			req->rq_rcv_buf.head[0].iov_base, req);
--	switch (rpc_decode_header(task, &xdr)) {
-+	err = rpc_decode_header(task, &xdr);
-+out:
-+	switch (err) {
- 	case 0:
- 		task->tk_action = rpc_exit_task;
- 		task->tk_status = rpcauth_unwrap_resp(task, &xdr);
+ # Default KBUILD_CFLAGS can have -pg option set when FTRACE is enabled. That
+ # in turn leaves some undefined symbols like __fentry__ in purgatory and not
 -- 
 2.20.1
 
