@@ -2,138 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08316D2A97
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:14:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EADEAD2ABB
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:16:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387460AbfJJNO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 09:14:26 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37630 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727788AbfJJNOZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 09:14:25 -0400
-Received: by mail-wr1-f68.google.com with SMTP id p14so7858481wro.4
-        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 06:14:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sceiITXJpZZwXjbZr0v1ycsxz1Z+Jz7Fjb4yEahC00Q=;
-        b=BJkChjXuys8ky+58IStkYobyGt+62RMKoNSX0BzJocvF8jmju6oF/SftexYMqryO6e
-         3uO1pki1mPx5tVBFTb7TT5mDdplpfvNZoqMMG54bGtllLnXfgzaVWtwRuEkUzkdWXjrl
-         S6d3MneNHFdH90eQxIZ5HQlQnZ/8xPCJ2AKAQXsJ7NLirN7P6HIPwgwF9rjK1x6tds2s
-         Z0X3a6SWpCaf9htztDXVW+X2hKvyLgxY9J07Wb/YE3m9FQRpdo+PIM3AOSL55bD2OHQX
-         zelktfrP249aBPhQZmbnEt6kf55dt1BUDWV9HmNYKVh86fFfgHyuaVB4etvPQAy9Ktxm
-         HR7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sceiITXJpZZwXjbZr0v1ycsxz1Z+Jz7Fjb4yEahC00Q=;
-        b=OM6znhbeMcIRUJMKAk1Cv05S36Gy58KYBwsdnogPbhs9qjRZ4cd5SHwIvjlBqmUIo4
-         Xlf1BtPSugGHg9A5hoQuJkPW6IoC2fZZtl8XLzctZ8px3J63hwp9GXsxgSRENBPU+Ret
-         gO0fnEx45JG5umAZgSGPexVlEGClKZ7BF7rcYfWUbtfwTVH9MJ5aFPFJ9aMwwSD8mEmg
-         ACyTQFDxEGswoh4plqOBxXTR3uPtUBthqmetbkEuRuQt94hXRnRaQxPgmltoOx7P7aon
-         kC6Ys3IsF1sALcZjRlTr/+CcI5Ty+W9Jzc7rf9VZdJk4kcMv5c0lCGL6RcaLKBJRfNVl
-         AhPg==
-X-Gm-Message-State: APjAAAWxVrspbe8jYO5EA5qt7psfOkW1JSqDfDhVxiR5YLWiPa9Utl1J
-        LE+ttkurFNx3/RkX54gozUchlmHu3l/9NA==
-X-Google-Smtp-Source: APXvYqyvMnVdlEMiFGkW42vI8lgwWWdy1W0HIo9KGVgFdtVaEvHXnyt3tGvZkeyKEO7MF/9XIhJDuQ==
-X-Received: by 2002:adf:bd93:: with SMTP id l19mr8324313wrh.1.1570713263445;
-        Thu, 10 Oct 2019 06:14:23 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h125sm8845224wmf.31.2019.10.10.06.14.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 10 Oct 2019 06:14:21 -0700 (PDT)
-Message-ID: <5d9f2ead.1c69fb81.5a1eb.ab0a@mx.google.com>
-Date:   Thu, 10 Oct 2019 06:14:21 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2387977AbfJJNQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 09:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56870 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387975AbfJJNQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 09:16:18 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 430472064A;
+        Thu, 10 Oct 2019 13:16:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570713377;
+        bh=xh+EReLGfdsskxTMZ7/BthgoffJ0cZf67pQ4tR0/oGM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=i1yA1g6cjKkfM1aaNhQSHecf9IRXaKF+kPlN34I+m+FvfDsE0UJQXzCgr6I8KS0OG
+         WF2Acy6TQ464Rb/uWZEQp5vQYLBh/l/LoQqNp+M+ht8qs6E6l6BydUaHOgzrhe3Smm
+         kdwi2sxWQ14heVKKPX3Vh+2ETZwgpw8ywy6apZKo=
+Date:   Thu, 10 Oct 2019 15:16:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     stable@vger.kernel.org, mark.rutland@arm.com,
+        catalin.marinas@arm.com, will@kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] arm64: cpufeature: Fix truncating a feature value
+Message-ID: <20191010131615.GA807662@kroah.com>
+References: <20191010110856.4376-1-suzuki.poulose@arm.com>
+ <ca77dec7-b29b-5a3b-0c01-047a06d1854d@arm.com>
+ <20191010122922.GA720144@kroah.com>
+ <295cfb9e-ac7b-73e7-bc80-8b9150f4a626@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.196-31-gc03a561a2969
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y boot: 94 boots: 3 failed,
- 80 passed with 10 offline, 1 conflict (v4.4.196-31-gc03a561a2969)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <295cfb9e-ac7b-73e7-bc80-8b9150f4a626@arm.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 94 boots: 3 failed, 80 passed with 10 offline, =
-1 conflict (v4.4.196-31-gc03a561a2969)
+On Thu, Oct 10, 2019 at 01:46:21PM +0100, Suzuki K Poulose wrote:
+> 
+> 
+> On 10/10/2019 13:29, Greg KH wrote:
+> > On Thu, Oct 10, 2019 at 12:12:01PM +0100, Suzuki K Poulose wrote:
+> > > All,
+> > > 
+> > > On 10/10/2019 12:08, Suzuki K Poulose wrote:
+> > > > A signed feature value is truncated to turn to an unsigned value
+> > > > causing bad state in the system wide infrastructure. This affects
+> > > > the discovery of FP/ASIMD support on arm64. Fix this by making sure
+> > > > we cast it properly.
+> > > > 
+> > > > Fixes: 4f0a606bce5ec ("arm64: cpufeature: Track unsigned fields")
+> > > > Cc: stable@vger.kernel.org # v4.4
+> > > 
+> > > Please note that this patch is only applicable for stable 4.4 tree.
+> > > I should have removed the Fixes tag.
+> > 
+> > Why is it only for 4.4?  That needs to be documented really really
+> 
+> This was fixed later in v4.6 onwards with commit 28c5dcb22f90113dea
+> ("arm64: Rename cpuid_feature field extract routines") rather inadvertently.
+> 
+> > really well in the changelog as to why this is a one-off patch, and why
+> > we can't just take the relevant patches that are in Linus's tree
+> > instead.
+> > 
+> > Please fix up and resend.
+> 
+> I can resend the patch with the above information included if you like.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.196-31-gc03a561a2969/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.196-31-gc03a561a2969/
+As I said, please do, I can not take it otherwise.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.196-31-gc03a561a2969
-Git Commit: c03a561a29698dec1e1dba6ac96ea4a46d7ee18e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 47 unique boards, 16 SoC families, 15 builds out of 190
-
-Boot Failures Detected:
-
-arm:
-    imx_v4_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-    multi_v5_defconfig:
-        gcc-8:
-            imx27-phytec-phycard-s-rdk: 1 failed lab
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
-
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-baylibre: FAIL (gcc-8)
-            lab-linaro-lkft: PASS (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+greg k-h
