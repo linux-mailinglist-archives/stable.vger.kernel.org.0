@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B66D2410
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93704D240F
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389691AbfJJIso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54916 "EHLO mail.kernel.org"
+        id S2389686AbfJJIsn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:48:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389680AbfJJIsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:40 -0400
+        id S2389157AbfJJIsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:48:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1006D2064A;
-        Thu, 10 Oct 2019 08:48:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B833121929;
+        Thu, 10 Oct 2019 08:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697318;
-        bh=FmzEMjZSelSMOSQZgp2rUdO+aFnsDCvFmd1Q5Ugd5d4=;
+        s=default; t=1570697321;
+        bh=IyVvloWswiwb0rHjj5ssPaCzfOBHQsDBo6CZ5n2dG7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qmy6nPyi3kVlrkk2x0+Jdm8yqPjfJeBHPyLwqoBNtjO4FT/wrtk+4nbPU9dLRyHeo
-         ZrYgtCPDGh749AZN2tCAUNougzAlFC+t5j3ibFSS7dDKFSK15ZV7gkF+nPkuFUO99g
-         ZBP/6MFO0OPYoVwUJL1cGi0nGO/fuHZ3xbmf7ul0=
+        b=siq/iEVaQlSVNtjn/p3JBKEpbkKzNDmrrbS7Dr4V1H7jjz8KRLH4VupRd166e8NFu
+         Vwb73Y4t4AicllntYTo4FFd15md9UrqbGoHVjsb4/D99gUkNfK1Lf9rcs5a++o0PNI
+         MqBk/LxYP9i3uN1NrsznUHgYLT6pOprpY7G/ahxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,9 +32,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Stefan Wahren <stefan.wahren@i2se.com>,
         Will Deacon <will.deacon@arm.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 099/114] arm64: Always enable spectre-v2 vulnerability detection
-Date:   Thu, 10 Oct 2019 10:36:46 +0200
-Message-Id: <20191010083613.410310738@linuxfoundation.org>
+Subject: [PATCH 4.19 100/114] arm64: add sysfs vulnerability show for spectre-v2
+Date:   Thu, 10 Oct 2019 10:36:47 +0200
+Message-Id: <20191010083613.477591447@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -49,10 +49,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeremy Linton <jeremy.linton@arm.com>
 
-[ Upstream commit 8c1e3d2bb44cbb998cb28ff9a18f105fee7f1eb3 ]
+[ Upstream commit d2532e27b5638bb2e2dd52b80b7ea2ec65135377 ]
 
-Ensure we are always able to detect whether or not the CPU is affected
-by Spectre-v2, so that we can later advertise this to userspace.
+Track whether all the cores in the machine are vulnerable to Spectre-v2,
+and whether all the vulnerable cores have been mitigated. We then expose
+this information to userspace via sysfs.
 
 Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
 Reviewed-by: Andre Przywara <andre.przywara@arm.com>
@@ -62,75 +63,73 @@ Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/arm64/kernel/cpu_errata.c |   27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
 --- a/arch/arm64/kernel/cpu_errata.c
 +++ b/arch/arm64/kernel/cpu_errata.c
-@@ -87,7 +87,6 @@ cpu_enable_trap_ctr_access(const struct
+@@ -480,6 +480,10 @@ has_cortex_a76_erratum_1463225(const str
+ 	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,			\
+ 	CAP_MIDR_RANGE_LIST(midr_list)
  
- atomic_t arm64_el2_vector_last_slot = ATOMIC_INIT(-1);
- 
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- #include <asm/mmu_context.h>
- #include <asm/cacheflush.h>
- 
-@@ -225,11 +224,11 @@ static int detect_harden_bp_fw(void)
- 	    ((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR_V1))
- 		cb = qcom_link_stack_sanitization;
- 
--	install_bp_hardening_cb(cb, smccc_start, smccc_end);
-+	if (IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR))
-+		install_bp_hardening_cb(cb, smccc_start, smccc_end);
- 
- 	return 1;
- }
--#endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
- 
- DEFINE_PER_CPU_READ_MOSTLY(u64, arm64_ssbd_callback_required);
- 
-@@ -513,7 +512,6 @@ multi_entry_cap_cpu_enable(const struct
- 			caps->cpu_enable(caps);
- }
- 
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
++/* Track overall mitigation state. We are only mitigated if all cores are ok */
++static bool __hardenbp_enab = true;
++static bool __spectrev2_safe = true;
++
  /*
-  * List of CPUs that do not need any Spectre-v2 mitigation at all.
-  */
-@@ -545,6 +543,12 @@ check_branch_predictor(const struct arm6
+  * Generic helper for handling capabilties with multiple (match,enable) pairs
+  * of call backs, sharing the same capability bit.
+@@ -522,6 +526,10 @@ static const struct midr_range spectre_v
+ 	{ /* sentinel */ }
+ };
+ 
++/*
++ * Track overall bp hardening for all heterogeneous cores in the machine.
++ * We are only considered "safe" if all booted cores are known safe.
++ */
+ static bool __maybe_unused
+ check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
+ {
+@@ -543,6 +551,8 @@ check_branch_predictor(const struct arm6
  	if (!need_wa)
  		return false;
  
-+	if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
-+		pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
-+		__hardenbp_enab = false;
-+		return false;
-+	}
++	__spectrev2_safe = false;
 +
+ 	if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
+ 		pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
+ 		__hardenbp_enab = false;
+@@ -552,11 +562,14 @@ check_branch_predictor(const struct arm6
  	/* forced off */
  	if (__nospectre_v2) {
  		pr_info_once("spectrev2 mitigation disabled by command line option\n");
-@@ -556,7 +560,6 @@ check_branch_predictor(const struct arm6
++		__hardenbp_enab = false;
+ 		return false;
+ 	}
+ 
+-	if (need_wa < 0)
++	if (need_wa < 0) {
+ 		pr_warn_once("ARM_SMCCC_ARCH_WORKAROUND_1 missing from firmware\n");
++		__hardenbp_enab = false;
++	}
  
  	return (need_wa > 0);
  }
--#endif
- 
- #ifdef CONFIG_HARDEN_EL2_VECTORS
- 
-@@ -715,13 +718,11 @@ const struct arm64_cpu_capabilities arm6
- 		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
- 	},
- #endif
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = check_branch_predictor,
- 	},
--#endif
- #ifdef CONFIG_HARDEN_EL2_VECTORS
- 	{
- 		.desc = "EL2 vector hardening",
+@@ -753,3 +766,15 @@ ssize_t cpu_show_spectre_v1(struct devic
+ {
+ 	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
+ }
++
++ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
++		char *buf)
++{
++	if (__spectrev2_safe)
++		return sprintf(buf, "Not affected\n");
++
++	if (__hardenbp_enab)
++		return sprintf(buf, "Mitigation: Branch predictor hardening\n");
++
++	return sprintf(buf, "Vulnerable\n");
++}
 
 
