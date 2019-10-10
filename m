@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA18D2576
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48A1DD2542
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388015AbfJJInE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:43:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S2388103AbfJJI4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388649AbfJJInA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:00 -0400
+        id S2387775AbfJJIrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:47:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76CCB21929;
-        Thu, 10 Oct 2019 08:42:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AB2C218AC;
+        Thu, 10 Oct 2019 08:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696980;
-        bh=rmFIcT6ApW+UImpgfJcNSApiJXk5nsSOmBRfCxYD6bE=;
+        s=default; t=1570697266;
+        bh=g1EwKsoWRrIPN9pIi5JHek7BXpKp8hPNF+sPHViPCJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKAQpfXo8MGjZT/wLCnxrab27F5AqCwKZWqjmfFeReK6g66x9OEHktavj6QtxZ4A0
-         GuAnANsHtj3eeMtXdDjm8G8MScw4wB5tFTsOTiPNtWVxseMVqCwUxMAjJh9R7Thvyu
-         SdK1G72WwNbH+JEsqXcUmI8tKBWz0QVWENnWqHAQ=
+        b=yVFgVeqHqVSBHaMMMVcSgBK6NCukrRb9+DfGN6vD2PX09qP0weYwYmJ/PL2U4vNaw
+         y+b9Kv0D/+naohLSXzVUF4euTKge86RaeEbw5LQ47rs3yLo0qkmI6a0trI3Lsj2Odn
+         c3uHV/YJJiho52LzyjDEhvfLRA0tUTKkSOr5ffvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Chris Metcalf <cmetcalf@ezchip.com>,
-        Christoph Lameter <cl@linux.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Kirill Tkhai <tkhai@yandex.ru>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Galbraith <efault@gmx.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 121/148] sched/membarrier: Fix private expedited registration check
-Date:   Thu, 10 Oct 2019 10:36:22 +0200
-Message-Id: <20191010083618.395675320@linuxfoundation.org>
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 077/114] drm/radeon: Bail earlier when radeon.cik_/si_support=0 is passed
+Date:   Thu, 10 Oct 2019 10:36:24 +0200
+Message-Id: <20191010083612.035029947@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +46,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fc0d77387cb5ae883fd774fc559e056a8dde024c ]
+[ Upstream commit 9dbc88d013b79c62bd845cb9e7c0256e660967c5 ]
 
-Fix a logic flaw in the way membarrier_register_private_expedited()
-handles ready state checks for private expedited sync core and private
-expedited registrations.
+Bail from the pci_driver probe function instead of from the drm_driver
+load function.
 
-If a private expedited membarrier registration is first performed, and
-then a private expedited sync_core registration is performed, the ready
-state check will skip the second registration when it really should not.
+This avoid /dev/dri/card0 temporarily getting registered and then
+unregistered again, sending unwanted add / remove udev events to
+userspace.
 
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Chris Metcalf <cmetcalf@ezchip.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Kirill Tkhai <tkhai@yandex.ru>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mike Galbraith <efault@gmx.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Paul E. McKenney <paulmck@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190919173705.2181-2-mathieu.desnoyers@efficios.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Specifically this avoids triggering the (userspace) bug fixed by this
+plymouth merge-request:
+https://gitlab.freedesktop.org/plymouth/plymouth/merge_requests/59
+
+Note that despite that being an userspace bug, not sending unnecessary
+udev events is a good idea in general.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1490490
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/membarrier.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_drv.c | 31 +++++++++++++++++++++++++++++
+ drivers/gpu/drm/radeon/radeon_kms.c | 25 -----------------------
+ 2 files changed, 31 insertions(+), 25 deletions(-)
 
-diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
-index aa8d758041088..5110d91b1b0ea 100644
---- a/kernel/sched/membarrier.c
-+++ b/kernel/sched/membarrier.c
-@@ -226,7 +226,7 @@ static int membarrier_register_private_expedited(int flags)
- 	 * groups, which use the same mm. (CLONE_VM but not
- 	 * CLONE_THREAD).
- 	 */
--	if (atomic_read(&mm->membarrier_state) & state)
-+	if ((atomic_read(&mm->membarrier_state) & state) == state)
- 		return 0;
- 	atomic_or(MEMBARRIER_STATE_PRIVATE_EXPEDITED, &mm->membarrier_state);
- 	if (flags & MEMBARRIER_FLAG_SYNC_CORE)
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 25b5407c74b5a..d83310751a8e4 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -340,8 +340,39 @@ static int radeon_kick_out_firmware_fb(struct pci_dev *pdev)
+ static int radeon_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
+ {
++	unsigned long flags = 0;
+ 	int ret;
+ 
++	if (!ent)
++		return -ENODEV; /* Avoid NULL-ptr deref in drm_get_pci_dev */
++
++	flags = ent->driver_data;
++
++	if (!radeon_si_support) {
++		switch (flags & RADEON_FAMILY_MASK) {
++		case CHIP_TAHITI:
++		case CHIP_PITCAIRN:
++		case CHIP_VERDE:
++		case CHIP_OLAND:
++		case CHIP_HAINAN:
++			dev_info(&pdev->dev,
++				 "SI support disabled by module param\n");
++			return -ENODEV;
++		}
++	}
++	if (!radeon_cik_support) {
++		switch (flags & RADEON_FAMILY_MASK) {
++		case CHIP_KAVERI:
++		case CHIP_BONAIRE:
++		case CHIP_HAWAII:
++		case CHIP_KABINI:
++		case CHIP_MULLINS:
++			dev_info(&pdev->dev,
++				 "CIK support disabled by module param\n");
++			return -ENODEV;
++		}
++	}
++
+ 	if (vga_switcheroo_client_probe_defer(pdev))
+ 		return -EPROBE_DEFER;
+ 
+diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
+index 6a8fb6fd183c3..3ff835767ac58 100644
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -95,31 +95,6 @@ int radeon_driver_load_kms(struct drm_device *dev, unsigned long flags)
+ 	struct radeon_device *rdev;
+ 	int r, acpi_status;
+ 
+-	if (!radeon_si_support) {
+-		switch (flags & RADEON_FAMILY_MASK) {
+-		case CHIP_TAHITI:
+-		case CHIP_PITCAIRN:
+-		case CHIP_VERDE:
+-		case CHIP_OLAND:
+-		case CHIP_HAINAN:
+-			dev_info(dev->dev,
+-				 "SI support disabled by module param\n");
+-			return -ENODEV;
+-		}
+-	}
+-	if (!radeon_cik_support) {
+-		switch (flags & RADEON_FAMILY_MASK) {
+-		case CHIP_KAVERI:
+-		case CHIP_BONAIRE:
+-		case CHIP_HAWAII:
+-		case CHIP_KABINI:
+-		case CHIP_MULLINS:
+-			dev_info(dev->dev,
+-				 "CIK support disabled by module param\n");
+-			return -ENODEV;
+-		}
+-	}
+-
+ 	rdev = kzalloc(sizeof(struct radeon_device), GFP_KERNEL);
+ 	if (rdev == NULL) {
+ 		return -ENOMEM;
 -- 
 2.20.1
 
