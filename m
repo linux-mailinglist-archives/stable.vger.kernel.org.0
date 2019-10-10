@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E09B6D254F
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92C9D2595
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388620AbfJJI5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52198 "EHLO mail.kernel.org"
+        id S2387708AbfJJIls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388642AbfJJIqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:46:25 -0400
+        id S2388404AbfJJIlr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:41:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 772C22064A;
-        Thu, 10 Oct 2019 08:46:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 152432190F;
+        Thu, 10 Oct 2019 08:41:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697185;
-        bh=/PVC3G9/SX/K3Pj3kLvFzj8Bv5bJt9sVHAuZdAS7PY0=;
+        s=default; t=1570696906;
+        bh=AGKVJITybppG06fs8nTR/rKh/OuQGQsCKDpZoorvQhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O8QZPhCISnnSv7idzkXqeDDbs3dCIXKiT/EUHctLtPgEI/2vIve/2kGGmrwQPU9Yr
-         mUYk2J55mcdVLzH/5UTWn7QzQkjPPc5Lwgs8g3QgAt05oQwJohHQzXXkzG2GwbvDfv
-         n++wCDPamEjkC+mwyM2Nla4+K16oCEVlFXZtE8Ck=
+        b=DkbegiTOAXQfBYNqnWNnhU1b44fH/n51lr/IcLQB923sg7iqmMVXoetzvP9oUPJq1
+         SAth44jeE3Lg8KvFKQF1hyEI3OlibPLYCyl8cBPswhfPvudzSgwTl7dpzL2tl/Z8Ng
+         KeK9cJrr0WACDsZXN/xY1ERjhQHnZHFeZYuA6c4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/114] ima: fix freeing ongoing ahash_request
-Date:   Thu, 10 Oct 2019 10:35:57 +0200
-Message-Id: <20191010083608.110575459@linuxfoundation.org>
+Subject: [PATCH 5.3 097/148] fuse: fix request limit
+Date:   Thu, 10 Oct 2019 10:35:58 +0200
+Message-Id: <20191010083617.145392705@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 4ece3125f21b1d42b84896c5646dbf0e878464e1 ]
+[ Upstream commit f22f812d5ce75a18b56073a7a63862e6ea764070 ]
 
-integrity_kernel_read() can fail in which case we forward to call
-ahash_request_free() on a currently running request. We have to wait
-for its completion before we can free the request.
+The size of struct fuse_req was reduced from 392B to 144B on a non-debug
+config, thus the sanitize_global_limit() helper was setting a larger
+default limit.  This doesn't really reflect reduction in the memory used by
+requests, since the fields removed from fuse_req were added to fuse_args
+derived structs; e.g. sizeof(struct fuse_writepages_args) is 248B, thus
+resulting in slightly more memory being used for writepage requests
+overalll (due to using 256B slabs).
 
-This was observed by interrupting a "find / -type f -xdev -print0 | xargs -0
-cat 1>/dev/null" with ctrl-c on an IMA enabled filesystem.
+Make the calculatation ignore the size of fuse_req and use the old 392B
+value.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/fuse/inode.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index b7822d2b79736..f63b4bd45d60e 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -274,6 +274,11 @@ static int ima_calc_file_hash_atfm(struct file *file,
- 		if (rc != rbuf_len) {
- 			if (rc >= 0)
- 				rc = -EINVAL;
-+			/*
-+			 * Forward current rc, do not overwrite with return value
-+			 * from ahash_wait()
-+			 */
-+			ahash_wait(ahash_rc, &wait);
- 			goto out3;
- 		}
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 987877860c019..f3104db3de83a 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -823,9 +823,12 @@ static const struct super_operations fuse_super_operations = {
  
+ static void sanitize_global_limit(unsigned *limit)
+ {
++	/*
++	 * The default maximum number of async requests is calculated to consume
++	 * 1/2^13 of the total memory, assuming 392 bytes per request.
++	 */
+ 	if (*limit == 0)
+-		*limit = ((totalram_pages() << PAGE_SHIFT) >> 13) /
+-			 sizeof(struct fuse_req);
++		*limit = ((totalram_pages() << PAGE_SHIFT) >> 13) / 392;
+ 
+ 	if (*limit >= 1 << 16)
+ 		*limit = (1 << 16) - 1;
 -- 
 2.20.1
 
