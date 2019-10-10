@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6B8D23C0
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1F0D23C4
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389168AbfJJIph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
+        id S2389189AbfJJIpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387614AbfJJIpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:36 -0400
+        id S2389181AbfJJIpl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20482218AC;
-        Thu, 10 Oct 2019 08:45:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 792082190F;
+        Thu, 10 Oct 2019 08:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697135;
-        bh=RGbsMYw9+rLEFO5N8Q1T3vut1c+0zUuAmpw9zyAiwcw=;
+        s=default; t=1570697141;
+        bh=Cbulkmm9GwC8jvTTwza+47Jdqbj9EpfMt2YzOG0dxZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0SgKqVO98vP3a/VG8zKQgL8PrUZI5lYxiHkpPoOwvpSkMztle2euKgp9ZCbBD5+u
-         C4iw6nrm42UkhR7e7v77dddH+5rH+lLqo5Oq8h3IVsflg40JrIsxurlL9Yl5Ve+Pc4
-         LGCyJRL35D7hYWG+gONFg/gND8sbXhnOfci7cNMQ=
+        b=duiBEXZlgIvRQGEbjwj58XRN6Xl7LO6KUPN6PuNDc78Ejx+GAqOA2mRejFEfLvhro
+         unsqfvQCqOIhkP/oDM/2gThzeUjlsRo018F5/f5V5P8k+4TnnocYe/kcTGfFvrir+D
+         8hmTm28DAzipl//eaE0UjOWvvQM2+kbRlAPzR1j0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
-        linux-rt-users <linux-rt-users@vger.kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Tom Zanussi <zanussi@kernel.org>
-Subject: [PATCH 4.19 030/114] tracing: Make sure variable reference alias has correct var_ref_idx
-Date:   Thu, 10 Oct 2019 10:35:37 +0200
-Message-Id: <20191010083559.568035880@linuxfoundation.org>
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Liang ZhiCheng <liangzhicheng@baidu.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 032/114] timer: Read jiffies once when forwarding base clk
+Date:   Thu, 10 Oct 2019 10:35:39 +0200
+Message-Id: <20191010083600.488625019@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -46,97 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Li RongQing <lirongqing@baidu.com>
 
-commit 17f8607a1658a8e70415eef67909f990d13017b5 upstream.
+commit e430d802d6a3aaf61bd3ed03d9404888a29b9bf9 upstream.
 
-Original changelog from Steve Rostedt (except last sentence which
-explains the problem, and the Fixes: tag):
+The timer delayed for more than 3 seconds warning was triggered during
+testing.
 
-I performed a three way histogram with the following commands:
+  Workqueue: events_unbound sched_tick_remote
+  RIP: 0010:sched_tick_remote+0xee/0x100
+  ...
+  Call Trace:
+   process_one_work+0x18c/0x3a0
+   worker_thread+0x30/0x380
+   kthread+0x113/0x130
+   ret_from_fork+0x22/0x40
 
-echo 'irq_lat u64 lat pid_t pid' > synthetic_events
-echo 'wake_lat u64 lat u64 irqlat pid_t pid' >> synthetic_events
-echo 'hist:keys=common_pid:irqts=common_timestamp.usecs if function == 0xffffffff81200580' > events/timer/hrtimer_start/trigger
-echo 'hist:keys=common_pid:lat=common_timestamp.usecs-$irqts:onmatch(timer.hrtimer_start).irq_lat($lat,pid) if common_flags & 1' > events/sched/sched_waking/trigger
-echo 'hist:keys=pid:wakets=common_timestamp.usecs,irqlat=lat' > events/synthetic/irq_lat/trigger
-echo 'hist:keys=next_pid:lat=common_timestamp.usecs-$wakets,irqlat=$irqlat:onmatch(synthetic.irq_lat).wake_lat($lat,$irqlat,next_pid)' > events/sched/sched_switch/trigger
-echo 1 > events/synthetic/wake_lat/enable
+The reason is that the code in collect_expired_timers() uses jiffies
+unprotected:
 
-Basically I wanted to see:
+    if (next_event > jiffies)
+        base->clk = jiffies;
 
- hrtimer_start (calling function tick_sched_timer)
+As the compiler is allowed to reload the value base->clk can advance
+between the check and the store and in the worst case advance farther than
+next event. That causes the timer expiry to be delayed until the wheel
+pointer wraps around.
 
-Note:
+Convert the code to use READ_ONCE()
 
-  # grep tick_sched_timer /proc/kallsyms
-ffffffff81200580 t tick_sched_timer
-
-And save the time of that, and then record sched_waking if it is called
-in interrupt context and with the same pid as the hrtimer_start, it
-will record the latency between that and the waking event.
-
-I then look at when the task that is woken is scheduled in, and record
-the latency between the wakeup and the task running.
-
-At the end, the wake_lat synthetic event will show the wakeup to
-scheduled latency, as well as the irq latency in from hritmer_start to
-the wakeup. The problem is that I found this:
-
-          <idle>-0     [007] d...   190.485261: wake_lat: lat=27 irqlat=190485230 pid=698
-          <idle>-0     [005] d...   190.485283: wake_lat: lat=40 irqlat=190485239 pid=10
-          <idle>-0     [002] d...   190.488327: wake_lat: lat=56 irqlat=190488266 pid=335
-          <idle>-0     [005] d...   190.489330: wake_lat: lat=64 irqlat=190489262 pid=10
-          <idle>-0     [003] d...   190.490312: wake_lat: lat=43 irqlat=190490265 pid=77
-          <idle>-0     [005] d...   190.493322: wake_lat: lat=54 irqlat=190493262 pid=10
-          <idle>-0     [005] d...   190.497305: wake_lat: lat=35 irqlat=190497267 pid=10
-          <idle>-0     [005] d...   190.501319: wake_lat: lat=50 irqlat=190501264 pid=10
-
-The irqlat seemed quite large! Investigating this further, if I had
-enabled the irq_lat synthetic event, I noticed this:
-
-          <idle>-0     [002] d.s.   249.429308: irq_lat: lat=164968 pid=335
-          <idle>-0     [002] d...   249.429369: wake_lat: lat=55 irqlat=249429308 pid=335
-
-Notice that the timestamp of the irq_lat "249.429308" is awfully
-similar to the reported irqlat variable. In fact, all instances were
-like this. It appeared that:
-
-  irqlat=$irqlat
-
-Wasn't assigning the old $irqlat to the new irqlat variable, but
-instead was assigning the $irqts to it.
-
-The issue is that assigning the old $irqlat to the new irqlat variable
-creates a variable reference alias, but the alias creation code
-forgets to make sure the alias uses the same var_ref_idx to access the
-reference.
-
-Link: http://lkml.kernel.org/r/1567375321.5282.12.camel@kernel.org
-
-Cc: Linux Trace Devel <linux-trace-devel@vger.kernel.org>
-Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
+Fixes: 236968383cf5 ("timers: Optimize collect_expired_timers() for NOHZ")
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: 7e8b88a30b085 ("tracing: Add hist trigger support for variable reference aliases")
-Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Link: https://lkml.kernel.org/r/1568894687-14499-1-git-send-email-lirongqing@baidu.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events_hist.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/time/timer.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -2526,6 +2526,8 @@ static struct hist_field *create_alias(s
- 		return NULL;
- 	}
- 
-+	alias->var_ref_idx = var_ref->var_ref_idx;
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -1590,24 +1590,26 @@ void timer_clear_idle(void)
+ static int collect_expired_timers(struct timer_base *base,
+ 				  struct hlist_head *heads)
+ {
++	unsigned long now = READ_ONCE(jiffies);
 +
- 	return alias;
- }
+ 	/*
+ 	 * NOHZ optimization. After a long idle sleep we need to forward the
+ 	 * base to current jiffies. Avoid a loop by searching the bitfield for
+ 	 * the next expiring timer.
+ 	 */
+-	if ((long)(jiffies - base->clk) > 2) {
++	if ((long)(now - base->clk) > 2) {
+ 		unsigned long next = __next_timer_interrupt(base);
  
+ 		/*
+ 		 * If the next timer is ahead of time forward to current
+ 		 * jiffies, otherwise forward to the next expiry time:
+ 		 */
+-		if (time_after(next, jiffies)) {
++		if (time_after(next, now)) {
+ 			/*
+ 			 * The call site will increment base->clk and then
+ 			 * terminate the expiry loop immediately.
+ 			 */
+-			base->clk = jiffies;
++			base->clk = now;
+ 			return 0;
+ 		}
+ 		base->clk = next;
 
 
