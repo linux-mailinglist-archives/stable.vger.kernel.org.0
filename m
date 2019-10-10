@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3290ED250C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A1A2D24CC
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390280AbfJJIwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
+        id S2390003AbfJJIux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389972AbfJJIwf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:52:35 -0400
+        id S2390029AbfJJIuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:50:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CF6021D56;
-        Thu, 10 Oct 2019 08:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECE2421929;
+        Thu, 10 Oct 2019 08:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697553;
-        bh=9Mgja6JsCu6bg1X38vpFg/o8YQLDgD7d4hwCN/gzp+g=;
+        s=default; t=1570697449;
+        bh=ltpmpVIfpVjSRY1nFe8HZMAvP9cNBcb938J+Gx1/Yr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fquxh5aNeZPuqLUKXOioNeCtfs9xHlvavnH1nDF/NCAL1HjMPMiWR9P0ENbSh19DM
-         CKSTp5pEF/sMko2oWICURK22IZtrfSmQIILu44joxjMUwXeAjgZQoHzA5E6mJl4GiI
-         Ktnz5TqK+BTi0CrcjLVHzQTVRk+MervTRdr3MhXw=
+        b=vX92p1J7yuEQP9GK9I1pWdepkhoMDqVkOaYcFrqjP0cA7yZLvz5/orzfQ1+IQwqB9
+         0wdn6ZHJCYBRxLQZ8uIAvxj3geVncRvgGOhDl+luFdQY94HDLA7r/uGxv1PkCjA62c
+         hVAdm67hXUw2OY5APigUENdKU3VCvSoktxHauav0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 23/61] mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
-Date:   Thu, 10 Oct 2019 10:36:48 +0200
-Message-Id: <20191010083503.250941866@linuxfoundation.org>
+        stable@vger.kernel.org, loobinliu@tencent.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>
+Subject: [PATCH 4.14 24/61] Revert "locking/pvqspinlock: Dont wait if vCPU is preempted"
+Date:   Thu, 10 Oct 2019 10:36:49 +0200
+Message-Id: <20191010083504.491883659@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -44,74 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit 121bd08b029e03404c451bb237729cdff76eafed upstream.
+commit 89340d0935c9296c7b8222b6eab30e67cb57ab82 upstream.
 
-We must not unconditionally set the DMA snoop bit; if the DMA API is
-assuming that the device is not DMA coherent, and the device snoops the
-CPU caches, the device can see stale cache lines brought in by
-speculative prefetch.
+This patch reverts commit 75437bb304b20 (locking/pvqspinlock: Don't
+wait if vCPU is preempted).  A large performance regression was caused
+by this commit.  on over-subscription scenarios.
 
-This leads to the device seeing stale data, potentially resulting in
-corrupted data transfers.  Commonly, this results in a descriptor fetch
-error such as:
+The test was run on a Xeon Skylake box, 2 sockets, 40 cores, 80 threads,
+with three VMs of 80 vCPUs each.  The score of ebizzy -M is reduced from
+13000-14000 records/s to 1700-1800 records/s:
 
-mmc0: ADMA error
-mmc0: sdhci: ============ SDHCI REGISTER DUMP ===========
-mmc0: sdhci: Sys addr:  0x00000000 | Version:  0x00002202
-mmc0: sdhci: Blk size:  0x00000008 | Blk cnt:  0x00000001
-mmc0: sdhci: Argument:  0x00000000 | Trn mode: 0x00000013
-mmc0: sdhci: Present:   0x01f50008 | Host ctl: 0x00000038
-mmc0: sdhci: Power:     0x00000003 | Blk gap:  0x00000000
-mmc0: sdhci: Wake-up:   0x00000000 | Clock:    0x000040d8
-mmc0: sdhci: Timeout:   0x00000003 | Int stat: 0x00000001
-mmc0: sdhci: Int enab:  0x037f108f | Sig enab: 0x037f108b
-mmc0: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00002202
-mmc0: sdhci: Caps:      0x35fa0000 | Caps_1:   0x0000af00
-mmc0: sdhci: Cmd:       0x0000333a | Max curr: 0x00000000
-mmc0: sdhci: Resp[0]:   0x00000920 | Resp[1]:  0x001d8a33
-mmc0: sdhci: Resp[2]:   0x325b5900 | Resp[3]:  0x3f400e00
-mmc0: sdhci: Host ctl2: 0x00000000
-mmc0: sdhci: ADMA Err:  0x00000009 | ADMA Ptr: 0x000000236d43820c
-mmc0: sdhci: ============================================
-mmc0: error -5 whilst initialising SD card
+          Host                Guest                score
 
-but can lead to other errors, and potentially direct the SDHCI
-controller to read/write data to other memory locations (e.g. if a valid
-descriptor is visible to the device in a stale cache line.)
+vanilla w/o kvm optimizations     upstream    1700-1800 records/s
+vanilla w/o kvm optimizations     revert      13000-14000 records/s
+vanilla w/ kvm optimizations      upstream    4500-5000 records/s
+vanilla w/ kvm optimizations      revert      14000-15500 records/s
 
-Fix this by ensuring that the DMA snoop bit corresponds with the
-behaviour of the DMA API.  Since the driver currently only supports DT,
-use of_dma_is_coherent().  Note that device_get_dma_attr() can not be
-used as that risks re-introducing this bug if/when the driver is
-converted to ACPI.
+Exit from aggressive wait-early mechanism can result in premature yield
+and extra scheduling latency.
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Actually, only 6% of wait_early events are caused by vcpu_is_preempted()
+being true.  However, when one vCPU voluntarily releases its vCPU, all
+the subsequently waiters in the queue will do the same and the cascading
+effect leads to bad performance.
+
+kvm optimizations:
+[1] commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts)
+[2] commit 266e85a5ec9 (KVM: X86: Boost queue head vCPU to mitigate lock waiter preemption)
+
+Tested-by: loobinliu@tencent.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: loobinliu@tencent.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 75437bb304b20 (locking/pvqspinlock: Don't wait if vCPU is preempted)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-of-esdhc.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ kernel/locking/qspinlock_paravirt.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -435,7 +435,12 @@ static int esdhc_of_enable_dma(struct sd
- 		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
+--- a/kernel/locking/qspinlock_paravirt.h
++++ b/kernel/locking/qspinlock_paravirt.h
+@@ -247,7 +247,7 @@ pv_wait_early(struct pv_node *prev, int
+ 	if ((loop & PV_PREV_CHECK_MASK) != 0)
+ 		return false;
  
- 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
--	value |= ESDHC_DMA_SNOOP;
-+
-+	if (of_dma_is_coherent(dev->of_node))
-+		value |= ESDHC_DMA_SNOOP;
-+	else
-+		value &= ~ESDHC_DMA_SNOOP;
-+
- 	sdhci_writel(host, value, ESDHC_DMA_SYSCTL);
- 	return 0;
+-	return READ_ONCE(prev->state) != vcpu_running || vcpu_is_preempted(prev->cpu);
++	return READ_ONCE(prev->state) != vcpu_running;
  }
+ 
+ /*
 
 
