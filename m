@@ -2,164 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F9EED2B46
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D15BD2B7B
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:36:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388087AbfJJN1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 09:27:35 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:34003 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388066AbfJJN1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 09:27:35 -0400
-Received: by mail-lj1-f193.google.com with SMTP id j19so6248921lja.1
-        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 06:27:34 -0700 (PDT)
+        id S2387525AbfJJNgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 09:36:38 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:35832 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728393AbfJJNgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 09:36:38 -0400
+Received: by mail-wr1-f68.google.com with SMTP id v8so7953079wrt.2
+        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 06:36:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=wSfnhh7pJQiBQCHnp2dx9cNnQXOTNXCwiKvUTXHls9s=;
-        b=sC5o2B2KL+o9KXnLPyGWy2YzOGLzNu23iATLIiYZCX4rLNyxquUzu+9alJc+sWbro3
-         ks+jQ3cPkU57lh/1E5UQz4M6Ooqc/YR3H031k8e9Pe4AljOh1qfe/u2eRJts0Mz3l0/m
-         MADeui9VjQfYLfryeyB0QEeBvgie8HaYquwiWu+EKdHQhhemw8n+obsbZ2yyQxnT0z6p
-         dVsAhULIHlWJ/2vznjfkIL4GUIiD95PwawPTh74+VYYt7nEZHFUqSBCdFjGHhSZFhQar
-         7e5gZVkTH559wMP3SWdHtcVGZbdeJSvny0oP1s/FM9SeVt1y5FlQaGHMM8VRxHDWf2df
-         ttEA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VyfWGEOeCQAdLrUxN9PTKnVR2g5+cr08VH7QenTXKRc=;
+        b=Ej78yKqY3jkGUaZ+viFZbZ9aWdlPAxdK3Ui+JBTpVno/tkUWHYB15whtVgbTyDnFA8
+         jAb7OmnUYBiXF+GgoCtMIfodGUb/DUX28yI+Ao8klhRx3szlf33Ph6HDtB2nGxnQ3RkO
+         i12JGilJCy01kE3LueyyrKe8rpwdqng8g8U/qXFCvaWk3rMDr0CdCKscF754GU6g74EF
+         cHonMtdZnkZLFmHKdwqUNpK53IkR4VGiHfVyP06xi2CSEEHx2ydGcbO778EIac9YssOV
+         9HY7PXFrVdgkxamtQKTrFRD8o0eeL7V2qrv5aripIfQrbzkLL8CwXofDg90XRa7/R72C
+         MAVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=wSfnhh7pJQiBQCHnp2dx9cNnQXOTNXCwiKvUTXHls9s=;
-        b=lEl9Hq16O3xU1Ch7euZHoXmc9QzOYH2ooiw3uAzj9XKnb/64MQe4Lc0u+j1e6T6UJj
-         F0oBC7mq2EFtd+DRoxq5EaiJtHLm0eoDNDYkqzGuDpvV8nL7xgmr+I6Ct3JHo3FEmWgt
-         nmZfLqjrZKsItfZO9z5sHSZHM2GCUnxLwrPiRU9QDRLqSg7xBW259J1Jx5fkd1Aqf/0T
-         HEfsSfTyX0LZ2HBGPKHMwzzs6ROpx24xUjpMA+PljudCQzDbn7kG//Nr53HKYspBsGOA
-         g0mKR7Wd04i2+ClK178FK0NHxHJhlgsYI0oxvUPonSlZzZMu9QAQLu7hlg/um52/0Wnp
-         uImg==
-X-Gm-Message-State: APjAAAU1i+GEA5nMcwScRfsEZlMb1DhHEhrvxis/PZRoJWWd5fnODHfA
-        iOTA7xLgDGe+izCTTraOcYxVAkMLRM0S+fVYQeAzww==
-X-Google-Smtp-Source: APXvYqwWgaamQ7xQg73/8LDBZE4Hd8IF7OptzYL8/5w7fGJUZpUeKf1dRo4DimzGb2L1KK2Yj68nb1n2SVM7EiZDyzA=
-X-Received: by 2002:a2e:8602:: with SMTP id a2mr6610254lji.20.1570714053772;
- Thu, 10 Oct 2019 06:27:33 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VyfWGEOeCQAdLrUxN9PTKnVR2g5+cr08VH7QenTXKRc=;
+        b=uJETPS+peve+tzPAMdj5Kc29D972+oHPt8kKKgmFp+sBXEwcQk4T59ZRSRnLClMCI1
+         YFv0lT0YhuSDKnVD8b54m1ppBCcOmmpXj89I7+GWdNLIVf5BCKuFtpw3CEPGzHZQk1nK
+         uzBeEEwB9HM0dZVn76PWJ/SGKeuHMl1l9VbwutASpzb2erOV9FLUosBUhwyJ+c6MSU2p
+         yF+nviLb32g212pI60tMQnXzjhx3x6RfdtE14Ano8icMni0Ut1uO8OMTHT3UpANO7JqZ
+         9ctKaMdJlm6Oe9aIzmZ67opreXNmxv3Spitct086NhD81omIYtWCp2C2y+UqgyaemPM6
+         c3dA==
+X-Gm-Message-State: APjAAAV9HvmOZvr5xIiXhTfUnAOU6v5z/m1bdui4AK6x6uRXNyl9A3pZ
+        RJ+9nTFk0HUVKOJnedIcj+mlr30O1WBR3g==
+X-Google-Smtp-Source: APXvYqzOfybWHqX65suC13LLhtqfSGPpd90C6RUNo8egYXWvIknhDf4WFVnNmNNPBeDHdV+L6QNhbw==
+X-Received: by 2002:a5d:6447:: with SMTP id d7mr8722868wrw.247.1570714595701;
+        Thu, 10 Oct 2019 06:36:35 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r20sm7722478wrg.61.2019.10.10.06.36.34
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Oct 2019 06:36:35 -0700 (PDT)
+Message-ID: <5d9f33e3.1c69fb81.8c71.60ce@mx.google.com>
+Date:   Thu, 10 Oct 2019 06:36:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20191010083449.500442342@linuxfoundation.org>
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 10 Oct 2019 18:57:22 +0530
-Message-ID: <CA+G9fYuPLhXNYbW9WSRQnv9Bq-q8WS9pHFL7BDgbLEDfGNZxwg@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/61] 4.14.149-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.196-38-g78f8600d5168
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y boot: 46 boots: 0 failed,
+ 41 passed with 5 offline (v4.9.196-38-g78f8600d5168)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 10 Oct 2019 at 14:20, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.149 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.149-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/linux-4.9.y boot: 46 boots: 0 failed, 41 passed with 5 offline (v=
+4.9.196-38-g78f8600d5168)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.196-38-g78f8600d5168/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.196-38-g78f8600d5168/
 
-Summary
-------------------------------------------------------------------------
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.196-38-g78f8600d5168
+Git Commit: 78f8600d5168e90b240788cd2d5c3b46a4724f17
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 38 unique boards, 11 SoC families, 14 builds out of 197
 
-kernel: 4.14.149-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 8952ae7352b2ed94c2a5f3c8ac3f5d1c96b43bb5
-git describe: v4.14.148-62-g8952ae7352b2
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.148-62-g8952ae7352b2
+Offline Platforms:
 
+arm:
 
-No regressions (compared to build v4.14.148)
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
 
-No fixes (compared to build v4.14.148)
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-Ran 22253 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-fs-tests
-* network-basic-tests
-* kvm-unit-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+---
+For more info write to <info@kernelci.org>
