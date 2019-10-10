@@ -2,54 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E15D9D27CF
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 13:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2455BD2927
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 14:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfJJLME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 07:12:04 -0400
-Received: from foss.arm.com ([217.140.110.172]:57058 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727489AbfJJLMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 07:12:03 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 68D2E28;
-        Thu, 10 Oct 2019 04:12:03 -0700 (PDT)
-Received: from dawn-kernel.cambridge.arm.com (unknown [10.1.197.116])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B48D33F68E;
-        Thu, 10 Oct 2019 04:12:02 -0700 (PDT)
-Subject: Re: [PATCH] arm64: cpufeature: Fix truncating a feature value
-To:     stable@vger.kernel.org
-Cc:     mark.rutland@arm.com, catalin.marinas@arm.com, will@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20191010110856.4376-1-suzuki.poulose@arm.com>
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <ca77dec7-b29b-5a3b-0c01-047a06d1854d@arm.com>
-Date:   Thu, 10 Oct 2019 12:12:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S2387476AbfJJMSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 08:18:07 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:34709 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387447AbfJJMSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 08:18:04 -0400
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1iIXOG-0006Lw-1G; Thu, 10 Oct 2019 14:17:56 +0200
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org, linux-can <linux-can@vger.kernel.org>
+Cc:     davem@davemloft.net, kernel@pengutronix.de,
+        jhofstee@victronenergy.com,
+        =?UTF-8?q?Martin=20Hundeb=C3=B8ll?= <martin@geanix.com>,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Wen Yang <wenyang@linux.alibaba.com>,
+        Franklin S Cooper Jr <fcooper@ti.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 01/29] can: dev: add missing of_node_put() after calling of_get_child_by_name()
+Date:   Thu, 10 Oct 2019 14:17:22 +0200
+Message-Id: <20191010121750.27237-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191010121750.27237-1-mkl@pengutronix.de>
+References: <20191010121750.27237-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <20191010110856.4376-1-suzuki.poulose@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All,
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-On 10/10/2019 12:08, Suzuki K Poulose wrote:
-> A signed feature value is truncated to turn to an unsigned value
-> causing bad state in the system wide infrastructure. This affects
-> the discovery of FP/ASIMD support on arm64. Fix this by making sure
-> we cast it properly.
-> 
-> Fixes: 4f0a606bce5ec ("arm64: cpufeature: Track unsigned fields")
-> Cc: stable@vger.kernel.org # v4.4
+of_node_put() needs to be called when the device node which is got
+from of_get_child_by_name() finished using.
 
-Please note that this patch is only applicable for stable 4.4 tree.
-I should have removed the Fixes tag.
+Fixes: 2290aefa2e90 ("can: dev: Add support for limiting configured bitrate")
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/dev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Cheers
-Suzuki
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index ac86be52b461..1c88c361938c 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -848,6 +848,7 @@ void of_can_transceiver(struct net_device *dev)
+ 		return;
+ 
+ 	ret = of_property_read_u32(dn, "max-bitrate", &priv->bitrate_max);
++	of_node_put(dn);
+ 	if ((ret && ret != -EINVAL) || (!ret && !priv->bitrate_max))
+ 		netdev_warn(dev, "Invalid value for transceiver max bitrate. Ignoring bitrate limit.\n");
+ }
+-- 
+2.23.0
+
