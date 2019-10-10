@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B801ED2390
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6BED240C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388154AbfJJInr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
+        id S2387896AbfJJIsf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:48:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388145AbfJJInr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:47 -0400
+        id S2389658AbfJJIse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:48:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFE8421929;
-        Thu, 10 Oct 2019 08:43:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F784208C3;
+        Thu, 10 Oct 2019 08:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697026;
-        bh=Unj/6prc7e9Uu2o7AWgxamwyvugM5e+gPlPFrolWZUE=;
+        s=default; t=1570697313;
+        bh=4jbZCZ8oCBzOUrTMKx+74Dexkyj4kfRpRIGLN0rEjmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVpcru8biNymXdONDVXacT0Oi79JFkgmS4ocAQSihR2oktNPrXhVL5gKI+tZzyZMl
-         zfRpKackGt40LpkC8eSqbgzrm1jvXEPIv6AGPb2WthOBNhFxsTIoPWb5VvsCPmVDY4
-         eJUO/Kxmz0xQZtirUY3pXWYoIsHyg18OPVMgRj2k=
+        b=iJkcT+Dg1vW7lj80N7aFhcRb3sFQDen8O6inhgjBwytA1s5ANu6arEII9sjOY+DlM
+         rLHkOiZwqRxnoHau3Gn3pnAolNLsk5Kkln1sfWjt+M1fQflhvtO3P+ngwHiTX1Jpoa
+         0yWso3NtVvFdBlQhCRHIwBVPCyVUl2uflzFlu+Pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 141/148] vfs: Fix EOVERFLOW testing in put_compat_statfs64
-Date:   Thu, 10 Oct 2019 10:36:42 +0200
-Message-Id: <20191010083620.865774230@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.19 097/114] arm64: Provide a command line to disable spectre_v2 mitigation
+Date:   Thu, 10 Oct 2019 10:36:44 +0200
+Message-Id: <20191010083613.292731617@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Sandeen <sandeen@redhat.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-commit cc3a7bfe62b947b423fcb2cfe89fcba92bf48fa3 upstream.
+[ Upstream commit e5ce5e7267ddcbe13ab9ead2542524e1b7993e5a ]
 
-Today, put_compat_statfs64() disallows nearly any field value over
-2^32 if f_bsize is only 32 bits, but that makes no sense.
-compat_statfs64 is there for the explicit purpose of providing 64-bit
-fields for f_files, f_ffree, etc.  And f_bsize is always only 32 bits.
+There are various reasons, such as benchmarking, to disable spectrev2
+mitigation on a machine. Provide a command-line option to do so.
 
-As a result, 32-bit userspace gets -EOVERFLOW for i.e.  large file
-counts even with -D_FILE_OFFSET_BITS=64 set.
-
-In reality, only f_bsize and f_frsize can legitimately overflow
-(fields like f_type and f_namelen should never be large), so test
-only those fields.
-
-This bug was discussed at length some time ago, and this is the proposal
-Al suggested at https://lkml.org/lkml/2018/8/6/640.  It seemed to get
-dropped amid the discussion of other related changes, but this
-part seems obviously correct on its own, so I've picked it up and
-sent it, for expediency.
-
-Fixes: 64d2ab32efe3 ("vfs: fix put_compat_statfs64() does not handle errors")
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/statfs.c |   17 ++++-------------
- 1 file changed, 4 insertions(+), 13 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |    8 ++++----
+ arch/arm64/kernel/cpu_errata.c                  |   13 +++++++++++++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/fs/statfs.c
-+++ b/fs/statfs.c
-@@ -318,19 +318,10 @@ COMPAT_SYSCALL_DEFINE2(fstatfs, unsigned
- static int put_compat_statfs64(struct compat_statfs64 __user *ubuf, struct kstatfs *kbuf)
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2866,10 +2866,10 @@
+ 			(bounds check bypass). With this option data leaks
+ 			are possible in the system.
+ 
+-	nospectre_v2	[X86,PPC_FSL_BOOK3E] Disable all mitigations for the Spectre variant 2
+-			(indirect branch prediction) vulnerability. System may
+-			allow data leaks with this option, which is equivalent
+-			to spectre_v2=off.
++	nospectre_v2	[X86,PPC_FSL_BOOK3E,ARM64] Disable all mitigations for
++			the Spectre variant 2 (indirect branch prediction)
++			vulnerability. System may allow data leaks with this
++			option.
+ 
+ 	nospec_store_bypass_disable
+ 			[HW] Disable all mitigations for the Speculative Store Bypass vulnerability
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -189,6 +189,14 @@ static void qcom_link_stack_sanitization
+ 		     : "=&r" (tmp));
+ }
+ 
++static bool __nospectre_v2;
++static int __init parse_nospectre_v2(char *str)
++{
++	__nospectre_v2 = true;
++	return 0;
++}
++early_param("nospectre_v2", parse_nospectre_v2);
++
+ static void
+ enable_smccc_arch_workaround_1(const struct arm64_cpu_capabilities *entry)
  {
- 	struct compat_statfs64 buf;
--	if (sizeof(ubuf->f_bsize) == 4) {
--		if ((kbuf->f_type | kbuf->f_bsize | kbuf->f_namelen |
--		     kbuf->f_frsize | kbuf->f_flags) & 0xffffffff00000000ULL)
--			return -EOVERFLOW;
--		/* f_files and f_ffree may be -1; it's okay
--		 * to stuff that into 32 bits */
--		if (kbuf->f_files != 0xffffffffffffffffULL
--		 && (kbuf->f_files & 0xffffffff00000000ULL))
--			return -EOVERFLOW;
--		if (kbuf->f_ffree != 0xffffffffffffffffULL
--		 && (kbuf->f_ffree & 0xffffffff00000000ULL))
--			return -EOVERFLOW;
--	}
+@@ -200,6 +208,11 @@ enable_smccc_arch_workaround_1(const str
+ 	if (!entry->matches(entry, SCOPE_LOCAL_CPU))
+ 		return;
+ 
++	if (__nospectre_v2) {
++		pr_info_once("spectrev2 mitigation disabled by command line option\n");
++		return;
++	}
 +
-+	if ((kbuf->f_bsize | kbuf->f_frsize) & 0xffffffff00000000ULL)
-+		return -EOVERFLOW;
-+
- 	memset(&buf, 0, sizeof(struct compat_statfs64));
- 	buf.f_type = kbuf->f_type;
- 	buf.f_bsize = kbuf->f_bsize;
+ 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
+ 		return;
+ 
 
 
