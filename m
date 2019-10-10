@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA278D2538
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E121D2518
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388327AbfJJIz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:55:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55236 "EHLO mail.kernel.org"
+        id S2388278AbfJJIxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:53:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389178AbfJJIsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:52 -0400
+        id S2388950AbfJJIvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:51:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0871218AC;
-        Thu, 10 Oct 2019 08:48:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F33012190F;
+        Thu, 10 Oct 2019 08:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697332;
-        bh=xCPrH/diVEoglFjDTV/JzAWK6WNrbC+4JHj+gxzkQF0=;
+        s=default; t=1570697479;
+        bh=6xA0OjtMQAkM6FlhW2SATp8wTFV1qQGzpiLWe71Hg/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0FkIhGs5R4JgpGlpZNFnGrFJ5jMaeS1a88CzrzKuUuZDcHAHpIhIXmkDm7d4V4iV
-         daTcbwqCa2z4BdM2EYvGDcJL1t/uAzOcB05/SB1necZJVbxrI5Qu446HEQ+fDiUYYJ
-         fXqfbBcJRx+kWCyMpA5NwNx15oYAUNb5d8V+tFH8=
+        b=0NbIfEnhUUo7grUWfRZ0f7wp0ksz/hyDhW+QzIdAT/8dnLdDKc+3AhPrR/XsP221y
+         n22WCCbuPZyyteyPDlVD05hDUnHvNffUKfse2wMjj/Py21RCGgjIozKWntJ9aOYWJq
+         1TEgcagZiXr0ge/DPl58/n9our7XSAorzQjT4qkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 103/114] arm64: Force SSBS on context switch
+        stable@vger.kernel.org, James Dingwall <james@dingwall.me.uk>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.14 25/61] xen/xenbus: fix self-deadlock after killing user process
 Date:   Thu, 10 Oct 2019 10:36:50 +0200
-Message-Id: <20191010083613.664531794@linuxfoundation.org>
+Message-Id: <20191010083504.679557065@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit cbdf8a189a66001c36007bf0f5c975d0376c5c3a ]
+commit a8fabb38525c51a094607768bac3ba46b3f4a9d5 upstream.
 
-On a CPU that doesn't support SSBS, PSTATE[12] is RES0.  In a system
-where only some of the CPUs implement SSBS, we end-up losing track of
-the SSBS bit across task migration.
+In case a user process using xenbus has open transactions and is killed
+e.g. via ctrl-C the following cleanup of the allocated resources might
+result in a deadlock due to trying to end a transaction in the xenbus
+worker thread:
 
-To address this issue, let's force the SSBS bit on context switch.
+[ 2551.474706] INFO: task xenbus:37 blocked for more than 120 seconds.
+[ 2551.492215]       Tainted: P           OE     5.0.0-29-generic #5
+[ 2551.510263] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 2551.528585] xenbus          D    0    37      2 0x80000080
+[ 2551.528590] Call Trace:
+[ 2551.528603]  __schedule+0x2c0/0x870
+[ 2551.528606]  ? _cond_resched+0x19/0x40
+[ 2551.528632]  schedule+0x2c/0x70
+[ 2551.528637]  xs_talkv+0x1ec/0x2b0
+[ 2551.528642]  ? wait_woken+0x80/0x80
+[ 2551.528645]  xs_single+0x53/0x80
+[ 2551.528648]  xenbus_transaction_end+0x3b/0x70
+[ 2551.528651]  xenbus_file_free+0x5a/0x160
+[ 2551.528654]  xenbus_dev_queue_reply+0xc4/0x220
+[ 2551.528657]  xenbus_thread+0x7de/0x880
+[ 2551.528660]  ? wait_woken+0x80/0x80
+[ 2551.528665]  kthread+0x121/0x140
+[ 2551.528667]  ? xb_read+0x1d0/0x1d0
+[ 2551.528670]  ? kthread_park+0x90/0x90
+[ 2551.528673]  ret_from_fork+0x35/0x40
 
-Fixes: 8f04e8e6e29c ("arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3")
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-[will: inverted logic and added comments]
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fix this by doing the cleanup via a workqueue instead.
+
+Reported-by: James Dingwall <james@dingwall.me.uk>
+Fixes: fd8aa9095a95c ("xen: optimize xenbus driver for multiple concurrent xenstore accesses")
+Cc: <stable@vger.kernel.org> # 4.11
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/processor.h |   14 ++++++++++++--
- arch/arm64/kernel/process.c        |   29 ++++++++++++++++++++++++++++-
- 2 files changed, 40 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -177,6 +177,16 @@ static inline void start_thread_common(s
- 	regs->pc = pc;
+---
+ drivers/xen/xenbus/xenbus_dev_frontend.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+--- a/drivers/xen/xenbus/xenbus_dev_frontend.c
++++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
+@@ -55,6 +55,7 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/miscdevice.h>
++#include <linux/workqueue.h>
+ 
+ #include <xen/xenbus.h>
+ #include <xen/xen.h>
+@@ -113,6 +114,8 @@ struct xenbus_file_priv {
+ 	wait_queue_head_t read_waitq;
+ 
+ 	struct kref kref;
++
++	struct work_struct wq;
+ };
+ 
+ /* Read out any raw xenbus messages queued up. */
+@@ -297,14 +300,14 @@ static void watch_fired(struct xenbus_wa
+ 	mutex_unlock(&adap->dev_data->reply_mutex);
  }
  
-+static inline void set_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_SSBS_BIT;
-+}
-+
-+static inline void set_compat_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_AA32_SSBS_BIT;
-+}
-+
- static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 				unsigned long sp)
+-static void xenbus_file_free(struct kref *kref)
++static void xenbus_worker(struct work_struct *wq)
  {
-@@ -184,7 +194,7 @@ static inline void start_thread(struct p
- 	regs->pstate = PSR_MODE_EL0t;
+ 	struct xenbus_file_priv *u;
+ 	struct xenbus_transaction_holder *trans, *tmp;
+ 	struct watch_adapter *watch, *tmp_watch;
+ 	struct read_buffer *rb, *tmp_rb;
  
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_SSBS_BIT;
-+		set_ssbs_bit(regs);
- 
- 	regs->sp = sp;
- }
-@@ -203,7 +213,7 @@ static inline void compat_start_thread(s
- #endif
- 
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_AA32_SSBS_BIT;
-+		set_compat_ssbs_bit(regs);
- 
- 	regs->compat_sp = sp;
- }
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -360,7 +360,7 @@ int copy_thread(unsigned long clone_flag
- 			childregs->pstate |= PSR_UAO_BIT;
- 
- 		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
--			childregs->pstate |= PSR_SSBS_BIT;
-+			set_ssbs_bit(childregs);
- 
- 		p->thread.cpu_context.x19 = stack_start;
- 		p->thread.cpu_context.x20 = stk_sz;
-@@ -402,6 +402,32 @@ void uao_thread_switch(struct task_struc
- }
- 
- /*
-+ * Force SSBS state on context-switch, since it may be lost after migrating
-+ * from a CPU which treats the bit as RES0 in a heterogeneous system.
-+ */
-+static void ssbs_thread_switch(struct task_struct *next)
-+{
-+	struct pt_regs *regs = task_pt_regs(next);
-+
-+	/*
-+	 * Nothing to do for kernel threads, but 'regs' may be junk
-+	 * (e.g. idle task) so check the flags and bail early.
-+	 */
-+	if (unlikely(next->flags & PF_KTHREAD))
-+		return;
-+
-+	/* If the mitigation is enabled, then we leave SSBS clear. */
-+	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
-+	    test_tsk_thread_flag(next, TIF_SSBD))
-+		return;
-+
-+	if (compat_user_mode(regs))
-+		set_compat_ssbs_bit(regs);
-+	else if (user_mode(regs))
-+		set_ssbs_bit(regs);
-+}
-+
-+/*
-  * We store our current task in sp_el0, which is clobbered by userspace. Keep a
-  * shadow copy so that we can restore this upon entry from userspace.
-  *
-@@ -429,6 +455,7 @@ __notrace_funcgraph struct task_struct *
- 	contextidr_thread_switch(next);
- 	entry_task_switch(next);
- 	uao_thread_switch(next);
-+	ssbs_thread_switch(next);
+-	u = container_of(kref, struct xenbus_file_priv, kref);
++	u = container_of(wq, struct xenbus_file_priv, wq);
  
  	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
+ 	 * No need for locking here because there are no other users,
+@@ -330,6 +333,18 @@ static void xenbus_file_free(struct kref
+ 	kfree(u);
+ }
+ 
++static void xenbus_file_free(struct kref *kref)
++{
++	struct xenbus_file_priv *u;
++
++	/*
++	 * We might be called in xenbus_thread().
++	 * Use workqueue to avoid deadlock.
++	 */
++	u = container_of(kref, struct xenbus_file_priv, kref);
++	schedule_work(&u->wq);
++}
++
+ static struct xenbus_transaction_holder *xenbus_get_transaction(
+ 	struct xenbus_file_priv *u, uint32_t tx_id)
+ {
+@@ -626,6 +641,7 @@ static int xenbus_file_open(struct inode
+ 	INIT_LIST_HEAD(&u->watches);
+ 	INIT_LIST_HEAD(&u->read_buffers);
+ 	init_waitqueue_head(&u->read_waitq);
++	INIT_WORK(&u->wq, xenbus_worker);
+ 
+ 	mutex_init(&u->reply_mutex);
+ 	mutex_init(&u->msgbuffer_mutex);
 
 
