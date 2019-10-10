@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB42D2404
+	by mail.lfdr.de (Postfix) with ESMTP id 65350D2403
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389612AbfJJIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388858AbfJJIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 10 Oct 2019 04:48:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54298 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389601AbfJJIsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:09 -0400
+        id S2389598AbfJJIsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:48:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 164C0208C3;
-        Thu, 10 Oct 2019 08:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB50D2064A;
+        Thu, 10 Oct 2019 08:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697288;
-        bh=dTmsqtgyR61mF8BwJ3Q1DjH7pm/mxnHGdYfe/UOyPlI=;
+        s=default; t=1570697291;
+        bh=96xU/UJbV7dJS5rO1/HhxRqUpWrLzRq1hWiaKmwL2lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ma92/3ubo/UX/ElYjqt7eIAPb6RnUAUxlJrR/QOU3s5pr2qEwPEj3usZiKczi934t
-         GVQ63ObMuxpAjp2RdLtJ/XWvXThv9kbdr1doJaw2GRD/+Z65p0HwabzKg9qfBZdFdb
-         QSukKqOmI/TYoQhUFAtHiK/X949k2rjp1wFsCWmk=
+        b=KSqtK31kyyN8WTLiyzRdbGa+s7YFdKxg/cFECCQwM1Gad+U8Xk6lshlzlZImkZouF
+         0nVzwpYJox7x+v8T7iATg7VzS3z3bI1ubD7MQGIYOod2AVCOjIqRromd8dJ8qVSwuO
+         quI+Hp0cDe22127QmUjJIOboEWybgH4VXrMOqmTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, loobinliu@tencent.com,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>
-Subject: [PATCH 4.19 043/114] Revert "locking/pvqspinlock: Dont wait if vCPU is preempted"
-Date:   Thu, 10 Oct 2019 10:35:50 +0200
-Message-Id: <20191010083606.862006127@linuxfoundation.org>
+        stable@vger.kernel.org, James Dingwall <james@dingwall.me.uk>,
+        Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.19 044/114] xen/xenbus: fix self-deadlock after killing user process
+Date:   Thu, 10 Oct 2019 10:35:51 +0200
+Message-Id: <20191010083607.168447531@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -49,65 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 89340d0935c9296c7b8222b6eab30e67cb57ab82 upstream.
+commit a8fabb38525c51a094607768bac3ba46b3f4a9d5 upstream.
 
-This patch reverts commit 75437bb304b20 (locking/pvqspinlock: Don't
-wait if vCPU is preempted).  A large performance regression was caused
-by this commit.  on over-subscription scenarios.
+In case a user process using xenbus has open transactions and is killed
+e.g. via ctrl-C the following cleanup of the allocated resources might
+result in a deadlock due to trying to end a transaction in the xenbus
+worker thread:
 
-The test was run on a Xeon Skylake box, 2 sockets, 40 cores, 80 threads,
-with three VMs of 80 vCPUs each.  The score of ebizzy -M is reduced from
-13000-14000 records/s to 1700-1800 records/s:
+[ 2551.474706] INFO: task xenbus:37 blocked for more than 120 seconds.
+[ 2551.492215]       Tainted: P           OE     5.0.0-29-generic #5
+[ 2551.510263] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[ 2551.528585] xenbus          D    0    37      2 0x80000080
+[ 2551.528590] Call Trace:
+[ 2551.528603]  __schedule+0x2c0/0x870
+[ 2551.528606]  ? _cond_resched+0x19/0x40
+[ 2551.528632]  schedule+0x2c/0x70
+[ 2551.528637]  xs_talkv+0x1ec/0x2b0
+[ 2551.528642]  ? wait_woken+0x80/0x80
+[ 2551.528645]  xs_single+0x53/0x80
+[ 2551.528648]  xenbus_transaction_end+0x3b/0x70
+[ 2551.528651]  xenbus_file_free+0x5a/0x160
+[ 2551.528654]  xenbus_dev_queue_reply+0xc4/0x220
+[ 2551.528657]  xenbus_thread+0x7de/0x880
+[ 2551.528660]  ? wait_woken+0x80/0x80
+[ 2551.528665]  kthread+0x121/0x140
+[ 2551.528667]  ? xb_read+0x1d0/0x1d0
+[ 2551.528670]  ? kthread_park+0x90/0x90
+[ 2551.528673]  ret_from_fork+0x35/0x40
 
-          Host                Guest                score
+Fix this by doing the cleanup via a workqueue instead.
 
-vanilla w/o kvm optimizations     upstream    1700-1800 records/s
-vanilla w/o kvm optimizations     revert      13000-14000 records/s
-vanilla w/ kvm optimizations      upstream    4500-5000 records/s
-vanilla w/ kvm optimizations      revert      14000-15500 records/s
-
-Exit from aggressive wait-early mechanism can result in premature yield
-and extra scheduling latency.
-
-Actually, only 6% of wait_early events are caused by vcpu_is_preempted()
-being true.  However, when one vCPU voluntarily releases its vCPU, all
-the subsequently waiters in the queue will do the same and the cascading
-effect leads to bad performance.
-
-kvm optimizations:
-[1] commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts)
-[2] commit 266e85a5ec9 (KVM: X86: Boost queue head vCPU to mitigate lock waiter preemption)
-
-Tested-by: loobinliu@tencent.com
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Waiman Long <longman@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Cc: loobinliu@tencent.com
-Cc: stable@vger.kernel.org
-Fixes: 75437bb304b20 (locking/pvqspinlock: Don't wait if vCPU is preempted)
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: James Dingwall <james@dingwall.me.uk>
+Fixes: fd8aa9095a95c ("xen: optimize xenbus driver for multiple concurrent xenstore accesses")
+Cc: <stable@vger.kernel.org> # 4.11
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/locking/qspinlock_paravirt.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/xen/xenbus/xenbus_dev_frontend.c |   20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
---- a/kernel/locking/qspinlock_paravirt.h
-+++ b/kernel/locking/qspinlock_paravirt.h
-@@ -271,7 +271,7 @@ pv_wait_early(struct pv_node *prev, int
- 	if ((loop & PV_PREV_CHECK_MASK) != 0)
- 		return false;
+--- a/drivers/xen/xenbus/xenbus_dev_frontend.c
++++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
+@@ -55,6 +55,7 @@
+ #include <linux/string.h>
+ #include <linux/slab.h>
+ #include <linux/miscdevice.h>
++#include <linux/workqueue.h>
  
--	return READ_ONCE(prev->state) != vcpu_running || vcpu_is_preempted(prev->cpu);
-+	return READ_ONCE(prev->state) != vcpu_running;
+ #include <xen/xenbus.h>
+ #include <xen/xen.h>
+@@ -116,6 +117,8 @@ struct xenbus_file_priv {
+ 	wait_queue_head_t read_waitq;
+ 
+ 	struct kref kref;
++
++	struct work_struct wq;
+ };
+ 
+ /* Read out any raw xenbus messages queued up. */
+@@ -300,14 +303,14 @@ static void watch_fired(struct xenbus_wa
+ 	mutex_unlock(&adap->dev_data->reply_mutex);
  }
  
- /*
+-static void xenbus_file_free(struct kref *kref)
++static void xenbus_worker(struct work_struct *wq)
+ {
+ 	struct xenbus_file_priv *u;
+ 	struct xenbus_transaction_holder *trans, *tmp;
+ 	struct watch_adapter *watch, *tmp_watch;
+ 	struct read_buffer *rb, *tmp_rb;
+ 
+-	u = container_of(kref, struct xenbus_file_priv, kref);
++	u = container_of(wq, struct xenbus_file_priv, wq);
+ 
+ 	/*
+ 	 * No need for locking here because there are no other users,
+@@ -333,6 +336,18 @@ static void xenbus_file_free(struct kref
+ 	kfree(u);
+ }
+ 
++static void xenbus_file_free(struct kref *kref)
++{
++	struct xenbus_file_priv *u;
++
++	/*
++	 * We might be called in xenbus_thread().
++	 * Use workqueue to avoid deadlock.
++	 */
++	u = container_of(kref, struct xenbus_file_priv, kref);
++	schedule_work(&u->wq);
++}
++
+ static struct xenbus_transaction_holder *xenbus_get_transaction(
+ 	struct xenbus_file_priv *u, uint32_t tx_id)
+ {
+@@ -652,6 +667,7 @@ static int xenbus_file_open(struct inode
+ 	INIT_LIST_HEAD(&u->watches);
+ 	INIT_LIST_HEAD(&u->read_buffers);
+ 	init_waitqueue_head(&u->read_waitq);
++	INIT_WORK(&u->wq, xenbus_worker);
+ 
+ 	mutex_init(&u->reply_mutex);
+ 	mutex_init(&u->msgbuffer_mutex);
 
 
