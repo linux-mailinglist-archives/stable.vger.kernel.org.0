@@ -2,74 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EFFD29D1
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 14:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38787D2A37
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 14:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733191AbfJJMqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 08:46:24 -0400
-Received: from foss.arm.com ([217.140.110.172]:58600 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733051AbfJJMqX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 08:46:23 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6795128;
-        Thu, 10 Oct 2019 05:46:23 -0700 (PDT)
-Received: from dawn-kernel.cambridge.arm.com (unknown [10.1.197.116])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 936CF3F68E;
-        Thu, 10 Oct 2019 05:46:22 -0700 (PDT)
-Subject: Re: [PATCH] arm64: cpufeature: Fix truncating a feature value
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, mark.rutland@arm.com,
-        catalin.marinas@arm.com, will@kernel.org,
-        linux-arm-kernel@lists.infradead.org
-References: <20191010110856.4376-1-suzuki.poulose@arm.com>
- <ca77dec7-b29b-5a3b-0c01-047a06d1854d@arm.com>
- <20191010122922.GA720144@kroah.com>
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-Message-ID: <295cfb9e-ac7b-73e7-bc80-8b9150f4a626@arm.com>
-Date:   Thu, 10 Oct 2019 13:46:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S2387980AbfJJM65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 08:58:57 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:43445 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728274AbfJJM6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 08:58:50 -0400
+Received: by mail-lj1-f196.google.com with SMTP id n14so6072783ljj.10;
+        Thu, 10 Oct 2019 05:58:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=sFfJKZrsZ65QHdG/a6Vjdwobjv+Fk7Z1ecZ7AQainIo=;
+        b=PFBusBVRzgPljPc+cHreTsNfSAxkcbWsYhHyRB0TI9kSHuNA+J9TFgSkZvPBF7bEhq
+         AxdKaIfzITQXUCRgNV5BcUynpqGJsdcDA6VqmlfjcSSMbCw/QvO2KtGu8tKpvAB8nkxu
+         00BMrsAUw2jOA/fAmS023KaVFGTVjj31UtjciWx4l5quuEeTylhTY+J1O7j/0gRnw6e7
+         qT+zb6UYnMjoYA7Z1ZBBq6vZOjn76pgtqe9jAUcQNZcBYMR5R288HJcI0u9RPgXvLoP9
+         iEIYCJtQ10HGosng4lOrQnzpwUTNsfggg6tRCL09mmz+vFQayTGws8QxC2gf5U64tRFA
+         urSw==
+X-Gm-Message-State: APjAAAX161qTIt014B/mIdHiMTnW3FEOrpDcGS/oUjjuKYnkXt3OpA1d
+        SuVk9KxvlB9ejMzhh+FGqzs=
+X-Google-Smtp-Source: APXvYqzrMxpqqH/x0hvuWkRUifQkU26w8tdkyxPlpaMcnr1jxd8rdd6qQGWg12N0vXP4j9dc3lkBXQ==
+X-Received: by 2002:a2e:9a43:: with SMTP id k3mr6000549ljj.70.1570712327840;
+        Thu, 10 Oct 2019 05:58:47 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id c26sm1358291ljj.45.2019.10.10.05.58.46
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Oct 2019 05:58:46 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@xi.terra>)
+        id 1iIY1x-00072r-HT; Thu, 10 Oct 2019 14:58:57 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Juergen Stuber <starblue@users.sourceforge.net>,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 1/2] USB: ldusb: fix memleak on disconnect
+Date:   Thu, 10 Oct 2019 14:58:34 +0200
+Message-Id: <20191010125835.27031-2-johan@kernel.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191010125835.27031-1-johan@kernel.org>
+References: <20191010125835.27031-1-johan@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20191010122922.GA720144@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If disconnect() races with release() after a process has been
+interrupted, release() could end up returning early and the driver would
+fail to free its driver data.
 
+Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/misc/ldusb.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-On 10/10/2019 13:29, Greg KH wrote:
-> On Thu, Oct 10, 2019 at 12:12:01PM +0100, Suzuki K Poulose wrote:
->> All,
->>
->> On 10/10/2019 12:08, Suzuki K Poulose wrote:
->>> A signed feature value is truncated to turn to an unsigned value
->>> causing bad state in the system wide infrastructure. This affects
->>> the discovery of FP/ASIMD support on arm64. Fix this by making sure
->>> we cast it properly.
->>>
->>> Fixes: 4f0a606bce5ec ("arm64: cpufeature: Track unsigned fields")
->>> Cc: stable@vger.kernel.org # v4.4
->>
->> Please note that this patch is only applicable for stable 4.4 tree.
->> I should have removed the Fixes tag.
-> 
-> Why is it only for 4.4?  That needs to be documented really really
+diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
+index f3108d85e768..147c90c2a4e5 100644
+--- a/drivers/usb/misc/ldusb.c
++++ b/drivers/usb/misc/ldusb.c
+@@ -380,10 +380,7 @@ static int ld_usb_release(struct inode *inode, struct file *file)
+ 		goto exit;
+ 	}
+ 
+-	if (mutex_lock_interruptible(&dev->mutex)) {
+-		retval = -ERESTARTSYS;
+-		goto exit;
+-	}
++	mutex_lock(&dev->mutex);
+ 
+ 	if (dev->open_count != 1) {
+ 		retval = -ENODEV;
+-- 
+2.23.0
 
-This was fixed later in v4.6 onwards with commit 28c5dcb22f90113dea
-("arm64: Rename cpuid_feature field extract routines") rather inadvertently.
-
-> really well in the changelog as to why this is a one-off patch, and why
-> we can't just take the relevant patches that are in Linus's tree
-> instead.
-> 
-> Please fix up and resend.
-
-I can resend the patch with the above information included if you like.
-
-Cheers
-Suzuki
