@@ -2,78 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC8CD3425
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 01:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26778D3462
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 01:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726365AbfJJXEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 19:04:13 -0400
-Received: from sender4-of-o54.zoho.com ([136.143.188.54]:21489 "EHLO
-        sender4-of-o54.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726358AbfJJXEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 19:04:13 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1570748618; cv=none; 
-        d=zoho.com; s=zohoarc; 
-        b=QmQgh8oVeL1UlhL4bRumEiLaTobIedhbyS6BDJxOnjd3bP+ocRyHZY8yhzAUhl5dXBNW8Nu1TAWYgBXvZEWhXTxfs+qlD0Z+7Q7iUxQrwYFPnNdtuwJBUjHZJmNs3XO38vLf7D/4nB69zjkTo8gftKc1Rf3tVc1EjzKWs49+SJU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zoho.com; s=zohoarc; 
-        t=1570748618; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=bGU1bteMJ1umjbur92OJItzq406PA1Ny/lYW7QJ9L94=; 
-        b=TJ6zvuw0oYKMdZ13TkJZkThKfZCrhMG78bUsijNI9gzRgwqwO/S/FSDOZU68wXKCuxfLQqK2OADV2qL7U7JBClknJ0PfxewhQ2bk+yCxACCQ2HpUusj2IMzBoYixlz8O93znXuFiWEIHqEGM/U8L+KSs1knsrd8gAUg9C1kKpiA=
-ARC-Authentication-Results: i=1; mx.zoho.com;
-        dkim=pass  header.i=didiksetiawan.com;
-        spf=pass  smtp.mailfrom=ds@didiksetiawan.com;
-        dmarc=pass header.from=<ds@didiksetiawan.com> header.from=<ds@didiksetiawan.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1570748618;
-        s=zoho; d=didiksetiawan.com; i=ds@didiksetiawan.com;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
-        l=863; bh=bGU1bteMJ1umjbur92OJItzq406PA1Ny/lYW7QJ9L94=;
-        b=vd2lRiPk6jhbBlj7LcjJQDxEgHHaALMTb/9yVOQC883fSe4SciejVzXdttcgVtKE
-        PVv0CNdfaBSZ6kPVNmqpD2rqm5juKKHZI6JPTmOZGK7FS+/bQY/oKy+RaMHvMgG5k2b
-        JwiNhp08owBq5VwqooU3XHHE7sUVeXR2RAkKcYKg=
-Received: from thinkpad-e420s (120.188.6.98 [120.188.6.98]) by mx.zohomail.com
-        with SMTPS id 1570748616019428.6066937022854; Thu, 10 Oct 2019 16:03:36 -0700 (PDT)
-Date:   Fri, 11 Oct 2019 06:03:27 +0700
-From:   Didik Setiawan <ds@didiksetiawan.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 000/114] 4.19.79-stable review
-Message-ID: <20191010230327.GA19486@thinkpad-e420s>
-References: <20191010083544.711104709@linuxfoundation.org>
+        id S1726135AbfJJXcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 19:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725845AbfJJXcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 19:32:55 -0400
+Received: from localhost (unknown [131.107.174.7])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87D9B20B7C;
+        Thu, 10 Oct 2019 23:32:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570750374;
+        bh=KRCPJlJhWjHuztpYIBRMiPsZRR2NVPVkumUYRq8JVHQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AywgrSp6EqiAXSIoqsvT5tF9H83nvlRDj4Tgxb7U6c8o2P7KLBH//KgvnQOVwVQQ5
+         dQo6/ZAxguheD8qN4spE0QxENwCz21Gq+umSoGM6R41JfoQ2RcCLji5dBVxt1fk5qE
+         nfvzJMbrBy7iNegnxuWOLlR3hnE44hUzBWD7EVlg=
+Date:   Thu, 10 Oct 2019 19:32:54 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     "niveditas98 ." <nivedita@alum.mit.edu>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 5.3 111/148] x86/purgatory: Disable the stackleak GCC
+ plugin for the purgatory
+Message-ID: <20191010233254.GA2635@sasha-vm>
+References: <20191010083609.660878383@linuxfoundation.org>
+ <20191010083617.862786246@linuxfoundation.org>
+ <BYAPR04MB62468F03E52BCE23B5CD1C91AA940@BYAPR04MB6246.namprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
-X-ZohoMailClient: External
+In-Reply-To: <BYAPR04MB62468F03E52BCE23B5CD1C91AA940@BYAPR04MB6246.namprd04.prod.outlook.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 10:35:07AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.79 release.
-> There are 114 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.79-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
- 
-Compiled, booted, and no regressions found on my x86_64 system.
+On Thu, Oct 10, 2019 at 04:22:20PM +0000, niveditas98 . wrote:
+>Is it applied to 5.2 as well? Only saw mails for 4.19 and 5.3.
 
+5.2 is EOL.
+
+-- 
 Thanks,
-Didik Setiawan
-
+Sasha
