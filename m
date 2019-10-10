@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80638D24F6
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD7DD24F8
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390191AbfJJIwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:52:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59816 "EHLO mail.kernel.org"
+        id S2388878AbfJJIwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:52:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389853AbfJJIwD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:52:03 -0400
+        id S2390204AbfJJIwG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:52:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D4DC2064A;
-        Thu, 10 Oct 2019 08:52:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A4F520B7C;
+        Thu, 10 Oct 2019 08:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697523;
-        bh=jorbzplLFZs5KZv2OXDXaJe/w1cu8hny/AjZmBdg+Zc=;
+        s=default; t=1570697525;
+        bh=uNlwQPCzlkgOpVtHwwmzu0DDqcAWVJqlvfAT3T9okbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRQt8+WA2ApCpCSx0sLIOcjK3Ue2uvzDrigBFY6Ot8mTVNPOvdBeIEyGo4u0iqSwS
-         iKC7yZBpZ8YcPfZk+Xrht690lawxw0Pag3iPAZBF0vt5H6mfM3fHlm8e23KtL3sB+W
-         Qxy0kERtpeEy27zfVBe5Q5RCE24hIzt2g+C/RN4A=
+        b=DCRE/coNCraVisJVHvyiB7dH3N+WZ5Zc1GCDh+K27rj4pt6WE0UScGN5kSbuLAAnc
+         1TUEEMV/rVYqasoNEgktEAd31ef9X/h3sCGJxPII2rWDMJ81c8+s2Tmh1mN0hHQF22
+         C23ik0X8SWBVw1lwftCC+GdEDDSC4OorhmYnHkKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Murray <andrew.murray@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 57/61] coresight: etm4x: Use explicit barriers on enable/disable
-Date:   Thu, 10 Oct 2019 10:37:22 +0200
-Message-Id: <20191010083525.202460400@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 58/61] cfg80211: add and use strongly typed element iteration macros
+Date:   Thu, 10 Oct 2019 10:37:23 +0200
+Message-Id: <20191010083526.613633979@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -44,72 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 1004ce4c255fc3eb3ad9145ddd53547d1b7ce327 upstream.
+commit 0f3b07f027f87a38ebe5c436490095df762819be upstream.
 
-Synchronization is recommended before disabling the trace registers
-to prevent any start or stop points being speculative at the point
-of disabling the unit (section 7.3.77 of ARM IHI 0064D).
+Rather than always iterating elements from frames with pure
+u8 pointers, add a type "struct element" that encapsulates
+the id/datalen/data format of them.
 
-Synchronization is also recommended after programming the trace
-registers to ensure all updates are committed prior to normal code
-resuming (section 4.3.7 of ARM IHI 0064D).
+Then, add the element iteration macros
+ * for_each_element
+ * for_each_element_id
+ * for_each_element_extid
 
-Let's ensure these syncronization points are present in the code
-and clearly commented.
+which take, as their first 'argument', such a structure and
+iterate through a given u8 array interpreting it as elements.
 
-Note that we could rely on the barriers in CS_LOCK and
-coresight_disclaim_device_unlocked or the context switch to user
-space - however coresight may be of use in the kernel.
+While at it and since we'll need it, also add
+ * for_each_subelement
+ * for_each_subelement_id
+ * for_each_subelement_extid
 
-On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
-only used on armv8 let's directly use dsb(sy) instead of mb(). This
-removes some ambiguity and makes it easier to correlate the code with
-the TRM.
+which instead of taking data/length just take an outer element
+and use its data/datalen.
 
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-[Fixed capital letter for "use" in title]
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20190829202842.580-11-mathieu.poirier@linaro.org
-Cc: stable@vger.kernel.org # 4.9+
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Also add for_each_element_completed() to determine if any of
+the loops above completed, i.e. it was able to parse all of
+the elements successfully and no data remained.
+
+Use for_each_element_id() in cfg80211_find_ie_match() as the
+first user of this.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ include/linux/ieee80211.h |   53 ++++++++++++++++++++++++++++++++++++++++++++++
+ net/wireless/scan.c       |   14 +++++-------
+ 2 files changed, 59 insertions(+), 8 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -181,6 +181,12 @@ static void etm4_enable_hw(void *info)
- 	if (coresight_timeout(drvdata->base, TRCSTATR, TRCSTATR_IDLE_BIT, 0))
- 		dev_err(drvdata->dev,
- 			"timeout while waiting for Idle Trace Status\n");
-+	/*
-+	 * As recommended by section 4.3.7 ("Synchronization when using the
-+	 * memory-mapped interface") of ARM IHI 0064D
-+	 */
-+	dsb(sy);
-+	isb();
+--- a/include/linux/ieee80211.h
++++ b/include/linux/ieee80211.h
+@@ -2743,4 +2743,57 @@ static inline bool ieee80211_action_cont
+ 	return true;
+ }
  
- 	CS_LOCK(drvdata->base);
++struct element {
++	u8 id;
++	u8 datalen;
++	u8 data[];
++};
++
++/* element iteration helpers */
++#define for_each_element(element, _data, _datalen)			\
++	for (element = (void *)(_data);					\
++	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
++		sizeof(*element) &&					\
++	     (u8 *)(_data) + (_datalen) - (u8 *)element >=		\
++		sizeof(*element) + element->datalen;			\
++	     element = (void *)(element->data + element->datalen))
++
++#define for_each_element_id(element, _id, data, datalen)		\
++	for_each_element(element, data, datalen)			\
++		if (element->id == (_id))
++
++#define for_each_element_extid(element, extid, data, datalen)		\
++	for_each_element(element, data, datalen)			\
++		if (element->id == WLAN_EID_EXTENSION &&		\
++		    element->datalen > 0 &&				\
++		    element->data[0] == (extid))
++
++#define for_each_subelement(sub, element)				\
++	for_each_element(sub, (element)->data, (element)->datalen)
++
++#define for_each_subelement_id(sub, id, element)			\
++	for_each_element_id(sub, id, (element)->data, (element)->datalen)
++
++#define for_each_subelement_extid(sub, extid, element)			\
++	for_each_element_extid(sub, extid, (element)->data, (element)->datalen)
++
++/**
++ * for_each_element_completed - determine if element parsing consumed all data
++ * @element: element pointer after for_each_element() or friends
++ * @data: same data pointer as passed to for_each_element() or friends
++ * @datalen: same data length as passed to for_each_element() or friends
++ *
++ * This function returns %true if all the data was parsed or considered
++ * while walking the elements. Only use this if your for_each_element()
++ * loop cannot be broken out of, otherwise it always returns %false.
++ *
++ * If some data was malformed, this returns %false since the last parsed
++ * element will not fill the whole remaining data.
++ */
++static inline bool for_each_element_completed(const struct element *element,
++					      const void *data, size_t datalen)
++{
++	return (u8 *)element == (u8 *)data + datalen;
++}
++
+ #endif /* LINUX_IEEE80211_H */
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -484,6 +484,8 @@ const u8 *cfg80211_find_ie_match(u8 eid,
+ 				 const u8 *match, int match_len,
+ 				 int match_offset)
+ {
++	const struct element *elem;
++
+ 	/* match_offset can't be smaller than 2, unless match_len is
+ 	 * zero, in which case match_offset must be zero as well.
+ 	 */
+@@ -491,14 +493,10 @@ const u8 *cfg80211_find_ie_match(u8 eid,
+ 		    (!match_len && match_offset)))
+ 		return NULL;
  
-@@ -331,8 +337,12 @@ static void etm4_disable_hw(void *info)
- 	/* EN, bit[0] Trace unit enable bit */
- 	control &= ~0x1;
+-	while (len >= 2 && len >= ies[1] + 2) {
+-		if ((ies[0] == eid) &&
+-		    (ies[1] + 2 >= match_offset + match_len) &&
+-		    !memcmp(ies + match_offset, match, match_len))
+-			return ies;
+-
+-		len -= ies[1] + 2;
+-		ies += ies[1] + 2;
++	for_each_element_id(elem, eid, ies, len) {
++		if (elem->datalen >= match_offset - 2 + match_len &&
++		    !memcmp(elem->data + match_offset - 2, match, match_len))
++			return (void *)elem;
+ 	}
  
--	/* make sure everything completes before disabling */
--	mb();
-+	/*
-+	 * Make sure everything completes before disabling, as recommended
-+	 * by section 7.3.77 ("TRCVICTLR, ViewInst Main Control Register,
-+	 * SSTATUS") of ARM IHI 0064D
-+	 */
-+	dsb(sy);
- 	isb();
- 	writel_relaxed(control, drvdata->base + TRCPRGCTLR);
- 
+ 	return NULL;
 
 
