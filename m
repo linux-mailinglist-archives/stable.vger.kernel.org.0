@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACDCDD25D5
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F97D25D6
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387731AbfJJIi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
+        id S2387757AbfJJIjC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387712AbfJJIiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:55 -0400
+        id S2387712AbfJJIjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EC6220B7C;
-        Thu, 10 Oct 2019 08:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDB3621BE5;
+        Thu, 10 Oct 2019 08:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696734;
-        bh=SpB5N8pAkIuM01uVBkL7NmZpdTQQGJm7TotlPNgVfMM=;
+        s=default; t=1570696740;
+        bh=TsbFjjj0pO0yLV3H0oyCsZrNK77KX6ZYSuHEraysTRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/jX0LAWW+/JE/AVcaBaatwVZterpdssDlbAtDEgDImMuHmJdW5GHDJMRhJvm4Hug
-         OdgiwI3qyfL4ZREGFC5LTRLYKUIPVSX4+yLZVR/lyEX0PaWLZxMKwaGDegHcNcUHNx
-         W7nZysgtrGnxWvSwHJlYMHV56qUVlq4Bu7CtOkrs=
+        b=xy7hr3+KMyX1pB4Z1OQe49LF6C/RIYqRWGXmZCcNjo1h7QIeA/rAV4l2aOOVTpGXI
+         ueimHUjUmstOdC+lJeu2e/RDeJo9T4+nLCIWR4vbe4draDUehB5g6EA98sRkKnYkKj
+         U55m0sRUYYda9gOm8ljag9makPd2erfoTEEJywH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.3 005/148] s390/cio: avoid calling strlen on null pointer
-Date:   Thu, 10 Oct 2019 10:34:26 +0200
-Message-Id: <20191010083610.790939302@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Heimes <frank.heimes@canonical.com>,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.3 007/148] s390/dasd: Fix error handling during online processing
+Date:   Thu, 10 Oct 2019 10:34:28 +0200
+Message-Id: <20191010083611.206491471@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -43,55 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-commit ea298e6ee8b34b3ed4366be7eb799d0650ebe555 upstream.
+commit dd45483981ac62f432e073fea6e5e11200b9070d upstream.
 
-Fix the following kasan finding:
-BUG: KASAN: global-out-of-bounds in ccwgroup_create_dev+0x850/0x1140
-Read of size 1 at addr 0000000000000000 by task systemd-udevd.r/561
+It is possible that the CCW commands for reading volume and extent pool
+information are not supported, either by the storage server (for
+dedicated DASDs) or by z/VM (for virtual devices, such as MDISKs).
 
-CPU: 30 PID: 561 Comm: systemd-udevd.r Tainted: G    B
-Hardware name: IBM 3906 M04 704 (LPAR)
-Call Trace:
-([<0000000231b3db7e>] show_stack+0x14e/0x1a8)
- [<0000000233826410>] dump_stack+0x1d0/0x218
- [<000000023216fac4>] print_address_description+0x64/0x380
- [<000000023216f5a8>] __kasan_report+0x138/0x168
- [<00000002331b8378>] ccwgroup_create_dev+0x850/0x1140
- [<00000002332b618a>] group_store+0x3a/0x50
- [<00000002323ac706>] kernfs_fop_write+0x246/0x3b8
- [<00000002321d409a>] vfs_write+0x132/0x450
- [<00000002321d47da>] ksys_write+0x122/0x208
- [<0000000233877102>] system_call+0x2a6/0x2c8
+As a command reject will occur in such a case, the current error
+handling leads to a failing online processing and thus the DASD can't be
+used at all.
 
-Triggered by:
-openat(AT_FDCWD, "/sys/bus/ccwgroup/drivers/qeth/group",
-		O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 16
-write(16, "0.0.bd00,0.0.bd01,0.0.bd02", 26) = 26
+Since the data being read is not essential for an fully operational
+DASD, the error handling can be removed. Information about the failing
+command is sent to the s390dbf debug feature.
 
-The problem is that __get_next_id in ccwgroup_create_dev might set "buf"
-buffer pointer to NULL and explicit check for that is required.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: c729696bcf8b ("s390/dasd: Recognise data for ESE volumes")
+Cc: <stable@vger.kernel.org> # 5.3
+Reported-by: Frank Heimes <frank.heimes@canonical.com>
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/cio/ccwgroup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd_eckd.c |   24 ++++++++----------------
+ 1 file changed, 8 insertions(+), 16 deletions(-)
 
---- a/drivers/s390/cio/ccwgroup.c
-+++ b/drivers/s390/cio/ccwgroup.c
-@@ -372,7 +372,7 @@ int ccwgroup_create_dev(struct device *p
- 		goto error;
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1553,8 +1553,8 @@ static int dasd_eckd_read_vol_info(struc
+ 	if (rc == 0) {
+ 		memcpy(&private->vsq, vsq, sizeof(*vsq));
+ 	} else {
+-		dev_warn(&device->cdev->dev,
+-			 "Reading the volume storage information failed with rc=%d\n", rc);
++		DBF_EVENT_DEVID(DBF_WARNING, device->cdev,
++				"Reading the volume storage information failed with rc=%d", rc);
  	}
- 	/* Check for trailing stuff. */
--	if (i == num_devices && strlen(buf) > 0) {
-+	if (i == num_devices && buf && strlen(buf) > 0) {
- 		rc = -EINVAL;
- 		goto error;
+ 
+ 	if (useglobal)
+@@ -1737,8 +1737,8 @@ static int dasd_eckd_read_ext_pool_info(
+ 	if (rc == 0) {
+ 		dasd_eckd_cpy_ext_pool_data(device, lcq);
+ 	} else {
+-		dev_warn(&device->cdev->dev,
+-			 "Reading the logical configuration failed with rc=%d\n", rc);
++		DBF_EVENT_DEVID(DBF_WARNING, device->cdev,
++				"Reading the logical configuration failed with rc=%d", rc);
  	}
+ 
+ 	dasd_sfree_request(cqr, cqr->memdev);
+@@ -2020,14 +2020,10 @@ dasd_eckd_check_characteristics(struct d
+ 	dasd_eckd_read_features(device);
+ 
+ 	/* Read Volume Information */
+-	rc = dasd_eckd_read_vol_info(device);
+-	if (rc)
+-		goto out_err3;
++	dasd_eckd_read_vol_info(device);
+ 
+ 	/* Read Extent Pool Information */
+-	rc = dasd_eckd_read_ext_pool_info(device);
+-	if (rc)
+-		goto out_err3;
++	dasd_eckd_read_ext_pool_info(device);
+ 
+ 	/* Read Device Characteristics */
+ 	rc = dasd_generic_read_dev_chars(device, DASD_ECKD_MAGIC,
+@@ -5663,14 +5659,10 @@ static int dasd_eckd_restore_device(stru
+ 	dasd_eckd_read_features(device);
+ 
+ 	/* Read Volume Information */
+-	rc = dasd_eckd_read_vol_info(device);
+-	if (rc)
+-		goto out_err2;
++	dasd_eckd_read_vol_info(device);
+ 
+ 	/* Read Extent Pool Information */
+-	rc = dasd_eckd_read_ext_pool_info(device);
+-	if (rc)
+-		goto out_err2;
++	dasd_eckd_read_ext_pool_info(device);
+ 
+ 	/* Read Device Characteristics */
+ 	rc = dasd_generic_read_dev_chars(device, DASD_ECKD_MAGIC,
 
 
