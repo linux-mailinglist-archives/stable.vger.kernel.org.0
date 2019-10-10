@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22945D2382
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F93BD23F8
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388710AbfJJInU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:43:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48090 "EHLO mail.kernel.org"
+        id S2388571AbfJJIrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388704AbfJJInR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:17 -0400
+        id S2387775AbfJJIrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:47:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0993421A4A;
-        Thu, 10 Oct 2019 08:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9A32224BD;
+        Thu, 10 Oct 2019 08:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696996;
-        bh=pBeAS6A7LRD8yPJsSSTWTnoFfgaLOPqFv1K1vsCt9L0=;
+        s=default; t=1570697261;
+        bh=X4xLrAkXyRmsntZUR3zLVRvy/Ws925/vFkVLcH1FPww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=auwbJ5d40hn4WWn0+nxtrXTItijZl60q+XZVr7k8n9kSI5YDHdivbQq7037sSm7B1
-         XprNStjzMPaO3J7yGfxUTw19Jah0mg2wsMafdbs/+4PDSlLrOVtL2NQ7SgkaUyMDOD
-         uowkZQhrPuEGXplCTHo5h27PYj8aCTAlPE0UhOf0=
+        b=X7PLzsIJ91oijFLSciaGO7vz8jj4vKvIu5c1+nSMZwB9u4MS0j9+EYlSt2SzuxNbC
+         FUC4dkl08zIL2kpqDPfhqkoaujh51aO2DjRdirxmLatmHsXpYUISFWc/beBYqLErcr
+         UG+mab2PHQR1gPM8iY5KRtX0pf/N+2CfMZwimUgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.3 085/148] nl80211: validate beacon head
-Date:   Thu, 10 Oct 2019 10:35:46 +0200
-Message-Id: <20191010083616.514723385@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaolin Zhang <xiaolin.zhang@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: [PATCH 4.19 040/114] drm/i915/gvt: update vgpu workload head pointer correctly
+Date:   Thu, 10 Oct 2019 10:35:47 +0200
+Message-Id: <20191010083605.378337441@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Xiaolin Zhang <xiaolin.zhang@intel.com>
 
-commit f88eb7c0d002a67ef31aeb7850b42ff69abc46dc upstream.
+commit 0a3242bdb47713e09cb004a0ba4947d3edf82d8a upstream.
 
-We currently don't validate the beacon head, i.e. the header,
-fixed part and elements that are to go in front of the TIM
-element. This means that the variable elements there can be
-malformed, e.g. have a length exceeding the buffer size, but
-most downstream code from this assumes that this has already
-been checked.
+when creating a vGPU workload, the guest context head pointer should
+be updated correctly by comparing with the exsiting workload in the
+guest worklod queue including the current running context.
 
-Add the necessary checks to the netlink policy.
+in some situation, there is a running context A and then received 2 new
+vGPU workload context B and A. in the new workload context A, it's head
+pointer should be updated with the running context A's tail.
+
+v2: walk through guest workload list in backward way.
 
 Cc: stable@vger.kernel.org
-Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
-Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/nl80211.c |   37 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 35 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gvt/scheduler.c |   28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -201,6 +201,38 @@ cfg80211_get_dev_from_info(struct net *n
- 	return __cfg80211_rdev_from_attrs(netns, info->attrs);
- }
+--- a/drivers/gpu/drm/i915/gvt/scheduler.c
++++ b/drivers/gpu/drm/i915/gvt/scheduler.c
+@@ -1276,9 +1276,6 @@ static int prepare_mm(struct intel_vgpu_
+ #define same_context(a, b) (((a)->context_id == (b)->context_id) && \
+ 		((a)->lrca == (b)->lrca))
  
-+static int validate_beacon_head(const struct nlattr *attr,
-+				struct netlink_ext_ack *extack)
-+{
-+	const u8 *data = nla_data(attr);
-+	unsigned int len = nla_len(attr);
-+	const struct element *elem;
-+	const struct ieee80211_mgmt *mgmt = (void *)data;
-+	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
-+					 u.beacon.variable);
-+
-+	if (len < fixedlen)
-+		goto err;
-+
-+	if (ieee80211_hdrlen(mgmt->frame_control) !=
-+	    offsetof(struct ieee80211_mgmt, u.beacon))
-+		goto err;
-+
-+	data += fixedlen;
-+	len -= fixedlen;
-+
-+	for_each_element(elem, data, len) {
-+		/* nothing */
-+	}
-+
-+	if (for_each_element_completed(elem, data, len))
-+		return 0;
-+
-+err:
-+	NL_SET_ERR_MSG_ATTR(extack, attr, "malformed beacon head");
-+	return -EINVAL;
-+}
-+
- static int validate_ie_attr(const struct nlattr *attr,
- 			    struct netlink_ext_ack *extack)
+-#define get_last_workload(q) \
+-	(list_empty(q) ? NULL : container_of(q->prev, \
+-	struct intel_vgpu_workload, list))
+ /**
+  * intel_vgpu_create_workload - create a vGPU workload
+  * @vgpu: a vGPU
+@@ -1297,7 +1294,7 @@ intel_vgpu_create_workload(struct intel_
  {
-@@ -322,8 +354,9 @@ const struct nla_policy nl80211_policy[N
+ 	struct intel_vgpu_submission *s = &vgpu->submission;
+ 	struct list_head *q = workload_q_head(vgpu, ring_id);
+-	struct intel_vgpu_workload *last_workload = get_last_workload(q);
++	struct intel_vgpu_workload *last_workload = NULL;
+ 	struct intel_vgpu_workload *workload = NULL;
+ 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
+ 	u64 ring_context_gpa;
+@@ -1320,15 +1317,20 @@ intel_vgpu_create_workload(struct intel_
+ 	head &= RB_HEAD_OFF_MASK;
+ 	tail &= RB_TAIL_OFF_MASK;
  
- 	[NL80211_ATTR_BEACON_INTERVAL] = { .type = NLA_U32 },
- 	[NL80211_ATTR_DTIM_PERIOD] = { .type = NLA_U32 },
--	[NL80211_ATTR_BEACON_HEAD] = { .type = NLA_BINARY,
--				       .len = IEEE80211_MAX_DATA_LEN },
-+	[NL80211_ATTR_BEACON_HEAD] =
-+		NLA_POLICY_VALIDATE_FN(NLA_BINARY, validate_beacon_head,
-+				       IEEE80211_MAX_DATA_LEN),
- 	[NL80211_ATTR_BEACON_TAIL] =
- 		NLA_POLICY_VALIDATE_FN(NLA_BINARY, validate_ie_attr,
- 				       IEEE80211_MAX_DATA_LEN),
+-	if (last_workload && same_context(&last_workload->ctx_desc, desc)) {
+-		gvt_dbg_el("ring id %d cur workload == last\n", ring_id);
+-		gvt_dbg_el("ctx head %x real head %lx\n", head,
+-				last_workload->rb_tail);
+-		/*
+-		 * cannot use guest context head pointer here,
+-		 * as it might not be updated at this time
+-		 */
+-		head = last_workload->rb_tail;
++	list_for_each_entry_reverse(last_workload, q, list) {
++
++		if (same_context(&last_workload->ctx_desc, desc)) {
++			gvt_dbg_el("ring id %d cur workload == last\n",
++					ring_id);
++			gvt_dbg_el("ctx head %x real head %lx\n", head,
++					last_workload->rb_tail);
++			/*
++			 * cannot use guest context head pointer here,
++			 * as it might not be updated at this time
++			 */
++			head = last_workload->rb_tail;
++			break;
++		}
+ 	}
+ 
+ 	gvt_dbg_el("ring id %d begin a new workload\n", ring_id);
 
 
