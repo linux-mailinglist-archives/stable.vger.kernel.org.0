@@ -2,85 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F267D1F01
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 05:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6EDD20B8
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 08:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732644AbfJJDk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Oct 2019 23:40:57 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:41736 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726823AbfJJDkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 9 Oct 2019 23:40:55 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x9A3URs3086893;
-        Thu, 10 Oct 2019 03:40:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2019-08-05;
- bh=rOzUSONeDV81oLc9GIPlFqdjJahMsRpOb2XTtkJaKQw=;
- b=BefK9p8dWi88hfb5QFn9qQGSODn6qphmInRJZ0dgMdv4Id1obcwn0qu9navgCcqppvuy
- aAR4G3aCNBiMQjuHRd1M+Lq7ANVw+kUxreIxqVyP9O6l+NF9ahYeVdAkgRZIToYGEhbM
- wV1sVqlpYwKZ8t5MgCiMVHEEjUdUEa6Iy+GcXA4SlK1/WoWI/Pj7BGsB5iOLDu7cjIwb
- CPzxDSk69AnH3LMIQj7TqxnpG9d71Y/n5xzvDjqSe6IhJdAGwRcOFy+jMv4U2mfoPheQ
- YqSPr06uDgi0MfbnpOanveXD+cglSKWE86yj2SbPR3hs65GexHYPpUimGXobuXxe/6Tz rA== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by aserp2120.oracle.com with ESMTP id 2vek4qrchw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Oct 2019 03:40:39 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x9A3TEMC141019;
-        Thu, 10 Oct 2019 03:40:38 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
-        by userp3030.oracle.com with ESMTP id 2vhrxcp3fb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 10 Oct 2019 03:40:38 +0000
-Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
-        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x9A3eZsa029205;
-        Thu, 10 Oct 2019 03:40:35 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Wed, 09 Oct 2019 20:40:35 -0700
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
-        linux-scsi@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Rob Turk <robtu@rtist.nl>, Hannes Reinecke <hare@suse.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] ch: Make it again possible to open a ch device two or more times
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <20191009173536.247889-1-bvanassche@acm.org>
-Date:   Wed, 09 Oct 2019 23:40:32 -0400
-In-Reply-To: <20191009173536.247889-1-bvanassche@acm.org> (Bart Van Assche's
-        message of "Wed, 9 Oct 2019 10:35:36 -0700")
-Message-ID: <yq1d0f5i7yn.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S1726983AbfJJGTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 02:19:37 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:49026 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732832AbfJJGT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 02:19:28 -0400
+Received: from pps.filterd (m0109334.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x9A6DArI017099
+        for <stable@vger.kernel.org>; Wed, 9 Oct 2019 23:19:27 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=facebook; bh=s6eyAOhaBTbzLObZLe6B53V9ygLx91hA9w5VlVF+Gg4=;
+ b=qdBc0B/lFm9WTk8wnmdA/F6tqTpvpC2EL4tjVdr8VPq5NO/zT2bbgWTu6IP1nLrA+3w8
+ ETFRYAGFqNew3l1fucQnFfO2s+D9/2Sb6+KnB/ji8X0VBj7n5k3kQFha4Kn4mMWxQJqi
+ WLoAFg4hIfM9g4AuO8q71NAscqmlua5UntM= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 2vhxs482sa-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 09 Oct 2019 23:19:27 -0700
+Received: from 2401:db00:30:6007:face:0:1:0 (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::7) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 9 Oct 2019 23:19:25 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id EF1F662E3559; Wed,  9 Oct 2019 23:19:23 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-kernel@vger.kernel.org>, <bpf@vger.kernel.org>,
+        <netdev@vger.kernel.org>
+CC:     <kernel-team@fb.com>, Song Liu <songliubraving@fb.com>,
+        <stable@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Tejun Heo <tj@kernel.org>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH bpf-next 1/2] sched: introduce this_rq_is_locked()
+Date:   Wed, 9 Oct 2019 23:19:15 -0700
+Message-ID: <20191010061916.198761-2-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20191010061916.198761-1-songliubraving@fb.com>
+References: <20191010061916.198761-1-songliubraving@fb.com>
+X-FB-Internal: Safe
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9405 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=770
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1908290000 definitions=main-1910100031
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9405 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=873 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
- definitions=main-1910100031
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
+ definitions=2019-10-10_03:2019-10-08,2019-10-10 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 adultscore=0
+ priorityscore=1501 suspectscore=0 mlxscore=0 spamscore=0 clxscore=1015
+ mlxlogscore=999 bulkscore=0 impostorscore=0 lowpriorityscore=0
+ phishscore=0 malwarescore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-1908290000 definitions=main-1910100058
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+this_rq_is_locked() is introduced to check whether current CPU is holding
+rq_lock(). This will be used in bpf/stackmap.c to decide whether is safe
+to call up_read(), which may call rq_lock() for the same CPU.
 
-Bart,
+Fixes: commit 615755a77b24 ("bpf: extend stackmap to save binary_build_id+offset instead of address")
+Cc: stable@vger.kernel.org # v4.17+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Tejun Heo <tj@kernel.org>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+---
+ include/linux/sched.h | 1 +
+ kernel/sched/core.c   | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-> Clearing ch->device in ch_release() is wrong because that pointer must
-> remain valid until ch_remove() is called. This patch fixes the
-> following crash the second time a ch device is opened:
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 2c2e56bd8913..fb0fcbd1b6f6 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1995,4 +1995,5 @@ int sched_trace_rq_cpu(struct rq *rq);
 
-Applied to 5.4/scsi-fixes, thank you!
+ const struct cpumask *sched_trace_rd_span(struct root_domain *rd);
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
++bool this_rq_is_locked(void);
+ #endif
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 7880f4f64d0e..577cbe7c05fc 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -138,6 +138,14 @@ struct rq *task_rq_lock(struct task_struct *p, struct rq_flags *rf)
+ 	}
+ }
+
++bool this_rq_is_locked(void)
++{
++	struct rq *rq;
++
++	rq = this_rq();
++	return raw_spin_is_locked(&rq->lock);
++}
++
+ /*
+  * RQ-clock updating methods:
+  */
+--
+2.17.1
