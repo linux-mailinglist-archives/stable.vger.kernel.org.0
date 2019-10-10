@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D717D24A8
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA42D2509
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389208AbfJJItP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55694 "EHLO mail.kernel.org"
+        id S2390270AbfJJIwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:52:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388852AbfJJItL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:11 -0400
+        id S2389156AbfJJIwa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:52:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBE1321929;
-        Thu, 10 Oct 2019 08:49:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CCE8A21A4C;
+        Thu, 10 Oct 2019 08:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697351;
-        bh=WmQ6xVhy6F1VzCuXT88er8kQuWfHDNle5G7/6tY/DhM=;
+        s=default; t=1570697550;
+        bh=iYquV7rnSBLN4fz1yz+JjspIOWP43YtxMzKycPphq00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3+I46dpodV2DA0Y5+Gy6Q06ymAjY9SMQOXvXLzkOBLEh4YXr63wAGmaMGNlnCzM7
-         iePrbPAAD82hlOqXHjoOaRefMkEajOeMK3EdWAADLONAmugCMeEit96Gy0dd79cmei
-         1tH+8ic3ruxisDts70xjWJFekJ3XhcMuv/2RXZTs=
+        b=VMq+9aIgOOMc2EtFpariFvVtQViDKJyZ2KF3fluNvwluMDlKT0jg+xusKAeX17EBg
+         q8CLE9CbZflfh2hYlhfXCoYEY7ApTEXg0AcNn4w2bnwh8Nq4/N6fl39A7PN0Sz04FU
+         NisKWZj0wslBbmZz4fU5fUWLu9JKbdCMq4on9/bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gao Xiang <gaoxiang25@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>
-Subject: [PATCH 4.19 110/114] staging: erofs: add two missing erofs_workgroup_put for corrupted images
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 32/61] ceph: fix directories inode i_blkbits initialization
 Date:   Thu, 10 Oct 2019 10:36:57 +0200
-Message-Id: <20191010083614.097681169@linuxfoundation.org>
+Message-Id: <20191010083509.551622651@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <gaoxiang25@huawei.com>
+From: Luis Henriques <lhenriques@suse.com>
 
-commit 138e1a0990e80db486ab9f6c06bd5c01f9a97999 upstream.
+[ Upstream commit 750670341a24cb714e624e0fd7da30900ad93752 ]
 
-As reported by erofs-utils fuzzer, these error handling
-path will be entered to handle corrupted images.
+When filling an inode with info from the MDS, i_blkbits is being
+initialized using fl_stripe_unit, which contains the stripe unit in
+bytes.  Unfortunately, this doesn't make sense for directories as they
+have fl_stripe_unit set to '0'.  This means that i_blkbits will be set
+to 0xff, causing an UBSAN undefined behaviour in i_blocksize():
 
-Lack of erofs_workgroup_puts will cause unmounting
-unsuccessfully.
+  UBSAN: Undefined behaviour in ./include/linux/fs.h:731:12
+  shift exponent 255 is too large for 32-bit type 'int'
 
-Fix these return values to EFSCORRUPTED as well.
+Fix this by initializing i_blkbits to CEPH_BLOCK_SHIFT if fl_stripe_unit
+is zero.
 
-Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
-Cc: <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Link: https://lore.kernel.org/r/20190819103426.87579-4-gaoxiang25@huawei.com
-[ Gao Xiang: Older kernel versions don't have length validity check
-             and EFSCORRUPTED, thus backport pageofs check for now. ]
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/erofs/unzip_vle.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/ceph/inode.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/erofs/unzip_vle.c
-+++ b/drivers/staging/erofs/unzip_vle.c
-@@ -311,7 +311,11 @@ z_erofs_vle_work_lookup(struct super_blo
- 	/* if multiref is disabled, `primary' is always true */
- 	primary = true;
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 9bda8c7a80a05..879bc08250931 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -789,7 +789,12 @@ static int fill_inode(struct inode *inode, struct page *locked_page,
+ 	ci->i_version = le64_to_cpu(info->version);
+ 	inode->i_version++;
+ 	inode->i_rdev = le32_to_cpu(info->rdev);
+-	inode->i_blkbits = fls(le32_to_cpu(info->layout.fl_stripe_unit)) - 1;
++	/* directories have fl_stripe_unit set to zero */
++	if (le32_to_cpu(info->layout.fl_stripe_unit))
++		inode->i_blkbits =
++			fls(le32_to_cpu(info->layout.fl_stripe_unit)) - 1;
++	else
++		inode->i_blkbits = CEPH_BLOCK_SHIFT;
  
--	DBG_BUGON(work->pageofs != pageofs);
-+	if (work->pageofs != pageofs) {
-+		DBG_BUGON(1);
-+		erofs_workgroup_put(egrp);
-+		return ERR_PTR(-EIO);
-+	}
- 
- 	/*
- 	 * lock must be taken first to avoid grp->next == NIL between
+ 	if ((new_version || (new_issued & CEPH_CAP_AUTH_SHARED)) &&
+ 	    (issued & CEPH_CAP_AUTH_EXCL) == 0) {
+-- 
+2.20.1
+
 
 
