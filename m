@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A0A3D242B
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE27D2454
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389848AbfJJItm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56414 "EHLO mail.kernel.org"
+        id S2387749AbfJJInm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389843AbfJJItm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:42 -0400
+        id S2388770AbfJJInm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEC562064A;
-        Thu, 10 Oct 2019 08:49:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 838C62054F;
+        Thu, 10 Oct 2019 08:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697381;
-        bh=uJMfqKzJmIl0AHWLDzSnls3gFjyu1Z+VHOUsfZ8MtdI=;
+        s=default; t=1570697021;
+        bh=YsxlhSyeXrt0RJSM4nYtreNGAXgVaewxWA3inoJoUTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5m/ljzzYCiUWnQBq+oJ4e+HRidQZ2EjXhhy/8Vqx5dciuQ0jZfzf1nmWC9cYolNq
-         OSjasseeR9Oyyzfd0FUz+gQW8pCLBp+iCsCYvpLq2h46PjvmzRgjHjfy+IytkMS4BO
-         it7N9ZOMNUzYSeX4vBFvtHLjrVSZtQh6CHOxu9e8=
+        b=ViPFyQ5ePNyiloC169OrUjHg/E6qqdNnV6l58EUrANKIKK/xXJnm++hKdiX91mYmN
+         UFiJu5iWJjrpkBgPDRRInwUKOmhN4O/fGubeeOUxcNfk8ET7lRi30Eqvj2Ch+iVVPo
+         XdjNtX3uJtcMfWalPXBMEmNmzcDeavAx4P6mE6Kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 092/114] arm64: fix SSBS sanitization
-Date:   Thu, 10 Oct 2019 10:36:39 +0200
-Message-Id: <20191010083612.970579789@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Stephane Eranian <eranian@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 139/148] perf stat: Reset previous counts on repeat with interval
+Date:   Thu, 10 Oct 2019 10:36:40 +0200
+Message-Id: <20191010083620.763187286@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +50,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit f54dada8274643e3ff4436df0ea124aeedc43cae ]
+[ Upstream commit b63fd11cced17fcb8e133def29001b0f6aaa5e06 ]
 
-In valid_user_regs() we treat SSBS as a RES0 bit, and consequently it is
-unexpectedly cleared when we restore a sigframe or fiddle with GPRs via
-ptrace.
+When using 'perf stat' with repeat and interval option, it shows wrong
+values for events.
 
-This patch fixes valid_user_regs() to account for this, updating the
-function to refer to the latest ARM ARM (ARM DDI 0487D.a). For AArch32
-tasks, SSBS appears in bit 23 of SPSR_EL1, matching its position in the
-AArch32-native PSR format, and we don't need to translate it as we have
-to for DIT.
+The wrong values will be shown for the first interval on the second and
+subsequent repetitions.
 
-There are no other bit assignments that we need to account for today.
-As the recent documentation describes the DIT bit, we can drop our
-comment regarding DIT.
+Without the fix:
 
-While removing SSBS from the RES0 masks, existing inconsistent
-whitespace is corrected.
+  # perf stat -r 3 -I 2000 -e faults -e sched:sched_switch -a sleep 5
 
-Fixes: d71be2b6c0e19180 ("arm64: cpufeature: Detect SSBS and advertise to userspace")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     2.000282489                 53      faults
+     2.000282489                513      sched:sched_switch
+     4.005478208              3,721      faults
+     4.005478208              2,666      sched:sched_switch
+     5.025470933                395      faults
+     5.025470933              1,307      sched:sched_switch
+     2.009602825 1,84,46,74,40,73,70,95,47,520      faults 		<------
+     2.009602825 1,84,46,74,40,73,70,95,49,568      sched:sched_switch  <------
+     4.019612206              4,730      faults
+     4.019612206              2,746      sched:sched_switch
+     5.039615484              3,953      faults
+     5.039615484              1,496      sched:sched_switch
+     2.000274620 1,84,46,74,40,73,70,95,47,520      faults		<------
+     2.000274620 1,84,46,74,40,73,70,95,47,520      sched:sched_switch	<------
+     4.000480342              4,282      faults
+     4.000480342              2,303      sched:sched_switch
+     5.000916811              1,322      faults
+     5.000916811              1,064      sched:sched_switch
+  #
+
+prev_raw_counts is allocated when using intervals. This is used when
+calculating the difference in the counts of events when using interval.
+
+The current counts are stored in prev_raw_counts to calculate the
+differences in the next iteration.
+
+On the first interval of the second and subsequent repetitions,
+prev_raw_counts would be the values stored in the last interval of the
+previous repetitions, while the current counts will only be for the
+first interval of the current repetition.
+
+Hence there is a possibility of events showing up as big number.
+
+Fix this by resetting prev_raw_counts whenever perf stat repeats the
+command.
+
+With the fix:
+
+  # perf stat -r 3 -I 2000 -e faults -e sched:sched_switch -a sleep 5
+
+     2.019349347              2,597      faults
+     2.019349347              2,753      sched:sched_switch
+     4.019577372              3,098      faults
+     4.019577372              2,532      sched:sched_switch
+     5.019415481              1,879      faults
+     5.019415481              1,356      sched:sched_switch
+     2.000178813              8,468      faults
+     2.000178813              2,254      sched:sched_switch
+     4.000404621              7,440      faults
+     4.000404621              1,266      sched:sched_switch
+     5.040196079              2,458      faults
+     5.040196079                556      sched:sched_switch
+     2.000191939              6,870      faults
+     2.000191939              1,170      sched:sched_switch
+     4.000414103                541      faults
+     4.000414103                902      sched:sched_switch
+     5.000809863                450      faults
+     5.000809863                364      sched:sched_switch
+  #
+
+Committer notes:
+
+This was broken since the cset introducing the --interval feature, i.e.
+--repeat + --interval wasn't tested at that point, add the Fixes tag so
+that automatic scripts can pick this up.
+
+Fixes: 13370a9b5bb8 ("perf stat: Add interval printing")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: stable@vger.kernel.org # v3.9+
+Link: http://lore.kernel.org/lkml/20190904094738.9558-2-srikar@linux.vnet.ibm.com
+[ Fixed up conflicts with libperf, i.e. some perf_{evsel,evlist} lost the 'perf' prefix ]
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ptrace.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ tools/perf/builtin-stat.c |  3 +++
+ tools/perf/util/stat.c    | 17 +++++++++++++++++
+ tools/perf/util/stat.h    |  1 +
+ 3 files changed, 21 insertions(+)
 
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1666,19 +1666,20 @@ void syscall_trace_exit(struct pt_regs *
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index 3e13b231f2f56..8ec06bf3372c6 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -1961,6 +1961,9 @@ int cmd_stat(int argc, const char **argv)
+ 			fprintf(output, "[ perf stat: executing run #%d ... ]\n",
+ 				run_idx + 1);
+ 
++		if (run_idx != 0)
++			perf_evlist__reset_prev_raw_counts(evsel_list);
++
+ 		status = run_perf_stat(argc, argv, run_idx);
+ 		if (forever && status != -1 && !interval) {
+ 			print_counters(NULL, argc, argv);
+diff --git a/tools/perf/util/stat.c b/tools/perf/util/stat.c
+index db8a6cf336bed..6ce66c2727474 100644
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -155,6 +155,15 @@ static void perf_evsel__free_prev_raw_counts(struct perf_evsel *evsel)
+ 	evsel->prev_raw_counts = NULL;
  }
  
- /*
-- * SPSR_ELx bits which are always architecturally RES0 per ARM DDI 0487C.a
-- * We also take into account DIT (bit 24), which is not yet documented, and
-- * treat PAN and UAO as RES0 bits, as they are meaningless at EL0, and may be
-- * allocated an EL0 meaning in future.
-+ * SPSR_ELx bits which are always architecturally RES0 per ARM DDI 0487D.a.
-+ * We permit userspace to set SSBS (AArch64 bit 12, AArch32 bit 23) which is
-+ * not described in ARM DDI 0487D.a.
-+ * We treat PAN and UAO as RES0 bits, as they are meaningless at EL0, and may
-+ * be allocated an EL0 meaning in future.
-  * Userspace cannot use these until they have an architectural meaning.
-  * Note that this follows the SPSR_ELx format, not the AArch32 PSR format.
-  * We also reserve IL for the kernel; SS is handled dynamically.
-  */
- #define SPSR_EL1_AARCH64_RES0_BITS \
--	(GENMASK_ULL(63,32) | GENMASK_ULL(27, 25) | GENMASK_ULL(23, 22) | \
--	 GENMASK_ULL(20, 10) | GENMASK_ULL(5, 5))
-+	(GENMASK_ULL(63, 32) | GENMASK_ULL(27, 25) | GENMASK_ULL(23, 22) | \
-+	 GENMASK_ULL(20, 13) | GENMASK_ULL(11, 10) | GENMASK_ULL(5, 5))
- #define SPSR_EL1_AARCH32_RES0_BITS \
--	(GENMASK_ULL(63,32) | GENMASK_ULL(23, 22) | GENMASK_ULL(20,20))
-+	(GENMASK_ULL(63, 32) | GENMASK_ULL(22, 22) | GENMASK_ULL(20, 20))
- 
- static int valid_compat_regs(struct user_pt_regs *regs)
++static void perf_evsel__reset_prev_raw_counts(struct perf_evsel *evsel)
++{
++	if (evsel->prev_raw_counts) {
++		evsel->prev_raw_counts->aggr.val = 0;
++		evsel->prev_raw_counts->aggr.ena = 0;
++		evsel->prev_raw_counts->aggr.run = 0;
++       }
++}
++
+ static int perf_evsel__alloc_stats(struct perf_evsel *evsel, bool alloc_raw)
  {
+ 	int ncpus = perf_evsel__nr_cpus(evsel);
+@@ -205,6 +214,14 @@ void perf_evlist__reset_stats(struct perf_evlist *evlist)
+ 	}
+ }
+ 
++void perf_evlist__reset_prev_raw_counts(struct perf_evlist *evlist)
++{
++	struct perf_evsel *evsel;
++
++	evlist__for_each_entry(evlist, evsel)
++		perf_evsel__reset_prev_raw_counts(evsel);
++}
++
+ static void zero_per_pkg(struct perf_evsel *counter)
+ {
+ 	if (counter->per_pkg_mask)
+diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
+index 7032dd1eeac2f..9cd0d9cff374a 100644
+--- a/tools/perf/util/stat.h
++++ b/tools/perf/util/stat.h
+@@ -194,6 +194,7 @@ void perf_stat__collect_metric_expr(struct perf_evlist *);
+ int perf_evlist__alloc_stats(struct perf_evlist *evlist, bool alloc_raw);
+ void perf_evlist__free_stats(struct perf_evlist *evlist);
+ void perf_evlist__reset_stats(struct perf_evlist *evlist);
++void perf_evlist__reset_prev_raw_counts(struct perf_evlist *evlist);
+ 
+ int perf_stat_process_counter(struct perf_stat_config *config,
+ 			      struct perf_evsel *counter);
+-- 
+2.20.1
+
 
 
