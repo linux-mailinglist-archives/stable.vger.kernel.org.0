@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1E4D24D2
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79090D24AD
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390044AbfJJIvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58342 "EHLO mail.kernel.org"
+        id S2389808AbfJJIt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:49:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390057AbfJJIvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:51:01 -0400
+        id S2389279AbfJJItZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCC3821D71;
-        Thu, 10 Oct 2019 08:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DA58218AC;
+        Thu, 10 Oct 2019 08:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697460;
-        bh=bUeR3G4ltMyhjy1E4Dp4Np7mZiJmRIOpqJtRyynAjLA=;
+        s=default; t=1570697365;
+        bh=7tld6r4njYlcCBmeGgYzIQgVbZE6ybfWh0j0vccDjpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/OMYc5gO3PW3fqiQWFPooG8fjECX3P3EJfMRtjk16N/Vnr4FoQze6iHA6ajM0Dqc
-         9WAh5AvPkliOBRqZi9VdfSUe1nmcw+teTrq+9tDwYFMxhJfo1g1VIh9OnKgHKBUQIA
-         rn2KRwso3RdBGYuBPdD2kKeoagbmTSltAqBmI7tU=
+        b=0a/7PuSsFODGKQKHov/uq4EyH8cC0U6sDB3h+ND6ee2FnAPmskWBpJR0+2ycPCFWA
+         wVbNOZojkCGYgW8tHxI4MDMe6FLgd+dYOJbnTiEa5Xz74nfman2JFYWV2kSocTMYrf
+         uJe/GOKiDdF2Ezscf/6sUCJjndzL6U1w7cdvXTdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Trek <trek00@inbox.ru>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/61] drm/amdgpu: Check for valid number of registers to read
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 114/114] nl80211: validate beacon head
 Date:   Thu, 10 Oct 2019 10:37:01 +0200
-Message-Id: <20191010083512.929771258@linuxfoundation.org>
+Message-Id: <20191010083614.334354467@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trek <trek00@inbox.ru>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 73d8e6c7b841d9bf298c8928f228fb433676635c ]
+commit f88eb7c0d002a67ef31aeb7850b42ff69abc46dc upstream.
 
-Do not try to allocate any amount of memory requested by the user.
-Instead limit it to 128 registers. Actually the longest series of
-consecutive allowed registers are 48, mmGB_TILE_MODE0-31 and
-mmGB_MACROTILE_MODE0-15 (0x2644-0x2673).
+We currently don't validate the beacon head, i.e. the header,
+fixed part and elements that are to go in front of the TIM
+element. This means that the variable elements there can be
+malformed, e.g. have a length exceeding the buffer size, but
+most downstream code from this assumes that this has already
+been checked.
 
-Bug: https://bugs.freedesktop.org/show_bug.cgi?id=111273
-Signed-off-by: Trek <trek00@inbox.ru>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add the necessary checks to the netlink policy.
+
+Cc: stable@vger.kernel.org
+Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
+Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/wireless/nl80211.c |   38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index e16229000a983..884ed359f2493 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -540,6 +540,9 @@ static int amdgpu_info_ioctl(struct drm_device *dev, void *data, struct drm_file
- 		if (sh_num == AMDGPU_INFO_MMR_SH_INDEX_MASK)
- 			sh_num = 0xffffffff;
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -200,6 +200,38 @@ cfg80211_get_dev_from_info(struct net *n
+ 	return __cfg80211_rdev_from_attrs(netns, info->attrs);
+ }
  
-+		if (info->read_mmr_reg.count > 128)
-+			return -EINVAL;
++static int validate_beacon_head(const struct nlattr *attr,
++				struct netlink_ext_ack *extack)
++{
++	const u8 *data = nla_data(attr);
++	unsigned int len = nla_len(attr);
++	const struct element *elem;
++	const struct ieee80211_mgmt *mgmt = (void *)data;
++	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
++					 u.beacon.variable);
 +
- 		regs = kmalloc_array(info->read_mmr_reg.count, sizeof(*regs), GFP_KERNEL);
- 		if (!regs)
- 			return -ENOMEM;
--- 
-2.20.1
-
++	if (len < fixedlen)
++		goto err;
++
++	if (ieee80211_hdrlen(mgmt->frame_control) !=
++	    offsetof(struct ieee80211_mgmt, u.beacon))
++		goto err;
++
++	data += fixedlen;
++	len -= fixedlen;
++
++	for_each_element(elem, data, len) {
++		/* nothing */
++	}
++
++	if (for_each_element_completed(elem, data, len))
++		return 0;
++
++err:
++	NL_SET_ERR_MSG_ATTR(extack, attr, "malformed beacon head");
++	return -EINVAL;
++}
++
+ /* policy for the attributes */
+ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_WIPHY] = { .type = NLA_U32 },
+@@ -4016,6 +4048,12 @@ static int nl80211_parse_beacon(struct n
+ 	memset(bcn, 0, sizeof(*bcn));
+ 
+ 	if (attrs[NL80211_ATTR_BEACON_HEAD]) {
++		int ret = validate_beacon_head(attrs[NL80211_ATTR_BEACON_HEAD],
++					       NULL);
++
++		if (ret)
++			return ret;
++
+ 		bcn->head = nla_data(attrs[NL80211_ATTR_BEACON_HEAD]);
+ 		bcn->head_len = nla_len(attrs[NL80211_ATTR_BEACON_HEAD]);
+ 		if (!bcn->head_len)
 
 
