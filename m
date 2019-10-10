@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16641D22F9
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7C8D22FC
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387613AbfJJIi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
+        id S2387420AbfJJIig (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:38:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387588AbfJJIi2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:28 -0400
+        id S2387635AbfJJIid (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17300218AC;
-        Thu, 10 Oct 2019 08:38:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 852B7218AC;
+        Thu, 10 Oct 2019 08:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696707;
-        bh=CrByy6AiiNIBc0tpoJVDjGCyRJO9uiveU3kjBybQo3I=;
+        s=default; t=1570696713;
+        bh=y5aWi6JFqE7hG9IoPsDAQ3ZREBJm3293HIapSjdFlLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eyEIlrBoGeX4CZFFqjbct+Aa8I1S6C/aDpkLPOs/oOz9aDsOWvwDTmYvs01Q8CCTp
-         ZTbO9fXciPXue/Rb1KJ7qX/qO36tCgs1OFkgrdYb24/UdjPhPVL+sRFBHxjajaYGO/
-         /r3SsQ2jArtpzsO7OM2V5xDBDYidbPHPYFlvrcC8=
+        b=OhfVtziDjHdyM48C5si2Q/pO6tt+OZQyv+j9AWRcYhttwDxETb+kgPRCw8EI80NlR
+         zXtQ3s0bCJpyKIHAS6t6XoPWnQvQMESLopUQzU+QaiX+Zig6Y60CFlYuWTLCnhvf7s
+         CeQyevV0Js3Tq3Hj8E99sekHX27191qy4t6fYz6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Santosh Sivaraj <santosh@fossix.org>,
+        Jonathan Neuschafer <j.neuschaefer@gmx.net>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 023/148] powerpc/mce: Schedule work from irq_work
-Date:   Thu, 10 Oct 2019 10:34:44 +0200
-Message-Id: <20191010083612.521688817@linuxfoundation.org>
+Subject: [PATCH 5.3 025/148] powerpc/32s: Fix boot failure with DEBUG_PAGEALLOC without KASAN.
+Date:   Thu, 10 Oct 2019 10:34:46 +0200
+Message-Id: <20191010083612.646600033@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -47,67 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Santosh Sivaraj <santosh@fossix.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit b5bda6263cad9a927e1a4edb7493d542da0c1410 upstream.
+commit 9d6d712fbf7766f21c838940eebcd7b4d476c5e6 upstream.
 
-schedule_work() cannot be called from MCE exception context as MCE can
-interrupt even in interrupt disabled context.
+When KASAN is selected, the definitive hash table has to be
+set up later, but there is already an early temporary one.
 
-Fixes: 733e4a4c4467 ("powerpc/mce: hookup memory_failure for UE errors")
-Cc: stable@vger.kernel.org # v4.15+
-Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
+When KASAN is not selected, there is no early hash table,
+so the setup of the definitive hash table cannot be delayed.
+
+Fixes: 72f208c6a8f7 ("powerpc/32s: move hash code patching out of MMU_init_hw()")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Jonathan Neuschafer <j.neuschaefer@gmx.net>
+Tested-by: Jonathan Neuschafer <j.neuschaefer@gmx.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190820081352.8641-2-santosh@fossix.org
+Link: https://lore.kernel.org/r/b7860c5e1e784d6b96ba67edf47dd6cbc2e78ab6.1565776892.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/mce.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/head_32.S  |    2 ++
+ arch/powerpc/mm/book3s32/mmu.c |    9 +++++++++
+ 2 files changed, 11 insertions(+)
 
---- a/arch/powerpc/kernel/mce.c
-+++ b/arch/powerpc/kernel/mce.c
-@@ -33,6 +33,7 @@ static DEFINE_PER_CPU(struct machine_che
- 					mce_ue_event_queue);
+--- a/arch/powerpc/kernel/head_32.S
++++ b/arch/powerpc/kernel/head_32.S
+@@ -897,9 +897,11 @@ start_here:
+ 	bl	machine_init
+ 	bl	__save_cpu_setup
+ 	bl	MMU_init
++#ifdef CONFIG_KASAN
+ BEGIN_MMU_FTR_SECTION
+ 	bl	MMU_init_hw_patch
+ END_MMU_FTR_SECTION_IFSET(MMU_FTR_HPTE_TABLE)
++#endif
  
- static void machine_check_process_queued_event(struct irq_work *work);
-+static void machine_check_ue_irq_work(struct irq_work *work);
- void machine_check_ue_event(struct machine_check_event *evt);
- static void machine_process_ue_event(struct work_struct *work);
- 
-@@ -40,6 +41,10 @@ static struct irq_work mce_event_process
-         .func = machine_check_process_queued_event,
- };
- 
-+static struct irq_work mce_ue_event_irq_work = {
-+	.func = machine_check_ue_irq_work,
-+};
+ /*
+  * Go back to running unmapped so we can load up new values
+--- a/arch/powerpc/mm/book3s32/mmu.c
++++ b/arch/powerpc/mm/book3s32/mmu.c
+@@ -358,6 +358,15 @@ void __init MMU_init_hw(void)
+ 	hash_mb2 = hash_mb = 32 - LG_HPTEG_SIZE - lg_n_hpteg;
+ 	if (lg_n_hpteg > 16)
+ 		hash_mb2 = 16 - LG_HPTEG_SIZE;
 +
- DECLARE_WORK(mce_ue_event_work, machine_process_ue_event);
- 
- static void mce_set_error_info(struct machine_check_event *mce,
-@@ -199,6 +204,10 @@ void release_mce_event(void)
- 	get_mce_event(NULL, true);
++	/*
++	 * When KASAN is selected, there is already an early temporary hash
++	 * table and the switch to the final hash table is done later.
++	 */
++	if (IS_ENABLED(CONFIG_KASAN))
++		return;
++
++	MMU_init_hw_patch();
  }
  
-+static void machine_check_ue_irq_work(struct irq_work *work)
-+{
-+	schedule_work(&mce_ue_event_work);
-+}
- 
- /*
-  * Queue up the MCE event which then can be handled later.
-@@ -216,7 +225,7 @@ void machine_check_ue_event(struct machi
- 	memcpy(this_cpu_ptr(&mce_ue_event_queue[index]), evt, sizeof(*evt));
- 
- 	/* Queue work to process this event later. */
--	schedule_work(&mce_ue_event_work);
-+	irq_work_queue(&mce_ue_event_irq_work);
- }
- 
- /*
+ void __init MMU_init_hw_patch(void)
 
 
