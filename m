@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0DE3D256C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE52AD249C
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387860AbfJJIn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
+        id S2389600AbfJJIsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388001AbfJJIn0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:26 -0400
+        id S2389598AbfJJIsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:48:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DF602190F;
-        Thu, 10 Oct 2019 08:43:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 658D02064A;
+        Thu, 10 Oct 2019 08:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697004;
-        bh=sdWjKc7950Ix1oAlzn3Bdm8pbL63ww+3W/0cLP/FqRI=;
+        s=default; t=1570697285;
+        bh=t+HdTbbkCkwQ95nWKK5u36vN1oC0oIOhLtTWfHxY+dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYzKSRa3MMRLJgHq8dHKJ9HOypNhv8l8D9tuAfET54JVsR5NeVcsCIwzsH5Vtqby8
-         3Run2qM0p3qYF8x3QrlwPDmJfwUFyD8OO25fOrnR2lxerQmoZW0iK1/9wmEAND0on1
-         MR2UrSuZbincpYMyRkujTs9Hor43oxf8izOi8ct0=
+        b=s32WX3y3uCv1CzG7A/slP850/ccNVQVKUoJldLtmwr6JuzflrCAgHCN29tHd79XSn
+         aU5j2AFOY4Xe+sOQuqyW8WRRbjB10JxSe9AKr94b11hmasTDaj47kY6a33h+hjPJ8q
+         mlc635fyeOhaGawJOFVMcKMYkfS1+TN2goKPXv64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Amit Kucheria <amit.kucheria@linaro.org>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 088/148] drivers: thermal: qcom: tsens: Fix memory leak from qfprom read
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 042/114] mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
 Date:   Thu, 10 Oct 2019 10:35:49 +0200
-Message-Id: <20191010083616.685532154@linuxfoundation.org>
+Message-Id: <20191010083606.273817881@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,128 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 6b8249abb093551ef173d13a25ed0044d5dd33e0 ]
+commit 121bd08b029e03404c451bb237729cdff76eafed upstream.
 
-memory returned as part of nvmem_read via qfprom_read should be
-freed by the consumer once done.
-Existing code is not doing it so fix it.
+We must not unconditionally set the DMA snoop bit; if the DMA API is
+assuming that the device is not DMA coherent, and the device snoops the
+CPU caches, the device can see stale cache lines brought in by
+speculative prefetch.
 
-Below memory leak detected by kmemleak
-   [<ffffff80088b7658>] kmemleak_alloc+0x50/0x84
-    [<ffffff80081df120>] __kmalloc+0xe8/0x168
-    [<ffffff80086db350>] nvmem_cell_read+0x30/0x80
-    [<ffffff8008632790>] qfprom_read+0x4c/0x7c
-    [<ffffff80086335a4>] calibrate_v1+0x34/0x204
-    [<ffffff8008632518>] tsens_probe+0x164/0x258
-    [<ffffff80084e0a1c>] platform_drv_probe+0x80/0xa0
-    [<ffffff80084de4f4>] really_probe+0x208/0x248
-    [<ffffff80084de2c4>] driver_probe_device+0x98/0xc0
-    [<ffffff80084dec54>] __device_attach_driver+0x9c/0xac
-    [<ffffff80084dca74>] bus_for_each_drv+0x60/0x8c
-    [<ffffff80084de634>] __device_attach+0x8c/0x100
-    [<ffffff80084de6c8>] device_initial_probe+0x20/0x28
-    [<ffffff80084dcbb8>] bus_probe_device+0x34/0x7c
-    [<ffffff80084deb08>] deferred_probe_work_func+0x6c/0x98
-    [<ffffff80080c3da8>] process_one_work+0x160/0x2f8
+This leads to the device seeing stale data, potentially resulting in
+corrupted data transfers.  Commonly, this results in a descriptor fetch
+error such as:
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Acked-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+mmc0: ADMA error
+mmc0: sdhci: ============ SDHCI REGISTER DUMP ===========
+mmc0: sdhci: Sys addr:  0x00000000 | Version:  0x00002202
+mmc0: sdhci: Blk size:  0x00000008 | Blk cnt:  0x00000001
+mmc0: sdhci: Argument:  0x00000000 | Trn mode: 0x00000013
+mmc0: sdhci: Present:   0x01f50008 | Host ctl: 0x00000038
+mmc0: sdhci: Power:     0x00000003 | Blk gap:  0x00000000
+mmc0: sdhci: Wake-up:   0x00000000 | Clock:    0x000040d8
+mmc0: sdhci: Timeout:   0x00000003 | Int stat: 0x00000001
+mmc0: sdhci: Int enab:  0x037f108f | Sig enab: 0x037f108b
+mmc0: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00002202
+mmc0: sdhci: Caps:      0x35fa0000 | Caps_1:   0x0000af00
+mmc0: sdhci: Cmd:       0x0000333a | Max curr: 0x00000000
+mmc0: sdhci: Resp[0]:   0x00000920 | Resp[1]:  0x001d8a33
+mmc0: sdhci: Resp[2]:   0x325b5900 | Resp[3]:  0x3f400e00
+mmc0: sdhci: Host ctl2: 0x00000000
+mmc0: sdhci: ADMA Err:  0x00000009 | ADMA Ptr: 0x000000236d43820c
+mmc0: sdhci: ============================================
+mmc0: error -5 whilst initialising SD card
+
+but can lead to other errors, and potentially direct the SDHCI
+controller to read/write data to other memory locations (e.g. if a valid
+descriptor is visible to the device in a stale cache line.)
+
+Fix this by ensuring that the DMA snoop bit corresponds with the
+behaviour of the DMA API.  Since the driver currently only supports DT,
+use of_dma_is_coherent().  Note that device_get_dma_attr() can not be
+used as that risks re-introducing this bug if/when the driver is
+converted to ACPI.
+
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/thermal/qcom/tsens-8960.c |  2 ++
- drivers/thermal/qcom/tsens-v0_1.c | 12 ++++++++++--
- drivers/thermal/qcom/tsens-v1.c   |  1 +
- drivers/thermal/qcom/tsens.h      |  1 +
- 4 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/mmc/host/sdhci-of-esdhc.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/qcom/tsens-8960.c b/drivers/thermal/qcom/tsens-8960.c
-index 8d9b721dadb65..e46a4e3f25c42 100644
---- a/drivers/thermal/qcom/tsens-8960.c
-+++ b/drivers/thermal/qcom/tsens-8960.c
-@@ -229,6 +229,8 @@ static int calibrate_8960(struct tsens_priv *priv)
- 	for (i = 0; i < num_read; i++, s++)
- 		s->offset = data[i];
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -480,7 +480,12 @@ static int esdhc_of_enable_dma(struct sd
+ 		dma_set_mask_and_coherent(dev, DMA_BIT_MASK(40));
  
-+	kfree(data);
+ 	value = sdhci_readl(host, ESDHC_DMA_SYSCTL);
+-	value |= ESDHC_DMA_SNOOP;
 +
++	if (of_dma_is_coherent(dev->of_node))
++		value |= ESDHC_DMA_SNOOP;
++	else
++		value &= ~ESDHC_DMA_SNOOP;
++
+ 	sdhci_writel(host, value, ESDHC_DMA_SYSCTL);
  	return 0;
  }
- 
-diff --git a/drivers/thermal/qcom/tsens-v0_1.c b/drivers/thermal/qcom/tsens-v0_1.c
-index 6f26fadf4c279..055647bcee67d 100644
---- a/drivers/thermal/qcom/tsens-v0_1.c
-+++ b/drivers/thermal/qcom/tsens-v0_1.c
-@@ -145,8 +145,10 @@ static int calibrate_8916(struct tsens_priv *priv)
- 		return PTR_ERR(qfprom_cdata);
- 
- 	qfprom_csel = (u32 *)qfprom_read(priv->dev, "calib_sel");
--	if (IS_ERR(qfprom_csel))
-+	if (IS_ERR(qfprom_csel)) {
-+		kfree(qfprom_cdata);
- 		return PTR_ERR(qfprom_csel);
-+	}
- 
- 	mode = (qfprom_csel[0] & MSM8916_CAL_SEL_MASK) >> MSM8916_CAL_SEL_SHIFT;
- 	dev_dbg(priv->dev, "calibration mode is %d\n", mode);
-@@ -181,6 +183,8 @@ static int calibrate_8916(struct tsens_priv *priv)
- 	}
- 
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(qfprom_cdata);
-+	kfree(qfprom_csel);
- 
- 	return 0;
- }
-@@ -198,8 +202,10 @@ static int calibrate_8974(struct tsens_priv *priv)
- 		return PTR_ERR(calib);
- 
- 	bkp = (u32 *)qfprom_read(priv->dev, "calib_backup");
--	if (IS_ERR(bkp))
-+	if (IS_ERR(bkp)) {
-+		kfree(calib);
- 		return PTR_ERR(bkp);
-+	}
- 
- 	calib_redun_sel =  bkp[1] & BKP_REDUN_SEL;
- 	calib_redun_sel >>= BKP_REDUN_SHIFT;
-@@ -313,6 +319,8 @@ static int calibrate_8974(struct tsens_priv *priv)
- 	}
- 
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(calib);
-+	kfree(bkp);
- 
- 	return 0;
- }
-diff --git a/drivers/thermal/qcom/tsens-v1.c b/drivers/thermal/qcom/tsens-v1.c
-index 10b595d4f6199..870f502f2cb6c 100644
---- a/drivers/thermal/qcom/tsens-v1.c
-+++ b/drivers/thermal/qcom/tsens-v1.c
-@@ -138,6 +138,7 @@ static int calibrate_v1(struct tsens_priv *priv)
- 	}
- 
- 	compute_intercept_slope(priv, p1, p2, mode);
-+	kfree(qfprom_cdata);
- 
- 	return 0;
- }
-diff --git a/drivers/thermal/qcom/tsens.h b/drivers/thermal/qcom/tsens.h
-index 2fd94997245bf..b89083b61c383 100644
---- a/drivers/thermal/qcom/tsens.h
-+++ b/drivers/thermal/qcom/tsens.h
-@@ -17,6 +17,7 @@
- 
- #include <linux/thermal.h>
- #include <linux/regmap.h>
-+#include <linux/slab.h>
- 
- struct tsens_priv;
- 
--- 
-2.20.1
-
 
 
