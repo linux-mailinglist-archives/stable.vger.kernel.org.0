@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D42EDD2386
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC8FFD23C6
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388742AbfJJIn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
+        id S2389198AbfJJIps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388735AbfJJIn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:29 -0400
+        id S2389195AbfJJIpr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F407E2054F;
-        Thu, 10 Oct 2019 08:43:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04D1D208C3;
+        Thu, 10 Oct 2019 08:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697007;
-        bh=wA4A798QDjor7GxSK3UoqTKS91AiqFsVdwyhDLrH9FE=;
+        s=default; t=1570697146;
+        bh=REnVTK/vJsHqsJ2ph+V4kW/zCAVVACeJOLkSLwg2JdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3cLRArXzKNKcyzJtu6/LdjRVD8Z+LQfwUDFuHqYo0g0/iAGNys0K4XQnMzmuUg2A
-         6u5xBIFuMXr2l/WQHFg1h2gj/elbQze4tnbxxNVRoPVZQDltf9D4pYA6rLHX1vi4aw
-         8edhchoXxqkeNrOsNMXf+GNKsRBAPYfh3U8P4nbI=
+        b=Dma4e8u0n56aZBqsvagRIh5QOPuh+gaUgtfMU7vdcdQ5jkdocdsv+ou6MisPgrixU
+         7XZTOBV5UTNmStCV4D8j9mI0NcrbyehAqUYRjt35Z7qmA0rfXe3Z4vtmurP46noNDj
+         qFRbk41GxHJ+3jFyIrimBqrHIbdC1MLGyr87i1vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Pankaj Gupta <pagupta@redhat.com>,
-        Santosh Sivaraj <santosh@fossix.org>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.3 079/148] libnvdimm/altmap: Track namespace boundaries in altmap
-Date:   Thu, 10 Oct 2019 10:35:40 +0200
-Message-Id: <20191010083616.122145556@linuxfoundation.org>
+        stable@vger.kernel.org, Sumit Saxena <sumit.saxena@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 4.19 034/114] PCI: Restore Resizable BAR size bits correctly for 1MB BARs
+Date:   Thu, 10 Oct 2019 10:35:41 +0200
+Message-Id: <20191010083601.646843873@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,125 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Sumit Saxena <sumit.saxena@broadcom.com>
 
-commit cf387d9644d8c78721cf9b77af9f67bb5b04da16 upstream.
+commit d2182b2d4b71ff0549a07f414d921525fade707b upstream.
 
-With PFN_MODE_PMEM namespace, the memmap area is allocated from the device
-area. Some architectures map the memmap area with large page size. On
-architectures like ppc64, 16MB page for memap mapping can map 262144 pfns.
-This maps a namespace size of 16G.
+In a Resizable BAR Control Register, bits 13:8 control the size of the BAR.
+The encoded values of these bits are as follows (see PCIe r5.0, sec
+7.8.6.3):
 
-When populating memmap region with 16MB page from the device area,
-make sure the allocated space is not used to map resources outside this
-namespace. Such usage of device area will prevent a namespace destroy.
+  Value    BAR size
+     0     1 MB (2^20 bytes)
+     1     2 MB (2^21 bytes)
+     2     4 MB (2^22 bytes)
+   ...
+    43     8 EB (2^63 bytes)
 
-Add resource end pnf in altmap and use that to check if the memmap area
-allocation can map pfn outside the namespace. On ppc64 in such case we fallback
-to allocation from memory.
+Previously we incorrectly set the BAR size bits for a 1 MB BAR to 0x1f
+instead of 0, so devices that support that size, e.g., new megaraid_sas and
+mpt3sas adapters, fail to initialize during resume from S3 sleep.
 
-This fix kernel crash reported below:
+Correctly calculate the BAR size bits for Resizable BAR control registers.
 
-[  132.034989] WARNING: CPU: 13 PID: 13719 at mm/memremap.c:133 devm_memremap_pages_release+0x2d8/0x2e0
-[  133.464754] BUG: Unable to handle kernel data access at 0xc00c00010b204000
-[  133.464760] Faulting instruction address: 0xc00000000007580c
-[  133.464766] Oops: Kernel access of bad area, sig: 11 [#1]
-[  133.464771] LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
-.....
-[  133.464901] NIP [c00000000007580c] vmemmap_free+0x2ac/0x3d0
-[  133.464906] LR [c0000000000757f8] vmemmap_free+0x298/0x3d0
-[  133.464910] Call Trace:
-[  133.464914] [c000007cbfd0f7b0] [c0000000000757f8] vmemmap_free+0x298/0x3d0 (unreliable)
-[  133.464921] [c000007cbfd0f8d0] [c000000000370a44] section_deactivate+0x1a4/0x240
-[  133.464928] [c000007cbfd0f980] [c000000000386270] __remove_pages+0x3a0/0x590
-[  133.464935] [c000007cbfd0fa50] [c000000000074158] arch_remove_memory+0x88/0x160
-[  133.464942] [c000007cbfd0fae0] [c0000000003be8c0] devm_memremap_pages_release+0x150/0x2e0
-[  133.464949] [c000007cbfd0fb70] [c000000000738ea0] devm_action_release+0x30/0x50
-[  133.464955] [c000007cbfd0fb90] [c00000000073a5a4] release_nodes+0x344/0x400
-[  133.464961] [c000007cbfd0fc40] [c00000000073378c] device_release_driver_internal+0x15c/0x250
-[  133.464968] [c000007cbfd0fc80] [c00000000072fd14] unbind_store+0x104/0x110
-[  133.464973] [c000007cbfd0fcd0] [c00000000072ee24] drv_attr_store+0x44/0x70
-[  133.464981] [c000007cbfd0fcf0] [c0000000004a32bc] sysfs_kf_write+0x6c/0xa0
-[  133.464987] [c000007cbfd0fd10] [c0000000004a1dfc] kernfs_fop_write+0x17c/0x250
-[  133.464993] [c000007cbfd0fd60] [c0000000003c348c] __vfs_write+0x3c/0x70
-[  133.464999] [c000007cbfd0fd80] [c0000000003c75d0] vfs_write+0xd0/0x250
-
-djbw: Aneesh notes that this crash can likely be triggered in any kernel that
-supports 'papr_scm', so flagging that commit for -stable consideration.
-
-Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
-Cc: <stable@vger.kernel.org>
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
-Tested-by: Santosh Sivaraj <santosh@fossix.org>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Link: https://lore.kernel.org/r/20190910062826.10041-1-aneesh.kumar@linux.ibm.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/r/20190725192552.24295-1-sumit.saxena@broadcom.com
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203939
+Fixes: d3252ace0bc6 ("PCI: Restore resized BAR state on resume")
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Cc: stable@vger.kernel.org	# v4.19+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/mm/init_64.c |   17 ++++++++++++++++-
- drivers/nvdimm/pfn_devs.c |    2 ++
- include/linux/memremap.h  |    1 +
- 3 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/pci/pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/mm/init_64.c
-+++ b/arch/powerpc/mm/init_64.c
-@@ -172,6 +172,21 @@ static __meminit void vmemmap_list_popul
- 	vmemmap_list = vmem_back;
- }
- 
-+static bool altmap_cross_boundary(struct vmem_altmap *altmap, unsigned long start,
-+				unsigned long page_size)
-+{
-+	unsigned long nr_pfn = page_size / sizeof(struct page);
-+	unsigned long start_pfn = page_to_pfn((struct page *)start);
-+
-+	if ((start_pfn + nr_pfn) > altmap->end_pfn)
-+		return true;
-+
-+	if (start_pfn < altmap->base_pfn)
-+		return true;
-+
-+	return false;
-+}
-+
- int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- 		struct vmem_altmap *altmap)
- {
-@@ -194,7 +209,7 @@ int __meminit vmemmap_populate(unsigned
- 		 * fail due to alignment issues when using 16MB hugepages, so
- 		 * fall back to system memory if the altmap allocation fail.
- 		 */
--		if (altmap) {
-+		if (altmap && !altmap_cross_boundary(altmap, start, page_size)) {
- 			p = altmap_alloc_block_buf(page_size, altmap);
- 			if (!p)
- 				pr_debug("altmap block allocation failed, falling back to system memory");
---- a/drivers/nvdimm/pfn_devs.c
-+++ b/drivers/nvdimm/pfn_devs.c
-@@ -618,9 +618,11 @@ static int __nvdimm_setup_pfn(struct nd_
- 	struct nd_namespace_common *ndns = nd_pfn->ndns;
- 	struct nd_namespace_io *nsio = to_nd_namespace_io(&ndns->dev);
- 	resource_size_t base = nsio->res.start + start_pad;
-+	resource_size_t end = nsio->res.end - end_trunc;
- 	struct vmem_altmap __altmap = {
- 		.base_pfn = init_altmap_base(base),
- 		.reserve = init_altmap_reserve(base),
-+		.end_pfn = PHYS_PFN(end),
- 	};
- 
- 	memcpy(res, &nsio->res, sizeof(*res));
---- a/include/linux/memremap.h
-+++ b/include/linux/memremap.h
-@@ -17,6 +17,7 @@ struct device;
-  */
- struct vmem_altmap {
- 	const unsigned long base_pfn;
-+	const unsigned long end_pfn;
- 	const unsigned long reserve;
- 	unsigned long free;
- 	unsigned long align;
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1366,7 +1366,7 @@ static void pci_restore_rebar_state(stru
+ 		pci_read_config_dword(pdev, pos + PCI_REBAR_CTRL, &ctrl);
+ 		bar_idx = ctrl & PCI_REBAR_CTRL_BAR_IDX;
+ 		res = pdev->resource + bar_idx;
+-		size = order_base_2((resource_size(res) >> 20) | 1) - 1;
++		size = ilog2(resource_size(res)) - 20;
+ 		ctrl &= ~PCI_REBAR_CTRL_BAR_SIZE;
+ 		ctrl |= size << PCI_REBAR_CTRL_BAR_SHIFT;
+ 		pci_write_config_dword(pdev, pos + PCI_REBAR_CTRL, ctrl);
 
 
