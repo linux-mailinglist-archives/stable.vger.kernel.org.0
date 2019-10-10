@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B345D2429
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D47D2431
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389838AbfJJIth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56242 "EHLO mail.kernel.org"
+        id S2389416AbfJJIuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:50:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388033AbfJJItg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:36 -0400
+        id S2389891AbfJJIuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:50:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 55BA321D71;
-        Thu, 10 Oct 2019 08:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EECC221D56;
+        Thu, 10 Oct 2019 08:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697375;
-        bh=7DZ5PjMP7b5x4rM5b1G+HAZcSZk95Iof1H4TK11oOBA=;
+        s=default; t=1570697400;
+        bh=AeqJ5tmv4YwVwMSoBXqkp2XYljEqJPW8+tr6/fYaEbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgV3+TdHf56LRix19LdyEVUQk9q3aArPackt6x2bHqIVoJhOhSJeYSWyhQj2iJTQN
-         SCaw56zS7QtSVjCE4IVzXFTsJmOd3yVcCxQ0WKSv+aSDvhu7gdSN+2c8tqGXKoRedg
-         k/+E/RzXfxKAA15fRHZouuPN6MEBni7PiwVqVuPg=
+        b=NHw9Ac0yaprbk23zkdHcOBrwKdGDyyGqpq4sR7yCsc4Zwm8gdpeKVkP5/DU2Qd/Mk
+         ipHUx23FEEOA1nbomGb/zsiaW2wehBlYhsByQ6vHES0K9HXTByAsKTNa7PqQ5DXOu2
+         0pPazqx6vNJCdfhVJGD0kEoP3XBVcshGlZp0Qxc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 090/114] KVM: arm64: Set SCTLR_EL2.DSSBS if SSBD is forcefully disabled and !vhe
-Date:   Thu, 10 Oct 2019 10:36:37 +0200
-Message-Id: <20191010083612.834026878@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 14/61] crypto: skcipher - Unmap pages after an external error
+Date:   Thu, 10 Oct 2019 10:36:39 +0200
+Message-Id: <20191010083457.804941832@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-[ Upstream commit 7c36447ae5a090729e7b129f24705bb231a07e0b ]
+commit 0ba3c026e685573bd3534c17e27da7c505ac99c4 upstream.
 
-When running without VHE, it is necessary to set SCTLR_EL2.DSSBS if SSBD
-has been forcefully disabled on the kernel command-line.
+skcipher_walk_done may be called with an error by internal or
+external callers.  For those internal callers we shouldn't unmap
+pages but for external callers we must unmap any pages that are
+in use.
 
-Acked-by: Christoffer Dall <christoffer.dall@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+This patch distinguishes between the two cases by checking whether
+walk->nbytes is zero or not.  For internal callers, we now set
+walk->nbytes to zero prior to the call.  For external callers,
+walk->nbytes has always been non-zero (as zero is used to indicate
+the termination of a walk).
+
+Reported-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fixes: 5cde0af2a982 ("[CRYPTO] cipher: Added block cipher type")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/kvm_host.h |   11 +++++++++++
- arch/arm64/kvm/hyp/sysreg-sr.c    |   11 +++++++++++
- 2 files changed, 22 insertions(+)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -398,6 +398,8 @@ struct kvm_vcpu *kvm_mpidr_to_vcpu(struc
+---
+ crypto/skcipher.c |   42 +++++++++++++++++++++++-------------------
+ 1 file changed, 23 insertions(+), 19 deletions(-)
+
+--- a/crypto/skcipher.c
++++ b/crypto/skcipher.c
+@@ -95,7 +95,7 @@ static inline u8 *skcipher_get_spot(u8 *
+ 	return max(start, end_page);
+ }
  
- DECLARE_PER_CPU(kvm_cpu_context_t, kvm_host_cpu_state);
+-static void skcipher_done_slow(struct skcipher_walk *walk, unsigned int bsize)
++static int skcipher_done_slow(struct skcipher_walk *walk, unsigned int bsize)
+ {
+ 	u8 *addr;
  
-+void __kvm_enable_ssbs(void);
-+
- static inline void __cpu_init_hyp_mode(phys_addr_t pgd_ptr,
- 				       unsigned long hyp_stack_ptr,
- 				       unsigned long vector_ptr)
-@@ -418,6 +420,15 @@ static inline void __cpu_init_hyp_mode(p
- 	 */
- 	BUG_ON(!static_branch_likely(&arm64_const_caps_ready));
- 	__kvm_call_hyp((void *)pgd_ptr, hyp_stack_ptr, vector_ptr, tpidr_el2);
-+
-+	/*
-+	 * Disabling SSBD on a non-VHE system requires us to enable SSBS
-+	 * at EL2.
-+	 */
-+	if (!has_vhe() && this_cpu_has_cap(ARM64_SSBS) &&
-+	    arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE) {
-+		kvm_call_hyp(__kvm_enable_ssbs);
+@@ -103,19 +103,21 @@ static void skcipher_done_slow(struct sk
+ 	addr = skcipher_get_spot(addr, bsize);
+ 	scatterwalk_copychunks(addr, &walk->out, bsize,
+ 			       (walk->flags & SKCIPHER_WALK_PHYS) ? 2 : 1);
++	return 0;
+ }
+ 
+ int skcipher_walk_done(struct skcipher_walk *walk, int err)
+ {
+-	unsigned int n; /* bytes processed */
+-	bool more;
++	unsigned int n = walk->nbytes;
++	unsigned int nbytes = 0;
+ 
+-	if (unlikely(err < 0))
++	if (!n)
+ 		goto finish;
+ 
+-	n = walk->nbytes - err;
+-	walk->total -= n;
+-	more = (walk->total != 0);
++	if (likely(err >= 0)) {
++		n -= err;
++		nbytes = walk->total - n;
 +	}
- }
  
- static inline bool kvm_arch_check_sve_has_vhe(void)
---- a/arch/arm64/kvm/hyp/sysreg-sr.c
-+++ b/arch/arm64/kvm/hyp/sysreg-sr.c
-@@ -293,3 +293,14 @@ void kvm_vcpu_put_sysregs(struct kvm_vcp
+ 	if (likely(!(walk->flags & (SKCIPHER_WALK_PHYS |
+ 				    SKCIPHER_WALK_SLOW |
+@@ -131,7 +133,7 @@ unmap_src:
+ 		memcpy(walk->dst.virt.addr, walk->page, n);
+ 		skcipher_unmap_dst(walk);
+ 	} else if (unlikely(walk->flags & SKCIPHER_WALK_SLOW)) {
+-		if (err) {
++		if (err > 0) {
+ 			/*
+ 			 * Didn't process all bytes.  Either the algorithm is
+ 			 * broken, or this was the last step and it turned out
+@@ -139,27 +141,29 @@ unmap_src:
+ 			 * the algorithm requires it.
+ 			 */
+ 			err = -EINVAL;
+-			goto finish;
+-		}
+-		skcipher_done_slow(walk, n);
+-		goto already_advanced;
++			nbytes = 0;
++		} else
++			n = skcipher_done_slow(walk, n);
+ 	}
  
- 	vcpu->arch.sysregs_loaded_on_cpu = false;
- }
++	if (err > 0)
++		err = 0;
 +
-+void __hyp_text __kvm_enable_ssbs(void)
-+{
-+	u64 tmp;
++	walk->total = nbytes;
++	walk->nbytes = 0;
 +
-+	asm volatile(
-+	"mrs	%0, sctlr_el2\n"
-+	"orr	%0, %0, %1\n"
-+	"msr	sctlr_el2, %0"
-+	: "=&r" (tmp) : "L" (SCTLR_ELx_DSSBS));
-+}
+ 	scatterwalk_advance(&walk->in, n);
+ 	scatterwalk_advance(&walk->out, n);
+-already_advanced:
+-	scatterwalk_done(&walk->in, 0, more);
+-	scatterwalk_done(&walk->out, 1, more);
++	scatterwalk_done(&walk->in, 0, nbytes);
++	scatterwalk_done(&walk->out, 1, nbytes);
+ 
+-	if (more) {
++	if (nbytes) {
+ 		crypto_yield(walk->flags & SKCIPHER_WALK_SLEEP ?
+ 			     CRYPTO_TFM_REQ_MAY_SLEEP : 0);
+ 		return skcipher_walk_next(walk);
+ 	}
+-	err = 0;
+-finish:
+-	walk->nbytes = 0;
+ 
++finish:
+ 	/* Short-circuit for the common/fast path. */
+ 	if (!((unsigned long)walk->buffer | (unsigned long)walk->page))
+ 		goto out;
 
 
