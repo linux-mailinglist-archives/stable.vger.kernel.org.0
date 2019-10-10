@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD28D2578
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D01CD2492
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388636AbfJJIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
+        id S2389495AbfJJIre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:47:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388632AbfJJImz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:42:55 -0400
+        id S2389490AbfJJIrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:47:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F20321A4A;
-        Thu, 10 Oct 2019 08:42:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80E0A222C5;
+        Thu, 10 Oct 2019 08:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696974;
-        bh=LsS3cLKEpGqy9ebVuNqcBko7hWdPP6FRJnuapa640F0=;
+        s=default; t=1570697253;
+        bh=EsGY4Ro3QJMVIc6Pr48axtXJLhwkNlHF1eAwIn0tiHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCs/3ErrLkpOKlKHnIdv19/5xl77CweufT8RbG/Fm4RBoR5DfYFYAHA6HWo1g7FBU
-         4qljO5gvCMee3E650jJMKPFRL3k+xdcUrNEPKA2hciIJpnszVmcWQA/8c0Oe2+9OKh
-         +FFqfesHRRGXdsM/ucwsAX+erH4gAYfzm22MqK+M=
+        b=EPBVCg+nS7T+1EJH4AZpo19sXKg+xXR3nghKcCRRrsVL8FgbxrXFHkSZ+U1Br53wU
+         d04bGsFCkfXOkDe6tqkR+3WqhZ6CPOSEnw6bYpnwrqG1puMV8CDnJtFYtsghBTAjaP
+         x+pNAaecd458PUEwP4cBTvKuepsRmgIoG3dci9g4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, Andreas Krebbel <krebbel@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Hendrik Brueckner <brueckner@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 119/148] libnvdimm/nfit_test: Fix acpi_handle redefinition
+Subject: [PATCH 4.19 073/114] perf build: Add detection of java-11-openjdk-devel package
 Date:   Thu, 10 Oct 2019 10:36:20 +0200
-Message-Id: <20191010083618.277525949@linuxfoundation.org>
+Message-Id: <20191010083611.766732099@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 59f08896f058a92f03a0041b397a1a227c5e8529 ]
+[ Upstream commit 815c1560bf8fd522b8d93a1d727868b910c1cc24 ]
 
-After commit 62974fc389b3 ("libnvdimm: Enable unit test infrastructure
-compile checks"), clang warns:
+With Java 11 there is no seperate JRE anymore.
 
-In file included from
-../drivers/nvdimm/../../tools/testing/nvdimm/test/iomap.c:15:
-../drivers/nvdimm/../../tools/testing/nvdimm/test/nfit_test.h:206:15:
-warning: redefinition of typedef 'acpi_handle' is a C11 feature
-[-Wtypedef-redefinition]
-typedef void *acpi_handle;
-              ^
-../include/acpi/actypes.h:424:15: note: previous definition is here
-typedef void *acpi_handle;      /* Actually a ptr to a NS Node */
-              ^
-1 warning generated.
+Details:
 
-The include chain:
+  https://coderanch.com/t/701603/java/JRE-JDK
 
-iomap.c ->
-    linux/acpi.h ->
-        acpi/acpi.h ->
-            acpi/actypes.h
-    nfit_test.h
+Therefore the detection of the JRE needs to be adapted.
 
-Avoid this by including linux/acpi.h in nfit_test.h, which allows us to
-remove both the typedef and the forward declaration of acpi_object.
+This change works for s390 and x86.  I have not tested other platforms.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/660
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Link: https://lore.kernel.org/r/20190918042148.77553-1-natechancellor@gmail.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Committer testing:
+
+Continues to work with the OpenJDK 8:
+
+  $ rm -f ~acme/lib64/libperf-jvmti.so
+  $ rpm -qa | grep jdk-devel
+  java-1.8.0-openjdk-devel-1.8.0.222.b10-0.fc30.x86_64
+  $ git log --oneline -1
+  a51937170f33 (HEAD -> perf/core) perf build: Add detection of java-11-openjdk-devel package
+  $ rm -rf /tmp/build/perf ; mkdir -p /tmp/build/perf ; make -C tools/perf O=/tmp/build/perf install > /dev/null 2>1
+  $ ls -la ~acme/lib64/libperf-jvmti.so
+  -rwxr-xr-x. 1 acme acme 230744 Sep 24 16:46 /home/acme/lib64/libperf-jvmti.so
+  $
+
+Suggested-by: Andreas Krebbel <krebbel@linux.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Hendrik Brueckner <brueckner@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: http://lore.kernel.org/lkml/20190909114116.50469-4-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/nvdimm/test/nfit_test.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ tools/perf/Makefile.config | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/nvdimm/test/nfit_test.h b/tools/testing/nvdimm/test/nfit_test.h
-index 448d686da8b13..0bf5640f1f071 100644
---- a/tools/testing/nvdimm/test/nfit_test.h
-+++ b/tools/testing/nvdimm/test/nfit_test.h
-@@ -4,6 +4,7 @@
-  */
- #ifndef __NFIT_TEST_H__
- #define __NFIT_TEST_H__
-+#include <linux/acpi.h>
- #include <linux/list.h>
- #include <linux/uuid.h>
- #include <linux/ioport.h>
-@@ -202,9 +203,6 @@ struct nd_intel_lss {
- 	__u32 status;
- } __packed;
- 
--union acpi_object;
--typedef void *acpi_handle;
--
- typedef struct nfit_test_resource *(*nfit_test_lookup_fn)(resource_size_t);
- typedef union acpi_object *(*nfit_test_evaluate_dsm_fn)(acpi_handle handle,
- 		 const guid_t *guid, u64 rev, u64 func,
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index 849b3be15bd89..510caedd73194 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -837,7 +837,7 @@ ifndef NO_JVMTI
+     JDIR=$(shell /usr/sbin/update-java-alternatives -l | head -1 | awk '{print $$3}')
+   else
+     ifneq (,$(wildcard /usr/sbin/alternatives))
+-      JDIR=$(shell /usr/sbin/alternatives --display java | tail -1 | cut -d' ' -f 5 | sed 's%/jre/bin/java.%%g')
++      JDIR=$(shell /usr/sbin/alternatives --display java | tail -1 | cut -d' ' -f 5 | sed -e 's%/jre/bin/java.%%g' -e 's%/bin/java.%%g')
+     endif
+   endif
+   ifndef JDIR
 -- 
 2.20.1
 
