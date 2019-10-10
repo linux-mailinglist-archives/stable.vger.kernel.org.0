@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DFCD2546
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD28D2578
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388293AbfJJI5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53510 "EHLO mail.kernel.org"
+        id S2388636AbfJJIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389481AbfJJIra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:47:30 -0400
+        id S2388632AbfJJImz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:42:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A0AE21929;
-        Thu, 10 Oct 2019 08:47:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F20321A4A;
+        Thu, 10 Oct 2019 08:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697250;
-        bh=Cez3G1xpq9uAnPPHn4QnceEd5nNP9L8MGjyZtdnK1fg=;
+        s=default; t=1570696974;
+        bh=LsS3cLKEpGqy9ebVuNqcBko7hWdPP6FRJnuapa640F0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yag4bNBCB8uOcAqnKGAWRg8Nz5fc9M5L4b50a3lYXEUrpG3r7m+IMr5M7MBYd4RQ6
-         zs/nKZn9PhowMFO4hvUS85xNd2dUTeUk8fbxnNxIowptEZP0sZibTDwW3KVzW6c9UT
-         VrEbZl0K6SbYcd0eH4+0Efx/P/8VY8NPFujZLeUo=
+        b=wCs/3ErrLkpOKlKHnIdv19/5xl77CweufT8RbG/Fm4RBoR5DfYFYAHA6HWo1g7FBU
+         4qljO5gvCMee3E650jJMKPFRL3k+xdcUrNEPKA2hciIJpnszVmcWQA/8c0Oe2+9OKh
+         +FFqfesHRRGXdsM/ucwsAX+erH4gAYfzm22MqK+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KeMeng Shi <shikemeng@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/114] sched/core: Fix migration to invalid CPU in __set_cpus_allowed_ptr()
-Date:   Thu, 10 Oct 2019 10:36:19 +0200
-Message-Id: <20191010083611.705257114@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 119/148] libnvdimm/nfit_test: Fix acpi_handle redefinition
+Date:   Thu, 10 Oct 2019 10:36:20 +0200
+Message-Id: <20191010083618.277525949@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KeMeng Shi <shikemeng@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 714e501e16cd473538b609b3e351b2cc9f7f09ed ]
+[ Upstream commit 59f08896f058a92f03a0041b397a1a227c5e8529 ]
 
-An oops can be triggered in the scheduler when running qemu on arm64:
+After commit 62974fc389b3 ("libnvdimm: Enable unit test infrastructure
+compile checks"), clang warns:
 
- Unable to handle kernel paging request at virtual address ffff000008effe40
- Internal error: Oops: 96000007 [#1] SMP
- Process migration/0 (pid: 12, stack limit = 0x00000000084e3736)
- pstate: 20000085 (nzCv daIf -PAN -UAO)
- pc : __ll_sc___cmpxchg_case_acq_4+0x4/0x20
- lr : move_queued_task.isra.21+0x124/0x298
- ...
- Call trace:
-  __ll_sc___cmpxchg_case_acq_4+0x4/0x20
-  __migrate_task+0xc8/0xe0
-  migration_cpu_stop+0x170/0x180
-  cpu_stopper_thread+0xec/0x178
-  smpboot_thread_fn+0x1ac/0x1e8
-  kthread+0x134/0x138
-  ret_from_fork+0x10/0x18
+In file included from
+../drivers/nvdimm/../../tools/testing/nvdimm/test/iomap.c:15:
+../drivers/nvdimm/../../tools/testing/nvdimm/test/nfit_test.h:206:15:
+warning: redefinition of typedef 'acpi_handle' is a C11 feature
+[-Wtypedef-redefinition]
+typedef void *acpi_handle;
+              ^
+../include/acpi/actypes.h:424:15: note: previous definition is here
+typedef void *acpi_handle;      /* Actually a ptr to a NS Node */
+              ^
+1 warning generated.
 
-__set_cpus_allowed_ptr() will choose an active dest_cpu in affinity mask to
-migrage the process if process is not currently running on any one of the
-CPUs specified in affinity mask. __set_cpus_allowed_ptr() will choose an
-invalid dest_cpu (dest_cpu >= nr_cpu_ids, 1024 in my virtual machine) if
-CPUS in an affinity mask are deactived by cpu_down after cpumask_intersects
-check. cpumask_test_cpu() of dest_cpu afterwards is overflown and may pass if
-corresponding bit is coincidentally set. As a consequence, kernel will
-access an invalid rq address associate with the invalid CPU in
-migration_cpu_stop->__migrate_task->move_queued_task and the Oops occurs.
+The include chain:
 
-The reproduce the crash:
+iomap.c ->
+    linux/acpi.h ->
+        acpi/acpi.h ->
+            acpi/actypes.h
+    nfit_test.h
 
-  1) A process repeatedly binds itself to cpu0 and cpu1 in turn by calling
-  sched_setaffinity.
+Avoid this by including linux/acpi.h in nfit_test.h, which allows us to
+remove both the typedef and the forward declaration of acpi_object.
 
-  2) A shell script repeatedly does "echo 0 > /sys/devices/system/cpu/cpu1/online"
-  and "echo 1 > /sys/devices/system/cpu/cpu1/online" in turn.
-
-  3) Oops appears if the invalid CPU is set in memory after tested cpumask.
-
-Signed-off-by: KeMeng Shi <shikemeng@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1568616808-16808-1-git-send-email-shikemeng@huawei.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/660
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Link: https://lore.kernel.org/r/20190918042148.77553-1-natechancellor@gmail.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/nvdimm/test/nfit_test.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index f4e050681ba1c..78ecdfae25b69 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1077,7 +1077,8 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
- 	if (cpumask_equal(&p->cpus_allowed, new_mask))
- 		goto out;
+diff --git a/tools/testing/nvdimm/test/nfit_test.h b/tools/testing/nvdimm/test/nfit_test.h
+index 448d686da8b13..0bf5640f1f071 100644
+--- a/tools/testing/nvdimm/test/nfit_test.h
++++ b/tools/testing/nvdimm/test/nfit_test.h
+@@ -4,6 +4,7 @@
+  */
+ #ifndef __NFIT_TEST_H__
+ #define __NFIT_TEST_H__
++#include <linux/acpi.h>
+ #include <linux/list.h>
+ #include <linux/uuid.h>
+ #include <linux/ioport.h>
+@@ -202,9 +203,6 @@ struct nd_intel_lss {
+ 	__u32 status;
+ } __packed;
  
--	if (!cpumask_intersects(new_mask, cpu_valid_mask)) {
-+	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
-+	if (dest_cpu >= nr_cpu_ids) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -1098,7 +1099,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
- 	if (cpumask_test_cpu(task_cpu(p), new_mask))
- 		goto out;
- 
--	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
- 	if (task_running(rq, p) || p->state == TASK_WAKING) {
- 		struct migration_arg arg = { p, dest_cpu };
- 		/* Need help from migration thread: drop lock and wait. */
+-union acpi_object;
+-typedef void *acpi_handle;
+-
+ typedef struct nfit_test_resource *(*nfit_test_lookup_fn)(resource_size_t);
+ typedef union acpi_object *(*nfit_test_evaluate_dsm_fn)(acpi_handle handle,
+ 		 const guid_t *guid, u64 rev, u64 func,
 -- 
 2.20.1
 
