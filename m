@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0540D2570
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3FDD2498
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388359AbfJJJAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 05:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47962 "EHLO mail.kernel.org"
+        id S2389551AbfJJIrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:47:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388690AbfJJInL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:43:11 -0400
+        id S2388762AbfJJIrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:47:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CFBB21BE5;
-        Thu, 10 Oct 2019 08:43:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5317208C3;
+        Thu, 10 Oct 2019 08:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696991;
-        bh=8rXf1rcCw3zLras7kS4IMtEFY7Dv0pAdekM63Zo4p1g=;
+        s=default; t=1570697272;
+        bh=HYJ6TBJCDPcKIy71M87pqTGMonT+AGK/9LfEE7RF5CY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAZozvlpAhRwNkOvmtAsfLrLIovV+7eCJFKd/ZBEQ6gIxfNK0p2pL6v1ShCdjGU1r
-         zy8mZiMjK2eaXlKry8hNa1Njcx5vPuYzSA4/lgged12gJgdtFN4AbDBMyLgV7TYjqa
-         sO2WozRPrfxiqak2PTHmBRhvaiUvWaAH+Q8ZftPQ=
+        b=sX3Z1aqgQkLkljJG6UD1JQQOlJLa88JzqnxvfSm7ABAo0SFvpSMUV9iuC5q19XgO/
+         0AYLJZQaCHqw9yKLq/oaKqbBw6XqstRx/+JorKW7VFHUds4U5Rw2wfyf0mi4FTAmP6
+         xws/0rSllijgEhAme/Hd7XBK4u+aQfCqtZ9iCkW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 125/148] selftests/bpf: adjust strobemeta loop to satisfy latest clang
+Subject: [PATCH 4.19 079/114] KVM: nVMX: Fix consistency check on injected exception error code
 Date:   Thu, 10 Oct 2019 10:36:26 +0200
-Message-Id: <20191010083618.634149576@linuxfoundation.org>
+Message-Id: <20191010083612.158518676@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andriin@fb.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-[ Upstream commit 4670d68b9254710fdeaf794cad54d8b2c9929e0a ]
+[ Upstream commit 567926cca99ba1750be8aae9c4178796bf9bb90b ]
 
-Some recent changes in latest Clang started causing the following
-warning when unrolling strobemeta test case main loop:
+Current versions of Intel's SDM incorrectly state that "bits 31:15 of
+the VM-Entry exception error-code field" must be zero.  In reality, bits
+31:16 must be zero, i.e. error codes are 16-bit values.
 
-  progs/strobemeta.h:416:2: warning: loop not unrolled: the optimizer was
-  unable to perform the requested transformation; the transformation might
-  be disabled or specified as part of an unsupported transformation
-  ordering [-Wpass-failed=transform-warning]
+The bogus error code check manifests as an unexpected VM-Entry failure
+due to an invalid code field (error number 7) in L1, e.g. when injecting
+a #GP with error_code=0x9f00.
 
-This patch simplifies loop's exit condition to depend only on constant
-max iteration number (STROBE_MAX_MAP_ENTRIES), while moving early
-termination logic inside the loop body. The changes are equivalent from
-program logic standpoint, but fixes the warning. It also appears to
-improve generated BPF code, as it fixes previously failing non-unrolled
-strobemeta test cases.
+Nadav previously reported the bug[*], both to KVM and Intel, and fixed
+the associated kvm-unit-test.
 
-Cc: Alexei Starovoitov <ast@fb.com>
-Signed-off-by: Andrii Nakryiko <andriin@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+[*] https://patchwork.kernel.org/patch/11124749/
+
+Reported-by: Nadav Amit <namit@vmware.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/strobemeta.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/strobemeta.h b/tools/testing/selftests/bpf/progs/strobemeta.h
-index 8a399bdfd9203..067eb625d01c5 100644
---- a/tools/testing/selftests/bpf/progs/strobemeta.h
-+++ b/tools/testing/selftests/bpf/progs/strobemeta.h
-@@ -413,7 +413,10 @@ static __always_inline void *read_map_var(struct strobemeta_cfg *cfg,
- #else
- #pragma unroll
- #endif
--	for (int i = 0; i < STROBE_MAX_MAP_ENTRIES && i < map.cnt; ++i) {
-+	for (int i = 0; i < STROBE_MAX_MAP_ENTRIES; ++i) {
-+		if (i >= map.cnt)
-+			break;
-+
- 		descr->key_lens[i] = 0;
- 		len = bpf_probe_read_str(payload, STROBE_MAX_STR_LEN,
- 					 map.entries[i].key);
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index d3a900a4fa0e7..6f7b3acdab263 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -12574,7 +12574,7 @@ static int check_vmentry_prereqs(struct kvm_vcpu *vcpu, struct vmcs12 *vmcs12)
+ 
+ 		/* VM-entry exception error code */
+ 		if (has_error_code &&
+-		    vmcs12->vm_entry_exception_error_code & GENMASK(31, 15))
++		    vmcs12->vm_entry_exception_error_code & GENMASK(31, 16))
+ 			return VMXERR_ENTRY_INVALID_CONTROL_FIELD;
+ 
+ 		/* VM-entry interruption-info field: reserved bits */
 -- 
 2.20.1
 
