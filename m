@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 911A6D25BB
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDDAD2481
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387971AbfJJIjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:39:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S2389255AbfJJIqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387983AbfJJIjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:39:52 -0400
+        id S2388563AbfJJIqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:46:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7ACA421BE5;
-        Thu, 10 Oct 2019 08:39:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C7FD208C3;
+        Thu, 10 Oct 2019 08:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696792;
-        bh=R1bCjxSjjgxEB7TD52IG9AYkmyv3+Iqr6N7u8GuakFU=;
+        s=default; t=1570697165;
+        bh=y2FnuqKS9UEad8BiPBaKJfjggds9omeZqseRuPGn0AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3RI2FjI9vaNTM8hwruc9NniYs1GsU+0N+CJ2kLAQK+a5710s5ZhIkVMU/trDeUIg
-         zRt5xYYVllXrDsntscGi3ypUuZ4rT+OqfzRygQDLgFKI7hcKc4oB/drYHgwMBtSkTR
-         OJhPkPWR7/uNDoebm5qjPFUafGQbVJ1WMSHyFeLw=
+        b=Z7vOuHyFb+PBoKf2Js3VT8vD/cw96RFuEXReQ837OkVOL4AU98hLNTfJK+PLBNRR7
+         212QXkfGsPVa/N03h985Yx0RtGByHJ7lgiAgCwGU3yM/9wAZPo43eO6wxBak4RPNBh
+         BQViRsWYCR3jt3DYmN/g592rsGhM+51pZhfEmEFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dexuan Cui <decui@microsoft.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.3 054/148] PCI: hv: Avoid use of hv_pci_dev->pci_slot after freeing it
-Date:   Thu, 10 Oct 2019 10:35:15 +0200
-Message-Id: <20191010083614.419687555@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.19 009/114] KVM: nVMX: handle page fault in vmread fix
+Date:   Thu, 10 Oct 2019 10:35:16 +0200
+Message-Id: <20191010083548.643670435@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-commit 533ca1feed98b0bf024779a14760694c7cb4d431 upstream.
+During backport f7eea636c3d5 ("KVM: nVMX: handle page fault in vmread"),
+there was a mistake the exception reference should be passed to function
+kvm_write_guest_virt_system, instead of NULL, other wise, we will get
+NULL pointer deref, eg
 
-The slot must be removed before the pci_dev is removed, otherwise a panic
-can happen due to use-after-free.
+kvm-unit-test triggered a NULL pointer deref below:
+[  948.518437] kvm [24114]: vcpu0, guest rIP: 0x407ef9 kvm_set_msr_common: MSR_IA32_DEBUGCTLMSR 0x3, nop
+[  949.106464] BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+[  949.106707] PGD 0 P4D 0
+[  949.106872] Oops: 0002 [#1] SMP
+[  949.107038] CPU: 2 PID: 24126 Comm: qemu-2.7 Not tainted 4.19.77-pserver #4.19.77-1+feature+daily+update+20191005.1625+a4168bb~deb9
+[  949.107283] Hardware name: Dell Inc. Precision Tower 3620/09WH54, BIOS 2.7.3 01/31/2018
+[  949.107549] RIP: 0010:kvm_write_guest_virt_system+0x12/0x40 [kvm]
+[  949.107719] Code: c0 5d 41 5c 41 5d 41 5e 83 f8 03 41 0f 94 c0 41 c1 e0 02 e9 b0 ed ff ff 0f 1f 44 00 00 48 89 f0 c6 87 59 56 00 00 01 48 89 d6 <49> c7 00 00 00 00 00 89 ca 49 c7 40 08 00 00 00 00 49 c7 40 10 00
+[  949.108044] RSP: 0018:ffffb31b0a953cb0 EFLAGS: 00010202
+[  949.108216] RAX: 000000000046b4d8 RBX: ffff9e9f415b0000 RCX: 0000000000000008
+[  949.108389] RDX: ffffb31b0a953cc0 RSI: ffffb31b0a953cc0 RDI: ffff9e9f415b0000
+[  949.108562] RBP: 00000000d2e14928 R08: 0000000000000000 R09: 0000000000000000
+[  949.108733] R10: 0000000000000000 R11: 0000000000000000 R12: ffffffffffffffc8
+[  949.108907] R13: 0000000000000002 R14: ffff9e9f4f26f2e8 R15: 0000000000000000
+[  949.109079] FS:  00007eff8694c700(0000) GS:ffff9e9f51a80000(0000) knlGS:0000000031415928
+[  949.109318] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  949.109495] CR2: 0000000000000000 CR3: 00000003be53b002 CR4: 00000000003626e0
+[  949.109671] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  949.109845] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  949.110017] Call Trace:
+[  949.110186]  handle_vmread+0x22b/0x2f0 [kvm_intel]
+[  949.110356]  ? vmexit_fill_RSB+0xc/0x30 [kvm_intel]
+[  949.110549]  kvm_arch_vcpu_ioctl_run+0xa98/0x1b30 [kvm]
+[  949.110725]  ? kvm_vcpu_ioctl+0x388/0x5d0 [kvm]
+[  949.110901]  kvm_vcpu_ioctl+0x388/0x5d0 [kvm]
+[  949.111072]  do_vfs_ioctl+0xa2/0x620
 
-Fixes: 15becc2b56c6 ("PCI: hv: Add hv_pci_remove_slots() when we unload the driver")
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- drivers/pci/controller/pci-hyperv.c |    2 +-
+ arch/x86/kvm/vmx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -2701,8 +2701,8 @@ static int hv_pci_remove(struct hv_devic
- 		/* Remove the bus from PCI's point of view. */
- 		pci_lock_rescan_remove();
- 		pci_stop_root_bus(hbus->pci_bus);
--		pci_remove_root_bus(hbus->pci_bus);
- 		hv_pci_remove_slots(hbus);
-+		pci_remove_root_bus(hbus->pci_bus);
- 		pci_unlock_rescan_remove();
- 		hbus->state = hv_pcibus_removed;
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -8801,7 +8801,7 @@ static int handle_vmread(struct kvm_vcpu
+ 		/* _system ok, nested_vmx_check_permission has verified cpl=0 */
+ 		if (kvm_write_guest_virt_system(vcpu, gva, &field_value,
+ 						(is_long_mode(vcpu) ? 8 : 4),
+-						NULL))
++						&e))
+ 			kvm_inject_page_fault(vcpu, &e);
  	}
+ 
 
 
