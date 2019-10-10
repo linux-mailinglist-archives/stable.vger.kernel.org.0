@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 071B2D25DF
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A0C0D25D9
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388074AbfJJJCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 05:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42760 "EHLO mail.kernel.org"
+        id S2387847AbfJJIjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387811AbfJJIjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:39:19 -0400
+        id S2387796AbfJJIjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C938D21D80;
-        Thu, 10 Oct 2019 08:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9788121D6C;
+        Thu, 10 Oct 2019 08:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696759;
-        bh=c7WJh+EJ+vLVCVWgY959mfZeB3g+LV991TNwgJT3s/k=;
+        s=default; t=1570696762;
+        bh=ExES3H8Fy25Gau5gp6ZsM/0aAoXfUHT2YM+s8DCJHL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzEppY5AuX7fvxcH/MpUHcJDdOK6ea5l4K9mfu49PPtcdVO8wRUfxT/XKDBEl5mv8
-         aGwP6/UY9uac7ecQoq5Y3RYKQ5A4XVkg5mVqk/zBUCpi8bSVmND5d2z1J8yL2geqjC
-         HVhuaL7ET5zDShFdukb7/rDsvRhRy0idNDU2bdKg=
+        b=vKWuZxPzNqp5rNVylQrw0AxL/gWmerk5WB5FJhqZ43CqDwvc+6nM0FP4xO1u2ytQD
+         pBKPynwkO9dGfxAXweX716sxyFhbqJNkxsjx3ci3njg3yef0Tph60qiF1ypLNBW6NS
+         ui7BGKhYZFKjjwNX7VNMPcr+jtjV4eCkrj6cvBsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Iuliana Prodan <iuliana.prodan@nxp.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.3 043/148] crypto: caam/qi - fix error handling in ERN handler
-Date:   Thu, 10 Oct 2019 10:35:04 +0200
-Message-Id: <20191010083613.739344414@linuxfoundation.org>
+Subject: [PATCH 5.3 044/148] crypto: caam - fix concurrency issue in givencrypt descriptor
+Date:   Thu, 10 Oct 2019 10:35:05 +0200
+Message-Id: <20191010083613.812525450@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -47,68 +46,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Horia Geantă <horia.geanta@nxp.com>
 
-commit 51fab3d73054ca5b06b26e20edac0486b052c6f4 upstream.
+commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
 
-ERN handler calls the caam/qi frontend "done" callback with a status
-of -EIO. This is incorrect, since the callback expects a status value
-meaningful for the crypto engine - hence the cryptic messages
-like the one below:
-platform caam_qi: 15: unknown error source
+IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
+to be scheduled before the data transfer from ofifo to external memory
+(set up at [38]:
 
-Fix this by providing the callback with:
--the status returned by the crypto engine (fd[status]) in case
-it contains an error, OR
--a QI "No error" code otherwise; this will trigger the message:
-platform caam_qi: 50000000: Queue Manager Interface: No error
-which is fine, since QMan driver provides details about the cause of
-failure
+[29] 10FA0004           ld: ind-nfifo (len=4) imm
+[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
+[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
+[32] 00000010               data:0x00000010
+[33] 8210010D    operation: cls1-op aes cbc init-final enc
+[34] A8080B04         math: (seqin + math0)->vseqout len=4
+[35] 28000010    seqfifold: skip len=16
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[38] 69300000   seqfifostr: msg len=vseqoutsz
+[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
 
-Cc: <stable@vger.kernel.org> # v5.1+
-Fixes: 67c2315def06 ("crypto: caam - add Queue Interface (QI) backend support")
+If ofifo -> external memory transfer happens first, DECO will hang
+(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
+data availability in ofifo for the ofifo -> c2 ififo transfer.
+
+Make sure IV transfer happens first by waiting for all CAAM internal
+transfers to end before starting payload transfer.
+
+New descriptor with jump command inserted at [37]:
+
+[..]
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
+[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[39] 69300000   seqfifostr: msg len=vseqoutsz
+[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+
+[Note: the issue is present in the descriptor from the very beginning
+(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
+maintained kernel that the patch applies clean against.]
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
 Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
-Reviewed-by: Iuliana Prodan <iuliana.prodan@nxp.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/caam/error.c |    1 +
- drivers/crypto/caam/qi.c    |    5 ++++-
- drivers/crypto/caam/regs.h  |    1 +
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/crypto/caam/caamalg_desc.c |    9 +++++++++
+ drivers/crypto/caam/caamalg_desc.h |    2 +-
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/caam/error.c
-+++ b/drivers/crypto/caam/error.c
-@@ -118,6 +118,7 @@ static const struct {
- 	u8 value;
- 	const char *error_text;
- } qi_error_list[] = {
-+	{ 0x00, "No error" },
- 	{ 0x1F, "Job terminated by FQ or ICID flush" },
- 	{ 0x20, "FD format error"},
- 	{ 0x21, "FD command format error"},
---- a/drivers/crypto/caam/qi.c
-+++ b/drivers/crypto/caam/qi.c
-@@ -163,7 +163,10 @@ static void caam_fq_ern_cb(struct qman_p
- 	dma_unmap_single(drv_req->drv_ctx->qidev, qm_fd_addr(fd),
- 			 sizeof(drv_req->fd_sgt), DMA_BIDIRECTIONAL);
+--- a/drivers/crypto/caam/caamalg_desc.c
++++ b/drivers/crypto/caam/caamalg_desc.c
+@@ -503,6 +503,7 @@ void cnstr_shdsc_aead_givencap(u32 * con
+ 			       const bool is_qi, int era)
+ {
+ 	u32 geniv, moveiv;
++	u32 *wait_cmd;
  
--	drv_req->cbk(drv_req, -EIO);
-+	if (fd->status)
-+		drv_req->cbk(drv_req, be32_to_cpu(fd->status));
-+	else
-+		drv_req->cbk(drv_req, JRSTA_SSRC_QI);
- }
+ 	/* Note: Context registers are saved. */
+ 	init_sh_desc_key_aead(desc, cdata, adata, is_rfc3686, nonce, era);
+@@ -598,6 +599,14 @@ copy_iv:
  
- static struct qman_fq *create_caam_req_fq(struct device *qidev,
---- a/drivers/crypto/caam/regs.h
-+++ b/drivers/crypto/caam/regs.h
-@@ -641,6 +641,7 @@ struct caam_job_ring {
- #define JRSTA_SSRC_CCB_ERROR        0x20000000
- #define JRSTA_SSRC_JUMP_HALT_USER   0x30000000
- #define JRSTA_SSRC_DECO             0x40000000
-+#define JRSTA_SSRC_QI               0x50000000
- #define JRSTA_SSRC_JRERROR          0x60000000
- #define JRSTA_SSRC_JUMP_HALT_CC     0x70000000
- 
+ 	/* Will read cryptlen */
+ 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
++
++	/*
++	 * Wait for IV transfer (ofifo -> class2) to finish before starting
++	 * ciphertext transfer (ofifo -> external memory).
++	 */
++	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
++	set_jump_tgt_here(desc, wait_cmd);
++
+ 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
+ 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
+ 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
+--- a/drivers/crypto/caam/caamalg_desc.h
++++ b/drivers/crypto/caam/caamalg_desc.h
+@@ -12,7 +12,7 @@
+ #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
+ #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
+ #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
+-#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 7 * CAAM_CMD_SZ)
++#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 8 * CAAM_CMD_SZ)
+ #define DESC_QI_AEAD_ENC_LEN		(DESC_AEAD_ENC_LEN + 3 * CAAM_CMD_SZ)
+ #define DESC_QI_AEAD_DEC_LEN		(DESC_AEAD_DEC_LEN + 3 * CAAM_CMD_SZ)
+ #define DESC_QI_AEAD_GIVENC_LEN		(DESC_AEAD_GIVENC_LEN + 3 * CAAM_CMD_SZ)
 
 
