@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1452D24B0
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581A8D2531
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389862AbfJJItu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:49:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56606 "EHLO mail.kernel.org"
+        id S2387928AbfJJIzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389859AbfJJItu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:49:50 -0400
+        id S2389824AbfJJIta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160B822473;
-        Thu, 10 Oct 2019 08:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E2130218AC;
+        Thu, 10 Oct 2019 08:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697389;
-        bh=Yhhc+Dgashloh3oz5wixN5SOY5Qb/eNUcE8b8BhrcDU=;
+        s=default; t=1570697370;
+        bh=65FrNbLESZ8v+zraZfQvP46y83UiFJA0O6qpT20PisE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dykGMrGFdKZF/HYePE04D5lj9Yr0H1tj3s8MXatKq5EdT0f4rhVdAXu93oJALRxPH
-         brJlffDX7r+xu778NVsiiWeUDVEou0sP7QiYadiM/VZspetL59IOlUsD5mbK9Dd0Pk
-         X9MNr3XEh7Fjxubd3ko8L06S4MHlYgE2fD5iHMpA=
+        b=S9V3g4RNqdV6SfBc0gPm2i2kBCVq2eTF07IBg1VghzMhg4TTLAyqYsTbaqXbkT38I
+         QXos9BKf5Qgc6dN+bGqi3ICGTvccv+8eHAiEJ4fVsTuMQ5EXXYFgyAIEy9vaSgqvqQ
+         fu3TjTjdoQfQeiHnMj1T7MSdH9QqhUv+Nj3hPcKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [PATCH 4.14 10/61] powerpc/powernv: Restrict OPAL symbol map to only be readable by root
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        David Abdurachmanov <david.abdurachmanov@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 088/114] riscv: Avoid interrupts being erroneously enabled in handle_exception()
 Date:   Thu, 10 Oct 2019 10:36:35 +0200
-Message-Id: <20191010083455.271171053@linuxfoundation.org>
+Message-Id: <20191010083612.720750989@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Donnellan <ajd@linux.ibm.com>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-commit e7de4f7b64c23e503a8c42af98d56f2a7462bd6d upstream.
+[ Upstream commit c82dd6d078a2bb29d41eda032bb96d05699a524d ]
 
-Currently the OPAL symbol map is globally readable, which seems bad as
-it contains physical addresses.
+When the handle_exception function addresses an exception, the interrupts
+will be unconditionally enabled after finishing the context save. However,
+It may erroneously enable the interrupts if the interrupts are disabled
+before entering the handle_exception.
 
-Restrict it to root.
+For example, one of the WARN_ON() condition is satisfied in the scheduling
+where the interrupt is disabled and rq.lock is locked. The WARN_ON will
+trigger a break exception and the handle_exception function will enable the
+interrupts before entering do_trap_break function. During the procedure, if
+a timer interrupt is pending, it will be taken when interrupts are enabled.
+In this case, it may cause a deadlock problem if the rq.lock is locked
+again in the timer ISR.
 
-Fixes: c8742f85125d ("powerpc/powernv: Expose OPAL firmware symbol map")
-Cc: stable@vger.kernel.org # v3.19+
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190503075253.22798-1-ajd@linux.ibm.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Hence, the handle_exception() can only enable interrupts when the state of
+sstatus.SPIE is 1.
 
+This patch is tested on HiFive Unleashed board.
+
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+[paul.walmsley@sifive.com: updated to apply]
+Fixes: bcae803a21317 ("RISC-V: Enable IRQ during exception handling")
+Cc: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ arch/riscv/kernel/entry.S | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/platforms/powernv/opal.c
-+++ b/arch/powerpc/platforms/powernv/opal.c
-@@ -617,7 +617,10 @@ static ssize_t symbol_map_read(struct fi
- 				       bin_attr->size);
- }
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index fa2c08e3c05e6..a03821b2656aa 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -171,9 +171,13 @@ ENTRY(handle_exception)
+ 	move a1, s4 /* scause */
+ 	tail do_IRQ
+ 1:
+-	/* Exceptions run with interrupts enabled */
++	/* Exceptions run with interrupts enabled or disabled
++	   depending on the state of sstatus.SR_SPIE */
++	andi t0, s1, SR_SPIE
++	beqz t0, 1f
+ 	csrs sstatus, SR_SIE
  
--static BIN_ATTR_RO(symbol_map, 0);
-+static struct bin_attribute symbol_map_attr = {
-+	.attr = {.name = "symbol_map", .mode = 0400},
-+	.read = symbol_map_read
-+};
- 
- static void opal_export_symmap(void)
- {
-@@ -634,10 +637,10 @@ static void opal_export_symmap(void)
- 		return;
- 
- 	/* Setup attributes */
--	bin_attr_symbol_map.private = __va(be64_to_cpu(syms[0]));
--	bin_attr_symbol_map.size = be64_to_cpu(syms[1]);
-+	symbol_map_attr.private = __va(be64_to_cpu(syms[0]));
-+	symbol_map_attr.size = be64_to_cpu(syms[1]);
- 
--	rc = sysfs_create_bin_file(opal_kobj, &bin_attr_symbol_map);
-+	rc = sysfs_create_bin_file(opal_kobj, &symbol_map_attr);
- 	if (rc)
- 		pr_warn("Error %d creating OPAL symbols file\n", rc);
- }
++1:
+ 	/* Handle syscalls */
+ 	li t0, EXC_SYSCALL
+ 	beq s4, t0, handle_syscall
+-- 
+2.20.1
+
 
 
