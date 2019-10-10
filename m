@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92078D2475
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 514E9D2479
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389128AbfJJIpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50928 "EHLO mail.kernel.org"
+        id S2387614AbfJJIpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389123AbfJJIpW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:22 -0400
+        id S2389171AbfJJIpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 827E921A4A;
-        Thu, 10 Oct 2019 08:45:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1D8621A4A;
+        Thu, 10 Oct 2019 08:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697122;
-        bh=+ziAXTDsobAVyPGnV9cjpxWdeSyfaxpVevwpVRrRxBw=;
+        s=default; t=1570697138;
+        bh=m0A4dozmc3ft37To+x2CKnsP/ZEoViU/LXeBCXYTEm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GA7uD6YA8BupOk4XpI2BQxBRgD6rkD1B5k0bj3BEAs0r+DDgb40x9ACiG+kmbBwug
-         mB5Dpggfbqez0GGV+g5x/4E6ePhn9jwWNSFEEclGYsDdGkLysxmrOHKWmg18lkYNoJ
-         zdOfC4K+oW2D4EXd6H7xqcjztLCjI1n7zFOfrrNU=
+        b=yNhiZVeb20dXfXq21LLdr2A0SkIG4gOlKlg5UNCCJm5DQIm+VFWHPBUMIPs2SbMcN
+         zcaokWYzUWRJYTJeswwCHD7WjE15EeBmkXokcqb8bPGXVuwr7wHuHzY/Ys8eFlIoCk
+         t1qAAfMxNd1zS/UDEf6f8eFcAybczbSM6a0qNqqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 026/114] crypto: ccree - use the full crypt length value
-Date:   Thu, 10 Oct 2019 10:35:33 +0200
-Message-Id: <20191010083556.445175875@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 031/114] usercopy: Avoid HIGHMEM pfn warning
+Date:   Thu, 10 Oct 2019 10:35:38 +0200
+Message-Id: <20191010083600.106313568@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -43,34 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gilad Ben-Yossef <gilad@benyossef.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 7a4be6c113c1f721818d1e3722a9015fe393295c upstream.
+commit 314eed30ede02fa925990f535652254b5bad6b65 upstream.
 
-In case of AEAD decryption verifcation error we were using the
-wrong value to zero out the plaintext buffer leaving the end of
-the buffer with the false plaintext.
+When running on a system with >512MB RAM with a 32-bit kernel built with:
 
-Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
-Fixes: ff27e85a85bb ("crypto: ccree - add AEAD support")
-CC: stable@vger.kernel.org # v4.17+
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+	CONFIG_DEBUG_VIRTUAL=y
+	CONFIG_HIGHMEM=y
+	CONFIG_HARDENED_USERCOPY=y
+
+all execve()s will fail due to argv copying into kmap()ed pages, and on
+usercopy checking the calls ultimately of virt_to_page() will be looking
+for "bad" kmap (highmem) pointers due to CONFIG_DEBUG_VIRTUAL=y:
+
+ ------------[ cut here ]------------
+ kernel BUG at ../arch/x86/mm/physaddr.c:83!
+ invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
+ CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc8 #6
+ Hardware name: Dell Inc. Inspiron 1318/0C236D, BIOS A04 01/15/2009
+ EIP: __phys_addr+0xaf/0x100
+ ...
+ Call Trace:
+  __check_object_size+0xaf/0x3c0
+  ? __might_sleep+0x80/0xa0
+  copy_strings+0x1c2/0x370
+  copy_strings_kernel+0x2b/0x40
+  __do_execve_file+0x4ca/0x810
+  ? kmem_cache_alloc+0x1c7/0x370
+  do_execve+0x1b/0x20
+  ...
+
+The check is from arch/x86/mm/physaddr.c:
+
+	VIRTUAL_BUG_ON((phys_addr >> PAGE_SHIFT) > max_low_pfn);
+
+Due to the kmap() in fs/exec.c:
+
+		kaddr = kmap(kmapped_page);
+	...
+	if (copy_from_user(kaddr+offset, str, bytes_to_copy)) ...
+
+Now we can fetch the correct page to avoid the pfn check. In both cases,
+hardened usercopy will need to walk the page-span checker (if enabled)
+to do sanity checking.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: f5509cc18daa ("mm: Hardened usercopy")
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lore.kernel.org/r/201909171056.7F2FFD17@keescook
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/ccree/cc_aead.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/usercopy.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/ccree/cc_aead.c
-+++ b/drivers/crypto/ccree/cc_aead.c
-@@ -227,7 +227,7 @@ static void cc_aead_complete(struct devi
- 			/* In case of payload authentication failure, MUST NOT
- 			 * revealed the decrypted message --> zero its memory.
- 			 */
--			cc_zero_sgl(areq->dst, areq_ctx->cryptlen);
-+			cc_zero_sgl(areq->dst, areq->cryptlen);
- 			err = -EBADMSG;
- 		}
- 	} else { /*ENCRYPT*/
+--- a/mm/usercopy.c
++++ b/mm/usercopy.c
+@@ -15,6 +15,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+ 
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/sched/task.h>
+@@ -231,7 +232,12 @@ static inline void check_heap_object(con
+ 	if (!virt_addr_valid(ptr))
+ 		return;
+ 
+-	page = virt_to_head_page(ptr);
++	/*
++	 * When CONFIG_HIGHMEM=y, kmap_to_page() will give either the
++	 * highmem page or fallback to virt_to_page(). The following
++	 * is effectively a highmem-aware virt_to_head_page().
++	 */
++	page = compound_head(kmap_to_page((void *)ptr));
+ 
+ 	if (PageSlab(page)) {
+ 		/* Check slab allocator for flags and size. */
 
 
