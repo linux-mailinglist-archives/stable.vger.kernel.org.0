@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF0ED24E6
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB63D2514
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389806AbfJJIvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59214 "EHLO mail.kernel.org"
+        id S2388031AbfJJIxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:53:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390128AbfJJIvg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:51:36 -0400
+        id S2389802AbfJJIvj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:51:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33A2C2064A;
-        Thu, 10 Oct 2019 08:51:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A16C2064A;
+        Thu, 10 Oct 2019 08:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697495;
-        bh=e+TI/1OfcOrCYF9xwtLecH9ZYoaL93k0XwSgE+QMVBo=;
+        s=default; t=1570697498;
+        bh=ROxEfYetPFCwBqpYR5AoZmH9Ks/XqE7RhVURrEv9GHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsWp6lc3q59CKJCATn+XnSeVy+c8a8KT+lZiosw/2KFPBiIie96Hx6paYsv4V+RjJ
-         kJDeFnPj5iJG1FFixCJ94IcQ6iPgO7ad8/do2t2R/6fKR1wTqKNSJ8Uv+mDBT9NB5g
-         6pI+m0DCBrU+telMC5S8lBHnGzYXMM09NY8asTkQ=
+        b=RZBnoMUcM1viEhtbRgjeldr6VHBIuBS4RW7Ax7GErl9S+p2LRc9uvEerIxs6UEOsF
+         Lk9EA8XxV72JI31jRp98C2rnVZYh3FOCkzHvnACDsirvYoApTVR8gfhuvysigO8sjp
+         SJxC3x50OmSGEKc6wwIISCNuJs1L2ZnWpQruATk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 48/61] nbd: fix max number of supported devs
-Date:   Thu, 10 Oct 2019 10:37:13 +0200
-Message-Id: <20191010083519.876334933@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 49/61] powerpc/pseries: Fix cpu_hotplug_lock acquisition in resize_hpt()
+Date:   Thu, 10 Oct 2019 10:37:14 +0200
+Message-Id: <20191010083520.365076698@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -44,160 +46,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <mchristi@redhat.com>
+From: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
 
-[ Upstream commit e9e006f5fcf2bab59149cb38a48a4817c1b538b4 ]
+[ Upstream commit c784be435d5dae28d3b03db31753dd7a18733f0c ]
 
-This fixes a bug added in 4.10 with commit:
+The calls to arch_add_memory()/arch_remove_memory() are always made
+with the read-side cpu_hotplug_lock acquired via memory_hotplug_begin().
+On pSeries, arch_add_memory()/arch_remove_memory() eventually call
+resize_hpt() which in turn calls stop_machine() which acquires the
+read-side cpu_hotplug_lock again, thereby resulting in the recursive
+acquisition of this lock.
 
-commit 9561a7ade0c205bc2ee035a2ac880478dcc1a024
-Author: Josef Bacik <jbacik@fb.com>
-Date:   Tue Nov 22 14:04:40 2016 -0500
+In the absence of CONFIG_PROVE_LOCKING, we hadn't observed a system
+lockup during a memory hotplug operation because cpus_read_lock() is a
+per-cpu rwsem read, which, in the fast-path (in the absence of the
+writer, which in our case is a CPU-hotplug operation) simply
+increments the read_count on the semaphore. Thus a recursive read in
+the fast-path doesn't cause any problems.
 
-    nbd: add multi-connection support
+However, we can hit this problem in practice if there is a concurrent
+CPU-Hotplug operation in progress which is waiting to acquire the
+write-side of the lock. This will cause the second recursive read to
+block until the writer finishes. While the writer is blocked since the
+first read holds the lock. Thus both the reader as well as the writers
+fail to make any progress thereby blocking both CPU-Hotplug as well as
+Memory Hotplug operations.
 
-that limited the number of devices to 256. Before the patch we could
-create 1000s of devices, but the patch switched us from using our
-own thread to using a work queue which has a default limit of 256
-active works.
+Memory-Hotplug				CPU-Hotplug
+CPU 0					CPU 1
+------                                  ------
 
-The problem is that our recv_work function sits in a loop until
-disconnection but only handles IO for one connection. The work is
-started when the connection is started/restarted, but if we end up
-creating 257 or more connections, the queue_work call just queues
-connection257+'s recv_work and that waits for connection 1 - 256's
-recv_work to be disconnected and that work instance completing.
+1. down_read(cpu_hotplug_lock.rw_sem)
+   [memory_hotplug_begin]
+					2. down_write(cpu_hotplug_lock.rw_sem)
+					[cpu_up/cpu_down]
+3. down_read(cpu_hotplug_lock.rw_sem)
+   [stop_machine()]
 
-Instead of reverting back to kthreads, this has us allocate a
-workqueue_struct per device, so we can block in the work.
+Lockdep complains as follows in these code-paths.
 
-Cc: stable@vger.kernel.org
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ swapper/0/1 is trying to acquire lock:
+ (____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: stop_machine+0x2c/0x60
+
+but task is already holding lock:
+(____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: mem_hotplug_begin+0x20/0x50
+
+ other info that might help us debug this:
+  Possible unsafe locking scenario:
+
+        CPU0
+        ----
+   lock(cpu_hotplug_lock.rw_sem);
+   lock(cpu_hotplug_lock.rw_sem);
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+ 3 locks held by swapper/0/1:
+  #0: (____ptrval____) (&dev->mutex){....}, at: __driver_attach+0x12c/0x1b0
+  #1: (____ptrval____) (cpu_hotplug_lock.rw_sem){++++}, at: mem_hotplug_begin+0x20/0x50
+  #2: (____ptrval____) (mem_hotplug_lock.rw_sem){++++}, at: percpu_down_write+0x54/0x1a0
+
+stack backtrace:
+ CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.0.0-rc5-58373-gbc99402235f3-dirty #166
+ Call Trace:
+   dump_stack+0xe8/0x164 (unreliable)
+   __lock_acquire+0x1110/0x1c70
+   lock_acquire+0x240/0x290
+   cpus_read_lock+0x64/0xf0
+   stop_machine+0x2c/0x60
+   pseries_lpar_resize_hpt+0x19c/0x2c0
+   resize_hpt_for_hotplug+0x70/0xd0
+   arch_add_memory+0x58/0xfc
+   devm_memremap_pages+0x5e8/0x8f0
+   pmem_attach_disk+0x764/0x830
+   nvdimm_bus_probe+0x118/0x240
+   really_probe+0x230/0x4b0
+   driver_probe_device+0x16c/0x1e0
+   __driver_attach+0x148/0x1b0
+   bus_for_each_dev+0x90/0x130
+   driver_attach+0x34/0x50
+   bus_add_driver+0x1a8/0x360
+   driver_register+0x108/0x170
+   __nd_driver_register+0xd0/0xf0
+   nd_pmem_driver_init+0x34/0x48
+   do_one_initcall+0x1e0/0x45c
+   kernel_init_freeable+0x540/0x64c
+   kernel_init+0x2c/0x160
+   ret_from_kernel_thread+0x5c/0x68
+
+Fix this issue by
+  1) Requiring all the calls to pseries_lpar_resize_hpt() be made
+     with cpu_hotplug_lock held.
+
+  2) In pseries_lpar_resize_hpt() invoke stop_machine_cpuslocked()
+     as a consequence of 1)
+
+  3) To satisfy 1), in hpt_order_set(), call mmu_hash_ops.resize_hpt()
+     with cpu_hotplug_lock held.
+
+Fixes: dbcf929c0062 ("powerpc/pseries: Add support for hash table resizing")
+Cc: stable@vger.kernel.org # v4.11+
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1557906352-29048-1-git-send-email-ego@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 39 +++++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 14 deletions(-)
+ arch/powerpc/mm/hash_utils_64.c       | 9 ++++++++-
+ arch/powerpc/platforms/pseries/lpar.c | 8 ++++++--
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 14b491c5cf7b6..a234600849558 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -106,6 +106,7 @@ struct nbd_device {
- 	struct nbd_config *config;
- 	struct mutex config_lock;
- 	struct gendisk *disk;
-+	struct workqueue_struct *recv_workq;
+diff --git a/arch/powerpc/mm/hash_utils_64.c b/arch/powerpc/mm/hash_utils_64.c
+index 87687e46b48bb..58c14749bb0c1 100644
+--- a/arch/powerpc/mm/hash_utils_64.c
++++ b/arch/powerpc/mm/hash_utils_64.c
+@@ -35,6 +35,7 @@
+ #include <linux/memblock.h>
+ #include <linux/context_tracking.h>
+ #include <linux/libfdt.h>
++#include <linux/cpu.h>
  
- 	struct list_head list;
- 	struct task_struct *task_recv;
-@@ -136,7 +137,6 @@ static struct dentry *nbd_dbg_dir;
+ #include <asm/debugfs.h>
+ #include <asm/processor.h>
+@@ -1852,10 +1853,16 @@ static int hpt_order_get(void *data, u64 *val)
  
- static unsigned int nbds_max = 16;
- static int max_part = 16;
--static struct workqueue_struct *recv_workqueue;
- static int part_shift;
- 
- static int nbd_dev_dbg_init(struct nbd_device *nbd);
-@@ -1015,7 +1015,7 @@ static int nbd_reconnect_socket(struct nbd_device *nbd, unsigned long arg)
- 		/* We take the tx_mutex in an error path in the recv_work, so we
- 		 * need to queue_work outside of the tx_mutex.
- 		 */
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 
- 		atomic_inc(&config->live_connections);
- 		wake_up(&config->conn_wait);
-@@ -1120,6 +1120,10 @@ static void nbd_config_put(struct nbd_device *nbd)
- 		kfree(nbd->config);
- 		nbd->config = NULL;
- 
-+		if (nbd->recv_workq)
-+			destroy_workqueue(nbd->recv_workq);
-+		nbd->recv_workq = NULL;
+ static int hpt_order_set(void *data, u64 val)
+ {
++	int ret;
 +
- 		nbd->tag_set.timeout = 0;
- 		queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD, nbd->disk->queue);
+ 	if (!mmu_hash_ops.resize_hpt)
+ 		return -ENODEV;
  
-@@ -1145,6 +1149,14 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		return -EINVAL;
- 	}
- 
-+	nbd->recv_workq = alloc_workqueue("knbd%d-recv",
-+					  WQ_MEM_RECLAIM | WQ_HIGHPRI |
-+					  WQ_UNBOUND, 0, nbd->index);
-+	if (!nbd->recv_workq) {
-+		dev_err(disk_to_dev(nbd->disk), "Could not allocate knbd recv work queue.\n");
-+		return -ENOMEM;
-+	}
+-	return mmu_hash_ops.resize_hpt(val);
++	cpus_read_lock();
++	ret = mmu_hash_ops.resize_hpt(val);
++	cpus_read_unlock();
 +
- 	blk_mq_update_nr_hw_queues(&nbd->tag_set, config->num_connections);
- 	nbd->task_recv = current;
- 
-@@ -1175,7 +1187,7 @@ static int nbd_start_device(struct nbd_device *nbd)
- 		INIT_WORK(&args->work, recv_work);
- 		args->nbd = nbd;
- 		args->index = i;
--		queue_work(recv_workqueue, &args->work);
-+		queue_work(nbd->recv_workq, &args->work);
- 	}
- 	nbd_size_update(nbd);
- 	return error;
-@@ -1195,8 +1207,10 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
--	if (ret)
-+	if (ret) {
- 		sock_shutdown(nbd);
-+		flush_workqueue(nbd->recv_workq);
-+	}
- 	mutex_lock(&nbd->config_lock);
- 	bd_set_size(bdev, 0);
- 	/* user requested, ignore socket errors */
-@@ -1836,6 +1850,12 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
- 	mutex_lock(&nbd->config_lock);
- 	nbd_disconnect(nbd);
- 	mutex_unlock(&nbd->config_lock);
-+	/*
-+	 * Make sure recv thread has finished, so it does not drop the last
-+	 * config ref and try to destroy the workqueue from inside the work
-+	 * queue.
-+	 */
-+	flush_workqueue(nbd->recv_workq);
- 	if (test_and_clear_bit(NBD_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
-@@ -2216,20 +2236,12 @@ static int __init nbd_init(void)
- 
- 	if (nbds_max > 1UL << (MINORBITS - part_shift))
- 		return -EINVAL;
--	recv_workqueue = alloc_workqueue("knbd-recv",
--					 WQ_MEM_RECLAIM | WQ_HIGHPRI |
--					 WQ_UNBOUND, 0);
--	if (!recv_workqueue)
--		return -ENOMEM;
- 
--	if (register_blkdev(NBD_MAJOR, "nbd")) {
--		destroy_workqueue(recv_workqueue);
-+	if (register_blkdev(NBD_MAJOR, "nbd"))
- 		return -EIO;
--	}
- 
- 	if (genl_register_family(&nbd_genl_family)) {
- 		unregister_blkdev(NBD_MAJOR, "nbd");
--		destroy_workqueue(recv_workqueue);
- 		return -EINVAL;
- 	}
- 	nbd_dbg_init();
-@@ -2271,7 +2283,6 @@ static void __exit nbd_cleanup(void)
- 
- 	idr_destroy(&nbd_index_idr);
- 	genl_unregister_family(&nbd_genl_family);
--	destroy_workqueue(recv_workqueue);
- 	unregister_blkdev(NBD_MAJOR, "nbd");
++	return ret;
  }
+ 
+ DEFINE_SIMPLE_ATTRIBUTE(fops_hpt_order, hpt_order_get, hpt_order_set, "%llu\n");
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index 55e97565ed2dd..eb738ef577926 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -643,7 +643,10 @@ static int pseries_lpar_resize_hpt_commit(void *data)
+ 	return 0;
+ }
+ 
+-/* Must be called in user context */
++/*
++ * Must be called in process context. The caller must hold the
++ * cpus_lock.
++ */
+ static int pseries_lpar_resize_hpt(unsigned long shift)
+ {
+ 	struct hpt_resize_state state = {
+@@ -699,7 +702,8 @@ static int pseries_lpar_resize_hpt(unsigned long shift)
+ 
+ 	t1 = ktime_get();
+ 
+-	rc = stop_machine(pseries_lpar_resize_hpt_commit, &state, NULL);
++	rc = stop_machine_cpuslocked(pseries_lpar_resize_hpt_commit,
++				     &state, NULL);
+ 
+ 	t2 = ktime_get();
  
 -- 
 2.20.1
