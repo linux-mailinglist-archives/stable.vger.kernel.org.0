@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4351FD25D4
+	by mail.lfdr.de (Postfix) with ESMTP id ACDCDD25D5
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387635AbfJJIix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41918 "EHLO mail.kernel.org"
+        id S2387731AbfJJIi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:38:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387712AbfJJIiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:52 -0400
+        id S2387712AbfJJIiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C2E1218AC;
-        Thu, 10 Oct 2019 08:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC6220B7C;
+        Thu, 10 Oct 2019 08:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696732;
-        bh=kHF1T18V0B85FjA/sMNpJQV9yXiVVxa+g33YQBJI1fE=;
+        s=default; t=1570696734;
+        bh=SpB5N8pAkIuM01uVBkL7NmZpdTQQGJm7TotlPNgVfMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzVNn/RQ3o1UEtnxTUpH1XlM3iZ9FLCm8fUzGM7G8+naVW8QwPF40KHu9h6SE0a0b
-         28Dn8531LL1B4+gt2K+VKdYS16CeS4JbJeuPtTZYGZZspiAXplSHKxl3V9kCcaK5fw
-         /5S7yUUcvm2fq1hRJ3ethpw7KH+6vU6C8RUo0jK4=
+        b=j/jX0LAWW+/JE/AVcaBaatwVZterpdssDlbAtDEgDImMuHmJdW5GHDJMRhJvm4Hug
+         OdgiwI3qyfL4ZREGFC5LTRLYKUIPVSX4+yLZVR/lyEX0PaWLZxMKwaGDegHcNcUHNx
+         W7nZysgtrGnxWvSwHJlYMHV56qUVlq4Bu7CtOkrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
+        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.3 004/148] s390/topology: avoid firing events before kobjs are created
-Date:   Thu, 10 Oct 2019 10:34:25 +0200
-Message-Id: <20191010083610.526706630@linuxfoundation.org>
+Subject: [PATCH 5.3 005/148] s390/cio: avoid calling strlen on null pointer
+Date:   Thu, 10 Oct 2019 10:34:26 +0200
+Message-Id: <20191010083610.790939302@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -45,59 +45,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit f3122a79a1b0a113d3aea748e0ec26f2cb2889de upstream.
+commit ea298e6ee8b34b3ed4366be7eb799d0650ebe555 upstream.
 
-arch_update_cpu_topology is first called from:
-kernel_init_freeable->sched_init_smp->sched_init_domains
+Fix the following kasan finding:
+BUG: KASAN: global-out-of-bounds in ccwgroup_create_dev+0x850/0x1140
+Read of size 1 at addr 0000000000000000 by task systemd-udevd.r/561
 
-even before cpus has been registered in:
-kernel_init_freeable->do_one_initcall->s390_smp_init
-
-Do not trigger kobject_uevent change events until cpu devices are
-actually created. Fixes the following kasan findings:
-
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb40/0xee0
-Read of size 8 at addr 0000000000000020 by task swapper/0/1
-
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb36/0xee0
-Read of size 8 at addr 0000000000000018 by task swapper/0/1
-
-CPU: 0 PID: 1 Comm: swapper/0 Tainted: G    B
+CPU: 30 PID: 561 Comm: systemd-udevd.r Tainted: G    B
 Hardware name: IBM 3906 M04 704 (LPAR)
 Call Trace:
-([<0000000143c6db7e>] show_stack+0x14e/0x1a8)
- [<0000000145956498>] dump_stack+0x1d0/0x218
- [<000000014429fb4c>] print_address_description+0x64/0x380
- [<000000014429f630>] __kasan_report+0x138/0x168
- [<0000000145960b96>] kobject_uevent_env+0xb36/0xee0
- [<0000000143c7c47c>] arch_update_cpu_topology+0x104/0x108
- [<0000000143df9e22>] sched_init_domains+0x62/0xe8
- [<000000014644c94a>] sched_init_smp+0x3a/0xc0
- [<0000000146433a20>] kernel_init_freeable+0x558/0x958
- [<000000014599002a>] kernel_init+0x22/0x160
- [<00000001459a71d4>] ret_from_fork+0x28/0x30
- [<00000001459a71dc>] kernel_thread_starter+0x0/0x10
+([<0000000231b3db7e>] show_stack+0x14e/0x1a8)
+ [<0000000233826410>] dump_stack+0x1d0/0x218
+ [<000000023216fac4>] print_address_description+0x64/0x380
+ [<000000023216f5a8>] __kasan_report+0x138/0x168
+ [<00000002331b8378>] ccwgroup_create_dev+0x850/0x1140
+ [<00000002332b618a>] group_store+0x3a/0x50
+ [<00000002323ac706>] kernfs_fop_write+0x246/0x3b8
+ [<00000002321d409a>] vfs_write+0x132/0x450
+ [<00000002321d47da>] ksys_write+0x122/0x208
+ [<0000000233877102>] system_call+0x2a6/0x2c8
+
+Triggered by:
+openat(AT_FDCWD, "/sys/bus/ccwgroup/drivers/qeth/group",
+		O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666) = 16
+write(16, "0.0.bd00,0.0.bd01,0.0.bd02", 26) = 26
+
+The problem is that __get_next_id in ccwgroup_create_dev might set "buf"
+buffer pointer to NULL and explicit check for that is required.
 
 Cc: stable@vger.kernel.org
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/topology.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/s390/cio/ccwgroup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -311,7 +311,8 @@ int arch_update_cpu_topology(void)
- 	on_each_cpu(__arch_update_dedicated_flag, NULL, 0);
- 	for_each_online_cpu(cpu) {
- 		dev = get_cpu_device(cpu);
--		kobject_uevent(&dev->kobj, KOBJ_CHANGE);
-+		if (dev)
-+			kobject_uevent(&dev->kobj, KOBJ_CHANGE);
+--- a/drivers/s390/cio/ccwgroup.c
++++ b/drivers/s390/cio/ccwgroup.c
+@@ -372,7 +372,7 @@ int ccwgroup_create_dev(struct device *p
+ 		goto error;
  	}
- 	return rc;
- }
+ 	/* Check for trailing stuff. */
+-	if (i == num_devices && strlen(buf) > 0) {
++	if (i == num_devices && buf && strlen(buf) > 0) {
+ 		rc = -EINVAL;
+ 		goto error;
+ 	}
 
 
