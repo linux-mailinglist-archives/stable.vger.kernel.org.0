@@ -2,220 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A2FD33F9
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 00:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9ADD3400
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 00:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726102AbfJJWdT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 10 Oct 2019 18:33:19 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41904 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726071AbfJJWdS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 18:33:18 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 18D9285538
-        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 22:33:18 +0000 (UTC)
-Received: from [172.54.131.27] (cpt-1021.paas.prod.upshift.rdu2.redhat.com [10.0.19.46])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 830F45F7C0;
-        Thu, 10 Oct 2019 22:33:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1726095AbfJJWih (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 18:38:37 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:50819 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726071AbfJJWih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 18:38:37 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 720405EE;
+        Thu, 10 Oct 2019 18:38:35 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 10 Oct 2019 18:38:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=mwrnj/CzTIgVt4Kr1G7g/SxuG4k
+        CBRcWy0UBkxS1tpA=; b=uogqERlMCs2lh4s7xZG3F8yxehrCI3336BsVimOFgzK
+        Eb5LyrBtULDq1PI48Oz+q5PmHD5vuaqP/9Q1Jm+bucGsB8burnaTWwWTfBe9yHfP
+        9rDmacKbXWJqLQ9jiBTxv4JkpXZnyyUnUpZjmdr6ij77JwHT3mwohtTfsg5AoY94
+        iGJaZ66LE/KXWla+6OWedyGBmEjgDN0a3Io1w3TtVXZ7mAExqoHUkxx0pu9LzzpG
+        kKxsj4d633g8dwa8cMjfHI4xzn86A0OydQEoEXPQXG5mYK/SenctUwJv1gTmlct6
+        btDDC1ltycXxrdx4jlQyZVt82E71n60kHQPnzcm0Pcg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mwrnj/
+        CzTIgVt4Kr1G7g/SxuG4kCBRcWy0UBkxS1tpA=; b=hTPS+D4GrcXMfEu7sxMSs8
+        Op6TwPVXHhOanpsqyFEygwyEWGfgTAQpTl7jgRNuqIDzhiiqE4u3dHS/1wxtuTpx
+        KjOs/e6+zqWxz7lR2BcNUSOqQgxhlqTlnO7s7muyaQUEI04op7e6Qat8CSiP2L0Q
+        0ZNUVmfsoOX5DEvD1P7uQJi9cmKF/K0ojgKF5aW5XJDmm8RXJLum/hazGSBmTRiA
+        X8OWr96L3Lsqk2ggJEH0uKxfligEVJZkvzbIaBDVftoix3xofJ1MAy3aPjnj9L4/
+        jje5RhRRLSelzbNUbXust6jA1gp31hrjMbnwEvQr5AbBkttR2j3XW4VVzRzZMGeQ
+        ==
+X-ME-Sender: <xms:6rKfXZ6-HrlRVhc__6TafUKDG5uelVwp37TwlfIsczLFB6qB7IHf8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrieeggdduudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepufgrmhcuuegr
+    iihlvgihuceoshgrmhgsrgiilhgvhiesfhgrshhtmhgrihhlrdgtohhmqeenucfkphepke
+    eirddviedrvddvgedrudehfeenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhgsrgii
+    lhgvhiesfhgrshhtmhgrihhlrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:6rKfXe2CaWThgm4MVQ6sFQwDZgZLvEGC8hbh3ELRkN8SDJjEFCdYUA>
+    <xmx:6rKfXWz0Y4K8EMsmqWhroX_txuqvUR8GnydffwKNMK9FLHqB1GHYrA>
+    <xmx:6rKfXaq2w9FZ3odjdmO4YID37_m92ajDT_K4UBCDP3BGirJtVdymug>
+    <xmx:67KfXec_mip_iBgjRM7-rbt80myPeDtFsmrqTAJBWdeIX2sDhnLdrQ>
+Received: from localhost (cpc88620-newt36-2-0-cust152.19-3.cable.virginm.net [86.26.224.153])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5A2DAD60057;
+        Thu, 10 Oct 2019 18:38:34 -0400 (EDT)
+Date:   Thu, 10 Oct 2019 23:38:33 +0100
+From:   Sam Bazley <sambazley@fastmail.com>
+To:     Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        Austin Palmer <austinp@valvesoftware.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 0/3] Logitech G920 fixes
+Message-ID: <20191010223833.axroklxlo2lkdzo6@SamLinux>
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.0-rc2-30411ad.cki
- (stable-next)
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.17F3606DF8.0F9TIIQX81@redhat.com>
-X-Gitlab-Pipeline-ID: 217121
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/217121
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Thu, 10 Oct 2019 22:33:18 +0000 (UTC)
-Date:   Thu, 10 Oct 2019 18:33:18 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191007051240.4410-1-andrew.smirnov@gmail.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Oct 06, 2019 at 10:12:37PM -0700, Andrey Smirnov wrote:
+> Everyone:
+> 
+> This series contains patches to fix a couple of regressions in G920
+> wheel support by hid-logitech-hidpp driver. Without the patches the
+> wheel remains stuck in autocentering mode ("resisting" any attempt to
+> trun) as well as missing support for any FF action.
+> 
+> Thanks,
+> Andrey Smirnov
+> 
+> Andrey Smirnov (3):
+>   HID: logitech-hidpp: use devres to manage FF private data
+>   HID: logitech-hidpp: split g920_get_config()
+>   HID: logitech-hidpp: add G920 device validation quirk
+> 
+>  drivers/hid/hid-logitech-hidpp.c | 193 +++++++++++++++++++------------
+>  1 file changed, 120 insertions(+), 73 deletions(-)
+> 
+> -- 
+> 2.21.0
+> 
 
-Hello,
+All seems to work now. Thanks again Andrey!
 
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
-            Commit: 30411ad78f03 - dm snapshot: introduce account_start_copy() and account_end_copy()
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/217121
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests (marked
-    with ⚡⚡⚡) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         🚧 ✅ IPMI driver test
-         🚧 ✅ IPMItool loop stress test
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ❌ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
-
-      Host 3:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-      Host 4:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 5:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
-
+Tested-by: Sam Bazley <sambazley@fastmail.com>
