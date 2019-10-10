@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E4D2D25AD
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAA5D25A9
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387543AbfJJIkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:40:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44762 "EHLO mail.kernel.org"
+        id S2388193AbfJJIku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:40:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388148AbfJJIkj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:40:39 -0400
+        id S2387576AbfJJIkt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:40:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E53A020B7C;
-        Thu, 10 Oct 2019 08:40:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA83420B7C;
+        Thu, 10 Oct 2019 08:40:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696838;
-        bh=96FtM7irNPIaBVtqL8BGe3vDnYg8ARuZ5kTyXkvGf70=;
+        s=default; t=1570696849;
+        bh=U7gRGV/O4IvB29cLMdvtxm+jQ0J8p2tK9b/FYOCtQDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A1lUSkjQLmZlziq1h8htFjfldpf0R/Y3FMXxafAxRCVqdaadBU79YIr0aC01lhNw7
-         uekkgkWg9XGqkcMQSlQ7X7DnX+xOjPr7yeXN9WIw1gWLRSCb3JhO4CYXNIVGQKUW3w
-         wJhjhHTuRbfMoV1AfS1mSluSsckWYgIYTpayGBd8=
+        b=GpNh+JMBon3ubE7i29mMMoEqt2MoETxx49L12acv5kbLp9fg58ndv2OKJuJwQTh0X
+         1sHZk/gPZ6DJnlBgSX/63X/V/UjTFbLuFPxmGmyj389RLFjwxNd4Yu3kcd1HHp5V1i
+         K7Gh6V85sTXIx3XRZ3G/zELfHK6m/A9j8j5IrlKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaolin Zhang <xiaolin.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: [PATCH 5.3 070/148] drm/i915/gvt: update vgpu workload head pointer correctly
-Date:   Thu, 10 Oct 2019 10:35:31 +0200
-Message-Id: <20191010083615.656859584@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Hill <aa1ronham@gmail.com>,
+        Lukas Redlinger <rel+kernel@agilox.net>,
+        Oleksii Shevchuk <alxchk@gmail.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.3 073/148] mac80211: keep BHs disabled while calling drv_tx_wake_queue()
+Date:   Thu, 10 Oct 2019 10:35:34 +0200
+Message-Id: <20191010083615.810908484@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -43,80 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolin Zhang <xiaolin.zhang@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 0a3242bdb47713e09cb004a0ba4947d3edf82d8a upstream.
+commit d8dec42b5c2d2b273bc30b0e073cfbe832d69902 upstream.
 
-when creating a vGPU workload, the guest context head pointer should
-be updated correctly by comparing with the exsiting workload in the
-guest worklod queue including the current running context.
+Drivers typically expect this, as it's the case for almost all cases
+where this is called (i.e. from the TX path). Also, the code in mac80211
+itself (if the driver calls ieee80211_tx_dequeue()) expects this as it
+uses this_cpu_ptr() without additional protection.
 
-in some situation, there is a running context A and then received 2 new
-vGPU workload context B and A. in the new workload context A, it's head
-pointer should be updated with the running context A's tail.
-
-v2: walk through guest workload list in backward way.
+This should fix various reports of the problem:
+https://bugzilla.kernel.org/show_bug.cgi?id=204127
+https://lore.kernel.org/linux-wireless/CAN5HydrWb3o_FE6A1XDnP1E+xS66d5kiEuhHfiGKkLNQokx13Q@mail.gmail.com/
+https://lore.kernel.org/lkml/nycvar.YFH.7.76.1909111238470.473@cbobk.fhfr.pm/
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Reported-and-tested-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: Aaron Hill <aa1ronham@gmail.com>
+Reported-by: Lukas Redlinger <rel+kernel@agilox.net>
+Reported-by: Oleksii Shevchuk <alxchk@gmail.com>
+Fixes: 21a5d4c3a45c ("mac80211: add stop/start logic for software TXQs")
+Link: https://lore.kernel.org/r/1569928763-I3e8838c5ecad878e59d4a94eb069a90f6641461a@changeid
+Reviewed-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/scheduler.c |   28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ net/mac80211/util.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/i915/gvt/scheduler.c
-+++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-@@ -1424,9 +1424,6 @@ static int prepare_mm(struct intel_vgpu_
- #define same_context(a, b) (((a)->context_id == (b)->context_id) && \
- 		((a)->lrca == (b)->lrca))
+--- a/net/mac80211/util.c
++++ b/net/mac80211/util.c
+@@ -247,7 +247,8 @@ static void __ieee80211_wake_txqs(struct
+ 	struct sta_info *sta;
+ 	int i;
  
--#define get_last_workload(q) \
--	(list_empty(q) ? NULL : container_of(q->prev, \
--	struct intel_vgpu_workload, list))
- /**
-  * intel_vgpu_create_workload - create a vGPU workload
-  * @vgpu: a vGPU
-@@ -1446,7 +1443,7 @@ intel_vgpu_create_workload(struct intel_
- {
- 	struct intel_vgpu_submission *s = &vgpu->submission;
- 	struct list_head *q = workload_q_head(vgpu, ring_id);
--	struct intel_vgpu_workload *last_workload = get_last_workload(q);
-+	struct intel_vgpu_workload *last_workload = NULL;
- 	struct intel_vgpu_workload *workload = NULL;
- 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
- 	u64 ring_context_gpa;
-@@ -1472,15 +1469,20 @@ intel_vgpu_create_workload(struct intel_
- 	head &= RB_HEAD_OFF_MASK;
- 	tail &= RB_TAIL_OFF_MASK;
+-	spin_lock_bh(&fq->lock);
++	local_bh_disable();
++	spin_lock(&fq->lock);
  
--	if (last_workload && same_context(&last_workload->ctx_desc, desc)) {
--		gvt_dbg_el("ring id %d cur workload == last\n", ring_id);
--		gvt_dbg_el("ctx head %x real head %lx\n", head,
--				last_workload->rb_tail);
--		/*
--		 * cannot use guest context head pointer here,
--		 * as it might not be updated at this time
--		 */
--		head = last_workload->rb_tail;
-+	list_for_each_entry_reverse(last_workload, q, list) {
-+
-+		if (same_context(&last_workload->ctx_desc, desc)) {
-+			gvt_dbg_el("ring id %d cur workload == last\n",
-+					ring_id);
-+			gvt_dbg_el("ctx head %x real head %lx\n", head,
-+					last_workload->rb_tail);
-+			/*
-+			 * cannot use guest context head pointer here,
-+			 * as it might not be updated at this time
-+			 */
-+			head = last_workload->rb_tail;
-+			break;
-+		}
+ 	if (sdata->vif.type == NL80211_IFTYPE_AP)
+ 		ps = &sdata->bss->ps;
+@@ -273,9 +274,9 @@ static void __ieee80211_wake_txqs(struct
+ 						&txqi->flags))
+ 				continue;
+ 
+-			spin_unlock_bh(&fq->lock);
++			spin_unlock(&fq->lock);
+ 			drv_wake_tx_queue(local, txqi);
+-			spin_lock_bh(&fq->lock);
++			spin_lock(&fq->lock);
+ 		}
  	}
  
- 	gvt_dbg_el("ring id %d begin a new workload\n", ring_id);
+@@ -288,12 +289,14 @@ static void __ieee80211_wake_txqs(struct
+ 	    (ps && atomic_read(&ps->num_sta_ps)) || ac != vif->txq->ac)
+ 		goto out;
+ 
+-	spin_unlock_bh(&fq->lock);
++	spin_unlock(&fq->lock);
+ 
+ 	drv_wake_tx_queue(local, txqi);
++	local_bh_enable();
+ 	return;
+ out:
+-	spin_unlock_bh(&fq->lock);
++	spin_unlock(&fq->lock);
++	local_bh_enable();
+ }
+ 
+ static void
 
 
