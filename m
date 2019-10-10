@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DDFD2348
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C6B8D23C0
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387512AbfJJIk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45100 "EHLO mail.kernel.org"
+        id S2389168AbfJJIph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387585AbfJJIkz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:40:55 -0400
+        id S2387614AbfJJIpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44B7A218AC;
-        Thu, 10 Oct 2019 08:40:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20482218AC;
+        Thu, 10 Oct 2019 08:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696854;
-        bh=Ck7sX0+FXelRH0DMHdATlyjDNhesOgfQM+4Zk78puy8=;
+        s=default; t=1570697135;
+        bh=RGbsMYw9+rLEFO5N8Q1T3vut1c+0zUuAmpw9zyAiwcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3DFLrCwmWQtST2iZ3F6KldVcuFoHWVz4c2NT2fiZXq3KRwE66csr3Q5Va4PuQH/l
-         jCsw9KB4QUIRIaarnBncPyJxzDl+gqLJM8riup7uVuWUeR3CJ48yPraUvf8U/K9rg9
-         ACcik8MU4DhzIEqAVax5Y2cuOZu+PZ9ZocwC9kBE=
+        b=q0SgKqVO98vP3a/VG8zKQgL8PrUZI5lYxiHkpPoOwvpSkMztle2euKgp9ZCbBD5+u
+         C4iw6nrm42UkhR7e7v77dddH+5rH+lLqo5Oq8h3IVsflg40JrIsxurlL9Yl5Ve+Pc4
+         LGCyJRL35D7hYWG+gONFg/gND8sbXhnOfci7cNMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.3 075/148] mmc: sdhci: improve ADMA error reporting
-Date:   Thu, 10 Oct 2019 10:35:36 +0200
-Message-Id: <20191010083615.913134034@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tom Zanussi <zanussi@kernel.org>
+Subject: [PATCH 4.19 030/114] tracing: Make sure variable reference alias has correct var_ref_idx
+Date:   Thu, 10 Oct 2019 10:35:37 +0200
+Message-Id: <20191010083559.568035880@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +46,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Tom Zanussi <zanussi@kernel.org>
 
-commit d1c536e3177390da43d99f20143b810c35433d1f upstream.
+commit 17f8607a1658a8e70415eef67909f990d13017b5 upstream.
 
-ADMA errors are potentially data corrupting events; although we print
-the register state, we do not usefully print the ADMA descriptors.
-Worse than that, we print them by referencing their virtual address
-which is meaningless when the register state gives us the DMA address
-of the failing descriptor.
+Original changelog from Steve Rostedt (except last sentence which
+explains the problem, and the Fixes: tag):
 
-Print the ADMA descriptors giving their DMA addresses rather than their
-virtual addresses, and print them using SDHCI_DUMP() rather than DBG().
+I performed a three way histogram with the following commands:
 
-We also do not show the correct value of the interrupt status register;
-the register dump shows the current value, after we have cleared the
-pending interrupts we are going to service.  What is more useful is to
-print the interrupts that _were_ pending at the time the ADMA error was
-encountered.  Fix that too.
+echo 'irq_lat u64 lat pid_t pid' > synthetic_events
+echo 'wake_lat u64 lat u64 irqlat pid_t pid' >> synthetic_events
+echo 'hist:keys=common_pid:irqts=common_timestamp.usecs if function == 0xffffffff81200580' > events/timer/hrtimer_start/trigger
+echo 'hist:keys=common_pid:lat=common_timestamp.usecs-$irqts:onmatch(timer.hrtimer_start).irq_lat($lat,pid) if common_flags & 1' > events/sched/sched_waking/trigger
+echo 'hist:keys=pid:wakets=common_timestamp.usecs,irqlat=lat' > events/synthetic/irq_lat/trigger
+echo 'hist:keys=next_pid:lat=common_timestamp.usecs-$wakets,irqlat=$irqlat:onmatch(synthetic.irq_lat).wake_lat($lat,$irqlat,next_pid)' > events/sched/sched_switch/trigger
+echo 1 > events/synthetic/wake_lat/enable
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Basically I wanted to see:
+
+ hrtimer_start (calling function tick_sched_timer)
+
+Note:
+
+  # grep tick_sched_timer /proc/kallsyms
+ffffffff81200580 t tick_sched_timer
+
+And save the time of that, and then record sched_waking if it is called
+in interrupt context and with the same pid as the hrtimer_start, it
+will record the latency between that and the waking event.
+
+I then look at when the task that is woken is scheduled in, and record
+the latency between the wakeup and the task running.
+
+At the end, the wake_lat synthetic event will show the wakeup to
+scheduled latency, as well as the irq latency in from hritmer_start to
+the wakeup. The problem is that I found this:
+
+          <idle>-0     [007] d...   190.485261: wake_lat: lat=27 irqlat=190485230 pid=698
+          <idle>-0     [005] d...   190.485283: wake_lat: lat=40 irqlat=190485239 pid=10
+          <idle>-0     [002] d...   190.488327: wake_lat: lat=56 irqlat=190488266 pid=335
+          <idle>-0     [005] d...   190.489330: wake_lat: lat=64 irqlat=190489262 pid=10
+          <idle>-0     [003] d...   190.490312: wake_lat: lat=43 irqlat=190490265 pid=77
+          <idle>-0     [005] d...   190.493322: wake_lat: lat=54 irqlat=190493262 pid=10
+          <idle>-0     [005] d...   190.497305: wake_lat: lat=35 irqlat=190497267 pid=10
+          <idle>-0     [005] d...   190.501319: wake_lat: lat=50 irqlat=190501264 pid=10
+
+The irqlat seemed quite large! Investigating this further, if I had
+enabled the irq_lat synthetic event, I noticed this:
+
+          <idle>-0     [002] d.s.   249.429308: irq_lat: lat=164968 pid=335
+          <idle>-0     [002] d...   249.429369: wake_lat: lat=55 irqlat=249429308 pid=335
+
+Notice that the timestamp of the irq_lat "249.429308" is awfully
+similar to the reported irqlat variable. In fact, all instances were
+like this. It appeared that:
+
+  irqlat=$irqlat
+
+Wasn't assigning the old $irqlat to the new irqlat variable, but
+instead was assigning the $irqts to it.
+
+The issue is that assigning the old $irqlat to the new irqlat variable
+creates a variable reference alias, but the alias creation code
+forgets to make sure the alias uses the same var_ref_idx to access the
+reference.
+
+Link: http://lkml.kernel.org/r/1567375321.5282.12.camel@kernel.org
+
+Cc: Linux Trace Devel <linux-trace-devel@vger.kernel.org>
+Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 7e8b88a30b085 ("tracing: Add hist trigger support for variable reference aliases")
+Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ kernel/trace/trace_events_hist.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -2857,6 +2857,7 @@ static void sdhci_cmd_irq(struct sdhci_h
- static void sdhci_adma_show_error(struct sdhci_host *host)
- {
- 	void *desc = host->adma_table;
-+	dma_addr_t dma = host->adma_addr;
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2526,6 +2526,8 @@ static struct hist_field *create_alias(s
+ 		return NULL;
+ 	}
  
- 	sdhci_dumpregs(host);
++	alias->var_ref_idx = var_ref->var_ref_idx;
++
+ 	return alias;
+ }
  
-@@ -2864,18 +2865,21 @@ static void sdhci_adma_show_error(struct
- 		struct sdhci_adma2_64_desc *dma_desc = desc;
- 
- 		if (host->flags & SDHCI_USE_64_BIT_DMA)
--			DBG("%p: DMA 0x%08x%08x, LEN 0x%04x, Attr=0x%02x\n",
--			    desc, le32_to_cpu(dma_desc->addr_hi),
-+			SDHCI_DUMP("%08llx: DMA 0x%08x%08x, LEN 0x%04x, Attr=0x%02x\n",
-+			    (unsigned long long)dma,
-+			    le32_to_cpu(dma_desc->addr_hi),
- 			    le32_to_cpu(dma_desc->addr_lo),
- 			    le16_to_cpu(dma_desc->len),
- 			    le16_to_cpu(dma_desc->cmd));
- 		else
--			DBG("%p: DMA 0x%08x, LEN 0x%04x, Attr=0x%02x\n",
--			    desc, le32_to_cpu(dma_desc->addr_lo),
-+			SDHCI_DUMP("%08llx: DMA 0x%08x, LEN 0x%04x, Attr=0x%02x\n",
-+			    (unsigned long long)dma,
-+			    le32_to_cpu(dma_desc->addr_lo),
- 			    le16_to_cpu(dma_desc->len),
- 			    le16_to_cpu(dma_desc->cmd));
- 
- 		desc += host->desc_sz;
-+		dma += host->desc_sz;
- 
- 		if (dma_desc->cmd & cpu_to_le16(ADMA2_END))
- 			break;
-@@ -2951,7 +2955,8 @@ static void sdhci_data_irq(struct sdhci_
- 			!= MMC_BUS_TEST_R)
- 		host->data->error = -EILSEQ;
- 	else if (intmask & SDHCI_INT_ADMA_ERROR) {
--		pr_err("%s: ADMA error\n", mmc_hostname(host->mmc));
-+		pr_err("%s: ADMA error: 0x%08x\n", mmc_hostname(host->mmc),
-+		       intmask);
- 		sdhci_adma_show_error(host);
- 		host->data->error = -EIO;
- 		if (host->ops->adma_workaround)
 
 
