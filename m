@@ -2,99 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9ADD3400
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 00:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AC8CD3425
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 01:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726095AbfJJWih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 18:38:37 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:50819 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726071AbfJJWih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 18:38:37 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 720405EE;
-        Thu, 10 Oct 2019 18:38:35 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 10 Oct 2019 18:38:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=mwrnj/CzTIgVt4Kr1G7g/SxuG4k
-        CBRcWy0UBkxS1tpA=; b=uogqERlMCs2lh4s7xZG3F8yxehrCI3336BsVimOFgzK
-        Eb5LyrBtULDq1PI48Oz+q5PmHD5vuaqP/9Q1Jm+bucGsB8burnaTWwWTfBe9yHfP
-        9rDmacKbXWJqLQ9jiBTxv4JkpXZnyyUnUpZjmdr6ij77JwHT3mwohtTfsg5AoY94
-        iGJaZ66LE/KXWla+6OWedyGBmEjgDN0a3Io1w3TtVXZ7mAExqoHUkxx0pu9LzzpG
-        kKxsj4d633g8dwa8cMjfHI4xzn86A0OydQEoEXPQXG5mYK/SenctUwJv1gTmlct6
-        btDDC1ltycXxrdx4jlQyZVt82E71n60kHQPnzcm0Pcg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=mwrnj/
-        CzTIgVt4Kr1G7g/SxuG4kCBRcWy0UBkxS1tpA=; b=hTPS+D4GrcXMfEu7sxMSs8
-        Op6TwPVXHhOanpsqyFEygwyEWGfgTAQpTl7jgRNuqIDzhiiqE4u3dHS/1wxtuTpx
-        KjOs/e6+zqWxz7lR2BcNUSOqQgxhlqTlnO7s7muyaQUEI04op7e6Qat8CSiP2L0Q
-        0ZNUVmfsoOX5DEvD1P7uQJi9cmKF/K0ojgKF5aW5XJDmm8RXJLum/hazGSBmTRiA
-        X8OWr96L3Lsqk2ggJEH0uKxfligEVJZkvzbIaBDVftoix3xofJ1MAy3aPjnj9L4/
-        jje5RhRRLSelzbNUbXust6jA1gp31hrjMbnwEvQr5AbBkttR2j3XW4VVzRzZMGeQ
-        ==
-X-ME-Sender: <xms:6rKfXZ6-HrlRVhc__6TafUKDG5uelVwp37TwlfIsczLFB6qB7IHf8A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrieeggdduudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepufgrmhcuuegr
-    iihlvgihuceoshgrmhgsrgiilhgvhiesfhgrshhtmhgrihhlrdgtohhmqeenucfkphepke
-    eirddviedrvddvgedrudehfeenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhgsrgii
-    lhgvhiesfhgrshhtmhgrihhlrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:6rKfXe2CaWThgm4MVQ6sFQwDZgZLvEGC8hbh3ELRkN8SDJjEFCdYUA>
-    <xmx:6rKfXWz0Y4K8EMsmqWhroX_txuqvUR8GnydffwKNMK9FLHqB1GHYrA>
-    <xmx:6rKfXaq2w9FZ3odjdmO4YID37_m92ajDT_K4UBCDP3BGirJtVdymug>
-    <xmx:67KfXec_mip_iBgjRM7-rbt80myPeDtFsmrqTAJBWdeIX2sDhnLdrQ>
-Received: from localhost (cpc88620-newt36-2-0-cust152.19-3.cable.virginm.net [86.26.224.153])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5A2DAD60057;
-        Thu, 10 Oct 2019 18:38:34 -0400 (EDT)
-Date:   Thu, 10 Oct 2019 23:38:33 +0100
-From:   Sam Bazley <sambazley@fastmail.com>
-To:     Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 0/3] Logitech G920 fixes
-Message-ID: <20191010223833.axroklxlo2lkdzo6@SamLinux>
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+        id S1726365AbfJJXEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 19:04:13 -0400
+Received: from sender4-of-o54.zoho.com ([136.143.188.54]:21489 "EHLO
+        sender4-of-o54.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726358AbfJJXEN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 19:04:13 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1570748618; cv=none; 
+        d=zoho.com; s=zohoarc; 
+        b=QmQgh8oVeL1UlhL4bRumEiLaTobIedhbyS6BDJxOnjd3bP+ocRyHZY8yhzAUhl5dXBNW8Nu1TAWYgBXvZEWhXTxfs+qlD0Z+7Q7iUxQrwYFPnNdtuwJBUjHZJmNs3XO38vLf7D/4nB69zjkTo8gftKc1Rf3tVc1EjzKWs49+SJU=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zoho.com; s=zohoarc; 
+        t=1570748618; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=bGU1bteMJ1umjbur92OJItzq406PA1Ny/lYW7QJ9L94=; 
+        b=TJ6zvuw0oYKMdZ13TkJZkThKfZCrhMG78bUsijNI9gzRgwqwO/S/FSDOZU68wXKCuxfLQqK2OADV2qL7U7JBClknJ0PfxewhQ2bk+yCxACCQ2HpUusj2IMzBoYixlz8O93znXuFiWEIHqEGM/U8L+KSs1knsrd8gAUg9C1kKpiA=
+ARC-Authentication-Results: i=1; mx.zoho.com;
+        dkim=pass  header.i=didiksetiawan.com;
+        spf=pass  smtp.mailfrom=ds@didiksetiawan.com;
+        dmarc=pass header.from=<ds@didiksetiawan.com> header.from=<ds@didiksetiawan.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1570748618;
+        s=zoho; d=didiksetiawan.com; i=ds@didiksetiawan.com;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
+        l=863; bh=bGU1bteMJ1umjbur92OJItzq406PA1Ny/lYW7QJ9L94=;
+        b=vd2lRiPk6jhbBlj7LcjJQDxEgHHaALMTb/9yVOQC883fSe4SciejVzXdttcgVtKE
+        PVv0CNdfaBSZ6kPVNmqpD2rqm5juKKHZI6JPTmOZGK7FS+/bQY/oKy+RaMHvMgG5k2b
+        JwiNhp08owBq5VwqooU3XHHE7sUVeXR2RAkKcYKg=
+Received: from thinkpad-e420s (120.188.6.98 [120.188.6.98]) by mx.zohomail.com
+        with SMTPS id 1570748616019428.6066937022854; Thu, 10 Oct 2019 16:03:36 -0700 (PDT)
+Date:   Fri, 11 Oct 2019 06:03:27 +0700
+From:   Didik Setiawan <ds@didiksetiawan.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.19 000/114] 4.19.79-stable review
+Message-ID: <20191010230327.GA19486@thinkpad-e420s>
+References: <20191010083544.711104709@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
+X-ZohoMailClient: External
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 06, 2019 at 10:12:37PM -0700, Andrey Smirnov wrote:
-> Everyone:
+On Thu, Oct 10, 2019 at 10:35:07AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.79 release.
+> There are 114 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> This series contains patches to fix a couple of regressions in G920
-> wheel support by hid-logitech-hidpp driver. Without the patches the
-> wheel remains stuck in autocentering mode ("resisting" any attempt to
-> trun) as well as missing support for any FF action.
+> Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
+> Anything received after that time might be too late.
 > 
-> Thanks,
-> Andrey Smirnov
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.79-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
 > 
-> Andrey Smirnov (3):
->   HID: logitech-hidpp: use devres to manage FF private data
->   HID: logitech-hidpp: split g920_get_config()
->   HID: logitech-hidpp: add G920 device validation quirk
+> thanks,
 > 
->  drivers/hid/hid-logitech-hidpp.c | 193 +++++++++++++++++++------------
->  1 file changed, 120 insertions(+), 73 deletions(-)
+> greg k-h
 > 
-> -- 
-> 2.21.0
-> 
+ 
+Compiled, booted, and no regressions found on my x86_64 system.
 
-All seems to work now. Thanks again Andrey!
+Thanks,
+Didik Setiawan
 
-Tested-by: Sam Bazley <sambazley@fastmail.com>
