@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2C5D247C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B89ED242D
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388160AbfJJIpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51584 "EHLO mail.kernel.org"
+        id S2389858AbfJJItt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:49:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389207AbfJJIpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:49 -0400
+        id S2389854AbfJJItr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C49762190F;
-        Thu, 10 Oct 2019 08:45:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 396D12064A;
+        Thu, 10 Oct 2019 08:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697149;
-        bh=Cj6zVdwil1V9LHOzG+BAeozXgHOjbyNXgx+HXxMd0CM=;
+        s=default; t=1570697386;
+        bh=qT7Kvrkt0fJUpI1q/8NY3DMs5K2bhyu6Uhpan3ixSC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gpb38uxFL7nXHkL6DI2IotmDu+3JgMYdC31shpDY7ki1ziIDRfElbJrfzuX+5RP+0
-         Ax3MKdcu6javwOdYLqu8fUtf674DJMml3J+OLcsLrhSKA1iuhxgVQ6qy9UVPx9ZxA1
-         84omyPo7Hant79wmmpKTsPrMerbkA9+ixzSKvZhA=
+        b=vJO0ZS7d0bPdmboqFofU6ETySijlhb1NgVP84v0yEHquQXeKtcHau0V/AiJaCEjks
+         BYTwURObVOM/p8T+bEG9KY7LtXOuUEk6j1qXkbvO6O8HZA3FeVEWE2ELAf62ynos/5
+         rXgpAbkasjrh7xCewr1Z3LDZq0kXZYYIXrhvMidM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 4.19 035/114] watchdog: imx2_wdt: fix min() calculation in imx2_wdt_set_timeout
-Date:   Thu, 10 Oct 2019 10:35:42 +0200
-Message-Id: <20191010083601.861038621@linuxfoundation.org>
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 01/61] s390/process: avoid potential reading of freed stack
+Date:   Thu, 10 Oct 2019 10:36:26 +0200
+Message-Id: <20191010083450.038549745@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
+References: <20191010083449.500442342@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,53 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 144783a80cd2cbc45c6ce17db649140b65f203dd upstream.
+commit 8769f610fe6d473e5e8e221709c3ac402037da6c upstream.
 
-Converting from ms to s requires dividing by 1000, not multiplying. So
-this is currently taking the smaller of new_timeout and 1.28e8,
-i.e. effectively new_timeout.
+With THREAD_INFO_IN_TASK (which is selected on s390) task's stack usage
+is refcounted and should always be protected by get/put when touching
+other task's stack to avoid race conditions with task's destruction code.
 
-The driver knows what it set max_hw_heartbeat_ms to, so use that
-value instead of doing a division at run-time.
-
-FWIW, this can easily be tested by booting into a busybox shell and
-doing "watchdog -t 5 -T 130 /dev/watchdog" - without this patch, the
-watchdog fires after 130&127 == 2 seconds.
-
-Fixes: b07e228eee69 "watchdog: imx2_wdt: Fix set_timeout for big timeout values"
-Cc: stable@vger.kernel.org # 5.2 plus anything the above got backported to
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20190812131356.23039-1-linux@rasmusvillemoes.dk
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: d5c352cdd022 ("s390: move thread_info into task_struct")
+Cc: stable@vger.kernel.org # v4.10+
+Acked-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/watchdog/imx2_wdt.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kernel/process.c |   22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -55,7 +55,7 @@
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -185,20 +185,30 @@ unsigned long get_wchan(struct task_stru
  
- #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+ 	if (!p || p == current || p->state == TASK_RUNNING || !task_stack_page(p))
+ 		return 0;
++
++	if (!try_get_task_stack(p))
++		return 0;
++
+ 	low = task_stack_page(p);
+ 	high = (struct stack_frame *) task_pt_regs(p);
+ 	sf = (struct stack_frame *) p->thread.ksp;
+-	if (sf <= low || sf > high)
+-		return 0;
++	if (sf <= low || sf > high) {
++		return_address = 0;
++		goto out;
++	}
+ 	for (count = 0; count < 16; count++) {
+ 		sf = (struct stack_frame *) sf->back_chain;
+-		if (sf <= low || sf > high)
+-			return 0;
++		if (sf <= low || sf > high) {
++			return_address = 0;
++			goto out;
++		}
+ 		return_address = sf->gprs[8];
+ 		if (!in_sched_functions(return_address))
+-			return return_address;
++			goto out;
+ 	}
+-	return 0;
++out:
++	put_task_stack(p);
++	return return_address;
+ }
  
--#define IMX2_WDT_MAX_TIME	128
-+#define IMX2_WDT_MAX_TIME	128U
- #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
- 
- #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
-@@ -180,7 +180,7 @@ static int imx2_wdt_set_timeout(struct w
- {
- 	unsigned int actual;
- 
--	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
-+	actual = min(new_timeout, IMX2_WDT_MAX_TIME);
- 	__imx2_wdt_set_timeout(wdog, actual);
- 	wdog->timeout = new_timeout;
- 	return 0;
+ unsigned long arch_align_stack(unsigned long sp)
 
 
