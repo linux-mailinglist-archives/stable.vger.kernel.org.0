@@ -2,133 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 039E2D2CC6
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 16:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD8ED2CB8
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 16:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726225AbfJJOqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 10:46:22 -0400
-Received: from forward100o.mail.yandex.net ([37.140.190.180]:41235 "EHLO
-        forward100o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726222AbfJJOqW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 10:46:22 -0400
-X-Greylist: delayed 363 seconds by postgrey-1.27 at vger.kernel.org; Thu, 10 Oct 2019 10:46:19 EDT
-Received: from forward100q.mail.yandex.net (forward100q.mail.yandex.net [IPv6:2a02:6b8:c0e:4b:0:640:4012:bb97])
-        by forward100o.mail.yandex.net (Yandex) with ESMTP id CD53E4AC108C;
-        Thu, 10 Oct 2019 17:40:14 +0300 (MSK)
-Received: from mxback11q.mail.yandex.net (mxback11q.mail.yandex.net [IPv6:2a02:6b8:c0e:1b4:0:640:1f0c:10f2])
-        by forward100q.mail.yandex.net (Yandex) with ESMTP id C8F257080010;
-        Thu, 10 Oct 2019 17:40:14 +0300 (MSK)
-Received: from vla3-11710f0f0dbd.qloud-c.yandex.net (vla3-11710f0f0dbd.qloud-c.yandex.net [2a02:6b8:c15:2584:0:640:1171:f0f])
-        by mxback11q.mail.yandex.net (nwsmtp/Yandex) with ESMTP id jcBmc2PTK9-eECKUkkl;
-        Thu, 10 Oct 2019 17:40:14 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; s=mail; t=1570718414;
-        bh=ItG4PUK2mFQT3B+nOSpcLn8Q78SCtsVhq29/WQ2jmbY=;
-        h=Subject:To:From:Cc:Date:Message-Id;
-        b=Nw+nI/yoyCc3iy4yBFQkFzAzJ4/nfZ3tpNmo/XU1B00gP5hyVm5rdWfa6azYUv3tg
-         5T+v+PZZUzEYa+JREJ6eip4ixzytbpFI1Wg1Xjimm5ljtAoskH2c6cli+wirJxVBjc
-         kRgLWis7Wg3FO5PGo/5TZSpEyzUoh9NkHkPkE9is=
-Authentication-Results: mxback11q.mail.yandex.net; dkim=pass header.i=@flygoat.com
-Received: by vla3-11710f0f0dbd.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id jkcnUXP3Wb-e8qa76XE;
-        Thu, 10 Oct 2019 17:40:11 +0300
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client certificate not present)
-From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
-To:     linux-mips@vger.kernel.org
-Cc:     Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Meng Zhou <mengzhuo1203@gmail.com>,
-        Paul Burton <paul.burton@mips.com>, stable@vger.kernel.org
-Subject: [PATCH] MIPS: elf_hwcap: Export userspace ASEs
-Date:   Thu, 10 Oct 2019 22:39:40 +0800
-Message-Id: <20191010143940.15725-1-jiaxun.yang@flygoat.com>
-X-Mailer: git-send-email 2.23.0
+        id S1726167AbfJJOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 10:41:44 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:37803 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726157AbfJJOlj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 10:41:39 -0400
+Received: by mail-wm1-f68.google.com with SMTP id f22so7067846wmc.2
+        for <stable@vger.kernel.org>; Thu, 10 Oct 2019 07:41:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=WvpcapkJx8ulBJzj4PJvqG7ZVPifCPQ0JR/mWjZ/O3U=;
+        b=ePF0aeJ8i2wRFfX68Bj0lleBItCXI1E7kyXzLaREUNWaIje2xgTAtyy87DEbAU0FXo
+         69a121/5zq6kSsNsdfzzntJ6LaR8QbkFaS38rzT/FTwm0uGa6RDvxd0qHy7SKrrbdJsH
+         Vx/OTSShDI2hzUPiRMm1NC9tX1qyfBZrmKYHVb7NJ8h2/LTwawjqGXHGHtnut519aL8Y
+         ncqH3+7vJOA6d13IFQ2cM9z1sUH3LAIQ7POp8BNzXIzExw6PMp3fTABJGLtu8hfcXBzF
+         2jqv0LSny1yWgiuEbke38H2z+7d26tAxTFdZ95V+Q7vLpOs8WiOFzlhP+hIKGm5na6EK
+         6oJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=WvpcapkJx8ulBJzj4PJvqG7ZVPifCPQ0JR/mWjZ/O3U=;
+        b=oqA0sbcF7trTodrZ7JohyjWBdjYIsyMWM6K4nwFwOkX+7GJugbzAJ7UmbL2gJZkKmZ
+         MN+aOw2g63N9iEQ1GtIavpxnvg5lKnkkIzheJ7NsR6RadHolnMC1QTlV3cR3WgxxK9H6
+         uMFI13TveI4r1fvxhYRjjT/efU/GfOS6IQhpjG06QZarKAwjZI5tQpeNpLvejGEl+evi
+         raUYBNxxlJTmqqAEngki3yq+z0XRm/iG0uZ75CMQzV9uktuGdYXV9V3/wRfeiBguAXMJ
+         tlVeeu/Wnw02/1TzZgP9RMeLhMFwlrBczYnOLQUlPniQZpGLtE8G9MNncn4SyN7FOdxL
+         gkdQ==
+X-Gm-Message-State: APjAAAW8CP07g9pMgcrHxZLcugzcpk2YvM2wbjlbExAg23X4MpmSEevJ
+        q0MFZpiC95K8uadB8R1WqU/mAQ==
+X-Google-Smtp-Source: APXvYqzUIiSDxzC9sMSlK0uERGT2OaXsOObyUMqZGbyT1xJTSaDjErh3SKgv1hWBPGWSzzFO4YeXig==
+X-Received: by 2002:a7b:c4cf:: with SMTP id g15mr7453778wmk.122.1570718497368;
+        Thu, 10 Oct 2019 07:41:37 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y18sm11027830wro.36.2019.10.10.07.41.35
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 10 Oct 2019 07:41:36 -0700 (PDT)
+Message-ID: <5d9f4320.1c69fb81.dd898.69fb@mx.google.com>
+Date:   Thu, 10 Oct 2019 07:41:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.78-115-g4d84b0bb68d4
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 000/114] 4.19.79-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A Golang developer reported MIPS hwcap isn't reflecting instructions
-that the processor actually supported so programs can't apply optimized
-code at runtime.
+stable-rc/linux-4.19.y boot: 117 boots: 0 failed, 107 passed with 10 offlin=
+e (v4.19.78-115-g4d84b0bb68d4)
 
-Thus we export the ASEs that can be used in userspace programs.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.78-115-g4d84b0bb68d4/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.78-115-g4d84b0bb68d4/
 
-Reported-by: Meng Zhou <mengzhuo1203@gmail.com>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: <stable@vger.kernel.org> # 4.14+
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.78-115-g4d84b0bb68d4
+Git Commit: 4d84b0bb68d49edd179af2b16d4b912c1568a182
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 70 unique boards, 22 SoC families, 16 builds out of 206
+
+Offline Platforms:
+
+arm:
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            qcom-apq8064-ifc6410: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
 ---
- arch/mips/include/uapi/asm/hwcap.h | 11 ++++++++++
- arch/mips/kernel/cpu-probe.c       | 33 ++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
-
-diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
-index a2aba4b059e6..1ade1daa4921 100644
---- a/arch/mips/include/uapi/asm/hwcap.h
-+++ b/arch/mips/include/uapi/asm/hwcap.h
-@@ -6,5 +6,16 @@
- #define HWCAP_MIPS_R6		(1 << 0)
- #define HWCAP_MIPS_MSA		(1 << 1)
- #define HWCAP_MIPS_CRC32	(1 << 2)
-+#define HWCAP_MIPS_MIPS16	(1 << 3)
-+#define HWCAP_MIPS_MDMX     (1 << 4)
-+#define HWCAP_MIPS_MIPS3D   (1 << 5)
-+#define HWCAP_MIPS_SMARTMIPS (1 << 6)
-+#define HWCAP_MIPS_DSP      (1 << 7)
-+#define HWCAP_MIPS_DSP2     (1 << 8)
-+#define HWCAP_MIPS_DSP3     (1 << 9)
-+#define HWCAP_MIPS_MIPS16E2 (1 << 10)
-+#define HWCAP_LOONGSON_MMI  (1 << 11)
-+#define HWCAP_LOONGSON_EXT  (1 << 12)
-+#define HWCAP_LOONGSON_EXT2 (1 << 13)
- 
- #endif /* _UAPI_ASM_HWCAP_H */
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index c2eb392597bf..f521cbf934e7 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -2180,6 +2180,39 @@ void cpu_probe(void)
- 		elf_hwcap |= HWCAP_MIPS_MSA;
- 	}
- 
-+	if (cpu_has_mips16)
-+		elf_hwcap |= HWCAP_MIPS_MIPS16;
-+
-+	if (cpu_has_mdmx)
-+		elf_hwcap |= HWCAP_MIPS_MDMX;
-+
-+	if (cpu_has_mips3d)
-+		elf_hwcap |= HWCAP_MIPS_MIPS3D;
-+
-+	if (cpu_has_smartmips)
-+		elf_hwcap |= HWCAP_MIPS_SMARTMIPS;
-+
-+	if (cpu_has_dsp)
-+		elf_hwcap |= HWCAP_MIPS_DSP;
-+
-+	if (cpu_has_dsp2)
-+		elf_hwcap |= HWCAP_MIPS_DSP2;
-+
-+	if (cpu_has_dsp3)
-+		elf_hwcap |= HWCAP_MIPS_DSP3;
-+
-+	if (cpu_has_mips16e2)
-+		elf_hwcap |= HWCAP_MIPS_MIPS16E2;
-+
-+	if (cpu_has_loongson_mmi)
-+		elf_hwcap |= HWCAP_LOONGSON_MMI;
-+
-+	if (cpu_has_loongson_ext)
-+		elf_hwcap |= HWCAP_LOONGSON_EXT;
-+
-+	if (cpu_has_loongson_ext2)
-+		elf_hwcap |= HWCAP_LOONGSON_EXT2;
-+
- 	if (cpu_has_vz)
- 		cpu_probe_vz(c);
- 
--- 
-2.23.0
-
+For more info write to <info@kernelci.org>
