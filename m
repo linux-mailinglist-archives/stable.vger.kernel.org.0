@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1F0D23C4
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D42EDD2386
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389189AbfJJIpp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51370 "EHLO mail.kernel.org"
+        id S2388742AbfJJIn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389181AbfJJIpl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:41 -0400
+        id S2388735AbfJJIn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 792082190F;
-        Thu, 10 Oct 2019 08:45:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F407E2054F;
+        Thu, 10 Oct 2019 08:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697141;
-        bh=Cbulkmm9GwC8jvTTwza+47Jdqbj9EpfMt2YzOG0dxZc=;
+        s=default; t=1570697007;
+        bh=wA4A798QDjor7GxSK3UoqTKS91AiqFsVdwyhDLrH9FE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=duiBEXZlgIvRQGEbjwj58XRN6Xl7LO6KUPN6PuNDc78Ejx+GAqOA2mRejFEfLvhro
-         unsqfvQCqOIhkP/oDM/2gThzeUjlsRo018F5/f5V5P8k+4TnnocYe/kcTGfFvrir+D
-         8hmTm28DAzipl//eaE0UjOWvvQM2+kbRlAPzR1j0=
+        b=l3cLRArXzKNKcyzJtu6/LdjRVD8Z+LQfwUDFuHqYo0g0/iAGNys0K4XQnMzmuUg2A
+         6u5xBIFuMXr2l/WQHFg1h2gj/elbQze4tnbxxNVRoPVZQDltf9D4pYA6rLHX1vi4aw
+         8edhchoXxqkeNrOsNMXf+GNKsRBAPYfh3U8P4nbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.19 032/114] timer: Read jiffies once when forwarding base clk
-Date:   Thu, 10 Oct 2019 10:35:39 +0200
-Message-Id: <20191010083600.488625019@linuxfoundation.org>
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Pankaj Gupta <pagupta@redhat.com>,
+        Santosh Sivaraj <santosh@fossix.org>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.3 079/148] libnvdimm/altmap: Track namespace boundaries in altmap
+Date:   Thu, 10 Oct 2019 10:35:40 +0200
+Message-Id: <20191010083616.122145556@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +47,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit e430d802d6a3aaf61bd3ed03d9404888a29b9bf9 upstream.
+commit cf387d9644d8c78721cf9b77af9f67bb5b04da16 upstream.
 
-The timer delayed for more than 3 seconds warning was triggered during
-testing.
+With PFN_MODE_PMEM namespace, the memmap area is allocated from the device
+area. Some architectures map the memmap area with large page size. On
+architectures like ppc64, 16MB page for memap mapping can map 262144 pfns.
+This maps a namespace size of 16G.
 
-  Workqueue: events_unbound sched_tick_remote
-  RIP: 0010:sched_tick_remote+0xee/0x100
-  ...
-  Call Trace:
-   process_one_work+0x18c/0x3a0
-   worker_thread+0x30/0x380
-   kthread+0x113/0x130
-   ret_from_fork+0x22/0x40
+When populating memmap region with 16MB page from the device area,
+make sure the allocated space is not used to map resources outside this
+namespace. Such usage of device area will prevent a namespace destroy.
 
-The reason is that the code in collect_expired_timers() uses jiffies
-unprotected:
+Add resource end pnf in altmap and use that to check if the memmap area
+allocation can map pfn outside the namespace. On ppc64 in such case we fallback
+to allocation from memory.
 
-    if (next_event > jiffies)
-        base->clk = jiffies;
+This fix kernel crash reported below:
 
-As the compiler is allowed to reload the value base->clk can advance
-between the check and the store and in the worst case advance farther than
-next event. That causes the timer expiry to be delayed until the wheel
-pointer wraps around.
+[  132.034989] WARNING: CPU: 13 PID: 13719 at mm/memremap.c:133 devm_memremap_pages_release+0x2d8/0x2e0
+[  133.464754] BUG: Unable to handle kernel data access at 0xc00c00010b204000
+[  133.464760] Faulting instruction address: 0xc00000000007580c
+[  133.464766] Oops: Kernel access of bad area, sig: 11 [#1]
+[  133.464771] LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+.....
+[  133.464901] NIP [c00000000007580c] vmemmap_free+0x2ac/0x3d0
+[  133.464906] LR [c0000000000757f8] vmemmap_free+0x298/0x3d0
+[  133.464910] Call Trace:
+[  133.464914] [c000007cbfd0f7b0] [c0000000000757f8] vmemmap_free+0x298/0x3d0 (unreliable)
+[  133.464921] [c000007cbfd0f8d0] [c000000000370a44] section_deactivate+0x1a4/0x240
+[  133.464928] [c000007cbfd0f980] [c000000000386270] __remove_pages+0x3a0/0x590
+[  133.464935] [c000007cbfd0fa50] [c000000000074158] arch_remove_memory+0x88/0x160
+[  133.464942] [c000007cbfd0fae0] [c0000000003be8c0] devm_memremap_pages_release+0x150/0x2e0
+[  133.464949] [c000007cbfd0fb70] [c000000000738ea0] devm_action_release+0x30/0x50
+[  133.464955] [c000007cbfd0fb90] [c00000000073a5a4] release_nodes+0x344/0x400
+[  133.464961] [c000007cbfd0fc40] [c00000000073378c] device_release_driver_internal+0x15c/0x250
+[  133.464968] [c000007cbfd0fc80] [c00000000072fd14] unbind_store+0x104/0x110
+[  133.464973] [c000007cbfd0fcd0] [c00000000072ee24] drv_attr_store+0x44/0x70
+[  133.464981] [c000007cbfd0fcf0] [c0000000004a32bc] sysfs_kf_write+0x6c/0xa0
+[  133.464987] [c000007cbfd0fd10] [c0000000004a1dfc] kernfs_fop_write+0x17c/0x250
+[  133.464993] [c000007cbfd0fd60] [c0000000003c348c] __vfs_write+0x3c/0x70
+[  133.464999] [c000007cbfd0fd80] [c0000000003c75d0] vfs_write+0xd0/0x250
 
-Convert the code to use READ_ONCE()
+djbw: Aneesh notes that this crash can likely be triggered in any kernel that
+supports 'papr_scm', so flagging that commit for -stable consideration.
 
-Fixes: 236968383cf5 ("timers: Optimize collect_expired_timers() for NOHZ")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1568894687-14499-1-git-send-email-lirongqing@baidu.com
+Fixes: b5beae5e224f ("powerpc/pseries: Add driver for PAPR SCM regions")
+Cc: <stable@vger.kernel.org>
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Pankaj Gupta <pagupta@redhat.com>
+Tested-by: Santosh Sivaraj <santosh@fossix.org>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Link: https://lore.kernel.org/r/20190910062826.10041-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/timer.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/mm/init_64.c |   17 ++++++++++++++++-
+ drivers/nvdimm/pfn_devs.c |    2 ++
+ include/linux/memremap.h  |    1 +
+ 3 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1590,24 +1590,26 @@ void timer_clear_idle(void)
- static int collect_expired_timers(struct timer_base *base,
- 				  struct hlist_head *heads)
- {
-+	unsigned long now = READ_ONCE(jiffies);
-+
- 	/*
- 	 * NOHZ optimization. After a long idle sleep we need to forward the
- 	 * base to current jiffies. Avoid a loop by searching the bitfield for
- 	 * the next expiring timer.
- 	 */
--	if ((long)(jiffies - base->clk) > 2) {
-+	if ((long)(now - base->clk) > 2) {
- 		unsigned long next = __next_timer_interrupt(base);
+--- a/arch/powerpc/mm/init_64.c
++++ b/arch/powerpc/mm/init_64.c
+@@ -172,6 +172,21 @@ static __meminit void vmemmap_list_popul
+ 	vmemmap_list = vmem_back;
+ }
  
- 		/*
- 		 * If the next timer is ahead of time forward to current
- 		 * jiffies, otherwise forward to the next expiry time:
++static bool altmap_cross_boundary(struct vmem_altmap *altmap, unsigned long start,
++				unsigned long page_size)
++{
++	unsigned long nr_pfn = page_size / sizeof(struct page);
++	unsigned long start_pfn = page_to_pfn((struct page *)start);
++
++	if ((start_pfn + nr_pfn) > altmap->end_pfn)
++		return true;
++
++	if (start_pfn < altmap->base_pfn)
++		return true;
++
++	return false;
++}
++
+ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ 		struct vmem_altmap *altmap)
+ {
+@@ -194,7 +209,7 @@ int __meminit vmemmap_populate(unsigned
+ 		 * fail due to alignment issues when using 16MB hugepages, so
+ 		 * fall back to system memory if the altmap allocation fail.
  		 */
--		if (time_after(next, jiffies)) {
-+		if (time_after(next, now)) {
- 			/*
- 			 * The call site will increment base->clk and then
- 			 * terminate the expiry loop immediately.
- 			 */
--			base->clk = jiffies;
-+			base->clk = now;
- 			return 0;
- 		}
- 		base->clk = next;
+-		if (altmap) {
++		if (altmap && !altmap_cross_boundary(altmap, start, page_size)) {
+ 			p = altmap_alloc_block_buf(page_size, altmap);
+ 			if (!p)
+ 				pr_debug("altmap block allocation failed, falling back to system memory");
+--- a/drivers/nvdimm/pfn_devs.c
++++ b/drivers/nvdimm/pfn_devs.c
+@@ -618,9 +618,11 @@ static int __nvdimm_setup_pfn(struct nd_
+ 	struct nd_namespace_common *ndns = nd_pfn->ndns;
+ 	struct nd_namespace_io *nsio = to_nd_namespace_io(&ndns->dev);
+ 	resource_size_t base = nsio->res.start + start_pad;
++	resource_size_t end = nsio->res.end - end_trunc;
+ 	struct vmem_altmap __altmap = {
+ 		.base_pfn = init_altmap_base(base),
+ 		.reserve = init_altmap_reserve(base),
++		.end_pfn = PHYS_PFN(end),
+ 	};
+ 
+ 	memcpy(res, &nsio->res, sizeof(*res));
+--- a/include/linux/memremap.h
++++ b/include/linux/memremap.h
+@@ -17,6 +17,7 @@ struct device;
+  */
+ struct vmem_altmap {
+ 	const unsigned long base_pfn;
++	const unsigned long end_pfn;
+ 	const unsigned long reserve;
+ 	unsigned long free;
+ 	unsigned long align;
 
 
