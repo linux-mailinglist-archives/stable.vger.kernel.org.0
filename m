@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C66BDD258C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD12D248A
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388474AbfJJImH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46630 "EHLO mail.kernel.org"
+        id S2388619AbfJJIqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387736AbfJJImG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:42:06 -0400
+        id S2389372AbfJJIqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:46:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38C002190F;
-        Thu, 10 Oct 2019 08:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40A5B2064A;
+        Thu, 10 Oct 2019 08:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696925;
-        bh=VS50HS4GAI4UbJUyzF+xJ0UN7GNEKsohNTeuNnlWgOw=;
+        s=default; t=1570697206;
+        bh=gSx/kE23fzHUe4o9lTlqP2NnAB1nJWy1UhDsuCg7TD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEQXK27X63OZwjOz7m3oKNc2NFMfkQF967QV7sMw1yJ/ET4M3f6aQ9+VA6F6OnxOL
-         dT5PDeB61kCH8aNchSxuibJ9l5edf8NSPqd/nf0+9ZivZ1aIMGK8gMwmNAU9KC5qDW
-         QQe2PvgkJdz0vryEwSWOt31jPJqTPcJQNxmgKtnI=
+        b=jwyFSdouYx3+q/mirKwHv/pTgun6Nwk7z0rq1trqvZGJq54bBcdSlrhDhKNWiW2iX
+         oH3mnNobuXsDSquATvi9CvUmAs9Hm3if4fqB8DWlYH/r98UbZEZfCCEpApQ1o5+vVx
+         FUIi3vsYxbhnEc0DiPQJYxtgynRVljB4wWYJGIQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Ryan Chen <ryan_chen@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 103/148] netfilter: nf_tables: allow lookups in dynamic sets
+Subject: [PATCH 4.19 057/114] watchdog: aspeed: Add support for AST2600
 Date:   Thu, 10 Oct 2019 10:36:04 +0200
-Message-Id: <20191010083617.454672527@linuxfoundation.org>
+Message-Id: <20191010083609.037409755@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
-References: <20191010083609.660878383@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ryan Chen <ryan_chen@aspeedtech.com>
 
-[ Upstream commit acab713177377d9e0889c46bac7ff0cfb9a90c4d ]
+[ Upstream commit b3528b4874480818e38e4da019d655413c233e6a ]
 
-This un-breaks lookups in sets that have the 'dynamic' flag set.
-Given this active example configuration:
+The ast2600 can be supported by the same code as the ast2500.
 
-table filter {
-  set set1 {
-    type ipv4_addr
-    size 64
-    flags dynamic,timeout
-    timeout 1m
-  }
-
-  chain input {
-     type filter hook input priority 0; policy accept;
-  }
-}
-
-... this works:
-nft add rule ip filter input add @set1 { ip saddr }
-
--> whenever rule is triggered, the source ip address is inserted
-into the set (if it did not exist).
-
-This won't work:
-nft add rule ip filter input ip saddr @set1 counter
-Error: Could not process rule: Operation not supported
-
-In other words, we can add entries to the set, but then can't make
-matching decision based on that set.
-
-That is just wrong -- all set backends support lookups (else they would
-not be very useful).
-The failure comes from an explicit rejection in nft_lookup.c.
-
-Looking at the history, it seems like NFT_SET_EVAL used to mean
-'set contains expressions' (aka. "is a meter"), for instance something like
-
- nft add rule ip filter input meter example { ip saddr limit rate 10/second }
- or
- nft add rule ip filter input meter example { ip saddr counter }
-
-The actual meaning of NFT_SET_EVAL however, is
-'set can be updated from the packet path'.
-
-'meters' and packet-path insertions into sets, such as
-'add @set { ip saddr }' use exactly the same kernel code (nft_dynset.c)
-and thus require a set backend that provides the ->update() function.
-
-The only set that provides this also is the only one that has the
-NFT_SET_EVAL feature flag.
-
-Removing the wrong check makes the above example work.
-While at it, also fix the flag check during set instantiation to
-allow supported combinations only.
-
-Fixes: 8aeff920dcc9b3f ("netfilter: nf_tables: add stateful object reference to set elements")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20190819051738.17370-3-joel@jms.id.au
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 7 +++++--
- net/netfilter/nft_lookup.c    | 3 ---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/watchdog/aspeed_wdt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index d47469f824a10..3b81323fa0171 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3562,8 +3562,11 @@ static int nf_tables_newset(struct net *net, struct sock *nlsk,
- 			      NFT_SET_OBJECT))
- 			return -EINVAL;
- 		/* Only one of these operations is supported */
--		if ((flags & (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT)) ==
--			     (NFT_SET_MAP | NFT_SET_EVAL | NFT_SET_OBJECT))
-+		if ((flags & (NFT_SET_MAP | NFT_SET_OBJECT)) ==
-+			     (NFT_SET_MAP | NFT_SET_OBJECT))
-+			return -EOPNOTSUPP;
-+		if ((flags & (NFT_SET_EVAL | NFT_SET_OBJECT)) ==
-+			     (NFT_SET_EVAL | NFT_SET_OBJECT))
- 			return -EOPNOTSUPP;
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index 1abe4d021fd27..ffde179a9bb2c 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -38,6 +38,7 @@ static const struct aspeed_wdt_config ast2500_config = {
+ static const struct of_device_id aspeed_wdt_of_table[] = {
+ 	{ .compatible = "aspeed,ast2400-wdt", .data = &ast2400_config },
+ 	{ .compatible = "aspeed,ast2500-wdt", .data = &ast2500_config },
++	{ .compatible = "aspeed,ast2600-wdt", .data = &ast2500_config },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(of, aspeed_wdt_of_table);
+@@ -264,7 +265,8 @@ static int aspeed_wdt_probe(struct platform_device *pdev)
+ 		set_bit(WDOG_HW_RUNNING, &wdt->wdd.status);
  	}
  
-diff --git a/net/netfilter/nft_lookup.c b/net/netfilter/nft_lookup.c
-index c0560bf3c31bd..660bad688e2bc 100644
---- a/net/netfilter/nft_lookup.c
-+++ b/net/netfilter/nft_lookup.c
-@@ -73,9 +73,6 @@ static int nft_lookup_init(const struct nft_ctx *ctx,
- 	if (IS_ERR(set))
- 		return PTR_ERR(set);
+-	if (of_device_is_compatible(np, "aspeed,ast2500-wdt")) {
++	if ((of_device_is_compatible(np, "aspeed,ast2500-wdt")) ||
++		(of_device_is_compatible(np, "aspeed,ast2600-wdt"))) {
+ 		u32 reg = readl(wdt->base + WDT_RESET_WIDTH);
  
--	if (set->flags & NFT_SET_EVAL)
--		return -EOPNOTSUPP;
--
- 	priv->sreg = nft_parse_register(tb[NFTA_LOOKUP_SREG]);
- 	err = nft_validate_register_load(priv->sreg, set->klen);
- 	if (err < 0)
+ 		reg &= config->ext_pulse_width_mask;
 -- 
 2.20.1
 
