@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACEBAD24BA
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB08D24BD
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389924AbfJJIuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
+        id S2389950AbfJJIuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389911AbfJJIuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:12 -0400
+        id S2389110AbfJJIuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:50:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D0C0921A4C;
-        Thu, 10 Oct 2019 08:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3FED21BE5;
+        Thu, 10 Oct 2019 08:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697411;
-        bh=H0g6wd8iHFVMW6T+O08Km+OKeHzABQybpIi8NdBKT/s=;
+        s=default; t=1570697419;
+        bh=85ImHd+iC/uz5AhcNCsQYGkHH6IrmsgFjvEXApBTSiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwlIsCnxIGnJbviAcJqC0Bomc/EbXU4MYn60qmvQXUOrm6QoNz6/dc7zArB3KLBM0
-         pa3lvMUgBAI82KLq6xUMOilYKIk2ZJBmnvmAcgdCSHW6S958mP4d9ndklZMDG26Ngq
-         HOOAMLDMHhEEd6Nf8iSNYnciEc4LPfc5bnpoumtc=
+        b=EpRhk0NHbLKSS+4CF+0cK8c4q0c+kc6PPR1DTC3GdxMK3/5GczgZBq1LKXuUeC9wb
+         psqu1Cq/dLrwJqPUnK49/zK7tA4qK9bdbKYt+awR9uj30LJOqhvwdhJYQWrglPxsGL
+         t7ZzV3+gRIdCwH37aB7Jf3wg9tbRtNr6J8bKvD+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.14 18/61] usercopy: Avoid HIGHMEM pfn warning
-Date:   Thu, 10 Oct 2019 10:36:43 +0200
-Message-Id: <20191010083501.010966866@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 4.14 20/61] watchdog: imx2_wdt: fix min() calculation in imx2_wdt_set_timeout
+Date:   Thu, 10 Oct 2019 10:36:45 +0200
+Message-Id: <20191010083501.872489536@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -44,88 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit 314eed30ede02fa925990f535652254b5bad6b65 upstream.
+commit 144783a80cd2cbc45c6ce17db649140b65f203dd upstream.
 
-When running on a system with >512MB RAM with a 32-bit kernel built with:
+Converting from ms to s requires dividing by 1000, not multiplying. So
+this is currently taking the smaller of new_timeout and 1.28e8,
+i.e. effectively new_timeout.
 
-	CONFIG_DEBUG_VIRTUAL=y
-	CONFIG_HIGHMEM=y
-	CONFIG_HARDENED_USERCOPY=y
+The driver knows what it set max_hw_heartbeat_ms to, so use that
+value instead of doing a division at run-time.
 
-all execve()s will fail due to argv copying into kmap()ed pages, and on
-usercopy checking the calls ultimately of virt_to_page() will be looking
-for "bad" kmap (highmem) pointers due to CONFIG_DEBUG_VIRTUAL=y:
+FWIW, this can easily be tested by booting into a busybox shell and
+doing "watchdog -t 5 -T 130 /dev/watchdog" - without this patch, the
+watchdog fires after 130&127 == 2 seconds.
 
- ------------[ cut here ]------------
- kernel BUG at ../arch/x86/mm/physaddr.c:83!
- invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
- CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc8 #6
- Hardware name: Dell Inc. Inspiron 1318/0C236D, BIOS A04 01/15/2009
- EIP: __phys_addr+0xaf/0x100
- ...
- Call Trace:
-  __check_object_size+0xaf/0x3c0
-  ? __might_sleep+0x80/0xa0
-  copy_strings+0x1c2/0x370
-  copy_strings_kernel+0x2b/0x40
-  __do_execve_file+0x4ca/0x810
-  ? kmem_cache_alloc+0x1c7/0x370
-  do_execve+0x1b/0x20
-  ...
-
-The check is from arch/x86/mm/physaddr.c:
-
-	VIRTUAL_BUG_ON((phys_addr >> PAGE_SHIFT) > max_low_pfn);
-
-Due to the kmap() in fs/exec.c:
-
-		kaddr = kmap(kmapped_page);
-	...
-	if (copy_from_user(kaddr+offset, str, bytes_to_copy)) ...
-
-Now we can fetch the correct page to avoid the pfn check. In both cases,
-hardened usercopy will need to walk the page-span checker (if enabled)
-to do sanity checking.
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Fixes: f5509cc18daa ("mm: Hardened usercopy")
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Link: https://lore.kernel.org/r/201909171056.7F2FFD17@keescook
+Fixes: b07e228eee69 "watchdog: imx2_wdt: Fix set_timeout for big timeout values"
+Cc: stable@vger.kernel.org # 5.2 plus anything the above got backported to
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20190812131356.23039-1-linux@rasmusvillemoes.dk
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/usercopy.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/watchdog/imx2_wdt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/usercopy.c
-+++ b/mm/usercopy.c
-@@ -15,6 +15,7 @@
- #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -58,7 +58,7 @@
  
- #include <linux/mm.h>
-+#include <linux/highmem.h>
- #include <linux/slab.h>
- #include <linux/sched.h>
- #include <linux/sched/task.h>
-@@ -203,7 +204,12 @@ static inline const char *check_heap_obj
- 	if (!virt_addr_valid(ptr))
- 		return NULL;
+ #define IMX2_WDT_WMCR		0x08		/* Misc Register */
  
--	page = virt_to_head_page(ptr);
-+	/*
-+	 * When CONFIG_HIGHMEM=y, kmap_to_page() will give either the
-+	 * highmem page or fallback to virt_to_page(). The following
-+	 * is effectively a highmem-aware virt_to_head_page().
-+	 */
-+	page = compound_head(kmap_to_page((void *)ptr));
+-#define IMX2_WDT_MAX_TIME	128
++#define IMX2_WDT_MAX_TIME	128U
+ #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
  
- 	/* Check slab allocator for flags and size. */
- 	if (PageSlab(page))
+ #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+@@ -183,7 +183,7 @@ static int imx2_wdt_set_timeout(struct w
+ {
+ 	unsigned int actual;
+ 
+-	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
++	actual = min(new_timeout, IMX2_WDT_MAX_TIME);
+ 	__imx2_wdt_set_timeout(wdog, actual);
+ 	wdog->timeout = new_timeout;
+ 	return 0;
 
 
