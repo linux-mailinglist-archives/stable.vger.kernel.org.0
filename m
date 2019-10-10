@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDB06D2624
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E10A4D2626
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387889AbfJJJU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 05:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43114 "EHLO mail.kernel.org"
+        id S2387589AbfJJJUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 05:20:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387478AbfJJJU3 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 05:20:29 -0400
+        id S2387478AbfJJJUj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 05:20:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CF3C21D6C;
-        Thu, 10 Oct 2019 09:20:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 406CB20B7C;
+        Thu, 10 Oct 2019 09:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570699227;
-        bh=9x1zsq1JAV7jUzz1uk3NDC37R6B0nk+mgEBHQXJITUc=;
+        s=default; t=1570699238;
+        bh=0PZpW4xXcJi2ccwPkr2+fqxIptzXtulINnC9vU4ZqkQ=;
         h=Subject:To:From:Date:From;
-        b=YTOKxv7b6V5xoHF1z30sQIYAtuYmngkUnbl50D2X4rWrqGMk/vh20DLfktMEmvZxc
-         fHVIH76r2vWnIQWukhgLKPWWgnxQR760X2UXOKUnDhPNo7SUyfLT7WAUJBW5gKVG0L
-         42GNAxr6ljx9bzOVf47R3xpOlRI0ZhIXFPgPOloE=
-Subject: patch "iio: adc: stm32-adc: fix a race when using several adcs with dma and" added to staging-linus
-To:     fabrice.gasnier@st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=uaGUOAYT1ZmlNxuehImVkT1Y1jmHoqyrkBd04SnclElDFMJ3jRmaoPfysS4kmtH0v
+         gk+eQQ4NEggaoRC2/k9X7/2LBPdUZxBoUIzLWX1LH1iNJV7wmYmqMZ83Did8grsLAD
+         DRW0x1MtyASRu34zUW6ON6Lt1QY8MXFcI+wT8fMw=
+Subject: patch "iio: adc: axp288: Override TS pin bias current for some models" added to staging-linus
+To:     hdegoede@redhat.com, Jonathan.Cameron@huawei.com,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 10 Oct 2019 11:20:06 +0200
-Message-ID: <157069920620380@kroah.com>
+Date:   Thu, 10 Oct 2019 11:20:07 +0200
+Message-ID: <157069920725216@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: stm32-adc: fix a race when using several adcs with dma and
+    iio: adc: axp288: Override TS pin bias current for some models
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -55,135 +55,94 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From dcb10920179ab74caf88a6f2afadecfc2743b910 Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Date: Tue, 17 Sep 2019 14:38:16 +0200
-Subject: iio: adc: stm32-adc: fix a race when using several adcs with dma and
- irq
+From 972917419a0ba25afbf69d5d8c9fa644d676f887 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Sun, 15 Sep 2019 20:53:42 +0200
+Subject: iio: adc: axp288: Override TS pin bias current for some models
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-End of conversion may be handled by using IRQ or DMA. There may be a
-race when two conversions complete at the same time on several ADCs.
-EOC can be read as 'set' for several ADCs, with:
-- an ADC configured to use IRQs. EOCIE bit is set. The handler is normally
-  called in this case.
-- an ADC configured to use DMA. EOCIE bit isn't set. EOC triggers the DMA
-  request instead. It's then automatically cleared by DMA read. But the
-  handler gets called due to status bit is temporarily set (IRQ triggered
-  by the other ADC).
-So both EOC status bit in CSR and EOCIE control bit must be checked
-before invoking the interrupt handler (e.g. call ISR only for
-IRQ-enabled ADCs).
+Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
+preserve the bias current set by the firmware at boot.  This fixes issues
+we were seeing on various models, but it seems our old hardcoded 80ųA bias
+current was working around a firmware bug on at least one model laptop.
 
-Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+In order to both have our cake and eat it, this commit adds a dmi based
+list of models where we need to override the firmware set bias current and
+adds the one model we now know needs this to it: The Lenovo Ideapad 100S
+(11 inch version).
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
+Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203829
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/stm32-adc-core.c | 43 +++++++++++++++++++++++++++++---
- drivers/iio/adc/stm32-adc-core.h |  1 +
- 2 files changed, 41 insertions(+), 3 deletions(-)
+ drivers/iio/adc/axp288_adc.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index 84ac326bb714..93a096a91f8c 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -44,6 +44,8 @@
-  * @eoc1:	adc1 end of conversion flag in @csr
-  * @eoc2:	adc2 end of conversion flag in @csr
-  * @eoc3:	adc3 end of conversion flag in @csr
-+ * @ier:	interrupt enable register offset for each adc
-+ * @eocie_msk:	end of conversion interrupt enable mask in @ier
+diff --git a/drivers/iio/adc/axp288_adc.c b/drivers/iio/adc/axp288_adc.c
+index adc9cf7a075d..8ea2aed6d6f5 100644
+--- a/drivers/iio/adc/axp288_adc.c
++++ b/drivers/iio/adc/axp288_adc.c
+@@ -7,6 +7,7 @@
+  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   */
- struct stm32_adc_common_regs {
- 	u32 csr;
-@@ -51,6 +53,8 @@ struct stm32_adc_common_regs {
- 	u32 eoc1_msk;
- 	u32 eoc2_msk;
- 	u32 eoc3_msk;
-+	u32 ier;
-+	u32 eocie_msk;
- };
  
- struct stm32_adc_priv;
-@@ -276,6 +280,8 @@ static const struct stm32_adc_common_regs stm32f4_adc_common_regs = {
- 	.eoc1_msk = STM32F4_EOC1,
- 	.eoc2_msk = STM32F4_EOC2,
- 	.eoc3_msk = STM32F4_EOC3,
-+	.ier = STM32F4_ADC_CR1,
-+	.eocie_msk = STM32F4_EOCIE,
- };
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -25,6 +26,11 @@
+ #define AXP288_ADC_EN_MASK				0xF0
+ #define AXP288_ADC_TS_ENABLE				0x01
  
- /* STM32H7 common registers definitions */
-@@ -284,8 +290,24 @@ static const struct stm32_adc_common_regs stm32h7_adc_common_regs = {
- 	.ccr = STM32H7_ADC_CCR,
- 	.eoc1_msk = STM32H7_EOC_MST,
- 	.eoc2_msk = STM32H7_EOC_SLV,
-+	.ier = STM32H7_ADC_IER,
-+	.eocie_msk = STM32H7_EOCIE,
- };
++#define AXP288_ADC_TS_BIAS_MASK				GENMASK(5, 4)
++#define AXP288_ADC_TS_BIAS_20UA				(0 << 4)
++#define AXP288_ADC_TS_BIAS_40UA				(1 << 4)
++#define AXP288_ADC_TS_BIAS_60UA				(2 << 4)
++#define AXP288_ADC_TS_BIAS_80UA				(3 << 4)
+ #define AXP288_ADC_TS_CURRENT_ON_OFF_MASK		GENMASK(1, 0)
+ #define AXP288_ADC_TS_CURRENT_OFF			(0 << 0)
+ #define AXP288_ADC_TS_CURRENT_ON_WHEN_CHARGING		(1 << 0)
+@@ -177,10 +183,36 @@ static int axp288_adc_read_raw(struct iio_dev *indio_dev,
+ 	return ret;
+ }
  
-+static const unsigned int stm32_adc_offset[STM32_ADC_MAX_ADCS] = {
-+	0, STM32_ADC_OFFSET, STM32_ADC_OFFSET * 2,
++/*
++ * We rely on the machine's firmware to correctly setup the TS pin bias current
++ * at boot. This lists systems with broken fw where we need to set it ourselves.
++ */
++static const struct dmi_system_id axp288_adc_ts_bias_override[] = {
++	{
++		/* Lenovo Ideapad 100S (11 inch) */
++		.matches = {
++		  DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		  DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad 100S-11IBY"),
++		},
++		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
++	},
++	{}
 +};
 +
-+static unsigned int stm32_adc_eoc_enabled(struct stm32_adc_priv *priv,
-+					  unsigned int adc)
-+{
-+	u32 ier, offset = stm32_adc_offset[adc];
-+
-+	ier = readl_relaxed(priv->common.base + offset + priv->cfg->regs->ier);
-+
-+	return ier & priv->cfg->regs->eocie_msk;
-+}
-+
- /* ADC common interrupt for all instances */
- static void stm32_adc_irq_handler(struct irq_desc *desc)
+ static int axp288_adc_initialize(struct axp288_adc_info *info)
  {
-@@ -296,13 +318,28 @@ static void stm32_adc_irq_handler(struct irq_desc *desc)
- 	chained_irq_enter(chip, desc);
- 	status = readl_relaxed(priv->common.base + priv->cfg->regs->csr);
++	const struct dmi_system_id *bias_override;
+ 	int ret, adc_enable_val;
  
--	if (status & priv->cfg->regs->eoc1_msk)
-+	/*
-+	 * End of conversion may be handled by using IRQ or DMA. There may be a
-+	 * race here when two conversions complete at the same time on several
-+	 * ADCs. EOC may be read 'set' for several ADCs, with:
-+	 * - an ADC configured to use DMA (EOC triggers the DMA request, and
-+	 *   is then automatically cleared by DR read in hardware)
-+	 * - an ADC configured to use IRQs (EOCIE bit is set. The handler must
-+	 *   be called in this case)
-+	 * So both EOC status bit in CSR and EOCIE control bit must be checked
-+	 * before invoking the interrupt handler (e.g. call ISR only for
-+	 * IRQ-enabled ADCs).
-+	 */
-+	if (status & priv->cfg->regs->eoc1_msk &&
-+	    stm32_adc_eoc_enabled(priv, 0))
- 		generic_handle_irq(irq_find_mapping(priv->domain, 0));
- 
--	if (status & priv->cfg->regs->eoc2_msk)
-+	if (status & priv->cfg->regs->eoc2_msk &&
-+	    stm32_adc_eoc_enabled(priv, 1))
- 		generic_handle_irq(irq_find_mapping(priv->domain, 1));
- 
--	if (status & priv->cfg->regs->eoc3_msk)
-+	if (status & priv->cfg->regs->eoc3_msk &&
-+	    stm32_adc_eoc_enabled(priv, 2))
- 		generic_handle_irq(irq_find_mapping(priv->domain, 2));
- 
- 	chained_irq_exit(chip, desc);
-diff --git a/drivers/iio/adc/stm32-adc-core.h b/drivers/iio/adc/stm32-adc-core.h
-index 94aa2d2577dc..2579d514c2a3 100644
---- a/drivers/iio/adc/stm32-adc-core.h
-+++ b/drivers/iio/adc/stm32-adc-core.h
-@@ -25,6 +25,7 @@
-  * --------------------------------------------------------
-  */
- #define STM32_ADC_MAX_ADCS		3
-+#define STM32_ADC_OFFSET		0x100
- #define STM32_ADCX_COMN_OFFSET		0x300
- 
- /* STM32F4 - Registers for each ADC instance */
++	bias_override = dmi_first_match(axp288_adc_ts_bias_override);
++	if (bias_override) {
++		ret = regmap_update_bits(info->regmap, AXP288_ADC_TS_PIN_CTRL,
++					 AXP288_ADC_TS_BIAS_MASK,
++					 (uintptr_t)bias_override->driver_data);
++		if (ret)
++			return ret;
++	}
++
+ 	/*
+ 	 * Determine if the TS pin is enabled and set the TS current-source
+ 	 * accordingly.
 -- 
 2.23.0
 
