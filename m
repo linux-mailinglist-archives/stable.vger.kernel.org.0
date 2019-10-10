@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4C0BD24C9
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E982ED2573
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388575AbfJJIut (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58006 "EHLO mail.kernel.org"
+        id S2388690AbfJJJAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 05:00:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390003AbfJJIus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:48 -0400
+        id S2388675AbfJJInJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F0F820B7C;
-        Thu, 10 Oct 2019 08:50:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92F2021D7C;
+        Thu, 10 Oct 2019 08:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697446;
-        bh=SEeUxYKKSvIWAKLSQy/rMzSqP/uDnglN9iFCnlo+MBY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZpFIfUpBBKhLBukBLlFS1zx//qjXZDeCx3j8cLlcieBTtwtatPsij6YzEttzv1wzH
-         +69GQw5gVeEyKipmAAujuROeYP2owGth4t8VIcd4eg21aRJzi+MmU48ldEczZFSmGF
-         40b9pj9UNz5DS45evBXL/BnsDo+ukLSBSoko2www=
+        s=default; t=1570696988;
+        bh=iUtZ+ozD5ageHYgBSvJsnHAVqbiyiKVeoNsJQ9ir0oE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=GHjenvkIcSgfls8aL92KP3wpasmAFTLsbN3LBSbMo6CCHzIFi0znWGn3vmTKiSnSq
+         Rt0Trgfe9TkP4nQt1fCFwPsykSyUHdkvWsw9gq86neBdqgEE+ZsbUshgPPP5gKVf2R
+         PmBx/FF2/qcc7F/syhoonD23f7+kuZ0kK33pgz+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 00/61] 4.14.149-stable review
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Jan Kara <jack@suse.cz>, "Tobin C. Harding" <tobin@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>, Tejun Heo <tj@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Fengguang Wu <fengguang.wu@intel.com>,
+        Jens Axboe <axboe@kernel.dk>, Joe Perches <joe@perches.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, Jonathan Corbet <corbet@lwn.net>,
+        Nitin Gote <nitin.r.gote@intel.com>,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Stephen Kitt <steve@sk2.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 124/148] include/trace/events/writeback.h: fix -Wstringop-truncation warnings
 Date:   Thu, 10 Oct 2019 10:36:25 +0200
-Message-Id: <20191010083449.500442342@linuxfoundation.org>
+Message-Id: <20191010083618.574830560@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-MIME-Version: 1.0
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.149-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.149-rc1
-X-KernelTest-Deadline: 2019-10-12T08:35+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -51,286 +56,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.149 release.
-There are 61 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Qian Cai <cai@lca.pw>
+
+[ Upstream commit d1a445d3b86c9341ce7a0954c23be0edb5c9bec5 ]
+
+There are many of those warnings.
+
+In file included from ./arch/powerpc/include/asm/paca.h:15,
+                 from ./arch/powerpc/include/asm/current.h:13,
+                 from ./include/linux/thread_info.h:21,
+                 from ./include/asm-generic/preempt.h:5,
+                 from ./arch/powerpc/include/generated/asm/preempt.h:1,
+                 from ./include/linux/preempt.h:78,
+                 from ./include/linux/spinlock.h:51,
+                 from fs/fs-writeback.c:19:
+In function 'strncpy',
+    inlined from 'perf_trace_writeback_page_template' at
+./include/trace/events/writeback.h:56:1:
+./include/linux/string.h:260:9: warning: '__builtin_strncpy' specified
+bound 32 equals destination size [-Wstringop-truncation]
+  return __builtin_strncpy(p, q, size);
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fix it by using the new strscpy_pad() which was introduced in "lib/string:
+Add strscpy_pad() function" and will always be NUL-terminated instead of
+strncpy().  Also, change strlcpy() to use strscpy_pad() in this file for
+consistency.
+
+Link: http://lkml.kernel.org/r/1564075099-27750-1-git-send-email-cai@lca.pw
+Fixes: 455b2864686d ("writeback: Initial tracing support")
+Fixes: 028c2dd184c0 ("writeback: Add tracing to balance_dirty_pages")
+Fixes: e84d0a4f8e39 ("writeback: trace event writeback_queue_io")
+Fixes: b48c104d2211 ("writeback: trace event bdi_dirty_ratelimit")
+Fixes: cc1676d917f3 ("writeback: Move requeueing when I_SYNC set to writeback_sb_inodes()")
+Fixes: 9fb0a7da0c52 ("writeback: add more tracepoints")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Tobin C. Harding <tobin@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Fengguang Wu <fengguang.wu@intel.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Joe Perches <joe@perches.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Nitin Gote <nitin.r.gote@intel.com>
+Cc: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Cc: Stephen Kitt <steve@sk2.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ include/trace/events/writeback.h | 38 +++++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
+
+diff --git a/include/trace/events/writeback.h b/include/trace/events/writeback.h
+index aa7f3aeac7408..79095434c1be3 100644
+--- a/include/trace/events/writeback.h
++++ b/include/trace/events/writeback.h
+@@ -66,8 +66,9 @@ DECLARE_EVENT_CLASS(writeback_page_template,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,
+-			mapping ? dev_name(inode_to_bdi(mapping->host)->dev) : "(unknown)", 32);
++		strscpy_pad(__entry->name,
++			    mapping ? dev_name(inode_to_bdi(mapping->host)->dev) : "(unknown)",
++			    32);
+ 		__entry->ino = mapping ? mapping->host->i_ino : 0;
+ 		__entry->index = page->index;
+ 	),
+@@ -110,8 +111,8 @@ DECLARE_EVENT_CLASS(writeback_dirty_inode_template,
+ 		struct backing_dev_info *bdi = inode_to_bdi(inode);
+ 
+ 		/* may be called for files on pseudo FSes w/ unregistered bdi */
+-		strncpy(__entry->name,
+-			bdi->dev ? dev_name(bdi->dev) : "(unknown)", 32);
++		strscpy_pad(__entry->name,
++			    bdi->dev ? dev_name(bdi->dev) : "(unknown)", 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->flags		= flags;
+@@ -190,8 +191,8 @@ DECLARE_EVENT_CLASS(writeback_write_inode_template,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,
+-			dev_name(inode_to_bdi(inode)->dev), 32);
++		strscpy_pad(__entry->name,
++			    dev_name(inode_to_bdi(inode)->dev), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->sync_mode	= wbc->sync_mode;
+ 		__entry->cgroup_ino	= __trace_wbc_assign_cgroup(wbc);
+@@ -234,8 +235,9 @@ DECLARE_EVENT_CLASS(writeback_work_class,
+ 		__field(unsigned int, cgroup_ino)
+ 	),
+ 	TP_fast_assign(
+-		strncpy(__entry->name,
+-			wb->bdi->dev ? dev_name(wb->bdi->dev) : "(unknown)", 32);
++		strscpy_pad(__entry->name,
++			    wb->bdi->dev ? dev_name(wb->bdi->dev) :
++			    "(unknown)", 32);
+ 		__entry->nr_pages = work->nr_pages;
+ 		__entry->sb_dev = work->sb ? work->sb->s_dev : 0;
+ 		__entry->sync_mode = work->sync_mode;
+@@ -288,7 +290,7 @@ DECLARE_EVENT_CLASS(writeback_class,
+ 		__field(unsigned int, cgroup_ino)
+ 	),
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
+ 		__entry->cgroup_ino = __trace_wb_assign_cgroup(wb);
+ 	),
+ 	TP_printk("bdi %s: cgroup_ino=%u",
+@@ -310,7 +312,7 @@ TRACE_EVENT(writeback_bdi_register,
+ 		__array(char, name, 32)
+ 	),
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
+ 	),
+ 	TP_printk("bdi %s",
+ 		__entry->name
+@@ -335,7 +337,7 @@ DECLARE_EVENT_CLASS(wbc_class,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name, dev_name(bdi->dev), 32);
++		strscpy_pad(__entry->name, dev_name(bdi->dev), 32);
+ 		__entry->nr_to_write	= wbc->nr_to_write;
+ 		__entry->pages_skipped	= wbc->pages_skipped;
+ 		__entry->sync_mode	= wbc->sync_mode;
+@@ -386,7 +388,7 @@ TRACE_EVENT(writeback_queue_io,
+ 	),
+ 	TP_fast_assign(
+ 		unsigned long *older_than_this = work->older_than_this;
+-		strncpy(__entry->name, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->name, dev_name(wb->bdi->dev), 32);
+ 		__entry->older	= older_than_this ?  *older_than_this : 0;
+ 		__entry->age	= older_than_this ?
+ 				  (jiffies - *older_than_this) * 1000 / HZ : -1;
+@@ -472,7 +474,7 @@ TRACE_EVENT(bdi_dirty_ratelimit,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strlcpy(__entry->bdi, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
+ 		__entry->write_bw	= KBps(wb->write_bandwidth);
+ 		__entry->avg_write_bw	= KBps(wb->avg_write_bandwidth);
+ 		__entry->dirty_rate	= KBps(dirty_rate);
+@@ -537,7 +539,7 @@ TRACE_EVENT(balance_dirty_pages,
+ 
+ 	TP_fast_assign(
+ 		unsigned long freerun = (thresh + bg_thresh) / 2;
+-		strlcpy(__entry->bdi, dev_name(wb->bdi->dev), 32);
++		strscpy_pad(__entry->bdi, dev_name(wb->bdi->dev), 32);
+ 
+ 		__entry->limit		= global_wb_domain.dirty_limit;
+ 		__entry->setpoint	= (global_wb_domain.dirty_limit +
+@@ -597,8 +599,8 @@ TRACE_EVENT(writeback_sb_inodes_requeue,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,
+-		        dev_name(inode_to_bdi(inode)->dev), 32);
++		strscpy_pad(__entry->name,
++			    dev_name(inode_to_bdi(inode)->dev), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->dirtied_when	= inode->dirtied_when;
+@@ -671,8 +673,8 @@ DECLARE_EVENT_CLASS(writeback_single_inode_template,
+ 	),
+ 
+ 	TP_fast_assign(
+-		strncpy(__entry->name,
+-			dev_name(inode_to_bdi(inode)->dev), 32);
++		strscpy_pad(__entry->name,
++			    dev_name(inode_to_bdi(inode)->dev), 32);
+ 		__entry->ino		= inode->i_ino;
+ 		__entry->state		= inode->i_state;
+ 		__entry->dirtied_when	= inode->dirtied_when;
+-- 
+2.20.1
 
-Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.149-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.149-rc1
-
-Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-    ASoC: sgtl5000: Improve VAG power and mute control
-
-Johannes Berg <johannes.berg@intel.com>
-    nl80211: validate beacon head
-
-Jouni Malinen <j@w1.fi>
-    cfg80211: Use const more consistently in for_each_element macros
-
-Johannes Berg <johannes.berg@intel.com>
-    cfg80211: add and use strongly typed element iteration macros
-
-Andrew Murray <andrew.murray@arm.com>
-    coresight: etm4x: Use explicit barriers on enable/disable
-
-Eric Sandeen <sandeen@redhat.com>
-    vfs: Fix EOVERFLOW testing in put_compat_statfs64
-
-Chris Wilson <chris@chris-wilson.co.uk>
-    drm/i915/userptr: Acquire the page lock around set_page_dirty()
-
-Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-    perf stat: Reset previous counts on repeat with interval
-
-Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-    perf stat: Fix a segmentation fault when using repeat forever
-
-Jiri Olsa <jolsa@kernel.org>
-    perf tools: Fix segfault in cpu_cache_level__read()
-
-Balasubramani Vivekanandan <balasubramani_vivekanandan@mentor.com>
-    tick: broadcast-hrtimer: Fix a race in bc_set_next
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tools lib traceevent: Do not free tep->cmdlines in add_new_comm() on failure
-
-Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-    powerpc/pseries: Fix cpu_hotplug_lock acquisition in resize_hpt()
-
-Mike Christie <mchristi@redhat.com>
-    nbd: fix max number of supported devs
-
-Dan Melnic <dmm@fb.com>
-    block/ndb: add WQ_UNBOUND to the knbd-recv workqueue
-
-Xiubo Li <xiubli@redhat.com>
-    nbd: fix crash when the blksize is zero
-
-Cédric Le Goater <clg@kaod.org>
-    KVM: PPC: Book3S HV: XIVE: Free escalation interrupts before disabling the VP
-
-Arnaldo Carvalho de Melo <acme@redhat.com>
-    perf unwind: Fix libunwind build failure on i386 systems
-
-Valdis Kletnieks <valdis.kletnieks@vt.edu>
-    kernel/elfcore.c: include proper prototypes
-
-Thomas Richter <tmricht@linux.ibm.com>
-    perf build: Add detection of java-11-openjdk-devel package
-
-KeMeng Shi <shikemeng@huawei.com>
-    sched/core: Fix migration to invalid CPU in __set_cpus_allowed_ptr()
-
-zhengbin <zhengbin13@huawei.com>
-    fuse: fix memleak in cuse_channel_open
-
-Ido Schimmel <idosch@mellanox.com>
-    thermal: Fix use-after-free when unregistering thermal zone device
-
-Fabrice Gasnier <fabrice.gasnier@st.com>
-    pwm: stm32-lp: Add check in case requested period cannot be achieved
-
-Trond Myklebust <trondmy@gmail.com>
-    pNFS: Ensure we do clear the return-on-close layout stateid on fatal errors
-
-Trek <trek00@inbox.ru>
-    drm/amdgpu: Check for valid number of registers to read
-
-Florian Westphal <fw@strlen.de>
-    netfilter: nf_tables: allow lookups in dynamic sets
-
-Ryan Chen <ryan_chen@aspeedtech.com>
-    watchdog: aspeed: Add support for AST2600
-
-Erqi Chen <chenerqi@gmail.com>
-    ceph: reconnect connection if session hang in opening state
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: fix directories inode i_blkbits initialization
-
-Igor Druzhinin <igor.druzhinin@citrix.com>
-    xen/pci: reserve MCFG areas earlier
-
-Chengguang Xu <cgxu519@zoho.com.cn>
-    9p: avoid attaching writeback_fid on mmap with type PRIVATE
-
-Jia-Ju Bai <baijiaju1990@gmail.com>
-    fs: nfs: Fix possible null-pointer dereferences in encode_attrs()
-
-Sascha Hauer <s.hauer@pengutronix.de>
-    ima: always return negative code for error
-
-Johannes Berg <johannes.berg@intel.com>
-    cfg80211: initialize on-stack chandefs
-
-Johan Hovold <johan@kernel.org>
-    ieee802154: atusb: fix use-after-free at disconnect
-
-Juergen Gross <jgross@suse.com>
-    xen/xenbus: fix self-deadlock after killing user process
-
-Wanpeng Li <wanpengli@tencent.com>
-    Revert "locking/pvqspinlock: Don't wait if vCPU is preempted"
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
-
-Russell King <rmk+kernel@armlinux.org.uk>
-    mmc: sdhci: improve ADMA error reporting
-
-Tomi Valkeinen <tomi.valkeinen@ti.com>
-    drm/omap: fix max fclk divider for omap36xx
-
-Rasmus Villemoes <linux@rasmusvillemoes.dk>
-    watchdog: imx2_wdt: fix min() calculation in imx2_wdt_set_timeout
-
-Li RongQing <lirongqing@baidu.com>
-    timer: Read jiffies once when forwarding base clk
-
-Kees Cook <keescook@chromium.org>
-    usercopy: Avoid HIGHMEM pfn warning
-
-Jiaxun Yang <jiaxun.yang@flygoat.com>
-    MIPS: Treat Loongson Extensions as ASEs
-
-Horia Geantă <horia.geanta@nxp.com>
-    crypto: caam - fix concurrency issue in givencrypt descriptor
-
-Wei Yongjun <weiyongjun1@huawei.com>
-    crypto: cavium/zip - Add missing single_release()
-
-Herbert Xu <herbert@gondor.apana.org.au>
-    crypto: skcipher - Unmap pages after an external error
-
-Alexander Sverdlin <alexander.sverdlin@nokia.com>
-    crypto: qat - Silence smp_processor_id() warning
-
-Steven Rostedt (VMware) <rostedt@goodmis.org>
-    tools lib traceevent: Fix "robust" test of do_generate_dynamic_list_file
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
-
-Andrew Donnellan <ajd@linux.ibm.com>
-    powerpc/powernv: Restrict OPAL symbol map to only be readable by root
-
-Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
-    ASoC: Define a set of DAPM pre/post-up events
-
-Dmitry Osipenko <digetx@gmail.com>
-    PM / devfreq: tegra: Fix kHz to Hz conversion
-
-Jack Wang <jinpu.wang@cloud.ionos.com>
-    KVM: nVMX: handle page fault in vmread fix
-
-Paul Mackerras <paulus@ozlabs.org>
-    KVM: PPC: Book3S HV: Don't lose pending doorbell request on migration on P9
-
-Vasily Gorbik <gor@linux.ibm.com>
-    s390/cio: exclude subchannels with no parent from pseudo check
-
-Vasily Gorbik <gor@linux.ibm.com>
-    s390/cio: avoid calling strlen on null pointer
-
-Vasily Gorbik <gor@linux.ibm.com>
-    s390/topology: avoid firing events before kobjs are created
-
-Thomas Huth <thuth@redhat.com>
-    KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
-
-Vasily Gorbik <gor@linux.ibm.com>
-    s390/process: avoid potential reading of freed stack
-
-
--------------
-
-Diffstat:
-
- Makefile                                       |   4 +-
- arch/mips/include/asm/cpu-features.h           |  16 ++
- arch/mips/include/asm/cpu.h                    |   4 +
- arch/mips/kernel/cpu-probe.c                   |   6 +
- arch/mips/kernel/proc.c                        |   4 +
- arch/powerpc/kvm/book3s_hv.c                   |   9 +-
- arch/powerpc/kvm/book3s_xive.c                 |  18 +-
- arch/powerpc/mm/hash_utils_64.c                |   9 +-
- arch/powerpc/platforms/powernv/opal.c          |  11 +-
- arch/powerpc/platforms/pseries/lpar.c          |   8 +-
- arch/s390/kernel/process.c                     |  22 ++-
- arch/s390/kernel/topology.c                    |   3 +-
- arch/s390/kvm/kvm-s390.c                       |   2 +-
- arch/x86/kvm/vmx.c                             |   2 +-
- crypto/skcipher.c                              |  42 +++--
- drivers/block/nbd.c                            |  61 +++++--
- drivers/crypto/caam/caamalg_desc.c             |   9 +
- drivers/crypto/caam/caamalg_desc.h             |   2 +-
- drivers/crypto/cavium/zip/zip_main.c           |   3 +
- drivers/crypto/qat/qat_common/adf_common_drv.h |   2 +-
- drivers/devfreq/tegra-devfreq.c                |  12 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c        |   3 +
- drivers/gpu/drm/i915/i915_gem_userptr.c        |  10 +-
- drivers/gpu/drm/omapdrm/dss/dss.c              |   2 +-
- drivers/hwtracing/coresight/coresight-etm4x.c  |  14 +-
- drivers/mmc/host/sdhci-of-esdhc.c              |   7 +-
- drivers/mmc/host/sdhci.c                       |  15 +-
- drivers/net/can/spi/mcp251x.c                  |  19 +-
- drivers/net/ieee802154/atusb.c                 |   3 +-
- drivers/pwm/pwm-stm32-lp.c                     |   6 +
- drivers/s390/cio/ccwgroup.c                    |   2 +-
- drivers/s390/cio/css.c                         |   2 +
- drivers/thermal/thermal_core.c                 |   2 +-
- drivers/watchdog/aspeed_wdt.c                  |   4 +-
- drivers/watchdog/imx2_wdt.c                    |   4 +-
- drivers/xen/pci.c                              |  21 ++-
- drivers/xen/xenbus/xenbus_dev_frontend.c       |  20 ++-
- fs/9p/vfs_file.c                               |   3 +
- fs/ceph/inode.c                                |   7 +-
- fs/ceph/mds_client.c                           |   4 +-
- fs/fuse/cuse.c                                 |   1 +
- fs/nfs/nfs4xdr.c                               |   2 +-
- fs/nfs/pnfs.c                                  |   9 +-
- fs/statfs.c                                    |  17 +-
- include/linux/ieee80211.h                      |  53 ++++++
- include/sound/soc-dapm.h                       |   2 +
- kernel/elfcore.c                               |   1 +
- kernel/locking/qspinlock_paravirt.h            |   2 +-
- kernel/sched/core.c                            |   4 +-
- kernel/time/tick-broadcast-hrtimer.c           |  57 +++---
- kernel/time/timer.c                            |   8 +-
- mm/usercopy.c                                  |   8 +-
- net/netfilter/nf_tables_api.c                  |   7 +-
- net/netfilter/nft_lookup.c                     |   3 -
- net/wireless/nl80211.c                         |  42 ++++-
- net/wireless/reg.c                             |   2 +-
- net/wireless/scan.c                            |  14 +-
- net/wireless/wext-compat.c                     |   2 +-
- security/integrity/ima/ima_crypto.c            |   5 +-
- sound/soc/codecs/sgtl5000.c                    | 232 +++++++++++++++++++++----
- tools/lib/traceevent/Makefile                  |   4 +-
- tools/lib/traceevent/event-parse.c             |   3 +-
- tools/perf/Makefile.config                     |   2 +-
- tools/perf/arch/x86/util/unwind-libunwind.c    |   2 +-
- tools/perf/builtin-stat.c                      |   5 +-
- tools/perf/util/header.c                       |   2 +-
- tools/perf/util/stat.c                         |  17 ++
- tools/perf/util/stat.h                         |   1 +
- 68 files changed, 696 insertions(+), 208 deletions(-)
 
 
