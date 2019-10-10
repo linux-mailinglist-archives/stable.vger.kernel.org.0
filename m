@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C64FD25CF
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED14D25E5
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387633AbfJJIid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S2387681AbfJJJDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 05:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387588AbfJJIia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:30 -0400
+        id S2387648AbfJJIig (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2F9820B7C;
-        Thu, 10 Oct 2019 08:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31A3120B7C;
+        Thu, 10 Oct 2019 08:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696710;
-        bh=Y/QyNHs1wlYM1xMfQDCExXh+qkkSoISEJqkmaUOHBMM=;
+        s=default; t=1570696715;
+        bh=IHhM2BGlpoHn43ptPAAojk+cLdU1l36SYQs0R+V2Vd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hshTWCovWok4V9fGNKHRwlSQ2sKP4wJVm7sHEQabuTlsaCuwI5/hjPgR7Dnkmed0C
-         HgGk20XNq/xUeiJ8wZHI6J6orydooIIK9Ortcw9YiVz/UApPlO3Db3P/kwtNMeMIQe
-         W7vp1e0u46VnfnZr30/UIXMY3jqodEKRSNVStM3I=
+        b=XOAkLQrZKm1aNQ2R87HEvWy8QZocM2Eaw0iSRsBs2MKNkez4LDM4QsllPAHQ1ZMlB
+         I7BnAZEtv/YV6eGwH9ndgXmk83Xz57I/181HUHh85m3ZrLUt3MM+llWUHQuOz4jh8c
+         1ph6qA20FIRnfXyKmFRRqt/J3M/G4rAYbFR2n2qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Doug Crawford <doug.crawford@intelight-its.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.3 024/148] powerpc/603: Fix handling of the DIRTY flag
-Date:   Thu, 10 Oct 2019 10:34:45 +0200
-Message-Id: <20191010083612.586850852@linuxfoundation.org>
+Subject: [PATCH 5.3 026/148] powerpc/ptdump: Fix addresses display on PPC32
+Date:   Thu, 10 Oct 2019 10:34:47 +0200
+Message-Id: <20191010083612.703301291@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -47,48 +45,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 415480dce2ef03bb8335deebd2f402f475443ce0 upstream.
+commit 7c7a532ba3fc51bf9527d191fb410786c1fdc73c upstream.
 
-If a page is already mapped RW without the DIRTY flag, the DIRTY
-flag is never set and a TLB store miss exception is taken forever.
+Commit 453d87f6a8ae ("powerpc/mm: Warn if W+X pages found on boot")
+wrongly changed KERN_VIRT_START from 0 to PAGE_OFFSET, leading to a
+shift in the displayed addresses.
 
-This is easily reproduced with the following app:
+Lets revert that change to resync walk_pagetables()'s addr val and
+pgd_t pointer for PPC32.
 
-void main(void)
-{
-	volatile char *ptr = mmap(0, 4096, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
-	*ptr = *ptr;
-}
-
-When DIRTY flag is not set, bail out of TLB miss handler and take
-a minor page fault which will set the DIRTY flag.
-
-Fixes: f8b58c64eaef ("powerpc/603: let's handle PAGE_DIRTY directly")
-Cc: stable@vger.kernel.org # v5.1+
-Reported-by: Doug Crawford <doug.crawford@intelight-its.com>
+Fixes: 453d87f6a8ae ("powerpc/mm: Warn if W+X pages found on boot")
+Cc: stable@vger.kernel.org # v5.2+
 Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/80432f71194d7ee75b2f5043ecf1501cf1cca1f3.1566196646.git.christophe.leroy@c-s.fr
+Link: https://lore.kernel.org/r/eb4d626514e22f85814830012642329018ef6af9.1565786091.git.christophe.leroy@c-s.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/head_32.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/ptdump/ptdump.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/head_32.S
-+++ b/arch/powerpc/kernel/head_32.S
-@@ -557,9 +557,9 @@ DataStoreTLBMiss:
- 	cmplw	0,r1,r3
- 	mfspr	r2, SPRN_SPRG_PGDIR
- #ifdef CONFIG_SWAP
--	li	r1, _PAGE_RW | _PAGE_PRESENT | _PAGE_ACCESSED
-+	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
- #else
--	li	r1, _PAGE_RW | _PAGE_PRESENT
-+	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT
+--- a/arch/powerpc/mm/ptdump/ptdump.c
++++ b/arch/powerpc/mm/ptdump/ptdump.c
+@@ -27,7 +27,7 @@
+ #include "ptdump.h"
+ 
+ #ifdef CONFIG_PPC32
+-#define KERN_VIRT_START	PAGE_OFFSET
++#define KERN_VIRT_START	0
  #endif
- 	bge-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
+ 
+ /*
 
 
