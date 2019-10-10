@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73786D246C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FCBD2465
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388075AbfJJIpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
+        id S2388963AbfJJIoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:44:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388017AbfJJIpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:03 -0400
+        id S2388981AbfJJIoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:44:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6326F218AC;
-        Thu, 10 Oct 2019 08:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D174B21929;
+        Thu, 10 Oct 2019 08:44:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697102;
-        bh=HDXKVj0kZnZoD7sKDl4RBMVc8tZMENrl1siljZP0ouI=;
+        s=default; t=1570697078;
+        bh=4afK8F6vHHJNar3do66syd7AcS9iqQO3C13c/1MTg4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0DVzLnTizQymkUhOECflqsd2eIBgUCvhxn4RpXLDTRJFCPSJecAObVNMon4o/f/9L
-         Efvl+TFt1yXfXJn9Rt8nhCHliCKourtRQi3GlOZB5/aqxrAkI/JSHNDzruyK0H+9bu
-         rlvG6X6NkcdF/KCMb+tUirBl8vuLeY2cis7sFRUc=
+        b=N3xAxhFzolhVsHe9uEDNqCE/uGZgN0HZ9DAc6LPnm7Gum0F2H7qfttMLc4KkSlmY6
+         FZXomrGg7vM3lwIDdMsjI+AGvzzME+6MryRFnvO9lC9keodqryh50s2s9i4OOsSxBz
+         fY6iiLKvaFJRZh0djoIabYwf7ZupvNcXVaHS1tlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.19 002/114] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
-Date:   Thu, 10 Oct 2019 10:35:09 +0200
-Message-Id: <20191010083545.461298554@linuxfoundation.org>
+        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>
+Subject: [PATCH 4.19 011/114] PM / devfreq: tegra: Fix kHz to Hz conversion
+Date:   Thu, 10 Oct 2019 10:35:18 +0200
+Message-Id: <20191010083549.280138494@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -46,50 +46,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit a13b03bbb4575b350b46090af4dfd30e735aaed1 upstream.
+commit 62bacb06b9f08965c4ef10e17875450490c948c0 upstream.
 
-If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
-then there is certainly a bug in the calling userspace application.
-We check for wrong access registers, but only if the vCPU was already
-in the access register mode before (i.e. the SIE block has recorded
-it). The check is also buried somewhere deep in the calling chain (in
-the function ar_translation()), so this is somewhat hard to find.
+The kHz to Hz is incorrectly converted in a few places in the code,
+this results in a wrong frequency being calculated because devfreq core
+uses OPP frequencies that are given in Hz to clamp the rate, while
+tegra-devfreq gives to the core value in kHz and then it also expects to
+receive value in kHz from the core. In a result memory freq is always set
+to a value which is close to ULONG_MAX because of the bug. Hence the EMC
+frequency is always capped to the maximum and the driver doesn't do
+anything useful. This patch was tested on Tegra30 and Tegra124 SoC's, EMC
+frequency scaling works properly now.
 
-It's better to always report an error to the userspace in case this
-field is set wrong, and it's safer in the KVM code if we block wrong
-values here early instead of relying on a check somewhere deep down
-the calling chain, so let's add another check to kvm_s390_guest_mem_op()
-directly.
-
-We also should check that the "size" is non-zero here (thanks to Janosch
-Frank for the hint!). If we do not check the size, we could call vmalloc()
-with this 0 value, and this will cause a kernel warning.
-
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Link: https://lkml.kernel.org/r/20190829122517.31042-1-thuth@redhat.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: <stable@vger.kernel.org> # 4.14+
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/kvm-s390.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/devfreq/tegra-devfreq.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3890,7 +3890,7 @@ static long kvm_s390_guest_mem_op(struct
- 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
- 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+--- a/drivers/devfreq/tegra-devfreq.c
++++ b/drivers/devfreq/tegra-devfreq.c
+@@ -486,11 +486,11 @@ static int tegra_devfreq_target(struct d
+ {
+ 	struct tegra_devfreq *tegra = dev_get_drvdata(dev);
+ 	struct dev_pm_opp *opp;
+-	unsigned long rate = *freq * KHZ;
++	unsigned long rate;
  
--	if (mop->flags & ~supported_flags)
-+	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
- 		return -EINVAL;
+-	opp = devfreq_recommended_opp(dev, &rate, flags);
++	opp = devfreq_recommended_opp(dev, freq, flags);
+ 	if (IS_ERR(opp)) {
+-		dev_err(dev, "Failed to find opp for %lu KHz\n", *freq);
++		dev_err(dev, "Failed to find opp for %lu Hz\n", *freq);
+ 		return PTR_ERR(opp);
+ 	}
+ 	rate = dev_pm_opp_get_freq(opp);
+@@ -499,8 +499,6 @@ static int tegra_devfreq_target(struct d
+ 	clk_set_min_rate(tegra->emc_clock, rate);
+ 	clk_set_rate(tegra->emc_clock, 0);
  
- 	if (mop->size > MEM_OP_MAX_SIZE)
+-	*freq = rate;
+-
+ 	return 0;
+ }
+ 
+@@ -510,7 +508,7 @@ static int tegra_devfreq_get_dev_status(
+ 	struct tegra_devfreq *tegra = dev_get_drvdata(dev);
+ 	struct tegra_devfreq_device *actmon_dev;
+ 
+-	stat->current_frequency = tegra->cur_freq;
++	stat->current_frequency = tegra->cur_freq * KHZ;
+ 
+ 	/* To be used by the tegra governor */
+ 	stat->private_data = tegra;
+@@ -565,7 +563,7 @@ static int tegra_governor_get_target(str
+ 		target_freq = max(target_freq, dev->target_freq);
+ 	}
+ 
+-	*freq = target_freq;
++	*freq = target_freq * KHZ;
+ 
+ 	return 0;
+ }
 
 
