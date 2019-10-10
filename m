@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C84D25BD
+	by mail.lfdr.de (Postfix) with ESMTP id 06CFAD25BC
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387948AbfJJIjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:39:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
+        id S2387959AbfJJIjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387959AbfJJIjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:39:47 -0400
+        id S2387971AbfJJIju (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0932220B7C;
-        Thu, 10 Oct 2019 08:39:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEA8F21920;
+        Thu, 10 Oct 2019 08:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696786;
-        bh=FEXxw9aEBXJ4F+xQknipUPyHSoalYwiabqK+zW9spvE=;
+        s=default; t=1570696789;
+        bh=TGYeBg12/iq0HiGgbjcQSknzFHxK4TpcgEVOsKH/c/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZjzBaOUCC0VjUasmw8TR7ZhH3CWA/OlSKvzhPi4hEU0facuRgfvcWpeq2lunEfgE
-         Ep4ao6hSxKH/qVEhmeUdkI3e8jiUp1H7vdJlj/9i2LsfgoGQdIde+0SwxZPn7bR14y
-         nxWE5i9qPORbOF2LT9Ba6rrZBXIBtHsUnGMQNeF4=
+        b=fQCchUFvBE03VyozYOmkfipj1Ek4XiDidZh1l7c9e8aQhWB0+sP50A0CzFAGUVQLI
+         Wee3ZQ9DjtvM9mnPsAlgsyobzQXCqwoEj5m25+1jrxVtjzcM7bWCBstVYVN7Gks4kv
+         yuQwC6GVvpsnXbkB3IbgAW0i+VIsFPJbnHPLGxIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.3 052/148] timer: Read jiffies once when forwarding base clk
-Date:   Thu, 10 Oct 2019 10:35:13 +0200
-Message-Id: <20191010083614.313776593@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.3 053/148] PCI: vmd: Fix config addressing when using bus offsets
+Date:   Thu, 10 Oct 2019 10:35:14 +0200
+Message-Id: <20191010083614.366709635@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,78 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Jon Derrick <jonathan.derrick@intel.com>
 
-commit e430d802d6a3aaf61bd3ed03d9404888a29b9bf9 upstream.
+commit e3dffa4f6c3612dea337c9c59191bd418afc941b upstream.
 
-The timer delayed for more than 3 seconds warning was triggered during
-testing.
+VMD maps child device config spaces to the VMD Config BAR linearly
+regardless of the starting bus offset. Because of this, the config
+address decode must ignore starting bus offsets when mapping the BDF to
+the config space address.
 
-  Workqueue: events_unbound sched_tick_remote
-  RIP: 0010:sched_tick_remote+0xee/0x100
-  ...
-  Call Trace:
-   process_one_work+0x18c/0x3a0
-   worker_thread+0x30/0x380
-   kthread+0x113/0x130
-   ret_from_fork+0x22/0x40
-
-The reason is that the code in collect_expired_timers() uses jiffies
-unprotected:
-
-    if (next_event > jiffies)
-        base->clk = jiffies;
-
-As the compiler is allowed to reload the value base->clk can advance
-between the check and the store and in the worst case advance farther than
-next event. That causes the timer expiry to be delayed until the wheel
-pointer wraps around.
-
-Convert the code to use READ_ONCE()
-
-Fixes: 236968383cf5 ("timers: Optimize collect_expired_timers() for NOHZ")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1568894687-14499-1-git-send-email-lirongqing@baidu.com
+Fixes: 2a5a9c9a20f9 ("PCI: vmd: Add offset to bus numbers if necessary")
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # v5.2+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/timer.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/pci/controller/vmd.c |   16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1593,24 +1593,26 @@ void timer_clear_idle(void)
- static int collect_expired_timers(struct timer_base *base,
- 				  struct hlist_head *heads)
- {
-+	unsigned long now = READ_ONCE(jiffies);
-+
- 	/*
- 	 * NOHZ optimization. After a long idle sleep we need to forward the
- 	 * base to current jiffies. Avoid a loop by searching the bitfield for
- 	 * the next expiring timer.
- 	 */
--	if ((long)(jiffies - base->clk) > 2) {
-+	if ((long)(now - base->clk) > 2) {
- 		unsigned long next = __next_timer_interrupt(base);
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -94,6 +94,7 @@ struct vmd_dev {
+ 	struct resource		resources[3];
+ 	struct irq_domain	*irq_domain;
+ 	struct pci_bus		*bus;
++	u8			busn_start;
  
- 		/*
- 		 * If the next timer is ahead of time forward to current
- 		 * jiffies, otherwise forward to the next expiry time:
- 		 */
--		if (time_after(next, jiffies)) {
-+		if (time_after(next, now)) {
- 			/*
- 			 * The call site will increment base->clk and then
- 			 * terminate the expiry loop immediately.
- 			 */
--			base->clk = jiffies;
-+			base->clk = now;
- 			return 0;
- 		}
- 		base->clk = next;
+ 	struct dma_map_ops	dma_ops;
+ 	struct dma_domain	dma_domain;
+@@ -440,7 +441,8 @@ static char __iomem *vmd_cfg_addr(struct
+ 				  unsigned int devfn, int reg, int len)
+ {
+ 	char __iomem *addr = vmd->cfgbar +
+-			     (bus->number << 20) + (devfn << 12) + reg;
++			     ((bus->number - vmd->busn_start) << 20) +
++			     (devfn << 12) + reg;
+ 
+ 	if ((addr - vmd->cfgbar) + len >=
+ 	    resource_size(&vmd->dev->resource[VMD_CFGBAR]))
+@@ -563,7 +565,7 @@ static int vmd_enable_domain(struct vmd_
+ 	unsigned long flags;
+ 	LIST_HEAD(resources);
+ 	resource_size_t offset[2] = {0};
+-	resource_size_t membar2_offset = 0x2000, busn_start = 0;
++	resource_size_t membar2_offset = 0x2000;
+ 	struct pci_bus *child;
+ 
+ 	/*
+@@ -606,14 +608,14 @@ static int vmd_enable_domain(struct vmd_
+ 		pci_read_config_dword(vmd->dev, PCI_REG_VMCONFIG, &vmconfig);
+ 		if (BUS_RESTRICT_CAP(vmcap) &&
+ 		    (BUS_RESTRICT_CFG(vmconfig) == 0x1))
+-			busn_start = 128;
++			vmd->busn_start = 128;
+ 	}
+ 
+ 	res = &vmd->dev->resource[VMD_CFGBAR];
+ 	vmd->resources[0] = (struct resource) {
+ 		.name  = "VMD CFGBAR",
+-		.start = busn_start,
+-		.end   = busn_start + (resource_size(res) >> 20) - 1,
++		.start = vmd->busn_start,
++		.end   = vmd->busn_start + (resource_size(res) >> 20) - 1,
+ 		.flags = IORESOURCE_BUS | IORESOURCE_PCI_FIXED,
+ 	};
+ 
+@@ -681,8 +683,8 @@ static int vmd_enable_domain(struct vmd_
+ 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
+ 	pci_add_resource_offset(&resources, &vmd->resources[2], offset[1]);
+ 
+-	vmd->bus = pci_create_root_bus(&vmd->dev->dev, busn_start, &vmd_ops,
+-				       sd, &resources);
++	vmd->bus = pci_create_root_bus(&vmd->dev->dev, vmd->busn_start,
++				       &vmd_ops, sd, &resources);
+ 	if (!vmd->bus) {
+ 		pci_free_resource_list(&resources);
+ 		irq_domain_remove(vmd->irq_domain);
 
 
