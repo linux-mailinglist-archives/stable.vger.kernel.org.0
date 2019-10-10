@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51973D24C1
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2D91D2530
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389110AbfJJIue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57608 "EHLO mail.kernel.org"
+        id S2387968AbfJJIzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:55:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389993AbfJJIue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:34 -0400
+        id S2389850AbfJJIto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:49:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1FD222C9C;
-        Thu, 10 Oct 2019 08:50:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DA8B218AC;
+        Thu, 10 Oct 2019 08:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697433;
-        bh=zIv/srR7eBst5WdcHhL0b2xLyW182AhXzVVa/hwCPjw=;
+        s=default; t=1570697384;
+        bh=PtwfxrY3qGfEkoS0hbLCZk9IvD+Q3DudzZOkh7MLpI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+7Doz6U8fPaodsHzimp8FqzHFMCQbBsjvElu7MrJBdLhce4IaxcTxwsjtY3z3LtE
-         ahM8HGxtTNz4+JZmKuzsEyM4K9ANWbA+cVWXZDAJLZtykOhXHY6jO+Jw/eMjKyBraK
-         rIFv3BDjTrx7GoLTaNeDtbhFi7QGG1H/Al13+WVM=
+        b=pXJoTDlgie8a0r/oap6oWs32jzJAZ8h0CAKId1hA/bzrrgpA/hkek+SKVS9rczipD
+         /jv1KAlbCr7r5jryQxqfqEV51WGkWwtHeHsfL6j63W6lNvq+Yzo9YSxWmwlYaIBcnZ
+         y1bpQhEMvbXQ5t87G2skCQsWbPxvrLfP3PtvmOVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 05/61] s390/cio: exclude subchannels with no parent from pseudo check
+        stable@vger.kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-trace-devel@vger.kernel.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 083/114] tools lib traceevent: Do not free tep->cmdlines in add_new_comm() on failure
 Date:   Thu, 10 Oct 2019 10:36:30 +0200
-Message-Id: <20191010083452.610702954@linuxfoundation.org>
+Message-Id: <20191010083612.408800292@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
+References: <20191010083544.711104709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit ab5758848039de9a4b249d46e4ab591197eebaf2 upstream.
+[ Upstream commit e0d2615856b2046c2e8d5bfd6933f37f69703b0b ]
 
-ccw console is created early in start_kernel and used before css is
-initialized or ccw console subchannel is registered. Until then console
-subchannel does not have a parent. For that reason assume subchannels
-with no parent are not pseudo subchannels. This fixes the following
-kasan finding:
+If the re-allocation of tep->cmdlines succeeds, then the previous
+allocation of tep->cmdlines will be freed. If we later fail in
+add_new_comm(), we must not free cmdlines, and also should assign
+tep->cmdlines to the new allocation. Otherwise when freeing tep, the
+tep->cmdlines will be pointing to garbage.
 
-BUG: KASAN: global-out-of-bounds in sch_is_pseudo_sch+0x8e/0x98
-Read of size 8 at addr 00000000000005e8 by task swapper/0/0
-
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-rc8-07370-g6ac43dd12538 #2
-Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
-Call Trace:
-([<000000000012cd76>] show_stack+0x14e/0x1e0)
- [<0000000001f7fb44>] dump_stack+0x1a4/0x1f8
- [<00000000007d7afc>] print_address_description+0x64/0x3c8
- [<00000000007d75f6>] __kasan_report+0x14e/0x180
- [<00000000018a2986>] sch_is_pseudo_sch+0x8e/0x98
- [<000000000189b950>] cio_enable_subchannel+0x1d0/0x510
- [<00000000018cac7c>] ccw_device_recognition+0x12c/0x188
- [<0000000002ceb1a8>] ccw_device_enable_console+0x138/0x340
- [<0000000002cf1cbe>] con3215_init+0x25e/0x300
- [<0000000002c8770a>] console_init+0x68a/0x9b8
- [<0000000002c6a3d6>] start_kernel+0x4fe/0x728
- [<0000000000100070>] startup_continue+0x70/0xd0
-
+Fixes: a6d2a61ac653a ("tools lib traceevent: Remove some die() calls")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: linux-trace-devel@vger.kernel.org
 Cc: stable@vger.kernel.org
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: http://lkml.kernel.org/r/20190828191819.970121417@goodmis.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/lib/traceevent/event-parse.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -1178,6 +1178,8 @@ device_initcall(cio_settle_init);
+diff --git a/tools/lib/traceevent/event-parse.c b/tools/lib/traceevent/event-parse.c
+index 6ccfd13d5cf9c..382e476629fb1 100644
+--- a/tools/lib/traceevent/event-parse.c
++++ b/tools/lib/traceevent/event-parse.c
+@@ -254,10 +254,10 @@ static int add_new_comm(struct tep_handle *pevent, const char *comm, int pid)
+ 		errno = ENOMEM;
+ 		return -1;
+ 	}
++	pevent->cmdlines = cmdlines;
  
- int sch_is_pseudo_sch(struct subchannel *sch)
- {
-+	if (!sch->dev.parent)
-+		return 0;
- 	return sch == to_css(sch->dev.parent)->pseudo_subchannel;
+ 	cmdlines[pevent->cmdline_count].comm = strdup(comm);
+ 	if (!cmdlines[pevent->cmdline_count].comm) {
+-		free(cmdlines);
+ 		errno = ENOMEM;
+ 		return -1;
+ 	}
+@@ -268,7 +268,6 @@ static int add_new_comm(struct tep_handle *pevent, const char *comm, int pid)
+ 		pevent->cmdline_count++;
+ 
+ 	qsort(cmdlines, pevent->cmdline_count, sizeof(*cmdlines), cmdline_cmp);
+-	pevent->cmdlines = cmdlines;
+ 
+ 	return 0;
  }
- 
+-- 
+2.20.1
+
 
 
