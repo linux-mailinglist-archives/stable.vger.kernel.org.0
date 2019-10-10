@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C79AD240A
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8DE3D238E
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389640AbfJJIsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54570 "EHLO mail.kernel.org"
+        id S2388789AbfJJInp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388644AbfJJIsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:24 -0400
+        id S2388770AbfJJIno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A5B2064A;
-        Thu, 10 Oct 2019 08:48:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51C8221929;
+        Thu, 10 Oct 2019 08:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697302;
-        bh=YzbKdnyeAdGS6SxVj6Vh8w6hl9hCK0w4wCWdFEfXuUk=;
+        s=default; t=1570697023;
+        bh=zJrZkbq56cAliUqaDa1Q7mnzYKKcOVVANYJuTaly3Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ro0rwDwoEw+mUJxk2XM2SIgSadiOfYGy/Y+OBBCaGh7Qsv9MLBJrzJYG9l9DGna7l
-         nBRGjUKnARAwkPsLJT9f+0OMMpZHDEwRmz5Fpqeqlf3Nw67GTfSVFwuvjx6oUbvr/G
-         XiZCrikX4Rl9SBQ/7ih7idmXAeq9Ho9dPqYD2xe8=
+        b=kaIdY770oHJwvsBN2+hCIDuyjFm8lymNBNSUWWiL/kBeiWsrItYvsW+Y2Y6XfL/a1
+         r8pPwjay61bZUArpUv9YCcyeN4gJN2AImHeHHVWXyTU5XIb7Iz77O2vaDte6af4rIz
+         ZkWYMCunzMqCtsICGZP5Jwsz8Iv37ReQXFcZtWeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.19 093/114] arm64: Add sysfs vulnerability show for spectre-v1
-Date:   Thu, 10 Oct 2019 10:36:40 +0200
-Message-Id: <20191010083613.035890528@linuxfoundation.org>
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Palmer Dabbelt <palmer@sifive.com>,
+        David Abdurachmanov <david.abdurachmanov@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 140/148] riscv: Avoid interrupts being erroneously enabled in handle_exception()
+Date:   Thu, 10 Oct 2019 10:36:41 +0200
+Message-Id: <20191010083620.814265164@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-[ Upstream commit 3891ebccace188af075ce143d8b072b65e90f695 ]
+[ Upstream commit c82dd6d078a2bb29d41eda032bb96d05699a524d ]
 
-spectre-v1 has been mitigated and the mitigation is always active.
-Report this to userspace via sysfs
+When the handle_exception function addresses an exception, the interrupts
+will be unconditionally enabled after finishing the context save. However,
+It may erroneously enable the interrupts if the interrupts are disabled
+before entering the handle_exception.
 
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For example, one of the WARN_ON() condition is satisfied in the scheduling
+where the interrupt is disabled and rq.lock is locked. The WARN_ON will
+trigger a break exception and the handle_exception function will enable the
+interrupts before entering do_trap_break function. During the procedure, if
+a timer interrupt is pending, it will be taken when interrupts are enabled.
+In this case, it may cause a deadlock problem if the rq.lock is locked
+again in the timer ISR.
+
+Hence, the handle_exception() can only enable interrupts when the state of
+sstatus.SPIE is 1.
+
+This patch is tested on HiFive Unleashed board.
+
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Palmer Dabbelt <palmer@sifive.com>
+[paul.walmsley@sifive.com: updated to apply]
+Fixes: bcae803a21317 ("RISC-V: Enable IRQ during exception handling")
+Cc: David Abdurachmanov <david.abdurachmanov@sifive.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_errata.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/riscv/kernel/entry.S | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -729,3 +729,9 @@ const struct arm64_cpu_capabilities arm6
- 	{
- 	}
- };
-+
-+ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
-+}
+diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
+index bc7a56e1ca6f4..9b60878a4469c 100644
+--- a/arch/riscv/kernel/entry.S
++++ b/arch/riscv/kernel/entry.S
+@@ -166,9 +166,13 @@ ENTRY(handle_exception)
+ 	move a0, sp /* pt_regs */
+ 	tail do_IRQ
+ 1:
+-	/* Exceptions run with interrupts enabled */
++	/* Exceptions run with interrupts enabled or disabled
++	   depending on the state of sstatus.SR_SPIE */
++	andi t0, s1, SR_SPIE
++	beqz t0, 1f
+ 	csrs sstatus, SR_SIE
+ 
++1:
+ 	/* Handle syscalls */
+ 	li t0, EXC_SYSCALL
+ 	beq s4, t0, handle_syscall
+-- 
+2.20.1
+
 
 
