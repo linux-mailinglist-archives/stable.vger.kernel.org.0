@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 459F1D2405
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60513D2359
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389621AbfJJIsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:48:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54396 "EHLO mail.kernel.org"
+        id S2388368AbfJJIle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:41:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389617AbfJJIsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:48:14 -0400
+        id S2388366AbfJJIld (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:41:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 866DF218AC;
-        Thu, 10 Oct 2019 08:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E892054F;
+        Thu, 10 Oct 2019 08:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697294;
-        bh=J5TBZoLVR+UShUVcY9TOBt35xpRh7w429U/ZmIA3R7k=;
+        s=default; t=1570696892;
+        bh=Hi/MFaaJ5GWhVSa+IqBly6KzXkJMtUWh1MbotqnxbIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Usy/AoiifikETEi/avpGkRkCavdCZWqRqWvGnb2fUkcS065SGNj/qtWToN4BOsvEX
-         sy+AEjpy7lutMYvpgXUntQ/xaaps2ZEG0/0wCIp+Tww1eOlf4YiqV9+FhCLMqTjbkh
-         XeKrZ+XPZLGP5vrQzoyRyM/3Bg0cVIHLj/17JYLE=
+        b=YaTr99hNFC+k42qmaqCPZt+PeStcD/bDJGyZEhLeAcNNjWZIslves+PswKLCUDoTr
+         +aXelasMQy60mlrJSqklRKXJhluprUh0T5uA9/Bl/qvZO2bd69sE4oZHe3FDXIxH91
+         Zi2vkZ8z/zqu4BrRMNYrxa5B5UTsscWmDJIs5Qm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <alex.aring@gmail.com>,
-        syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.19 045/114] ieee802154: atusb: fix use-after-free at disconnect
-Date:   Thu, 10 Oct 2019 10:35:52 +0200
-Message-Id: <20191010083607.610435049@linuxfoundation.org>
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 092/148] xprtrdma: Toggle XPRT_CONGESTED in xprtrdmas slot methods
+Date:   Thu, 10 Oct 2019 10:35:53 +0200
+Message-Id: <20191010083616.889035683@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 7fd25e6fc035f4b04b75bca6d7e8daa069603a76 upstream.
+[ Upstream commit 395790566eec37706dedeb94779045adc3a7581e ]
 
-The disconnect callback was accessing the hardware-descriptor private
-data after having having freed it.
+Commit 48be539dd44a ("xprtrdma: Introduce ->alloc_slot call-out for
+xprtrdma") added a separate alloc_slot and free_slot to the RPC/RDMA
+transport. Later, commit 75891f502f5f ("SUNRPC: Support for
+congestion control when queuing is enabled") modified the generic
+alloc/free_slot methods, but neglected the methods in xprtrdma.
 
-Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
-Cc: stable <stable@vger.kernel.org>     # 4.2
-Cc: Alexander Aring <alex.aring@gmail.com>
-Reported-by: syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found via code review.
 
+Fixes: 75891f502f5f ("SUNRPC: Support for congestion control ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/atusb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sunrpc/xprtrdma/transport.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ieee802154/atusb.c
-+++ b/drivers/net/ieee802154/atusb.c
-@@ -1140,10 +1140,11 @@ static void atusb_disconnect(struct usb_
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 2ec349ed47702..f4763e8a67617 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -571,6 +571,7 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	return;
  
- 	ieee802154_unregister_hw(atusb->hw);
- 
-+	usb_put_dev(atusb->usb_dev);
-+
- 	ieee802154_free_hw(atusb->hw);
- 
- 	usb_set_intfdata(interface, NULL);
--	usb_put_dev(atusb->usb_dev);
- 
- 	pr_debug("%s done\n", __func__);
+ out_sleep:
++	set_bit(XPRT_CONGESTED, &xprt->state);
+ 	rpc_sleep_on(&xprt->backlog, task, NULL);
+ 	task->tk_status = -EAGAIN;
  }
+@@ -589,7 +590,8 @@ xprt_rdma_free_slot(struct rpc_xprt *xprt, struct rpc_rqst *rqst)
+ 
+ 	memset(rqst, 0, sizeof(*rqst));
+ 	rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
+-	rpc_wake_up_next(&xprt->backlog);
++	if (unlikely(!rpc_wake_up_next(&xprt->backlog)))
++		clear_bit(XPRT_CONGESTED, &xprt->state);
+ }
+ 
+ static bool rpcrdma_check_regbuf(struct rpcrdma_xprt *r_xprt,
+-- 
+2.20.1
+
 
 
