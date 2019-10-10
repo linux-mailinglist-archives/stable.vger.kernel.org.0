@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D593D2437
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B735D2458
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389084AbfJJIuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57124 "EHLO mail.kernel.org"
+        id S2388197AbfJJInz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389932AbfJJIuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:14 -0400
+        id S2388809AbfJJInz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:43:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86716218AC;
-        Thu, 10 Oct 2019 08:50:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A02F21929;
+        Thu, 10 Oct 2019 08:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697414;
-        bh=sh8gHUawqEyRuW5rv6pRRrdnpSkG2b5FcNjvngrx7mU=;
+        s=default; t=1570697034;
+        bh=oAxBDtac3cWfFjVWep7ONNKTlmqGnh7ooTDjepEn/WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAVUVbzeXieqp9FW/CO+2FPVNrrC3VvgR6pUODZkFtehrQVuwkl3x+ukQzj5BG/1z
-         hnqnj9fxDFocVnjMw2LtBLo0byCUYgedg5oEWVm2tpTCtSyRO+kNt95bdD4nxQurxB
-         fcAeKUjbinQq2S+K0qbX/BROpFBsmWM98H4wqir0=
+        b=CwUreg+nEBY8TVpZgoCxxe+4LiIKanN5k9HCTwhSySD4vAwdQW2tsjpk5Li3GzE5C
+         DdAfhz2BzxGBFc3MtbXwfl7TfsQ6DYP/kFfIfzbC2Fsm0dGd3nC1TjAGhpcbnqp2oU
+         3sZqMzPAPgzjBA/9N7UeVqvLp2cUffADZ06WrM6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 19/61] timer: Read jiffies once when forwarding base clk
-Date:   Thu, 10 Oct 2019 10:36:44 +0200
-Message-Id: <20191010083501.427571222@linuxfoundation.org>
+        stable@vger.kernel.org, Gao Xiang <gaoxiang25@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>
+Subject: [PATCH 5.3 144/148] staging: erofs: some compressed cluster should be submitted for corrupted images
+Date:   Thu, 10 Oct 2019 10:36:45 +0200
+Message-Id: <20191010083621.018382009@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Gao Xiang <gaoxiang25@huawei.com>
 
-commit e430d802d6a3aaf61bd3ed03d9404888a29b9bf9 upstream.
+commit ee45197c807895e156b2be0abcaebdfc116487c8 upstream.
 
-The timer delayed for more than 3 seconds warning was triggered during
-testing.
+As reported by erofs_utils fuzzer, a logical page can belong
+to at most 2 compressed clusters, if one compressed cluster
+is corrupted, but the other has been ready in submitting chain.
 
-  Workqueue: events_unbound sched_tick_remote
-  RIP: 0010:sched_tick_remote+0xee/0x100
-  ...
-  Call Trace:
-   process_one_work+0x18c/0x3a0
-   worker_thread+0x30/0x380
-   kthread+0x113/0x130
-   ret_from_fork+0x22/0x40
+The chain needs to submit anyway in order to keep the page
+working properly (page unlocked with PG_error set, PG_uptodate
+not set).
 
-The reason is that the code in collect_expired_timers() uses jiffies
-unprotected:
+Let's fix it now.
 
-    if (next_event > jiffies)
-        base->clk = jiffies;
-
-As the compiler is allowed to reload the value base->clk can advance
-between the check and the store and in the worst case advance farther than
-next event. That causes the timer expiry to be delayed until the wheel
-pointer wraps around.
-
-Convert the code to use READ_ONCE()
-
-Fixes: 236968383cf5 ("timers: Optimize collect_expired_timers() for NOHZ")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1568894687-14499-1-git-send-email-lirongqing@baidu.com
+Fixes: 3883a79abd02 ("staging: erofs: introduce VLE decompression support")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Link: https://lore.kernel.org/r/20190819103426.87579-2-gaoxiang25@huawei.com
+[ Gao Xiang: Manually backport to v5.3.y stable. ]
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/time/timer.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/staging/erofs/unzip_vle.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1545,21 +1545,23 @@ void timer_clear_idle(void)
- static int collect_expired_timers(struct timer_base *base,
- 				  struct hlist_head *heads)
- {
-+	unsigned long now = READ_ONCE(jiffies);
-+
- 	/*
- 	 * NOHZ optimization. After a long idle sleep we need to forward the
- 	 * base to current jiffies. Avoid a loop by searching the bitfield for
- 	 * the next expiring timer.
- 	 */
--	if ((long)(jiffies - base->clk) > 2) {
-+	if ((long)(now - base->clk) > 2) {
- 		unsigned long next = __next_timer_interrupt(base);
+--- a/drivers/staging/erofs/unzip_vle.c
++++ b/drivers/staging/erofs/unzip_vle.c
+@@ -1498,19 +1498,18 @@ static int z_erofs_vle_normalaccess_read
+ 	err = z_erofs_do_read_page(&f, page, &pagepool);
+ 	(void)z_erofs_vle_work_iter_end(&f.builder);
  
- 		/*
- 		 * If the next timer is ahead of time forward to current
- 		 * jiffies, otherwise forward to the next expiry time:
- 		 */
--		if (time_after(next, jiffies)) {
-+		if (time_after(next, now)) {
- 			/* The call site will increment clock! */
--			base->clk = jiffies - 1;
-+			base->clk = now - 1;
- 			return 0;
- 		}
- 		base->clk = next;
+-	if (err) {
++	/* if some compressed cluster ready, need submit them anyway */
++	z_erofs_submit_and_unzip(&f, &pagepool, true);
++
++	if (err)
+ 		errln("%s, failed to read, err [%d]", __func__, err);
+-		goto out;
+-	}
+ 
+-	z_erofs_submit_and_unzip(&f, &pagepool, true);
+-out:
+ 	if (f.map.mpage)
+ 		put_page(f.map.mpage);
+ 
+ 	/* clean up the remaining free pages */
+ 	put_pages_list(&pagepool);
+-	return 0;
++	return err;
+ }
+ 
+ static int z_erofs_vle_normalaccess_readpages(struct file *filp,
 
 
