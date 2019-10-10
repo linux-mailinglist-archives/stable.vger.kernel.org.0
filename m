@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76400D24EF
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E97BBD2510
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389018AbfJJIvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59582 "EHLO mail.kernel.org"
+        id S2387758AbfJJIxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389331AbfJJIvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:51:53 -0400
+        id S2390168AbfJJIvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:51:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADAD22064A;
-        Thu, 10 Oct 2019 08:51:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73C7C2064A;
+        Thu, 10 Oct 2019 08:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697512;
-        bh=QzZUIKgGeYlbpmGf0NnBsRvUqyBwNvPwsxQAVxza750=;
+        s=default; t=1570697515;
+        bh=yINAV2CDgRHj5ZeNyAcIv8gmsa7Y3vxYI4kz6Nu5sW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0L2w0TtOjZCoJU39zStT5g7pt1TFHINdOCkHUlKMm8bkfRQtYSkh/f2UfV5/R+l9
-         eZQFfiHGw40J9nEhPzEbe9kZBcfQecBVoUN4Y2Phn2Be1aaR0YwGNsMa+YFxpQiaBO
-         mIsVgXUUdwjQ+r050XTx+MVmo8gFRXMuk/7hmGrU=
+        b=mMrHQvBmWfa1e6hfxceI75m6riyiLr77evI3s6QT6z7srtWel2ZlSrHLJzA2X1oLJ
+         J9VJp+pQziXOTUX4Tsn+nyf88OHzFfA0Pnv8snZ3d28ChxBPIfT08uVhTIkpBzVRxG
+         9SKI8QCNB3JAvEY2z1FVcXl+JWrM6VRqXkdXaLaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,10 +33,11 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
         Namhyung Kim <namhyung@kernel.org>,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Stephane Eranian <eranian@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 53/61] perf stat: Fix a segmentation fault when using repeat forever
-Date:   Thu, 10 Oct 2019 10:37:18 +0200
-Message-Id: <20191010083523.076799160@linuxfoundation.org>
+Subject: [PATCH 4.14 54/61] perf stat: Reset previous counts on repeat with interval
+Date:   Thu, 10 Oct 2019 10:37:19 +0200
+Message-Id: <20191010083523.606396136@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -51,104 +52,164 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 443f2d5ba13d65ccfd879460f77941875159d154 ]
+[ Upstream commit b63fd11cced17fcb8e133def29001b0f6aaa5e06 ]
 
-Observe a segmentation fault when 'perf stat' is asked to repeat forever
-with the interval option.
+When using 'perf stat' with repeat and interval option, it shows wrong
+values for events.
 
-Without fix:
+The wrong values will be shown for the first interval on the second and
+subsequent repetitions.
 
-  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
-  #           time             counts unit events
-       5.000211692  3,13,89,82,34,157      cycles
-      10.000380119  1,53,98,52,22,294      cycles
-      10.040467280       17,16,79,265      cycles
-  Segmentation fault
+Without the fix:
 
-This problem was only observed when we use forever option aka -r 0 and
-works with limited repeats. Calling print_counter with ts being set to
-NULL, is not a correct option when interval is set. Hence avoid
-print_counter(NULL,..)  if interval is set.
+  # perf stat -r 3 -I 2000 -e faults -e sched:sched_switch -a sleep 5
 
-With fix:
+     2.000282489                 53      faults
+     2.000282489                513      sched:sched_switch
+     4.005478208              3,721      faults
+     4.005478208              2,666      sched:sched_switch
+     5.025470933                395      faults
+     5.025470933              1,307      sched:sched_switch
+     2.009602825 1,84,46,74,40,73,70,95,47,520      faults 		<------
+     2.009602825 1,84,46,74,40,73,70,95,49,568      sched:sched_switch  <------
+     4.019612206              4,730      faults
+     4.019612206              2,746      sched:sched_switch
+     5.039615484              3,953      faults
+     5.039615484              1,496      sched:sched_switch
+     2.000274620 1,84,46,74,40,73,70,95,47,520      faults		<------
+     2.000274620 1,84,46,74,40,73,70,95,47,520      sched:sched_switch	<------
+     4.000480342              4,282      faults
+     4.000480342              2,303      sched:sched_switch
+     5.000916811              1,322      faults
+     5.000916811              1,064      sched:sched_switch
+  #
 
-  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
-   #           time             counts unit events
-       5.019866622  3,15,14,43,08,697      cycles
-      10.039865756  3,15,16,31,95,261      cycles
-      10.059950628     1,26,05,47,158      cycles
-       5.009902655  3,14,52,62,33,932      cycles
-      10.019880228  3,14,52,22,89,154      cycles
-      10.030543876       66,90,18,333      cycles
-       5.009848281  3,14,51,98,25,437      cycles
-      10.029854402  3,15,14,93,04,918      cycles
-       5.009834177  3,14,51,95,92,316      cycles
+prev_raw_counts is allocated when using intervals. This is used when
+calculating the difference in the counts of events when using interval.
+
+The current counts are stored in prev_raw_counts to calculate the
+differences in the next iteration.
+
+On the first interval of the second and subsequent repetitions,
+prev_raw_counts would be the values stored in the last interval of the
+previous repetitions, while the current counts will only be for the
+first interval of the current repetition.
+
+Hence there is a possibility of events showing up as big number.
+
+Fix this by resetting prev_raw_counts whenever perf stat repeats the
+command.
+
+With the fix:
+
+  # perf stat -r 3 -I 2000 -e faults -e sched:sched_switch -a sleep 5
+
+     2.019349347              2,597      faults
+     2.019349347              2,753      sched:sched_switch
+     4.019577372              3,098      faults
+     4.019577372              2,532      sched:sched_switch
+     5.019415481              1,879      faults
+     5.019415481              1,356      sched:sched_switch
+     2.000178813              8,468      faults
+     2.000178813              2,254      sched:sched_switch
+     4.000404621              7,440      faults
+     4.000404621              1,266      sched:sched_switch
+     5.040196079              2,458      faults
+     5.040196079                556      sched:sched_switch
+     2.000191939              6,870      faults
+     2.000191939              1,170      sched:sched_switch
+     4.000414103                541      faults
+     4.000414103                902      sched:sched_switch
+     5.000809863                450      faults
+     5.000809863                364      sched:sched_switch
+  #
 
 Committer notes:
 
-Did the 'git bisect' to find the cset introducing the problem to add the
-Fixes tag below, and at that time the problem reproduced as:
+This was broken since the cset introducing the --interval feature, i.e.
+--repeat + --interval wasn't tested at that point, add the Fixes tag so
+that automatic scripts can pick this up.
 
-  (gdb) run stat -r0 -I500 sleep 1
-  <SNIP>
-  Program received signal SIGSEGV, Segmentation fault.
-  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
-  866		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, csv_sep);
-  (gdb) bt
-  #0  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
-  #1  0x000000000041860a in print_counters (ts=ts@entry=0x0, argc=argc@entry=2, argv=argv@entry=0x7fffffffd640) at builtin-stat.c:938
-  #2  0x0000000000419a7f in cmd_stat (argc=2, argv=0x7fffffffd640, prefix=<optimized out>) at builtin-stat.c:1411
-  #3  0x000000000045c65a in run_builtin (p=p@entry=0x6291b8 <commands+216>, argc=argc@entry=5, argv=argv@entry=0x7fffffffd640) at perf.c:370
-  #4  0x000000000045c893 in handle_internal_command (argc=5, argv=0x7fffffffd640) at perf.c:429
-  #5  0x000000000045c8f1 in run_argv (argcp=argcp@entry=0x7fffffffd4ac, argv=argv@entry=0x7fffffffd4a0) at perf.c:473
-  #6  0x000000000045cac9 in main (argc=<optimized out>, argv=<optimized out>) at perf.c:588
-  (gdb)
-
-Mostly the same as just before this patch:
-
-  Program received signal SIGSEGV, Segmentation fault.
-  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
-  964		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, config->csv_sep);
-  (gdb) bt
-  #0  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
-  #1  0x0000000000588047 in perf_evlist__print_counters (evlist=0xbc9b90, config=0xa1f2a0 <stat_config>, _target=0xa1f0c0 <target>, ts=0x0, argc=2, argv=0x7fffffffd670)
-      at util/stat-display.c:1172
-  #2  0x000000000045390f in print_counters (ts=0x0, argc=2, argv=0x7fffffffd670) at builtin-stat.c:656
-  #3  0x0000000000456bb5 in cmd_stat (argc=2, argv=0x7fffffffd670) at builtin-stat.c:1960
-  #4  0x00000000004dd2e0 in run_builtin (p=0xa30e00 <commands+288>, argc=5, argv=0x7fffffffd670) at perf.c:310
-  #5  0x00000000004dd54d in handle_internal_command (argc=5, argv=0x7fffffffd670) at perf.c:362
-  #6  0x00000000004dd694 in run_argv (argcp=0x7fffffffd4cc, argv=0x7fffffffd4c0) at perf.c:406
-  #7  0x00000000004dda11 in main (argc=5, argv=0x7fffffffd670) at perf.c:531
-  (gdb)
-
-Fixes: d4f63a4741a8 ("perf stat: Introduce print_counters function")
+Fixes: 13370a9b5bb8 ("perf stat: Add interval printing")
 Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 Acked-by: Jiri Olsa <jolsa@kernel.org>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org # v4.2+
-Link: http://lore.kernel.org/lkml/20190904094738.9558-3-srikar@linux.vnet.ibm.com
+Cc: Stephane Eranian <eranian@google.com>
+Cc: stable@vger.kernel.org # v3.9+
+Link: http://lore.kernel.org/lkml/20190904094738.9558-2-srikar@linux.vnet.ibm.com
+[ Fixed up conflicts with libperf, i.e. some perf_{evsel,evlist} lost the 'perf' prefix ]
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/builtin-stat.c |  3 +++
+ tools/perf/util/stat.c    | 17 +++++++++++++++++
+ tools/perf/util/stat.h    |  1 +
+ 3 files changed, 21 insertions(+)
 
 diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 52486c90ab936..b6c1c9939c2f1 100644
+index b6c1c9939c2f1..0801e0ffba4ae 100644
 --- a/tools/perf/builtin-stat.c
 +++ b/tools/perf/builtin-stat.c
-@@ -2770,7 +2770,7 @@ int cmd_stat(int argc, const char **argv)
+@@ -2769,6 +2769,9 @@ int cmd_stat(int argc, const char **argv)
+ 			fprintf(output, "[ perf stat: executing run #%d ... ]\n",
  				run_idx + 1);
  
++		if (run_idx != 0)
++			perf_evlist__reset_prev_raw_counts(evsel_list);
++
  		status = run_perf_stat(argc, argv);
--		if (forever && status != -1) {
-+		if (forever && status != -1 && !interval) {
+ 		if (forever && status != -1 && !interval) {
  			print_counters(NULL, argc, argv);
- 			perf_stat__reset_stats();
- 		}
+diff --git a/tools/perf/util/stat.c b/tools/perf/util/stat.c
+index c9bae5fb8b479..d028c2786802e 100644
+--- a/tools/perf/util/stat.c
++++ b/tools/perf/util/stat.c
+@@ -154,6 +154,15 @@ static void perf_evsel__free_prev_raw_counts(struct perf_evsel *evsel)
+ 	evsel->prev_raw_counts = NULL;
+ }
+ 
++static void perf_evsel__reset_prev_raw_counts(struct perf_evsel *evsel)
++{
++	if (evsel->prev_raw_counts) {
++		evsel->prev_raw_counts->aggr.val = 0;
++		evsel->prev_raw_counts->aggr.ena = 0;
++		evsel->prev_raw_counts->aggr.run = 0;
++       }
++}
++
+ static int perf_evsel__alloc_stats(struct perf_evsel *evsel, bool alloc_raw)
+ {
+ 	int ncpus = perf_evsel__nr_cpus(evsel);
+@@ -204,6 +213,14 @@ void perf_evlist__reset_stats(struct perf_evlist *evlist)
+ 	}
+ }
+ 
++void perf_evlist__reset_prev_raw_counts(struct perf_evlist *evlist)
++{
++	struct perf_evsel *evsel;
++
++	evlist__for_each_entry(evlist, evsel)
++		perf_evsel__reset_prev_raw_counts(evsel);
++}
++
+ static void zero_per_pkg(struct perf_evsel *counter)
+ {
+ 	if (counter->per_pkg_mask)
+diff --git a/tools/perf/util/stat.h b/tools/perf/util/stat.h
+index 96326b1f94438..bdfbed8e2df28 100644
+--- a/tools/perf/util/stat.h
++++ b/tools/perf/util/stat.h
+@@ -100,6 +100,7 @@ void perf_stat__collect_metric_expr(struct perf_evlist *);
+ int perf_evlist__alloc_stats(struct perf_evlist *evlist, bool alloc_raw);
+ void perf_evlist__free_stats(struct perf_evlist *evlist);
+ void perf_evlist__reset_stats(struct perf_evlist *evlist);
++void perf_evlist__reset_prev_raw_counts(struct perf_evlist *evlist);
+ 
+ int perf_stat_process_counter(struct perf_stat_config *config,
+ 			      struct perf_evsel *counter);
 -- 
 2.20.1
 
