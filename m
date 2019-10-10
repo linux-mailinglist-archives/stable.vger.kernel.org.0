@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F93BD23F8
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB42D2404
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388571AbfJJIrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:47:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53774 "EHLO mail.kernel.org"
+        id S2389612AbfJJIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:48:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387775AbfJJIrn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:47:43 -0400
+        id S2389601AbfJJIsJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:48:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9A32224BD;
-        Thu, 10 Oct 2019 08:47:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 164C0208C3;
+        Thu, 10 Oct 2019 08:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697261;
-        bh=X4xLrAkXyRmsntZUR3zLVRvy/Ws925/vFkVLcH1FPww=;
+        s=default; t=1570697288;
+        bh=dTmsqtgyR61mF8BwJ3Q1DjH7pm/mxnHGdYfe/UOyPlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7PLzsIJ91oijFLSciaGO7vz8jj4vKvIu5c1+nSMZwB9u4MS0j9+EYlSt2SzuxNbC
-         FUC4dkl08zIL2kpqDPfhqkoaujh51aO2DjRdirxmLatmHsXpYUISFWc/beBYqLErcr
-         UG+mab2PHQR1gPM8iY5KRtX0pf/N+2CfMZwimUgg=
+        b=ma92/3ubo/UX/ElYjqt7eIAPb6RnUAUxlJrR/QOU3s5pr2qEwPEj3usZiKczi934t
+         GVQ63ObMuxpAjp2RdLtJ/XWvXThv9kbdr1doJaw2GRD/+Z65p0HwabzKg9qfBZdFdb
+         QSukKqOmI/TYoQhUFAtHiK/X949k2rjp1wFsCWmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaolin Zhang <xiaolin.zhang@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>
-Subject: [PATCH 4.19 040/114] drm/i915/gvt: update vgpu workload head pointer correctly
-Date:   Thu, 10 Oct 2019 10:35:47 +0200
-Message-Id: <20191010083605.378337441@linuxfoundation.org>
+        stable@vger.kernel.org, loobinliu@tencent.com,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>
+Subject: [PATCH 4.19 043/114] Revert "locking/pvqspinlock: Dont wait if vCPU is preempted"
+Date:   Thu, 10 Oct 2019 10:35:50 +0200
+Message-Id: <20191010083606.862006127@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -43,80 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaolin Zhang <xiaolin.zhang@intel.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit 0a3242bdb47713e09cb004a0ba4947d3edf82d8a upstream.
+commit 89340d0935c9296c7b8222b6eab30e67cb57ab82 upstream.
 
-when creating a vGPU workload, the guest context head pointer should
-be updated correctly by comparing with the exsiting workload in the
-guest worklod queue including the current running context.
+This patch reverts commit 75437bb304b20 (locking/pvqspinlock: Don't
+wait if vCPU is preempted).  A large performance regression was caused
+by this commit.  on over-subscription scenarios.
 
-in some situation, there is a running context A and then received 2 new
-vGPU workload context B and A. in the new workload context A, it's head
-pointer should be updated with the running context A's tail.
+The test was run on a Xeon Skylake box, 2 sockets, 40 cores, 80 threads,
+with three VMs of 80 vCPUs each.  The score of ebizzy -M is reduced from
+13000-14000 records/s to 1700-1800 records/s:
 
-v2: walk through guest workload list in backward way.
+          Host                Guest                score
 
+vanilla w/o kvm optimizations     upstream    1700-1800 records/s
+vanilla w/o kvm optimizations     revert      13000-14000 records/s
+vanilla w/ kvm optimizations      upstream    4500-5000 records/s
+vanilla w/ kvm optimizations      revert      14000-15500 records/s
+
+Exit from aggressive wait-early mechanism can result in premature yield
+and extra scheduling latency.
+
+Actually, only 6% of wait_early events are caused by vcpu_is_preempted()
+being true.  However, when one vCPU voluntarily releases its vCPU, all
+the subsequently waiters in the queue will do the same and the cascading
+effect leads to bad performance.
+
+kvm optimizations:
+[1] commit d73eb57b80b (KVM: Boost vCPUs that are delivering interrupts)
+[2] commit 266e85a5ec9 (KVM: X86: Boost queue head vCPU to mitigate lock waiter preemption)
+
+Tested-by: loobinliu@tencent.com
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Waiman Long <longman@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Radim Krčmář <rkrcmar@redhat.com>
+Cc: loobinliu@tencent.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Xiaolin Zhang <xiaolin.zhang@intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Fixes: 75437bb304b20 (locking/pvqspinlock: Don't wait if vCPU is preempted)
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/scheduler.c |   28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ kernel/locking/qspinlock_paravirt.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gvt/scheduler.c
-+++ b/drivers/gpu/drm/i915/gvt/scheduler.c
-@@ -1276,9 +1276,6 @@ static int prepare_mm(struct intel_vgpu_
- #define same_context(a, b) (((a)->context_id == (b)->context_id) && \
- 		((a)->lrca == (b)->lrca))
+--- a/kernel/locking/qspinlock_paravirt.h
++++ b/kernel/locking/qspinlock_paravirt.h
+@@ -271,7 +271,7 @@ pv_wait_early(struct pv_node *prev, int
+ 	if ((loop & PV_PREV_CHECK_MASK) != 0)
+ 		return false;
  
--#define get_last_workload(q) \
--	(list_empty(q) ? NULL : container_of(q->prev, \
--	struct intel_vgpu_workload, list))
- /**
-  * intel_vgpu_create_workload - create a vGPU workload
-  * @vgpu: a vGPU
-@@ -1297,7 +1294,7 @@ intel_vgpu_create_workload(struct intel_
- {
- 	struct intel_vgpu_submission *s = &vgpu->submission;
- 	struct list_head *q = workload_q_head(vgpu, ring_id);
--	struct intel_vgpu_workload *last_workload = get_last_workload(q);
-+	struct intel_vgpu_workload *last_workload = NULL;
- 	struct intel_vgpu_workload *workload = NULL;
- 	struct drm_i915_private *dev_priv = vgpu->gvt->dev_priv;
- 	u64 ring_context_gpa;
-@@ -1320,15 +1317,20 @@ intel_vgpu_create_workload(struct intel_
- 	head &= RB_HEAD_OFF_MASK;
- 	tail &= RB_TAIL_OFF_MASK;
+-	return READ_ONCE(prev->state) != vcpu_running || vcpu_is_preempted(prev->cpu);
++	return READ_ONCE(prev->state) != vcpu_running;
+ }
  
--	if (last_workload && same_context(&last_workload->ctx_desc, desc)) {
--		gvt_dbg_el("ring id %d cur workload == last\n", ring_id);
--		gvt_dbg_el("ctx head %x real head %lx\n", head,
--				last_workload->rb_tail);
--		/*
--		 * cannot use guest context head pointer here,
--		 * as it might not be updated at this time
--		 */
--		head = last_workload->rb_tail;
-+	list_for_each_entry_reverse(last_workload, q, list) {
-+
-+		if (same_context(&last_workload->ctx_desc, desc)) {
-+			gvt_dbg_el("ring id %d cur workload == last\n",
-+					ring_id);
-+			gvt_dbg_el("ctx head %x real head %lx\n", head,
-+					last_workload->rb_tail);
-+			/*
-+			 * cannot use guest context head pointer here,
-+			 * as it might not be updated at this time
-+			 */
-+			head = last_workload->rb_tail;
-+			break;
-+		}
- 	}
- 
- 	gvt_dbg_el("ring id %d begin a new workload\n", ring_id);
+ /*
 
 
