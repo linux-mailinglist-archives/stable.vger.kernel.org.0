@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 403FED23C9
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FCCD2328
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388186AbfJJIp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S2387932AbfJJIjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389195AbfJJIpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:55 -0400
+        id S2387948AbfJJIjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 474BE208C3;
-        Thu, 10 Oct 2019 08:45:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D6092190F;
+        Thu, 10 Oct 2019 08:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697154;
-        bh=W6M92Isb+KlYhkiKSEa2YPDNu0yiewClyIA+sBF8Ks8=;
+        s=default; t=1570696783;
+        bh=QWfFys8kVI5Ktj7hLu3Mlw2CYHL1/OpBrjhVm2QApV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ywHehLUtcPYZ3+wyeBYEdzhE318g0BAxA1R7vv2f4QOGFnAmCZGXpi54/cBvHURnz
-         rL0mW8rELZk/hgKCXQ6e0SbQJX2eJ3yTGcbR6tavtuVqit3ijX4rHnBgCUPi09B0fO
-         ld7URGXQ9/c66zuNLJNJz1/68Q9ilYO8vpAKFE5c=
+        b=bWqKucCek85NUtEMs9VZcKJTLuLvUFZtYydcnFduQSmuZ3Xv/SrDpZWF7hjLQ+Ogp
+         cOAp5+Ajr2CIJVb77p5vSZznZnnj491O6+XTZ+Rp7jnvzWafrrKGUJlyn/o/HOIrx0
+         DuVGD8I32mlz9pEGi6shdwo0h/M+Z2Q5HonD2DBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 005/114] KVM: PPC: Book3S HV: Fix race in re-enabling XIVE escalation interrupts
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Matthew Wilcox <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.3 051/148] usercopy: Avoid HIGHMEM pfn warning
 Date:   Thu, 10 Oct 2019 10:35:12 +0200
-Message-Id: <20191010083546.420986718@linuxfoundation.org>
+Message-Id: <20191010083614.257922832@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,111 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Mackerras <paulus@ozlabs.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 959c5d5134786b4988b6fdd08e444aa67d1667ed upstream.
+commit 314eed30ede02fa925990f535652254b5bad6b65 upstream.
 
-Escalation interrupts are interrupts sent to the host by the XIVE
-hardware when it has an interrupt to deliver to a guest VCPU but that
-VCPU is not running anywhere in the system.  Hence we disable the
-escalation interrupt for the VCPU being run when we enter the guest
-and re-enable it when the guest does an H_CEDE hypercall indicating
-it is idle.
+When running on a system with >512MB RAM with a 32-bit kernel built with:
 
-It is possible that an escalation interrupt gets generated just as we
-are entering the guest.  In that case the escalation interrupt may be
-using a queue entry in one of the interrupt queues, and that queue
-entry may not have been processed when the guest exits with an H_CEDE.
-The existing entry code detects this situation and does not clear the
-vcpu->arch.xive_esc_on flag as an indication that there is a pending
-queue entry (if the queue entry gets processed, xive_esc_irq() will
-clear the flag).  There is a comment in the code saying that if the
-flag is still set on H_CEDE, we have to abort the cede rather than
-re-enabling the escalation interrupt, lest we end up with two
-occurrences of the escalation interrupt in the interrupt queue.
+	CONFIG_DEBUG_VIRTUAL=y
+	CONFIG_HIGHMEM=y
+	CONFIG_HARDENED_USERCOPY=y
 
-However, the exit code doesn't do that; it aborts the cede in the sense
-that vcpu->arch.ceded gets cleared, but it still enables the escalation
-interrupt by setting the source's PQ bits to 00.  Instead we need to
-set the PQ bits to 10, indicating that an interrupt has been triggered.
-We also need to avoid setting vcpu->arch.xive_esc_on in this case
-(i.e. vcpu->arch.xive_esc_on seen to be set on H_CEDE) because
-xive_esc_irq() will run at some point and clear it, and if we race with
-that we may end up with an incorrect result (i.e. xive_esc_on set when
-the escalation interrupt has just been handled).
+all execve()s will fail due to argv copying into kmap()ed pages, and on
+usercopy checking the calls ultimately of virt_to_page() will be looking
+for "bad" kmap (highmem) pointers due to CONFIG_DEBUG_VIRTUAL=y:
 
-It is extremely unlikely that having two queue entries would cause
-observable problems; theoretically it could cause queue overflow, but
-the CPU would have to have thousands of interrupts targetted to it for
-that to be possible.  However, this fix will also make it possible to
-determine accurately whether there is an unhandled escalation
-interrupt in the queue, which will be needed by the following patch.
+ ------------[ cut here ]------------
+ kernel BUG at ../arch/x86/mm/physaddr.c:83!
+ invalid opcode: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC
+ CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.0-rc8 #6
+ Hardware name: Dell Inc. Inspiron 1318/0C236D, BIOS A04 01/15/2009
+ EIP: __phys_addr+0xaf/0x100
+ ...
+ Call Trace:
+  __check_object_size+0xaf/0x3c0
+  ? __might_sleep+0x80/0xa0
+  copy_strings+0x1c2/0x370
+  copy_strings_kernel+0x2b/0x40
+  __do_execve_file+0x4ca/0x810
+  ? kmem_cache_alloc+0x1c7/0x370
+  do_execve+0x1b/0x20
+  ...
 
-Fixes: 9b9b13a6d153 ("KVM: PPC: Book3S HV: Keep XIVE escalation interrupt masked unless ceded")
-Cc: stable@vger.kernel.org # v4.16+
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190813100349.GD9567@blackberry
+The check is from arch/x86/mm/physaddr.c:
+
+	VIRTUAL_BUG_ON((phys_addr >> PAGE_SHIFT) > max_low_pfn);
+
+Due to the kmap() in fs/exec.c:
+
+		kaddr = kmap(kmapped_page);
+	...
+	if (copy_from_user(kaddr+offset, str, bytes_to_copy)) ...
+
+Now we can fetch the correct page to avoid the pfn check. In both cases,
+hardened usercopy will need to walk the page-span checker (if enabled)
+to do sanity checking.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: f5509cc18daa ("mm: Hardened usercopy")
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Link: https://lore.kernel.org/r/201909171056.7F2FFD17@keescook
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv_rmhandlers.S |   36 ++++++++++++++++++++------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ mm/usercopy.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-+++ b/arch/powerpc/kvm/book3s_hv_rmhandlers.S
-@@ -2903,29 +2903,39 @@ kvm_cede_prodded:
- kvm_cede_exit:
- 	ld	r9, HSTATE_KVM_VCPU(r13)
- #ifdef CONFIG_KVM_XICS
--	/* Abort if we still have a pending escalation */
-+	/* are we using XIVE with single escalation? */
-+	ld	r10, VCPU_XIVE_ESC_VADDR(r9)
-+	cmpdi	r10, 0
-+	beq	3f
-+	li	r6, XIVE_ESB_SET_PQ_00
-+	/*
-+	 * If we still have a pending escalation, abort the cede,
-+	 * and we must set PQ to 10 rather than 00 so that we don't
-+	 * potentially end up with two entries for the escalation
-+	 * interrupt in the XIVE interrupt queue.  In that case
-+	 * we also don't want to set xive_esc_on to 1 here in
-+	 * case we race with xive_esc_irq().
-+	 */
- 	lbz	r5, VCPU_XIVE_ESC_ON(r9)
- 	cmpwi	r5, 0
--	beq	1f
-+	beq	4f
- 	li	r0, 0
- 	stb	r0, VCPU_CEDED(r9)
--1:	/* Enable XIVE escalation */
--	li	r5, XIVE_ESB_SET_PQ_00
-+	li	r6, XIVE_ESB_SET_PQ_10
-+	b	5f
-+4:	li	r0, 1
-+	stb	r0, VCPU_XIVE_ESC_ON(r9)
-+	/* make sure store to xive_esc_on is seen before xive_esc_irq runs */
-+	sync
-+5:	/* Enable XIVE escalation */
- 	mfmsr	r0
- 	andi.	r0, r0, MSR_DR		/* in real mode? */
- 	beq	1f
--	ld	r10, VCPU_XIVE_ESC_VADDR(r9)
--	cmpdi	r10, 0
--	beq	3f
--	ldx	r0, r10, r5
-+	ldx	r0, r10, r6
- 	b	2f
- 1:	ld	r10, VCPU_XIVE_ESC_RADDR(r9)
--	cmpdi	r10, 0
--	beq	3f
--	ldcix	r0, r10, r5
-+	ldcix	r0, r10, r6
- 2:	sync
--	li	r0, 1
--	stb	r0, VCPU_XIVE_ESC_ON(r9)
- #endif /* CONFIG_KVM_XICS */
- 3:	b	guest_exit_cont
+--- a/mm/usercopy.c
++++ b/mm/usercopy.c
+@@ -11,6 +11,7 @@
+ #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
  
+ #include <linux/mm.h>
++#include <linux/highmem.h>
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/sched/task.h>
+@@ -227,7 +228,12 @@ static inline void check_heap_object(con
+ 	if (!virt_addr_valid(ptr))
+ 		return;
+ 
+-	page = virt_to_head_page(ptr);
++	/*
++	 * When CONFIG_HIGHMEM=y, kmap_to_page() will give either the
++	 * highmem page or fallback to virt_to_page(). The following
++	 * is effectively a highmem-aware virt_to_head_page().
++	 */
++	page = compound_head(kmap_to_page((void *)ptr));
+ 
+ 	if (PageSlab(page)) {
+ 		/* Check slab allocator for flags and size. */
 
 
