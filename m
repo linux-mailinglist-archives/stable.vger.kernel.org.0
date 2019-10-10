@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFDFD2490
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B9E3D2581
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:02:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389442AbfJJIrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:47:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53132 "EHLO mail.kernel.org"
+        id S2388584AbfJJImj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:42:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388211AbfJJIrO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:47:14 -0400
+        id S2387910AbfJJImj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:42:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86EE02064A;
-        Thu, 10 Oct 2019 08:47:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5AE12190F;
+        Thu, 10 Oct 2019 08:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697234;
+        s=default; t=1570696958;
         bh=lLf2g9KCQK5PoHP2qYZDVggikNw887AYHXv+3PO2oMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCO9wyqz6/n1XL8gk6qEF9uW8SwHd9kWkYo8u9NNo3ghzfxCYAZIOHdiBFHAQOj45
-         F+r1B06V5uSL4zXbPCUjWEYPS+jwqCvpdM/ofBknmndBDqPIEazQ6IerQzsmTsTFbW
-         7ENROUuaLW2a+Ad51249eE6wf6LAv5qs09vjqvwY=
+        b=1gPhiCXjMVmiajjck1Ei6eMXm8PuC3l3A1HnRH4CLB01+jQ78X87/1LIhCWfa8eCa
+         kiV5alLGx8qSnY+47uP1ee9qlL6mHfeVejRjKzq0ukH2z80zYRvtAj3HduQWxEMAYl
+         JzPf9Sj8BpdvcC93q/j8HOPczlDOyqQYCaeDuJwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Stefan Mavrodiev <stefan@olimex.com>,
         Zhang Rui <rui.zhang@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 066/114] thermal_hwmon: Sanitize thermal_zone type
-Date:   Thu, 10 Oct 2019 10:36:13 +0200
-Message-Id: <20191010083610.525336156@linuxfoundation.org>
+Subject: [PATCH 5.3 114/148] thermal_hwmon: Sanitize thermal_zone type
+Date:   Thu, 10 Oct 2019 10:36:15 +0200
+Message-Id: <20191010083618.018135079@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
