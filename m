@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A549BD243C
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F323BD2459
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389503AbfJJIu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57490 "EHLO mail.kernel.org"
+        id S2387586AbfJJIoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:44:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389182AbfJJIu2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:50:28 -0400
+        id S2388850AbfJJIoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:44:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A1682064A;
-        Thu, 10 Oct 2019 08:50:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99D652054F;
+        Thu, 10 Oct 2019 08:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697427;
-        bh=A//ZPAlE2EI3za0ZG5iva94it8p6T10S0n2ElkIB3S0=;
+        s=default; t=1570697040;
+        bh=V9YzdNPN6AFK80kaYRmWSmcCKiuPRnSwCqA6BHrZ6nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6S1rWS3vo6rJ/YYGMfmi8yRyOKsCSinz8y+vr2njXXpiDN373unVYeeZ3D0GaQ7s
-         bbXdl1WQLQtXGpn5tciZHxpgm+9b9iM24f7LY8CGgP7bPQo5ntJM94xABkApuPW5Tx
-         686qqT+OeFe1IHujhYy1lPVAnZ0XqYQxSxRB5mJ8=
+        b=KfV2exs3INcu4pdHODkny7QrsDySE56JCoYbb1biriT7UJlfiR/4MhRjQ+n7mAZKt
+         6Q+Qach8OCisW7jxsKAK4AolNvYOLcvJurG8t54bHTpEVbWdTs8q6Q31D3dboF4NaO
+         aXdI+WtIRD1D7W3ArIm18v4TGbITsVVVxnNDBx5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.14 03/61] s390/topology: avoid firing events before kobjs are created
-Date:   Thu, 10 Oct 2019 10:36:28 +0200
-Message-Id: <20191010083451.169726731@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+da3b7677bb913dc1b737@syzkaller.appspotmail.com,
+        Bart Van Assche <bvanassche@acm.org>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 128/148] blk-mq: move lockdep_assert_held() into elevator_exit
+Date:   Thu, 10 Oct 2019 10:36:29 +0200
+Message-Id: <20191010083620.131266351@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
-References: <20191010083449.500442342@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-commit f3122a79a1b0a113d3aea748e0ec26f2cb2889de upstream.
+[ Upstream commit 284b94be1925dbe035ce5218d8b5c197321262c7 ]
 
-arch_update_cpu_topology is first called from:
-kernel_init_freeable->sched_init_smp->sched_init_domains
+Commit c48dac137a62 ("block: don't hold q->sysfs_lock in elevator_init_mq")
+removes q->sysfs_lock from elevator_init_mq(), but forgot to deal with
+lockdep_assert_held() called in blk_mq_sched_free_requests() which is
+run in failure path of elevator_init_mq().
 
-even before cpus has been registered in:
-kernel_init_freeable->do_one_initcall->s390_smp_init
+blk_mq_sched_free_requests() is called in the following 3 functions:
 
-Do not trigger kobject_uevent change events until cpu devices are
-actually created. Fixes the following kasan findings:
+	elevator_init_mq()
+	elevator_exit()
+	blk_cleanup_queue()
 
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb40/0xee0
-Read of size 8 at addr 0000000000000020 by task swapper/0/1
+In blk_cleanup_queue(), blk_mq_sched_free_requests() is followed exactly
+by 'mutex_lock(&q->sysfs_lock)'.
 
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb36/0xee0
-Read of size 8 at addr 0000000000000018 by task swapper/0/1
+So moving the lockdep_assert_held() from blk_mq_sched_free_requests()
+into elevator_exit() for fixing the report by syzbot.
 
-CPU: 0 PID: 1 Comm: swapper/0 Tainted: G    B
-Hardware name: IBM 3906 M04 704 (LPAR)
-Call Trace:
-([<0000000143c6db7e>] show_stack+0x14e/0x1a8)
- [<0000000145956498>] dump_stack+0x1d0/0x218
- [<000000014429fb4c>] print_address_description+0x64/0x380
- [<000000014429f630>] __kasan_report+0x138/0x168
- [<0000000145960b96>] kobject_uevent_env+0xb36/0xee0
- [<0000000143c7c47c>] arch_update_cpu_topology+0x104/0x108
- [<0000000143df9e22>] sched_init_domains+0x62/0xe8
- [<000000014644c94a>] sched_init_smp+0x3a/0xc0
- [<0000000146433a20>] kernel_init_freeable+0x558/0x958
- [<000000014599002a>] kernel_init+0x22/0x160
- [<00000001459a71d4>] ret_from_fork+0x28/0x30
- [<00000001459a71dc>] kernel_thread_starter+0x0/0x10
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+da3b7677bb913dc1b737@syzkaller.appspotmail.com
+Fixed: c48dac137a62 ("block: don't hold q->sysfs_lock in elevator_init_mq")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/topology.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/blk-mq-sched.c | 2 --
+ block/blk.h          | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -300,7 +300,8 @@ int arch_update_cpu_topology(void)
- 	rc = __arch_update_cpu_topology();
- 	for_each_online_cpu(cpu) {
- 		dev = get_cpu_device(cpu);
--		kobject_uevent(&dev->kobj, KOBJ_CHANGE);
-+		if (dev)
-+			kobject_uevent(&dev->kobj, KOBJ_CHANGE);
- 	}
- 	return rc;
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index c9d183d6c4999..ca22afd47b3dc 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -555,8 +555,6 @@ void blk_mq_sched_free_requests(struct request_queue *q)
+ 	struct blk_mq_hw_ctx *hctx;
+ 	int i;
+ 
+-	lockdep_assert_held(&q->sysfs_lock);
+-
+ 	queue_for_each_hw_ctx(q, hctx, i) {
+ 		if (hctx->sched_tags)
+ 			blk_mq_free_rqs(q->tag_set, hctx->sched_tags, i);
+diff --git a/block/blk.h b/block/blk.h
+index d5edfd73d45ea..0685c45e3d96e 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -201,6 +201,8 @@ void elv_unregister_queue(struct request_queue *q);
+ static inline void elevator_exit(struct request_queue *q,
+ 		struct elevator_queue *e)
+ {
++	lockdep_assert_held(&q->sysfs_lock);
++
+ 	blk_mq_sched_free_requests(q);
+ 	__elevator_exit(q, e);
  }
+-- 
+2.20.1
+
 
 
