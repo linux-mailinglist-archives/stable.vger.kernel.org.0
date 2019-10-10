@@ -2,124 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D81D30F0
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 20:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DF13D319D
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 21:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbfJJSyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 14:54:46 -0400
-Received: from mail-eopbgr820099.outbound.protection.outlook.com ([40.107.82.99]:35770
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726007AbfJJSyq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 14:54:46 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HbixM2Sz+XAibzqkHNeoDp2jPIbSTwoMAPoGa4U6G7fDRzeCzEZUw9wKCBob6WvTksL8T7tFJNnnV9Mmvfd2wUHiPqoUBHhMGYMKgkN6hH214AKS7adCrAUQO+XTSWxQQhruj7jwt6VbMHIx8W4xiFhaeMeFgPouvQxND18H+W8KcZnQx5kXiVSjhnEep+tScH/1yVhwsXESeJ7amlOiWLNG00pOUfi1tM2PnWjJh9X2z0t4r+dfl504STEy/QNgYscLmYBsNJbm4bqlauCuZnmdLestsq2KD+I1TKlIqb4Q/v6jLoiFVgK0IEzlItPYKE4+JyeQWs/f3FmBp+m6zA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x+zRRoOihCScYNAIeakXbn3H+4ZnILFawPE4L8qPneQ=;
- b=EhW2OCULXKIkc0EK4HrYmVnTifWNwJ9uU6M2qAHGkX15egmjlb9uM/ClfFcaCAeMEAOVXe7udeUgz3m+OT3ShPx8BNVkwBvkPoLiovlmpdaJY7c60QUvByZseqsWJFXQ9F7CcDPCumjqJvBuilvFQCSa+hrpDZbrHSYbweo5Ds7wjIh95KfIGJTkVxmIdWfEidfwfF8nrUOD/alGbig0uICuYJj06g5/FmhhlDAQrZLpvf+kGvwij2YCxkNPz4RwbEY/7L+l004HNDLK2/rQQHB0zfBFDm03FeyV8izO+XJhXM/eb9OkR4vFDh35E3PhnGGQh+UWASY5urkWpEde2w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wavecomp.com; dmarc=pass action=none header.from=mips.com;
- dkim=pass header.d=mips.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wavecomp.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x+zRRoOihCScYNAIeakXbn3H+4ZnILFawPE4L8qPneQ=;
- b=WexqWdJ6jdmvw91Im7Iw3ZJM/RhgsC5mczyPLLDlV7U/M0uU1DYkmrWIiK2PQOO8PLxvt9LaRs3p/M7KKjXVjsySS7qylbj6QVEMeOIGlXwSilttuqCFn/uBMgrGPHD2Mb9+ppfW9urLCHal4XF2tnIoPwFPFNMXqiEuFTgxTJw=
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
- MWHPR2201MB1726.namprd22.prod.outlook.com (10.164.206.156) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2347.17; Thu, 10 Oct 2019 18:54:03 +0000
-Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::c1dc:dba3:230c:e7f0]) by MWHPR2201MB1277.namprd22.prod.outlook.com
- ([fe80::c1dc:dba3:230c:e7f0%8]) with mapi id 15.20.2347.016; Thu, 10 Oct 2019
- 18:54:03 +0000
-From:   Paul Burton <paul.burton@mips.com>
-To:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
-CC:     Paul Burton <pburton@wavecomp.com>,
-        Huacai Chen <chenhc@lemote.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH] MIPS: Disable Loongson MMI instructions for kernel build
-Thread-Topic: [PATCH] MIPS: Disable Loongson MMI instructions for kernel build
-Thread-Index: AQHVf5wVKW7vpQ4uykW+vlSY7qdKrQ==
-Date:   Thu, 10 Oct 2019 18:54:03 +0000
-Message-ID: <20191010185324.2407578-1-paul.burton@mips.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: BYAPR01CA0016.prod.exchangelabs.com (2603:10b6:a02:80::29)
- To MWHPR2201MB1277.namprd22.prod.outlook.com (2603:10b6:301:18::12)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=pburton@wavecomp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-mailer: git-send-email 2.23.0
-x-originating-ip: [12.94.197.246]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ac950004-7d04-4c7d-908a-08d74db33814
-x-ms-traffictypediagnostic: MWHPR2201MB1726:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MWHPR2201MB1726D0429B7C6281A12B02ECC1940@MWHPR2201MB1726.namprd22.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:510;
-x-forefront-prvs: 018632C080
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(376002)(346002)(39840400004)(366004)(396003)(136003)(52314003)(199004)(189003)(6436002)(99286004)(102836004)(52116002)(316002)(42882007)(26005)(186003)(6506007)(386003)(3846002)(6512007)(36756003)(5640700003)(6116002)(4326008)(476003)(44832011)(486006)(2906002)(2616005)(305945005)(7736002)(6916009)(66066001)(2501003)(2351001)(8676002)(81156014)(81166006)(8936002)(71200400001)(66946007)(64756008)(66556008)(66446008)(6486002)(66476007)(478600001)(5660300002)(50226002)(25786009)(1076003)(14444005)(71190400001)(14454004)(54906003)(256004);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1726;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: wavecomp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 8lSEk9lsrjQ/C9D5UKSw2rmj298NEAlezOOrx5DM9e8q7gvK6P2o8MNYTKkYJcaqYSXj5qMrlYvF8QZHaj6V85BEw0KOT48rFMk2SVdLe7WNFxbRtViy95IRe32yzxP/2IEx/eO4drHoihkIKn610MvvdCxA1tL0Jyvvt9fB9M/JwKeAd/U7aUyFMXgVj3dq+ZNnqy39daOfv8TK6C/xA20WHJtVspK53MCq78xuDhPd1cs0eHRcuTS4EnSKnpge2qT+Y+Ed+FFj/5GSfC2bGg/E+8m8MIhuyg7flHVWbY4YlFHHrOh6anqRnv8szJbDF6VupGPZUGaWR0LViiXLjG9/Z4mMJNWfnbTu6xEXcq6KC3Knt/CF+Ql4XucGeB74jYFMKanFuER1xo5V5ObS7DyV2TrIAhBsId6Fy+4T6Qk=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <036097482928BD46A3209E9254A65042@namprd22.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: mips.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ac950004-7d04-4c7d-908a-08d74db33814
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Oct 2019 18:54:03.3840
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: h+9GuZHn1AJkRBMJlBEKSMJ4iFOSaiSIcelE8+BjDPM8SW/dxuvYD2k9s/v+7G02psn6dF8Vlak21WM4RaVs8w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1726
+        id S1725920AbfJJToy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 15:44:54 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8850 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725867AbfJJToy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 15:44:54 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9AJgaqS012504;
+        Thu, 10 Oct 2019 15:44:48 -0400
+Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2vj9ft2v91-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Oct 2019 15:44:48 -0400
+Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
+        by ppma02dal.us.ibm.com (8.16.0.27/8.16.0.27) with SMTP id x9AJePAo006681;
+        Thu, 10 Oct 2019 19:44:47 GMT
+Received: from b03cxnp07028.gho.boulder.ibm.com (b03cxnp07028.gho.boulder.ibm.com [9.17.130.15])
+        by ppma02dal.us.ibm.com with ESMTP id 2vejt7rhhf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 10 Oct 2019 19:44:47 +0000
+Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
+        by b03cxnp07028.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x9AJijoX15925654
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 10 Oct 2019 19:44:46 GMT
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D79AD6A04D;
+        Thu, 10 Oct 2019 19:44:45 +0000 (GMT)
+Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 88C836A047;
+        Thu, 10 Oct 2019 19:44:45 +0000 (GMT)
+Received: from oc6220003374.ibm.com (unknown [9.40.45.99])
+        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTPS;
+        Thu, 10 Oct 2019 19:44:45 +0000 (GMT)
+From:   KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
+To:     alexander.deucher@amd.com
+Cc:     stable@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
+Subject: [PATCH v3] drm/radeon: Fix EEH during kexec
+Date:   Thu, 10 Oct 2019 14:44:29 -0500
+Message-Id: <1570736672-10644-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+X-Mailer: git-send-email 1.8.3.1
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-10_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=643 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1910100164
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-R0NDIDkueCBhdXRvbWF0aWNhbGx5IGVuYWJsZXMgc3VwcG9ydCBmb3IgTG9vbmdzb24gTU1JIGlu
-c3RydWN0aW9ucyB3aGVuDQp1c2luZyBzb21lIC1tYXJjaD0gZmxhZ3MsIGFuZCB0aGVuIGVycm9y
-cyBvdXQgd2hlbiAtbXNvZnQtZmxvYXQgaXMNCnNwZWNpZmllZCB3aXRoOg0KDQogIGNjMTogZXJy
-b3I6IOKAmC1tbG9vbmdzb24tbW1p4oCZIG11c3QgYmUgdXNlZCB3aXRoIOKAmC1taGFyZC1mbG9h
-dOKAmQ0KDQpUaGUga2VybmVsIHNob3VsZG4ndCBiZSB1c2luZyB0aGVzZSBNTUkgaW5zdHJ1Y3Rp
-b25zIGFueXdheSwganVzdCBhcyBpdA0KZG9lc24ndCB1c2UgZmxvYXRpbmcgcG9pbnQgaW5zdHJ1
-Y3Rpb25zLiBFeHBsaWNpdGx5IGRpc2FibGUgdGhlbSBpbg0Kb3JkZXIgdG8gZml4IHRoZSBidWls
-ZCB3aXRoIEdDQyA5LnguDQoNClNpZ25lZC1vZmYtYnk6IFBhdWwgQnVydG9uIDxwYXVsLmJ1cnRv
-bkBtaXBzLmNvbT4NCkZpeGVzOiAzNzAyYmJhNWViNGYgKCJNSVBTOiBMb29uZ3NvbjogQWRkIEdD
-QyA0LjQgc3VwcG9ydCBmb3IgTG9vbmdzb24yRSIpDQpGaXhlczogNmY3YTI1MWEyNTllICgiTUlQ
-UzogTG9vbmdzb246IEFkZCBiYXNpYyBMb29uZ3NvbiAyRiBzdXBwb3J0IikNCkZpeGVzOiA1MTg4
-MTI5YjhjOWYgKCJNSVBTOiBMb29uZ3Nvbi0zOiBJbXByb3ZlIC1tYXJjaCBvcHRpb24gYW5kIG1v
-dmUgaXQgdG8gUGxhdGZvcm0iKQ0KQ2M6IEh1YWNhaSBDaGVuIDxjaGVuaGNAbGVtb3RlLmNvbT4N
-CkNjOiBKaWF4dW4gWWFuZyA8amlheHVuLnlhbmdAZmx5Z29hdC5jb20+DQpDYzogc3RhYmxlQHZn
-ZXIua2VybmVsLm9yZyAjIHYyLjYuMzIrDQotLS0NCg0KIGFyY2gvbWlwcy9sb29uZ3NvbjY0L1Bs
-YXRmb3JtIHwgNCArKysrDQogYXJjaC9taXBzL3Zkc28vTWFrZWZpbGUgICAgICAgfCAxICsNCiAy
-IGZpbGVzIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKQ0KDQpkaWZmIC0tZ2l0IGEvYXJjaC9taXBz
-L2xvb25nc29uNjQvUGxhdGZvcm0gYi9hcmNoL21pcHMvbG9vbmdzb242NC9QbGF0Zm9ybQ0KaW5k
-ZXggMjgxNzI1MDBmOTVhLi4yODU1ZGFmOTJmZTggMTAwNjQ0DQotLS0gYS9hcmNoL21pcHMvbG9v
-bmdzb242NC9QbGF0Zm9ybQ0KKysrIGIvYXJjaC9taXBzL2xvb25nc29uNjQvUGxhdGZvcm0NCkBA
-IC02Niw2ICs2NiwxMCBAQCBlbHNlDQogICAgICAgJChjYWxsIGNjLW9wdGlvbiwtbWFyY2g9bWlw
-czY0cjIsLW1pcHM2NHIyIC1VX01JUFNfSVNBIC1EX01JUFNfSVNBPV9NSVBTX0lTQV9NSVBTNjQp
-DQogZW5kaWYNCiANCisjIFNvbWUgLW1hcmNoPSBmbGFncyBlbmFibGUgTU1JIGluc3RydWN0aW9u
-cywgYW5kIEdDQyBjb21wbGFpbnMgYWJvdXQgdGhhdA0KKyMgc3VwcG9ydCBiZWluZyBlbmFibGVk
-IGFsb25nc2lkZSAtbXNvZnQtZmxvYXQuIFRodXMgZXhwbGljaXRseSBkaXNhYmxlIE1NSS4NCitj
-ZmxhZ3MteSArPSAkKGNhbGwgY2Mtb3B0aW9uLC1tbm8tbG9vbmdzb24tbW1pKQ0KKw0KICMNCiAj
-IExvb25nc29uIE1hY2hpbmVzJyBTdXBwb3J0DQogIw0KZGlmZiAtLWdpdCBhL2FyY2gvbWlwcy92
-ZHNvL01ha2VmaWxlIGIvYXJjaC9taXBzL3Zkc28vTWFrZWZpbGUNCmluZGV4IDgwN2YwZjc4MmY3
-NS4uOTk2YTkzNGVjZTdkIDEwMDY0NA0KLS0tIGEvYXJjaC9taXBzL3Zkc28vTWFrZWZpbGUNCisr
-KyBiL2FyY2gvbWlwcy92ZHNvL01ha2VmaWxlDQpAQCAtMTUsNiArMTUsNyBAQCBjY2ZsYWdzLXZk
-c28gOj0gXA0KIAkkKGZpbHRlciAtbW1pY3JvbWlwcywkKEtCVUlMRF9DRkxBR1MpKSBcDQogCSQo
-ZmlsdGVyIC1tYXJjaD0lLCQoS0JVSUxEX0NGTEFHUykpIFwNCiAJJChmaWx0ZXIgLW0lLWZsb2F0
-LCQoS0JVSUxEX0NGTEFHUykpIFwNCisJJChmaWx0ZXIgLW1uby1sb29uZ3Nvbi0lLCQoS0JVSUxE
-X0NGTEFHUykpIFwNCiAJLURfX1ZEU09fXw0KIA0KIGlmZGVmIENPTkZJR19DQ19JU19DTEFORw0K
-LS0gDQoyLjIzLjANCg0K
+During kexec some adapters hit an EEH since they are not properly
+shut down in the radeon_pci_shutdown() function. Adding
+radeon_suspend_kms() fixes this issue.
+Enabled only on PPC because this patch causes issues on some other
+boards.
+
+Signed-off-by: Kyle Mahlkuch <Kyle.Mahlkuch at ibm.com>
+---
+ drivers/gpu/drm/radeon/radeon_drv.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 9e55076..4528f4d 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -379,11 +379,25 @@ static int radeon_pci_probe(struct pci_dev *pdev,
+ static void
+ radeon_pci_shutdown(struct pci_dev *pdev)
+ {
++#ifdef CONFIG_PPC64
++	struct drm_device *ddev = pci_get_drvdata(pdev);
++#endif
++
+ 	/* if we are running in a VM, make sure the device
+ 	 * torn down properly on reboot/shutdown
+ 	 */
+ 	if (radeon_device_is_virtual())
+ 		radeon_pci_remove(pdev);
++
++#ifdef CONFIG_PPC64
++	/* Some adapters need to be suspended before a
++	 * shutdown occurs in order to prevent an error
++	 * during kexec.
++	 * Make this power specific becauase it breaks
++	 * some non-power boards.
++	 */
++	radeon_suspend_kms(ddev, true, true, false);
++#endif
+ }
+ 
+ static int radeon_pmops_suspend(struct device *dev)
+-- 
+1.8.3.1
+
