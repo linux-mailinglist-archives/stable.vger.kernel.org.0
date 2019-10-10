@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0C0D25D9
+	by mail.lfdr.de (Postfix) with ESMTP id D383CD25DA
 	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387847AbfJJIjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:39:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42848 "EHLO mail.kernel.org"
+        id S2387858AbfJJIj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387796AbfJJIjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:39:22 -0400
+        id S2387430AbfJJIjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9788121D6C;
-        Thu, 10 Oct 2019 08:39:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FD1921920;
+        Thu, 10 Oct 2019 08:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696762;
-        bh=ExES3H8Fy25Gau5gp6ZsM/0aAoXfUHT2YM+s8DCJHL4=;
+        s=default; t=1570696764;
+        bh=ZwsGgjl9+rpPm+dqONwrfFcqeSGtvnpm4WmFQaz5YAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKWuZxPzNqp5rNVylQrw0AxL/gWmerk5WB5FJhqZ43CqDwvc+6nM0FP4xO1u2ytQD
-         pBKPynwkO9dGfxAXweX716sxyFhbqJNkxsjx3ci3njg3yef0Tph60qiF1ypLNBW6NS
-         ui7BGKhYZFKjjwNX7VNMPcr+jtjV4eCkrj6cvBsI=
+        b=FXwrZ3NA8GPEoFeoPA/ZJYcCKPxnhsWgpP2GpaUihRORuFe6GoQpISs6DupNbN2An
+         Wd+7vc/mecqMakE6OtnzTLYA+kDlaiXo28ss1FRi87F0YkxGejxXXrMqR1+oretVHq
+         tae0pQL4lp/dLX/XrmewgwSJSgbzfvZ1MOSYaxtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        stable@vger.kernel.org, Gilad Ben-Yossef <gilad@benyossef.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.3 044/148] crypto: caam - fix concurrency issue in givencrypt descriptor
-Date:   Thu, 10 Oct 2019 10:35:05 +0200
-Message-Id: <20191010083613.812525450@linuxfoundation.org>
+Subject: [PATCH 5.3 045/148] crypto: ccree - account for TEE not ready to report
+Date:   Thu, 10 Oct 2019 10:35:06 +0200
+Message-Id: <20191010083613.871875992@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,92 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
 
-commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
+commit 76a95bd8f9e10cade9c4c8df93b5c20ff45dc0f5 upstream.
 
-IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
-to be scheduled before the data transfer from ofifo to external memory
-(set up at [38]:
+When ccree driver runs it checks the state of the Trusted Execution
+Environment CryptoCell driver before proceeding. We did not account
+for cases where the TEE side is not ready or not available at all.
+Fix it by only considering TEE error state after sync with the TEE
+side driver.
 
-[29] 10FA0004           ld: ind-nfifo (len=4) imm
-[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
-[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
-[32] 00000010               data:0x00000010
-[33] 8210010D    operation: cls1-op aes cbc init-final enc
-[34] A8080B04         math: (seqin + math0)->vseqout len=4
-[35] 28000010    seqfifold: skip len=16
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[38] 69300000   seqfifostr: msg len=vseqoutsz
-[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
-
-If ofifo -> external memory transfer happens first, DECO will hang
-(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
-data availability in ofifo for the ofifo -> c2 ififo transfer.
-
-Make sure IV transfer happens first by waiting for all CAAM internal
-transfers to end before starting payload transfer.
-
-New descriptor with jump command inserted at [37]:
-
-[..]
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
-[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[39] 69300000   seqfifostr: msg len=vseqoutsz
-[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
-
-[Note: the issue is present in the descriptor from the very beginning
-(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
-maintained kernel that the patch applies clean against.]
-
-Cc: <stable@vger.kernel.org> # v4.19+
-Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Gilad Ben-Yossef <gilad@benyossef.com>
+Fixes: ab8ec9658f5a ("crypto: ccree - add FIPS support")
+CC: stable@vger.kernel.org # v4.17+
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/caam/caamalg_desc.c |    9 +++++++++
- drivers/crypto/caam/caamalg_desc.h |    2 +-
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/crypto/ccree/cc_fips.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/caam/caamalg_desc.c
-+++ b/drivers/crypto/caam/caamalg_desc.c
-@@ -503,6 +503,7 @@ void cnstr_shdsc_aead_givencap(u32 * con
- 			       const bool is_qi, int era)
- {
- 	u32 geniv, moveiv;
-+	u32 *wait_cmd;
+--- a/drivers/crypto/ccree/cc_fips.c
++++ b/drivers/crypto/ccree/cc_fips.c
+@@ -21,7 +21,13 @@ static bool cc_get_tee_fips_status(struc
+ 	u32 reg;
  
- 	/* Note: Context registers are saved. */
- 	init_sh_desc_key_aead(desc, cdata, adata, is_rfc3686, nonce, era);
-@@ -598,6 +599,14 @@ copy_iv:
+ 	reg = cc_ioread(drvdata, CC_REG(GPR_HOST));
+-	return (reg == (CC_FIPS_SYNC_TEE_STATUS | CC_FIPS_SYNC_MODULE_OK));
++	/* Did the TEE report status? */
++	if (reg & CC_FIPS_SYNC_TEE_STATUS)
++		/* Yes. Is it OK? */
++		return (reg & CC_FIPS_SYNC_MODULE_OK);
++
++	/* No. It's either not in use or will be reported later */
++	return true;
+ }
  
- 	/* Will read cryptlen */
- 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
-+
-+	/*
-+	 * Wait for IV transfer (ofifo -> class2) to finish before starting
-+	 * ciphertext transfer (ofifo -> external memory).
-+	 */
-+	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
-+	set_jump_tgt_here(desc, wait_cmd);
-+
- 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
- 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
- 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
---- a/drivers/crypto/caam/caamalg_desc.h
-+++ b/drivers/crypto/caam/caamalg_desc.h
-@@ -12,7 +12,7 @@
- #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
- #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
- #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
--#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 7 * CAAM_CMD_SZ)
-+#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 8 * CAAM_CMD_SZ)
- #define DESC_QI_AEAD_ENC_LEN		(DESC_AEAD_ENC_LEN + 3 * CAAM_CMD_SZ)
- #define DESC_QI_AEAD_DEC_LEN		(DESC_AEAD_DEC_LEN + 3 * CAAM_CMD_SZ)
- #define DESC_QI_AEAD_GIVENC_LEN		(DESC_AEAD_GIVENC_LEN + 3 * CAAM_CMD_SZ)
+ /*
 
 
