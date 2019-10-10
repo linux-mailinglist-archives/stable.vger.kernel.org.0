@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC266D22ED
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A836D22EF
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:39:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387491AbfJJIiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40754 "EHLO mail.kernel.org"
+        id S1733242AbfJJIiF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:38:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733242AbfJJIiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:38:02 -0400
+        id S2387498AbfJJIiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:38:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8B9218AC;
-        Thu, 10 Oct 2019 08:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8765720B7C;
+        Thu, 10 Oct 2019 08:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570696680;
-        bh=KVIefgYKWyqtPqq32prcAvLAwdmrycoJNpUEJNBBK+s=;
+        s=default; t=1570696683;
+        bh=KXPIak5gVB/545cBYDyectDUfIbRwx5aoYc83wnV82M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUJEdXv3qNU0IQSv9cY6MN9iLvTisBRz/XdneU3IEyT7VFGQJMIK5W97r8/c9Zn5/
-         0dlmRBF9MPjwx7g+VPJGV63OBVsf1fJkqgm5yII378IpJRZRnYVbYwuoVZSrZE0t6v
-         P0/rSsIhT00K8F5c9qj8QsSZXL+J5iiBMT62eQgQ=
+        b=veGtfb9rtrnT1tUWQqZekBHuDSBpYxwdF8/cgSDFoQzhZYJktxpdYQNaEOUeb8GvO
+         10t7LsW+S1317v9u05JEOU0blS35xC+ISW4hHftosjGtb68DYXpxz8nkuyf35xZzZT
+         rtXjaWs6FFtBZlx5M/xW9VYzelSAfWTcocCIdFpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>
-Subject: [PATCH 5.3 014/148] KVM: PPC: Book3S HV: Check for MMU ready on piggybacked virtual cores
-Date:   Thu, 10 Oct 2019 10:34:35 +0200
-Message-Id: <20191010083611.971557085@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Mackerras <paulus@ozlabs.org>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>
+Subject: [PATCH 5.3 015/148] KVM: PPC: Book3S HV: Dont lose pending doorbell request on migration on P9
+Date:   Thu, 10 Oct 2019 10:34:36 +0200
+Message-Id: <20191010083612.025631289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
 References: <20191010083609.660878383@linuxfoundation.org>
@@ -44,69 +45,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Mackerras <paulus@ozlabs.org>
 
-commit d28eafc5a64045c78136162af9d4ba42f8230080 upstream.
+commit ff42df49e75f053a8a6b4c2533100cdcc23afe69 upstream.
 
-When we are running multiple vcores on the same physical core, they
-could be from different VMs and so it is possible that one of the
-VMs could have its arch.mmu_ready flag cleared (for example by a
-concurrent HPT resize) when we go to run it on a physical core.
-We currently check the arch.mmu_ready flag for the primary vcore
-but not the flags for the other vcores that will be run alongside
-it.  This adds that check, and also a check when we select the
-secondary vcores from the preempted vcores list.
+On POWER9, when userspace reads the value of the DPDES register on a
+vCPU, it is possible for 0 to be returned although there is a doorbell
+interrupt pending for the vCPU.  This can lead to a doorbell interrupt
+being lost across migration.  If the guest kernel uses doorbell
+interrupts for IPIs, then it could malfunction because of the lost
+interrupt.
 
-Cc: stable@vger.kernel.org # v4.14+
-Fixes: 38c53af85306 ("KVM: PPC: Book3S HV: Fix exclusion between HPT resizing and other HPT updates")
+This happens because a newly-generated doorbell interrupt is signalled
+by setting vcpu->arch.doorbell_request to 1; the DPDES value in
+vcpu->arch.vcore->dpdes is not updated, because it can only be updated
+when holding the vcpu mutex, in order to avoid races.
+
+To fix this, we OR in vcpu->arch.doorbell_request when reading the
+DPDES value.
+
+Cc: stable@vger.kernel.org # v4.13+
+Fixes: 579006944e0d ("KVM: PPC: Book3S HV: Virtualize doorbell facility on POWER9")
 Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Tested-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/powerpc/kvm/book3s_hv.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 --- a/arch/powerpc/kvm/book3s_hv.c
 +++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2860,7 +2860,7 @@ static void collect_piggybacks(struct co
- 		if (!spin_trylock(&pvc->lock))
- 			continue;
- 		prepare_threads(pvc);
--		if (!pvc->n_runnable) {
-+		if (!pvc->n_runnable || !pvc->kvm->arch.mmu_ready) {
- 			list_del_init(&pvc->preempt_list);
- 			if (pvc->runner == NULL) {
- 				pvc->vcore_state = VCORE_INACTIVE;
-@@ -2881,15 +2881,20 @@ static void collect_piggybacks(struct co
- 	spin_unlock(&lp->lock);
- }
- 
--static bool recheck_signals(struct core_info *cip)
-+static bool recheck_signals_and_mmu(struct core_info *cip)
- {
- 	int sub, i;
- 	struct kvm_vcpu *vcpu;
-+	struct kvmppc_vcore *vc;
- 
--	for (sub = 0; sub < cip->n_subcores; ++sub)
--		for_each_runnable_thread(i, vcpu, cip->vc[sub])
-+	for (sub = 0; sub < cip->n_subcores; ++sub) {
-+		vc = cip->vc[sub];
-+		if (!vc->kvm->arch.mmu_ready)
-+			return true;
-+		for_each_runnable_thread(i, vcpu, vc)
- 			if (signal_pending(vcpu->arch.run_task))
- 				return true;
-+	}
- 	return false;
- }
- 
-@@ -3119,7 +3124,7 @@ static noinline void kvmppc_run_core(str
- 	local_irq_disable();
- 	hard_irq_disable();
- 	if (lazy_irq_pending() || need_resched() ||
--	    recheck_signals(&core_info) || !vc->kvm->arch.mmu_ready) {
-+	    recheck_signals_and_mmu(&core_info)) {
- 		local_irq_enable();
- 		vc->vcore_state = VCORE_INACTIVE;
- 		/* Unlock all except the primary vcore */
+@@ -1678,7 +1678,14 @@ static int kvmppc_get_one_reg_hv(struct
+ 		*val = get_reg_val(id, vcpu->arch.pspb);
+ 		break;
+ 	case KVM_REG_PPC_DPDES:
+-		*val = get_reg_val(id, vcpu->arch.vcore->dpdes);
++		/*
++		 * On POWER9, where we are emulating msgsndp etc.,
++		 * we return 1 bit for each vcpu, which can come from
++		 * either vcore->dpdes or doorbell_request.
++		 * On POWER8, doorbell_request is 0.
++		 */
++		*val = get_reg_val(id, vcpu->arch.vcore->dpdes |
++				   vcpu->arch.doorbell_request);
+ 		break;
+ 	case KVM_REG_PPC_VTB:
+ 		*val = get_reg_val(id, vcpu->arch.vcore->vtb);
 
 
