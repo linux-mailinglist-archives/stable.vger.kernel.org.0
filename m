@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0006D2A98
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:14:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83709D2AAC
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 15:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387873AbfJJNOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 09:14:38 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:39234 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727788AbfJJNOi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 09:14:38 -0400
-Received: by mail-lj1-f195.google.com with SMTP id y3so6161668ljj.6;
-        Thu, 10 Oct 2019 06:14:35 -0700 (PDT)
+        id S2388120AbfJJNOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 09:14:40 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:42514 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387660AbfJJNOj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 10 Oct 2019 09:14:39 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c195so4342341lfg.9;
+        Thu, 10 Oct 2019 06:14:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7uV6DWb+5d+72lobYH9RlUHuo93UKxieqoJDmd2AkLE=;
-        b=oXQr5K5AknmV7WOzIin2s0bc0UXSpL0sEbz5ZC7mWHK/Bna1bF0mswJNeGG1izrqEk
-         HglDUe5pmeQk75c8IwkKyig/ND+fh+zwNHC1twqSJuHX4cvleN+woZqaMPzW1MIG3L7a
-         bCEeIWmT+CuCv/I3uxDoiq9/NHRPo2uZQi9wWwnZk+W71el3Bl0C4Bh3E116gT49eZgr
-         YCZrwzJFxS0DOju8ct9fGhAGby2z+Y4cnCN5GO34He4NKhcAgD1BCjFAOw84RE1OUX/u
-         POxbm/sRphFQ+PJqP3RcneVkT3b+MVOHx/wx2H7ljYLexVweplYDx3jyNDhJWnh7Knrf
-         +jnA==
-X-Gm-Message-State: APjAAAWzC/PNl+MBM3Z6U+4v3lAPhG2whTyBVZ+VMo8aM9O7I36g5CUj
-        0Hvq9Ffa025jCOkbtoVUpeI=
-X-Google-Smtp-Source: APXvYqzFKhC+O0enYQEtd6+xCyXriydLhbwo0jiMAK6X/4MJHrEhzIRCF056ErjC0uEfoKkbTLxJHw==
-X-Received: by 2002:a2e:8ec2:: with SMTP id e2mr5820909ljl.126.1570713275165;
-        Thu, 10 Oct 2019 06:14:35 -0700 (PDT)
+        bh=C0vnKt7A5LqxtaENHa2gtLyhDwSuKtDsHcAbgoX1Zl0=;
+        b=mKUro6qI4tkGzji199Sjih+X1LW+5kwSHBybETR5C3Z0BAQuNc1h6ap3yAs+qYM/Fv
+         VXiN63Mvmz9COZZls9D0rFBQA8PqxfhAYq8Sh7irvoF1EBibyCsKMKba6TfKXViDjmVc
+         4qG/JWnJyj8S5lXKQK+LHhZDKNyY6z+SCBmNQV9TLWKKv3dUsWXyuxr+hpTZgenviQUT
+         wbk69NZqWGMFk4SF3TriO1Q8wCzjtEIU7MdGfq0ihX2y3WcGAEgQPaA65uuNWsTjyRSh
+         OJCeYod8w2hyoyc+kHGZo18ikV4QCrFRcfepVJc4fiPxX7z5dGGkXg7zwILAMyEPDN1d
+         LrBQ==
+X-Gm-Message-State: APjAAAWp0bZS/EYDMOM7E0HOZfdnvICS9Yn81amA09sKjneuvLm+8HQW
+        aZAETipFsp6O19vs2xfB7sY=
+X-Google-Smtp-Source: APXvYqzmken7paFvOEfr/CD2e/T7S2TzQVEBo50hTfTSua/scq6cymNNbisN35TBca4BLqUtqWWS/w==
+X-Received: by 2002:a19:c514:: with SMTP id w20mr6058964lfe.135.1570713276057;
+        Thu, 10 Oct 2019 06:14:36 -0700 (PDT)
 Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id k7sm1184634lja.19.2019.10.10.06.14.34
+        by smtp.gmail.com with ESMTPSA id w27sm1233549ljd.55.2019.10.10.06.14.34
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
         Thu, 10 Oct 2019 06:14:34 -0700 (PDT)
 Received: from johan by xi.terra with local (Exim 4.92.2)
         (envelope-from <johan@xi.terra>)
-        id 1iIYHF-0006Ak-Dh; Thu, 10 Oct 2019 15:14:45 +0200
+        id 1iIYHF-0006Ap-GZ; Thu, 10 Oct 2019 15:14:45 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
         Fabien Dessenne <fabien.dessenne@st.com>,
@@ -51,10 +51,11 @@ Cc:     David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Hovold <johan@kernel.org>,
         stable <stable@vger.kernel.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>
-Subject: [PATCH 1/4] drm/msm: fix memleak on release
-Date:   Thu, 10 Oct 2019 15:13:30 +0200
-Message-Id: <20191010131333.23635-2-johan@kernel.org>
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab@osg.samsung.com>
+Subject: [PATCH 2/4] media: bdisp: fix memleak on release
+Date:   Thu, 10 Oct 2019 15:13:31 +0200
+Message-Id: <20191010131333.23635-3-johan@kernel.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010131333.23635-1-johan@kernel.org>
 References: <20191010131333.23635-1-johan@kernel.org>
@@ -65,38 +66,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a process is interrupted while accessing the "gpu" debugfs file and
-the drm device struct_mutex is contended, release() could return early
-and fail to free related resources.
+If a process is interrupted while accessing the video device and the
+device lock is contended, release() could return early and fail to free
+related resources.
 
-Note that the return value from release() is ignored.
+Note that the return value of the v4l2 release file operation is
+ignored.
 
-Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
-Cc: stable <stable@vger.kernel.org>     # 4.18
-Cc: Jordan Crouse <jcrouse@codeaurora.org>
-Cc: Rob Clark <robdclark@gmail.com>
+Fixes: 28ffeebbb7bd ("[media] bdisp: 2D blitter driver using v4l2 mem2mem framework")
+Cc: stable <stable@vger.kernel.org>     # 4.2
+Cc: Fabien Dessenne <fabien.dessenne@st.com>
+Cc: Hans Verkuil <hans.verkuil@cisco.com>
+Cc: Mauro Carvalho Chehab <mchehab@osg.samsung.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
-index 6be879578140..1c74381a4fc9 100644
---- a/drivers/gpu/drm/msm/msm_debugfs.c
-+++ b/drivers/gpu/drm/msm/msm_debugfs.c
-@@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
- 	struct msm_gpu_show_priv *show_priv = m->private;
- 	struct msm_drm_private *priv = show_priv->dev->dev_private;
- 	struct msm_gpu *gpu = priv->gpu;
--	int ret;
--
--	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
--	if (ret)
--		return ret;
+diff --git a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+index e90f1ba30574..675b5f2b4c2e 100644
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -651,8 +651,7 @@ static int bdisp_release(struct file *file)
  
-+	mutex_lock(&show_priv->dev->struct_mutex);
- 	gpu->funcs->gpu_state_put(show_priv->state);
- 	mutex_unlock(&show_priv->dev->struct_mutex);
+ 	dev_dbg(bdisp->dev, "%s\n", __func__);
+ 
+-	if (mutex_lock_interruptible(&bdisp->lock))
+-		return -ERESTARTSYS;
++	mutex_lock(&bdisp->lock);
+ 
+ 	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
  
 -- 
 2.23.0
