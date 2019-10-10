@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46CD9D2501
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 481C0D2503
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 11:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390242AbfJJIwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60208 "EHLO mail.kernel.org"
+        id S2390250AbfJJIwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:52:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389485AbfJJIwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:52:20 -0400
+        id S2390227AbfJJIwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:52:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 016CC2064A;
-        Thu, 10 Oct 2019 08:52:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C448420B7C;
+        Thu, 10 Oct 2019 08:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697539;
-        bh=LZt8K+pFKJyJFvN9uH562Rpkc7q8eYhurxMZU2lrw3c=;
+        s=default; t=1570697542;
+        bh=M/1L9r3hm2HcfToilF464yUmkijmVjpQx5kooM31p+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbLOvx0MKJ1Z0i7h9/FqXyBibLoOR2rX02IDE+mkQ57akBmLnqnIgMMLrfEKnhwC8
-         JjjTH4ZxDi0+vuCJ0YNV1fKaWR1KxEmtMRUfl5iuhwFc6wSAhjbVBZJsmQtEYD5DVe
-         Bm8tfG1Fe5Nholc6D9cePwbW5+4DPQBgrdRyeBbg=
+        b=TlwN1ZVl7YkSeEHPyvFv09rEIf1RX95zq0Hd7oV7ZBCBEEfC8hL17NZ8iHbxIjg8x
+         BBoWJ9+hzWZ1gh92Uc1DlafE2bjoR7If9bPf1Bijv1CFoFoUnevnDTXhcpHxKe4oo7
+         +XV8Yicz9O9QN8TFyek+9PlmDxvHsQqEfKC7UeK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/61] ima: always return negative code for error
-Date:   Thu, 10 Oct 2019 10:36:53 +0200
-Message-Id: <20191010083507.117565530@linuxfoundation.org>
+Subject: [PATCH 4.14 29/61] fs: nfs: Fix possible null-pointer dereferences in encode_attrs()
+Date:   Thu, 10 Oct 2019 10:36:54 +0200
+Message-Id: <20191010083507.860566665@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083449.500442342@linuxfoundation.org>
 References: <20191010083449.500442342@linuxfoundation.org>
@@ -44,42 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit f5e1040196dbfe14c77ce3dfe3b7b08d2d961e88 ]
+[ Upstream commit e2751463eaa6f9fec8fea80abbdc62dbc487b3c5 ]
 
-integrity_kernel_read() returns the number of bytes read. If this is
-a short read then this positive value is returned from
-ima_calc_file_hash_atfm(). Currently this is only indirectly called from
-ima_calc_file_hash() and this function only tests for the return value
-being zero or nonzero and also doesn't forward the return value.
-Nevertheless there's no point in returning a positive value as an error,
-so translate a short read into -EINVAL.
+In encode_attrs(), there is an if statement on line 1145 to check
+whether label is NULL:
+    if (label && (attrmask[2] & FATTR4_WORD2_SECURITY_LABEL))
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+When label is NULL, it is used on lines 1178-1181:
+    *p++ = cpu_to_be32(label->lfs);
+    *p++ = cpu_to_be32(label->pi);
+    *p++ = cpu_to_be32(label->len);
+    p = xdr_encode_opaque_fixed(p, label->label, label->len);
+
+To fix these bugs, label is checked before being used.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_crypto.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4xdr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_crypto.c b/security/integrity/ima/ima_crypto.c
-index af680b5b678a4..06b0ee75f34fb 100644
---- a/security/integrity/ima/ima_crypto.c
-+++ b/security/integrity/ima/ima_crypto.c
-@@ -293,8 +293,11 @@ static int ima_calc_file_hash_atfm(struct file *file,
- 		rbuf_len = min_t(loff_t, i_size - offset, rbuf_size[active]);
- 		rc = integrity_kernel_read(file, offset, rbuf[active],
- 					   rbuf_len);
--		if (rc != rbuf_len)
-+		if (rc != rbuf_len) {
-+			if (rc >= 0)
-+				rc = -EINVAL;
- 			goto out3;
-+		}
- 
- 		if (rbuf[1] && offset) {
- 			/* Using two buffers, and it is not the first
+diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
+index 549c916d28599..525684b0056fc 100644
+--- a/fs/nfs/nfs4xdr.c
++++ b/fs/nfs/nfs4xdr.c
+@@ -1132,7 +1132,7 @@ static void encode_attrs(struct xdr_stream *xdr, const struct iattr *iap,
+ 		} else
+ 			*p++ = cpu_to_be32(NFS4_SET_TO_SERVER_TIME);
+ 	}
+-	if (bmval[2] & FATTR4_WORD2_SECURITY_LABEL) {
++	if (label && (bmval[2] & FATTR4_WORD2_SECURITY_LABEL)) {
+ 		*p++ = cpu_to_be32(label->lfs);
+ 		*p++ = cpu_to_be32(label->pi);
+ 		*p++ = cpu_to_be32(label->len);
 -- 
 2.20.1
 
