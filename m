@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA255D23CB
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A53FD2325
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:48:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389220AbfJJIp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:45:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51642 "EHLO mail.kernel.org"
+        id S2387926AbfJJIjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:39:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389221AbfJJIpw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:45:52 -0400
+        id S2387917AbfJJIjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:39:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F5BB2054F;
-        Thu, 10 Oct 2019 08:45:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA0CC2196E;
+        Thu, 10 Oct 2019 08:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697151;
-        bh=6sBvMm2Nw7U7LT3LmRh9xLUiLq7DSI/hufiVDue5SYw=;
+        s=default; t=1570696778;
+        bh=kXRkOfBAkQq2qSRWaYK/tWRsdccPsnNMDtyWyCDnW3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRohm8QD82Ma77T9xAYGZePXRZ/nd5BeH3R+tZxvftiH33XQlZARXnwxwpaTojRNS
-         V4gkQ986NaU0SELOLn06cncmuGj1amSAhNq1hmbza25h6KQtGlEqs5cRSmNghwiael
-         wcqhI9styfg4ENLGTw8YGkiIEUE6I2QRvrM7dJ+Y=
+        b=I4jktegz18/1QO8eDyBNL6kVjborOoCmYU2Sun9IYFFMrsdS1P362z9WLfxuzPrIr
+         IVQ4vtlV99HFcyHD7GTUMkAmTUdjzr2GZ9uiJlucyLmExZ+1ha1Bl/x4JtLp5l0K6L
+         zXVwQVEcpIWBZf4mIGdTiDni+WdsEDXZALoT/xUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.19 004/114] s390/cio: exclude subchannels with no parent from pseudo check
+        stable@vger.kernel.org,
+        Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tom Zanussi <zanussi@kernel.org>
+Subject: [PATCH 5.3 050/148] tracing: Make sure variable reference alias has correct var_ref_idx
 Date:   Thu, 10 Oct 2019 10:35:11 +0200
-Message-Id: <20191010083546.147426763@linuxfoundation.org>
+Message-Id: <20191010083614.182158465@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
-References: <20191010083544.711104709@linuxfoundation.org>
+In-Reply-To: <20191010083609.660878383@linuxfoundation.org>
+References: <20191010083609.660878383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-commit ab5758848039de9a4b249d46e4ab591197eebaf2 upstream.
+commit 17f8607a1658a8e70415eef67909f990d13017b5 upstream.
 
-ccw console is created early in start_kernel and used before css is
-initialized or ccw console subchannel is registered. Until then console
-subchannel does not have a parent. For that reason assume subchannels
-with no parent are not pseudo subchannels. This fixes the following
-kasan finding:
+Original changelog from Steve Rostedt (except last sentence which
+explains the problem, and the Fixes: tag):
 
-BUG: KASAN: global-out-of-bounds in sch_is_pseudo_sch+0x8e/0x98
-Read of size 8 at addr 00000000000005e8 by task swapper/0/0
+I performed a three way histogram with the following commands:
 
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-rc8-07370-g6ac43dd12538 #2
-Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
-Call Trace:
-([<000000000012cd76>] show_stack+0x14e/0x1e0)
- [<0000000001f7fb44>] dump_stack+0x1a4/0x1f8
- [<00000000007d7afc>] print_address_description+0x64/0x3c8
- [<00000000007d75f6>] __kasan_report+0x14e/0x180
- [<00000000018a2986>] sch_is_pseudo_sch+0x8e/0x98
- [<000000000189b950>] cio_enable_subchannel+0x1d0/0x510
- [<00000000018cac7c>] ccw_device_recognition+0x12c/0x188
- [<0000000002ceb1a8>] ccw_device_enable_console+0x138/0x340
- [<0000000002cf1cbe>] con3215_init+0x25e/0x300
- [<0000000002c8770a>] console_init+0x68a/0x9b8
- [<0000000002c6a3d6>] start_kernel+0x4fe/0x728
- [<0000000000100070>] startup_continue+0x70/0xd0
+echo 'irq_lat u64 lat pid_t pid' > synthetic_events
+echo 'wake_lat u64 lat u64 irqlat pid_t pid' >> synthetic_events
+echo 'hist:keys=common_pid:irqts=common_timestamp.usecs if function == 0xffffffff81200580' > events/timer/hrtimer_start/trigger
+echo 'hist:keys=common_pid:lat=common_timestamp.usecs-$irqts:onmatch(timer.hrtimer_start).irq_lat($lat,pid) if common_flags & 1' > events/sched/sched_waking/trigger
+echo 'hist:keys=pid:wakets=common_timestamp.usecs,irqlat=lat' > events/synthetic/irq_lat/trigger
+echo 'hist:keys=next_pid:lat=common_timestamp.usecs-$wakets,irqlat=$irqlat:onmatch(synthetic.irq_lat).wake_lat($lat,$irqlat,next_pid)' > events/sched/sched_switch/trigger
+echo 1 > events/synthetic/wake_lat/enable
 
+Basically I wanted to see:
+
+ hrtimer_start (calling function tick_sched_timer)
+
+Note:
+
+  # grep tick_sched_timer /proc/kallsyms
+ffffffff81200580 t tick_sched_timer
+
+And save the time of that, and then record sched_waking if it is called
+in interrupt context and with the same pid as the hrtimer_start, it
+will record the latency between that and the waking event.
+
+I then look at when the task that is woken is scheduled in, and record
+the latency between the wakeup and the task running.
+
+At the end, the wake_lat synthetic event will show the wakeup to
+scheduled latency, as well as the irq latency in from hritmer_start to
+the wakeup. The problem is that I found this:
+
+          <idle>-0     [007] d...   190.485261: wake_lat: lat=27 irqlat=190485230 pid=698
+          <idle>-0     [005] d...   190.485283: wake_lat: lat=40 irqlat=190485239 pid=10
+          <idle>-0     [002] d...   190.488327: wake_lat: lat=56 irqlat=190488266 pid=335
+          <idle>-0     [005] d...   190.489330: wake_lat: lat=64 irqlat=190489262 pid=10
+          <idle>-0     [003] d...   190.490312: wake_lat: lat=43 irqlat=190490265 pid=77
+          <idle>-0     [005] d...   190.493322: wake_lat: lat=54 irqlat=190493262 pid=10
+          <idle>-0     [005] d...   190.497305: wake_lat: lat=35 irqlat=190497267 pid=10
+          <idle>-0     [005] d...   190.501319: wake_lat: lat=50 irqlat=190501264 pid=10
+
+The irqlat seemed quite large! Investigating this further, if I had
+enabled the irq_lat synthetic event, I noticed this:
+
+          <idle>-0     [002] d.s.   249.429308: irq_lat: lat=164968 pid=335
+          <idle>-0     [002] d...   249.429369: wake_lat: lat=55 irqlat=249429308 pid=335
+
+Notice that the timestamp of the irq_lat "249.429308" is awfully
+similar to the reported irqlat variable. In fact, all instances were
+like this. It appeared that:
+
+  irqlat=$irqlat
+
+Wasn't assigning the old $irqlat to the new irqlat variable, but
+instead was assigning the $irqts to it.
+
+The issue is that assigning the old $irqlat to the new irqlat variable
+creates a variable reference alias, but the alias creation code
+forgets to make sure the alias uses the same var_ref_idx to access the
+reference.
+
+Link: http://lkml.kernel.org/r/1567375321.5282.12.camel@kernel.org
+
+Cc: Linux Trace Devel <linux-trace-devel@vger.kernel.org>
+Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 7e8b88a30b085 ("tracing: Add hist trigger support for variable reference aliases")
+Reported-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/cio/css.c |    2 ++
+ kernel/trace/trace_events_hist.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -1213,6 +1213,8 @@ device_initcall(cio_settle_init);
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2785,6 +2785,8 @@ static struct hist_field *create_alias(s
+ 		return NULL;
+ 	}
  
- int sch_is_pseudo_sch(struct subchannel *sch)
- {
-+	if (!sch->dev.parent)
-+		return 0;
- 	return sch == to_css(sch->dev.parent)->pseudo_subchannel;
++	alias->var_ref_idx = var_ref->var_ref_idx;
++
+ 	return alias;
  }
  
 
