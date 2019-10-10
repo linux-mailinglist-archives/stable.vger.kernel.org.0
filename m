@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02931D23AF
-	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7AD9D23B3
+	for <lists+stable@lfdr.de>; Thu, 10 Oct 2019 10:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389016AbfJJIox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 04:44:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50254 "EHLO mail.kernel.org"
+        id S2388359AbfJJIpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 10 Oct 2019 04:45:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387967AbfJJIot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 04:44:49 -0400
+        id S2388345AbfJJIpA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 10 Oct 2019 04:45:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE0E521929;
-        Thu, 10 Oct 2019 08:44:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C03F521929;
+        Thu, 10 Oct 2019 08:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570697089;
-        bh=9pTsZgJYKzYaJpGRoPCHOlQj6CAvL14Yhn+Sb4cz79E=;
+        s=default; t=1570697100;
+        bh=nVfH0Y+P0S0auPKi3sefQmgsK6Oeq7PNhJqG1QzuM5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG8GX85lPMbWkNYGN41gqH7mJYywsF/vm4rSJENVoj2NXmkE740/rxgNLXTVJ4j04
-         enJYS+61kWttx3iAHPdHprA/ZWtvjed5+m3SXdD/VintUP/X8J6xIYCVXmlRqyij8a
-         QGJKrWNCVUnE6grSkx0Sul3Gij5l9Ibw4AUSuuDQ=
+        b=SBpkl6diVaw+4HzysQYXHB8ibLd9DfxM93O++nYBs8HDFPU893PMOvPl0jTaGcse6
+         PQxH53CY+YFuXMnhXYDe57u4IFdbDML6a05E3gcMtLP7FO0gWRA4ctAChi0OHSly1o
+         11aeFmh8Z9l15mJ9VpREnULlXuRuIobPDDe0CQWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Santosh Sivaraj <santosh@fossix.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 015/114] powerpc/mce: Schedule work from irq_work
-Date:   Thu, 10 Oct 2019 10:35:22 +0200
-Message-Id: <20191010083551.274985599@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 019/114] can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
+Date:   Thu, 10 Oct 2019 10:35:26 +0200
+Message-Id: <20191010083553.031818149@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191010083544.711104709@linuxfoundation.org>
 References: <20191010083544.711104709@linuxfoundation.org>
@@ -47,67 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Santosh Sivaraj <santosh@fossix.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit b5bda6263cad9a927e1a4edb7493d542da0c1410 upstream.
+commit d84ea2123f8d27144e3f4d58cd88c9c6ddc799de upstream.
 
-schedule_work() cannot be called from MCE exception context as MCE can
-interrupt even in interrupt disabled context.
+Some boards take longer than 5ms to power up after a reset, so allow
+some retries attempts before giving up.
 
-Fixes: 733e4a4c4467 ("powerpc/mce: hookup memory_failure for UE errors")
-Cc: stable@vger.kernel.org # v4.15+
-Reviewed-by: Mahesh Salgaonkar <mahesh@linux.vnet.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Signed-off-by: Santosh Sivaraj <santosh@fossix.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20190820081352.8641-2-santosh@fossix.org
+Fixes: ff06d611a31c ("can: mcp251x: Improve mcp251x_hw_reset()")
+Cc: linux-stable <stable@vger.kernel.org>
+Tested-by: Sean Nyekjaer <sean@geanix.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/mce.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/can/spi/mcp251x.c |   19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/arch/powerpc/kernel/mce.c
-+++ b/arch/powerpc/kernel/mce.c
-@@ -45,6 +45,7 @@ static DEFINE_PER_CPU(struct machine_che
- 					mce_ue_event_queue);
+--- a/drivers/net/can/spi/mcp251x.c
++++ b/drivers/net/can/spi/mcp251x.c
+@@ -626,7 +626,7 @@ static int mcp251x_setup(struct net_devi
+ static int mcp251x_hw_reset(struct spi_device *spi)
+ {
+ 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
+-	u8 reg;
++	unsigned long timeout;
+ 	int ret;
  
- static void machine_check_process_queued_event(struct irq_work *work);
-+static void machine_check_ue_irq_work(struct irq_work *work);
- void machine_check_ue_event(struct machine_check_event *evt);
- static void machine_process_ue_event(struct work_struct *work);
+ 	/* Wait for oscillator startup timer after power up */
+@@ -640,10 +640,19 @@ static int mcp251x_hw_reset(struct spi_d
+ 	/* Wait for oscillator startup timer after reset */
+ 	mdelay(MCP251X_OST_DELAY_MS);
  
-@@ -52,6 +53,10 @@ static struct irq_work mce_event_process
-         .func = machine_check_process_queued_event,
- };
- 
-+static struct irq_work mce_ue_event_irq_work = {
-+	.func = machine_check_ue_irq_work,
-+};
+-	reg = mcp251x_read_reg(spi, CANSTAT);
+-	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
+-		return -ENODEV;
+-
++	/* Wait for reset to finish */
++	timeout = jiffies + HZ;
++	while ((mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) !=
++	       CANCTRL_REQOP_CONF) {
++		usleep_range(MCP251X_OST_DELAY_MS * 1000,
++			     MCP251X_OST_DELAY_MS * 1000 * 2);
 +
- DECLARE_WORK(mce_ue_event_work, machine_process_ue_event);
- 
- static void mce_set_error_info(struct machine_check_event *mce,
-@@ -208,6 +213,10 @@ void release_mce_event(void)
- 	get_mce_event(NULL, true);
++		if (time_after(jiffies, timeout)) {
++			dev_err(&spi->dev,
++				"MCP251x didn't enter in conf mode after reset\n");
++			return -EBUSY;
++		}
++	}
+ 	return 0;
  }
  
-+static void machine_check_ue_irq_work(struct irq_work *work)
-+{
-+	schedule_work(&mce_ue_event_work);
-+}
- 
- /*
-  * Queue up the MCE event which then can be handled later.
-@@ -225,7 +234,7 @@ void machine_check_ue_event(struct machi
- 	memcpy(this_cpu_ptr(&mce_ue_event_queue[index]), evt, sizeof(*evt));
- 
- 	/* Queue work to process this event later. */
--	schedule_work(&mce_ue_event_work);
-+	irq_work_queue(&mce_ue_event_irq_work);
- }
- 
- /*
 
 
