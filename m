@@ -2,81 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E60FD44F1
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 18:05:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DB5D4665
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 19:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727231AbfJKQF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 12:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34604 "EHLO mail.kernel.org"
+        id S1727984AbfJKRPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 13:15:37 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:48064 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726910AbfJKQF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 12:05:29 -0400
-Received: from localhost (unknown [131.107.147.255])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728621AbfJKRPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 13:15:36 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29843206CD;
-        Fri, 11 Oct 2019 16:05:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570809929;
-        bh=VLCpLlsGJdIt9QQjzE4HufyIf5Lzrt0iRXPBoqHHuf0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=laY7xpyZCQaV4aQz6mpW5LvNJojBdkwFJJ2pflkPf2h8HYyJ1DP2fcoFxK4Yw14Qc
-         vA5kT9GHWbib1sDQcF4TQEXMdhWJYuZ4fS59P2/QMNyxt8+c5mqP7Y9T90Uz/HBRo3
-         fy1ljQY0YoHtPyxGsocmXM19P2wZKFPjUsGvZML4=
-Date:   Fri, 11 Oct 2019 12:05:28 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        by mx1.redhat.com (Postfix) with ESMTPS id B075A11A24;
+        Fri, 11 Oct 2019 17:15:36 +0000 (UTC)
+Received: from donizetti.redhat.com (unknown [10.36.112.10])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AE6505D6C8;
+        Fri, 11 Oct 2019 17:15:32 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     cinco-list@redhat.com
+Cc:     Alex Willamson <alex.williamson@redhat.com>,
         stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 4.19 082/114] powerpc/book3s64/radix: Rename
- CPU_FTR_P9_TLBIE_BUG feature flag
-Message-ID: <20191011160528.GD2635@sasha-vm>
-References: <20191010083544.711104709@linuxfoundation.org>
- <20191010083612.352065837@linuxfoundation.org>
- <20191011112106.GA28994@amd>
- <20191011125838.GA1147624@kroah.com>
+        Sean Christopherson <sean.j.christopherson@intel.com>
+Subject: [EMBARGOED RHEL8.1 PATCH v5 02/14] Revert "KVM: x86/mmu: Zap only the relevant pages when removing a memslot"
+Date:   Fri, 11 Oct 2019 19:15:14 +0200
+Message-Id: <20191011171526.365-3-pbonzini@redhat.com>
+In-Reply-To: <20191011171526.365-1-pbonzini@redhat.com>
+References: <20191011171526.365-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191011125838.GA1147624@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 11 Oct 2019 17:15:36 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 02:58:38PM +0200, Greg Kroah-Hartman wrote:
->On Fri, Oct 11, 2019 at 01:21:06PM +0200, Pavel Machek wrote:
->> Hi!
->>
->> > From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
->> >
->> > Rename the #define to indicate this is related to store vs tlbie
->> > ordering issue. In the next patch, we will be adding another feature
->> > flag that is used to handles ERAT flush vs tlbie ordering issue.
->> >
->> > Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on POWER9")
->> > Cc: stable@vger.kernel.org # v4.16+
->> > Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
->> > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
->> > Link:
->> > https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.com
->>
->> Apparently this is upstream commit
->> 09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 , but the changelog does not
->> say so.
->
->Yeah, somehow when Sasha backported this, he didn't add that :(
->
->Nor did he add his signed-off-by :(
->
->I'll go fix it up and add mine, thanks for noticing it.
+This reverts commit 4e103134b862314dc2f2f18f2fb0ab972adc3f5f.
+Alex Williamson reported regressions with device assignment with
+this patch.  Even though the bug is probably elsewhere and still
+latent, this is needed to fix the regression.
 
-I forgot to run my "prettyfying" script on it, sorry and thanks for
-catching it.
+Fixes: 4e103134b862 ("KVM: x86/mmu: Zap only the relevant pages when removing a memslot", 2019-02-05)
+Reported-by: Alex Willamson <alex.williamson@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+(cherry picked from commit d012a06ab1d23178fc6856d8d2161fbcc4dd8ebd)
+---
+ arch/x86/kvm/mmu.c | 33 +--------------------------------
+ 1 file changed, 1 insertion(+), 32 deletions(-)
 
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index 55dcdd312017..d3ec7d3c0ed3 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -5641,38 +5641,7 @@ static void kvm_mmu_invalidate_zap_pages_in_memslot(struct kvm *kvm,
+ 			struct kvm_memory_slot *slot,
+ 			struct kvm_page_track_notifier_node *node)
+ {
+-	struct kvm_mmu_page *sp;
+-	LIST_HEAD(invalid_list);
+-	unsigned long i;
+-	bool flush;
+-	gfn_t gfn;
+-
+-	spin_lock(&kvm->mmu_lock);
+-
+-	if (list_empty(&kvm->arch.active_mmu_pages))
+-		goto out_unlock;
+-
+-	flush = slot_handle_all_level(kvm, slot, kvm_zap_rmapp, false);
+-
+-	for (i = 0; i < slot->npages; i++) {
+-		gfn = slot->base_gfn + i;
+-
+-		for_each_valid_sp(kvm, sp, gfn) {
+-			if (sp->gfn != gfn)
+-				continue;
+-
+-			kvm_mmu_prepare_zap_page(kvm, sp, &invalid_list);
+-		}
+-		if (need_resched() || spin_needbreak(&kvm->mmu_lock)) {
+-			kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
+-			flush = false;
+-			cond_resched_lock(&kvm->mmu_lock);
+-		}
+-	}
+-	kvm_mmu_remote_flush_or_zap(kvm, &invalid_list, flush);
+-
+-out_unlock:
+-	spin_unlock(&kvm->mmu_lock);
++	kvm_mmu_zap_all(kvm);
+ }
+ 
+ void kvm_mmu_init_vm(struct kvm *kvm)
 -- 
-Thanks,
-Sasha
+2.21.0
+
+
