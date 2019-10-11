@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77ECED475E
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD73CD4768
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728733AbfJKSTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 14:19:16 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:35686 "EHLO
+        id S1728863AbfJKSTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 14:19:21 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:35691 "EHLO
         mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728721AbfJKSTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:19:16 -0400
-Received: by mail-lj1-f195.google.com with SMTP id m7so10754941lji.2;
-        Fri, 11 Oct 2019 11:19:14 -0700 (PDT)
+        with ESMTP id S1728724AbfJKSTU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:19:20 -0400
+Received: by mail-lj1-f195.google.com with SMTP id m7so10755186lji.2;
+        Fri, 11 Oct 2019 11:19:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=lbSA0+U8G/oL8JgGMmwp2gpu7thMyfDqSxSYRn93VE8=;
-        b=iYKRivIHaYZB06m/Y86bmZXGfmM00SXvHGC602i0nCsr8z4zKxW/hyoNJ7EjarJet9
-         0QzCZ+deLV/Ihup/+0O4mMhIq5ckbGm5Nodrtsk3wMqcKGl0HYPK9dgROg0KZREyqFrP
-         MlZBBDScHGePvougSkoZNKe/b/k/bR9+4ZvyVfF0OtbkZTdo153hxHjreS3Sx9ek0BEF
-         UAKP75LvryhKknrobjpth4g7GB6MeO0ZexYwMRHssPyrWTewL4Ue/BhrbYj1N7ziNMRh
-         K3Av7B77T+quLldVMVd8vZUXk1dRJPzV78vLKXayb8Ft4qxonIi/kiKhD03iqtF8dwWB
-         uIyQ==
+        bh=xHWcMVkKfQW5YQem89Ki4hx7rEYLgwMaVLaDcNFHxy8=;
+        b=ZitRdHD87CyRQIneWCmXl1JH8KlL+SIIhXhoiLpXORD5GW6dQ4yO2WiIerdf0bJ2rC
+         wUIs05umiInQpgYVYSzaGowJCrR7h+xoRI0/md0VCmx7q7eKzF6mZwS+5Lb3JW/H3xf4
+         9KhLNzHwWvlwsaFiR6P/HvbZVmE0tUMjqQ7ojKFWGdOmPaej7UMMQ353sPS8eqOCMgqB
+         U5IynYXDJEu6rYq9MdQCI+JDrjB2VH6Bj6RfAem9zODV5MnIwlyVSkrmXxXjlBbbaQEL
+         09XKfbNsUh+ZW58fuyg8XISKtFursl1Qa70MyffXE1zHJpVgcMu+gN0zPH1pllLmSRV+
+         YS/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=lbSA0+U8G/oL8JgGMmwp2gpu7thMyfDqSxSYRn93VE8=;
-        b=GkznQoWPmH5jKX3PWQwikwctm7LnKWr9khysB7OqCOj4dQFLFKIMt89X+eoLXVEApn
-         /4+klcMn4X2pjcr7SMEIzFfBwtlOIIP+F6OBlOdPuPrkkikPdaZbNGIuqVq0HXp2Fhx6
-         euHdcF3n4Z5MuD3wJEOEKYP8HJMqCTrFGOR8AVlNkbUgSgORYj1qDDWhWcl7BLi+oTuX
-         wpvY9I93Czb2m4rKulbWB3PmD3nZUT1hq8mZHYUpddDvUwwnqg/tNxcxbn0atPJBgKpw
-         MLTIgUwyDmIaIgX9Wrw2Hymb3ZiOWZIqZ3Qdm1C74Cs2b+Ba3RUdyCFlYZfBJ30Q6nss
-         cHmA==
-X-Gm-Message-State: APjAAAWW34QZ+kPxDgOr5YPwTZVA6lxpssAMYNjlx32zibdbT4578oIU
-        2hSHU9fLI7sZmOVF6Pyzf0fWPLWO+cjDd97SEfw=
-X-Google-Smtp-Source: APXvYqw3KYfKyL5he8zBjZLGjb4EzqDCVAOGTBaR5DsqoQ4jy9MsZOBhrseITyN7EmZmKVJSOGsUzQxOeGCKEQR6zaU=
-X-Received: by 2002:a2e:9816:: with SMTP id a22mr6723954ljj.102.1570817953123;
- Fri, 11 Oct 2019 11:19:13 -0700 (PDT)
+        bh=xHWcMVkKfQW5YQem89Ki4hx7rEYLgwMaVLaDcNFHxy8=;
+        b=QUUc+CiNj/3TKB/xIxD/8BPlHNkMvOWj15EOsMuaPw8wXoSiqqtDa4x+oCjBFt3Pv8
+         hnrpCM5se4rMGGoYW6BC0F7YOnIEBgsW58OglckfP7alAsYWcaFtdwBFhOXLL7VoADeV
+         txow6eE0Ew25zZwKNVfATrdZU0FTKmMNiBuutxTD1krWs3GhecJoDVz/oiNB3B/TS9zO
+         R+i0joV6CTgVS5HYIGZWB4VwYLzeloWb/HeyrxrTajZh59rH/LLVbmGBPytNYRyMX7wb
+         ss0KTjm/K/xLoHO+OPe5NJJHaoqsUVdQTKfE6RP2u0Yw/+YOhUph0+cOWithhF5qX1mH
+         OH2w==
+X-Gm-Message-State: APjAAAWGN5J3di+KatpZ4c5mhsYGDGNcMZXQrv0UPDc5jPeHrH3PxK+F
+        VHG0Bol/wz5LSd+PZ4zaoJ6VvKZsJU1CBsL6UYo=
+X-Google-Smtp-Source: APXvYqwO4XnX5MCioj8PA5AMXbwa8nrtJcTry+BdWADG12SbJ5G62YDioP1sbk25PGgCsqOv1NdDCRa73Z+MNvJJ2fQ=
+X-Received: by 2002:a2e:865a:: with SMTP id i26mr9866394ljj.107.1570817958321;
+ Fri, 11 Oct 2019 11:19:18 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
- <20191007051240.4410-2-andrew.smirnov@gmail.com> <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
-In-Reply-To: <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com> <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
+In-Reply-To: <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
 From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-Date:   Fri, 11 Oct 2019 11:18:37 -0700
-Message-ID: <CAHQ1cqHS6CHti_gQ806SPZzmDjMaZLOZKQDzGCu9TFspT9M0wg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private data
+Date:   Fri, 11 Oct 2019 11:19:07 -0700
+Message-ID: <CAHQ1cqHU2DmKzAtcDCPLtUXwkzhyCynki3GKOwgULnN0ya6POg@mail.gmail.com>
+Subject: Re: [PATCH 0/3] Logitech G920 fixes
 To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         Jiri Kosina <jikos@kernel.org>,
         Henrik Rydberg <rydberg@bitmath.org>,
         Sam Bazely <sambazley@fastmail.com>,
@@ -64,187 +62,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 7:52 AM Benjamin Tissoires
+On Fri, Oct 11, 2019 at 7:53 AM Benjamin Tissoires
 <benjamin.tissoires@redhat.com> wrote:
 >
-> Hi Andrey,
+> Hi,
+>
+> Finally, someone who takes care of the G920!
+> Note that when I sent my first initial version that Hans reused, I
+> surely broke it (looking at your patch 3/3), but no one cared to test
+> it :(
 >
 > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
 > >
-> > To simplify resource management in commit that follows as well as to
-> > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
-> > driver code to use devres to manage the life-cycle of FF private data.
+> > Everyone:
 > >
-> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> > Cc: Jiri Kosina <jikos@kernel.org>
-> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Cc: Henrik Rydberg <rydberg@bitmath.org>
-> > Cc: Sam Bazely <sambazley@fastmail.com>
-> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-> > Cc: Austin Palmer <austinp@valvesoftware.com>
-> > Cc: linux-input@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Cc: stable@vger.kernel.org
+> > This series contains patches to fix a couple of regressions in G920
+> > wheel support by hid-logitech-hidpp driver. Without the patches the
+> > wheel remains stuck in autocentering mode ("resisting" any attempt to
+> > trun) as well as missing support for any FF action.
 >
-> This patch doesn't seem to fix any error, is there a reason to send it
-> to stable? (besides as a dependency of the rest of the series).
+> So, you are talking about regressions, and for that I would like to be
+> able to push the patches to stable.
 >
+> However, I would need more information:
+> - patch 3/3 seems simple enough to go in stable, and is clearly a
+> regression from the recent series. Can you put it in first and add
+> stable@vger.kernel.org in a CC field (and possibly with a Fixes tag as
+> well)?
 
-Dependency is the only reason for this patch, but it is a pretty big
-reason. Prior to patches 1/3 and 2/3 FF private data was both
-allocated and passed off to FF layer via ff->private = data in a span
-of a few lines of code within hidpp_ff_init()/g920_get_config().
-After, said pair is effectively split into two different functions,
-both needing access to FF private data, but called quite far apart in
-hidpp_probe(). Alternatives to patch 1/3 would be to either make sure
-that every error path in hidpp_prob() after the call to
-g920_allocate() is aware of allocated FF data, which seems like a
-nightmare, or, to create a temporary FF data, fill it in
-g920_get_config() and memdup() it in hidpp_ff_init(). Is that (the
-latter) the path that you prefer to take?
+It patch 3/3 on purpose because applying it by itself, without fix in
+2/3 in place would lead to a segfault and a non working wheel. Maybe
+that FF for-next fix you pointed out can prevent that from happening,
+but as is the series is pretty atomic and can't be divided.
 
-> > ---
-> >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
-> >  1 file changed, 29 insertions(+), 24 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index 0179f7ed77e5..58eb928224e5 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
-> >         struct hidpp_ff_private_data *data = ff->private;
-> >
-> >         kfree(data->effect_ids);
->
-> Is there any reasons we can not also devm alloc data->effect_ids?
+Patch 3/3 already has stable in CC and Fixes tag.
 
-No, but I was trying to limit the scope of this patch.
+> - I am not sure which patch fixes the wheel remains stuck in
+> autocentering mode. Is it patch 2/3?
 
->
-> > +       /*
-> > +        * Set private to NULL to prevent input_ff_destroy() from
-> > +        * freeing our devres allocated memory
->
-> Ouch. There is something wrong here: input_ff_destroy() calls
-> kfree(ff->private), when the data has not been allocated by
-> input_ff_create(). This seems to lack a little bit of symmetry.
->
+There's no specific patch that does that. There were two G920
+regressions in the driver and both need to be fixed for wheel to be
+configured properly. The specific code that releases the wheel is in
+g920_ff_set_autocenter().
 
-I agree, I think it's a wart in FF API design.
+> - was the "wheel remains stuck in autocentering mode" bug present from
+> on of the recent patch or was it always there since we introduced
+> support in hid-logitech-hidpp, but the game would need to unlock the
+> wheel first?
 
-> > +        */
-> > +       ff->private = NULL;
-> >  }
-> >
-> >  static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
-> > @@ -2090,7 +2095,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
-> >         const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
-> >         struct ff_device *ff;
-> >         struct hidpp_report response;
-> > -       struct hidpp_ff_private_data *data;
-> > +       struct hidpp_ff_private_data *data = hidpp->private_data;
-> >         int error, j, num_slots;
-> >         u8 version;
-> >
-> > @@ -2129,18 +2134,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
-> >                 return error;
-> >         }
-> >
-> > -       data = kzalloc(sizeof(*data), GFP_KERNEL);
-> > -       if (!data)
-> > -               return -ENOMEM;
-> >         data->effect_ids = kcalloc(num_slots, sizeof(int), GFP_KERNEL);
-> > -       if (!data->effect_ids) {
-> > -               kfree(data);
-> > +       if (!data->effect_ids)
-> >                 return -ENOMEM;
-> > -       }
-> > +
-> >         data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
-> >         if (!data->wq) {
-> >                 kfree(data->effect_ids);
-> > -               kfree(data);
-> >                 return -ENOMEM;
-> >         }
-> >
-> > @@ -2199,28 +2199,15 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
-> >         return 0;
-> >  }
-> >
-> > -static int hidpp_ff_deinit(struct hid_device *hid)
-> > +static void hidpp_ff_deinit(struct hid_device *hid)
-> >  {
-> > -       struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
-> > -       struct input_dev *dev = hidinput->input;
-> > -       struct hidpp_ff_private_data *data;
-> > -
-> > -       if (!dev) {
-> > -               hid_err(hid, "Struct input_dev not found!\n");
-> > -               return -EINVAL;
-> > -       }
-> > +       struct hidpp_device *hidpp = hid_get_drvdata(hid);
-> > +       struct hidpp_ff_private_data *data = hidpp->private_data;
-> >
-> >         hid_info(hid, "Unloading HID++ force feedback.\n");
-> > -       data = dev->ff->private;
-> > -       if (!data) {
->
-> I am pretty sure we might need to keep a test on data not being null.
->
+The wheel worked as expected prior to
 
-OK, sure. Could you be more explicit in your reasoning next time
-though? I am assuming this is because hid_hw_stop() might be called
-before?
+fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be
+handled by this module")
+91cf9a98ae41 ("HID: logitech-hidpp: make .probe usbhid capable")
 
-> > -               hid_err(hid, "Private data not found!\n");
-> > -               return -EINVAL;
-> > -       }
-> >
-> >         destroy_workqueue(data->wq);
-> >         device_remove_file(&hid->dev, &dev_attr_range);
-> > -
-> > -       return 0;
-> >  }
->
-> This whole hunk seems unrelated to the devm change.
-> Can you extract a patch that just stores hidpp_ff_private_data in
-> hidpp->private_data and then cleans up hidpp_ff_deinit() before
-> switching it to devm? (or maybe not, see below)
-
-Well it appears you are against the idea of leveraging devres in this
-series, so discussing the fate of said hunk seems moot.
-
->
-> After a few more thoughts, I don't think this mixing of devm and non
-> devm is a good idea:
-> we could say that the hidpp_ff_private_data and its effect_ids are
-> both children of the input_dev, not the hid_device. And we would
-> expect the whole thing to simplify with devm, but it's not, because ff
-> is not supposed to be used with devm.
->
-> I have a feeling the whole ff logic is wrong in term of where things
-> should be cleaned up, but I can not come up with a good hint on where
-> to start. For example, destroy_workqueue() is called in
-> hidpp_ff_deinit() where it might be racy, and maybe we should call it
-> in hidpp_ff_destroy()...
->
-
-Yeah, it probably should be moved to hidpp_ff_destroy(). Out of scope
-for this series though, I'll deal with it in a separate submission.
-
-> Last, you should base this patch on top of the for-next branch, we
-> recently merged a fix for the FF drivers in the HID subsystem:
-> https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=for-next&id=d9d4b1e46d9543a82c23f6df03f4ad697dab361b
->
-
-Sure will do.
-
-> Would it be too complex to drop this patch from the series and do a
-> proper follow up cleanup series that might not need to go to stable?
->
-
-No it's alright. I'll submit a v2 of this series with only two patches
-and send a follow up after.
+It's not the game that needs to unlock the wheel, but the driver itself.
 
 Thanks,
 Andrey Smirnov
