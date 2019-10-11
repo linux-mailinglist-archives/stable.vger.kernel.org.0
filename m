@@ -2,81 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63ACCD3F18
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 13:57:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD58AD3F47
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727670AbfJKL5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 07:57:33 -0400
-Received: from smtp.codeaurora.org ([198.145.29.96]:37928 "EHLO
-        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727198AbfJKL5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 07:57:33 -0400
-Received: by smtp.codeaurora.org (Postfix, from userid 1000)
-        id 173FC60ADE; Fri, 11 Oct 2019 11:57:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1570795052;
-        bh=EPYe5kTBBGci2tg48EPs5GLHdxzLBPQNaqpnWCbvN0A=;
-        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
-        b=dcyAOLXlc63HacOqTCRkTOezC44jm2EsyeUorxd4Y2Czh0nylMKLnukFv2yIPyDC6
-         gSEkVyhOQ9ZCuAADkDBMe2oepgpoWIS6GeGE5xrcy8lb2+J7dP2OL3jy6rJbjCP01C
-         +IHbZyPOYgUzaj0GS9Nt+pRHzcpRXpJGfgV2qm1w=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        pdx-caf-mail.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
-        autolearn_force=no version=3.4.0
-Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        id S1727702AbfJKMNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 08:13:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58152 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727198AbfJKMND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 08:13:03 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: kvalo@smtp.codeaurora.org)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id B19BB602EE;
-        Fri, 11 Oct 2019 11:57:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
-        s=default; t=1570795051;
-        bh=EPYe5kTBBGci2tg48EPs5GLHdxzLBPQNaqpnWCbvN0A=;
-        h=Subject:From:In-Reply-To:References:To:Cc:From;
-        b=eCT6yiCW4z23JIr4WE8iA1QhYZu/HoLLv/OdH8G5QEa5TVLcY4VigfBIS5uGhmp5d
-         ds0tQP+w3Vc91Niy04tYYt51RBcWIsQeY182WQVCX9JPWZIQEo5T4etyqE2VxVguwl
-         07Ii9gVVw/vvgqEa50iIDZK8TnIqgB7yHP0PYHaI=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org B19BB602EE
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
-Content-Type: text/plain; charset="utf-8"
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BF4221D56;
+        Fri, 11 Oct 2019 12:13:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570795983;
+        bh=Bzg5lD50FCPnI9bRVeMc/8EtzNUsMRaJrmt7cWmJkMo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fjdvWE0AWcAP9CkgUYnlIqP9aNLs3d/PMBO140eICkj2BDXlnev7AIJDOeO8Y0lQC
+         HmokVddV4qtiLA2/VvJQTlD6gf1heffYxmSCMAqoJBYeCybsWgQdxHEddEwl8HY3k0
+         f+luKDCfEnc0ERddpORhecsaxVHirAlw4gXnlT40=
+Date:   Fri, 11 Oct 2019 14:13:00 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        will@kernel.org, mark.rutland@arm.com, catalin.marinas@arm.com
+Subject: Re: [PATCH] arm64: cpufeature: Fix truncating a feature value
+Message-ID: <20191011121300.GA1144378@kroah.com>
+References: <20191010122922.GA720144@kroah.com>
+ <20191010131943.26822-1-suzuki.poulose@arm.com>
+ <20191011045538.GA977916@kroah.com>
+ <433563f1-1aad-f43b-a294-08cb39ba4818@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] ath10k: Correct error check of dma_map_single()
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20191010162653.141303-1-bjorn.andersson@linaro.org>
-References: <20191010162653.141303-1-bjorn.andersson@linaro.org>
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        stable@vger.kernel.org
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-Id: <20191011115732.173FC60ADE@smtp.codeaurora.org>
-Date:   Fri, 11 Oct 2019 11:57:32 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <433563f1-1aad-f43b-a294-08cb39ba4818@arm.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Bjorn Andersson <bjorn.andersson@linaro.org> wrote:
-
-> The return value of dma_map_single() should be checked for errors using
-> dma_mapping_error(), rather than testing for NULL. Correct this.
+On Fri, Oct 11, 2019 at 11:31:30AM +0100, Suzuki K Poulose wrote:
+> Hi Greg,
 > 
-> Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
-> Cc: stable@vger.kernel.org
-> Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> On 11/10/2019 05:55, Greg KH wrote:
+> > On Thu, Oct 10, 2019 at 02:19:43PM +0100, Suzuki K Poulose wrote:
+> > > A signed feature value is truncated to turn to an unsigned value
+> > > causing bad state in the system wide infrastructure. This affects
+> > > the discovery of FP/ASIMD support on arm64. Fix this by making sure
+> > > we cast it properly.
+> > > 
+> > > This was inadvertently fixed upstream in v4.6 onwards with the following :
+> > > commit 28c5dcb22f90113dea ("arm64: Rename cpuid_feature field extract routines")
+> > 
+> > What prevents us from just taking that commit instead?  You did not
+> > document that here at all, which I thought I asked for.
+> 
+> Sorry, I missed that part. So, that change introduces helpers to
+> extract feature fields based on the sign. And it also depends on
+> 
+> commit ff96f7bc7bf6 ("arm64: capabilities: Handle sign of the feature bit")
+> 
+> which introduces "sign" bit for the "capability" list and modifies
+> the generic capability->matches() helpers to use the hint to switch to the
+> appropriate helpers.
 
-Did this fix any real bug? Or is this just something found during code review?
+That's ok, does that cause any problems?  We always want the original
+patch instead of a one-off patch as that way we do not diverge.
 
--- 
-https://patchwork.kernel.org/patch/11183923/
+> I could backport parts of the commit 28c5dcb22f90 dropping the bits
+> that affect the changes mentioned above.
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+Please do, that is always prefered as well, but do the first thing above
+if at all possible.
 
+> > 
+> > Also, you only need 12 digits for a sha1, 28c5dcb22f90 ("arm64: Rename
+> > cpuid_feature field extract routines") would be just fine :)
+> 
+> Yea, I understand. Its simply a pain to count the numbers, so I make sure
+> to pickup something that looks larger than the 12 ;-). I will try to stick
+> to that :-)
+
+	git show -s --abbrev-commit --abbrev=12 --pretty=format:"%h (\"%s\")%n"
+will give you the correct format.  I suggest making it a git alias :)
+
+Or, use:
+	[core]
+	        abbrev = 12
+in your .gitconfig file.
+
+thanks,
+
+greg k-h
