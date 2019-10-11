@@ -2,211 +2,249 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 439EAD46AE
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 19:34:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77ECED475E
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbfJKRe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 13:34:56 -0400
-Received: from mail-yw1-f66.google.com ([209.85.161.66]:46082 "EHLO
-        mail-yw1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728400AbfJKRe4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 13:34:56 -0400
-Received: by mail-yw1-f66.google.com with SMTP id l64so3635261ywe.13
-        for <stable@vger.kernel.org>; Fri, 11 Oct 2019 10:34:55 -0700 (PDT)
+        id S1728733AbfJKSTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 14:19:16 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:35686 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728721AbfJKSTQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:19:16 -0400
+Received: by mail-lj1-f195.google.com with SMTP id m7so10754941lji.2;
+        Fri, 11 Oct 2019 11:19:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=tb/zoyBhjfvsMFy/5nFubTA0DsJYfclfxTRm+tVkXXE=;
-        b=QD3ftIDle0YFdIx7D+/fztcFJgInz8Jx5oaiBiJJ65qZAgJ9s2Mqj4UbiGE7jS+rDy
-         FscCcB1sXENS3M9SSpfkx9qgX9fAxQr1zZOK9h5TI4tIRNR2+lKWZwI4E5eZ+RzCv3jS
-         00RcgNhqZn5zxN4qCEC62E8Jd4ow44bSzrCcHlK3ghNQpdbT6ZuCsVnXlkhy+oL/yNlU
-         Y4YbAny6eIUmnvqehPSCklNRQeLMue4jFggX6PF9lwRs/Qlq9ZbVdMkTzMqqtIkmcxBW
-         fDFsRVuQAznAxLB2XMDWXKevb04heCSmf/sIlmW2EfqSpQyfw0QHfeth6r0h/5QcyiAN
-         apBQ==
+         :cc;
+        bh=lbSA0+U8G/oL8JgGMmwp2gpu7thMyfDqSxSYRn93VE8=;
+        b=iYKRivIHaYZB06m/Y86bmZXGfmM00SXvHGC602i0nCsr8z4zKxW/hyoNJ7EjarJet9
+         0QzCZ+deLV/Ihup/+0O4mMhIq5ckbGm5Nodrtsk3wMqcKGl0HYPK9dgROg0KZREyqFrP
+         MlZBBDScHGePvougSkoZNKe/b/k/bR9+4ZvyVfF0OtbkZTdo153hxHjreS3Sx9ek0BEF
+         UAKP75LvryhKknrobjpth4g7GB6MeO0ZexYwMRHssPyrWTewL4Ue/BhrbYj1N7ziNMRh
+         K3Av7B77T+quLldVMVd8vZUXk1dRJPzV78vLKXayb8Ft4qxonIi/kiKhD03iqtF8dwWB
+         uIyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=tb/zoyBhjfvsMFy/5nFubTA0DsJYfclfxTRm+tVkXXE=;
-        b=Q/VNc6bgSGJeExD1wbFr1DS4hgluep/3/1gISBhRRTJrNqbb+bkXu0TA8d9Q7rBXL+
-         mfMKfYUnTD4UtSB2FkM53XdRjF7X9xzQYl8sAZH5C8MsUuOhCcJIJC7B5LlzV1zqqnEl
-         SBASMo1Go4dXq06CeMETORx+TMwmkkHTyCBSCyZy/q/dJoCcKyeDzexiJYzAP0xkvcsX
-         vb1IirWzsAdKGQou1w3mJiDo4ANnMg8oBOUKQv2+tcJNgQ4Uay6CPjVtfqsPlWpdTbHs
-         UrlxpPUXA5tpPuDOuDQtI2kdL2hVVKamsm/PvLSdz5jbSFmw4EdE6gTfUFx1EYU8G4mV
-         OoWw==
-X-Gm-Message-State: APjAAAWjVSaWKUbHpSeIadJ/XNrhHLngn2xDnvD1joulZpbzk0pz/QwE
-        NPYZ/afK9W4gdPObN00DyRH+29PtU3Yj+LJqGsye3A==
-X-Google-Smtp-Source: APXvYqyNpyEMg1UQyESFmsh6fpKix15hX/VTfReWFWG77PQhEi3wHfARglLBB4AXORIb4CUdgMshwdyjFEjiwcJrSdo=
-X-Received: by 2002:a81:9907:: with SMTP id q7mr3172105ywg.296.1570815294663;
- Fri, 11 Oct 2019 10:34:54 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=lbSA0+U8G/oL8JgGMmwp2gpu7thMyfDqSxSYRn93VE8=;
+        b=GkznQoWPmH5jKX3PWQwikwctm7LnKWr9khysB7OqCOj4dQFLFKIMt89X+eoLXVEApn
+         /4+klcMn4X2pjcr7SMEIzFfBwtlOIIP+F6OBlOdPuPrkkikPdaZbNGIuqVq0HXp2Fhx6
+         euHdcF3n4Z5MuD3wJEOEKYP8HJMqCTrFGOR8AVlNkbUgSgORYj1qDDWhWcl7BLi+oTuX
+         wpvY9I93Czb2m4rKulbWB3PmD3nZUT1hq8mZHYUpddDvUwwnqg/tNxcxbn0atPJBgKpw
+         MLTIgUwyDmIaIgX9Wrw2Hymb3ZiOWZIqZ3Qdm1C74Cs2b+Ba3RUdyCFlYZfBJ30Q6nss
+         cHmA==
+X-Gm-Message-State: APjAAAWW34QZ+kPxDgOr5YPwTZVA6lxpssAMYNjlx32zibdbT4578oIU
+        2hSHU9fLI7sZmOVF6Pyzf0fWPLWO+cjDd97SEfw=
+X-Google-Smtp-Source: APXvYqw3KYfKyL5he8zBjZLGjb4EzqDCVAOGTBaR5DsqoQ4jy9MsZOBhrseITyN7EmZmKVJSOGsUzQxOeGCKEQR6zaU=
+X-Received: by 2002:a2e:9816:: with SMTP id a22mr6723954ljj.102.1570817953123;
+ Fri, 11 Oct 2019 11:19:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191010160549.1584316-1-guro@fb.com>
-In-Reply-To: <20191010160549.1584316-1-guro@fb.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Fri, 11 Oct 2019 10:34:43 -0700
-Message-ID: <CALvZod4i0ZfJNZkPpe7DVucOTFsKpNXua2bK2kpV0XWk1LP8EA@mail.gmail.com>
-Subject: Re: [PATCH RESEND] mm: memcg/slab: fix panic in __free_slab() caused
- by premature memcg pointer release
-To:     Roman Gushchin <guro@fb.com>
-Cc:     Linux MM <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
-        Kernel Team <kernel-team@fb.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        David Rientjes <rientjes@google.com>, stable@vger.kernel.org
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+ <20191007051240.4410-2-andrew.smirnov@gmail.com> <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+In-Reply-To: <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+From:   Andrey Smirnov <andrew.smirnov@gmail.com>
+Date:   Fri, 11 Oct 2019 11:18:37 -0700
+Message-ID: <CAHQ1cqHS6CHti_gQ806SPZzmDjMaZLOZKQDzGCu9TFspT9M0wg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private data
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Sam Bazely <sambazley@fastmail.com>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        Austin Palmer <austinp@valvesoftware.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 9:05 AM Roman Gushchin <guro@fb.com> wrote:
+On Fri, Oct 11, 2019 at 7:52 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> Karsten reported the following panic in __free_slab() happening on a s390=
-x
-> machine:
+> Hi Andrey,
 >
-> 349.361168=C2=A8 Unable to handle kernel pointer dereference in virtual k=
-ernel address space
-> 349.361210=C2=A8 Failing address: 0000000000000000 TEID: 0000000000000483
-> 349.361223=C2=A8 Fault in home space mode while using kernel ASCE.
-> 349.361240=C2=A8 AS:00000000017d4007 R3:000000007fbd0007 S:000000007fbff0=
-00 P:000000000000003d
-> 349.361340=C2=A8 Oops: 0004 ilc:3 =C3=9D#1=C2=A8 PREEMPT SMP
-> 349.361349=C2=A8 Modules linked in: tcp_diag inet_diag xt_tcpudp ip6t_rpf=
-ilter ip6t_REJECT \
-> nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_nat ip6tab=
-le_mangle \
-> ip6table_raw ip6table_security iptable_at nf_nat
-> 349.361436=C2=A8 CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-05872-g6=
-133e3e4bada-dirty #14
-> 349.361445=C2=A8 Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
-> 349.361450=C2=A8 Krnl PSW : 0704d00180000000 00000000003cadb6 (__free_sla=
-b+0x686/0x6b0)
-> 349.361464=C2=A8            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1=
- PM:0 RI:0 EA:3
-> 349.361470=C2=A8 Krnl GPRS: 00000000f3a32928 0000000000000000 000000007fb=
-f5d00 000000000117c4b8
-> 349.361475=C2=A8            0000000000000000 000000009e3291c1 00000000000=
-00000 0000000000000000
-> 349.361481=C2=A8            0000000000000003 0000000000000008 000000002b4=
-78b00 000003d080a97600
-> 349.361481=C2=A8            0000000000000003 0000000000000008 000000002b4=
-78b00 000003d080a97600
-> 349.361486=C2=A8            000000000117ba00 000003e000057db0 00000000003=
-cabcc 000003e000057c78
-> 349.361500=C2=A8 Krnl Code: 00000000003cada6: e310a1400004        lg     =
- %r1,320(%r10)
-> 349.361500=C2=A8            00000000003cadac: c0e50046c286        brasl  =
- %r14,ca32b8
-> 349.361500=C2=A8           #00000000003cadb2: a7f4fe36            brc    =
- 15,3caa1e
-> 349.361500=C2=A8           >00000000003cadb6: e32060800024        stg    =
- %r2,128(%r6)
-> 349.361500=C2=A8            00000000003cadbc: a7f4fd9e            brc    =
- 15,3ca8f8
-> 349.361500=C2=A8            00000000003cadc0: c0e50046790c        brasl  =
- %r14,c99fd8
-> 349.361500=C2=A8            00000000003cadc6: a7f4fe2c            brc    =
- 15,3caa
-> 349.361500=C2=A8            00000000003cadc6: a7f4fe2c            brc    =
- 15,3caa1e
-> 349.361500=C2=A8            00000000003cadca: ecb1ffff00d9        aghik  =
- %r11,%r1,-1
-> 349.361619=C2=A8 Call Trace:
-> 349.361627=C2=A8 (=C3=9D<00000000003cabcc>=C2=A8 __free_slab+0x49c/0x6b0)
-> 349.361634=C2=A8  =C3=9D<00000000001f5886>=C2=A8 rcu_core+0x5a6/0x7e0
-> 349.361643=C2=A8  =C3=9D<0000000000ca2dea>=C2=A8 __do_softirq+0xf2/0x5c0
-> 349.361652=C2=A8  =C3=9D<0000000000152644>=C2=A8 irq_exit+0x104/0x130
-> 349.361659=C2=A8  =C3=9D<000000000010d222>=C2=A8 do_IRQ+0x9a/0xf0
-> 349.361667=C2=A8  =C3=9D<0000000000ca2344>=C2=A8 ext_int_handler+0x130/0x=
-134
-> 349.361674=C2=A8  =C3=9D<0000000000103648>=C2=A8 enabled_wait+0x58/0x128
-> 349.361681=C2=A8 (=C3=9D<0000000000103634>=C2=A8 enabled_wait+0x44/0x128)
-> 349.361688=C2=A8  =C3=9D<0000000000103b00>=C2=A8 arch_cpu_idle+0x40/0x58
-> 349.361695=C2=A8  =C3=9D<0000000000ca0544>=C2=A8 default_idle_call+0x3c/0=
-x68
-> 349.361704=C2=A8  =C3=9D<000000000018eaa4>=C2=A8 do_idle+0xec/0x1c0
-> 349.361748=C2=A8  =C3=9D<000000000018ee0e>=C2=A8 cpu_startup_entry+0x36/0=
-x40
-> 349.361756=C2=A8  =C3=9D<000000000122df34>=C2=A8 arch_call_rest_init+0x5c=
-/0x88
-> 349.361761=C2=A8  =C3=9D<0000000000000000>=C2=A8 0x0
-> 349.361765=C2=A8 INFO: lockdep is turned off.
-> 349.361769=C2=A8 Last Breaking-Event-Address:
-> 349.361774=C2=A8  =C3=9D<00000000003ca8f4>=C2=A8 __free_slab+0x1c4/0x6b0
-> 349.361781=C2=A8 Kernel panic - not syncing: Fatal exception in interrupt
+> On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
+> >
+> > To simplify resource management in commit that follows as well as to
+> > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
+> > driver code to use devres to manage the life-cycle of FF private data.
+> >
+> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > Cc: Jiri Kosina <jikos@kernel.org>
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > Cc: Sam Bazely <sambazley@fastmail.com>
+> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: stable@vger.kernel.org
 >
-> The kernel panics on an attempt to dereference the NULL memcg pointer.
-> When shutdown_cache() is called from the kmem_cache_destroy() context,
-> a memcg kmem_cache might have empty slab pages in a partial list,
-> which are still charged to the memory cgroup. These pages are released
-> by free_partial() at the beginning of shutdown_cache(): either
-> directly or by scheduling a RCU-delayed work (if the kmem_cache has
-> the SLAB_TYPESAFE_BY_RCU flag). The latter case is when the reported
-> panic can happen: memcg_unlink_cache() is called immediately after
-> shrinking partial lists, without waiting for scheduled RCU works.
-> It sets the kmem_cache->memcg_params.memcg pointer to NULL,
-> and the following attempt to dereference it by __free_slab()
-> from the RCU work context causes the panic.
+> This patch doesn't seem to fix any error, is there a reason to send it
+> to stable? (besides as a dependency of the rest of the series).
 >
-> To fix the issue, let's postpone the release of the memcg pointer
-> to destroy_memcg_params(). It's called from a separate work context
-> by slab_caches_to_rcu_destroy_workfn(), which contains a full RCU
-> barrier. This guarantees that all scheduled page release RCU works
-> will complete before the memcg pointer will be zeroed.
->
-> Big thanks for Karsten for the perfect report containing all necessary
-> information, his help with the analysis of the problem and testing
-> of the fix.
->
-> Fixes: fb2f2b0adb98 ("mm: memcg/slab: reparent memcg kmem_caches on cgrou=
-p removal")
-> Reported-by: Karsten Graul <kgraul@linux.ibm.com>
-> Tested-by: Karsten Graul <kgraul@linux.ibm.com>
-> Signed-off-by: Roman Gushchin <guro@fb.com>
 
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Dependency is the only reason for this patch, but it is a pretty big
+reason. Prior to patches 1/3 and 2/3 FF private data was both
+allocated and passed off to FF layer via ff->private = data in a span
+of a few lines of code within hidpp_ff_init()/g920_get_config().
+After, said pair is effectively split into two different functions,
+both needing access to FF private data, but called quite far apart in
+hidpp_probe(). Alternatives to patch 1/3 would be to either make sure
+that every error path in hidpp_prob() after the call to
+g920_allocate() is aware of allocated FF data, which seems like a
+nightmare, or, to create a temporary FF data, fill it in
+g920_get_config() and memdup() it in hidpp_ff_init(). Is that (the
+latter) the path that you prefer to take?
 
-> Cc: Karsten Graul <kgraul@linux.ibm.com>
-> Cc: Shakeel Butt <shakeelb@google.com>
-> Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-> Cc: David Rientjes <rientjes@google.com>
-> Cc: stable@vger.kernel.org
-> ---
->  mm/slab_common.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
+> >  1 file changed, 29 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 0179f7ed77e5..58eb928224e5 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
+> >         struct hidpp_ff_private_data *data = ff->private;
+> >
+> >         kfree(data->effect_ids);
 >
-> diff --git a/mm/slab_common.c b/mm/slab_common.c
-> index 0b94a37da531..8afa188f6e20 100644
-> --- a/mm/slab_common.c
-> +++ b/mm/slab_common.c
-> @@ -178,10 +178,13 @@ static int init_memcg_params(struct kmem_cache *s,
+> Is there any reasons we can not also devm alloc data->effect_ids?
+
+No, but I was trying to limit the scope of this patch.
+
 >
->  static void destroy_memcg_params(struct kmem_cache *s)
->  {
-> -       if (is_root_cache(s))
-> +       if (is_root_cache(s)) {
->                 kvfree(rcu_access_pointer(s->memcg_params.memcg_caches));
-> -       else
-> +       } else {
-> +               mem_cgroup_put(s->memcg_params.memcg);
-> +               WRITE_ONCE(s->memcg_params.memcg, NULL);
->                 percpu_ref_exit(&s->memcg_params.refcnt);
-> +       }
->  }
+> > +       /*
+> > +        * Set private to NULL to prevent input_ff_destroy() from
+> > +        * freeing our devres allocated memory
 >
->  static void free_memcg_params(struct rcu_head *rcu)
-> @@ -253,8 +256,6 @@ static void memcg_unlink_cache(struct kmem_cache *s)
->         } else {
->                 list_del(&s->memcg_params.children_node);
->                 list_del(&s->memcg_params.kmem_caches_node);
-> -               mem_cgroup_put(s->memcg_params.memcg);
-> -               WRITE_ONCE(s->memcg_params.memcg, NULL);
->         }
->  }
->  #else
-> --
-> 2.21.0
+> Ouch. There is something wrong here: input_ff_destroy() calls
+> kfree(ff->private), when the data has not been allocated by
+> input_ff_create(). This seems to lack a little bit of symmetry.
 >
+
+I agree, I think it's a wart in FF API design.
+
+> > +        */
+> > +       ff->private = NULL;
+> >  }
+> >
+> >  static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+> > @@ -2090,7 +2095,7 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+> >         const u16 bcdDevice = le16_to_cpu(udesc->bcdDevice);
+> >         struct ff_device *ff;
+> >         struct hidpp_report response;
+> > -       struct hidpp_ff_private_data *data;
+> > +       struct hidpp_ff_private_data *data = hidpp->private_data;
+> >         int error, j, num_slots;
+> >         u8 version;
+> >
+> > @@ -2129,18 +2134,13 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+> >                 return error;
+> >         }
+> >
+> > -       data = kzalloc(sizeof(*data), GFP_KERNEL);
+> > -       if (!data)
+> > -               return -ENOMEM;
+> >         data->effect_ids = kcalloc(num_slots, sizeof(int), GFP_KERNEL);
+> > -       if (!data->effect_ids) {
+> > -               kfree(data);
+> > +       if (!data->effect_ids)
+> >                 return -ENOMEM;
+> > -       }
+> > +
+> >         data->wq = create_singlethread_workqueue("hidpp-ff-sendqueue");
+> >         if (!data->wq) {
+> >                 kfree(data->effect_ids);
+> > -               kfree(data);
+> >                 return -ENOMEM;
+> >         }
+> >
+> > @@ -2199,28 +2199,15 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
+> >         return 0;
+> >  }
+> >
+> > -static int hidpp_ff_deinit(struct hid_device *hid)
+> > +static void hidpp_ff_deinit(struct hid_device *hid)
+> >  {
+> > -       struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+> > -       struct input_dev *dev = hidinput->input;
+> > -       struct hidpp_ff_private_data *data;
+> > -
+> > -       if (!dev) {
+> > -               hid_err(hid, "Struct input_dev not found!\n");
+> > -               return -EINVAL;
+> > -       }
+> > +       struct hidpp_device *hidpp = hid_get_drvdata(hid);
+> > +       struct hidpp_ff_private_data *data = hidpp->private_data;
+> >
+> >         hid_info(hid, "Unloading HID++ force feedback.\n");
+> > -       data = dev->ff->private;
+> > -       if (!data) {
+>
+> I am pretty sure we might need to keep a test on data not being null.
+>
+
+OK, sure. Could you be more explicit in your reasoning next time
+though? I am assuming this is because hid_hw_stop() might be called
+before?
+
+> > -               hid_err(hid, "Private data not found!\n");
+> > -               return -EINVAL;
+> > -       }
+> >
+> >         destroy_workqueue(data->wq);
+> >         device_remove_file(&hid->dev, &dev_attr_range);
+> > -
+> > -       return 0;
+> >  }
+>
+> This whole hunk seems unrelated to the devm change.
+> Can you extract a patch that just stores hidpp_ff_private_data in
+> hidpp->private_data and then cleans up hidpp_ff_deinit() before
+> switching it to devm? (or maybe not, see below)
+
+Well it appears you are against the idea of leveraging devres in this
+series, so discussing the fate of said hunk seems moot.
+
+>
+> After a few more thoughts, I don't think this mixing of devm and non
+> devm is a good idea:
+> we could say that the hidpp_ff_private_data and its effect_ids are
+> both children of the input_dev, not the hid_device. And we would
+> expect the whole thing to simplify with devm, but it's not, because ff
+> is not supposed to be used with devm.
+>
+> I have a feeling the whole ff logic is wrong in term of where things
+> should be cleaned up, but I can not come up with a good hint on where
+> to start. For example, destroy_workqueue() is called in
+> hidpp_ff_deinit() where it might be racy, and maybe we should call it
+> in hidpp_ff_destroy()...
+>
+
+Yeah, it probably should be moved to hidpp_ff_destroy(). Out of scope
+for this series though, I'll deal with it in a separate submission.
+
+> Last, you should base this patch on top of the for-next branch, we
+> recently merged a fix for the FF drivers in the HID subsystem:
+> https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=for-next&id=d9d4b1e46d9543a82c23f6df03f4ad697dab361b
+>
+
+Sure will do.
+
+> Would it be too complex to drop this patch from the series and do a
+> proper follow up cleanup series that might not need to go to stable?
+>
+
+No it's alright. I'll submit a v2 of this series with only two patches
+and send a follow up after.
+
+Thanks,
+Andrey Smirnov
