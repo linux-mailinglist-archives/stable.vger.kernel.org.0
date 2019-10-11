@@ -2,73 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3894BD4011
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C5CD400A
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727855AbfJKM6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 08:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
+        id S1728084AbfJKM5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 08:57:09 -0400
+Received: from mga17.intel.com ([192.55.52.151]:59557 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727589AbfJKM6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 08:58:42 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 269D5206A1;
-        Fri, 11 Oct 2019 12:58:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570798721;
-        bh=t8zfNEIofHvVu2Wei3y+UkR0jiiJAB6OS6pOU28U8nk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ABi5DAe/Y/Zm2p+Az41NPnPFW40sWPwWL6y2DC5HHkt0MfQDMdM471JGaeTpAulXs
-         KvOQeEaxNV1d0OiyF8pQTqAHlRCTtRr8lH6r9rn+PpUyCgW3IZojC+Ed+0pPD0/CAQ
-         iHTMg43O0JHi/bsoqEiIUj7Es0UIHs7BrZ6i2Hh8=
-Date:   Fri, 11 Oct 2019 14:58:38 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 4.19 082/114] powerpc/book3s64/radix: Rename
- CPU_FTR_P9_TLBIE_BUG feature flag
-Message-ID: <20191011125838.GA1147624@kroah.com>
-References: <20191010083544.711104709@linuxfoundation.org>
- <20191010083612.352065837@linuxfoundation.org>
- <20191011112106.GA28994@amd>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191011112106.GA28994@amd>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S1727903AbfJKM5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 08:57:09 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Oct 2019 05:57:09 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,284,1566889200"; 
+   d="scan'208";a="200781590"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by FMSMGA003.fm.intel.com with ESMTP; 11 Oct 2019 05:57:07 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     johan@kernel.org
+Cc:     gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
+        linux-usb@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        "# v5 . 3" <stable@vger.kernel.org>
+Subject: [RFT PATCH] xhci: Fix use-after-free regression in xhci clear hub TT implementation
+Date:   Fri, 11 Oct 2019 15:58:42 +0300
+Message-Id: <1570798722-31594-1-git-send-email-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1c4b7107-f5e1-4a69-2a73-0e339c7e1072@linux.intel.com>
+References: <1c4b7107-f5e1-4a69-2a73-0e339c7e1072@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 01:21:06PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> > 
-> > Rename the #define to indicate this is related to store vs tlbie
-> > ordering issue. In the next patch, we will be adding another feature
-> > flag that is used to handles ERAT flush vs tlbie ordering issue.
-> > 
-> > Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on POWER9")
-> > Cc: stable@vger.kernel.org # v4.16+
-> > Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> > Link:
-> > https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.com
-> 
-> Apparently this is upstream commit
-> 09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 , but the changelog does not
-> say so.
+commit ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer") schedules work
+to clear TT buffer, but causes a use-after-free regression at the same time
 
-Yeah, somehow when Sasha backported this, he didn't add that :(
+Make sure hub_tt_work finishes before endpoint is disabled, otherwise
+the work will dereference already freed endpoint and device related
+pointers.
 
-Nor did he add his signed-off-by :(
+This was triggered when usb core failed to read the configuration
+descriptor of a FS/LS device during enumeration.
+xhci driver queued clear_tt_work while usb core freed and reallocated
+a new device for the next enumeration attempt.
 
-I'll go fix it up and add mine, thanks for noticing it.
+EHCI driver implents ehci_endpoint_disable() that makes sure
+clear_tt_work has finished before it returns, but xhci lacks this support.
+usb core will call hcd->driver->endpoint_disable() callback before
+disabling endpoints, so we want this in xhci as well.
 
-greg k-h
+The added xhci_endpoint_disable() is based on ehci_endpoint_disable()
+
+Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+Cc: <stable@vger.kernel.org> # v5.3
+Reported-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 5cfbf9a04494..6e817686d04f 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3071,6 +3071,48 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
+ 	}
+ }
+ 
++static void xhci_endpoint_disable(struct usb_hcd *hcd,
++				  struct usb_host_endpoint *host_ep)
++{
++	struct xhci_hcd		*xhci;
++	struct xhci_virt_device	*vdev;
++	struct xhci_virt_ep	*ep;
++	struct usb_device	*udev;
++	unsigned long		flags;
++	unsigned int		ep_index;
++
++	xhci = hcd_to_xhci(hcd);
++rescan:
++	spin_lock_irqsave(&xhci->lock, flags);
++
++	udev = (struct usb_device *)host_ep->hcpriv;
++	if (!udev || !udev->slot_id)
++		goto done;
++
++	vdev = xhci->devs[udev->slot_id];
++	if (!vdev)
++		goto done;
++
++	ep_index = xhci_get_endpoint_index(&host_ep->desc);
++	ep = &vdev->eps[ep_index];
++	if (!ep)
++		goto done;
++
++	/* wait for hub_tt_work to finish clearing hub TT */
++	if (ep->ep_state & EP_CLEARING_TT) {
++		spin_unlock_irqrestore(&xhci->lock, flags);
++		schedule_timeout_uninterruptible(1);
++		goto rescan;
++	}
++
++	if (ep->ep_state)
++		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
++			 ep->ep_state);
++done:
++	host_ep->hcpriv = NULL;
++	spin_unlock_irqrestore(&xhci->lock, flags);
++}
++
+ /*
+  * Called after usb core issues a clear halt control message.
+  * The host side of the halt should already be cleared by a reset endpoint
+@@ -5290,6 +5332,7 @@ static const struct hc_driver xhci_hc_driver = {
+ 	.free_streams =		xhci_free_streams,
+ 	.add_endpoint =		xhci_add_endpoint,
+ 	.drop_endpoint =	xhci_drop_endpoint,
++	.endpoint_disable =	xhci_endpoint_disable,
+ 	.endpoint_reset =	xhci_endpoint_reset,
+ 	.check_bandwidth =	xhci_check_bandwidth,
+ 	.reset_bandwidth =	xhci_reset_bandwidth,
+-- 
+2.7.4
+
