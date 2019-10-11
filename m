@@ -2,96 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11A76D4089
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 15:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2082CD40C8
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 15:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbfJKNH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 09:07:57 -0400
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:46852 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728218AbfJKNH4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 09:07:56 -0400
-Received: by mail-ed1-f66.google.com with SMTP id t3so8595863edw.13
-        for <stable@vger.kernel.org>; Fri, 11 Oct 2019 06:07:55 -0700 (PDT)
+        id S1728089AbfJKNPD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 09:15:03 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:37877 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727909AbfJKNPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 09:15:03 -0400
+Received: by mail-pf1-f193.google.com with SMTP id y5so6094074pfo.4;
+        Fri, 11 Oct 2019 06:15:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=115n8fVPcb6FFdMlLEXy4f+oj6Xj6AxVK8mXd42SbSI=;
-        b=CYUMjxcCYSNbsVM2PEecAYSSK5uQH599fRwUcbTZjRCG8BNav0kTVl2gVtXUlQYlHJ
-         637buS5Oy2FnLfoRW7DZQdminF6ZnY2YjwOJMFO9knejwJU2Qp4PygNclzoD7UQyfO/Y
-         SSyWRfxy1x1ZfMt71v+7nxuE0RCk8u9kCmAH6WJrLmNzl7qZJCe7Uf8x23HDc429fKeB
-         EZwSIXFyY5mtooaJRWLc4xAo6255IfMlgud5wjr9DyvBg2xBm5ePr+ZSJ28RkeALSfa2
-         rVuAu+FHmwonGxsMQLdUlYsMIim3CRYDhaoRSrfRPpiHzbW9MPbLa0U20m4yLn+vOcTx
-         CrRQ==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=5dpAxIq0oRut154BI+yiCI47QjZYC6lAR9UcaGRAy/U=;
+        b=a5Z9tUP4KnKzxAOLLHR6SNOUma9xq6R+9JSMmSRllnBoNaqF5wHZ0z9m951oOO+Fe2
+         tb32j8wbnzMtuAoEFFXQv4QS2uSr9db3fZVVKDDDUkD/hf6xHGANxMbTFnuAw2nJLIli
+         Cdki1GK31sNoP2eK1QZuJN6G+J6i2aqJWECRz4JOaZ/ZgKVITp/8H5OC6/XYRu6PpkBO
+         e/Y2p2jHBpBR5dEbZSwQPzyb5RqI3/CB3QEKMlIaEcQqkkRFC4rCBh7DopC98nQP+03y
+         sKLmT2mv+ew4hj8YtTUSgEtioY/m3rJkHz2JYzP/8udZYkS/FEANXiJnM+NuPppeYH7c
+         bJwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=115n8fVPcb6FFdMlLEXy4f+oj6Xj6AxVK8mXd42SbSI=;
-        b=iB5N5M2VFKNlE9bIxQF2Ipor1GOAocC8SojuWSnXa2caXdjMCmpA89OAjGy3Bu4n/7
-         3kivkJEjW+7IUrIPYuw8ne0uLv3lAn6PDgZxt8c9bCAZNsuLwKP2ZJKTerxNTscJq9gF
-         bvibRI6KlIb+LzZSojkqJtjlUC++iZ15eRb+ZT78bL7SHEf+FgWFUy1KIOPN2w7Sru7H
-         eC2Y019uWwHNOVicSme7u/MaM05OzxjQAKszy18BAXnX6lDbIbNKHcGz6pLirCQ+CAwk
-         ttVjhGqKBN6o3hb6Xn7vef+nftqum+0I7i6xqN2CzGupUCD6IDUDax9zuscScTG2iKic
-         KMEg==
-X-Gm-Message-State: APjAAAWpo0PvELF2NTDKera+owglhxuwgvi9WBeuMdUUWB40SrgH1Lui
-        XKYNrE1SHiyhPBquNtyfPRf5Y6EL0nzfgeMjKL4=
-X-Google-Smtp-Source: APXvYqzzzbp+7bkeq6hPRcTmZ98mDJKsQ7c56kwGz85s/QXQeKOr7gIV/ppBPj4MRvl9bZYQSNDuUwg44DRnZytAXwE=
-X-Received: by 2002:a05:6402:29a:: with SMTP id l26mr13301541edv.290.1570799275153;
- Fri, 11 Oct 2019 06:07:55 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=5dpAxIq0oRut154BI+yiCI47QjZYC6lAR9UcaGRAy/U=;
+        b=jXE6uHnArpk/L2fwFi0umMphcJKSInoJRmQvveGMTR/XlIz2fwU9zXwX+qtUZWwvFf
+         ieBzlPxNfHVIvvZ6rFEbiFYPB/5kbsXY+dEDnb3mzRNyH36/ko/spB7/TNhiSLKLUb+T
+         F3hqFDVNgqcdZLIhnELSDePZoQMLRVtU0N4MlSAiWfHbz00awDedKoLwiQxd5ghd6bMl
+         I8PylcKXS4/AY9s2CH13Itw3bUK31Ry3S/ffbZ5UyJKdZvrX3Z4/EBiKQK4TFO0EK1B6
+         1CZmjPBsrRMxuhJzHEhQN4FMkPmwcJKArlJ91Au6s6SJY63Y+kk7Bjd1BE6UGTJIyxP6
+         tfFw==
+X-Gm-Message-State: APjAAAVELGe1femVCZhZehuuGv8wJdlqW+PHiWqgrAwBpPXK15sscpAs
+        xafBct43IINTFPHCZXCic8APIwMv
+X-Google-Smtp-Source: APXvYqxpypOW/RODa2t2mycHthlzNX/Oo11hZqDdYWZm9g7iAvTUd/ddR/QjMfrCq2T6SwD91NCHbQ==
+X-Received: by 2002:aa7:924f:: with SMTP id 15mr16586251pfp.194.1570799701215;
+        Fri, 11 Oct 2019 06:15:01 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o9sm8493658pfp.67.2019.10.11.06.14.59
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 11 Oct 2019 06:15:00 -0700 (PDT)
+Subject: Re: [PATCH 4.14 00/61] 4.14.149-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191010083449.500442342@linuxfoundation.org>
+ <ce4b3f10-eafd-1169-9240-fb3891279c2a@roeck-us.net>
+ <20191011042945.GB939089@kroah.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <fde4b241-2932-c543-d540-cc89f2b1eac0@roeck-us.net>
+Date:   Fri, 11 Oct 2019 06:14:59 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Received: by 2002:aa7:c883:0:0:0:0:0 with HTTP; Fri, 11 Oct 2019 06:07:54
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.com
-From:   Aisha Gddafi <aishagddafi6800@gmail.com>
-Date:   Fri, 11 Oct 2019 06:07:54 -0700
-Message-ID: <CAFdvC6PbwTJ=qdBpiQb-zC=ONHZY-nrdgJdOv3UBTNZEBMPpfg@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191011042945.GB939089@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+On 10/10/19 9:29 PM, Greg Kroah-Hartman wrote:
+> On Thu, Oct 10, 2019 at 10:12:26AM -0700, Guenter Roeck wrote:
+>> On 10/10/19 1:36 AM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 4.14.149 release.
+>>> There are 61 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
+>>> Anything received after that time might be too late.
+>>>
+>>
+>> Preliminary.
+>>
+>> I see several mips build failures.
+>>
+>> arch/mips/kernel/proc.c: In function 'show_cpuinfo':
+>> arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaration of function '__ase'
+> 
+> Thanks, will go drop the lone mips patch that I think is causing this
+> problem.
+> 
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, alleinerziehende Mutter und Wit=
-we
-mit drei Kindern. Ich bin die einzige biologische Tochter des sp=C3=A4ten L=
-ibyers
-Pr=C3=A4sident (Oberst Muammar Gaddafi).
+Looks like it did. For v4.14.148-61-g6f45e0e87a75:
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen und
-f=C3=BCnfhunderttausend
-United State Dollar (27.500.000,00 $) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner wegen meines aktuellen Fl=C3=BCchtlingsstatus bin ich jed=
-och
-Interesse an Ihnen f=C3=BCr die Unterst=C3=BCtzung von Investitionsprojekte=
-n in
-Ihrem Land, kann sein
-Von dort aus k=C3=B6nnen wir in n=C3=A4chster Zukunft eine Gesch=C3=A4ftsbe=
-ziehung aufbauen.
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 372 pass: 372 fail: 0
 
-Ich bin gerne bereit, mit Ihnen das Verh=C3=A4ltnis der Beteiligungsquote z=
-u teilen
-st=C3=BCtzen Sie sich auf die zuk=C3=BCnftigen Investitionen, die Gewinne e=
-rzielen.
-
-Wenn Sie bereit sind, dieses Projekt in meinem Namen durchzuf=C3=BChren,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. Schreiben Sie mir an diese
-E-Mail-Adresse (
-ayishagddafio@mail.com ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Gaddafi
-Antwort an: ayishagddafio@mail.com
+Guenter
