@@ -2,66 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0FDBD3F9C
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:37:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3894BD4011
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727198AbfJKMhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 08:37:07 -0400
-Received: from customer-187-141-58-169-sta.uninet-ide.com.mx ([187.141.58.169]:38056
-        "EHLO correo.mcontreras.gob.mx" rhost-flags-OK-FAIL-OK-OK)
-        by vger.kernel.org with ESMTP id S1727907AbfJKMhG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 08:37:06 -0400
-X-Greylist: delayed 10987 seconds by postgrey-1.27 at vger.kernel.org; Fri, 11 Oct 2019 08:37:06 EDT
-Received: from localhost (localhost [127.0.0.1])
-        by correo.mcontreras.gob.mx (Postfix) with ESMTP id 95780121337DF;
-        Fri, 11 Oct 2019 02:18:40 -0500 (CDT)
-Received: from correo.mcontreras.gob.mx ([127.0.0.1])
-        by localhost (correo.mcontreras.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 9MHeoNrykdGK; Fri, 11 Oct 2019 02:18:40 -0500 (CDT)
-Received: from localhost (localhost [127.0.0.1])
-        by correo.mcontreras.gob.mx (Postfix) with ESMTP id 1F5B3121337FC;
-        Thu, 10 Oct 2019 22:16:00 -0500 (CDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 correo.mcontreras.gob.mx 1F5B3121337FC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mcontreras.gob.mx;
-        s=53A92184-CD91-11E8-86DF-F45FB6B066AC; t=1570763761;
-        bh=RAp+BpzrZhejifhgEL3mZcq1N1m02Ouc4RYqHzdJuAE=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=E4+hcjZsHr/BZwEofLiRuhCF4iBVZxu2NmjgZxHPKxkcsvGgDwriIobKmzVl5ryxj
-         LP8rycau6TM3kZQZ1EIeXB9UN0M29boWdP8ur+e+w80VMlC7Qx4kAK8TIywDlTPtTh
-         jz8g3QvUSy6JAHlBtUmkHKzbaMxR1JjXqDYGXbPuTGviWnoREj/DfXiMKsIZ/+S+fQ
-         KDbl+dUDbxBAkbBdbnX1IoIIG2BBxOSqaX702DXqMSzniE4kWmgNXVFVyB9ETqHiRg
-         UOjMT8P3Mghznh0dvRC7/YBBNc/TKvDcJ7pF+mCGbrTG6v/BhbeOHaB3eXmSYhmUWj
-         NtrWsK36pzbHg==
-X-Amavis-Modified: Mail body modified (using disclaimer) -
-        correo.mcontreras.gob.mx
-X-Virus-Scanned: amavisd-new at mcontreras.gob.mx
-Received: from correo.mcontreras.gob.mx ([127.0.0.1])
-        by localhost (correo.mcontreras.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id jLi2LqLLqpJy; Thu, 10 Oct 2019 22:15:59 -0500 (CDT)
-Received: from [192.168.0.162] (unknown [102.165.205.59])
-        by correo.mcontreras.gob.mx (Postfix) with ESMTPSA id DCA97DFDFD63;
-        Thu, 10 Oct 2019 19:10:33 -0500 (CDT)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1727855AbfJKM6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 08:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727589AbfJKM6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 08:58:42 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 269D5206A1;
+        Fri, 11 Oct 2019 12:58:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570798721;
+        bh=t8zfNEIofHvVu2Wei3y+UkR0jiiJAB6OS6pOU28U8nk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ABi5DAe/Y/Zm2p+Az41NPnPFW40sWPwWL6y2DC5HHkt0MfQDMdM471JGaeTpAulXs
+         KvOQeEaxNV1d0OiyF8pQTqAHlRCTtRr8lH6r9rn+PpUyCgW3IZojC+Ed+0pPD0/CAQ
+         iHTMg43O0JHi/bsoqEiIUj7Es0UIHs7BrZ6i2Hh8=
+Date:   Fri, 11 Oct 2019 14:58:38 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH 4.19 082/114] powerpc/book3s64/radix: Rename
+ CPU_FTR_P9_TLBIE_BUG feature flag
+Message-ID: <20191011125838.GA1147624@kroah.com>
+References: <20191010083544.711104709@linuxfoundation.org>
+ <20191010083612.352065837@linuxfoundation.org>
+ <20191011112106.GA28994@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Charity Donation
-To:     Recipients <c.ljuarez@mcontreras.gob.mx>
-From:   D Johnson <c.ljuarez@mcontreras.gob.mx>
-Date:   Fri, 11 Oct 2019 08:08:54 +0800
-Reply-To: jbasson111@aol.com
-Message-Id: <20191011001033.DCA97DFDFD63@correo.mcontreras.gob.mx>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191011112106.GA28994@amd>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Fri, Oct 11, 2019 at 01:21:06PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> > 
+> > Rename the #define to indicate this is related to store vs tlbie
+> > ordering issue. In the next patch, we will be adding another feature
+> > flag that is used to handles ERAT flush vs tlbie ordering issue.
+> > 
+> > Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on POWER9")
+> > Cc: stable@vger.kernel.org # v4.16+
+> > Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> > Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> > Link:
+> > https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.com
+> 
+> Apparently this is upstream commit
+> 09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 , but the changelog does not
+> say so.
 
-I have a charity donation of 7,500,000.00 for you to help your community, =
+Yeah, somehow when Sasha backported this, he didn't add that :(
 
-Kindly Contact me for further details at- (jbasson111@aol.com)
+Nor did he add his signed-off-by :(
 
-David.
-Alcaldia La Magdalena Contreras Coordinacion
+I'll go fix it up and add mine, thanks for noticing it.
 
+greg k-h
