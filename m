@@ -2,168 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A0DD4865
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 21:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C22C6D488C
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 21:38:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728776AbfJKT0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 15:26:07 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:49690 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728963AbfJKT0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 15:26:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1570821965;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Cpiu7s7hf2nZP0WQJjeZFG1TgT08vZqZIEI3ha/hazE=;
-        b=C1fId8FIlXbEHv1L+7W+bkoE0V0nu5bYzCkSrAvt9ZqNmqXLT9FUp4qRGFPmup68g6+tzO
-        +inbSet0+lmmxGfgmrPZSIerf3M2sxCficpIctj3adW8UWdHUwoyUHKstGU6ATbzKYg5pn
-        HjMDxYZbBbUNB3KiPVL8uuENukJODWc=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-339-UpWGJPTZN0qoN9TjJKn3DA-1; Fri, 11 Oct 2019 15:26:03 -0400
-Received: by mail-qk1-f199.google.com with SMTP id s14so9939913qkg.12
-        for <stable@vger.kernel.org>; Fri, 11 Oct 2019 12:26:03 -0700 (PDT)
+        id S1729024AbfJKTi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 15:38:59 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:37551 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728974AbfJKTi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 15:38:59 -0400
+Received: by mail-lj1-f195.google.com with SMTP id l21so10946559lje.4;
+        Fri, 11 Oct 2019 12:38:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=bvbkgPji/VuFLHgjt9B1Ec11lPx0dB/Mf4ZgfY2WJ0A=;
+        b=ck3sqG+HCuBS2PvbPgzkGeex+ksEJxtGvTPTGlxGOaGI1cnWQYSMN9Qg4Gsqwm10VQ
+         5tXVXoM+GaRPf+9EkOcXabZocewWMNtzOdAB6Fe52D6yMM2CyLqZDSVURiONLwxhuyBF
+         bi/oHXoJpFSMCljG4rVs/XDL11NVgk54RWeVgwSPAM7n+uJiKS3Ozlwmw84govq9xul8
+         WGU/EP8F0/jkbBWEkaUsHfX/S3A61cPFcP4ph2oa+9ldb6WyNSr5KxyreW0eEx7XB1u6
+         ninfVvXwsmEveVNmGBwH2wFHDmaxCqV5ELHWKFjGMa/9MinsjI1h8ipsiiaxhEw72pVZ
+         ZYwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Vm9hCEgalMjdO3brVzGiAiZDpN4MX984R0GN6bPTIZw=;
-        b=nljXXB0LJHkk6NxFR71zyJFOUL64atJWa1IuQpj3qMGWeL9Yfszheiz9nA+3rbG7Uc
-         XWQaRRfEFzHlHhy++yy+ug0jVI/63zK4c78Ax80NlWuX2BIdEbPxDQ8scHOjBnv6aJOl
-         PhkAOFpymNPqAQ4cYCCiETKPasMvlgMzZxvpD5iEiIxhLxfUBcNww2yMetMJgjYMDT9Z
-         yMOtgOTuD8Yzy/YWbWCfxYtXKe+pBhO5ny7JsuAQCvm94HRVK8jDI3DHaR59Kr8vSzCY
-         8RKeTvJTmRih4tauGOggbYh/A/kzueKavMbK6RR1OPWpkJXfIw5+lzxHbnlfcdFnabCi
-         WFYA==
-X-Gm-Message-State: APjAAAWg99MoQKmPXz0BjuOhIKH+dLkFc6ItjqWSiYi315WKYVio1y5V
-        0f26dputCXwAjScFnchn4fPV8JLaumLQcCPEbEfAhMLxGkUEAIen4cQmwTPC3NDBxHdqfgNQsMw
-        /E1hpIxO1efICAe/WVzvLDu3bCI0GhxHM
-X-Received: by 2002:a37:50a:: with SMTP id 10mr16739704qkf.27.1570821963350;
-        Fri, 11 Oct 2019 12:26:03 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqx05uDRWS0FZ6McnRw0wvRkHDnrcgb/JBgJnFKj/FIi/+KaVzrBJ5aRpM86Ax1WNWr/Vjw1XePH4a8Ny4dxnhM=
-X-Received: by 2002:a37:50a:: with SMTP id 10mr16739692qkf.27.1570821963111;
- Fri, 11 Oct 2019 12:26:03 -0700 (PDT)
+        bh=bvbkgPji/VuFLHgjt9B1Ec11lPx0dB/Mf4ZgfY2WJ0A=;
+        b=Y9VfbMHtqt/O1CisulGsMnHQPLSHr1qQX0LnXf50q+bJHVaM9jSWYIitvM3rvtle+A
+         SSp9+tWb/zdMa2NvKAbBTmko8yvJNRlj023ZjIbiB1tRme4dGTffFcb/DK4Pn2kyQtxB
+         O1It6hNGBYGuaYXQJ5C+6NM0mYXGNMQl/3vQSvFhLOK2FjNB9/R2242RhQyVLlvbwGHL
+         mT1OKnUzZq6AE9yWKYNHtzx4Iv8Qru5f4dH+rCHEbi+tfwsfLLkBVeJvIz3ZJHSPAaiU
+         Ic3KXEO8iraFrzWlrWz8sX+tEbCFj/gVaHY8YmIQv/8lIOCa3rERIfecyx3NNKESR1zh
+         y7WQ==
+X-Gm-Message-State: APjAAAXOGIh6MTh11o9gICSAoaZXHT4xT3A4EUi7lKcX8jh5T2k/lzOF
+        44HW2Tvyx1zV+V6gHOXBk0K9PIQl4pytkP4R3nK2+vTAyPU=
+X-Google-Smtp-Source: APXvYqyLYRKd5FFwzw51/dkToQP/WtKREB+bxrHW6EtZpBon38cz6MKrSZce2CyBZAxOghYhkiemxpVu0oOi/aDuBjU=
+X-Received: by 2002:a2e:97ca:: with SMTP id m10mr8645293ljj.168.1570822736617;
+ Fri, 11 Oct 2019 12:38:56 -0700 (PDT)
 MIME-Version: 1.0
 References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
- <20191007051240.4410-2-andrew.smirnov@gmail.com> <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
- <20191011182617.GE229325@dtor-ws>
-In-Reply-To: <20191011182617.GE229325@dtor-ws>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Fri, 11 Oct 2019 21:25:52 +0200
-Message-ID: <CAO-hwJLH6SMkLb1kZGj1E+BUHJ+ZsE1n+d=xeJgsvTCjHH1Wzw@mail.gmail.com>
-Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private data
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+ <20191007051240.4410-4-andrew.smirnov@gmail.com> <CAO-hwJJ8tp4Rqte-umv9e=S5evR5oJTErsNR0Wk-z8wcbtR0wg@mail.gmail.com>
+In-Reply-To: <CAO-hwJJ8tp4Rqte-umv9e=S5evR5oJTErsNR0Wk-z8wcbtR0wg@mail.gmail.com>
+From:   Andrey Smirnov <andrew.smirnov@gmail.com>
+Date:   Fri, 11 Oct 2019 12:38:45 -0700
+Message-ID: <CAHQ1cqHCYiaEXck3LMGBwYiHVDQcF=XuF=kHJ4f_v1ea6hDR2g@mail.gmail.com>
+Subject: Re: [PATCH 3/3] HID: logitech-hidpp: add G920 device validation quirk
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Sam Bazely <sambazley@fastmail.com>,
         Jiri Kosina <jikos@kernel.org>,
         Henrik Rydberg <rydberg@bitmath.org>,
-        Sam Bazely <sambazley@fastmail.com>,
         "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
         Austin Palmer <austinp@valvesoftware.com>,
         lkml <linux-kernel@vger.kernel.org>,
         "3.8+" <stable@vger.kernel.org>
-X-MC-Unique: UpWGJPTZN0qoN9TjJKn3DA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 8:26 PM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
+On Fri, Oct 11, 2019 at 7:56 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
 >
-> On Fri, Oct 11, 2019 at 04:52:04PM +0200, Benjamin Tissoires wrote:
-> > Hi Andrey,
+> On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
 > >
-> > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com=
-> wrote:
-> > >
-> > > To simplify resource management in commit that follows as well as to
-> > > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
-> > > driver code to use devres to manage the life-cycle of FF private data=
-.
-> > >
-> > > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> > > Cc: Jiri Kosina <jikos@kernel.org>
-> > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > Cc: Henrik Rydberg <rydberg@bitmath.org>
-> > > Cc: Sam Bazely <sambazley@fastmail.com>
-> > > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-> > > Cc: Austin Palmer <austinp@valvesoftware.com>
-> > > Cc: linux-input@vger.kernel.org
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Cc: stable@vger.kernel.org
+> > G920 device only advertises REPORT_ID_HIDPP_LONG and
+> > REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
+> > for REPORT_ID_HIDPP_SHORT with optional=false will always fail and
+> > prevent G920 to be recognized as a valid HID++ device.
 > >
-> > This patch doesn't seem to fix any error, is there a reason to send it
-> > to stable? (besides as a dependency of the rest of the series).
+> > Modify hidpp_validate_device() to check only REPORT_ID_HIDPP_LONG with
+> > optional=false on G920 to fix this.
 > >
-> > > ---
-> > >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++-------------=
---
-> > >  1 file changed, 29 insertions(+), 24 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
-ech-hidpp.c
-> > > index 0179f7ed77e5..58eb928224e5 100644
-> > > --- a/drivers/hid/hid-logitech-hidpp.c
-> > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device =
-*ff)
-> > >         struct hidpp_ff_private_data *data =3D ff->private;
-> > >
-> > >         kfree(data->effect_ids);
+> > Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be handled by this module")
+> > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204191
+> > Reported-by: Sam Bazely <sambazley@fastmail.com>
+> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > Cc: Jiri Kosina <jikos@kernel.org>
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > Cc: Sam Bazely <sambazley@fastmail.com>
+> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
 > >
-> > Is there any reasons we can not also devm alloc data->effect_ids?
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index cadf36d6c6f3..f415bf398e17 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -3511,6 +3511,12 @@ static bool hidpp_validate_report(struct hid_device *hdev, int id,
 > >
-> > > +       /*
-> > > +        * Set private to NULL to prevent input_ff_destroy() from
-> > > +        * freeing our devres allocated memory
-> >
-> > Ouch. There is something wrong here: input_ff_destroy() calls
-> > kfree(ff->private), when the data has not been allocated by
-> > input_ff_create(). This seems to lack a little bit of symmetry.
+> >  static bool hidpp_validate_device(struct hid_device *hdev)
+> >  {
+> > +       struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+> > +
+> > +       if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
+> > +               return hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
+> > +                                            HIDPP_REPORT_SHORT_LENGTH, false);
+> > +
 >
-> Yeah, ff and ff-memless essentially take over the private data assigned
-> to them. They were done before devm and the lifetime of the "private"
-> data pieces was tied to the lifetime of the input device to simplify
-> error handling and teardown.
-
-Yeah, that stealing of the pointer is not good :)
-But OTOH, it helps
-
+> with https://patchwork.kernel.org/patch/11184749/ we also have a need
+> for such a trick for BLE mice.
 >
-> Maybe we should clean it up a bit... I'm open to suggestions.
-
-The problem I had when doing the review was that there is no easy way
-to have a "devm_input_ff_create_()", because the way it's built is
-already "devres-compatible": the destroy gets called by input core.
-
-So I don't have a good answer to simplify in a transparent manner
-without breaking the API.
-
+> I wonder if we should not have a more common way of validating the devices
 >
-> In this case maybe best way is to get rid of hidpp_ff_destroy() and not
-> set ff->private and rely on devm to free the buffers. One can get to
-> device private data from ff methods via input_get_drvdata() since they
-> all (except destroy) are passed input device pointer.
 
-Sounds like a good idea. However, it seems there might be a race when
-removing the workqueue:
-the workqueue gets deleted in hidpp_remove, when the input node will
-be freed by devres, so after the call of hidpp_remove.
+What about just checking for:
 
-So we should probably keep hidpp_ff_destroy() to clean up the ff bits,
-and instead move the content of hidpp_ff_deinit() into
-hidpp_ff_destroy() so we ensure proper ordering.
+hidpp_validate_report(REPORT_ID_HIDPP_SHORT,
+                                    HIDPP_REPORT_SHORT_LENGTH, true) ||
+hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
+                                    HIDPP_REPORT_LONG_LENGTH, true);
 
-Andrey, note that ensuring the workqueue gets freed after the call of
-input_destroy_device is something that should definitively go into
-stable as this is a potential race problem.
+and probably dropping the "optional" argument for
+hidpp_validate_report()? Original code allows there to be devices
+supporting shorts reports only, but it seems that devices that support
+only long reports are legitimate too, so maybe the only "invalid"
+combination is if both are invalid length or missing?
 
-Cheers,
-Benjamin
-
+Thanks,
+Andrey Smirnov
