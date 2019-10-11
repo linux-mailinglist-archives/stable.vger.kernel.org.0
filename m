@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEA8D3875
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 06:27:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E4FD3878
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 06:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726205AbfJKE1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 00:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S1726213AbfJKE3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 00:29:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726187AbfJKE1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 00:27:37 -0400
+        id S1726099AbfJKE3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 00:29:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B2562089F;
-        Fri, 11 Oct 2019 04:27:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98A502089F;
+        Fri, 11 Oct 2019 04:29:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570768056;
-        bh=IOpF7ZT1uyATibpb2Q8pKZ9Sewq/srJyUPlT/L2oK6w=;
+        s=default; t=1570768188;
+        bh=gCx5YHH5VjxJhgJJ/tLxPkRAC3Lkst3E5Co1aLOBd6g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XbnaD5r0fcvMpvRZM0Zf3goTuw2ba1ZmwkfN+TATNw4qu+0GMDLIFoFlV4C3uOOLp
-         xM1/DIBDKZhdjZmcoC248wbeLFA44kWunCBVgLzzo2fxL6dmfdi9WbdT7uDx5MdVNd
-         3TbT9EL4XQL8jLhBE+wE/E/OoOtstLWsYLMH2W78=
-Date:   Fri, 11 Oct 2019 06:27:34 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
-Cc:     alexander.deucher@amd.com, stable@vger.kernel.org,
-        amd-gfx@lists.freedesktop.org
-Subject: Re: [PATCH v3] drm/radeon: Fix EEH during kexec
-Message-ID: <20191011042734.GA939089@kroah.com>
-References: <1570736672-10644-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+        b=joLF3Qm28BCaRxQD0Xoh0sQvgQhU2FaCdONduvk/OWb/lgqu6Hb55k6YURoW4FD0A
+         Xd2Rvz0Y/YSnkYbGqc85fK69SCGqAAdtRIWNBK1GMhdOzbFS9+cRAQ04wtmK78ZA5l
+         yRquX6XkltDVmQjtUveeO2V885sTNnt3eYI/Y2ZE=
+Date:   Fri, 11 Oct 2019 06:29:45 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/61] 4.14.149-stable review
+Message-ID: <20191011042945.GB939089@kroah.com>
+References: <20191010083449.500442342@linuxfoundation.org>
+ <ce4b3f10-eafd-1169-9240-fb3891279c2a@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1570736672-10644-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+In-Reply-To: <ce4b3f10-eafd-1169-9240-fb3891279c2a@roeck-us.net>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 02:44:29PM -0500, KyleMahlkuch wrote:
-> During kexec some adapters hit an EEH since they are not properly
-> shut down in the radeon_pci_shutdown() function. Adding
-> radeon_suspend_kms() fixes this issue.
-> Enabled only on PPC because this patch causes issues on some other
-> boards.
+On Thu, Oct 10, 2019 at 10:12:26AM -0700, Guenter Roeck wrote:
+> On 10/10/19 1:36 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.14.149 release.
+> > There are 61 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat 12 Oct 2019 08:29:51 AM UTC.
+> > Anything received after that time might be too late.
+> > 
 > 
-> Signed-off-by: Kyle Mahlkuch <Kyle.Mahlkuch at ibm.com>
+> Preliminary.
+> 
+> I see several mips build failures.
+> 
+> arch/mips/kernel/proc.c: In function 'show_cpuinfo':
+> arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaration of function '__ase'
 
-Real email address please, with a '@' sign.
+Thanks, will go drop the lone mips patch that I think is causing this
+problem.
 
-And your "From:" line did not match up with this :(
-
-> ---
->  drivers/gpu/drm/radeon/radeon_drv.c | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
-
-<formletter>
-
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
+greg k-h
