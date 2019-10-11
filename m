@@ -2,135 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C02D4785
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12F0D4794
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728714AbfJKS0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 14:26:22 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:36642 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728472AbfJKS0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:26:22 -0400
-Received: by mail-pg1-f194.google.com with SMTP id 23so6264409pgk.3;
-        Fri, 11 Oct 2019 11:26:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=jxnkHI88PrlznD0X1thKhOQvv+RypW1KwIdA3XIbgY8=;
-        b=jEwyzxuao3KGDNQYlf2/0Ho27W8nshP38GuFJ0t0eDDgLntVfJAJnYY6QQLMRDsS3C
-         jEq9pSKuZmjAov7CEAa9qHuejXm0jDmUyMSwMIr27Kz8SvLeYJByirGepXKvS/jeG18w
-         e2CnyP3PJ+Swpje3KQJWIQq0XPc6rMc4uDV/H7k8j/4FVaAwHnjM7R3Vh/UYZNHSjIFt
-         l/ZVtjD09dUGKzf82Zh3fTrbtZuUFuTk9yu46Na+ccD9btT+1fhxndJYctrpznU18cGs
-         lmRsrH1jQ/7hTvm+uCDyKDldf+mGxzUlYRFgVPoU6/ZwRo4MUchmWpcmIKwBIxUutdDZ
-         t9ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=jxnkHI88PrlznD0X1thKhOQvv+RypW1KwIdA3XIbgY8=;
-        b=HWApv/g8ZdvwcWH4mjHHI1lC+wq4jsx4/BBXBhN8+lDz6HDP83gOihGvzvPT0gQ9Ig
-         kQlMhMtg4FmSsQjcgpDBJrhTV5MGJsZsVtnZKptHA4UR22xYD/0PCS7w50TJel09qFtT
-         VWN5QMWfDMmMLVg0U4fbzNtmQpw9DsTHrHBCOspIJDz5eyFBW+OpExEcsIGJq4ob36GK
-         2bjcEOQzB/VRTPn+EDGwY7yFYzcnprAVEZW3M/1VRML0s8/BfpsC5454W3ZLOpgBocrt
-         9yI6VxZPaPxuPUzMhuz/YfswUSxLozGIekx324ZubydFbr9JTx6LicxO+19QkP9NSl/e
-         ixhg==
-X-Gm-Message-State: APjAAAUNNYssT9TrDE7T7Jdgur/ybQczUz4QI6GmSVdoK9ANTPMDyw15
-        8GJrx5c2l9szTChO4arMqyI=
-X-Google-Smtp-Source: APXvYqxrpSc+TDPcyRF4KlmdtpyzMSwahLxwMENVk8AP/KE9KtxkTtl8oS6zl44QqX0eaWzKFk5mYg==
-X-Received: by 2002:a17:90a:c382:: with SMTP id h2mr18376741pjt.110.1570818380971;
-        Fri, 11 Oct 2019 11:26:20 -0700 (PDT)
-Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id q33sm9518894pgm.50.2019.10.11.11.26.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Oct 2019 11:26:20 -0700 (PDT)
-Date:   Fri, 11 Oct 2019 11:26:17 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        Sam Bazely <sambazley@fastmail.com>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>
-Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private
- data
-Message-ID: <20191011182617.GE229325@dtor-ws>
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
- <20191007051240.4410-2-andrew.smirnov@gmail.com>
- <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+        id S1728823AbfJKS2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 14:28:18 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:33599 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728735AbfJKS2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:28:18 -0400
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iIzdj-0008R6-29; Fri, 11 Oct 2019 20:27:47 +0200
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 953461C0324;
+        Fri, 11 Oct 2019 20:27:46 +0200 (CEST)
+Date:   Fri, 11 Oct 2019 18:27:46 -0000
+From:   "tip-bot2 for Steve Wahl" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/boot/64: Make level2_kernel_pgt pages invalid
+ outside kernel area
+Cc:     Steve Wahl <steve.wahl@hpe.com>, Borislav Petkov <bp@suse.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Baoquan He <bhe@redhat.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        dimitri.sivanich@hpe.com, Feng Tang <feng.tang@intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Jordan Borgner <mail@jordan-borgner.de>,
+        Juergen Gross <jgross@suse.com>, mike.travis@hpe.com,
+        russ.anderson@hpe.com, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "x86-ml" <x86@kernel.org>,
+        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <9c011ee51b081534a7a15065b1681d200298b530.1569358539.git.steve.wahl@hpe.com>
+References: <9c011ee51b081534a7a15065b1681d200298b530.1569358539.git.steve.wahl@hpe.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Message-ID: <157081846655.9978.8543242326238590954.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 04:52:04PM +0200, Benjamin Tissoires wrote:
-> Hi Andrey,
-> 
-> On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
-> >
-> > To simplify resource management in commit that follows as well as to
-> > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
-> > driver code to use devres to manage the life-cycle of FF private data.
-> >
-> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> > Cc: Jiri Kosina <jikos@kernel.org>
-> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Cc: Henrik Rydberg <rydberg@bitmath.org>
-> > Cc: Sam Bazely <sambazley@fastmail.com>
-> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-> > Cc: Austin Palmer <austinp@valvesoftware.com>
-> > Cc: linux-input@vger.kernel.org
-> > Cc: linux-kernel@vger.kernel.org
-> > Cc: stable@vger.kernel.org
-> 
-> This patch doesn't seem to fix any error, is there a reason to send it
-> to stable? (besides as a dependency of the rest of the series).
-> 
-> > ---
-> >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
-> >  1 file changed, 29 insertions(+), 24 deletions(-)
-> >
-> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> > index 0179f7ed77e5..58eb928224e5 100644
-> > --- a/drivers/hid/hid-logitech-hidpp.c
-> > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
-> >         struct hidpp_ff_private_data *data = ff->private;
-> >
-> >         kfree(data->effect_ids);
-> 
-> Is there any reasons we can not also devm alloc data->effect_ids?
-> 
-> > +       /*
-> > +        * Set private to NULL to prevent input_ff_destroy() from
-> > +        * freeing our devres allocated memory
-> 
-> Ouch. There is something wrong here: input_ff_destroy() calls
-> kfree(ff->private), when the data has not been allocated by
-> input_ff_create(). This seems to lack a little bit of symmetry.
+The following commit has been merged into the x86/urgent branch of tip:
 
-Yeah, ff and ff-memless essentially take over the private data assigned
-to them. They were done before devm and the lifetime of the "private"
-data pieces was tied to the lifetime of the input device to simplify
-error handling and teardown.
+Commit-ID:     2aa85f246c181b1fa89f27e8e20c5636426be624
+Gitweb:        https://git.kernel.org/tip/2aa85f246c181b1fa89f27e8e20c5636426be624
+Author:        Steve Wahl <steve.wahl@hpe.com>
+AuthorDate:    Tue, 24 Sep 2019 16:03:55 -05:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 11 Oct 2019 18:38:15 +02:00
 
-Maybe we should clean it up a bit... I'm open to suggestions.
+x86/boot/64: Make level2_kernel_pgt pages invalid outside kernel area
 
-In this case maybe best way is to get rid of hidpp_ff_destroy() and not
-set ff->private and rely on devm to free the buffers. One can get to
-device private data from ff methods via input_get_drvdata() since they
-all (except destroy) are passed input device pointer.
+Our hardware (UV aka Superdome Flex) has address ranges marked
+reserved by the BIOS. Access to these ranges is caught as an error,
+causing the BIOS to halt the system.
 
-Thanks.
+Initial page tables mapped a large range of physical addresses that
+were not checked against the list of BIOS reserved addresses, and
+sometimes included reserved addresses in part of the mapped range.
+Including the reserved range in the map allowed processor speculative
+accesses to the reserved range, triggering a BIOS halt.
 
--- 
-Dmitry
+Used early in booting, the page table level2_kernel_pgt addresses 1
+GiB divided into 2 MiB pages, and it was set up to linearly map a full
+ 1 GiB of physical addresses that included the physical address range
+of the kernel image, as chosen by KASLR.  But this also included a
+large range of unused addresses on either side of the kernel image.
+And unlike the kernel image's physical address range, this extra
+mapped space was not checked against the BIOS tables of usable RAM
+addresses.  So there were times when the addresses chosen by KASLR
+would result in processor accessible mappings of BIOS reserved
+physical addresses.
+
+The kernel code did not directly access any of this extra mapped
+space, but having it mapped allowed the processor to issue speculative
+accesses into reserved memory, causing system halts.
+
+This was encountered somewhat rarely on a normal system boot, and much
+more often when starting the crash kernel if "crashkernel=512M,high"
+was specified on the command line (this heavily restricts the physical
+address of the crash kernel, in our case usually within 1 GiB of
+reserved space).
+
+The solution is to invalidate the pages of this table outside the kernel
+image's space before the page table is activated. It fixes this problem
+on our hardware.
+
+ [ bp: Touchups. ]
+
+Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: dimitri.sivanich@hpe.com
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jordan Borgner <mail@jordan-borgner.de>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: mike.travis@hpe.com
+Cc: russ.anderson@hpe.com
+Cc: stable@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+Link: https://lkml.kernel.org/r/9c011ee51b081534a7a15065b1681d200298b530.1569358539.git.steve.wahl@hpe.com
+---
+ arch/x86/kernel/head64.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 29ffa49..206a4b6 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -222,13 +222,31 @@ unsigned long __head __startup_64(unsigned long physaddr,
+ 	 * we might write invalid pmds, when the kernel is relocated
+ 	 * cleanup_highmap() fixes this up along with the mappings
+ 	 * beyond _end.
++	 *
++	 * Only the region occupied by the kernel image has so far
++	 * been checked against the table of usable memory regions
++	 * provided by the firmware, so invalidate pages outside that
++	 * region. A page table entry that maps to a reserved area of
++	 * memory would allow processor speculation into that area,
++	 * and on some hardware (particularly the UV platform) even
++	 * speculative access to some reserved areas is caught as an
++	 * error, causing the BIOS to halt the system.
+ 	 */
+ 
+ 	pmd = fixup_pointer(level2_kernel_pgt, physaddr);
+-	for (i = 0; i < PTRS_PER_PMD; i++) {
++
++	/* invalidate pages before the kernel image */
++	for (i = 0; i < pmd_index((unsigned long)_text); i++)
++		pmd[i] &= ~_PAGE_PRESENT;
++
++	/* fixup pages that are part of the kernel image */
++	for (; i <= pmd_index((unsigned long)_end); i++)
+ 		if (pmd[i] & _PAGE_PRESENT)
+ 			pmd[i] += load_delta;
+-	}
++
++	/* invalidate pages after the kernel image */
++	for (; i < PTRS_PER_PMD; i++)
++		pmd[i] &= ~_PAGE_PRESENT;
+ 
+ 	/*
+ 	 * Fixup phys_base - remove the memory encryption mask to obtain
