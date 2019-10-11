@@ -2,98 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD58AD3F47
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FDBD3F9C
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 14:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbfJKMNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 08:13:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727198AbfJKMND (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 08:13:03 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BF4221D56;
-        Fri, 11 Oct 2019 12:13:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570795983;
-        bh=Bzg5lD50FCPnI9bRVeMc/8EtzNUsMRaJrmt7cWmJkMo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fjdvWE0AWcAP9CkgUYnlIqP9aNLs3d/PMBO140eICkj2BDXlnev7AIJDOeO8Y0lQC
-         HmokVddV4qtiLA2/VvJQTlD6gf1heffYxmSCMAqoJBYeCybsWgQdxHEddEwl8HY3k0
-         f+luKDCfEnc0ERddpORhecsaxVHirAlw4gXnlT40=
-Date:   Fri, 11 Oct 2019 14:13:00 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc:     stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        will@kernel.org, mark.rutland@arm.com, catalin.marinas@arm.com
-Subject: Re: [PATCH] arm64: cpufeature: Fix truncating a feature value
-Message-ID: <20191011121300.GA1144378@kroah.com>
-References: <20191010122922.GA720144@kroah.com>
- <20191010131943.26822-1-suzuki.poulose@arm.com>
- <20191011045538.GA977916@kroah.com>
- <433563f1-1aad-f43b-a294-08cb39ba4818@arm.com>
+        id S1727198AbfJKMhH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 08:37:07 -0400
+Received: from customer-187-141-58-169-sta.uninet-ide.com.mx ([187.141.58.169]:38056
+        "EHLO correo.mcontreras.gob.mx" rhost-flags-OK-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S1727907AbfJKMhG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 08:37:06 -0400
+X-Greylist: delayed 10987 seconds by postgrey-1.27 at vger.kernel.org; Fri, 11 Oct 2019 08:37:06 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by correo.mcontreras.gob.mx (Postfix) with ESMTP id 95780121337DF;
+        Fri, 11 Oct 2019 02:18:40 -0500 (CDT)
+Received: from correo.mcontreras.gob.mx ([127.0.0.1])
+        by localhost (correo.mcontreras.gob.mx [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id 9MHeoNrykdGK; Fri, 11 Oct 2019 02:18:40 -0500 (CDT)
+Received: from localhost (localhost [127.0.0.1])
+        by correo.mcontreras.gob.mx (Postfix) with ESMTP id 1F5B3121337FC;
+        Thu, 10 Oct 2019 22:16:00 -0500 (CDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 correo.mcontreras.gob.mx 1F5B3121337FC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mcontreras.gob.mx;
+        s=53A92184-CD91-11E8-86DF-F45FB6B066AC; t=1570763761;
+        bh=RAp+BpzrZhejifhgEL3mZcq1N1m02Ouc4RYqHzdJuAE=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=E4+hcjZsHr/BZwEofLiRuhCF4iBVZxu2NmjgZxHPKxkcsvGgDwriIobKmzVl5ryxj
+         LP8rycau6TM3kZQZ1EIeXB9UN0M29boWdP8ur+e+w80VMlC7Qx4kAK8TIywDlTPtTh
+         jz8g3QvUSy6JAHlBtUmkHKzbaMxR1JjXqDYGXbPuTGviWnoREj/DfXiMKsIZ/+S+fQ
+         KDbl+dUDbxBAkbBdbnX1IoIIG2BBxOSqaX702DXqMSzniE4kWmgNXVFVyB9ETqHiRg
+         UOjMT8P3Mghznh0dvRC7/YBBNc/TKvDcJ7pF+mCGbrTG6v/BhbeOHaB3eXmSYhmUWj
+         NtrWsK36pzbHg==
+X-Amavis-Modified: Mail body modified (using disclaimer) -
+        correo.mcontreras.gob.mx
+X-Virus-Scanned: amavisd-new at mcontreras.gob.mx
+Received: from correo.mcontreras.gob.mx ([127.0.0.1])
+        by localhost (correo.mcontreras.gob.mx [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id jLi2LqLLqpJy; Thu, 10 Oct 2019 22:15:59 -0500 (CDT)
+Received: from [192.168.0.162] (unknown [102.165.205.59])
+        by correo.mcontreras.gob.mx (Postfix) with ESMTPSA id DCA97DFDFD63;
+        Thu, 10 Oct 2019 19:10:33 -0500 (CDT)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <433563f1-1aad-f43b-a294-08cb39ba4818@arm.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Charity Donation
+To:     Recipients <c.ljuarez@mcontreras.gob.mx>
+From:   D Johnson <c.ljuarez@mcontreras.gob.mx>
+Date:   Fri, 11 Oct 2019 08:08:54 +0800
+Reply-To: jbasson111@aol.com
+Message-Id: <20191011001033.DCA97DFDFD63@correo.mcontreras.gob.mx>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 11:31:30AM +0100, Suzuki K Poulose wrote:
-> Hi Greg,
-> 
-> On 11/10/2019 05:55, Greg KH wrote:
-> > On Thu, Oct 10, 2019 at 02:19:43PM +0100, Suzuki K Poulose wrote:
-> > > A signed feature value is truncated to turn to an unsigned value
-> > > causing bad state in the system wide infrastructure. This affects
-> > > the discovery of FP/ASIMD support on arm64. Fix this by making sure
-> > > we cast it properly.
-> > > 
-> > > This was inadvertently fixed upstream in v4.6 onwards with the following :
-> > > commit 28c5dcb22f90113dea ("arm64: Rename cpuid_feature field extract routines")
-> > 
-> > What prevents us from just taking that commit instead?  You did not
-> > document that here at all, which I thought I asked for.
-> 
-> Sorry, I missed that part. So, that change introduces helpers to
-> extract feature fields based on the sign. And it also depends on
-> 
-> commit ff96f7bc7bf6 ("arm64: capabilities: Handle sign of the feature bit")
-> 
-> which introduces "sign" bit for the "capability" list and modifies
-> the generic capability->matches() helpers to use the hint to switch to the
-> appropriate helpers.
+Hello,
 
-That's ok, does that cause any problems?  We always want the original
-patch instead of a one-off patch as that way we do not diverge.
+I have a charity donation of 7,500,000.00 for you to help your community, =
 
-> I could backport parts of the commit 28c5dcb22f90 dropping the bits
-> that affect the changes mentioned above.
+Kindly Contact me for further details at- (jbasson111@aol.com)
 
-Please do, that is always prefered as well, but do the first thing above
-if at all possible.
+David.
+Alcaldia La Magdalena Contreras Coordinacion
 
-> > 
-> > Also, you only need 12 digits for a sha1, 28c5dcb22f90 ("arm64: Rename
-> > cpuid_feature field extract routines") would be just fine :)
-> 
-> Yea, I understand. Its simply a pain to count the numbers, so I make sure
-> to pickup something that looks larger than the 12 ;-). I will try to stick
-> to that :-)
-
-	git show -s --abbrev-commit --abbrev=12 --pretty=format:"%h (\"%s\")%n"
-will give you the correct format.  I suggest making it a git alias :)
-
-Or, use:
-	[core]
-	        abbrev = 12
-in your .gitconfig file.
-
-thanks,
-
-greg k-h
