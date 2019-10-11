@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD73CD4768
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C02D4785
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 20:26:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728863AbfJKSTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 14:19:21 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:35691 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728724AbfJKSTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:19:20 -0400
-Received: by mail-lj1-f195.google.com with SMTP id m7so10755186lji.2;
-        Fri, 11 Oct 2019 11:19:19 -0700 (PDT)
+        id S1728714AbfJKS0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 14:26:22 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:36642 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728472AbfJKS0W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 14:26:22 -0400
+Received: by mail-pg1-f194.google.com with SMTP id 23so6264409pgk.3;
+        Fri, 11 Oct 2019 11:26:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xHWcMVkKfQW5YQem89Ki4hx7rEYLgwMaVLaDcNFHxy8=;
-        b=ZitRdHD87CyRQIneWCmXl1JH8KlL+SIIhXhoiLpXORD5GW6dQ4yO2WiIerdf0bJ2rC
-         wUIs05umiInQpgYVYSzaGowJCrR7h+xoRI0/md0VCmx7q7eKzF6mZwS+5Lb3JW/H3xf4
-         9KhLNzHwWvlwsaFiR6P/HvbZVmE0tUMjqQ7ojKFWGdOmPaej7UMMQ353sPS8eqOCMgqB
-         U5IynYXDJEu6rYq9MdQCI+JDrjB2VH6Bj6RfAem9zODV5MnIwlyVSkrmXxXjlBbbaQEL
-         09XKfbNsUh+ZW58fuyg8XISKtFursl1Qa70MyffXE1zHJpVgcMu+gN0zPH1pllLmSRV+
-         YS/A==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=jxnkHI88PrlznD0X1thKhOQvv+RypW1KwIdA3XIbgY8=;
+        b=jEwyzxuao3KGDNQYlf2/0Ho27W8nshP38GuFJ0t0eDDgLntVfJAJnYY6QQLMRDsS3C
+         jEq9pSKuZmjAov7CEAa9qHuejXm0jDmUyMSwMIr27Kz8SvLeYJByirGepXKvS/jeG18w
+         e2CnyP3PJ+Swpje3KQJWIQq0XPc6rMc4uDV/H7k8j/4FVaAwHnjM7R3Vh/UYZNHSjIFt
+         l/ZVtjD09dUGKzf82Zh3fTrbtZuUFuTk9yu46Na+ccD9btT+1fhxndJYctrpznU18cGs
+         lmRsrH1jQ/7hTvm+uCDyKDldf+mGxzUlYRFgVPoU6/ZwRo4MUchmWpcmIKwBIxUutdDZ
+         t9ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xHWcMVkKfQW5YQem89Ki4hx7rEYLgwMaVLaDcNFHxy8=;
-        b=QUUc+CiNj/3TKB/xIxD/8BPlHNkMvOWj15EOsMuaPw8wXoSiqqtDa4x+oCjBFt3Pv8
-         hnrpCM5se4rMGGoYW6BC0F7YOnIEBgsW58OglckfP7alAsYWcaFtdwBFhOXLL7VoADeV
-         txow6eE0Ew25zZwKNVfATrdZU0FTKmMNiBuutxTD1krWs3GhecJoDVz/oiNB3B/TS9zO
-         R+i0joV6CTgVS5HYIGZWB4VwYLzeloWb/HeyrxrTajZh59rH/LLVbmGBPytNYRyMX7wb
-         ss0KTjm/K/xLoHO+OPe5NJJHaoqsUVdQTKfE6RP2u0Yw/+YOhUph0+cOWithhF5qX1mH
-         OH2w==
-X-Gm-Message-State: APjAAAWGN5J3di+KatpZ4c5mhsYGDGNcMZXQrv0UPDc5jPeHrH3PxK+F
-        VHG0Bol/wz5LSd+PZ4zaoJ6VvKZsJU1CBsL6UYo=
-X-Google-Smtp-Source: APXvYqwO4XnX5MCioj8PA5AMXbwa8nrtJcTry+BdWADG12SbJ5G62YDioP1sbk25PGgCsqOv1NdDCRa73Z+MNvJJ2fQ=
-X-Received: by 2002:a2e:865a:: with SMTP id i26mr9866394ljj.107.1570817958321;
- Fri, 11 Oct 2019 11:19:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <20191007051240.4410-1-andrew.smirnov@gmail.com> <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
-In-Reply-To: <CAO-hwJ+=pDmvPbLVO8mViygJof7O1YeX3KO951nqN4dNaKz83g@mail.gmail.com>
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-Date:   Fri, 11 Oct 2019 11:19:07 -0700
-Message-ID: <CAHQ1cqHU2DmKzAtcDCPLtUXwkzhyCynki3GKOwgULnN0ya6POg@mail.gmail.com>
-Subject: Re: [PATCH 0/3] Logitech G920 fixes
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=jxnkHI88PrlznD0X1thKhOQvv+RypW1KwIdA3XIbgY8=;
+        b=HWApv/g8ZdvwcWH4mjHHI1lC+wq4jsx4/BBXBhN8+lDz6HDP83gOihGvzvPT0gQ9Ig
+         kQlMhMtg4FmSsQjcgpDBJrhTV5MGJsZsVtnZKptHA4UR22xYD/0PCS7w50TJel09qFtT
+         VWN5QMWfDMmMLVg0U4fbzNtmQpw9DsTHrHBCOspIJDz5eyFBW+OpExEcsIGJq4ob36GK
+         2bjcEOQzB/VRTPn+EDGwY7yFYzcnprAVEZW3M/1VRML0s8/BfpsC5454W3ZLOpgBocrt
+         9yI6VxZPaPxuPUzMhuz/YfswUSxLozGIekx324ZubydFbr9JTx6LicxO+19QkP9NSl/e
+         ixhg==
+X-Gm-Message-State: APjAAAUNNYssT9TrDE7T7Jdgur/ybQczUz4QI6GmSVdoK9ANTPMDyw15
+        8GJrx5c2l9szTChO4arMqyI=
+X-Google-Smtp-Source: APXvYqxrpSc+TDPcyRF4KlmdtpyzMSwahLxwMENVk8AP/KE9KtxkTtl8oS6zl44QqX0eaWzKFk5mYg==
+X-Received: by 2002:a17:90a:c382:: with SMTP id h2mr18376741pjt.110.1570818380971;
+        Fri, 11 Oct 2019 11:26:20 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id q33sm9518894pgm.50.2019.10.11.11.26.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Oct 2019 11:26:20 -0700 (PDT)
+Date:   Fri, 11 Oct 2019 11:26:17 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         Jiri Kosina <jikos@kernel.org>,
         Henrik Rydberg <rydberg@bitmath.org>,
         Sam Bazely <sambazley@fastmail.com>,
@@ -56,67 +56,81 @@ Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         Austin Palmer <austinp@valvesoftware.com>,
         lkml <linux-kernel@vger.kernel.org>,
         "3.8+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 1/3] HID: logitech-hidpp: use devres to manage FF private
+ data
+Message-ID: <20191011182617.GE229325@dtor-ws>
+References: <20191007051240.4410-1-andrew.smirnov@gmail.com>
+ <20191007051240.4410-2-andrew.smirnov@gmail.com>
+ <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJ+jPGa5Z7=Lopsc23m8UOqGWB0=tN+DcotykseAPM7_7w@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 7:53 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> Hi,
->
-> Finally, someone who takes care of the G920!
-> Note that when I sent my first initial version that Hans reused, I
-> surely broke it (looking at your patch 3/3), but no one cared to test
-> it :(
->
+On Fri, Oct 11, 2019 at 04:52:04PM +0200, Benjamin Tissoires wrote:
+> Hi Andrey,
+> 
 > On Mon, Oct 7, 2019 at 7:13 AM Andrey Smirnov <andrew.smirnov@gmail.com> wrote:
 > >
-> > Everyone:
+> > To simplify resource management in commit that follows as well as to
+> > save a couple of extra kfree()s and simplify hidpp_ff_deinit() switch
+> > driver code to use devres to manage the life-cycle of FF private data.
 > >
-> > This series contains patches to fix a couple of regressions in G920
-> > wheel support by hid-logitech-hidpp driver. Without the patches the
-> > wheel remains stuck in autocentering mode ("resisting" any attempt to
-> > trun) as well as missing support for any FF action.
->
-> So, you are talking about regressions, and for that I would like to be
-> able to push the patches to stable.
->
-> However, I would need more information:
-> - patch 3/3 seems simple enough to go in stable, and is clearly a
-> regression from the recent series. Can you put it in first and add
-> stable@vger.kernel.org in a CC field (and possibly with a Fixes tag as
-> well)?
+> > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > Cc: Jiri Kosina <jikos@kernel.org>
+> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > Cc: Sam Bazely <sambazley@fastmail.com>
+> > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > Cc: linux-input@vger.kernel.org
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: stable@vger.kernel.org
+> 
+> This patch doesn't seem to fix any error, is there a reason to send it
+> to stable? (besides as a dependency of the rest of the series).
+> 
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 53 +++++++++++++++++---------------
+> >  1 file changed, 29 insertions(+), 24 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 0179f7ed77e5..58eb928224e5 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -2079,6 +2079,11 @@ static void hidpp_ff_destroy(struct ff_device *ff)
+> >         struct hidpp_ff_private_data *data = ff->private;
+> >
+> >         kfree(data->effect_ids);
+> 
+> Is there any reasons we can not also devm alloc data->effect_ids?
+> 
+> > +       /*
+> > +        * Set private to NULL to prevent input_ff_destroy() from
+> > +        * freeing our devres allocated memory
+> 
+> Ouch. There is something wrong here: input_ff_destroy() calls
+> kfree(ff->private), when the data has not been allocated by
+> input_ff_create(). This seems to lack a little bit of symmetry.
 
-It patch 3/3 on purpose because applying it by itself, without fix in
-2/3 in place would lead to a segfault and a non working wheel. Maybe
-that FF for-next fix you pointed out can prevent that from happening,
-but as is the series is pretty atomic and can't be divided.
+Yeah, ff and ff-memless essentially take over the private data assigned
+to them. They were done before devm and the lifetime of the "private"
+data pieces was tied to the lifetime of the input device to simplify
+error handling and teardown.
 
-Patch 3/3 already has stable in CC and Fixes tag.
+Maybe we should clean it up a bit... I'm open to suggestions.
 
-> - I am not sure which patch fixes the wheel remains stuck in
-> autocentering mode. Is it patch 2/3?
+In this case maybe best way is to get rid of hidpp_ff_destroy() and not
+set ff->private and rely on devm to free the buffers. One can get to
+device private data from ff methods via input_get_drvdata() since they
+all (except destroy) are passed input device pointer.
 
-There's no specific patch that does that. There were two G920
-regressions in the driver and both need to be fixed for wheel to be
-configured properly. The specific code that releases the wheel is in
-g920_ff_set_autocenter().
+Thanks.
 
-> - was the "wheel remains stuck in autocentering mode" bug present from
-> on of the recent patch or was it always there since we introduced
-> support in hid-logitech-hidpp, but the game would need to unlock the
-> wheel first?
-
-The wheel worked as expected prior to
-
-fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be
-handled by this module")
-91cf9a98ae41 ("HID: logitech-hidpp: make .probe usbhid capable")
-
-It's not the game that needs to unlock the wheel, but the driver itself.
-
-Thanks,
-Andrey Smirnov
+-- 
+Dmitry
