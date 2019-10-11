@@ -2,132 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07193D37C7
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 05:23:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FEA8D3875
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 06:27:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbfJKDQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 10 Oct 2019 23:16:16 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:48258 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726096AbfJKDQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 10 Oct 2019 23:16:16 -0400
-Received: from DGGEMS413-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 1B18565B942655BC239C;
-        Fri, 11 Oct 2019 11:16:14 +0800 (CST)
-Received: from [127.0.0.1] (10.177.219.49) by DGGEMS413-HUB.china.huawei.com
- (10.3.19.213) with Microsoft SMTP Server id 14.3.439.0; Fri, 11 Oct 2019
- 11:16:10 +0800
-Subject: Re: [PATCH v4] block: fix null pointer dereference in
- blk_mq_rq_timed_out()
-To:     Jack Wang <jack.wang.usish@gmail.com>
-CC:     Jens Axboe <axboe@kernel.dk>, <linux-block@vger.kernel.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Keith Busch <keith.busch@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        stable <stable@vger.kernel.org>, <guoqing.jiang@cloud.ionos.com>,
-        <jinpu.wang@cloud.ionos.com>
-References: <20190925122025.31246-1-yuyufen@huawei.com>
- <CA+res+QQtXD6phz=Ko-_n7eWVySrJA1kqgmMW3h3YUX+5RQ_7w@mail.gmail.com>
-From:   Yufen Yu <yuyufen@huawei.com>
-Message-ID: <9f99de42-9edb-d7df-df8c-e994ada6613c@huawei.com>
-Date:   Fri, 11 Oct 2019 11:16:08 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.1
+        id S1726205AbfJKE1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 00:27:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726187AbfJKE1h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 00:27:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B2562089F;
+        Fri, 11 Oct 2019 04:27:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570768056;
+        bh=IOpF7ZT1uyATibpb2Q8pKZ9Sewq/srJyUPlT/L2oK6w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XbnaD5r0fcvMpvRZM0Zf3goTuw2ba1ZmwkfN+TATNw4qu+0GMDLIFoFlV4C3uOOLp
+         xM1/DIBDKZhdjZmcoC248wbeLFA44kWunCBVgLzzo2fxL6dmfdi9WbdT7uDx5MdVNd
+         3TbT9EL4XQL8jLhBE+wE/E/OoOtstLWsYLMH2W78=
+Date:   Fri, 11 Oct 2019 06:27:34 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     KyleMahlkuch <kmahlkuc@linux.vnet.ibm.com>
+Cc:     alexander.deucher@amd.com, stable@vger.kernel.org,
+        amd-gfx@lists.freedesktop.org
+Subject: Re: [PATCH v3] drm/radeon: Fix EEH during kexec
+Message-ID: <20191011042734.GA939089@kroah.com>
+References: <1570736672-10644-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <CA+res+QQtXD6phz=Ko-_n7eWVySrJA1kqgmMW3h3YUX+5RQ_7w@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.177.219.49]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1570736672-10644-1-git-send-email-kmahlkuc@linux.vnet.ibm.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 10, 2019 at 02:44:29PM -0500, KyleMahlkuch wrote:
+> During kexec some adapters hit an EEH since they are not properly
+> shut down in the radeon_pci_shutdown() function. Adding
+> radeon_suspend_kms() fixes this issue.
+> Enabled only on PPC because this patch causes issues on some other
+> boards.
+> 
+> Signed-off-by: Kyle Mahlkuch <Kyle.Mahlkuch at ibm.com>
 
+Real email address please, with a '@' sign.
 
-On 2019/10/9 16:26, Jack Wang wrote:
->
->> We got a null pointer deference BUG_ON in blk_mq_rq_timed_out()
->> as following:
->>
->> [  108.825472] BUG: kernel NULL pointer dereference, address: 0000000000000040
->> [  108.827059] PGD 0 P4D 0
->> [  108.827313] Oops: 0000 [#1] SMP PTI
->> [  108.827657] CPU: 6 PID: 198 Comm: kworker/6:1H Not tainted 5.3.0-rc8+ #431
->> [  108.829503] Workqueue: kblockd blk_mq_timeout_work
->> [  108.829913] RIP: 0010:blk_mq_check_expired+0x258/0x330
->> [  108.838191] Call Trace:
->> [  108.838406]  bt_iter+0x74/0x80
->> [  108.838665]  blk_mq_queue_tag_busy_iter+0x204/0x450
->> [  108.839074]  ? __switch_to_asm+0x34/0x70
->> [  108.839405]  ? blk_mq_stop_hw_queue+0x40/0x40
->> [  108.839823]  ? blk_mq_stop_hw_queue+0x40/0x40
->> [  108.840273]  ? syscall_return_via_sysret+0xf/0x7f
->> [  108.840732]  blk_mq_timeout_work+0x74/0x200
->> [  108.841151]  process_one_work+0x297/0x680
->> [  108.841550]  worker_thread+0x29c/0x6f0
->> [  108.841926]  ? rescuer_thread+0x580/0x580
->> [  108.842344]  kthread+0x16a/0x1a0
->> [  108.842666]  ? kthread_flush_work+0x170/0x170
->> [  108.843100]  ret_from_fork+0x35/0x40
->>
->> The bug is caused by the race between timeout handle and completion for
->> flush request.
->>
->> When timeout handle function blk_mq_rq_timed_out() try to read
->> 'req->q->mq_ops', the 'req' have completed and reinitiated by next
->> flush request, which would call blk_rq_init() to clear 'req' as 0.
->>
->> After commit 12f5b93145 ("blk-mq: Remove generation seqeunce"),
->> normal requests lifetime are protected by refcount. Until 'rq->ref'
->> drop to zero, the request can really be free. Thus, these requests
->> cannot been reused before timeout handle finish.
->>
->> However, flush request has defined .end_io and rq->end_io() is still
->> called even if 'rq->ref' doesn't drop to zero. After that, the 'flush_rq'
->> can be reused by the next flush request handle, resulting in null
->> pointer deference BUG ON.
->>
->> We fix this problem by covering flush request with 'rq->ref'.
->> If the refcount is not zero, flush_end_io() return and wait the
->> last holder recall it. To record the request status, we add a new
->> entry 'rq_status', which will be used in flush_end_io().
->>
->> Cc: Ming Lei <ming.lei@redhat.com>
->> Cc: Christoph Hellwig <hch@infradead.org>
->> Cc: Keith Busch <keith.busch@intel.com>
->> Cc: Bart Van Assche <bvanassche@acm.org>
->> Cc: stable@vger.kernel.org # v4.18+
->> Signed-off-by: Yufen Yu <yuyufen@huawei.com>
->>
-> Hi Yufen,
->
-> Can you share your reproducer, I think the bug was there for long
-> time, we hit it in kernel 4.4.
-> We also need to fix it for older LTS kernel.
->
-> Do you have an idea, how should we fix it for older LTS kernel?
->
+And your "From:" line did not match up with this :(
 
-I have reproduced the bug by increasing delay after doing memset()
-in blk_rq_init() and before calling blk_mq_rq_timed_out() in 
-blk_mq_check_expired().
+> ---
+>  drivers/gpu/drm/radeon/radeon_drv.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
 
-To make sure the request will be timeout, I have also increase delay
-for flush request after blk_mq_start_request() in virtio_queue_rq() for
-my virtio disk. Then, we just issue a flush request for the disk by fio.
-The BUG_ON will be triggered.
+<formletter>
 
-For LTS 4.4 or older kernel, the race between timeout handle and completion
-for normal request have not yet resolved.
-So, IMO, we should fix the bug first by merging commit 12f5b93145
-("blk-mq: Remove generation seqeunce") and its related patches.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-After that, this patch can also be merged.
-
-Thanks,
-Yufen
-
+</formletter>
