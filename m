@@ -2,83 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4DD8D3E42
-	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 13:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63ACCD3F18
+	for <lists+stable@lfdr.de>; Fri, 11 Oct 2019 13:57:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727953AbfJKLV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 07:21:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:38420 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727198AbfJKLV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 07:21:57 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 795F2802A4; Fri, 11 Oct 2019 13:21:39 +0200 (CEST)
-Date:   Fri, 11 Oct 2019 13:21:06 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 4.19 082/114] powerpc/book3s64/radix: Rename
- CPU_FTR_P9_TLBIE_BUG feature flag
-Message-ID: <20191011112106.GA28994@amd>
-References: <20191010083544.711104709@linuxfoundation.org>
- <20191010083612.352065837@linuxfoundation.org>
+        id S1727670AbfJKL5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 07:57:33 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:37928 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727198AbfJKL5d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 07:57:33 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 173FC60ADE; Fri, 11 Oct 2019 11:57:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570795052;
+        bh=EPYe5kTBBGci2tg48EPs5GLHdxzLBPQNaqpnWCbvN0A=;
+        h=Subject:From:In-Reply-To:References:To:Cc:Date:From;
+        b=dcyAOLXlc63HacOqTCRkTOezC44jm2EsyeUorxd4Y2Czh0nylMKLnukFv2yIPyDC6
+         gSEkVyhOQ9ZCuAADkDBMe2oepgpoWIS6GeGE5xrcy8lb2+J7dP2OL3jy6rJbjCP01C
+         +IHbZyPOYgUzaj0GS9Nt+pRHzcpRXpJGfgV2qm1w=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.8 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,MISSING_DATE,MISSING_MID,SPF_NONE autolearn=no
+        autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id B19BB602EE;
+        Fri, 11 Oct 2019 11:57:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1570795051;
+        bh=EPYe5kTBBGci2tg48EPs5GLHdxzLBPQNaqpnWCbvN0A=;
+        h=Subject:From:In-Reply-To:References:To:Cc:From;
+        b=eCT6yiCW4z23JIr4WE8iA1QhYZu/HoLLv/OdH8G5QEa5TVLcY4VigfBIS5uGhmp5d
+         ds0tQP+w3Vc91Niy04tYYt51RBcWIsQeY182WQVCX9JPWZIQEo5T4etyqE2VxVguwl
+         07Ii9gVVw/vvgqEa50iIDZK8TnIqgB7yHP0PYHaI=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org B19BB602EE
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <20191010083612.352065837@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] ath10k: Correct error check of dma_map_single()
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20191010162653.141303-1-bjorn.andersson@linaro.org>
+References: <20191010162653.141303-1-bjorn.andersson@linaro.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-Id: <20191011115732.173FC60ADE@smtp.codeaurora.org>
+Date:   Fri, 11 Oct 2019 11:57:32 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Bjorn Andersson <bjorn.andersson@linaro.org> wrote:
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The return value of dma_map_single() should be checked for errors using
+> dma_mapping_error(), rather than testing for NULL. Correct this.
+> 
+> Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference support over wmi")
+> Cc: stable@vger.kernel.org
+> Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-Hi!
+Did this fix any real bug? Or is this just something found during code review?
 
-> From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
->=20
-> Rename the #define to indicate this is related to store vs tlbie
-> ordering issue. In the next patch, we will be adding another feature
-> flag that is used to handles ERAT flush vs tlbie ordering issue.
->=20
-> Fixes: a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on =
-POWER9")
-> Cc: stable@vger.kernel.org # v4.16+
-> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> Link:
-> https://lore.kernel.org/r/20190924035254.24612-2-aneesh.kumar@linux.ibm.c=
-om
+-- 
+https://patchwork.kernel.org/patch/11183923/
 
-Apparently this is upstream commit
-09ce98cacd51fcd0fa0af2f79d1e1d3192f4cbb0 , but the changelog does not
-say so.
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl2gZaIACgkQMOfwapXb+vK/gQCfQ8U3ZXfQ5R+I1xfv+CI2oqBJ
-88AAnRfzH4negiIU+ZglUzpRMysY31HV
-=5f+A
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--
