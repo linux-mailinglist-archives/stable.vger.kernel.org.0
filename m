@@ -2,107 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89BFCD4BA3
-	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 03:00:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1BBD4BAC
+	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 03:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728766AbfJLA7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 20:59:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57096 "EHLO mail.kernel.org"
+        id S1727345AbfJLBGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 21:06:17 -0400
+Received: from mx2a.mailbox.org ([80.241.60.219]:57995 "EHLO mx2a.mailbox.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727345AbfJLA7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 20:59:22 -0400
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726863AbfJLBGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 21:06:17 -0400
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [80.241.60.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4A20218AC;
-        Sat, 12 Oct 2019 00:59:21 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.92.2)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1iJ5kf-0004ES-1m; Fri, 11 Oct 2019 20:59:21 -0400
-Message-Id: <20191012005920.942012497@goodmis.org>
-User-Agent: quilt/0.65
-Date:   Fri, 11 Oct 2019 20:57:50 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        James Morris James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-Subject: [PATCH 3/7 v2] tracing: Get trace_array reference for available_tracers files
-References: <20191012005747.210722465@goodmis.org>
+        by mx2a.mailbox.org (Postfix) with ESMTPS id B4EABA1585;
+        Sat, 12 Oct 2019 03:06:14 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172]) (amavisd-new, port 10030)
+        with ESMTP id HpnuEwOz63oE; Sat, 12 Oct 2019 03:06:11 +0200 (CEST)
+From:   Aleksa Sarai <cyphar@cyphar.com>
+To:     Tejun Heo <tj@kernel.org>, Li Zefan <lizefan@huawei.com>,
+        Johannes Weiner <hannes@cmpxchg.org>
+Cc:     cgroups@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Aleksa Sarai <cyphar@cyphar.com>, stable@vger.kernel.org
+Subject: [PATCH] cgroup: pids: use {READ,WRITE}_ONCE for pids->limit operations
+Date:   Sat, 12 Oct 2019 12:05:39 +1100
+Message-Id: <20191012010539.6131-1-cyphar@cyphar.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Because pids->limit can be changed concurrently (but we don't want to
+take a lock because it would be needlessly expensive), use the
+appropriate memory barriers.
 
-As instances may have different tracers available, we need to look at the
-trace_array descriptor that shows lists the available tracers for the
-instance. But there's a race between opening the file and the admin from
-deleting the instance. The trace_array_get() needs to be called before
-accessing the trace_array.
-
-Cc: stable@vger.kernel.org
-Fixes: 607e2ea167e56 ("tracing: Set up infrastructure to allow tracers for instances")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: commit 49b786ea146f ("cgroup: implement the PIDs subsystem")
+Cc: stable@vger.kernel.org # v4.3+
+Signed-off-by: Aleksa Sarai <cyphar@cyphar.com>
 ---
- kernel/trace/trace.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ kernel/cgroup/pids.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 252f79c435f8..fa7d813b04c6 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -4355,9 +4355,14 @@ static int show_traces_open(struct inode *inode, struct file *file)
- 	if (tracing_disabled)
- 		return -ENODEV;
+diff --git a/kernel/cgroup/pids.c b/kernel/cgroup/pids.c
+index 8e513a573fe9..a726e4a20177 100644
+--- a/kernel/cgroup/pids.c
++++ b/kernel/cgroup/pids.c
+@@ -152,7 +152,7 @@ static int pids_try_charge(struct pids_cgroup *pids, int num)
+ 		 * p->limit is %PIDS_MAX then we know that this test will never
+ 		 * fail.
+ 		 */
+-		if (new > p->limit)
++		if (new > READ_ONCE(p->limit))
+ 			goto revert;
+ 	}
  
-+	if (trace_array_get(tr) < 0)
-+		return -ENODEV;
-+
- 	ret = seq_open(file, &show_traces_seq_ops);
--	if (ret)
-+	if (ret) {
-+		trace_array_put(tr);
- 		return ret;
-+	}
- 
- 	m = file->private_data;
- 	m->private = tr;
-@@ -4365,6 +4370,14 @@ static int show_traces_open(struct inode *inode, struct file *file)
- 	return 0;
+@@ -277,7 +277,7 @@ static ssize_t pids_max_write(struct kernfs_open_file *of, char *buf,
+ 	 * Limit updates don't need to be mutex'd, since it isn't
+ 	 * critical that any racing fork()s follow the new limit.
+ 	 */
+-	pids->limit = limit;
++	WRITE_ONCE(pids->limit, limit);
+ 	return nbytes;
  }
  
-+static int show_traces_release(struct inode *inode, struct file *file)
-+{
-+	struct trace_array *tr = inode->i_private;
-+
-+	trace_array_put(tr);
-+	return seq_release(inode, file);
-+}
-+
- static ssize_t
- tracing_write_stub(struct file *filp, const char __user *ubuf,
- 		   size_t count, loff_t *ppos)
-@@ -4395,8 +4408,8 @@ static const struct file_operations tracing_fops = {
- static const struct file_operations show_traces_fops = {
- 	.open		= show_traces_open,
- 	.read		= seq_read,
--	.release	= seq_release,
- 	.llseek		= seq_lseek,
-+	.release	= show_traces_release,
- };
+@@ -285,7 +285,7 @@ static int pids_max_show(struct seq_file *sf, void *v)
+ {
+ 	struct cgroup_subsys_state *css = seq_css(sf);
+ 	struct pids_cgroup *pids = css_pids(css);
+-	int64_t limit = pids->limit;
++	int64_t limit = READ_ONCE(pids->limit);
  
- static ssize_t
+ 	if (limit >= PIDS_MAX)
+ 		seq_printf(sf, "%s\n", PIDS_MAX_STR);
 -- 
 2.23.0
-
 
