@@ -2,216 +2,321 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5226AD4BC7
-	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 03:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DC9D4E29
+	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 09:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727455AbfJLBZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 21:25:13 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:44798 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727345AbfJLBZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 11 Oct 2019 21:25:13 -0400
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id B63E97869260F341536F;
-        Sat, 12 Oct 2019 09:25:10 +0800 (CST)
-Received: from [127.0.0.1] (10.177.219.49) by DGGEMS404-HUB.china.huawei.com
- (10.3.19.204) with Microsoft SMTP Server id 14.3.439.0; Sat, 12 Oct 2019
- 09:25:07 +0800
-Subject: Re: [PATCH v2] md: no longer compare spare disk superblock events in
- super_load
-From:   Yufen Yu <yuyufen@huawei.com>
-To:     <songliubraving@fb.com>
-CC:     <linux-raid@vger.kernel.org>, <neilb@suse.de>,
-        <stable@vger.kernel.org>
-References: <20190925055449.30091-1-yuyufen@huawei.com>
-Message-ID: <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
-Date:   Sat, 12 Oct 2019 09:25:06 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.2.1
+        id S1728933AbfJLH5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Oct 2019 03:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40052 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728812AbfJLH5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Oct 2019 03:57:52 -0400
+Received: from localhost (unknown [62.119.166.9])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 783912089C;
+        Sat, 12 Oct 2019 07:57:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1570867069;
+        bh=bOtj3gZYnkBII6xPKGLwtaHJMdjtnPVPstB6USjwc9Y=;
+        h=Date:From:To:Cc:Subject:From;
+        b=K0mmE5UZ6dcYza+0+o50dTgyqzOLA02gVxFcbEdxlmQpmNprGWivIYmiL5saw9XV4
+         XtolXm+7Cy+KMO3hRaVdJ7KMEO8CShN0VCRczfkqqD8CP3fi2fHupIG2+bIEWIJcqT
+         BNj/nZNN8aazFk8bCf1V7lim0N8MCO78eZl5scvQ=
+Date:   Sat, 12 Oct 2019 09:57:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.14.149
+Message-ID: <20191012075739.GA2038430@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190925055449.30091-1-yuyufen@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Originating-IP: [10.177.219.49]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ping
+
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+I'm announcing the release of the 4.14.149 kernel.
+
+All users of the 4.14 kernel series must upgrade.
+
+The updated 4.14.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linu=
+x-4.14.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3Ds=
+ummary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                       |    2=20
+ arch/powerpc/kvm/book3s_hv.c                   |    9=20
+ arch/powerpc/kvm/book3s_xive.c                 |   18 +
+ arch/powerpc/mm/hash_utils_64.c                |    9=20
+ arch/powerpc/platforms/powernv/opal.c          |   11 -
+ arch/powerpc/platforms/pseries/lpar.c          |    8=20
+ arch/s390/kernel/process.c                     |   22 +-
+ arch/s390/kernel/topology.c                    |    3=20
+ arch/s390/kvm/kvm-s390.c                       |    2=20
+ arch/x86/kvm/vmx.c                             |    2=20
+ crypto/skcipher.c                              |   42 ++--
+ drivers/block/nbd.c                            |   61 ++++--
+ drivers/crypto/caam/caamalg_desc.c             |    9=20
+ drivers/crypto/caam/caamalg_desc.h             |    2=20
+ drivers/crypto/cavium/zip/zip_main.c           |    3=20
+ drivers/crypto/qat/qat_common/adf_common_drv.h |    2=20
+ drivers/devfreq/tegra-devfreq.c                |   12 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c        |    3=20
+ drivers/gpu/drm/omapdrm/dss/dss.c              |    2=20
+ drivers/hwtracing/coresight/coresight-etm4x.c  |   14 +
+ drivers/mmc/host/sdhci-of-esdhc.c              |    7=20
+ drivers/mmc/host/sdhci.c                       |   15 +
+ drivers/net/can/spi/mcp251x.c                  |   19 +-
+ drivers/net/ieee802154/atusb.c                 |    3=20
+ drivers/pwm/pwm-stm32-lp.c                     |    6=20
+ drivers/s390/cio/ccwgroup.c                    |    2=20
+ drivers/s390/cio/css.c                         |    2=20
+ drivers/thermal/thermal_core.c                 |    2=20
+ drivers/watchdog/aspeed_wdt.c                  |    4=20
+ drivers/watchdog/imx2_wdt.c                    |    4=20
+ drivers/xen/pci.c                              |   21 +-
+ drivers/xen/xenbus/xenbus_dev_frontend.c       |   20 +-
+ fs/9p/vfs_file.c                               |    3=20
+ fs/ceph/inode.c                                |    7=20
+ fs/ceph/mds_client.c                           |    4=20
+ fs/fuse/cuse.c                                 |    1=20
+ fs/nfs/nfs4xdr.c                               |    2=20
+ fs/nfs/pnfs.c                                  |    9=20
+ fs/statfs.c                                    |   17 -
+ include/linux/ieee80211.h                      |   53 +++++
+ include/sound/soc-dapm.h                       |    2=20
+ kernel/elfcore.c                               |    1=20
+ kernel/locking/qspinlock_paravirt.h            |    2=20
+ kernel/sched/core.c                            |    4=20
+ kernel/time/tick-broadcast-hrtimer.c           |   57 +++---
+ kernel/time/timer.c                            |    8=20
+ mm/usercopy.c                                  |    8=20
+ net/netfilter/nf_tables_api.c                  |    7=20
+ net/netfilter/nft_lookup.c                     |    3=20
+ net/wireless/nl80211.c                         |   42 ++++
+ net/wireless/reg.c                             |    2=20
+ net/wireless/scan.c                            |   14 -
+ net/wireless/wext-compat.c                     |    2=20
+ security/integrity/ima/ima_crypto.c            |    5=20
+ sound/soc/codecs/sgtl5000.c                    |  232 ++++++++++++++++++++=
++----
+ tools/lib/traceevent/Makefile                  |    4=20
+ tools/lib/traceevent/event-parse.c             |    3=20
+ tools/perf/Makefile.config                     |    2=20
+ tools/perf/arch/x86/util/unwind-libunwind.c    |    2=20
+ tools/perf/builtin-stat.c                      |    5=20
+ tools/perf/util/header.c                       |    2=20
+ tools/perf/util/stat.c                         |   17 +
+ tools/perf/util/stat.h                         |    1=20
+ 63 files changed, 656 insertions(+), 206 deletions(-)
+
+Alexander Sverdlin (1):
+      crypto: qat - Silence smp_processor_id() warning
+
+Andrew Donnellan (1):
+      powerpc/powernv: Restrict OPAL symbol map to only be readable by root
+
+Andrew Murray (1):
+      coresight: etm4x: Use explicit barriers on enable/disable
+
+Arnaldo Carvalho de Melo (1):
+      perf unwind: Fix libunwind build failure on i386 systems
+
+Balasubramani Vivekanandan (1):
+      tick: broadcast-hrtimer: Fix a race in bc_set_next
+
+Chengguang Xu (1):
+      9p: avoid attaching writeback_fid on mmap with type PRIVATE
+
+C=C3=A9dric Le Goater (1):
+      KVM: PPC: Book3S HV: XIVE: Free escalation interrupts before disablin=
+g the VP
+
+Dan Melnic (1):
+      block/ndb: add WQ_UNBOUND to the knbd-recv workqueue
+
+Dmitry Osipenko (1):
+      PM / devfreq: tegra: Fix kHz to Hz conversion
+
+Eric Sandeen (1):
+      vfs: Fix EOVERFLOW testing in put_compat_statfs64
+
+Erqi Chen (1):
+      ceph: reconnect connection if session hang in opening state
+
+Fabrice Gasnier (1):
+      pwm: stm32-lp: Add check in case requested period cannot be achieved
+
+Florian Westphal (1):
+      netfilter: nf_tables: allow lookups in dynamic sets
+
+Gautham R. Shenoy (1):
+      powerpc/pseries: Fix cpu_hotplug_lock acquisition in resize_hpt()
+
+Greg Kroah-Hartman (1):
+      Linux 4.14.149
+
+Herbert Xu (1):
+      crypto: skcipher - Unmap pages after an external error
+
+Horia Geant=C4=83 (1):
+      crypto: caam - fix concurrency issue in givencrypt descriptor
+
+Ido Schimmel (1):
+      thermal: Fix use-after-free when unregistering thermal zone device
+
+Igor Druzhinin (1):
+      xen/pci: reserve MCFG areas earlier
+
+Jack Wang (1):
+      KVM: nVMX: handle page fault in vmread fix
+
+Jia-Ju Bai (1):
+      fs: nfs: Fix possible null-pointer dereferences in encode_attrs()
+
+Jiri Olsa (1):
+      perf tools: Fix segfault in cpu_cache_level__read()
+
+Johan Hovold (1):
+      ieee802154: atusb: fix use-after-free at disconnect
+
+Johannes Berg (3):
+      cfg80211: initialize on-stack chandefs
+      cfg80211: add and use strongly typed element iteration macros
+      nl80211: validate beacon head
+
+Jouni Malinen (1):
+      cfg80211: Use const more consistently in for_each_element macros
+
+Juergen Gross (1):
+      xen/xenbus: fix self-deadlock after killing user process
+
+KeMeng Shi (1):
+      sched/core: Fix migration to invalid CPU in __set_cpus_allowed_ptr()
+
+Kees Cook (1):
+      usercopy: Avoid HIGHMEM pfn warning
+
+Li RongQing (1):
+      timer: Read jiffies once when forwarding base clk
+
+Luis Henriques (1):
+      ceph: fix directories inode i_blkbits initialization
+
+Marc Kleine-Budde (1):
+      can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
+
+Mike Christie (1):
+      nbd: fix max number of supported devs
+
+Oleksandr Suvorov (2):
+      ASoC: Define a set of DAPM pre/post-up events
+      ASoC: sgtl5000: Improve VAG power and mute control
+
+Paul Mackerras (1):
+      KVM: PPC: Book3S HV: Don't lose pending doorbell request on migration=
+ on P9
+
+Rasmus Villemoes (1):
+      watchdog: imx2_wdt: fix min() calculation in imx2_wdt_set_timeout
+
+Russell King (2):
+      mmc: sdhci: improve ADMA error reporting
+      mmc: sdhci-of-esdhc: set DMA snooping based on DMA coherence
+
+Ryan Chen (1):
+      watchdog: aspeed: Add support for AST2600
+
+Sascha Hauer (1):
+      ima: always return negative code for error
+
+Srikar Dronamraju (2):
+      perf stat: Fix a segmentation fault when using repeat forever
+      perf stat: Reset previous counts on repeat with interval
+
+Steven Rostedt (VMware) (2):
+      tools lib traceevent: Fix "robust" test of do_generate_dynamic_list_f=
+ile
+      tools lib traceevent: Do not free tep->cmdlines in add_new_comm() on =
+failure
+
+Thomas Huth (1):
+      KVM: s390: Test for bad access register and size at the start of S390=
+_MEM_OP
+
+Thomas Richter (1):
+      perf build: Add detection of java-11-openjdk-devel package
+
+Tomi Valkeinen (1):
+      drm/omap: fix max fclk divider for omap36xx
+
+Trek (1):
+      drm/amdgpu: Check for valid number of registers to read
+
+Trond Myklebust (1):
+      pNFS: Ensure we do clear the return-on-close layout stateid on fatal =
+errors
+
+Valdis Kletnieks (1):
+      kernel/elfcore.c: include proper prototypes
+
+Vasily Gorbik (4):
+      s390/process: avoid potential reading of freed stack
+      s390/topology: avoid firing events before kobjs are created
+      s390/cio: avoid calling strlen on null pointer
+      s390/cio: exclude subchannels with no parent from pseudo check
+
+Wanpeng Li (1):
+      Revert "locking/pvqspinlock: Don't wait if vCPU is preempted"
+
+Wei Yongjun (1):
+      crypto: cavium/zip - Add missing single_release()
+
+Xiubo Li (1):
+      nbd: fix crash when the blksize is zero
+
+zhengbin (1):
+      fuse: fix memleak in cuse_channel_open
 
 
-On 2019/9/25 13:54, Yufen Yu wrote:
-> We have a test case as follow:
->
->    mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
->    mdadm -S /dev/md1
->    mdadm -A /dev/md1 /dev/sd[b-c] --run --force
->
->    mdadm --zero /dev/sda
->    mdadm /dev/md1 -a /dev/sda
->
->    echo offline > /sys/block/sdc/device/state
->    echo offline > /sys/block/sdb/device/state
->    sleep 5
->    mdadm -S /dev/md1
->
->    echo running > /sys/block/sdb/device/state
->    echo running > /sys/block/sdc/device/state
->    mdadm -A /dev/md1 /dev/sd[a-c] --run --force
->
-> When we readd /dev/sda to the array, it started to do recovery.
-> After offline the other two disks in md1, the recovery have
-> been interrupted and superblock update info cannot be written
-> to the offline disks. While the spare disk (/dev/sda) can continue
-> to update superblock info.
->
-> After stopping the array and assemble it, we found the array
-> run fail, with the follow kernel message:
->
-> [  172.986064] md: kicking non-fresh sdb from array!
-> [  173.004210] md: kicking non-fresh sdc from array!
-> [  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
-> [  173.022406] md1: failed to create bitmap (-5)
-> [  173.023466] md: md1 stopped.
->
-> Since both sdb and sdc have the value of 'sb->events' smaller than
-> that in sda, they have been kicked from the array. However, the only
-> remained disk sda is in 'spare' state before stop and it cannot be
-> added to conf->mirrors[] array. In the end, raid array assemble and run fail.
->
-> In fact, we can use the older disk sdb or sdc to assemble the array.
-> That means we should not choose the 'spare' disk as the fresh disk in
-> analyze_sbs().
->
-> To fix the problem, we do not compare superblock events when it is
-> a spare disk, as same as validate_super.
->
-> Signed-off-by: Yufen Yu <yuyufen@huawei.com>
->
-> v1->v2:
->    fix wrong return value in super_90_load
-> ---
->   drivers/md/md.c | 44 ++++++++++++++++++++++++--------------------
->   1 file changed, 24 insertions(+), 20 deletions(-)
->
-> diff --git a/drivers/md/md.c b/drivers/md/md.c
-> index 1be7abeb24fd..0a91c20071b3 100644
-> --- a/drivers/md/md.c
-> +++ b/drivers/md/md.c
-> @@ -1097,7 +1097,7 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
->   {
->   	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
->   	mdp_super_t *sb;
-> -	int ret;
-> +	int ret = 0;
->   
->   	/*
->   	 * Calculate the position of the superblock (512byte sectors),
-> @@ -1111,14 +1111,12 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
->   	if (ret)
->   		return ret;
->   
-> -	ret = -EINVAL;
-> -
->   	bdevname(rdev->bdev, b);
->   	sb = page_address(rdev->sb_page);
->   
->   	if (sb->md_magic != MD_SB_MAGIC) {
->   		pr_warn("md: invalid raid superblock magic on %s\n", b);
-> -		goto abort;
-> +		return -EINVAL;
->   	}
->   
->   	if (sb->major_version != 0 ||
-> @@ -1126,15 +1124,15 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
->   	    sb->minor_version > 91) {
->   		pr_warn("Bad version number %d.%d on %s\n",
->   			sb->major_version, sb->minor_version, b);
-> -		goto abort;
-> +		return -EINVAL;
->   	}
->   
->   	if (sb->raid_disks <= 0)
-> -		goto abort;
-> +		return -EINVAL;
->   
->   	if (md_csum_fold(calc_sb_csum(sb)) != md_csum_fold(sb->sb_csum)) {
->   		pr_warn("md: invalid superblock checksum on %s\n", b);
-> -		goto abort;
-> +		return -EINVAL;
->   	}
->   
->   	rdev->preferred_minor = sb->md_minor;
-> @@ -1156,19 +1154,22 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
->   		if (!md_uuid_equal(refsb, sb)) {
->   			pr_warn("md: %s has different UUID to %s\n",
->   				b, bdevname(refdev->bdev,b2));
-> -			goto abort;
-> +			return -EINVAL;
->   		}
->   		if (!md_sb_equal(refsb, sb)) {
->   			pr_warn("md: %s has same UUID but different superblock to %s\n",
->   				b, bdevname(refdev->bdev, b2));
-> -			goto abort;
-> +			return -EINVAL;
->   		}
->   		ev1 = md_event(sb);
->   		ev2 = md_event(refsb);
-> -		if (ev1 > ev2)
-> -			ret = 1;
-> -		else
-> -			ret = 0;
-> +
-> +		/* Insist on good event counter while assembling, except
-> +		 * for spares (which don't need an event count) */
-> +		if (sb->disks[rdev->desc_nr].state & (
-> +			(1<<MD_DISK_SYNC) | (1 << MD_DISK_ACTIVE)))
-> +			if (ev1 > ev2)
-> +				ret = 1;
->   	}
->   	rdev->sectors = rdev->sb_start;
->   	/* Limit to 4TB as metadata cannot record more than that.
-> @@ -1180,9 +1181,8 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
->   
->   	if (rdev->sectors < ((sector_t)sb->size) * 2 && sb->level >= 1)
->   		/* "this cannot possibly happen" ... */
-> -		ret = -EINVAL;
-> +		return -EINVAL;
->   
-> - abort:
->   	return ret;
->   }
->   
-> @@ -1520,7 +1520,7 @@ static __le32 calc_sb_1_csum(struct mdp_superblock_1 *sb)
->   static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_version)
->   {
->   	struct mdp_superblock_1 *sb;
-> -	int ret;
-> +	int ret = 0;
->   	sector_t sb_start;
->   	sector_t sectors;
->   	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
-> @@ -1676,10 +1676,14 @@ static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_
->   		ev1 = le64_to_cpu(sb->events);
->   		ev2 = le64_to_cpu(refsb->events);
->   
-> -		if (ev1 > ev2)
-> -			ret = 1;
-> -		else
-> -			ret = 0;
-> +		/* Insist of good event counter while assembling, except for
-> +		 * spares (which don't need an event count) */
-> +		if (rdev->desc_nr >= 0 &&
-> +		    rdev->desc_nr < le32_to_cpu(sb->max_dev) &&
-> +		    (le16_to_cpu(sb->dev_roles[rdev->desc_nr]) < MD_DISK_ROLE_MAX ||
-> +		     le16_to_cpu(sb->dev_roles[rdev->desc_nr]) == MD_DISK_ROLE_JOURNAL))
-> +			if (ev1 > ev2)
-> +				ret = 1;
->   	}
->   	if (minor_version) {
->   		sectors = (i_size_read(rdev->bdev->bd_inode) >> 9);
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAEBCAAdFiEEZH8oZUiU471FcZm+ONu9yGCSaT4FAl2hh3AACgkQONu9yGCS
+aT6+7xAAg7QTUAYoac3B1Gd0UXXj8Tj51j0Bisp9DIIEx7xUfM1NmluI9Yi4ygVQ
+s2kwks1g5fFYI4AvwZejvSeRQlVPIBkc5TN2uWlwUg1aFYDR1i1+a+InRp65GzEw
+7OQ/ac/nrW3fUfa0HMMLFFOB+kqCrrqU24hX3s3skwt4r6oj9kyqfsQmdqwxrYg8
+mbD5saeHlUnuuTzhey5z3ntio+TQpvseA/ebF33YJzxDZ/VoX1SixV2zcpMwK0H0
+rmAhTDX9u4nAZ3OJGhLHaRh0va4AMd1ioeiwUt2UBsefSGHhkHW69/Y6T9+6OnXc
+H1FEq+6pHiQDaFtS+78zX35gT8oc7QRcGCRFBGUL7FZ6dpJEsHFXQmDcnF/l/FM3
+e2fSdxF/or3X+wZhEFReI27N6GTuGOCYdzkSHaB35QXB8TKqbdun80+hfc/mgSFA
+qFo0CsqYpf0BB6ZjUnRnlfCSYWb0Cr+eP84rX2PB3cFnxBADJeUWbCoQm+qSu5i1
+0v2HGYgWjG/59xU2ia3UVMWXFFrCZ74hZqI7/Mg2WCoeEJIUYa1d0eMSEH/9JMIZ
+J3ZeNdl5g0paqmm4Ia34tJcmsTl6IZN148aqMsXimuHFshyT3eLzxoUyWWmzSOxw
+VZqleIzE/5kB0xA5EthU/CVwdTo/5qPScFaxxwOj5Kn1e9XiJU0=
+=InSr
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--
