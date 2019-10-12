@@ -2,61 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D68D4EB0
-	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 11:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 496ADD4FF3
+	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 15:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729022AbfJLJqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Oct 2019 05:46:17 -0400
-Received: from paleale.coelho.fi ([176.9.41.70]:48496 "EHLO
-        farmhouse.coelho.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727083AbfJLJlR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 12 Oct 2019 05:41:17 -0400
-Received: from [91.156.6.193] (helo=redipa)
-        by farmhouse.coelho.fi with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.92)
-        (envelope-from <luca@coelho.fi>)
-        id 1iJDtj-0005ol-GI; Sat, 12 Oct 2019 12:41:16 +0300
-Message-ID: <bcd9ce3c452b64fdecbb932a2d9e94743ff17f5f.camel@coelho.fi>
-From:   Luca Coelho <luca@coelho.fi>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org
-Date:   Sat, 12 Oct 2019 12:41:14 +0300
-In-Reply-To: <20191011160330.GC2635@sasha-vm>
-References: <20191011061402.32107-1-luca@coelho.fi>
-         <20191011160330.GC2635@sasha-vm>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.0-2 
+        id S1727115AbfJLNOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Oct 2019 09:14:40 -0400
+Received: from relay11.mail.gandi.net ([217.70.178.231]:46737 "EHLO
+        relay11.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726821AbfJLNOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 12 Oct 2019 09:14:40 -0400
+Received: from webmail.gandi.net (webmail18.sd4.0x35.net [10.200.201.18])
+        (Authenticated sender: brun@services-courriers.online)
+        by relay11.mail.gandi.net (Postfix) with ESMTPA id D7D6B100004;
+        Sat, 12 Oct 2019 13:14:29 +0000 (UTC)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on farmhouse.coelho.fi
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.2
-Subject: Re: [PATCH v5.2 1/2] iwlwifi: mvm: add a wrapper around
- rs_tx_status to handle locks
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Date:   Sat, 12 Oct 2019 14:14:29 +0100
+From:   HUREL Vincent <brun@services-courriers.online>
+To:     brun@services-courriers.online
+Subject: TRADING  ACCOUNT
+Organization: ABB FRANCE
+Reply-To: hurelvincent@newabb-fr.com
+Mail-Reply-To: hurelvincent@newabb-fr.com
+Message-ID: <0b3f696b4c5e817f4ea8cee0a779e677@services-courriers.online>
+X-Sender: brun@services-courriers.online
+User-Agent: Roundcube Webmail/1.3.8
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2019-10-11 at 12:03 -0400, Sasha Levin wrote:
-> On Fri, Oct 11, 2019 at 09:14:01AM +0300, Luca Coelho wrote:
-> > From: Gregory Greenman <gregory.greenman@intel.com>
-> > 
-> > [ Upstream commit 23babdf06779482a65c5072a145d826a62979534 ]
-> > 
-> > iwl_mvm_rs_tx_status can be called from two places in the code, but the
-> > mutex is taken only on one of the calls. Split it into a wrapper taking
-> > locks and an internal __iwl_mvm_rs_tx_status function.
-> 
-> v5.2 is EOL, any other kernels this needs to be in?
+Dear sir ,
 
-Ah, I hadn't realized v5.2 was EOL already.  It was the only version
-where we needed these patches.  They are already in v5.3 and above.
+I am M HUREL Vincent , purchasing and sales manager of ABB FRANCE . Our 
+Company specialised in Supplying computer hardware and Electronic . We 
+want to extend our supplier list because of concurrency in prices on the 
+international market . We are seeking a supplier with whom we can to 
+have  partnered long-term in order to have competitive prices .we are 
+interested to buy the products you sell and want to place an order with 
+you in big quantities.
+Can you give us payment facilities ( 14 , 30 or 60 days payment terms ) 
+?
+Could you inform us of the steps to follow to open an account with you ?
 
-Thanks!
+Waiting your feedback
 
---
-Cheers,
-Luca.
+Cordially
 
+M HUREL Vincent
+
+ABB FRANCE
+5 BOULEVARD D OSNY
+95800 Cergy
+REG N° 335 146 312
+VAT N° FR 95 335146312
+TEL +33183777972
+TEL D : +33756981277
+FAX +33143381547
+https://new.abb.com
