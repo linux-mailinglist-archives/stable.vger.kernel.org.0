@@ -2,98 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 642C5D4BBE
-	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 03:17:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5226AD4BC7
+	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 03:25:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727537AbfJLBRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 11 Oct 2019 21:17:18 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:39746 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbfJLBRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 11 Oct 2019 21:17:18 -0400
-Received: by mail-wr1-f68.google.com with SMTP id r3so13687511wrj.6
-        for <stable@vger.kernel.org>; Fri, 11 Oct 2019 18:17:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZANAQlO2/x6nsydQD4t42egzzhe7vfAAFxBXQ+GHT7c=;
-        b=1Uog+ZHMNWscBvxIY0dNgTagdw6lCvaHwJOofmGW0fMOzf/0VD+qAcsTGfA4G6mdmw
-         eCk5u0Kb4+Ugm+nfizIzAxnB/n9Dcndi6aC56kOCu7kHKQ6xBRABS10aeXK+ae9C7R3c
-         1/8VdiByhRMlWfPsxVgFCbzPQUius4FwqOVJAS0AH/AQJ8xKYCFc8CRkTtXkwkPx3Ngb
-         7KQnnfEyXx/5Gr2LA1avpHTYyuP1ifxST4BWcWizcXMFGATFwriQD1vgqk5GkD7WdDKZ
-         QsAgZZ7czRvjGeOnIWDzWoAd3VKHM7mDdQO0CDEaMWw0vZjt6MXJysuryKPVDBYi5MzF
-         5wqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZANAQlO2/x6nsydQD4t42egzzhe7vfAAFxBXQ+GHT7c=;
-        b=AfQB2Y0FVM/TMpKo0mtBySB+Sr39aWuXyiDFl1ZdB3qWwFOE+u4zXXxW+gBXzKDThq
-         nvZG0QqaNzHhWKSGkOnuGIxypFPd595v8V1kmR8PMp9q84gAbL1IR9tpDZaA4oJrFLi6
-         i2Y2coKUR1jpPEGj2KP0iQd5+qpSO9rczDVtp6bxx1o8AsUhFrMGJgEJpbFFIW0o0jvG
-         lfoElSNqRjA0xHWoYxflVMVO5tc7uvYoGMh3zCBEumlOHJ1uhp8Itny7PAkOTX0lkZeN
-         rDgFGLiA7Fqb90S8Jbe765DKwPXrkDYhhQ98HNspCfiIe9Ybbo0RYGD4ouc7QU0iOcFf
-         giig==
-X-Gm-Message-State: APjAAAVESsK7+L21iJUJtow7It/22JUqKHFmrdDW2fZY6TblkuaHumCf
-        F9eHlDGNasxDqdDPCn+2MzbYGGCc4eVGrA==
-X-Google-Smtp-Source: APXvYqx9+trPTPYsiv2npd4rlaYW0/XS2IqIZaiF+At1F1QIPXQ6SWcENQ3a4lWzR8xcRQmTku7SKQ==
-X-Received: by 2002:adf:fe42:: with SMTP id m2mr15118586wrs.321.1570843034944;
-        Fri, 11 Oct 2019 18:17:14 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o9sm17827835wrh.46.2019.10.11.18.17.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 11 Oct 2019 18:17:14 -0700 (PDT)
-Message-ID: <5da1299a.1c69fb81.cd934.770e@mx.google.com>
-Date:   Fri, 11 Oct 2019 18:17:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727455AbfJLBZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 11 Oct 2019 21:25:13 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:44798 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727345AbfJLBZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 11 Oct 2019 21:25:13 -0400
+Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id B63E97869260F341536F;
+        Sat, 12 Oct 2019 09:25:10 +0800 (CST)
+Received: from [127.0.0.1] (10.177.219.49) by DGGEMS404-HUB.china.huawei.com
+ (10.3.19.204) with Microsoft SMTP Server id 14.3.439.0; Sat, 12 Oct 2019
+ 09:25:07 +0800
+Subject: Re: [PATCH v2] md: no longer compare spare disk superblock events in
+ super_load
+From:   Yufen Yu <yuyufen@huawei.com>
+To:     <songliubraving@fb.com>
+CC:     <linux-raid@vger.kernel.org>, <neilb@suse.de>,
+        <stable@vger.kernel.org>
+References: <20190925055449.30091-1-yuyufen@huawei.com>
+Message-ID: <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
+Date:   Sat, 12 Oct 2019 09:25:06 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.2.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.6
-Subject: stable/linux-5.3.y boot: 83 boots: 3 failed, 80 passed (v5.3.6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190925055449.30091-1-yuyufen@huawei.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Originating-IP: [10.177.219.49]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.3.y boot: 83 boots: 3 failed, 80 passed (v5.3.6)
+ping
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-3.y/kernel/v5.3.6/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
-rnel/v5.3.6/
 
-Tree: stable
-Branch: linux-5.3.y
-Git Describe: v5.3.6
-Git Commit: a2fc8ee6676067f27d2f5c6e4d512adff3d9938c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 58 unique boards, 18 SoC families, 13 builds out of 208
+On 2019/9/25 13:54, Yufen Yu wrote:
+> We have a test case as follow:
+>
+>    mdadm -CR /dev/md1 -l 1 -n 4 /dev/sd[a-d] --assume-clean --bitmap=internal
+>    mdadm -S /dev/md1
+>    mdadm -A /dev/md1 /dev/sd[b-c] --run --force
+>
+>    mdadm --zero /dev/sda
+>    mdadm /dev/md1 -a /dev/sda
+>
+>    echo offline > /sys/block/sdc/device/state
+>    echo offline > /sys/block/sdb/device/state
+>    sleep 5
+>    mdadm -S /dev/md1
+>
+>    echo running > /sys/block/sdb/device/state
+>    echo running > /sys/block/sdc/device/state
+>    mdadm -A /dev/md1 /dev/sd[a-c] --run --force
+>
+> When we readd /dev/sda to the array, it started to do recovery.
+> After offline the other two disks in md1, the recovery have
+> been interrupted and superblock update info cannot be written
+> to the offline disks. While the spare disk (/dev/sda) can continue
+> to update superblock info.
+>
+> After stopping the array and assemble it, we found the array
+> run fail, with the follow kernel message:
+>
+> [  172.986064] md: kicking non-fresh sdb from array!
+> [  173.004210] md: kicking non-fresh sdc from array!
+> [  173.022383] md/raid1:md1: active with 0 out of 4 mirrors
+> [  173.022406] md1: failed to create bitmap (-5)
+> [  173.023466] md: md1 stopped.
+>
+> Since both sdb and sdc have the value of 'sb->events' smaller than
+> that in sda, they have been kicked from the array. However, the only
+> remained disk sda is in 'spare' state before stop and it cannot be
+> added to conf->mirrors[] array. In the end, raid array assemble and run fail.
+>
+> In fact, we can use the older disk sdb or sdc to assemble the array.
+> That means we should not choose the 'spare' disk as the fresh disk in
+> analyze_sbs().
+>
+> To fix the problem, we do not compare superblock events when it is
+> a spare disk, as same as validate_super.
+>
+> Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+>
+> v1->v2:
+>    fix wrong return value in super_90_load
+> ---
+>   drivers/md/md.c | 44 ++++++++++++++++++++++++--------------------
+>   1 file changed, 24 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/md/md.c b/drivers/md/md.c
+> index 1be7abeb24fd..0a91c20071b3 100644
+> --- a/drivers/md/md.c
+> +++ b/drivers/md/md.c
+> @@ -1097,7 +1097,7 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+>   {
+>   	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
+>   	mdp_super_t *sb;
+> -	int ret;
+> +	int ret = 0;
+>   
+>   	/*
+>   	 * Calculate the position of the superblock (512byte sectors),
+> @@ -1111,14 +1111,12 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+>   	if (ret)
+>   		return ret;
+>   
+> -	ret = -EINVAL;
+> -
+>   	bdevname(rdev->bdev, b);
+>   	sb = page_address(rdev->sb_page);
+>   
+>   	if (sb->md_magic != MD_SB_MAGIC) {
+>   		pr_warn("md: invalid raid superblock magic on %s\n", b);
+> -		goto abort;
+> +		return -EINVAL;
+>   	}
+>   
+>   	if (sb->major_version != 0 ||
+> @@ -1126,15 +1124,15 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+>   	    sb->minor_version > 91) {
+>   		pr_warn("Bad version number %d.%d on %s\n",
+>   			sb->major_version, sb->minor_version, b);
+> -		goto abort;
+> +		return -EINVAL;
+>   	}
+>   
+>   	if (sb->raid_disks <= 0)
+> -		goto abort;
+> +		return -EINVAL;
+>   
+>   	if (md_csum_fold(calc_sb_csum(sb)) != md_csum_fold(sb->sb_csum)) {
+>   		pr_warn("md: invalid superblock checksum on %s\n", b);
+> -		goto abort;
+> +		return -EINVAL;
+>   	}
+>   
+>   	rdev->preferred_minor = sb->md_minor;
+> @@ -1156,19 +1154,22 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+>   		if (!md_uuid_equal(refsb, sb)) {
+>   			pr_warn("md: %s has different UUID to %s\n",
+>   				b, bdevname(refdev->bdev,b2));
+> -			goto abort;
+> +			return -EINVAL;
+>   		}
+>   		if (!md_sb_equal(refsb, sb)) {
+>   			pr_warn("md: %s has same UUID but different superblock to %s\n",
+>   				b, bdevname(refdev->bdev, b2));
+> -			goto abort;
+> +			return -EINVAL;
+>   		}
+>   		ev1 = md_event(sb);
+>   		ev2 = md_event(refsb);
+> -		if (ev1 > ev2)
+> -			ret = 1;
+> -		else
+> -			ret = 0;
+> +
+> +		/* Insist on good event counter while assembling, except
+> +		 * for spares (which don't need an event count) */
+> +		if (sb->disks[rdev->desc_nr].state & (
+> +			(1<<MD_DISK_SYNC) | (1 << MD_DISK_ACTIVE)))
+> +			if (ev1 > ev2)
+> +				ret = 1;
+>   	}
+>   	rdev->sectors = rdev->sb_start;
+>   	/* Limit to 4TB as metadata cannot record more than that.
+> @@ -1180,9 +1181,8 @@ static int super_90_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor
+>   
+>   	if (rdev->sectors < ((sector_t)sb->size) * 2 && sb->level >= 1)
+>   		/* "this cannot possibly happen" ... */
+> -		ret = -EINVAL;
+> +		return -EINVAL;
+>   
+> - abort:
+>   	return ret;
+>   }
+>   
+> @@ -1520,7 +1520,7 @@ static __le32 calc_sb_1_csum(struct mdp_superblock_1 *sb)
+>   static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_version)
+>   {
+>   	struct mdp_superblock_1 *sb;
+> -	int ret;
+> +	int ret = 0;
+>   	sector_t sb_start;
+>   	sector_t sectors;
+>   	char b[BDEVNAME_SIZE], b2[BDEVNAME_SIZE];
+> @@ -1676,10 +1676,14 @@ static int super_1_load(struct md_rdev *rdev, struct md_rdev *refdev, int minor_
+>   		ev1 = le64_to_cpu(sb->events);
+>   		ev2 = le64_to_cpu(refsb->events);
+>   
+> -		if (ev1 > ev2)
+> -			ret = 1;
+> -		else
+> -			ret = 0;
+> +		/* Insist of good event counter while assembling, except for
+> +		 * spares (which don't need an event count) */
+> +		if (rdev->desc_nr >= 0 &&
+> +		    rdev->desc_nr < le32_to_cpu(sb->max_dev) &&
+> +		    (le16_to_cpu(sb->dev_roles[rdev->desc_nr]) < MD_DISK_ROLE_MAX ||
+> +		     le16_to_cpu(sb->dev_roles[rdev->desc_nr]) == MD_DISK_ROLE_JOURNAL))
+> +			if (ev1 > ev2)
+> +				ret = 1;
+>   	}
+>   	if (minor_version) {
+>   		sectors = (i_size_read(rdev->bdev->bd_inode) >> 9);
 
-Boot Regressions Detected:
 
-arm64:
-
-    defconfig:
-        gcc-8:
-          hip07-d05:
-              lab-collabora: new failure (last pass: v5.3.5)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8096-db820c: 1 failed lab
-            hip07-d05: 1 failed lab
-            sun50i-h6-orangepi-one-plus: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
