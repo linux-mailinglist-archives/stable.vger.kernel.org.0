@@ -2,114 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8444ED506F
-	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 16:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92354D511B
+	for <lists+stable@lfdr.de>; Sat, 12 Oct 2019 18:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727402AbfJLOeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 12 Oct 2019 10:34:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59082 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727265AbfJLOeE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 12 Oct 2019 10:34:04 -0400
-Received: from localhost (unknown [216.243.17.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 907C52089C;
-        Sat, 12 Oct 2019 14:34:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1570890843;
-        bh=PLD21OxWHRYA4PnSOpeLzzY5lRzX7rtg2yd5680TBiA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=M75OYXK62AE+15OFzJQJbh+KoHxyhbJWxOAcNtFMPfVRnJq/PnFluJkaX6cgmqetv
-         gmp0pAbmop6H8JXvxec2KfTmSjljQSpQJmvXknF+Mt4ntl0FMmj8vbDyW6RsgJc/T5
-         H1u5OXB0t5cJbNyajVcNgB2Uzf+MV3W9HNnhiAHw=
-Date:   Sat, 12 Oct 2019 10:34:02 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     tj@kernel.org, akpm@linux-foundation.org, axboe@kernel.dk,
-        clm@fb.com, jack@suse.cz, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject: Re: FAILED: patch "[PATCH] writeback: fix use-after-free in
- finish_writeback_work()" failed to apply to 5.3-stable tree
-Message-ID: <20191012143402.GA15167@sasha-vm>
-References: <157086827811218@kroah.com>
+        id S1728636AbfJLQoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 12 Oct 2019 12:44:01 -0400
+Received: from mx2.suse.de ([195.135.220.15]:44770 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728338AbfJLQmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 12 Oct 2019 12:42:01 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id C5E3CB481;
+        Sat, 12 Oct 2019 16:41:59 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 048B2DA7E3; Sat, 12 Oct 2019 18:42:12 +0200 (CEST)
+From:   David Sterba <dsterba@suse.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     David Sterba <dsterba@suse.com>, stable@vger.kernel.org
+Subject: [PATCH] btrfs: don't needlessly create extent-refs kernel thread
+Date:   Sat, 12 Oct 2019 18:42:10 +0200
+Message-Id: <20191012164210.17081-1-dsterba@suse.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157086827811218@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 12, 2019 at 10:17:58AM +0200, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 8e00c4e9dd852f7a9bf12234fad65a2f2f93788f Mon Sep 17 00:00:00 2001
->From: Tejun Heo <tj@kernel.org>
->Date: Sun, 6 Oct 2019 17:58:09 -0700
->Subject: [PATCH] writeback: fix use-after-free in finish_writeback_work()
->
->finish_writeback_work() reads @done->waitq after decrementing
->@done->cnt.  However, once @done->cnt reaches zero, @done may be freed
->(from stack) at any moment and @done->waitq can contain something
->unrelated by the time finish_writeback_work() tries to read it.  This
->led to the following crash.
->
->  "BUG: kernel NULL pointer dereference, address: 0000000000000002"
->  #PF: supervisor write access in kernel mode
->  #PF: error_code(0x0002) - not-present page
->  PGD 0 P4D 0
->  Oops: 0002 [#1] SMP DEBUG_PAGEALLOC
->  CPU: 40 PID: 555153 Comm: kworker/u98:50 Kdump: loaded Not tainted
->  ...
->  Workqueue: writeback wb_workfn (flush-btrfs-1)
->  RIP: 0010:_raw_spin_lock_irqsave+0x10/0x30
->  Code: 48 89 d8 5b c3 e8 50 db 6b ff eb f4 0f 1f 40 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 53 9c 5b fa 31 c0 ba 01 00 00 00 <f0> 0f b1 17 75 05 48 89 d8 5b c3 89 c6 e8 fe ca 6b ff eb f2 66 90
->  RSP: 0018:ffffc90049b27d98 EFLAGS: 00010046
->  RAX: 0000000000000000 RBX: 0000000000000246 RCX: 0000000000000000
->  RDX: 0000000000000001 RSI: 0000000000000003 RDI: 0000000000000002
->  RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
->  R10: ffff889fff407600 R11: ffff88ba9395d740 R12: 000000000000e300
->  R13: 0000000000000003 R14: 0000000000000000 R15: 0000000000000000
->  FS:  0000000000000000(0000) GS:ffff88bfdfa00000(0000) knlGS:0000000000000000
->  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  CR2: 0000000000000002 CR3: 0000000002409005 CR4: 00000000001606e0
->  Call Trace:
->   __wake_up_common_lock+0x63/0xc0
->   wb_workfn+0xd2/0x3e0
->   process_one_work+0x1f5/0x3f0
->   worker_thread+0x2d/0x3d0
->   kthread+0x111/0x130
->   ret_from_fork+0x1f/0x30
->
->Fix it by reading and caching @done->waitq before decrementing
->@done->cnt.
->
->Link: http://lkml.kernel.org/r/20190924010631.GH2233839@devbig004.ftw2.facebook.com
->Fixes: 5b9cce4c7eb069 ("writeback: Generalize and expose wb_completion")
+The patch 32b593bfcb58 ("Btrfs: remove no longer used function to run
+delayed refs asynchronously") removed the async delayed refs but the
+thread has been created, without any use. Remove it to avoid resource
+consumption.
 
-Hm... 5b9cce4c7eb069 went upstream during the 5.4 merge window, but:
+Fixes: 32b593bfcb58 ("Btrfs: remove no longer used function to run delayed refs asynchronously")
+CC: stable@vger.kernel.org # 5.2+
+Signed-off-by: David Sterba <dsterba@suse.com>
+---
+ fs/btrfs/ctree.h   | 2 --
+ fs/btrfs/disk-io.c | 6 ------
+ 2 files changed, 8 deletions(-)
 
->Signed-off-by: Tejun Heo <tj@kernel.org>
->Debugged-by: Chris Mason <clm@fb.com>
->Reviewed-by: Jens Axboe <axboe@kernel.dk>
->Cc: Jan Kara <jack@suse.cz>
->Cc: <stable@vger.kernel.org>	[5.2+]
-
-This tag says that 8e00c4e9dd85 should be backported to 5.3.
-
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index d17e79a40930..ba7981478558 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -734,8 +734,6 @@ struct btrfs_fs_info {
+ 	struct btrfs_workqueue *fixup_workers;
+ 	struct btrfs_workqueue *delayed_workers;
+ 
+-	/* the extent workers do delayed refs on the extent allocation tree */
+-	struct btrfs_workqueue *extent_workers;
+ 	struct task_struct *transaction_kthread;
+ 	struct task_struct *cleaner_kthread;
+ 	u32 thread_pool_size;
+diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
+index 7d6886f70f8f..5d32deb42993 100644
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -2002,7 +2002,6 @@ static void btrfs_stop_all_workers(struct btrfs_fs_info *fs_info)
+ 	btrfs_destroy_workqueue(fs_info->readahead_workers);
+ 	btrfs_destroy_workqueue(fs_info->flush_workers);
+ 	btrfs_destroy_workqueue(fs_info->qgroup_rescan_workers);
+-	btrfs_destroy_workqueue(fs_info->extent_workers);
+ 	/*
+ 	 * Now that all other work queues are destroyed, we can safely destroy
+ 	 * the queues used for metadata I/O, since tasks from those other work
+@@ -2198,10 +2197,6 @@ static int btrfs_init_workqueues(struct btrfs_fs_info *fs_info,
+ 				      max_active, 2);
+ 	fs_info->qgroup_rescan_workers =
+ 		btrfs_alloc_workqueue(fs_info, "qgroup-rescan", flags, 1, 0);
+-	fs_info->extent_workers =
+-		btrfs_alloc_workqueue(fs_info, "extent-refs", flags,
+-				      min_t(u64, fs_devices->num_devices,
+-					    max_active), 8);
+ 
+ 	if (!(fs_info->workers && fs_info->delalloc_workers &&
+ 	      fs_info->flush_workers &&
+@@ -2212,7 +2207,6 @@ static int btrfs_init_workqueues(struct btrfs_fs_info *fs_info,
+ 	      fs_info->endio_freespace_worker && fs_info->rmw_workers &&
+ 	      fs_info->caching_workers && fs_info->readahead_workers &&
+ 	      fs_info->fixup_workers && fs_info->delayed_workers &&
+-	      fs_info->extent_workers &&
+ 	      fs_info->qgroup_rescan_workers)) {
+ 		return -ENOMEM;
+ 	}
 -- 
-Thanks,
-Sasha
+2.23.0
+
