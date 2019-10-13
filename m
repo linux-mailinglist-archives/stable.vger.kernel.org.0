@@ -2,62 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FF88D56BA
-	for <lists+stable@lfdr.de>; Sun, 13 Oct 2019 18:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F26ED571C
+	for <lists+stable@lfdr.de>; Sun, 13 Oct 2019 19:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727974AbfJMQEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Oct 2019 12:04:21 -0400
-Received: from mail-lf1-f42.google.com ([209.85.167.42]:39184 "EHLO
-        mail-lf1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbfJMQEV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Oct 2019 12:04:21 -0400
-Received: by mail-lf1-f42.google.com with SMTP id 72so10126220lfh.6;
-        Sun, 13 Oct 2019 09:04:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=zK6MqX6awnsKT7h/tz4aHU7zt4FnJHX3hmpDCllT6Qw=;
-        b=DQVT+xwVXNkS8BcdFwj+B3rQ5myl1sGpj7Ey3kqz10L8eM2ZplADf0Ie1kAr8AYD4B
-         iesKdYPQILt49OqKHwk8CPhH7yiNUTvLeIaJAf/N4Uo5X9h3jyPsQWeJJSoQsRabR0pU
-         HRAfXUzdvrS1PNTG2YHwbkwalMjNDHgpe2A5jLTD8pexL0SQqUoLZY07tNVFYyAxgBB8
-         oJLZSFv59MzwPlJrmDkqPf8CwK3MF81bKB+4wHQImNlmq7jNjBW6rHVTJBb3hfwrmz8s
-         yh1rK05n1M7fFHew0ZiOwhXGxjjplMLYU3YfUuHHahktTlEV74MtpEezKlbLMvqtr8re
-         n4pg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=zK6MqX6awnsKT7h/tz4aHU7zt4FnJHX3hmpDCllT6Qw=;
-        b=sL4xb2MjaMER+/LGnNL+oeZgze0JPVznKzRLvoAy/QJtX1mpNRxbo2BkmmnCl0MpMP
-         bVZkxI+pBnVjiQosCFAs0uzZlmBeO46TYXHLiLfwCKwNI1Qit1WfTCCwXuOPdyYMO+ha
-         XGil0i/HIp2gJ4Abi2AqP10EiOpN30z3N7MsXUEWJZ3qCRl7vZG0DEdP3UHz0coLxpiR
-         dnre2qXhW1hIIPHUe3cTUnWdbRY4+bTc2YtyV/FfynUuCSG5rI57V9QW0W6NQVSpNYsS
-         WwJp3gYcLYJbC9X8yLrhUb/dv1Ml/Mxz27axIjav55hlzwxg4URdoWCwwNuoulBrPM+q
-         CgCg==
-X-Gm-Message-State: APjAAAVd2uzlDIbvU40z0eEeFBEGFFrQxvzo6t/o22A8JFdrN6LtBsX5
-        B1da8tqXCF1IfSvaYJtgb4U2vYHOo5sFIGIAhgV1HzSQM3Y=
-X-Google-Smtp-Source: APXvYqzHMTIEIS4nmMsvZMMjqLm0FoWqMVdZH+80rMlvYaJmaw4RAZSsrMi38lQGZITbHK3Rn3e5SvNazId2jpSY2gI=
-X-Received: by 2002:ac2:5595:: with SMTP id v21mr2646279lfg.168.1570982658932;
- Sun, 13 Oct 2019 09:04:18 -0700 (PDT)
+        id S1728408AbfJMRoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Oct 2019 13:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36748 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727141AbfJMRoT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 13 Oct 2019 13:44:19 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47A912082F;
+        Sun, 13 Oct 2019 17:44:19 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.92.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1iJhuk-0001yz-Em; Sun, 13 Oct 2019 13:44:18 -0400
+Message-Id: <20191013174418.343480563@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Sun, 13 Oct 2019 13:43:44 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: [for-linus][PATCH 02/11] ftrace: Get a reference counter for the trace_array on filter files
+References: <20191013174342.381019558@goodmis.org>
 MIME-Version: 1.0
-From:   Andrew Macks <andypoo@gmail.com>
-Date:   Sun, 13 Oct 2019 19:04:12 +0300
-Message-ID: <CAFeYvHUoZdM5kY6LCfUiy6pVVf4VU_SWHtKeyevYenC3FZ7mng@mail.gmail.com>
-Subject: Regression in 4.14.147, 4.19.76, 5.2.18 leading to kernel panic on
- btrfs root fs mount
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Was not sure the correct way to escalate this quickly enough.  I
-unfortunately discovered this issue while upgrading a server (remotely) to
-4.19.78 (longterm).
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-*Bug 205181* <https://bugzilla.kernel.org/show_bug.cgi?id=205181> - kernel
-panic when accessing btrfs root device with f2fs in kernel
-https://bugzilla.kernel.org/show_bug.cgi?id=205181
+The ftrace set_ftrace_filter and set_ftrace_notrace files are specific for
+an instance now. They need to take a reference to the instance otherwise
+there could be a race between accessing the files and deleting the instance.
 
-Andrew.
+It wasn't until the :mod: caching where these file operations started
+referencing the trace_array directly.
+
+Cc: stable@vger.kernel.org
+Fixes: 673feb9d76ab3 ("ftrace: Add :mod: caching infrastructure to trace_array")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/ftrace.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 62a50bf399d6..32c2eb167de0 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -3540,21 +3540,22 @@ ftrace_regex_open(struct ftrace_ops *ops, int flag,
+ 	struct ftrace_hash *hash;
+ 	struct list_head *mod_head;
+ 	struct trace_array *tr = ops->private;
+-	int ret = 0;
++	int ret = -ENOMEM;
+ 
+ 	ftrace_ops_init(ops);
+ 
+ 	if (unlikely(ftrace_disabled))
+ 		return -ENODEV;
+ 
++	if (tr && trace_array_get(tr) < 0)
++		return -ENODEV;
++
+ 	iter = kzalloc(sizeof(*iter), GFP_KERNEL);
+ 	if (!iter)
+-		return -ENOMEM;
++		goto out;
+ 
+-	if (trace_parser_get_init(&iter->parser, FTRACE_BUFF_MAX)) {
+-		kfree(iter);
+-		return -ENOMEM;
+-	}
++	if (trace_parser_get_init(&iter->parser, FTRACE_BUFF_MAX))
++		goto out;
+ 
+ 	iter->ops = ops;
+ 	iter->flags = flag;
+@@ -3584,13 +3585,13 @@ ftrace_regex_open(struct ftrace_ops *ops, int flag,
+ 
+ 		if (!iter->hash) {
+ 			trace_parser_put(&iter->parser);
+-			kfree(iter);
+-			ret = -ENOMEM;
+ 			goto out_unlock;
+ 		}
+ 	} else
+ 		iter->hash = hash;
+ 
++	ret = 0;
++
+ 	if (file->f_mode & FMODE_READ) {
+ 		iter->pg = ftrace_pages_start;
+ 
+@@ -3602,7 +3603,6 @@ ftrace_regex_open(struct ftrace_ops *ops, int flag,
+ 			/* Failed */
+ 			free_ftrace_hash(iter->hash);
+ 			trace_parser_put(&iter->parser);
+-			kfree(iter);
+ 		}
+ 	} else
+ 		file->private_data = iter;
+@@ -3610,6 +3610,13 @@ ftrace_regex_open(struct ftrace_ops *ops, int flag,
+  out_unlock:
+ 	mutex_unlock(&ops->func_hash->regex_lock);
+ 
++ out:
++	if (ret) {
++		kfree(iter);
++		if (tr)
++			trace_array_put(tr);
++	}
++
+ 	return ret;
+ }
+ 
+@@ -5037,6 +5044,8 @@ int ftrace_regex_release(struct inode *inode, struct file *file)
+ 
+ 	mutex_unlock(&iter->ops->func_hash->regex_lock);
+ 	free_ftrace_hash(iter->hash);
++	if (iter->tr)
++		trace_array_put(iter->tr);
+ 	kfree(iter);
+ 
+ 	return 0;
+-- 
+2.23.0
+
+
