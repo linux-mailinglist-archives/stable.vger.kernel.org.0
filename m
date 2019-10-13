@@ -2,75 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AC4D56B7
-	for <lists+stable@lfdr.de>; Sun, 13 Oct 2019 17:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24F68D56B2
+	for <lists+stable@lfdr.de>; Sun, 13 Oct 2019 17:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727386AbfJMP7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 13 Oct 2019 11:59:46 -0400
-Received: from eposta.erbakan.edu.tr ([95.183.198.3]:21408 "EHLO
-        eposta.erbakan.edu.tr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726085AbfJMP7q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 13 Oct 2019 11:59:46 -0400
-X-Greylist: delayed 2046 seconds by postgrey-1.27 at vger.kernel.org; Sun, 13 Oct 2019 11:59:45 EDT
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id 337FE1217D3A0;
-        Sun, 13 Oct 2019 18:10:57 +0300 (+03)
-Received: from eposta.erbakan.edu.tr ([127.0.0.1])
-        by localhost (eposta.erbakan.edu.tr [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id K-XGQSEVCIEN; Sun, 13 Oct 2019 18:10:57 +0300 (+03)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id 930951217D444;
-        Sun, 13 Oct 2019 18:05:31 +0300 (+03)
-DKIM-Filter: OpenDKIM Filter v2.10.3 eposta.erbakan.edu.tr 930951217D444
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=erbakan.edu.tr;
-        s=9A114B22-0D17-11E9-AE7D-5CB170D0BDE7; t=1570979132;
-        bh=WLZ+KLuSoQZ68l1qBOSFGPxbkLvJu+rD7fMVtKqs9k8=;
-        h=Date:From:Message-ID:MIME-Version;
-        b=IkTgKY6adJjwXYNlTeS9ZIwzEEGvaYLyIaseFOnhr/1oMrv52BGpXDLYK7h3yw0/o
-         EMQwlT2f+lOKGsjGov2HoXDitg0Pp5r9e1HtMy+xEKJ84GDR1N3FDw1FZIwbGV4k86
-         pHQkGntBh4I06//16rvSmOFpNzK5zXR6mSQ3FJrc6qB+DHqNAW3G1Y0/m6ZqBSQ0Rx
-         9f0NFEFLHpP5kSAL9FT9HOfhbaW65Y/WQ7iA9m+4YU3Pc6olKvwf2WworTWZqTfom1
-         VGAbbKPNhxojldK66RndlUsT95c7lzrVt1kKjO1iY+tNbVDgEIqveYjC0rmX1QPbxY
-         VVy/oLVFYyu7A==
-X-Virus-Scanned: amavisd-new at eposta.erbakan.edu.tr
-Received: from eposta.erbakan.edu.tr ([127.0.0.1])
-        by localhost (eposta.erbakan.edu.tr [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id yDabI-FGT98p; Sun, 13 Oct 2019 18:05:30 +0300 (+03)
-Received: from eposta.erbakan.edu.tr (eposta.konya.edu.tr [172.42.44.72])
-        by eposta.erbakan.edu.tr (Postfix) with ESMTP id 800E71217D2BB;
-        Sun, 13 Oct 2019 17:56:40 +0300 (+03)
-Date:   Sun, 13 Oct 2019 17:56:39 +0300 (EET)
-From:   AXA INVESTMENT MANAGERS <zpdundar@erbakan.edu.tr>
-Reply-To: "axa@investmentmanagersforum.com" <axa@investmentmanagersforum.com>
-Message-ID: <1562428435.18152582.1570978599759.JavaMail.zimbra@erbakan.edu.tr>
-Subject: =?utf-8?Q?Pon=C3=BAkame_v=C3=A1m_skvel=C3=BA_p?=
- =?utf-8?Q?r=C3=ADle=C5=BEitos=C5=A5_investova=C5=A5?=
+        id S1727974AbfJMP4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 13 Oct 2019 11:56:21 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:36391 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbfJMP4V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 13 Oct 2019 11:56:21 -0400
+Received: by mail-io1-f65.google.com with SMTP id b136so32104526iof.3;
+        Sun, 13 Oct 2019 08:56:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=S/Ip8+Jxgd0rwhnDB/VueXGj42PNw7fZm2CTH/h8LA0=;
+        b=fWNrk6Wcf+1CR3jVL77n57LtxfF1y1ZDj2mm47rK7/Y9WeAIv1x8CeFfrzxDCchZWL
+         BE/1a9QgyMg5tnm20+H4PTXgX6g/aMooAtkid42a4OrX/6wwDx1wKv2ZaZBTwf/HaXCp
+         8PJ834/B4T3qrwtk9K6atZnNJDqKHfCtCi+BKY/zZutyiKDvGO7XtrVfmVGB2+qel0/n
+         ibUKMeEg1f3KhIL+hd5evfvDQQFqaIgF/J7W2p8ZUoN4x+tCmpl7Ceyb54JzrxfgL4bg
+         C640oz/u2TELXug7xsIyZPtSUN/RZ9Mo1WZyiEvEcLO+bXCol6HGMqnlUCkB4ZMQSnSE
+         v/hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=S/Ip8+Jxgd0rwhnDB/VueXGj42PNw7fZm2CTH/h8LA0=;
+        b=CHDleDUL4sOX6HdKGCYt+wLVCahnK3ngJOUn9aPDV9ziMBkEz+AkPc2dRzXUnw0eyB
+         gc7wUL2i2LG8os0F2YnawCuqL8ij1iH0Z37LTBv9pmPg/AT/hJs+gxuhrZedF+yUyvK5
+         aT1i6boAtKZD8AA1nbTTSpq05D65yg+E9KTjpzd+Bq+LjPujuSRUhMdacZtI19SoaJJt
+         w8FSG/posWdCQHFYQ4U6krloEU42UAu/z1iOcr02XdTaLphtKDSAwsgPPL2kd4PfX+ek
+         Jr0jPbSzJHY1O3IACRoCY3AAO0nvSYt7WjHAJqnHWFVPM3CjyKQAigumI4XgmAOsttTS
+         7eNw==
+X-Gm-Message-State: APjAAAXHV0xHWuapzARfY05Z8h08bWwhz/6v4NcSp278Ul3qwzCS103U
+        j3W/QbumudzGR14DajGoQHEZzrGAAWBr0vgQXOk=
+X-Google-Smtp-Source: APXvYqwmSVFuQ3GFsuRZS3O4VKiiy3+iPXNr/Rrh2XRbTKykEf2L7RTXUXG2yXe9DRPmJV1QDLo8BJypHPQgdllTf4g=
+X-Received: by 2002:a05:6638:3a6:: with SMTP id z6mr15738134jap.33.1570982180198;
+ Sun, 13 Oct 2019 08:56:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Originating-IP: [41.80.142.172]
-X-Mailer: Zimbra 8.8.11_GA_3799 (ZimbraWebClient - GC77 (Win)/8.8.11_GA_3787)
-Thread-Index: ZsibYG7nS+PkSj9SiyGshpoQcIHBag==
-Thread-Topic: =?utf-8?Q?Pon=C3=BAkame_v=C3=A1m_skvel=C3=BA_pr=C3=ADle=C5=BEitos=C5=A5_investova=C5=A5?=
-To:     unlisted-recipients:; (no To-header on input)
+References: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+In-Reply-To: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+From:   Adam Ford <aford173@gmail.com>
+Date:   Sun, 13 Oct 2019 10:56:09 -0500
+Message-ID: <CAHCN7xLjGkLHMWejEk-3vJ-OwzjB+BXtnPWoonh4mAVxbkzMWQ@mail.gmail.com>
+Subject: Re: [PATCH] drm/omap: fix max fclk divider for omap36xx
+To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Oct 2, 2019 at 7:25 AM Tomi Valkeinen <tomi.valkeinen@ti.com> wrote:
+>
+> The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
+> (in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
+> correct, and using divider of 32 breaks DSS with a flood or underflows
+> and sync losts. Dividers up to 31 seem to work fine.
+>
+> There is another patch to the DT files to limit the divider correctly,
+> but as the DSS driver also needs to know the maximum divider to be able
+> to iteratively find good rates, we also need to do the fix in the DSS
+> driver.
+>
 
+Tomi,
 
-POZDRAVY Z AXA INVESTI=C4=8CN=C3=8D MANA=C5=BD=C3=89RI
-Pon=C3=BAkame minim=C3=A1lne invest=C3=ADcie tak n=C3=ADzke, ako =E2=82=AC3=
-00. To je 50 kr=C3=A1t ni=C5=BE=C5=A1ia ako typick=C3=A9 Startup invest=C3=
-=ADcie, umo=C5=BE=C5=88uj=C3=BA =C4=BEahko diverzifikova=C5=A5 naprie=C4=8D=
- viac za=C4=8D=C3=ADnaj=C3=BAcich. Tu m=C3=A1te mo=C5=BEnos=C5=A5 investova=
-=C5=A5 s menej a dosiahnu=C5=A5 high-zisk pomer. Nestr=C3=A1cajte =C4=8Das =
-h=C4=BEadan=C3=ADm =C3=BAveru on-line. Investova=C5=A5 len =E2=82=AC300 a z=
-iskov=C3=A9 rozp=C3=A4tie =E2=82=AC3 000 v r=C3=A1mci (8) pracovn=C3=BDch d=
-n=C3=AD. Sme splnomocni=C5=A5 jednotlivca prevzia=C5=A5 kontrolu nad ich fi=
-nan=C4=8Dn=C3=BA bud=C3=BAcnos=C5=A5, kontaktujte n=C3=A1s sp=C3=A4=C5=A5 p=
-re =C4=8Fal=C5=A1ie inform=C3=A1cie o na=C5=A1ej ve=C4=BEkej investmet prom=
-o,
-Riadenie=20
-s pozdravom
+Is there any way you can do a patch for the FB version for the older
+4.9 and 4.14 kernels?  I think they are still defaulting to the omapfb
+instead of DRM, so the underflow issue still appears by default and
+the patch only impacts the DRM version of the driver.  If not, do you
+have any objections if I submit a patch to stable for those two LTS
+branches?
+
+thanks,
+
+adam
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Cc: Adam Ford <aford173@gmail.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/gpu/drm/omapdrm/dss/dss.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
+> index e226324adb69..4bdd63b57100 100644
+> --- a/drivers/gpu/drm/omapdrm/dss/dss.c
+> +++ b/drivers/gpu/drm/omapdrm/dss/dss.c
+> @@ -1083,7 +1083,7 @@ static const struct dss_features omap34xx_dss_feats = {
+>
+>  static const struct dss_features omap3630_dss_feats = {
+>         .model                  =       DSS_MODEL_OMAP3,
+> -       .fck_div_max            =       32,
+> +       .fck_div_max            =       31,
+>         .fck_freq_max           =       173000000,
+>         .dss_fck_multiplier     =       1,
+>         .parent_clk_name        =       "dpll4_ck",
+> --
+> Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+> Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+>
