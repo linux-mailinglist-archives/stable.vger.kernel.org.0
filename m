@@ -2,166 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14F37D6295
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 14:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7679FD631E
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 14:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730622AbfJNMdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 08:33:03 -0400
-Received: from foss.arm.com ([217.140.110.172]:42566 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730394AbfJNMdD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 08:33:03 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 644301576;
-        Mon, 14 Oct 2019 05:33:02 -0700 (PDT)
-Received: from dawn-kernel.cambridge.arm.com (unknown [10.1.197.116])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 46F563F68E;
-        Mon, 14 Oct 2019 05:33:01 -0700 (PDT)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     stable@vger.kernel.org
-Cc:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
-        will@kernel.org, catalin.marinas@arm.com, mark.rutland@arm.com,
-        maz@kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable-4.4][PATCH 2/2] arm64: Rename cpuid_feature field extract routines
-Date:   Mon, 14 Oct 2019 13:32:54 +0100
-Message-Id: <20191014123254.22002-3-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191014123254.22002-1-suzuki.poulose@arm.com>
-References: <20191014123254.22002-1-suzuki.poulose@arm.com>
+        id S1730093AbfJNMya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 08:54:30 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:32867 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729864AbfJNMya (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 08:54:30 -0400
+Received: by mail-pl1-f196.google.com with SMTP id d22so8007892pls.0
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 05:54:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=AIhgUFkta4ADnQDSmvlPHrNje3bhbPDGxBtEgxWVXJ4=;
+        b=sxwPvAowp55am1warIq3F48oJqsrU47tvCrWx99u5OCXnnudf0lSNLfcn8g9cnMY43
+         YRAsstvO2ge3Zoku7PrcvqsyT6FoYDqqq+8i0lR6CdGnz4vi552ZkuSwiy17HR0k6LIi
+         rZbCJX8o9ZJWPHr6KaBZzrNpH4gUEmvFZqGs5s26fNl1yHTkiFJgWoOsQXYfC7b0RAi1
+         ItYw/4Bg7aw9CHF1fs7i+jgClpq1ynsOv2Rpb9+tRKo7DU/NmUIBCJDCGqxIRtae34bS
+         xOQsJOGygp2y+M1HuzGpmMYIdL5mDDR61T70S1RIiJ7cNTMDWpGj2cxcRoE3h6eNA7Dq
+         n5BA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=AIhgUFkta4ADnQDSmvlPHrNje3bhbPDGxBtEgxWVXJ4=;
+        b=f3BN6kRLVFHN38LYkRpC1tmt7nGaPb8TWQWywgsicjWWoDM1jKuqVen5J9sEbkoZ37
+         JGpl9jGZ6eFjLeyxGOnN9yaHlut4tzyTtu4ZrwVkLwZztepJFAD04X2V7bS37a8CgTTp
+         22WdRLcgiQjlCtlr6ja2qBRvfx46om53WAM3rGADkVx/DCqC8F+wUN+hdSmyJWmKnl2p
+         oACtqHBJpwq1C1qA53aLmAROO6jyXtagbx0Toq5k7uizWd+u9YxXGZFUt8oA1CGEgQzy
+         y7EdUqvTY1SvaE9lcI40PqMrRr0O2R9YT63Grx/U4KuiIEPljKciiydD3MSmZfjVqoxy
+         +5Cw==
+X-Gm-Message-State: APjAAAUuM2+sg/zgy1QDWEryrgV0zMUkJxo1ImDXdegbuXfvMPPgKtoJ
+        o6156c2PzgvI+jP8hDBJYMUj45MuSGNsOIAAwdnqJw==
+X-Google-Smtp-Source: APXvYqzGH5R8369OycOOW9pCLKOSpI+swxKckLy78dNGz6hwNIT7AnhJQz0aQRY13rkng04HpMzQeIt3eFMvu6qNTPI=
+X-Received: by 2002:a17:902:9696:: with SMTP id n22mr28004924plp.252.1571057669076;
+ Mon, 14 Oct 2019 05:54:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cki.B4A567748F.PFM8G4WKXI@redhat.com> <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com>
+In-Reply-To: <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com>
+From:   Andrey Konovalov <andreyknvl@google.com>
+Date:   Mon, 14 Oct 2019 14:54:17 +0200
+Message-ID: <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com>
+Subject: =?UTF-8?B?UmU6IOKdjCBGQUlMOiBUZXN0IHJlcG9ydCBmb3Iga2VybmVsIDUuNC4wLXJjMi1kNmMyYw==?=
+        =?UTF-8?B?MjMuY2tpIChzdGFibGUtbmV4dCk=?=
+To:     Jan Stancek <jstancek@redhat.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc:     CKI Project <cki-project@redhat.com>,
+        LTP List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 28c5dcb22f90113dea101b0421bc6971bccb7a74 upstream
+On Mon, Oct 14, 2019 at 9:29 AM Jan Stancek <jstancek@redhat.com> wrote:
+>
+>
+>
+> ----- Original Message -----
+> >
+> > Hello,
+> >
+> > We ran automated tests on a recent commit from this kernel tree:
+> >
+> >        Kernel repo:
+> >        git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stabl=
+e.git
+> >             Commit: d6c2c23a29f4 - Merge branch 'stable-next' of
+> >             ssh://chubbybox:/home/sasha/data/next into stable-next
+> >
+> > The results of these automated tests are provided below.
+> >
+> >     Overall result: FAILED (see details below)
+> >              Merge: OK
+> >            Compile: OK
+> >              Tests: FAILED
+> >
+> > All kernel binaries, config files, and logs are available for download =
+here:
+> >
+> >   https://artifacts.cki-project.org/pipelines/223563
+> >
+> > One or more kernel tests failed:
+> >
+> >     aarch64:
+> >       =E2=9D=8C LTP: openposix test suite
+> >
+>
+> Test [1] is passing value close to LONG_MAX, which on arm64 is now treate=
+d as tagged userspace ptr:
+>   057d3389108e ("mm: untag user pointers passed to memory syscalls")
+>
+> And now seems to hit overflow check after sign extension (EINVAL).
+> Test should probably find different way to choose invalid pointer.
+>
+> [1] https://github.com/linux-test-project/ltp/blob/master/testcases/open_=
+posix_testsuite/conformance/interfaces/mlock/8-1.c
 
-Now that we have a clear understanding of the sign of a feature,
-rename the routines to reflect the sign, so that it is not misused.
-The cpuid_feature_extract_field() now accepts a 'sign' parameter.
++Catalin and Vincenzo
 
-This makes sure that the arm64_ftr_value() extracts the feature
-field properly for signed fields.
+Per Documentation/arm64/tagged-address-abi.rst we now have:
 
-Cc: stable@vger.kernel.org # v4.4
-Signed-off-by: Suzuki K. Poulose <suzuki.poulose@arm.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
----
- arch/arm64/include/asm/cpufeature.h | 22 ++++++++++++++--------
- arch/arm64/kernel/cpufeature.c      |  2 +-
- arch/arm64/kernel/debug-monitors.c  |  2 +-
- arch/arm64/kvm/sys_regs.c           |  2 +-
- arch/arm64/mm/context.c             |  3 ++-
- 5 files changed, 19 insertions(+), 12 deletions(-)
+User addresses not accessed by the kernel but used for address space
+management (e.g. ``mmap()``, ``mprotect()``, ``madvise()``). The use
+of valid tagged pointers in this context is always allowed.
 
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 690961a749da..518eaa63e633 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -121,15 +121,15 @@ static inline void cpus_set_cap(unsigned int num)
- }
- 
- static inline int __attribute_const__
--cpuid_feature_extract_field_width(u64 features, int field, int width)
-+cpuid_feature_extract_signed_field_width(u64 features, int field, int width)
- {
- 	return (s64)(features << (64 - width - field)) >> (64 - width);
- }
- 
- static inline int __attribute_const__
--cpuid_feature_extract_field(u64 features, int field)
-+cpuid_feature_extract_signed_field(u64 features, int field)
- {
--	return cpuid_feature_extract_field_width(features, field, 4);
-+	return cpuid_feature_extract_signed_field_width(features, field, 4);
- }
- 
- static inline unsigned int __attribute_const__
-@@ -149,17 +149,23 @@ static inline u64 arm64_ftr_mask(struct arm64_ftr_bits *ftrp)
- 	return (u64)GENMASK(ftrp->shift + ftrp->width - 1, ftrp->shift);
- }
- 
-+static inline int __attribute_const__
-+cpuid_feature_extract_field(u64 features, int field, bool sign)
-+{
-+	return (sign) ?
-+		cpuid_feature_extract_signed_field(features, field) :
-+		cpuid_feature_extract_unsigned_field(features, field);
-+}
-+
- static inline s64 arm64_ftr_value(struct arm64_ftr_bits *ftrp, u64 val)
- {
--	return ftrp->sign ?
--		cpuid_feature_extract_field_width(val, ftrp->shift, ftrp->width) :
--		cpuid_feature_extract_unsigned_field_width(val, ftrp->shift, ftrp->width);
-+	return (s64)cpuid_feature_extract_field(val, ftrp->shift, ftrp->sign);
- }
- 
- static inline bool id_aa64mmfr0_mixed_endian_el0(u64 mmfr0)
- {
--	return cpuid_feature_extract_field(mmfr0, ID_AA64MMFR0_BIGENDEL_SHIFT) == 0x1 ||
--		cpuid_feature_extract_field(mmfr0, ID_AA64MMFR0_BIGENDEL0_SHIFT) == 0x1;
-+	return cpuid_feature_extract_unsigned_field(mmfr0, ID_AA64MMFR0_BIGENDEL_SHIFT) == 0x1 ||
-+		cpuid_feature_extract_unsigned_field(mmfr0, ID_AA64MMFR0_BIGENDEL0_SHIFT) == 0x1;
- }
- 
- void __init setup_cpu_features(void);
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 3949991e544b..a0118a07a4a5 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -600,7 +600,7 @@ u64 read_system_reg(u32 id)
- static bool
- feature_matches(u64 reg, const struct arm64_cpu_capabilities *entry)
- {
--	int val = cpuid_feature_extract_field(reg, entry->field_pos);
-+	int val = cpuid_feature_extract_field(reg, entry->field_pos, entry->sign);
- 
- 	return val >= entry->min_field_value;
- }
-diff --git a/arch/arm64/kernel/debug-monitors.c b/arch/arm64/kernel/debug-monitors.c
-index c8875b64be90..8e7675e5ce4a 100644
---- a/arch/arm64/kernel/debug-monitors.c
-+++ b/arch/arm64/kernel/debug-monitors.c
-@@ -34,7 +34,7 @@
- /* Determine debug architecture. */
- u8 debug_monitors_arch(void)
- {
--	return cpuid_feature_extract_field(read_system_reg(SYS_ID_AA64DFR0_EL1),
-+	return cpuid_feature_extract_unsigned_field(read_system_reg(SYS_ID_AA64DFR0_EL1),
- 						ID_AA64DFR0_DEBUGVER_SHIFT);
- }
- 
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index c2489f62c4fb..0a587e7b9b6e 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -687,7 +687,7 @@ static bool trap_dbgidr(struct kvm_vcpu *vcpu,
- 	} else {
- 		u64 dfr = read_system_reg(SYS_ID_AA64DFR0_EL1);
- 		u64 pfr = read_system_reg(SYS_ID_AA64PFR0_EL1);
--		u32 el3 = !!cpuid_feature_extract_field(pfr, ID_AA64PFR0_EL3_SHIFT);
-+		u32 el3 = !!cpuid_feature_extract_unsigned_field(pfr, ID_AA64PFR0_EL3_SHIFT);
- 
- 		p->regval = ((((dfr >> ID_AA64DFR0_WRPS_SHIFT) & 0xf) << 28) |
- 			     (((dfr >> ID_AA64DFR0_BRPS_SHIFT) & 0xf) << 24) |
-diff --git a/arch/arm64/mm/context.c b/arch/arm64/mm/context.c
-index e87f53ff5f58..5c8759cd66f1 100644
---- a/arch/arm64/mm/context.c
-+++ b/arch/arm64/mm/context.c
-@@ -187,7 +187,8 @@ switch_mm_fastpath:
- 
- static int asids_init(void)
- {
--	int fld = cpuid_feature_extract_field(read_cpuid(ID_AA64MMFR0_EL1), 4);
-+	int fld = cpuid_feature_extract_unsigned_field(read_cpuid(ID_AA64MMFR0_EL1),
-+						       ID_AA64MMFR0_ASID_SHIFT);
- 
- 	switch (fld) {
- 	default:
--- 
-2.21.0
+However this breaks the test above.
 
+What do you think we should do here?
