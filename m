@@ -2,77 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B92DED664B
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 17:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D58D6698
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 17:54:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731008AbfJNPlk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 11:41:40 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:36800 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731457AbfJNPlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 11:41:40 -0400
-Received: by mail-qk1-f196.google.com with SMTP id y189so16290892qkc.3;
-        Mon, 14 Oct 2019 08:41:39 -0700 (PDT)
+        id S1726169AbfJNPxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 11:53:49 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:32786 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730547AbfJNPxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 11:53:48 -0400
+Received: by mail-wr1-f68.google.com with SMTP id b9so20369053wrs.0
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 08:53:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=BUs6ww2wp2HkRKO5Ig1yFUSfYWRm/mJFXsejJnbtOqs=;
-        b=oQOzhgiLemf2MFAncmQNwr1h9wmPYZjB9Mhg6CjWxiGAzLmQaUUeRd3rfj1VMVUgXB
-         T/o3WuHsOpozELcayBmb+2CMX2fA22LFOds2rvcs7WSjLFP2WyZn5MlPTOwV0zJEUGk/
-         0AH3sWGN4COj6efHDv2YZyJZGaaUl/5jK7q8NriAucA/qduGE/SI5d3R8Kq47J5m2EXo
-         AP2tAQNe4qD4gD8HfxptPoFq51uauD9hmaTSpJmi6PdyFi/oYoXjibGgvoME/Pzo/d3Y
-         7pv6CwmKL8neIiyMfpoFvvqHNK7ArxkXw1SmJyNxDEi5/K0k6Cd9X3hcnMsDpkSu1bUO
-         /G1A==
+        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0t1OM4slpGn/FciwgvtR1ItjOGOzF2p73EE7Lk2KZOE=;
+        b=hCyh88laFReOQinVzQBy5MUAHRpJ2PKFi2cIw4C+dRkEimuPFJ8pmqwr1cqICMU94a
+         cNLShzKyyXte63Zf3TmFKzQx1yGoIOzv4O5HPpJhNEhKvkhqdztOcpsDR8QBEuwkL3qq
+         kKL3BHve8OMiMMhlJxq2E1Qsw1eGldVeRwIBLjrQ2KvOSsGR+FM5sQ1Cfzjq5AMoDqjP
+         JrnyLnnkCVdrR1dBpBdPamSrN5lSj8blwq/tF0CsJEaBY2xsJp5klubXhb2d54mcHaPj
+         gVo72sAMiQUODCnJhvr/L8H2SeM7e56YElxPH4vWc3Q4ec2mHgTmugBFDZlofQaIkqNP
+         2naw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=BUs6ww2wp2HkRKO5Ig1yFUSfYWRm/mJFXsejJnbtOqs=;
-        b=G4AAw2jhzNI4PL0K2aVdIemeTkbuKlVHFnWUEvUcTnxF15VOcfOVu61KrSotSFV6kf
-         p3FOrqX+uPG9a9emycij6j50iCG5q5+GpawRoSXhnos9ISzyZxnJhhNKYsSJa/2OSDPJ
-         WKOkiKjwzhSdGqvBTkv/mxI5a1rkMS20zhoSP/DdpcIw37hEMrp6BIBbL6G0+d2MG9+w
-         joj6B688sUo7eOd99dSii3q4u83Qiyl0M7XkFFnnNEGrcWyGjnnKjOUNj8slPWkbhWVf
-         G7MVLeBYVJHvUhUnrb1vAbOHjjcd0orzdhKBI39khT8x1+XjIcWwwllfQwuv9yZU3ymo
-         dFBg==
-X-Gm-Message-State: APjAAAWLnftbc/ZoibBYV/Xnr8m97g4EgbUEG/B+618L8bmFCUfcW+zX
-        lw5omnY2eYAJCwhG6WSXvlQ=
-X-Google-Smtp-Source: APXvYqw6h4Cle6f9ZGijs+B74SXDMAHKmu3JulWpk9p6jKiLNU22tm/HqcYx2y0bbEjKhUbAETn66g==
-X-Received: by 2002:a05:620a:887:: with SMTP id b7mr27937691qka.186.1571067698911;
-        Mon, 14 Oct 2019 08:41:38 -0700 (PDT)
-Received: from localhost ([2620:10d:c091:500::1:50c5])
-        by smtp.gmail.com with ESMTPSA id c20sm7453462qkm.11.2019.10.14.08.41.38
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Oct 2019 08:41:38 -0700 (PDT)
-Date:   Mon, 14 Oct 2019 08:41:36 -0700
-From:   Tejun Heo <tj@kernel.org>
-To:     Aleksa Sarai <cyphar@cyphar.com>
-Cc:     Li Zefan <lizefan@huawei.com>,
-        Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] cgroup: pids: use {READ,WRITE}_ONCE for pids->limit
- operations
-Message-ID: <20191014154136.GF18794@devbig004.ftw2.facebook.com>
-References: <20191012010539.6131-1-cyphar@cyphar.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0t1OM4slpGn/FciwgvtR1ItjOGOzF2p73EE7Lk2KZOE=;
+        b=mxV1O0CUb5jt1uTPsjYyIfZY80haMpfAnFfM5J01gSo5TNkZNOEpOcvPpXbPankF0O
+         O1dK3RDiYGXJEj4ynq2coZ8MtSvRPvi3jrH74ZBZvgkg1DxvkmzB71kXeUaxNAghyuhd
+         G9TfabHQCWIJV7BGsFT0yeMU3kH/hEh9eq8MjpOQu+zWQp1AcVypIX7FYT6Xh+E5Q9tM
+         ZKm5w5+oyrE1Vm4Z2IOJxSQqi+L8KvnG3EwXFa7aMuAu+pbnE0bM6TpCyWtf9ugMK24P
+         LzwmBG6gdIE7nLuY9RCBS/kJsudzTpSoie2PzHqkklei4A8t8WfN8VmwGtNMWMy7/dqt
+         s5ig==
+X-Gm-Message-State: APjAAAU1FjT7rGl9PToXuma3HTOVqCBrm3KAfRba9xPcwfoLpplqDCSG
+        lPZRKxm9zNyW7MCwHBxY1UJlWw==
+X-Google-Smtp-Source: APXvYqxBUAz0ltyZJGC9OKxGG3rjoJlKk1X9BzHdCHfcDtM+FNNfeISw9xtUdr+NCPM9Hbr8tlTEMQ==
+X-Received: by 2002:a5d:540d:: with SMTP id g13mr22534688wrv.8.1571068425381;
+        Mon, 14 Oct 2019 08:53:45 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
+        by smtp.gmail.com with ESMTPSA id 5sm17984836wrk.86.2019.10.14.08.53.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Oct 2019 08:53:44 -0700 (PDT)
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-gpio@vger.kernel.org, stable@vger.kernel.org,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH v5.3] gpio: fix getting nonexclusive gpiods from DT
+Date:   Mon, 14 Oct 2019 17:53:41 +0200
+Message-Id: <20191014155341.13145-1-brgl@bgdev.pl>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191012010539.6131-1-cyphar@cyphar.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 12, 2019 at 12:05:39PM +1100, Aleksa Sarai wrote:
-> Because pids->limit can be changed concurrently (but we don't want to
-> take a lock because it would be needlessly expensive), use the
-> appropriate memory barriers.
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-I can't quite tell what problem it's fixing.  Can you elaborate a
-scenario where the current code would break that your patch fixes?
+Since commit ec757001c818 ("gpio: Enable nonexclusive gpiods from DT
+nodes") we are able to get GPIOD_FLAGS_BIT_NONEXCLUSIVE marked gpios.
+Currently the gpiolib uses the wrong flags variable for the check. We
+need to check the gpiod_flags instead of the of_gpio_flags else we
+return -EBUSY for GPIOD_FLAGS_BIT_NONEXCLUSIVE marked and requested
+gpiod's.
 
-Thanks.
+Fixes: ec757001c818 gpio: Enable nonexclusive gpiods from DT nodes
+Cc: stable@vger.kernel.org
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+[Bartosz: the function was moved to gpiolib-of.c so updated the patch]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+[Bartosz: backported to v5.3.y]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+---
+ drivers/gpio/gpiolib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index d9074191edef..e4203c1eb869 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -4303,7 +4303,7 @@ struct gpio_desc *gpiod_get_from_of_node(struct device_node *node,
+ 	transitory = flags & OF_GPIO_TRANSITORY;
+ 
+ 	ret = gpiod_request(desc, label);
+-	if (ret == -EBUSY && (flags & GPIOD_FLAGS_BIT_NONEXCLUSIVE))
++	if (ret == -EBUSY && (dflags & GPIOD_FLAGS_BIT_NONEXCLUSIVE))
+ 		return desc;
+ 	if (ret)
+ 		return ERR_PTR(ret);
 -- 
-tejun
+2.23.0
+
