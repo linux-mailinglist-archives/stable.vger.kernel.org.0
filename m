@@ -2,234 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D10CD6784
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 18:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7DFBD6812
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 19:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732671AbfJNQjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 12:39:35 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41372 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727038AbfJNQjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 12:39:35 -0400
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C74D73680A
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 16:39:34 +0000 (UTC)
-Received: by mail-qk1-f198.google.com with SMTP id y189so17444650qkb.14
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 09:39:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2kAf+B2Zy+lYnmUTCulLHB6/jMBlYMyOXzNedZ07VY0=;
-        b=MWruJ1EQPbLgJmf0NaIxYJurw0ftCaIrR0rsanFc3aw7Hn7pjnJbZSG5lIHXOuuoxU
-         K2RgtpXoHgQSyLrrh6mFjLDA2FoOCv5lrWJ4FFwxrzZyjG2emzZDyehfoxbjrHMoGB/W
-         0lVG54OVXmdb1hyHNhhrws8F2a2CPLNFR9JhpDqk3Hu4A/toeAc2b9WIo87XOUhP92IG
-         Z5Ylw5fNCVIsiGDLTLqFkimNTTI0DsXDJyCHNco3wBBlDAA1RsFPioC//wWLc+G7ZHRp
-         jBXk399IbPBsZDUOzbTcmKz1Pq9kT4UfOm/jgZzyGnuU5BdCvuvlSmcrq4eGZa4DWS78
-         0y1g==
-X-Gm-Message-State: APjAAAWC2bR2Zjp4qxaZ+MKPsrUxVSC0jpoqfV+xHN2rYxtk3tA3BdgM
-        6pNigy4O8WpawEzpFNv2LWVc+tpvlhV0QUQiJ/MLL+GYGyT1U2q56F6xsDEBKP5jimvrGCE03+W
-        YZ4JUv23/ak91A9y4jXOIq98KUF02XXfX
-X-Received: by 2002:ac8:4410:: with SMTP id j16mr33174146qtn.389.1571071173928;
-        Mon, 14 Oct 2019 09:39:33 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxMGN40uP9bh5032yWKpGfZBSD2wW0AUMldo1WE/sCBQ5ewTxrpUL8kP6ZGN/UIn1SvYEa1VIrPg3N7aQf3BY0=
-X-Received: by 2002:ac8:4410:: with SMTP id j16mr33174118qtn.389.1571071173652;
- Mon, 14 Oct 2019 09:39:33 -0700 (PDT)
+        id S2388352AbfJNRMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 13:12:32 -0400
+Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:37724 "EHLO
+        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388353AbfJNRMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 13:12:31 -0400
+Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x9EHAPZM016716
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 10:12:30 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-type; s=facebook;
+ bh=VZQSaFL6cILSBSh9R3ERpIGAqSNRb2JkOURfLEvU0XA=;
+ b=XxjhRdaOOEW/3QdKoX/UzbVRKdtqhSM/r4lOVuctEYUIoxhlJyBxNq5w1fqO/f59m/lZ
+ ZLKsA55TuNwkS+PI0hW67c3jqlKQlwGrVrs+GPj8VrxXn90jyePl6MfCN9JReKA2xEed
+ r/VxfmIuJLHLv/rPno1eAdTq675SGSO/zQ4= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com with ESMTP id 2vkxgenc5q-3
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 10:12:30 -0700
+Received: from 2401:db00:30:6007:face:0:1:0 (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:82::d) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Mon, 14 Oct 2019 10:12:28 -0700
+Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
+        id BC1D262E1383; Mon, 14 Oct 2019 10:12:26 -0700 (PDT)
+Smtp-Origin-Hostprefix: devbig
+From:   Song Liu <songliubraving@fb.com>
+Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
+To:     <linux-kernel@vger.kernel.org>, <bpf@vger.kernel.org>,
+        <netdev@vger.kernel.org>
+CC:     <sashal@kernel.org>, <kernel-team@fb.com>,
+        Song Liu <songliubraving@fb.com>, <stable@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Smtp-Origin-Cluster: ftw2c04
+Subject: [PATCH v2 bpf-next] bpf/stackmap: fix deadlock with rq_lock in bpf_get_stack()
+Date:   Mon, 14 Oct 2019 10:12:23 -0700
+Message-ID: <20191014171223.357174-1-songliubraving@fb.com>
+X-Mailer: git-send-email 2.17.1
+X-FB-Internal: Safe
 MIME-Version: 1.0
-References: <15710699036748@kroah.com>
-In-Reply-To: <15710699036748@kroah.com>
-From:   David Wysochanski <dwysocha@redhat.com>
-Date:   Mon, 14 Oct 2019 12:38:57 -0400
-Message-ID: <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] cifs: use cifsInodeInfo->open_file_lock
- while iterating to" failed to apply to 4.19-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>, stable@vger.kernel.org,
-        stfrench@microsoft.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
+ definitions=2019-10-14_09:2019-10-11,2019-10-14 signatures=0
+X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 suspectscore=2
+ lowpriorityscore=0 spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0
+ priorityscore=1501 clxscore=1015 phishscore=0 adultscore=0 impostorscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1908290000 definitions=main-1910140145
+X-FB-Internal: deliver
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Unless there is objections, let me try to fix this up.
-Thanks.
+bpf stackmap with build-id lookup (BPF_F_STACK_BUILD_ID) can trigger A-A
+deadlock on rq_lock():
 
-On Mon, Oct 14, 2019 at 12:18 PM <gregkh@linuxfoundation.org> wrote:
->
->
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->
-> thanks,
->
-> greg k-h
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From cb248819d209d113e45fed459773991518e8e80b Mon Sep 17 00:00:00 2001
-> From: Dave Wysochanski <dwysocha@redhat.com>
-> Date: Thu, 3 Oct 2019 15:16:27 +1000
-> Subject: [PATCH] cifs: use cifsInodeInfo->open_file_lock while iterating to
->  avoid a panic
->
-> Commit 487317c99477 ("cifs: add spinlock for the openFileList to
-> cifsInodeInfo") added cifsInodeInfo->open_file_lock spin_lock to protect
-> the openFileList, but missed a few places where cifs_inode->openFileList
-> was enumerated.  Change these remaining tcon->open_file_lock to
-> cifsInodeInfo->open_file_lock to avoid panic in is_size_safe_to_change.
->
-> [17313.245641] RIP: 0010:is_size_safe_to_change+0x57/0xb0 [cifs]
-> [17313.245645] Code: 68 40 48 89 ef e8 19 67 b7 f1 48 8b 43 40 48 8d 4b 40 48 8d 50 f0 48 39 c1 75 0f eb 47 48 8b 42 10 48 8d 50 f0 48 39 c1 74 3a <8b> 80 88 00 00 00 83 c0 01 a8 02 74 e6 48 89 ef c6 07 00 0f 1f 40
-> [17313.245649] RSP: 0018:ffff94ae1baefa30 EFLAGS: 00010202
-> [17313.245654] RAX: dead000000000100 RBX: ffff88dc72243300 RCX: ffff88dc72243340
-> [17313.245657] RDX: dead0000000000f0 RSI: 00000000098f7940 RDI: ffff88dd3102f040
-> [17313.245659] RBP: ffff88dd3102f040 R08: 0000000000000000 R09: ffff94ae1baefc40
-> [17313.245661] R10: ffffcdc8bb1c4e80 R11: ffffcdc8b50adb08 R12: 00000000098f7940
-> [17313.245663] R13: ffff88dc72243300 R14: ffff88dbc8f19600 R15: ffff88dc72243428
-> [17313.245667] FS:  00007fb145485700(0000) GS:ffff88dd3e000000(0000) knlGS:0000000000000000
-> [17313.245670] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [17313.245672] CR2: 0000026bb46c6000 CR3: 0000004edb110003 CR4: 00000000007606e0
-> [17313.245753] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [17313.245756] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [17313.245759] PKRU: 55555554
-> [17313.245761] Call Trace:
-> [17313.245803]  cifs_fattr_to_inode+0x16b/0x580 [cifs]
-> [17313.245838]  cifs_get_inode_info+0x35c/0xa60 [cifs]
-> [17313.245852]  ? kmem_cache_alloc_trace+0x151/0x1d0
-> [17313.245885]  cifs_open+0x38f/0x990 [cifs]
-> [17313.245921]  ? cifs_revalidate_dentry_attr+0x3e/0x350 [cifs]
-> [17313.245953]  ? cifsFileInfo_get+0x30/0x30 [cifs]
-> [17313.245960]  ? do_dentry_open+0x132/0x330
-> [17313.245963]  do_dentry_open+0x132/0x330
-> [17313.245969]  path_openat+0x573/0x14d0
-> [17313.245974]  do_filp_open+0x93/0x100
-> [17313.245979]  ? __check_object_size+0xa3/0x181
-> [17313.245986]  ? audit_alloc_name+0x7e/0xd0
-> [17313.245992]  do_sys_open+0x184/0x220
-> [17313.245999]  do_syscall_64+0x5b/0x1b0
->
-> Fixes: 487317c99477 ("cifs: add spinlock for the openFileList to cifsInodeInfo")
->
-> CC: Stable <stable@vger.kernel.org>
-> Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-> Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-> Signed-off-by: Steve French <stfrench@microsoft.com>
->
-> diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-> index 4b95700c507c..3758237bf951 100644
-> --- a/fs/cifs/file.c
-> +++ b/fs/cifs/file.c
-> @@ -1840,13 +1840,12 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
->  {
->         struct cifsFileInfo *open_file = NULL;
->         struct cifs_sb_info *cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
-> -       struct cifs_tcon *tcon = cifs_sb_master_tcon(cifs_sb);
->
->         /* only filter by fsuid on multiuser mounts */
->         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
->                 fsuid_only = false;
->
-> -       spin_lock(&tcon->open_file_lock);
-> +       spin_lock(&cifs_inode->open_file_lock);
->         /* we could simply get the first_list_entry since write-only entries
->            are always at the end of the list but since the first entry might
->            have a close pending, we go through the whole list */
-> @@ -1858,7 +1857,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
->                                 /* found a good file */
->                                 /* lock it so it will not be closed on us */
->                                 cifsFileInfo_get(open_file);
-> -                               spin_unlock(&tcon->open_file_lock);
-> +                               spin_unlock(&cifs_inode->open_file_lock);
->                                 return open_file;
->                         } /* else might as well continue, and look for
->                              another, or simply have the caller reopen it
-> @@ -1866,7 +1865,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
->                 } else /* write only file */
->                         break; /* write only files are last so must be done */
->         }
-> -       spin_unlock(&tcon->open_file_lock);
-> +       spin_unlock(&cifs_inode->open_file_lock);
->         return NULL;
->  }
->
-> @@ -1877,7 +1876,6 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
->  {
->         struct cifsFileInfo *open_file, *inv_file = NULL;
->         struct cifs_sb_info *cifs_sb;
-> -       struct cifs_tcon *tcon;
->         bool any_available = false;
->         int rc = -EBADF;
->         unsigned int refind = 0;
-> @@ -1897,16 +1895,15 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
->         }
->
->         cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
-> -       tcon = cifs_sb_master_tcon(cifs_sb);
->
->         /* only filter by fsuid on multiuser mounts */
->         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
->                 fsuid_only = false;
->
-> -       spin_lock(&tcon->open_file_lock);
-> +       spin_lock(&cifs_inode->open_file_lock);
->  refind_writable:
->         if (refind > MAX_REOPEN_ATT) {
-> -               spin_unlock(&tcon->open_file_lock);
-> +               spin_unlock(&cifs_inode->open_file_lock);
->                 return rc;
->         }
->         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
-> @@ -1918,7 +1915,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
->                         if (!open_file->invalidHandle) {
->                                 /* found a good writable file */
->                                 cifsFileInfo_get(open_file);
-> -                               spin_unlock(&tcon->open_file_lock);
-> +                               spin_unlock(&cifs_inode->open_file_lock);
->                                 *ret_file = open_file;
->                                 return 0;
->                         } else {
-> @@ -1938,7 +1935,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
->                 cifsFileInfo_get(inv_file);
->         }
->
-> -       spin_unlock(&tcon->open_file_lock);
-> +       spin_unlock(&cifs_inode->open_file_lock);
->
->         if (inv_file) {
->                 rc = cifs_reopen_file(inv_file, false);
-> @@ -1953,7 +1950,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
->                 cifsFileInfo_put(inv_file);
->                 ++refind;
->                 inv_file = NULL;
-> -               spin_lock(&tcon->open_file_lock);
-> +               spin_lock(&cifs_inode->open_file_lock);
->                 goto refind_writable;
->         }
->
-> @@ -4461,17 +4458,15 @@ static int cifs_readpage(struct file *file, struct page *page)
->  static int is_inode_writable(struct cifsInodeInfo *cifs_inode)
->  {
->         struct cifsFileInfo *open_file;
-> -       struct cifs_tcon *tcon =
-> -               cifs_sb_master_tcon(CIFS_SB(cifs_inode->vfs_inode.i_sb));
->
-> -       spin_lock(&tcon->open_file_lock);
-> +       spin_lock(&cifs_inode->open_file_lock);
->         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
->                 if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
-> -                       spin_unlock(&tcon->open_file_lock);
-> +                       spin_unlock(&cifs_inode->open_file_lock);
->                         return 1;
->                 }
->         }
-> -       spin_unlock(&tcon->open_file_lock);
-> +       spin_unlock(&cifs_inode->open_file_lock);
->         return 0;
->  }
->
->
+rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+[...]
+Call Trace:
+ try_to_wake_up+0x1ad/0x590
+ wake_up_q+0x54/0x80
+ rwsem_wake+0x8a/0xb0
+ bpf_get_stack+0x13c/0x150
+ bpf_prog_fbdaf42eded9fe46_on_event+0x5e3/0x1000
+ bpf_overflow_handler+0x60/0x100
+ __perf_event_overflow+0x4f/0xf0
+ perf_swevent_overflow+0x99/0xc0
+ ___perf_sw_event+0xe7/0x120
+ __schedule+0x47d/0x620
+ schedule+0x29/0x90
+ futex_wait_queue_me+0xb9/0x110
+ futex_wait+0x139/0x230
+ do_futex+0x2ac/0xa50
+ __x64_sys_futex+0x13c/0x180
+ do_syscall_64+0x42/0x100
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This can be reproduced by:
+1. Start a multi-thread program that does parallel mmap() and malloc();
+2. taskset the program to 2 CPUs;
+3. Attach bpf program to trace_sched_switch and gather stackmap with
+   build-id, e.g. with trace.py from bcc tools:
+   trace.py -U -p <pid> -s <some-bin,some-lib> t:sched:sched_switch
+
+A sample reproducer is attached at the end.
+
+This could also trigger deadlock with other locks that are nested with
+rq_lock.
+
+Fix this by checking whether irqs are disabled. Since rq_lock and all
+other nested locks are irq safe, it is safe to do up_read() when irqs are
+not disable. If the irqs are disabled, postpone up_read() in irq_work.
+
+Fixes: commit 615755a77b24 ("bpf: extend stackmap to save binary_build_id+offset instead of address")
+Cc: stable@vger.kernel.org # v4.17+
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+
+Reproducer:
+============================ 8< ============================
+
+char *filename;
+
+void *worker(void *p)
+{
+        void *ptr;
+        int fd;
+        char *pptr;
+
+        fd = open(filename, O_RDONLY);
+        if (fd < 0)
+                return NULL;
+        while (1) {
+                struct timespec ts = {0, 1000 + rand() % 2000};
+
+                ptr = mmap(NULL, 4096 * 64, PROT_READ, MAP_PRIVATE, fd, 0);
+                usleep(1);
+                if (ptr == MAP_FAILED) {
+                        printf("failed to mmap\n");
+                        break;
+                }
+                munmap(ptr, 4096 * 64);
+                usleep(1);
+                pptr = malloc(1);
+                usleep(1);
+                pptr[0] = 1;
+                usleep(1);
+                free(pptr);
+                usleep(1);
+                nanosleep(&ts, NULL);
+        }
+        close(fd);
+        return NULL;
+}
+
+int main(int argc, char *argv[])
+{
+        void *ptr;
+        int i;
+        pthread_t threads[THREAD_COUNT];
+
+        if (argc < 2)
+                return 0;
+
+        filename = argv[1];
+
+        for (i = 0; i < THREAD_COUNT; i++) {
+                if (pthread_create(threads + i, NULL, worker, NULL)) {
+                        fprintf(stderr, "Error creating thread\n");
+                        return 0;
+                }
+        }
+
+        for (i = 0; i < THREAD_COUNT; i++)
+                pthread_join(threads[i], NULL);
+        return 0;
+}
+============================ 8< ============================
+
+---
+Changes v1 => v2:
+1. Drop (1/1) and cover letter;
+2. Check irqs_disabled() instead of this_rq_is_locked()
+---
+ kernel/bpf/stackmap.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index 052580c33d26..173e983619d7 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -287,7 +287,7 @@ static void stack_map_get_build_id_offset(struct bpf_stack_build_id *id_offs,
+ 	bool irq_work_busy = false;
+ 	struct stack_map_irq_work *work = NULL;
+ 
+-	if (in_nmi()) {
++	if (irqs_disabled()) {
+ 		work = this_cpu_ptr(&up_read_work);
+ 		if (work->irq_work.flags & IRQ_WORK_BUSY)
+ 			/* cannot queue more up_read, fallback */
+@@ -295,8 +295,9 @@ static void stack_map_get_build_id_offset(struct bpf_stack_build_id *id_offs,
+ 	}
+ 
+ 	/*
+-	 * We cannot do up_read() in nmi context. To do build_id lookup
+-	 * in nmi context, we need to run up_read() in irq_work. We use
++	 * We cannot do up_read() when the irq is disabled, because of
++	 * risk to deadlock with rq_lock. To do build_id lookup when the
++	 * irqs are disabled, we need to run up_read() in irq_work. We use
+ 	 * a percpu variable to do the irq_work. If the irq_work is
+ 	 * already used by another lookup, we fall back to report ips.
+ 	 *
+-- 
+2.17.1
+
