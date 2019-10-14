@@ -2,227 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8965CD6AD8
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 22:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F76AD6AD9
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 22:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731132AbfJNUiH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 14 Oct 2019 16:38:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41414 "EHLO mx1.redhat.com"
+        id S1733092AbfJNUiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 16:38:51 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:27475 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730700AbfJNUiH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 16:38:07 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1730700AbfJNUiv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 16:38:51 -0400
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BC6EB5D66B
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 20:38:06 +0000 (UTC)
-Received: from [172.54.28.194] (cpt-1009.paas.prod.upshift.rdu2.redhat.com [10.0.19.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9F50460BE2;
-        Mon, 14 Oct 2019 20:38:01 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mx1.redhat.com (Postfix) with ESMTPS id AEBF15AFE3
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 20:38:50 +0000 (UTC)
+Received: by mail-qt1-f197.google.com with SMTP id k53so19092165qtk.0
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 13:38:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=u8rFfqaEemKq+67IqeCb4AEqMEa2qsr3KYQfv33AkwE=;
+        b=UBuIGTdWFblYwpO0QTxzh/oWa6xWc0RcTudmijRaqkIWyE2ZoAv3jeEGGaMxWTnXSw
+         Q2pzr+nIMszLTB64OTQhjI7XwJtmXxmDXEQ5Hm3gihJqvhRIBnFe7ooh4CXcxQSwC+gA
+         2yAv69VPqhh5apj/j6k9tVSD7zPNzJEvlpnbm8QGhG9wxPjoQ95kv5+LGRUpG2knMecf
+         Xaqvs7DnHhj6Q+pI3BXKSvgrTX5to5/hCFuwxdbD1OJuLlWS6DAfGZwhdGTtais3fx6Y
+         ndqI8L5nJKfs5K5GQR8ZjzCZtuKK38fsBxjS0EzbDoCAssrmJrfbgwbjGfjbZAgTcMrS
+         Y+fw==
+X-Gm-Message-State: APjAAAU4Fh0epFctyYYodOGDOpaGL4ZM3OFZLXUegzkiPMjGgS9+8mFQ
+        bk9jt2IUmZPQBh0iW0uXj04C1W7MnY6SKXS7xuxlnkU7TBbVBlH7DtIkSzD7TEaGDzs4D++eMKT
+        JuVTc0nWT+1yeMP4AfBlyipRMChUZEkDM
+X-Received: by 2002:ac8:2e31:: with SMTP id r46mr33782813qta.293.1571085529744;
+        Mon, 14 Oct 2019 13:38:49 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqyxtXndlXwKdEX+eU4A/hbNTuH1fTfBymrlSufv14N0H1UR9ttlRIlLun5sM/V1PDq8iG2F8BqUEsf08GxXQAs=
+X-Received: by 2002:ac8:2e31:: with SMTP id r46mr33782786qta.293.1571085529437;
+ Mon, 14 Oct 2019 13:38:49 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Message-ID: <cki.8FF14AD2E6.LD09NMQ1PI@redhat.com>
-X-Gitlab-Pipeline-ID: 225355
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/225355
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Mon, 14 Oct 2019 20:38:06 +0000 (UTC)
-Date:   Mon, 14 Oct 2019 16:38:07 -0400
+References: <15710699036748@kroah.com> <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
+In-Reply-To: <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
+From:   David Wysochanski <dwysocha@redhat.com>
+Date:   Mon, 14 Oct 2019 16:38:13 -0400
+Message-ID: <CALF+zOk4fC_QdnGKaZQ-TxWfUJDKtpUbE5kK8a4TUTRQjP5MBQ@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] cifs: use cifsInodeInfo->open_file_lock
+ while iterating to" failed to apply to 4.19-stable tree
+To:     gregkh@linuxfoundation.org
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>, stable@vger.kernel.org,
+        stfrench@microsoft.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Original patch applies cleanly to 5.1-5.3. Prior to that (4.19-5.0),
+needs minor fixups.
+Do I need to re-send the original and the fixup with different kernel ranges?
 
-Hello,
-
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: d980f67059db - Linux 5.3.6
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/225355
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: d980f67059db - Linux 5.3.6
-
-
-We grabbed the 9f0df05e3c7b commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  panic-ensure-preemption-is-disabled-during-panic.patch
-  usb-rio500-remove-rio-500-kernel-driver.patch
-  usb-yurex-don-t-retry-on-unexpected-errors.patch
-  usb-yurex-fix-null-derefs-on-disconnect.patch
-  usb-usb-skeleton-fix-runtime-pm-after-driver-unbind.patch
-  usb-usb-skeleton-fix-null-deref-on-disconnect.patch
-  xhci-fix-false-warning-message-about-wrong-bounce-buffer-write-length.patch
-  xhci-prevent-device-initiated-u1-u2-link-pm-if-exit-latency-is-too-long.patch
-  xhci-check-all-endpoints-for-lpm-timeout.patch
-  xhci-fix-usb-3.1-capability-detection-on-early-xhci-1.1-spec-based-hosts.patch
-  usb-xhci-wait-for-cnr-controller-not-ready-bit-in-xhci-resume.patch
-  xhci-prevent-deadlock-when-xhci-adapter-breaks-during-init.patch
-  xhci-increase-sts_save-timeout-in-xhci_suspend.patch
-  xhci-fix-null-pointer-dereference-in-xhci_clear_tt_buffer_complete.patch
-  usb-adutux-fix-use-after-free-on-disconnect.patch
-  usb-adutux-fix-null-derefs-on-disconnect.patch
-  usb-adutux-fix-use-after-free-on-release.patch
-  usb-iowarrior-fix-use-after-free-on-disconnect.patch
-  usb-iowarrior-fix-use-after-free-on-release.patch
-  usb-iowarrior-fix-use-after-free-after-driver-unbind.patch
-  usb-usblp-fix-runtime-pm-after-driver-unbind.patch
-  usb-chaoskey-fix-use-after-free-on-release.patch
-  usb-ldusb-fix-null-derefs-on-driver-unbind.patch
-  serial-uartlite-fix-exit-path-null-pointer.patch
-  serial-uartps-fix-uartps_major-handling.patch
-  usb-serial-keyspan-fix-null-derefs-on-open-and-write.patch
-  usb-serial-ftdi_sio-add-device-ids-for-sienna-and-echelon-pl-20.patch
-  usb-serial-option-add-telit-fn980-compositions.patch
-  usb-serial-option-add-support-for-cinterion-cls8-devices.patch
-  usb-serial-fix-runtime-pm-after-driver-unbind.patch
-  usb-usblcd-fix-i-o-after-disconnect.patch
-  usb-microtek-fix-info-leak-at-probe.patch
-  usb-dummy-hcd-fix-power-budget-for-superspeed-mode.patch
-  usb-renesas_usbhs-gadget-do-not-discard-queues-in-usb_ep_set_-halt-wedge.patch
-  usb-renesas_usbhs-gadget-fix-usb_ep_set_-halt-wedge-behavior.patch
-  usb-typec-tcpm-usb-typec-tcpm-fix-a-signedness-bug-in-tcpm_fw_get_caps.patch
-  usb-typec-ucsi-ccg-remove-run_isr-flag.patch
-  usb-typec-ucsi-displayport-fix-for-the-mode-entering-routine.patch
-  usb-legousbtower-fix-slab-info-leak-at-probe.patch
-  usb-legousbtower-fix-deadlock-on-disconnect.patch
-  usb-legousbtower-fix-potential-null-deref-on-disconnect.patch
-  usb-legousbtower-fix-open-after-failed-reset-request.patch
-  usb-legousbtower-fix-use-after-free-on-release.patch
-  mei-me-add-comet-point-lake-lp-device-ids.patch
-  mei-avoid-fw-version-request-on-ibex-peak-and-earlier.patch
-  gpio-eic-sprd-fix-the-incorrect-eic-offset-when-toggling.patch
-  staging-fbtft-depend-on-of.patch
-  staging-bcm2835-audio-fix-draining-behavior-regression.patch
-  staging-fbtft-fix-memory-leak-in-fbtft_framebuffer_alloc.patch
-  staging-rtl8188eu-fix-highestrate-check-in-odm_arfbrefresh_8188e.patch
-  staging-vt6655-fix-memory-leak-in-vt6655_probe.patch
-  iio-adc-hx711-fix-bug-in-sampling-of-data.patch
-  iio-adc-ad799x-fix-probe-error-handling.patch
-  iio-adc-axp288-override-ts-pin-bias-current-for-some-models.patch
-  iio-adc-stm32-adc-move-registers-definitions.patch
-  iio-adc-stm32-adc-fix-a-race-when-using-several-adcs-with-dma-and-irq.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-
-      Host 2:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-
-  x86_64:
-      Host 1:
-         ✅ Boot test
-         ✅ selinux-policy: serge-testsuite
-
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ jvm test suite
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ stress: stress-ng
-         🚧 ✅ LTP lite
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
-
+On Mon, Oct 14, 2019 at 12:38 PM David Wysochanski <dwysocha@redhat.com> wrote:
+>
+> Unless there is objections, let me try to fix this up.
+> Thanks.
+>
+> On Mon, Oct 14, 2019 at 12:18 PM <gregkh@linuxfoundation.org> wrote:
+> >
+> >
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
+> > ------------------ original commit in Linus's tree ------------------
+> >
+> > From cb248819d209d113e45fed459773991518e8e80b Mon Sep 17 00:00:00 2001
+> > From: Dave Wysochanski <dwysocha@redhat.com>
+> > Date: Thu, 3 Oct 2019 15:16:27 +1000
+> > Subject: [PATCH] cifs: use cifsInodeInfo->open_file_lock while iterating to
+> >  avoid a panic
+> >
+> > Commit 487317c99477 ("cifs: add spinlock for the openFileList to
+> > cifsInodeInfo") added cifsInodeInfo->open_file_lock spin_lock to protect
+> > the openFileList, but missed a few places where cifs_inode->openFileList
+> > was enumerated.  Change these remaining tcon->open_file_lock to
+> > cifsInodeInfo->open_file_lock to avoid panic in is_size_safe_to_change.
+> >
+> > [17313.245641] RIP: 0010:is_size_safe_to_change+0x57/0xb0 [cifs]
+> > [17313.245645] Code: 68 40 48 89 ef e8 19 67 b7 f1 48 8b 43 40 48 8d 4b 40 48 8d 50 f0 48 39 c1 75 0f eb 47 48 8b 42 10 48 8d 50 f0 48 39 c1 74 3a <8b> 80 88 00 00 00 83 c0 01 a8 02 74 e6 48 89 ef c6 07 00 0f 1f 40
+> > [17313.245649] RSP: 0018:ffff94ae1baefa30 EFLAGS: 00010202
+> > [17313.245654] RAX: dead000000000100 RBX: ffff88dc72243300 RCX: ffff88dc72243340
+> > [17313.245657] RDX: dead0000000000f0 RSI: 00000000098f7940 RDI: ffff88dd3102f040
+> > [17313.245659] RBP: ffff88dd3102f040 R08: 0000000000000000 R09: ffff94ae1baefc40
+> > [17313.245661] R10: ffffcdc8bb1c4e80 R11: ffffcdc8b50adb08 R12: 00000000098f7940
+> > [17313.245663] R13: ffff88dc72243300 R14: ffff88dbc8f19600 R15: ffff88dc72243428
+> > [17313.245667] FS:  00007fb145485700(0000) GS:ffff88dd3e000000(0000) knlGS:0000000000000000
+> > [17313.245670] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [17313.245672] CR2: 0000026bb46c6000 CR3: 0000004edb110003 CR4: 00000000007606e0
+> > [17313.245753] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > [17313.245756] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > [17313.245759] PKRU: 55555554
+> > [17313.245761] Call Trace:
+> > [17313.245803]  cifs_fattr_to_inode+0x16b/0x580 [cifs]
+> > [17313.245838]  cifs_get_inode_info+0x35c/0xa60 [cifs]
+> > [17313.245852]  ? kmem_cache_alloc_trace+0x151/0x1d0
+> > [17313.245885]  cifs_open+0x38f/0x990 [cifs]
+> > [17313.245921]  ? cifs_revalidate_dentry_attr+0x3e/0x350 [cifs]
+> > [17313.245953]  ? cifsFileInfo_get+0x30/0x30 [cifs]
+> > [17313.245960]  ? do_dentry_open+0x132/0x330
+> > [17313.245963]  do_dentry_open+0x132/0x330
+> > [17313.245969]  path_openat+0x573/0x14d0
+> > [17313.245974]  do_filp_open+0x93/0x100
+> > [17313.245979]  ? __check_object_size+0xa3/0x181
+> > [17313.245986]  ? audit_alloc_name+0x7e/0xd0
+> > [17313.245992]  do_sys_open+0x184/0x220
+> > [17313.245999]  do_syscall_64+0x5b/0x1b0
+> >
+> > Fixes: 487317c99477 ("cifs: add spinlock for the openFileList to cifsInodeInfo")
+> >
+> > CC: Stable <stable@vger.kernel.org>
+> > Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+> > Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> > Signed-off-by: Steve French <stfrench@microsoft.com>
+> >
+> > diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+> > index 4b95700c507c..3758237bf951 100644
+> > --- a/fs/cifs/file.c
+> > +++ b/fs/cifs/file.c
+> > @@ -1840,13 +1840,12 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
+> >  {
+> >         struct cifsFileInfo *open_file = NULL;
+> >         struct cifs_sb_info *cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
+> > -       struct cifs_tcon *tcon = cifs_sb_master_tcon(cifs_sb);
+> >
+> >         /* only filter by fsuid on multiuser mounts */
+> >         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
+> >                 fsuid_only = false;
+> >
+> > -       spin_lock(&tcon->open_file_lock);
+> > +       spin_lock(&cifs_inode->open_file_lock);
+> >         /* we could simply get the first_list_entry since write-only entries
+> >            are always at the end of the list but since the first entry might
+> >            have a close pending, we go through the whole list */
+> > @@ -1858,7 +1857,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
+> >                                 /* found a good file */
+> >                                 /* lock it so it will not be closed on us */
+> >                                 cifsFileInfo_get(open_file);
+> > -                               spin_unlock(&tcon->open_file_lock);
+> > +                               spin_unlock(&cifs_inode->open_file_lock);
+> >                                 return open_file;
+> >                         } /* else might as well continue, and look for
+> >                              another, or simply have the caller reopen it
+> > @@ -1866,7 +1865,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
+> >                 } else /* write only file */
+> >                         break; /* write only files are last so must be done */
+> >         }
+> > -       spin_unlock(&tcon->open_file_lock);
+> > +       spin_unlock(&cifs_inode->open_file_lock);
+> >         return NULL;
+> >  }
+> >
+> > @@ -1877,7 +1876,6 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
+> >  {
+> >         struct cifsFileInfo *open_file, *inv_file = NULL;
+> >         struct cifs_sb_info *cifs_sb;
+> > -       struct cifs_tcon *tcon;
+> >         bool any_available = false;
+> >         int rc = -EBADF;
+> >         unsigned int refind = 0;
+> > @@ -1897,16 +1895,15 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
+> >         }
+> >
+> >         cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
+> > -       tcon = cifs_sb_master_tcon(cifs_sb);
+> >
+> >         /* only filter by fsuid on multiuser mounts */
+> >         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
+> >                 fsuid_only = false;
+> >
+> > -       spin_lock(&tcon->open_file_lock);
+> > +       spin_lock(&cifs_inode->open_file_lock);
+> >  refind_writable:
+> >         if (refind > MAX_REOPEN_ATT) {
+> > -               spin_unlock(&tcon->open_file_lock);
+> > +               spin_unlock(&cifs_inode->open_file_lock);
+> >                 return rc;
+> >         }
+> >         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
+> > @@ -1918,7 +1915,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
+> >                         if (!open_file->invalidHandle) {
+> >                                 /* found a good writable file */
+> >                                 cifsFileInfo_get(open_file);
+> > -                               spin_unlock(&tcon->open_file_lock);
+> > +                               spin_unlock(&cifs_inode->open_file_lock);
+> >                                 *ret_file = open_file;
+> >                                 return 0;
+> >                         } else {
+> > @@ -1938,7 +1935,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
+> >                 cifsFileInfo_get(inv_file);
+> >         }
+> >
+> > -       spin_unlock(&tcon->open_file_lock);
+> > +       spin_unlock(&cifs_inode->open_file_lock);
+> >
+> >         if (inv_file) {
+> >                 rc = cifs_reopen_file(inv_file, false);
+> > @@ -1953,7 +1950,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
+> >                 cifsFileInfo_put(inv_file);
+> >                 ++refind;
+> >                 inv_file = NULL;
+> > -               spin_lock(&tcon->open_file_lock);
+> > +               spin_lock(&cifs_inode->open_file_lock);
+> >                 goto refind_writable;
+> >         }
+> >
+> > @@ -4461,17 +4458,15 @@ static int cifs_readpage(struct file *file, struct page *page)
+> >  static int is_inode_writable(struct cifsInodeInfo *cifs_inode)
+> >  {
+> >         struct cifsFileInfo *open_file;
+> > -       struct cifs_tcon *tcon =
+> > -               cifs_sb_master_tcon(CIFS_SB(cifs_inode->vfs_inode.i_sb));
+> >
+> > -       spin_lock(&tcon->open_file_lock);
+> > +       spin_lock(&cifs_inode->open_file_lock);
+> >         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
+> >                 if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
+> > -                       spin_unlock(&tcon->open_file_lock);
+> > +                       spin_unlock(&cifs_inode->open_file_lock);
+> >                         return 1;
+> >                 }
+> >         }
+> > -       spin_unlock(&tcon->open_file_lock);
+> > +       spin_unlock(&cifs_inode->open_file_lock);
+> >         return 0;
+> >  }
+> >
+> >
