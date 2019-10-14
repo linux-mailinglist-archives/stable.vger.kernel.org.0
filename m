@@ -2,93 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C92D5FD0
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FDF7D5FD8
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:16:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731121AbfJNKLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 06:11:24 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:33781 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730860AbfJNKLX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 06:11:23 -0400
-Received: by mail-pg1-f193.google.com with SMTP id i76so9840550pgc.0;
-        Mon, 14 Oct 2019 03:11:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=u6WI0gDjbvLg3JzSkl1yVQQFCwF5JM/S0gxkF6bM6fg=;
-        b=lBY+KsDoJUg2hKJs7lp8p8z4x5tDAIj44Rj+aOGnsc7Inftl94nbqA0J0mKXUfDTYT
-         QeRQihPX6F3qwA0JnLbUVxFOYnix5KjZebKetNhRYXQUuSbNc9oH58UrD5vRXY5ckaze
-         Bfj3ploISAFEcjrqZuu/ms2lVfnWBhQLnitoRsqsDE/bqp3+nSuYpLdkkWiU6tXjxsiq
-         B9jYhvh42Vy5qQg1ZlpbFsI/zPK1qfuvEy8mRTVUROOTZzIGss8e1qGfv6QsNX6DP8ov
-         clD+1K+1Lj0yn0HyUbUfbyrab+M0EYUMY/Rh9ao7p213ftX+UygJAaKK1ziLIWpq9VJL
-         ZoUA==
+        id S1731310AbfJNKQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 06:16:04 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:33295 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730860AbfJNKQE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 06:16:04 -0400
+Received: by mail-lf1-f68.google.com with SMTP id y127so11403063lfc.0;
+        Mon, 14 Oct 2019 03:16:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=u6WI0gDjbvLg3JzSkl1yVQQFCwF5JM/S0gxkF6bM6fg=;
-        b=c0Khj+exKbCl7MV3A3LZ2pGX1L1l0tjMpSEO/jDkG0AcXqGqahHB5az/vAXm0CPw8b
-         FwGAr0QI5cIObWwEEPk5kECXYQw+EJSPqr/3rhkg3FX8e+xKpmimT2lNzn53QVpRCG5G
-         3wYwV/LMvfmsqSaqY7EBkB2jNfgjebyzNSvV7OVln+IY37PfNrZSgthRDdDhvuxvhZ83
-         VAm8lpMr1pq9Dl/yS1kS9iGDva+iG0nOeaMorfwmNEoG2GHGfpMnKEIpJTObxsZvtvGr
-         HaqFXbowlO2k3faH4Omhsxb0EyuahxDGLLR8eI+Tc5DAGI9XaQus3V4d21z0hPKbCVol
-         RIIA==
-X-Gm-Message-State: APjAAAVXHOLS65x699Al3yNdd2XZ5qdmy7+lmcxHnMjQhTgWfDwypd2k
-        iRKI4Y3ieOm3I7quOR47DeiMAFs7w4FKt1Dx8QU=
-X-Google-Smtp-Source: APXvYqwwxxKi/wqKL8hzQH0JWvzTmEg06U0A67Gdgik5ysLzrtrS1capqHHl51ggKu1gORfFTWboMHEJXTZ5IVFyuCs=
-X-Received: by 2002:a17:90a:c684:: with SMTP id n4mr35304592pjt.33.1571047881584;
- Mon, 14 Oct 2019 03:11:21 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=ZPSVvZUElOUiKV/doqRMk+tVtdAW+rauLkS5pvoaQXI=;
+        b=goFrFjG9tMRKI0Gjb/MPzDJ1wLQl3UXKgqYSqjWPmi/RUApbM5zmaiqaFQa9xAv1Ct
+         JPklJoVd6/9Sp0De9Wmaz4syatvUtgjv6u+poHIIZxsnE+8bnfKhP46dr43Www8S6ja6
+         TzzgSKSieQ4rbrx4QpQG4vlweFCKSNOGQ3mC4GiZ9bJRZzkupGx0YV2AJo24uYiTYPF3
+         +nqgxlzDO3Q50by5kp1NZ75GCdb3+Ak7Hr+wcbRFPVzQurGnutXQr1tSGyrBSVqgaiUs
+         EdYuY1uPkxCE7e/4K9gPZNVXz4fAxih6PJXdL/rMQTk/Lni9T7VnhNa2z297GWechl8x
+         Iycg==
+X-Gm-Message-State: APjAAAVsWxnJ6qpllIsbecnhbonr1e3/ebVg9p1iTJhJGgNpp4NnB79+
+        7p/Y6cS54kpeH9KLQhRY7S54Z8kv
+X-Google-Smtp-Source: APXvYqzM297RG6C4nfD1J51CsLKSovhQ+DMSTtHhVbESTao8adajczTfciygNySkOr+cZAsoqPtFDA==
+X-Received: by 2002:ac2:4215:: with SMTP id y21mr16841858lfh.85.1571048161178;
+        Mon, 14 Oct 2019 03:16:01 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id e29sm4100446ljb.105.2019.10.14.03.16.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 14 Oct 2019 03:16:00 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@kernel.org>)
+        id 1iJxOd-0005zk-86; Mon, 14 Oct 2019 12:16:11 +0200
+Date:   Mon, 14 Oct 2019 12:16:11 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Mathias Nyman <mathias.nyman@linux.intel.com>
+Cc:     johan@kernel.org, gregkh@linuxfoundation.org,
+        stern@rowland.harvard.edu, linux-usb@vger.kernel.org,
+        "# v5 . 3" <stable@vger.kernel.org>
+Subject: Re: [RFT PATCH] xhci: Fix use-after-free regression in xhci clear
+ hub TT implementation
+Message-ID: <20191014101611.GN13531@localhost>
+References: <1c4b7107-f5e1-4a69-2a73-0e339c7e1072@linux.intel.com>
+ <1570798722-31594-1-git-send-email-mathias.nyman@linux.intel.com>
 MIME-Version: 1.0
-References: <20191014090910.9701-1-jgross@suse.com> <20191014090910.9701-2-jgross@suse.com>
-In-Reply-To: <20191014090910.9701-2-jgross@suse.com>
-From:   Paul Durrant <pdurrant@gmail.com>
-Date:   Mon, 14 Oct 2019 11:11:10 +0100
-Message-ID: <CACCGGhDz6nAqoKUaZ+Ud7O7Srm1ygt=6UgSrydajizJfWZsRPQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] xen/netback: fix error path of xenvif_connect_data()
-To:     Juergen Gross <jgross@suse.com>
-Cc:     xen-devel <xen-devel@lists.xenproject.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1570798722-31594-1-git-send-email-mathias.nyman@linux.intel.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Oct 2019 at 10:09, Juergen Gross <jgross@suse.com> wrote:
->
-> xenvif_connect_data() calls module_put() in case of error. This is
-> wrong as there is no related module_get().
->
-> Remove the superfluous module_put().
->
-> Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
-> Cc: <stable@vger.kernel.org> # 3.12
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-
-Yes, looks like this should have been cleaned up a long time ago.
-
-Reviewed-by: Paul Durrant <paul@xen.org>
-
+On Fri, Oct 11, 2019 at 03:58:42PM +0300, Mathias Nyman wrote:
+> commit ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer") schedules work
+> to clear TT buffer, but causes a use-after-free regression at the same time
+> 
+> Make sure hub_tt_work finishes before endpoint is disabled, otherwise
+> the work will dereference already freed endpoint and device related
+> pointers.
+> 
+> This was triggered when usb core failed to read the configuration
+> descriptor of a FS/LS device during enumeration.
+> xhci driver queued clear_tt_work while usb core freed and reallocated
+> a new device for the next enumeration attempt.
+> 
+> EHCI driver implents ehci_endpoint_disable() that makes sure
+> clear_tt_work has finished before it returns, but xhci lacks this support.
+> usb core will call hcd->driver->endpoint_disable() callback before
+> disabling endpoints, so we want this in xhci as well.
+> 
+> The added xhci_endpoint_disable() is based on ehci_endpoint_disable()
+> 
+> Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+> Cc: <stable@vger.kernel.org> # v5.3
+> Reported-by: Johan Hovold <johan@kernel.org>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 > ---
->  drivers/net/xen-netback/interface.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-> index 240f762b3749..103ed00775eb 100644
-> --- a/drivers/net/xen-netback/interface.c
-> +++ b/drivers/net/xen-netback/interface.c
-> @@ -719,7 +719,6 @@ int xenvif_connect_data(struct xenvif_queue *queue,
->         xenvif_unmap_frontend_data_rings(queue);
->         netif_napi_del(&queue->napi);
->  err:
-> -       module_put(THIS_MODULE);
->         return err;
+>  drivers/usb/host/xhci.c | 43 +++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+> 
+> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> index 5cfbf9a04494..6e817686d04f 100644
+> --- a/drivers/usb/host/xhci.c
+> +++ b/drivers/usb/host/xhci.c
+> @@ -3071,6 +3071,48 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
+>  	}
 >  }
->
-> --
-> 2.16.4
->
+>  
+> +static void xhci_endpoint_disable(struct usb_hcd *hcd,
+> +				  struct usb_host_endpoint *host_ep)
+> +{
+> +	struct xhci_hcd		*xhci;
+> +	struct xhci_virt_device	*vdev;
+> +	struct xhci_virt_ep	*ep;
+> +	struct usb_device	*udev;
+> +	unsigned long		flags;
+> +	unsigned int		ep_index;
+> +
+> +	xhci = hcd_to_xhci(hcd);
+> +rescan:
+> +	spin_lock_irqsave(&xhci->lock, flags);
+> +
+> +	udev = (struct usb_device *)host_ep->hcpriv;
+> +	if (!udev || !udev->slot_id)
+> +		goto done;
+> +
+> +	vdev = xhci->devs[udev->slot_id];
+> +	if (!vdev)
+> +		goto done;
+> +
+> +	ep_index = xhci_get_endpoint_index(&host_ep->desc);
+> +	ep = &vdev->eps[ep_index];
+> +	if (!ep)
+> +		goto done;
+> +
+> +	/* wait for hub_tt_work to finish clearing hub TT */
+> +	if (ep->ep_state & EP_CLEARING_TT) {
+> +		spin_unlock_irqrestore(&xhci->lock, flags);
+> +		schedule_timeout_uninterruptible(1);
+> +		goto rescan;
+> +	}
+> +
+> +	if (ep->ep_state)
+> +		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
+> +			 ep->ep_state);
+> +done:
+> +	host_ep->hcpriv = NULL;
+> +	spin_unlock_irqrestore(&xhci->lock, flags);
+> +}
+> +
+
+I used essentially the same reproducer as you did for debugging this
+after I first hit it with an actually stalled control endpoint, and this
+patch works also with my fault-injection hack.
+
+I've reviewed the code and it looks good to me except for one mostly
+theoretical issue. You need to check ep->hc_priv while holding the
+xhci->lock in xhci_clear_tt_buffer_complete() or you could end up having
+xhci_endpoint_disable() reschedule indefinitely while waiting for
+EP_CLEARING_TT to be cleared on a sufficiently weakly ordered
+system.
+
+Since cfbb8a84c2d2 ("xhci: Fix NULL pointer dereference in
+xhci_clear_tt_buffer_complete()") isn't needed anymore and is slightly
+misleading, I suggest amending the patch with the following:
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 9b1e15fe2c8e..6c17e3fe181a 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -5280,20 +5280,13 @@ static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+        unsigned int ep_index;
+        unsigned long flags;
+ 
+-       /*
+-        * udev might be NULL if tt buffer is cleared during a failed device
+-        * enumeration due to a halted control endpoint. Usb core might
+-        * have allocated a new udev for the next enumeration attempt.
+-        */
+-
+        xhci = hcd_to_xhci(hcd);
++
++       spin_lock_irqsave(&xhci->lock, flags);
+        udev = (struct usb_device *)ep->hcpriv;
+-       if (!udev)
+-               return;
+        slot_id = udev->slot_id;
+        ep_index = xhci_get_endpoint_index(&ep->desc);
+ 
+-       spin_lock_irqsave(&xhci->lock, flags);
+        xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_CLEARING_TT;
+        xhci_ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+        spin_unlock_irqrestore(&xhci->lock, flags);
+
+Feel free to add my:
+
+Suggested-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Tested-by: Johan Hovold <johan@kernel.org>
+
+Johan
