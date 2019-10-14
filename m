@@ -2,119 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EDDD617F
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 13:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 132D8D61A2
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 13:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730314AbfJNLkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 07:40:32 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:54593 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730178AbfJNLkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 07:40:31 -0400
-Received: by mail-wm1-f67.google.com with SMTP id p7so16911144wmp.4
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 04:40:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/ZAzpFF94MFcOM1A7xHHwbwXE5Q5ThtJyyTHhlam+YM=;
-        b=c7APC/eX4DPgYFSVnExK6+xD4SMELE/gLmua1fwy5UyQloUqpyI9xWZY5epKbZMnMd
-         8tPOLzKiRYn5GBRq2PlYQmxRyw93ztvssIs+2JOf+YlOiVC+rDpkrSPhLq7h6Gw6J5bS
-         KMguGW5+ymZ2iJnfWsz/u3R7u5AngXRbFgucqcP1j3OfE14qU3w3qvkBD6zCvHzplFB/
-         +VDeQLnoXb5ReuRQ0F1PIizfT92FwrOQj4M5skZW33Sqi+K2RB9Yf2GnuNYvxnlr59mT
-         xKJv8ndoSgw4HkurusF3aoLr1X2zSiMJMEPapk0jty+AZBtGYOvLq0igkkjNZrIua3YT
-         nk8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/ZAzpFF94MFcOM1A7xHHwbwXE5Q5ThtJyyTHhlam+YM=;
-        b=HhZ54C5iUdK2iDMTsKA892v3xQdQvoU+eKb1+zlX3grRj5R7KwHxWiWt3CkUBLOZi1
-         tdfpVPHSTH/UjuZ1Gn/9H2FLHyMRdydD37WQSBIP8B97OZmvsuc1gMkbHL0RI/H7V1xF
-         uoKRPWVoJBfBryUdPO3npyrkq+PNMVqeouRPveBTOzrtr37MdXqlACntKiUJ7JzpTia9
-         jVUWdPGGniNvrXuRak8dF17Pf+kdG49bpQ7MYQe9W/sDuM3wnfWwHKmT3cztBtPusrIr
-         3atjde9PvHWaJTf/DLyJS5FoFVhIL8mlM1qGzfLnPwd9rja25fEBg1ch0KPwuVtkUv6+
-         nk+g==
-X-Gm-Message-State: APjAAAVl5iTlZmGZuky/nU/MWz/d18P3xIMExsO4oTPyLs7UBeHvqxZK
-        9Dm/p55fmkLFO4LAdwkJx/n7DuUTkJQ=
-X-Google-Smtp-Source: APXvYqxJomMTw4m7//qiDV778TKQHqjIWlgPVUIzgPGwYhzMbkJmshnD7TAeFLB2KbNoMB472J4G5Q==
-X-Received: by 2002:a1c:f011:: with SMTP id a17mr14242928wmb.18.1571053229443;
-        Mon, 14 Oct 2019 04:40:29 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h125sm25092933wmf.31.2019.10.14.04.40.28
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Oct 2019 04:40:29 -0700 (PDT)
-Message-ID: <5da45ead.1c69fb81.5a1eb.5c73@mx.google.com>
-Date:   Mon, 14 Oct 2019 04:40:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730568AbfJNLrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 07:47:46 -0400
+Received: from foss.arm.com ([217.140.110.172]:41490 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730369AbfJNLrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 07:47:46 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 8A4DE337;
+        Mon, 14 Oct 2019 04:47:45 -0700 (PDT)
+Received: from e113632-lin.cambridge.arm.com (unknown [10.1.194.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 4EE483F68E;
+        Mon, 14 Oct 2019 04:47:44 -0700 (PDT)
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
+        Dietmar.Eggemann@arm.com, morten.rasmussen@arm.com,
+        qperret@qperret.net, stable@vger.kernel.org
+Subject: [PATCH] sched/topology: Disable sched_asym_cpucapacity on domain destruction
+Date:   Mon, 14 Oct 2019 12:47:10 +0100
+Message-Id: <20191014114710.22142-1-valentin.schneider@arm.com>
+X-Mailer: git-send-email 2.22.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.6
-Subject: stable-rc/linux-5.3.y boot: 138 boots: 1 failed,
- 128 passed with 9 offline (v5.3.6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 138 boots: 1 failed, 128 passed with 9 offline =
-(v5.3.6)
+While the static key is correctly initialized as being disabled, it will
+remain forever enabled once turned on. This means that if we start with an
+asymmetric system and hotplug out enough CPUs to end up with an SMP system,
+the static key will remain set - which is obviously wrong. We should detect
+this and turn off things like misfit migration and EAS wakeups.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.6/
+Having that key enabled should also mandate
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.6
-Git Commit: a2fc8ee6676067f27d2f5c6e4d512adff3d9938c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 87 unique boards, 26 SoC families, 17 builds out of 208
+  per_cpu(sd_asym_cpucapacity, cpu) != NULL
 
-Boot Failure Detected:
+for all CPUs, but this is obviously not true with the above.
 
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
+On top of that, sched domain rebuilds first lead to attaching the NULL
+domain to the affected CPUs, which means there will be a window where the
+static key is set but the sd_asym_cpucapacity shortcut points to NULL even
+if asymmetry hasn't been hotplugged out.
 
-Offline Platforms:
+Disable the static key when destroying domains, and let
+build_sched_domains() (re) enable it as needed.
 
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
+Cc: <stable@vger.kernel.org>
+Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
 ---
-For more info write to <info@kernelci.org>
+ kernel/sched/topology.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index b5667a273bf6..c49ae57a0611 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -2123,7 +2123,8 @@ static void detach_destroy_domains(const struct cpumask *cpu_map)
+ {
+ 	int i;
+ 
++	static_branch_disable_cpuslocked(&sched_asym_cpucapacity);
++
+ 	rcu_read_lock();
+ 	for_each_cpu(i, cpu_map)
+ 		cpu_attach_domain(NULL, &def_root_domain, i);
+--
+2.22.0
+
