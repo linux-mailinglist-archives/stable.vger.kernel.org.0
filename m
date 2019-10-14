@@ -2,206 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DFBD6812
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 19:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A909D6963
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 20:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388352AbfJNRMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 13:12:32 -0400
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:37724 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388353AbfJNRMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 13:12:31 -0400
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x9EHAPZM016716
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 10:12:30 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-type; s=facebook;
- bh=VZQSaFL6cILSBSh9R3ERpIGAqSNRb2JkOURfLEvU0XA=;
- b=XxjhRdaOOEW/3QdKoX/UzbVRKdtqhSM/r4lOVuctEYUIoxhlJyBxNq5w1fqO/f59m/lZ
- ZLKsA55TuNwkS+PI0hW67c3jqlKQlwGrVrs+GPj8VrxXn90jyePl6MfCN9JReKA2xEed
- r/VxfmIuJLHLv/rPno1eAdTq675SGSO/zQ4= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by mx0a-00082601.pphosted.com with ESMTP id 2vkxgenc5q-3
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 10:12:30 -0700
-Received: from 2401:db00:30:6007:face:0:1:0 (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:82::d) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Mon, 14 Oct 2019 10:12:28 -0700
-Received: by devbig006.ftw2.facebook.com (Postfix, from userid 4523)
-        id BC1D262E1383; Mon, 14 Oct 2019 10:12:26 -0700 (PDT)
-Smtp-Origin-Hostprefix: devbig
-From:   Song Liu <songliubraving@fb.com>
-Smtp-Origin-Hostname: devbig006.ftw2.facebook.com
-To:     <linux-kernel@vger.kernel.org>, <bpf@vger.kernel.org>,
-        <netdev@vger.kernel.org>
-CC:     <sashal@kernel.org>, <kernel-team@fb.com>,
-        Song Liu <songliubraving@fb.com>, <stable@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Smtp-Origin-Cluster: ftw2c04
-Subject: [PATCH v2 bpf-next] bpf/stackmap: fix deadlock with rq_lock in bpf_get_stack()
-Date:   Mon, 14 Oct 2019 10:12:23 -0700
-Message-ID: <20191014171223.357174-1-songliubraving@fb.com>
-X-Mailer: git-send-email 2.17.1
-X-FB-Internal: Safe
+        id S1731214AbfJNS2N convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 14 Oct 2019 14:28:13 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:58876 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729950AbfJNS2N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 14:28:13 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 08F683086211
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 18:28:13 +0000 (UTC)
+Received: from [172.54.28.194] (cpt-1009.paas.prod.upshift.rdu2.redhat.com [10.0.19.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7AB0E196AE;
+        Mon, 14 Oct 2019 18:28:10 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
- definitions=2019-10-14_09:2019-10-11,2019-10-14 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 suspectscore=2
- lowpriorityscore=0 spamscore=0 malwarescore=0 bulkscore=0 mlxscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 adultscore=0 impostorscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1908290000 definitions=main-1910140145
-X-FB-Internal: deliver
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Message-ID: <cki.43D5EAA64F.TCVZKSB29F@redhat.com>
+X-Gitlab-Pipeline-ID: 225134
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/225134
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Mon, 14 Oct 2019 18:28:13 +0000 (UTC)
+Date:   Mon, 14 Oct 2019 14:28:13 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-bpf stackmap with build-id lookup (BPF_F_STACK_BUILD_ID) can trigger A-A
-deadlock on rq_lock():
 
-rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
-[...]
-Call Trace:
- try_to_wake_up+0x1ad/0x590
- wake_up_q+0x54/0x80
- rwsem_wake+0x8a/0xb0
- bpf_get_stack+0x13c/0x150
- bpf_prog_fbdaf42eded9fe46_on_event+0x5e3/0x1000
- bpf_overflow_handler+0x60/0x100
- __perf_event_overflow+0x4f/0xf0
- perf_swevent_overflow+0x99/0xc0
- ___perf_sw_event+0xe7/0x120
- __schedule+0x47d/0x620
- schedule+0x29/0x90
- futex_wait_queue_me+0xb9/0x110
- futex_wait+0x139/0x230
- do_futex+0x2ac/0xa50
- __x64_sys_futex+0x13c/0x180
- do_syscall_64+0x42/0x100
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Hello,
 
-This can be reproduced by:
-1. Start a multi-thread program that does parallel mmap() and malloc();
-2. taskset the program to 2 CPUs;
-3. Attach bpf program to trace_sched_switch and gather stackmap with
-   build-id, e.g. with trace.py from bcc tools:
-   trace.py -U -p <pid> -s <some-bin,some-lib> t:sched:sched_switch
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-A sample reproducer is attached at the end.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: d980f67059db - Linux 5.3.6
 
-This could also trigger deadlock with other locks that are nested with
-rq_lock.
+The results of these automated tests are provided below.
 
-Fix this by checking whether irqs are disabled. Since rq_lock and all
-other nested locks are irq safe, it is safe to do up_read() when irqs are
-not disable. If the irqs are disabled, postpone up_read() in irq_work.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Fixes: commit 615755a77b24 ("bpf: extend stackmap to save binary_build_id+offset instead of address")
-Cc: stable@vger.kernel.org # v4.17+
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+All kernel binaries, config files, and logs are available for download here:
 
-Reproducer:
-============================ 8< ============================
+  https://artifacts.cki-project.org/pipelines/225134
 
-char *filename;
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-void *worker(void *p)
-{
-        void *ptr;
-        int fd;
-        char *pptr;
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-        fd = open(filename, O_RDONLY);
-        if (fd < 0)
-                return NULL;
-        while (1) {
-                struct timespec ts = {0, 1000 + rand() % 2000};
+Merge testing
+-------------
 
-                ptr = mmap(NULL, 4096 * 64, PROT_READ, MAP_PRIVATE, fd, 0);
-                usleep(1);
-                if (ptr == MAP_FAILED) {
-                        printf("failed to mmap\n");
-                        break;
-                }
-                munmap(ptr, 4096 * 64);
-                usleep(1);
-                pptr = malloc(1);
-                usleep(1);
-                pptr[0] = 1;
-                usleep(1);
-                free(pptr);
-                usleep(1);
-                nanosleep(&ts, NULL);
-        }
-        close(fd);
-        return NULL;
-}
+We cloned this repository and checked out the following commit:
 
-int main(int argc, char *argv[])
-{
-        void *ptr;
-        int i;
-        pthread_t threads[THREAD_COUNT];
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: d980f67059db - Linux 5.3.6
 
-        if (argc < 2)
-                return 0;
 
-        filename = argv[1];
+We grabbed the 50453c360f1b commit of the stable queue repository.
 
-        for (i = 0; i < THREAD_COUNT; i++) {
-                if (pthread_create(threads + i, NULL, worker, NULL)) {
-                        fprintf(stderr, "Error creating thread\n");
-                        return 0;
-                }
-        }
+We then merged the patchset with `git am`:
 
-        for (i = 0; i < THREAD_COUNT; i++)
-                pthread_join(threads[i], NULL);
-        return 0;
-}
-============================ 8< ============================
+  panic-ensure-preemption-is-disabled-during-panic.patch
+  usb-rio500-remove-rio-500-kernel-driver.patch
+  usb-yurex-don-t-retry-on-unexpected-errors.patch
+  usb-yurex-fix-null-derefs-on-disconnect.patch
 
----
-Changes v1 => v2:
-1. Drop (1/1) and cover letter;
-2. Check irqs_disabled() instead of this_rq_is_locked()
----
- kernel/bpf/stackmap.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Compile testing
+---------------
 
-diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
-index 052580c33d26..173e983619d7 100644
---- a/kernel/bpf/stackmap.c
-+++ b/kernel/bpf/stackmap.c
-@@ -287,7 +287,7 @@ static void stack_map_get_build_id_offset(struct bpf_stack_build_id *id_offs,
- 	bool irq_work_busy = false;
- 	struct stack_map_irq_work *work = NULL;
- 
--	if (in_nmi()) {
-+	if (irqs_disabled()) {
- 		work = this_cpu_ptr(&up_read_work);
- 		if (work->irq_work.flags & IRQ_WORK_BUSY)
- 			/* cannot queue more up_read, fallback */
-@@ -295,8 +295,9 @@ static void stack_map_get_build_id_offset(struct bpf_stack_build_id *id_offs,
- 	}
- 
- 	/*
--	 * We cannot do up_read() in nmi context. To do build_id lookup
--	 * in nmi context, we need to run up_read() in irq_work. We use
-+	 * We cannot do up_read() when the irq is disabled, because of
-+	 * risk to deadlock with rq_lock. To do build_id lookup when the
-+	 * irqs are disabled, we need to run up_read() in irq_work. We use
- 	 * a percpu variable to do the irq_work. If the irq_work is
- 	 * already used by another lookup, we fall back to report ips.
- 	 *
--- 
-2.17.1
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+
+  ppc64le:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ Usex - version 1.9-29
+         🚧 ✅ LTP lite
+
+  x86_64:
+      Host 1:
+         ✅ Boot test
+         ✅ selinux-policy: serge-testsuite
+
+      Host 2:
+         ✅ Boot test
+         ✅ Podman system integration test (as root)
+         ✅ Podman system integration test (as user)
+         ✅ jvm test suite
+         ✅ AMTU (Abstract Machine Test Utility)
+         ✅ LTP: openposix test suite
+         ✅ audit: audit testsuite test
+         ✅ httpd: mod_ssl smoke sanity
+         ✅ iotop: sanity
+         ✅ tuned: tune-processes-through-perf
+         ✅ pciutils: sanity smoke test
+         ✅ Usex - version 1.9-29
+         ✅ stress: stress-ng
+         🚧 ✅ LTP lite
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with 🚧. Such tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or are
+being fixed.
 
