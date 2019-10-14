@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FD2D65B2
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 16:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BF1D65B5
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 16:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733043AbfJNO6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 10:58:03 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:52669 "EHLO
+        id S1733127AbfJNO6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 10:58:16 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:52969 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732759AbfJNO6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 10:58:03 -0400
+        by vger.kernel.org with ESMTP id S1732566AbfJNO6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 10:58:16 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 6C115907;
-        Mon, 14 Oct 2019 10:58:02 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 83AFD907;
+        Mon, 14 Oct 2019 10:58:15 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 14 Oct 2019 10:58:02 -0400
+  by compute6.internal (MEProxy); Mon, 14 Oct 2019 10:58:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=0hM4v8
-        vzOdo2SSwhFkWzg0VtPtDzS0cXWaEugSAIyFI=; b=xc/5ad3nZXxke6tFBbyAsI
-        2grJ2aARHv3sT6/D+B/+rmUonpV8TVMKBhsGMPMpsWf/GULwtfb4pM4DoqquZl0u
-        Z44loRY3S7sI0F7nE9perbnDNe9QlF303G2BYFMXfcXFLMHMrvKf23yEK80BMOXb
-        awgJj3gT2gwZpS+1YcopEO1iuqQ0QPmTqGCHctWu4L99V5PrLqhKPYzOu299Xoep
-        9DH84YqqwUo9vzHmVcGKvylLk5CORK4JPJITwfrBz6HeH6QdEdBrdepaUITfL2Vy
-        kJdQgyZ1DznUVkGRHU/JxgFBeJjPJJ6TMed+AXqS74ZcGObEqTeNRoiR4aaOBBjQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Yth8VP
+        Q2oIncHLbiGRVQT5cQ0hm+4oteYWz3TkYmTP4=; b=SlayYIjw2VdCD1kP7qh1Ru
+        AlXB40D6TnOorJNfFTbXtjjwQ2BUeTzJXHJEOc3WHIyR8AG1zSwzg/Z/xxauXTCS
+        SqS9MMeIhGC5Q6J49gZQ54bvNu0dWKv/iDIXyzEald2To2LhextMFuCk/OSw3Tqk
+        drBZQ61erZf1P/LKtkmBab3Vw/I0C7D8msPozP8nXJmIQ0EiNZaQmQ3BP7L+4wgT
+        mt9M8J6Si9LUdAx6+clyTDs6en7fAsFlaTnwKjA9p+apIEd1qSW/K6JFqh1/J6yh
+        dSboSOirBEKUEvQ+pEj5t/Ra9dtYwYpw0yMXNmmHgnNuboJ3rTeGTUMGg/iB/bMg
         ==
-X-ME-Sender: <xms:-YykXcfIN8plVBuz2v41hBZtCQIyAXjomt9T4FyiSR-CUIPAjW4D5w>
+X-ME-Sender: <xms:Bo2kXccP-c8ZybKn_Fdj-6Bygjp9BB71Be0hwXUpB_HRU1JoHSQIzA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjedugdekgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:-YykXfuvaCvwfXrO2njHw1Wg5Yq3YmlqyITpAkqy-G_X4SsCDc7GtQ>
-    <xmx:-YykXSHPIbOaXMxPOgrPsdfgIaiP79MF0oAt9c2GA_nnv5Xu41pcmg>
-    <xmx:-YykXReB2tmYPiDOBWKQg-892ZWxfUfao-NR21jw2vteWHy6GG1m4Q>
-    <xmx:-oykXaxYRD38FNKAlAhpfNGP7hckZz2JcWPXESrjLWQHGyQvPl9FEw>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeg
+X-ME-Proxy: <xmx:Bo2kXWp5dQ00IfTAyZpXMWhpjJke-Nhaihf4oUpL8iyHQdUBJWvcxA>
+    <xmx:Bo2kXTIYZ63-JrwMXW6mkkQRVK8OGKM-rReymQjbz0fffacd-LSanA>
+    <xmx:Bo2kXWBgKiLfB0cBPEnWq2MMocB3qN_EC23YBOyPnaxLVZ_ImSWHzg>
+    <xmx:B42kXSJSiitEnxMJLL47v1_59SX5x42NsrIEpsBT2y335TGC7qrlUw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 951FE80061;
-        Mon, 14 Oct 2019 10:58:01 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] gpiolib: don't clear FLAG_IS_OUT when emulating" failed to apply to 4.9-stable tree
-To:     bgolaszewski@baylibre.com, warthog618@gmail.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 85C6580063;
+        Mon, 14 Oct 2019 10:58:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] gpio: fix getting nonexclusive gpiods from DT" failed to apply to 5.3-stable tree
+To:     m.felsch@pengutronix.de, bgolaszewski@baylibre.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Oct 2019 16:57:50 +0200
-Message-ID: <15710650701624@kroah.com>
+Date:   Mon, 14 Oct 2019 16:58:13 +0200
+Message-ID: <15710650933218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,90 +67,35 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e735244e2cf068f98b6384681a38993e0517a838 Mon Sep 17 00:00:00 2001
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date: Tue, 1 Oct 2019 11:44:53 +0200
-Subject: [PATCH] gpiolib: don't clear FLAG_IS_OUT when emulating
- open-drain/open-source
+From be7ae45cfea97e787234e00e1a9eb341acacd84e Mon Sep 17 00:00:00 2001
+From: Marco Felsch <m.felsch@pengutronix.de>
+Date: Tue, 1 Oct 2019 11:49:21 +0200
+Subject: [PATCH] gpio: fix getting nonexclusive gpiods from DT
 
-When emulating open-drain/open-source by not actively driving the output
-lines - we're simply changing their mode to input. This is wrong as it
-will then make it impossible to change the value of such line - it's now
-considered to actually be in input mode. If we want to still use the
-direction_input() callback for simplicity then we need to set FLAG_IS_OUT
-manually in gpiod_direction_output() and not clear it in
-gpio_set_open_drain_value_commit() and
-gpio_set_open_source_value_commit().
+Since commit ec757001c818 ("gpio: Enable nonexclusive gpiods from DT
+nodes") we are able to get GPIOD_FLAGS_BIT_NONEXCLUSIVE marked gpios.
+Currently the gpiolib uses the wrong flags variable for the check. We
+need to check the gpiod_flags instead of the of_gpio_flags else we
+return -EBUSY for GPIOD_FLAGS_BIT_NONEXCLUSIVE marked and requested
+gpiod's.
 
-Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
+Fixes: ec757001c818 gpio: Enable nonexclusive gpiods from DT nodes
 Cc: stable@vger.kernel.org
-Reported-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+[Bartosz: the function was moved to gpiolib-of.c so updated the patch]
 Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index bdbc1649eafa..5833e4f380d6 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3070,8 +3070,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open drain by not actively driving the line high */
--		if (value)
--			return gpiod_direction_input(desc);
-+		if (value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	}
- 	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
- 		ret = gpio_set_config(gc, gpio_chip_hwgpio(desc),
-@@ -3079,8 +3081,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open source by not actively driving the line low */
--		if (!value)
--			return gpiod_direction_input(desc);
-+		if (!value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	} else {
- 		gpio_set_config(gc, gpio_chip_hwgpio(desc),
- 				PIN_CONFIG_DRIVE_PUSH_PULL);
-@@ -3088,6 +3092,17 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
+diff --git a/drivers/gpio/gpiolib-of.c b/drivers/gpio/gpiolib-of.c
+index 1eea2c6c2e1d..80ea49f570f4 100644
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -317,7 +317,7 @@ struct gpio_desc *gpiod_get_from_of_node(struct device_node *node,
+ 	transitory = flags & OF_GPIO_TRANSITORY;
  
- set_output_value:
- 	return gpiod_direction_output_raw_commit(desc, value);
-+
-+set_output_flag:
-+	/*
-+	 * When emulating open-source or open-drain functionalities by not
-+	 * actively driving the line (setting mode to input) we still need to
-+	 * set the IS_OUT flag or otherwise we won't be able to set the line
-+	 * value anymore.
-+	 */
-+	if (ret == 0)
-+		set_bit(FLAG_IS_OUT, &desc->flags);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(gpiod_direction_output);
- 
-@@ -3448,8 +3463,6 @@ static void gpio_set_open_drain_value_commit(struct gpio_desc *desc, bool value)
- 
- 	if (value) {
- 		ret = chip->direction_input(chip, offset);
--		if (!ret)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		ret = chip->direction_output(chip, offset, 0);
- 		if (!ret)
-@@ -3479,8 +3492,6 @@ static void gpio_set_open_source_value_commit(struct gpio_desc *desc, bool value
- 			set_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		ret = chip->direction_input(chip, offset);
--		if (!ret)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	}
- 	trace_gpio_direction(desc_to_gpio(desc), !value, ret);
- 	if (ret < 0)
+ 	ret = gpiod_request(desc, label);
+-	if (ret == -EBUSY && (flags & GPIOD_FLAGS_BIT_NONEXCLUSIVE))
++	if (ret == -EBUSY && (dflags & GPIOD_FLAGS_BIT_NONEXCLUSIVE))
+ 		return desc;
+ 	if (ret)
+ 		return ERR_PTR(ret);
 
