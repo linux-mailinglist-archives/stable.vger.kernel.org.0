@@ -2,152 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 449E6D66E2
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 18:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 936EED66EC
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 18:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387778AbfJNQKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 12:10:31 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:38663 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731999AbfJNQKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 12:10:31 -0400
-Received: by mail-wm1-f68.google.com with SMTP id 3so17328805wmi.3
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 09:10:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fdHT8ivUwY4K/O7PUXhsjrPh/KxNdPrKz/rCnEthp2g=;
-        b=oB/o2n+sTLQb0mMT+TNUEFarogNB9IVzXN+2eOk7fQ+XH2wl3FQN7tDFmZHcZaKQDU
-         5Z9Q98L6a/ILIPaLPEEkEQ0tZj/RGM+OckMK1JpetjW/MCQCiEkz+gCP4NnAzJ1IStQK
-         gYIAMkpYjDFdeTKE18Y8Slw8pF4LNChHOnAIkx1PrLbsusZUUHh2WrZbgI9Tb2ilH8ZF
-         VXrV8d4zVKhhi+pjxTUorG2aiAMcFlaf70P3kAkB2+Qqs2dVydw8zLgX1Gt1g7tjnB2b
-         j4vsFzJ6JNVkuFC8MLafwDh4WCxbJmOKL1rHGBzN45bSb6oUG3RfAsuWcUAzDXwIyndH
-         i3Ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fdHT8ivUwY4K/O7PUXhsjrPh/KxNdPrKz/rCnEthp2g=;
-        b=MEj/IZApG7F3ueQRLSUQQ3/9EwnHO33x9Ko/YoTuHUZCw7ebbL+o1364H7pj9h1WYX
-         wbCTJtHJCtBl1PWp8zLnDk8ZywpwHvhqV9cLFBeYBl0IViLcvFDfcUHX6gnyRMhTax85
-         vBsVi9JnHCq79QVXS179IyqjWb/syZLpUDGMp7RUM9IvhVaTjqgBViVPEIHJOU64DBP8
-         aclvEhzsKFp0VMVS68DRba2dWsZGnE4Cbmi6JZV6TL1gMWbnreeud1MbxZR+NAcAGfml
-         PDj8sah9Hd3HF98/rzG/zdk6Gr0LQ1Kv1tRBROwPumHPWPkjy/o8v3pAbtZGEu2Aw3b6
-         a9GA==
-X-Gm-Message-State: APjAAAXoYwRqTPSPDqjs9BgmKHYwBvqRDISpowvJwX+WQi1Br/lhHRmH
-        PU2Id1ehuceFVsnhiC2VpEi0Og==
-X-Google-Smtp-Source: APXvYqzkDoe8bdRO8MAfjPHLrQcgvTAYzar3eF+de15mMhjyRU45QBNIhXHM2/KZneCpcXX3deYGpA==
-X-Received: by 2002:a7b:cc99:: with SMTP id p25mr15161976wma.43.1571069427733;
-        Mon, 14 Oct 2019 09:10:27 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:cb1d:af:5b00:6d6c:8493:1ab5:dad7])
-        by smtp.gmail.com with ESMTPSA id z13sm16658694wrq.51.2019.10.14.09.10.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Oct 2019 09:10:27 -0700 (PDT)
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-gpio@vger.kernel.org, stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Kent Gibson <warthog618@gmail.com>
-Subject: [PATCH v4.14] gpiolib: don't clear FLAG_IS_OUT when emulating open-drain/open-source
-Date:   Mon, 14 Oct 2019 18:10:24 +0200
-Message-Id: <20191014161024.17152-1-brgl@bgdev.pl>
-X-Mailer: git-send-email 2.23.0
+        id S2387432AbfJNQLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 12:11:47 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54073 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731121AbfJNQLr (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 14 Oct 2019 12:11:47 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 9902130F;
+        Mon, 14 Oct 2019 12:11:46 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 14 Oct 2019 12:11:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ym4Lbp
+        /iiy04dSAqRPJ3ABI7baU35buy+c5t1XiKGWg=; b=IXY7OMqOVLWRUMLDU5XiFJ
+        QRxLPFJhcx3yuBa91oqjC/iZVJO//scqW99cMiFzR0iOIZamySwuHIUVNPC4Kgle
+        ozkJYX0AwkaZh6EFCNnGok5Up9dtgYX7+4OIUJr5JXxXOcnSNt9MC+P5RVKyXNuJ
+        lMv4buAvSAtOPNnZ6iWJzxG0/DZG8Nz/MofritwBFt5ygrRoELfQBIY9Vz//S/AP
+        5un438JWCkOoLoUyi+uX4UxqCpDGxL+lTdgTZKVXeUlc20KSf75ysxkjiofIdI4N
+        NNbzHdWxb2rjIaohToFhksRZZVY5pGm7YEPJhasSQQuwQ5PZKkekZCe19rs/963w
+        ==
+X-ME-Sender: <xms:QJ6kXbxtkHTFXImVaTCQByO7BHKV55zkFBUnI09xKjYCV3FgyDazsg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjedugdelkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:QJ6kXY8vfkoSahks2Kq3jemXsZlWR1QvzAQQYTnFgqB_L_MGbXVMVA>
+    <xmx:QJ6kXWjMoTV70WjZmF_oC7sHCpv7S-kMC-QjokPvO2EpX7GYVyTLsw>
+    <xmx:QJ6kXTWy6RrLxJe4NmvOYgDhJOorHFXKcve-tlOf2b9djWpPct7O2Q>
+    <xmx:Qp6kXfPQvsaWUvlF7IYQNfswfMA6wXMNKfsipVfFGk7g4YjWC-XZnw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 75789D60066;
+        Mon, 14 Oct 2019 12:11:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: light: fix vcnl4000 devicetree hooks" failed to apply to 5.3-stable tree
+To:     m.felsch@pengutronix.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 14 Oct 2019 18:11:42 +0200
+Message-ID: <1571069502139213@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-When emulating open-drain/open-source by not actively driving the output
-lines - we're simply changing their mode to input. This is wrong as it
-will then make it impossible to change the value of such line - it's now
-considered to actually be in input mode. If we want to still use the
-direction_input() callback for simplicity then we need to set FLAG_IS_OUT
-manually in gpiod_direction_output() and not clear it in
-gpio_set_open_drain_value_commit() and
-gpio_set_open_source_value_commit().
+The patch below does not apply to the 5.3-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
-Cc: stable@vger.kernel.org
-Reported-by: Kent Gibson <warthog618@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-[Bartosz: backported to v4.14]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
----
- drivers/gpio/gpiolib.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+thanks,
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index f1809a54fcee..c7f5f0be2d74 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2329,8 +2329,10 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open drain by not actively driving the line high */
--		if (val)
--			return gpiod_direction_input(desc);
-+		if (val) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	}
- 	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
- 		ret = gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
-@@ -2338,8 +2340,10 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open source by not actively driving the line low */
--		if (!val)
--			return gpiod_direction_input(desc);
-+		if (!val) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	} else {
- 		gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
- 					    PIN_CONFIG_DRIVE_PUSH_PULL);
-@@ -2359,6 +2363,17 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
- 	trace_gpio_value(desc_to_gpio(desc), 0, val);
- 	trace_gpio_direction(desc_to_gpio(desc), 0, ret);
- 	return ret;
-+
-+set_output_flag:
-+	/*
-+	 * When emulating open-source or open-drain functionalities by not
-+	 * actively driving the line (setting mode to input) we still need to
-+	 * set the IS_OUT flag or otherwise we won't be able to set the line
-+	 * value anymore.
-+	 */
-+	if (ret == 0)
-+		set_bit(FLAG_IS_OUT, &desc->flags);
-+	return ret;
- }
- 
- /**
-@@ -2540,8 +2555,6 @@ static void _gpio_set_open_drain_value(struct gpio_desc *desc, bool value)
- 
- 	if (value) {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_output(chip, offset, 0);
- 		if (!err)
-@@ -2571,8 +2584,6 @@ static void _gpio_set_open_source_value(struct gpio_desc *desc, bool value)
- 			set_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	}
- 	trace_gpio_direction(desc_to_gpio(desc), !value, err);
- 	if (err < 0)
--- 
-2.23.0
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 1436a78c63495dd94c8d4f84a76d78d5317d481b Mon Sep 17 00:00:00 2001
+From: Marco Felsch <m.felsch@pengutronix.de>
+Date: Tue, 17 Sep 2019 16:56:36 +0200
+Subject: [PATCH] iio: light: fix vcnl4000 devicetree hooks
+
+Since commit ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
+the of_match_table is supported but the data shouldn't be a string.
+Instead it shall be one of 'enum vcnl4000_device_ids'. Also the matching
+logic for the vcnl4020 was wrong. Since the data retrieve mechanism is
+still based on the i2c_device_id no failures did appeared till now.
+
+Fixes: ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Angus Ainslie (Purism) angus@akkea.ca
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
+diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+index 51421ac32517..f522cb863e8c 100644
+--- a/drivers/iio/light/vcnl4000.c
++++ b/drivers/iio/light/vcnl4000.c
+@@ -398,19 +398,19 @@ static int vcnl4000_probe(struct i2c_client *client,
+ static const struct of_device_id vcnl_4000_of_match[] = {
+ 	{
+ 		.compatible = "vishay,vcnl4000",
+-		.data = "VCNL4000",
++		.data = (void *)VCNL4000,
+ 	},
+ 	{
+ 		.compatible = "vishay,vcnl4010",
+-		.data = "VCNL4010",
++		.data = (void *)VCNL4010,
+ 	},
+ 	{
+-		.compatible = "vishay,vcnl4010",
+-		.data = "VCNL4020",
++		.compatible = "vishay,vcnl4020",
++		.data = (void *)VCNL4010,
+ 	},
+ 	{
+ 		.compatible = "vishay,vcnl4200",
+-		.data = "VCNL4200",
++		.data = (void *)VCNL4200,
+ 	},
+ 	{},
+ };
 
