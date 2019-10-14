@@ -2,111 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE84D5F88
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:00:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C92D5FD0
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731245AbfJNJ7z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 05:59:55 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3746 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731119AbfJNJ7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 05:59:54 -0400
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id ED61E115E732E4B2A4FA;
-        Mon, 14 Oct 2019 17:59:50 +0800 (CST)
-Received: from localhost.localdomain (10.67.212.75) by
- DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
- 14.3.439.0; Mon, 14 Oct 2019 17:59:43 +0800
-From:   John Garry <john.garry@huawei.com>
-To:     <stable@vger.kernel.org>
-CC:     <catalin.marinas@arm.com>, <will@kernel.org>, <rjw@rjwysocki.net>,
-        <lenb@kernel.org>, <robert.moore@intel.com>,
-        <erik.schmauss@intel.com>, <sudeep.holla@arm.com>,
-        <rrichter@marvell.com>, <jeremy.linton@arm.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-        <linuxarm@huawei.com>, <gregkh@linuxfoundation.org>,
-        <guohanjun@huawei.com>, <wanghuiqiang@huawei.com>,
-        John Garry <john.garry@huawei.com>
-Subject: [PATCH for-stable-4.19 3/3] arm64: topology: Use PPTT to determine if PE is a thread
-Date:   Mon, 14 Oct 2019 17:56:26 +0800
-Message-ID: <1571046986-231263-4-git-send-email-john.garry@huawei.com>
-X-Mailer: git-send-email 2.8.1
-In-Reply-To: <1571046986-231263-1-git-send-email-john.garry@huawei.com>
-References: <1571046986-231263-1-git-send-email-john.garry@huawei.com>
+        id S1731121AbfJNKLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 06:11:24 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:33781 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730860AbfJNKLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 06:11:23 -0400
+Received: by mail-pg1-f193.google.com with SMTP id i76so9840550pgc.0;
+        Mon, 14 Oct 2019 03:11:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=u6WI0gDjbvLg3JzSkl1yVQQFCwF5JM/S0gxkF6bM6fg=;
+        b=lBY+KsDoJUg2hKJs7lp8p8z4x5tDAIj44Rj+aOGnsc7Inftl94nbqA0J0mKXUfDTYT
+         QeRQihPX6F3qwA0JnLbUVxFOYnix5KjZebKetNhRYXQUuSbNc9oH58UrD5vRXY5ckaze
+         Bfj3ploISAFEcjrqZuu/ms2lVfnWBhQLnitoRsqsDE/bqp3+nSuYpLdkkWiU6tXjxsiq
+         B9jYhvh42Vy5qQg1ZlpbFsI/zPK1qfuvEy8mRTVUROOTZzIGss8e1qGfv6QsNX6DP8ov
+         clD+1K+1Lj0yn0HyUbUfbyrab+M0EYUMY/Rh9ao7p213ftX+UygJAaKK1ziLIWpq9VJL
+         ZoUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=u6WI0gDjbvLg3JzSkl1yVQQFCwF5JM/S0gxkF6bM6fg=;
+        b=c0Khj+exKbCl7MV3A3LZ2pGX1L1l0tjMpSEO/jDkG0AcXqGqahHB5az/vAXm0CPw8b
+         FwGAr0QI5cIObWwEEPk5kECXYQw+EJSPqr/3rhkg3FX8e+xKpmimT2lNzn53QVpRCG5G
+         3wYwV/LMvfmsqSaqY7EBkB2jNfgjebyzNSvV7OVln+IY37PfNrZSgthRDdDhvuxvhZ83
+         VAm8lpMr1pq9Dl/yS1kS9iGDva+iG0nOeaMorfwmNEoG2GHGfpMnKEIpJTObxsZvtvGr
+         HaqFXbowlO2k3faH4Omhsxb0EyuahxDGLLR8eI+Tc5DAGI9XaQus3V4d21z0hPKbCVol
+         RIIA==
+X-Gm-Message-State: APjAAAVXHOLS65x699Al3yNdd2XZ5qdmy7+lmcxHnMjQhTgWfDwypd2k
+        iRKI4Y3ieOm3I7quOR47DeiMAFs7w4FKt1Dx8QU=
+X-Google-Smtp-Source: APXvYqwwxxKi/wqKL8hzQH0JWvzTmEg06U0A67Gdgik5ysLzrtrS1capqHHl51ggKu1gORfFTWboMHEJXTZ5IVFyuCs=
+X-Received: by 2002:a17:90a:c684:: with SMTP id n4mr35304592pjt.33.1571047881584;
+ Mon, 14 Oct 2019 03:11:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.212.75]
-X-CFilter-Loop: Reflected
+References: <20191014090910.9701-1-jgross@suse.com> <20191014090910.9701-2-jgross@suse.com>
+In-Reply-To: <20191014090910.9701-2-jgross@suse.com>
+From:   Paul Durrant <pdurrant@gmail.com>
+Date:   Mon, 14 Oct 2019 11:11:10 +0100
+Message-ID: <CACCGGhDz6nAqoKUaZ+Ud7O7Srm1ygt=6UgSrydajizJfWZsRPQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] xen/netback: fix error path of xenvif_connect_data()
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel <xen-devel@lists.xenproject.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+On Mon, 14 Oct 2019 at 10:09, Juergen Gross <jgross@suse.com> wrote:
+>
+> xenvif_connect_data() calls module_put() in case of error. This is
+> wrong as there is no related module_get().
+>
+> Remove the superfluous module_put().
+>
+> Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
+> Cc: <stable@vger.kernel.org> # 3.12
+> Signed-off-by: Juergen Gross <jgross@suse.com>
 
-Commit 98dc19902a0b2e5348e43d6a2c39a0a7d0fc639e upstream.
+Yes, looks like this should have been cleaned up a long time ago.
 
-ACPI 6.3 adds a thread flag to represent if a CPU/PE is
-actually a thread. Given that the MPIDR_MT bit may not
-represent this information consistently on homogeneous machines
-we should prefer the PPTT flag if its available.
+Reviewed-by: Paul Durrant <paul@xen.org>
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Reviewed-by: Robert Richter <rrichter@marvell.com>
-[will: made acpi_cpu_is_threaded() return 'bool']
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
----
- arch/arm64/kernel/topology.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
-
-diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
-index 0825c4a856e3..6106c49f84bc 100644
---- a/arch/arm64/kernel/topology.c
-+++ b/arch/arm64/kernel/topology.c
-@@ -340,17 +340,28 @@ void remove_cpu_topology(unsigned int cpu)
- }
- 
- #ifdef CONFIG_ACPI
-+static bool __init acpi_cpu_is_threaded(int cpu)
-+{
-+	int is_threaded = acpi_pptt_cpu_is_thread(cpu);
-+
-+	/*
-+	 * if the PPTT doesn't have thread information, assume a homogeneous
-+	 * machine and return the current CPU's thread state.
-+	 */
-+	if (is_threaded < 0)
-+		is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
-+
-+	return !!is_threaded;
-+}
-+
- /*
-  * Propagate the topology information of the processor_topology_node tree to the
-  * cpu_topology array.
-  */
- static int __init parse_acpi_topology(void)
- {
--	bool is_threaded;
- 	int cpu, topology_id;
- 
--	is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
--
- 	for_each_possible_cpu(cpu) {
- 		int i, cache_id;
- 
-@@ -358,7 +369,7 @@ static int __init parse_acpi_topology(void)
- 		if (topology_id < 0)
- 			return topology_id;
- 
--		if (is_threaded) {
-+		if (acpi_cpu_is_threaded(cpu)) {
- 			cpu_topology[cpu].thread_id = topology_id;
- 			topology_id = find_acpi_cpu_topology(cpu, 1);
- 			cpu_topology[cpu].core_id   = topology_id;
--- 
-2.17.1
-
+> ---
+>  drivers/net/xen-netback/interface.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+> index 240f762b3749..103ed00775eb 100644
+> --- a/drivers/net/xen-netback/interface.c
+> +++ b/drivers/net/xen-netback/interface.c
+> @@ -719,7 +719,6 @@ int xenvif_connect_data(struct xenvif_queue *queue,
+>         xenvif_unmap_frontend_data_rings(queue);
+>         netif_napi_del(&queue->napi);
+>  err:
+> -       module_put(THIS_MODULE);
+>         return err;
+>  }
+>
+> --
+> 2.16.4
+>
