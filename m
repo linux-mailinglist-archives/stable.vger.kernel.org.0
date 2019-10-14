@@ -2,240 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F76AD6AD9
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 22:38:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 595CED6B18
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 23:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733092AbfJNUiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 16:38:51 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:27475 "EHLO mx1.redhat.com"
+        id S1732511AbfJNVLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 17:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730700AbfJNUiv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 16:38:51 -0400
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1730627AbfJNVLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 17:11:54 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AEBF15AFE3
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 20:38:50 +0000 (UTC)
-Received: by mail-qt1-f197.google.com with SMTP id k53so19092165qtk.0
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 13:38:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=u8rFfqaEemKq+67IqeCb4AEqMEa2qsr3KYQfv33AkwE=;
-        b=UBuIGTdWFblYwpO0QTxzh/oWa6xWc0RcTudmijRaqkIWyE2ZoAv3jeEGGaMxWTnXSw
-         Q2pzr+nIMszLTB64OTQhjI7XwJtmXxmDXEQ5Hm3gihJqvhRIBnFe7ooh4CXcxQSwC+gA
-         2yAv69VPqhh5apj/j6k9tVSD7zPNzJEvlpnbm8QGhG9wxPjoQ95kv5+LGRUpG2knMecf
-         Xaqvs7DnHhj6Q+pI3BXKSvgrTX5to5/hCFuwxdbD1OJuLlWS6DAfGZwhdGTtais3fx6Y
-         ndqI8L5nJKfs5K5GQR8ZjzCZtuKK38fsBxjS0EzbDoCAssrmJrfbgwbjGfjbZAgTcMrS
-         Y+fw==
-X-Gm-Message-State: APjAAAU4Fh0epFctyYYodOGDOpaGL4ZM3OFZLXUegzkiPMjGgS9+8mFQ
-        bk9jt2IUmZPQBh0iW0uXj04C1W7MnY6SKXS7xuxlnkU7TBbVBlH7DtIkSzD7TEaGDzs4D++eMKT
-        JuVTc0nWT+1yeMP4AfBlyipRMChUZEkDM
-X-Received: by 2002:ac8:2e31:: with SMTP id r46mr33782813qta.293.1571085529744;
-        Mon, 14 Oct 2019 13:38:49 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqyxtXndlXwKdEX+eU4A/hbNTuH1fTfBymrlSufv14N0H1UR9ttlRIlLun5sM/V1PDq8iG2F8BqUEsf08GxXQAs=
-X-Received: by 2002:ac8:2e31:: with SMTP id r46mr33782786qta.293.1571085529437;
- Mon, 14 Oct 2019 13:38:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <15710699036748@kroah.com> <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
-In-Reply-To: <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
-From:   David Wysochanski <dwysocha@redhat.com>
-Date:   Mon, 14 Oct 2019 16:38:13 -0400
-Message-ID: <CALF+zOk4fC_QdnGKaZQ-TxWfUJDKtpUbE5kK8a4TUTRQjP5MBQ@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] cifs: use cifsInodeInfo->open_file_lock
- while iterating to" failed to apply to 4.19-stable tree
-To:     gregkh@linuxfoundation.org
-Cc:     Ronnie Sahlberg <lsahlber@redhat.com>, stable@vger.kernel.org,
-        stfrench@microsoft.com
-Content-Type: text/plain; charset="UTF-8"
+        by mail.kernel.org (Postfix) with ESMTPSA id 585F721A4A;
+        Mon, 14 Oct 2019 21:11:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571087511;
+        bh=uk3l7ifkPXQwzh0v5ob+ZxrZRYbnPgzQIQl224yVgQQ=;
+        h=Date:From:To:Subject:From;
+        b=vvj8wzYgrKGps1ndwiAFeUWBA7YNckvHMB8+M2whyHHUHmhIkSxZt4x/czF88bji0
+         odI/u60cpGehDa1HPdoqzJCwmMOdmpp1gIoHzFsJDk4vObgNm7dBQk6Kh3f5ObegQF
+         /L0cG4LJ33dFZZNKqC0dU5zu7HCWpYdBGennN/qE=
+Date:   Mon, 14 Oct 2019 14:11:51 -0700
+From:   akpm@linux-foundation.org
+To:     vdavydov.dev@gmail.com, tj@kernel.org, stable@vger.kernel.org,
+        rientjes@google.com, penberg@kernel.org, mhocko@suse.com,
+        iamjoonsoo.kim@lge.com, guro@fb.com, cl@linux.com, cai@lca.pw,
+        akpm@linux-foundation.org, mm-commits@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 04/16] mm/slub: fix a deadlock in
+ show_slab_objects()
+Message-ID: <20191014211151.l7ggX%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Original patch applies cleanly to 5.1-5.3. Prior to that (4.19-5.0),
-needs minor fixups.
-Do I need to re-send the original and the fixup with different kernel ranges?
+From: Qian Cai <cai@lca.pw>
+Subject: mm/slub: fix a deadlock in show_slab_objects()
 
-On Mon, Oct 14, 2019 at 12:38 PM David Wysochanski <dwysocha@redhat.com> wrote:
->
-> Unless there is objections, let me try to fix this up.
-> Thanks.
->
-> On Mon, Oct 14, 2019 at 12:18 PM <gregkh@linuxfoundation.org> wrote:
-> >
-> >
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> >
-> > thanks,
-> >
-> > greg k-h
-> >
-> > ------------------ original commit in Linus's tree ------------------
-> >
-> > From cb248819d209d113e45fed459773991518e8e80b Mon Sep 17 00:00:00 2001
-> > From: Dave Wysochanski <dwysocha@redhat.com>
-> > Date: Thu, 3 Oct 2019 15:16:27 +1000
-> > Subject: [PATCH] cifs: use cifsInodeInfo->open_file_lock while iterating to
-> >  avoid a panic
-> >
-> > Commit 487317c99477 ("cifs: add spinlock for the openFileList to
-> > cifsInodeInfo") added cifsInodeInfo->open_file_lock spin_lock to protect
-> > the openFileList, but missed a few places where cifs_inode->openFileList
-> > was enumerated.  Change these remaining tcon->open_file_lock to
-> > cifsInodeInfo->open_file_lock to avoid panic in is_size_safe_to_change.
-> >
-> > [17313.245641] RIP: 0010:is_size_safe_to_change+0x57/0xb0 [cifs]
-> > [17313.245645] Code: 68 40 48 89 ef e8 19 67 b7 f1 48 8b 43 40 48 8d 4b 40 48 8d 50 f0 48 39 c1 75 0f eb 47 48 8b 42 10 48 8d 50 f0 48 39 c1 74 3a <8b> 80 88 00 00 00 83 c0 01 a8 02 74 e6 48 89 ef c6 07 00 0f 1f 40
-> > [17313.245649] RSP: 0018:ffff94ae1baefa30 EFLAGS: 00010202
-> > [17313.245654] RAX: dead000000000100 RBX: ffff88dc72243300 RCX: ffff88dc72243340
-> > [17313.245657] RDX: dead0000000000f0 RSI: 00000000098f7940 RDI: ffff88dd3102f040
-> > [17313.245659] RBP: ffff88dd3102f040 R08: 0000000000000000 R09: ffff94ae1baefc40
-> > [17313.245661] R10: ffffcdc8bb1c4e80 R11: ffffcdc8b50adb08 R12: 00000000098f7940
-> > [17313.245663] R13: ffff88dc72243300 R14: ffff88dbc8f19600 R15: ffff88dc72243428
-> > [17313.245667] FS:  00007fb145485700(0000) GS:ffff88dd3e000000(0000) knlGS:0000000000000000
-> > [17313.245670] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [17313.245672] CR2: 0000026bb46c6000 CR3: 0000004edb110003 CR4: 00000000007606e0
-> > [17313.245753] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > [17313.245756] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > [17313.245759] PKRU: 55555554
-> > [17313.245761] Call Trace:
-> > [17313.245803]  cifs_fattr_to_inode+0x16b/0x580 [cifs]
-> > [17313.245838]  cifs_get_inode_info+0x35c/0xa60 [cifs]
-> > [17313.245852]  ? kmem_cache_alloc_trace+0x151/0x1d0
-> > [17313.245885]  cifs_open+0x38f/0x990 [cifs]
-> > [17313.245921]  ? cifs_revalidate_dentry_attr+0x3e/0x350 [cifs]
-> > [17313.245953]  ? cifsFileInfo_get+0x30/0x30 [cifs]
-> > [17313.245960]  ? do_dentry_open+0x132/0x330
-> > [17313.245963]  do_dentry_open+0x132/0x330
-> > [17313.245969]  path_openat+0x573/0x14d0
-> > [17313.245974]  do_filp_open+0x93/0x100
-> > [17313.245979]  ? __check_object_size+0xa3/0x181
-> > [17313.245986]  ? audit_alloc_name+0x7e/0xd0
-> > [17313.245992]  do_sys_open+0x184/0x220
-> > [17313.245999]  do_syscall_64+0x5b/0x1b0
-> >
-> > Fixes: 487317c99477 ("cifs: add spinlock for the openFileList to cifsInodeInfo")
-> >
-> > CC: Stable <stable@vger.kernel.org>
-> > Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-> > Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-> > Signed-off-by: Steve French <stfrench@microsoft.com>
-> >
-> > diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-> > index 4b95700c507c..3758237bf951 100644
-> > --- a/fs/cifs/file.c
-> > +++ b/fs/cifs/file.c
-> > @@ -1840,13 +1840,12 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
-> >  {
-> >         struct cifsFileInfo *open_file = NULL;
-> >         struct cifs_sb_info *cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
-> > -       struct cifs_tcon *tcon = cifs_sb_master_tcon(cifs_sb);
-> >
-> >         /* only filter by fsuid on multiuser mounts */
-> >         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
-> >                 fsuid_only = false;
-> >
-> > -       spin_lock(&tcon->open_file_lock);
-> > +       spin_lock(&cifs_inode->open_file_lock);
-> >         /* we could simply get the first_list_entry since write-only entries
-> >            are always at the end of the list but since the first entry might
-> >            have a close pending, we go through the whole list */
-> > @@ -1858,7 +1857,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
-> >                                 /* found a good file */
-> >                                 /* lock it so it will not be closed on us */
-> >                                 cifsFileInfo_get(open_file);
-> > -                               spin_unlock(&tcon->open_file_lock);
-> > +                               spin_unlock(&cifs_inode->open_file_lock);
-> >                                 return open_file;
-> >                         } /* else might as well continue, and look for
-> >                              another, or simply have the caller reopen it
-> > @@ -1866,7 +1865,7 @@ struct cifsFileInfo *find_readable_file(struct cifsInodeInfo *cifs_inode,
-> >                 } else /* write only file */
-> >                         break; /* write only files are last so must be done */
-> >         }
-> > -       spin_unlock(&tcon->open_file_lock);
-> > +       spin_unlock(&cifs_inode->open_file_lock);
-> >         return NULL;
-> >  }
-> >
-> > @@ -1877,7 +1876,6 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
-> >  {
-> >         struct cifsFileInfo *open_file, *inv_file = NULL;
-> >         struct cifs_sb_info *cifs_sb;
-> > -       struct cifs_tcon *tcon;
-> >         bool any_available = false;
-> >         int rc = -EBADF;
-> >         unsigned int refind = 0;
-> > @@ -1897,16 +1895,15 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
-> >         }
-> >
-> >         cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
-> > -       tcon = cifs_sb_master_tcon(cifs_sb);
-> >
-> >         /* only filter by fsuid on multiuser mounts */
-> >         if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
-> >                 fsuid_only = false;
-> >
-> > -       spin_lock(&tcon->open_file_lock);
-> > +       spin_lock(&cifs_inode->open_file_lock);
-> >  refind_writable:
-> >         if (refind > MAX_REOPEN_ATT) {
-> > -               spin_unlock(&tcon->open_file_lock);
-> > +               spin_unlock(&cifs_inode->open_file_lock);
-> >                 return rc;
-> >         }
-> >         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
-> > @@ -1918,7 +1915,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
-> >                         if (!open_file->invalidHandle) {
-> >                                 /* found a good writable file */
-> >                                 cifsFileInfo_get(open_file);
-> > -                               spin_unlock(&tcon->open_file_lock);
-> > +                               spin_unlock(&cifs_inode->open_file_lock);
-> >                                 *ret_file = open_file;
-> >                                 return 0;
-> >                         } else {
-> > @@ -1938,7 +1935,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
-> >                 cifsFileInfo_get(inv_file);
-> >         }
-> >
-> > -       spin_unlock(&tcon->open_file_lock);
-> > +       spin_unlock(&cifs_inode->open_file_lock);
-> >
-> >         if (inv_file) {
-> >                 rc = cifs_reopen_file(inv_file, false);
-> > @@ -1953,7 +1950,7 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_inode, bool fsuid_only,
-> >                 cifsFileInfo_put(inv_file);
-> >                 ++refind;
-> >                 inv_file = NULL;
-> > -               spin_lock(&tcon->open_file_lock);
-> > +               spin_lock(&cifs_inode->open_file_lock);
-> >                 goto refind_writable;
-> >         }
-> >
-> > @@ -4461,17 +4458,15 @@ static int cifs_readpage(struct file *file, struct page *page)
-> >  static int is_inode_writable(struct cifsInodeInfo *cifs_inode)
-> >  {
-> >         struct cifsFileInfo *open_file;
-> > -       struct cifs_tcon *tcon =
-> > -               cifs_sb_master_tcon(CIFS_SB(cifs_inode->vfs_inode.i_sb));
-> >
-> > -       spin_lock(&tcon->open_file_lock);
-> > +       spin_lock(&cifs_inode->open_file_lock);
-> >         list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
-> >                 if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
-> > -                       spin_unlock(&tcon->open_file_lock);
-> > +                       spin_unlock(&cifs_inode->open_file_lock);
-> >                         return 1;
-> >                 }
-> >         }
-> > -       spin_unlock(&tcon->open_file_lock);
-> > +       spin_unlock(&cifs_inode->open_file_lock);
-> >         return 0;
-> >  }
-> >
-> >
+A long time ago we fixed a similar deadlock in show_slab_objects() [1]. 
+However, it is apparently due to the commits like 01fb58bcba63 ("slab:
+remove synchronous synchronize_sched() from memcg cache deactivation
+path") and 03afc0e25f7f ("slab: get_online_mems for
+kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
+just reading files in /sys/kernel/slab which will generate a lockdep splat
+below.
+
+Since the "mem_hotplug_lock" here is only to obtain a stable online node
+mask while racing with NUMA node hotplug, in the worst case, the results
+may me miscalculated while doing NUMA node hotplug, but they shall be
+corrected by later reads of the same files.
+
+WARNING: possible circular locking dependency detected
+------------------------------------------------------
+cat/5224 is trying to acquire lock:
+ffff900012ac3120 (mem_hotplug_lock.rw_sem){++++}, at:
+show_slab_objects+0x94/0x3a8
+
+but task is already holding lock:
+b8ff009693eee398 (kn->count#45){++++}, at: kernfs_seq_start+0x44/0xf0
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (kn->count#45){++++}:
+       lock_acquire+0x31c/0x360
+       __kernfs_remove+0x290/0x490
+       kernfs_remove+0x30/0x44
+       sysfs_remove_dir+0x70/0x88
+       kobject_del+0x50/0xb0
+       sysfs_slab_unlink+0x2c/0x38
+       shutdown_cache+0xa0/0xf0
+       kmemcg_cache_shutdown_fn+0x1c/0x34
+       kmemcg_workfn+0x44/0x64
+       process_one_work+0x4f4/0x950
+       worker_thread+0x390/0x4bc
+       kthread+0x1cc/0x1e8
+       ret_from_fork+0x10/0x18
+
+-> #1 (slab_mutex){+.+.}:
+       lock_acquire+0x31c/0x360
+       __mutex_lock_common+0x16c/0xf78
+       mutex_lock_nested+0x40/0x50
+       memcg_create_kmem_cache+0x38/0x16c
+       memcg_kmem_cache_create_func+0x3c/0x70
+       process_one_work+0x4f4/0x950
+       worker_thread+0x390/0x4bc
+       kthread+0x1cc/0x1e8
+       ret_from_fork+0x10/0x18
+
+-> #0 (mem_hotplug_lock.rw_sem){++++}:
+       validate_chain+0xd10/0x2bcc
+       __lock_acquire+0x7f4/0xb8c
+       lock_acquire+0x31c/0x360
+       get_online_mems+0x54/0x150
+       show_slab_objects+0x94/0x3a8
+       total_objects_show+0x28/0x34
+       slab_attr_show+0x38/0x54
+       sysfs_kf_seq_show+0x198/0x2d4
+       kernfs_seq_show+0xa4/0xcc
+       seq_read+0x30c/0x8a8
+       kernfs_fop_read+0xa8/0x314
+       __vfs_read+0x88/0x20c
+       vfs_read+0xd8/0x10c
+       ksys_read+0xb0/0x120
+       __arm64_sys_read+0x54/0x88
+       el0_svc_handler+0x170/0x240
+       el0_svc+0x8/0xc
+
+other info that might help us debug this:
+
+Chain exists of:
+  mem_hotplug_lock.rw_sem --> slab_mutex --> kn->count#45
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(kn->count#45);
+                               lock(slab_mutex);
+                               lock(kn->count#45);
+  lock(mem_hotplug_lock.rw_sem);
+
+ *** DEADLOCK ***
+
+3 locks held by cat/5224:
+ #0: 9eff00095b14b2a0 (&p->lock){+.+.}, at: seq_read+0x4c/0x8a8
+ #1: 0eff008997041480 (&of->mutex){+.+.}, at: kernfs_seq_start+0x34/0xf0
+ #2: b8ff009693eee398 (kn->count#45){++++}, at:
+kernfs_seq_start+0x44/0xf0
+
+stack backtrace:
+Call trace:
+ dump_backtrace+0x0/0x248
+ show_stack+0x20/0x2c
+ dump_stack+0xd0/0x140
+ print_circular_bug+0x368/0x380
+ check_noncircular+0x248/0x250
+ validate_chain+0xd10/0x2bcc
+ __lock_acquire+0x7f4/0xb8c
+ lock_acquire+0x31c/0x360
+ get_online_mems+0x54/0x150
+ show_slab_objects+0x94/0x3a8
+ total_objects_show+0x28/0x34
+ slab_attr_show+0x38/0x54
+ sysfs_kf_seq_show+0x198/0x2d4
+ kernfs_seq_show+0xa4/0xcc
+ seq_read+0x30c/0x8a8
+ kernfs_fop_read+0xa8/0x314
+ __vfs_read+0x88/0x20c
+ vfs_read+0xd8/0x10c
+ ksys_read+0xb0/0x120
+ __arm64_sys_read+0x54/0x88
+ el0_svc_handler+0x170/0x240
+ el0_svc+0x8/0xc
+
+I think it is important to mention that this doesn't expose the
+show_slab_objects to use-after-free.  There is only a single path that
+might really race here and that is the slab hotplug notifier callback
+__kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
+doesn't really destroy kmem_cache_node data structures.
+
+[1] http://lkml.iu.edu/hypermail/linux/kernel/1101.0/02850.html
+
+[akpm@linux-foundation.org: add comment explaining why we don't need mem_hotplug_lock]
+Link: http://lkml.kernel.org/r/1570192309-10132-1-git-send-email-cai@lca.pw
+Fixes: 01fb58bcba63 ("slab: remove synchronous synchronize_sched() from memcg cache deactivation path")
+Fixes: 03afc0e25f7f ("slab: get_online_mems for kmem_cache_{create,destroy,shrink}")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/slub.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+--- a/mm/slub.c~mm-slub-fix-a-deadlock-in-show_slab_objects
++++ a/mm/slub.c
+@@ -4846,7 +4846,17 @@ static ssize_t show_slab_objects(struct
+ 		}
+ 	}
+ 
+-	get_online_mems();
++	/*
++	 * It is impossible to take "mem_hotplug_lock" here with "kernfs_mutex"
++	 * already held which will conflict with an existing lock order:
++	 *
++	 * mem_hotplug_lock->slab_mutex->kernfs_mutex
++	 *
++	 * We don't really need mem_hotplug_lock (to hold off
++	 * slab_mem_going_offline_callback) here because slab's memory hot
++	 * unplug code doesn't destroy the kmem_cache->node[] data.
++	 */
++
+ #ifdef CONFIG_SLUB_DEBUG
+ 	if (flags & SO_ALL) {
+ 		struct kmem_cache_node *n;
+@@ -4887,7 +4897,6 @@ static ssize_t show_slab_objects(struct
+ 			x += sprintf(buf + x, " N%d=%lu",
+ 					node, nodes[node]);
+ #endif
+-	put_online_mems();
+ 	kfree(nodes);
+ 	return x + sprintf(buf + x, "\n");
+ }
+_
