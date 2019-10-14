@@ -2,151 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C419D6744
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 18:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56BE7D6763
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 18:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbfJNQ0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 12:26:55 -0400
-Received: from foss.arm.com ([217.140.110.172]:48408 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726637AbfJNQ0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 12:26:55 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CF9C828;
-        Mon, 14 Oct 2019 09:26:54 -0700 (PDT)
-Received: from arrakis.emea.arm.com (arrakis.cambridge.arm.com [10.1.196.49])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 9621A3F718;
-        Mon, 14 Oct 2019 09:26:53 -0700 (PDT)
-Date:   Mon, 14 Oct 2019 17:26:51 +0100
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Andrey Konovalov <andreyknvl@google.com>
-Cc:     Jan Stancek <jstancek@redhat.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        CKI Project <cki-project@redhat.com>,
-        LTP List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Will Deacon <will@kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.4.0-rc2-d6c2c23.cki (stable-next)
-Message-ID: <20191014162651.GF19200@arrakis.emea.arm.com>
-References: <cki.B4A567748F.PFM8G4WKXI@redhat.com>
- <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com>
- <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com>
+        id S1731484AbfJNQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 12:33:11 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:37287 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726637AbfJNQdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 12:33:11 -0400
+Received: by mail-qk1-f195.google.com with SMTP id u184so16453603qkd.4;
+        Mon, 14 Oct 2019 09:33:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=4e/+dg0NVCCBrtHyCNhp9Ya4wF37EwRkEK+NeEl5+VU=;
+        b=A31njF9Kt8jL9DxYdqt+AFERZ4GXgyF70roSgACytG3oPAM4SAiEfGJA0thhHyQsRE
+         LDJwdWYGEuIpGGkNJedBJR9j2bImNS5IFxRfVCKSyf0ecjmUBeGfXkQhqHu0Q0/J9Z3S
+         6WvQvuglHPm37Ceukii41k6PvelrK0oe30D2phoqsH1fIzkYqooz65ZizMGS2Ae21r4u
+         NQwH94TUGi4i8G9syVddwuPF4XeoBEdQbqtIcjw26FBbZcP0aibSAUHvEZE7EsZQDlcN
+         rwgH1ijPQlLfswIvNQnaBq6wZuH+iOrUri5/E4uHH/RxDQQI8TCzgHFtRKVT9V2KgZL7
+         MY6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=4e/+dg0NVCCBrtHyCNhp9Ya4wF37EwRkEK+NeEl5+VU=;
+        b=ZkbS568dRcdXYnh0M97wyMVgUFqEekU46ma0zvcwvIdfHOrYVIRGGBalrs5lLzY25o
+         Jav3zSNQqxcuB010qOt/D2de3ze7cEHEeWqPBab5yfV57DFwidSjSGvg4Gs12dtJV0FI
+         31JEdcbb30HGCvGyKbcEkswZc96byhSlsmuYIfZXX8T19Qk71vLZKWcl/MYQXr3Po3Ea
+         pJAiugIL/UPAgCzNXyLgBD2uszrQBSaVleBBEN17OI685omQP4NeLTpHq/OnSNP7eWNE
+         LCoTb6+oimCB0yXtoPR7+ZSWlRt9XWnxqmwF2rzqn3f6kzzVM7glMR9EdNGYmAI+uueT
+         SGoQ==
+X-Gm-Message-State: APjAAAWYpPBXVWivtuLm8iNO1rWer7dyVih3RddpS7271pt3lt9DWzi8
+        +Ilm2V+7LltSgX2PSeto5QY=
+X-Google-Smtp-Source: APXvYqz1ACcaWifQWUyV2g9FPNEuBZNZlzJ6t7epHU0KuMJ9cSqy7/zM89IFXIFaY8NMX42nGDVQtw==
+X-Received: by 2002:a37:484b:: with SMTP id v72mr31746062qka.206.1571070789784;
+        Mon, 14 Oct 2019 09:33:09 -0700 (PDT)
+Received: from localhost ([2620:10d:c091:500::1:50c5])
+        by smtp.gmail.com with ESMTPSA id o124sm8220344qke.66.2019.10.14.09.33.08
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 14 Oct 2019 09:33:09 -0700 (PDT)
+Date:   Mon, 14 Oct 2019 09:33:07 -0700
+From:   Tejun Heo <tj@kernel.org>
+To:     Aleksa Sarai <cyphar@cyphar.com>
+Cc:     Li Zefan <lizefan@huawei.com>,
+        Johannes Weiner <hannes@cmpxchg.org>, cgroups@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] cgroup: pids: use {READ,WRITE}_ONCE for pids->limit
+ operations
+Message-ID: <20191014163307.GG18794@devbig004.ftw2.facebook.com>
+References: <20191012010539.6131-1-cyphar@cyphar.com>
+ <20191014154136.GF18794@devbig004.ftw2.facebook.com>
+ <20191014155931.jl7idjebhqxb3ck3@yavin.dot.cyphar.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191014155931.jl7idjebhqxb3ck3@yavin.dot.cyphar.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ Will
+Hello, Aleksa.
 
-On Mon, Oct 14, 2019 at 02:54:17PM +0200, Andrey Konovalov wrote:
-> On Mon, Oct 14, 2019 at 9:29 AM Jan Stancek <jstancek@redhat.com> wrote:
-> > > We ran automated tests on a recent commit from this kernel tree:
-> > >
-> > >        Kernel repo:
-> > >        git://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git
-> > >             Commit: d6c2c23a29f4 - Merge branch 'stable-next' of
-> > >             ssh://chubbybox:/home/sasha/data/next into stable-next
-> > >
-> > > The results of these automated tests are provided below.
-> > >
-> > >     Overall result: FAILED (see details below)
-> > >              Merge: OK
-> > >            Compile: OK
-> > >              Tests: FAILED
-> > >
-> > > All kernel binaries, config files, and logs are available for download here:
-> > >
-> > >   https://artifacts.cki-project.org/pipelines/223563
-> > >
-> > > One or more kernel tests failed:
-> > >
-> > >     aarch64:
-> > >       ❌ LTP: openposix test suite
-> > >
-> >
-> > Test [1] is passing value close to LONG_MAX, which on arm64 is now treated as tagged userspace ptr:
-> >   057d3389108e ("mm: untag user pointers passed to memory syscalls")
-> >
-> > And now seems to hit overflow check after sign extension (EINVAL).
-> > Test should probably find different way to choose invalid pointer.
-> >
-> > [1] https://github.com/linux-test-project/ltp/blob/master/testcases/open_posix_testsuite/conformance/interfaces/mlock/8-1.c
+On Tue, Oct 15, 2019 at 02:59:31AM +1100, Aleksa Sarai wrote:
+> On 2019-10-14, Tejun Heo <tj@kernel.org> wrote:
+> > On Sat, Oct 12, 2019 at 12:05:39PM +1100, Aleksa Sarai wrote:
+> > > Because pids->limit can be changed concurrently (but we don't want to
+> > > take a lock because it would be needlessly expensive), use the
+> > > appropriate memory barriers.
+> > 
+> > I can't quite tell what problem it's fixing.  Can you elaborate a
+> > scenario where the current code would break that your patch fixes?
 > 
-> Per Documentation/arm64/tagged-address-abi.rst we now have:
-> 
-> User addresses not accessed by the kernel but used for address space
-> management (e.g. ``mmap()``, ``mprotect()``, ``madvise()``). The use
-> of valid tagged pointers in this context is always allowed.
-> 
-> However this breaks the test above.
+> As far as I can tell, not using *_ONCE() here means that if you had a
+> process changing pids->limit from A to B, a process might be able to
+> temporarily exceed pids->limit -- because pids->limit accesses are not
+> protected by mutexes and the C compiler can produce confusing
+> intermediate values for pids->limit[1].
+>
+> But this is more of a correctness fix than one fixing an actually
+> exploitable bug -- given the kernel memory model work, it seems like a
+> good idea to just use READ_ONCE() and WRITE_ONCE() for shared memory
+> access.
 
-So the problem is that user space passes a 0x7fff_ffff_ffff_f000 start
-address and untagged_addr sign-extends it to 0xffff_ffff_ffff_f000. The
-subsequent check in apply_vma_lock_flags() finds that start+PAGE_SIZE is
-smaller than start, hence -EINVAL instead of -ENOMEM.
+READ/WRITE_ONCE provides protection against compiler generating
+multiple accesses for a single operation.  It won't prevent split
+writes / reads of 64bit variables on 32bit machines.  For that, you'd
+have to switch them to atomic64_t's.
 
-> What do you think we should do here?
-
-It is an ABI break as the man page clearly states that the above case
-should return -ENOMEM. The options I see:
-
-1. Revert commit 057d3389108e and try again to document that the memory
-   syscalls do not support tagged pointers
-
-2. Change untagged_addr() to only 0-extend from bit 55 or leave the
-   tag unchanged if bit 55 is 1. We could mask out the tag (0 rather
-   than sign-extend) but if we had an mlock test passing ULONG_MASK,
-   then we get -ENOMEM instead of -EINVAL
-
-3. Make untagged_addr() depend on the TIF_TAGGED_ADDR bit and we only
-   break the ABI for applications opting in to this new ABI. We did look
-   at this but the ptrace(PEEK/POKE_DATA) needs a bit more thinking on
-   whether we check the ptrace'd process or the debugger flags
-
-4. Leave things as they are, consider the address space 56-bit and
-   change the test to not use LONG_MAX on arm64. This needs to be passed
-   by the sparc guys since they probably have a similar issue
-
-It's slightly annoying to find this now. We did run (part of) LTP but I
-guess we never run the POSIX conformance tests.
-
-My preference is 2 with a quick attempt below. This basically means
-clear the tag if it resembles a valid (tagged) user pointer, otherwise
-don't touch it (bit 55 set always means an invalid user pointer). Not
-sure how the generated code will look like but we could probably do
-something better in assembly directly.
-
----------8<-------------------------------
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index b61b50bf68b1..6b36d080a633 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -215,12 +215,15 @@ static inline unsigned long kaslr_offset(void)
-  * up with a tagged userland pointer. Clear the tag to get a sane pointer to
-  * pass on to access_ok(), for instance.
-  */
--#define untagged_addr(addr)	\
-+#define __untagged_addr(addr)	\
- 	((__force __typeof__(addr))sign_extend64((__force u64)(addr), 55))
- 
-+#define untagged_addr(addr)	\
-+	((__force u64)(addr) & BIT(55) ? (addr) : __untagged_addr(addr))
-+
- #ifdef CONFIG_KASAN_SW_TAGS
- #define __tag_shifted(tag)	((u64)(tag) << 56)
--#define __tag_reset(addr)	untagged_addr(addr)
-+#define __tag_reset(addr)	__untagged_addr(addr)
- #define __tag_get(addr)		(__u8)((u64)(addr) >> 56)
- #else
- #define __tag_shifted(tag)	0UL
+Thanks.
 
 -- 
-Catalin
+tejun
