@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B7BD65B6
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 16:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 416CCD65B8
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 16:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733057AbfJNO7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 10:59:34 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:47317 "EHLO
+        id S1733130AbfJNO7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 10:59:43 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:41991 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732518AbfJNO7d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 10:59:33 -0400
+        by vger.kernel.org with ESMTP id S1732518AbfJNO7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 10:59:43 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 33C97913;
-        Mon, 14 Oct 2019 10:59:33 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 14 Oct 2019 10:59:33 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 875DD913;
+        Mon, 14 Oct 2019 10:59:42 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 14 Oct 2019 10:59:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=okQn0u
-        U5r0uNhqp2hY6HXWdEVEQZhr4I+d/NtsAvA4E=; b=OIXogA48D2FG7J8tfMThtQ
-        LEkHN+RRwUoG3jyAbag+IiDxhbGgTzL5C3/mbT/ZPwXfrSAtgsf8KFMTmTQOCbaF
-        xp2OhPlKsBWGd2qmKaekwINRofiXejPUlZOdRUQn2M/c9zsb4S+J/zyfX7DpUmqf
-        LCtbQPkpUp3DusRWcOWKK9TgNA7Bn1TY6KoAZC64Efbgj4PHOzH6qcP204Lpcz7/
-        y7X/JqUnFzvGnIOVEnB+T9crZ3J01OS5HD54I8h9Gg2AFVfFzeBvejmZn9Ugru3F
-        Lw/cQ3zNdim0vm7BLr9wONS4N+qF54qD/dbGf5LNPug1tBAWmkwqxOXkmrr7YISg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MlX7i8
+        hFfaEvfWP+ger+nOBHaisVCGEP01sa0jHKb1c=; b=gGLoY0PuVtX+sC8sSEAKNY
+        FnfzqKXCQZVZw0tSk8xoOb6cTIq1JOpT4Iwgcu71skYHHtDA58j6sVKkX866JeDr
+        ykBomYm1YN0YtxhQ1Mx0wQzjHumyTowWweDtv4O9K1L2pFC9bSzmCXW+cNWOvNt2
+        5Wn0WPtOHh9Vf3yXazXV0EEfUd5SMprcRM3K9tMNsbG9zdFhTQXfQSrJpvJxeSMJ
+        sChhPLIvqSxi4ZkxCE9hLSFx9u/Qzjwtsw/f1U4y38puZ0+Jou8/a13QXLdIZBd/
+        Eze8erew6nhitKe9y6wdBYb0s+kIuNndRKX7YeW8/J4jMNwkvCiMIlmbUzw6PIBA
         ==
-X-ME-Sender: <xms:VI2kXSpLn4VxUUMBQ3vvQ9rQOQvlOMe2XnjsLCb44oL7r3L2Pr2y2Q>
+X-ME-Sender: <xms:Xo2kXTQaydSteqPUFqt3XA1gsgVnsILWcSlehIm_Vpt6jTK7HBAwJA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjedugdekgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekledrud
     dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:VI2kXSj6ftYsPd53z_tUcUcCdaViZQsAwgn5d-GbCTIOm0PcBKkxoQ>
-    <xmx:VI2kXbwJLpQHUAgSyp7glnV-eYFHb7mqZaiCLncOgkJX-2bLoFWDeQ>
-    <xmx:VI2kXfgN9ORKyqHmGPET3fhsbm97ZwnKuL0nbkGIWYzh6fylMH390w>
-    <xmx:VI2kXQg-krRG7UW5uTX_mEAmctt8M92Q76L065vaZAUkEbzHQzCsPQ>
+    vehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:Xo2kXZDVPyhafOrNSjHiI8FSdz5XdLZ8uMqH54h_4filkIHXKA6C7w>
+    <xmx:Xo2kXT07eP9Os4aj02Get69hoU9Dr4vUglImgN0w81Atu6CMee_PSQ>
+    <xmx:Xo2kXXUQpVw8wmvx1H1_RLsjjZ96fyun_60VXS5m1TwzoaWl_urSNw>
+    <xmx:Xo2kXZi3w5VsfCAJXtfQ0RfsE2eAWwE17BoP7zxFvPD0OV1y9riryQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1183C80062;
-        Mon, 14 Oct 2019 10:59:31 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Staging: fbtft: fix memory leak in fbtft_framebuffer_alloc" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C098CD6005F;
+        Mon, 14 Oct 2019 10:59:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Staging: fbtft: fix memory leak in fbtft_framebuffer_alloc" failed to apply to 4.14-stable tree
 To:     navid.emamdoost@gmail.com, dan.carpenter@gmail.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Oct 2019 16:59:30 +0200
-Message-ID: <15710651701597@kroah.com>
+Date:   Mon, 14 Oct 2019 16:59:31 +0200
+Message-ID: <1571065171233128@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
