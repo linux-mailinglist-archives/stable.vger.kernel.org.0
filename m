@@ -2,128 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD29D5D37
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 10:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA8B8D5D8D
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 10:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730254AbfJNIPP convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 14 Oct 2019 04:15:15 -0400
-Received: from mga05.intel.com ([192.55.52.43]:10635 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728883AbfJNIPO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 04:15:14 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Oct 2019 01:15:14 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,295,1566889200"; 
-   d="scan'208";a="207923278"
-Received: from vkuppusa-mobl2.ger.corp.intel.com (HELO localhost) ([10.249.39.77])
-  by fmsmga001.fm.intel.com with ESMTP; 14 Oct 2019 01:15:12 -0700
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Ville Syrjala <ville.syrjala@linux.intel.com>,
-        intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Masami Ichikawa <masami256@gmail.com>,
-        Torsten <freedesktop201910@liggy.de>
-Subject: Re: [PATCH] drm/i915: Favor last VBT child device with conflicting AUX ch/DDC pin
-In-Reply-To: <20191011202030.8829-1-ville.syrjala@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20191011202030.8829-1-ville.syrjala@linux.intel.com>
-Date:   Mon, 14 Oct 2019 11:16:08 +0300
-Message-ID: <878spnd9o7.fsf@intel.com>
+        id S1730438AbfJNIcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 04:32:35 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:33186 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730281AbfJNIce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 04:32:34 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 20B03606CF; Mon, 14 Oct 2019 08:32:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571041954;
+        bh=mqqICtAwQO6IrAaUIxFT7Uu3ziQTlKCLs+IOJ1bdsVE=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=XUUeeIZrI8TbhyfqZoP6OuDHJq13fKXFppsRTkNoM/uBjHEjc4Ov+tIAm21sNsxDg
+         jXO/+c6lz8ULlJJ9/MLP91eJx7PwU2m63i8qduzGzF+VGjeFeoaT3BXZglKN83eS7F
+         gptdYVI6qaLxMxc9nJtBbTpb20w39GPoACNz9lSo=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 2650360256;
+        Mon, 14 Oct 2019 08:32:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571041953;
+        bh=mqqICtAwQO6IrAaUIxFT7Uu3ziQTlKCLs+IOJ1bdsVE=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=CjTLFxp2I4Aq0r4fNj7qxXzPLOND7hKWl/kODSbPW7F6SkZC3gvr+NRkQMAL57ifH
+         DQliA/kyrk+g6J3Dtgj7A4nABSPkdNfjtmeEYO4+iWFXB9dxB3H8ZFJzjxQ2hPR4k2
+         /sFz3BcTnfgIJYdQ5coy+pWyYIxHHlruAFf+fb2E=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 2650360256
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        ath10k@lists.infradead.org,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] ath10k: Correct error check of dma_map_single()
+References: <20191010162653.141303-1-bjorn.andersson@linaro.org>
+        <20191011115732.044BF60BE8@smtp.codeaurora.org>
+        <20191011171652.GF571@minitux>
+Date:   Mon, 14 Oct 2019 11:32:28 +0300
+In-Reply-To: <20191011171652.GF571@minitux> (Bjorn Andersson's message of
+        "Fri, 11 Oct 2019 10:16:52 -0700")
+Message-ID: <87a7a3zq03.fsf@kamboji.qca.qualcomm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 11 Oct 2019, Ville Syrjala <ville.syrjala@linux.intel.com> wrote:
-> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
->
-> The first come first served apporoach to handling the VBT
-> child device AUX ch conflicts has backfired. We have machines
-> in the wild where the VBT specifies both port A eDP and
-> port E DP (in that order) with port E being the real one.
->
-> So let's try to flip the preference around and let the last
-> child device win once again.
+Bjorn Andersson <bjorn.andersson@linaro.org> writes:
 
-I think there will be legitimate cases where we need first come first
-served. Oh well, another VBT misery to tackle in the future.
-
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-
-
+> On Fri 11 Oct 04:57 PDT 2019, Kalle Valo wrote:
 >
-> Cc: stable@vger.kernel.org
-> Cc: Jani Nikula <jani.nikula@intel.com>
-> Cc: Masami Ichikawa <masami256@gmail.com>
-> Tested-by: Torsten <freedesktop201910@liggy.de>
-> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111966
-> Fixes: 36a0f92020dc ("drm/i915/bios: make child device order the priority order")
-> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> ---
->  drivers/gpu/drm/i915/display/intel_bios.c | 22 ++++++++++++++++------
->  1 file changed, 16 insertions(+), 6 deletions(-)
+>> Bjorn Andersson <bjorn.andersson@linaro.org> wrote:
+>> 
+>> > The return value of dma_map_single() should be checked for errors using
+>> > dma_mapping_error(), rather than testing for NULL. Correct this.
+>> > 
+>> > Fixes: 1807da49733e ("ath10k: wmi: add management tx by reference
+>> > support over wmi")
+>> > Cc: stable@vger.kernel.org
+>> > Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+>> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>> 
+>> Did this fix any real bug? Or is this just something found during code review?
+>> 
 >
-> diff --git a/drivers/gpu/drm/i915/display/intel_bios.c b/drivers/gpu/drm/i915/display/intel_bios.c
-> index 9628b485b179..f0307b04cc13 100644
-> --- a/drivers/gpu/drm/i915/display/intel_bios.c
-> +++ b/drivers/gpu/drm/i915/display/intel_bios.c
-> @@ -1270,7 +1270,7 @@ static void sanitize_ddc_pin(struct drm_i915_private *dev_priv,
->  		DRM_DEBUG_KMS("port %c trying to use the same DDC pin (0x%x) as port %c, "
->  			      "disabling port %c DVI/HDMI support\n",
->  			      port_name(port), info->alternate_ddc_pin,
-> -			      port_name(p), port_name(port));
-> +			      port_name(p), port_name(p));
->  
->  		/*
->  		 * If we have multiple ports supposedly sharing the
-> @@ -1278,9 +1278,14 @@ static void sanitize_ddc_pin(struct drm_i915_private *dev_priv,
->  		 * port. Otherwise they share the same ddc bin and
->  		 * system couldn't communicate with them separately.
->  		 *
-> -		 * Give child device order the priority, first come first
-> -		 * served.
-> +		 * Give inverse child device order the priority,
-> +		 * last one wins. Yes, there are real machines
-> +		 * (eg. Asrock B250M-HDV) where VBT has both
-> +		 * port A and port E with the same AUX ch and
-> +		 * we must pick port E :(
->  		 */
-> +		info = &dev_priv->vbt.ddi_port_info[p];
-> +
->  		info->supports_dvi = false;
->  		info->supports_hdmi = false;
->  		info->alternate_ddc_pin = 0;
-> @@ -1316,7 +1321,7 @@ static void sanitize_aux_ch(struct drm_i915_private *dev_priv,
->  		DRM_DEBUG_KMS("port %c trying to use the same AUX CH (0x%x) as port %c, "
->  			      "disabling port %c DP support\n",
->  			      port_name(port), info->alternate_aux_channel,
-> -			      port_name(p), port_name(port));
-> +			      port_name(p), port_name(p));
->  
->  		/*
->  		 * If we have multiple ports supposedlt sharing the
-> @@ -1324,9 +1329,14 @@ static void sanitize_aux_ch(struct drm_i915_private *dev_priv,
->  		 * port. Otherwise they share the same aux channel
->  		 * and system couldn't communicate with them separately.
->  		 *
-> -		 * Give child device order the priority, first come first
-> -		 * served.
-> +		 * Give inverse child device order the priority,
-> +		 * last one wins. Yes, there are real machines
-> +		 * (eg. Asrock B250M-HDV) where VBT has both
-> +		 * port A and port E with the same AUX ch and
-> +		 * we must pick port E :(
->  		 */
-> +		info = &dev_priv->vbt.ddi_port_info[p];
-> +
->  		info->supports_dp = false;
->  		info->alternate_aux_channel = 0;
->  	}
+> CONFIG_DMA_API_DEBUG screamed at us for calling dma_unmap_single()
+> without ever having called dma_mapping_error() on the return value.
+
+Ok, I'll add something about to the commit log in v2 so that the
+background is also documented.
 
 -- 
-Jani Nikula, Intel Open Source Graphics Center
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
