@@ -2,126 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 392A8D6372
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 15:11:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A649D6395
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 15:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727789AbfJNNLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 09:11:05 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:56090 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725989AbfJNNLE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 09:11:04 -0400
-Received: by mail-wm1-f68.google.com with SMTP id a6so17203558wma.5
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 06:11:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LT5OdYywKq3SQDyi45f1ttE/FNLec5sDVx5F8MyWSp4=;
-        b=tV4pJIBI5xwwLEjivAMEpyycXsFbO1p1xP9MuPsRJo2AQeemetVHwBWA3WlhGNuHHD
-         IflxWvQYftglaO05dorzXkVVOlY23zQzIjtKWyw/ih5UrmIp3ulnLFQsvu6NIE42l72T
-         VeEQdneZGLXGl5v8G/Dl4D1dRvHW+GzhcEzqb8ip6f/pvxqJSEVrO6/SWlswvhwdwO2a
-         x8PJL88430pnY0FGteVyDKD7LhCH4Xa1uA9Mn0SrNjxqGDeUSP3y5yC8cfVNByXZ68iG
-         eUMhRYqgSCSz7WAll9TFOIqUKdcJLB9zljzeqxIKIg3FYEEArN4zuCLkwoy5EHy6itZZ
-         29sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LT5OdYywKq3SQDyi45f1ttE/FNLec5sDVx5F8MyWSp4=;
-        b=XyYV3FtgEkUbjnXNSIV9UFAYt+SID7qa6lCrU1Zv1PWkNL7dfQrq/0GcBVEK5zZJay
-         tSlQ0A7aqpMB7chCJ17suBv94eoc60IJZVaKir5COOVjQ9tNgIo+Ggihliy+RaNDSvlG
-         +wummyYG+E/s5xHHDG+smioviLqZecnUuJjh8DTJfD6t9rVmfbTBP6LsjvmL2Q3WBDdz
-         6MJTfS24bANygnhWXQtCqE4pyeA55P6W9Lcgj+1icrRF6PibrewRK0LVSh91J0OHZQj9
-         F8INlLaE16Ktq8OuRgHFvzGSQccE+Et3dkYupCnMaPw2UaqC3XTQ82RBKEZ0OhzXycum
-         ERCw==
-X-Gm-Message-State: APjAAAUdoRKKyQPvOSPUd2zw+hgO6s9sFNrqKLUrGL1s33gnIDW8o5qr
-        7pjbBvpKkKozZWwAy1NHDjvD71VhQiY=
-X-Google-Smtp-Source: APXvYqwHLFXJN/3srGq6aoRHxG7+BiFEA2h6Gin/VI9um0FBHzbYF2AEc0ep198EUHiCtZcqV1EK7w==
-X-Received: by 2002:a1c:f210:: with SMTP id s16mr13745597wmc.24.1571058662179;
-        Mon, 14 Oct 2019 06:11:02 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o4sm44829972wre.91.2019.10.14.06.11.01
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Oct 2019 06:11:01 -0700 (PDT)
-Message-ID: <5da473e5.1c69fb81.9f348.b0b8@mx.google.com>
-Date:   Mon, 14 Oct 2019 06:11:01 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730665AbfJNNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 09:16:47 -0400
+Received: from mga06.intel.com ([134.134.136.31]:57917 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729858AbfJNNQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 09:16:47 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Oct 2019 06:16:46 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,295,1566889200"; 
+   d="scan'208";a="220100314"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
+  by fmsmga004.fm.intel.com with ESMTP; 14 Oct 2019 06:16:44 -0700
+Subject: Re: [RFT PATCH] xhci: Fix use-after-free regression in xhci clear hub
+ TT implementation
+To:     Johan Hovold <johan@kernel.org>
+Cc:     gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
+        linux-usb@vger.kernel.org, "# v5 . 3" <stable@vger.kernel.org>
+References: <1c4b7107-f5e1-4a69-2a73-0e339c7e1072@linux.intel.com>
+ <1570798722-31594-1-git-send-email-mathias.nyman@linux.intel.com>
+ <20191014101611.GN13531@localhost>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <7e88dd63-9cd6-1149-10a0-960e944ef31f@linux.intel.com>
+Date:   Mon, 14 Oct 2019 16:18:49 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.149
-Subject: stable-rc/linux-4.14.y boot: 109 boots: 0 failed,
- 97 passed with 10 offline, 2 untried/unknown (v4.14.149)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20191014101611.GN13531@localhost>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 109 boots: 0 failed, 97 passed with 10 offline=
-, 2 untried/unknown (v4.14.149)
+On 14.10.2019 13.16, Johan Hovold wrote:
+> On Fri, Oct 11, 2019 at 03:58:42PM +0300, Mathias Nyman wrote:
+>> commit ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer") schedules work
+>> to clear TT buffer, but causes a use-after-free regression at the same time
+>>
+>> Make sure hub_tt_work finishes before endpoint is disabled, otherwise
+>> the work will dereference already freed endpoint and device related
+>> pointers.
+>>
+>> This was triggered when usb core failed to read the configuration
+>> descriptor of a FS/LS device during enumeration.
+>> xhci driver queued clear_tt_work while usb core freed and reallocated
+>> a new device for the next enumeration attempt.
+>>
+>> EHCI driver implents ehci_endpoint_disable() that makes sure
+>> clear_tt_work has finished before it returns, but xhci lacks this support.
+>> usb core will call hcd->driver->endpoint_disable() callback before
+>> disabling endpoints, so we want this in xhci as well.
+>>
+>> The added xhci_endpoint_disable() is based on ehci_endpoint_disable()
+>>
+> 
+> I used essentially the same reproducer as you did for debugging this
+> after I first hit it with an actually stalled control endpoint, and this
+> patch works also with my fault-injection hack.
+> 
+> I've reviewed the code and it looks good to me except for one mostly
+> theoretical issue. You need to check ep->hc_priv while holding the
+> xhci->lock in xhci_clear_tt_buffer_complete() or you could end up having
+> xhci_endpoint_disable() reschedule indefinitely while waiting for
+> EP_CLEARING_TT to be cleared on a sufficiently weakly ordered
+> system.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.149/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.149/
+Good point, I'll change that
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.149
-Git Commit: e132c8d7b58d8dc2c1888f5768454550d1f3ea7b
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 22 SoC families, 13 builds out of 201
+> 
+> Since cfbb8a84c2d2 ("xhci: Fix NULL pointer dereference in
+> xhci_clear_tt_buffer_complete()") isn't needed anymore and is slightly
+> misleading, I suggest amending the patch with the following:
+> 
 
-Boot Regressions Detected:
+I'll add those changes and your tags to the patch
 
-arm64:
-
-    defconfig:
-        gcc-8:
-          meson-gxl-s905d-p230:
-              lab-baylibre: new failure (last pass: v4.14.148-61-g6f45e0e87=
-a75)
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra20-iris-512: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Thanks
+Mathias
