@@ -2,158 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 894D2D5E2D
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 11:08:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 850CFD5E3F
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 11:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbfJNJI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 05:08:28 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:44506 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730655AbfJNJI2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 05:08:28 -0400
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C9BE081DE0
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 09:08:27 +0000 (UTC)
-Received: by mail-wm1-f72.google.com with SMTP id m6so4046046wmf.2
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 02:08:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version;
-        bh=Y8vGpJ+uYXLTzRHKyX0G/vWCD93jE1tqmfoJDvkG+qg=;
-        b=O8BchaPED0fCc9GpMhaRpsif+aX3vpVNFPS/fmfkr8SsPVG5zgLsWl4N/rwkvYciOB
-         Jrz6Cw3YSCspGRyfm5Rn4PeixFjAQR05+q/lMFCB12cSeBnk92C6MtcZ8+cwzA0ZyMBw
-         zW6oQdmacXBvp3xDTd+Ghq634QhmbVQFoxDdMd7ccG+19EhgJLKLGzx6jDXQ1+nigOoU
-         fYYi9/2dmgVvlMKul8dKql6Fm62g0CaoUwD+Qi7wBpPsLlX8W1ot+W1iClKK1DmR2qtG
-         H6jWpIngnCR+pXBKhzDe6cza1unZ5edwEA8JMBnjUrJuUpOibYtzpM0qym6ujm8GSmX0
-         IDyA==
-X-Gm-Message-State: APjAAAVYW7Y1+Q+Ln0endeRSm5W41/ZMo5Z6nCNANtFCLWzBn8ARxT6H
-        tc2s016SHaqwCQrYO9ojFLWJIKPbmr4nq01Lbuj1a9xoWsYcqSpDtV/dAy4AAoSh3DB48FCDvut
-        wan6uBgUd1HNHAUcd
-X-Received: by 2002:adf:db0e:: with SMTP id s14mr26049781wri.341.1571044106285;
-        Mon, 14 Oct 2019 02:08:26 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqzxN5wVdlzCREyqfxb2sHufN+1dTG6cMFHElwZZJ+CFe6Ox9j8OQpXmCbGBuKVpe2CSSKHfCg==
-X-Received: by 2002:adf:db0e:: with SMTP id s14mr26049752wri.341.1571044106008;
-        Mon, 14 Oct 2019 02:08:26 -0700 (PDT)
-Received: from vitty.brq.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id r2sm28271142wrm.3.2019.10.14.02.08.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 14 Oct 2019 02:08:25 -0700 (PDT)
-From:   Vitaly Kuznetsov <vkuznets@redhat.com>
-To:     pbonzini@redhat.com
-Cc:     bugzilla-daemon@bugzilla.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [Bug 205171] New: kernel panic during windows 10pro start
-In-Reply-To: <bug-205171-28872@https.bugzilla.kernel.org/>
-References: <bug-205171-28872@https.bugzilla.kernel.org/>
-Date:   Mon, 14 Oct 2019 11:08:24 +0200
-Message-ID: <87bluj66ev.fsf@vitty.brq.redhat.com>
+        id S1730655AbfJNJJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 05:09:09 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:51496 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730641AbfJNJJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 05:09:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=jTDg8IH5LozhrHxBzB1ClkZ0/ElvKEYcyD0vSMTfAMM=; b=K3XJqY2A6oBGRw6kRpPiaOQjd
+        R5BN5Dq6pF/0JhnsPRxtpWWk3SRhuBf4OaTYksweoovT8STtsBNklhSms9feMWz1FVkQj/pAMXWju
+        BFBxigEgsrPcV3AbOol/mBX82m4TUFI0Cdq2J4muN2/ITFjS9BBxo6I+F2gWJvQSr4wXLAUQz6+IK
+        DAu0BA0WxJAamB5i8RVz93Q0htTdlOHNuXfjGndhVuojIdkL8Yuults5HeC/5tPgnxbg3wg+f82PE
+        MBna5j9S75u/caXq+uN16gL3Nc+akwh7V3O9ln9BmPj9CUiVoLWNqahtpFqIzC6klChW0OGJx/m/Y
+        bcECZYdfg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iJwLh-0004AL-PF; Mon, 14 Oct 2019 09:09:05 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 23284305E42;
+        Mon, 14 Oct 2019 11:08:09 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 17665202BC5A3; Mon, 14 Oct 2019 11:09:03 +0200 (CEST)
+Date:   Mon, 14 Oct 2019 11:09:03 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Alexei Starovoitov <ast@fb.com>
+Cc:     Song Liu <songliubraving@fb.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: Re: [PATCH bpf-next 2/2] bpf/stackmap: fix A-A deadlock in
+ bpf_get_stack()
+Message-ID: <20191014090903.GA2328@hirez.programming.kicks-ass.net>
+References: <20191010061916.198761-1-songliubraving@fb.com>
+ <20191010061916.198761-3-songliubraving@fb.com>
+ <20191010073608.GO2311@hirez.programming.kicks-ass.net>
+ <a1d30b11-2759-0293-5612-48150db92775@fb.com>
+ <20191010174618.GT2328@hirez.programming.kicks-ass.net>
+ <4865df4d-7d13-0655-f3b4-5d025aaa1edb@fb.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4865df4d-7d13-0655-f3b4-5d025aaa1edb@fb.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-bugzilla-daemon@bugzilla.kernel.org writes:
+On Thu, Oct 10, 2019 at 06:06:14PM +0000, Alexei Starovoitov wrote:
+> On 10/10/19 10:46 AM, Peter Zijlstra wrote:
 
-> https://bugzilla.kernel.org/show_bug.cgi?id=205171
->
->             Bug ID: 205171
->            Summary: kernel panic during windows 10pro start
->            Product: Virtualization
->            Version: unspecified
->     Kernel Version: 4.19.74 and higher
->           Hardware: All
->                 OS: Linux
->               Tree: Mainline
->             Status: NEW
->           Severity: normal
->           Priority: P1
->          Component: kvm
->           Assignee: virtualization_kvm@kernel-bugs.osdl.org
->           Reporter: dront78@gmail.com
->         Regression: No
->
-> works fine on 4.19.73
->
-> [ 5829.948945] BUG: unable to handle kernel NULL pointer dereference at
-> 0000000000000000
-> [ 5829.948951] PGD 0 P4D 0 
-> [ 5829.948954] Oops: 0002 [#1] SMP NOPTI
-> [ 5829.948957] CPU: 3 PID: 1699 Comm: CPU 0/KVM Tainted: G           OE    
-> 4.19.78-2-lts #1
-> [ 5829.948958] Hardware name: Micro-Star International Co., Ltd. GE62
-> 6QF/MS-16J4, BIOS E16J4IMS.117 01/18/2018
-> [ 5829.948989] RIP: 0010:kvm_write_guest_virt_system+0x1e/0x40 [kvm]
+> > All of stack_map_get_build_id_offset() is just disguisting games; I did
+> > tell you guys how to do lockless vma lookups a few years ago -- and yes,
+> > that is invasive core mm surgery. But this is just disguisting hacks for
+> > not wanting to do it right.
+> 
+> you mean speculative page fault stuff?
+> That was my hope as well and I offered Laurent all the help to land it.
+> Yet after a year since we've talked the patches are not any closer
+> to landing.
+> Any other 'invasive mm surgery' you have in mind?
 
-It seems 4.19 stable backport is broken, upstream commit f7eea636c3d50
-has:
+Indeed that series. It had RCU managed VMAs and lockless VMA lookups,
+which is exactly what you need here.
 
-@@ -4588,7 +4589,8 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
-                                vmx_instruction_info, true, len, &gva))
-                        return 1;
-                /* _system ok, nested_vmx_check_permission has verified cpl=0 */
--               kvm_write_guest_virt_system(vcpu, gva, &field_value, len, NULL);
-+               if (kvm_write_guest_virt_system(vcpu, gva, &field_value, len, &e))
-+                       kvm_inject_page_fault(vcpu, &e);
-        }
+> > Basically the only semi-sane thing to do with that trainwreck is
+> > s/in_nmi()/true/ and pray.
+> > 
+> > On top of that I just hate buildids in general.
+> 
+> Emotions aside... build_id is useful and used in production.
+> It's used widely because it solves real problems.
 
-and it's 4.19 counterpart (73c31bd92039):
+AFAIU it solves the problem of you not knowing what version of the
+binary runs where; which I was hoping your cloud infrastructure thing
+would actually know already.
 
-@@ -8798,8 +8799,10 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
-                                vmx_instruction_info, true, &gva))
-                        return 1;
-                /* _system ok, nested_vmx_check_permission has verified cpl=0 */
--               kvm_write_guest_virt_system(vcpu, gva, &field_value,
--                                           (is_long_mode(vcpu) ? 8 : 4), NULL);
-+               if (kvm_write_guest_virt_system(vcpu, gva, &field_value,
-+                                               (is_long_mode(vcpu) ? 8 : 4),
-+                                               NULL))
-+                       kvm_inject_page_fault(vcpu, &e);
-        }
- 
-(note the last argument to kvm_write_guest_virt_system() - it's NULL
-instead of &e.
+Anyway, I know what it does, I just don't nessecarily agree it is the
+right way around that particular problem (also, the way I'm personally
+affected is that perf-record is dead slow by default due to built-id
+post processing).
 
-And v4.19.74 has 6e60900cfa3e (541ab2aeb282 upstream):
+And it obviously leads to horrible hacks like the code currently under
+discussion :/
 
-@@ -5016,6 +5016,13 @@ int kvm_write_guest_virt_system(struct kvm_vcpu *vcpu, gva_t addr, void *val,
-        /* kvm_write_guest_virt_system can pull in tons of pages. */
-        vcpu->arch.l1tf_flush_l1d = true;
- 
-+       /*
-+        * FIXME: this should call handle_emulation_failure if X86EMUL_IO_NEEDED
-+        * is returned, but our callers are not ready for that and they blindly
-+        * call kvm_inject_page_fault.  Ensure that they at least do not leak
-+        * uninitialized kernel stack memory into cr2 and error code.
-+        */
-+       memset(exception, 0, sizeof(*exception));
-        return kvm_write_guest_virt_helper(addr, val, bytes, vcpu,
-                                           PFERR_WRITE_MASK, exception);
- }
+> This dead lock is from real servers and not from some sanitizer wannabe.
 
-This all results in memset(NULL). (also, 6e60900cfa3e should come
-*after* f7eea636c3d50 and not before but oh well..)
+If you enable CFS bandwidth control and run this function on the
+trace_hrtimer_start() tracepoint, you should be able to trigger a real
+AB-BA lockup.
 
-The following will likely fix the problem (untested):
+> Hence we need to fix it as cleanly as possible and quickly.
+> s/in_nmi/true/ is certainly an option.
 
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index e83f4f6bfdac..d3a900a4fa0e 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -8801,7 +8801,7 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
-                /* _system ok, nested_vmx_check_permission has verified cpl=0 */
-                if (kvm_write_guest_virt_system(vcpu, gva, &field_value,
-                                                (is_long_mode(vcpu) ? 8 : 4),
--                                               NULL))
-+                                               &e))
-                        kvm_inject_page_fault(vcpu, &e);
-        }
+That is the best option; because tracepoints / perf-overflow handlers
+really should not be taking any locks.
 
-I can send a patch to stable@ if needed.
+> I'm worried about overhead of doing irq_work_queue() all the time.
+> But I'm not familiar with mechanism enough to justify the concerns.
+> Would it make sense to do s/in_nmi/irgs_disabled/ instead?
 
--- 
-Vitaly
+irqs_disabled() should work in this particular case because rq->lock
+(and therefore all it's nested locks) are IRQ-safe.
+
