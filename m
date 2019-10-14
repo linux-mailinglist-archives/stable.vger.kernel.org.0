@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E965D65BC
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 17:01:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A62E5D65BD
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 17:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733045AbfJNPBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 11:01:01 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:40399 "EHLO
+        id S1732862AbfJNPBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 11:01:30 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:48751 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732566AbfJNPBB (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 14 Oct 2019 11:01:01 -0400
+        by vger.kernel.org with ESMTP id S1732518AbfJNPBa (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 14 Oct 2019 11:01:30 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5811F8FC;
-        Mon, 14 Oct 2019 11:01:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 14 Oct 2019 11:01:00 -0400
+        by mailout.west.internal (Postfix) with ESMTP id A1320656;
+        Mon, 14 Oct 2019 11:01:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 14 Oct 2019 11:01:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7E0Rai
-        8IGgilErVYKXcTT3Aqbd0eRqTPKwk3F+xT4GQ=; b=ZHiTK+Kgr5GHU0iDyjFthX
-        aw+ALa/f7+3+rOfxSN3kTcOU5U528zbGKz/PglxlVOZbumoC+5qLEtSOK7VOQv18
-        ZVWImy9mA465GSriE+l93oHm7M8ipJcAIq0VxqJzfurNwrwIIsTAAvCNjn4UYUaY
-        JQmqklEiwso28dAIdmCzVmBr0+gauvizut47kmc8tuK7oGRYBm4hc3HL3ptS0Pkm
-        UjknKN7vETyq4IJ5X/rf2+/+gDpQhgylPTigoG6Kr1cOaXNrAQwPTa3Sg0VVXQHZ
-        Rn1kXOcssezpAFt1MJPCaRqd3xLyycDEF5lK7Dt+eedL1Zt1THmIYzKJllYAUboQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ZsUOQ4
+        Bx3DyChETaCqoXNIZg4DMALO5dsnazGPmUQ1E=; b=scQfD1Oiez6DpUCwIpkUdC
+        a32n9CT4v/1AUsaXzF89AkKQy87dq60CugHtyHqM68oiVn7l8mr5w9Y2JmrS85c1
+        khXowMyeyn0d5ov15gKeZByU1UiOgOe/4UN3PjF1M09Q6fB6Kkov7qOwUkpwHBlB
+        GoaGcot2ejEmdIssqeMKf/AsIjHFRU4OLlszn0lKvBV95qbHKJ8IyqTa1G7onXDU
+        lt5bu5WmlMzP6PSp6tB1FN6VliabXeTnSD7dQk2ZyiBk6iiCL6ReHsqbBphV5QXQ
+        u5wF7ylpTPb8YgzmfbVkfwBtqBrNVRimgXnce6qP/6dRsMLlgVC8tKHFCcJAlYYQ
         ==
-X-ME-Sender: <xms:q42kXToPXSOUGIk7XFEcdL3M5UwQy1gbA4DHct7UAniQFoAL21FI3A>
+X-ME-Sender: <xms:yI2kXaHiCRdQJ8t-lLR_oXWYh5SAK3Vf8IaaMFcimEhM0QV-sqd_8w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjedugdekgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeeh
-X-ME-Proxy: <xmx:q42kXZVuEpujHLPxYzkr7w5qua6KtK3ElvyzegoJPr8LpaygD9kFWA>
-    <xmx:q42kXXHrAIpBe2FB7-52MVLhgUvOGUEeZjBkNMGx49PGx73LTe0Vyw>
-    <xmx:q42kXbuFBO6tIc_wVrCXMD8GxlK2gwwk8BtLMqxZWYwuPJk2iZX1Cg>
-    <xmx:q42kXXbpA_kFs1_gkY3tr5TlYsTL0dA1bPS8rIkU5AY4hvI5yzGzfQ>
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
+X-ME-Proxy: <xmx:yI2kXag_CQu5mJHHmKKFEJlDTf9QE2vOJdM8Qb8l7WMvr_S9D4_Ndw>
+    <xmx:yI2kXW11Mh6608OSwF6uDz0vodoW5_qzAjdFq2iPKPeK7_98AsN24A>
+    <xmx:yI2kXdcmyb_8jDXH_D4sq7WO_1zU6sDPcYaU_TMYgjWCXRwmCfrHjg>
+    <xmx:yY2kXTKcMHq190iVPTETAk3BMScC1o3d2jzTBewevOePosBwqQ8YUg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 681DFD60066;
-        Mon, 14 Oct 2019 11:00:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: Fix an undefied reference error in noa1305_probe" failed to apply to 5.3-stable tree
-To:     zhongjiang@huawei.com, Jonathan.Cameron@huawei.com,
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0EF2480063;
+        Mon, 14 Oct 2019 11:01:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: adc: hx711: fix bug in sampling of data" failed to apply to 4.14-stable tree
+To:     ak@it-klinger.de, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 14 Oct 2019 17:00:58 +0200
-Message-ID: <15710652585179@kroah.com>
+Date:   Mon, 14 Oct 2019 17:01:26 +0200
+Message-ID: <15710652867196@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,31 +68,72 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a26e0fbe06e20077afdaa40d1a90092f16b0bc67 Mon Sep 17 00:00:00 2001
-From: zhong jiang <zhongjiang@huawei.com>
-Date: Mon, 23 Sep 2019 10:04:32 +0800
-Subject: [PATCH] iio: Fix an undefied reference error in noa1305_probe
+From 4043ecfb5fc4355a090111e14faf7945ff0fdbd5 Mon Sep 17 00:00:00 2001
+From: Andreas Klinger <ak@it-klinger.de>
+Date: Mon, 9 Sep 2019 14:37:21 +0200
+Subject: [PATCH] iio: adc: hx711: fix bug in sampling of data
 
-I hit the following error when compile the kernel.
+Fix bug in sampling function hx711_cycle() when interrupt occures while
+PD_SCK is high. If PD_SCK is high for at least 60 us power down mode of
+the sensor is entered which in turn leads to a wrong measurement.
 
-drivers/iio/light/noa1305.o: In function `noa1305_probe':
-noa1305.c:(.text+0x65): undefined reference to `__devm_regmap_init_i2c'
-make: *** [vmlinux] Error 1
+Switch off interrupts during a PD_SCK high period and move query of DOUT
+to the latest point of time which is at the end of PD_SCK low period.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+This bug exists in the driver since it's initial addition. The more
+interrupts on the system the higher is the probability that it happens.
+
+Fixes: c3b2fdd0ea7e ("iio: adc: hx711: Add IIO driver for AVIA HX711")
+Signed-off-by: Andreas Klinger <ak@it-klinger.de>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
-index 08d7e1ef2186..4a1a883dc061 100644
---- a/drivers/iio/light/Kconfig
-+++ b/drivers/iio/light/Kconfig
-@@ -314,6 +314,7 @@ config MAX44009
- config NOA1305
- 	tristate "ON Semiconductor NOA1305 ambient light sensor"
- 	depends on I2C
-+	select REGMAP_I2C
- 	help
- 	 Say Y here if you want to build support for the ON Semiconductor
- 	 NOA1305 ambient light sensor.
+diff --git a/drivers/iio/adc/hx711.c b/drivers/iio/adc/hx711.c
+index 88c7fe15003b..62e6c8badd22 100644
+--- a/drivers/iio/adc/hx711.c
++++ b/drivers/iio/adc/hx711.c
+@@ -100,14 +100,14 @@ struct hx711_data {
+ 
+ static int hx711_cycle(struct hx711_data *hx711_data)
+ {
+-	int val;
++	unsigned long flags;
+ 
+ 	/*
+ 	 * if preempted for more then 60us while PD_SCK is high:
+ 	 * hx711 is going in reset
+ 	 * ==> measuring is false
+ 	 */
+-	preempt_disable();
++	local_irq_save(flags);
+ 	gpiod_set_value(hx711_data->gpiod_pd_sck, 1);
+ 
+ 	/*
+@@ -117,7 +117,6 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 */
+ 	ndelay(hx711_data->data_ready_delay_ns);
+ 
+-	val = gpiod_get_value(hx711_data->gpiod_dout);
+ 	/*
+ 	 * here we are not waiting for 0.2 us as suggested by the datasheet,
+ 	 * because the oscilloscope showed in a test scenario
+@@ -125,7 +124,7 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 * and 0.56 us for PD_SCK low on TI Sitara with 800 MHz
+ 	 */
+ 	gpiod_set_value(hx711_data->gpiod_pd_sck, 0);
+-	preempt_enable();
++	local_irq_restore(flags);
+ 
+ 	/*
+ 	 * make it a square wave for addressing cases with capacitance on
+@@ -133,7 +132,8 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 */
+ 	ndelay(hx711_data->data_ready_delay_ns);
+ 
+-	return val;
++	/* sample as late as possible */
++	return gpiod_get_value(hx711_data->gpiod_dout);
+ }
+ 
+ static int hx711_read(struct hx711_data *hx711_data)
 
