@@ -2,219 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 595CED6B18
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 23:11:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 745A7D6B1A
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 23:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732511AbfJNVLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 17:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59870 "EHLO mail.kernel.org"
+        id S1732540AbfJNVMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 17:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730627AbfJNVLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 17:11:54 -0400
+        id S1732523AbfJNVMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 17:12:09 -0400
 Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 585F721A4A;
-        Mon, 14 Oct 2019 21:11:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 602DC21A4A;
+        Mon, 14 Oct 2019 21:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571087511;
-        bh=uk3l7ifkPXQwzh0v5ob+ZxrZRYbnPgzQIQl224yVgQQ=;
+        s=default; t=1571087528;
+        bh=Q7X6T2PXxhj2oVmBCuIijm5tqwoHiwosN6cJNCTDK3I=;
         h=Date:From:To:Subject:From;
-        b=vvj8wzYgrKGps1ndwiAFeUWBA7YNckvHMB8+M2whyHHUHmhIkSxZt4x/czF88bji0
-         odI/u60cpGehDa1HPdoqzJCwmMOdmpp1gIoHzFsJDk4vObgNm7dBQk6Kh3f5ObegQF
-         /L0cG4LJ33dFZZNKqC0dU5zu7HCWpYdBGennN/qE=
-Date:   Mon, 14 Oct 2019 14:11:51 -0700
+        b=JSe4FYbTRr8kBYPOM1gy0qxcYPApeUWJfxKPbti/2PapLeibX0Kc4mgOtca5zo94E
+         smbyfUJgcInHPVw1FBfJAhEfoHQ7/2a+JK69pnsr/3IarX1c6pgPit2Xo5UcEKPnLV
+         sfxr8fP9DSAbB/6NlRla7dgjPFBRd1fkJ9Wv9CG0=
+Date:   Mon, 14 Oct 2019 14:12:07 -0700
 From:   akpm@linux-foundation.org
-To:     vdavydov.dev@gmail.com, tj@kernel.org, stable@vger.kernel.org,
-        rientjes@google.com, penberg@kernel.org, mhocko@suse.com,
-        iamjoonsoo.kim@lge.com, guro@fb.com, cl@linux.com, cai@lca.pw,
+To:     stable@vger.kernel.org, mgorman@techsingularity.net,
+        fw@deneb.enyo.de, david@fromorbit.com, vbabka@suse.cz,
         akpm@linux-foundation.org, mm-commits@vger.kernel.org,
         torvalds@linux-foundation.org
-Subject:  [patch 04/16] mm/slub: fix a deadlock in
- show_slab_objects()
-Message-ID: <20191014211151.l7ggX%akpm@linux-foundation.org>
+Subject:  [patch 09/16] mm, compaction: fix wrong pfn handling in
+ __reset_isolation_pfn()
+Message-ID: <20191014211207.DA832%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
-Subject: mm/slub: fix a deadlock in show_slab_objects()
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
 
-A long time ago we fixed a similar deadlock in show_slab_objects() [1]. 
-However, it is apparently due to the commits like 01fb58bcba63 ("slab:
-remove synchronous synchronize_sched() from memcg cache deactivation
-path") and 03afc0e25f7f ("slab: get_online_mems for
-kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
-just reading files in /sys/kernel/slab which will generate a lockdep splat
-below.
+Florian and Dave reported [1] a NULL pointer dereference in
+__reset_isolation_pfn().  While the exact cause is unclear, staring at the
+code revealed two bugs, which might be related.
 
-Since the "mem_hotplug_lock" here is only to obtain a stable online node
-mask while racing with NUMA node hotplug, in the worst case, the results
-may me miscalculated while doing NUMA node hotplug, but they shall be
-corrected by later reads of the same files.
+One bug is that if zone starts in the middle of pageblock, block_page
+might correspond to different pfn than block_pfn, and then the
+pfn_valid_within() checks will check different pfn's than those accessed
+via struct page.  This might result in acessing an unitialized page in
+CONFIG_HOLES_IN_ZONE configs.
 
-WARNING: possible circular locking dependency detected
-------------------------------------------------------
-cat/5224 is trying to acquire lock:
-ffff900012ac3120 (mem_hotplug_lock.rw_sem){++++}, at:
-show_slab_objects+0x94/0x3a8
+The other bug is that end_page refers to the first page of next pageblock
+and not last page of current pageblock.  The online and valid check is
+then wrong and with sections, the while (page < end_page) loop might
+wander off actual struct page arrays.
 
-but task is already holding lock:
-b8ff009693eee398 (kn->count#45){++++}, at: kernfs_seq_start+0x44/0xf0
+[1] https://lore.kernel.org/linux-xfs/87o8z1fvqu.fsf@mid.deneb.enyo.de/
 
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (kn->count#45){++++}:
-       lock_acquire+0x31c/0x360
-       __kernfs_remove+0x290/0x490
-       kernfs_remove+0x30/0x44
-       sysfs_remove_dir+0x70/0x88
-       kobject_del+0x50/0xb0
-       sysfs_slab_unlink+0x2c/0x38
-       shutdown_cache+0xa0/0xf0
-       kmemcg_cache_shutdown_fn+0x1c/0x34
-       kmemcg_workfn+0x44/0x64
-       process_one_work+0x4f4/0x950
-       worker_thread+0x390/0x4bc
-       kthread+0x1cc/0x1e8
-       ret_from_fork+0x10/0x18
-
--> #1 (slab_mutex){+.+.}:
-       lock_acquire+0x31c/0x360
-       __mutex_lock_common+0x16c/0xf78
-       mutex_lock_nested+0x40/0x50
-       memcg_create_kmem_cache+0x38/0x16c
-       memcg_kmem_cache_create_func+0x3c/0x70
-       process_one_work+0x4f4/0x950
-       worker_thread+0x390/0x4bc
-       kthread+0x1cc/0x1e8
-       ret_from_fork+0x10/0x18
-
--> #0 (mem_hotplug_lock.rw_sem){++++}:
-       validate_chain+0xd10/0x2bcc
-       __lock_acquire+0x7f4/0xb8c
-       lock_acquire+0x31c/0x360
-       get_online_mems+0x54/0x150
-       show_slab_objects+0x94/0x3a8
-       total_objects_show+0x28/0x34
-       slab_attr_show+0x38/0x54
-       sysfs_kf_seq_show+0x198/0x2d4
-       kernfs_seq_show+0xa4/0xcc
-       seq_read+0x30c/0x8a8
-       kernfs_fop_read+0xa8/0x314
-       __vfs_read+0x88/0x20c
-       vfs_read+0xd8/0x10c
-       ksys_read+0xb0/0x120
-       __arm64_sys_read+0x54/0x88
-       el0_svc_handler+0x170/0x240
-       el0_svc+0x8/0xc
-
-other info that might help us debug this:
-
-Chain exists of:
-  mem_hotplug_lock.rw_sem --> slab_mutex --> kn->count#45
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(kn->count#45);
-                               lock(slab_mutex);
-                               lock(kn->count#45);
-  lock(mem_hotplug_lock.rw_sem);
-
- *** DEADLOCK ***
-
-3 locks held by cat/5224:
- #0: 9eff00095b14b2a0 (&p->lock){+.+.}, at: seq_read+0x4c/0x8a8
- #1: 0eff008997041480 (&of->mutex){+.+.}, at: kernfs_seq_start+0x34/0xf0
- #2: b8ff009693eee398 (kn->count#45){++++}, at:
-kernfs_seq_start+0x44/0xf0
-
-stack backtrace:
-Call trace:
- dump_backtrace+0x0/0x248
- show_stack+0x20/0x2c
- dump_stack+0xd0/0x140
- print_circular_bug+0x368/0x380
- check_noncircular+0x248/0x250
- validate_chain+0xd10/0x2bcc
- __lock_acquire+0x7f4/0xb8c
- lock_acquire+0x31c/0x360
- get_online_mems+0x54/0x150
- show_slab_objects+0x94/0x3a8
- total_objects_show+0x28/0x34
- slab_attr_show+0x38/0x54
- sysfs_kf_seq_show+0x198/0x2d4
- kernfs_seq_show+0xa4/0xcc
- seq_read+0x30c/0x8a8
- kernfs_fop_read+0xa8/0x314
- __vfs_read+0x88/0x20c
- vfs_read+0xd8/0x10c
- ksys_read+0xb0/0x120
- __arm64_sys_read+0x54/0x88
- el0_svc_handler+0x170/0x240
- el0_svc+0x8/0xc
-
-I think it is important to mention that this doesn't expose the
-show_slab_objects to use-after-free.  There is only a single path that
-might really race here and that is the slab hotplug notifier callback
-__kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
-doesn't really destroy kmem_cache_node data structures.
-
-[1] http://lkml.iu.edu/hypermail/linux/kernel/1101.0/02850.html
-
-[akpm@linux-foundation.org: add comment explaining why we don't need mem_hotplug_lock]
-Link: http://lkml.kernel.org/r/1570192309-10132-1-git-send-email-cai@lca.pw
-Fixes: 01fb58bcba63 ("slab: remove synchronous synchronize_sched() from memcg cache deactivation path")
-Fixes: 03afc0e25f7f ("slab: get_online_mems for kmem_cache_{create,destroy,shrink}")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Roman Gushchin <guro@fb.com>
+Link: http://lkml.kernel.org/r/20191008152915.24704-1-vbabka@suse.cz
+Fixes: 6b0868c820ff ("mm/compaction.c: correct zone boundary handling when resetting pageblock skip hints")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Florian Weimer <fw@deneb.enyo.de>
+Reported-by: Dave Chinner <david@fromorbit.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slub.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ mm/compaction.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/mm/slub.c~mm-slub-fix-a-deadlock-in-show_slab_objects
-+++ a/mm/slub.c
-@@ -4846,7 +4846,17 @@ static ssize_t show_slab_objects(struct
- 		}
+--- a/mm/compaction.c~mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn
++++ a/mm/compaction.c
+@@ -270,14 +270,15 @@ __reset_isolation_pfn(struct zone *zone,
+ 
+ 	/* Ensure the start of the pageblock or zone is online and valid */
+ 	block_pfn = pageblock_start_pfn(pfn);
+-	block_page = pfn_to_online_page(max(block_pfn, zone->zone_start_pfn));
++	block_pfn = max(block_pfn, zone->zone_start_pfn);
++	block_page = pfn_to_online_page(block_pfn);
+ 	if (block_page) {
+ 		page = block_page;
+ 		pfn = block_pfn;
  	}
  
--	get_online_mems();
-+	/*
-+	 * It is impossible to take "mem_hotplug_lock" here with "kernfs_mutex"
-+	 * already held which will conflict with an existing lock order:
-+	 *
-+	 * mem_hotplug_lock->slab_mutex->kernfs_mutex
-+	 *
-+	 * We don't really need mem_hotplug_lock (to hold off
-+	 * slab_mem_going_offline_callback) here because slab's memory hot
-+	 * unplug code doesn't destroy the kmem_cache->node[] data.
-+	 */
-+
- #ifdef CONFIG_SLUB_DEBUG
- 	if (flags & SO_ALL) {
- 		struct kmem_cache_node *n;
-@@ -4887,7 +4897,6 @@ static ssize_t show_slab_objects(struct
- 			x += sprintf(buf + x, " N%d=%lu",
- 					node, nodes[node]);
- #endif
--	put_online_mems();
- 	kfree(nodes);
- 	return x + sprintf(buf + x, "\n");
+ 	/* Ensure the end of the pageblock or zone is online and valid */
+-	block_pfn += pageblock_nr_pages;
++	block_pfn = pageblock_end_pfn(pfn) - 1;
+ 	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
+ 	end_page = pfn_to_online_page(block_pfn);
+ 	if (!end_page)
+@@ -303,7 +304,7 @@ __reset_isolation_pfn(struct zone *zone,
+ 
+ 		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
+ 		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
+-	} while (page < end_page);
++	} while (page <= end_page);
+ 
+ 	return false;
  }
 _
