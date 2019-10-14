@@ -2,145 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C46E4D6A16
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 21:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CA3D6A1C
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 21:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731636AbfJNT3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 15:29:04 -0400
-Received: from mout.gmx.net ([212.227.15.19]:60511 "EHLO mout.gmx.net"
+        id S2388245AbfJNT3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 15:29:20 -0400
+Received: from mga03.intel.com ([134.134.136.65]:19103 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730590AbfJNT3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 15:29:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1571081342;
-        bh=NujVOwKYbKLcy+pGT9P8wn7OM75vOYdvHSlS5uxp2GQ=;
-        h=X-UI-Sender-Class:Date:From:To:Subject;
-        b=ipv/1EuO+5oMCPi7E7pX3MjJYW5FAeYlD4Cht1HeNmK3Bz8jS+IE+dAMKQMWzmAVt
-         xNXV2fN2M3wjTwlI5sqZcdClnbXfJfpBsz8KUq0ySq77APqNsZGVNIk5hrvA7Vrr80
-         yoO8yS57+uWiClbv+/GNIFSZA9Jtm8vCvFuV90X4=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from ls3530.fritz.box ([92.116.168.141]) by mail.gmx.com (mrgmx004
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MN5iZ-1ianWt2rxt-00J0CS; Mon, 14
- Oct 2019 21:29:02 +0200
-Date:   Mon, 14 Oct 2019 21:29:01 +0200
-From:   Helge Deller <deller@gmx.de>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: [PATCH] parisc/pci: Switch LBA PCI bus from Hard Fail to Soft Fail
- mode
-Message-ID: <20191014192901.GA13704@ls3530.fritz.box>
+        id S1730590AbfJNT3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 15:29:20 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Oct 2019 12:29:19 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,296,1566889200"; 
+   d="scan'208";a="198390316"
+Received: from kridax-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.7.178])
+  by orsmga003.jf.intel.com with ESMTP; 14 Oct 2019 12:29:14 -0700
+Date:   Mon, 14 Oct 2019 22:29:13 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>
+Cc:     Ken Goldman <kgold@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191014192913.GD15552@linux.intel.com>
+References: <1570128827.5046.19.camel@linux.ibm.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+ <20191004182711.GC6945@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+ <20191007000520.GA17116@linux.intel.com>
+ <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+ <20191008234935.GA13926@linux.intel.com>
+ <20191008235339.GB13926@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2B995@ALPMBAPA12.e2k.ad.ge.com>
+ <20191014190033.GA15552@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.12.1 (2019-06-15)
-X-Provags-ID: V03:K1:eUN0Sxq4IQ4wzqoV/tDM/zP1Jxe47m6gRcKGJ9SAWR7TWmp9MeO
- vsn/RSaMTSwpTLvV9qwPiJPBtqtDARIU7wed/L2BWChUNIHjoLqe6l+U9Kx7Wbwo2/WkYhb
- w9jt/AamZRu5bWDgMNgod4ISjpC4gKzAGTfixRgJtZ0yYWiWtqs6k8tWpJwbiWFtfXktMP/
- K83HtHLKyWPjqZye65JTw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:uK8OHdk+kbM=:72TWhIMLwEXAgB+hBwKsWS
- O9JeFh/19/VFdbDD8vHFdAKJP+VZsfu7cpNourQsU6QljDjGEEUE2cZdEGz/xEEI7FM1zrQfB
- iqRKAdHEMiXOO1HHX1q2YuqlDhAokJvfnNVTslVuudvjEjGK/xCyFKbM0gtVSYnngjdolMDaA
- EClYS+wdlc1P3j0DetoMIcLtVkZgLFMtYlQS8j3PIeps+0rdAK+rvKQVvdDg2m6U9vUF0E2rA
- GSpZ4LFfT2SWq2o4lekF1QGl0wCIknEe1aiBbPQhj/O/uzmqtvH2OT18wuozscBRVgnQFIIC9
- ijClsOI6/fZ3I+BQUoMt845VfjWwexsLmwYiKOz3Vgqdhzf16A0z8JcfFnajyHad5NaSgjPit
- Ipf+jf5RGdwyRDia+dVKGF0XWxbHl6T7LRJftjf4Mm8WDvIzRCy/z62Eh1ak75LQFw82YCjfw
- hNns3LPNv8Ia6vEB1f40AtJ9GwLMrc5LMXvmysLav4+AOrA0iqFQdOnwcQFmhgfjaWl6Jt03I
- dal0QqJJm+3a1UEBa04r4BFEm5rUzURdFPO836hUY2eD6SI3FCee6tjchoe3XEp7aPHLF9eB2
- qBO+yhT6XPnZeoCQAyQmAB0rUkBJ6nW91/kAMfbwAVTLIPO0k2b45tNC8DXALMPjLIZHK0kR9
- EqtKgc0TYvauMWN+4mcFPLJL5l706LDekbGEq3zL4t5gpr5DjogFb2ERLGTIllHdHBgRKMVw4
- F8+POiaJPK7ZLIfF4DA6O3pjix4mNVBT581CmpKaUBPRGzSYr7SkarucFim4BF9HTkk6hUhE3
- IWx+5RY6KASDeecgH371PoM38B9shT6J7azyFW+v43SLNcW4hWsuq3LIOEwy0YbFmJq0dr9MP
- Kbraz5FuvSd3VZ/9Qf7omqIyTvAGLvmPt/v9Kx2EPTD5k+I+MROPTHG7HTmtUz1xZGu+wvl/D
- ExOC7Sq9k/9OfZqWQutFKF9lRviiHM2UFd6aivb8/2zWrC+QKLYL/RqoOEB3IzYAmz+JoOQ0F
- 553VUdQsvCoAY7xFoR8fDfClDl7913j66StrhkfdTCLykoeg/MA64tDyCncYqD+PbOTbZC3M4
- zgzP2EGgGM5f6Y75vfcCOhvdg7km6yhH+rSJzM63GSWhO/q9CdKs/L0mxoSkmJ/ZFNinDAt/D
- fdyXpHvBf1ERsnZpcrOotYTLyeHSxiqViTlzxw4jkBXSW1nd8QNyaeszZxq3dleg4p/CNWU7I
- z0974CRyEQEzagEIJx85dkLBP2ZsLwI5cIvqIzQ==
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191014190033.GA15552@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable kernel maintainers,
+On Mon, Oct 14, 2019 at 10:00:33PM +0300, Jarkko Sakkinen wrote:
+> On Wed, Oct 09, 2019 at 12:11:06PM +0000, Safford, David (GE Global Research, US) wrote:
+> > 
+> > > From: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > > Sent: Tuesday, October 8, 2019 7:54 PM
+> > > To: Ken Goldman <kgold@linux.ibm.com>
+> > > Cc: Safford, David (GE Global Research, US) <david.safford@ge.com>; Mimi
+> > > Zohar <zohar@linux.ibm.com>; linux-integrity@vger.kernel.org;
+> > > stable@vger.kernel.org; open list:ASYMMETRIC KEYS
+> > > <keyrings@vger.kernel.org>; open list:CRYPTO API <linux-
+> > > crypto@vger.kernel.org>; open list <linux-kernel@vger.kernel.org>
+> > > Subject: EXT: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+> > > 
+> > > On Wed, Oct 09, 2019 at 02:49:35AM +0300, Jarkko Sakkinen wrote:
+> > > > On Mon, Oct 07, 2019 at 06:13:01PM -0400, Ken Goldman wrote:
+> > > > > The TPM library specification states that the TPM must comply with
+> > > > > NIST
+> > > > > SP800-90 A.
+> > > > >
+> > > > > https://trustedcomputinggroup.org/membership/certification/tpm-certi
+> > > > > fied-products/
+> > > > >
+> > > > > shows that the TPMs get third party certification, Common Criteria EAL 4+.
+> > > > >
+> > > > > While it's theoretically possible that an attacker could compromise
+> > > > > both the TPM vendors and the evaluation agencies, we do have EAL 4+
+> > > > > assurance against both 1 and 2.
+> > > >
+> > > > Certifications do not equal to trust.
+> > > 
+> > > And for trusted keys the least trust solution is to do generation with the kernel
+> > > assets and sealing with TPM. With TEE the least trust solution is equivalent.
+> > > 
+> > > Are you proposing that the kernel random number generation should be
+> > > removed? That would be my conclusion of this discussion if I would agree any
+> > > of this (I don't).
+> > > 
+> > > /Jarkko
+> > 
+> > No one is suggesting that.
+> > 
+> > You are suggesting changing the documented behavior of trusted keys, and
+> > that would cause problems for some of our use cases. While certification
+> > may not in your mind be equal to trust, it is equal to compliance with 
+> > mandatory regulations.
+> > 
+> > Perhaps rather than arguing past each other, we should look into 
+> > providing users the ability to choose, as an argument to keyctl?
+> > 
+> > dave
+> 
+> I'm taking my words back in the regression part as regression would need
+> really a failing system. Definitely the fixes tag should be removed from
+> my patch.
+> 
+> What is anyway the role of the kernel rng? Why does it exist and when
+> exactly it should be used? This exactly where the whole review process
+> throughout the "chain of command" failed misserably with tpm_asym.c.
+> 
+> The commit message for tpm_asym.c does not document the design choice in
+> any possible way and still was merged to the mainline.
+> 
+> Before knowning the answer to the "existential" question we are
+> somewhat paralyzed on moving forward with trusted keys (e.g. paralyzed
+> to merge TEE backend).
+> 
+> Your proposal might make sense but I don't really want to say anything
+> since I'm completely cluesless of the role of the kernel rng. Looks like
+> everyone who participated to the review process of tpm_asym.c, is too.
 
-can you please add the patch below into all stable kernels up until (and
-including) kernel 4.16 ?
+As a ABI backwards compatibility workaround I'd agree most likely agree
+with you. As a guideline for new features there should be a framework on
+how to decide what to do.
 
-It's upstream patch b845f66f78bf which was merged in kernel 4.17.
-
-It turned out, that this patch prevents multiple kernel crashes when
-users add standard PCI cards (e.g. PCI USB cards) to parisc boxes and
-expect them to simply work. Instead, without this patch, parisc kernels
-prior to v4.17 will crash the box since the default PCI behaviour is to
-fault if Linux drivers read/write to PCI memory regions which aren't
-backed by real hardware. This happens e.g. when the Linux drivers poke
-into PCI memory to check if a specific hardware revision was installed.
-
-I got multiple reports from users which ran into this problem, and by
-adding this patch to older kernels (which are still used as distribution
-install kernels, e.g. v4.16 for debian) people will be able to install
-Linux with such PCI cards without crashes and with working PCI cards.
-
-Thanks!
-Helge
-
-______________
-
-Subject: [PATCH] parisc/pci: Switch LBA PCI bus from Hard Fail to Soft Fai=
-l mode
-
-Carlo Pisani noticed that his C3600 workstation behaved unstable during he=
-avy
-I/O on the PCI bus with a VIA VT6421 IDE/SATA PCI card.
-
-To avoid such instability, this patch switches the LBA PCI bus from Hard F=
-ail
-mode into Soft Fail mode. In this mode the bus will return -1UL for timed =
-out
-MMIO transactions, which is exactly how the x86 (and most other architectu=
-res)
-PCI busses behave.
-
-This patch is based on a proposal by Grant Grundler and Kyle McMartin 10
-years ago:
-https://www.spinics.net/lists/linux-parisc/msg01027.html
-
-Cc: Carlo Pisani <carlojpisani@gmail.com>
-Cc: Kyle McMartin <kyle@mcmartin.ca>
-Reviewed-by: Grant Grundler <grantgrundler@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-
-diff --git a/drivers/parisc/lba_pci.c b/drivers/parisc/lba_pci.c
-index 41b740aed3a3..69bd98421eb1 100644
-=2D-- a/drivers/parisc/lba_pci.c
-+++ b/drivers/parisc/lba_pci.c
-@@ -1403,9 +1403,27 @@ lba_hw_init(struct lba_device *d)
- 		WRITE_REG32(stat, d->hba.base_addr + LBA_ERROR_CONFIG);
- 	}
-
--	/* Set HF mode as the default (vs. -1 mode). */
-+
-+	/*
-+	 * Hard Fail vs. Soft Fail on PCI "Master Abort".
-+	 *
-+	 * "Master Abort" means the MMIO transaction timed out - usually due to
-+	 * the device not responding to an MMIO read. We would like HF to be
-+	 * enabled to find driver problems, though it means the system will
-+	 * crash with a HPMC.
-+	 *
-+	 * In SoftFail mode "~0L" is returned as a result of a timeout on the
-+	 * pci bus. This is like how PCI busses on x86 and most other
-+	 * architectures behave.  In order to increase compatibility with
-+	 * existing (x86) PCI hardware and existing Linux drivers we enable
-+	 * Soft Faul mode on PA-RISC now too.
-+	 */
-         stat =3D READ_REG32(d->hba.base_addr + LBA_STAT_CTL);
-+#if defined(ENABLE_HARDFAIL)
- 	WRITE_REG32(stat | HF_ENABLE, d->hba.base_addr + LBA_STAT_CTL);
-+#else
-+	WRITE_REG32(stat & ~HF_ENABLE, d->hba.base_addr + LBA_STAT_CTL);
-+#endif
-
- 	/*
- 	** Writing a zero to STAT_CTL.rf (bit 0) will clear reset signal
+/Jarkko
