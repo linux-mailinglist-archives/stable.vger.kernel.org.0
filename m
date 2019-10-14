@@ -2,102 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16296D61F0
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 14:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A617D6226
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 14:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731719AbfJNMDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 08:03:32 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:46240 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731138AbfJNMDc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 08:03:32 -0400
-Received: by mail-pl1-f193.google.com with SMTP id q24so7912997plr.13
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 05:03:32 -0700 (PDT)
+        id S1731329AbfJNMQy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 08:16:54 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:34636 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730314AbfJNMQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 08:16:54 -0400
+Received: by mail-wm1-f67.google.com with SMTP id y135so14376863wmc.1
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 05:16:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=1Ew6nvp+lIVXOTGUH+6CvvZJUmcbSc2ZNxvYMIXew0A=;
-        b=gbq/HeQVGZN31YpkwxiGgPCoN0r2zdogqzMJXRrbQizFzp3Zvjk+eG3xHT2HVWlyy0
-         yKoQjLIHCe0qcE5FvLMZysmpRQsx69QVdXF/tddh5HohWl0Q9NIf38blfmC7Fq1sjSB4
-         Ak3m4KZd93vrdGL9HYEPKodz4Ztok0bUTTyZm+wZxQM50eY0SRrOTJ5y8sjU5rTa4x8b
-         qjI0w9oaCrHmxwIQkCSGQ6VHgMZD1WhwXAtIPeAJ2dgILuIA5LDlGwYbcYJvI4X1XSxW
-         Xja2s77OedE10WM4nb/YkRJYfY0zsnU21WFEINy2Vx9ymomKtOMPof4G46/fvr3Sr1tc
-         Hmrg==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=rS8PHBYn9t8Naa/zL+9sCDYquW7iKNjTXXrUXJX7dy4=;
+        b=C4B5RPLt7zfsBsAOI88o6vMRbqq2/ofHvgYHDeIxk6Iu3MEBYYbz4tMpf1whn50AEj
+         Ga4xfPi2nmtHjYNHmDVUjWoNke+QLF45bGWMsEwt4n1GwTDgqPMXluJ4O2HRQd19zPDs
+         3MIUl8/EDHvwx8BOUEce8sDcz1qPf2CERG6Azao8J4v3D2qT/7Ds6ENS2vFG1nW02RR3
+         7lpSGy3gy3CDXR3YREZhN8BHxCBnVDUT6kbOCP3ALB6ynAV0Fr68j2cVkcAsaKNo4/aP
+         MS/ZfsoqxpZCFy1btbwXIydmDvL3qhdmLHQDqw2+5V+4pEzZKqnf3ul+6RMQhfM3KGkm
+         mL/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=1Ew6nvp+lIVXOTGUH+6CvvZJUmcbSc2ZNxvYMIXew0A=;
-        b=J73QInxaC+6fCrlyVp9kvpUALpfqn5CLJhDitF1W7DTLYWKy1JFLv5vpDfaAwZewWy
-         lD4YagxBhZKNyhsDJCZFKUtDpirOhGf1tnYm4z/jNvNwpBp4FpXiEs2SAvB7w8k4XONF
-         SsyI3rPoejeLY8YN4DF9KrHGkpW5l3EuYj1bbAjqssuFsc7Kh1OA1GpiHWzm6Icf0D//
-         sPN90q0Vbe4JgVWBbHenERFpD6UWMRXIGhtm2Ay3Ak8WibSdMLT5Lx507Bi3jD057RMK
-         lZD8VfR7uu3hu9fqwpbkYcZicjGCzu6u1Y0+cNezKBJXjRRHc5I2c4lCQnljYstz5tY7
-         go3g==
-X-Gm-Message-State: APjAAAW9OFsQD/wG6T1MSKJ5tae7GZye+n/tXJFRgus8ysc/L/L2TIHr
-        jLAr5bkTyidRC4n/DygIaooM2Q==
-X-Google-Smtp-Source: APXvYqwZdkrEAgTaWFnRP+/uhst6b4xYJs7GiVSruDMSpRCe0gbmmFgFtXUPYO/lBF0emiDvmKmAhA==
-X-Received: by 2002:a17:902:9306:: with SMTP id bc6mr30065583plb.133.1571054611544;
-        Mon, 14 Oct 2019 05:03:31 -0700 (PDT)
-Received: from localhost.localdomain ([117.252.65.194])
-        by smtp.gmail.com with ESMTPSA id q6sm25026813pgn.44.2019.10.14.05.03.24
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 14 Oct 2019 05:03:30 -0700 (PDT)
-From:   Sumit Garg <sumit.garg@linaro.org>
-To:     linux-crypto@vger.kernel.org
-Cc:     dsaxena@plexity.net, herbert@gondor.apana.org.au, mpm@selenic.com,
-        romain.perier@free-electrons.com, arnd@arndb.de,
-        gregkh@linuxfoundation.org, daniel.thompson@linaro.org,
-        ralph.siemsen@linaro.org, milan.stevanovic@se.com,
-        ryan.harkin@linaro.org, linux-kernel@vger.kernel.org,
-        Sumit Garg <sumit.garg@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH] hwrng: omap - Fix RNG wait loop timeout
-Date:   Mon, 14 Oct 2019 17:32:45 +0530
-Message-Id: <1571054565-6991-1-git-send-email-sumit.garg@linaro.org>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=rS8PHBYn9t8Naa/zL+9sCDYquW7iKNjTXXrUXJX7dy4=;
+        b=IhRAU+xoa4LrrelCKUbZSwWsl/zZ+PFQ5V1o320l7Xno9Al3r7SnjcYSHGi0ILDIKN
+         lhiV439BiffYcy6xNugOVYqbnUakU1i5JIEhOjJkTj+tsSw+7hAxTXE4ssNLrUtMZYaS
+         CHjN5P4UBhPi/1uV0gZ8zddRPN06P3CH34C8L3o6fweuO7nJ2yNjbJLUmaf/cRVz+q9U
+         eWIQq+SlGaaqGme5pWWZlSoRRevIXUW+5meSMeGH9JGuaoiT3tow7w/Eo/wwbkpTg+uJ
+         0jHG77PpwwP5S64ngRGtPT337/SC/HPvrIK/32iLxl/OA0WHPYapIPKC1Xk9DIdQv4nN
+         J7VA==
+X-Gm-Message-State: APjAAAV58BVuH11uzmWWRUjx1/6MBAphrdCc4tWLRqn5inNEb77LLIyG
+        7EISATAagvGXcIQ9aje750rlAw==
+X-Google-Smtp-Source: APXvYqzKxtXUbrbuBpRD6cmzuaSmLd/JPMv2UtJaAZzBZK/Q8iTBr7MgnMGLMJpVoX7ThVsQ0gYp0g==
+X-Received: by 2002:a7b:cc6a:: with SMTP id n10mr15438846wmj.94.1571055412241;
+        Mon, 14 Oct 2019 05:16:52 -0700 (PDT)
+Received: from google.com ([2a00:79e0:d:210:7687:11a4:4657:121d])
+        by smtp.gmail.com with ESMTPSA id s9sm19666036wme.36.2019.10.14.05.16.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 14 Oct 2019 05:16:51 -0700 (PDT)
+Date:   Mon, 14 Oct 2019 13:16:48 +0100
+From:   Quentin Perret <qperret@google.com>
+To:     Valentin Schneider <valentin.schneider@arm.com>
+Cc:     linux-kernel@vger.kernel.org, mingo@kernel.org,
+        peterz@infradead.org, vincent.guittot@linaro.org,
+        Dietmar.Eggemann@arm.com, morten.rasmussen@arm.com,
+        qperret@qperret.net, stable@vger.kernel.org
+Subject: Re: [PATCH] sched/topology: Disable sched_asym_cpucapacity on domain
+ destruction
+Message-ID: <20191014121648.GA53234@google.com>
+References: <20191014114710.22142-1-valentin.schneider@arm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191014114710.22142-1-valentin.schneider@arm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Existing RNG data read timeout is 200us but it doesn't cover EIP76 RNG
-data rate which takes approx. 700us to produce 16 bytes of output data
-as per testing results. So configure the timeout as 1000us to also take
-account of lack of udelay()'s reliability.
+Hi Valentin,
 
-Fixes: 383212425c92 ("hwrng: omap - Add device variant for SafeXcel IP-76 found in Armada 8K")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
----
- drivers/char/hw_random/omap-rng.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+On Monday 14 Oct 2019 at 12:47:10 (+0100), Valentin Schneider wrote:
+> While the static key is correctly initialized as being disabled, it will
+> remain forever enabled once turned on. This means that if we start with an
+> asymmetric system and hotplug out enough CPUs to end up with an SMP system,
+> the static key will remain set - which is obviously wrong. We should detect
+> this and turn off things like misfit migration and EAS wakeups.
 
-diff --git a/drivers/char/hw_random/omap-rng.c b/drivers/char/hw_random/omap-rng.c
-index b27f396..e329f82 100644
---- a/drivers/char/hw_random/omap-rng.c
-+++ b/drivers/char/hw_random/omap-rng.c
-@@ -66,6 +66,13 @@
- #define OMAP4_RNG_OUTPUT_SIZE			0x8
- #define EIP76_RNG_OUTPUT_SIZE			0x10
- 
-+/*
-+ * EIP76 RNG takes approx. 700us to produce 16 bytes of output data
-+ * as per testing results. And to account for the lack of udelay()'s
-+ * reliability, we keep the timeout as 1000us.
-+ */
-+#define RNG_DATA_FILL_TIMEOUT			100
-+
- enum {
- 	RNG_OUTPUT_0_REG = 0,
- 	RNG_OUTPUT_1_REG,
-@@ -176,7 +183,7 @@ static int omap_rng_do_read(struct hwrng *rng, void *data, size_t max,
- 	if (max < priv->pdata->data_size)
- 		return 0;
- 
--	for (i = 0; i < 20; i++) {
-+	for (i = 0; i < RNG_DATA_FILL_TIMEOUT; i++) {
- 		present = priv->pdata->data_present(priv);
- 		if (present || !wait)
- 			break;
--- 
-2.7.4
+FWIW we already clear the EAS static key properly (based on the sd
+pointer, not the static key), so this is really only for the
+capacity-aware stuff.
 
+> Having that key enabled should also mandate
+> 
+>   per_cpu(sd_asym_cpucapacity, cpu) != NULL
+> 
+> for all CPUs, but this is obviously not true with the above.
+> 
+> On top of that, sched domain rebuilds first lead to attaching the NULL
+> domain to the affected CPUs, which means there will be a window where the
+> static key is set but the sd_asym_cpucapacity shortcut points to NULL even
+> if asymmetry hasn't been hotplugged out.
+> 
+> Disable the static key when destroying domains, and let
+> build_sched_domains() (re) enable it as needed.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
+> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+> ---
+>  kernel/sched/topology.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> index b5667a273bf6..c49ae57a0611 100644
+> --- a/kernel/sched/topology.c
+> +++ b/kernel/sched/topology.c
+> @@ -2123,7 +2123,8 @@ static void detach_destroy_domains(const struct cpumask *cpu_map)
+>  {
+>  	int i;
+>  
+> +	static_branch_disable_cpuslocked(&sched_asym_cpucapacity);
+> +
+>  	rcu_read_lock();
+>  	for_each_cpu(i, cpu_map)
+>  		cpu_attach_domain(NULL, &def_root_domain, i);
+
+So what happens it you have mutiple root domains ? You might skip
+build_sched_domains() for one of them and end up not setting the static
+key when you should no ?
+
+I suppose an alternative would be to play with static_branch_inc() /
+static_branch_dec() from build_sched_domains() or something along those
+lines.
+
+Thanks,
+Quentin
