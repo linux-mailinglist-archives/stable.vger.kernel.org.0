@@ -2,111 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00731D604A
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2759CD605E
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 12:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731307AbfJNKf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 06:35:58 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:41873 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731305AbfJNKf5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 06:35:57 -0400
-Received: by mail-wr1-f67.google.com with SMTP id p4so3208708wrm.8
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 03:35:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1jRCezjyOIixVrmLYOxu97tIMAYFAAQuHO/HK3vNNGw=;
-        b=ewlTy24rqMLQjmUmqcMplSpctyFLMtpt1FnyiQU6dOR1/YvNAsn+kChdwcto0JKjDo
-         ylOaxgLFLuElLcOiaGJv7r/Img0OlImibzMrECIATrpQodVT+qGfdojSBpVZb5rWBmd+
-         7d02RNBIvfxAMAnDoRdLNhR/2F/zOt599btF7B3AlcrzlemZa46whu1RaPlVu7Lf3/xE
-         ZlOamywBQ21S8psQkG8CydlTESSE1o4nAiI49To1eub+QBkbR8yt0WKnyYMLs0/hCfl7
-         ULLcai5juNJJ394SZ9MiexGXUYJ4gPNanRb9dDrWzK9PmK/nIG/fFkf4XxqeLTHKLaN4
-         OPHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1jRCezjyOIixVrmLYOxu97tIMAYFAAQuHO/HK3vNNGw=;
-        b=FAxDwJ2+eADi+1q3Lz+TAVrEThVqlrCrdVnYgNNkwNi62mVRNsuiMPxC6YurWVR8jK
-         S3fJw+PWOuRohd3CXgc+0n6quFTxMZXCWEt4IR+4neC8Aipg6Bw301hTgMdAAigo4dTF
-         y4zxH8gwaKBke+rg47R6HXXpZLMPE/h4QfdlN0dzJW7tTpcCa91pOj23S8sJaiK7DW+q
-         bY5aClG2aRo+jr28vvxqAQ+mV7NrdUZ0D0U46B0D3h3/pVKRJK/mYzgRkMGC0qYbYYvM
-         600e9bPOH/wnyb+ZsuArmMfEDEF6ffcBM1RFyDYqdcuVrDC8JMSWTYA9sQ8sAFxgWAS0
-         /cLQ==
-X-Gm-Message-State: APjAAAUKIWl7WnxrdUy+p80clSuYE9ozlMUPTpGkCSn0ILDvpd23fpof
-        1rdmBurPmnaoIpwVzcSh925nKb2XKj0=
-X-Google-Smtp-Source: APXvYqzAp/LT049w3y3FAaV9ZWgwRYPUeM/COmWHaOYu4n867jBvybqDdF6iwkURkq7Av6txFlk7sw==
-X-Received: by 2002:adf:fe8b:: with SMTP id l11mr25140402wrr.167.1571049354839;
-        Mon, 14 Oct 2019 03:35:54 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n3sm7876828wrr.50.2019.10.14.03.35.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 14 Oct 2019 03:35:54 -0700 (PDT)
-Message-ID: <5da44f8a.1c69fb81.23669.0d23@mx.google.com>
-Date:   Mon, 14 Oct 2019 03:35:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1731596AbfJNKiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 06:38:06 -0400
+Received: from mga04.intel.com ([192.55.52.120]:47070 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731249AbfJNKiG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 06:38:06 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Oct 2019 03:38:05 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,295,1566889200"; 
+   d="scan'208";a="188990196"
+Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.126])
+  by orsmga008.jf.intel.com with ESMTP; 14 Oct 2019 03:38:01 -0700
+Date:   Mon, 14 Oct 2019 13:38:02 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-stable@vger.kernel.org,
+        Vadim Sukhomlinov <sukhomlinov@google.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Arnd Bergmann <arnd@arndb.de>,
+        "open list:TPM DEVICE DRIVER" <linux-integrity@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v4 3/3] tpm: Fix TPM 1.2 Shutdown sequence to prevent
+ future TPM operations
+Message-ID: <20191014103802.GA12301@linux.intel.com>
+References: <20191009212831.29081-1-jarkko.sakkinen@linux.intel.com>
+ <20191009212831.29081-4-jarkko.sakkinen@linux.intel.com>
+ <20191010082807.GC326087@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.79
-Subject: stable-rc/linux-4.19.y boot: 124 boots: 0 failed,
- 116 passed with 8 offline (v4.19.79)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191010082807.GC326087@kroah.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 124 boots: 0 failed, 116 passed with 8 offline=
- (v4.19.79)
+On Thu, Oct 10, 2019 at 10:28:07AM +0200, Greg Kroah-Hartman wrote:
+> On Thu, Oct 10, 2019 at 12:28:31AM +0300, Jarkko Sakkinen wrote:
+> > From: Vadim Sukhomlinov <sukhomlinov@google.com>
+> > 
+> > commit db4d8cb9c9f2af71c4d087817160d866ed572cc9 upstream
+> > 
+> > TPM 2.0 Shutdown involve sending TPM2_Shutdown to TPM chip and disabling
+> > future TPM operations. TPM 1.2 behavior was different, future TPM
+> > operations weren't disabled, causing rare issues. This patch ensures
+> > that future TPM operations are disabled.
+> > 
+> > Fixes: d1bd4a792d39 ("tpm: Issue a TPM2_Shutdown for TPM2 devices.")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Vadim Sukhomlinov <sukhomlinov@google.com>
+> > [dianders: resolved merge conflicts with mainline]
+> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > Signed-off-by: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> > ---
+> >  drivers/char/tpm/tpm-chip.c | 9 ++++-----
+> >  1 file changed, 4 insertions(+), 5 deletions(-)
+> 
+> This is already in the 4.14.148 4.19.78 5.1.18 5.2.1 5.3 releases.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.79/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.79/
+There was one extra NULL assigment (non op). Nothing critical.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.79
-Git Commit: dafd634415a7f9892a6fcc99c540fe567ab42c92
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 76 unique boards, 23 SoC families, 15 builds out of 206
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            qcom-apq8064-ifc6410: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+/Jarkko
