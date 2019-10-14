@@ -2,109 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 194B3D61D7
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 13:59:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16296D61F0
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 14:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731790AbfJNL7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 07:59:17 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:3709 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1730314AbfJNL7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 07:59:14 -0400
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 7505F171767C03AD8FE1;
-        Mon, 14 Oct 2019 19:59:10 +0800 (CST)
-Received: from localhost.localdomain (10.67.212.75) by
- DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
- 14.3.439.0; Mon, 14 Oct 2019 19:59:00 +0800
-From:   John Garry <john.garry@huawei.com>
-To:     <stable@vger.kernel.org>
-CC:     <catalin.marinas@arm.com>, <will@kernel.org>, <rjw@rjwysocki.net>,
-        <lenb@kernel.org>, <sudeep.holla@arm.com>, <rrichter@marvell.com>,
-        <jeremy.linton@arm.com>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-        <linuxarm@huawei.com>, <gregkh@linuxfoundation.org>,
-        <guohanjun@huawei.com>, <wanghuiqiang@huawei.com>,
-        John Garry <john.garry@huawei.com>
-Subject: [PATCH for-stable-5.3 2/2] arm64: topology: Use PPTT to determine if PE is a thread
-Date:   Mon, 14 Oct 2019 19:56:02 +0800
-Message-ID: <1571054162-71090-3-git-send-email-john.garry@huawei.com>
-X-Mailer: git-send-email 2.8.1
-In-Reply-To: <1571054162-71090-1-git-send-email-john.garry@huawei.com>
-References: <1571054162-71090-1-git-send-email-john.garry@huawei.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.212.75]
-X-CFilter-Loop: Reflected
+        id S1731719AbfJNMDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 08:03:32 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:46240 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731138AbfJNMDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 08:03:32 -0400
+Received: by mail-pl1-f193.google.com with SMTP id q24so7912997plr.13
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 05:03:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=1Ew6nvp+lIVXOTGUH+6CvvZJUmcbSc2ZNxvYMIXew0A=;
+        b=gbq/HeQVGZN31YpkwxiGgPCoN0r2zdogqzMJXRrbQizFzp3Zvjk+eG3xHT2HVWlyy0
+         yKoQjLIHCe0qcE5FvLMZysmpRQsx69QVdXF/tddh5HohWl0Q9NIf38blfmC7Fq1sjSB4
+         Ak3m4KZd93vrdGL9HYEPKodz4Ztok0bUTTyZm+wZxQM50eY0SRrOTJ5y8sjU5rTa4x8b
+         qjI0w9oaCrHmxwIQkCSGQ6VHgMZD1WhwXAtIPeAJ2dgILuIA5LDlGwYbcYJvI4X1XSxW
+         Xja2s77OedE10WM4nb/YkRJYfY0zsnU21WFEINy2Vx9ymomKtOMPof4G46/fvr3Sr1tc
+         Hmrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=1Ew6nvp+lIVXOTGUH+6CvvZJUmcbSc2ZNxvYMIXew0A=;
+        b=J73QInxaC+6fCrlyVp9kvpUALpfqn5CLJhDitF1W7DTLYWKy1JFLv5vpDfaAwZewWy
+         lD4YagxBhZKNyhsDJCZFKUtDpirOhGf1tnYm4z/jNvNwpBp4FpXiEs2SAvB7w8k4XONF
+         SsyI3rPoejeLY8YN4DF9KrHGkpW5l3EuYj1bbAjqssuFsc7Kh1OA1GpiHWzm6Icf0D//
+         sPN90q0Vbe4JgVWBbHenERFpD6UWMRXIGhtm2Ay3Ak8WibSdMLT5Lx507Bi3jD057RMK
+         lZD8VfR7uu3hu9fqwpbkYcZicjGCzu6u1Y0+cNezKBJXjRRHc5I2c4lCQnljYstz5tY7
+         go3g==
+X-Gm-Message-State: APjAAAW9OFsQD/wG6T1MSKJ5tae7GZye+n/tXJFRgus8ysc/L/L2TIHr
+        jLAr5bkTyidRC4n/DygIaooM2Q==
+X-Google-Smtp-Source: APXvYqwZdkrEAgTaWFnRP+/uhst6b4xYJs7GiVSruDMSpRCe0gbmmFgFtXUPYO/lBF0emiDvmKmAhA==
+X-Received: by 2002:a17:902:9306:: with SMTP id bc6mr30065583plb.133.1571054611544;
+        Mon, 14 Oct 2019 05:03:31 -0700 (PDT)
+Received: from localhost.localdomain ([117.252.65.194])
+        by smtp.gmail.com with ESMTPSA id q6sm25026813pgn.44.2019.10.14.05.03.24
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Mon, 14 Oct 2019 05:03:30 -0700 (PDT)
+From:   Sumit Garg <sumit.garg@linaro.org>
+To:     linux-crypto@vger.kernel.org
+Cc:     dsaxena@plexity.net, herbert@gondor.apana.org.au, mpm@selenic.com,
+        romain.perier@free-electrons.com, arnd@arndb.de,
+        gregkh@linuxfoundation.org, daniel.thompson@linaro.org,
+        ralph.siemsen@linaro.org, milan.stevanovic@se.com,
+        ryan.harkin@linaro.org, linux-kernel@vger.kernel.org,
+        Sumit Garg <sumit.garg@linaro.org>, stable@vger.kernel.org
+Subject: [PATCH] hwrng: omap - Fix RNG wait loop timeout
+Date:   Mon, 14 Oct 2019 17:32:45 +0530
+Message-Id: <1571054565-6991-1-git-send-email-sumit.garg@linaro.org>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+Existing RNG data read timeout is 200us but it doesn't cover EIP76 RNG
+data rate which takes approx. 700us to produce 16 bytes of output data
+as per testing results. So configure the timeout as 1000us to also take
+account of lack of udelay()'s reliability.
 
-Commit 98dc19902a0b2e5348e43d6a2c39a0a7d0fc639e upstream.
-
-ACPI 6.3 adds a thread flag to represent if a CPU/PE is
-actually a thread. Given that the MPIDR_MT bit may not
-represent this information consistently on homogeneous machines
-we should prefer the PPTT flag if its available.
-
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Reviewed-by: Robert Richter <rrichter@marvell.com>
-[will: made acpi_cpu_is_threaded() return 'bool']
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
+Fixes: 383212425c92 ("hwrng: omap - Add device variant for SafeXcel IP-76 found in Armada 8K")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
 ---
- arch/arm64/kernel/topology.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/char/hw_random/omap-rng.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
-index 0825c4a856e3..6106c49f84bc 100644
---- a/arch/arm64/kernel/topology.c
-+++ b/arch/arm64/kernel/topology.c
-@@ -340,17 +340,28 @@ void remove_cpu_topology(unsigned int cpu)
- }
+diff --git a/drivers/char/hw_random/omap-rng.c b/drivers/char/hw_random/omap-rng.c
+index b27f396..e329f82 100644
+--- a/drivers/char/hw_random/omap-rng.c
++++ b/drivers/char/hw_random/omap-rng.c
+@@ -66,6 +66,13 @@
+ #define OMAP4_RNG_OUTPUT_SIZE			0x8
+ #define EIP76_RNG_OUTPUT_SIZE			0x10
  
- #ifdef CONFIG_ACPI
-+static bool __init acpi_cpu_is_threaded(int cpu)
-+{
-+	int is_threaded = acpi_pptt_cpu_is_thread(cpu);
++/*
++ * EIP76 RNG takes approx. 700us to produce 16 bytes of output data
++ * as per testing results. And to account for the lack of udelay()'s
++ * reliability, we keep the timeout as 1000us.
++ */
++#define RNG_DATA_FILL_TIMEOUT			100
 +
-+	/*
-+	 * if the PPTT doesn't have thread information, assume a homogeneous
-+	 * machine and return the current CPU's thread state.
-+	 */
-+	if (is_threaded < 0)
-+		is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
-+
-+	return !!is_threaded;
-+}
-+
- /*
-  * Propagate the topology information of the processor_topology_node tree to the
-  * cpu_topology array.
-  */
- static int __init parse_acpi_topology(void)
- {
--	bool is_threaded;
- 	int cpu, topology_id;
+ enum {
+ 	RNG_OUTPUT_0_REG = 0,
+ 	RNG_OUTPUT_1_REG,
+@@ -176,7 +183,7 @@ static int omap_rng_do_read(struct hwrng *rng, void *data, size_t max,
+ 	if (max < priv->pdata->data_size)
+ 		return 0;
  
--	is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
--
- 	for_each_possible_cpu(cpu) {
- 		int i, cache_id;
- 
-@@ -358,7 +369,7 @@ static int __init parse_acpi_topology(void)
- 		if (topology_id < 0)
- 			return topology_id;
- 
--		if (is_threaded) {
-+		if (acpi_cpu_is_threaded(cpu)) {
- 			cpu_topology[cpu].thread_id = topology_id;
- 			topology_id = find_acpi_cpu_topology(cpu, 1);
- 			cpu_topology[cpu].core_id   = topology_id;
+-	for (i = 0; i < 20; i++) {
++	for (i = 0; i < RNG_DATA_FILL_TIMEOUT; i++) {
+ 		present = priv->pdata->data_present(priv);
+ 		if (present || !wait)
+ 			break;
 -- 
-2.17.1
+2.7.4
 
