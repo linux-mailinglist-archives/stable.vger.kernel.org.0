@@ -2,89 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A649D6395
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 15:17:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0413CD641E
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 15:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730665AbfJNNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 09:16:47 -0400
-Received: from mga06.intel.com ([134.134.136.31]:57917 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729858AbfJNNQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 09:16:47 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Oct 2019 06:16:46 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,295,1566889200"; 
-   d="scan'208";a="220100314"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
-  by fmsmga004.fm.intel.com with ESMTP; 14 Oct 2019 06:16:44 -0700
-Subject: Re: [RFT PATCH] xhci: Fix use-after-free regression in xhci clear hub
- TT implementation
-To:     Johan Hovold <johan@kernel.org>
-Cc:     gregkh@linuxfoundation.org, stern@rowland.harvard.edu,
-        linux-usb@vger.kernel.org, "# v5 . 3" <stable@vger.kernel.org>
-References: <1c4b7107-f5e1-4a69-2a73-0e339c7e1072@linux.intel.com>
- <1570798722-31594-1-git-send-email-mathias.nyman@linux.intel.com>
- <20191014101611.GN13531@localhost>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Message-ID: <7e88dd63-9cd6-1149-10a0-960e944ef31f@linux.intel.com>
-Date:   Mon, 14 Oct 2019 16:18:49 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1731022AbfJNN3v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 09:29:51 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:42861 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729752AbfJNN3v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 09:29:51 -0400
+Received: by mail-lf1-f66.google.com with SMTP id c195so11810629lfg.9
+        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 06:29:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Vx0bTQblXCEkZh40hFYicIOm471j1IuoGfojlu4EM7I=;
+        b=x97gQJhCNW7POvJoNfOTmKXpi+DYAEhqFNuSfdmKCk5s3gPNAHgPlTaIsMeEHi+Ex6
+         0wpqP43Z40KA2/ePbqep58ZiZx16uQInAMgkjXxZ5eXOc5HLftj78V4nxaaNZ2EBp0N8
+         CCzgzzOFt30IZwQDFCH8h5mmVy3NFxwi8JhUtt+K6YVW9qafasD+Y3r4jA9huZ99xezY
+         phoslUrhuN4tIonhWw6MH/0GFAtSU7DgAmcuEgD1cVU1t61J34b+q1w89bjOx1QaC0SD
+         LwOWVB5/ycOZF5BrlrvimMloRLy4wpOYBUfqAN6RvS4S0aD7JNwbLU/bjKXs0d2fCFKn
+         Xczw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Vx0bTQblXCEkZh40hFYicIOm471j1IuoGfojlu4EM7I=;
+        b=Hx2beapMIbQAYc4n0Vt49JRbjSabTwSUs9gPQywcFMgIN5w8cYd1vewXUSjHbJZpyb
+         Dxh8YhmlyXZ9XEikUG9eGlujZbLn3EOZBnmuGqL3plCLxWTJqzdwNlkQ08ss8tm4Famj
+         qhI/qyRof5R095/XntepCrUD8UhegjijCSNUUDWcesEBlyS6VsZl0YbDYKALuIcqPrzt
+         zUOUTEW1mtgnAXu/85lNDjtuiMegJZyL1SujY218Z7qXodAtvxJSuKurxreGlLSacIH8
+         gEns8Iv0VRgA3yJYj/dcJsMQSXmTtIJcvs52NvpFF+1gCb8WckmPwCI8pwwHrZd6tEyZ
+         N+9A==
+X-Gm-Message-State: APjAAAXXwycXBh9iC9d7QeIhgAsZvrzVzMF6UxslKnKm/KOGX3+gcAWK
+        Kw8l86DSEH5SGDQtR2rE6rvR1M8TUCYVYPZuVzWR/A==
+X-Google-Smtp-Source: APXvYqw0N6ijWxFVf5Lhgio1Ri3sVsPFQzPFiGqd7Gl4mwg58QXvvFjfJjrzPrMDPmAwpGE5EZjoaiYB+xaVCsZNMF4=
+X-Received: by 2002:ac2:4d1b:: with SMTP id r27mr17103620lfi.133.1571059789198;
+ Mon, 14 Oct 2019 06:29:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191014101611.GN13531@localhost>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191014114710.22142-1-valentin.schneider@arm.com> <20191014121648.GA53234@google.com>
+In-Reply-To: <20191014121648.GA53234@google.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Mon, 14 Oct 2019 15:29:37 +0200
+Message-ID: <CAKfTPtDoBrE=npY_Ay1pucdXsW1yQr1UiaCGq1DXKa2VmNqcUg@mail.gmail.com>
+Subject: Re: [PATCH] sched/topology: Disable sched_asym_cpucapacity on domain destruction
+To:     Quentin Perret <qperret@google.com>
+Cc:     Valentin Schneider <valentin.schneider@arm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dietmar Eggemann <Dietmar.Eggemann@arm.com>,
+        Morten Rasmussen <morten.rasmussen@arm.com>,
+        Quentin Perret <qperret@qperret.net>,
+        "# v4 . 16+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14.10.2019 13.16, Johan Hovold wrote:
-> On Fri, Oct 11, 2019 at 03:58:42PM +0300, Mathias Nyman wrote:
->> commit ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer") schedules work
->> to clear TT buffer, but causes a use-after-free regression at the same time
->>
->> Make sure hub_tt_work finishes before endpoint is disabled, otherwise
->> the work will dereference already freed endpoint and device related
->> pointers.
->>
->> This was triggered when usb core failed to read the configuration
->> descriptor of a FS/LS device during enumeration.
->> xhci driver queued clear_tt_work while usb core freed and reallocated
->> a new device for the next enumeration attempt.
->>
->> EHCI driver implents ehci_endpoint_disable() that makes sure
->> clear_tt_work has finished before it returns, but xhci lacks this support.
->> usb core will call hcd->driver->endpoint_disable() callback before
->> disabling endpoints, so we want this in xhci as well.
->>
->> The added xhci_endpoint_disable() is based on ehci_endpoint_disable()
->>
-> 
-> I used essentially the same reproducer as you did for debugging this
-> after I first hit it with an actually stalled control endpoint, and this
-> patch works also with my fault-injection hack.
-> 
-> I've reviewed the code and it looks good to me except for one mostly
-> theoretical issue. You need to check ep->hc_priv while holding the
-> xhci->lock in xhci_clear_tt_buffer_complete() or you could end up having
-> xhci_endpoint_disable() reschedule indefinitely while waiting for
-> EP_CLEARING_TT to be cleared on a sufficiently weakly ordered
-> system.
+On Mon, 14 Oct 2019 at 14:16, Quentin Perret <qperret@google.com> wrote:
+>
+> Hi Valentin,
+>
+> On Monday 14 Oct 2019 at 12:47:10 (+0100), Valentin Schneider wrote:
+> > While the static key is correctly initialized as being disabled, it will
+> > remain forever enabled once turned on. This means that if we start with an
+> > asymmetric system and hotplug out enough CPUs to end up with an SMP system,
+> > the static key will remain set - which is obviously wrong. We should detect
+> > this and turn off things like misfit migration and EAS wakeups.
+>
+> FWIW we already clear the EAS static key properly (based on the sd
+> pointer, not the static key), so this is really only for the
+> capacity-aware stuff.
+>
+> > Having that key enabled should also mandate
+> >
+> >   per_cpu(sd_asym_cpucapacity, cpu) != NULL
+> >
+> > for all CPUs, but this is obviously not true with the above.
+> >
+> > On top of that, sched domain rebuilds first lead to attaching the NULL
+> > domain to the affected CPUs, which means there will be a window where the
+> > static key is set but the sd_asym_cpucapacity shortcut points to NULL even
+> > if asymmetry hasn't been hotplugged out.
+> >
+> > Disable the static key when destroying domains, and let
+> > build_sched_domains() (re) enable it as needed.
+> >
+> > Cc: <stable@vger.kernel.org>
+> > Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
+> > Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+> > ---
+> >  kernel/sched/topology.c | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> > index b5667a273bf6..c49ae57a0611 100644
+> > --- a/kernel/sched/topology.c
+> > +++ b/kernel/sched/topology.c
+> > @@ -2123,7 +2123,8 @@ static void detach_destroy_domains(const struct cpumask *cpu_map)
+> >  {
+> >       int i;
+> >
+> > +     static_branch_disable_cpuslocked(&sched_asym_cpucapacity);
+> > +
+> >       rcu_read_lock();
+> >       for_each_cpu(i, cpu_map)
+> >               cpu_attach_domain(NULL, &def_root_domain, i);
+>
+> So what happens it you have mutiple root domains ? You might skip
+> build_sched_domains() for one of them and end up not setting the static
+> key when you should no ?
 
-Good point, I'll change that
+good point
 
-> 
-> Since cfbb8a84c2d2 ("xhci: Fix NULL pointer dereference in
-> xhci_clear_tt_buffer_complete()") isn't needed anymore and is slightly
-> misleading, I suggest amending the patch with the following:
-> 
-
-I'll add those changes and your tags to the patch
-
-Thanks
-Mathias
+>
+> I suppose an alternative would be to play with static_branch_inc() /
+> static_branch_dec() from build_sched_domains() or something along those
+> lines.
+>
+> Thanks,
+> Quentin
