@@ -2,134 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C47D6BC2
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 00:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42485D6BCE
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 01:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726194AbfJNWok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 18:44:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47028 "EHLO mail.kernel.org"
+        id S1726240AbfJNXBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 19:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726095AbfJNWok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 18:44:40 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        id S1726170AbfJNXBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 19:01:46 -0400
+Received: from localhost (unknown [69.71.4.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D716D21835;
-        Mon, 14 Oct 2019 22:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98D5B2133F;
+        Mon, 14 Oct 2019 23:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571093079;
-        bh=uwzMrbrhNjzaIFfkVpl30rLmWibILLOLRjUuQwa45kY=;
-        h=Date:From:To:Subject:From;
-        b=14PdwfX42tPCTob3NEHKVh7in0tNRf92BsTxBt7mdv6dpH19QGoJW1mvy5mNZlVkv
-         fh2N2igIqI/OHooVDXNnq90YJB9Gwf80mw8E+9iDMjWWsz7IGsierDiXPcJb7mn+Q2
-         wRjANUs6D+a0SBb2SboVbc5Qtv8C6RYopRi9mY7I=
-Date:   Mon, 14 Oct 2019 15:44:38 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        l.stach@pengutronix.de, hch@lst.de, festevam@gmail.com,
-        catalin.marinas@arm.com, aford173@gmail.com, rppt@linux.ibm.com
-Subject:  +
- mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch added
- to -mm tree
-Message-ID: <20191014224438.ySGow%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.11
+        s=default; t=1571094105;
+        bh=MuTUtNMWR92P8AOgTD3KQxSh9O5JGL/vsHYYegXkB4I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Q/9BavyhIp1nbInyFjNhCg2XZrVQtchXlKAcbwVQVU5stkp/VZcuOjInGKJNpAH8o
+         Pv6MU1NK3VRrYT0WcGcZSCsVm2EtX3+jAXYL0u7aaKEM41/tFyNEVx7k5qVdGAgxHA
+         tRJ4vUyDlyQ7WMNJvWINn8ECOdIvspKjItGDndT0=
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Dexuan Cui <decui@microsoft.com>
+Cc:     "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Sasha Levin <Alexander.Levin@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>, olaf@aepfle.de,
+        apw@canonical.com, jasowang@redhat.com, vkuznets@redhat.com,
+        marcelo.cerri@canonical.com, jackm@mellanox.com,
+        linux-pci@vger.kernel.org, linux-hyperv@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        driverdev-devel@linuxdriverproject.org,
+        Bjorn Helgaas <bhelgaas@google.com>, stable@vger.kernel.org
+Subject: [PATCH 1/7] PCI/PM: Always return devices to D0 when thawing
+Date:   Mon, 14 Oct 2019 18:00:10 -0500
+Message-Id: <20191014230016.240912-2-helgaas@kernel.org>
+X-Mailer: git-send-email 2.23.0.700.g56cf767bdb-goog
+In-Reply-To: <20191014230016.240912-1-helgaas@kernel.org>
+References: <20191014230016.240912-1-helgaas@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Dexuan Cui <decui@microsoft.com>
 
-The patch titled
-     Subject: mm: memblock: do not enforce current limit for memblock_phys* family
-has been added to the -mm tree.  Its filename is
-     mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch
+pci_pm_thaw_noirq() is supposed to return the device to D0 and restore its
+configuration registers, but previously it only did that for devices whose
+drivers implemented the new power management ops.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch
+Hibernation, e.g., via "echo disk > /sys/power/state", involves freezing
+devices, creating a hibernation image, thawing devices, writing the image,
+and powering off.  The fact that thawing did not return devices with legacy
+power management to D0 caused errors, e.g., in this path:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+  pci_pm_thaw_noirq
+    if (pci_has_legacy_pm_support(pci_dev)) # true for Mellanox VF driver
+      return pci_legacy_resume_early(dev)   # ... legacy PM skips the rest
+    pci_set_power_state(pci_dev, PCI_D0)
+    pci_restore_state(pci_dev)
+  pci_pm_thaw
+    if (pci_has_legacy_pm_support(pci_dev))
+      pci_legacy_resume
+	drv->resume
+	  mlx4_resume
+	    ...
+	      pci_enable_msix_range
+	        ...
+		  if (dev->current_state != PCI_D0)  # <---
+		    return -EINVAL;
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+which caused these warnings:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+  mlx4_core a6d1:00:02.0: INTx is not supported in multi-function mode, aborting
+  PM: dpm_run_callback(): pci_pm_thaw+0x0/0xd7 returns -95
+  PM: Device a6d1:00:02.0 failed to thaw: error -95
 
-------------------------------------------------------
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: mm: memblock: do not enforce current limit for memblock_phys* family
+Return devices to D0 and restore config registers for all devices, not just
+those whose drivers support new power management.
 
-Until commit 92d12f9544b7 ("memblock: refactor internal allocation
-functions") the maximal address for memblock allocations was forced to
-memblock.current_limit only for the allocation functions returning virtual
-address.  The changes introduced by that commit moved the limit
-enforcement into the allocation core and as a result the allocation
-functions returning physical address also started to limit allocations to
-memblock.current_limit.
-
-This caused breakage of etnaviv GPU driver:
-
-[    3.682347] etnaviv etnaviv: bound 130000.gpu (ops gpu_ops)
-[    3.688669] etnaviv etnaviv: bound 134000.gpu (ops gpu_ops)
-[    3.695099] etnaviv etnaviv: bound 2204000.gpu (ops gpu_ops)
-[    3.700800] etnaviv-gpu 130000.gpu: model: GC2000, revision: 5108
-[    3.723013] etnaviv-gpu 130000.gpu: command buffer outside valid
-memory window
-[    3.731308] etnaviv-gpu 134000.gpu: model: GC320, revision: 5007
-[    3.752437] etnaviv-gpu 134000.gpu: command buffer outside valid
-memory window
-[    3.760583] etnaviv-gpu 2204000.gpu: model: GC355, revision: 1215
-[    3.766766] etnaviv-gpu 2204000.gpu: Ignoring GPU with VG and FE2.0
-
-Restore the behaviour of memblock_phys* family so that these functions will
-not enforce memblock.current_limit.
-
-Link: http://lkml.kernel.org/r/1570915861-17633-1-git-send-email-rppt@kernel.org
-Fixes: 92d12f9544b7 ("memblock: refactor internal allocation functions")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reported-by: Adam Ford <aford173@gmail.com>
-Tested-by: Adam Ford <aford173@gmail.com>	[imx6q-logicpd]
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[bhelgaas: also call pci_restore_state() before pci_legacy_resume_early(),
+update comment, add stable tag, commit log]
+Link: https://lore.kernel.org/r/KU1P153MB016637CAEAD346F0AA8E3801BFAD0@KU1P153MB0166.APCP153.PROD.OUTLOOK.COM
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v4.13+
 ---
+ drivers/pci/pci-driver.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
- mm/memblock.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/mm/memblock.c~mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family
-+++ a/mm/memblock.c
-@@ -1356,9 +1356,6 @@ static phys_addr_t __init memblock_alloc
- 		align = SMP_CACHE_BYTES;
+diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+index a8124e47bf6e..d4ac8ce8c1f9 100644
+--- a/drivers/pci/pci-driver.c
++++ b/drivers/pci/pci-driver.c
+@@ -1076,17 +1076,22 @@ static int pci_pm_thaw_noirq(struct device *dev)
+ 			return error;
  	}
  
--	if (end > memblock.current_limit)
--		end = memblock.current_limit;
+-	if (pci_has_legacy_pm_support(pci_dev))
+-		return pci_legacy_resume_early(dev);
 -
- again:
- 	found = memblock_find_in_range_node(size, align, start, end, nid,
- 					    flags);
-@@ -1469,6 +1466,9 @@ static void * __init memblock_alloc_inte
- 	if (WARN_ON_ONCE(slab_is_available()))
- 		return kzalloc_node(size, GFP_NOWAIT, nid);
+ 	/*
+-	 * pci_restore_state() requires the device to be in D0 (because of MSI
+-	 * restoration among other things), so force it into D0 in case the
+-	 * driver's "freeze" callbacks put it into a low-power state directly.
++	 * Both the legacy ->resume_early() and the new pm->thaw_noirq()
++	 * callbacks assume the device has been returned to D0 and its
++	 * config state has been restored.
++	 *
++	 * In addition, pci_restore_state() restores MSI-X state in MMIO
++	 * space, which requires the device to be in D0, so return it to D0
++	 * in case the driver's "freeze" callbacks put it into a low-power
++	 * state.
+ 	 */
+ 	pci_set_power_state(pci_dev, PCI_D0);
+ 	pci_restore_state(pci_dev);
  
-+	if (max_addr > memblock.current_limit)
-+		max_addr = memblock.current_limit;
++	if (pci_has_legacy_pm_support(pci_dev))
++		return pci_legacy_resume_early(dev);
 +
- 	alloc = memblock_alloc_range_nid(size, align, min_addr, max_addr, nid);
+ 	if (drv && drv->pm && drv->pm->thaw_noirq)
+ 		error = drv->pm->thaw_noirq(dev);
  
- 	/* retry allocation without lower limit */
-_
-
-Patches currently in -mm which might be from rppt@linux.ibm.com are
-
-mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch
+-- 
+2.23.0.700.g56cf767bdb-goog
 
