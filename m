@@ -2,111 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3723FD61C0
-	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 13:53:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A0ED61D0
+	for <lists+stable@lfdr.de>; Mon, 14 Oct 2019 13:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbfJNLxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 07:53:09 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:40912 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730335AbfJNLxJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 07:53:09 -0400
-Received: by mail-lj1-f193.google.com with SMTP id 7so16323277ljw.7
-        for <stable@vger.kernel.org>; Mon, 14 Oct 2019 04:53:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BUUSXCx6hkqJbTEWpOdC3FCy26W6ddQaFzU+/nbRFVg=;
-        b=YhJw+dADb1GVJrtNlGRG/Y2ls1HP18kIPeidp6Po7LqQHPgDXNvFowqAC5pRd2b+ra
-         eDYteQDZ/kNlq2ma7V1mrjosG0xqe5HzfX8QxkdKb2Sw+e+tskaf4MRnSSB0A9y9ymGR
-         TX/H46WAUITyWlFBjvXWC1Dgx1OV1xoCrScv8XA84hYySIjqUKrqazRvbVGaHFi2Aubc
-         QbvN/rhu6irogrlFCACX8KaCCD0U6qqukDk60xBeil5vO9VAMP9vzKD6ABoqL+7Te5x5
-         r3QmpYDcWnhUrXtQ6LY81UX7UpDq+HJ+2JzPawwphbOr9UZuVGQ8XRUD/UoH9qKlTgtT
-         8XNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BUUSXCx6hkqJbTEWpOdC3FCy26W6ddQaFzU+/nbRFVg=;
-        b=Hi524yPQ3yaoqsfxrv6rqjeOc7OfBEVKIakjWg4wq6441jKLVd44bb+WS/lEYyx6wg
-         C/xTHJ0Q3HFoRhJjTTl2p5XVrrjxCb0TmXWr5wmS6guxYjzOYOecQaFT2qqbmqKp/4g3
-         Qfdc/5N84wQN/ryKHHabTmWLq9DNpP3j63DPMtK9iOpI0d2a3puiwVGkam236Gsf5TLG
-         w34/0Fys5iGoCehFiZraq5mhJX6xuH7hd4cACyZ5k4Q2IH2m8y/va6mE1WCTvVJt1xRx
-         xpaaAoSo+SE23T8JQqV4ny5KhlSOI/+fjPCGsmwyId0oNwyZTzX6LjvEySndk/4gY/W6
-         /Osg==
-X-Gm-Message-State: APjAAAWs6BJjW2kWu5fhm5kQsn29cgjF91RU49sbQpSLpEsWfE1PrSc+
-        Y7QZ1i6EssocSMY/Zi6CbcNlemnAjuCD0xZnJDnsnQ==
-X-Google-Smtp-Source: APXvYqz8u5CvuNfqAA4R48grRt6sZXO4XODyM/njd2C+ebU9VV7lVNOLV1asO7f0AmCDGt9XNJlYDIVpjW788PlsTlE=
-X-Received: by 2002:a2e:978e:: with SMTP id y14mr5840922lji.206.1571053985940;
- Mon, 14 Oct 2019 04:53:05 -0700 (PDT)
+        id S1731040AbfJNL7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 07:59:07 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:37270 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730846AbfJNL7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 07:59:07 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 646B9771B8439148885A;
+        Mon, 14 Oct 2019 19:59:05 +0800 (CST)
+Received: from localhost.localdomain (10.67.212.75) by
+ DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
+ 14.3.439.0; Mon, 14 Oct 2019 19:58:59 +0800
+From:   John Garry <john.garry@huawei.com>
+To:     <stable@vger.kernel.org>
+CC:     <catalin.marinas@arm.com>, <will@kernel.org>, <rjw@rjwysocki.net>,
+        <lenb@kernel.org>, <sudeep.holla@arm.com>, <rrichter@marvell.com>,
+        <jeremy.linton@arm.com>, <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+        <linuxarm@huawei.com>, <gregkh@linuxfoundation.org>,
+        <guohanjun@huawei.com>, <wanghuiqiang@huawei.com>,
+        John Garry <john.garry@huawei.com>
+Subject: [PATCH for-stable-5.3 0/3] ACPI, arm64: Backport for ACPI PPTT 6.3 thread flag
+Date:   Mon, 14 Oct 2019 19:56:00 +0800
+Message-ID: <1571054162-71090-1-git-send-email-john.garry@huawei.com>
+X-Mailer: git-send-email 2.8.1
 MIME-Version: 1.0
-References: <20191014114710.22142-1-valentin.schneider@arm.com>
-In-Reply-To: <20191014114710.22142-1-valentin.schneider@arm.com>
-From:   Vincent Guittot <vincent.guittot@linaro.org>
-Date:   Mon, 14 Oct 2019 13:52:54 +0200
-Message-ID: <CAKfTPtCtT8+qTHSvwBXfV1A6e4V_m=A7JmS_g9QWY4AGAvWtpQ@mail.gmail.com>
-Subject: Re: [PATCH] sched/topology: Disable sched_asym_cpucapacity on domain destruction
-To:     Valentin Schneider <valentin.schneider@arm.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dietmar Eggemann <Dietmar.Eggemann@arm.com>,
-        Morten Rasmussen <morten.rasmussen@arm.com>,
-        Quentin Perret <qperret@qperret.net>,
-        "# v4 . 16+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Originating-IP: [10.67.212.75]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Oct 2019 at 13:47, Valentin Schneider
-<valentin.schneider@arm.com> wrote:
->
-> While the static key is correctly initialized as being disabled, it will
-> remain forever enabled once turned on. This means that if we start with an
-> asymmetric system and hotplug out enough CPUs to end up with an SMP system,
-> the static key will remain set - which is obviously wrong. We should detect
-> this and turn off things like misfit migration and EAS wakeups.
->
-> Having that key enabled should also mandate
->
->   per_cpu(sd_asym_cpucapacity, cpu) != NULL
->
-> for all CPUs, but this is obviously not true with the above.
->
-> On top of that, sched domain rebuilds first lead to attaching the NULL
-> domain to the affected CPUs, which means there will be a window where the
-> static key is set but the sd_asym_cpucapacity shortcut points to NULL even
-> if asymmetry hasn't been hotplugged out.
->
-> Disable the static key when destroying domains, and let
-> build_sched_domains() (re) enable it as needed.
->
-> Cc: <stable@vger.kernel.org>
-> Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
-> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+This series is a backport of the ACPI PPTT 6.3 thread flag feature for
+supporting arm64 systems.
 
-Acked-by: Vincent Guittot <vincent .guittot@linaro.org>
+The background is that some arm64 implementations are broken, in that they
+incorrectly advertise that a CPU is mutli-threaded, when it is not - the
+HiSilicon Taishanv110 rev 2, aka tsv110, being an example.
 
-> ---
->  kernel/sched/topology.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-> index b5667a273bf6..c49ae57a0611 100644
-> --- a/kernel/sched/topology.c
-> +++ b/kernel/sched/topology.c
-> @@ -2123,7 +2123,8 @@ static void detach_destroy_domains(const struct cpumask *cpu_map)
->  {
->         int i;
->
-> +       static_branch_disable_cpuslocked(&sched_asym_cpucapacity);
-> +
->         rcu_read_lock();
->         for_each_cpu(i, cpu_map)
->                 cpu_attach_domain(NULL, &def_root_domain, i);
-> --
-> 2.22.0
->
+This leads to the system topology being incorrect. The reason being that
+arm64 topology code uses a combination of ACPI PPTT (Processor Properties
+Topology Table) and the system MPIDR (Multiprocessor Affinity Register) MT
+bit to determine the topology.
+
+Until ACPI 6.3, the PPTT did not have any method to determine whether
+a CPU was multi-threaded, so only the MT bit is used - hence the
+broken topology for some systems.
+
+In ACPI 6.3, a PPTT thread flag was introduced, which - when supported -
+would be used by the kernel to determine really if a CPU is multi-threaded
+or not, so that we don't get incorrect topology.
+
+RFC originally sent for 4.19: https://lkml.org/lkml/2019/10/10/724
+Jeremy Linton (2):
+  ACPI/PPTT: Add support for ACPI 6.3 thread flag
+  arm64: topology: Use PPTT to determine if PE is a thread
+
+ arch/arm64/kernel/topology.c | 19 ++++++++++---
+ drivers/acpi/pptt.c          | 52 ++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h         |  5 ++++
+ 3 files changed, 72 insertions(+), 4 deletions(-)
+
+-- 
+2.17.1
+
