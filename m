@@ -2,149 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A0CED7DFE
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 19:40:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F2E9D7E2B
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 19:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388413AbfJORkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 13:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58696 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726038AbfJORkd (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 13:40:33 -0400
-Received: from localhost (unknown [38.98.37.135])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F82320854;
-        Tue, 15 Oct 2019 17:40:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571161231;
-        bh=ygfBSfWrcw3hq4c+bttJOqJNceeDfTeXYPAtcHqOXRM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ECIiyMqrRS7FtyWM1MQ8+o32EttgSIEw/mRhzaEihVeePCZGCa8uft+TXbsPCX3m4
-         OMDBt9bQ0Udt5iOpPdgXnGbE776A2leG6kKau6tefIdaQwQU250AIEq0M3CHuKJq3z
-         AD4lr+7fxSmdkQ8nptMlKf5ZhMrD+0vN0nKp3FuI=
-Date:   Tue, 15 Oct 2019 19:39:35 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     m.felsch@pengutronix.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iio: light: fix vcnl4000 devicetree
- hooks" failed to apply to 5.3-stable tree
-Message-ID: <20191015173935.GA1071372@kroah.com>
-References: <1571069502139213@kroah.com>
- <20191015030419.GJ31224@sasha-vm>
- <20191015061809.GA926806@kroah.com>
- <20191015141931.GO31224@sasha-vm>
- <20191015153304.GA1002701@kroah.com>
- <20191015163524.GP31224@sasha-vm>
+        id S1731482AbfJORzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 13:55:22 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:40441 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726192AbfJORzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 13:55:22 -0400
+Received: by mail-lj1-f193.google.com with SMTP id 7so21195132ljw.7;
+        Tue, 15 Oct 2019 10:55:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=rWzJ8n7OSIuZ45gRCoMAJHmCCjITG30iMIEnwpMd3gk=;
+        b=rsfHjKJNul8qvJFrZaTUY3A5XhV1bvpQX3KjrCcgU4aS5AXw7rFjarDCxexCU5ZpUU
+         ReQv1N8+Znv1pBsSjcZf0dIc+XPlXxjcnO9uENjSyG9H9XaoCsRmHDWj5dHT/v/DA1xZ
+         p5x+ZCwMxcQH5W73/kb+HmNF3TjllWMn86wCgAQu8FogJGzkeOukvGMDSG0xtM/NRrHz
+         iyz+bOAn5eBuWfxS01Z0aQfAI8l5KT09tGsKzcTl7sWKs+FPCSaOKPOZ5MY+pMYLRFFD
+         5zOiKhKMpgPrJ457YBu3NzsS5KX2UGASA7zYYUXYMffxKMvy9vcAQFhUDas7Upx6BKL6
+         fakg==
+X-Gm-Message-State: APjAAAWLUDluS5IgFsgy1RC2Lh2AS29ws8bJsEBjKANrLtwoHL54uq1X
+        7bH25uGHeV2PnfOVwxAyLpM=
+X-Google-Smtp-Source: APXvYqyQGk2et1WyKkWpkdV/Yy5lebwn2GnBYCuxpzhCEW10W7I+MFMFyhtXxB/szxWu/QVo50JHjg==
+X-Received: by 2002:a2e:85c1:: with SMTP id h1mr23284311ljj.169.1571162119912;
+        Tue, 15 Oct 2019 10:55:19 -0700 (PDT)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id 207sm4637079lfj.25.2019.10.15.10.55.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 15 Oct 2019 10:55:18 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92.2)
+        (envelope-from <johan@xi.terra>)
+        id 1iKR2h-0004ox-8A; Tue, 15 Oct 2019 19:55:31 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        syzbot+cd24df4d075c319ebfc5@syzkaller.appspotmail.com
+Subject: [PATCH] USB: usblp: fix use-after-free on disconnect
+Date:   Tue, 15 Oct 2019 19:55:22 +0200
+Message-Id: <20191015175522.18490-1-johan@kernel.org>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <000000000000f6ca4c0594f4f3d4@google.com>
+References: <000000000000f6ca4c0594f4f3d4@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191015163524.GP31224@sasha-vm>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 12:35:24PM -0400, Sasha Levin wrote:
-> On Tue, Oct 15, 2019 at 05:33:04PM +0200, Greg KH wrote:
-> > On Tue, Oct 15, 2019 at 10:19:31AM -0400, Sasha Levin wrote:
-> > > On Tue, Oct 15, 2019 at 08:18:09AM +0200, Greg KH wrote:
-> > > > On Mon, Oct 14, 2019 at 11:04:19PM -0400, Sasha Levin wrote:
-> > > > > On Mon, Oct 14, 2019 at 06:11:42PM +0200, gregkh@linuxfoundation.org wrote:
-> > > > > >
-> > > > > > The patch below does not apply to the 5.3-stable tree.
-> > > > > > If someone wants it applied there, or to any other stable or longterm
-> > > > > > tree, then please email the backport, including the original git commit
-> > > > > > id to <stable@vger.kernel.org>.
-> > > > > >
-> > > > > > thanks,
-> > > > > >
-> > > > > > greg k-h
-> > > > > >
-> > > > > > ------------------ original commit in Linus's tree ------------------
-> > > > > >
-> > > > > > > From 1436a78c63495dd94c8d4f84a76d78d5317d481b Mon Sep 17 00:00:00 2001
-> > > > > > From: Marco Felsch <m.felsch@pengutronix.de>
-> > > > > > Date: Tue, 17 Sep 2019 16:56:36 +0200
-> > > > > > Subject: [PATCH] iio: light: fix vcnl4000 devicetree hooks
-> > > > > >
-> > > > > > Since commit ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
-> > > > > > the of_match_table is supported but the data shouldn't be a string.
-> > > > > > Instead it shall be one of 'enum vcnl4000_device_ids'. Also the matching
-> > > > > > logic for the vcnl4020 was wrong. Since the data retrieve mechanism is
-> > > > > > still based on the i2c_device_id no failures did appeared till now.
-> > > > > >
-> > > > > > Fixes: ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
-> > > > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> > > > > > Reviewed-by: Angus Ainslie (Purism) angus@akkea.ca
-> > > > > > Cc: <Stable@vger.kernel.org>
-> > > > > > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > > > >
-> > > > > Greg, I'm not sure why you dropped this one?
-> > > > >
-> > > > > I've queued it up for 5.3.
-> > > >
-> > > > It doesn't apply to my 5.3 tree, and now that you added it, it still
-> > > > doesn't apply :(
-> > > >
-> > > > So I'm going to drop it now.  How did this apply on your side?
-> > > 
-> > > I... uh... it just applies?
-> > > 
-> > > $ git cherry-pick 1436a78c63495dd94c8d4f84a76d78d5317d481b
-> > > [queue-5.3 5f3196259cbe2] iio: light: fix vcnl4000 devicetree hooks
-> > > Author: Marco Felsch <m.felsch@pengutronix.de>
-> > > Date: Tue Sep 17 16:56:36 2019 +0200
-> > > 1 file changed, 5 insertions(+), 5 deletions(-)
-> > > 
-> > > what do you see as the conflict? line numbers look mostly the same, so
-> > > as the context.
-> > 
-> > It's conflicting with another patch already in the queue, try applying
-> > it now and see what happens :)
-> 
-> Apparently git resolves this conflict correctly. After cherry-pick, that
-> commit looks like this:
-> 
-> diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
-> index ca0d27b46ea22..16dacea9eadfa 100644
-> --- a/drivers/iio/light/vcnl4000.c
-> +++ b/drivers/iio/light/vcnl4000.c
-> @@ -398,15 +398,15 @@ static int vcnl4000_probe(struct i2c_client *client,
-> static const struct of_device_id vcnl_4000_of_match[] = {
->        {
->                .compatible = "vishay,vcnl4000",
-> -               .data = "VCNL4000",
-> +               .data = (void *)VCNL4000,
->        },
->        {
->                .compatible = "vishay,vcnl4010",
-> -               .data = "VCNL4010",
-> +               .data = (void *)VCNL4010,
->        },
->        {
-> -               .compatible = "vishay,vcnl4010",
-> -               .data = "VCNL4020",
-> +               .compatible = "vishay,vcnl4020",
-> +               .data = (void *)VCNL4010,
->        },
->        {
->                .compatible = "vishay,vcnl4040",
-> @@ -414,7 +414,7 @@ static const struct of_device_id vcnl_4000_of_match[] = {
->        },
->        {
->                .compatible = "vishay,vcnl4200",
-> -               .data = "VCNL4200",
-> +               .data = (void *)VCNL4200,
->        },
->        {},
-> };
-> 
-> Unless you have any objections, I'll queue up this version instead.
+A recent commit addressing a runtime PM use-count regression, introduced
+a use-after-free by not making sure we held a reference to the struct
+usb_interface for the lifetime of the driver data.
 
-No objection, please do!  I'm on a plane for the next 8+ hours and have
-limited git access...
+Fixes: 9a31535859bf ("USB: usblp: fix runtime PM after driver unbind")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+cd24df4d075c319ebfc5@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/class/usblp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-greg k-h
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index fb8bd60c83f4..0d8e3f3804a3 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -445,6 +445,7 @@ static void usblp_cleanup(struct usblp *usblp)
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->device_id_string);
+ 	kfree(usblp->statusbuf);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ }
+ 
+@@ -1113,7 +1114,7 @@ static int usblp_probe(struct usb_interface *intf,
+ 	init_waitqueue_head(&usblp->wwait);
+ 	init_usb_anchor(&usblp->urbs);
+ 	usblp->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+-	usblp->intf = intf;
++	usblp->intf = usb_get_intf(intf);
+ 
+ 	/* Malloc device ID string buffer to the largest expected length,
+ 	 * since we can re-query it on an ioctl and a dynamic string
+@@ -1198,6 +1199,7 @@ static int usblp_probe(struct usb_interface *intf,
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->statusbuf);
+ 	kfree(usblp->device_id_string);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ abort_ret:
+ 	return retval;
+-- 
+2.23.0
+
