@@ -2,100 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0687ED7843
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 16:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6E0D7900
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 16:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732545AbfJOOTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 10:19:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43570 "EHLO mail.kernel.org"
+        id S1732736AbfJOOqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 10:46:44 -0400
+Received: from foss.arm.com ([217.140.110.172]:40150 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730697AbfJOOTd (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 10:19:33 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB14D20650;
-        Tue, 15 Oct 2019 14:19:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571149172;
-        bh=nEXyM3NdpGLWGJ/ZhuQY/XN1Hk4YxpkFuwFVZuLJNtw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wGlOQ8GEHrcKuxOPKHywvxv/FPdLyzNXx6jagwkKGYbFGFUXRYWdlmuT0yMcYt22F
-         zbO9SVV6lstXscp+JMBYpOUVkYso47kCn/Te/Ahf/zESGH38U+cjc1+gOFGJLz5aVS
-         avqf5CQ4pwHq4agCs8CMyyiWziOv7sNfxCFjCE1I=
-Date:   Tue, 15 Oct 2019 10:19:31 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     m.felsch@pengutronix.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iio: light: fix vcnl4000 devicetree
- hooks" failed to apply to 5.3-stable tree
-Message-ID: <20191015141931.GO31224@sasha-vm>
-References: <1571069502139213@kroah.com>
- <20191015030419.GJ31224@sasha-vm>
- <20191015061809.GA926806@kroah.com>
+        id S1726523AbfJOOqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 10:46:44 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DABFE28;
+        Tue, 15 Oct 2019 07:46:43 -0700 (PDT)
+Received: from e121166-lin.cambridge.arm.com (unknown [10.1.196.255])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 17A3E3F718;
+        Tue, 15 Oct 2019 07:46:42 -0700 (PDT)
+Date:   Tue, 15 Oct 2019 15:46:37 +0100
+From:   Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc:     horms@verge.net.au, linux-pci@vger.kernel.org,
+        linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v4] PCI: rcar: Fix missing MACCTLR register setting in
+ rcar_pcie_hw_init()
+Message-ID: <20191015144637.GA22698@e121166-lin.cambridge.arm.com>
+References: <1570769432-15358-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191015061809.GA926806@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1570769432-15358-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 08:18:09AM +0200, Greg KH wrote:
->On Mon, Oct 14, 2019 at 11:04:19PM -0400, Sasha Levin wrote:
->> On Mon, Oct 14, 2019 at 06:11:42PM +0200, gregkh@linuxfoundation.org wrote:
->> >
->> > The patch below does not apply to the 5.3-stable tree.
->> > If someone wants it applied there, or to any other stable or longterm
->> > tree, then please email the backport, including the original git commit
->> > id to <stable@vger.kernel.org>.
->> >
->> > thanks,
->> >
->> > greg k-h
->> >
->> > ------------------ original commit in Linus's tree ------------------
->> >
->> > > From 1436a78c63495dd94c8d4f84a76d78d5317d481b Mon Sep 17 00:00:00 2001
->> > From: Marco Felsch <m.felsch@pengutronix.de>
->> > Date: Tue, 17 Sep 2019 16:56:36 +0200
->> > Subject: [PATCH] iio: light: fix vcnl4000 devicetree hooks
->> >
->> > Since commit ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
->> > the of_match_table is supported but the data shouldn't be a string.
->> > Instead it shall be one of 'enum vcnl4000_device_ids'. Also the matching
->> > logic for the vcnl4020 was wrong. Since the data retrieve mechanism is
->> > still based on the i2c_device_id no failures did appeared till now.
->> >
->> > Fixes: ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
->> > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
->> > Reviewed-by: Angus Ainslie (Purism) angus@akkea.ca
->> > Cc: <Stable@vger.kernel.org>
->> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
->>
->> Greg, I'm not sure why you dropped this one?
->>
->> I've queued it up for 5.3.
->
->It doesn't apply to my 5.3 tree, and now that you added it, it still
->doesn't apply :(
->
->So I'm going to drop it now.  How did this apply on your side?
+On Fri, Oct 11, 2019 at 01:50:32PM +0900, Yoshihiro Shimoda wrote:
+> According to the R-Car Gen2/3 manual, the bit 0 of MACCTLR register
+> should be written to 0 before enabling PCIETCTLR.CFINIT because
+> the bit 0 is set to 1 on reset. To avoid unexpected behaviors from
+> this incorrect setting, this patch fixes it.
+> 
+> Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
+> Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in resume_noirq()")
+> Cc: <stable@vger.kernel.org> # v5.2+
+> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+> Reviewed-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  Changes from v3:
+>  - Add the setting in rcar_pcie_resume_noirq().
+>  - Add Fixes tag for rcar_pcie_resume_noirq().
+>  - Change the version of the stable ML from v3.16 to v5.2.
+>  https://patchwork.kernel.org/patch/11181005/
+> 
+>  Changes from v2:
+>  - Change the subject.
+>  - Fix commit log again.
+>  - Add the register setting into the initialization, instead of speedup.
+>  - Change commit hash/target version on Fixes and Cc stable tags.
+>  - Add Geert-san's Reviewed-by.
+>  https://patchwork.kernel.org/patch/11180429/
+> 
+>  Changes from v1:
+>  - Fix commit log.
+>  - Add Sergei-san's Reviewed-by.
+>  https://patchwork.kernel.org/patch/11179279/
+> 
+>  drivers/pci/controller/pcie-rcar.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 
-I... uh... it just applies?
+Applied to pci/rcar, thanks.
 
-$ git cherry-pick 1436a78c63495dd94c8d4f84a76d78d5317d481b
-[queue-5.3 5f3196259cbe2] iio: light: fix vcnl4000 devicetree hooks
- Author: Marco Felsch <m.felsch@pengutronix.de>
- Date: Tue Sep 17 16:56:36 2019 +0200
- 1 file changed, 5 insertions(+), 5 deletions(-)
+Lorenzo
 
-what do you see as the conflict? line numbers look mostly the same, so
-as the context.
-
--- 
-Thanks,
-Sasha
+> diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
+> index f6a669a..302c9ea 100644
+> --- a/drivers/pci/controller/pcie-rcar.c
+> +++ b/drivers/pci/controller/pcie-rcar.c
+> @@ -93,6 +93,7 @@
+>  #define  LINK_SPEED_2_5GTS	(1 << 16)
+>  #define  LINK_SPEED_5_0GTS	(2 << 16)
+>  #define MACCTLR			0x011058
+> +#define  MACCTLR_RESERVED	BIT(0)
+>  #define  SPEED_CHANGE		BIT(24)
+>  #define  SCRAMBLE_DISABLE	BIT(27)
+>  #define PMSR			0x01105c
+> @@ -615,6 +616,8 @@ static int rcar_pcie_hw_init(struct rcar_pcie *pcie)
+>  	if (IS_ENABLED(CONFIG_PCI_MSI))
+>  		rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
+>  
+> +	rcar_rmw32(pcie, MACCTLR, MACCTLR_RESERVED, 0);
+> +
+>  	/* Finish initialization - establish a PCI Express link */
+>  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
+>  
+> @@ -1237,6 +1240,7 @@ static int rcar_pcie_resume_noirq(struct device *dev)
+>  		return 0;
+>  
+>  	/* Re-establish the PCIe link */
+> +	rcar_rmw32(pcie, MACCTLR, MACCTLR_RESERVED, 0);
+>  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
+>  	return rcar_pcie_wait_for_dl(pcie);
+>  }
+> -- 
+> 2.7.4
+> 
