@@ -2,106 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9553D75A6
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 13:56:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A42CD75C5
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 14:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729689AbfJOL4i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 07:56:38 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:36959 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725790AbfJOL4i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 07:56:38 -0400
-Received: by mail-wr1-f68.google.com with SMTP id p14so23495558wro.4
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 04:56:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=yAwedaQmhP6SnPIEV8Cz99ZuZIEK2enEAC2WtodOdw8=;
-        b=bhF8okyTKEtKzcimYTnw/ute32N+lw/PA1aVErlt0+7GqFytvWWW/UuV9QZ+b7u9/d
-         KdmBJouzs/udg4X3MLdcpSfC12BH0baq40PbjzQqIu41aIGSVFiHWTR3ZIEnBXuLmKPo
-         lstQs9dPKuX1619CdQyOMPawyuMw8qAUiObWYSawPtbRjFjutB9Afy4RG7yELu16XEkT
-         5GPN/0bJf5l0hV8py8jMQFFR7VWohk7uW0Bgwuyfe5Zaktc45lFlWXqCqnNY3Rr2YEHv
-         l/Dr1/eHiI5m4DOOluHL+dnLMWd5F4GrLGIBN9YWxmXnYkHni7S41YjWj+o3KOdziFK1
-         QQVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=yAwedaQmhP6SnPIEV8Cz99ZuZIEK2enEAC2WtodOdw8=;
-        b=AEi/e8BHFC6wV5OUUtK9NELH0c/H+Rfi7Gv60j8bDdWgET1SFHUOArp2gcflE1mlTe
-         dCWPdFLYroeYAvKJavJ6wVdnGP4S0/C4i22g3mq+h75R6964R59Z0TBKpKSzejXWf7Fx
-         uZZRo58b1Tmxk1bH6V6SfHMnWKi/d04rdJZwYkvf7w3Y9Qm2xHb8Nfv9y53srxm9+4qs
-         xAT6MYTQZT7zpNhKc0rpuG0LgcY0bs+22EMJbZrggMmdqIAJg0itAQgnqQ28uLRYTphX
-         228GqwMMbn3bdQGnOC7zCJQPyPaVoH3hLU+hAsF2kS6nZVX13KC1LxuP3h/eMriJUzCL
-         Egzg==
-X-Gm-Message-State: APjAAAUzxN3/anYIWs6r1fKjTe6wVX9RvC6fmvgs7TLulTDPXnWD8PNy
-        zHh3lVlzfMK9rtEFh3EVTrPEVA==
-X-Google-Smtp-Source: APXvYqyD0JiP5Vjzz/Ob2cl78I3RHYa2pXAFgS65YCSh3NzGL4FLqEi7nL0+DAaVfiBX1+EWTZpHfQ==
-X-Received: by 2002:adf:ff8e:: with SMTP id j14mr3020909wrr.178.1571140596214;
-        Tue, 15 Oct 2019 04:56:36 -0700 (PDT)
-Received: from google.com ([2a00:79e0:d:210:7687:11a4:4657:121d])
-        by smtp.gmail.com with ESMTPSA id z9sm21434838wrl.35.2019.10.15.04.56.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Oct 2019 04:56:35 -0700 (PDT)
-Date:   Tue, 15 Oct 2019 12:56:32 +0100
-From:   Quentin Perret <qperret@google.com>
-To:     Valentin Schneider <valentin.schneider@arm.com>
-Cc:     linux-kernel@vger.kernel.org, mingo@kernel.org,
-        peterz@infradead.org, vincent.guittot@linaro.org,
-        Dietmar.Eggemann@arm.com, morten.rasmussen@arm.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] sched/topology: Allow sched_asym_cpucapacity to be
- disabled
-Message-ID: <20191015115632.GC242992@google.com>
-References: <20191015102956.20133-1-valentin.schneider@arm.com>
- <20191015104010.GA242992@google.com>
- <a3a1a3d9-5d3a-3ab3-0eaf-e63e0c401c99@arm.com>
- <d1dac9d1-3ac6-1a1b-f1c9-48b136833686@arm.com>
+        id S1727383AbfJOMHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 08:07:23 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60176 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726540AbfJOMHX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 08:07:23 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id EE561106E288;
+        Tue, 15 Oct 2019 12:07:22 +0000 (UTC)
+Received: from t460s.redhat.com (ovpn-116-26.ams2.redhat.com [10.36.116.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B05A260C5D;
+        Tue, 15 Oct 2019 12:07:18 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@kernel.org>, stable@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH v1] hugetlbfs: don't access uninitialized memmaps in pfn_range_valid_gigantic()
+Date:   Tue, 15 Oct 2019 14:07:17 +0200
+Message-Id: <20191015120717.4858-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d1dac9d1-3ac6-1a1b-f1c9-48b136833686@arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.64]); Tue, 15 Oct 2019 12:07:23 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tuesday 15 Oct 2019 at 12:49:22 (+0100), Valentin Schneider wrote:
-> 
-> 
-> On 15/10/2019 11:58, Valentin Schneider wrote:
-> > On 15/10/2019 11:40, Quentin Perret wrote:
-> >>> @@ -2124,8 +2124,17 @@ static void detach_destroy_domains(const struct cpumask *cpu_map)
-> >>>  	int i;
-> >>>  
-> >>>  	rcu_read_lock();
-> >>> +
-> >>> +	if (static_key_enabled(&sched_asym_cpucapacity)) {
-> >>> +		unsigned int cpu = cpumask_any(cpu_map);
-> >>> +
-> >>> +		if (rcu_dereference(per_cpu(sd_asym_cpucapacity, cpu)))
-> >>> +			static_branch_dec_cpuslocked(&sched_asym_cpucapacity);
-> >>
-> >> Lockdep should scream for this :)
-> > 
-> > Bleh, yes indeed...
-> > 
-> 
-> Urgh, I forgot about the funny hotplug lock scenario at boot time.
-> rebuild_sched_domains() takes the lock but sched_init_domains() doesn't, so
-> we don't get the might_sleep warn at boot time.
-> 
-> So if we want to flip the key post boot time we probably need to separately
-> count our asymmetric root domains and flip the key after all the rebuilds,
-> outside of the hotplug lock.
+Uninitialized memmaps contain garbage and in the worst case trigger
+kernel BUGs, especially with CONFIG_PAGE_POISONING. They should not get
+touched.
 
-Hmm, a problem here is that static_branch*() can block (it uses a
-mutex) while you're in the rcu section, I think.
+Let's make sure that we only consider online memory (managed by the
+buddy) that has initialized memmaps. ZONE_DEVICE is not applicable.
 
-I suppose you could just move this above rcu_read_lock() and use
-rcu_access_pointer() instead ?
+page_zone() will call page_to_nid(), which will trigger
+VM_BUG_ON_PGFLAGS(PagePoisoned(page), page) with CONFIG_PAGE_POISONING
+and CONFIG_DEBUG_VM_PGFLAGS when called on uninitialized memmaps. This
+can be the case when an offline memory block (e.g., never onlined) is
+spanned by a zone.
 
-Thanks,
-Quentin
+Note: As explained by Michal in [1], alloc_contig_range() will verify
+the range. So it boils down to the wrong access in this function.
+
+[1] http://lkml.kernel.org/r/20180423000943.GO17484@dhcp22.suse.cz
+
+Reported-by: Michal Hocko <mhocko@kernel.org>
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online") # visible after d0dc12e86b319
+Cc: stable@vger.kernel.org # v4.13+
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ mm/hugetlb.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index ef37c85423a5..b45a95363a84 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1084,11 +1084,10 @@ static bool pfn_range_valid_gigantic(struct zone *z,
+ 	struct page *page;
+ 
+ 	for (i = start_pfn; i < end_pfn; i++) {
+-		if (!pfn_valid(i))
++		page = pfn_to_online_page(i);
++		if (!page)
+ 			return false;
+ 
+-		page = pfn_to_page(i);
+-
+ 		if (page_zone(page) != z)
+ 			return false;
+ 
+-- 
+2.21.0
+
