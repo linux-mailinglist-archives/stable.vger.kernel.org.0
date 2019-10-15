@@ -2,70 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA61CD6C75
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 02:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F00DD6C91
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 02:43:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726562AbfJOAcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 20:32:08 -0400
-Received: from mail-qt1-f169.google.com ([209.85.160.169]:39094 "EHLO
-        mail-qt1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726525AbfJOAcI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 20:32:08 -0400
-Received: by mail-qt1-f169.google.com with SMTP id n7so28045055qtb.6;
-        Mon, 14 Oct 2019 17:32:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nbwEWIMOPgAvRW9g6yMzibpiveKEJMzvaV/BsYwRlYQ=;
-        b=WoC6t5usZr5JbstP9UPkNvEnuRJ546xzn0MB9flDYi/Vc4bXLGkntwIHTlQp2TerVE
-         PX/jO9rE39uao+NmlI4l/+fSvJ8qyuKhTBwAgsIjs3Zcb4uy+43SDCIEOsFjYkVl+Isu
-         a7VTaolDM6yBbVI2/6e73M/IaWH4Vi3P4hs21lI3nNpjezK7k+6hSC+Ou4yzN5zx33Bu
-         aQYZhKq0X4aImWs+RAjF3lurb7615s0YPd6FwGP9bI/a3Hep4okpzIY/yaCPufWOSoyY
-         AP1crCvR2PaZKMHRc2jZkBU6HMqgK4VcQXa5Ewzcf1cVHG4TIwBWugfwC4oHnLtD56lg
-         fW+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nbwEWIMOPgAvRW9g6yMzibpiveKEJMzvaV/BsYwRlYQ=;
-        b=bdXDPRZb9YGdOLWXvt+l8I934Oli81A9DkldDTcCdnckBTrze7YUtHrAiT63NkHmaV
-         N6j3/NtBcNvccm0DXvERqQMUb4IzVg8Ha8Y3+Ya/yJ+u/Typ4KVph13a0XkaHBztlIW8
-         uO/MTT2ZHo0Dt5RR0f/A5q9aICdvp2F52GjeiRm2mRyJt3ZXHSQWvo2gYbGuQhSJCJjp
-         3VAqNpUfmvepYsFLBn1SyDgXC24L0p586fzEZZ5cwSFrV92/nLaRVKFQwzwejzMuw0hk
-         GxHof48mFwwlnI1arjf7rZIt5bfLBAC99Mpvd4Aa/G8ZaK5pf9fpVEWhWbyhwWx+91e6
-         rORw==
-X-Gm-Message-State: APjAAAUpP4ZmfU4KdaCrd9f2peto09fhT57FYr+kB1b/VommGp3cjKnw
-        t8IgvKW/io71kJFP7Zkoqyf0qVVLV3aOLwPtXuc=
-X-Google-Smtp-Source: APXvYqzs9DHXOgqoWTkJ5TaWlVOIoiXi4BQc8njn2jbtunnG3x/8W5rnh+ARtDvwUWAaPy4c2TRyIt6bpVOWHcMyQdU=
-X-Received: by 2002:a0c:e64a:: with SMTP id c10mr21998491qvn.96.1571099526091;
- Mon, 14 Oct 2019 17:32:06 -0700 (PDT)
+        id S1727110AbfJOAnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 20:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35670 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727066AbfJOAnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 14 Oct 2019 20:43:07 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 407D32067B;
+        Tue, 15 Oct 2019 00:43:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571100186;
+        bh=WvQkNAtwJuRDs0ablfCEHWX/d8MBecjWYYbhy+b7mW0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dOgXbAF0l6BYKwr8nI5c7l9V2YGy0u1Omi6Pa3nVCNRi62KZnNDVhCUIR0kWSDjEG
+         3KU9hbKPngklZQ3TPf+326RZ8FEjvdpt65WxPjgkvoHokMD7Ib/stP+23lpppoM6A6
+         k++EfcrOylA5E9E52pnfvKbqJa/dY5ro9MODAHgU=
+Date:   Mon, 14 Oct 2019 20:43:05 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     navid.emamdoost@gmail.com, dan.carpenter@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] Staging: fbtft: fix memory leak in
+ fbtft_framebuffer_alloc" failed to apply to 4.14-stable tree
+Message-ID: <20191015004305.GF31224@sasha-vm>
+References: <1571065171233128@kroah.com>
 MIME-Version: 1.0
-References: <20190925055449.30091-1-yuyufen@huawei.com> <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
-In-Reply-To: <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
-From:   Song Liu <liu.song.a23@gmail.com>
-Date:   Mon, 14 Oct 2019 17:31:55 -0700
-Message-ID: <CAPhsuW6BMA5RXo8JwWBLWNA9B6Kq0RfvG-vdkjrsNANybvrORQ@mail.gmail.com>
-Subject: Re: [PATCH v2] md: no longer compare spare disk superblock events in super_load
-To:     Yufen Yu <yuyufen@huawei.com>
-Cc:     Song Liu <songliubraving@fb.com>,
-        linux-raid <linux-raid@vger.kernel.org>,
-        NeilBrown <neilb@suse.de>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1571065171233128@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 6:35 PM Yufen Yu <yuyufen@huawei.com> wrote:
+On Mon, Oct 14, 2019 at 04:59:31PM +0200, gregkh@linuxfoundation.org wrote:
 >
-> ping
+>The patch below does not apply to the 4.14-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 5bdea6060618cfcf1459dca137e89aee038ac8b9 Mon Sep 17 00:00:00 2001
+>From: Navid Emamdoost <navid.emamdoost@gmail.com>
+>Date: Sun, 29 Sep 2019 22:09:45 -0500
+>Subject: [PATCH] Staging: fbtft: fix memory leak in fbtft_framebuffer_alloc
+>
+>In fbtft_framebuffer_alloc the error handling path should take care of
+>releasing frame buffer after it is allocated via framebuffer_alloc, too.
+>Therefore, in two failure cases the goto destination is changed to
+>address this issue.
+>
+>Fixes: c296d5f9957c ("staging: fbtft: core support")
+>Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+>Reviewed-by: Dan Carpenter <dan.carpenter@gmail.com>
+>Cc: stable <stable@vger.kernel.org>
+>Link: https://lore.kernel.org/r/20190930030949.28615-1-navid.emamdoost@gmail.com
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Sorry for the late reply.
+Conflicts due to 333c7b940526b ("staging: fbtft: Fixes some alignment
+issues - Style"). Fixed up and queued for 4.14-4.4.
 
-The patch looks good over all. Please fix issues reported by
-./scripts/checkpatch.pl
-and resubmit.
-
+-- 
 Thanks,
-Song
+Sasha
