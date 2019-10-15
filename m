@@ -2,70 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54CAAD6C22
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 01:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA61CD6C75
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 02:32:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726665AbfJNXiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 14 Oct 2019 19:38:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726422AbfJNXiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 14 Oct 2019 19:38:22 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71AD1217D9;
-        Mon, 14 Oct 2019 23:38:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571096301;
-        bh=/lTFU3bGOmz6U9q2KN673HaxpJFJaR5x02Fbwhl8xOE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TFj+P6onCnpo087A4cCLNfwZjTr7uM/bWMJDFiVPYRR8XdPCqfagSrFARSVu///1W
-         KHgff587jdGPKQjz7p7wBx+3zBZpBrVYbJ8hmTiyNEtqBRqKmS2hXYvchIskLNfyUQ
-         LcNjjl9PZk/yp8oKs7LcZB42ZsxaiCKmLoo9zCJo=
-Date:   Mon, 14 Oct 2019 19:38:20 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-gpio@vger.kernel.org, stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Kent Gibson <warthog618@gmail.com>
-Subject: Re: [PATCH v5.3, v4.19] gpiolib: don't clear FLAG_IS_OUT when
- emulating open-drain/open-source
-Message-ID: <20191014233820.GE31224@sasha-vm>
-References: <20191014155435.13234-1-brgl@bgdev.pl>
+        id S1726562AbfJOAcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 14 Oct 2019 20:32:08 -0400
+Received: from mail-qt1-f169.google.com ([209.85.160.169]:39094 "EHLO
+        mail-qt1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726525AbfJOAcI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 14 Oct 2019 20:32:08 -0400
+Received: by mail-qt1-f169.google.com with SMTP id n7so28045055qtb.6;
+        Mon, 14 Oct 2019 17:32:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nbwEWIMOPgAvRW9g6yMzibpiveKEJMzvaV/BsYwRlYQ=;
+        b=WoC6t5usZr5JbstP9UPkNvEnuRJ546xzn0MB9flDYi/Vc4bXLGkntwIHTlQp2TerVE
+         PX/jO9rE39uao+NmlI4l/+fSvJ8qyuKhTBwAgsIjs3Zcb4uy+43SDCIEOsFjYkVl+Isu
+         a7VTaolDM6yBbVI2/6e73M/IaWH4Vi3P4hs21lI3nNpjezK7k+6hSC+Ou4yzN5zx33Bu
+         aQYZhKq0X4aImWs+RAjF3lurb7615s0YPd6FwGP9bI/a3Hep4okpzIY/yaCPufWOSoyY
+         AP1crCvR2PaZKMHRc2jZkBU6HMqgK4VcQXa5Ewzcf1cVHG4TIwBWugfwC4oHnLtD56lg
+         fW+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nbwEWIMOPgAvRW9g6yMzibpiveKEJMzvaV/BsYwRlYQ=;
+        b=bdXDPRZb9YGdOLWXvt+l8I934Oli81A9DkldDTcCdnckBTrze7YUtHrAiT63NkHmaV
+         N6j3/NtBcNvccm0DXvERqQMUb4IzVg8Ha8Y3+Ya/yJ+u/Typ4KVph13a0XkaHBztlIW8
+         uO/MTT2ZHo0Dt5RR0f/A5q9aICdvp2F52GjeiRm2mRyJt3ZXHSQWvo2gYbGuQhSJCJjp
+         3VAqNpUfmvepYsFLBn1SyDgXC24L0p586fzEZZ5cwSFrV92/nLaRVKFQwzwejzMuw0hk
+         GxHof48mFwwlnI1arjf7rZIt5bfLBAC99Mpvd4Aa/G8ZaK5pf9fpVEWhWbyhwWx+91e6
+         rORw==
+X-Gm-Message-State: APjAAAUpP4ZmfU4KdaCrd9f2peto09fhT57FYr+kB1b/VommGp3cjKnw
+        t8IgvKW/io71kJFP7Zkoqyf0qVVLV3aOLwPtXuc=
+X-Google-Smtp-Source: APXvYqzs9DHXOgqoWTkJ5TaWlVOIoiXi4BQc8njn2jbtunnG3x/8W5rnh+ARtDvwUWAaPy4c2TRyIt6bpVOWHcMyQdU=
+X-Received: by 2002:a0c:e64a:: with SMTP id c10mr21998491qvn.96.1571099526091;
+ Mon, 14 Oct 2019 17:32:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191014155435.13234-1-brgl@bgdev.pl>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190925055449.30091-1-yuyufen@huawei.com> <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
+In-Reply-To: <5bce906d-3493-982e-63b1-66d1b9813e1e@huawei.com>
+From:   Song Liu <liu.song.a23@gmail.com>
+Date:   Mon, 14 Oct 2019 17:31:55 -0700
+Message-ID: <CAPhsuW6BMA5RXo8JwWBLWNA9B6Kq0RfvG-vdkjrsNANybvrORQ@mail.gmail.com>
+Subject: Re: [PATCH v2] md: no longer compare spare disk superblock events in super_load
+To:     Yufen Yu <yuyufen@huawei.com>
+Cc:     Song Liu <songliubraving@fb.com>,
+        linux-raid <linux-raid@vger.kernel.org>,
+        NeilBrown <neilb@suse.de>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 14, 2019 at 05:54:35PM +0200, Bartosz Golaszewski wrote:
->From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+On Fri, Oct 11, 2019 at 6:35 PM Yufen Yu <yuyufen@huawei.com> wrote:
 >
->When emulating open-drain/open-source by not actively driving the output
->lines - we're simply changing their mode to input. This is wrong as it
->will then make it impossible to change the value of such line - it's now
->considered to actually be in input mode. If we want to still use the
->direction_input() callback for simplicity then we need to set FLAG_IS_OUT
->manually in gpiod_direction_output() and not clear it in
->gpio_set_open_drain_value_commit() and
->gpio_set_open_source_value_commit().
->
->Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
->Cc: stable@vger.kernel.org
->Reported-by: Kent Gibson <warthog618@gmail.com>
->Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->[Bartosz: backported to v5.3, v4.19]
->Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> ping
 
-I've queued this and the 4.14 patch, thanks!
+Sorry for the late reply.
 
--- 
+The patch looks good over all. Please fix issues reported by
+./scripts/checkpatch.pl
+and resubmit.
+
 Thanks,
-Sasha
+Song
