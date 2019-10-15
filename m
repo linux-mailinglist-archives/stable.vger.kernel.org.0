@@ -2,81 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7668CD80B5
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 22:10:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F59D80EB
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 22:25:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732924AbfJOUKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 16:10:44 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:33129 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726717AbfJOUKn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 16:10:43 -0400
-Received: by mail-io1-f66.google.com with SMTP id z19so49345736ior.0
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 13:10:41 -0700 (PDT)
+        id S1729459AbfJOUZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 16:25:09 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:36682 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726491AbfJOUZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 16:25:09 -0400
+Received: by mail-pl1-f196.google.com with SMTP id j11so10130712plk.3;
+        Tue, 15 Oct 2019 13:25:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=WIMp52CAKzHghF+2e/jNlYAAEKJd975b+6wt0t+FfVY=;
-        b=ZFC+xb5C9+88Lpje8WEXOJoY+2xZ5x7gs2Pij4UgTRgFB9pF1VD1TecwCh7vttpvR7
-         SnK98LgyU5vrvCaYONaPlvJMfvxSINVHZby4WleRgLPHQMAqUWK8WARFbxEKQriM8Flp
-         mOyJeEyAzmAbHCOOG5mTCwRisXFvkeX1GHMWJGOUVbIC9hcBqrGa7XgShUZmlYUatnxf
-         FUmJawI9dQyNGNCxH/VMvaiOYxJA5IpCpxEfG3J1W5ucSA7Hhn8UGFy7SXssVFAA8zGN
-         EYvAYmZbhc36JofSH1bD9XAY17v3H1ewMpAAxK+TA/igOJ8BuyxxaoreH2qDzvmsFuoB
-         8vjQ==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=6sUvpr0WehID8pP80ZhvLsnSYvQFqygK8r5rIP0jlhs=;
+        b=lFw2H/d04tmnSUjS0uTmjPBEjbFYOOyTyG77Xpn90x3mUDRTuX2S1ZORxoelbYIBEV
+         LxjXWKMg2mT1TOerkntyXB/2ZFZHIs8BFe5kI+FprTdedjNGUj+2n7uylGLqklxo2V/U
+         E5003/iZC5RxGhMo7oMubgy1yOIdZKNg0qb9XfcJB3hVcmMs8VICx7Ma9/mfDCTH14FL
+         GuAdgFvyEazpfFYeMFcL75VcLxUMM/gxzL+pYE8rk1awzAP6j2VZIcDrcDgVbmKy5bOS
+         L+zbTMbAPHo0cZ8DYmyZ7mgoLOHjK5vp2fwoOY95Rh1o+SCRFRc4Wo0JkvgzgqkHn2Zg
+         02uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WIMp52CAKzHghF+2e/jNlYAAEKJd975b+6wt0t+FfVY=;
-        b=uWAiRWzTZENKg3W6waEWANQFiDzNSvdtEf0Mz3km32pLC+ARdxZOuXojsceqsrRI4o
-         /z0aq9Rqs/ImtoL0qqciGPdmPOIKN+PC1zIUpu98aUjcLwXGFmuw+/GKlPC78tXG5MiD
-         ruiHvlYtbAXMvkKlVr0leZzwPewPSHCB8AKmVT0tF00aM0V6ObuvI7lZ62/UcUPvs1+2
-         nY30j1vzr1gQrqtDW1eNIrJ+T3R4HjNw9hw/c6o2+E/0e79DD/GvgWkVIPX/otbCUDfj
-         NxEj3uhV2M6NPQvxfAStY1pB4LFCutjPYWB41iPa3r2n7dhk2OmZkV4GWiK774tLJ8Y3
-         G8WA==
-X-Gm-Message-State: APjAAAUqVacX3va8F4XNBXzi679rQcK9b/wl7KLNGXz/avnwhMZOgPED
-        qHqZ4+OLIg+vDQBjECqS18XNF0cbJ/wUnA==
-X-Google-Smtp-Source: APXvYqxyc9zmaZsTAJUWgjjppuQ8/fMYKs46wjhkI7m32W+hC0YsBf37Vpge1QmmaM60S8JXyJrYiw==
-X-Received: by 2002:a02:c544:: with SMTP id g4mr25058717jaj.79.1571170241274;
-        Tue, 15 Oct 2019 13:10:41 -0700 (PDT)
-Received: from [192.168.1.159] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id m15sm3030459ilg.49.2019.10.15.13.10.40
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 15 Oct 2019 13:10:40 -0700 (PDT)
-Subject: Re: [PATCH] libata/ahci: Fix PCS quirk application
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     Andreas Friedrich <afrie@gmx.net>,
-        Stephen Douthit <stephend@silicom-usa.com>,
-        stable@vger.kernel.org, linux-ide@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <157116925749.1211205.12806062056189943042.stgit@dwillia2-desk3.amr.corp.intel.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <06a3c771-e6b6-10fb-fe8f-acaec2c3526f@kernel.dk>
-Date:   Tue, 15 Oct 2019 14:10:39 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=6sUvpr0WehID8pP80ZhvLsnSYvQFqygK8r5rIP0jlhs=;
+        b=F4v3+MHVNPtilm1RWn0AYiBCi0gbpYlmNW8xexMVY0AGBqSPqnr2rh3+1ne4gf01YR
+         ZllaUK0VxAM9MDhO/7bNoQWyCAMWopXfoNpI+jnNmZK1Q3suMvv5WRvMPSUgPhrOfDvF
+         MBrud8k5mDvESA4GCjItPvZRhwZjrk/3aUpkaNNAPYmCs1/98XOFJBI8g4zvEJ2CyF4c
+         lGbqxCwz67s/b4GKKtIL/7JwGROONpmIhdyglMhGAMnkqpJ8uWrNfcfw27voRM2hWDIb
+         Xg6/2LDFW7Wl1bYSEj0l8Nl+pey2o33kjHRG1o2D93TZty23pznWyCsLqCzC6xLJ9aiy
+         3Vmw==
+X-Gm-Message-State: APjAAAXdiH15D/2zoaC9DjfcTMNfgGdu5nGl3fTsa5he+sWpq1jTv3/i
+        DEtkB2/LZp0/ZezAA2/HBIg=
+X-Google-Smtp-Source: APXvYqwtfk//M4xoUiQ5GTOjTRH/d8dzRFbzMN73Qrnf7vvxbxpNaMTZrjExHyKgYQcjHbM4zH32sg==
+X-Received: by 2002:a17:902:b70f:: with SMTP id d15mr37719790pls.210.1571171108389;
+        Tue, 15 Oct 2019 13:25:08 -0700 (PDT)
+Received: from google.com ([2620:15c:211:1:3e01:2939:5992:52da])
+        by smtp.gmail.com with ESMTPSA id u65sm18851477pgb.36.2019.10.15.13.25.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 15 Oct 2019 13:25:07 -0700 (PDT)
+Date:   Tue, 15 Oct 2019 13:25:05 -0700
+From:   Minchan Kim <minchan@kernel.org>
+To:     Chen Wandun <chenwandun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     ngupta@vflare.org, sergey.senozhatsky.work@gmail.com,
+        axboe@kernel.dk, linux-kernel@vger.kernel.org,
+        linux-block@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] zram: fix race between backing_dev_show and
+ backing_dev_store
+Message-ID: <20191015202505.GA246210@google.com>
+References: <1571046839-16814-1-git-send-email-chenwandun@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <157116925749.1211205.12806062056189943042.stgit@dwillia2-desk3.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1571046839-16814-1-git-send-email-chenwandun@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/15/19 1:54 PM, Dan Williams wrote:
-> Commit c312ef176399 "libata/ahci: Drop PCS quirk for Denverton and
-> beyond" got the polarity wrong on the check for which board-ids should
-> have the quirk applied. The board type board_ahci_pcs7 is defined at the
-> end of the list such that "pcs7" boards can be special cased in the
-> future if they need the quirk. All prior Intel board ids "<
-> board_ahci_pcs7" should proceed with applying the quirk.
+On Mon, Oct 14, 2019 at 05:53:59PM +0800, Chen Wandun wrote:
+> From: Chenwandun <chenwandun@huawei.com>
+> 
+> CPU0:				       CPU1:
+> backing_dev_show		       backing_dev_store
+>     ......				   ......
+>     file = zram->backing_dev;
+>     down_read(&zram->init_lock);	   down_read(&zram->init_init_lock)
+>     file_path(file, ...);		   zram->backing_dev = backing_dev;
+>     up_read(&zram->init_lock);		   up_read(&zram->init_lock);
+> 
+> get the value of zram->backing_dev too early in backing_dev_show,
+> that will result the value may be NULL at the begining, and not
+> NULL later.
+> 
+> backtrace:
+> [<ffffff8570e0f3ec>] d_path+0xcc/0x174
+> [<ffffff8570decd90>] file_path+0x10/0x18
+> [<ffffff85712f7630>] backing_dev_show+0x40/0xb4
+> [<ffffff85712c776c>] dev_attr_show+0x20/0x54
+> [<ffffff8570e835e4>] sysfs_kf_seq_show+0x9c/0x10c
+> [<ffffff8570e82b98>] kernfs_seq_show+0x28/0x30
+> [<ffffff8570e1c580>] seq_read+0x184/0x488
+> [<ffffff8570e81ec4>] kernfs_fop_read+0x5c/0x1a4
+> [<ffffff8570dee0fc>] __vfs_read+0x44/0x128
+> [<ffffff8570dee310>] vfs_read+0xa0/0x138
+> [<ffffff8570dee860>] SyS_read+0x54/0xb4
+> 
+> Signed-off-by: Chenwandun <chenwandun@huawei.com>
 
-Thanks Dan (and others), applied.
+It should be stable material.
+Cc: <stable@vger.kernel.org> [4.14+]
+Acked-by: Minchan Kim <minchan@kernel.org>
 
--- 
-Jens Axboe
-
+Thanks!
