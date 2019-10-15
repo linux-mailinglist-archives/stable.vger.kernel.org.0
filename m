@@ -2,61 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42DA5D8083
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 21:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C4BD80AA
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 22:08:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732529AbfJOTpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 15:45:53 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:41962 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1732528AbfJOTpx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 15:45:53 -0400
-Received: (qmail 2522 invoked by uid 2102); 15 Oct 2019 15:45:52 -0400
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 15 Oct 2019 15:45:52 -0400
-Date:   Tue, 15 Oct 2019 15:45:52 -0400 (EDT)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To:     Sasha Levin <sashal@kernel.org>
-cc:     Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        <linuxtv-commits@linuxtv.org>, <stable@vger.kernel.org>
-Subject: Re: [git:media_tree/master] media: usbvision: Fix races among open,
- close, and disconnect
-In-Reply-To: <20191014035427.DCD2B20882@mail.kernel.org>
-Message-ID: <Pine.LNX.4.44L0.1910151544370.1462-100000@iolanthe.rowland.org>
+        id S1732768AbfJOUIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 16:08:38 -0400
+Received: from mga02.intel.com ([134.134.136.20]:55088 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726717AbfJOUIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 16:08:38 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Oct 2019 13:08:37 -0700
+X-IronPort-AV: E=Sophos;i="5.67,300,1566889200"; 
+   d="scan'208";a="220545203"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Oct 2019 13:08:36 -0700
+Subject: [PATCH] libata/ahci: Fix PCS quirk application
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     axboe@kernel.dk
+Cc:     Andreas Friedrich <afrie@gmx.net>,
+        Stephen Douthit <stephend@silicom-usa.com>,
+        stable@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Tue, 15 Oct 2019 12:54:17 -0700
+Message-ID: <157116925749.1211205.12806062056189943042.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 14 Oct 2019, Sasha Levin wrote:
+Commit c312ef176399 "libata/ahci: Drop PCS quirk for Denverton and
+beyond" got the polarity wrong on the check for which board-ids should
+have the quirk applied. The board type board_ahci_pcs7 is defined at the
+end of the list such that "pcs7" boards can be special cased in the
+future if they need the quirk. All prior Intel board ids "<
+board_ahci_pcs7" should proceed with applying the quirk.
 
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
-> 
-> The bot has tested the following trees: v5.3.5, v5.2.20, v4.19.78, v4.14.148, v4.9.196, v4.4.196.
-> 
-> v5.3.5: Build OK!
-> v5.2.20: Build OK!
-> v4.19.78: Build OK!
-> v4.14.148: Build OK!
-> v4.9.196: Build OK!
-> v4.4.196: Failed to apply! Possible dependencies:
->     Unable to calculate
-> 
-> 
-> NOTE: The patch will not be queued to stable trees until it is upstream.
-> 
-> How should we proceed with this patch?
+Reported-by: Andreas Friedrich <afrie@gmx.net>
+Reported-by: Stephen Douthit <stephend@silicom-usa.com>
+Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ drivers/ata/ahci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-As far as I'm concerned, it's probably not worth the effort of
-backporting this to 4.4.y.
-
-Alan Stern
+diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+index dd92faf197d5..05c2b32dcc4d 100644
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -1600,7 +1600,9 @@ static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hp
+ 	 */
+ 	if (!id || id->vendor != PCI_VENDOR_ID_INTEL)
+ 		return;
+-	if (((enum board_ids) id->driver_data) < board_ahci_pcs7)
++
++	/* Skip applying the quirk on Denverton and beyond */
++	if (((enum board_ids) id->driver_data) >= board_ahci_pcs7)
+ 		return;
+ 
+ 	/*
 
