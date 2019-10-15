@@ -2,103 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A18D79DB
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 17:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48328D7A58
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 17:47:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733109AbfJOPdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 11:33:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59054 "EHLO mail.kernel.org"
+        id S1732879AbfJOPrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 11:47:03 -0400
+Received: from foss.arm.com ([217.140.110.172]:41402 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732659AbfJOPdZ (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 11:33:25 -0400
-Received: from localhost (unknown [38.98.37.135])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61FEF20640;
-        Tue, 15 Oct 2019 15:33:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571153604;
-        bh=4dnPslFyjeUFQvgpLb/NEyp7dQx9oO51cNEGVquuM9U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Xz6PzjwcqDFsOwT40e8exJMZnbtDHcqGqWCzUgHGqgVgaPeARVM3zApQgJpWOrI5+
-         cSp0LGX/esWX7OodJu8teERm6sGy/wup+Btq/EUaT+QzXeTrLykj/WAP5JlBfILaFd
-         4giOFDPHRYnqBAMNJXqiAca7FXgwENrpVg46yF34=
-Date:   Tue, 15 Oct 2019 17:33:04 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     m.felsch@pengutronix.de, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iio: light: fix vcnl4000 devicetree
- hooks" failed to apply to 5.3-stable tree
-Message-ID: <20191015153304.GA1002701@kroah.com>
-References: <1571069502139213@kroah.com>
- <20191015030419.GJ31224@sasha-vm>
- <20191015061809.GA926806@kroah.com>
- <20191015141931.GO31224@sasha-vm>
+        id S1732725AbfJOPrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 11:47:03 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 770BB1000;
+        Tue, 15 Oct 2019 08:47:02 -0700 (PDT)
+Received: from e113632-lin.cambridge.arm.com (e113632-lin.cambridge.arm.com [10.1.194.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id C6DA13F68E;
+        Tue, 15 Oct 2019 08:47:00 -0700 (PDT)
+From:   Valentin Schneider <valentin.schneider@arm.com>
+To:     linux-kernel@vger.kernel.org, cgroups@vger.kernel.org
+Cc:     lizefan@huawei.com, tj@kernel.org, hannes@cmpxchg.org,
+        mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
+        Dietmar.Eggemann@arm.com, morten.rasmussen@arm.com,
+        qperret@google.com, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] sched/topology: Don't try to build empty sched domains
+Date:   Tue, 15 Oct 2019 16:42:49 +0100
+Message-Id: <20191015154250.12951-2-valentin.schneider@arm.com>
+X-Mailer: git-send-email 2.22.0
+In-Reply-To: <20191015154250.12951-1-valentin.schneider@arm.com>
+References: <20191015154250.12951-1-valentin.schneider@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191015141931.GO31224@sasha-vm>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 10:19:31AM -0400, Sasha Levin wrote:
-> On Tue, Oct 15, 2019 at 08:18:09AM +0200, Greg KH wrote:
-> > On Mon, Oct 14, 2019 at 11:04:19PM -0400, Sasha Levin wrote:
-> > > On Mon, Oct 14, 2019 at 06:11:42PM +0200, gregkh@linuxfoundation.org wrote:
-> > > >
-> > > > The patch below does not apply to the 5.3-stable tree.
-> > > > If someone wants it applied there, or to any other stable or longterm
-> > > > tree, then please email the backport, including the original git commit
-> > > > id to <stable@vger.kernel.org>.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > > >
-> > > > ------------------ original commit in Linus's tree ------------------
-> > > >
-> > > > > From 1436a78c63495dd94c8d4f84a76d78d5317d481b Mon Sep 17 00:00:00 2001
-> > > > From: Marco Felsch <m.felsch@pengutronix.de>
-> > > > Date: Tue, 17 Sep 2019 16:56:36 +0200
-> > > > Subject: [PATCH] iio: light: fix vcnl4000 devicetree hooks
-> > > >
-> > > > Since commit ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
-> > > > the of_match_table is supported but the data shouldn't be a string.
-> > > > Instead it shall be one of 'enum vcnl4000_device_ids'. Also the matching
-> > > > logic for the vcnl4020 was wrong. Since the data retrieve mechanism is
-> > > > still based on the i2c_device_id no failures did appeared till now.
-> > > >
-> > > > Fixes: ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
-> > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> > > > Reviewed-by: Angus Ainslie (Purism) angus@akkea.ca
-> > > > Cc: <Stable@vger.kernel.org>
-> > > > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > > 
-> > > Greg, I'm not sure why you dropped this one?
-> > > 
-> > > I've queued it up for 5.3.
-> > 
-> > It doesn't apply to my 5.3 tree, and now that you added it, it still
-> > doesn't apply :(
-> > 
-> > So I'm going to drop it now.  How did this apply on your side?
-> 
-> I... uh... it just applies?
-> 
-> $ git cherry-pick 1436a78c63495dd94c8d4f84a76d78d5317d481b
-> [queue-5.3 5f3196259cbe2] iio: light: fix vcnl4000 devicetree hooks
-> Author: Marco Felsch <m.felsch@pengutronix.de>
-> Date: Tue Sep 17 16:56:36 2019 +0200
-> 1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> what do you see as the conflict? line numbers look mostly the same, so
-> as the context.
+Turns out hotplugging CPUs that are in exclusive cpusets can lead to the
+cpuset code feeding empty cpumasks to the sched domain rebuild machinery.
+This leads to the following splat:
 
-It's conflicting with another patch already in the queue, try applying
-it now and see what happens :)
+[   30.618174] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[   30.623697] Modules linked in:
+[   30.626731] CPU: 0 PID: 235 Comm: kworker/5:2 Not tainted 5.4.0-rc1-00005-g8d495477d62e #23
+[   30.635003] Hardware name: ARM Juno development board (r0) (DT)
+[   30.640877] Workqueue: events cpuset_hotplug_workfn
+[   30.645713] pstate: 60000005 (nZCv daif -PAN -UAO)
+[   30.650464] pc : build_sched_domains (./include/linux/arch_topology.h:23 kernel/sched/topology.c:1898 kernel/sched/topology.c:1969)
+[   30.655126] lr : build_sched_domains (kernel/sched/topology.c:1966)
+[...]
+[   30.742047] Call trace:
+[   30.744474] build_sched_domains (./include/linux/arch_topology.h:23 kernel/sched/topology.c:1898 kernel/sched/topology.c:1969)
+[   30.748793] partition_sched_domains_locked (kernel/sched/topology.c:2250)
+[   30.753971] rebuild_sched_domains_locked (./include/linux/bitmap.h:370 ./include/linux/cpumask.h:538 kernel/cgroup/cpuset.c:955 kernel/cgroup/cpuset.c:978 kernel/cgroup/cpuset.c:1019)
+[   30.758977] rebuild_sched_domains (kernel/cgroup/cpuset.c:1032)
+[   30.763209] cpuset_hotplug_workfn (kernel/cgroup/cpuset.c:3205 (discriminator 2))
+[   30.767613] process_one_work (./arch/arm64/include/asm/jump_label.h:21 ./include/linux/jump_label.h:200 ./include/trace/events/workqueue.h:114 kernel/workqueue.c:2274)
+[   30.771586] worker_thread (./include/linux/compiler.h:199 ./include/linux/list.h:268 kernel/workqueue.c:2416)
+[   30.775217] kthread (kernel/kthread.c:255)
+[   30.778418] ret_from_fork (arch/arm64/kernel/entry.S:1167)
+[ 30.781965] Code: f860dae2 912802d6 aa1603e1 12800000 (f8616853)
 
-greg k-h
+The faulty line in question is
+
+  cap = arch_scale_cpu_capacity(cpumask_first(cpu_map));
+
+and we're not checking the return value against nr_cpu_ids (we shouldn't
+have to!), which leads to the above.
+
+Prevent generate_sched_domains() from returning empty cpumasks, and add
+some assertion in build_sched_domains() to scream bloody murder if it
+happens again.
+
+The above splat was obtained on my Juno r0 with:
+
+  cgcreate -g cpuset:asym
+  cgset -r cpuset.cpus=0-3 asym
+  cgset -r cpuset.mems=0 asym
+  cgset -r cpuset.cpu_exclusive=1 asym
+
+  cgcreate -g cpuset:smp
+  cgset -r cpuset.cpus=4-5 smp
+  cgset -r cpuset.mems=0 smp
+  cgset -r cpuset.cpu_exclusive=1 smp
+
+  cgset -r cpuset.sched_load_balance=0 .
+
+  echo 0 > /sys/devices/system/cpu/cpu4/online
+  echo 0 > /sys/devices/system/cpu/cpu5/online
+
+Cc: <stable@vger.kernel.org>
+Fixes: 05484e098448 ("sched/topology: Add SD_ASYM_CPUCAPACITY flag detection")
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+---
+ kernel/cgroup/cpuset.c  | 8 ++++++++
+ kernel/sched/topology.c | 5 ++++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index c52bc91f882b..a859e5539440 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -817,6 +817,11 @@ static int generate_sched_domains(cpumask_var_t **domains,
+ 		struct cpuset *a = csa[i];
+ 		int apn = a->pn;
+ 
++		if (cpumask_empty(a->effective_cpus)) {
++			ndoms--;
++			continue;
++		}
++
+ 		for (j = 0; j < csn; j++) {
+ 			struct cpuset *b = csa[j];
+ 			int bpn = b->pn;
+@@ -859,6 +864,9 @@ static int generate_sched_domains(cpumask_var_t **domains,
+ 			continue;
+ 		}
+ 
++		if (cpumask_empty(a->effective_cpus))
++			continue;
++
+ 		dp = doms[nslot];
+ 
+ 		if (nslot == ndoms) {
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index b5667a273bf6..9318acf1d1fe 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1948,7 +1948,7 @@ static struct sched_domain_topology_level
+ static int
+ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *attr)
+ {
+-	enum s_alloc alloc_state;
++	enum s_alloc alloc_state = sa_none;
+ 	struct sched_domain *sd;
+ 	struct s_data d;
+ 	struct rq *rq = NULL;
+@@ -1956,6 +1956,9 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
+ 	struct sched_domain_topology_level *tl_asym;
+ 	bool has_asym = false;
+ 
++	if (WARN_ON(cpumask_empty(cpu_map)))
++		goto error;
++
+ 	alloc_state = __visit_domain_allocation_hell(&d, cpu_map);
+ 	if (alloc_state != sa_rootdomain)
+ 		goto error;
+-- 
+2.22.0
+
