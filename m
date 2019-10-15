@@ -2,212 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 466B7D727A
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 11:49:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 626AFD7291
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 11:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbfJOJtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 05:49:01 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40944 "EHLO mx1.redhat.com"
+        id S1726167AbfJOJxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 05:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725890AbfJOJtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 05:49:01 -0400
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1725890AbfJOJxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 05:53:31 -0400
+Received: from localhost (unknown [84.241.198.69])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5BDC481DE0
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 09:49:00 +0000 (UTC)
-Received: by mail-qk1-f198.google.com with SMTP id g62so19610987qkb.20
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 02:49:00 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vyeG1xkQHVQzofjKkbReIQyCekYwZ9Bsv8YK1GMSU5I=;
-        b=K5X2xfhQHI257E/OurB4pSKP5L1cbJWK+fIk+Orn52PdqUO8la0vGSgly175AevPJZ
-         L+5hbztGbwcnEx7q8SUcv2cVixzbh52Qxz3hGKvYzNErciB+7wi2FBIT0Eg9pkD2FWlI
-         b5NNAhenMaJtLga2TGjH68LQwJedV0t6P49ekPt8NK/1NsVaP6CeaFVgbUMvjigdM4zO
-         HOr8N9YELlfthuAzsiS/NUSBTqSbxid6bi6zn0x2xMkZbwkV0aAkPh94YUtMU11Hmclb
-         tbHt2HQFADAMz/l5fpWysm/25+vPEUfOWyfOlxlG0l1LRO4rJf+99YyXu71tAAUI7qRq
-         zUyA==
-X-Gm-Message-State: APjAAAXWi5FgSVK5IrNEmXvgloXOFSbKhGBwjqOm6tgPWvvHNHKnJKLM
-        y0uF4dzzIj9H1HCd7Wy6RZw3yBdW1y37WJfnNj3Zqmkk35bAiZ98Pz+ENt4YX33jiy/RWrp2nBa
-        /Zup2rCooP0oQ9J+06EsyzrUsRyTbz0wD
-X-Received: by 2002:ae9:f003:: with SMTP id l3mr34192902qkg.59.1571132939347;
-        Tue, 15 Oct 2019 02:48:59 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqw5VI7LbHSxYGl8aon/Fq3mRrRHdAmfkU9swiXeUxTaw5UUD4iglROKUylHIbwAFtuzY4iqVZZeNlsj4JYbzRw=
-X-Received: by 2002:ae9:f003:: with SMTP id l3mr34192879qkg.59.1571132939056;
- Tue, 15 Oct 2019 02:48:59 -0700 (PDT)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0DAE20659;
+        Tue, 15 Oct 2019 09:53:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571133209;
+        bh=qrS1Li+aM/D70cvMwpJEJm39oVCjUpXDVJKvk7tEhQE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ret2mrFHlWc9NqFsQTwPv1/9Fkxx/UcLBYFRG4i++1r6JSe/gWyZRa+PM+b+DxsE/
+         AXBqGpSggD1UZYad61Z4PeZ0S3k8LZgBouKETZaw//WGA3RBmT7vn6iVFzciAwu+fP
+         980fgmA9WtmZm3CdcATF7dC7409GA+yN77qw4Xms=
+Date:   Tue, 15 Oct 2019 11:53:25 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Yi Li <yili@winhong.com>
+Cc:     stable@vger.kernel.org, Yi Li <yilikernel@gmail.com>
+Subject: Re: [PATCH] ocfs2: fix panic due to ocfs2_wq is null
+Message-ID: <20191015095325.GD968039@kroah.com>
+References: <1571129255-1617-1-git-send-email-yili@winhong.com>
 MIME-Version: 1.0
-References: <15710699036748@kroah.com> <CALF+zO=wKs7Yt4_q6F_p3jAiexMdxGK3ogFsFFLV0uGCEey90A@mail.gmail.com>
- <20191015032912.GL31224@sasha-vm>
-In-Reply-To: <20191015032912.GL31224@sasha-vm>
-From:   David Wysochanski <dwysocha@redhat.com>
-Date:   Tue, 15 Oct 2019 05:48:21 -0400
-Message-ID: <CALF+zOn7LSnjd9X_ihNt3AD1eX6wBOR467cM+KxYoeenOmjepQ@mail.gmail.com>
-Subject: Re: FAILED: patch "[PATCH] cifs: use cifsInodeInfo->open_file_lock
- while iterating to" failed to apply to 4.19-stable tree
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     gregkh@linuxfoundation.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        stable@vger.kernel.org, stfrench@microsoft.com
-Content-Type: multipart/mixed; boundary="000000000000ba6e2b0594efe44b"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1571129255-1617-1-git-send-email-yili@winhong.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---000000000000ba6e2b0594efe44b
-Content-Type: text/plain; charset="UTF-8"
+On Tue, Oct 15, 2019 at 04:47:35PM +0800, Yi Li wrote:
+> mount.ocfs2 failed when read ocfs2 filesystem super error.
+> the func ocfs2_initialize_super will return before allocate ocfs2_wq.
+> ocfs2_dismount_volume will flush the ocfs2_wq, that triggered the following panic.
+> 
+> Oct 15 16:09:27 cnwarekv-205120 kernel: OCFS2: ERROR (device dm-34): ocfs2_validate_inode_block: Invalid dinode #513: fs_generation is 1837764116
+> Oct 15 16:09:27 cnwarekv-205120 kernel: On-disk corruption discovered. Please run fsck.ocfs2 once the filesystem is unmounted.
+> Oct 15 16:09:27 cnwarekv-205120 kernel: OCFS2: File system is now read-only.
+> Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44):ocfs2_read_locked_inode:537 ERROR: status = -30
+> Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44):ocfs2_init_global_system_inodes:458 ERROR: status = -30
+> Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44):ocfs2_init_global_system_inodes:491 ERROR: status = -30
+> Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44):ocfs2_initialize_super:2313 ERROR: status = -30
+> Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44):ocfs2_fill_super:1033 ERROR: status = -30
+> ------------[ cut here ]------------
+> Oops: 0002 [#1] SMP NOPTI
+> Modules linked in: ocfs2 rpcsec_gss_krb5 auth_rpcgss nfsv4 nfs fscache lockd grace ocfs2_dlmfs ocfs2_stack_o2cb ocfs2_dlm ocfs2_nodemanager ocfs2_stackglue configfs sunrpc ipt_REJECT nf_reject_ipv4 nf_conntrack_ipv4 nf_defrag_ipv4 iptable_filter ip_tables ip6t_REJECT nf_reject_ipv6 nf_conntrack_ipv6 nf_defrag_ipv6 xt_state nf_conntrack ip6table_filter ip6_tables ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad rdma_cm ib_cm iw_cm ib_sa ib_mad ib_core ib_addr ipv6 ovmapi ppdev parport_pc parport xen_netfront fb_sys_fops sysimgblt sysfillrect syscopyarea acpi_cpufreq pcspkr i2c_piix4 i2c_core sg ext4 jbd2 mbcache2 sr_mod cdrom xen_blkfront pata_acpi ata_generic ata_piix floppy dm_mirror dm_region_hash dm_log dm_mod
+> CPU: 1 PID: 11753 Comm: mount.ocfs2 Tainted: G  E	4.14.148-200.ckv.x86_64 #1
+> Hardware name: Sugon H320-G30/35N16-US, BIOS 0SSDX017 12/21/2018
+> task: ffff967af0520000 task.stack: ffffa5f05484000
+> RIP: 0010:mutex_lock+0x19/0x20
+> Call Trace:
+>   flush_workqueue+0x81/0x460
+>   ocfs2_shutdown_local_alloc+0x47/0x440 [ocfs2]
+>   ocfs2_dismount_volume+0x84/0x400 [ocfs2]
+>   ocfs2_fill_super+0xa4/0x1270 [ocfs2]
+>   ? ocfs2_initialize_super.isa.211+0xf20/0xf20 [ocfs2]
+>   mount_bdev+0x17f/0x1c0
+>   mount_fs+0x3a/0x160
+> 
+> Signed-off-by: Yi Li <yilikernel@gmail.com>
+> ---
+>  fs/ocfs2/localalloc.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
 
-On Mon, Oct 14, 2019 at 11:29 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Mon, Oct 14, 2019 at 12:38:57PM -0400, David Wysochanski wrote:
-> >Unless there is objections, let me try to fix this up.
-> >Thanks.
->
-> Hi David,
->
-> This was mostly due to missing fe768d51c832e ("CIFS: Return error code
-> when getting file handle for writeback"). I've adjusted the context and
-> queued it for 4.19. However, if you do end up fixing it up on your side
-> please share it with me and I'll confirm that I did the right thing.
->
-> --
-> Thanks,
-> Sasha
 
+<formletter>
 
-See attached for my 4.19 backport so you can compare.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
---000000000000ba6e2b0594efe44b
-Content-Type: text/x-patch; charset="US-ASCII"; 
-	name="0001-cifs-use-cifsInodeInfo-open_file_lock-while-iteratin.patch"
-Content-Disposition: attachment; 
-	filename="0001-cifs-use-cifsInodeInfo-open_file_lock-while-iteratin.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_k1rnxxze0>
-X-Attachment-Id: f_k1rnxxze0
-
-RnJvbSAxNjIxYzY2MGFmMDkwOThhYTNlYmM4Y2E3OGRkMGMxNzBmMGY0MzdiIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBEYXZlIFd5c29jaGFuc2tpIDxkd3lzb2NoYUByZWRoYXQuY29t
-PgpEYXRlOiBUaHUsIDMgT2N0IDIwMTkgMTU6MTY6MjcgKzEwMDAKU3ViamVjdDogW1BBVENIXSBj
-aWZzOiB1c2UgY2lmc0lub2RlSW5mby0+b3Blbl9maWxlX2xvY2sgd2hpbGUgaXRlcmF0aW5nIHRv
-CiBhdm9pZCBhIHBhbmljCgpDb21taXQgNDg3MzE3Yzk5NDc3ICgiY2lmczogYWRkIHNwaW5sb2Nr
-IGZvciB0aGUgb3BlbkZpbGVMaXN0IHRvCmNpZnNJbm9kZUluZm8iKSBhZGRlZCBjaWZzSW5vZGVJ
-bmZvLT5vcGVuX2ZpbGVfbG9jayBzcGluX2xvY2sgdG8gcHJvdGVjdAp0aGUgb3BlbkZpbGVMaXN0
-LCBidXQgbWlzc2VkIGEgZmV3IHBsYWNlcyB3aGVyZSBjaWZzX2lub2RlLT5vcGVuRmlsZUxpc3QK
-d2FzIGVudW1lcmF0ZWQuICBDaGFuZ2UgdGhlc2UgcmVtYWluaW5nIHRjb24tPm9wZW5fZmlsZV9s
-b2NrIHRvCmNpZnNJbm9kZUluZm8tPm9wZW5fZmlsZV9sb2NrIHRvIGF2b2lkIHBhbmljIGluIGlz
-X3NpemVfc2FmZV90b19jaGFuZ2UuCgpbMTczMTMuMjQ1NjQxXSBSSVA6IDAwMTA6aXNfc2l6ZV9z
-YWZlX3RvX2NoYW5nZSsweDU3LzB4YjAgW2NpZnNdClsxNzMxMy4yNDU2NDVdIENvZGU6IDY4IDQw
-IDQ4IDg5IGVmIGU4IDE5IDY3IGI3IGYxIDQ4IDhiIDQzIDQwIDQ4IDhkIDRiIDQwIDQ4IDhkIDUw
-IGYwIDQ4IDM5IGMxIDc1IDBmIGViIDQ3IDQ4IDhiIDQyIDEwIDQ4IDhkIDUwIGYwIDQ4IDM5IGMx
-IDc0IDNhIDw4Yj4gODAgODggMDAgMDAgMDAgODMgYzAgMDEgYTggMDIgNzQgZTYgNDggODkgZWYg
-YzYgMDcgMDAgMGYgMWYgNDAKWzE3MzEzLjI0NTY0OV0gUlNQOiAwMDE4OmZmZmY5NGFlMWJhZWZh
-MzAgRUZMQUdTOiAwMDAxMDIwMgpbMTczMTMuMjQ1NjU0XSBSQVg6IGRlYWQwMDAwMDAwMDAxMDAg
-UkJYOiBmZmZmODhkYzcyMjQzMzAwIFJDWDogZmZmZjg4ZGM3MjI0MzM0MApbMTczMTMuMjQ1NjU3
-XSBSRFg6IGRlYWQwMDAwMDAwMDAwZjAgUlNJOiAwMDAwMDAwMDA5OGY3OTQwIFJESTogZmZmZjg4
-ZGQzMTAyZjA0MApbMTczMTMuMjQ1NjU5XSBSQlA6IGZmZmY4OGRkMzEwMmYwNDAgUjA4OiAwMDAw
-MDAwMDAwMDAwMDAwIFIwOTogZmZmZjk0YWUxYmFlZmM0MApbMTczMTMuMjQ1NjYxXSBSMTA6IGZm
-ZmZjZGM4YmIxYzRlODAgUjExOiBmZmZmY2RjOGI1MGFkYjA4IFIxMjogMDAwMDAwMDAwOThmNzk0
-MApbMTczMTMuMjQ1NjYzXSBSMTM6IGZmZmY4OGRjNzIyNDMzMDAgUjE0OiBmZmZmODhkYmM4ZjE5
-NjAwIFIxNTogZmZmZjg4ZGM3MjI0MzQyOApbMTczMTMuMjQ1NjY3XSBGUzogIDAwMDA3ZmIxNDU0
-ODU3MDAoMDAwMCkgR1M6ZmZmZjg4ZGQzZTAwMDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAw
-MDAwClsxNzMxMy4yNDU2NzBdIENTOiAgMDAxMCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAw
-MDAwODAwNTAwMzMKWzE3MzEzLjI0NTY3Ml0gQ1IyOiAwMDAwMDI2YmI0NmM2MDAwIENSMzogMDAw
-MDAwNGVkYjExMDAwMyBDUjQ6IDAwMDAwMDAwMDA3NjA2ZTAKWzE3MzEzLjI0NTc1M10gRFIwOiAw
-MDAwMDAwMDAwMDAwMDAwIERSMTogMDAwMDAwMDAwMDAwMDAwMCBEUjI6IDAwMDAwMDAwMDAwMDAw
-MDAKWzE3MzEzLjI0NTc1Nl0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAwMDAwMDBmZmZl
-MGZmMCBEUjc6IDAwMDAwMDAwMDAwMDA0MDAKWzE3MzEzLjI0NTc1OV0gUEtSVTogNTU1NTU1NTQK
-WzE3MzEzLjI0NTc2MV0gQ2FsbCBUcmFjZToKWzE3MzEzLjI0NTgwM10gIGNpZnNfZmF0dHJfdG9f
-aW5vZGUrMHgxNmIvMHg1ODAgW2NpZnNdClsxNzMxMy4yNDU4MzhdICBjaWZzX2dldF9pbm9kZV9p
-bmZvKzB4MzVjLzB4YTYwIFtjaWZzXQpbMTczMTMuMjQ1ODUyXSAgPyBrbWVtX2NhY2hlX2FsbG9j
-X3RyYWNlKzB4MTUxLzB4MWQwClsxNzMxMy4yNDU4ODVdICBjaWZzX29wZW4rMHgzOGYvMHg5OTAg
-W2NpZnNdClsxNzMxMy4yNDU5MjFdICA/IGNpZnNfcmV2YWxpZGF0ZV9kZW50cnlfYXR0cisweDNl
-LzB4MzUwIFtjaWZzXQpbMTczMTMuMjQ1OTUzXSAgPyBjaWZzRmlsZUluZm9fZ2V0KzB4MzAvMHgz
-MCBbY2lmc10KWzE3MzEzLjI0NTk2MF0gID8gZG9fZGVudHJ5X29wZW4rMHgxMzIvMHgzMzAKWzE3
-MzEzLjI0NTk2M10gIGRvX2RlbnRyeV9vcGVuKzB4MTMyLzB4MzMwClsxNzMxMy4yNDU5NjldICBw
-YXRoX29wZW5hdCsweDU3My8weDE0ZDAKWzE3MzEzLjI0NTk3NF0gIGRvX2ZpbHBfb3BlbisweDkz
-LzB4MTAwClsxNzMxMy4yNDU5NzldICA/IF9fY2hlY2tfb2JqZWN0X3NpemUrMHhhMy8weDE4MQpb
-MTczMTMuMjQ1OTg2XSAgPyBhdWRpdF9hbGxvY19uYW1lKzB4N2UvMHhkMApbMTczMTMuMjQ1OTky
-XSAgZG9fc3lzX29wZW4rMHgxODQvMHgyMjAKWzE3MzEzLjI0NTk5OV0gIGRvX3N5c2NhbGxfNjQr
-MHg1Yi8weDFiMAoKRml4ZXM6IDQ4NzMxN2M5OTQ3NyAoImNpZnM6IGFkZCBzcGlubG9jayBmb3Ig
-dGhlIG9wZW5GaWxlTGlzdCB0byBjaWZzSW5vZGVJbmZvIikKCkNDOiBTdGFibGUgPHN0YWJsZUB2
-Z2VyLmtlcm5lbC5vcmc+ClNpZ25lZC1vZmYtYnk6IERhdmUgV3lzb2NoYW5za2kgPGR3eXNvY2hh
-QHJlZGhhdC5jb20+ClJldmlld2VkLWJ5OiBSb25uaWUgU2FobGJlcmcgPGxzYWhsYmVyQHJlZGhh
-dC5jb20+ClNpZ25lZC1vZmYtYnk6IFN0ZXZlIEZyZW5jaCA8c3RmcmVuY2hAbWljcm9zb2Z0LmNv
-bT4KKGNoZXJyeSBwaWNrZWQgZnJvbSBjb21taXQgY2IyNDg4MTlkMjA5ZDExM2U0NWZlZDQ1OTc3
-Mzk5MTUxOGU4ZTgwYikKCkNvbmZsaWN0czoKCWZzL2NpZnMvZmlsZS5jCi0tLQogZnMvY2lmcy9m
-aWxlLmMgfCAyNyArKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAx
-MSBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9mcy9jaWZzL2Zp
-bGUuYyBiL2ZzL2NpZnMvZmlsZS5jCmluZGV4IDg3MDNiNWYyNmY0NS4uMjYwMjdkODVmZmQ1IDEw
-MDY0NAotLS0gYS9mcy9jaWZzL2ZpbGUuYworKysgYi9mcy9jaWZzL2ZpbGUuYwpAQCAtMTgzNSwx
-MyArMTgzNSwxMiBAQCBzdHJ1Y3QgY2lmc0ZpbGVJbmZvICpmaW5kX3JlYWRhYmxlX2ZpbGUoc3Ry
-dWN0IGNpZnNJbm9kZUluZm8gKmNpZnNfaW5vZGUsCiB7CiAJc3RydWN0IGNpZnNGaWxlSW5mbyAq
-b3Blbl9maWxlID0gTlVMTDsKIAlzdHJ1Y3QgY2lmc19zYl9pbmZvICpjaWZzX3NiID0gQ0lGU19T
-QihjaWZzX2lub2RlLT52ZnNfaW5vZGUuaV9zYik7Ci0Jc3RydWN0IGNpZnNfdGNvbiAqdGNvbiA9
-IGNpZnNfc2JfbWFzdGVyX3Rjb24oY2lmc19zYik7CiAKIAkvKiBvbmx5IGZpbHRlciBieSBmc3Vp
-ZCBvbiBtdWx0aXVzZXIgbW91bnRzICovCiAJaWYgKCEoY2lmc19zYi0+bW50X2NpZnNfZmxhZ3Mg
-JiBDSUZTX01PVU5UX01VTFRJVVNFUikpCiAJCWZzdWlkX29ubHkgPSBmYWxzZTsKIAotCXNwaW5f
-bG9jaygmdGNvbi0+b3Blbl9maWxlX2xvY2spOworCXNwaW5fbG9jaygmY2lmc19pbm9kZS0+b3Bl
-bl9maWxlX2xvY2spOwogCS8qIHdlIGNvdWxkIHNpbXBseSBnZXQgdGhlIGZpcnN0X2xpc3RfZW50
-cnkgc2luY2Ugd3JpdGUtb25seSBlbnRyaWVzCiAJICAgYXJlIGFsd2F5cyBhdCB0aGUgZW5kIG9m
-IHRoZSBsaXN0IGJ1dCBzaW5jZSB0aGUgZmlyc3QgZW50cnkgbWlnaHQKIAkgICBoYXZlIGEgY2xv
-c2UgcGVuZGluZywgd2UgZ28gdGhyb3VnaCB0aGUgd2hvbGUgbGlzdCAqLwpAQCAtMTg1Myw3ICsx
-ODUyLDcgQEAgc3RydWN0IGNpZnNGaWxlSW5mbyAqZmluZF9yZWFkYWJsZV9maWxlKHN0cnVjdCBj
-aWZzSW5vZGVJbmZvICpjaWZzX2lub2RlLAogCQkJCS8qIGZvdW5kIGEgZ29vZCBmaWxlICovCiAJ
-CQkJLyogbG9jayBpdCBzbyBpdCB3aWxsIG5vdCBiZSBjbG9zZWQgb24gdXMgKi8KIAkJCQljaWZz
-RmlsZUluZm9fZ2V0KG9wZW5fZmlsZSk7Ci0JCQkJc3Bpbl91bmxvY2soJnRjb24tPm9wZW5fZmls
-ZV9sb2NrKTsKKwkJCQlzcGluX3VubG9jaygmY2lmc19pbm9kZS0+b3Blbl9maWxlX2xvY2spOwog
-CQkJCXJldHVybiBvcGVuX2ZpbGU7CiAJCQl9IC8qIGVsc2UgbWlnaHQgYXMgd2VsbCBjb250aW51
-ZSwgYW5kIGxvb2sgZm9yCiAJCQkgICAgIGFub3RoZXIsIG9yIHNpbXBseSBoYXZlIHRoZSBjYWxs
-ZXIgcmVvcGVuIGl0CkBAIC0xODYxLDcgKzE4NjAsNyBAQCBzdHJ1Y3QgY2lmc0ZpbGVJbmZvICpm
-aW5kX3JlYWRhYmxlX2ZpbGUoc3RydWN0IGNpZnNJbm9kZUluZm8gKmNpZnNfaW5vZGUsCiAJCX0g
-ZWxzZSAvKiB3cml0ZSBvbmx5IGZpbGUgKi8KIAkJCWJyZWFrOyAvKiB3cml0ZSBvbmx5IGZpbGVz
-IGFyZSBsYXN0IHNvIG11c3QgYmUgZG9uZSAqLwogCX0KLQlzcGluX3VubG9jaygmdGNvbi0+b3Bl
-bl9maWxlX2xvY2spOworCXNwaW5fdW5sb2NrKCZjaWZzX2lub2RlLT5vcGVuX2ZpbGVfbG9jayk7
-CiAJcmV0dXJuIE5VTEw7CiB9CiAKQEAgLTE4NzAsNyArMTg2OSw2IEBAIHN0cnVjdCBjaWZzRmls
-ZUluZm8gKmZpbmRfd3JpdGFibGVfZmlsZShzdHJ1Y3QgY2lmc0lub2RlSW5mbyAqY2lmc19pbm9k
-ZSwKIHsKIAlzdHJ1Y3QgY2lmc0ZpbGVJbmZvICpvcGVuX2ZpbGUsICppbnZfZmlsZSA9IE5VTEw7
-CiAJc3RydWN0IGNpZnNfc2JfaW5mbyAqY2lmc19zYjsKLQlzdHJ1Y3QgY2lmc190Y29uICp0Y29u
-OwogCWJvb2wgYW55X2F2YWlsYWJsZSA9IGZhbHNlOwogCWludCByYzsKIAl1bnNpZ25lZCBpbnQg
-cmVmaW5kID0gMDsKQEAgLTE4ODYsMTYgKzE4ODQsMTUgQEAgc3RydWN0IGNpZnNGaWxlSW5mbyAq
-ZmluZF93cml0YWJsZV9maWxlKHN0cnVjdCBjaWZzSW5vZGVJbmZvICpjaWZzX2lub2RlLAogCX0K
-IAogCWNpZnNfc2IgPSBDSUZTX1NCKGNpZnNfaW5vZGUtPnZmc19pbm9kZS5pX3NiKTsKLQl0Y29u
-ID0gY2lmc19zYl9tYXN0ZXJfdGNvbihjaWZzX3NiKTsKIAogCS8qIG9ubHkgZmlsdGVyIGJ5IGZz
-dWlkIG9uIG11bHRpdXNlciBtb3VudHMgKi8KIAlpZiAoIShjaWZzX3NiLT5tbnRfY2lmc19mbGFn
-cyAmIENJRlNfTU9VTlRfTVVMVElVU0VSKSkKIAkJZnN1aWRfb25seSA9IGZhbHNlOwogCi0Jc3Bp
-bl9sb2NrKCZ0Y29uLT5vcGVuX2ZpbGVfbG9jayk7CisJc3Bpbl9sb2NrKCZjaWZzX2lub2RlLT5v
-cGVuX2ZpbGVfbG9jayk7CiByZWZpbmRfd3JpdGFibGU6CiAJaWYgKHJlZmluZCA+IE1BWF9SRU9Q
-RU5fQVRUKSB7Ci0JCXNwaW5fdW5sb2NrKCZ0Y29uLT5vcGVuX2ZpbGVfbG9jayk7CisJCXNwaW5f
-dW5sb2NrKCZjaWZzX2lub2RlLT5vcGVuX2ZpbGVfbG9jayk7CiAJCXJldHVybiBOVUxMOwogCX0K
-IAlsaXN0X2Zvcl9lYWNoX2VudHJ5KG9wZW5fZmlsZSwgJmNpZnNfaW5vZGUtPm9wZW5GaWxlTGlz
-dCwgZmxpc3QpIHsKQEAgLTE5MDcsNyArMTkwNCw3IEBAIHN0cnVjdCBjaWZzRmlsZUluZm8gKmZp
-bmRfd3JpdGFibGVfZmlsZShzdHJ1Y3QgY2lmc0lub2RlSW5mbyAqY2lmc19pbm9kZSwKIAkJCWlm
-ICghb3Blbl9maWxlLT5pbnZhbGlkSGFuZGxlKSB7CiAJCQkJLyogZm91bmQgYSBnb29kIHdyaXRh
-YmxlIGZpbGUgKi8KIAkJCQljaWZzRmlsZUluZm9fZ2V0KG9wZW5fZmlsZSk7Ci0JCQkJc3Bpbl91
-bmxvY2soJnRjb24tPm9wZW5fZmlsZV9sb2NrKTsKKwkJCQlzcGluX3VubG9jaygmY2lmc19pbm9k
-ZS0+b3Blbl9maWxlX2xvY2spOwogCQkJCXJldHVybiBvcGVuX2ZpbGU7CiAJCQl9IGVsc2Ugewog
-CQkJCWlmICghaW52X2ZpbGUpCkBAIC0xOTI2LDcgKzE5MjMsNyBAQCBzdHJ1Y3QgY2lmc0ZpbGVJ
-bmZvICpmaW5kX3dyaXRhYmxlX2ZpbGUoc3RydWN0IGNpZnNJbm9kZUluZm8gKmNpZnNfaW5vZGUs
-CiAJCWNpZnNGaWxlSW5mb19nZXQoaW52X2ZpbGUpOwogCX0KIAotCXNwaW5fdW5sb2NrKCZ0Y29u
-LT5vcGVuX2ZpbGVfbG9jayk7CisJc3Bpbl91bmxvY2soJmNpZnNfaW5vZGUtPm9wZW5fZmlsZV9s
-b2NrKTsKIAogCWlmIChpbnZfZmlsZSkgewogCQlyYyA9IGNpZnNfcmVvcGVuX2ZpbGUoaW52X2Zp
-bGUsIGZhbHNlKTsKQEAgLTE5NDAsNyArMTkzNyw3IEBAIHN0cnVjdCBjaWZzRmlsZUluZm8gKmZp
-bmRfd3JpdGFibGVfZmlsZShzdHJ1Y3QgY2lmc0lub2RlSW5mbyAqY2lmc19pbm9kZSwKIAkJCWNp
-ZnNGaWxlSW5mb19wdXQoaW52X2ZpbGUpOwogCQkJKytyZWZpbmQ7CiAJCQlpbnZfZmlsZSA9IE5V
-TEw7Ci0JCQlzcGluX2xvY2soJnRjb24tPm9wZW5fZmlsZV9sb2NrKTsKKwkJCXNwaW5fbG9jaygm
-Y2lmc19pbm9kZS0+b3Blbl9maWxlX2xvY2spOwogCQkJZ290byByZWZpbmRfd3JpdGFibGU7CiAJ
-CX0KIAl9CkBAIC00MDAxLDE3ICszOTk4LDE1IEBAIHN0YXRpYyBpbnQgY2lmc19yZWFkcGFnZShz
-dHJ1Y3QgZmlsZSAqZmlsZSwgc3RydWN0IHBhZ2UgKnBhZ2UpCiBzdGF0aWMgaW50IGlzX2lub2Rl
-X3dyaXRhYmxlKHN0cnVjdCBjaWZzSW5vZGVJbmZvICpjaWZzX2lub2RlKQogewogCXN0cnVjdCBj
-aWZzRmlsZUluZm8gKm9wZW5fZmlsZTsKLQlzdHJ1Y3QgY2lmc190Y29uICp0Y29uID0KLQkJY2lm
-c19zYl9tYXN0ZXJfdGNvbihDSUZTX1NCKGNpZnNfaW5vZGUtPnZmc19pbm9kZS5pX3NiKSk7CiAK
-LQlzcGluX2xvY2soJnRjb24tPm9wZW5fZmlsZV9sb2NrKTsKKwlzcGluX2xvY2soJmNpZnNfaW5v
-ZGUtPm9wZW5fZmlsZV9sb2NrKTsKIAlsaXN0X2Zvcl9lYWNoX2VudHJ5KG9wZW5fZmlsZSwgJmNp
-ZnNfaW5vZGUtPm9wZW5GaWxlTGlzdCwgZmxpc3QpIHsKIAkJaWYgKE9QRU5fRk1PREUob3Blbl9m
-aWxlLT5mX2ZsYWdzKSAmIEZNT0RFX1dSSVRFKSB7Ci0JCQlzcGluX3VubG9jaygmdGNvbi0+b3Bl
-bl9maWxlX2xvY2spOworCQkJc3Bpbl91bmxvY2soJmNpZnNfaW5vZGUtPm9wZW5fZmlsZV9sb2Nr
-KTsKIAkJCXJldHVybiAxOwogCQl9CiAJfQotCXNwaW5fdW5sb2NrKCZ0Y29uLT5vcGVuX2ZpbGVf
-bG9jayk7CisJc3Bpbl91bmxvY2soJmNpZnNfaW5vZGUtPm9wZW5fZmlsZV9sb2NrKTsKIAlyZXR1
-cm4gMDsKIH0KIAotLSAKMS44LjMuMQoK
---000000000000ba6e2b0594efe44b--
+</formletter>
