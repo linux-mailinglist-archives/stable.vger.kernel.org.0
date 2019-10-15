@@ -2,161 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6EAD7EC9
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 20:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13DFD7ED9
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 20:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387396AbfJOSU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 14:20:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43050 "EHLO mail.kernel.org"
+        id S2389024AbfJOSYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 14:24:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726358AbfJOSU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 14:20:57 -0400
-Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        id S1729413AbfJOSYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 14:24:37 -0400
+Received: from localhost (unknown [38.98.37.135])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B94921D7C;
-        Tue, 15 Oct 2019 18:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D6642086A;
+        Tue, 15 Oct 2019 18:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571163306;
-        bh=mrHgMPMO1Jgq2irjDn9DOuL6oy96oy1+DaQCfjMhyb0=;
-        h=Date:From:To:Subject:From;
-        b=2EtdZPzvU2IiZRCn24XOl9sYgVmkyUJitvgANGODDloGJ1QMWrBcNdF/sWIOPfPkJ
-         JGeVUHq4g7yP0MPUkKNfqhwDeeWyZggGaDNmcQgvdckBXPVXAGsP8EJnqCMRBxVqg8
-         KJVbEFT8lQSZOKmt/ZupVB7kWPJ6fYkZgdLKf2rc=
-Date:   Tue, 15 Oct 2019 11:15:06 -0700
-From:   akpm@linux-foundation.org
-To:     dan.j.williams@intel.com, jane.chu@oracle.com, mhocko@kernel.org,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
+        s=default; t=1571163876;
+        bh=gCPXjOjavlF4EyG4QTDZd/zt1YoeIuVKx6npFEyEHHg=;
+        h=Subject:To:From:Date:From;
+        b=ucEUfNIoy/wt4muQX34M9TQ64DJUrsnQTa/fK7oNLHB4IYjBkA/0MfNphdFTPPqwH
+         m0CN0SHAA6JqXl54vh7VqblPw5t50ujHIACb6X+cMGUAfYAC0McQonqXlRZ3oMuaKi
+         aH/9Yn1VZiLdp6ZBdA2ohaNhBpyUKMeVg38/s5D0=
+Subject: patch "USB: usblp: fix use-after-free on disconnect" added to usb-linus
+To:     johan@kernel.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject:  [merged]
- =?US-ASCII?Q?mm-memory-failure-poison-read-receives-sigkill-instead-of-s?=
- =?US-ASCII?Q?igbus-if-mmaped-more-than-once.patch?= removed from -mm tree
-Message-ID: <20191015181506.MMcaSrqf5%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 15 Oct 2019 20:19:42 +0200
+Message-ID: <15711635821100@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/memory-failure: poison read receives SIGKILL instead of SIGBUS if mmaped more than once
-has been removed from the -mm tree.  Its filename was
-     mm-memory-failure-poison-read-receives-sigkill-instead-of-sigbus-if-mmaped-more-than-once.patch
+This is a note to let you know that I've just added the patch titled
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+    USB: usblp: fix use-after-free on disconnect
 
-------------------------------------------------------
-From: Jane Chu <jane.chu@oracle.com>
-Subject: mm/memory-failure: poison read receives SIGKILL instead of SIGBUS if mmaped more than once
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-Mmap /dev/dax more than once, then read the poison location using address
-from one of the mappings.  The other mappings due to not having the page
-mapped in will cause SIGKILLs delivered to the process.  SIGKILL succeeds
-over SIGBUS, so user process loses the opportunity to handle the UE.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Although one may add MAP_POPULATE to mmap(2) to work around the issue,
-MAP_POPULATE makes mapping 128GB of pmem several magnitudes slower, so
-isn't always an option.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-Details -
+If you have any questions about this process, please let me know.
 
-ndctl inject-error --block=10 --count=1 namespace6.0
 
-./read_poison -x dax6.0 -o 5120 -m 2
-mmaped address 0x7f5bb6600000
-mmaped address 0x7f3cf3600000
-doing local read at address 0x7f3cf3601400
-Killed
+From 7a759197974894213621aa65f0571b51904733d6 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Tue, 15 Oct 2019 19:55:22 +0200
+Subject: USB: usblp: fix use-after-free on disconnect
 
-Console messages in instrumented kernel -
+A recent commit addressing a runtime PM use-count regression, introduced
+a use-after-free by not making sure we held a reference to the struct
+usb_interface for the lifetime of the driver data.
 
-mce: Uncorrected hardware memory error in user-access at edbe201400
-Memory failure: tk->addr = 7f5bb6601000
-Memory failure: address edbe201: call dev_pagemap_mapping_shift
-dev_pagemap_mapping_shift: page edbe201: no PUD
-Memory failure: tk->size_shift == 0
-Memory failure: Unable to find user space address edbe201 in read_poison
-Memory failure: tk->addr = 7f3cf3601000
-Memory failure: address edbe201: call dev_pagemap_mapping_shift
-Memory failure: tk->size_shift = 21
-Memory failure: 0xedbe201: forcibly killing read_poison:22434 because of failure to unmap corrupted page
-  => to deliver SIGKILL
-Memory failure: 0xedbe201: Killing read_poison:22434 due to hardware memory corruption
-  => to deliver SIGBUS
-
-Link: http://lkml.kernel.org/r/1565112345-28754-3-git-send-email-jane.chu@oracle.com
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Suggested-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 9a31535859bf ("USB: usblp: fix runtime PM after driver unbind")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+cd24df4d075c319ebfc5@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191015175522.18490-1-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ drivers/usb/class/usblp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- mm/memory-failure.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
-
---- a/mm/memory-failure.c~mm-memory-failure-poison-read-receives-sigkill-instead-of-sigbus-if-mmaped-more-than-once
-+++ a/mm/memory-failure.c
-@@ -199,7 +199,6 @@ struct to_kill {
- 	struct task_struct *tsk;
- 	unsigned long addr;
- 	short size_shift;
--	char addr_valid;
- };
+diff --git a/drivers/usb/class/usblp.c b/drivers/usb/class/usblp.c
+index fb8bd60c83f4..0d8e3f3804a3 100644
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -445,6 +445,7 @@ static void usblp_cleanup(struct usblp *usblp)
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->device_id_string);
+ 	kfree(usblp->statusbuf);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ }
  
- /*
-@@ -324,22 +323,27 @@ static void add_to_kill(struct task_stru
- 		}
- 	}
- 	tk->addr = page_address_in_vma(p, vma);
--	tk->addr_valid = 1;
- 	if (is_zone_device_page(p))
- 		tk->size_shift = dev_pagemap_mapping_shift(p, vma);
- 	else
- 		tk->size_shift = compound_order(compound_head(p)) + PAGE_SHIFT;
+@@ -1113,7 +1114,7 @@ static int usblp_probe(struct usb_interface *intf,
+ 	init_waitqueue_head(&usblp->wwait);
+ 	init_usb_anchor(&usblp->urbs);
+ 	usblp->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+-	usblp->intf = intf;
++	usblp->intf = usb_get_intf(intf);
  
- 	/*
--	 * In theory we don't have to kill when the page was
--	 * munmaped. But it could be also a mremap. Since that's
--	 * likely very rare kill anyways just out of paranoia, but use
--	 * a SIGKILL because the error is not contained anymore.
-+	 * Send SIGKILL if "tk->addr == -EFAULT". Also, as
-+	 * "tk->size_shift" is always non-zero for !is_zone_device_page(),
-+	 * so "tk->size_shift == 0" effectively checks no mapping on
-+	 * ZONE_DEVICE. Indeed, when a devdax page is mmapped N times
-+	 * to a process' address space, it's possible not all N VMAs
-+	 * contain mappings for the page, but at least one VMA does.
-+	 * Only deliver SIGBUS with payload derived from the VMA that
-+	 * has a mapping for the page.
- 	 */
--	if (tk->addr == -EFAULT || tk->size_shift == 0) {
-+	if (tk->addr == -EFAULT) {
- 		pr_info("Memory failure: Unable to find user space address %lx in %s\n",
- 			page_to_pfn(p), tsk->comm);
--		tk->addr_valid = 0;
-+	} else if (tk->size_shift == 0) {
-+		kfree(tk);
-+		return;
- 	}
- 	get_task_struct(tsk);
- 	tk->tsk = tsk;
-@@ -366,7 +370,7 @@ static void kill_procs(struct list_head
- 			 * make sure the process doesn't catch the
- 			 * signal and then access the memory. Just kill it.
- 			 */
--			if (fail || tk->addr_valid == 0) {
-+			if (fail || tk->addr == -EFAULT) {
- 				pr_err("Memory failure: %#lx: forcibly killing %s:%d because of failure to unmap corrupted page\n",
- 				       pfn, tk->tsk->comm, tk->tsk->pid);
- 				do_send_sig_info(SIGKILL, SEND_SIG_PRIV,
-_
+ 	/* Malloc device ID string buffer to the largest expected length,
+ 	 * since we can re-query it on an ioctl and a dynamic string
+@@ -1198,6 +1199,7 @@ static int usblp_probe(struct usb_interface *intf,
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->statusbuf);
+ 	kfree(usblp->device_id_string);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ abort_ret:
+ 	return retval;
+-- 
+2.23.0
 
-Patches currently in -mm which might be from jane.chu@oracle.com are
-
-mm-memory-failurec-clean-up-around-tk-pre-allocation.patch
 
