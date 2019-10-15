@@ -2,91 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 114ACD8332
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 00:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AC8BD833F
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 00:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388788AbfJOWEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 18:04:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
+        id S2387595AbfJOWGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 18:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387411AbfJOWEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 15 Oct 2019 18:04:41 -0400
+        id S1726422AbfJOWGy (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 18:06:54 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32B3F21A49;
-        Tue, 15 Oct 2019 22:04:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2DC420854;
+        Tue, 15 Oct 2019 22:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571177080;
-        bh=bEz6VCO4JTI+Xylf3IoX+njYEaKlxKQAsOEkVTvjUNE=;
+        s=default; t=1571177213;
+        bh=Nr6N5Me8dPzW8jNSAc3t7koMgI57FxDk/XCXBZcyfGU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=e1xOJVfWV9ix0vZr4g+UcrmKP4/FNC6MKcH8FDdA/I5R3HIFxIYH2YeuXEgpaxUkC
-         uaRVTzg8A/NYCb+zGNG1CgFiD6dzRlLj9y7QwNE++a3RWzzsXIZZq7hDJEXkQ1wJ1O
-         mHHnBfUhy9zlgXC0SbhsSnKToKFyJAWmOPnAit4c=
-Date:   Tue, 15 Oct 2019 18:04:39 -0400
+        b=e0sG9NagyPCklacveOQEumzJmstAiVPzAeH4d0BSC0IlZmhvhvxQ4H7k6at0PCg4Z
+         j62DNZNpGPUWq5/oDilZpSYHcDxv/aPAv5n/Vc+iCJXHQHHfhZW6CodfB2Ff9npoP2
+         AD85u/5SnSVM47fAX/xPwkxatc02SWtacJ8xynIc=
+Date:   Tue, 15 Oct 2019 18:06:52 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     John Garry <john.garry@huawei.com>
-Cc:     stable@vger.kernel.org, catalin.marinas@arm.com, will@kernel.org,
-        rjw@rjwysocki.net, lenb@kernel.org, sudeep.holla@arm.com,
-        rrichter@marvell.com, jeremy.linton@arm.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-acpi@vger.kernel.org, linuxarm@huawei.com,
-        gregkh@linuxfoundation.org, guohanjun@huawei.com,
-        wanghuiqiang@huawei.com
-Subject: Re: [PATCH for-stable-5.3 1/2] ACPI/PPTT: Add support for ACPI 6.3
- thread flag
-Message-ID: <20191015220439.GQ31224@sasha-vm>
-References: <1571054162-71090-1-git-send-email-john.garry@huawei.com>
- <1571054162-71090-2-git-send-email-john.garry@huawei.com>
- <20191014232958.GC31224@sasha-vm>
- <635a839b-bc1e-37ab-bd47-a554acc9b282@huawei.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     m.felsch@pengutronix.de, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] iio: light: fix vcnl4000 devicetree
+ hooks" failed to apply to 5.3-stable tree
+Message-ID: <20191015220652.GR31224@sasha-vm>
+References: <1571069502139213@kroah.com>
+ <20191015030419.GJ31224@sasha-vm>
+ <20191015061809.GA926806@kroah.com>
+ <20191015141931.GO31224@sasha-vm>
+ <20191015153304.GA1002701@kroah.com>
+ <20191015163524.GP31224@sasha-vm>
+ <20191015173935.GA1071372@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <635a839b-bc1e-37ab-bd47-a554acc9b282@huawei.com>
+In-Reply-To: <20191015173935.GA1071372@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 09:16:13AM +0100, John Garry wrote:
->On 15/10/2019 00:29, Sasha Levin wrote:
->>On Mon, Oct 14, 2019 at 07:56:01PM +0800, John Garry wrote:
->>>From: Jeremy Linton <jeremy.linton@arm.com>
->>>
->>>Commit bbd1b70639f785a970d998f35155c713f975e3ac upstream.
->>>
->>>ACPI 6.3 adds a flag to the CPU node to indicate whether
->>>the given PE is a thread. Add a function to return that
->>>information for a given linux logical CPU.
->>>
->>>Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
->>>Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
->>>Reviewed-by: Robert Richter <rrichter@marvell.com>
->>>Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
->>>Signed-off-by: Will Deacon <will@kernel.org>
->>>Signed-off-by: John Garry <john.garry@huawei.com>
+On Tue, Oct 15, 2019 at 07:39:35PM +0200, Greg KH wrote:
+>On Tue, Oct 15, 2019 at 12:35:24PM -0400, Sasha Levin wrote:
+>> On Tue, Oct 15, 2019 at 05:33:04PM +0200, Greg KH wrote:
+>> > On Tue, Oct 15, 2019 at 10:19:31AM -0400, Sasha Levin wrote:
+>> > > On Tue, Oct 15, 2019 at 08:18:09AM +0200, Greg KH wrote:
+>> > > > On Mon, Oct 14, 2019 at 11:04:19PM -0400, Sasha Levin wrote:
+>> > > > > On Mon, Oct 14, 2019 at 06:11:42PM +0200, gregkh@linuxfoundation.org wrote:
+>> > > > > >
+>> > > > > > The patch below does not apply to the 5.3-stable tree.
+>> > > > > > If someone wants it applied there, or to any other stable or longterm
+>> > > > > > tree, then please email the backport, including the original git commit
+>> > > > > > id to <stable@vger.kernel.org>.
+>> > > > > >
+>> > > > > > thanks,
+>> > > > > >
+>> > > > > > greg k-h
+>> > > > > >
+>> > > > > > ------------------ original commit in Linus's tree ------------------
+>> > > > > >
+>> > > > > > > From 1436a78c63495dd94c8d4f84a76d78d5317d481b Mon Sep 17 00:00:00 2001
+>> > > > > > From: Marco Felsch <m.felsch@pengutronix.de>
+>> > > > > > Date: Tue, 17 Sep 2019 16:56:36 +0200
+>> > > > > > Subject: [PATCH] iio: light: fix vcnl4000 devicetree hooks
+>> > > > > >
+>> > > > > > Since commit ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
+>> > > > > > the of_match_table is supported but the data shouldn't be a string.
+>> > > > > > Instead it shall be one of 'enum vcnl4000_device_ids'. Also the matching
+>> > > > > > logic for the vcnl4020 was wrong. Since the data retrieve mechanism is
+>> > > > > > still based on the i2c_device_id no failures did appeared till now.
+>> > > > > >
+>> > > > > > Fixes: ebd457d55911 ("iio: light: vcnl4000 add devicetree hooks")
+>> > > > > > Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+>> > > > > > Reviewed-by: Angus Ainslie (Purism) angus@akkea.ca
+>> > > > > > Cc: <Stable@vger.kernel.org>
+>> > > > > > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>> > > > >
+>> > > > > Greg, I'm not sure why you dropped this one?
+>> > > > >
+>> > > > > I've queued it up for 5.3.
+>> > > >
+>> > > > It doesn't apply to my 5.3 tree, and now that you added it, it still
+>> > > > doesn't apply :(
+>> > > >
+>> > > > So I'm going to drop it now.  How did this apply on your side?
+>> > >
+>> > > I... uh... it just applies?
+>> > >
+>> > > $ git cherry-pick 1436a78c63495dd94c8d4f84a76d78d5317d481b
+>> > > [queue-5.3 5f3196259cbe2] iio: light: fix vcnl4000 devicetree hooks
+>> > > Author: Marco Felsch <m.felsch@pengutronix.de>
+>> > > Date: Tue Sep 17 16:56:36 2019 +0200
+>> > > 1 file changed, 5 insertions(+), 5 deletions(-)
+>> > >
+>> > > what do you see as the conflict? line numbers look mostly the same, so
+>> > > as the context.
+>> >
+>> > It's conflicting with another patch already in the queue, try applying
+>> > it now and see what happens :)
 >>
->>How far back should these patches be backported?
+>> Apparently git resolves this conflict correctly. After cherry-pick, that
+>> commit looks like this:
 >>
+>> diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
+>> index ca0d27b46ea22..16dacea9eadfa 100644
+>> --- a/drivers/iio/light/vcnl4000.c
+>> +++ b/drivers/iio/light/vcnl4000.c
+>> @@ -398,15 +398,15 @@ static int vcnl4000_probe(struct i2c_client *client,
+>> static const struct of_device_id vcnl_4000_of_match[] = {
+>>        {
+>>                .compatible = "vishay,vcnl4000",
+>> -               .data = "VCNL4000",
+>> +               .data = (void *)VCNL4000,
+>>        },
+>>        {
+>>                .compatible = "vishay,vcnl4010",
+>> -               .data = "VCNL4010",
+>> +               .data = (void *)VCNL4010,
+>>        },
+>>        {
+>> -               .compatible = "vishay,vcnl4010",
+>> -               .data = "VCNL4020",
+>> +               .compatible = "vishay,vcnl4020",
+>> +               .data = (void *)VCNL4010,
+>>        },
+>>        {
+>>                .compatible = "vishay,vcnl4040",
+>> @@ -414,7 +414,7 @@ static const struct of_device_id vcnl_4000_of_match[] = {
+>>        },
+>>        {
+>>                .compatible = "vishay,vcnl4200",
+>> -               .data = "VCNL4200",
+>> +               .data = (void *)VCNL4200,
+>>        },
+>>        {},
+>> };
+>>
+>> Unless you have any objections, I'll queue up this version instead.
 >
->Hi Sasha,
->
->This patchset is for 5.3, and I sent a separate patchset for 4.19, 
->since the backport is a little different and required some hand 
->modification -
->
->https://lore.kernel.org/linux-arm-kernel/1571046986-231263-1-git-send-email-john.garry@huawei.com/. 
->4.19 is as far back as we want.
->
->Please note that the patches in this 5.3 series are relevant for 5.2 
->also, but since 5.2 is EOL, I didn't mention it. We did test 5.2, so 
->you can add there also.
->
->Please let me know if any more questions.
+>No objection, please do!  I'm on a plane for the next 8+ hours and have
+>limited git access...
 
-I've queued this and the 4.19 patches, thanks!
+It's back in the queue, and I've verified that applying the patch file
+with 'patch -p1 [...]' works.
 
 -- 
 Thanks,
