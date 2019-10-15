@@ -2,103 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B1ED8228
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 23:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 114ACD8332
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 00:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728701AbfJOV0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 17:26:42 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:44653 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728607AbfJOV0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 17:26:42 -0400
-Received: by mail-oi1-f195.google.com with SMTP id w6so18109560oie.11
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 14:26:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=FjTzov0ZWMBRnnkfLydTowwTTWaZQQMz8GLbYd2DoJY=;
-        b=sseX6QWUP9CFA63813y5OMpaVx25163OITn2IzLP24ux6NTGMBFIsckkEKwagWvAJq
-         9yXBTSntSikoMBdORY8eLAPlVHulfEOthNtwXgw3Sxy1X0v3CvRKlAM22m0WLC13KAQp
-         tg6hf/IYvnxhoNNhrcZUre5exfMwHVc6OOcnJDanCqFhPXEtxsOU7604QOyRVekBGf/Q
-         9oSMyaDTlrnjKheT8DHhUuWZEeR6Oy7YrH0suqKEP5N4kQAF/FgyjxnX/IZEYuMutYqA
-         9mlugtK7Tvhu+3kjPcR3vG4lbWby8JiJigfNzpb6QFeE7MNKOctL3kyENkpQV1UpzU3Z
-         sZuQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FjTzov0ZWMBRnnkfLydTowwTTWaZQQMz8GLbYd2DoJY=;
-        b=bqdwMEvw/6r8TXCwgKmTrCmdXHpBZUwu4w632GRzP315NmV9qR15P8uKmxwUzSxsJ9
-         tftpZtQbDDEDjRLQiFw4WOwhZGRL/3brbDYcP4HTuwUrFVFP9Hwy2SZH0cw38IFYTeNq
-         T1DEYz51gXUr0pgAMaPgu9xumx13vQ3hhId9WIGeY7r9wKCUQE0zDi/RAdcdYHXqSBrc
-         ePdzmBdCNYZVxAllfpY/GQ/SgjfxLHlz85n3k+N+hVcp9VcknE4iICLimvBnhtaGaVfx
-         KSEn48rpBQWVKUgNrDE8OSY4+u76tueiG2FX3vovwgfqoFecUhG2lDMcTBw749l6tur4
-         b+Eg==
-X-Gm-Message-State: APjAAAUnLK+80K9TiQASG3xf03ww8uqjXL3GGOD2NewEV+6exmnITslS
-        V++/CPOoFo0RCa144ZnysYasV/87jjGnLWoKdMSksQ==
-X-Google-Smtp-Source: APXvYqziwX4Qd/CruVwbh4d+LgL43yQ6WwVxz8RVdhbf141kc/6k1rSNikV7EoWIivQB8kktrbIH2SlneWo8tRyAGPA=
-X-Received: by 2002:a05:6808:7cd:: with SMTP id f13mr551315oij.70.1571174801334;
- Tue, 15 Oct 2019 14:26:41 -0700 (PDT)
+        id S2388788AbfJOWEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 18:04:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387411AbfJOWEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 15 Oct 2019 18:04:41 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32B3F21A49;
+        Tue, 15 Oct 2019 22:04:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571177080;
+        bh=bEz6VCO4JTI+Xylf3IoX+njYEaKlxKQAsOEkVTvjUNE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=e1xOJVfWV9ix0vZr4g+UcrmKP4/FNC6MKcH8FDdA/I5R3HIFxIYH2YeuXEgpaxUkC
+         uaRVTzg8A/NYCb+zGNG1CgFiD6dzRlLj9y7QwNE++a3RWzzsXIZZq7hDJEXkQ1wJ1O
+         mHHnBfUhy9zlgXC0SbhsSnKToKFyJAWmOPnAit4c=
+Date:   Tue, 15 Oct 2019 18:04:39 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     John Garry <john.garry@huawei.com>
+Cc:     stable@vger.kernel.org, catalin.marinas@arm.com, will@kernel.org,
+        rjw@rjwysocki.net, lenb@kernel.org, sudeep.holla@arm.com,
+        rrichter@marvell.com, jeremy.linton@arm.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-acpi@vger.kernel.org, linuxarm@huawei.com,
+        gregkh@linuxfoundation.org, guohanjun@huawei.com,
+        wanghuiqiang@huawei.com
+Subject: Re: [PATCH for-stable-5.3 1/2] ACPI/PPTT: Add support for ACPI 6.3
+ thread flag
+Message-ID: <20191015220439.GQ31224@sasha-vm>
+References: <1571054162-71090-1-git-send-email-john.garry@huawei.com>
+ <1571054162-71090-2-git-send-email-john.garry@huawei.com>
+ <20191014232958.GC31224@sasha-vm>
+ <635a839b-bc1e-37ab-bd47-a554acc9b282@huawei.com>
 MIME-Version: 1.0
-References: <157116925749.1211205.12806062056189943042.stgit@dwillia2-desk3.amr.corp.intel.com>
- <e4544252-d2d7-e464-94d6-4df7cda0e248@silicom-usa.com>
-In-Reply-To: <e4544252-d2d7-e464-94d6-4df7cda0e248@silicom-usa.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 15 Oct 2019 14:26:29 -0700
-Message-ID: <CAPcyv4iRFZ3AZ6WOduDPxBu2sNUY3AJLO-81sWhkDityoeQAiw@mail.gmail.com>
-Subject: Re: [PATCH] libata/ahci: Fix PCS quirk application
-To:     Stephen Douthit <stephend@silicom-usa.com>
-Cc:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        Andreas Friedrich <afrie@gmx.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <635a839b-bc1e-37ab-bd47-a554acc9b282@huawei.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 2:02 PM Stephen Douthit
-<stephend@silicom-usa.com> wrote:
+On Tue, Oct 15, 2019 at 09:16:13AM +0100, John Garry wrote:
+>On 15/10/2019 00:29, Sasha Levin wrote:
+>>On Mon, Oct 14, 2019 at 07:56:01PM +0800, John Garry wrote:
+>>>From: Jeremy Linton <jeremy.linton@arm.com>
+>>>
+>>>Commit bbd1b70639f785a970d998f35155c713f975e3ac upstream.
+>>>
+>>>ACPI 6.3 adds a flag to the CPU node to indicate whether
+>>>the given PE is a thread. Add a function to return that
+>>>information for a given linux logical CPU.
+>>>
+>>>Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+>>>Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+>>>Reviewed-by: Robert Richter <rrichter@marvell.com>
+>>>Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+>>>Signed-off-by: Will Deacon <will@kernel.org>
+>>>Signed-off-by: John Garry <john.garry@huawei.com>
+>>
+>>How far back should these patches be backported?
+>>
 >
-> On 10/15/19 3:54 PM, Dan Williams wrote:
-> > Commit c312ef176399 "libata/ahci: Drop PCS quirk for Denverton and
-> > beyond" got the polarity wrong on the check for which board-ids should
-> > have the quirk applied. The board type board_ahci_pcs7 is defined at the
-> > end of the list such that "pcs7" boards can be special cased in the
-> > future if they need the quirk. All prior Intel board ids "<
-> > board_ahci_pcs7" should proceed with applying the quirk.
-> >
-> > Reported-by: Andreas Friedrich <afrie@gmx.net>
-> > Reported-by: Stephen Douthit <stephend@silicom-usa.com>
-> > Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> > ---
-> >   drivers/ata/ahci.c |    4 +++-
-> >   1 file changed, 3 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-> > index dd92faf197d5..05c2b32dcc4d 100644
-> > --- a/drivers/ata/ahci.c
-> > +++ b/drivers/ata/ahci.c
-> > @@ -1600,7 +1600,9 @@ static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hp
-> >        */
-> >       if (!id || id->vendor != PCI_VENDOR_ID_INTEL)
-> >               return;
+>Hi Sasha,
 >
-> Unless I'm missing something this will short-circuit if there are any
-> older Intel controllers not explicitly listed with a PCI_VDEVICE entry
-> in ahci_pci_tbl.  Those will match on:
+>This patchset is for 5.3, and I sent a separate patchset for 4.19, 
+>since the backport is a little different and required some hand 
+>modification -
 >
->         /* Generic, PCI class code for AHCI */
->         { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
->           PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci },
+>https://lore.kernel.org/linux-arm-kernel/1571046986-231263-1-git-send-email-john.garry@huawei.com/. 
+>4.19 is as far back as we want.
+>
+>Please note that the patches in this 5.3 series are relevant for 5.2 
+>also, but since 5.2 is EOL, I didn't mention it. We did test 5.2, so 
+>you can add there also.
+>
+>Please let me know if any more questions.
 
-You're not missing anything, but I think we should stick with explicit
-mapping as only newer controllers tend to match on class id rather
-than pci-id, and there's no way to know if that class-id match is for
-PCS_6 or PCS_7. Hopefully newer controllers are tested with Linux and
-the BIOS fixed prior to the breakage leaking into the wild.
+I've queued this and the 4.19 patches, thanks!
+
+-- 
+Thanks,
+Sasha
