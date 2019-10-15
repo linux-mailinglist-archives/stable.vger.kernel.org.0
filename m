@@ -2,143 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E7ED81FA
-	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 23:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38B1ED8228
+	for <lists+stable@lfdr.de>; Tue, 15 Oct 2019 23:26:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726686AbfJOVUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 17:20:55 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36754 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727114AbfJOVUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 17:20:55 -0400
-Received: by mail-wm1-f66.google.com with SMTP id m18so530234wmc.1
-        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 14:20:53 -0700 (PDT)
+        id S1728701AbfJOV0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 15 Oct 2019 17:26:42 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:44653 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728607AbfJOV0m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 17:26:42 -0400
+Received: by mail-oi1-f195.google.com with SMTP id w6so18109560oie.11
+        for <stable@vger.kernel.org>; Tue, 15 Oct 2019 14:26:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=1/nDamY0vcX3mI7xTMQncxC0g153aasRB+pWD3LOkGg=;
-        b=TaLFgxGU6jVMwelP5mURDjGBxzXtchTb23/HSjCJYtTlzeBmJ+juEnP00kaLhqirfA
-         /a7Q6LMlt1AEKDjB4/wEw1kfV0tdz8YbXqkdB6whLnkpAod6YOvz64ceYZfYzCUnaUtJ
-         jaWvDqW+We1YUnji8YRrVLyO4cdXdYn9hLtWNy8Qdbe3F5mH6TFzfu3I2DrEoBBFrXce
-         CP0JU310tM7d4b3R/3FGd09iWc5Q93Cdr/qaKS2wXA6U8wWxe5iK5cDw9N48G2rjRK03
-         r/dU+RYCgxG3GnMmiT2d+RkXF4+qVl8yZAqgrHQcF9rMrMkBmtiOolPHyxgyrLgGV47D
-         YIHw==
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=FjTzov0ZWMBRnnkfLydTowwTTWaZQQMz8GLbYd2DoJY=;
+        b=sseX6QWUP9CFA63813y5OMpaVx25163OITn2IzLP24ux6NTGMBFIsckkEKwagWvAJq
+         9yXBTSntSikoMBdORY8eLAPlVHulfEOthNtwXgw3Sxy1X0v3CvRKlAM22m0WLC13KAQp
+         tg6hf/IYvnxhoNNhrcZUre5exfMwHVc6OOcnJDanCqFhPXEtxsOU7604QOyRVekBGf/Q
+         9oSMyaDTlrnjKheT8DHhUuWZEeR6Oy7YrH0suqKEP5N4kQAF/FgyjxnX/IZEYuMutYqA
+         9mlugtK7Tvhu+3kjPcR3vG4lbWby8JiJigfNzpb6QFeE7MNKOctL3kyENkpQV1UpzU3Z
+         sZuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=1/nDamY0vcX3mI7xTMQncxC0g153aasRB+pWD3LOkGg=;
-        b=EtSR+iY+LUvcwemwwQCkeFaOSSGCMRxTUa8aVT7Ib91DVvlJzbheQvoqw7MC3f3Rjf
-         HfWYPHAIzK6unNJCynuBRGfvfddhaUs0jf2pdq/oGJVrdZtCpICyokndh7N0imEe+VmQ
-         JLj96XlVLlOb0VSpao9fpsJfrtUmuIKmxX0qBVshWP3Nwqp72q8nxnhs7MjLDpjLelNB
-         /PjcCVlyH+PnjEh9TaJYxXralsfFNAue8fY7KfimoEq98ydgwpGXWwJDXCbo6gLKwrv9
-         FT3Obdtk7kqFhBxqoMihqqQlFxQH+yxBnAzeWP+bcE9zyKwu1R5QIXH+O5Hoy5OUfXK6
-         DK3Q==
-X-Gm-Message-State: APjAAAVdJh5RLH+1UfFyERJHlzsZngjXMpKVPWJgVwv6IPwb2v96qIRd
-        2p7Z820MNXStd3dFXEW+sXmEnw==
-X-Google-Smtp-Source: APXvYqwEUxH5hHScjclAUc0I0+HFns+TpSn6XeAN1cUcRGj342cZJkUiCCw3wYm6utihcH46SCGX7Q==
-X-Received: by 2002:a1c:7c13:: with SMTP id x19mr388646wmc.80.1571174452543;
-        Tue, 15 Oct 2019 14:20:52 -0700 (PDT)
-Received: from linaro.org ([2a00:23c5:6815:3901:39d2:21a2:678a:9501])
-        by smtp.gmail.com with ESMTPSA id g185sm517649wme.10.2019.10.15.14.20.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Oct 2019 14:20:52 -0700 (PDT)
-From:   Mike Leach <mike.leach@linaro.org>
-To:     mike.leach@linaro.org, coresight@lists.linaro.org,
-        linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org
-Cc:     mathieu.poirier@linaro.org, corbet@lwn.net,
-        gregkh@linuxfoundation.org, suzuki.poulose@arm.com,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH v3 02/11] coresight: etm4x: Fix input validation for sysfs.
-Date:   Tue, 15 Oct 2019 22:19:55 +0100
-Message-Id: <20191015212004.24748-3-mike.leach@linaro.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191015212004.24748-1-mike.leach@linaro.org>
-References: <20191015212004.24748-1-mike.leach@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FjTzov0ZWMBRnnkfLydTowwTTWaZQQMz8GLbYd2DoJY=;
+        b=bqdwMEvw/6r8TXCwgKmTrCmdXHpBZUwu4w632GRzP315NmV9qR15P8uKmxwUzSxsJ9
+         tftpZtQbDDEDjRLQiFw4WOwhZGRL/3brbDYcP4HTuwUrFVFP9Hwy2SZH0cw38IFYTeNq
+         T1DEYz51gXUr0pgAMaPgu9xumx13vQ3hhId9WIGeY7r9wKCUQE0zDi/RAdcdYHXqSBrc
+         ePdzmBdCNYZVxAllfpY/GQ/SgjfxLHlz85n3k+N+hVcp9VcknE4iICLimvBnhtaGaVfx
+         KSEn48rpBQWVKUgNrDE8OSY4+u76tueiG2FX3vovwgfqoFecUhG2lDMcTBw749l6tur4
+         b+Eg==
+X-Gm-Message-State: APjAAAUnLK+80K9TiQASG3xf03ww8uqjXL3GGOD2NewEV+6exmnITslS
+        V++/CPOoFo0RCa144ZnysYasV/87jjGnLWoKdMSksQ==
+X-Google-Smtp-Source: APXvYqziwX4Qd/CruVwbh4d+LgL43yQ6WwVxz8RVdhbf141kc/6k1rSNikV7EoWIivQB8kktrbIH2SlneWo8tRyAGPA=
+X-Received: by 2002:a05:6808:7cd:: with SMTP id f13mr551315oij.70.1571174801334;
+ Tue, 15 Oct 2019 14:26:41 -0700 (PDT)
+MIME-Version: 1.0
+References: <157116925749.1211205.12806062056189943042.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <e4544252-d2d7-e464-94d6-4df7cda0e248@silicom-usa.com>
+In-Reply-To: <e4544252-d2d7-e464-94d6-4df7cda0e248@silicom-usa.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 15 Oct 2019 14:26:29 -0700
+Message-ID: <CAPcyv4iRFZ3AZ6WOduDPxBu2sNUY3AJLO-81sWhkDityoeQAiw@mail.gmail.com>
+Subject: Re: [PATCH] libata/ahci: Fix PCS quirk application
+To:     Stephen Douthit <stephend@silicom-usa.com>
+Cc:     "axboe@kernel.dk" <axboe@kernel.dk>,
+        Andreas Friedrich <afrie@gmx.net>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A number of issues are fixed relating to sysfs input validation:-
+On Tue, Oct 15, 2019 at 2:02 PM Stephen Douthit
+<stephend@silicom-usa.com> wrote:
+>
+> On 10/15/19 3:54 PM, Dan Williams wrote:
+> > Commit c312ef176399 "libata/ahci: Drop PCS quirk for Denverton and
+> > beyond" got the polarity wrong on the check for which board-ids should
+> > have the quirk applied. The board type board_ahci_pcs7 is defined at the
+> > end of the list such that "pcs7" boards can be special cased in the
+> > future if they need the quirk. All prior Intel board ids "<
+> > board_ahci_pcs7" should proceed with applying the quirk.
+> >
+> > Reported-by: Andreas Friedrich <afrie@gmx.net>
+> > Reported-by: Stephen Douthit <stephend@silicom-usa.com>
+> > Fixes: c312ef176399 ("libata/ahci: Drop PCS quirk for Denverton and beyond")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > ---
+> >   drivers/ata/ahci.c |    4 +++-
+> >   1 file changed, 3 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
+> > index dd92faf197d5..05c2b32dcc4d 100644
+> > --- a/drivers/ata/ahci.c
+> > +++ b/drivers/ata/ahci.c
+> > @@ -1600,7 +1600,9 @@ static void ahci_intel_pcs_quirk(struct pci_dev *pdev, struct ahci_host_priv *hp
+> >        */
+> >       if (!id || id->vendor != PCI_VENDOR_ID_INTEL)
+> >               return;
+>
+> Unless I'm missing something this will short-circuit if there are any
+> older Intel controllers not explicitly listed with a PCI_VDEVICE entry
+> in ahci_pci_tbl.  Those will match on:
+>
+>         /* Generic, PCI class code for AHCI */
+>         { PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+>           PCI_CLASS_STORAGE_SATA_AHCI, 0xffffff, board_ahci },
 
-1) bb_ctrl_store() - incorrect compare of bit select field to absolute
-value. Reworked per ETMv4 specification.
-2) seq_event_store() - incorrect mask value - register has two
-event values.
-3) cyc_threshold_store() - must mask with max before checking min
-otherwise wrapped values can set illegal value below min.
-4) res_ctrl_store() - update to mask off all res0 bits.
-
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Mike Leach <mike.leach@linaro.org>
-Fixes: a77de2637c9eb ("coresight: etm4x: moving sysFS entries to a dedicated file")
-Cc: stable <stable@vger.kernel.org> # 4.9+
----
- .../coresight/coresight-etm4x-sysfs.c         | 21 ++++++++++++-------
- 1 file changed, 13 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-index b6984be0c515..cc8156318018 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-@@ -652,10 +652,13 @@ static ssize_t cyc_threshold_store(struct device *dev,
- 
- 	if (kstrtoul(buf, 16, &val))
- 		return -EINVAL;
-+
-+	/* mask off max threshold before checking min value */
-+	val &= ETM_CYC_THRESHOLD_MASK;
- 	if (val < drvdata->ccitmin)
- 		return -EINVAL;
- 
--	config->ccctlr = val & ETM_CYC_THRESHOLD_MASK;
-+	config->ccctlr = val;
- 	return size;
- }
- static DEVICE_ATTR_RW(cyc_threshold);
-@@ -686,14 +689,16 @@ static ssize_t bb_ctrl_store(struct device *dev,
- 		return -EINVAL;
- 	if (!drvdata->nr_addr_cmp)
- 		return -EINVAL;
-+
- 	/*
--	 * Bit[7:0] selects which address range comparator is used for
--	 * branch broadcast control.
-+	 * Bit[8] controls include(1) / exclude(0), bits[0-7] select
-+	 * individual range comparators. If include then at least 1
-+	 * range must be selected.
- 	 */
--	if (BMVAL(val, 0, 7) > drvdata->nr_addr_cmp)
-+	if ((val & BIT(8)) && (BMVAL(val, 0, 7) == 0))
- 		return -EINVAL;
- 
--	config->bb_ctrl = val;
-+	config->bb_ctrl = val & GENMASK(8, 0);
- 	return size;
- }
- static DEVICE_ATTR_RW(bb_ctrl);
-@@ -1324,8 +1329,8 @@ static ssize_t seq_event_store(struct device *dev,
- 
- 	spin_lock(&drvdata->spinlock);
- 	idx = config->seq_idx;
--	/* RST, bits[7:0] */
--	config->seq_ctrl[idx] = val & 0xFF;
-+	/* Seq control has two masks B[15:8] F[7:0] */
-+	config->seq_ctrl[idx] = val & 0xFFFF;
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
- }
-@@ -1580,7 +1585,7 @@ static ssize_t res_ctrl_store(struct device *dev,
- 	if (idx % 2 != 0)
- 		/* PAIRINV, bit[21] */
- 		val &= ~BIT(21);
--	config->res_ctrl[idx] = val;
-+	config->res_ctrl[idx] = val & GENMASK(21, 0);
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
- }
--- 
-2.17.1
-
+You're not missing anything, but I think we should stick with explicit
+mapping as only newer controllers tend to match on class id rather
+than pci-id, and there's no way to know if that class-id match is for
+PCS_6 or PCS_7. Hopefully newer controllers are tested with Linux and
+the BIOS fixed prior to the breakage leaking into the wild.
