@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B29D9F7C
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BB2DA086
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395222AbfJPVz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46140 "EHLO mail.kernel.org"
+        id S2393279AbfJPWMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:12:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395213AbfJPVz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:28 -0400
+        id S2406613AbfJPV4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:17 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35F4021D80;
-        Wed, 16 Oct 2019 21:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DABFF21925;
+        Wed, 16 Oct 2019 21:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262927;
-        bh=jpHkQuztPx20siRx6Ewm3JAV1X733A187RHAZxIdgMA=;
+        s=default; t=1571262977;
+        bh=UlGrKMgXgRaTB19PpiO2d5UObMhWdYR3TmQmAa+QV6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H3vNjB5zn9ffZNgmmGORTVJ6nRlguQxWRHMPlsMXwZ0mfs/ow7iUOnaGyXvPnFtDr
-         tYrcoBcJxIH4F4kixUTLOMp65/YUIDr9HrZahwfSjsFgXLLtXdyDGvZqgjeSAaD/3h
-         Rp9nDMeOTtWXxh5I/iUd9I+5zV0rl5Xv84tKfYCI=
+        b=cwycZzVUMtW2QF7K8Kcg1yFoZislhG3nGQlYp1D0CkYHXaO4bmiasbCavMpsK7Zxk
+         GV1WTMSNuM+zejZS1YUISFL6t8D25Jppw5O16b2QWIfAMc5xwotxbw/gyOCMaWiRUH
+         aKODznVCOFyuEZ/6bfDUhioMJQIvb5XhzXnkvLhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 87/92] media: stkwebcam: fix runtime PM after driver unbind
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 46/65] CIFS: Gracefully handle QueryInfo errors during open
 Date:   Wed, 16 Oct 2019 14:51:00 -0700
-Message-Id: <20191016214848.243121859@linuxfoundation.org>
+Message-Id: <20191016214834.485897161@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pavel Shilovsky <piastryyy@gmail.com>
 
-commit 30045f2174aab7fb4db7a9cf902d0aa6c75856a7 upstream.
+commit 30573a82fb179420b8aac30a3a3595aa96a93156 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+Currently if the client identifies problems when processing
+metadata returned in CREATE response, the open handle is being
+leaked. This causes multiple problems like a file missing a lease
+break by that client which causes high latencies to other clients
+accessing the file. Another side-effect of this is that the file
+can't be deleted.
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
+Fix this by closing the file after the client hits an error after
+the file was opened and the open descriptor wasn't returned to
+the user space. Also convert -ESTALE to -EOPENSTALE to allow
+the VFS to revalidate a dentry and retry the open.
 
-Note that runtime PM has never actually been enabled for this driver
-since the support_autosuspend flag in its usb_driver struct is not set.
-
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-5-johan@kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/cifs/file.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -647,8 +647,7 @@ static int v4l_stk_release(struct file *
- 		dev->owner = NULL;
- 	}
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -252,6 +252,12 @@ cifs_nt_open(char *full_path, struct ino
+ 		rc = cifs_get_inode_info(&inode, full_path, buf, inode->i_sb,
+ 					 xid, fid);
  
--	if (is_present(dev))
--		usb_autopm_put_interface(dev->interface);
-+	usb_autopm_put_interface(dev->interface);
- 	mutex_unlock(&dev->lock);
- 	return v4l2_fh_release(fp);
- }
++	if (rc) {
++		server->ops->close(xid, tcon, fid);
++		if (rc == -ESTALE)
++			rc = -EOPENSTALE;
++	}
++
+ out:
+ 	kfree(buf);
+ 	return rc;
 
 
