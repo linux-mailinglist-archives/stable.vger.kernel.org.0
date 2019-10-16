@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBC35DA0C9
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EDADA073
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390033AbfJPWPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:15:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45988 "EHLO mail.kernel.org"
+        id S2407304AbfJPWLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437741AbfJPVzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:23 -0400
+        id S2395406AbfJPV4l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:41 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94E4F21925;
-        Wed, 16 Oct 2019 21:55:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EE0E21D7C;
+        Wed, 16 Oct 2019 21:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262922;
-        bh=RpGTqagJB6A2tt+p5GnQxTSznwvHVQuX/VHEtXgNcBc=;
+        s=default; t=1571263000;
+        bh=jYQaEFMVCYMetkTCT+mdJkGMP6kuSVqEilUIlS73yjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCnvbCrpZttpVeIV10gZ3ecbWVD92XvW5YF9DFEXw44ugODlnD0jhnmYk1Ctn6hZu
-         oQyKunTHTKXaDqqfafJGDItg4mLJH/gJxKUzu35MTNJdqB/vxXn3Dp7LbKHUpMWjMx
-         ZIjWJGFAKZEu+VXbJCLxFlrPTuiP5KQ2fgeZTbzk=
+        b=Ukeob/UB+nxPtTTpR7Lec0ukds0YMB72xv+NIIhAthxyg5URLPJeIbdM4E2mj7IDs
+         iZSMhN5WJDQL8eYFpKooY85uEaWli2igmaAHP+q8VeVYxjGZIHIxyQHDg3T+m1U+mT
+         +YNCH9adlQRqBf64X5Yba7pap/SZJVAq3lLSnaAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 82/92] kernel/sysctl.c: do not override max_threads provided by userspace
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 41/65] iio: adc: axp288: Override TS pin bias current for some models
 Date:   Wed, 16 Oct 2019 14:50:55 -0700
-Message-Id: <20191016214847.223376846@linuxfoundation.org>
+Message-Id: <20191016214832.165243442@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
+commit 972917419a0ba25afbf69d5d8c9fa644d676f887 upstream.
 
-Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-limits") because the patch is causing a regression to any workload which
-needs to override the auto-tuning of the limit provided by kernel.
+Since commit 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling") we
+preserve the bias current set by the firmware at boot.  This fixes issues
+we were seeing on various models, but it seems our old hardcoded 80ųA bias
+current was working around a firmware bug on at least one model laptop.
 
-set_max_threads is implementing a boot time guesstimate to provide a
-sensible limit of the concurrently running threads so that runaways will
-not deplete all the memory.  This is a good thing in general but there
-are workloads which might need to increase this limit for an application
-to run (reportedly WebSpher MQ is affected) and that is simply not
-possible after the mentioned change.  It is also very dubious to
-override an admin decision by an estimation that doesn't have any direct
-relation to correctness of the kernel operation.
+In order to both have our cake and eat it, this commit adds a dmi based
+list of models where we need to override the firmware set bias current and
+adds the one model we now know needs this to it: The Lenovo Ideapad 100S
+(11 inch version).
 
-Fix this by dropping set_max_threads from sysctl_max_threads so any
-value is accepted as long as it fits into MAX_THREADS which is important
-to check because allowing more threads could break internal robust futex
-restriction.  While at it, do not use MIN_THREADS as the lower boundary
-because it is also only a heuristic for automatic estimation and admin
-might have a good reason to stop new threads to be created even when
-below this limit.
-
-This became more severe when we switched x86 from 4k to 8k kernel
-stacks.  Starting since 6538b8ea886e ("x86_64: expand kernel stack to
-16K") (3.16) we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned
-value.
-
-In the particular case
-
-  3.12
-  kernel.threads-max = 515561
-
-  4.4
-  kernel.threads-max = 200000
-
-Neither of the two values is really insane on 32GB machine.
-
-I am not sure we want/need to tune the max_thread value further.  If
-anything the tuning should be removed altogether if proven not useful in
-general.  But we definitely need a way to override this auto-tuning.
-
-Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
-Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Fixes: 9bcf15f75cac ("iio: adc: axp288: Fix TS-pin handling")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203829
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/axp288_adc.c |   32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2356,7 +2356,7 @@ int sysctl_max_threads(struct ctl_table
- 	struct ctl_table t;
- 	int ret;
- 	int threads = max_threads;
--	int min = MIN_THREADS;
-+	int min = 1;
- 	int max = MAX_THREADS;
+--- a/drivers/iio/adc/axp288_adc.c
++++ b/drivers/iio/adc/axp288_adc.c
+@@ -16,6 +16,7 @@
+  *
+  */
  
- 	t = *table;
-@@ -2368,7 +2368,7 @@ int sysctl_max_threads(struct ctl_table
- 	if (ret || !write)
- 		return ret;
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -34,6 +35,11 @@
+ #define AXP288_ADC_EN_MASK				0xF0
+ #define AXP288_ADC_TS_ENABLE				0x01
  
--	set_max_threads(threads);
-+	max_threads = threads;
- 
- 	return 0;
++#define AXP288_ADC_TS_BIAS_MASK				GENMASK(5, 4)
++#define AXP288_ADC_TS_BIAS_20UA				(0 << 4)
++#define AXP288_ADC_TS_BIAS_40UA				(1 << 4)
++#define AXP288_ADC_TS_BIAS_60UA				(2 << 4)
++#define AXP288_ADC_TS_BIAS_80UA				(3 << 4)
+ #define AXP288_ADC_TS_CURRENT_ON_OFF_MASK		GENMASK(1, 0)
+ #define AXP288_ADC_TS_CURRENT_OFF			(0 << 0)
+ #define AXP288_ADC_TS_CURRENT_ON_WHEN_CHARGING		(1 << 0)
+@@ -194,10 +200,36 @@ static int axp288_adc_read_raw(struct ii
+ 	return ret;
  }
+ 
++/*
++ * We rely on the machine's firmware to correctly setup the TS pin bias current
++ * at boot. This lists systems with broken fw where we need to set it ourselves.
++ */
++static const struct dmi_system_id axp288_adc_ts_bias_override[] = {
++	{
++		/* Lenovo Ideapad 100S (11 inch) */
++		.matches = {
++		  DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		  DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad 100S-11IBY"),
++		},
++		.driver_data = (void *)(uintptr_t)AXP288_ADC_TS_BIAS_80UA,
++	},
++	{}
++};
++
+ static int axp288_adc_initialize(struct axp288_adc_info *info)
+ {
++	const struct dmi_system_id *bias_override;
+ 	int ret, adc_enable_val;
+ 
++	bias_override = dmi_first_match(axp288_adc_ts_bias_override);
++	if (bias_override) {
++		ret = regmap_update_bits(info->regmap, AXP288_ADC_TS_PIN_CTRL,
++					 AXP288_ADC_TS_BIAS_MASK,
++					 (uintptr_t)bias_override->driver_data);
++		if (ret)
++			return ret;
++	}
++
+ 	/*
+ 	 * Determine if the TS pin is enabled and set the TS current-source
+ 	 * accordingly.
 
 
