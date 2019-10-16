@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB97DDA0A4
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D630D9F3D
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439328AbfJPWNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:13:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
+        id S2437537AbfJPVxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395361AbfJPVzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:46 -0400
+        id S2437534AbfJPVxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:34 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F84218DE;
-        Wed, 16 Oct 2019 21:55:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7797A20872;
+        Wed, 16 Oct 2019 21:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262946;
-        bh=USWBleXjwXnXwcBWIYOfCKkr4PGVJwm1DSVGRna6F04=;
+        s=default; t=1571262813;
+        bh=pOCrst16gNH88uIbZ4MKF+ZZd8DAYqOcxYzBcFMGtB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1kjl2M4hmWQHl+Q2qkPdTHx53HUpzVqn+rskLUNZMGTRAcCxj1xKpLs8l4Uog3Qr
-         yscJKOgrUb7PJtJoc7N3D02qlqD/Zo1PTjyu9AZZZRsCWPy9bzmLSVXNZVklklnFe2
-         2UKmK+Zpaf6LvulQyj47554blJSrsx2SlgQ4P31c=
+        b=ydgxTh+ENwvXMdD7TUV885kBDvCzJH4acvl0BB2hL0WviHMnKrsEZPqEYKUJgAQfC
+         3b4wCmBOyhRANbV3AUOMAd4QAECe9VstelheOXULJNnGvVjDQWLNMF6rAC5Vk98fgS
+         5g+9DNgDGobpZtWgt/fVswo9Irw0fw6FN3vG1Rc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 17/65] USB: iowarrior: fix use-after-free on disconnect
+        stable@vger.kernel.org, Jacky Cao <Jacky.Cao@sony.com>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.4 56/79] USB: dummy-hcd: fix power budget for SuperSpeed mode
 Date:   Wed, 16 Oct 2019 14:50:31 -0700
-Message-Id: <20191016214810.223397885@linuxfoundation.org>
+Message-Id: <20191016214819.206934415@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jacky.Cao@sony.com <Jacky.Cao@sony.com>
 
-commit edc4746f253d907d048de680a621e121517f484b upstream.
+commit 2636d49b64671d3d90ecc4daf971b58df3956519 upstream.
 
-A recent fix addressing a deadlock on disconnect introduced a new bug
-by moving the present flag out of the critical section protected by the
-driver-data mutex. This could lead to a racing release() freeing the
-driver data before disconnect() is done with it.
+The power budget for SuperSpeed mode should be 900 mA
+according to USB specification, so set the power budget
+to 900mA for dummy_start_ss which is only used for
+SuperSpeed mode.
 
-Due to insufficient locking a related use-after-free could be triggered
-also before the above mentioned commit. Specifically, the driver needs
-to hold the driver-data mutex also while checking the opened flag at
-disconnect().
+If the max power consumption of SuperSpeed device is
+larger than 500 mA, insufficient available bus power
+error happens in usb_choose_configuration function
+when the device connects to dummy hcd.
 
-Fixes: c468a8aa790e ("usb: iowarrior: fix deadlock on disconnect")
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable <stable@vger.kernel.org>	# 2.6.21
-Reported-by: syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-2-johan@kernel.org
+Signed-off-by: Jacky Cao <Jacky.Cao@sony.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/16EA1F625E922C43B00B9D82250220500871CDE5@APYOKXMS108.ap.sony.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/dummy_hcd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -870,8 +870,6 @@ static void iowarrior_disconnect(struct
- 	dev = usb_get_intfdata(interface);
- 	mutex_lock(&iowarrior_open_disc_lock);
- 	usb_set_intfdata(interface, NULL);
--	/* prevent device read, write and ioctl */
--	dev->present = 0;
+--- a/drivers/usb/gadget/udc/dummy_hcd.c
++++ b/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -50,6 +50,7 @@
+ #define DRIVER_VERSION	"02 May 2005"
  
- 	minor = dev->minor;
- 	mutex_unlock(&iowarrior_open_disc_lock);
-@@ -882,8 +880,7 @@ static void iowarrior_disconnect(struct
- 	mutex_lock(&dev->mutex);
+ #define POWER_BUDGET	500	/* in mA; use 8 for low-power port testing */
++#define POWER_BUDGET_3	900	/* in mA */
  
- 	/* prevent device read, write and ioctl */
--
--	mutex_unlock(&dev->mutex);
-+	dev->present = 0;
- 
- 	if (dev->opened) {
- 		/* There is a process that holds a filedescriptor to the device ,
-@@ -893,8 +890,10 @@ static void iowarrior_disconnect(struct
- 		usb_kill_urb(dev->int_in_urb);
- 		wake_up_interruptible(&dev->read_wait);
- 		wake_up_interruptible(&dev->write_wait);
-+		mutex_unlock(&dev->mutex);
- 	} else {
- 		/* no process is using the device, cleanup now */
-+		mutex_unlock(&dev->mutex);
- 		iowarrior_delete(dev);
- 	}
- 
+ static const char	driver_name[] = "dummy_hcd";
+ static const char	driver_desc[] = "USB Host+Gadget Emulator";
+@@ -2435,7 +2436,7 @@ static int dummy_start_ss(struct dummy_h
+ 	dum_hcd->rh_state = DUMMY_RH_RUNNING;
+ 	dum_hcd->stream_en_ep = 0;
+ 	INIT_LIST_HEAD(&dum_hcd->urbp_list);
+-	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET;
++	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET_3;
+ 	dummy_hcd_to_hcd(dum_hcd)->state = HC_STATE_RUNNING;
+ 	dummy_hcd_to_hcd(dum_hcd)->uses_new_polling = 1;
+ #ifdef CONFIG_USB_OTG
 
 
