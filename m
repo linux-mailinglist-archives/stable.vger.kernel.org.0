@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A3DED9EF0
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1731D9E48
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392117AbfJPWDn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:03:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54028 "EHLO mail.kernel.org"
+        id S2395542AbfJPV5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438483AbfJPV7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:23 -0400
+        id S2395540AbfJPV5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:50 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2CB021928;
-        Wed, 16 Oct 2019 21:59:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24C7821928;
+        Wed, 16 Oct 2019 21:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263161;
-        bh=1ClfNOh3eb/EmAJBnG40vwDJgu0OrUH0YwbE5epnFwA=;
+        s=default; t=1571263070;
+        bh=jphSXo0H1nebo1iEBpk4uSYr10SEphXsBJeMQa/Sj7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0ER1pHydNA0yq41SyxGOVdBmcLESPwWeOzdFwksNqmx1ZteHnD2Y7eRTrAU8FrZI
-         Mg5PcH/6HsoWOXcEuGsmfhSXVF7T004mdrD1yZcu+klI2lz8whVxI0D49O5UNJ3idr
-         YpPI++P4ubmiB2HQ4FDrFzu8rMBGwK44SnWUgOv8=
+        b=X3sqMyLXMEsxH0/HYrJODRXuU0tTuQn6e2DTcH62XUmKGlV1oCBJynFkG98W5zwuj
+         NsbiIaC62ArILMWeAeNN/u6yMbtn8ADE3rQoCqtoEhQChDW2ryVjZoAEEzfIGg6JHK
+         ZZ3VC1iqOjNU8p46r9H5yEcncj8p/mMxD42FAFTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yanjun <suyj.fnst@cn.fujitsu.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.3 089/112] NFS: Fix O_DIRECT accounting of number of bytes read/written
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Robert Richter <rrichter@marvell.com>,
+        Will Deacon <will@kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 70/81] arm64: topology: Use PPTT to determine if PE is a thread
 Date:   Wed, 16 Oct 2019 14:51:21 -0700
-Message-Id: <20191016214905.332900647@linuxfoundation.org>
+Message-Id: <20191016214846.320148933@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,155 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-commit 031d73ed768a40684f3ca21992265ffdb6a270bf upstream.
+Commit 98dc19902a0b2e5348e43d6a2c39a0a7d0fc639e upstream.
 
-When a series of O_DIRECT reads or writes are truncated, either due to
-eof or due to an error, then we should return the number of contiguous
-bytes that were received/sent starting at the offset specified by the
-application.
+ACPI 6.3 adds a thread flag to represent if a CPU/PE is
+actually a thread. Given that the MPIDR_MT bit may not
+represent this information consistently on homogeneous machines
+we should prefer the PPTT flag if its available.
 
-Currently, we are failing to correctly check contiguity, and so we're
-failing the generic/465 in xfstests when the race between the read
-and write RPCs causes the file to get extended while the 2 reads are
-outstanding. If the first read RPC call wins the race and returns with
-eof set, we should treat the second read RPC as being truncated.
-
-Reported-by: Su Yanjun <suyj.fnst@cn.fujitsu.com>
-Fixes: 1ccbad9f9f9bd ("nfs: fix DIO good bytes calculation")
-Cc: stable@vger.kernel.org # 4.1+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Robert Richter <rrichter@marvell.com>
+[will: made acpi_cpu_is_threaded() return 'bool']
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/direct.c |   78 ++++++++++++++++++++++++++++++--------------------------
- 1 file changed, 43 insertions(+), 35 deletions(-)
+ arch/arm64/kernel/topology.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -123,32 +123,49 @@ static inline int put_dreq(struct nfs_di
+diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
+index 0825c4a856e33..6106c49f84bc8 100644
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -340,17 +340,28 @@ void remove_cpu_topology(unsigned int cpu)
  }
  
- static void
--nfs_direct_good_bytes(struct nfs_direct_req *dreq, struct nfs_pgio_header *hdr)
-+nfs_direct_handle_truncated(struct nfs_direct_req *dreq,
-+			    const struct nfs_pgio_header *hdr,
-+			    ssize_t dreq_len)
+ #ifdef CONFIG_ACPI
++static bool __init acpi_cpu_is_threaded(int cpu)
 +{
-+	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
++	int is_threaded = acpi_pptt_cpu_is_thread(cpu);
 +
-+	if (!(test_bit(NFS_IOHDR_ERROR, &hdr->flags) ||
-+	      test_bit(NFS_IOHDR_EOF, &hdr->flags)))
-+		return;
-+	if (dreq->max_count >= dreq_len) {
-+		dreq->max_count = dreq_len;
-+		if (dreq->count > dreq_len)
-+			dreq->count = dreq_len;
++	/*
++	 * if the PPTT doesn't have thread information, assume a homogeneous
++	 * machine and return the current CPU's thread state.
++	 */
++	if (is_threaded < 0)
++		is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
 +
-+		if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
-+			dreq->error = hdr->error;
-+		else /* Clear outstanding error if this is EOF */
-+			dreq->error = 0;
-+	}
-+	if (mirror->count > dreq_len)
-+		mirror->count = dreq_len;
++	return !!is_threaded;
 +}
 +
-+static void
-+nfs_direct_count_bytes(struct nfs_direct_req *dreq,
-+		       const struct nfs_pgio_header *hdr)
- {
--	int i;
--	ssize_t count;
-+	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
-+	loff_t hdr_end = hdr->io_start + hdr->good_bytes;
-+	ssize_t dreq_len = 0;
- 
--	WARN_ON_ONCE(dreq->count >= dreq->max_count);
-+	if (hdr_end > dreq->io_start)
-+		dreq_len = hdr_end - dreq->io_start;
- 
--	if (dreq->mirror_count == 1) {
--		dreq->mirrors[hdr->pgio_mirror_idx].count += hdr->good_bytes;
--		dreq->count += hdr->good_bytes;
--	} else {
--		/* mirrored writes */
--		count = dreq->mirrors[hdr->pgio_mirror_idx].count;
--		if (count + dreq->io_start < hdr->io_start + hdr->good_bytes) {
--			count = hdr->io_start + hdr->good_bytes - dreq->io_start;
--			dreq->mirrors[hdr->pgio_mirror_idx].count = count;
--		}
--		/* update the dreq->count by finding the minimum agreed count from all
--		 * mirrors */
--		count = dreq->mirrors[0].count;
-+	nfs_direct_handle_truncated(dreq, hdr, dreq_len);
- 
--		for (i = 1; i < dreq->mirror_count; i++)
--			count = min(count, dreq->mirrors[i].count);
-+	if (dreq_len > dreq->max_count)
-+		dreq_len = dreq->max_count;
- 
--		dreq->count = count;
--	}
-+	if (mirror->count < dreq_len)
-+		mirror->count = dreq_len;
-+	if (dreq->count < dreq_len)
-+		dreq->count = dreq_len;
- }
- 
  /*
-@@ -402,20 +419,12 @@ static void nfs_direct_read_completion(s
- 	struct nfs_direct_req *dreq = hdr->dreq;
+  * Propagate the topology information of the processor_topology_node tree to the
+  * cpu_topology array.
+  */
+ static int __init parse_acpi_topology(void)
+ {
+-	bool is_threaded;
+ 	int cpu, topology_id;
  
- 	spin_lock(&dreq->lock);
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
--		dreq->error = hdr->error;
+-	is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
 -
- 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
- 		spin_unlock(&dreq->lock);
- 		goto out_put;
- 	}
+ 	for_each_possible_cpu(cpu) {
+ 		int i, cache_id;
  
--	if (hdr->good_bytes != 0)
--		nfs_direct_good_bytes(dreq, hdr);
--
--	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
--		dreq->error = 0;
--
-+	nfs_direct_count_bytes(dreq, hdr);
- 	spin_unlock(&dreq->lock);
+@@ -358,7 +369,7 @@ static int __init parse_acpi_topology(void)
+ 		if (topology_id < 0)
+ 			return topology_id;
  
- 	while (!list_empty(&hdr->pages)) {
-@@ -652,6 +661,9 @@ static void nfs_direct_write_reschedule(
- 	nfs_direct_write_scan_commit_list(dreq->inode, &reqs, &cinfo);
- 
- 	dreq->count = 0;
-+	dreq->max_count = 0;
-+	list_for_each_entry(req, &reqs, wb_list)
-+		dreq->max_count += req->wb_bytes;
- 	dreq->verf.committed = NFS_INVALID_STABLE_HOW;
- 	nfs_clear_pnfs_ds_commit_verifiers(&dreq->ds_cinfo);
- 	for (i = 0; i < dreq->mirror_count; i++)
-@@ -791,17 +803,13 @@ static void nfs_direct_write_completion(
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
- 	spin_lock(&dreq->lock);
--
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
--		dreq->error = hdr->error;
--
- 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
- 		spin_unlock(&dreq->lock);
- 		goto out_put;
- 	}
- 
-+	nfs_direct_count_bytes(dreq, hdr);
- 	if (hdr->good_bytes != 0) {
--		nfs_direct_good_bytes(dreq, hdr);
- 		if (nfs_write_need_commit(hdr)) {
- 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
- 				request_commit = true;
+-		if (is_threaded) {
++		if (acpi_cpu_is_threaded(cpu)) {
+ 			cpu_topology[cpu].thread_id = topology_id;
+ 			topology_id = find_acpi_cpu_topology(cpu, 1);
+ 			cpu_topology[cpu].core_id   = topology_id;
+-- 
+2.20.1
+
 
 
