@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E22E7D9E44
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C261D9EFE
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395505AbfJPV5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50432 "EHLO mail.kernel.org"
+        id S2389937AbfJPWEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:04:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395495AbfJPV5h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:37 -0400
+        id S2438416AbfJPV7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:11 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF44121D7A;
-        Wed, 16 Oct 2019 21:57:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 771BC21D7A;
+        Wed, 16 Oct 2019 21:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263057;
-        bh=HSW9Eg9Cocl1FHpauNvnQ+JPck1GECfflNlQLO7SD2w=;
+        s=default; t=1571263150;
+        bh=ErdbU82ThM3I9cHDFmp0MNhZUp0TxhFVzZStJVwB6h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FB6G+2Zgbpwe2nRII9z0lbH4PNiHHOk2LVYIjGZemWp03Yk5YzS7+na6RTR4pXyqQ
-         HavUhLWmLaNbavbBJ/7pYdUJNQYSWFuC0XUmkdLL7NuDTIdZA2ScB5O6s/lUH9FHXj
-         pfldp2HUB8ztt8qc4AemEOeVoswWlrWKkRR8NESs=
+        b=ntiOtuJfW+b4eA3WCjvbyNK1R5xCs+trQshov+qBHUwCdyNHxI78BF+kosfvBQYse
+         4hTsqgE5VyFiZAmPdPs4oA0HOuEfjanFfj5y+HjJooXjJXZSaNJqGv2ft6WqJ+Tckj
+         npIzrMegDMdLJLdq+BNamT/xeOresYWoe6LA89bA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 59/81] gpiolib: dont clear FLAG_IS_OUT when emulating open-drain/open-source
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        David Rientjes <rientjes@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Enrico Weigelt <info@metux.net>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 078/112] mm/vmpressure.c: fix a signedness bug in vmpressure_register_event()
 Date:   Wed, 16 Oct 2019 14:51:10 -0700
-Message-Id: <20191016214843.408438977@linuxfoundation.org>
+Message-Id: <20191016214904.308616614@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +50,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e735244e2cf068f98b6384681a38993e0517a838 ]
+commit 518a86713078168acd67cf50bc0b45d54b4cce6c upstream.
 
-When emulating open-drain/open-source by not actively driving the output
-lines - we're simply changing their mode to input. This is wrong as it
-will then make it impossible to change the value of such line - it's now
-considered to actually be in input mode. If we want to still use the
-direction_input() callback for simplicity then we need to set FLAG_IS_OUT
-manually in gpiod_direction_output() and not clear it in
-gpio_set_open_drain_value_commit() and
-gpio_set_open_source_value_commit().
+The "mode" and "level" variables are enums and in this context GCC will
+treat them as unsigned ints so the error handling is never triggered.
 
-Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
-Cc: stable@vger.kernel.org
-Reported-by: Kent Gibson <warthog618@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-[Bartosz: backported to v5.3, v4.19]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I also removed the bogus initializer because it isn't required any more
+and it's sort of confusing.
+
+[akpm@linux-foundation.org: reduce implicit and explicit typecasting]
+[akpm@linux-foundation.org: fix return value, add comment, per Matthew]
+Link: http://lkml.kernel.org/r/20190925110449.GO3264@mwanda
+Fixes: 3cadfa2b9497 ("mm/vmpressure.c: convert to use match_string() helper")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Matthew Wilcox <willy@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Enrico Weigelt <info@metux.net>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpio/gpiolib.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ mm/vmpressure.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 3289b53a7ba14..565ab945698ca 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -2649,8 +2649,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open drain by not actively driving the line high */
--		if (value)
--			return gpiod_direction_input(desc);
-+		if (value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
+--- a/mm/vmpressure.c
++++ b/mm/vmpressure.c
+@@ -355,6 +355,9 @@ void vmpressure_prio(gfp_t gfp, struct m
+  * "hierarchy" or "local").
+  *
+  * To be used as memcg event method.
++ *
++ * Return: 0 on success, -ENOMEM on memory failure or -EINVAL if @args could
++ * not be parsed.
+  */
+ int vmpressure_register_event(struct mem_cgroup *memcg,
+ 			      struct eventfd_ctx *eventfd, const char *args)
+@@ -362,7 +365,7 @@ int vmpressure_register_event(struct mem
+ 	struct vmpressure *vmpr = memcg_to_vmpressure(memcg);
+ 	struct vmpressure_event *ev;
+ 	enum vmpressure_modes mode = VMPRESSURE_NO_PASSTHROUGH;
+-	enum vmpressure_levels level = -1;
++	enum vmpressure_levels level;
+ 	char *spec, *spec_orig;
+ 	char *token;
+ 	int ret = 0;
+@@ -375,20 +378,18 @@ int vmpressure_register_event(struct mem
+ 
+ 	/* Find required level */
+ 	token = strsep(&spec, ",");
+-	level = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
+-	if (level < 0) {
+-		ret = level;
++	ret = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
++	if (ret < 0)
+ 		goto out;
+-	}
++	level = ret;
+ 
+ 	/* Find optional mode */
+ 	token = strsep(&spec, ",");
+ 	if (token) {
+-		mode = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
+-		if (mode < 0) {
+-			ret = mode;
++		ret = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
++		if (ret < 0)
+ 			goto out;
+-		}
++		mode = ret;
  	}
- 	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
- 		ret = gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
-@@ -2658,8 +2660,10 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
- 		if (!ret)
- 			goto set_output_value;
- 		/* Emulate open source by not actively driving the line low */
--		if (!value)
--			return gpiod_direction_input(desc);
-+		if (!value) {
-+			ret = gpiod_direction_input(desc);
-+			goto set_output_flag;
-+		}
- 	} else {
- 		gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
- 					    PIN_CONFIG_DRIVE_PUSH_PULL);
-@@ -2667,6 +2671,17 @@ int gpiod_direction_output(struct gpio_desc *desc, int value)
  
- set_output_value:
- 	return gpiod_direction_output_raw_commit(desc, value);
-+
-+set_output_flag:
-+	/*
-+	 * When emulating open-source or open-drain functionalities by not
-+	 * actively driving the line (setting mode to input) we still need to
-+	 * set the IS_OUT flag or otherwise we won't be able to set the line
-+	 * value anymore.
-+	 */
-+	if (ret == 0)
-+		set_bit(FLAG_IS_OUT, &desc->flags);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(gpiod_direction_output);
- 
-@@ -2980,8 +2995,6 @@ static void gpio_set_open_drain_value_commit(struct gpio_desc *desc, bool value)
- 
- 	if (value) {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_output(chip, offset, 0);
- 		if (!err)
-@@ -3011,8 +3024,6 @@ static void gpio_set_open_source_value_commit(struct gpio_desc *desc, bool value
- 			set_bit(FLAG_IS_OUT, &desc->flags);
- 	} else {
- 		err = chip->direction_input(chip, offset);
--		if (!err)
--			clear_bit(FLAG_IS_OUT, &desc->flags);
- 	}
- 	trace_gpio_direction(desc_to_gpio(desc), !value, err);
- 	if (err < 0)
--- 
-2.20.1
-
+ 	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
+@@ -404,6 +405,7 @@ int vmpressure_register_event(struct mem
+ 	mutex_lock(&vmpr->events_lock);
+ 	list_add(&ev->node, &vmpr->events);
+ 	mutex_unlock(&vmpr->events_lock);
++	ret = 0;
+ out:
+ 	kfree(spec_orig);
+ 	return ret;
 
 
