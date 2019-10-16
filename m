@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B62DDA0CF
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F7FDA083
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726824AbfJPWPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:15:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45916 "EHLO mail.kernel.org"
+        id S2393112AbfJPWMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:12:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437764AbfJPVzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:19 -0400
+        id S2406647AbfJPV42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:28 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B50221925;
-        Wed, 16 Oct 2019 21:55:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F5E521A49;
+        Wed, 16 Oct 2019 21:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262919;
-        bh=UlGrKMgXgRaTB19PpiO2d5UObMhWdYR3TmQmAa+QV6Y=;
+        s=default; t=1571262988;
+        bh=XC1gYeOvMGmXMdK7rWxu9YrQpuenGQWZV8mFIdiSWq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iiny3qNw6RkHDUAA2bhOqyqfBYvRBSeLowPtTHCLzKwPQV8V0tEOdG3QMHsL0XZP9
-         tDYEuxUe45oUeWBe4fnsvTQj6XaCjs/Mcj7QjU288oFA910qdScykjv55MPPrW6LmF
-         YKskHLKby2v2w+yHLzuTHItA4C4ZwR8wbmiWJv1s=
+        b=XxZN07RhGb2X/vrPibZ8UfBac9qK4SAvo/7fXeY6NhL+210mylRMsIRozeXb2GmmF
+         FyzYVnlzoiuOBU99/W9MW9Mct1Qo5EcPk0LogPfh4T/Qo52Rjn2tnauTnG7iPQ8oOm
+         0L4YqC+FTtLAFVJKqwkj7HHDe63oMsa7aBr86GvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.9 79/92] CIFS: Gracefully handle QueryInfo errors during open
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 38/65] USB: legousbtower: fix use-after-free on release
 Date:   Wed, 16 Oct 2019 14:50:52 -0700
-Message-Id: <20191016214846.622390456@linuxfoundation.org>
+Message-Id: <20191016214829.399329062@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <piastryyy@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 30573a82fb179420b8aac30a3a3595aa96a93156 upstream.
+commit 726b55d0e22ca72c69c947af87785c830289ddbc upstream.
 
-Currently if the client identifies problems when processing
-metadata returned in CREATE response, the open handle is being
-leaked. This causes multiple problems like a file missing a lease
-break by that client which causes high latencies to other clients
-accessing the file. Another side-effect of this is that the file
-can't be deleted.
+The driver was accessing its struct usb_device in its release()
+callback without holding a reference. This would lead to a
+use-after-free whenever the device was disconnected while the character
+device was still open.
 
-Fix this by closing the file after the client hits an error after
-the file was opened and the open descriptor wasn't returned to
-the user space. Also convert -ESTALE to -EOPENSTALE to allow
-the VFS to revalidate a dentry and retry the open.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: fef526cae700 ("USB: legousbtower: remove custom debug macro")
+Cc: stable <stable@vger.kernel.org>     # 3.12
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009153848.8664-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/misc/legousbtower.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -252,6 +252,12 @@ cifs_nt_open(char *full_path, struct ino
- 		rc = cifs_get_inode_info(&inode, full_path, buf, inode->i_sb,
- 					 xid, fid);
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -300,6 +300,7 @@ static inline void tower_delete (struct
+ 	kfree (dev->read_buffer);
+ 	kfree (dev->interrupt_in_buffer);
+ 	kfree (dev->interrupt_out_buffer);
++	usb_put_dev(dev->udev);
+ 	kfree (dev);
+ }
  
-+	if (rc) {
-+		server->ops->close(xid, tcon, fid);
-+		if (rc == -ESTALE)
-+			rc = -EOPENSTALE;
-+	}
-+
- out:
- 	kfree(buf);
- 	return rc;
+@@ -813,7 +814,7 @@ static int tower_probe (struct usb_inter
+ 
+ 	mutex_init(&dev->lock);
+ 
+-	dev->udev = udev;
++	dev->udev = usb_get_dev(udev);
+ 	dev->open_count = 0;
+ 	dev->disconnected = 0;
+ 
 
 
