@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB9ADA080
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE894DA030
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389024AbfJPWMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
+        id S1727766AbfJPWIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406664AbfJPV4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:32 -0400
+        id S2395523AbfJPV5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:42 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A692121D7F;
-        Wed, 16 Oct 2019 21:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13701222BD;
+        Wed, 16 Oct 2019 21:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262991;
-        bh=HoRzh6UsjOv7XLwXkaRnDIDGMA7ZCSYunRRpeGX5F2E=;
+        s=default; t=1571263060;
+        bh=45TN+AVUUlUvz2/NcfGvcrPhot7V+NoTaE61N7NufjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8XzwG6DiXfdMvPFaj2jukPOADVF6xD3mMnHCFn1sNKgzpDVAP/ZLDIQ3f/v0G8T8
-         73MA/D2fu9I27jjG5XRp346PdkFB7VpDocqek2rvktWdPob7R0unO3ijcUiUFD+hRX
-         yKMWjSAvcLXvPjNpwqBc0mfhv/Fye0Xk/Nu2yqlQ=
+        b=BNXoalnRFmGhiPMEmOTyCtWG1NuuTawG7zjN4HjKtSMq63J9qaxPISfVyETsxS02p
+         v8nuL/U0Dr6bg5HkfuCOsR/sXQxul7uMxN/Bn/Z60iV7rBQid9zDi0F7EUX+iWIKo9
+         QpkGwZT3VRi7A8gRjb+MP6B7v40eUCIWx6z5y4sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 59/65] media: stkwebcam: fix runtime PM after driver unbind
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 62/81] cifs: use cifsInodeInfo->open_file_lock while iterating to avoid a panic
 Date:   Wed, 16 Oct 2019 14:51:13 -0700
-Message-Id: <20191016214839.302002408@linuxfoundation.org>
+Message-Id: <20191016214843.979454273@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-commit 30045f2174aab7fb4db7a9cf902d0aa6c75856a7 upstream.
+Commit 487317c99477 ("cifs: add spinlock for the openFileList to
+cifsInodeInfo") added cifsInodeInfo->open_file_lock spin_lock to protect
+the openFileList, but missed a few places where cifs_inode->openFileList
+was enumerated.  Change these remaining tcon->open_file_lock to
+cifsInodeInfo->open_file_lock to avoid panic in is_size_safe_to_change.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+[17313.245641] RIP: 0010:is_size_safe_to_change+0x57/0xb0 [cifs]
+[17313.245645] Code: 68 40 48 89 ef e8 19 67 b7 f1 48 8b 43 40 48 8d 4b 40 48 8d 50 f0 48 39 c1 75 0f eb 47 48 8b 42 10 48 8d 50 f0 48 39 c1 74 3a <8b> 80 88 00 00 00 83 c0 01 a8 02 74 e6 48 89 ef c6 07 00 0f 1f 40
+[17313.245649] RSP: 0018:ffff94ae1baefa30 EFLAGS: 00010202
+[17313.245654] RAX: dead000000000100 RBX: ffff88dc72243300 RCX: ffff88dc72243340
+[17313.245657] RDX: dead0000000000f0 RSI: 00000000098f7940 RDI: ffff88dd3102f040
+[17313.245659] RBP: ffff88dd3102f040 R08: 0000000000000000 R09: ffff94ae1baefc40
+[17313.245661] R10: ffffcdc8bb1c4e80 R11: ffffcdc8b50adb08 R12: 00000000098f7940
+[17313.245663] R13: ffff88dc72243300 R14: ffff88dbc8f19600 R15: ffff88dc72243428
+[17313.245667] FS:  00007fb145485700(0000) GS:ffff88dd3e000000(0000) knlGS:0000000000000000
+[17313.245670] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[17313.245672] CR2: 0000026bb46c6000 CR3: 0000004edb110003 CR4: 00000000007606e0
+[17313.245753] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[17313.245756] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[17313.245759] PKRU: 55555554
+[17313.245761] Call Trace:
+[17313.245803]  cifs_fattr_to_inode+0x16b/0x580 [cifs]
+[17313.245838]  cifs_get_inode_info+0x35c/0xa60 [cifs]
+[17313.245852]  ? kmem_cache_alloc_trace+0x151/0x1d0
+[17313.245885]  cifs_open+0x38f/0x990 [cifs]
+[17313.245921]  ? cifs_revalidate_dentry_attr+0x3e/0x350 [cifs]
+[17313.245953]  ? cifsFileInfo_get+0x30/0x30 [cifs]
+[17313.245960]  ? do_dentry_open+0x132/0x330
+[17313.245963]  do_dentry_open+0x132/0x330
+[17313.245969]  path_openat+0x573/0x14d0
+[17313.245974]  do_filp_open+0x93/0x100
+[17313.245979]  ? __check_object_size+0xa3/0x181
+[17313.245986]  ? audit_alloc_name+0x7e/0xd0
+[17313.245992]  do_sys_open+0x184/0x220
+[17313.245999]  do_syscall_64+0x5b/0x1b0
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
+Fixes: 487317c99477 ("cifs: add spinlock for the openFileList to cifsInodeInfo")
 
-Note that runtime PM has never actually been enabled for this driver
-since the support_autosuspend flag in its usb_driver struct is not set.
-
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-5-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+CC: Stable <stable@vger.kernel.org>
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/cifs/file.c |   27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -640,8 +640,7 @@ static int v4l_stk_release(struct file *
- 		dev->owner = NULL;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -1841,13 +1841,12 @@ struct cifsFileInfo *find_readable_file(
+ {
+ 	struct cifsFileInfo *open_file = NULL;
+ 	struct cifs_sb_info *cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
+-	struct cifs_tcon *tcon = cifs_sb_master_tcon(cifs_sb);
+ 
+ 	/* only filter by fsuid on multiuser mounts */
+ 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
+ 		fsuid_only = false;
+ 
+-	spin_lock(&tcon->open_file_lock);
++	spin_lock(&cifs_inode->open_file_lock);
+ 	/* we could simply get the first_list_entry since write-only entries
+ 	   are always at the end of the list but since the first entry might
+ 	   have a close pending, we go through the whole list */
+@@ -1859,7 +1858,7 @@ struct cifsFileInfo *find_readable_file(
+ 				/* found a good file */
+ 				/* lock it so it will not be closed on us */
+ 				cifsFileInfo_get(open_file);
+-				spin_unlock(&tcon->open_file_lock);
++				spin_unlock(&cifs_inode->open_file_lock);
+ 				return open_file;
+ 			} /* else might as well continue, and look for
+ 			     another, or simply have the caller reopen it
+@@ -1867,7 +1866,7 @@ struct cifsFileInfo *find_readable_file(
+ 		} else /* write only file */
+ 			break; /* write only files are last so must be done */
+ 	}
+-	spin_unlock(&tcon->open_file_lock);
++	spin_unlock(&cifs_inode->open_file_lock);
+ 	return NULL;
+ }
+ 
+@@ -1876,7 +1875,6 @@ struct cifsFileInfo *find_writable_file(
+ {
+ 	struct cifsFileInfo *open_file, *inv_file = NULL;
+ 	struct cifs_sb_info *cifs_sb;
+-	struct cifs_tcon *tcon;
+ 	bool any_available = false;
+ 	int rc;
+ 	unsigned int refind = 0;
+@@ -1892,16 +1890,15 @@ struct cifsFileInfo *find_writable_file(
  	}
  
--	if (is_present(dev))
--		usb_autopm_put_interface(dev->interface);
-+	usb_autopm_put_interface(dev->interface);
- 	mutex_unlock(&dev->lock);
- 	return v4l2_fh_release(fp);
+ 	cifs_sb = CIFS_SB(cifs_inode->vfs_inode.i_sb);
+-	tcon = cifs_sb_master_tcon(cifs_sb);
+ 
+ 	/* only filter by fsuid on multiuser mounts */
+ 	if (!(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MULTIUSER))
+ 		fsuid_only = false;
+ 
+-	spin_lock(&tcon->open_file_lock);
++	spin_lock(&cifs_inode->open_file_lock);
+ refind_writable:
+ 	if (refind > MAX_REOPEN_ATT) {
+-		spin_unlock(&tcon->open_file_lock);
++		spin_unlock(&cifs_inode->open_file_lock);
+ 		return NULL;
+ 	}
+ 	list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
+@@ -1913,7 +1910,7 @@ refind_writable:
+ 			if (!open_file->invalidHandle) {
+ 				/* found a good writable file */
+ 				cifsFileInfo_get(open_file);
+-				spin_unlock(&tcon->open_file_lock);
++				spin_unlock(&cifs_inode->open_file_lock);
+ 				return open_file;
+ 			} else {
+ 				if (!inv_file)
+@@ -1932,7 +1929,7 @@ refind_writable:
+ 		cifsFileInfo_get(inv_file);
+ 	}
+ 
+-	spin_unlock(&tcon->open_file_lock);
++	spin_unlock(&cifs_inode->open_file_lock);
+ 
+ 	if (inv_file) {
+ 		rc = cifs_reopen_file(inv_file, false);
+@@ -1946,7 +1943,7 @@ refind_writable:
+ 			cifsFileInfo_put(inv_file);
+ 			++refind;
+ 			inv_file = NULL;
+-			spin_lock(&tcon->open_file_lock);
++			spin_lock(&cifs_inode->open_file_lock);
+ 			goto refind_writable;
+ 		}
+ 	}
+@@ -4007,17 +4004,15 @@ static int cifs_readpage(struct file *fi
+ static int is_inode_writable(struct cifsInodeInfo *cifs_inode)
+ {
+ 	struct cifsFileInfo *open_file;
+-	struct cifs_tcon *tcon =
+-		cifs_sb_master_tcon(CIFS_SB(cifs_inode->vfs_inode.i_sb));
+ 
+-	spin_lock(&tcon->open_file_lock);
++	spin_lock(&cifs_inode->open_file_lock);
+ 	list_for_each_entry(open_file, &cifs_inode->openFileList, flist) {
+ 		if (OPEN_FMODE(open_file->f_flags) & FMODE_WRITE) {
+-			spin_unlock(&tcon->open_file_lock);
++			spin_unlock(&cifs_inode->open_file_lock);
+ 			return 1;
+ 		}
+ 	}
+-	spin_unlock(&tcon->open_file_lock);
++	spin_unlock(&cifs_inode->open_file_lock);
+ 	return 0;
  }
+ 
 
 
