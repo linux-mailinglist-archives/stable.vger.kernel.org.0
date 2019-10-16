@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13397DA034
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA7BDA035
 	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407098AbfJPWJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2394638AbfJPWJK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 18:09:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50324 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406676AbfJPV5e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:34 -0400
+        id S2406681AbfJPV5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:35 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A626F21D7E;
-        Wed, 16 Oct 2019 21:57:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA40A21928;
+        Wed, 16 Oct 2019 21:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263053;
-        bh=yu2b8zJoFmrxOFUFT+kolrRnQxcolcv/5ntmye+pqkc=;
+        s=default; t=1571263055;
+        bh=pSKK78qYuM/oMF/AE9JGU3jGCsV2zPg3W1Gx2TVmpoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRNbicW3ceflw2Zi5a1ESzVa9ui5t0CSxSg5rmD3+tXQShFLo4kff+4nOt8xcNU+n
-         kbq1MgPIKkfrQfXsVoL9a7E1donxuQEpbyrdMwr7SyuUXLhWC//rzyMcppecWTvPpB
-         nKuZ7KteW3+nuOz/12rWAR/dxz45OX0v6ESFeKhw=
+        b=F2mwEGlf/5dbK1L8IkRxYSaVP4SLALSIxf3PDMpMBEU9Ioj8A52+xyPrq1A+isRNY
+         gIh5Z0TSDby3KeXQ093qsIzoWaYSfZbXz2wPBe5A3yJ06r0Ae88MG0XU9MYU48Y6BS
+         alx2ntKPQnT3Vh7JJFbf440X2R2Hik1t7qxe4WUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        David Rientjes <rientjes@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Enrico Weigelt <info@metux.net>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 56/81] kernel/sysctl.c: do not override max_threads provided by userspace
-Date:   Wed, 16 Oct 2019 14:51:07 -0700
-Message-Id: <20191016214842.621065901@linuxfoundation.org>
+Subject: [PATCH 4.19 57/81] mm/vmpressure.c: fix a signedness bug in vmpressure_register_event()
+Date:   Wed, 16 Oct 2019 14:51:08 -0700
+Message-Id: <20191016214842.957825220@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
 References: <20191016214805.727399379@linuxfoundation.org>
@@ -46,83 +50,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
+commit 518a86713078168acd67cf50bc0b45d54b4cce6c upstream.
 
-Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-limits") because the patch is causing a regression to any workload which
-needs to override the auto-tuning of the limit provided by kernel.
+The "mode" and "level" variables are enums and in this context GCC will
+treat them as unsigned ints so the error handling is never triggered.
 
-set_max_threads is implementing a boot time guesstimate to provide a
-sensible limit of the concurrently running threads so that runaways will
-not deplete all the memory.  This is a good thing in general but there
-are workloads which might need to increase this limit for an application
-to run (reportedly WebSpher MQ is affected) and that is simply not
-possible after the mentioned change.  It is also very dubious to
-override an admin decision by an estimation that doesn't have any direct
-relation to correctness of the kernel operation.
+I also removed the bogus initializer because it isn't required any more
+and it's sort of confusing.
 
-Fix this by dropping set_max_threads from sysctl_max_threads so any
-value is accepted as long as it fits into MAX_THREADS which is important
-to check because allowing more threads could break internal robust futex
-restriction.  While at it, do not use MIN_THREADS as the lower boundary
-because it is also only a heuristic for automatic estimation and admin
-might have a good reason to stop new threads to be created even when
-below this limit.
-
-This became more severe when we switched x86 from 4k to 8k kernel
-stacks.  Starting since 6538b8ea886e ("x86_64: expand kernel stack to
-16K") (3.16) we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned
-value.
-
-In the particular case
-
-  3.12
-  kernel.threads-max = 515561
-
-  4.4
-  kernel.threads-max = 200000
-
-Neither of the two values is really insane on 32GB machine.
-
-I am not sure we want/need to tune the max_thread value further.  If
-anything the tuning should be removed altogether if proven not useful in
-general.  But we definitely need a way to override this auto-tuning.
-
-Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
-Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
-Cc: <stable@vger.kernel.org>
+[akpm@linux-foundation.org: reduce implicit and explicit typecasting]
+[akpm@linux-foundation.org: fix return value, add comment, per Matthew]
+Link: http://lkml.kernel.org/r/20190925110449.GO3264@mwanda
+Fixes: 3cadfa2b9497 ("mm/vmpressure.c: convert to use match_string() helper")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Reviewed-by: Matthew Wilcox <willy@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Enrico Weigelt <info@metux.net>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/vmpressure.c |   20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2623,7 +2623,7 @@ int sysctl_max_threads(struct ctl_table
- 	struct ctl_table t;
- 	int ret;
- 	int threads = max_threads;
--	int min = MIN_THREADS;
-+	int min = 1;
- 	int max = MAX_THREADS;
+--- a/mm/vmpressure.c
++++ b/mm/vmpressure.c
+@@ -358,6 +358,9 @@ void vmpressure_prio(gfp_t gfp, struct m
+  * "hierarchy" or "local").
+  *
+  * To be used as memcg event method.
++ *
++ * Return: 0 on success, -ENOMEM on memory failure or -EINVAL if @args could
++ * not be parsed.
+  */
+ int vmpressure_register_event(struct mem_cgroup *memcg,
+ 			      struct eventfd_ctx *eventfd, const char *args)
+@@ -365,7 +368,7 @@ int vmpressure_register_event(struct mem
+ 	struct vmpressure *vmpr = memcg_to_vmpressure(memcg);
+ 	struct vmpressure_event *ev;
+ 	enum vmpressure_modes mode = VMPRESSURE_NO_PASSTHROUGH;
+-	enum vmpressure_levels level = -1;
++	enum vmpressure_levels level;
+ 	char *spec, *spec_orig;
+ 	char *token;
+ 	int ret = 0;
+@@ -378,20 +381,18 @@ int vmpressure_register_event(struct mem
  
- 	t = *table;
-@@ -2635,7 +2635,7 @@ int sysctl_max_threads(struct ctl_table
- 	if (ret || !write)
- 		return ret;
+ 	/* Find required level */
+ 	token = strsep(&spec, ",");
+-	level = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
+-	if (level < 0) {
+-		ret = level;
++	ret = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
++	if (ret < 0)
+ 		goto out;
+-	}
++	level = ret;
  
--	set_max_threads(threads);
-+	max_threads = threads;
+ 	/* Find optional mode */
+ 	token = strsep(&spec, ",");
+ 	if (token) {
+-		mode = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
+-		if (mode < 0) {
+-			ret = mode;
++		ret = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
++		if (ret < 0)
+ 			goto out;
+-		}
++		mode = ret;
+ 	}
  
- 	return 0;
- }
+ 	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
+@@ -407,6 +408,7 @@ int vmpressure_register_event(struct mem
+ 	mutex_lock(&vmpr->events_lock);
+ 	list_add(&ev->node, &vmpr->events);
+ 	mutex_unlock(&vmpr->events_lock);
++	ret = 0;
+ out:
+ 	kfree(spec_orig);
+ 	return ret;
 
 
