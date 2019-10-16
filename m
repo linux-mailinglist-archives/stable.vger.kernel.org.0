@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 478D0D9E1D
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D23A1D9E1C
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406663AbfJPV4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2406661AbfJPV4b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 17:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48150 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406653AbfJPV4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2406657AbfJPV4a (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 16 Oct 2019 17:56:30 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF2BF21925;
-        Wed, 16 Oct 2019 21:56:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE24021A49;
+        Wed, 16 Oct 2019 21:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262988;
-        bh=igHqsfJ/KTYG9kzGSxI1nBlYQVC8EhHXmU66VJt5M2Q=;
+        s=default; t=1571262990;
+        bh=L95EMHtNAx1++/FTWvOD8AFJ7l+KXtUK06uQ1uo1HIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UwZAkgfxrKIp58P/ET3sZOrFrX6VoZ26TP1jaw01AonA8hI1PBPDWGe0P3xZDhyuv
-         pM5Jbyquyg4m7LxnHTOISDYHccciSPNSIO29Dovf7wPW9NjpVqXJNmk74VVd4LPfQy
-         VrCG6yqLCDRz96/kjjbb5ApfarvR8wL0sHgR3074=
+        b=ynwlWHHJyJqer7kYxICV018N7sUxdSVFSAuZdHoF3QUgVrRzXWkTc7Lock0v/I+AF
+         qM40yFlBh//j8lXBE7ax0HMHhZKOhnRAP2eUaB56kV2ovb6RpT5t0DBsSFG0Pqw7EA
+         3hNBZa5dbZ8zad7PE7ZwMpe7uAV38MFW8WA+6Bjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yanjun <suyj.fnst@cn.fujitsu.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.14 56/65] NFS: Fix O_DIRECT accounting of number of bytes read/written
-Date:   Wed, 16 Oct 2019 14:51:10 -0700
-Message-Id: <20191016214838.027140327@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH 4.14 57/65] MIPS: Disable Loongson MMI instructions for kernel build
+Date:   Wed, 16 Oct 2019 14:51:11 -0700
+Message-Id: <20191016214838.518286192@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
 References: <20191016214756.457746573@linuxfoundation.org>
@@ -44,155 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Paul Burton <paul.burton@mips.com>
 
-commit 031d73ed768a40684f3ca21992265ffdb6a270bf upstream.
+commit 2f2b4fd674cadd8c6b40eb629e140a14db4068fd upstream.
 
-When a series of O_DIRECT reads or writes are truncated, either due to
-eof or due to an error, then we should return the number of contiguous
-bytes that were received/sent starting at the offset specified by the
-application.
+GCC 9.x automatically enables support for Loongson MMI instructions when
+using some -march= flags, and then errors out when -msoft-float is
+specified with:
 
-Currently, we are failing to correctly check contiguity, and so we're
-failing the generic/465 in xfstests when the race between the read
-and write RPCs causes the file to get extended while the 2 reads are
-outstanding. If the first read RPC call wins the race and returns with
-eof set, we should treat the second read RPC as being truncated.
+  cc1: error: ‘-mloongson-mmi’ must be used with ‘-mhard-float’
 
-Reported-by: Su Yanjun <suyj.fnst@cn.fujitsu.com>
-Fixes: 1ccbad9f9f9bd ("nfs: fix DIO good bytes calculation")
-Cc: stable@vger.kernel.org # 4.1+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The kernel shouldn't be using these MMI instructions anyway, just as it
+doesn't use floating point instructions. Explicitly disable them in
+order to fix the build with GCC 9.x.
+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Fixes: 3702bba5eb4f ("MIPS: Loongson: Add GCC 4.4 support for Loongson2E")
+Fixes: 6f7a251a259e ("MIPS: Loongson: Add basic Loongson 2F support")
+Fixes: 5188129b8c9f ("MIPS: Loongson-3: Improve -march option and move it to Platform")
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: stable@vger.kernel.org # v2.6.32+
+Cc: linux-mips@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/direct.c |   78 ++++++++++++++++++++++++++++++--------------------------
- 1 file changed, 43 insertions(+), 35 deletions(-)
+ arch/mips/loongson64/Platform |    4 ++++
+ arch/mips/vdso/Makefile       |    1 +
+ 2 files changed, 5 insertions(+)
 
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -122,32 +122,49 @@ static inline int put_dreq(struct nfs_di
- }
+--- a/arch/mips/loongson64/Platform
++++ b/arch/mips/loongson64/Platform
+@@ -43,6 +43,10 @@ else
+       $(call cc-option,-march=mips64r2,-mips64r2 -U_MIPS_ISA -D_MIPS_ISA=_MIPS_ISA_MIPS64)
+ endif
  
- static void
--nfs_direct_good_bytes(struct nfs_direct_req *dreq, struct nfs_pgio_header *hdr)
-+nfs_direct_handle_truncated(struct nfs_direct_req *dreq,
-+			    const struct nfs_pgio_header *hdr,
-+			    ssize_t dreq_len)
-+{
-+	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
++# Some -march= flags enable MMI instructions, and GCC complains about that
++# support being enabled alongside -msoft-float. Thus explicitly disable MMI.
++cflags-y += $(call cc-option,-mno-loongson-mmi)
 +
-+	if (!(test_bit(NFS_IOHDR_ERROR, &hdr->flags) ||
-+	      test_bit(NFS_IOHDR_EOF, &hdr->flags)))
-+		return;
-+	if (dreq->max_count >= dreq_len) {
-+		dreq->max_count = dreq_len;
-+		if (dreq->count > dreq_len)
-+			dreq->count = dreq_len;
-+
-+		if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
-+			dreq->error = hdr->error;
-+		else /* Clear outstanding error if this is EOF */
-+			dreq->error = 0;
-+	}
-+	if (mirror->count > dreq_len)
-+		mirror->count = dreq_len;
-+}
-+
-+static void
-+nfs_direct_count_bytes(struct nfs_direct_req *dreq,
-+		       const struct nfs_pgio_header *hdr)
- {
--	int i;
--	ssize_t count;
-+	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
-+	loff_t hdr_end = hdr->io_start + hdr->good_bytes;
-+	ssize_t dreq_len = 0;
- 
--	WARN_ON_ONCE(dreq->count >= dreq->max_count);
-+	if (hdr_end > dreq->io_start)
-+		dreq_len = hdr_end - dreq->io_start;
- 
--	if (dreq->mirror_count == 1) {
--		dreq->mirrors[hdr->pgio_mirror_idx].count += hdr->good_bytes;
--		dreq->count += hdr->good_bytes;
--	} else {
--		/* mirrored writes */
--		count = dreq->mirrors[hdr->pgio_mirror_idx].count;
--		if (count + dreq->io_start < hdr->io_start + hdr->good_bytes) {
--			count = hdr->io_start + hdr->good_bytes - dreq->io_start;
--			dreq->mirrors[hdr->pgio_mirror_idx].count = count;
--		}
--		/* update the dreq->count by finding the minimum agreed count from all
--		 * mirrors */
--		count = dreq->mirrors[0].count;
-+	nfs_direct_handle_truncated(dreq, hdr, dreq_len);
- 
--		for (i = 1; i < dreq->mirror_count; i++)
--			count = min(count, dreq->mirrors[i].count);
-+	if (dreq_len > dreq->max_count)
-+		dreq_len = dreq->max_count;
- 
--		dreq->count = count;
--	}
-+	if (mirror->count < dreq_len)
-+		mirror->count = dreq_len;
-+	if (dreq->count < dreq_len)
-+		dreq->count = dreq_len;
- }
- 
- /*
-@@ -401,20 +418,12 @@ static void nfs_direct_read_completion(s
- 	struct nfs_direct_req *dreq = hdr->dreq;
- 
- 	spin_lock(&dreq->lock);
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
--		dreq->error = hdr->error;
--
- 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
- 		spin_unlock(&dreq->lock);
- 		goto out_put;
- 	}
- 
--	if (hdr->good_bytes != 0)
--		nfs_direct_good_bytes(dreq, hdr);
--
--	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
--		dreq->error = 0;
--
-+	nfs_direct_count_bytes(dreq, hdr);
- 	spin_unlock(&dreq->lock);
- 
- 	while (!list_empty(&hdr->pages)) {
-@@ -651,6 +660,9 @@ static void nfs_direct_write_reschedule(
- 	nfs_direct_write_scan_commit_list(dreq->inode, &reqs, &cinfo);
- 
- 	dreq->count = 0;
-+	dreq->max_count = 0;
-+	list_for_each_entry(req, &reqs, wb_list)
-+		dreq->max_count += req->wb_bytes;
- 	dreq->verf.committed = NFS_INVALID_STABLE_HOW;
- 	nfs_clear_pnfs_ds_commit_verifiers(&dreq->ds_cinfo);
- 	for (i = 0; i < dreq->mirror_count; i++)
-@@ -783,17 +795,13 @@ static void nfs_direct_write_completion(
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
- 	spin_lock(&dreq->lock);
--
--	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
--		dreq->error = hdr->error;
--
- 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
- 		spin_unlock(&dreq->lock);
- 		goto out_put;
- 	}
- 
-+	nfs_direct_count_bytes(dreq, hdr);
- 	if (hdr->good_bytes != 0) {
--		nfs_direct_good_bytes(dreq, hdr);
- 		if (nfs_write_need_commit(hdr)) {
- 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
- 				request_commit = true;
+ #
+ # Loongson Machines' Support
+ #
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -9,6 +9,7 @@ ccflags-vdso := \
+ 	$(filter -mmicromips,$(KBUILD_CFLAGS)) \
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
+ 	$(filter -m%-float,$(KBUILD_CFLAGS)) \
++	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
+ 	-D__VDSO__
+ cflags-vdso := $(ccflags-vdso) \
+ 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
 
 
