@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18275DA007
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 361C9DA15B
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388728AbfJPWHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51648 "EHLO mail.kernel.org"
+        id S1731319AbfJPWW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:22:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390386AbfJPV6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:15 -0400
+        id S2437460AbfJPVxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:15 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5753021D7C;
-        Wed, 16 Oct 2019 21:58:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FEEC21A49;
+        Wed, 16 Oct 2019 21:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263094;
-        bh=j2Kea0bE5YPfSD8GDG5IM2lKTZbtNSzqMUTMAlbqafQ=;
+        s=default; t=1571262795;
+        bh=rw7PZVuCdsh//bzGeslxpHN6eG+PUEXUS7gZAtJ2DAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbxHUAujFcwoBKqdM+jtITDwjRaARiA+NpwxqXtuY53qBBNm6Lop1nTq0tPlmlDAj
-         KRHFS/7J9oCxa86EAvc/nXvAW2Lz3zjmJ+qm1cXYyX2YcBS/+mlmH41ZyEM2uY37Hi
-         355DhyeDv58O1APh9j+yvXceWAZJfOZG9MtsKKa0=
+        b=ED7UrVTouiSjkuA2BiyFkRXzGkifxmc5kySnVTrN0+WMyiFURrmrskRAzxfC7E+Kt
+         lYmv4YCVE3uc958Z18VmR97n/nwEXRQm7ZGWciP5St4MzX2hnU+KpuXdQz8XRqDTjE
+         GCf6MVJwW+w12NxddnO1hVK+5dgGmobxAIUfHhI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 016/112] USB: adutux: fix NULL-derefs on disconnect
-Date:   Wed, 16 Oct 2019 14:50:08 -0700
-Message-Id: <20191016214848.429300497@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 34/79] xhci: Prevent device initiated U1/U2 link pm if exit latency is too long
+Date:   Wed, 16 Oct 2019 14:50:09 -0700
+Message-Id: <20191016214758.692831955@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,109 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit b2fa7baee744fde746c17bc1860b9c6f5c2eebb7 upstream.
+commit cd9d9491e835a845c1a98b8471f88d26285e0bb9 upstream.
 
-The driver was using its struct usb_device pointer as an inverted
-disconnected flag, but was setting it to NULL before making sure all
-completion handlers had run. This could lead to a NULL-pointer
-dereference in a number of dev_dbg statements in the completion handlers
-which relies on said pointer.
+If host/hub initiated link pm is prevented by a driver flag we still must
+ensure that periodic endpoints have longer service intervals than link pm
+exit latency before allowing device initiated link pm.
 
-The pointer was also dereferenced unconditionally in a dev_dbg statement
-release() something which would lead to a NULL-deref whenever a device
-was disconnected before the final character-device close if debugging
-was enabled.
+Fix this by continue walking and checking endpoint service interval if
+xhci_get_timeout_no_hub_lpm() returns anything else than USB3_LPM_DISABLED
 
-Fix this by unconditionally stopping all I/O and preventing
-resubmissions by poisoning the interrupt URBs at disconnect and using a
-dedicated disconnected flag.
+While at it fix the split line error message
 
-This also makes sure that all I/O has completed by the time the
-disconnect callback returns.
-
-Fixes: 1ef37c6047fe ("USB: adutux: remove custom debug macro and module parameter")
-Fixes: 66d4bc30d128 ("USB: adutux: remove custom debug macro")
-Cc: stable <stable@vger.kernel.org>     # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190925092913.8608-2-johan@kernel.org
+Tested-by: Jan Schmidt <jan@centricular.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-3-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/adutux.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -75,6 +75,7 @@ struct adu_device {
- 	char			serial_number[8];
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4645,10 +4645,12 @@ static u16 xhci_calculate_lpm_timeout(st
+ 		if (intf->dev.driver) {
+ 			driver = to_usb_driver(intf->dev.driver);
+ 			if (driver && driver->disable_hub_initiated_lpm) {
+-				dev_dbg(&udev->dev, "Hub-initiated %s disabled "
+-						"at request of driver %s\n",
+-						state_name, driver->name);
+-				return xhci_get_timeout_no_hub_lpm(udev, state);
++				dev_dbg(&udev->dev, "Hub-initiated %s disabled at request of driver %s\n",
++					state_name, driver->name);
++				timeout = xhci_get_timeout_no_hub_lpm(udev,
++								      state);
++				if (timeout == USB3_LPM_DISABLED)
++					return timeout;
+ 			}
+ 		}
  
- 	int			open_count; /* number of times this port has been opened */
-+	unsigned long		disconnected:1;
- 
- 	char		*read_buffer_primary;
- 	int			read_buffer_length;
-@@ -116,7 +117,7 @@ static void adu_abort_transfers(struct a
- {
- 	unsigned long flags;
- 
--	if (dev->udev == NULL)
-+	if (dev->disconnected)
- 		return;
- 
- 	/* shutdown transfer */
-@@ -243,7 +244,7 @@ static int adu_open(struct inode *inode,
- 	}
- 
- 	dev = usb_get_intfdata(interface);
--	if (!dev || !dev->udev) {
-+	if (!dev) {
- 		retval = -ENODEV;
- 		goto exit_no_device;
- 	}
-@@ -326,7 +327,7 @@ static int adu_release(struct inode *ino
- 	}
- 
- 	adu_release_internal(dev);
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		/* the device was unplugged before the file was released */
- 		if (!dev->open_count)	/* ... and we're the last user */
- 			adu_delete(dev);
-@@ -354,7 +355,7 @@ static ssize_t adu_read(struct file *fil
- 		return -ERESTARTSYS;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -518,7 +519,7 @@ static ssize_t adu_write(struct file *fi
- 		goto exit_nolock;
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->udev == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		pr_err("No device or device unplugged %d\n", retval);
- 		goto exit;
-@@ -764,11 +765,14 @@ static void adu_disconnect(struct usb_in
- 
- 	usb_deregister_dev(interface, &adu_class);
- 
-+	usb_poison_urb(dev->interrupt_in_urb);
-+	usb_poison_urb(dev->interrupt_out_urb);
-+
- 	mutex_lock(&adutux_mutex);
- 	usb_set_intfdata(interface, NULL);
- 
- 	mutex_lock(&dev->mtx);	/* not interruptible */
--	dev->udev = NULL;	/* poison */
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->mtx);
- 
- 	/* if the device is not opened, then we clean up right now */
 
 
