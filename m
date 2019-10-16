@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7D3D9DFF
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FD5DD9E16
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395260AbfJPVze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46376 "EHLO mail.kernel.org"
+        id S2406637AbfJPV4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395252AbfJPVzd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:33 -0400
+        id S2406635AbfJPV4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:22 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9ABBA21D7F;
-        Wed, 16 Oct 2019 21:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18FEB21D7A;
+        Wed, 16 Oct 2019 21:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262932;
-        bh=+Xx8dEvgQfqrBHSIOX0sGjnhqv4hoRx4grH9nfmkAtg=;
+        s=default; t=1571262982;
+        bh=xo/L09ZgP4LeDy+q31yqN9pOD3i7IOOqUXmleRUTRks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aIIpjv+fGVWGMJRJ7NLrZloPPGEAQZfDEO1HeEw2/Xm7uaIXi7yW87Hfg296YDzPq
-         VTjYALCcJ0spv5GOexF1EbbSyIV3sn/Xedl7PYcsoQt92QrABhsTE9WTNTU/VOVnoU
-         QcreUb7kXbVWH+3p7qniuNhK7mIbs/Y08bBdUqBI=
+        b=sdXVbma/v6UuFpF4hjnCfFEWHPB+8wW2amKvzLeAvELiA3TZCj96Dpy5DC9R6Egqm
+         oUc9khurzj0jo4at9dfmZgd5iaoL9kaWtRCW6GmmUJalO8PRy0qn7D91Mm8z6Fl14q
+         v3QM/tY83WvZb7Sn9TJQgAqnWne3Pgwh1Pu5fFeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Ajay Kaher <akaher@vmware.com>
-Subject: [PATCH 4.9 92/92] xfs: clear sb->s_fs_info on mount failure
+        stable@vger.kernel.org, Kent Gibson <warthog618@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 51/65] gpiolib: dont clear FLAG_IS_OUT when emulating open-drain/open-source
 Date:   Wed, 16 Oct 2019 14:51:05 -0700
-Message-Id: <20191016214849.217245343@linuxfoundation.org>
+Message-Id: <20191016214836.824184063@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,78 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-commit c9fbd7bbc23dbdd73364be4d045e5d3612cf6e82 upstream.
+[ Upstream commit e735244e2cf068f98b6384681a38993e0517a838 ]
 
-We recently had an oops reported on a 4.14 kernel in
-xfs_reclaim_inodes_count() where sb->s_fs_info pointed to garbage
-and so the m_perag_tree lookup walked into lala land.
+When emulating open-drain/open-source by not actively driving the output
+lines - we're simply changing their mode to input. This is wrong as it
+will then make it impossible to change the value of such line - it's now
+considered to actually be in input mode. If we want to still use the
+direction_input() callback for simplicity then we need to set FLAG_IS_OUT
+manually in gpiod_direction_output() and not clear it in
+gpio_set_open_drain_value_commit() and
+gpio_set_open_source_value_commit().
 
-Essentially, the machine was under memory pressure when the mount
-was being run, xfs_fs_fill_super() failed after allocating the
-xfs_mount and attaching it to sb->s_fs_info. It then cleaned up and
-freed the xfs_mount, but the sb->s_fs_info field still pointed to
-the freed memory. Hence when the superblock shrinker then ran
-it fell off the bad pointer.
-
-With the superblock shrinker problem fixed at teh VFS level, this
-stale s_fs_info pointer is still a problem - we use it
-unconditionally in ->put_super when the superblock is being torn
-down, and hence we can still trip over it after a ->fill_super
-call failure. Hence we need to clear s_fs_info if
-xfs-fs_fill_super() fails, and we need to check if it's valid in
-the places it can potentially be dereferenced after a ->fill_super
-failure.
-
-Signed-Off-By: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Ajay Kaher <akaher@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c663e5f56737 ("gpio: support native single-ended hardware drivers")
+Cc: stable@vger.kernel.org
+Reported-by: Kent Gibson <warthog618@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+[Bartosz: backported to v4.14]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_super.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpio/gpiolib.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -1674,6 +1674,7 @@ xfs_fs_fill_super(
-  out_close_devices:
- 	xfs_close_devices(mp);
-  out_free_fsname:
-+	sb->s_fs_info = NULL;
- 	xfs_free_fsname(mp);
- 	kfree(mp);
-  out:
-@@ -1691,6 +1692,10 @@ xfs_fs_put_super(
- {
- 	struct xfs_mount	*mp = XFS_M(sb);
- 
-+	/* if ->fill_super failed, we have no mount to tear down */
-+	if (!sb->s_fs_info)
-+		return;
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index f1809a54fceeb..c7f5f0be2d749 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2329,8 +2329,10 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
+ 		if (!ret)
+ 			goto set_output_value;
+ 		/* Emulate open drain by not actively driving the line high */
+-		if (val)
+-			return gpiod_direction_input(desc);
++		if (val) {
++			ret = gpiod_direction_input(desc);
++			goto set_output_flag;
++		}
+ 	}
+ 	else if (test_bit(FLAG_OPEN_SOURCE, &desc->flags)) {
+ 		ret = gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
+@@ -2338,8 +2340,10 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
+ 		if (!ret)
+ 			goto set_output_value;
+ 		/* Emulate open source by not actively driving the line low */
+-		if (!val)
+-			return gpiod_direction_input(desc);
++		if (!val) {
++			ret = gpiod_direction_input(desc);
++			goto set_output_flag;
++		}
+ 	} else {
+ 		gpio_set_drive_single_ended(gc, gpio_chip_hwgpio(desc),
+ 					    PIN_CONFIG_DRIVE_PUSH_PULL);
+@@ -2359,6 +2363,17 @@ static int _gpiod_direction_output_raw(struct gpio_desc *desc, int value)
+ 	trace_gpio_value(desc_to_gpio(desc), 0, val);
+ 	trace_gpio_direction(desc_to_gpio(desc), 0, ret);
+ 	return ret;
 +
- 	xfs_notice(mp, "Unmounting Filesystem");
- 	xfs_filestream_unmount(mp);
- 	xfs_unmountfs(mp);
-@@ -1700,6 +1705,8 @@ xfs_fs_put_super(
- 	xfs_destroy_percpu_counters(mp);
- 	xfs_destroy_mount_workqueues(mp);
- 	xfs_close_devices(mp);
-+
-+	sb->s_fs_info = NULL;
- 	xfs_free_fsname(mp);
- 	kfree(mp);
- }
-@@ -1719,6 +1726,9 @@ xfs_fs_nr_cached_objects(
- 	struct super_block	*sb,
- 	struct shrink_control	*sc)
- {
-+	/* Paranoia: catch incorrect calls during mount setup or teardown */
-+	if (WARN_ON_ONCE(!sb->s_fs_info))
-+		return 0;
- 	return xfs_reclaim_inodes_count(XFS_M(sb));
++set_output_flag:
++	/*
++	 * When emulating open-source or open-drain functionalities by not
++	 * actively driving the line (setting mode to input) we still need to
++	 * set the IS_OUT flag or otherwise we won't be able to set the line
++	 * value anymore.
++	 */
++	if (ret == 0)
++		set_bit(FLAG_IS_OUT, &desc->flags);
++	return ret;
  }
  
+ /**
+@@ -2540,8 +2555,6 @@ static void _gpio_set_open_drain_value(struct gpio_desc *desc, bool value)
+ 
+ 	if (value) {
+ 		err = chip->direction_input(chip, offset);
+-		if (!err)
+-			clear_bit(FLAG_IS_OUT, &desc->flags);
+ 	} else {
+ 		err = chip->direction_output(chip, offset, 0);
+ 		if (!err)
+@@ -2571,8 +2584,6 @@ static void _gpio_set_open_source_value(struct gpio_desc *desc, bool value)
+ 			set_bit(FLAG_IS_OUT, &desc->flags);
+ 	} else {
+ 		err = chip->direction_input(chip, offset);
+-		if (!err)
+-			clear_bit(FLAG_IS_OUT, &desc->flags);
+ 	}
+ 	trace_gpio_direction(desc_to_gpio(desc), !value, err);
+ 	if (err < 0)
+-- 
+2.20.1
+
 
 
