@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE7EDA0F7
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0654FD9FCC
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389282AbfJPWRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
+        id S2438155AbfJPV62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395047AbfJPVyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:43 -0400
+        id S2395490AbfJPV61 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:27 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A7EA20872;
-        Wed, 16 Oct 2019 21:54:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E398521928;
+        Wed, 16 Oct 2019 21:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262882;
-        bh=l63bBNW4p4Tbl1QgQ/eNqi8H6ikGirXGH3NJnWmRoSs=;
+        s=default; t=1571263107;
+        bh=E2zSj+5l3fEHkyKOKlJHqKi0v60aNokAkhOX6t/Y5CM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=snAMcGnNL9c/RWwoJlIF4x8G4p1hZvjd69CWA4CcWBSiH+wpVkfJWsmUM0W4xMmBB
-         CkfXDiTciyjvoNyiCU+sdOfPR37omeGaQ12gp+I2Lbh/qRVEaF9q0am0PJ3akomdOu
-         VUXYmL9SBt75vz2urpDAreCWcoU1HJyyNLPr0zS8=
+        b=EmqSYgHawF6aYHWT/qa0YRLk4BSAhddbMqIROvCfhovXc5A9wkpVMLGSuhIuG80wl
+         x/8/Prve/eagStGzBQqrcy7rmSztGPIfgwnsrA7h7nA1n+QBnLvZlQw68GGu3ywVuQ
+         L2vPpVbXhk+NKc6E2AVUyWbriwGoxOHmRZHyX4fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 40/92] USB: usb-skeleton: fix runtime PM after driver unbind
-Date:   Wed, 16 Oct 2019 14:50:13 -0700
-Message-Id: <20191016214831.753628078@linuxfoundation.org>
+Subject: [PATCH 5.3 022/112] USB: chaoskey: fix use-after-free on release
+Date:   Wed, 16 Oct 2019 14:50:14 -0700
+Message-Id: <20191016214850.841829463@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 5c290a5e42c3387e82de86965784d30e6c5270fd upstream.
+commit 93ddb1f56ae102f14f9e46a9a9c8017faa970003 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+The driver was accessing its struct usb_interface in its release()
+callback without holding a reference. This would lead to a
+use-after-free whenever the device was disconnected while the character
+device was still open.
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
-
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
+Fixes: 66e3e591891d ("usb: Add driver for Altus Metrum ChaosKey device (v2)")
+Cc: stable <stable@vger.kernel.org>     # 4.1
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009153848.8664-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/usb/misc/chaoskey.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -75,6 +75,7 @@ static void skel_delete(struct kref *kre
- 	struct usb_skel *dev = to_skel_dev(kref);
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -98,6 +98,7 @@ static void chaoskey_free(struct chaoske
+ 		usb_free_urb(dev->urb);
+ 		kfree(dev->name);
+ 		kfree(dev->buf);
++		usb_put_intf(dev->interface);
+ 		kfree(dev);
+ 	}
+ }
+@@ -145,6 +146,8 @@ static int chaoskey_probe(struct usb_int
+ 	if (dev == NULL)
+ 		goto out;
  
- 	usb_free_urb(dev->bulk_in_urb);
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev->bulk_in_buffer);
- 	kfree(dev);
-@@ -126,10 +127,7 @@ static int skel_release(struct inode *in
- 		return -ENODEV;
- 
- 	/* allow the device to be autosuspended */
--	mutex_lock(&dev->io_mutex);
--	if (dev->interface)
--		usb_autopm_put_interface(dev->interface);
--	mutex_unlock(&dev->io_mutex);
-+	usb_autopm_put_interface(dev->interface);
- 
- 	/* decrement the count on our device */
- 	kref_put(&dev->kref, skel_delete);
-@@ -509,7 +507,7 @@ static int skel_probe(struct usb_interfa
- 	init_waitqueue_head(&dev->bulk_in_wait);
- 
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
 +	dev->interface = usb_get_intf(interface);
++
+ 	dev->buf = kmalloc(size, GFP_KERNEL);
  
- 	/* set up the endpoint information */
- 	/* use only the first bulk-in and bulk-out endpoints */
+ 	if (dev->buf == NULL)
+@@ -174,8 +177,6 @@ static int chaoskey_probe(struct usb_int
+ 			goto out;
+ 	}
+ 
+-	dev->interface = interface;
+-
+ 	dev->in_ep = in_ep;
+ 
+ 	if (le16_to_cpu(udev->descriptor.idVendor) != ALEA_VENDOR_ID)
 
 
