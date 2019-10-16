@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF26FDA076
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6FDDA0CD
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407314AbfJPWLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48526 "EHLO mail.kernel.org"
+        id S2405249AbfJPWPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:15:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391459AbfJPV4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:38 -0400
+        id S2437781AbfJPVzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:21 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6D5021D7A;
-        Wed, 16 Oct 2019 21:56:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA18721925;
+        Wed, 16 Oct 2019 21:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262998;
-        bh=+WHMJPY9Vs1h+DK/XD29qKX+c1rTvE9yIux+6B5TVKg=;
+        s=default; t=1571262921;
+        bh=OWP9qiIYdbw9wGZUH+h8+ReE0Xal0SwpufBF+1eIWUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeG1SdnlozZ+u4vgkWLWl14hJlLk3aOtoyDvxKk+T98MeGJ803nQJpglH+/dNjVD7
-         SkQVJc6+fWdTrSDEqS6o4pvG1SRIBsfJbuAqfVmOnZY+5WgoNV4tVSh2pR2oI9gq/U
-         rVtsQLaT9BtGs/G/ECIdpv6ErDb7QCngIuIfSQEA=
+        b=CPPTjtSu/b0F7eenbRQmG9N8QrtCReLgJuXAmOenJVyAGKfZrBqT9hBdJE7kQ80bl
+         G83S+6kCPZ2QAJEDWuxav9KzLpBix/u7aqYCfxVeZrCH9/la50i5q9bVBaldBzMx+J
+         N7tjnn1wNBQaSiIFlvuKps3CkOgiR0EKlpYyTokA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Navid Emamdoost <navid.emamdoost@gmail.com>
-Subject: [PATCH 4.14 39/65] staging: vt6655: Fix memory leak in vt6655_probe
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 80/92] CIFS: Force revalidate inode when dentry is stale
 Date:   Wed, 16 Oct 2019 14:50:53 -0700
-Message-Id: <20191016214829.600074955@linuxfoundation.org>
+Message-Id: <20191016214846.918626643@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Pavel Shilovsky <piastryyy@gmail.com>
 
-commit 80b15db5e1e9c3300de299b2d43d1aafb593e6ac upstream.
+commit c82e5ac7fe3570a269c0929bf7899f62048e7dbc upstream.
 
-In vt6655_probe, if vnt_init() fails the cleanup code needs to be called
-like other error handling cases. The call to device_free_info() is
-added.
+Currently the client indicates that a dentry is stale when inode
+numbers or type types between a local inode and a remote file
+don't match. If this is the case attributes is not being copied
+from remote to local, so, it is already known that the local copy
+has stale metadata. That's why the inode needs to be marked for
+revalidation in order to tell the VFS to lookup the dentry again
+before openning a file. This prevents unexpected stale errors
+to be returned to the user space when openning a file.
 
-Fixes: 67013f2c0e58 ("staging: vt6655: mac80211 conversion add main mac80211 functions")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191004200319.22394-1-navid.emamdoost@gmail.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6655/device_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/cifs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/staging/vt6655/device_main.c
-+++ b/drivers/staging/vt6655/device_main.c
-@@ -1668,8 +1668,10 @@ vt6655_probe(struct pci_dev *pcid, const
- 
- 	priv->hw->max_signal = 100;
- 
--	if (vnt_init(priv))
-+	if (vnt_init(priv)) {
-+		device_free_info(priv);
- 		return -ENODEV;
-+	}
- 
- 	device_print_info(priv);
- 	pci_set_drvdata(pcid, priv);
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -405,6 +405,7 @@ int cifs_get_inode_info_unix(struct inod
+ 		/* if uniqueid is different, return error */
+ 		if (unlikely(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM &&
+ 		    CIFS_I(*pinode)->uniqueid != fattr.cf_uniqueid)) {
++			CIFS_I(*pinode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgiiu_exit;
+ 		}
+@@ -412,6 +413,7 @@ int cifs_get_inode_info_unix(struct inod
+ 		/* if filetype is different, return error */
+ 		if (unlikely(((*pinode)->i_mode & S_IFMT) !=
+ 		    (fattr.cf_mode & S_IFMT))) {
++			CIFS_I(*pinode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgiiu_exit;
+ 		}
+@@ -917,6 +919,7 @@ cifs_get_inode_info(struct inode **inode
+ 		/* if uniqueid is different, return error */
+ 		if (unlikely(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM &&
+ 		    CIFS_I(*inode)->uniqueid != fattr.cf_uniqueid)) {
++			CIFS_I(*inode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgii_exit;
+ 		}
+@@ -924,6 +927,7 @@ cifs_get_inode_info(struct inode **inode
+ 		/* if filetype is different, return error */
+ 		if (unlikely(((*inode)->i_mode & S_IFMT) !=
+ 		    (fattr.cf_mode & S_IFMT))) {
++			CIFS_I(*inode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgii_exit;
+ 		}
 
 
