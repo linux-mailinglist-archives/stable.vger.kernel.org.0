@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C14D9FA5
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854D9D9F82
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437951AbfJPV5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49222 "EHLO mail.kernel.org"
+        id S2395276AbfJPVzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437946AbfJPV5A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:00 -0400
+        id S2395272AbfJPVzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:37 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35D9321928;
-        Wed, 16 Oct 2019 21:56:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73CEA21D7F;
+        Wed, 16 Oct 2019 21:55:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263019;
-        bh=nDFW/KXTTRLxhK+S/6xxs6fJH57zdvFinbc4C0dY+u8=;
+        s=default; t=1571262936;
+        bh=p2hpVRbC8Jly2F1s4pNUtyiOKFL/9LU3ijU71COuF3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcg9mfPg/PFnigQO0Y6vLrT4ZZyHXxyNUxwE7NKqV3bsMkowezEqsTCLSG8ZDatDj
-         zHoVkVokIS05g8nOusjgEAwmg2pq/dB7jnYl3SWxl/IQP5gKrK4MOPHySgzmBPNrzx
-         8yvwuUlyFdovW6+bZM7N0AobDwyReof7SupKpoqA=
+        b=xcZcpMY2N7ZFEBzPv+yvLDa3Qq1dmV15jiiDxj7BE5uE5g9Ifwskn2k0Ix78c9rSz
+         rs46TjFS+UrBw0yKX5VN/AL6KvuGKjS3fbwGQzPlNdj3zcY/kr2kgxXdEB3x7AkiYc
+         Oi/sdB/ofOANaja4sbedOoxOX9YSzD0EpEAG4TYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 20/81] USB: iowarrior: fix use-after-free after driver unbind
+Subject: [PATCH 4.9 58/92] USB: serial: keyspan: fix NULL-derefs on open() and write()
 Date:   Wed, 16 Oct 2019 14:50:31 -0700
-Message-Id: <20191016214825.689061824@linuxfoundation.org>
+Message-Id: <20191016214839.504017372@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit b5f8d46867ca233d773408ffbe691a8062ed718f upstream.
+commit 7d7e21fafdbc7fcf0854b877bd0975b487ed2717 upstream.
 
-Make sure to stop also the asynchronous write URBs on disconnect() to
-avoid use-after-free in the completion handler after driver unbind.
+Fix NULL-pointer dereferences on open() and write() which can be
+triggered by a malicious USB device.
 
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable <stable@vger.kernel.org>	# 2.6.21: 51a2f077c44e ("USB: introduce usb_anchor")
+The current URB allocation helper would fail to initialise the newly
+allocated URB if the device has unexpected endpoint descriptors,
+something which could lead NULL-pointer dereferences in a number of
+open() and write() paths when accessing the URB. For example:
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:usb_clear_halt+0x11/0xc0
+	...
+	Call Trace:
+	 ? tty_port_open+0x4d/0xd0
+	 keyspan_open+0x70/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_write+0x14e/0x1f3 [keyspan]
+	...
+	Call Trace:
+	 serial_write+0x43/0xa0 [usbserial]
+	 n_tty_write+0x1af/0x4f0
+	 ? do_wait_intr_irq+0x80/0x80
+	 ? process_echoes+0x60/0x60
+	 tty_write+0x13f/0x2f0
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_usa26_send_setup+0x298/0x305 [keyspan]
+	...
+	Call Trace:
+	 keyspan_open+0x10f/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+Fixes: fdcba53e2d58 ("fix for bugzilla #7544 (keyspan USB-to-serial converter)")
+Cc: stable <stable@vger.kernel.org>	# 2.6.21
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/serial/keyspan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -87,6 +87,7 @@ struct iowarrior {
- 	char chip_serial[9];		/* the serial number string of the chip connected */
- 	int report_size;		/* number of bytes in a report */
- 	u16 product_id;
-+	struct usb_anchor submitted;
- };
+--- a/drivers/usb/serial/keyspan.c
++++ b/drivers/usb/serial/keyspan.c
+@@ -1250,8 +1250,8 @@ static struct urb *keyspan_setup_urb(str
  
- /*--------------*/
-@@ -425,11 +426,13 @@ static ssize_t iowarrior_write(struct fi
- 			retval = -EFAULT;
- 			goto error;
- 		}
-+		usb_anchor_urb(int_out_urb, &dev->submitted);
- 		retval = usb_submit_urb(int_out_urb, GFP_KERNEL);
- 		if (retval) {
- 			dev_dbg(&dev->interface->dev,
- 				"submit error %d for urb nr.%d\n",
- 				retval, atomic_read(&dev->write_busy));
-+			usb_unanchor_urb(int_out_urb);
- 			goto error;
- 		}
- 		/* submit was ok */
-@@ -770,6 +773,8 @@ static int iowarrior_probe(struct usb_in
- 	iface_desc = interface->cur_altsetting;
- 	dev->product_id = le16_to_cpu(udev->descriptor.idProduct);
- 
-+	init_usb_anchor(&dev->submitted);
-+
- 	res = usb_find_last_int_in_endpoint(iface_desc, &dev->int_in_endpoint);
- 	if (res) {
- 		dev_err(&interface->dev, "no interrupt-in endpoint found\n");
-@@ -885,6 +890,7 @@ static void iowarrior_disconnect(struct
- 		   Deleting the device is postponed until close() was called.
- 		 */
- 		usb_kill_urb(dev->int_in_urb);
-+		usb_kill_anchored_urbs(&dev->submitted);
- 		wake_up_interruptible(&dev->read_wait);
- 		wake_up_interruptible(&dev->write_wait);
- 		mutex_unlock(&dev->mutex);
+ 	ep_desc = find_ep(serial, endpoint);
+ 	if (!ep_desc) {
+-		/* leak the urb, something's wrong and the callers don't care */
+-		return urb;
++		usb_free_urb(urb);
++		return NULL;
+ 	}
+ 	if (usb_endpoint_xfer_int(ep_desc)) {
+ 		ep_type_name = "INT";
 
 
