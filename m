@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40469D9FC4
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60202D9FC2
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406687AbfJPV6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2406688AbfJPV6M (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 17:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51492 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438125AbfJPV6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2391450AbfJPV6M (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 16 Oct 2019 17:58:12 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 458FA21D7D;
-        Wed, 16 Oct 2019 21:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 148F121D7C;
+        Wed, 16 Oct 2019 21:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263090;
-        bh=b12KZj4m24KunwpGgNP4b0M2EsXKqxJq5IdkhF8bQHE=;
+        s=default; t=1571263091;
+        bh=Ps6NmP/D8fXdxR8ZOVo76LcBO9W4BYztQcwG3GJzoT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oJXOdMykflMO2QHmeOedUqnNu4z9gn1iXR98BSO/5OkIc8nMwFxnsP/mXsSTwMG19
-         i5ro3nlsRypcnOmh5Rizmg8lVYgKl+EsYTfMdsYQMZH8im9eeNoEGSljVRKzt14198
-         +7kJbgAvFXm3pCSRqtJsVFulCiUcUQVU/iIDRmoM=
+        b=Mv5KpKqDv1R4K/N82A5Db61Gp1s0m6cJW7AZB9YiYcAwgTFxA7JBY7Qo7gyvUXlJc
+         g6m5uPAFm4vUOzMpcupFNRjB01PZlD3BhzGXdAppEUrLzg7OiSe/VKBdo3AOPS5WQc
+         jU0plV7YhYGYEXy3E3R/UibcE6lePlUOvKr5th7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Tseng <rtseng@nvidia.com>,
+        stable@vger.kernel.org, Torez Smith <torez@redhat.com>,
+        Bill Kuzeja <william.kuzeja@stratus.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 011/112] usb: xhci: wait for CNR controller not ready bit in xhci resume
-Date:   Wed, 16 Oct 2019 14:50:03 -0700
-Message-Id: <20191016214846.972983264@linuxfoundation.org>
+Subject: [PATCH 5.3 012/112] xhci: Prevent deadlock when xhci adapter breaks during init
+Date:   Wed, 16 Oct 2019 14:50:04 -0700
+Message-Id: <20191016214847.128250484@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -43,45 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Tseng <rtseng@nvidia.com>
+From: Bill Kuzeja <William.Kuzeja@stratus.com>
 
-commit a70bcbc322837eda1ab5994d12db941dc9733a7d upstream.
+commit 8de66b0e6a56ff10dd00d2b0f2ae52e300178587 upstream.
 
-NVIDIA 3.1 xHCI card would lose power when moving power state into D3Cold.
-Thus we need to wait for CNR bit to clear in xhci resume, just as in
-xhci init.
+The system can hit a deadlock if an xhci adapter breaks while initializing.
+The deadlock is between two threads: thread 1 is tearing down the
+adapter and is stuck in usb_unlocked_disable_lpm waiting to lock the
+hcd->handwidth_mutex. Thread 2 is holding this mutex (while still trying
+to add a usb device), but is stuck in xhci_endpoint_reset waiting for a
+stop or config command to complete. A reboot is required to resolve.
 
-[Minor changes to comment and commit message -Mathias]
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rick Tseng <rtseng@nvidia.com>
+It turns out when calling xhci_queue_stop_endpoint and
+xhci_queue_configure_endpoint in xhci_endpoint_reset, the return code is
+not checked for errors. If the timing is right and the adapter dies just
+before either of these commands get issued, we hang indefinitely waiting
+for a completion on a command that didn't get issued.
+
+This wasn't a problem before the following fix because we didn't send
+commands in xhci_endpoint_reset:
+
+commit f5249461b504 ("xhci: Clear the host side toggle manually when
+    endpoint is soft reset")
+
+With the patch I am submitting, a duration test which breaks adapters
+during initialization (and which deadlocks with the standard kernel) runs
+without issue.
+
+Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Torez Smith <torez@redhat.com>
+Signed-off-by: Bill Kuzeja <william.kuzeja@stratus.com>
+Signed-off-by: Torez Smith <torez@redhat.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-6-git-send-email-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/1570190373-30684-7-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/host/xhci.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
 --- a/drivers/usb/host/xhci.c
 +++ b/drivers/usb/host/xhci.c
-@@ -1108,6 +1108,18 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 		hibernated = true;
+@@ -3095,6 +3095,7 @@ static void xhci_endpoint_reset(struct u
+ 	unsigned int ep_index;
+ 	unsigned long flags;
+ 	u32 ep_flag;
++	int err;
  
- 	if (!hibernated) {
-+		/*
-+		 * Some controllers might lose power during suspend, so wait
-+		 * for controller not ready bit to clear, just as in xHC init.
-+		 */
-+		retval = xhci_handshake(&xhci->op_regs->status,
-+					STS_CNR, 0, 10 * 1000 * 1000);
-+		if (retval) {
-+			xhci_warn(xhci, "Controller not ready at resume %d\n",
-+				  retval);
-+			spin_unlock_irq(&xhci->lock);
-+			return retval;
-+		}
- 		/* step 1: restore register */
- 		xhci_restore_registers(xhci);
- 		/* step 2: initialize command ring buffer */
+ 	xhci = hcd_to_xhci(hcd);
+ 	if (!host_ep->hcpriv)
+@@ -3154,7 +3155,17 @@ static void xhci_endpoint_reset(struct u
+ 		xhci_free_command(xhci, cfg_cmd);
+ 		goto cleanup;
+ 	}
+-	xhci_queue_stop_endpoint(xhci, stop_cmd, udev->slot_id, ep_index, 0);
++
++	err = xhci_queue_stop_endpoint(xhci, stop_cmd, udev->slot_id,
++					ep_index, 0);
++	if (err < 0) {
++		spin_unlock_irqrestore(&xhci->lock, flags);
++		xhci_free_command(xhci, cfg_cmd);
++		xhci_dbg(xhci, "%s: Failed to queue stop ep command, %d ",
++				__func__, err);
++		goto cleanup;
++	}
++
+ 	xhci_ring_cmd_db(xhci);
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+ 
+@@ -3168,8 +3179,16 @@ static void xhci_endpoint_reset(struct u
+ 					   ctrl_ctx, ep_flag, ep_flag);
+ 	xhci_endpoint_copy(xhci, cfg_cmd->in_ctx, vdev->out_ctx, ep_index);
+ 
+-	xhci_queue_configure_endpoint(xhci, cfg_cmd, cfg_cmd->in_ctx->dma,
++	err = xhci_queue_configure_endpoint(xhci, cfg_cmd, cfg_cmd->in_ctx->dma,
+ 				      udev->slot_id, false);
++	if (err < 0) {
++		spin_unlock_irqrestore(&xhci->lock, flags);
++		xhci_free_command(xhci, cfg_cmd);
++		xhci_dbg(xhci, "%s: Failed to queue config ep command, %d ",
++				__func__, err);
++		goto cleanup;
++	}
++
+ 	xhci_ring_cmd_db(xhci);
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+ 
 
 
