@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 361C9DA15B
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A98D9F59
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731319AbfJPWW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:22:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41956 "EHLO mail.kernel.org"
+        id S2394952AbfJPVyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:54:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437460AbfJPVxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:15 -0400
+        id S2395016AbfJPVyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:33 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FEEC21A49;
-        Wed, 16 Oct 2019 21:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 84F7320872;
+        Wed, 16 Oct 2019 21:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262795;
-        bh=rw7PZVuCdsh//bzGeslxpHN6eG+PUEXUS7gZAtJ2DAs=;
+        s=default; t=1571262872;
+        bh=XcoT/50f9fWF2zLsvDahJadR7e2rbv6TMDZt5+85trw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ED7UrVTouiSjkuA2BiyFkRXzGkifxmc5kySnVTrN0+WMyiFURrmrskRAzxfC7E+Kt
-         lYmv4YCVE3uc958Z18VmR97n/nwEXRQm7ZGWciP5St4MzX2hnU+KpuXdQz8XRqDTjE
-         GCf6MVJwW+w12NxddnO1hVK+5dgGmobxAIUfHhI4=
+        b=b50RGf7/FBrlupqKn3osH6Qf2bA4pwq+G0s3sDmrHFFqkXXbzU4Q8DjyEmwMFwOIw
+         FF0XzRJU1LwDantR8BucOvvKmLkumUgfuLdiSmCVx2y9CBwfLFsCGBwy/upiIBi1Nf
+         Y6wFb0BeToCbGETv4fiei/4za/NfLaz/v1LpSstc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.4 34/79] xhci: Prevent device initiated U1/U2 link pm if exit latency is too long
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Xogium <contact@xogium.me>, Kees Cook <keescook@chromium.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Ingo Molnar <mingo@redhat.com>, Petr Mladek <pmladek@suse.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 36/92] panic: ensure preemption is disabled during panic()
 Date:   Wed, 16 Oct 2019 14:50:09 -0700
-Message-Id: <20191016214758.692831955@linuxfoundation.org>
+Message-Id: <20191016214828.213152289@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Will Deacon <will@kernel.org>
 
-commit cd9d9491e835a845c1a98b8471f88d26285e0bb9 upstream.
+commit 20bb759a66be52cf4a9ddd17fddaf509e11490cd upstream.
 
-If host/hub initiated link pm is prevented by a driver flag we still must
-ensure that periodic endpoints have longer service intervals than link pm
-exit latency before allowing device initiated link pm.
+Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
+calling CPU in an infinite loop, but with interrupts and preemption
+enabled.  From this state, userspace can continue to be scheduled,
+despite the system being "dead" as far as the kernel is concerned.
 
-Fix this by continue walking and checking endpoint service interval if
-xhci_get_timeout_no_hub_lpm() returns anything else than USB3_LPM_DISABLED
+This is easily reproducible on arm64 when booting with "nosmp" on the
+command line; a couple of shell scripts print out a periodic "Ping"
+message whilst another triggers a crash by writing to
+/proc/sysrq-trigger:
 
-While at it fix the split line error message
+  | sysrq: Trigger a crash
+  | Kernel panic - not syncing: sysrq triggered crash
+  | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
+  | Hardware name: linux,dummy-virt (DT)
+  | Call trace:
+  |  dump_backtrace+0x0/0x148
+  |  show_stack+0x14/0x20
+  |  dump_stack+0xa0/0xc4
+  |  panic+0x140/0x32c
+  |  sysrq_handle_reboot+0x0/0x20
+  |  __handle_sysrq+0x124/0x190
+  |  write_sysrq_trigger+0x64/0x88
+  |  proc_reg_write+0x60/0xa8
+  |  __vfs_write+0x18/0x40
+  |  vfs_write+0xa4/0x1b8
+  |  ksys_write+0x64/0xf0
+  |  __arm64_sys_write+0x14/0x20
+  |  el0_svc_common.constprop.0+0xb0/0x168
+  |  el0_svc_handler+0x28/0x78
+  |  el0_svc+0x8/0xc
+  | Kernel Offset: disabled
+  | CPU features: 0x0002,24002004
+  | Memory Limit: none
+  | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
+  |  Ping 2!
+  |  Ping 1!
+  |  Ping 1!
+  |  Ping 2!
 
-Tested-by: Jan Schmidt <jan@centricular.com>
+The issue can also be triggered on x86 kernels if CONFIG_SMP=n,
+otherwise local interrupts are disabled in 'smp_send_stop()'.
+
+Disable preemption in 'panic()' before re-enabling interrupts.
+
+Link: http://lkml.kernel.org/r/20191002123538.22609-1-will@kernel.org
+Link: https://lore.kernel.org/r/BX1W47JXPMR8.58IYW53H6M5N@dragonstone
+Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Xogium <contact@xogium.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Feng Tang <feng.tang@intel.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-3-git-send-email-mathias.nyman@linux.intel.com
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/panic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4645,10 +4645,12 @@ static u16 xhci_calculate_lpm_timeout(st
- 		if (intf->dev.driver) {
- 			driver = to_usb_driver(intf->dev.driver);
- 			if (driver && driver->disable_hub_initiated_lpm) {
--				dev_dbg(&udev->dev, "Hub-initiated %s disabled "
--						"at request of driver %s\n",
--						state_name, driver->name);
--				return xhci_get_timeout_no_hub_lpm(udev, state);
-+				dev_dbg(&udev->dev, "Hub-initiated %s disabled at request of driver %s\n",
-+					state_name, driver->name);
-+				timeout = xhci_get_timeout_no_hub_lpm(udev,
-+								      state);
-+				if (timeout == USB3_LPM_DISABLED)
-+					return timeout;
- 			}
- 		}
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -144,6 +144,7 @@ void panic(const char *fmt, ...)
+ 	 * after setting panic_cpu) from invoking panic() again.
+ 	 */
+ 	local_irq_disable();
++	preempt_disable_notrace();
  
+ 	/*
+ 	 * It's possible to come here directly from a panic-assertion and
 
 
