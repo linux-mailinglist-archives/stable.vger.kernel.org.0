@@ -2,111 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6077BD9985
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 20:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA159D99BB
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 21:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394417AbfJPSs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 14:48:57 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42327 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731889AbfJPSs5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 14:48:57 -0400
-Received: by mail-wr1-f67.google.com with SMTP id n14so29203738wrw.9
-        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 11:48:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tJaLF4M9eFIhCv8hzj+P+T3xmiCHnVziGzOsVE/6KSU=;
-        b=M10zumeO3VAfSBx6/5HuI3PzM5tOqglqnUxjXUBFYZ+C1rsvl/zrGovFFsxL5yh2nl
-         bMPyIa/C4tsgmCTblbHW6O5SNe/5Ugb+9pEVKDtxCJV7p7PSaFL5I1WfnV/A/G9/Zg35
-         5HwJixKSISVWJiqJI00rEXHEvB4A1kvnTdIBku4QTlA1V6jII0hvzSyrndtyERQoTTOF
-         HN4G3vCHb5zqR/wJ1qZepv7leedYllGrQEMgH19H124j1tz+ryoqzYTDWD6y2xHZ3dY7
-         wd9dJmbCmBWVQHmJgBQ/BrCJRtPF6+Tx5lILbmiwpKLachEurmdp9wcPT/fY5tSMdb5m
-         AC+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tJaLF4M9eFIhCv8hzj+P+T3xmiCHnVziGzOsVE/6KSU=;
-        b=lC++LKe+2Y/GaQ30L7ELXX1jWI/1gN4uclVZPY7oLEn1s9ZrLvfpr9Fwt4sVOF8Sgi
-         kOC0DFbiVCK9RTjihCheubjAaoZBCL+Lomk35BwugxenFuXFWCv7gGlp+Kkl1zZ6vooo
-         0/LfST1hOUlrAGzWY6I+C8F4UwS8/Cy03tnBB5WFjiKAdML+Tlt6p1cjWn2qojQGNvmw
-         AkcI3thqsnP1RKsAxULRUr8QqzeSWmlRcaTz5g4IIQTn8Uubox+TTBHirTrx7+6+GOxS
-         +ocd+nb7a+Mau4LYvAXFHdwgUaLVB8u/kgDDpR60O1Hz3EUc0UQ3HZySRLdV3d/731nX
-         dZdA==
-X-Gm-Message-State: APjAAAW15FwB2H4fWK+IY9uRL1qiQae7frBVUa4uH0MeZ8eml3f8+r9m
-        4sba/sa+vveXVNyBaH9ERS4tYkfd6M8=
-X-Google-Smtp-Source: APXvYqzmcrqWBtkK+cK3u/hGLzCJVjqfCsX7chr4ca8ggk9tLCfmKAs7NfY2WCFCLa1H52lEs32rew==
-X-Received: by 2002:a5d:540d:: with SMTP id g13mr3794523wrv.8.1571251735256;
-        Wed, 16 Oct 2019 11:48:55 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o4sm58992700wre.91.2019.10.16.11.48.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 16 Oct 2019 11:48:54 -0700 (PDT)
-Message-ID: <5da76616.1c69fb81.9f348.473f@mx.google.com>
-Date:   Wed, 16 Oct 2019 11:48:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.149-65-gb29fcefccab6
-Subject: stable-rc/linux-4.14.y boot: 101 boots: 1 failed,
- 94 passed with 6 offline (v4.14.149-65-gb29fcefccab6)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S2436686AbfJPTKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 15:10:33 -0400
+Received: from bedivere.hansenpartnership.com ([66.63.167.143]:35082 "EHLO
+        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732084AbfJPTKd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 15:10:33 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 7838D8EE0CC;
+        Wed, 16 Oct 2019 12:10:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
+        s=20151216; t=1571253032;
+        bh=pZvAVmDqMp56efKKwit5bs7uRqUQsjVTFJozEct6wvU=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=ClJJXg/ZVGUv+nH7L2Plg7+hQNHIidZPswodVDriX2adntBmJVShn1Hck6smY7GPI
+         4SIfWp+esnM5gawAtRrAIu4tHPIHDPA7EH9LSDbx3nqSqZB5B4mNhumvgovOHIPXN5
+         fBnxmGSn/rxr/5/10m3EOjyZb870ftman3umiOnE=
+Received: from bedivere.hansenpartnership.com ([127.0.0.1])
+        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id FHHZIyJXfYlB; Wed, 16 Oct 2019 12:10:32 -0700 (PDT)
+Received: from [9.232.197.57] (unknown [129.33.253.145])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 2BF048EE02B;
+        Wed, 16 Oct 2019 12:10:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
+        s=20151216; t=1571253032;
+        bh=pZvAVmDqMp56efKKwit5bs7uRqUQsjVTFJozEct6wvU=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=ClJJXg/ZVGUv+nH7L2Plg7+hQNHIidZPswodVDriX2adntBmJVShn1Hck6smY7GPI
+         4SIfWp+esnM5gawAtRrAIu4tHPIHDPA7EH9LSDbx3nqSqZB5B4mNhumvgovOHIPXN5
+         fBnxmGSn/rxr/5/10m3EOjyZb870ftman3umiOnE=
+Message-ID: <1571253029.17520.5.camel@HansenPartnership.com>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+From:   James Bottomley <James.Bottomley@HansenPartnership.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
+        Ken Goldman <kgold@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Date:   Wed, 16 Oct 2019 15:10:29 -0400
+In-Reply-To: <20191016162543.GB6279@linux.intel.com>
+References: <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+         <20191007000520.GA17116@linux.intel.com>
+         <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+         <20191008234935.GA13926@linux.intel.com>
+         <20191008235339.GB13926@linux.intel.com>
+         <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2B995@ALPMBAPA12.e2k.ad.ge.com>
+         <20191014190033.GA15552@linux.intel.com>
+         <1571081397.3728.9.camel@HansenPartnership.com>
+         <20191016110031.GE10184@linux.intel.com>
+         <1571229252.3477.7.camel@HansenPartnership.com>
+         <20191016162543.GB6279@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.26.6 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 101 boots: 1 failed, 94 passed with 6 offline =
-(v4.14.149-65-gb29fcefccab6)
+On Wed, 2019-10-16 at 19:25 +0300, Jarkko Sakkinen wrote:
+> On Wed, Oct 16, 2019 at 08:34:12AM -0400, James Bottomley wrote:
+> > reversible ciphers are generally frowned upon in random number
+> > generation, that's why the krng uses chacha20.  In general I think
+> > we shouldn't try to code our own mixing and instead should get the
+> > krng to do it for us using whatever the algorithm du jour that the
+> > crypto guys have blessed is.  That's why I proposed adding the TPM
+> > output to the krng as entropy input and then taking the output of
+> > the krng.
+> 
+> It is already registered as hwrng. What else?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.149-65-gb29fcefccab6/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.149-65-gb29fcefccab6/
+It only contributes entropy once at start of OS.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.149-65-gb29fcefccab6
-Git Commit: b29fcefccab67589bcd5b49b74967d723e708013
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 60 unique boards, 21 SoC families, 13 builds out of 201
+>  Was the issue that it is only used as seed when the rng is init'd
+> first? I haven't at this point gone to the internals of krng.
 
-Boot Failure Detected:
+Basically it was similar to your xor patch except I got the kernel rng
+to do the mixing, so it would use the chacha20 cipher at the moment
+until they decide that's unsafe and change it to something else:
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
+https://lore.kernel.org/linux-crypto/1570227068.17537.4.camel@HansenPartnership.com/
 
-Offline Platforms:
+It uses add_hwgenerator_randomness() to do the mixing.  It also has an
+unmixed source so that read of the TPM hwrng device works as expected.
 
-arm:
+James
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
 
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
 
----
-For more info write to <info@kernelci.org>
