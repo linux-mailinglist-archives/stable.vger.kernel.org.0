@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 893EAD9E19
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 478D0D9E1D
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406650AbfJPV42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
+        id S2406663AbfJPV4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406644AbfJPV41 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:27 -0400
+        id S2406653AbfJPV4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:30 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A0FB21D7E;
-        Wed, 16 Oct 2019 21:56:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF2BF21925;
+        Wed, 16 Oct 2019 21:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262986;
-        bh=qFP1NjO6W8Srt9bBH9rasyAL70V1cecuNsWg7IKsMEo=;
+        s=default; t=1571262988;
+        bh=igHqsfJ/KTYG9kzGSxI1nBlYQVC8EhHXmU66VJt5M2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S75StnAgxkuU2RBkJ+9IBDM9SUEvP9m/2NnojWmv6M1rSJeddZFhac3odUsC3PvEG
-         FLIxlG+tyxtNXedtFHdVXARkay6tdPqGMlI0rPo5TOX/TQlS394ozvS1OENQzez8Mr
-         XFRVOZoJd5p5pvyj8GedfLdLLicUkdlHGqnfBj2I=
+        b=UwZAkgfxrKIp58P/ET3sZOrFrX6VoZ26TP1jaw01AonA8hI1PBPDWGe0P3xZDhyuv
+         pM5Jbyquyg4m7LxnHTOISDYHccciSPNSIO29Dovf7wPW9NjpVqXJNmk74VVd4LPfQy
+         VrCG6yqLCDRz96/kjjbb5ApfarvR8wL0sHgR3074=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 55/65] btrfs: fix incorrect updating of log root tree
-Date:   Wed, 16 Oct 2019 14:51:09 -0700
-Message-Id: <20191016214837.671712650@linuxfoundation.org>
+        stable@vger.kernel.org, Su Yanjun <suyj.fnst@cn.fujitsu.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.14 56/65] NFS: Fix O_DIRECT accounting of number of bytes read/written
+Date:   Wed, 16 Oct 2019 14:51:10 -0700
+Message-Id: <20191016214838.027140327@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
 References: <20191016214756.457746573@linuxfoundation.org>
@@ -45,132 +44,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 4203e968947071586a98b5314fd7ffdea3b4f971 upstream.
+commit 031d73ed768a40684f3ca21992265ffdb6a270bf upstream.
 
-We've historically had reports of being unable to mount file systems
-because the tree log root couldn't be read.  Usually this is the "parent
-transid failure", but could be any of the related errors, including
-"fsid mismatch" or "bad tree block", depending on which block got
-allocated.
+When a series of O_DIRECT reads or writes are truncated, either due to
+eof or due to an error, then we should return the number of contiguous
+bytes that were received/sent starting at the offset specified by the
+application.
 
-The modification of the individual log root items are serialized on the
-per-log root root_mutex.  This means that any modification to the
-per-subvol log root_item is completely protected.
+Currently, we are failing to correctly check contiguity, and so we're
+failing the generic/465 in xfstests when the race between the read
+and write RPCs causes the file to get extended while the 2 reads are
+outstanding. If the first read RPC call wins the race and returns with
+eof set, we should treat the second read RPC as being truncated.
 
-However we update the root item in the log root tree outside of the log
-root tree log_mutex.  We do this in order to allow multiple subvolumes
-to be updated in each log transaction.
-
-This is problematic however because when we are writing the log root
-tree out we update the super block with the _current_ log root node
-information.  Since these two operations happen independently of each
-other, you can end up updating the log root tree in between writing out
-the dirty blocks and setting the super block to point at the current
-root.
-
-This means we'll point at the new root node that hasn't been written
-out, instead of the one we should be pointing at.  Thus whatever garbage
-or old block we end up pointing at complains when we mount the file
-system later and try to replay the log.
-
-Fix this by copying the log's root item into a local root item copy.
-Then once we're safely under the log_root_tree->log_mutex we update the
-root item in the log_root_tree.  This way we do not modify the
-log_root_tree while we're committing it, fixing the problem.
-
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Chris Mason <clm@fb.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Su Yanjun <suyj.fnst@cn.fujitsu.com>
+Fixes: 1ccbad9f9f9bd ("nfs: fix DIO good bytes calculation")
+Cc: stable@vger.kernel.org # 4.1+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |   36 +++++++++++++++++++++++++++---------
- 1 file changed, 27 insertions(+), 9 deletions(-)
+ fs/nfs/direct.c |   78 ++++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 43 insertions(+), 35 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -2729,7 +2729,8 @@ out:
-  * in the tree of log roots
-  */
- static int update_log_root(struct btrfs_trans_handle *trans,
--			   struct btrfs_root *log)
-+			   struct btrfs_root *log,
-+			   struct btrfs_root_item *root_item)
- {
- 	struct btrfs_fs_info *fs_info = log->fs_info;
- 	int ret;
-@@ -2737,10 +2738,10 @@ static int update_log_root(struct btrfs_
- 	if (log->log_transid == 1) {
- 		/* insert root item on the first sync */
- 		ret = btrfs_insert_root(trans, fs_info->log_root_tree,
--				&log->root_key, &log->root_item);
-+				&log->root_key, root_item);
- 	} else {
- 		ret = btrfs_update_root(trans, fs_info->log_root_tree,
--				&log->root_key, &log->root_item);
-+				&log->root_key, root_item);
- 	}
- 	return ret;
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -122,32 +122,49 @@ static inline int put_dreq(struct nfs_di
  }
-@@ -2836,6 +2837,7 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct btrfs_root *log = root->log_root;
- 	struct btrfs_root *log_root_tree = fs_info->log_root_tree;
-+	struct btrfs_root_item new_root_item;
- 	int log_transid = 0;
- 	struct btrfs_log_ctx root_log_ctx;
- 	struct blk_plug plug;
-@@ -2901,18 +2903,26 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 		goto out;
+ 
+ static void
+-nfs_direct_good_bytes(struct nfs_direct_req *dreq, struct nfs_pgio_header *hdr)
++nfs_direct_handle_truncated(struct nfs_direct_req *dreq,
++			    const struct nfs_pgio_header *hdr,
++			    ssize_t dreq_len)
++{
++	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
++
++	if (!(test_bit(NFS_IOHDR_ERROR, &hdr->flags) ||
++	      test_bit(NFS_IOHDR_EOF, &hdr->flags)))
++		return;
++	if (dreq->max_count >= dreq_len) {
++		dreq->max_count = dreq_len;
++		if (dreq->count > dreq_len)
++			dreq->count = dreq_len;
++
++		if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
++			dreq->error = hdr->error;
++		else /* Clear outstanding error if this is EOF */
++			dreq->error = 0;
++	}
++	if (mirror->count > dreq_len)
++		mirror->count = dreq_len;
++}
++
++static void
++nfs_direct_count_bytes(struct nfs_direct_req *dreq,
++		       const struct nfs_pgio_header *hdr)
+ {
+-	int i;
+-	ssize_t count;
++	struct nfs_direct_mirror *mirror = &dreq->mirrors[hdr->pgio_mirror_idx];
++	loff_t hdr_end = hdr->io_start + hdr->good_bytes;
++	ssize_t dreq_len = 0;
+ 
+-	WARN_ON_ONCE(dreq->count >= dreq->max_count);
++	if (hdr_end > dreq->io_start)
++		dreq_len = hdr_end - dreq->io_start;
+ 
+-	if (dreq->mirror_count == 1) {
+-		dreq->mirrors[hdr->pgio_mirror_idx].count += hdr->good_bytes;
+-		dreq->count += hdr->good_bytes;
+-	} else {
+-		/* mirrored writes */
+-		count = dreq->mirrors[hdr->pgio_mirror_idx].count;
+-		if (count + dreq->io_start < hdr->io_start + hdr->good_bytes) {
+-			count = hdr->io_start + hdr->good_bytes - dreq->io_start;
+-			dreq->mirrors[hdr->pgio_mirror_idx].count = count;
+-		}
+-		/* update the dreq->count by finding the minimum agreed count from all
+-		 * mirrors */
+-		count = dreq->mirrors[0].count;
++	nfs_direct_handle_truncated(dreq, hdr, dreq_len);
+ 
+-		for (i = 1; i < dreq->mirror_count; i++)
+-			count = min(count, dreq->mirrors[i].count);
++	if (dreq_len > dreq->max_count)
++		dreq_len = dreq->max_count;
+ 
+-		dreq->count = count;
+-	}
++	if (mirror->count < dreq_len)
++		mirror->count = dreq_len;
++	if (dreq->count < dreq_len)
++		dreq->count = dreq_len;
+ }
+ 
+ /*
+@@ -401,20 +418,12 @@ static void nfs_direct_read_completion(s
+ 	struct nfs_direct_req *dreq = hdr->dreq;
+ 
+ 	spin_lock(&dreq->lock);
+-	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
+-		dreq->error = hdr->error;
+-
+ 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
+ 		spin_unlock(&dreq->lock);
+ 		goto out_put;
  	}
  
-+	/*
-+	 * We _must_ update under the root->log_mutex in order to make sure we
-+	 * have a consistent view of the log root we are trying to commit at
-+	 * this moment.
-+	 *
-+	 * We _must_ copy this into a local copy, because we are not holding the
-+	 * log_root_tree->log_mutex yet.  This is important because when we
-+	 * commit the log_root_tree we must have a consistent view of the
-+	 * log_root_tree when we update the super block to point at the
-+	 * log_root_tree bytenr.  If we update the log_root_tree here we'll race
-+	 * with the commit and possibly point at the new block which we may not
-+	 * have written out.
-+	 */
- 	btrfs_set_root_node(&log->root_item, log->node);
-+	memcpy(&new_root_item, &log->root_item, sizeof(new_root_item));
+-	if (hdr->good_bytes != 0)
+-		nfs_direct_good_bytes(dreq, hdr);
+-
+-	if (test_bit(NFS_IOHDR_EOF, &hdr->flags))
+-		dreq->error = 0;
+-
++	nfs_direct_count_bytes(dreq, hdr);
+ 	spin_unlock(&dreq->lock);
  
- 	root->log_transid++;
- 	log->log_transid = root->log_transid;
- 	root->log_start_pid = 0;
- 	/*
--	 * Update or create log root item under the root's log_mutex to prevent
--	 * races with concurrent log syncs that can lead to failure to update
--	 * log root item because it was not created yet.
--	 */
--	ret = update_log_root(trans, log);
--	/*
- 	 * IO has been started, blocks of the log tree have WRITTEN flag set
- 	 * in their headers. new modifications of the log will be written to
- 	 * new positions. so it's safe to allow log writers to go in.
-@@ -2932,6 +2942,14 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 	mutex_unlock(&log_root_tree->log_mutex);
+ 	while (!list_empty(&hdr->pages)) {
+@@ -651,6 +660,9 @@ static void nfs_direct_write_reschedule(
+ 	nfs_direct_write_scan_commit_list(dreq->inode, &reqs, &cinfo);
  
- 	mutex_lock(&log_root_tree->log_mutex);
-+
-+	/*
-+	 * Now we are safe to update the log_root_tree because we're under the
-+	 * log_mutex, and we're a current writer so we're holding the commit
-+	 * open until we drop the log_mutex.
-+	 */
-+	ret = update_log_root(trans, log, &new_root_item);
-+
- 	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
- 		/*
- 		 * Implicit memory barrier after atomic_dec_and_test
+ 	dreq->count = 0;
++	dreq->max_count = 0;
++	list_for_each_entry(req, &reqs, wb_list)
++		dreq->max_count += req->wb_bytes;
+ 	dreq->verf.committed = NFS_INVALID_STABLE_HOW;
+ 	nfs_clear_pnfs_ds_commit_verifiers(&dreq->ds_cinfo);
+ 	for (i = 0; i < dreq->mirror_count; i++)
+@@ -783,17 +795,13 @@ static void nfs_direct_write_completion(
+ 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
+ 
+ 	spin_lock(&dreq->lock);
+-
+-	if (test_bit(NFS_IOHDR_ERROR, &hdr->flags))
+-		dreq->error = hdr->error;
+-
+ 	if (test_bit(NFS_IOHDR_REDO, &hdr->flags)) {
+ 		spin_unlock(&dreq->lock);
+ 		goto out_put;
+ 	}
+ 
++	nfs_direct_count_bytes(dreq, hdr);
+ 	if (hdr->good_bytes != 0) {
+-		nfs_direct_good_bytes(dreq, hdr);
+ 		if (nfs_write_need_commit(hdr)) {
+ 			if (dreq->flags == NFS_ODIRECT_RESCHED_WRITES)
+ 				request_commit = true;
 
 
