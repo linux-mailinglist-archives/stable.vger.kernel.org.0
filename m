@@ -2,148 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3567BD9930
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 20:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2A60D9937
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 20:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436619AbfJPSaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 14:30:03 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:34163 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2436612AbfJPSaA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 14:30:00 -0400
-Received: by mail-pl1-f194.google.com with SMTP id k7so11677582pll.1;
-        Wed, 16 Oct 2019 11:30:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4o2nRnrGmqJtA/J2E1Lis+BBBesb9H7tV/2Ne53kdSQ=;
-        b=RKtHCtJ1HuSGd9wh2Thc2aoaLdL7DEMZoF2gkZE6URaDLFBN/TnL4wFXLUpvETEO/b
-         zPtVUTCLIisvIfNnoLjBHDvYK4/jGJH1Lc2DPLWWYNh/7+oIr3MPDcsPS3JTBfICgTqy
-         GgPhJ1Y+WSAO8wIIOK4VgbkHxLlSmp2XNyII6tYsZ2DWGni4Bn/9JAarMlToRcl3qBvO
-         ilXwaKeQMzQygcMqUqtyi2q5mro42UK5oBOvYuLYMSXMVGrOcIe0pvuHeIr9X/SYK5Hp
-         i3G6XKDg3lzge9ZRtIXBsHT4PuDe5X20SuK0JtGe7IoWmK5CN1ayHMVA0pKuz766TyCU
-         pTSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4o2nRnrGmqJtA/J2E1Lis+BBBesb9H7tV/2Ne53kdSQ=;
-        b=ADiGI/ffUyxvelfnuAVzt/nioSXMntoK1ORHhFFgVs8PLSePM+EpAY3xQGCsGzMQQL
-         /aykGnJ8WcpUZUenqbcYXPgA3omVhsNb82+ZwyNsFi9Ta1byo6l0gDdN6M5CuNKzSRHX
-         ZjMLT6HlCd5NVhTrjmOe321VkATLUvCPjmigTaT9uHRfFEL0lwUPs7AUxjjUYKInuUde
-         gOC8V56FKagSA9q0V0iMGP3RH84p1wxMzZrWJNC4g7+S4xNYNT3UnnWsmFZ0a76cJeAR
-         tsux0hwRGYCxTAoI+9+x3EwLog2w52rj09CWCW8JCiEWp7SUp3dkF0UOSqoAm7g0NSgB
-         rUbA==
-X-Gm-Message-State: APjAAAWxAd5U4alhEgNWJYWjQGgBpTAL0WYOQseRvVTMBp50obnkrtqT
-        VFhuW1xjS3V5PlTk0Fgpx5g3p8ZGDiw=
-X-Google-Smtp-Source: APXvYqyc7LqnMdiRhMCp01pG2CYxy9bh7AF43xp1ON/ofqiZ/ejmNnhsXwvIUkUnV4EXPcoNHAZFtg==
-X-Received: by 2002:a17:902:778a:: with SMTP id o10mr41858030pll.93.1571250599437;
-        Wed, 16 Oct 2019 11:29:59 -0700 (PDT)
-Received: from localhost.localdomain ([2607:fb90:8061:1b46:c3ff:7f12:48ed:6323])
-        by smtp.gmail.com with ESMTPSA id z4sm2980127pjt.17.2019.10.16.11.29.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 16 Oct 2019 11:29:58 -0700 (PDT)
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v2 3/3] HID: logitech-hidpp: do all FF cleanup in hidpp_ff_destroy()
-Date:   Wed, 16 Oct 2019 11:29:35 -0700
-Message-Id: <20191016182935.5616-4-andrew.smirnov@gmail.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191016182935.5616-1-andrew.smirnov@gmail.com>
-References: <20191016182935.5616-1-andrew.smirnov@gmail.com>
+        id S2391065AbfJPSad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 14:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60046 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390895AbfJPSac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 14:30:32 -0400
+Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4EA51218DE;
+        Wed, 16 Oct 2019 18:30:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571250632;
+        bh=YUlJQf0q4MGsg0ffIebPtBuNdy0JVjUzZ2aGCptF0K4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xvc9zM+ubcObecxlfk5icYjHF6LLmgLlDLGVbaKMmFMMqOJ0Hw7/qpsiqFGtLuH57
+         fDKzJPozfQTkV+yFhjU5FpeH6wFe+DRmCi61olJom9W/tUTVmuWunfhxjC4PiAwW6q
+         WnRK6/uJNmIk3Z5TVZiBi6oznIzLHMTeaIGdcPdA=
+Date:   Wed, 16 Oct 2019 11:30:27 -0700
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ajay Kaher <akaher@vmware.com>, Mao Wenan <maowenan@huawei.com>
+Cc:     davem@davemloft.net, kuznet@ms2.inr.ac.ru, jmorris@namei.org,
+        yoshfuji@linux-ipv6.org, kaber@trash.net, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
+        srinidhir@vmware.com, bvikas@vmware.com, anishs@vmware.com,
+        vsirnapalli@vmware.com, srostedt@vmware.com,
+        Mao Wenan <maowenan@huawei.com>
+Subject: Re: [PATCH 4.9.y] Revert "net: sit: fix memory leak in
+ sit_init_net()"
+Message-ID: <20191016183027.GC801860@kroah.com>
+References: <1571216634-44834-1-git-send-email-akaher@vmware.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1571216634-44834-1-git-send-email-akaher@vmware.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All of the FF-related resources belong to corresponding FF device, so
-they should be freed as a part of hidpp_ff_destroy() to avoid
-potential race condidions.
+On Wed, Oct 16, 2019 at 02:33:54PM +0530, Ajay Kaher wrote:
+> This reverts commit 375d6d454a95ebacb9c6eb0b715da05a4458ffef which is
+> commit 07f12b26e21ab359261bf75cfcb424fdc7daeb6d upstream.
+> 
+> Unnecessarily calling free_netdev() from sit_init_net().
+> ipip6_dev_free() of 4.9.y called free_netdev(), so no need
+> to call again after ipip6_dev_free().
+> 
+> Cc: Mao Wenan <maowenan@huawei.com>
+> Cc: David S. Miller <davem@davemloft.net>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Ajay Kaher <akaher@vmware.com>
+> ---
+>  net/ipv6/sit.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
+> index 47ca2a2..16eba7b 100644
+> --- a/net/ipv6/sit.c
+> +++ b/net/ipv6/sit.c
+> @@ -1856,7 +1856,6 @@ static int __net_init sit_init_net(struct net *net)
+>  
+>  err_reg_dev:
+>  	ipip6_dev_free(sitn->fb_tunnel_dev);
+> -	free_netdev(sitn->fb_tunnel_dev);
+>  err_alloc_dev:
+>  	return err;
+>  }
+> -- 
+> 2.7.4
+> 
 
-Fixes: ff21a635dd1a ("HID: logitech-hidpp: Force feedback support for the Logitech G920")
-Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Cc: Austin Palmer <austinp@valvesoftware.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 4.9+
----
- drivers/hid/hid-logitech-hidpp.c | 33 +++++---------------------------
- 1 file changed, 5 insertions(+), 28 deletions(-)
+Mao, are you ok with this change?
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 8c4be991f387..2524b5104573 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2078,7 +2078,12 @@ static DEVICE_ATTR(range, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, hidpp
- static void hidpp_ff_destroy(struct ff_device *ff)
- {
- 	struct hidpp_ff_private_data *data = ff->private;
-+	struct hid_device *hid = data->hidpp->hid_dev;
- 
-+	hid_info(hid, "Unloading HID++ force feedback.\n");
-+
-+	device_remove_file(&hid->dev, &dev_attr_range);
-+	destroy_workqueue(data->wq);
- 	kfree(data->effect_ids);
- }
- 
-@@ -2170,31 +2175,6 @@ static int hidpp_ff_init(struct hidpp_device *hidpp,
- 	return 0;
- }
- 
--static int hidpp_ff_deinit(struct hid_device *hid)
--{
--	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
--	struct input_dev *dev = hidinput->input;
--	struct hidpp_ff_private_data *data;
--
--	if (!dev) {
--		hid_err(hid, "Struct input_dev not found!\n");
--		return -EINVAL;
--	}
--
--	hid_info(hid, "Unloading HID++ force feedback.\n");
--	data = dev->ff->private;
--	if (!data) {
--		hid_err(hid, "Private data not found!\n");
--		return -EINVAL;
--	}
--
--	destroy_workqueue(data->wq);
--	device_remove_file(&hid->dev, &dev_attr_range);
--
--	return 0;
--}
--
--
- /* ************************************************************************** */
- /*                                                                            */
- /* Device Support                                                             */
-@@ -3713,9 +3693,6 @@ static void hidpp_remove(struct hid_device *hdev)
- 
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
--		hidpp_ff_deinit(hdev);
--
- 	hid_hw_stop(hdev);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
--- 
-2.21.0
+thanks,
 
+greg k-h
