@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C1DD9FA9
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFB2DA135
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391343AbfJPV5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
+        id S2389688AbfJPWUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:20:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406669AbfJPV5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:08 -0400
+        id S2437526AbfJPVxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:43 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B775820872;
-        Wed, 16 Oct 2019 21:57:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34F86222C1;
+        Wed, 16 Oct 2019 21:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263027;
-        bh=bmmJE0WLwJRxWkFTNcpVE3zwotn4CsZHkea48KPSqUE=;
+        s=default; t=1571262822;
+        bh=hyhmoGrtgBALpuITUMJpgc5B0vB0P4Ck+P3tweLPDA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFInKMNYcI1nu8SIQpMaFlj4c9cumnJfb6GvCoBweCANONmDkaZGyRxQV4xBYyZbh
-         TXKh8sYjD2aNhwn1IaTzukDvqRlM2EFRustlSeHZaBcXELMSKQ9WfYhorDZ3ubRk3Z
-         pSdFr8c6QOZ/BIiz3hISm8SAs6q1lIwQJWMRVtMQ=
+        b=k62JdYJK+su9q3UteH5yyBCMJ/AFenNw4SDxApbLzsl9hvw58SQna7ts4ELagThA8
+         dOfLbRek5fnywcGQ0cHD9MMCbHbExrG9vBG8w5BnSdZkB+DMx0kZkdFhxVX7Gi+ELr
+         ydBAC7YV8E1bKfK4KqzpdM4KmOpjGvpCfI8+5Cxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 29/81] USB: serial: fix runtime PM after driver unbind
+        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.4 65/79] iio: adc: ad799x: fix probe error handling
 Date:   Wed, 16 Oct 2019 14:50:40 -0700
-Message-Id: <20191016214831.320656822@linuxfoundation.org>
+Message-Id: <20191016214826.468391956@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-commit d51bdb93ca7e71d7fb30a572c7b47ed0194bf3fe upstream.
+commit c62dd44901cfff12acc5792bf3d2dec20bcaf392 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+Since commit 0f7ddcc1bff1 ("iio:adc:ad799x: Write default config on probe
+and reset alert status on probe") the error path is wrong since it
+leaves the vref regulator on. Fix this by disabling both regulators.
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
-
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-4-johan@kernel.org
+Fixes: 0f7ddcc1bff1 ("iio:adc:ad799x: Write default config on probe and reset alert status on probe")
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/usb-serial.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/iio/adc/ad799x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/usb-serial.c
-+++ b/drivers/usb/serial/usb-serial.c
-@@ -311,10 +311,7 @@ static void serial_cleanup(struct tty_st
- 	serial = port->serial;
- 	owner = serial->type->driver.owner;
+--- a/drivers/iio/adc/ad799x.c
++++ b/drivers/iio/adc/ad799x.c
+@@ -822,10 +822,10 @@ static int ad799x_probe(struct i2c_clien
  
--	mutex_lock(&serial->disc_mutex);
--	if (!serial->disconnected)
--		usb_autopm_put_interface(serial->interface);
--	mutex_unlock(&serial->disc_mutex);
-+	usb_autopm_put_interface(serial->interface);
+ 	ret = ad799x_write_config(st, st->chip_config->default_config);
+ 	if (ret < 0)
+-		goto error_disable_reg;
++		goto error_disable_vref;
+ 	ret = ad799x_read_config(st);
+ 	if (ret < 0)
+-		goto error_disable_reg;
++		goto error_disable_vref;
+ 	st->config = ret;
  
- 	usb_serial_put(serial);
- 	module_put(owner);
+ 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
 
 
