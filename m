@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85F2DDA06A
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D861CD9F3A
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406635AbfJPWLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48956 "EHLO mail.kernel.org"
+        id S2394870AbfJPVx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437924AbfJPV4u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:50 -0400
+        id S2394866AbfJPVx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:28 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8562F21925;
-        Wed, 16 Oct 2019 21:56:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31123218DE;
+        Wed, 16 Oct 2019 21:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263009;
-        bh=BakXtVNyWxfe6/6cNUyEpr7kiZiRERaM4EkEd9adm7w=;
+        s=default; t=1571262807;
+        bh=WJxsk3iTHP/EXOLmCy0Peiyb2dGusCZDXFkH7uI2Tk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MrjHYQ31+PRoLRWDOnF6Q+H4bNorriRjz7/fC5CRprVOVFSgtq67WsMjY2QHF3jvw
-         UqOeO5Vh6OLROtNs9zpzbJI3PZTPRFAharsv/oRiSVIHLwJJqqr5LzmxG+Jys6ft0r
-         PMGtq3l0gteBLNXLOdvMbMtKeXMONOcsTfEwtUSY=
+        b=XT4H6hbTX+rWzul3t/nLiU3/MNnKDBWKmCkjZsh/FAgbJYQh4w1vvCMu0NEvQGVOL
+         fXk29lI7JpHxyCZ+FKONyFBn1Ng7xZ4aH/hSFibqzpySK8Dk2PUDNKTvbfQwf71apH
+         zQbOwerTrI8HbBbCgw2aKBhcWwHmNmSYRTS4g1qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Tseng <rtseng@nvidia.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 12/81] usb: xhci: wait for CNR controller not ready bit in xhci resume
-Date:   Wed, 16 Oct 2019 14:50:23 -0700
-Message-Id: <20191016214817.920493885@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 49/79] USB: serial: keyspan: fix NULL-derefs on open() and write()
+Date:   Wed, 16 Oct 2019 14:50:24 -0700
+Message-Id: <20191016214812.286675565@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Tseng <rtseng@nvidia.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit a70bcbc322837eda1ab5994d12db941dc9733a7d upstream.
+commit 7d7e21fafdbc7fcf0854b877bd0975b487ed2717 upstream.
 
-NVIDIA 3.1 xHCI card would lose power when moving power state into D3Cold.
-Thus we need to wait for CNR bit to clear in xhci resume, just as in
-xhci init.
+Fix NULL-pointer dereferences on open() and write() which can be
+triggered by a malicious USB device.
 
-[Minor changes to comment and commit message -Mathias]
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Rick Tseng <rtseng@nvidia.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-6-git-send-email-mathias.nyman@linux.intel.com
+The current URB allocation helper would fail to initialise the newly
+allocated URB if the device has unexpected endpoint descriptors,
+something which could lead NULL-pointer dereferences in a number of
+open() and write() paths when accessing the URB. For example:
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:usb_clear_halt+0x11/0xc0
+	...
+	Call Trace:
+	 ? tty_port_open+0x4d/0xd0
+	 keyspan_open+0x70/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_write+0x14e/0x1f3 [keyspan]
+	...
+	Call Trace:
+	 serial_write+0x43/0xa0 [usbserial]
+	 n_tty_write+0x1af/0x4f0
+	 ? do_wait_intr_irq+0x80/0x80
+	 ? process_echoes+0x60/0x60
+	 tty_write+0x13f/0x2f0
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_usa26_send_setup+0x298/0x305 [keyspan]
+	...
+	Call Trace:
+	 keyspan_open+0x10f/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+Fixes: fdcba53e2d58 ("fix for bugzilla #7544 (keyspan USB-to-serial converter)")
+Cc: stable <stable@vger.kernel.org>	# 2.6.21
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/serial/keyspan.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1098,6 +1098,18 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 		hibernated = true;
+--- a/drivers/usb/serial/keyspan.c
++++ b/drivers/usb/serial/keyspan.c
+@@ -1249,8 +1249,8 @@ static struct urb *keyspan_setup_urb(str
  
- 	if (!hibernated) {
-+		/*
-+		 * Some controllers might lose power during suspend, so wait
-+		 * for controller not ready bit to clear, just as in xHC init.
-+		 */
-+		retval = xhci_handshake(&xhci->op_regs->status,
-+					STS_CNR, 0, 10 * 1000 * 1000);
-+		if (retval) {
-+			xhci_warn(xhci, "Controller not ready at resume %d\n",
-+				  retval);
-+			spin_unlock_irq(&xhci->lock);
-+			return retval;
-+		}
- 		/* step 1: restore register */
- 		xhci_restore_registers(xhci);
- 		/* step 2: initialize command ring buffer */
+ 	ep_desc = find_ep(serial, endpoint);
+ 	if (!ep_desc) {
+-		/* leak the urb, something's wrong and the callers don't care */
+-		return urb;
++		usb_free_urb(urb);
++		return NULL;
+ 	}
+ 	if (usb_endpoint_xfer_int(ep_desc)) {
+ 		ep_type_name = "INT";
 
 
