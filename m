@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B07DA105
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40469D9FC4
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387571AbfJPWSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:18:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44320 "EHLO mail.kernel.org"
+        id S2406687AbfJPV6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394989AbfJPVyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:25 -0400
+        id S2438125AbfJPV6M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:12 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9723C21A49;
-        Wed, 16 Oct 2019 21:54:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 458FA21D7D;
+        Wed, 16 Oct 2019 21:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262864;
-        bh=kSRLvh1VGKPe24MHdjufCBfj8tkZ+ksvQLTkai6Q4+c=;
+        s=default; t=1571263090;
+        bh=b12KZj4m24KunwpGgNP4b0M2EsXKqxJq5IdkhF8bQHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHL9gfO8w4xT+2TBq6sMwCc+SCOjiC7iUo7Ci8GtWgAXb4KPimszI0IlBwTcgRjAU
-         rUqgPpiDQt7g4F5y448JRsj+xzITzOoef/VSm1D7FHzZ9luez8gSEZ+4SgOmo2VEzR
-         rkNZVccWkjSOWs7u97iPSh9SY/InNGZl1pFvDJqk=
+        b=oJXOdMykflMO2QHmeOedUqnNu4z9gn1iXR98BSO/5OkIc8nMwFxnsP/mXsSTwMG19
+         i5ro3nlsRypcnOmh5Rizmg8lVYgKl+EsYTfMdsYQMZH8im9eeNoEGSljVRKzt14198
+         +7kJbgAvFXm3pCSRqtJsVFulCiUcUQVU/iIDRmoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>
-Subject: [PATCH 4.9 30/92] crypto: caam - fix concurrency issue in givencrypt descriptor
+        stable@vger.kernel.org, Rick Tseng <rtseng@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.3 011/112] usb: xhci: wait for CNR controller not ready bit in xhci resume
 Date:   Wed, 16 Oct 2019 14:50:03 -0700
-Message-Id: <20191016214825.237765068@linuxfoundation.org>
+Message-Id: <20191016214846.972983264@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horia Geantă <horia.geanta@nxp.com>
+From: Rick Tseng <rtseng@nvidia.com>
 
-commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
+commit a70bcbc322837eda1ab5994d12db941dc9733a7d upstream.
 
-IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
-to be scheduled before the data transfer from ofifo to external memory
-(set up at [38]:
+NVIDIA 3.1 xHCI card would lose power when moving power state into D3Cold.
+Thus we need to wait for CNR bit to clear in xhci resume, just as in
+xhci init.
 
-[29] 10FA0004           ld: ind-nfifo (len=4) imm
-[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
-[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
-[32] 00000010               data:0x00000010
-[33] 8210010D    operation: cls1-op aes cbc init-final enc
-[34] A8080B04         math: (seqin + math0)->vseqout len=4
-[35] 28000010    seqfifold: skip len=16
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[38] 69300000   seqfifostr: msg len=vseqoutsz
-[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
-
-If ofifo -> external memory transfer happens first, DECO will hang
-(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
-data availability in ofifo for the ofifo -> c2 ififo transfer.
-
-Make sure IV transfer happens first by waiting for all CAAM internal
-transfers to end before starting payload transfer.
-
-New descriptor with jump command inserted at [37]:
-
-[..]
-[36] A8080A04         math: (seqin + math0)->vseqin len=4
-[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
-[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
-[39] 69300000   seqfifostr: msg len=vseqoutsz
-[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
-
-[Note: the issue is present in the descriptor from the very beginning
-(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
-maintained kernel that the patch applies clean against.]
-
-Cc: <stable@vger.kernel.org> # v4.19+
-Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-[Horia: backport to v4.4, v4.9]
-Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+[Minor changes to comment and commit message -Mathias]
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Rick Tseng <rtseng@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-6-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/caam/caamalg.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/crypto/caam/caamalg.c
-+++ b/drivers/crypto/caam/caamalg.c
-@@ -75,7 +75,7 @@
- #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
- #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
- #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
--#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 9 * CAAM_CMD_SZ)
-+#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 10 * CAAM_CMD_SZ)
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1108,6 +1108,18 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 		hibernated = true;
  
- /* Note: Nonce is counted in enckeylen */
- #define DESC_AEAD_CTR_RFC3686_LEN	(4 * CAAM_CMD_SZ)
-@@ -474,6 +474,7 @@ static int aead_set_sh_desc(struct crypt
- 	u32 geniv, moveiv;
- 	u32 ctx1_iv_off = 0;
- 	u32 *desc;
-+	u32 *wait_cmd;
- 	const bool ctr_mode = ((ctx->class1_alg_type & OP_ALG_AAI_MASK) ==
- 			       OP_ALG_AAI_CTR_MOD128);
- 	const bool is_rfc3686 = alg->caam.rfc3686;
-@@ -736,6 +737,14 @@ copy_iv:
- 
- 	/* Will read cryptlen */
- 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
-+
-+	/*
-+	 * Wait for IV transfer (ofifo -> class2) to finish before starting
-+	 * ciphertext transfer (ofifo -> external memory).
-+	 */
-+	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
-+	set_jump_tgt_here(desc, wait_cmd);
-+
- 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
- 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
- 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
+ 	if (!hibernated) {
++		/*
++		 * Some controllers might lose power during suspend, so wait
++		 * for controller not ready bit to clear, just as in xHC init.
++		 */
++		retval = xhci_handshake(&xhci->op_regs->status,
++					STS_CNR, 0, 10 * 1000 * 1000);
++		if (retval) {
++			xhci_warn(xhci, "Controller not ready at resume %d\n",
++				  retval);
++			spin_unlock_irq(&xhci->lock);
++			return retval;
++		}
+ 		/* step 1: restore register */
+ 		xhci_restore_registers(xhci);
+ 		/* step 2: initialize command ring buffer */
 
 
