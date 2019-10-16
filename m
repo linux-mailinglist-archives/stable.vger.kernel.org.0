@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81483DA050
+	by mail.lfdr.de (Postfix) with ESMTP id EAF3BDA051
 	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391747AbfJPWKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2403823AbfJPWKP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 18:10:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49792 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437976AbfJPV5R (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2437980AbfJPV5R (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 16 Oct 2019 17:57:17 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79989218DE;
-        Wed, 16 Oct 2019 21:57:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 582C221928;
+        Wed, 16 Oct 2019 21:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263036;
-        bh=izqO9ALxtxnEoEPIVKQWUWSUcpA2AFD+pQ0ufO4hGps=;
+        s=default; t=1571263037;
+        bh=ONS2EygcQU152NOuMAZMhNEtFoUo4KLiKujogzhpwkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLxBMhPWkvNRMDKC4324E/TCP6aBbo/C8rnJV+dvCxb7gc1kOtBN8pZdkzK2/MNK4
-         JABYfwkNYFuajn8GzdyjOoz3Mqo917OVIu3NzDl79Ak7AwPvxrmuuYS/i2bH+IoIHx
-         o33UuNhkJAdVY+w3p1nuiA4yNS6yGLs5IOQiy1Po=
+        b=iykxtzwHiygYs+JhMzGfUGuEdyOrpzkFYx1DvBQwjIieq6DTdybzuqkuHUCdVdrXq
+         RYolmeZrTPUn0iZQyR3a0uUlXK0rqCcCKIO4dLvHtQjU1vMQLsFkzTqDST34+V1bm3
+         1beastq+1l+ue0sal51hrPDZ+Mr1MSvyLBBGY2WQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 06/81] USB: usb-skeleton: fix runtime PM after driver unbind
-Date:   Wed, 16 Oct 2019 14:50:17 -0700
-Message-Id: <20191016214811.706227648@linuxfoundation.org>
+Subject: [PATCH 4.19 07/81] USB: usb-skeleton: fix NULL-deref on disconnect
+Date:   Wed, 16 Oct 2019 14:50:18 -0700
+Message-Id: <20191016214812.519618795@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
 References: <20191016214805.727399379@linuxfoundation.org>
@@ -44,56 +44,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 5c290a5e42c3387e82de86965784d30e6c5270fd upstream.
+commit bed5ef230943863b9abf5eae226a20fad9a8ff71 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+The driver was using its struct usb_interface pointer as an inverted
+disconnected flag and was setting it to NULL before making sure all
+completion handlers had run. This could lead to NULL-pointer
+dereferences in the dev_err() statements in the completion handlers
+which relies on said pointer.
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
+Fix this by using a dedicated disconnected flag.
 
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
+Note that this is also addresses a NULL-pointer dereference at release()
+and a struct usb_interface reference leak introduced by a recent runtime
+PM fix, which depends on and should have been submitted together with
+this patch.
+
+Fixes: 4212cd74ca6f ("USB: usb-skeleton.c: remove err() usage")
+Fixes: 5c290a5e42c3 ("USB: usb-skeleton: fix runtime PM after driver unbind")
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009170944.30057-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/usb/usb-skeleton.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
 --- a/drivers/usb/usb-skeleton.c
 +++ b/drivers/usb/usb-skeleton.c
-@@ -71,6 +71,7 @@ static void skel_delete(struct kref *kre
- 	struct usb_skel *dev = to_skel_dev(kref);
+@@ -59,6 +59,7 @@ struct usb_skel {
+ 	spinlock_t		err_lock;		/* lock for errors */
+ 	struct kref		kref;
+ 	struct mutex		io_mutex;		/* synchronize I/O with disconnect */
++	unsigned long		disconnected:1;
+ 	wait_queue_head_t	bulk_in_wait;		/* to wait for an ongoing read */
+ };
+ #define to_skel_dev(d) container_of(d, struct usb_skel, kref)
+@@ -236,7 +237,7 @@ static ssize_t skel_read(struct file *fi
+ 	if (rv < 0)
+ 		return rv;
  
- 	usb_free_urb(dev->bulk_in_urb);
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev->bulk_in_buffer);
- 	kfree(dev);
-@@ -122,10 +123,7 @@ static int skel_release(struct inode *in
- 		return -ENODEV;
+-	if (!dev->interface) {		/* disconnect() was called */
++	if (dev->disconnected) {		/* disconnect() was called */
+ 		rv = -ENODEV;
+ 		goto exit;
+ 	}
+@@ -418,7 +419,7 @@ static ssize_t skel_write(struct file *f
  
- 	/* allow the device to be autosuspended */
--	mutex_lock(&dev->io_mutex);
--	if (dev->interface)
--		usb_autopm_put_interface(dev->interface);
--	mutex_unlock(&dev->io_mutex);
-+	usb_autopm_put_interface(dev->interface);
+ 	/* this lock makes sure we don't submit URBs to gone devices */
+ 	mutex_lock(&dev->io_mutex);
+-	if (!dev->interface) {		/* disconnect() was called */
++	if (dev->disconnected) {		/* disconnect() was called */
+ 		mutex_unlock(&dev->io_mutex);
+ 		retval = -ENODEV;
+ 		goto error;
+@@ -569,7 +570,7 @@ static void skel_disconnect(struct usb_i
  
- 	/* decrement the count on our device */
- 	kref_put(&dev->kref, skel_delete);
-@@ -505,7 +503,7 @@ static int skel_probe(struct usb_interfa
- 	init_waitqueue_head(&dev->bulk_in_wait);
+ 	/* prevent more I/O from starting */
+ 	mutex_lock(&dev->io_mutex);
+-	dev->interface = NULL;
++	dev->disconnected = 1;
+ 	mutex_unlock(&dev->io_mutex);
  
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	/* use only the first bulk-in and bulk-out endpoints */
+ 	usb_kill_anchored_urbs(&dev->submitted);
 
 
