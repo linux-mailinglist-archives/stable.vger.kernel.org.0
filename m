@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F92AD9F02
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701DAD9E73
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390564AbfJPWER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:04:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53454 "EHLO mail.kernel.org"
+        id S2438399AbfJPV7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:59:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438386AbfJPV7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:05 -0400
+        id S2438394AbfJPV7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:07 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C3FA222C2;
+        by mail.kernel.org (Postfix) with ESMTPSA id E27B321A4C;
         Wed, 16 Oct 2019 21:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263145;
-        bh=Yzw/3d2j0WY5wr/qB3QLvmZXyYZmfj5Lu6FIZXpaxn4=;
+        s=default; t=1571263146;
+        bh=EMbqtE2zg7VLZV7/JH86HwvEMiPQGYyvT2ZI5le8H20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucsyybagAhDbL4f3M04j3E5ABDv4FPJbJwaUfv5aEndzXepq1K+sqLwmdSVCaW5kJ
-         puMeIvjkKoBmdlg9k6l3Uia33ujBvnxNGBs7X7R73NdGcvJQYfqkewkMbacBJdr5NU
-         9dyJtOzFj+NOqHLweYfJOrXTtTD0k5gtsS6Yc9YU=
+        b=kzW+Dxh3PfHfcTtV2XTd6jjyxTFFqbF/mQZOnaYJxsobT6Emo/zXb+rx2Vk3wHx3/
+         YqrwuYEghzP7ZA7f0Zsv7qe+xYDvzSjUnZ2qzsvtcz8FOSpas99Mz7IiFCM+w29jBu
+         tw9/qDY9Z3EA1wWYdinjorDop4SWRJzzzwt29j6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Beni Mahler <beni.mahler@gmx.net>,
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 027/112] USB: serial: ftdi_sio: add device IDs for Sienna and Echelon PL-20
-Date:   Wed, 16 Oct 2019 14:50:19 -0700
-Message-Id: <20191016214852.704485914@linuxfoundation.org>
+Subject: [PATCH 5.3 028/112] USB: serial: option: add Telit FN980 compositions
+Date:   Wed, 16 Oct 2019 14:50:20 -0700
+Message-Id: <20191016214852.834983504@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -43,65 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Beni Mahler <beni.mahler@gmx.net>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit 357f16d9e0194cdbc36531ff88b453481560b76a upstream.
+commit 5eb3f4b87a0e7e949c976f32f296176a06d1a93b upstream.
 
-Both devices added here have a FTDI chip inside. The device from Echelon
-is called 'Network Interface' it is actually a LON network gateway.
+This patch adds the following Telit FN980 compositions:
 
- ID 0403:8348 Future Technology Devices International, Ltd
- https://www.eltako.com/fileadmin/downloads/de/datenblatt/Datenblatt_PL-SW-PROF.pdf
+0x1050: tty, adb, rmnet, tty, tty, tty, tty
+0x1051: tty, adb, mbim, tty, tty, tty, tty
+0x1052: rndis, tty, adb, tty, tty, tty, tty
+0x1053: tty, adb, ecm, tty, tty, tty, tty
 
- ID 0920:7500 Network Interface
- https://www.echelon.com/products/u20-usb-network-interface
-
-Signed-off-by: Beni Mahler <beni.mahler@gmx.net>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    9 +++++++++
- 2 files changed, 12 insertions(+)
+ drivers/usb/serial/option.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1030,6 +1030,9 @@ static const struct usb_device_id id_tab
- 	/* EZPrototypes devices */
- 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
- 	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
-+	/* Sienna devices */
-+	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
-+	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
- 	{ }					/* Terminating entry */
- };
- 
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -39,6 +39,9 @@
- 
- #define FTDI_LUMEL_PD12_PID	0x6002
- 
-+/* Sienna Serial Interface by Secyourit GmbH */
-+#define FTDI_SIENNA_PID		0x8348
-+
- /* Cyber Cortex AV by Fabulous Silicon (http://fabuloussilicon.com) */
- #define CYBER_CORTEX_AV_PID	0x8698
- 
-@@ -689,6 +692,12 @@
- #define BANDB_ZZ_PROG1_USB_PID	0xBA02
- 
- /*
-+ * Echelon USB Serial Interface
-+ */
-+#define ECHELON_VID		0x0920
-+#define ECHELON_U20_PID		0x7500
-+
-+/*
-  * Intrepid Control Systems (http://www.intrepidcs.com/) ValueCAN and NeoVI
-  */
- #define INTREPID_VID		0x093C
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1154,6 +1154,14 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE922_USBCFG5, 0xff),
+ 	  .driver_info = RSVD(0) | RSVD(1) | NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1050, 0xff),	/* Telit FN980 (rmnet) */
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1051, 0xff),	/* Telit FN980 (MBIM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1052, 0xff),	/* Telit FN980 (RNDIS) */
++	  .driver_info = NCTRL(2) | RSVD(3) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1053, 0xff),	/* Telit FN980 (ECM) */
++	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
 
 
