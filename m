@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86162DA109
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66B08DA164
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbfJPWSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44234 "EHLO mail.kernel.org"
+        id S2405071AbfJPWW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394976AbfJPVyX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:23 -0400
+        id S2394818AbfJPVxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:05 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D2FD21D7A;
-        Wed, 16 Oct 2019 21:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39EFA20872;
+        Wed, 16 Oct 2019 21:53:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262862;
-        bh=1eNzkQKB/omEwyVgtMMgoDNH1lBHiCVbElxjt1odP9Y=;
+        s=default; t=1571262785;
+        bh=z7e3b64ZxZUuiZOLYpXZAucDMCG1LD6KLGmUQ5zSqqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYbrk1fMQyVyuL6JJOVHzoB73d1WfTml+hYCm7fR6rquz9+SMFBU/LSP8TpIimeNB
-         MhJv7flGlsqM9g6+WDfNtfoEPmnMVx1TLtJyoVrSfIipe/4xhS7ptXBhuG6/IVU/Pd
-         V3GWP8i+3nxWg2f8wst7aySEO9SLQ6zAgyPh6h04=
+        b=TUNe/wgxdst/LLoscWWLkAAs56Zj+erdjHSIoxKpsTwV50v28U6xFM3mT8mu/lv9q
+         +iYSQlEL38teYFRV3Nu+uaPKCcmvg7DHex0wD9ZNq2AcdqnAP1oElNlVuU/QUL/3tp
+         iZtDA6nXFPe2A2vRhGN4KmQU2Mopm7QeydhdYXdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/92] perf stat: Fix a segmentation fault when using repeat forever
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 26/79] nl80211: validate beacon head
 Date:   Wed, 16 Oct 2019 14:50:01 -0700
-Message-Id: <20191016214822.754625413@linuxfoundation.org>
+Message-Id: <20191016214754.046642225@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,108 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 443f2d5ba13d65ccfd879460f77941875159d154 ]
+commit f88eb7c0d002a67ef31aeb7850b42ff69abc46dc upstream.
 
-Observe a segmentation fault when 'perf stat' is asked to repeat forever
-with the interval option.
+We currently don't validate the beacon head, i.e. the header,
+fixed part and elements that are to go in front of the TIM
+element. This means that the variable elements there can be
+malformed, e.g. have a length exceeding the buffer size, but
+most downstream code from this assumes that this has already
+been checked.
 
-Without fix:
+Add the necessary checks to the netlink policy.
 
-  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
-  #           time             counts unit events
-       5.000211692  3,13,89,82,34,157      cycles
-      10.000380119  1,53,98,52,22,294      cycles
-      10.040467280       17,16,79,265      cycles
-  Segmentation fault
+Cc: stable@vger.kernel.org
+Fixes: ed1b6cc7f80f ("cfg80211/nl80211: add beacon settings")
+Link: https://lore.kernel.org/r/1569009255-I7ac7fbe9436e9d8733439eab8acbbd35e55c74ef@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This problem was only observed when we use forever option aka -r 0 and
-works with limited repeats. Calling print_counter with ts being set to
-NULL, is not a correct option when interval is set. Hence avoid
-print_counter(NULL,..)  if interval is set.
-
-With fix:
-
-  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
-   #           time             counts unit events
-       5.019866622  3,15,14,43,08,697      cycles
-      10.039865756  3,15,16,31,95,261      cycles
-      10.059950628     1,26,05,47,158      cycles
-       5.009902655  3,14,52,62,33,932      cycles
-      10.019880228  3,14,52,22,89,154      cycles
-      10.030543876       66,90,18,333      cycles
-       5.009848281  3,14,51,98,25,437      cycles
-      10.029854402  3,15,14,93,04,918      cycles
-       5.009834177  3,14,51,95,92,316      cycles
-
-Committer notes:
-
-Did the 'git bisect' to find the cset introducing the problem to add the
-Fixes tag below, and at that time the problem reproduced as:
-
-  (gdb) run stat -r0 -I500 sleep 1
-  <SNIP>
-  Program received signal SIGSEGV, Segmentation fault.
-  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
-  866		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, csv_sep);
-  (gdb) bt
-  #0  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
-  #1  0x000000000041860a in print_counters (ts=ts@entry=0x0, argc=argc@entry=2, argv=argv@entry=0x7fffffffd640) at builtin-stat.c:938
-  #2  0x0000000000419a7f in cmd_stat (argc=2, argv=0x7fffffffd640, prefix=<optimized out>) at builtin-stat.c:1411
-  #3  0x000000000045c65a in run_builtin (p=p@entry=0x6291b8 <commands+216>, argc=argc@entry=5, argv=argv@entry=0x7fffffffd640) at perf.c:370
-  #4  0x000000000045c893 in handle_internal_command (argc=5, argv=0x7fffffffd640) at perf.c:429
-  #5  0x000000000045c8f1 in run_argv (argcp=argcp@entry=0x7fffffffd4ac, argv=argv@entry=0x7fffffffd4a0) at perf.c:473
-  #6  0x000000000045cac9 in main (argc=<optimized out>, argv=<optimized out>) at perf.c:588
-  (gdb)
-
-Mostly the same as just before this patch:
-
-  Program received signal SIGSEGV, Segmentation fault.
-  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
-  964		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, config->csv_sep);
-  (gdb) bt
-  #0  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
-  #1  0x0000000000588047 in perf_evlist__print_counters (evlist=0xbc9b90, config=0xa1f2a0 <stat_config>, _target=0xa1f0c0 <target>, ts=0x0, argc=2, argv=0x7fffffffd670)
-      at util/stat-display.c:1172
-  #2  0x000000000045390f in print_counters (ts=0x0, argc=2, argv=0x7fffffffd670) at builtin-stat.c:656
-  #3  0x0000000000456bb5 in cmd_stat (argc=2, argv=0x7fffffffd670) at builtin-stat.c:1960
-  #4  0x00000000004dd2e0 in run_builtin (p=0xa30e00 <commands+288>, argc=5, argv=0x7fffffffd670) at perf.c:310
-  #5  0x00000000004dd54d in handle_internal_command (argc=5, argv=0x7fffffffd670) at perf.c:362
-  #6  0x00000000004dd694 in run_argv (argcp=0x7fffffffd4cc, argv=0x7fffffffd4c0) at perf.c:406
-  #7  0x00000000004dda11 in main (argc=5, argv=0x7fffffffd670) at perf.c:531
-  (gdb)
-
-Fixes: d4f63a4741a8 ("perf stat: Introduce print_counters function")
-Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: stable@vger.kernel.org # v4.2+
-Link: http://lore.kernel.org/lkml/20190904094738.9558-3-srikar@linux.vnet.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-stat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/nl80211.c |   35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
-index 43d5f35e90747..e55dbceadad6c 100644
---- a/tools/perf/builtin-stat.c
-+++ b/tools/perf/builtin-stat.c
-@@ -2565,7 +2565,7 @@ int cmd_stat(int argc, const char **argv, const char *prefix __maybe_unused)
- 				run_idx + 1);
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -210,6 +210,36 @@ cfg80211_get_dev_from_info(struct net *n
+ 	return __cfg80211_rdev_from_attrs(netns, info->attrs);
+ }
  
- 		status = run_perf_stat(argc, argv);
--		if (forever && status != -1) {
-+		if (forever && status != -1 && !interval) {
- 			print_counters(NULL, argc, argv);
- 			perf_stat__reset_stats();
- 		}
--- 
-2.20.1
-
++static int validate_beacon_head(const struct nlattr *attr)
++{
++	const u8 *data = nla_data(attr);
++	unsigned int len = nla_len(attr);
++	const struct element *elem;
++	const struct ieee80211_mgmt *mgmt = (void *)data;
++	unsigned int fixedlen = offsetof(struct ieee80211_mgmt,
++					 u.beacon.variable);
++
++	if (len < fixedlen)
++		goto err;
++
++	if (ieee80211_hdrlen(mgmt->frame_control) !=
++	    offsetof(struct ieee80211_mgmt, u.beacon))
++		goto err;
++
++	data += fixedlen;
++	len -= fixedlen;
++
++	for_each_element(elem, data, len) {
++		/* nothing */
++	}
++
++	if (for_each_element_completed(elem, data, len))
++		return 0;
++
++err:
++	return -EINVAL;
++}
++
+ /* policy for the attributes */
+ static const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_WIPHY] = { .type = NLA_U32 },
+@@ -3214,6 +3244,11 @@ static int nl80211_parse_beacon(struct n
+ 	memset(bcn, 0, sizeof(*bcn));
+ 
+ 	if (attrs[NL80211_ATTR_BEACON_HEAD]) {
++		int ret = validate_beacon_head(attrs[NL80211_ATTR_BEACON_HEAD]);
++
++		if (ret)
++			return ret;
++
+ 		bcn->head = nla_data(attrs[NL80211_ATTR_BEACON_HEAD]);
+ 		bcn->head_len = nla_len(attrs[NL80211_ATTR_BEACON_HEAD]);
+ 		if (!bcn->head_len)
 
 
