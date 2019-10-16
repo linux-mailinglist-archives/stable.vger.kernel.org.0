@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB83D9FFF
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2689BDA168
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407007AbfJPWGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51932 "EHLO mail.kernel.org"
+        id S2394805AbfJPVxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438143AbfJPV6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:23 -0400
+        id S2394799AbfJPVxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:03 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86F8920872;
-        Wed, 16 Oct 2019 21:58:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6591521A49;
+        Wed, 16 Oct 2019 21:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263102;
-        bh=ONS2EygcQU152NOuMAZMhNEtFoUo4KLiKujogzhpwkw=;
+        s=default; t=1571262782;
+        bh=0TygEq0obD9yYFXBpeYVPtjciUgfWD7m0vV61+y6fIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGsKmEtTHI6/7yobLzpUo5XPhGb9lFjUwTyPfDYuhoFM80QYVo+VwaAD1DA98ckuw
-         iW8g7RJtHESJ+fAxN775L59SRdlCrRcAy+yoAtiwra1Wlxqp9bWv8ZTExlKzxdqFRD
-         /La7iI81he6mvnuecWpPLxfvP88l4QCzQBgjobuo=
+        b=G1D17U8myz+1/o2Am/Ol4aaMCx5AvJiSBqMFtjPLZ7IdR1+WJt1oN34ja4sgjQLVw
+         u4vQsJQro1LcuoLnPO170/4nHgeYXO77kRwk8Tk/adX7VzRWt77zu88xhH4xse8hPQ
+         pU0EC6GO79nl81FsXhuvUMFJ3ZW+R6vrHVg9Hbr8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 006/112] USB: usb-skeleton: fix NULL-deref on disconnect
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>
+Subject: [PATCH 4.4 23/79] crypto: caam - fix concurrency issue in givencrypt descriptor
 Date:   Wed, 16 Oct 2019 14:49:58 -0700
-Message-Id: <20191016214845.594625051@linuxfoundation.org>
+Message-Id: <20191016214752.249557377@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Horia Geantă <horia.geanta@nxp.com>
 
-commit bed5ef230943863b9abf5eae226a20fad9a8ff71 upstream.
+commit 48f89d2a2920166c35b1c0b69917dbb0390ebec7 upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag and was setting it to NULL before making sure all
-completion handlers had run. This could lead to NULL-pointer
-dereferences in the dev_err() statements in the completion handlers
-which relies on said pointer.
+IV transfer from ofifo to class2 (set up at [29][30]) is not guaranteed
+to be scheduled before the data transfer from ofifo to external memory
+(set up at [38]:
 
-Fix this by using a dedicated disconnected flag.
+[29] 10FA0004           ld: ind-nfifo (len=4) imm
+[30] 81F00010               <nfifo_entry: ofifo->class2 type=msg len=16>
+[31] 14820004           ld: ccb2-datasz len=4 offs=0 imm
+[32] 00000010               data:0x00000010
+[33] 8210010D    operation: cls1-op aes cbc init-final enc
+[34] A8080B04         math: (seqin + math0)->vseqout len=4
+[35] 28000010    seqfifold: skip len=16
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[38] 69300000   seqfifostr: msg len=vseqoutsz
+[39] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
 
-Note that this is also addresses a NULL-pointer dereference at release()
-and a struct usb_interface reference leak introduced by a recent runtime
-PM fix, which depends on and should have been submitted together with
-this patch.
+If ofifo -> external memory transfer happens first, DECO will hang
+(issuing a Watchdog Timeout error, if WDOG is enabled) waiting for
+data availability in ofifo for the ofifo -> c2 ififo transfer.
 
-Fixes: 4212cd74ca6f ("USB: usb-skeleton.c: remove err() usage")
-Fixes: 5c290a5e42c3 ("USB: usb-skeleton: fix runtime PM after driver unbind")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009170944.30057-2-johan@kernel.org
+Make sure IV transfer happens first by waiting for all CAAM internal
+transfers to end before starting payload transfer.
+
+New descriptor with jump command inserted at [37]:
+
+[..]
+[36] A8080A04         math: (seqin + math0)->vseqin len=4
+[37] A1000401         jump: jsl1 all-match[!nfifopend] offset=[01] local->[38]
+[38] 2F1E0000    seqfifold: both msg1->2-last2-last1 len=vseqinsz
+[39] 69300000   seqfifostr: msg len=vseqoutsz
+[40] 5C20000C      seqstr: ccb2 ctx len=12 offs=0
+
+[Note: the issue is present in the descriptor from the very beginning
+(cf. Fixes tag). However I've marked it v4.19+ since it's the oldest
+maintained kernel that the patch applies clean against.]
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Fixes: 1acebad3d8db8 ("crypto: caam - faster aead implementation")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+[Horia: backport to v4.4, v4.9]
+Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/crypto/caam/caamalg.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -59,6 +59,7 @@ struct usb_skel {
- 	spinlock_t		err_lock;		/* lock for errors */
- 	struct kref		kref;
- 	struct mutex		io_mutex;		/* synchronize I/O with disconnect */
-+	unsigned long		disconnected:1;
- 	wait_queue_head_t	bulk_in_wait;		/* to wait for an ongoing read */
- };
- #define to_skel_dev(d) container_of(d, struct usb_skel, kref)
-@@ -236,7 +237,7 @@ static ssize_t skel_read(struct file *fi
- 	if (rv < 0)
- 		return rv;
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -75,7 +75,7 @@
+ #define DESC_AEAD_BASE			(4 * CAAM_CMD_SZ)
+ #define DESC_AEAD_ENC_LEN		(DESC_AEAD_BASE + 11 * CAAM_CMD_SZ)
+ #define DESC_AEAD_DEC_LEN		(DESC_AEAD_BASE + 15 * CAAM_CMD_SZ)
+-#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 9 * CAAM_CMD_SZ)
++#define DESC_AEAD_GIVENC_LEN		(DESC_AEAD_ENC_LEN + 10 * CAAM_CMD_SZ)
  
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		rv = -ENODEV;
- 		goto exit;
- 	}
-@@ -418,7 +419,7 @@ static ssize_t skel_write(struct file *f
+ /* Note: Nonce is counted in enckeylen */
+ #define DESC_AEAD_CTR_RFC3686_LEN	(4 * CAAM_CMD_SZ)
+@@ -437,6 +437,7 @@ static int aead_set_sh_desc(struct crypt
+ 	u32 geniv, moveiv;
+ 	u32 ctx1_iv_off = 0;
+ 	u32 *desc;
++	u32 *wait_cmd;
+ 	const bool ctr_mode = ((ctx->class1_alg_type & OP_ALG_AAI_MASK) ==
+ 			       OP_ALG_AAI_CTR_MOD128);
+ 	const bool is_rfc3686 = alg->caam.rfc3686;
+@@ -702,6 +703,14 @@ copy_iv:
  
- 	/* this lock makes sure we don't submit URBs to gone devices */
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
-@@ -569,7 +570,7 @@ static void skel_disconnect(struct usb_i
- 
- 	/* prevent more I/O from starting */
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	usb_kill_anchored_urbs(&dev->submitted);
+ 	/* Will read cryptlen */
+ 	append_math_add(desc, VARSEQINLEN, SEQINLEN, REG0, CAAM_CMD_SZ);
++
++	/*
++	 * Wait for IV transfer (ofifo -> class2) to finish before starting
++	 * ciphertext transfer (ofifo -> external memory).
++	 */
++	wait_cmd = append_jump(desc, JUMP_JSL | JUMP_TEST_ALL | JUMP_COND_NIFP);
++	set_jump_tgt_here(desc, wait_cmd);
++
+ 	append_seq_fifo_load(desc, 0, FIFOLD_CLASS_BOTH | KEY_VLF |
+ 			     FIFOLD_TYPE_MSG1OUT2 | FIFOLD_TYPE_LASTBOTH);
+ 	append_seq_fifo_store(desc, 0, FIFOST_TYPE_MESSAGE_DATA | KEY_VLF);
 
 
