@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F01AD9FF9
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 720BCD9F74
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388721AbfJPWGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52158 "EHLO mail.kernel.org"
+        id S2437779AbfJPVzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438171AbfJPV6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:31 -0400
+        id S2437772AbfJPVzU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:20 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C360521928;
-        Wed, 16 Oct 2019 21:58:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0010121D7D;
+        Wed, 16 Oct 2019 21:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263110;
-        bh=sGsJKFhrpuqfRmJ6WDyPzNWLyv7nP8hm0PYNR2JdHW0=;
+        s=default; t=1571262920;
+        bh=91dLTxL1+yZrbkADc3p44ZP+AXwaxgJkAIS8hUcNT8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reQYFxEZCIMDMoXsWKSX3D+YJjxCrwYBwdb6u9OP/bccqDSKtVBcDxjNypJ2aQW2m
-         a58IiGEksQ0tM3jipEZjFzTNy1N762Oo5nSU5LAbMmaQkK0RFZHSEAlTUbAhTyMVCi
-         UkWrKU7niwltC+gBRIUy9lRD4KUHnITDDhkZyyow=
+        b=dNvDpF3/I82xcVe/we1KLBCXLLUgwf8FCMDpAL2jUtPvwPSwrtYnh0iltBrrh31lZ
+         KztgoaM8xrvk6laTx9PxSoHUNbj3YgVZ6lGlYWgZEGWDMGFIW25gXUauH/Dzle6fl1
+         GoS987ZfCcf7YL65wa0c9gK9MvKcDBKONUTHr17E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.3 034/112] usb: renesas_usbhs: gadget: Do not discard queues in usb_ep_set_{halt,wedge}()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 53/92] USB: iowarrior: fix use-after-free after driver unbind
 Date:   Wed, 16 Oct 2019 14:50:26 -0700
-Message-Id: <20191016214853.497255053@linuxfoundation.org>
+Message-Id: <20191016214837.632917418@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 1aae1394294cb71c6aa0bc904a94a7f2f1e75936 upstream.
+commit b5f8d46867ca233d773408ffbe691a8062ed718f upstream.
 
-The commit 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
-had added a usbhsg_pipe_disable() calling into
-__usbhsg_ep_set_halt_wedge() accidentally. But, this driver should
-not call the usbhsg_pipe_disable() because the function discards
-all queues. So, this patch removes it.
+Make sure to stop also the asynchronous write URBs on disconnect() to
+avoid use-after-free in the completion handler after driver unbind.
 
-Fixes: 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
-Cc: <stable@vger.kernel.org> # v3.1+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1569924633-322-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
+Cc: stable <stable@vger.kernel.org>	# 2.6.21: 51a2f077c44e ("USB: introduce usb_anchor")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009104846.5925-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/renesas_usbhs/mod_gadget.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/misc/iowarrior.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/renesas_usbhs/mod_gadget.c
-+++ b/drivers/usb/renesas_usbhs/mod_gadget.c
-@@ -723,8 +723,6 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
- 	unsigned long flags;
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -89,6 +89,7 @@ struct iowarrior {
+ 	char chip_serial[9];		/* the serial number string of the chip connected */
+ 	int report_size;		/* number of bytes in a report */
+ 	u16 product_id;
++	struct usb_anchor submitted;
+ };
  
--	usbhsg_pipe_disable(uep);
--
- 	dev_dbg(dev, "set halt %d (pipe %d)\n",
- 		halt, usbhs_pipe_number(pipe));
+ /*--------------*/
+@@ -435,11 +436,13 @@ static ssize_t iowarrior_write(struct fi
+ 			retval = -EFAULT;
+ 			goto error;
+ 		}
++		usb_anchor_urb(int_out_urb, &dev->submitted);
+ 		retval = usb_submit_urb(int_out_urb, GFP_KERNEL);
+ 		if (retval) {
+ 			dev_dbg(&dev->interface->dev,
+ 				"submit error %d for urb nr.%d\n",
+ 				retval, atomic_read(&dev->write_busy));
++			usb_unanchor_urb(int_out_urb);
+ 			goto error;
+ 		}
+ 		/* submit was ok */
+@@ -782,6 +785,8 @@ static int iowarrior_probe(struct usb_in
+ 	iface_desc = interface->cur_altsetting;
+ 	dev->product_id = le16_to_cpu(udev->descriptor.idProduct);
  
++	init_usb_anchor(&dev->submitted);
++
+ 	/* set up the endpoint information */
+ 	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
+ 		endpoint = &iface_desc->endpoint[i].desc;
+@@ -905,6 +910,7 @@ static void iowarrior_disconnect(struct
+ 		   Deleting the device is postponed until close() was called.
+ 		 */
+ 		usb_kill_urb(dev->int_in_urb);
++		usb_kill_anchored_urbs(&dev->submitted);
+ 		wake_up_interruptible(&dev->read_wait);
+ 		wake_up_interruptible(&dev->write_wait);
+ 		mutex_unlock(&dev->mutex);
 
 
