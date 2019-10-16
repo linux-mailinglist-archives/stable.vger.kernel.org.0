@@ -2,84 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A60D9937
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 20:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 329D0D993B
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 20:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391065AbfJPSad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 14:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60046 "EHLO mail.kernel.org"
+        id S2394253AbfJPSb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 14:31:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390895AbfJPSac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 14:30:32 -0400
+        id S2391082AbfJPSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 14:31:26 -0400
 Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EA51218DE;
-        Wed, 16 Oct 2019 18:30:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6BFE21D7A;
+        Wed, 16 Oct 2019 18:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571250632;
-        bh=YUlJQf0q4MGsg0ffIebPtBuNdy0JVjUzZ2aGCptF0K4=;
+        s=default; t=1571250685;
+        bh=2wAyGU0cUCFqc/8Sq42nh9uu/5+uzjYvLgMet1RoezY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xvc9zM+ubcObecxlfk5icYjHF6LLmgLlDLGVbaKMmFMMqOJ0Hw7/qpsiqFGtLuH57
-         fDKzJPozfQTkV+yFhjU5FpeH6wFe+DRmCi61olJom9W/tUTVmuWunfhxjC4PiAwW6q
-         WnRK6/uJNmIk3Z5TVZiBi6oznIzLHMTeaIGdcPdA=
-Date:   Wed, 16 Oct 2019 11:30:27 -0700
+        b=znZ2ibZLzc9MrZ18ZkPUt9B1GkhgYfZs48gTIYNPKAhAJj+ur1wnb2WgjiTvyD7rE
+         /VJ1ImpjowBfY0Yy0lbF6tGBpvspvNwQTnIQUI/StDFOYY+4cb2Pgx1n3dlW6CKi2T
+         Lz1SOiwZwIAybVdgHpd15pwIQMy6k5tTIYdf2uEQ=
+Date:   Wed, 16 Oct 2019 11:31:21 -0700
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ajay Kaher <akaher@vmware.com>, Mao Wenan <maowenan@huawei.com>
-Cc:     davem@davemloft.net, kuznet@ms2.inr.ac.ru, jmorris@namei.org,
-        yoshfuji@linux-ipv6.org, kaber@trash.net, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
-        srinidhir@vmware.com, bvikas@vmware.com, anishs@vmware.com,
-        vsirnapalli@vmware.com, srostedt@vmware.com,
-        Mao Wenan <maowenan@huawei.com>
-Subject: Re: [PATCH 4.9.y] Revert "net: sit: fix memory leak in
- sit_init_net()"
-Message-ID: <20191016183027.GC801860@kroah.com>
-References: <1571216634-44834-1-git-send-email-akaher@vmware.com>
+To:     Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [stable 4.19][PATCH 1/4] ARM: dts: am4372: Set memory bandwidth
+ limit for DISPC
+Message-ID: <20191016183121.GD801860@kroah.com>
+References: <20191015065937.23169-1-mathieu.poirier@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1571216634-44834-1-git-send-email-akaher@vmware.com>
+In-Reply-To: <20191015065937.23169-1-mathieu.poirier@linaro.org>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 16, 2019 at 02:33:54PM +0530, Ajay Kaher wrote:
-> This reverts commit 375d6d454a95ebacb9c6eb0b715da05a4458ffef which is
-> commit 07f12b26e21ab359261bf75cfcb424fdc7daeb6d upstream.
+On Tue, Oct 15, 2019 at 12:59:34AM -0600, Mathieu Poirier wrote:
+> From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 > 
-> Unnecessarily calling free_netdev() from sit_init_net().
-> ipip6_dev_free() of 4.9.y called free_netdev(), so no need
-> to call again after ipip6_dev_free().
+> commit f90ec6cdf674248dcad85bf9af6e064bf472b841 upstream
 > 
-> Cc: Mao Wenan <maowenan@huawei.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Ajay Kaher <akaher@vmware.com>
+> Set memory bandwidth limit to filter out resolutions above 720p@60Hz to
+> avoid underflow errors due to the bandwidth needs of higher resolutions.
+> 
+> am43xx can not provide enough bandwidth to DISPC to correctly handle
+> 'high' resolutions.
+> 
+> Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> Cc: stable <stable@vger.kernel.org> # 4.19
+> Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 > ---
->  net/ipv6/sit.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-> index 47ca2a2..16eba7b 100644
-> --- a/net/ipv6/sit.c
-> +++ b/net/ipv6/sit.c
-> @@ -1856,7 +1856,6 @@ static int __net_init sit_init_net(struct net *net)
->  
->  err_reg_dev:
->  	ipip6_dev_free(sitn->fb_tunnel_dev);
-> -	free_netdev(sitn->fb_tunnel_dev);
->  err_alloc_dev:
->  	return err;
->  }
-> -- 
-> 2.7.4
-> 
+>  arch/arm/boot/dts/am4372.dtsi | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Mao, are you ok with this change?
+What about 5.3?  Is this ok there?
 
 thanks,
 
