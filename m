@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E70CDA097
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297A6D9F71
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391570AbfJPWNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:13:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47418 "EHLO mail.kernel.org"
+        id S2437756AbfJPVzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437912AbfJPV4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:07 -0400
+        id S2437741AbfJPVzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:16 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7286221925;
-        Wed, 16 Oct 2019 21:56:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81A8E20872;
+        Wed, 16 Oct 2019 21:55:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262966;
-        bh=PmMXG0Rjttli7NwOYnslNIp6s5sFnaoTILcf/WVlRNM=;
+        s=default; t=1571262915;
+        bh=AyP47DE0aOW3YdRHBv28szmli6vQ7mQ8OQ0KpvCpmzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbODp3uNRcOUy95xqqBUIqlQbA5FO5Y+vtKb3vdcUULIz0gXpGeglNy/H8hxQNPVx
-         M/ta0nLA8hxLere08thNLLGFohMuT2Bmc+KfFBUo4HGAQSzCgrOSispGS3y0Upzotr
-         hPjeDrdReLfITd78ylI5fegFje/Adx4gSJmOnmwE=
+        b=JWjoGo6w9S6bD0hWlToJfuq3v5pKMEfKo8LrpV+j8IcqotZzk7H2fMGRSjQVXE4oz
+         QrXXB2Im5dMIhOVLElqKUOWvglwrstebDhKc/WxAfgR5KKOuG77aViBcTfR7IN+lK3
+         vCqPFPSh8/FisV8p3E08hil4XlxbHMHFAGEG12xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.14 33/65] usb: renesas_usbhs: gadget: Fix usb_ep_set_{halt,wedge}() behavior
-Date:   Wed, 16 Oct 2019 14:50:47 -0700
-Message-Id: <20191016214826.713679994@linuxfoundation.org>
+        stable@vger.kernel.org, David Frey <dpfrey@gmail.com>,
+        Andreas Dannenberg <dannenberg@ti.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 75/92] iio: light: opt3001: fix mutex unlock race
+Date:   Wed, 16 Oct 2019 14:50:48 -0700
+Message-Id: <20191016214845.595508924@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,137 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: David Frey <dpfrey@gmail.com>
 
-commit 4d599cd3a097a85a5c68a2c82b9a48cddf9953ec upstream.
+commit 82f3015635249a8c8c45bac303fd84905066f04f upstream.
 
-According to usb_ep_set_halt()'s description,
-__usbhsg_ep_set_halt_wedge() should return -EAGAIN if the IN endpoint
-has any queue or data. Otherwise, this driver is possible to cause
-just STALL without sending a short packet data on g_mass_storage driver,
-and then a few resetting a device happens on a host side during
-a usb enumaration.
+When an end-of-conversion interrupt is received after performing a
+single-shot reading of the light sensor, the driver was waking up the
+result ready queue before checking opt->ok_to_ignore_lock to determine
+if it should unlock the mutex. The problem occurred in the case where
+the other thread woke up and changed the value of opt->ok_to_ignore_lock
+to false prior to the interrupt thread performing its read of the
+variable. In this case, the mutex would be unlocked twice.
 
-Fixes: 2f98382dcdfe ("usb: renesas_usbhs: Add Renesas USBHS Gadget")
-Cc: <stable@vger.kernel.org> # v3.0+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1569924633-322-3-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: David Frey <dpfrey@gmail.com>
+Reviewed-by: Andreas Dannenberg <dannenberg@ti.com>
+Fixes: 94a9b7b1809f ("iio: light: add support for TI's opt3001 light sensor")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/renesas_usbhs/common.h     |    1 +
- drivers/usb/renesas_usbhs/fifo.c       |    2 +-
- drivers/usb/renesas_usbhs/fifo.h       |    1 +
- drivers/usb/renesas_usbhs/mod_gadget.c |   16 +++++++++++++++-
- drivers/usb/renesas_usbhs/pipe.c       |   15 +++++++++++++++
- drivers/usb/renesas_usbhs/pipe.h       |    1 +
- 6 files changed, 34 insertions(+), 2 deletions(-)
+ drivers/iio/light/opt3001.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/renesas_usbhs/common.h
-+++ b/drivers/usb/renesas_usbhs/common.h
-@@ -213,6 +213,7 @@ struct usbhs_priv;
- /* DCPCTR */
- #define BSTS		(1 << 15)	/* Buffer Status */
- #define SUREQ		(1 << 14)	/* Sending SETUP Token */
-+#define INBUFM		(1 << 14)	/* (PIPEnCTR) Transfer Buffer Monitor */
- #define CSSTS		(1 << 12)	/* CSSTS Status */
- #define	ACLRM		(1 << 9)	/* Buffer Auto-Clear Mode */
- #define SQCLR		(1 << 8)	/* Toggle Bit Clear */
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -98,7 +98,7 @@ static void __usbhsf_pkt_del(struct usbh
- 	list_del_init(&pkt->node);
+--- a/drivers/iio/light/opt3001.c
++++ b/drivers/iio/light/opt3001.c
+@@ -695,6 +695,7 @@ static irqreturn_t opt3001_irq(int irq,
+ 	struct iio_dev *iio = _iio;
+ 	struct opt3001 *opt = iio_priv(iio);
+ 	int ret;
++	bool wake_result_ready_queue = false;
+ 
+ 	if (!opt->ok_to_ignore_lock)
+ 		mutex_lock(&opt->lock);
+@@ -729,13 +730,16 @@ static irqreturn_t opt3001_irq(int irq,
+ 		}
+ 		opt->result = ret;
+ 		opt->result_ready = true;
+-		wake_up(&opt->result_ready_queue);
++		wake_result_ready_queue = true;
+ 	}
+ 
+ out:
+ 	if (!opt->ok_to_ignore_lock)
+ 		mutex_unlock(&opt->lock);
+ 
++	if (wake_result_ready_queue)
++		wake_up(&opt->result_ready_queue);
++
+ 	return IRQ_HANDLED;
  }
  
--static struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe)
-+struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe)
- {
- 	return list_first_entry_or_null(&pipe->list, struct usbhs_pkt, node);
- }
---- a/drivers/usb/renesas_usbhs/fifo.h
-+++ b/drivers/usb/renesas_usbhs/fifo.h
-@@ -106,5 +106,6 @@ void usbhs_pkt_push(struct usbhs_pipe *p
- 		    void *buf, int len, int zero, int sequence);
- struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt);
- void usbhs_pkt_start(struct usbhs_pipe *pipe);
-+struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe);
- 
- #endif /* RENESAS_USB_FIFO_H */
---- a/drivers/usb/renesas_usbhs/mod_gadget.c
-+++ b/drivers/usb/renesas_usbhs/mod_gadget.c
-@@ -729,6 +729,7 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	struct usbhs_priv *priv = usbhsg_gpriv_to_priv(gpriv);
- 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
- 	unsigned long flags;
-+	int ret = 0;
- 
- 	dev_dbg(dev, "set halt %d (pipe %d)\n",
- 		halt, usbhs_pipe_number(pipe));
-@@ -736,6 +737,18 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	/********************  spin lock ********************/
- 	usbhs_lock(priv, flags);
- 
-+	/*
-+	 * According to usb_ep_set_halt()'s description, this function should
-+	 * return -EAGAIN if the IN endpoint has any queue or data. Note
-+	 * that the usbhs_pipe_is_dir_in() returns false if the pipe is an
-+	 * IN endpoint in the gadget mode.
-+	 */
-+	if (!usbhs_pipe_is_dir_in(pipe) && (__usbhsf_pkt_get(pipe) ||
-+	    usbhs_pipe_contains_transmittable_data(pipe))) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+
- 	if (halt)
- 		usbhs_pipe_stall(pipe);
- 	else
-@@ -746,10 +759,11 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	else
- 		usbhsg_status_clr(gpriv, USBHSG_STATUS_WEDGE);
- 
-+out:
- 	usbhs_unlock(priv, flags);
- 	/********************  spin unlock ******************/
- 
--	return 0;
-+	return ret;
- }
- 
- static int usbhsg_ep_set_halt(struct usb_ep *ep, int value)
---- a/drivers/usb/renesas_usbhs/pipe.c
-+++ b/drivers/usb/renesas_usbhs/pipe.c
-@@ -286,6 +286,21 @@ int usbhs_pipe_is_accessible(struct usbh
- 	return -EBUSY;
- }
- 
-+bool usbhs_pipe_contains_transmittable_data(struct usbhs_pipe *pipe)
-+{
-+	u16 val;
-+
-+	/* Do not support for DCP pipe */
-+	if (usbhs_pipe_is_dcp(pipe))
-+		return false;
-+
-+	val = usbhsp_pipectrl_get(pipe);
-+	if (val & INBUFM)
-+		return true;
-+
-+	return false;
-+}
-+
- /*
-  *		PID ctrl
-  */
---- a/drivers/usb/renesas_usbhs/pipe.h
-+++ b/drivers/usb/renesas_usbhs/pipe.h
-@@ -90,6 +90,7 @@ void usbhs_pipe_init(struct usbhs_priv *
- int usbhs_pipe_get_maxpacket(struct usbhs_pipe *pipe);
- void usbhs_pipe_clear(struct usbhs_pipe *pipe);
- int usbhs_pipe_is_accessible(struct usbhs_pipe *pipe);
-+bool usbhs_pipe_contains_transmittable_data(struct usbhs_pipe *pipe);
- void usbhs_pipe_enable(struct usbhs_pipe *pipe);
- void usbhs_pipe_disable(struct usbhs_pipe *pipe);
- void usbhs_pipe_stall(struct usbhs_pipe *pipe);
 
 
