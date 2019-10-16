@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 207BDDA056
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDAD5DA131
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407198AbfJPWKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:10:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
+        id S2390778AbfJPWUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731942AbfJPV5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:11 -0400
+        id S2437587AbfJPVxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:46 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A3E6218DE;
-        Wed, 16 Oct 2019 21:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA36F218DE;
+        Wed, 16 Oct 2019 21:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263031;
-        bh=WDeyK/gnVgGiCKbYGFrLquxi+9u0fIVly8uBD/M3siM=;
+        s=default; t=1571262825;
+        bh=UlGrKMgXgRaTB19PpiO2d5UObMhWdYR3TmQmAa+QV6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JyFHbAT0E+TVcPVgkF3AGftK37FXcXpasWCWzpPge7ulGGyR/oWwfBM9p3IrVep5L
-         ZYbZFJ3RZryrH2nmIrgSVGdOTbmI25bCNmiQtvFjgyRc6IoSaFPd7U8NA9vRQWRui7
-         oEZl4cN4zvY8vs7CTnzXTRx0GdZFTz0UFVgr1jpk=
+        b=LZA3o9sQnyAHsXKdp05lLn1zwF3Sos5v2k8fcsq78l8EfePoq+V1+ZeKK8rxrsvU4
+         qhYdfJXTpXHen0bYGTiPesMBxO/Q7c3kNR2xsVk0XU1fxLax61xPJwe8bb9B/13rwU
+         ECzycDWt8x4cqVbVy2GJztztdNVDukT42NSUpCug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Cao <Jacky.Cao@sony.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.19 32/81] USB: dummy-hcd: fix power budget for SuperSpeed mode
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 68/79] CIFS: Gracefully handle QueryInfo errors during open
 Date:   Wed, 16 Oct 2019 14:50:43 -0700
-Message-Id: <20191016214833.500019884@linuxfoundation.org>
+Message-Id: <20191016214827.195807586@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacky.Cao@sony.com <Jacky.Cao@sony.com>
+From: Pavel Shilovsky <piastryyy@gmail.com>
 
-commit 2636d49b64671d3d90ecc4daf971b58df3956519 upstream.
+commit 30573a82fb179420b8aac30a3a3595aa96a93156 upstream.
 
-The power budget for SuperSpeed mode should be 900 mA
-according to USB specification, so set the power budget
-to 900mA for dummy_start_ss which is only used for
-SuperSpeed mode.
+Currently if the client identifies problems when processing
+metadata returned in CREATE response, the open handle is being
+leaked. This causes multiple problems like a file missing a lease
+break by that client which causes high latencies to other clients
+accessing the file. Another side-effect of this is that the file
+can't be deleted.
 
-If the max power consumption of SuperSpeed device is
-larger than 500 mA, insufficient available bus power
-error happens in usb_choose_configuration function
-when the device connects to dummy hcd.
+Fix this by closing the file after the client hits an error after
+the file was opened and the open descriptor wasn't returned to
+the user space. Also convert -ESTALE to -EOPENSTALE to allow
+the VFS to revalidate a dentry and retry the open.
 
-Signed-off-by: Jacky Cao <Jacky.Cao@sony.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/16EA1F625E922C43B00B9D82250220500871CDE5@APYOKXMS108.ap.sony.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/dummy_hcd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/cifs/file.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -48,6 +48,7 @@
- #define DRIVER_VERSION	"02 May 2005"
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -252,6 +252,12 @@ cifs_nt_open(char *full_path, struct ino
+ 		rc = cifs_get_inode_info(&inode, full_path, buf, inode->i_sb,
+ 					 xid, fid);
  
- #define POWER_BUDGET	500	/* in mA; use 8 for low-power port testing */
-+#define POWER_BUDGET_3	900	/* in mA */
- 
- static const char	driver_name[] = "dummy_hcd";
- static const char	driver_desc[] = "USB Host+Gadget Emulator";
-@@ -2446,7 +2447,7 @@ static int dummy_start_ss(struct dummy_h
- 	dum_hcd->rh_state = DUMMY_RH_RUNNING;
- 	dum_hcd->stream_en_ep = 0;
- 	INIT_LIST_HEAD(&dum_hcd->urbp_list);
--	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET;
-+	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET_3;
- 	dummy_hcd_to_hcd(dum_hcd)->state = HC_STATE_RUNNING;
- 	dummy_hcd_to_hcd(dum_hcd)->uses_new_polling = 1;
- #ifdef CONFIG_USB_OTG
++	if (rc) {
++		server->ops->close(xid, tcon, fid);
++		if (rc == -ESTALE)
++			rc = -EOPENSTALE;
++	}
++
+ out:
+ 	kfree(buf);
+ 	return rc;
 
 
