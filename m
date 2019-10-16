@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B17BAD9E1E
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90F75D9E20
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391672AbfJPV4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:56:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48308 "EHLO mail.kernel.org"
+        id S2395381AbfJPV4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391343AbfJPV4d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:33 -0400
+        id S2391375AbfJPV4e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:34 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A14F21D7F;
-        Wed, 16 Oct 2019 21:56:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DB6521925;
+        Wed, 16 Oct 2019 21:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262992;
-        bh=dlgjEkhjGzZAqHQIJgcRh8buxbVAOWa6jQVNzLlvn5w=;
+        s=default; t=1571262993;
+        bh=vsZnRybb1oRRLje+6QOYMh4wo/50seiDG8wLW8igT9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oj0OTlcTbCKAbOdnuZ568gHrhzDVrUc9yl8oeheMZjraHUNhr9OGQ0UjZjQbYIjOA
-         rHBa7Dsa7nX0sOF31cnPOGuYfCfRAvj9yc7XrjJ/TMQB9qTKm4XIhIpeTSJEkeZybf
-         wwZ/QBY/+Uz9ygVd5yhG31Q9axG+MNJJXEkmCNjc=
+        b=D6DNAJow1l5iHn5rrC8dPUXnuWZHBqt65UOCMPyym2NRIe3pC73P7XlywQQRrvONp
+         DrqkDLtonUMo/CbqtNlU/s/3DU3HWMdwSNxR1urJ0RCcmSUBJsXJmzRH3DJWQkz1vc
+         IKS0+RVHYNqx81zCJPx94ZaXZiyOQAESdVz76c3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 60/65] tracing/hwlat: Report total time spent in all NMIs during the sample
-Date:   Wed, 16 Oct 2019 14:51:14 -0700
-Message-Id: <20191016214839.553835136@linuxfoundation.org>
+Subject: [PATCH 4.14 61/65] tracing/hwlat: Dont ignore outer-loop duration when calculating max_latency
+Date:   Wed, 16 Oct 2019 14:51:15 -0700
+Message-Id: <20191016214839.826570224@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
 References: <20191016214756.457746573@linuxfoundation.org>
@@ -46,36 +46,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 
-commit 98dc19c11470ee6048aba723d77079ad2cda8a52 upstream.
+commit fc64e4ad80d4b72efce116f87b3174f0b7196f8e upstream.
 
-nmi_total_ts is supposed to record the total time spent in *all* NMIs
-that occur on the given CPU during the (active portion of the)
-sampling window. However, the code seems to be overwriting this
-variable for each NMI, thereby only recording the time spent in the
-most recent NMI. Fix it by accumulating the duration instead.
+max_latency is intended to record the maximum ever observed hardware
+latency, which may occur in either part of the loop (inner/outer). So
+we need to also consider the outer-loop sample when updating
+max_latency.
 
-Link: http://lkml.kernel.org/r/157073343544.17189.13911783866738671133.stgit@srivatsa-ubuntu
+Link: http://lkml.kernel.org/r/157073345463.17189.18124025522664682811.stgit@srivatsa-ubuntu
 
-Fixes: 7b2c86250122 ("tracing: Add NMI tracing in hwlat detector")
+Fixes: e7c15cd8a113 ("tracing: Added hardware latency tracer")
 Cc: stable@vger.kernel.org
 Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_hwlat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_hwlat.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 --- a/kernel/trace/trace_hwlat.c
 +++ b/kernel/trace/trace_hwlat.c
-@@ -152,7 +152,7 @@ void trace_hwlat_callback(bool enter)
- 		if (enter)
- 			nmi_ts_start = time_get();
- 		else
--			nmi_total_ts = time_get() - nmi_ts_start;
-+			nmi_total_ts += time_get() - nmi_ts_start;
+@@ -258,6 +258,8 @@ static int get_sample(void)
+ 		/* Keep a running maximum ever recorded hardware latency */
+ 		if (sample > tr->max_latency)
+ 			tr->max_latency = sample;
++		if (outer_sample > tr->max_latency)
++			tr->max_latency = outer_sample;
  	}
  
- 	if (enter)
+ out:
 
 
