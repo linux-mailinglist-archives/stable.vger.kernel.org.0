@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4196FDA0FA
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFF8DA06D
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389778AbfJPWR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44638 "EHLO mail.kernel.org"
+        id S2390650AbfJPWLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437713AbfJPVyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:38 -0400
+        id S2391393AbfJPV4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:48 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 282E421A4C;
-        Wed, 16 Oct 2019 21:54:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE92121D7A;
+        Wed, 16 Oct 2019 21:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262876;
-        bh=rfASr3IKubPje+T8VgFF+tS3jyFedjIoi1VksgpQP8w=;
+        s=default; t=1571263007;
+        bh=Y8vjRB1HKyf86CsVZF6f3sro0+PODNZ0qgmKF8X/scU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otcNFN26lcutWUbKy49Hfk2XodixNz3pKXwFU1Mf4usNPr0q9dBN6IrkzfwbfuAqH
-         mvT115tMwkBRIbE2tySGX5xtVK9ErN89u4rbdehX3Z0fn2VaqCoEP43X6jhL3EH4P+
-         R1Plq6zp4CP64/DrF+iSz4qhz0YuRifoWUwi07Ho=
+        b=uir8u3BjWw/QNbs5H2joU1FUxAZ5+iX0QzU56e59X3MrXBDEXFklY2mbCuUUqGw0m
+         RTgRuiiSFWfUicc20mRmwL7h/AcqckmsFWgKabTF7pP0Zm94yxGaeASpvPJXxSarlQ
+         8jyrZjaCsV0nuqNMNwamaYVJQoAaYUtTuxBk5wqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 39/92] USB: yurex: fix NULL-derefs on disconnect
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Xogium <contact@xogium.me>, Kees Cook <keescook@chromium.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Ingo Molnar <mingo@redhat.com>, Petr Mladek <pmladek@suse.com>,
+        Feng Tang <feng.tang@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 01/81] panic: ensure preemption is disabled during panic()
 Date:   Wed, 16 Oct 2019 14:50:12 -0700
-Message-Id: <20191016214829.782371694@linuxfoundation.org>
+Message-Id: <20191016214806.623585425@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,92 +50,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Will Deacon <will@kernel.org>
 
-commit aafb00a977cf7d81821f7c9d12e04c558c22dc3c upstream.
+commit 20bb759a66be52cf4a9ddd17fddaf509e11490cd upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag, but was setting it to NULL without making sure all
-code paths that used it were done with it.
+Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
+calling CPU in an infinite loop, but with interrupts and preemption
+enabled.  From this state, userspace can continue to be scheduled,
+despite the system being "dead" as far as the kernel is concerned.
 
-Before commit ef61eb43ada6 ("USB: yurex: Fix protection fault after
-device removal") this included the interrupt-in completion handler, but
-there are further accesses in dev_err and dev_dbg statements in
-yurex_write() and the driver-data destructor (sic!).
+This is easily reproducible on arm64 when booting with "nosmp" on the
+command line; a couple of shell scripts print out a periodic "Ping"
+message whilst another triggers a crash by writing to
+/proc/sysrq-trigger:
 
-Fix this by unconditionally stopping also the control URB at disconnect
-and by using a dedicated disconnected flag.
+  | sysrq: Trigger a crash
+  | Kernel panic - not syncing: sysrq triggered crash
+  | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
+  | Hardware name: linux,dummy-virt (DT)
+  | Call trace:
+  |  dump_backtrace+0x0/0x148
+  |  show_stack+0x14/0x20
+  |  dump_stack+0xa0/0xc4
+  |  panic+0x140/0x32c
+  |  sysrq_handle_reboot+0x0/0x20
+  |  __handle_sysrq+0x124/0x190
+  |  write_sysrq_trigger+0x64/0x88
+  |  proc_reg_write+0x60/0xa8
+  |  __vfs_write+0x18/0x40
+  |  vfs_write+0xa4/0x1b8
+  |  ksys_write+0x64/0xf0
+  |  __arm64_sys_write+0x14/0x20
+  |  el0_svc_common.constprop.0+0xb0/0x168
+  |  el0_svc_handler+0x28/0x78
+  |  el0_svc+0x8/0xc
+  | Kernel Offset: disabled
+  | CPU features: 0x0002,24002004
+  | Memory Limit: none
+  | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
+  |  Ping 2!
+  |  Ping 1!
+  |  Ping 1!
+  |  Ping 2!
 
-Note that we need to take a reference to the struct usb_interface to
-avoid a use-after-free in the destructor whenever the device was
-disconnected while the character device was still open.
+The issue can also be triggered on x86 kernels if CONFIG_SMP=n,
+otherwise local interrupts are disabled in 'smp_send_stop()'.
 
-Fixes: aadd6472d904 ("USB: yurex.c: remove dbg() usage")
-Fixes: 45714104b9e8 ("USB: yurex.c: remove err() usage")
-Cc: stable <stable@vger.kernel.org>     # 3.5: ef61eb43ada6
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-6-johan@kernel.org
+Disable preemption in 'panic()' before re-enabling interrupts.
+
+Link: http://lkml.kernel.org/r/20191002123538.22609-1-will@kernel.org
+Link: https://lore.kernel.org/r/BX1W47JXPMR8.58IYW53H6M5N@dragonstone
+Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Xogium <contact@xogium.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/yurex.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ kernel/panic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -64,6 +64,7 @@ struct usb_yurex {
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -149,6 +149,7 @@ void panic(const char *fmt, ...)
+ 	 * after setting panic_cpu) from invoking panic() again.
+ 	 */
+ 	local_irq_disable();
++	preempt_disable_notrace();
  
- 	struct kref		kref;
- 	struct mutex		io_mutex;
-+	unsigned long		disconnected:1;
- 	struct fasync_struct	*async_queue;
- 	wait_queue_head_t	waitq;
- 
-@@ -111,6 +112,7 @@ static void yurex_delete(struct kref *kr
- 				dev->int_buffer, dev->urb->transfer_dma);
- 		usb_free_urb(dev->urb);
- 	}
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev);
- }
-@@ -209,7 +211,7 @@ static int yurex_probe(struct usb_interf
- 	init_waitqueue_head(&dev->waitq);
- 
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	iface_desc = interface->cur_altsetting;
-@@ -326,8 +328,9 @@ static void yurex_disconnect(struct usb_
- 
- 	/* prevent more I/O from starting */
- 	usb_poison_urb(dev->urb);
-+	usb_poison_urb(dev->cntl_urb);
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	/* wakeup waiters */
-@@ -415,7 +418,7 @@ static ssize_t yurex_read(struct file *f
- 	dev = file->private_data;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		return -ENODEV;
- 	}
-@@ -450,7 +453,7 @@ static ssize_t yurex_write(struct file *
- 		goto error;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
+ 	/*
+ 	 * It's possible to come here directly from a panic-assertion and
 
 
