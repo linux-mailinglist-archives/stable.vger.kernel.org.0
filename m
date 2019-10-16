@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8EE4D9E88
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48AE8D9ED6
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438557AbfJPV7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:59:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
+        id S2389904AbfJPWCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438549AbfJPV7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:34 -0400
+        id S2438555AbfJPV7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:36 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29A9C21925;
-        Wed, 16 Oct 2019 21:59:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D20C218DE;
+        Wed, 16 Oct 2019 21:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263174;
-        bh=Ig9XCHHU2qVu85xjuwYavYgJ/lRzNKn2H+xGprt53V0=;
+        s=default; t=1571263175;
+        bh=ChMHuqbRpVaU38KyVFzayEkPa1F0rqMRKTeJBwbhPE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLbu5/N5bztuHTcU2k1Mq2xi21/jdM9aCJbWBozbt19StO2LuwzjpQZ2BmuTVZQZ4
-         MUc/NNLIiDhiNWsu+KAhtx3HPupUNGjkJLetCPMSbKKNjf/8IJwaf1IokighMC0zMX
-         SB/v0hEBcJ5z8hipWNxoBx+K9TNB7x6MsXAbUPCA=
+        b=Utfm8B3gejHh3j28hQya7XKgJrSZ8e5Y4jTm7JFOfBJJJP/vcXzCF/VF7vq7ndxiX
+         B/OIvTwTT8Hu/6kaKK8J3CqESZIcfOKGGOOh2lbSpE17jWlsM+D3Ow/hdgRCW0wD3D
+         l0c1MaJX+f+Gl1oH5CeMZIGG1NANIYKSUI4EvjxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 101/112] media: stkwebcam: fix runtime PM after driver unbind
-Date:   Wed, 16 Oct 2019 14:51:33 -0700
-Message-Id: <20191016214906.560739268@linuxfoundation.org>
+        stable@vger.kernel.org, Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>,
+        Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+        Dave Martin <Dave.Martin@arm.com>,
+        Julien Grall <julien.grall@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.3 102/112] arm64/sve: Fix wrong free for task->thread.sve_state
+Date:   Wed, 16 Oct 2019 14:51:34 -0700
+Message-Id: <20191016214906.694759736@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -44,43 +46,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
 
-commit 30045f2174aab7fb4db7a9cf902d0aa6c75856a7 upstream.
+commit 4585fc59c0e813188d6a4c5de1f6976fce461fc2 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+The system which has SVE feature crashed because of
+the memory pointed by task->thread.sve_state was destroyed
+by someone.
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
+That is because sve_state is freed while the forking the
+child process. The child process has the pointer of sve_state
+which is same as the parent's because the child's task_struct
+is copied from the parent's one. If the copy_process()
+fails as an error on somewhere, for example, copy_creds(),
+then the sve_state is freed even if the parent is alive.
+The flow is as follows.
 
-Note that runtime PM has never actually been enabled for this driver
-since the support_autosuspend flag in its usb_driver struct is not set.
+copy_process
+        p = dup_task_struct
+            => arch_dup_task_struct
+                *dst = *src;  // copy the entire region.
+:
+        retval = copy_creds
+        if (retval < 0)
+                goto bad_fork_free;
+:
+bad_fork_free:
+...
+        delayed_free_task(p);
+          => free_task
+             => arch_release_task_struct
+                => fpsimd_release_task
+                   => __sve_free
+                      => kfree(task->thread.sve_state);
+                         // free the parent's sve_state
 
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-5-johan@kernel.org
+Move child's sve_state = NULL and clearing TIF_SVE flag
+to arch_dup_task_struct() so that the child doesn't free the
+parent's one.
+There is no need to wait until copy_process() to clear TIF_SVE for
+dst, because the thread flags for dst are initialized already by
+copying the src task_struct.
+This change simplifies the code, so get rid of comments that are no
+longer needed.
+
+As a note, arm64 used to have thread_info on the stack. So it
+would not be possible to clear TIF_SVE until the stack is initialized.
+>From commit c02433dd6de3 ("arm64: split thread_info from task stack"),
+the thread_info is part of the task, so it should be valid to modify
+the flag from arch_dup_task_struct().
+
+Cc: stable@vger.kernel.org # 4.15.x-
+Fixes: bc0ee4760364 ("arm64/sve: Core task context handling")
+Signed-off-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Reported-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Suggested-by: Dave Martin <Dave.Martin@arm.com>
+Reviewed-by: Dave Martin <Dave.Martin@arm.com>
+Tested-by: Julien Grall <julien.grall@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/kernel/process.c |   32 +++++++++++++++-----------------
+ 1 file changed, 15 insertions(+), 17 deletions(-)
 
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -643,8 +643,7 @@ static int v4l_stk_release(struct file *
- 		dev->owner = NULL;
- 	}
- 
--	if (is_present(dev))
--		usb_autopm_put_interface(dev->interface);
-+	usb_autopm_put_interface(dev->interface);
- 	mutex_unlock(&dev->lock);
- 	return v4l2_fh_release(fp);
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -323,22 +323,27 @@ void arch_release_task_struct(struct tas
+ 	fpsimd_release_task(tsk);
  }
+ 
+-/*
+- * src and dst may temporarily have aliased sve_state after task_struct
+- * is copied.  We cannot fix this properly here, because src may have
+- * live SVE state and dst's thread_info may not exist yet, so tweaking
+- * either src's or dst's TIF_SVE is not safe.
+- *
+- * The unaliasing is done in copy_thread() instead.  This works because
+- * dst is not schedulable or traceable until both of these functions
+- * have been called.
+- */
+ int arch_dup_task_struct(struct task_struct *dst, struct task_struct *src)
+ {
+ 	if (current->mm)
+ 		fpsimd_preserve_current_state();
+ 	*dst = *src;
+ 
++	/* We rely on the above assignment to initialize dst's thread_flags: */
++	BUILD_BUG_ON(!IS_ENABLED(CONFIG_THREAD_INFO_IN_TASK));
++
++	/*
++	 * Detach src's sve_state (if any) from dst so that it does not
++	 * get erroneously used or freed prematurely.  dst's sve_state
++	 * will be allocated on demand later on if dst uses SVE.
++	 * For consistency, also clear TIF_SVE here: this could be done
++	 * later in copy_process(), but to avoid tripping up future
++	 * maintainers it is best not to leave TIF_SVE and sve_state in
++	 * an inconsistent state, even temporarily.
++	 */
++	dst->thread.sve_state = NULL;
++	clear_tsk_thread_flag(dst, TIF_SVE);
++
+ 	return 0;
+ }
+ 
+@@ -352,13 +357,6 @@ int copy_thread(unsigned long clone_flag
+ 	memset(&p->thread.cpu_context, 0, sizeof(struct cpu_context));
+ 
+ 	/*
+-	 * Unalias p->thread.sve_state (if any) from the parent task
+-	 * and disable discard SVE state for p:
+-	 */
+-	clear_tsk_thread_flag(p, TIF_SVE);
+-	p->thread.sve_state = NULL;
+-
+-	/*
+ 	 * In case p was allocated the same task_struct pointer as some
+ 	 * other recently-exited task, make sure p is disassociated from
+ 	 * any cpu that may have run that now-exited task recently.
 
 
