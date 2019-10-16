@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC0DDA00F
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32E3FD9F78
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389620AbfJPWHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:07:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S2437759AbfJPVzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728605AbfJPV6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:06 -0400
+        id S2437801AbfJPVzY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:24 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1C1921D7D;
-        Wed, 16 Oct 2019 21:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87DAC21A49;
+        Wed, 16 Oct 2019 21:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263086;
-        bh=noUnwI0h4iur9WPeS9k/FiH/dWk7jZpKt2XyMsjckl8=;
+        s=default; t=1571262923;
+        bh=EE8r8kOpU5cZ96Shez9OnNPtZeQUgC5DTwgzYVqlx8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERd13f7Qh6ve71C2CkXl/FG8eXc37w1uYZHfaatnkoFOyfDcjXXYsnBJc+bRaFNW4
-         0Dn6UD972M7nZRnWtompoAg8kTwaXuWSd/cpN3/zVrhgnpudvQdXzMf+Sdg4OXJ/jR
-         +qA/PBRPzlwNlttBh/6aAQ0cY+JyM7oxrVTAK66w=
+        b=en/BkUV/yw1ox3wElZSZb0x7Fj+P7GfxdnoLdw0x1C0S5KCtI2+6kZv/vP4gGR15E
+         Ddlyc5DFbX013WOY3YuqrE0CkiYVAS7CMjZDr3GbyDUpL2Zt9MlrutTULEBaQWg5QX
+         ur5BU61dr2hR3VaymUZw55phTvc+j8zGVQdUlIos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Navid Emamdoost <navid.emamdoost@gmail.com>
-Subject: [PATCH 4.19 44/81] staging: vt6655: Fix memory leak in vt6655_probe
-Date:   Wed, 16 Oct 2019 14:50:55 -0700
-Message-Id: <20191016214839.038246940@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 83/92] staging: fbtft: Stop using BL_CORE_DRIVER1
+Date:   Wed, 16 Oct 2019 14:50:56 -0700
+Message-Id: <20191016214847.581586403@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 80b15db5e1e9c3300de299b2d43d1aafb593e6ac upstream.
+[ Upstream commit 9adfe5c89be497bb8761a9f788297c258d535334 ]
 
-In vt6655_probe, if vnt_init() fails the cleanup code needs to be called
-like other error handling cases. The call to device_free_info() is
-added.
+Leaking driver internal tracking into the already massively confusing
+backlight power tracking is really confusing.
 
-Fixes: 67013f2c0e58 ("staging: vt6655: mac80211 conversion add main mac80211 functions")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191004200319.22394-1-navid.emamdoost@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Luckily we have already a drvdata structure, so fixing this is really
+easy.
 
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vt6655/device_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/fbtft/fbtft-core.c | 4 ++--
+ drivers/staging/fbtft/fbtft.h      | 1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/vt6655/device_main.c
-+++ b/drivers/staging/vt6655/device_main.c
-@@ -1755,8 +1755,10 @@ vt6655_probe(struct pci_dev *pcid, const
+diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
+index 587f68aa466c2..f4682ba44cd74 100644
+--- a/drivers/staging/fbtft/fbtft-core.c
++++ b/drivers/staging/fbtft/fbtft-core.c
+@@ -247,7 +247,7 @@ static int fbtft_request_gpios_dt(struct fbtft_par *par)
+ static int fbtft_backlight_update_status(struct backlight_device *bd)
+ {
+ 	struct fbtft_par *par = bl_get_data(bd);
+-	bool polarity = !!(bd->props.state & BL_CORE_DRIVER1);
++	bool polarity = par->polarity;
  
- 	priv->hw->max_signal = 100;
+ 	fbtft_par_dbg(DEBUG_BACKLIGHT, par,
+ 		"%s: polarity=%d, power=%d, fb_blank=%d\n",
+@@ -296,7 +296,7 @@ void fbtft_register_backlight(struct fbtft_par *par)
+ 	/* Assume backlight is off, get polarity from current state of pin */
+ 	bl_props.power = FB_BLANK_POWERDOWN;
+ 	if (!gpio_get_value(par->gpio.led[0]))
+-		bl_props.state |= BL_CORE_DRIVER1;
++		par->polarity = true;
  
--	if (vnt_init(priv))
-+	if (vnt_init(priv)) {
-+		device_free_info(priv);
- 		return -ENODEV;
-+	}
+ 	bd = backlight_device_register(dev_driver_string(par->info->device),
+ 				par->info->device, par, &fbtft_bl_ops, &bl_props);
+diff --git a/drivers/staging/fbtft/fbtft.h b/drivers/staging/fbtft/fbtft.h
+index 89c4b5b76ce69..0275319906748 100644
+--- a/drivers/staging/fbtft/fbtft.h
++++ b/drivers/staging/fbtft/fbtft.h
+@@ -241,6 +241,7 @@ struct fbtft_par {
+ 	ktime_t update_time;
+ 	bool bgr;
+ 	void *extra;
++	bool polarity;
+ };
  
- 	device_print_info(priv);
- 	pci_set_drvdata(pcid, priv);
+ #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__})/sizeof(int))
+-- 
+2.20.1
+
 
 
