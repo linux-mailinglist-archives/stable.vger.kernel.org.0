@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6989AD9ED4
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D632D9E8E
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438600AbfJPWCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54638 "EHLO mail.kernel.org"
+        id S2438583AbfJPV7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:59:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438572AbfJPV7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:38 -0400
+        id S2438579AbfJPV7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:39 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C63121D7E;
-        Wed, 16 Oct 2019 21:59:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 965AE218DE;
+        Wed, 16 Oct 2019 21:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263177;
-        bh=ISLKsaq/FqtvBASq4WxtSQF4p5xLaOZAWFmz4fOgPG8=;
+        s=default; t=1571263178;
+        bh=P8VP79BX6VLd11OdM13gm+XaraRpOZIAdjO17JtNup0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWLt+QWCftWkKUxJlwf8PzDyDyMWRCsD2Kb0PsxJ896U7vYC/U4vM5F/prRparhFF
-         b+nyY7HzMW+InWwkJOBCzp4xk2Qpb3smUgMkn2kVoLBe+o36Du9Q/jLsHVDyIuJ3Wj
-         5gX8gHfxnPqReDamIPezCG9DjENDgk2mZK557yoE=
+        b=1+d/7vvf2R2rF28fXFK5fbpwklrQ9xPxc1cL8JAAVbrBr78UlL2Ct3oMJr0QBBpm+
+         0rDD3d2jJxhoAzxJSrlFWiZG6rf4QA0mzcoRmMV8nO8hEXpxLuO57h/SPxXT+6AkWG
+         daI+eK+zBbkdZXDsDsvcbKvHjXJYA0/Ss9RO1Vgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.3 105/112] ftrace: Get a reference counter for the trace_array on filter files
-Date:   Wed, 16 Oct 2019 14:51:37 -0700
-Message-Id: <20191016214907.043942126@linuxfoundation.org>
+Subject: [PATCH 5.3 106/112] tracing: Get trace_array reference for available_tracers files
+Date:   Wed, 16 Oct 2019 14:51:38 -0700
+Message-Id: <20191016214907.120363545@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -45,101 +45,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 9ef16693aff8137faa21d16ffe65bb9832d24d71 upstream.
+commit 194c2c74f5532e62c218adeb8e2b683119503907 upstream.
 
-The ftrace set_ftrace_filter and set_ftrace_notrace files are specific for
-an instance now. They need to take a reference to the instance otherwise
-there could be a race between accessing the files and deleting the instance.
-
-It wasn't until the :mod: caching where these file operations started
-referencing the trace_array directly.
+As instances may have different tracers available, we need to look at the
+trace_array descriptor that shows the list of the available tracers for the
+instance. But there's a race between opening the file and an admin
+deleting the instance. The trace_array_get() needs to be called before
+accessing the trace_array.
 
 Cc: stable@vger.kernel.org
-Fixes: 673feb9d76ab3 ("ftrace: Add :mod: caching infrastructure to trace_array")
+Fixes: 607e2ea167e56 ("tracing: Set up infrastructure to allow tracers for instances")
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/ftrace.c |   27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ kernel/trace/trace.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -3540,21 +3540,22 @@ ftrace_regex_open(struct ftrace_ops *ops
- 	struct ftrace_hash *hash;
- 	struct list_head *mod_head;
- 	struct trace_array *tr = ops->private;
--	int ret = 0;
-+	int ret = -ENOMEM;
- 
- 	ftrace_ops_init(ops);
- 
- 	if (unlikely(ftrace_disabled))
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4355,9 +4355,14 @@ static int show_traces_open(struct inode
+ 	if (tracing_disabled)
  		return -ENODEV;
  
-+	if (tr && trace_array_get(tr) < 0)
++	if (trace_array_get(tr) < 0)
 +		return -ENODEV;
 +
- 	iter = kzalloc(sizeof(*iter), GFP_KERNEL);
- 	if (!iter)
--		return -ENOMEM;
-+		goto out;
- 
--	if (trace_parser_get_init(&iter->parser, FTRACE_BUFF_MAX)) {
--		kfree(iter);
--		return -ENOMEM;
--	}
-+	if (trace_parser_get_init(&iter->parser, FTRACE_BUFF_MAX))
-+		goto out;
- 
- 	iter->ops = ops;
- 	iter->flags = flag;
-@@ -3584,13 +3585,13 @@ ftrace_regex_open(struct ftrace_ops *ops
- 
- 		if (!iter->hash) {
- 			trace_parser_put(&iter->parser);
--			kfree(iter);
--			ret = -ENOMEM;
- 			goto out_unlock;
- 		}
- 	} else
- 		iter->hash = hash;
- 
-+	ret = 0;
-+
- 	if (file->f_mode & FMODE_READ) {
- 		iter->pg = ftrace_pages_start;
- 
-@@ -3602,7 +3603,6 @@ ftrace_regex_open(struct ftrace_ops *ops
- 			/* Failed */
- 			free_ftrace_hash(iter->hash);
- 			trace_parser_put(&iter->parser);
--			kfree(iter);
- 		}
- 	} else
- 		file->private_data = iter;
-@@ -3610,6 +3610,13 @@ ftrace_regex_open(struct ftrace_ops *ops
-  out_unlock:
- 	mutex_unlock(&ops->func_hash->regex_lock);
- 
-+ out:
+ 	ret = seq_open(file, &show_traces_seq_ops);
+-	if (ret)
 +	if (ret) {
-+		kfree(iter);
-+		if (tr)
-+			trace_array_put(tr);
++		trace_array_put(tr);
+ 		return ret;
 +	}
-+
- 	return ret;
+ 
+ 	m = file->private_data;
+ 	m->private = tr;
+@@ -4365,6 +4370,14 @@ static int show_traces_open(struct inode
+ 	return 0;
  }
  
-@@ -5037,6 +5044,8 @@ int ftrace_regex_release(struct inode *i
++static int show_traces_release(struct inode *inode, struct file *file)
++{
++	struct trace_array *tr = inode->i_private;
++
++	trace_array_put(tr);
++	return seq_release(inode, file);
++}
++
+ static ssize_t
+ tracing_write_stub(struct file *filp, const char __user *ubuf,
+ 		   size_t count, loff_t *ppos)
+@@ -4395,8 +4408,8 @@ static const struct file_operations trac
+ static const struct file_operations show_traces_fops = {
+ 	.open		= show_traces_open,
+ 	.read		= seq_read,
+-	.release	= seq_release,
+ 	.llseek		= seq_lseek,
++	.release	= show_traces_release,
+ };
  
- 	mutex_unlock(&iter->ops->func_hash->regex_lock);
- 	free_ftrace_hash(iter->hash);
-+	if (iter->tr)
-+		trace_array_put(iter->tr);
- 	kfree(iter);
- 
- 	return 0;
+ static ssize_t
 
 
