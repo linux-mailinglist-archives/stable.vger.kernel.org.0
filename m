@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C06EADA0F2
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99511DA127
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727327AbfJPWRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44810 "EHLO mail.kernel.org"
+        id S1725856AbfJPWUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395062AbfJPVyq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:46 -0400
+        id S2437617AbfJPVxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:55 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D5A621925;
-        Wed, 16 Oct 2019 21:54:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23D5121925;
+        Wed, 16 Oct 2019 21:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262885;
-        bh=Wt1tv7tNjiydPZE6IRAofNZlC4bnZvtw4Ze1u8coRqA=;
+        s=default; t=1571262835;
+        bh=02Z9UXwgMEO0Eqk3cS/X3mhPJ6TaJuHCY2mB028kJWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RP3bAEII3jfOI5LltwV4FdG/gGoeaDo0EbP+ns1/TvfRitewW61H89WxIZzZ4u6Vu
-         yeUjpPJCT4/JdzjD7bZPvMiL5PR1ZYGp+j4aS56i34JHk8WNafr5QmMxdvRvgpe5rw
-         60pkhFNnr9i1dhhyAuYy4iur5uP20V3EBH7JMqSM=
+        b=NzqcPwWL1ojfXiP85EiKMZjX6Nx/HwcQXwAa07FBrc3Q40Qj4dnXYc8Eh/xRoTP73
+         9dVkm+RMdk9npqIGe5Nf1DJgEI0vQ6RY15OcNPZ0ut1kg15KQHWvA80YhtGUAzGC7G
+         4oUZO/HgZiBZvQutnjpSJGvjBMbeVtrr5+9TphhU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 43/92] xhci: Prevent device initiated U1/U2 link pm if exit latency is too long
-Date:   Wed, 16 Oct 2019 14:50:16 -0700
-Message-Id: <20191016214833.342835213@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 42/79] USB: iowarrior: fix use-after-free on disconnect
+Date:   Wed, 16 Oct 2019 14:50:17 -0700
+Message-Id: <20191016214804.538019762@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit cd9d9491e835a845c1a98b8471f88d26285e0bb9 upstream.
+commit edc4746f253d907d048de680a621e121517f484b upstream.
 
-If host/hub initiated link pm is prevented by a driver flag we still must
-ensure that periodic endpoints have longer service intervals than link pm
-exit latency before allowing device initiated link pm.
+A recent fix addressing a deadlock on disconnect introduced a new bug
+by moving the present flag out of the critical section protected by the
+driver-data mutex. This could lead to a racing release() freeing the
+driver data before disconnect() is done with it.
 
-Fix this by continue walking and checking endpoint service interval if
-xhci_get_timeout_no_hub_lpm() returns anything else than USB3_LPM_DISABLED
+Due to insufficient locking a related use-after-free could be triggered
+also before the above mentioned commit. Specifically, the driver needs
+to hold the driver-data mutex also while checking the opened flag at
+disconnect().
 
-While at it fix the split line error message
-
-Tested-by: Jan Schmidt <jan@centricular.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-3-git-send-email-mathias.nyman@linux.intel.com
+Fixes: c468a8aa790e ("usb: iowarrior: fix deadlock on disconnect")
+Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
+Cc: stable <stable@vger.kernel.org>	# 2.6.21
+Reported-by: syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009104846.5925-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/usb/misc/iowarrior.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4626,10 +4626,12 @@ static u16 xhci_calculate_lpm_timeout(st
- 		if (intf->dev.driver) {
- 			driver = to_usb_driver(intf->dev.driver);
- 			if (driver && driver->disable_hub_initiated_lpm) {
--				dev_dbg(&udev->dev, "Hub-initiated %s disabled "
--						"at request of driver %s\n",
--						state_name, driver->name);
--				return xhci_get_timeout_no_hub_lpm(udev, state);
-+				dev_dbg(&udev->dev, "Hub-initiated %s disabled at request of driver %s\n",
-+					state_name, driver->name);
-+				timeout = xhci_get_timeout_no_hub_lpm(udev,
-+								      state);
-+				if (timeout == USB3_LPM_DISABLED)
-+					return timeout;
- 			}
- 		}
+--- a/drivers/usb/misc/iowarrior.c
++++ b/drivers/usb/misc/iowarrior.c
+@@ -898,8 +898,6 @@ static void iowarrior_disconnect(struct
+ 	dev = usb_get_intfdata(interface);
+ 	mutex_lock(&iowarrior_open_disc_lock);
+ 	usb_set_intfdata(interface, NULL);
+-	/* prevent device read, write and ioctl */
+-	dev->present = 0;
+ 
+ 	minor = dev->minor;
+ 	mutex_unlock(&iowarrior_open_disc_lock);
+@@ -910,8 +908,7 @@ static void iowarrior_disconnect(struct
+ 	mutex_lock(&dev->mutex);
+ 
+ 	/* prevent device read, write and ioctl */
+-
+-	mutex_unlock(&dev->mutex);
++	dev->present = 0;
+ 
+ 	if (dev->opened) {
+ 		/* There is a process that holds a filedescriptor to the device ,
+@@ -921,8 +918,10 @@ static void iowarrior_disconnect(struct
+ 		usb_kill_urb(dev->int_in_urb);
+ 		wake_up_interruptible(&dev->read_wait);
+ 		wake_up_interruptible(&dev->write_wait);
++		mutex_unlock(&dev->mutex);
+ 	} else {
+ 		/* no process is using the device, cleanup now */
++		mutex_unlock(&dev->mutex);
+ 		iowarrior_delete(dev);
+ 	}
  
 
 
