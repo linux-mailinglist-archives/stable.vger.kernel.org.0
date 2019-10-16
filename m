@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE576DA17A
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64133DA17B
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436993AbfJPVwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2436963AbfJPVwy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 17:52:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41276 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436896AbfJPVwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2436940AbfJPVwy (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 16 Oct 2019 17:52:54 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 943B420872;
-        Wed, 16 Oct 2019 21:52:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F82921925;
+        Wed, 16 Oct 2019 21:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262772;
-        bh=OBdtrm8pJtajj5WunNduBtqbGjzE7rTRWzKQSZySMEs=;
+        s=default; t=1571262773;
+        bh=AAKQlzbvTxzLTVQbz11o7zrn12sb1NA0ge1J0S9RcAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHM4ujKbIn6mUCLxrYbvnoa8XJG8W2rBsVanOR5eRr88b+SU4tTueVGSKq3hj3Qvj
-         8Q54bCV/nLxG9W+WKhcNFfO0tx2JHbxMOaEQShEwAmUrMdTAafmedS3zynJ5SNxaiI
-         q6YQSz0HnvUNUJvc24+xHcTdoAil8cVeeYX09G/o=
+        b=TJbVpTpucQW8CcoeeZLH07f8AbjVlheCvQNdxDpZOMDczdDbATDtyCfR25UBw1I/x
+         72NQKUo4cg+vn0AXOc91X6Hh7bNhKarZBExwTZUBwVbjCrW/w/WAJ0WNevpnVZhvZm
+         JHs+OQ61P1Uye24Z9bpyAMqn5tf2/X6712bM7Zjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@zoho.com.cn>,
+        Dominique Martinet <dominique.martinet@cea.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/79] fs: nfs: Fix possible null-pointer dereferences in encode_attrs()
-Date:   Wed, 16 Oct 2019 14:49:48 -0700
-Message-Id: <20191016214741.602462781@linuxfoundation.org>
+Subject: [PATCH 4.4 14/79] 9p: avoid attaching writeback_fid on mmap with type PRIVATE
+Date:   Wed, 16 Oct 2019 14:49:49 -0700
+Message-Id: <20191016214743.174898914@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
 References: <20191016214729.758892904@linuxfoundation.org>
@@ -44,44 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Chengguang Xu <cgxu519@zoho.com.cn>
 
-[ Upstream commit e2751463eaa6f9fec8fea80abbdc62dbc487b3c5 ]
+[ Upstream commit c87a37ebd40b889178664c2c09cc187334146292 ]
 
-In encode_attrs(), there is an if statement on line 1145 to check
-whether label is NULL:
-    if (label && (attrmask[2] & FATTR4_WORD2_SECURITY_LABEL))
+Currently on mmap cache policy, we always attach writeback_fid
+whether mmap type is SHARED or PRIVATE. However, in the use case
+of kata-container which combines 9p(Guest OS) with overlayfs(Host OS),
+this behavior will trigger overlayfs' copy-up when excute command
+inside container.
 
-When label is NULL, it is used on lines 1178-1181:
-    *p++ = cpu_to_be32(label->lfs);
-    *p++ = cpu_to_be32(label->pi);
-    *p++ = cpu_to_be32(label->len);
-    p = xdr_encode_opaque_fixed(p, label->label, label->len);
-
-To fix these bugs, label is checked before being used.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Link: http://lkml.kernel.org/r/20190820100325.10313-1-cgxu519@zoho.com.cn
+Signed-off-by: Chengguang Xu <cgxu519@zoho.com.cn>
+Signed-off-by: Dominique Martinet <dominique.martinet@cea.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4xdr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/9p/vfs_file.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/nfs4xdr.c b/fs/nfs/nfs4xdr.c
-index 1cb50bb898b01..15cd9db6d616d 100644
---- a/fs/nfs/nfs4xdr.c
-+++ b/fs/nfs/nfs4xdr.c
-@@ -1123,7 +1123,7 @@ static void encode_attrs(struct xdr_stream *xdr, const struct iattr *iap,
- 		} else
- 			*p++ = cpu_to_be32(NFS4_SET_TO_SERVER_TIME);
- 	}
--	if (bmval[2] & FATTR4_WORD2_SECURITY_LABEL) {
-+	if (label && (bmval[2] & FATTR4_WORD2_SECURITY_LABEL)) {
- 		*p++ = cpu_to_be32(label->lfs);
- 		*p++ = cpu_to_be32(label->pi);
- 		*p++ = cpu_to_be32(label->len);
+diff --git a/fs/9p/vfs_file.c b/fs/9p/vfs_file.c
+index 373cc50544e91..9dbf371471261 100644
+--- a/fs/9p/vfs_file.c
++++ b/fs/9p/vfs_file.c
+@@ -528,6 +528,7 @@ v9fs_mmap_file_mmap(struct file *filp, struct vm_area_struct *vma)
+ 	v9inode = V9FS_I(inode);
+ 	mutex_lock(&v9inode->v_mutex);
+ 	if (!v9inode->writeback_fid &&
++	    (vma->vm_flags & VM_SHARED) &&
+ 	    (vma->vm_flags & VM_WRITE)) {
+ 		/*
+ 		 * clone a fid and add it to writeback_fid
+@@ -629,6 +630,8 @@ static void v9fs_mmap_vm_close(struct vm_area_struct *vma)
+ 			(vma->vm_end - vma->vm_start - 1),
+ 	};
+ 
++	if (!(vma->vm_flags & VM_SHARED))
++		return;
+ 
+ 	p9_debug(P9_DEBUG_VFS, "9p VMA close, %p, flushing", vma);
+ 
 -- 
 2.20.1
 
