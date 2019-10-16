@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D0DBDA059
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 189EFDA12F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388514AbfJPWKa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:10:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49676 "EHLO mail.kernel.org"
+        id S1730524AbfJPWU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437963AbfJPV5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:13 -0400
+        id S2390778AbfJPVxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:48 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C248D21D7D;
-        Wed, 16 Oct 2019 21:57:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C579120872;
+        Wed, 16 Oct 2019 21:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263032;
-        bh=1V/MXXtzlL2Kw94mARl0j4IePYU5lmLrRUjQj9pGouE=;
+        s=default; t=1571262827;
+        bh=1jVPydfX6NfuF1vIHVw5QsO6jZeojRd9TjpsMwdNFwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWnP5xPCmrj4JT0fMINWb+DFGRrAjxIoDBGMfgS6TGJ3CBAVDtZGbE/Vi+Ql6obGq
-         ORW6AC+pCSu7vy7IS3CTsVmJlyPdGs1LIQBb0Ped4htPnC1xVFcd0UGEkbmHLEZhBB
-         L4lk8FKgSq/V3rR2DbVupVREsjkS7AniYnAjvtXU=
+        b=F9OoP8ReSsHKlTlF8oeaB4SSbr/jT31pu4GQl8rvxq7xjoQkyJ+50n+PO7TFuWx3z
+         rwweauVXFCWFzBEcQMlRiXrn0+LHDE/FDWXXrJ+X+GTShmgvOvAQQ/lNIZTmf5qRhx
+         TzVtuFdrrUi+2gc/GTI6J60CQo1KNFSPu8vs0Q1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.19 34/81] usb: renesas_usbhs: gadget: Fix usb_ep_set_{halt,wedge}() behavior
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 70/79] kernel/sysctl.c: do not override max_threads provided by userspace
 Date:   Wed, 16 Oct 2019 14:50:45 -0700
-Message-Id: <20191016214834.753707258@linuxfoundation.org>
+Message-Id: <20191016214828.569213016@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,137 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Michal Hocko <mhocko@suse.com>
 
-commit 4d599cd3a097a85a5c68a2c82b9a48cddf9953ec upstream.
+commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
 
-According to usb_ep_set_halt()'s description,
-__usbhsg_ep_set_halt_wedge() should return -EAGAIN if the IN endpoint
-has any queue or data. Otherwise, this driver is possible to cause
-just STALL without sending a short packet data on g_mass_storage driver,
-and then a few resetting a device happens on a host side during
-a usb enumaration.
+Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
+limits") because the patch is causing a regression to any workload which
+needs to override the auto-tuning of the limit provided by kernel.
 
-Fixes: 2f98382dcdfe ("usb: renesas_usbhs: Add Renesas USBHS Gadget")
-Cc: <stable@vger.kernel.org> # v3.0+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1569924633-322-3-git-send-email-yoshihiro.shimoda.uh@renesas.com
+set_max_threads is implementing a boot time guesstimate to provide a
+sensible limit of the concurrently running threads so that runaways will
+not deplete all the memory.  This is a good thing in general but there
+are workloads which might need to increase this limit for an application
+to run (reportedly WebSpher MQ is affected) and that is simply not
+possible after the mentioned change.  It is also very dubious to
+override an admin decision by an estimation that doesn't have any direct
+relation to correctness of the kernel operation.
+
+Fix this by dropping set_max_threads from sysctl_max_threads so any
+value is accepted as long as it fits into MAX_THREADS which is important
+to check because allowing more threads could break internal robust futex
+restriction.  While at it, do not use MIN_THREADS as the lower boundary
+because it is also only a heuristic for automatic estimation and admin
+might have a good reason to stop new threads to be created even when
+below this limit.
+
+This became more severe when we switched x86 from 4k to 8k kernel
+stacks.  Starting since 6538b8ea886e ("x86_64: expand kernel stack to
+16K") (3.16) we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned
+value.
+
+In the particular case
+
+  3.12
+  kernel.threads-max = 515561
+
+  4.4
+  kernel.threads-max = 200000
+
+Neither of the two values is really insane on 32GB machine.
+
+I am not sure we want/need to tune the max_thread value further.  If
+anything the tuning should be removed altogether if proven not useful in
+general.  But we definitely need a way to override this auto-tuning.
+
+Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
+Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/renesas_usbhs/common.h     |    1 +
- drivers/usb/renesas_usbhs/fifo.c       |    2 +-
- drivers/usb/renesas_usbhs/fifo.h       |    1 +
- drivers/usb/renesas_usbhs/mod_gadget.c |   16 +++++++++++++++-
- drivers/usb/renesas_usbhs/pipe.c       |   15 +++++++++++++++
- drivers/usb/renesas_usbhs/pipe.h       |    1 +
- 6 files changed, 34 insertions(+), 2 deletions(-)
+ kernel/fork.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/renesas_usbhs/common.h
-+++ b/drivers/usb/renesas_usbhs/common.h
-@@ -207,6 +207,7 @@ struct usbhs_priv;
- /* DCPCTR */
- #define BSTS		(1 << 15)	/* Buffer Status */
- #define SUREQ		(1 << 14)	/* Sending SETUP Token */
-+#define INBUFM		(1 << 14)	/* (PIPEnCTR) Transfer Buffer Monitor */
- #define CSSTS		(1 << 12)	/* CSSTS Status */
- #define	ACLRM		(1 << 9)	/* Buffer Auto-Clear Mode */
- #define SQCLR		(1 << 8)	/* Toggle Bit Clear */
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -89,7 +89,7 @@ static void __usbhsf_pkt_del(struct usbh
- 	list_del_init(&pkt->node);
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2152,7 +2152,7 @@ int sysctl_max_threads(struct ctl_table
+ 	struct ctl_table t;
+ 	int ret;
+ 	int threads = max_threads;
+-	int min = MIN_THREADS;
++	int min = 1;
+ 	int max = MAX_THREADS;
+ 
+ 	t = *table;
+@@ -2164,7 +2164,7 @@ int sysctl_max_threads(struct ctl_table
+ 	if (ret || !write)
+ 		return ret;
+ 
+-	set_max_threads(threads);
++	max_threads = threads;
+ 
+ 	return 0;
  }
- 
--static struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe)
-+struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe)
- {
- 	return list_first_entry_or_null(&pipe->list, struct usbhs_pkt, node);
- }
---- a/drivers/usb/renesas_usbhs/fifo.h
-+++ b/drivers/usb/renesas_usbhs/fifo.h
-@@ -97,5 +97,6 @@ void usbhs_pkt_push(struct usbhs_pipe *p
- 		    void *buf, int len, int zero, int sequence);
- struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt);
- void usbhs_pkt_start(struct usbhs_pipe *pipe);
-+struct usbhs_pkt *__usbhsf_pkt_get(struct usbhs_pipe *pipe);
- 
- #endif /* RENESAS_USB_FIFO_H */
---- a/drivers/usb/renesas_usbhs/mod_gadget.c
-+++ b/drivers/usb/renesas_usbhs/mod_gadget.c
-@@ -721,6 +721,7 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	struct usbhs_priv *priv = usbhsg_gpriv_to_priv(gpriv);
- 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
- 	unsigned long flags;
-+	int ret = 0;
- 
- 	dev_dbg(dev, "set halt %d (pipe %d)\n",
- 		halt, usbhs_pipe_number(pipe));
-@@ -728,6 +729,18 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	/********************  spin lock ********************/
- 	usbhs_lock(priv, flags);
- 
-+	/*
-+	 * According to usb_ep_set_halt()'s description, this function should
-+	 * return -EAGAIN if the IN endpoint has any queue or data. Note
-+	 * that the usbhs_pipe_is_dir_in() returns false if the pipe is an
-+	 * IN endpoint in the gadget mode.
-+	 */
-+	if (!usbhs_pipe_is_dir_in(pipe) && (__usbhsf_pkt_get(pipe) ||
-+	    usbhs_pipe_contains_transmittable_data(pipe))) {
-+		ret = -EAGAIN;
-+		goto out;
-+	}
-+
- 	if (halt)
- 		usbhs_pipe_stall(pipe);
- 	else
-@@ -738,10 +751,11 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	else
- 		usbhsg_status_clr(gpriv, USBHSG_STATUS_WEDGE);
- 
-+out:
- 	usbhs_unlock(priv, flags);
- 	/********************  spin unlock ******************/
- 
--	return 0;
-+	return ret;
- }
- 
- static int usbhsg_ep_set_halt(struct usb_ep *ep, int value)
---- a/drivers/usb/renesas_usbhs/pipe.c
-+++ b/drivers/usb/renesas_usbhs/pipe.c
-@@ -277,6 +277,21 @@ int usbhs_pipe_is_accessible(struct usbh
- 	return -EBUSY;
- }
- 
-+bool usbhs_pipe_contains_transmittable_data(struct usbhs_pipe *pipe)
-+{
-+	u16 val;
-+
-+	/* Do not support for DCP pipe */
-+	if (usbhs_pipe_is_dcp(pipe))
-+		return false;
-+
-+	val = usbhsp_pipectrl_get(pipe);
-+	if (val & INBUFM)
-+		return true;
-+
-+	return false;
-+}
-+
- /*
-  *		PID ctrl
-  */
---- a/drivers/usb/renesas_usbhs/pipe.h
-+++ b/drivers/usb/renesas_usbhs/pipe.h
-@@ -83,6 +83,7 @@ void usbhs_pipe_clear(struct usbhs_pipe
- void usbhs_pipe_clear_without_sequence(struct usbhs_pipe *pipe,
- 				       int needs_bfre, int bfre_enable);
- int usbhs_pipe_is_accessible(struct usbhs_pipe *pipe);
-+bool usbhs_pipe_contains_transmittable_data(struct usbhs_pipe *pipe);
- void usbhs_pipe_enable(struct usbhs_pipe *pipe);
- void usbhs_pipe_disable(struct usbhs_pipe *pipe);
- void usbhs_pipe_stall(struct usbhs_pipe *pipe);
 
 
