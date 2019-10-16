@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19110D9ECA
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E858D9E9A
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438857AbfJPWCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55026 "EHLO mail.kernel.org"
+        id S2438648AbfJPV7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:59:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438635AbfJPV7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:48 -0400
+        id S2438642AbfJPV7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:49 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCFC421D7A;
-        Wed, 16 Oct 2019 21:59:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA90A21D80;
+        Wed, 16 Oct 2019 21:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1571263188;
-        bh=fGjBvwbJAILEISJRXoOExesOnF4xhwaj6G/DEAlXi2k=;
+        bh=QBtzNwCVrJp4cN4CQJnMzOVGUpLADOg3yzZ8Zb1kjw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XR6j9bdRecxpj02RFpoNesOl89ePlX76DCnUKo8ylfdzk76U7fa6GAeqqFTcgLuf7
-         s4YBPtuWVwdLLLj2s+hpO2z6/e1MRtAcE+Tmp3IQGqd2YZw+oGy2J/68AddwJEnWJI
-         OR1czS1w3cnWGSBAccGuTrUJBXwliVfLVUTwlm1E=
+        b=GGZwQXdSVg0OaYgWMAt4W6+yLRyyQz++JlM4tA0aLuIFZYwJI48qkBK1ibw/td2lS
+         ANvdodFWQxFAl8uGYPRbOv9UHPzkE0p1fN1HRpBo7jPuTnZjjabrdpFyGvoq6CVZuE
+         YI7TDrsDNkn7ryvp57dBy3NNvqXaMUy0LvdXTD8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        stable@vger.kernel.org, Vitaly Wool <vitalywool@gmail.com>,
+        Markus Linnala <markus.linnala@gmail.com>,
+        Dan Streetman <ddstreet@ieee.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Henry Burns <henrywolfeburns@gmail.com>,
+        Shakeel Butt <shakeelb@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 075/112] kernel/sysctl.c: do not override max_threads provided by userspace
-Date:   Wed, 16 Oct 2019 14:51:07 -0700
-Message-Id: <20191016214904.052268850@linuxfoundation.org>
+Subject: [PATCH 5.3 076/112] mm/z3fold.c: claim page in the beginning of free
+Date:   Wed, 16 Oct 2019 14:51:08 -0700
+Message-Id: <20191016214904.150037983@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -46,83 +49,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Vitaly Wool <vitalywool@gmail.com>
 
-commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
+commit 5b6807de11445c05b537df8324f5d7ab1c2782f9 upstream.
 
-Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-limits") because the patch is causing a regression to any workload which
-needs to override the auto-tuning of the limit provided by kernel.
+There's a really hard to reproduce race in z3fold between z3fold_free()
+and z3fold_reclaim_page().  z3fold_reclaim_page() can claim the page
+after z3fold_free() has checked if the page was claimed and
+z3fold_free() will then schedule this page for compaction which may in
+turn lead to random page faults (since that page would have been
+reclaimed by then).
 
-set_max_threads is implementing a boot time guesstimate to provide a
-sensible limit of the concurrently running threads so that runaways will
-not deplete all the memory.  This is a good thing in general but there
-are workloads which might need to increase this limit for an application
-to run (reportedly WebSpher MQ is affected) and that is simply not
-possible after the mentioned change.  It is also very dubious to
-override an admin decision by an estimation that doesn't have any direct
-relation to correctness of the kernel operation.
+Fix that by claiming page in the beginning of z3fold_free() and not
+forgetting to clear the claim in the end.
 
-Fix this by dropping set_max_threads from sysctl_max_threads so any
-value is accepted as long as it fits into MAX_THREADS which is important
-to check because allowing more threads could break internal robust futex
-restriction.  While at it, do not use MIN_THREADS as the lower boundary
-because it is also only a heuristic for automatic estimation and admin
-might have a good reason to stop new threads to be created even when
-below this limit.
-
-This became more severe when we switched x86 from 4k to 8k kernel
-stacks.  Starting since 6538b8ea886e ("x86_64: expand kernel stack to
-16K") (3.16) we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned
-value.
-
-In the particular case
-
-  3.12
-  kernel.threads-max = 515561
-
-  4.4
-  kernel.threads-max = 200000
-
-Neither of the two values is really insane on 32GB machine.
-
-I am not sure we want/need to tune the max_thread value further.  If
-anything the tuning should be removed altogether if proven not useful in
-general.  But we definitely need a way to override this auto-tuning.
-
-Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
-Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
+[vitalywool@gmail.com: v2]
+  Link: http://lkml.kernel.org/r/20190928113456.152742cf@bigdell
+Link: http://lkml.kernel.org/r/20190926104844.4f0c6efa1366b8f5741eaba9@gmail.com
+Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
+Reported-by: Markus Linnala <markus.linnala@gmail.com>
+Cc: Dan Streetman <ddstreet@ieee.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Henry Burns <henrywolfeburns@gmail.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Markus Linnala <markus.linnala@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/fork.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/z3fold.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2939,7 +2939,7 @@ int sysctl_max_threads(struct ctl_table
- 	struct ctl_table t;
- 	int ret;
- 	int threads = max_threads;
--	int min = MIN_THREADS;
-+	int min = 1;
- 	int max = MAX_THREADS;
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -998,9 +998,11 @@ static void z3fold_free(struct z3fold_po
+ 	struct z3fold_header *zhdr;
+ 	struct page *page;
+ 	enum buddy bud;
++	bool page_claimed;
  
- 	t = *table;
-@@ -2951,7 +2951,7 @@ int sysctl_max_threads(struct ctl_table
- 	if (ret || !write)
- 		return ret;
+ 	zhdr = handle_to_z3fold_header(handle);
+ 	page = virt_to_page(zhdr);
++	page_claimed = test_and_set_bit(PAGE_CLAIMED, &page->private);
  
--	set_max_threads(threads);
-+	max_threads = threads;
- 
- 	return 0;
+ 	if (test_bit(PAGE_HEADLESS, &page->private)) {
+ 		/* if a headless page is under reclaim, just leave.
+@@ -1008,7 +1010,7 @@ static void z3fold_free(struct z3fold_po
+ 		 * has not been set before, we release this page
+ 		 * immediately so we don't care about its value any more.
+ 		 */
+-		if (!test_and_set_bit(PAGE_CLAIMED, &page->private)) {
++		if (!page_claimed) {
+ 			spin_lock(&pool->lock);
+ 			list_del(&page->lru);
+ 			spin_unlock(&pool->lock);
+@@ -1044,13 +1046,15 @@ static void z3fold_free(struct z3fold_po
+ 		atomic64_dec(&pool->pages_nr);
+ 		return;
+ 	}
+-	if (test_bit(PAGE_CLAIMED, &page->private)) {
++	if (page_claimed) {
++		/* the page has not been claimed by us */
+ 		z3fold_page_unlock(zhdr);
+ 		return;
+ 	}
+ 	if (unlikely(PageIsolated(page)) ||
+ 	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
+ 		z3fold_page_unlock(zhdr);
++		clear_bit(PAGE_CLAIMED, &page->private);
+ 		return;
+ 	}
+ 	if (zhdr->cpu < 0 || !cpu_online(zhdr->cpu)) {
+@@ -1060,10 +1064,12 @@ static void z3fold_free(struct z3fold_po
+ 		zhdr->cpu = -1;
+ 		kref_get(&zhdr->refcount);
+ 		do_compact_page(zhdr, true);
++		clear_bit(PAGE_CLAIMED, &page->private);
+ 		return;
+ 	}
+ 	kref_get(&zhdr->refcount);
+ 	queue_work_on(zhdr->cpu, pool->compact_wq, &zhdr->work);
++	clear_bit(PAGE_CLAIMED, &page->private);
+ 	z3fold_page_unlock(zhdr);
  }
+ 
 
 
