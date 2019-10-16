@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBC4D9F49
+	by mail.lfdr.de (Postfix) with ESMTP id C852BD9F4A
 	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394929AbfJPVx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2394907AbfJPVx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 17:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43326 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394921AbfJPVx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:56 -0400
+        id S2394931AbfJPVx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:57 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23BDC21928;
-        Wed, 16 Oct 2019 21:53:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11CF821925;
+        Wed, 16 Oct 2019 21:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262836;
-        bh=IWbkgjFM4VUyv7V+rPvBS5sdHICp3mRmFkMFPqIWsbY=;
+        s=default; t=1571262837;
+        bh=0pRgjxjxcQutTSf8K2BeQpWt/9VHQ1dqxNGgKWkcSAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdmdzEcWCJ4XMQNLDvtMiwd/jFOXeE20VYiP9NkZFvTaOq+qqY1mjprjcPCOayVSb
-         SX9zm+5JFVexraZrEUx4ub6DJ1oEew9F255yhfjJzYyxFzoGFOnulZnCdww7hJbh7h
-         sQSIXXleG711awHkst7xrWPtulgrlrml4J0KT0TU=
+        b=NSWR96jlQyJm2h6JnIy0YEj0+PuelceXGt5K3Y1YUVwWBfiWpHNL0JcEGIqCVM9RP
+         CNocMGsNBTh8YaUydBNvDB8ANfblYHoWIvQ4SkqtdbFbCBo9oqwt3dB/ExM4AksIjV
+         92S5EnY+lwhkwm3HggTEmBdqtrmfMqLlFM9aJFP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
-        Borislav Petkov <bp@suse.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "x86@kernel.org" <x86@kernel.org>,
-        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.4 78/79] x86/asm: Fix MWAITX C-state hint value
-Date:   Wed, 16 Oct 2019 14:50:53 -0700
-Message-Id: <20191016214834.350008615@linuxfoundation.org>
+        stable@vger.kernel.org, Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Ajay Kaher <akaher@vmware.com>
+Subject: [PATCH 4.4 79/79] xfs: clear sb->s_fs_info on mount failure
+Date:   Wed, 16 Oct 2019 14:50:54 -0700
+Message-Id: <20191016214834.705602853@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
 References: <20191016214729.758892904@linuxfoundation.org>
@@ -50,64 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-commit 454de1e7d970d6bc567686052329e4814842867c upstream.
+commit c9fbd7bbc23dbdd73364be4d045e5d3612cf6e82 upstream.
 
-As per "AMD64 Architecture Programmer's Manual Volume 3: General-Purpose
-and System Instructions", MWAITX EAX[7:4]+1 specifies the optional hint
-of the optimized C-state. For C0 state, EAX[7:4] should be set to 0xf.
+We recently had an oops reported on a 4.14 kernel in
+xfs_reclaim_inodes_count() where sb->s_fs_info pointed to garbage
+and so the m_perag_tree lookup walked into lala land.
 
-Currently, a value of 0xf is set for EAX[3:0] instead of EAX[7:4]. Fix
-this by changing MWAITX_DISABLE_CSTATES from 0xf to 0xf0.
+Essentially, the machine was under memory pressure when the mount
+was being run, xfs_fs_fill_super() failed after allocating the
+xfs_mount and attaching it to sb->s_fs_info. It then cleaned up and
+freed the xfs_mount, but the sb->s_fs_info field still pointed to
+the freed memory. Hence when the superblock shrinker then ran
+it fell off the bad pointer.
 
-This hasn't had any implications so far because setting reserved bits in
-EAX is simply ignored by the CPU.
+With the superblock shrinker problem fixed at teh VFS level, this
+stale s_fs_info pointer is still a problem - we use it
+unconditionally in ->put_super when the superblock is being torn
+down, and hence we can still trip over it after a ->fill_super
+call failure. Hence we need to clear s_fs_info if
+xfs-fs_fill_super() fails, and we need to check if it's valid in
+the places it can potentially be dereferenced after a ->fill_super
+failure.
 
- [ bp: Fixup comment in delay_mwaitx() and massage. ]
-
-Signed-off-by: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Frederic Weisbecker <frederic@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "x86@kernel.org" <x86@kernel.org>
-Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20191007190011.4859-1-Janakarajan.Natarajan@amd.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-Off-By: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/include/asm/mwait.h |    2 +-
- arch/x86/lib/delay.c         |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_super.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/x86/include/asm/mwait.h
-+++ b/arch/x86/include/asm/mwait.h
-@@ -19,7 +19,7 @@
- #define MWAIT_ECX_INTERRUPT_BREAK	0x1
- #define MWAITX_ECX_TIMER_ENABLE		BIT(1)
- #define MWAITX_MAX_LOOPS		((u32)-1)
--#define MWAITX_DISABLE_CSTATES		0xf
-+#define MWAITX_DISABLE_CSTATES		0xf0
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -1572,6 +1572,7 @@ xfs_fs_fill_super(
+  out_close_devices:
+ 	xfs_close_devices(mp);
+  out_free_fsname:
++	sb->s_fs_info = NULL;
+ 	xfs_free_fsname(mp);
+ 	kfree(mp);
+  out:
+@@ -1589,6 +1590,10 @@ xfs_fs_put_super(
+ {
+ 	struct xfs_mount	*mp = XFS_M(sb);
  
- static inline void __monitor(const void *eax, unsigned long ecx,
- 			     unsigned long edx)
---- a/arch/x86/lib/delay.c
-+++ b/arch/x86/lib/delay.c
-@@ -112,8 +112,8 @@ static void delay_mwaitx(unsigned long _
- 		__monitorx(this_cpu_ptr(&cpu_tss), 0, 0);
++	/* if ->fill_super failed, we have no mount to tear down */
++	if (!sb->s_fs_info)
++		return;
++
+ 	xfs_notice(mp, "Unmounting Filesystem");
+ 	xfs_filestream_unmount(mp);
+ 	xfs_unmountfs(mp);
+@@ -1598,6 +1603,8 @@ xfs_fs_put_super(
+ 	xfs_destroy_percpu_counters(mp);
+ 	xfs_destroy_mount_workqueues(mp);
+ 	xfs_close_devices(mp);
++
++	sb->s_fs_info = NULL;
+ 	xfs_free_fsname(mp);
+ 	kfree(mp);
+ }
+@@ -1617,6 +1624,9 @@ xfs_fs_nr_cached_objects(
+ 	struct super_block	*sb,
+ 	struct shrink_control	*sc)
+ {
++	/* Paranoia: catch incorrect calls during mount setup or teardown */
++	if (WARN_ON_ONCE(!sb->s_fs_info))
++		return 0;
+ 	return xfs_reclaim_inodes_count(XFS_M(sb));
+ }
  
- 		/*
--		 * AMD, like Intel, supports the EAX hint and EAX=0xf
--		 * means, do not enter any deep C-state and we use it
-+		 * AMD, like Intel's MWAIT version, supports the EAX hint and
-+		 * EAX=0xf0 means, do not enter any deep C-state and we use it
- 		 * here in delay() to minimize wakeup latency.
- 		 */
- 		__mwaitx(MWAITX_DISABLE_CSTATES, delay, MWAITX_ECX_TIMER_ENABLE);
 
 
