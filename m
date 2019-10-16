@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64143D9E00
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9434D9DCD
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395263AbfJPVze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46420 "EHLO mail.kernel.org"
+        id S2437546AbfJPVxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395256AbfJPVze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:34 -0400
+        id S2437541AbfJPVxf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:35 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EFF921D80;
-        Wed, 16 Oct 2019 21:55:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61C2021925;
+        Wed, 16 Oct 2019 21:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262933;
-        bh=1USnzs5RkjqPPvOVp/xfb/KzvPZ/0knfAUIbh0OAoNQ=;
+        s=default; t=1571262814;
+        bh=JTXGVBsdPTWFjOc1petNnhXeWZTP+Ad+9jQrGAdFgko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=glYAZ8t2S/F+ymjOfdXAG8MhUO9c9lJrvsT3uj0l5PP8R+wuzYi1UN8UDTvbbMDgP
-         Yk2i0OubkEZz6q7CHitHN0cCL5uTv7cJIjg4Gusz3Ja4FLwklJ4y+Fu1e6hrMSLXuL
-         1hdqSFo990FCLjcddgsklrreTUCyPA5lb2cerGIM=
+        b=fXIxeAcZuJf0MOuOHzFxgG6DiefktyP9EXbnhH/g9pdyYEdYq1ZPiOgm8b9a77tfL
+         8ROtrSR3L2Rj+85n9pMdSEIP4agPCtLlP53sa9tyAmaWj3PP3ZTzEtO0+FK14QiRCl
+         75+nC4588vUI9y7nItIB4hjxBtZLkGUcttXsvhsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 55/92] USB: chaoskey: fix use-after-free on release
-Date:   Wed, 16 Oct 2019 14:50:28 -0700
-Message-Id: <20191016214838.410672267@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.4 57/79] usb: renesas_usbhs: gadget: Do not discard queues in usb_ep_set_{halt,wedge}()
+Date:   Wed, 16 Oct 2019 14:50:32 -0700
+Message-Id: <20191016214819.867078789@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 93ddb1f56ae102f14f9e46a9a9c8017faa970003 upstream.
+commit 1aae1394294cb71c6aa0bc904a94a7f2f1e75936 upstream.
 
-The driver was accessing its struct usb_interface in its release()
-callback without holding a reference. This would lead to a
-use-after-free whenever the device was disconnected while the character
-device was still open.
+The commit 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
+had added a usbhsg_pipe_disable() calling into
+__usbhsg_ep_set_halt_wedge() accidentally. But, this driver should
+not call the usbhsg_pipe_disable() because the function discards
+all queues. So, this patch removes it.
 
-Fixes: 66e3e591891d ("usb: Add driver for Altus Metrum ChaosKey device (v2)")
-Cc: stable <stable@vger.kernel.org>     # 4.1
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-3-johan@kernel.org
+Fixes: 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
+Cc: <stable@vger.kernel.org> # v3.1+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1569924633-322-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/chaoskey.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/renesas_usbhs/mod_gadget.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/usb/misc/chaoskey.c
-+++ b/drivers/usb/misc/chaoskey.c
-@@ -108,6 +108,7 @@ static void chaoskey_free(struct chaoske
- 		usb_free_urb(dev->urb);
- 		kfree(dev->name);
- 		kfree(dev->buf);
-+		usb_put_intf(dev->interface);
- 		kfree(dev);
- 	}
- }
-@@ -157,6 +158,8 @@ static int chaoskey_probe(struct usb_int
- 	if (dev == NULL)
- 		goto out;
+--- a/drivers/usb/renesas_usbhs/mod_gadget.c
++++ b/drivers/usb/renesas_usbhs/mod_gadget.c
+@@ -732,8 +732,6 @@ static int __usbhsg_ep_set_halt_wedge(st
+ 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
+ 	unsigned long flags;
  
-+	dev->interface = usb_get_intf(interface);
-+
- 	dev->buf = kmalloc(size, GFP_KERNEL);
- 
- 	if (dev->buf == NULL)
-@@ -190,8 +193,6 @@ static int chaoskey_probe(struct usb_int
- 		strcat(dev->name, udev->serial);
- 	}
- 
--	dev->interface = interface;
+-	usbhsg_pipe_disable(uep);
 -
- 	dev->in_ep = in_ep;
+ 	dev_dbg(dev, "set halt %d (pipe %d)\n",
+ 		halt, usbhs_pipe_number(pipe));
  
- 	if (le16_to_cpu(udev->descriptor.idVendor) != ALEA_VENDOR_ID)
 
 
