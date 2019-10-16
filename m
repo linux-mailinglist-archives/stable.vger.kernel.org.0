@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6979DA0E9
+	by mail.lfdr.de (Postfix) with ESMTP id 0266EDA0E7
 	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726139AbfJPWRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45150 "EHLO mail.kernel.org"
+        id S1729874AbfJPWRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395107AbfJPVy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:56 -0400
+        id S2390245AbfJPVy5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:57 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6506C218DE;
-        Wed, 16 Oct 2019 21:54:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 363D521D7F;
+        Wed, 16 Oct 2019 21:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262896;
-        bh=9CZK8fiOuOEEttmvAJF3qxboAumotw1zuT9VWq4eyVo=;
+        s=default; t=1571262897;
+        bh=oQqt3M4StlXw6mUeaHdr3WrAtVNIj8RQ6R1srCQRt48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lruisrMN5YFOBippyRKhsifA7Zrr2OlOzwZF+R9jQTwRrksEP6sFAe6K4AUb6DEbk
-         hmFQ5SVBs1lvHl6J59Wc542cP3Udaw6tFPfIzMECaOUv/TR84f/xM5Mat3bkGxIJqf
-         pm9fnHvvFCGmbBW4Wpv+jJrI+R7vMqJjvZEylpgA=
+        b=kid4bUIrsiq2VFxzfI6laVNII0gJIg0hLSI2vNE8RdKvUBcVbjFE4Y7GuAiCaPJ5d
+         5cxmfvbsWGssjUH91mdd2SejeSw8h+/GT+az00x8p7ibZWf9+lnsK4WRk9R/uLa2zH
+         y+rK+O7q7v0jAbmQJERa8Kd4I+uz1aOrH/85/W4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <alex.aring@gmail.com>,
-        syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.9 13/92] ieee802154: atusb: fix use-after-free at disconnect
-Date:   Wed, 16 Oct 2019 14:49:46 -0700
-Message-Id: <20191016214809.607606326@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 14/92] cfg80211: initialize on-stack chandefs
+Date:   Wed, 16 Oct 2019 14:49:47 -0700
+Message-Id: <20191016214811.372948112@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
 References: <20191016214759.600329427@linuxfoundation.org>
@@ -45,39 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 7fd25e6fc035f4b04b75bca6d7e8daa069603a76 upstream.
+commit f43e5210c739fe76a4b0ed851559d6902f20ceb1 upstream.
 
-The disconnect callback was accessing the hardware-descriptor private
-data after having having freed it.
+In a few places we don't properly initialize on-stack chandefs,
+resulting in EDMG data to be non-zero, which broke things.
 
-Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
-Cc: stable <stable@vger.kernel.org>     # 4.2
-Cc: Alexander Aring <alex.aring@gmail.com>
-Reported-by: syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Additionally, in a few places we rely on the driver to init the
+data completely, but perhaps we shouldn't as non-EDMG drivers
+may not initialize the EDMG data, also initialize it there.
+
+Cc: stable@vger.kernel.org
+Fixes: 2a38075cd0be ("nl80211: Add support for EDMG channels")
+Reported-by: Dmitry Osipenko <digetx@gmail.com>
+Tested-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/1569239475-I2dcce394ecf873376c386a78f31c2ec8b538fa25@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/ieee802154/atusb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c     |    4 +++-
+ net/wireless/reg.c         |    2 +-
+ net/wireless/wext-compat.c |    2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ieee802154/atusb.c
-+++ b/drivers/net/ieee802154/atusb.c
-@@ -838,10 +838,11 @@ static void atusb_disconnect(struct usb_
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -2069,6 +2069,8 @@ static int nl80211_parse_chandef(struct
  
- 	ieee802154_unregister_hw(atusb->hw);
+ 	control_freq = nla_get_u32(info->attrs[NL80211_ATTR_WIPHY_FREQ]);
  
-+	usb_put_dev(atusb->usb_dev);
++	memset(chandef, 0, sizeof(*chandef));
 +
- 	ieee802154_free_hw(atusb->hw);
+ 	chandef->chan = ieee80211_get_channel(&rdev->wiphy, control_freq);
+ 	chandef->width = NL80211_CHAN_WIDTH_20_NOHT;
+ 	chandef->center_freq1 = control_freq;
+@@ -2538,7 +2540,7 @@ static int nl80211_send_iface(struct sk_
  
- 	usb_set_intfdata(interface, NULL);
--	usb_put_dev(atusb->usb_dev);
+ 	if (rdev->ops->get_channel) {
+ 		int ret;
+-		struct cfg80211_chan_def chandef;
++		struct cfg80211_chan_def chandef = {};
  
- 	pr_debug("atusb_disconnect done\n");
- }
+ 		ret = rdev_get_channel(rdev, wdev, &chandef);
+ 		if (ret == 0) {
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -1564,7 +1564,7 @@ static void reg_call_notifier(struct wip
+ 
+ static bool reg_wdev_chan_valid(struct wiphy *wiphy, struct wireless_dev *wdev)
+ {
+-	struct cfg80211_chan_def chandef;
++	struct cfg80211_chan_def chandef = {};
+ 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wiphy);
+ 	enum nl80211_iftype iftype;
+ 
+--- a/net/wireless/wext-compat.c
++++ b/net/wireless/wext-compat.c
+@@ -799,7 +799,7 @@ static int cfg80211_wext_giwfreq(struct
+ {
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
+ 	struct cfg80211_registered_device *rdev = wiphy_to_rdev(wdev->wiphy);
+-	struct cfg80211_chan_def chandef;
++	struct cfg80211_chan_def chandef = {};
+ 	int ret;
+ 
+ 	switch (wdev->iftype) {
 
 
