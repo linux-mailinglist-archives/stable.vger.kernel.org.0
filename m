@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFF8DA06D
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F3ADA157
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390650AbfJPWLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
+        id S2404971AbfJPWWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:22:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391393AbfJPV4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:48 -0400
+        id S2437500AbfJPVxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:18 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE92121D7A;
-        Wed, 16 Oct 2019 21:56:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C269521925;
+        Wed, 16 Oct 2019 21:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263007;
-        bh=Y8vjRB1HKyf86CsVZF6f3sro0+PODNZ0qgmKF8X/scU=;
+        s=default; t=1571262797;
+        bh=xnki3rbLWJLf5BLKRUN6w4ebkf3Oh+8ohSb8jtfg7cg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uir8u3BjWw/QNbs5H2joU1FUxAZ5+iX0QzU56e59X3MrXBDEXFklY2mbCuUUqGw0m
-         RTgRuiiSFWfUicc20mRmwL7h/AcqckmsFWgKabTF7pP0Zm94yxGaeASpvPJXxSarlQ
-         8jyrZjaCsV0nuqNMNwamaYVJQoAaYUtTuxBk5wqM=
+        b=Oq+HWOt0AOMAZbcUOVfkSEn6sA0bTyiyy6v9j3savgxvWbf93hCpZ9rVUUj/jUO8T
+         ukRX1J/E2W5JE/FCVKEcQYT8HVk8p8QPy7isgmxIc9nIpJ9TVevKHdmDz/RjS7XuE5
+         KW3S6qcvpTxN1z1f8Iod4metN8IiMkSKyBmONxMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Xogium <contact@xogium.me>, Kees Cook <keescook@chromium.org>,
-        Russell King <linux@armlinux.org.uk>,
-        Ingo Molnar <mingo@redhat.com>, Petr Mladek <pmladek@suse.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 01/81] panic: ensure preemption is disabled during panic()
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 37/79] xhci: Increase STS_SAVE timeout in xhci_suspend()
 Date:   Wed, 16 Oct 2019 14:50:12 -0700
-Message-Id: <20191016214806.623585425@linuxfoundation.org>
+Message-Id: <20191016214800.041318735@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,82 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 20bb759a66be52cf4a9ddd17fddaf509e11490cd upstream.
+commit ac343366846a445bb81f0a0e8f16abb8bd5d5d88 upstream.
 
-Calling 'panic()' on a kernel with CONFIG_PREEMPT=y can leave the
-calling CPU in an infinite loop, but with interrupts and preemption
-enabled.  From this state, userspace can continue to be scheduled,
-despite the system being "dead" as far as the kernel is concerned.
+After commit f7fac17ca925 ("xhci: Convert xhci_handshake() to use
+readl_poll_timeout_atomic()"), ASMedia xHCI may fail to suspend.
 
-This is easily reproducible on arm64 when booting with "nosmp" on the
-command line; a couple of shell scripts print out a periodic "Ping"
-message whilst another triggers a crash by writing to
-/proc/sysrq-trigger:
+Although the algorithms are essentially the same, the old max timeout is
+(usec + usec * time of doing readl()), and the new max timeout is just
+usec, which is much less than the old one.
 
-  | sysrq: Trigger a crash
-  | Kernel panic - not syncing: sysrq triggered crash
-  | CPU: 0 PID: 1 Comm: init Not tainted 5.2.15 #1
-  | Hardware name: linux,dummy-virt (DT)
-  | Call trace:
-  |  dump_backtrace+0x0/0x148
-  |  show_stack+0x14/0x20
-  |  dump_stack+0xa0/0xc4
-  |  panic+0x140/0x32c
-  |  sysrq_handle_reboot+0x0/0x20
-  |  __handle_sysrq+0x124/0x190
-  |  write_sysrq_trigger+0x64/0x88
-  |  proc_reg_write+0x60/0xa8
-  |  __vfs_write+0x18/0x40
-  |  vfs_write+0xa4/0x1b8
-  |  ksys_write+0x64/0xf0
-  |  __arm64_sys_write+0x14/0x20
-  |  el0_svc_common.constprop.0+0xb0/0x168
-  |  el0_svc_handler+0x28/0x78
-  |  el0_svc+0x8/0xc
-  | Kernel Offset: disabled
-  | CPU features: 0x0002,24002004
-  | Memory Limit: none
-  | ---[ end Kernel panic - not syncing: sysrq triggered crash ]---
-  |  Ping 2!
-  |  Ping 1!
-  |  Ping 1!
-  |  Ping 2!
+Increase the timeout to make ASMedia xHCI able to suspend again.
 
-The issue can also be triggered on x86 kernels if CONFIG_SMP=n,
-otherwise local interrupts are disabled in 'smp_send_stop()'.
-
-Disable preemption in 'panic()' before re-enabling interrupts.
-
-Link: http://lkml.kernel.org/r/20191002123538.22609-1-will@kernel.org
-Link: https://lore.kernel.org/r/BX1W47JXPMR8.58IYW53H6M5N@dragonstone
-Signed-off-by: Will Deacon <will@kernel.org>
-Reported-by: Xogium <contact@xogium.me>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugs.launchpad.net/bugs/1844021
+Fixes: f7fac17ca925 ("xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()")
+Cc: <stable@vger.kernel.org> # v5.2+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-8-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/panic.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -149,6 +149,7 @@ void panic(const char *fmt, ...)
- 	 * after setting panic_cpu) from invoking panic() again.
- 	 */
- 	local_irq_disable();
-+	preempt_disable_notrace();
- 
- 	/*
- 	 * It's possible to come here directly from a panic-assertion and
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -981,7 +981,7 @@ int xhci_suspend(struct xhci_hcd *xhci,
+ 	command |= CMD_CSS;
+ 	writel(command, &xhci->op_regs->command);
+ 	if (xhci_handshake(&xhci->op_regs->status,
+-				STS_SAVE, 0, 10 * 1000)) {
++				STS_SAVE, 0, 20 * 1000)) {
+ 		xhci_warn(xhci, "WARN: xHC save state timeout\n");
+ 		spin_unlock_irq(&xhci->lock);
+ 		return -ETIMEDOUT;
 
 
