@@ -2,51 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F29DA048
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 373ECDA0C5
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439134AbfJPWJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50042 "EHLO mail.kernel.org"
+        id S2393337AbfJPWPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395471AbfJPV5Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:25 -0400
+        id S2395220AbfJPVz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:28 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B48CD20872;
-        Wed, 16 Oct 2019 21:57:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3674720872;
+        Wed, 16 Oct 2019 21:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263044;
-        bh=tLqn9fDciW0EARsJzKSJ3fsSJmySKLNnTrfEp8YU+jU=;
+        s=default; t=1571262928;
+        bh=R7muj0ZQtz28cz8Rdo20VjZVXN0cWVxoYOowSW3clsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o67WOPaXzENmDg2LM8JUomPHIO/78dBZ6aPEvVsAUnrv80LGOufjg+0FvVDoFocjA
-         Lhx1kSZ6xHTeQJoAwcZC+MDwGsstM0hMUA21To65hcniaXVR2KP/0zs1mtVcs9u836
-         beqvv6RkHSWtVbqzMLe6TJXInImJF5SSMMxhoNwM=
+        b=qoAHQRIKBAorgKbjy/GiIXiFR6JpQeBI3RgzCHSa5bcLJJDX1A6krKiCVTMCO/8sE
+         dWYLA4scygYS3GFi0M6TX3D1tPhqdzl2Fd32T9+iONdA0TL+35kD6EjapnyWq0tAET
+         PyKvrB4gfHSeasV1uy5mhhL7/3GF8U1txOQKk/zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Talbert <swt@techie.net>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 49/81] efivar/ssdt: Dont iterate over EFI vars if no SSDT override was specified
-Date:   Wed, 16 Oct 2019 14:51:00 -0700
-Message-Id: <20191016214840.161364695@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 88/92] tracing/hwlat: Report total time spent in all NMIs during the sample
+Date:   Wed, 16 Oct 2019 14:51:01 -0700
+Message-Id: <20191016214848.472113499@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 
-commit c05f8f92b701576b615f30aac31fabdc0648649b upstream.
+commit 98dc19c11470ee6048aba723d77079ad2cda8a52 upstream.
 
-The kernel command line option efivar_ssdt= allows the name to be
-specified of an EFI variable containing an ACPI SSDT table that should
-be loaded into memory by the OS, and treated as if it was provided by
-the firmware.
+nmi_total_ts is supposed to record the total time spent in *all* NMIs
+that occur on the given CPU during the (active portion of the)
+sampling window. However, the code seems to be overwriting this
+variable for each NMI, thereby only recording the time spent in the
+most recent NMI. Fix it by accumulating the duration instead.
 
-Currently, that code will always iterate over the EFI variables and
-compare each name with the provided name, even if the command line
-option wasn't set to begin with.
+Link: http://lkml.kernel.org/r/157073343544.17189.13911783866738671133.stgit@srivatsa-ubuntu
 
-So bail early when no variable name was provided. This works around a
-boot regression on the 2012 Mac Pro, as reported by Scott.
-
-Tested-by: Scott Talbert <swt@techie.net>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: <stable@vger.kernel.org> # v4.9+
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Lukas Wunner <lukas@wunner.de>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Peter Jones <pjones@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Cc: linux-integrity@vger.kernel.org
-Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
-Link: https://lkml.kernel.org/r/20191002165904.8819-3-ard.biesheuvel@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 7b2c86250122 ("tracing: Add NMI tracing in hwlat detector")
+Cc: stable@vger.kernel.org
+Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/efi/efi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ kernel/trace/trace_hwlat.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -281,6 +281,9 @@ static __init int efivar_ssdt_load(void)
- 	void *data;
- 	int ret;
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -151,7 +151,7 @@ void trace_hwlat_callback(bool enter)
+ 		if (enter)
+ 			nmi_ts_start = time_get();
+ 		else
+-			nmi_total_ts = time_get() - nmi_ts_start;
++			nmi_total_ts += time_get() - nmi_ts_start;
+ 	}
  
-+	if (!efivar_ssdt[0])
-+		return 0;
-+
- 	ret = efivar_init(efivar_ssdt_iter, &entries, true, &entries);
- 
- 	list_for_each_entry_safe(entry, aux, &entries, list) {
+ 	if (enter)
 
 
