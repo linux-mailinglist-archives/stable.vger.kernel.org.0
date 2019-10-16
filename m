@@ -2,104 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CBD1D9777
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 18:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A38A3D9785
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 18:35:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405403AbfJPQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 12:33:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37962 "EHLO mail.kernel.org"
+        id S2404753AbfJPQfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 12:35:33 -0400
+Received: from foss.arm.com ([217.140.110.172]:45170 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730251AbfJPQd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 12:33:27 -0400
-Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6BFB21835;
-        Wed, 16 Oct 2019 16:33:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571243605;
-        bh=PRG8FXIMyvpSm7XuyO5n0P5whjQefq+EG+9DddpOvss=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TO/EnmLOiRISfZj+ExsfGKKqRrcUY0/JLyv23XDeQcaGTw9HKLbkY8h4TJ9C8/+ru
-         sM2E6UktubjV2hOXO2JKFTMF36X3jCv/usBzfUQV0FL7NFTOfcia8Mx7Vb9sw614Pb
-         aAElaTFhdSISXboeNdcWmxjRKCY5rpVWsFGYXQ9U=
-Date:   Wed, 16 Oct 2019 09:33:19 -0700
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     stefanha@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] io_uring: only flush workqueues on
- fileset removal" failed to apply to 5.3-stable tree
-Message-ID: <20191016163319.GA506416@kroah.com>
-References: <1571241883130167@kroah.com>
- <20191016161320.GC441788@kroah.com>
- <3a044404-f84e-992a-ff2d-6d35aa4bddf2@kernel.dk>
+        id S2404689AbfJPQfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 12:35:33 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BE0051570;
+        Wed, 16 Oct 2019 09:35:32 -0700 (PDT)
+Received: from arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 453613F68E;
+        Wed, 16 Oct 2019 09:35:31 -0700 (PDT)
+Date:   Wed, 16 Oct 2019 17:35:29 +0100
+From:   Dave Martin <Dave.Martin@arm.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Will Deacon <will@kernel.org>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Vincenzo Frascino <Vincenzo.Frascino@arm.com>,
+        CKI Project <cki-project@redhat.com>,
+        LTP List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Szabolcs Nagy <Szabolcs.Nagy@arm.com>
+Subject: Re: ? FAIL: Test report for kernel 5.4.0-rc2-d6c2c23.cki
+ (stable-next)
+Message-ID: <20191016163528.GA27757@arm.com>
+References: <cki.B4A567748F.PFM8G4WKXI@redhat.com>
+ <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com>
+ <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com>
+ <20191014162651.GF19200@arrakis.emea.arm.com>
+ <20191014213332.mmq7narumxtkqumt@willie-the-truck>
+ <20191015152651.GG13874@arrakis.emea.arm.com>
+ <20191015161453.lllrp2gfwa5evd46@willie-the-truck>
+ <20191016042933.bemrrurjbghuiw73@willie-the-truck>
+ <20191016144422.GZ27757@arm.com>
+ <20191016145238.GL49619@arrakis.emea.arm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3a044404-f84e-992a-ff2d-6d35aa4bddf2@kernel.dk>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191016145238.GL49619@arrakis.emea.arm.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 16, 2019 at 10:20:16AM -0600, Jens Axboe wrote:
-> On 10/16/19 10:13 AM, Greg KH wrote:
-> > On Wed, Oct 16, 2019 at 09:04:43AM -0700, gregkh@linuxfoundation.org wrote:
-> >>
-> >> The patch below does not apply to the 5.3-stable tree.
-> >> If someone wants it applied there, or to any other stable or longterm
-> >> tree, then please email the backport, including the original git commit
-> >> id to <stable@vger.kernel.org>.
-> >>
-> >> thanks,
-> >>
-> >> greg k-h
-> >>
-> >> ------------------ original commit in Linus's tree ------------------
-> >>
-> >> >From 8a99734081775c012a4a6c442fdef0379fe52bdf Mon Sep 17 00:00:00 2001
-> >> From: Jens Axboe <axboe@kernel.dk>
-> >> Date: Wed, 9 Oct 2019 14:40:13 -0600
-> >> Subject: [PATCH] io_uring: only flush workqueues on fileset removal
-> >>
-> >> We should not remove the workqueue, we just need to ensure that the
-> >> workqueues are synced. The workqueues are torn down on ctx removal.
-> >>
-> >> Cc: stable@vger.kernel.org
-> >> Fixes: 6b06314c47e1 ("io_uring: add file set registration")
-> >> Reported-by: Stefan Hajnoczi <stefanha@redhat.com>
-> >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> >>
-> >> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> >> index ceb3497bdd2a..2c44648217bd 100644
-> >> --- a/fs/io_uring.c
-> >> +++ b/fs/io_uring.c
-> >> @@ -2866,8 +2866,12 @@ static void io_finish_async(struct io_ring_ctx *ctx)
-> >>   static void io_destruct_skb(struct sk_buff *skb)
-> >>   {
-> >>   	struct io_ring_ctx *ctx = skb->sk->sk_user_data;
-> >> +	int i;
-> >> +
-> >> +	for (i = 0; i < ARRAY_SIZE(ctx->sqo_wq); i++)
-> >> +		if (ctx->sqo_wq[i])
-> >> +			flush_workqueue(ctx->sqo_wq[i]);
-> >>   
-> >> -	io_finish_async(ctx);
-> >>   	unix_destruct_scm(skb);
-> >>   }
-> >>   
-> >>
+On Wed, Oct 16, 2019 at 03:52:38PM +0100, Catalin Marinas wrote:
+> On Wed, Oct 16, 2019 at 03:44:25PM +0100, Dave P Martin wrote:
+> > On Wed, Oct 16, 2019 at 05:29:33AM +0100, Will Deacon wrote:
+> > > diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+> > > index b61b50bf68b1..c23c47360664 100644
+> > > --- a/arch/arm64/include/asm/memory.h
+> > > +++ b/arch/arm64/include/asm/memory.h
+> > > @@ -215,12 +215,18 @@ static inline unsigned long kaslr_offset(void)
+> > >   * up with a tagged userland pointer. Clear the tag to get a sane pointer to
+> > >   * pass on to access_ok(), for instance.
+> > >   */
+> > > -#define untagged_addr(addr)	\
+> > > +#define __untagged_addr(addr)	\
+> > >  	((__force __typeof__(addr))sign_extend64((__force u64)(addr), 55))
+> > >  
+> > > +#define untagged_addr(addr)	({					\
 > > 
-> > This fails to build as sqo_wq is a pointer in 5.3, not an arrary.
-> > Backporting that array change feels "big" for 5.3, is that needed here,
-> > or can this be fixed differently?
+> > Having the same informal name ("untagged") for two different address
+> > representations seems like a recipe for confusion.  Can we rename one of
+> > them?  (Say, untagged_address_if_user()?)
 > 
-> Yeah, we don't need to do that. It's just a pointer in 5.3, not an
-> array of pointers, so the below should be all we need for 5.3 (and
-> 5.2/5.1).
+> I agree it's confusing. We can rename the __* one but the other is
+> spread around the kernel (it can be done, though as a subsequent
+> exercise; untagged_uaddr?).
+> 
+> > > +	__addr &= __untagged_addr(__addr);				\
+> > > +	(__force __typeof__(addr))__addr;				\
+> > > +})
+> > 
+> > Is there any reason why we can't just have
+> > 
+> > #define untagged_addr ((__force __typeof__(addr))(	\
+> > 	(__force u64)(addr) & GENMASK_ULL(63, 56)))
+> 
+> I guess you meant ~GENMASK_ULL(63,56) or GENMASK_ULL(55,0).
+> 
+> This changes the overflow case for mlock() which would return -ENOMEM
+> instead of -EINVAL (not sure we have a test for it though). Does it
+> matter?
 
-5.2/5.1 are long end-of-life, but this change looks sane.  I'll go queue
-it up for 5.3.y, thanks for the patch!
+It looks like SUSv7 has m{,un}local() and mprotect() aligned with one
+another regarding ENOMEM versus EINVAL:
 
-greg k-h
+https://pubs.opengroup.org/onlinepubs/9699919799/functions/mprotect.html
+https://pubs.opengroup.org/onlinepubs/9699919799/functions/mlock.html
+
+So whatever we do, it should probably have the same effect on both
+calls.
+
+
+There's another wrinkle that occurrs to me though.  Rounding "kernel"
+addresses up can spuriously change ENOMEM to EINVAL -- but the fix for
+userspace addresses (i.e., rounding down) can likewise spuriously change
+EINVAL to ENOMEM.
+
+Maybe this is OK -- the SUSv7 wording doesn't seem to call out address
+wraparound as a special case, and therefore supposedly doesn't require
+EINVAL to be returned for it.
+
+The asymmetry is concerning though, and a bit ugly.
+
+Cheers
+---Dave
