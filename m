@@ -2,121 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4ED5D9868
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 19:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 113A7D98A2
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 19:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbfJPRZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 13:25:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:48810 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726940AbfJPRZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 13:25:59 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9644A20F2;
-        Wed, 16 Oct 2019 17:25:58 +0000 (UTC)
-Received: from jra-laptop (unknown [10.43.17.34])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1E0B95D6A9;
-        Wed, 16 Oct 2019 17:25:51 +0000 (UTC)
-Date:   Wed, 16 Oct 2019 19:25:51 +0200
-From:   Jakub Racek <jracek@redhat.com>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Don Zickus <dzickus@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Jan Stancek <jstancek@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Zhaojuan Guo <zguo@redhat.com>
-Subject: Re: ? FAIL: Stable queue: queue-5.3
-Message-ID: <20191016172551.bijr2fqnrwylglu4@jra-laptop>
-References: <cki.F2FC419F40.7K0EACX2QA@redhat.com>
- <20191009224437.GY1396@sasha-vm>
- <20191010010952.suo6opzifh5y37gm@redhat.com>
- <CA+G9fYsKqnev+Ayu8-p8AY-4cxLJv-zTx4s-A9hxxB83R4Pejg@mail.gmail.com>
+        id S2390768AbfJPRnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 13:43:51 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:34325 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726383AbfJPRnv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 13:43:51 -0400
+Received: by mail-lj1-f195.google.com with SMTP id j19so24939129lja.1;
+        Wed, 16 Oct 2019 10:43:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eaRUhXBbWt3s8K06DJiUkmSVvgGNMgRZLpiGfxeuwSA=;
+        b=aQ04ZpMUsKO6CnHAvc4YfjSQV2snZVAco1gxc1JyM4oN0Dq0ACcjGFwKzeCH29cYgU
+         tYgP0uZvtznLh79kDSVEAzqZ7eq7Cq9hJPoQIpRdR/jWz5q3HN31nur8LdP2eEbgSgQm
+         /0R23O9DsxL82+EZqCOwz2A4hXqTCD4xCfhaomhZB/JdoFMHqauDD0ENL0X7acc6f5NB
+         ztEEuA3WSKlB5O3u+9qKxg3pNIcah9v7spGOvxRRlfoDbxM8mnPTUg0Mv3UB3UW/EPdi
+         jOV+jcks7OuMBtdBir+5PZjYzT69ylpC5HuDDoySSGzs1SVrQkf2n5w4ZCYUVbZf9MVj
+         DZ0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eaRUhXBbWt3s8K06DJiUkmSVvgGNMgRZLpiGfxeuwSA=;
+        b=FwEa4SjrLL+6MxtQI9Y0u3kHXayziUStRogZwmufmgNo0mzEmueoxO3Gajw6yMLzOF
+         JZ6bHQu82e7O7Vy7l71tva0kK3LhKvuOGcl4+ehh9HvL4LNHGcib/Xw7A5NBzEFbxsd5
+         SjF5tJCvaeJDkKe7xZJL0krXcSUOPxzaD/yXCy2DbOUA0VVKUAQXEHJbMNbG2LJWtC6q
+         Sov/q16Z+ePjiCqCRBQzOHCPsCmSMRKjrzWlkT7iHpREDenDCeSiGI85D3DML8/spOSt
+         MXfudElUHxMKIJMA8TYFIH9CEZH8sKjTn/67+Y9qSjvVV0uAczecMYIJl4Edv2fZ99We
+         I/Zg==
+X-Gm-Message-State: APjAAAUFZEB6z0hHX4GPF4RRWKWAAn8tntGkGlfpcBM43YF2Mi1F1jlx
+        aBNSmR4b2gEsI8Xx7RXuXN7/9qKRWTvDkfMb8dc=
+X-Google-Smtp-Source: APXvYqznw3y3lUIpyR3mcdILznHQc1ScODpS98UCaetVIONDsO4wbRguVwSyUmliMkmK3fiRgYNaawPHGTDl53GQqZg=
+X-Received: by 2002:a2e:9bc1:: with SMTP id w1mr21397813ljj.136.1571247828713;
+ Wed, 16 Oct 2019 10:43:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYsKqnev+Ayu8-p8AY-4cxLJv-zTx4s-A9hxxB83R4Pejg@mail.gmail.com>
-X-OS:   Linux jra-laptop 3.10.0-1062.el7.x86_64 x86_64
-User-Agent: NeoMutt/20180716
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.71]); Wed, 16 Oct 2019 17:25:58 +0000 (UTC)
+References: <20191014171223.357174-1-songliubraving@fb.com>
+In-Reply-To: <20191014171223.357174-1-songliubraving@fb.com>
+From:   Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date:   Wed, 16 Oct 2019 10:43:36 -0700
+Message-ID: <CAADnVQKn3RZnAZAOSg1yoQmo9doeGouEBkcFzmZGWLU7QqjJOA@mail.gmail.com>
+Subject: Re: [PATCH v2 bpf-next] bpf/stackmap: fix deadlock with rq_lock in bpf_get_stack()
+To:     Song Liu <songliubraving@fb.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        Network Development <netdev@vger.kernel.org>,
+        sashal@kernel.org, Kernel Team <kernel-team@fb.com>,
+        stable <stable@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+++ Naresh Kamboju [10/10/19 12:00 +0530]:
->3831659 Warn Aborted cki@gitlab:214657 5.3.5-dc073f1.cki@upstream-stable aarch64
->3831713 Fail Completed cki@gitlab:214657 5.3.5-dc073f1.cki@upstream-stable aarch64 [RS:6067440]
->3831660 Pass Completed cki@gitlab:214657 5.3.5-dc073f1.cki@upstream-stable ppc64le
->3831662 Fail Completed cki@gitlab:214657 5.3.5-dc073f1.cki@upstream-stable x86_64
->3831661 Pass Completed cki@gitlab:214657 5.3.5-dc073f1.cki@upstream-stable x86_64
+On Mon, Oct 14, 2019 at 10:12 AM Song Liu <songliubraving@fb.com> wrote:
 >
->On Thu, 10 Oct 2019 at 06:40, Don Zickus <dzickus@redhat.com> wrote:
->>
->> On Wed, Oct 09, 2019 at 06:44:37PM -0400, Sasha Levin wrote:
->> > On Wed, Oct 09, 2019 at 06:11:40PM -0400, CKI Project wrote:
->> > >
->> > > Hello,
->> > >
->> > > We ran automated tests on a patchset that was proposed for merging into this
->> > > kernel tree. The patches were applied to:
->> > >
->> > >       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->> > >            Commit: 52020d3f6633 - Linux 5.3.5
->> > >
->> > > The results of these automated tests are provided below.
->> > >
->> > >    Overall result: FAILED (see details below)
->> > >             Merge: OK
->> > >           Compile: OK
->> > >             Tests: FAILED
->> > >
->> > > All kernel binaries, config files, and logs are available for download here:
->> > >
->> > >  https://artifacts.cki-project.org/pipelines/214657
->> > >
->> > > One or more kernel tests failed:
->> > >
->> > >    x86_64:
->> > >      ✗ Boot test
->> > >      ✗ Boot test
->> > >      ✗ Boot test
->> > >      ✗ Boot test
->> >
->> > Hm, I looked here:
->> >
->> > https://artifacts.cki-project.org/pipelines/214657/logs/x86_64_host_1_Boot_test_dmesg.log
->> >
->> > and here:
->> >
->> > https://artifacts.cki-project.org/pipelines/214657/logs/x86_64_host_2_Boot_test_dmesg.log
->> >
->> > but both look sane. What am I missing?
->>
->> I don't believe you are.  I looked at the raw beaker jobs and the x86_64
->> machines passed and another set is still queued.  There is an aarch64
->> machine that failed to boot.
->>
->> Unfortunately, I am skeptical of this result too but I would wait for the
->> CKI team to triage this.
+> bpf stackmap with build-id lookup (BPF_F_STACK_BUILD_ID) can trigger A-A
+> deadlock on rq_lock():
 >
->On the quick look i see
+> rcu: INFO: rcu_sched detected stalls on CPUs/tasks:
+> [...]
+> Call Trace:
+>  try_to_wake_up+0x1ad/0x590
+>  wake_up_q+0x54/0x80
+>  rwsem_wake+0x8a/0xb0
+>  bpf_get_stack+0x13c/0x150
+>  bpf_prog_fbdaf42eded9fe46_on_event+0x5e3/0x1000
+>  bpf_overflow_handler+0x60/0x100
+>  __perf_event_overflow+0x4f/0xf0
+>  perf_swevent_overflow+0x99/0xc0
+>  ___perf_sw_event+0xe7/0x120
+>  __schedule+0x47d/0x620
+>  schedule+0x29/0x90
+>  futex_wait_queue_me+0xb9/0x110
+>  futex_wait+0x139/0x230
+>  do_futex+0x2ac/0xa50
+>  __x64_sys_futex+0x13c/0x180
+>  do_syscall_64+0x42/0x100
+>  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 >
->x86_64: Host 3 failed to do any testing.
->Is it an infrastructure problem ?
+> This can be reproduced by:
+> 1. Start a multi-thread program that does parallel mmap() and malloc();
+> 2. taskset the program to 2 CPUs;
+> 3. Attach bpf program to trace_sched_switch and gather stackmap with
+>    build-id, e.g. with trace.py from bcc tools:
+>    trace.py -U -p <pid> -s <some-bin,some-lib> t:sched:sched_switch
 >
+> A sample reproducer is attached at the end.
+>
+> This could also trigger deadlock with other locks that are nested with
+> rq_lock.
+>
+> Fix this by checking whether irqs are disabled. Since rq_lock and all
+> other nested locks are irq safe, it is safe to do up_read() when irqs are
+> not disable. If the irqs are disabled, postpone up_read() in irq_work.
+>
+> Fixes: commit 615755a77b24 ("bpf: extend stackmap to save binary_build_id+offset instead of address")
+> Cc: stable@vger.kernel.org # v4.17+
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Alexei Starovoitov <ast@kernel.org>
+> Cc: Daniel Borkmann <daniel@iogearbox.net>
+> Signed-off-by: Song Liu <songliubraving@fb.com>
 
-Sorry, this was a super weird bug in our CI. It has since been fixed. 
-
->- Naresh
->
-
--- 
-Best regards,
-
-Jakub Racek
-ARK
+I fixed 'Fixes' tag and applied to bpf-next.
+Thanks
