@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F343D9E4E
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08778D9EDA
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395551AbfJPV6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
+        id S2387894AbfJPWC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:02:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438107AbfJPV6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:02 -0400
+        id S2438540AbfJPV7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:33 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F33621D7C;
-        Wed, 16 Oct 2019 21:58:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05B2121D7D;
+        Wed, 16 Oct 2019 21:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263081;
-        bh=t8kCr9OERd06qMJrE5RDGH1pIt8S8DDPE6lr14OjXHo=;
+        s=default; t=1571263172;
+        bh=r+8aUgc/mfaf5/2iPvz/+sfyyYAYN95Yw/xN8JOWDWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7BAikQlmoJtnkOStgReQ7nbsfixxshoK/A2XMEZVFUi4Ly4x2YPUHRA7y78H1Rj/
-         MGIcCDSO2Xeqk3sLi5W2Ups0xRUrkJ65y161OsNnOUSLHDmPXs1YhF8SFqhW1R+RiC
-         jYKmQK2/QLjKZuegqgKRMHzZzxou27DYTyT7XjHY=
+        b=f8LWlH25HwUGhEa2B0i9sdqlOqi3xzDntY/YCZcOz90aWiaJTuKVpQ9SHdmhf9QWw
+         PlB4VNrpAM4lNOTWcFPABICN5TTXLSv7n1d9xi1O/+weHaJd5C/dfFkSRZxdeW94R9
+         MirpzmB8ODkWXFmiS+Qnx+ZCTtfDJQRdWI7qp4HQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sushma Kalakota <sushmax.kalakota@intel.com>
-Subject: [PATCH 4.19 80/81] PCI: vmd: Fix config addressing when using bus offsets
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Matthew Auld <matthew.william.auld@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.3 099/112] drm/i915: Mark contents as dirty on a write fault
 Date:   Wed, 16 Oct 2019 14:51:31 -0700
-Message-Id: <20191016214848.666862802@linuxfoundation.org>
+Message-Id: <20191016214906.326608454@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit e3dffa4f6c3612dea337c9c59191bd418afc941b upstream.
+commit b925708f28c2b7a3a362d709bd7f77bc75c1daac upstream.
 
-VMD maps child device config spaces to the VMD Config BAR linearly
-regardless of the starting bus offset. Because of this, the config
-address decode must ignore starting bus offsets when mapping the BDF to
-the config space address.
+Since dropping the set-to-gtt-domain in commit a679f58d0510 ("drm/i915:
+Flush pages on acquisition"), we no longer mark the contents as dirty on
+a write fault. This has the issue of us then not marking the pages as
+dirty on releasing the buffer, which means the contents are not written
+out to the swap device (should we ever pick that buffer as a victim).
+Notably, this is visible in the dumb buffer interface used for cursors.
+Having updated the cursor contents via mmap, and swapped away, if the
+shrinker should evict the old cursor, upon next reuse, the cursor would
+be invisible.
 
-Fixes: 2a5a9c9a20f9 ("PCI: vmd: Add offset to bus numbers if necessary")
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # v5.2+
-Signed-off-by: Sushma Kalakota <sushmax.kalakota@intel.com>
+E.g. echo 80 > /proc/sys/kernel/sysrq ; echo f > /proc/sysrq-trigger
+
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111541
+Fixes: a679f58d0510 ("drm/i915: Flush pages on acquisition")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Matthew Auld <matthew.william.auld@gmail.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.2+
+Reviewed-by: Matthew Auld <matthew.william.auld@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190920121821.7223-1-chris@chris-wilson.co.uk
+(cherry picked from commit 5028851cdfdf78dc22eacbc44a0ab0b3f599ee4a)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/vmd.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_mman.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -97,6 +97,7 @@ struct vmd_dev {
- 	struct resource		resources[3];
- 	struct irq_domain	*irq_domain;
- 	struct pci_bus		*bus;
-+	u8			busn_start;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+@@ -317,7 +317,11 @@ vm_fault_t i915_gem_fault(struct vm_faul
+ 				   msecs_to_jiffies_timeout(CONFIG_DRM_I915_USERFAULT_AUTOSUSPEND));
+ 	GEM_BUG_ON(!obj->userfault_count);
  
- #ifdef CONFIG_X86_DEV_DMA_OPS
- 	struct dma_map_ops	dma_ops;
-@@ -468,7 +469,8 @@ static char __iomem *vmd_cfg_addr(struct
- 				  unsigned int devfn, int reg, int len)
- {
- 	char __iomem *addr = vmd->cfgbar +
--			     (bus->number << 20) + (devfn << 12) + reg;
-+			     ((bus->number - vmd->busn_start) << 20) +
-+			     (devfn << 12) + reg;
+-	i915_vma_set_ggtt_write(vma);
++	if (write) {
++		GEM_BUG_ON(!i915_gem_object_has_pinned_pages(obj));
++		i915_vma_set_ggtt_write(vma);
++		obj->mm.dirty = true;
++	}
  
- 	if ((addr - vmd->cfgbar) + len >=
- 	    resource_size(&vmd->dev->resource[VMD_CFGBAR]))
-@@ -591,7 +593,7 @@ static int vmd_enable_domain(struct vmd_
- 	unsigned long flags;
- 	LIST_HEAD(resources);
- 	resource_size_t offset[2] = {0};
--	resource_size_t membar2_offset = 0x2000, busn_start = 0;
-+	resource_size_t membar2_offset = 0x2000;
- 
- 	/*
- 	 * Shadow registers may exist in certain VMD device ids which allow
-@@ -633,14 +635,14 @@ static int vmd_enable_domain(struct vmd_
- 		pci_read_config_dword(vmd->dev, PCI_REG_VMCONFIG, &vmconfig);
- 		if (BUS_RESTRICT_CAP(vmcap) &&
- 		    (BUS_RESTRICT_CFG(vmconfig) == 0x1))
--			busn_start = 128;
-+			vmd->busn_start = 128;
- 	}
- 
- 	res = &vmd->dev->resource[VMD_CFGBAR];
- 	vmd->resources[0] = (struct resource) {
- 		.name  = "VMD CFGBAR",
--		.start = busn_start,
--		.end   = busn_start + (resource_size(res) >> 20) - 1,
-+		.start = vmd->busn_start,
-+		.end   = vmd->busn_start + (resource_size(res) >> 20) - 1,
- 		.flags = IORESOURCE_BUS | IORESOURCE_PCI_FIXED,
- 	};
- 
-@@ -708,8 +710,8 @@ static int vmd_enable_domain(struct vmd_
- 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
- 	pci_add_resource_offset(&resources, &vmd->resources[2], offset[1]);
- 
--	vmd->bus = pci_create_root_bus(&vmd->dev->dev, busn_start, &vmd_ops,
--				       sd, &resources);
-+	vmd->bus = pci_create_root_bus(&vmd->dev->dev, vmd->busn_start,
-+					&vmd_ops, sd, &resources);
- 	if (!vmd->bus) {
- 		pci_free_resource_list(&resources);
- 		irq_domain_remove(vmd->irq_domain);
+ err_fence:
+ 	i915_vma_unpin_fence(vma);
 
 
