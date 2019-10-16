@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9C0FD9E4B
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1486D9EE7
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438074AbfJPV55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50934 "EHLO mail.kernel.org"
+        id S2392039AbfJPWDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:03:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395549AbfJPV54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:56 -0400
+        id S2438509AbfJPV71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:27 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8A4D121D7F;
-        Wed, 16 Oct 2019 21:57:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B577222C4;
+        Wed, 16 Oct 2019 21:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263075;
-        bh=r4AUOYR8v+E1OaFX4qVSirdArg5U+qp6rBVI9XN0p6g=;
+        s=default; t=1571263166;
+        bh=jphSXo0H1nebo1iEBpk4uSYr10SEphXsBJeMQa/Sj7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSPUuTuwzvMTfz2h56DYns9dL05qR29BdB+cvx2oOQ4PUxG7mmFqe06bSzN7r0SlI
-         3zYvGIg1TqEv2/Ev4nxIlhWpK3LQDyRQaD8G6dEZudVuS01IGujm38WGiLVZqZdJ4z
-         lIfuGqoHb4Sw4lVCJg7VrA1DrgiGh555VDq5q5UQ=
+        b=eGjPv8ORLePAQGE8i7hsA5SEdvSP6KpHcPpvCAmjihe+6bfJt3jzEhNIQ0Ys7onqj
+         OsFm1XUZ/f7PgyTV3Zbynpx9M4lJisCwNhsW54IyjiC7ZCB8pc5/cmpR/5HkbR80gu
+         6LLqB7NUCnQlIHUZT/X5M6BCBGpmTBAPLlKGC5Io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 75/81] tracing/hwlat: Dont ignore outer-loop duration when calculating max_latency
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Robert Richter <rrichter@marvell.com>,
+        Will Deacon <will@kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 094/112] arm64: topology: Use PPTT to determine if PE is a thread
 Date:   Wed, 16 Oct 2019 14:51:26 -0700
-Message-Id: <20191016214847.641598348@linuxfoundation.org>
+Message-Id: <20191016214905.788832630@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-commit fc64e4ad80d4b72efce116f87b3174f0b7196f8e upstream.
+Commit 98dc19902a0b2e5348e43d6a2c39a0a7d0fc639e upstream.
 
-max_latency is intended to record the maximum ever observed hardware
-latency, which may occur in either part of the loop (inner/outer). So
-we need to also consider the outer-loop sample when updating
-max_latency.
+ACPI 6.3 adds a thread flag to represent if a CPU/PE is
+actually a thread. Given that the MPIDR_MT bit may not
+represent this information consistently on homogeneous machines
+we should prefer the PPTT flag if its available.
 
-Link: http://lkml.kernel.org/r/157073345463.17189.18124025522664682811.stgit@srivatsa-ubuntu
-
-Fixes: e7c15cd8a113 ("tracing: Added hardware latency tracer")
-Cc: stable@vger.kernel.org
-Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Reviewed-by: Robert Richter <rrichter@marvell.com>
+[will: made acpi_cpu_is_threaded() return 'bool']
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_hwlat.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/kernel/topology.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -256,6 +256,8 @@ static int get_sample(void)
- 		/* Keep a running maximum ever recorded hardware latency */
- 		if (sample > tr->max_latency)
- 			tr->max_latency = sample;
-+		if (outer_sample > tr->max_latency)
-+			tr->max_latency = outer_sample;
- 	}
+diff --git a/arch/arm64/kernel/topology.c b/arch/arm64/kernel/topology.c
+index 0825c4a856e33..6106c49f84bc8 100644
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -340,17 +340,28 @@ void remove_cpu_topology(unsigned int cpu)
+ }
  
- out:
+ #ifdef CONFIG_ACPI
++static bool __init acpi_cpu_is_threaded(int cpu)
++{
++	int is_threaded = acpi_pptt_cpu_is_thread(cpu);
++
++	/*
++	 * if the PPTT doesn't have thread information, assume a homogeneous
++	 * machine and return the current CPU's thread state.
++	 */
++	if (is_threaded < 0)
++		is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
++
++	return !!is_threaded;
++}
++
+ /*
+  * Propagate the topology information of the processor_topology_node tree to the
+  * cpu_topology array.
+  */
+ static int __init parse_acpi_topology(void)
+ {
+-	bool is_threaded;
+ 	int cpu, topology_id;
+ 
+-	is_threaded = read_cpuid_mpidr() & MPIDR_MT_BITMASK;
+-
+ 	for_each_possible_cpu(cpu) {
+ 		int i, cache_id;
+ 
+@@ -358,7 +369,7 @@ static int __init parse_acpi_topology(void)
+ 		if (topology_id < 0)
+ 			return topology_id;
+ 
+-		if (is_threaded) {
++		if (acpi_cpu_is_threaded(cpu)) {
+ 			cpu_topology[cpu].thread_id = topology_id;
+ 			topology_id = find_acpi_cpu_topology(cpu, 1);
+ 			cpu_topology[cpu].core_id   = topology_id;
+-- 
+2.20.1
+
 
 
