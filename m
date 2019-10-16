@@ -2,82 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A01C0D940D
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 16:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D723FD9419
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 16:40:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405059AbfJPOiT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 10:38:19 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:58348 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404542AbfJPOiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 10:38:19 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 50D43821CB;
-        Wed, 16 Oct 2019 14:38:19 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 043CC60C5E;
-        Wed, 16 Oct 2019 14:38:19 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id CF21418037CD;
-        Wed, 16 Oct 2019 14:38:18 +0000 (UTC)
-Date:   Wed, 16 Oct 2019 10:38:18 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        CKI Project <cki-project@redhat.com>,
-        LTP List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Szabolcs Nagy <szabolcs.nagy@arm.com>,
-        Dave P Martin <Dave.Martin@arm.com>
-Message-ID: <2041772384.6478556.1571236698606.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20191016042933.bemrrurjbghuiw73@willie-the-truck>
-References: <cki.B4A567748F.PFM8G4WKXI@redhat.com> <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com> <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com> <20191014162651.GF19200@arrakis.emea.arm.com> <20191014213332.mmq7narumxtkqumt@willie-the-truck> <20191015152651.GG13874@arrakis.emea.arm.com> <20191015161453.lllrp2gfwa5evd46@willie-the-truck> <20191016042933.bemrrurjbghuiw73@willie-the-truck>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kernel_?=
- =?utf-8?Q?5.4.0-rc2-d6c2c23.cki_(stable-next)?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.43.17.163, 10.4.195.23]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.4.0-rc2-d6c2c23.cki (stable-next)
-Thread-Index: dPYP1FfVK1Nl7HrHWInfr5hBTz9+Cg==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 16 Oct 2019 14:38:19 +0000 (UTC)
+        id S2405540AbfJPOkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 10:40:14 -0400
+Received: from mail-il1-f194.google.com ([209.85.166.194]:44617 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405214AbfJPOkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 10:40:13 -0400
+Received: by mail-il1-f194.google.com with SMTP id f13so2847133ils.11;
+        Wed, 16 Oct 2019 07:40:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=F4KpRCphtdIQOih7zA7wyNTEii8fpVd38VbpBCCqits=;
+        b=KNl4Wp0os/zfSE3mGGHwH9H7k7l1az689glcED+KLLYDXtO/JI84rorQIkEFCNvBM1
+         BZn2wtF3XK/9iypI7FJfCUBSop+/2Fe6+lclKR6EQsOKUscTMEjxo61WmTLOuOgAI2s1
+         vNs+hfaV+fe2b0ZmHMSkUu3dfEnv/cctrdyAqBuAZvh6k7YLCaX36KvmgL1oM7IMgOWv
+         8Wi9QrnN3/FX8+rEcbBvg9rWyQZfZ6/yZNGWU8VTE88r2V3Wg8qPtqvT6/Z1jp5R8OOe
+         Uj1NIR3YG1fNvMmMw8ZjMWJjKN73M4mNuqW51ejK83aBHFPfH64Jpz11y/+/ho6rSvxH
+         3qzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=F4KpRCphtdIQOih7zA7wyNTEii8fpVd38VbpBCCqits=;
+        b=WJBzX2kJhopeqDj7uJuIUNZnLxlecLbnISdK3EmaqRZtDncHfGE7Aej901ZqROipLX
+         g7lQom0u5XiFE8qdrd+1CCPOmAQhJR7Xoe5uKuUVTvgqL6JmVIldDL+AtK0d1U6lXBu7
+         aOw15PCuIZFm7UhtU/ZCARycEW+mAIcI8bXilldW0tLuFub2Z3uK7cd0NcND1U4B41tk
+         my9lx5z6ymikjvLxwmltmS+EjK+t61q0AcBXo/H1cWgweml3OjpFXVqE6fFmR50LxyIF
+         jvA8VeC5nJ/Y10keWToUYtqW9r8Q7QsnZaOqXjlEU8f3Vap6G0qPAqgl93tVY4HpPqM/
+         Vz8A==
+X-Gm-Message-State: APjAAAUOn2L8sUJOCqnRBpfWYHGFNHhECT2Q9Q/5ANgy33FrmzBQG3+C
+        yTGs4LUGT4y+nl2vqRIGduI=
+X-Google-Smtp-Source: APXvYqzVFOp47e5GYuEKGNzZtGyGxBnqHwcB6U9SdRarISkIvacLzPBtNUL4zKSI4DDp1UtHN9TuEg==
+X-Received: by 2002:a92:b314:: with SMTP id p20mr12316552ilh.80.1571236812822;
+        Wed, 16 Oct 2019 07:40:12 -0700 (PDT)
+Received: from localhost.localdomain (c-73-37-219-234.hsd1.mn.comcast.net. [73.37.219.234])
+        by smtp.gmail.com with ESMTPSA id d197sm19160630iog.15.2019.10.16.07.40.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 16 Oct 2019 07:40:12 -0700 (PDT)
+From:   Adam Ford <aford173@gmail.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     adam.ford@logicpd.com, Adam Ford <aford173@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Anson Huang <Anson.Huang@nxp.com>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] ARM: dts: imx6-logicpd: Re-enable SNVS power key
+Date:   Wed, 16 Oct 2019 09:40:05 -0500
+Message-Id: <20191016144005.9863-1-aford173@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The baseboard of the Logic PD i.MX6 development kit has a power
+button routed which can both power down and power up the board.
+It can also wake the board from sleep.  This functionality was
+marked as disabled by default in imx6qdl.dtsi, so it needs to
+be explicitly enabled for each board.
 
------ Original Message -----
-> 
-> From 517d979e84191ae9997c9513a88a5b798af6912f Mon Sep 17 00:00:00 2001
-> From: Will Deacon <will@kernel.org>
-> Date: Tue, 15 Oct 2019 21:04:18 -0700
-> Subject: [PATCH] arm64: tags: Preserve tags for addresses translated via
-> TTBR1
-> 
-> Sign-extending TTBR1 addresses when converting to an untagged address
-> breaks the documented POSIX semantics for mlock() in some obscure error
-> cases where we end up returning -EINVAL instead of -ENOMEM as a direct
-> result of rewriting the upper address bits.
-> 
-> Rework the untagged_addr() macro to preserve the upper address bits for
-> TTBR1 addresses and only clear the tag bits for user addresses. This
-> matches the behaviour of the 'clear_address_tag' assembly macro, so
-> rename that and align the implementations at the same time so that they
-> use the same instruction sequences for the tag manipulation.
-> 
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Link:
-> https://lore.kernel.org/stable/20191014162651.GF19200@arrakis.emea.arm.com/
-> Reported-by: Jan Stancek <jstancek@redhat.com>
-> Signed-off-by: Will Deacon <will@kernel.org>
+This patch enables the snvs power key again.
+Fixes: 770856f0da5d ("ARM: dts: imx6qdl: Enable SNVS power key according to board design")
 
-No regressions observed with LTP syscalls/sched/mm/commands and open_posix_testsuite.
+Cc: stable <stable@vger.kernel.org> #5.3+
+Signed-off-by: Adam Ford <aford173@gmail.com>
 
-Tested-by: Jan Stancek <jstancek@redhat.com>
+diff --git a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
+index 2a6ce87071f9..9e027b9a5f91 100644
+--- a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
++++ b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
+@@ -328,6 +328,10 @@
+ 	pinctrl-0 = <&pinctrl_pwm3>;
+ };
+ 
++&snvs_pwrkey {
++	status = "okay";
++};
++
+ &ssi2 {
+ 	status = "okay";
+ };
+-- 
+2.17.1
+
