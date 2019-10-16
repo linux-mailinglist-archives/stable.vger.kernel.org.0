@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70641D9FCD
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5450DA0AB
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438162AbfJPV6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52116 "EHLO mail.kernel.org"
+        id S2395361AbfJPWOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438158AbfJPV63 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:29 -0400
+        id S2395298AbfJPVzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:41 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE934218DE;
-        Wed, 16 Oct 2019 21:58:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C79B021925;
+        Wed, 16 Oct 2019 21:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263109;
-        bh=od/c6TzyPXpf7ky7GdR+hgCyRAWNPIOfz+b/0alOEFE=;
+        s=default; t=1571262940;
+        bh=Q1iSEHmxWvAe4+jgyVigR4xHfYjuLUmCWmswNSncyW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JovtOjimZaP+h7jnLLJ630XNFUxDdNcI0J6TATQxQnyn7lHIILpahmfhdi1VmRj3b
-         0LmYkXWcDyFt0Xq07J563qrl3kZ+pOI59WvYwrp5gGdllijbJLTcZVpo4FZg8Vtkjd
-         arzHlfN003QX5wdFwchKwWbxu/bSuBQFu1Z6uZZk=
+        b=m6sBFB3Kp3nQSxfjlZbo7ZwyVG+IF1+Pg7OyUjnLkPXyoHzrd1IWiZaTDSz0SZ+KN
+         QTkBbVfvDFvb67I3xYq1WLkBwvmiDMsLHl/fHtj4n97ISwNG+0UndcngyKs/jZFMB0
+         yIdhrjulDbOLw9w+ckmbXgKGbrbOTuFZlVlB2O/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.3 032/112] USB: microtek: fix info-leak at probe
-Date:   Wed, 16 Oct 2019 14:50:24 -0700
-Message-Id: <20191016214853.313145937@linuxfoundation.org>
+        stable@vger.kernel.org, Rick Tseng <rtseng@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 11/65] usb: xhci: wait for CNR controller not ready bit in xhci resume
+Date:   Wed, 16 Oct 2019 14:50:25 -0700
+Message-Id: <20191016214804.494024704@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Rick Tseng <rtseng@nvidia.com>
 
-commit 177238c3d47d54b2ed8f0da7a4290db492f4a057 upstream.
+commit a70bcbc322837eda1ab5994d12db941dc9733a7d upstream.
 
-Add missing bulk-in endpoint sanity check to prevent uninitialised stack
-data from being reported to the system log and used as endpoint
-addresses.
+NVIDIA 3.1 xHCI card would lose power when moving power state into D3Cold.
+Thus we need to wait for CNR bit to clear in xhci resume, just as in
+xhci init.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20191003070931.17009-1-johan@kernel.org
+[Minor changes to comment and commit message -Mathias]
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Rick Tseng <rtseng@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-6-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/image/microtek.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/usb/image/microtek.c
-+++ b/drivers/usb/image/microtek.c
-@@ -716,6 +716,10 @@ static int mts_usb_probe(struct usb_inte
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1044,6 +1044,18 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 		hibernated = true;
  
- 	}
- 
-+	if (ep_in_current != &ep_in_set[2]) {
-+		MTS_WARNING("couldn't find two input bulk endpoints. Bailing out.\n");
-+		return -ENODEV;
-+	}
- 
- 	if ( ep_out == -1 ) {
- 		MTS_WARNING( "couldn't find an output bulk endpoint. Bailing out.\n" );
+ 	if (!hibernated) {
++		/*
++		 * Some controllers might lose power during suspend, so wait
++		 * for controller not ready bit to clear, just as in xHC init.
++		 */
++		retval = xhci_handshake(&xhci->op_regs->status,
++					STS_CNR, 0, 10 * 1000 * 1000);
++		if (retval) {
++			xhci_warn(xhci, "Controller not ready at resume %d\n",
++				  retval);
++			spin_unlock_irq(&xhci->lock);
++			return retval;
++		}
+ 		/* step 1: restore register */
+ 		xhci_restore_registers(xhci);
+ 		/* step 2: initialize command ring buffer */
 
 
