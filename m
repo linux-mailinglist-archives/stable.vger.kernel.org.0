@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 373ECDA0C5
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DEBCD9F98
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393337AbfJPWPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:15:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
+        id S2406625AbfJPV4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395220AbfJPVz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:28 -0400
+        id S2406619AbfJPV4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:18 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3674720872;
-        Wed, 16 Oct 2019 21:55:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0F8421D7C;
+        Wed, 16 Oct 2019 21:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262928;
-        bh=R7muj0ZQtz28cz8Rdo20VjZVXN0cWVxoYOowSW3clsY=;
+        s=default; t=1571262978;
+        bh=gYkeHv2pVC1gVduuwi6FZhed2yorRXCI+ZgLHcWznLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qoAHQRIKBAorgKbjy/GiIXiFR6JpQeBI3RgzCHSa5bcLJJDX1A6krKiCVTMCO/8sE
-         dWYLA4scygYS3GFi0M6TX3D1tPhqdzl2Fd32T9+iONdA0TL+35kD6EjapnyWq0tAET
-         PyKvrB4gfHSeasV1uy5mhhL7/3GF8U1txOQKk/zs=
+        b=r5yjIjnqkR9CBL3HeE8M6ZY5EUgckgqiTN6JUsDQ8/3nIPEV3wDy5tzu5v7j+R85L
+         ezqdNrLA5BfaS2rRcSUtMHYr5YkHOnXPcDlzvr7V+T8CKaTzRpwNJaEUymj9mXh8yY
+         oTeegnhAiTxTSIeQXPI2/TIHAvA8MJ3bqN5fRtfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 88/92] tracing/hwlat: Report total time spent in all NMIs during the sample
+        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.14 47/65] CIFS: Force revalidate inode when dentry is stale
 Date:   Wed, 16 Oct 2019 14:51:01 -0700
-Message-Id: <20191016214848.472113499@linuxfoundation.org>
+Message-Id: <20191016214834.707923238@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+From: Pavel Shilovsky <piastryyy@gmail.com>
 
-commit 98dc19c11470ee6048aba723d77079ad2cda8a52 upstream.
+commit c82e5ac7fe3570a269c0929bf7899f62048e7dbc upstream.
 
-nmi_total_ts is supposed to record the total time spent in *all* NMIs
-that occur on the given CPU during the (active portion of the)
-sampling window. However, the code seems to be overwriting this
-variable for each NMI, thereby only recording the time spent in the
-most recent NMI. Fix it by accumulating the duration instead.
+Currently the client indicates that a dentry is stale when inode
+numbers or type types between a local inode and a remote file
+don't match. If this is the case attributes is not being copied
+from remote to local, so, it is already known that the local copy
+has stale metadata. That's why the inode needs to be marked for
+revalidation in order to tell the VFS to lookup the dentry again
+before openning a file. This prevents unexpected stale errors
+to be returned to the user space when openning a file.
 
-Link: http://lkml.kernel.org/r/157073343544.17189.13911783866738671133.stgit@srivatsa-ubuntu
-
-Fixes: 7b2c86250122 ("tracing: Add NMI tracing in hwlat detector")
-Cc: stable@vger.kernel.org
-Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_hwlat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/inode.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/trace/trace_hwlat.c
-+++ b/kernel/trace/trace_hwlat.c
-@@ -151,7 +151,7 @@ void trace_hwlat_callback(bool enter)
- 		if (enter)
- 			nmi_ts_start = time_get();
- 		else
--			nmi_total_ts = time_get() - nmi_ts_start;
-+			nmi_total_ts += time_get() - nmi_ts_start;
- 	}
- 
- 	if (enter)
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -410,6 +410,7 @@ int cifs_get_inode_info_unix(struct inod
+ 		/* if uniqueid is different, return error */
+ 		if (unlikely(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM &&
+ 		    CIFS_I(*pinode)->uniqueid != fattr.cf_uniqueid)) {
++			CIFS_I(*pinode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgiiu_exit;
+ 		}
+@@ -417,6 +418,7 @@ int cifs_get_inode_info_unix(struct inod
+ 		/* if filetype is different, return error */
+ 		if (unlikely(((*pinode)->i_mode & S_IFMT) !=
+ 		    (fattr.cf_mode & S_IFMT))) {
++			CIFS_I(*pinode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgiiu_exit;
+ 		}
+@@ -925,6 +927,7 @@ cifs_get_inode_info(struct inode **inode
+ 		/* if uniqueid is different, return error */
+ 		if (unlikely(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM &&
+ 		    CIFS_I(*inode)->uniqueid != fattr.cf_uniqueid)) {
++			CIFS_I(*inode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgii_exit;
+ 		}
+@@ -932,6 +935,7 @@ cifs_get_inode_info(struct inode **inode
+ 		/* if filetype is different, return error */
+ 		if (unlikely(((*inode)->i_mode & S_IFMT) !=
+ 		    (fattr.cf_mode & S_IFMT))) {
++			CIFS_I(*inode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgii_exit;
+ 		}
 
 
