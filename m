@@ -2,54 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D78DA042
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6A7D9F7D
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389158AbfJPWJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50110 "EHLO mail.kernel.org"
+        id S2395232AbfJPVza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395481AbfJPV51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:27 -0400
+        id S2395230AbfJPVz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:29 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DA6521925;
-        Wed, 16 Oct 2019 21:57:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F281B21D7D;
+        Wed, 16 Oct 2019 21:55:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263046;
-        bh=aYhgH6fzlsQzxS6skawnwMCgmv+FYnwhSWjRU2M2VK4=;
+        s=default; t=1571262929;
+        bh=ctx9m1P2qHO9OhbiDy0lfGlpY9jIrCPAipH0YS0yzCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2BPcdLELtzWfx06cyb4LXexJ5P2rz2gIcY5amw0VKRKvEUvQDMETrElRFX7rUw4md
-         GSqDnTbE1xFXcX5bVjhBZ+LXnTFlA61UKZCldjnTRONRmtIWvLNpgPwaLrnDyI1R9X
-         qWL8eciW9ea5soMFmmnUqQpLtajhmExe5lb2kgPA=
+        b=PfZHFRCKW0mvsZfYjIOnpX/p50q7yAf0JZEj23WEAqnNTd1pgZoD+5aJzHJqiRjeO
+         7+06lw/a2jZkpd9AgXmEs/Ygu0ki9cDzjEpqgKlt0FIOmQSsHJMPGADBkTFzFFvco4
+         iwDaoMcVK80HCCq4Ahcf0aNTYgYpk0yVzzRjXYxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Brian Robbins <brianrob@microsoft.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 51/81] perf inject jit: Fix JIT_CODE_MOVE filename
+        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 89/92] tracing/hwlat: Dont ignore outer-loop duration when calculating max_latency
 Date:   Wed, 16 Oct 2019 14:51:02 -0700
-Message-Id: <20191016214840.771843119@linuxfoundation.org>
+Message-Id: <20191016214848.563153457@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,73 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve MacLean <Steve.MacLean@microsoft.com>
+From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 
-commit b59711e9b0d22fd47abfa00602fd8c365cdd3ab7 upstream.
+commit fc64e4ad80d4b72efce116f87b3174f0b7196f8e upstream.
 
-During perf inject --jit, JIT_CODE_MOVE records were injecting MMAP records
-with an incorrect filename. Specifically it was missing the ".so" suffix.
+max_latency is intended to record the maximum ever observed hardware
+latency, which may occur in either part of the loop (inner/outer). So
+we need to also consider the outer-loop sample when updating
+max_latency.
 
-Further the JIT_CODE_LOAD record were silently truncating the
-jr->load.code_index field to 32 bits before generating the filename.
+Link: http://lkml.kernel.org/r/157073345463.17189.18124025522664682811.stgit@srivatsa-ubuntu
 
-Make both records emit the same filename based on the full 64 bit
-code_index field.
-
-Fixes: 9b07e27f88b9 ("perf inject: Add jitdump mmap injection support")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Brian Robbins <brianrob@microsoft.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB1362FF8F127B31DBF4121528F7800@BN8PR21MB1362.namprd21.prod.outlook.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e7c15cd8a113 ("tracing: Added hardware latency tracer")
+Cc: stable@vger.kernel.org
+Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/jitdump.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/trace_hwlat.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/perf/util/jitdump.c
-+++ b/tools/perf/util/jitdump.c
-@@ -394,7 +394,7 @@ static int jit_repipe_code_load(struct j
- 	size_t size;
- 	u16 idr_size;
- 	const char *sym;
--	uint32_t count;
-+	uint64_t count;
- 	int ret, csize, usize;
- 	pid_t pid, tid;
- 	struct {
-@@ -417,7 +417,7 @@ static int jit_repipe_code_load(struct j
- 		return -1;
+--- a/kernel/trace/trace_hwlat.c
++++ b/kernel/trace/trace_hwlat.c
+@@ -257,6 +257,8 @@ static int get_sample(void)
+ 		/* Keep a running maximum ever recorded hardware latency */
+ 		if (sample > tr->max_latency)
+ 			tr->max_latency = sample;
++		if (outer_sample > tr->max_latency)
++			tr->max_latency = outer_sample;
+ 	}
  
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%u.so",
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 			jd->dir,
- 			pid,
- 			count);
-@@ -530,7 +530,7 @@ static int jit_repipe_code_move(struct j
- 		return -1;
- 
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%"PRIu64,
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 	         jd->dir,
- 	         pid,
- 		 jr->move.code_index);
+ out:
 
 
