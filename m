@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB07D9E50
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D62ADD9F16
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395558AbfJPV6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
+        id S2388173AbfJPWEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395550AbfJPV6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:04 -0400
+        id S2438344AbfJPV66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:58 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F19222BD;
-        Wed, 16 Oct 2019 21:58:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3E2821925;
+        Wed, 16 Oct 2019 21:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263083;
-        bh=8ypf+V3XnMZ5d4aOrmgay6KYQXAQYppW/pnkETnQXzs=;
+        s=default; t=1571263138;
+        bh=y7sgHoGnXAsezDdMfpycMHUY/pshOqLcSCc0e5fWPhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDBDx5WsEDKpESjM+dgi1bqKTBeTUDWn0LexLnfOMW08B6+LeZe3uB27ZUb1BFFtG
-         lmabOlZYjoy5SyDh/OEhJFV0owXqAyzn5grVdPvlvh2r7aHECFbEdbDCgsZeM66pCF
-         uilhR+ZjCXcuK5cmgAgWFp41UVy51X+Qi35dL+Ug=
+        b=lqKaL00wTSY1xsmYWqKFVqeNIa1lzcFXyaF3t4jknZEqi94wG5CgcuoGsjgq3pD0f
+         ER/gtGCW+9If+ZppLhSybvcc9hoIEcicmWYDOjvoek2+aDhOTQI1Rj7MYQN+B1P2xp
+         OqKsg0hft5swCOsLCHnFDdFEy0gcYvYxBnCAd6wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.19 41/81] mei: avoid FW version request on Ibex Peak and earlier
-Date:   Wed, 16 Oct 2019 14:50:52 -0700
-Message-Id: <20191016214837.926708432@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Popa <stefan.popa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.3 061/112] iio: accel: adxl372: Perform a reset at start up
+Date:   Wed, 16 Oct 2019 14:50:53 -0700
+Message-Id: <20191016214900.706636626@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,212 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Stefan Popa <stefan.popa@analog.com>
 
-commit f8204f0ddd62966a0e79c2804963a21e3540dd82 upstream.
+commit d9a997bd4d762d5bd8cc548d762902f58b5e0a74 upstream.
 
-The fixed MKHI client on PCH 6 gen platforms
-does not support fw version retrieval.
-The error is not fatal, but it fills up the kernel logs and
-slows down the driver start.
-This patch disables requesting FW version on GEN6 and earlier platforms.
+We need to perform a reset a start up to make sure that the chip is in a
+consistent state. This reset also disables all the interrupts which
+should only be enabled together with the iio buffer. Not doing this, was
+sometimes causing unwanted interrupts to trigger.
 
-Fixes warning:
-[   15.964298] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: Could not read FW version
-[   15.964301] mei mei::55213584-9a29-4916-badf-0fb7ed682aeb:01: version command failed -5
-
-Cc: <stable@vger.kernel.org> +v4.18
-Cc: Paul Menzel <pmenzel@molgen.mpg.de>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191004181722.31374-1-tomas.winkler@intel.com
+Signed-off-by: Stefan Popa <stefan.popa@analog.com>
+Fixes: f4f55ce38e5f ("iio:adxl372: Add FIFO and interrupts support")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/mei/bus-fixup.c |   14 +++++++++++---
- drivers/misc/mei/hw-me.c     |   21 ++++++++++++++++++---
- drivers/misc/mei/hw-me.h     |    8 ++++++--
- drivers/misc/mei/mei_dev.h   |    4 ++++
- drivers/misc/mei/pci-me.c    |   10 +++++-----
- 5 files changed, 44 insertions(+), 13 deletions(-)
+ drivers/iio/accel/adxl372.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/misc/mei/bus-fixup.c
-+++ b/drivers/misc/mei/bus-fixup.c
-@@ -214,13 +214,21 @@ static void mei_mkhi_fix(struct mei_cl_d
- {
- 	int ret;
+--- a/drivers/iio/accel/adxl372.c
++++ b/drivers/iio/accel/adxl372.c
+@@ -575,6 +575,14 @@ static int adxl372_setup(struct adxl372_
+ 		return -ENODEV;
+ 	}
  
-+	/* No need to enable the client if nothing is needed from it */
-+	if (!cldev->bus->fw_f_fw_ver_supported &&
-+	    !cldev->bus->hbm_f_os_supported)
-+		return;
++	/*
++	 * Perform a software reset to make sure the device is in a consistent
++	 * state after start up.
++	 */
++	ret = regmap_write(st->regmap, ADXL372_RESET, ADXL372_RESET_CODE);
++	if (ret < 0)
++		return ret;
 +
- 	ret = mei_cldev_enable(cldev);
- 	if (ret)
- 		return;
- 
--	ret = mei_fwver(cldev);
--	if (ret < 0)
--		dev_err(&cldev->dev, "FW version command failed %d\n", ret);
-+	if (cldev->bus->fw_f_fw_ver_supported) {
-+		ret = mei_fwver(cldev);
-+		if (ret < 0)
-+			dev_err(&cldev->dev, "FW version command failed %d\n",
-+				ret);
-+	}
- 
- 	if (cldev->bus->hbm_f_os_supported) {
- 		ret = mei_osver(cldev);
---- a/drivers/misc/mei/hw-me.c
-+++ b/drivers/misc/mei/hw-me.c
-@@ -1368,6 +1368,8 @@ static bool mei_me_fw_type_sps(struct pc
- #define MEI_CFG_FW_SPS                           \
- 	.quirk_probe = mei_me_fw_type_sps
- 
-+#define MEI_CFG_FW_VER_SUPP                     \
-+	.fw_ver_supported = 1
- 
- #define MEI_CFG_ICH_HFS                      \
- 	.fw_status.count = 0
-@@ -1405,31 +1407,41 @@ static const struct mei_cfg mei_me_ich10
- 	MEI_CFG_ICH10_HFS,
- };
- 
--/* PCH devices */
--static const struct mei_cfg mei_me_pch_cfg = {
-+/* PCH6 devices */
-+static const struct mei_cfg mei_me_pch6_cfg = {
- 	MEI_CFG_PCH_HFS,
- };
- 
-+/* PCH7 devices */
-+static const struct mei_cfg mei_me_pch7_cfg = {
-+	MEI_CFG_PCH_HFS,
-+	MEI_CFG_FW_VER_SUPP,
-+};
-+
- /* PCH Cougar Point and Patsburg with quirk for Node Manager exclusion */
- static const struct mei_cfg mei_me_pch_cpt_pbg_cfg = {
- 	MEI_CFG_PCH_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_FW_NM,
- };
- 
- /* PCH8 Lynx Point and newer devices */
- static const struct mei_cfg mei_me_pch8_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- };
- 
- /* PCH8 Lynx Point with quirk for SPS Firmware exclusion */
- static const struct mei_cfg mei_me_pch8_sps_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_FW_SPS,
- };
- 
- /* Cannon Lake and newer devices */
- static const struct mei_cfg mei_me_pch12_cfg = {
- 	MEI_CFG_PCH8_HFS,
-+	MEI_CFG_FW_VER_SUPP,
- 	MEI_CFG_DMA_128,
- };
- 
-@@ -1441,7 +1453,8 @@ static const struct mei_cfg *const mei_c
- 	[MEI_ME_UNDEF_CFG] = NULL,
- 	[MEI_ME_ICH_CFG] = &mei_me_ich_cfg,
- 	[MEI_ME_ICH10_CFG] = &mei_me_ich10_cfg,
--	[MEI_ME_PCH_CFG] = &mei_me_pch_cfg,
-+	[MEI_ME_PCH6_CFG] = &mei_me_pch6_cfg,
-+	[MEI_ME_PCH7_CFG] = &mei_me_pch7_cfg,
- 	[MEI_ME_PCH_CPT_PBG_CFG] = &mei_me_pch_cpt_pbg_cfg,
- 	[MEI_ME_PCH8_CFG] = &mei_me_pch8_cfg,
- 	[MEI_ME_PCH8_SPS_CFG] = &mei_me_pch8_sps_cfg,
-@@ -1480,6 +1493,8 @@ struct mei_device *mei_me_dev_init(struc
- 
- 	mei_device_init(dev, &pdev->dev, &mei_me_hw_ops);
- 	hw->cfg = cfg;
-+	dev->fw_f_fw_ver_supported = cfg->fw_ver_supported;
-+
- 	return dev;
- }
- 
---- a/drivers/misc/mei/hw-me.h
-+++ b/drivers/misc/mei/hw-me.h
-@@ -32,11 +32,13 @@
-  * @fw_status: FW status
-  * @quirk_probe: device exclusion quirk
-  * @dma_size: device DMA buffers size
-+ * @fw_ver_supported: is fw version retrievable from FW
-  */
- struct mei_cfg {
- 	const struct mei_fw_status fw_status;
- 	bool (*quirk_probe)(struct pci_dev *pdev);
- 	size_t dma_size[DMA_DSCR_NUM];
-+	u32 fw_ver_supported:1;
- };
- 
- 
-@@ -74,7 +76,8 @@ struct mei_me_hw {
-  * @MEI_ME_UNDEF_CFG:      Lower sentinel.
-  * @MEI_ME_ICH_CFG:        I/O Controller Hub legacy devices.
-  * @MEI_ME_ICH10_CFG:      I/O Controller Hub platforms Gen10
-- * @MEI_ME_PCH_CFG:        Platform Controller Hub platforms (Up to Gen8).
-+ * @MEI_ME_PCH6_CFG:       Platform Controller Hub platforms (Gen6).
-+ * @MEI_ME_PCH7_CFG:       Platform Controller Hub platforms (Gen7).
-  * @MEI_ME_PCH_CPT_PBG_CFG:Platform Controller Hub workstations
-  *                         with quirk for Node Manager exclusion.
-  * @MEI_ME_PCH8_CFG:       Platform Controller Hub Gen8 and newer
-@@ -89,7 +92,8 @@ enum mei_cfg_idx {
- 	MEI_ME_UNDEF_CFG,
- 	MEI_ME_ICH_CFG,
- 	MEI_ME_ICH10_CFG,
--	MEI_ME_PCH_CFG,
-+	MEI_ME_PCH6_CFG,
-+	MEI_ME_PCH7_CFG,
- 	MEI_ME_PCH_CPT_PBG_CFG,
- 	MEI_ME_PCH8_CFG,
- 	MEI_ME_PCH8_SPS_CFG,
---- a/drivers/misc/mei/mei_dev.h
-+++ b/drivers/misc/mei/mei_dev.h
-@@ -422,6 +422,8 @@ struct mei_fw_version {
-  *
-  * @fw_ver : FW versions
-  *
-+ * @fw_f_fw_ver_supported : fw feature: fw version supported
-+ *
-  * @me_clients_rwsem: rw lock over me_clients list
-  * @me_clients  : list of FW clients
-  * @me_clients_map : FW clients bit map
-@@ -500,6 +502,8 @@ struct mei_device {
- 
- 	struct mei_fw_version fw_ver[MEI_MAX_FW_VER_BLOCKS];
- 
-+	unsigned int fw_f_fw_ver_supported:1;
-+
- 	struct rw_semaphore me_clients_rwsem;
- 	struct list_head me_clients;
- 	DECLARE_BITMAP(me_clients_map, MEI_CLIENTS_MAX);
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -70,13 +70,13 @@ static const struct pci_device_id mei_me
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICH10_3, MEI_ME_ICH10_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICH10_4, MEI_ME_ICH10_CFG)},
- 
--	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_1, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_2, MEI_ME_PCH_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_1, MEI_ME_PCH6_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_IBXPK_2, MEI_ME_PCH6_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CPT_1, MEI_ME_PCH_CPT_PBG_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_PBG_1, MEI_ME_PCH_CPT_PBG_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_1, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_2, MEI_ME_PCH_CFG)},
--	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_3, MEI_ME_PCH_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_1, MEI_ME_PCH7_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_2, MEI_ME_PCH7_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_PPT_3, MEI_ME_PCH7_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_H, MEI_ME_PCH8_SPS_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_W, MEI_ME_PCH8_SPS_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_LPT_LP, MEI_ME_PCH8_CFG)},
+ 	ret = adxl372_set_op_mode(st, ADXL372_STANDBY);
+ 	if (ret < 0)
+ 		return ret;
 
 
