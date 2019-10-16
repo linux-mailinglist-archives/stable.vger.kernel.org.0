@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21605D9DED
+	by mail.lfdr.de (Postfix) with ESMTP id 8AFD4D9DEE
 	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732845AbfJPVyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:54:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S2395097AbfJPVyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395079AbfJPVyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:52 -0400
+        id S2395087AbfJPVyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:53 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D61521D7F;
-        Wed, 16 Oct 2019 21:54:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D8EE20872;
+        Wed, 16 Oct 2019 21:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262891;
-        bh=V4BRBRezsqDW9FCesNNYVtuI0Ud45BnOrAw/VPLoSY4=;
+        s=default; t=1571262892;
+        bh=vsdgNqKiAWkFY+P2z+lkOSG8ENvBsRipuXmCpmjROsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ja7Amr/7LkN3iMKT417ZxXXPTkjhwemGspLjR/fRWfuQKtRjnZNPJvlMNtiMzACBM
-         07qbeFRypO6cjG9Av89jp3weeaPG2/FhvzKvG0wfDLObRV1sLjYtIiJ4jYnjng4tD8
-         BgvI/jNmgmw3pfWbafgdVK18NYCl9q/jh1x+2hdE=
+        b=u0ckSjnV9w/BsfS+dMgxw6lH+WO48Mm3Q2N13Qme0QoxLq1gpl0wmZHdz/UUvfGgy
+         dK8C1FGIZkiHlWrkXMj7ayAleRVCxzKfo3AXVGJGBYYYIQKTMTpZ2Cq37u0wq0eomB
+         jLIYJ2Cknjet+Z/KpCsbo5mBjutDnrSEVNqOm1Gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 48/92] USB: adutux: fix use-after-free on disconnect
-Date:   Wed, 16 Oct 2019 14:50:21 -0700
-Message-Id: <20191016214835.001785907@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 49/92] USB: adutux: fix NULL-derefs on disconnect
+Date:   Wed, 16 Oct 2019 14:50:22 -0700
+Message-Id: <20191016214835.619726516@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
 References: <20191016214759.600329427@linuxfoundation.org>
@@ -46,50 +44,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 44efc269db7929f6275a1fa927ef082e533ecde0 upstream.
+commit b2fa7baee744fde746c17bc1860b9c6f5c2eebb7 upstream.
 
-The driver was clearing its struct usb_device pointer, which it used as
-an inverted disconnected flag, before deregistering the character device
-and without serialising against racing release().
+The driver was using its struct usb_device pointer as an inverted
+disconnected flag, but was setting it to NULL before making sure all
+completion handlers had run. This could lead to a NULL-pointer
+dereference in a number of dev_dbg statements in the completion handlers
+which relies on said pointer.
 
-This could lead to a use-after-free if a racing release() callback
-observes the cleared pointer and frees the driver data before
-disconnect() is finished with it.
+The pointer was also dereferenced unconditionally in a dev_dbg statement
+release() something which would lead to a NULL-deref whenever a device
+was disconnected before the final character-device close if debugging
+was enabled.
 
-This could also lead to NULL-pointer dereferences in a racing open().
+Fix this by unconditionally stopping all I/O and preventing
+resubmissions by poisoning the interrupt URBs at disconnect and using a
+dedicated disconnected flag.
 
-Fixes: f08812d5eb8f ("USB: FIx locks and urb->status in adutux (updated)")
-Cc: stable <stable@vger.kernel.org>     # 2.6.24
-Reported-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
-Tested-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
+This also makes sure that all I/O has completed by the time the
+disconnect callback returns.
+
+Fixes: 1ef37c6047fe ("USB: adutux: remove custom debug macro and module parameter")
+Fixes: 66d4bc30d128 ("USB: adutux: remove custom debug macro")
+Cc: stable <stable@vger.kernel.org>     # 3.12
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190925092913.8608-1-johan@kernel.org
+Link: https://lore.kernel.org/r/20190925092913.8608-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/adutux.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/misc/adutux.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
 --- a/drivers/usb/misc/adutux.c
 +++ b/drivers/usb/misc/adutux.c
-@@ -792,14 +792,15 @@ static void adu_disconnect(struct usb_in
+@@ -80,6 +80,7 @@ struct adu_device {
+ 	char			serial_number[8];
+ 
+ 	int			open_count; /* number of times this port has been opened */
++	unsigned long		disconnected:1;
+ 
+ 	char		*read_buffer_primary;
+ 	int			read_buffer_length;
+@@ -121,7 +122,7 @@ static void adu_abort_transfers(struct a
+ {
+ 	unsigned long flags;
+ 
+-	if (dev->udev == NULL)
++	if (dev->disconnected)
+ 		return;
+ 
+ 	/* shutdown transfer */
+@@ -244,7 +245,7 @@ static int adu_open(struct inode *inode,
+ 	}
  
  	dev = usb_get_intfdata(interface);
+-	if (!dev || !dev->udev) {
++	if (!dev) {
+ 		retval = -ENODEV;
+ 		goto exit_no_device;
+ 	}
+@@ -327,7 +328,7 @@ static int adu_release(struct inode *ino
+ 	}
  
--	mutex_lock(&dev->mtx);	/* not interruptible */
--	dev->udev = NULL;	/* poison */
+ 	adu_release_internal(dev);
+-	if (dev->udev == NULL) {
++	if (dev->disconnected) {
+ 		/* the device was unplugged before the file was released */
+ 		if (!dev->open_count)	/* ... and we're the last user */
+ 			adu_delete(dev);
+@@ -356,7 +357,7 @@ static ssize_t adu_read(struct file *fil
+ 		return -ERESTARTSYS;
+ 
+ 	/* verify that the device wasn't unplugged */
+-	if (dev->udev == NULL) {
++	if (dev->disconnected) {
+ 		retval = -ENODEV;
+ 		pr_err("No device or device unplugged %d\n", retval);
+ 		goto exit;
+@@ -525,7 +526,7 @@ static ssize_t adu_write(struct file *fi
+ 		goto exit_nolock;
+ 
+ 	/* verify that the device wasn't unplugged */
+-	if (dev->udev == NULL) {
++	if (dev->disconnected) {
+ 		retval = -ENODEV;
+ 		pr_err("No device or device unplugged %d\n", retval);
+ 		goto exit;
+@@ -794,11 +795,14 @@ static void adu_disconnect(struct usb_in
+ 
  	usb_deregister_dev(interface, &adu_class);
--	mutex_unlock(&dev->mtx);
  
++	usb_poison_urb(dev->interrupt_in_urb);
++	usb_poison_urb(dev->interrupt_out_urb);
++
  	mutex_lock(&adutux_mutex);
  	usb_set_intfdata(interface, NULL);
  
-+	mutex_lock(&dev->mtx);	/* not interruptible */
-+	dev->udev = NULL;	/* poison */
-+	mutex_unlock(&dev->mtx);
-+
+ 	mutex_lock(&dev->mtx);	/* not interruptible */
+-	dev->udev = NULL;	/* poison */
++	dev->disconnected = 1;
+ 	mutex_unlock(&dev->mtx);
+ 
  	/* if the device is not opened, then we clean up right now */
- 	if (!dev->open_count)
- 		adu_delete(dev);
 
 
