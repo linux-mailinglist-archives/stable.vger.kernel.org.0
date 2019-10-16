@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 578F3D9DD9
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51827D9DB6
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437665AbfJPVyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:54:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43626 "EHLO mail.kernel.org"
+        id S2394766AbfJPVwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437661AbfJPVyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:04 -0400
-Received: from localhost (unknown [192.55.54.58])
+        id S2394721AbfJPVwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:52:24 -0400
+Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3969C21D7C;
-        Wed, 16 Oct 2019 21:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 514AD20872;
+        Wed, 16 Oct 2019 21:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262844;
-        bh=aIQcL4b/tb/PvwmoHrsNLvrqkU7fYpR0I51Q/CTrS70=;
+        s=default; t=1571262742;
+        bh=zia0u6U50VqyyHFrQCAoWOuBsAuMqjFRq80uvANzgHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4v1V3DNsa0AhYE9Y1Mj752VLzQfAd8RAl2tSyFs55ZDrdT52o6BkthTG0SDHwpDu
-         1M6OhmHUBhnv3CBni48qSobIGAurhcMiaItcQJa8dOKasqB35qa9ssbUxgkvYfDhuH
-         AVnTc30syxVhYqoY4F2ErMsTPaTBarjdyGE9m9cI=
+        b=DaUMULRyWVTXNrBHsOzETQgl0qnSwiAw0sbsbdmtC+NRYQT0bmZOwvYwds+MbfUSl
+         7tTLkzcctTOIHbG0dh/HCS0iEuQ6PqXZHei3JxF09jFZv9paprlE7FXhoinfu6zwIA
+         vvMIKNd4Je1l2YPqXLgYgSwk04n/C8rzUXfNzMa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 4.9 02/92] s390/topology: avoid firing events before kobjs are created
-Date:   Wed, 16 Oct 2019 14:49:35 -0700
-Message-Id: <20191016214801.569162744@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Janosch Frank <frankja@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4.4 01/79] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
+Date:   Wed, 16 Oct 2019 14:49:36 -0700
+Message-Id: <20191016214730.169837508@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,61 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
 
-commit f3122a79a1b0a113d3aea748e0ec26f2cb2889de upstream.
+commit a13b03bbb4575b350b46090af4dfd30e735aaed1 upstream.
 
-arch_update_cpu_topology is first called from:
-kernel_init_freeable->sched_init_smp->sched_init_domains
+If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
+then there is certainly a bug in the calling userspace application.
+We check for wrong access registers, but only if the vCPU was already
+in the access register mode before (i.e. the SIE block has recorded
+it). The check is also buried somewhere deep in the calling chain (in
+the function ar_translation()), so this is somewhat hard to find.
 
-even before cpus has been registered in:
-kernel_init_freeable->do_one_initcall->s390_smp_init
+It's better to always report an error to the userspace in case this
+field is set wrong, and it's safer in the KVM code if we block wrong
+values here early instead of relying on a check somewhere deep down
+the calling chain, so let's add another check to kvm_s390_guest_mem_op()
+directly.
 
-Do not trigger kobject_uevent change events until cpu devices are
-actually created. Fixes the following kasan findings:
+We also should check that the "size" is non-zero here (thanks to Janosch
+Frank for the hint!). If we do not check the size, we could call vmalloc()
+with this 0 value, and this will cause a kernel warning.
 
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb40/0xee0
-Read of size 8 at addr 0000000000000020 by task swapper/0/1
-
-BUG: KASAN: global-out-of-bounds in kobject_uevent_env+0xb36/0xee0
-Read of size 8 at addr 0000000000000018 by task swapper/0/1
-
-CPU: 0 PID: 1 Comm: swapper/0 Tainted: G    B
-Hardware name: IBM 3906 M04 704 (LPAR)
-Call Trace:
-([<0000000143c6db7e>] show_stack+0x14e/0x1a8)
- [<0000000145956498>] dump_stack+0x1d0/0x218
- [<000000014429fb4c>] print_address_description+0x64/0x380
- [<000000014429f630>] __kasan_report+0x138/0x168
- [<0000000145960b96>] kobject_uevent_env+0xb36/0xee0
- [<0000000143c7c47c>] arch_update_cpu_topology+0x104/0x108
- [<0000000143df9e22>] sched_init_domains+0x62/0xe8
- [<000000014644c94a>] sched_init_smp+0x3a/0xc0
- [<0000000146433a20>] kernel_init_freeable+0x558/0x958
- [<000000014599002a>] kernel_init+0x22/0x160
- [<00000001459a71d4>] ret_from_fork+0x28/0x30
- [<00000001459a71dc>] kernel_thread_starter+0x0/0x10
-
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Link: https://lkml.kernel.org/r/20190829122517.31042-1-thuth@redhat.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kernel/topology.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -256,7 +256,8 @@ int arch_update_cpu_topology(void)
- 		topology_update_polarization_simple();
- 	for_each_online_cpu(cpu) {
- 		dev = get_cpu_device(cpu);
--		kobject_uevent(&dev->kobj, KOBJ_CHANGE);
-+		if (dev)
-+			kobject_uevent(&dev->kobj, KOBJ_CHANGE);
- 	}
- 	return rc;
- }
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -2471,7 +2471,7 @@ static long kvm_s390_guest_mem_op(struct
+ 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+ 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+ 
+-	if (mop->flags & ~supported_flags)
++	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
+ 		return -EINVAL;
+ 
+ 	if (mop->size > MEM_OP_MAX_SIZE)
 
 
