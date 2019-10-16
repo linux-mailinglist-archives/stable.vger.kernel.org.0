@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 490E7D9FB3
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69E8DDA085
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395485AbfJPV53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50178 "EHLO mail.kernel.org"
+        id S1732967AbfJPWMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438009AbfJPV53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:29 -0400
+        id S2406628AbfJPV4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:21 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 720DD21D7F;
-        Wed, 16 Oct 2019 21:57:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA0D221925;
+        Wed, 16 Oct 2019 21:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263048;
-        bh=UlGrKMgXgRaTB19PpiO2d5UObMhWdYR3TmQmAa+QV6Y=;
+        s=default; t=1571262980;
+        bh=7GqnbcH+r90nThr865WG1XKok01vq2QVJ4b1QhEQN5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M3NE6y4UTI0vR8aFjSA39lgx5oFApQ+pe2b6jNde/Ltrmng899uHinJ0ZxeEQ7MCv
-         tEtGMWm4IsdVdyvczNCOcFyfLJJRmZoJj6ljQboidRwS0eR1PzOEMPH3ywLhLvRXd7
-         NbsqcnnHErYGwXpqsu0zL3YqyrhkFodrX8w6w5v8=
+        b=2JkH+MvONciyf/yd7aWjhLhjk5FkVr7AlfaNH8jhbTLBq08k9pU5826W44KxYPROD
+         HpTNGpH8m9LXLDYoW69s+uU93jprg73Gfa//epjGX72vQG2emTl31JVUvtami9RLeS
+         0bFNAHWbaWWExRMYmJsrBAqxWLWEYIhexsoBfT3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 53/81] CIFS: Gracefully handle QueryInfo errors during open
+        stable@vger.kernel.org, Hung-Te Lin <hungte@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 50/65] firmware: google: increment VPD key_len properly
 Date:   Wed, 16 Oct 2019 14:51:04 -0700
-Message-Id: <20191016214841.532817992@linuxfoundation.org>
+Message-Id: <20191016214835.824729336@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <piastryyy@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 30573a82fb179420b8aac30a3a3595aa96a93156 upstream.
+[ Upstream commit 442f1e746e8187b9deb1590176f6b0ff19686b11 ]
 
-Currently if the client identifies problems when processing
-metadata returned in CREATE response, the open handle is being
-leaked. This causes multiple problems like a file missing a lease
-break by that client which causes high latencies to other clients
-accessing the file. Another side-effect of this is that the file
-can't be deleted.
+Commit 4b708b7b1a2c ("firmware: google: check if size is valid when
+decoding VPD data") adds length checks, but the new vpd_decode_entry()
+function botched the logic -- it adds the key length twice, instead of
+adding the key and value lengths separately.
 
-Fix this by closing the file after the client hits an error after
-the file was opened and the open descriptor wasn't returned to
-the user space. Also convert -ESTALE to -EOPENSTALE to allow
-the VFS to revalidate a dentry and retry the open.
+On my local system, this means vpd.c's vpd_section_create_attribs() hits
+an error case after the first attribute it parses, since it's no longer
+looking at the correct offset. With this patch, I'm back to seeing all
+the correct attributes in /sys/firmware/vpd/...
 
+Fixes: 4b708b7b1a2c ("firmware: google: check if size is valid when decoding VPD data")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Cc: Hung-Te Lin <hungte@chromium.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Link: https://lore.kernel.org/r/20190930214522.240680-1-briannorris@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/file.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/firmware/google/vpd_decode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -252,6 +252,12 @@ cifs_nt_open(char *full_path, struct ino
- 		rc = cifs_get_inode_info(&inode, full_path, buf, inode->i_sb,
- 					 xid, fid);
+diff --git a/drivers/firmware/google/vpd_decode.c b/drivers/firmware/google/vpd_decode.c
+index e75abe9fa122c..6c7ab2ba85d2f 100644
+--- a/drivers/firmware/google/vpd_decode.c
++++ b/drivers/firmware/google/vpd_decode.c
+@@ -62,7 +62,7 @@ static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
+ 	if (max_len - consumed < *entry_len)
+ 		return VPD_FAIL;
  
-+	if (rc) {
-+		server->ops->close(xid, tcon, fid);
-+		if (rc == -ESTALE)
-+			rc = -EOPENSTALE;
-+	}
-+
- out:
- 	kfree(buf);
- 	return rc;
+-	consumed += decoded_len;
++	consumed += *entry_len;
+ 	*_consumed = consumed;
+ 	return VPD_OK;
+ }
+-- 
+2.20.1
+
 
 
