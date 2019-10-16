@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60202D9FC2
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BA3CDA106
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406688AbfJPV6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51544 "EHLO mail.kernel.org"
+        id S1728011AbfJPWSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:18:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391450AbfJPV6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:12 -0400
+        id S2394996AbfJPVy0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:26 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 148F121D7C;
-        Wed, 16 Oct 2019 21:58:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A423421A4C;
+        Wed, 16 Oct 2019 21:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263091;
-        bh=Ps6NmP/D8fXdxR8ZOVo76LcBO9W4BYztQcwG3GJzoT8=;
+        s=default; t=1571262865;
+        bh=f9IPlNHLKFCsJuY8349dycvrJB7cmi/z+5puEsg0Q7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mv5KpKqDv1R4K/N82A5Db61Gp1s0m6cJW7AZB9YiYcAwgTFxA7JBY7Qo7gyvUXlJc
-         g6m5uPAFm4vUOzMpcupFNRjB01PZlD3BhzGXdAppEUrLzg7OiSe/VKBdo3AOPS5WQc
-         jU0plV7YhYGYEXy3E3R/UibcE6lePlUOvKr5th7A=
+        b=VLdcnChFTCsJGgBOj/5gb2EykNnIGj8SUSahL09pWBqmXmmhkYfbEo8MDLuwwtHQ5
+         7V8johGqli6CCbgHELgYKrlpfqu76hmK135cwWug4bQnX6Wy6DO38apk1SPu4gykCB
+         OPh1V7sJTdUfwpw4z+fBIMJv2UoPBqPk1GVtXkao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Torez Smith <torez@redhat.com>,
-        Bill Kuzeja <william.kuzeja@stratus.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 012/112] xhci: Prevent deadlock when xhci adapter breaks during init
+        stable@vger.kernel.org, Andrew Murray <andrew.murray@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.9 31/92] coresight: etm4x: Use explicit barriers on enable/disable
 Date:   Wed, 16 Oct 2019 14:50:04 -0700
-Message-Id: <20191016214847.128250484@linuxfoundation.org>
+Message-Id: <20191016214826.438744632@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bill Kuzeja <William.Kuzeja@stratus.com>
+From: Andrew Murray <andrew.murray@arm.com>
 
-commit 8de66b0e6a56ff10dd00d2b0f2ae52e300178587 upstream.
+commit 1004ce4c255fc3eb3ad9145ddd53547d1b7ce327 upstream.
 
-The system can hit a deadlock if an xhci adapter breaks while initializing.
-The deadlock is between two threads: thread 1 is tearing down the
-adapter and is stuck in usb_unlocked_disable_lpm waiting to lock the
-hcd->handwidth_mutex. Thread 2 is holding this mutex (while still trying
-to add a usb device), but is stuck in xhci_endpoint_reset waiting for a
-stop or config command to complete. A reboot is required to resolve.
+Synchronization is recommended before disabling the trace registers
+to prevent any start or stop points being speculative at the point
+of disabling the unit (section 7.3.77 of ARM IHI 0064D).
 
-It turns out when calling xhci_queue_stop_endpoint and
-xhci_queue_configure_endpoint in xhci_endpoint_reset, the return code is
-not checked for errors. If the timing is right and the adapter dies just
-before either of these commands get issued, we hang indefinitely waiting
-for a completion on a command that didn't get issued.
+Synchronization is also recommended after programming the trace
+registers to ensure all updates are committed prior to normal code
+resuming (section 4.3.7 of ARM IHI 0064D).
 
-This wasn't a problem before the following fix because we didn't send
-commands in xhci_endpoint_reset:
+Let's ensure these syncronization points are present in the code
+and clearly commented.
 
-commit f5249461b504 ("xhci: Clear the host side toggle manually when
-    endpoint is soft reset")
+Note that we could rely on the barriers in CS_LOCK and
+coresight_disclaim_device_unlocked or the context switch to user
+space - however coresight may be of use in the kernel.
 
-With the patch I am submitting, a duration test which breaks adapters
-during initialization (and which deadlocks with the standard kernel) runs
-without issue.
+On armv8 the mb macro is defined as dsb(sy) - Given that the etm4x is
+only used on armv8 let's directly use dsb(sy) instead of mb(). This
+removes some ambiguity and makes it easier to correlate the code with
+the TRM.
 
-Fixes: f5249461b504 ("xhci: Clear the host side toggle manually when endpoint is soft reset")
-Cc: <stable@vger.kernel.org> # v4.17+
-Cc: Torez Smith <torez@redhat.com>
-Signed-off-by: Bill Kuzeja <william.kuzeja@stratus.com>
-Signed-off-by: Torez Smith <torez@redhat.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-7-git-send-email-mathias.nyman@linux.intel.com
+Signed-off-by: Andrew Murray <andrew.murray@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+[Fixed capital letter for "use" in title]
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20190829202842.580-11-mathieu.poirier@linaro.org
+Cc: stable@vger.kernel.org # 4.9+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ drivers/hwtracing/coresight/coresight-etm4x.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -3095,6 +3095,7 @@ static void xhci_endpoint_reset(struct u
- 	unsigned int ep_index;
- 	unsigned long flags;
- 	u32 ep_flag;
-+	int err;
+--- a/drivers/hwtracing/coresight/coresight-etm4x.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x.c
+@@ -181,6 +181,12 @@ static void etm4_enable_hw(void *info)
+ 	if (coresight_timeout(drvdata->base, TRCSTATR, TRCSTATR_IDLE_BIT, 0))
+ 		dev_err(drvdata->dev,
+ 			"timeout while waiting for Idle Trace Status\n");
++	/*
++	 * As recommended by section 4.3.7 ("Synchronization when using the
++	 * memory-mapped interface") of ARM IHI 0064D
++	 */
++	dsb(sy);
++	isb();
  
- 	xhci = hcd_to_xhci(hcd);
- 	if (!host_ep->hcpriv)
-@@ -3154,7 +3155,17 @@ static void xhci_endpoint_reset(struct u
- 		xhci_free_command(xhci, cfg_cmd);
- 		goto cleanup;
- 	}
--	xhci_queue_stop_endpoint(xhci, stop_cmd, udev->slot_id, ep_index, 0);
-+
-+	err = xhci_queue_stop_endpoint(xhci, stop_cmd, udev->slot_id,
-+					ep_index, 0);
-+	if (err < 0) {
-+		spin_unlock_irqrestore(&xhci->lock, flags);
-+		xhci_free_command(xhci, cfg_cmd);
-+		xhci_dbg(xhci, "%s: Failed to queue stop ep command, %d ",
-+				__func__, err);
-+		goto cleanup;
-+	}
-+
- 	xhci_ring_cmd_db(xhci);
- 	spin_unlock_irqrestore(&xhci->lock, flags);
+ 	CS_LOCK(drvdata->base);
  
-@@ -3168,8 +3179,16 @@ static void xhci_endpoint_reset(struct u
- 					   ctrl_ctx, ep_flag, ep_flag);
- 	xhci_endpoint_copy(xhci, cfg_cmd->in_ctx, vdev->out_ctx, ep_index);
+@@ -323,8 +329,12 @@ static void etm4_disable_hw(void *info)
+ 	/* EN, bit[0] Trace unit enable bit */
+ 	control &= ~0x1;
  
--	xhci_queue_configure_endpoint(xhci, cfg_cmd, cfg_cmd->in_ctx->dma,
-+	err = xhci_queue_configure_endpoint(xhci, cfg_cmd, cfg_cmd->in_ctx->dma,
- 				      udev->slot_id, false);
-+	if (err < 0) {
-+		spin_unlock_irqrestore(&xhci->lock, flags);
-+		xhci_free_command(xhci, cfg_cmd);
-+		xhci_dbg(xhci, "%s: Failed to queue config ep command, %d ",
-+				__func__, err);
-+		goto cleanup;
-+	}
-+
- 	xhci_ring_cmd_db(xhci);
- 	spin_unlock_irqrestore(&xhci->lock, flags);
+-	/* make sure everything completes before disabling */
+-	mb();
++	/*
++	 * Make sure everything completes before disabling, as recommended
++	 * by section 7.3.77 ("TRCVICTLR, ViewInst Main Control Register,
++	 * SSTATUS") of ARM IHI 0064D
++	 */
++	dsb(sy);
+ 	isb();
+ 	writel_relaxed(control, drvdata->base + TRCPRGCTLR);
  
 
 
