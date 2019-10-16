@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE1CD9E3C
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD4FD9E69
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437971AbfJPV5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49634 "EHLO mail.kernel.org"
+        id S2438314AbfJPV6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437967AbfJPV5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:14 -0400
+        id S2438109AbfJPV6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:53 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB2CF20872;
-        Wed, 16 Oct 2019 21:57:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF82F20872;
+        Wed, 16 Oct 2019 21:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263033;
-        bh=KBAU9OMK2sBXQWd9cYoO7tzeT75xTCJgt3hVD5ITMPI=;
+        s=default; t=1571263132;
+        bh=RYDmH7h2ZVvx+SuLTB4UaqebEJVVcgLx/czei1m+B2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tncqq1VIDMpoW2dWJLAvCFt4Z/QJQgd5f5rAFxuwCM/L7Q4q/DqWjrDqr83IVDBGe
-         U5tVgeSGLy9JblKKikqTNgw22j9zIXCbnRcMbspKaI3R3iZQPs40uCADpmRMnQ0gRk
-         XTaWbobb0ScZYnGp4YhhMdsnkw9y6u8h9JDwv2qc=
+        b=hH2cDxOCHXwbWZ061HekmCU2RtT03Kmq1kcUSCDN++zyk8MDciHgAPIhmgbzxazXt
+         pm6Vk/P3WFbCgXVEOcekISS8H7fhJr+WKhDHWI6YnmyMMEEGesJZ7Bj6T3LR4/NVs1
+         9P9qDPXZQ0VXugZoIcHy7TtkZsYwKXO3thc+CF0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 35/81] USB: legousbtower: fix slab info leak at probe
-Date:   Wed, 16 Oct 2019 14:50:46 -0700
-Message-Id: <20191016214835.510391970@linuxfoundation.org>
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.3 055/112] iio: adc: stm32-adc: move registers definitions
+Date:   Wed, 16 Oct 2019 14:50:47 -0700
+Message-Id: <20191016214858.945496759@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,328 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit 1d427be4a39defadda6dd8f4659bc17f7591740f upstream.
+commit 31922f62bb527d749b99dbc776e514bcba29b7fe upstream.
 
-Make sure to check for short transfers when retrieving the version
-information at probe to avoid leaking uninitialised slab data when
-logging it.
+Move STM32 ADC registers definitions to common header.
+This is precursor patch to:
+- iio: adc: stm32-adc: fix a race when using several adcs with dma and irq
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190919083039.30898-2-johan@kernel.org
+It keeps registers definitions as a whole block, to ease readability and
+allow simple access path to EOC bits (readl) in stm32-adc-core driver.
+
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/legousbtower.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c |   27 -------
+ drivers/iio/adc/stm32-adc-core.h |  136 +++++++++++++++++++++++++++++++++++++++
+ drivers/iio/adc/stm32-adc.c      |  109 -------------------------------
+ 3 files changed, 136 insertions(+), 136 deletions(-)
 
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -891,8 +891,10 @@ static int tower_probe (struct usb_inter
- 				  get_version_reply,
- 				  sizeof(*get_version_reply),
- 				  1000);
--	if (result < 0) {
--		dev_err(idev, "LEGO USB Tower get version control request failed\n");
-+	if (result < sizeof(*get_version_reply)) {
-+		if (result >= 0)
-+			result = -EIO;
-+		dev_err(idev, "get version request failed: %d\n", result);
- 		retval = result;
- 		goto error;
- 	}
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -22,33 +22,6 @@
+ 
+ #include "stm32-adc-core.h"
+ 
+-/* STM32F4 - common registers for all ADC instances: 1, 2 & 3 */
+-#define STM32F4_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
+-#define STM32F4_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x04)
+-
+-/* STM32F4_ADC_CSR - bit fields */
+-#define STM32F4_EOC3			BIT(17)
+-#define STM32F4_EOC2			BIT(9)
+-#define STM32F4_EOC1			BIT(1)
+-
+-/* STM32F4_ADC_CCR - bit fields */
+-#define STM32F4_ADC_ADCPRE_SHIFT	16
+-#define STM32F4_ADC_ADCPRE_MASK		GENMASK(17, 16)
+-
+-/* STM32H7 - common registers for all ADC instances */
+-#define STM32H7_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
+-#define STM32H7_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x08)
+-
+-/* STM32H7_ADC_CSR - bit fields */
+-#define STM32H7_EOC_SLV			BIT(18)
+-#define STM32H7_EOC_MST			BIT(2)
+-
+-/* STM32H7_ADC_CCR - bit fields */
+-#define STM32H7_PRESC_SHIFT		18
+-#define STM32H7_PRESC_MASK		GENMASK(21, 18)
+-#define STM32H7_CKMODE_SHIFT		16
+-#define STM32H7_CKMODE_MASK		GENMASK(17, 16)
+-
+ #define STM32_ADC_CORE_SLEEP_DELAY_MS	2000
+ 
+ /**
+--- a/drivers/iio/adc/stm32-adc-core.h
++++ b/drivers/iio/adc/stm32-adc-core.h
+@@ -27,6 +27,142 @@
+ #define STM32_ADC_MAX_ADCS		3
+ #define STM32_ADCX_COMN_OFFSET		0x300
+ 
++/* STM32F4 - Registers for each ADC instance */
++#define STM32F4_ADC_SR			0x00
++#define STM32F4_ADC_CR1			0x04
++#define STM32F4_ADC_CR2			0x08
++#define STM32F4_ADC_SMPR1		0x0C
++#define STM32F4_ADC_SMPR2		0x10
++#define STM32F4_ADC_HTR			0x24
++#define STM32F4_ADC_LTR			0x28
++#define STM32F4_ADC_SQR1		0x2C
++#define STM32F4_ADC_SQR2		0x30
++#define STM32F4_ADC_SQR3		0x34
++#define STM32F4_ADC_JSQR		0x38
++#define STM32F4_ADC_JDR1		0x3C
++#define STM32F4_ADC_JDR2		0x40
++#define STM32F4_ADC_JDR3		0x44
++#define STM32F4_ADC_JDR4		0x48
++#define STM32F4_ADC_DR			0x4C
++
++/* STM32F4 - common registers for all ADC instances: 1, 2 & 3 */
++#define STM32F4_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
++#define STM32F4_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x04)
++
++/* STM32F4_ADC_SR - bit fields */
++#define STM32F4_STRT			BIT(4)
++#define STM32F4_EOC			BIT(1)
++
++/* STM32F4_ADC_CR1 - bit fields */
++#define STM32F4_RES_SHIFT		24
++#define STM32F4_RES_MASK		GENMASK(25, 24)
++#define STM32F4_SCAN			BIT(8)
++#define STM32F4_EOCIE			BIT(5)
++
++/* STM32F4_ADC_CR2 - bit fields */
++#define STM32F4_SWSTART			BIT(30)
++#define STM32F4_EXTEN_SHIFT		28
++#define STM32F4_EXTEN_MASK		GENMASK(29, 28)
++#define STM32F4_EXTSEL_SHIFT		24
++#define STM32F4_EXTSEL_MASK		GENMASK(27, 24)
++#define STM32F4_EOCS			BIT(10)
++#define STM32F4_DDS			BIT(9)
++#define STM32F4_DMA			BIT(8)
++#define STM32F4_ADON			BIT(0)
++
++/* STM32F4_ADC_CSR - bit fields */
++#define STM32F4_EOC3			BIT(17)
++#define STM32F4_EOC2			BIT(9)
++#define STM32F4_EOC1			BIT(1)
++
++/* STM32F4_ADC_CCR - bit fields */
++#define STM32F4_ADC_ADCPRE_SHIFT	16
++#define STM32F4_ADC_ADCPRE_MASK		GENMASK(17, 16)
++
++/* STM32H7 - Registers for each ADC instance */
++#define STM32H7_ADC_ISR			0x00
++#define STM32H7_ADC_IER			0x04
++#define STM32H7_ADC_CR			0x08
++#define STM32H7_ADC_CFGR		0x0C
++#define STM32H7_ADC_SMPR1		0x14
++#define STM32H7_ADC_SMPR2		0x18
++#define STM32H7_ADC_PCSEL		0x1C
++#define STM32H7_ADC_SQR1		0x30
++#define STM32H7_ADC_SQR2		0x34
++#define STM32H7_ADC_SQR3		0x38
++#define STM32H7_ADC_SQR4		0x3C
++#define STM32H7_ADC_DR			0x40
++#define STM32H7_ADC_DIFSEL		0xC0
++#define STM32H7_ADC_CALFACT		0xC4
++#define STM32H7_ADC_CALFACT2		0xC8
++
++/* STM32H7 - common registers for all ADC instances */
++#define STM32H7_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
++#define STM32H7_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x08)
++
++/* STM32H7_ADC_ISR - bit fields */
++#define STM32MP1_VREGREADY		BIT(12)
++#define STM32H7_EOC			BIT(2)
++#define STM32H7_ADRDY			BIT(0)
++
++/* STM32H7_ADC_IER - bit fields */
++#define STM32H7_EOCIE			STM32H7_EOC
++
++/* STM32H7_ADC_CR - bit fields */
++#define STM32H7_ADCAL			BIT(31)
++#define STM32H7_ADCALDIF		BIT(30)
++#define STM32H7_DEEPPWD			BIT(29)
++#define STM32H7_ADVREGEN		BIT(28)
++#define STM32H7_LINCALRDYW6		BIT(27)
++#define STM32H7_LINCALRDYW5		BIT(26)
++#define STM32H7_LINCALRDYW4		BIT(25)
++#define STM32H7_LINCALRDYW3		BIT(24)
++#define STM32H7_LINCALRDYW2		BIT(23)
++#define STM32H7_LINCALRDYW1		BIT(22)
++#define STM32H7_ADCALLIN		BIT(16)
++#define STM32H7_BOOST			BIT(8)
++#define STM32H7_ADSTP			BIT(4)
++#define STM32H7_ADSTART			BIT(2)
++#define STM32H7_ADDIS			BIT(1)
++#define STM32H7_ADEN			BIT(0)
++
++/* STM32H7_ADC_CFGR bit fields */
++#define STM32H7_EXTEN_SHIFT		10
++#define STM32H7_EXTEN_MASK		GENMASK(11, 10)
++#define STM32H7_EXTSEL_SHIFT		5
++#define STM32H7_EXTSEL_MASK		GENMASK(9, 5)
++#define STM32H7_RES_SHIFT		2
++#define STM32H7_RES_MASK		GENMASK(4, 2)
++#define STM32H7_DMNGT_SHIFT		0
++#define STM32H7_DMNGT_MASK		GENMASK(1, 0)
++
++enum stm32h7_adc_dmngt {
++	STM32H7_DMNGT_DR_ONLY,		/* Regular data in DR only */
++	STM32H7_DMNGT_DMA_ONESHOT,	/* DMA one shot mode */
++	STM32H7_DMNGT_DFSDM,		/* DFSDM mode */
++	STM32H7_DMNGT_DMA_CIRC,		/* DMA circular mode */
++};
++
++/* STM32H7_ADC_CALFACT - bit fields */
++#define STM32H7_CALFACT_D_SHIFT		16
++#define STM32H7_CALFACT_D_MASK		GENMASK(26, 16)
++#define STM32H7_CALFACT_S_SHIFT		0
++#define STM32H7_CALFACT_S_MASK		GENMASK(10, 0)
++
++/* STM32H7_ADC_CALFACT2 - bit fields */
++#define STM32H7_LINCALFACT_SHIFT	0
++#define STM32H7_LINCALFACT_MASK		GENMASK(29, 0)
++
++/* STM32H7_ADC_CSR - bit fields */
++#define STM32H7_EOC_SLV			BIT(18)
++#define STM32H7_EOC_MST			BIT(2)
++
++/* STM32H7_ADC_CCR - bit fields */
++#define STM32H7_PRESC_SHIFT		18
++#define STM32H7_PRESC_MASK		GENMASK(21, 18)
++#define STM32H7_CKMODE_SHIFT		16
++#define STM32H7_CKMODE_MASK		GENMASK(17, 16)
++
+ /**
+  * struct stm32_adc_common - stm32 ADC driver common data (for all instances)
+  * @base:		control registers base cpu addr
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -28,115 +28,6 @@
+ 
+ #include "stm32-adc-core.h"
+ 
+-/* STM32F4 - Registers for each ADC instance */
+-#define STM32F4_ADC_SR			0x00
+-#define STM32F4_ADC_CR1			0x04
+-#define STM32F4_ADC_CR2			0x08
+-#define STM32F4_ADC_SMPR1		0x0C
+-#define STM32F4_ADC_SMPR2		0x10
+-#define STM32F4_ADC_HTR			0x24
+-#define STM32F4_ADC_LTR			0x28
+-#define STM32F4_ADC_SQR1		0x2C
+-#define STM32F4_ADC_SQR2		0x30
+-#define STM32F4_ADC_SQR3		0x34
+-#define STM32F4_ADC_JSQR		0x38
+-#define STM32F4_ADC_JDR1		0x3C
+-#define STM32F4_ADC_JDR2		0x40
+-#define STM32F4_ADC_JDR3		0x44
+-#define STM32F4_ADC_JDR4		0x48
+-#define STM32F4_ADC_DR			0x4C
+-
+-/* STM32F4_ADC_SR - bit fields */
+-#define STM32F4_STRT			BIT(4)
+-#define STM32F4_EOC			BIT(1)
+-
+-/* STM32F4_ADC_CR1 - bit fields */
+-#define STM32F4_RES_SHIFT		24
+-#define STM32F4_RES_MASK		GENMASK(25, 24)
+-#define STM32F4_SCAN			BIT(8)
+-#define STM32F4_EOCIE			BIT(5)
+-
+-/* STM32F4_ADC_CR2 - bit fields */
+-#define STM32F4_SWSTART			BIT(30)
+-#define STM32F4_EXTEN_SHIFT		28
+-#define STM32F4_EXTEN_MASK		GENMASK(29, 28)
+-#define STM32F4_EXTSEL_SHIFT		24
+-#define STM32F4_EXTSEL_MASK		GENMASK(27, 24)
+-#define STM32F4_EOCS			BIT(10)
+-#define STM32F4_DDS			BIT(9)
+-#define STM32F4_DMA			BIT(8)
+-#define STM32F4_ADON			BIT(0)
+-
+-/* STM32H7 - Registers for each ADC instance */
+-#define STM32H7_ADC_ISR			0x00
+-#define STM32H7_ADC_IER			0x04
+-#define STM32H7_ADC_CR			0x08
+-#define STM32H7_ADC_CFGR		0x0C
+-#define STM32H7_ADC_SMPR1		0x14
+-#define STM32H7_ADC_SMPR2		0x18
+-#define STM32H7_ADC_PCSEL		0x1C
+-#define STM32H7_ADC_SQR1		0x30
+-#define STM32H7_ADC_SQR2		0x34
+-#define STM32H7_ADC_SQR3		0x38
+-#define STM32H7_ADC_SQR4		0x3C
+-#define STM32H7_ADC_DR			0x40
+-#define STM32H7_ADC_DIFSEL		0xC0
+-#define STM32H7_ADC_CALFACT		0xC4
+-#define STM32H7_ADC_CALFACT2		0xC8
+-
+-/* STM32H7_ADC_ISR - bit fields */
+-#define STM32MP1_VREGREADY		BIT(12)
+-#define STM32H7_EOC			BIT(2)
+-#define STM32H7_ADRDY			BIT(0)
+-
+-/* STM32H7_ADC_IER - bit fields */
+-#define STM32H7_EOCIE			STM32H7_EOC
+-
+-/* STM32H7_ADC_CR - bit fields */
+-#define STM32H7_ADCAL			BIT(31)
+-#define STM32H7_ADCALDIF		BIT(30)
+-#define STM32H7_DEEPPWD			BIT(29)
+-#define STM32H7_ADVREGEN		BIT(28)
+-#define STM32H7_LINCALRDYW6		BIT(27)
+-#define STM32H7_LINCALRDYW5		BIT(26)
+-#define STM32H7_LINCALRDYW4		BIT(25)
+-#define STM32H7_LINCALRDYW3		BIT(24)
+-#define STM32H7_LINCALRDYW2		BIT(23)
+-#define STM32H7_LINCALRDYW1		BIT(22)
+-#define STM32H7_ADCALLIN		BIT(16)
+-#define STM32H7_BOOST			BIT(8)
+-#define STM32H7_ADSTP			BIT(4)
+-#define STM32H7_ADSTART			BIT(2)
+-#define STM32H7_ADDIS			BIT(1)
+-#define STM32H7_ADEN			BIT(0)
+-
+-/* STM32H7_ADC_CFGR bit fields */
+-#define STM32H7_EXTEN_SHIFT		10
+-#define STM32H7_EXTEN_MASK		GENMASK(11, 10)
+-#define STM32H7_EXTSEL_SHIFT		5
+-#define STM32H7_EXTSEL_MASK		GENMASK(9, 5)
+-#define STM32H7_RES_SHIFT		2
+-#define STM32H7_RES_MASK		GENMASK(4, 2)
+-#define STM32H7_DMNGT_SHIFT		0
+-#define STM32H7_DMNGT_MASK		GENMASK(1, 0)
+-
+-enum stm32h7_adc_dmngt {
+-	STM32H7_DMNGT_DR_ONLY,		/* Regular data in DR only */
+-	STM32H7_DMNGT_DMA_ONESHOT,	/* DMA one shot mode */
+-	STM32H7_DMNGT_DFSDM,		/* DFSDM mode */
+-	STM32H7_DMNGT_DMA_CIRC,		/* DMA circular mode */
+-};
+-
+-/* STM32H7_ADC_CALFACT - bit fields */
+-#define STM32H7_CALFACT_D_SHIFT		16
+-#define STM32H7_CALFACT_D_MASK		GENMASK(26, 16)
+-#define STM32H7_CALFACT_S_SHIFT		0
+-#define STM32H7_CALFACT_S_MASK		GENMASK(10, 0)
+-
+-/* STM32H7_ADC_CALFACT2 - bit fields */
+-#define STM32H7_LINCALFACT_SHIFT	0
+-#define STM32H7_LINCALFACT_MASK		GENMASK(29, 0)
+-
+ /* Number of linear calibration shadow registers / LINCALRDYW control bits */
+ #define STM32H7_LINCALFACT_NUM		6
+ 
 
 
