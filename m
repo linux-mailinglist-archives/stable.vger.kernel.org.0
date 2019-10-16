@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D630D9F3D
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C121ED9FA4
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437537AbfJPVxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
+        id S2391417AbfJPV5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:57:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437534AbfJPVxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:34 -0400
+        id S2437949AbfJPV5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:01 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7797A20872;
-        Wed, 16 Oct 2019 21:53:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49F4C21D7D;
+        Wed, 16 Oct 2019 21:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262813;
-        bh=pOCrst16gNH88uIbZ4MKF+ZZd8DAYqOcxYzBcFMGtB0=;
+        s=default; t=1571263020;
+        bh=majxEuL7VpOdF5gmfB0VT/XgrY8AjwHSQ50imORUPb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ydgxTh+ENwvXMdD7TUV885kBDvCzJH4acvl0BB2hL0WviHMnKrsEZPqEYKUJgAQfC
-         3b4wCmBOyhRANbV3AUOMAd4QAECe9VstelheOXULJNnGvVjDQWLNMF6rAC5Vk98fgS
-         5g+9DNgDGobpZtWgt/fVswo9Irw0fw6FN3vG1Rc0=
+        b=t/3OXi3mc5uqiTUMIY8cDFwplQNe5yh75Ok8oLQfsy7j8ywVCLE0JNMVzeoGW48GK
+         2wOGIrfbI9ZE/IcBAUj8fnT+VmqijyciDjH2p/KUnMENG1oXXfdRSl46yNFiQuQkvf
+         fn5gDovF8FGdlAm+F2luozcHBO4+BG7pQ7fYSeU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacky Cao <Jacky.Cao@sony.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 4.4 56/79] USB: dummy-hcd: fix power budget for SuperSpeed mode
-Date:   Wed, 16 Oct 2019 14:50:31 -0700
-Message-Id: <20191016214819.206934415@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 21/81] USB: usblp: fix runtime PM after driver unbind
+Date:   Wed, 16 Oct 2019 14:50:32 -0700
+Message-Id: <20191016214826.444202726@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacky.Cao@sony.com <Jacky.Cao@sony.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2636d49b64671d3d90ecc4daf971b58df3956519 upstream.
+commit 9a31535859bfd8d1c3ed391f5e9247cd87bb7909 upstream.
 
-The power budget for SuperSpeed mode should be 900 mA
-according to USB specification, so set the power budget
-to 900mA for dummy_start_ss which is only used for
-SuperSpeed mode.
+Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
+interface PM usage counter") USB drivers must always balance their
+runtime PM gets and puts, including when the driver has already been
+unbound from the interface.
 
-If the max power consumption of SuperSpeed device is
-larger than 500 mA, insufficient available bus power
-error happens in usb_choose_configuration function
-when the device connects to dummy hcd.
+Leaving the interface with a positive PM usage counter would prevent a
+later bound driver from suspending the device.
 
-Signed-off-by: Jacky Cao <Jacky.Cao@sony.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/16EA1F625E922C43B00B9D82250220500871CDE5@APYOKXMS108.ap.sony.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191001084908.2003-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/dummy_hcd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/class/usblp.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -50,6 +50,7 @@
- #define DRIVER_VERSION	"02 May 2005"
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -461,10 +461,12 @@ static int usblp_release(struct inode *i
  
- #define POWER_BUDGET	500	/* in mA; use 8 for low-power port testing */
-+#define POWER_BUDGET_3	900	/* in mA */
- 
- static const char	driver_name[] = "dummy_hcd";
- static const char	driver_desc[] = "USB Host+Gadget Emulator";
-@@ -2435,7 +2436,7 @@ static int dummy_start_ss(struct dummy_h
- 	dum_hcd->rh_state = DUMMY_RH_RUNNING;
- 	dum_hcd->stream_en_ep = 0;
- 	INIT_LIST_HEAD(&dum_hcd->urbp_list);
--	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET;
-+	dummy_hcd_to_hcd(dum_hcd)->power_budget = POWER_BUDGET_3;
- 	dummy_hcd_to_hcd(dum_hcd)->state = HC_STATE_RUNNING;
- 	dummy_hcd_to_hcd(dum_hcd)->uses_new_polling = 1;
- #ifdef CONFIG_USB_OTG
+ 	mutex_lock(&usblp_mutex);
+ 	usblp->used = 0;
+-	if (usblp->present) {
++	if (usblp->present)
+ 		usblp_unlink_urbs(usblp);
+-		usb_autopm_put_interface(usblp->intf);
+-	} else		/* finish cleanup from disconnect */
++
++	usb_autopm_put_interface(usblp->intf);
++
++	if (!usblp->present)		/* finish cleanup from disconnect */
+ 		usblp_cleanup(usblp);
+ 	mutex_unlock(&usblp_mutex);
+ 	return 0;
 
 
