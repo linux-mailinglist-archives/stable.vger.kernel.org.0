@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53413DA08E
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0535EDA121
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439257AbfJPWMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
+        id S2389156AbfJPWTo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:19:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728722AbfJPV4N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:13 -0400
+        id S2437637AbfJPVyB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:01 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3653F21D7E;
-        Wed, 16 Oct 2019 21:56:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D179021925;
+        Wed, 16 Oct 2019 21:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262972;
-        bh=tJ+FtqbpKL42d5aFZiV5RNnGk8PkDxuEQPiFz8YEiC4=;
+        s=default; t=1571262841;
+        bh=/nAysgjTFmewi/5K89zTSe8m+NSh6ZbHkmJVyj9QHAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkRGRnGSWJk93awzWr51Yy2Zc41p8h2uWXMERPuyV9T4e6aUuf9oE8G/KjTq6oDRA
-         C91pOykBM0RqDLfjlqFg2I7dYbfRu5TWpS/bP8AWei9Bfg7IfDjV6EmCSpU0Tt+dVW
-         cAOjjeYt846ju6z8QfSzozjk3nohbQ7HW+JujDNQ=
+        b=CUzwGpNafoBJxs0QGOeA6MBjtpWH9Lr3e198myUhQDwOfMLJOunFbU02u2TDH5NhC
+         y0TymvrWOKTsZuEJm5oBcv+m6T0VZRKda9W+lAblRYAl8HPpoy3/8rRLnuYg6odBzH
+         Wuko88zUcEKCArLxLHb1nIW3u7biugMPtxKiD4eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 07/65] USB: usb-skeleton: fix NULL-deref on disconnect
+Subject: [PATCH 4.4 46/79] USB: chaoskey: fix use-after-free on release
 Date:   Wed, 16 Oct 2019 14:50:21 -0700
-Message-Id: <20191016214801.530931910@linuxfoundation.org>
+Message-Id: <20191016214808.032672151@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +44,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit bed5ef230943863b9abf5eae226a20fad9a8ff71 upstream.
+commit 93ddb1f56ae102f14f9e46a9a9c8017faa970003 upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag and was setting it to NULL before making sure all
-completion handlers had run. This could lead to NULL-pointer
-dereferences in the dev_err() statements in the completion handlers
-which relies on said pointer.
+The driver was accessing its struct usb_interface in its release()
+callback without holding a reference. This would lead to a
+use-after-free whenever the device was disconnected while the character
+device was still open.
 
-Fix this by using a dedicated disconnected flag.
-
-Note that this is also addresses a NULL-pointer dereference at release()
-and a struct usb_interface reference leak introduced by a recent runtime
-PM fix, which depends on and should have been submitted together with
-this patch.
-
-Fixes: 4212cd74ca6f ("USB: usb-skeleton.c: remove err() usage")
-Fixes: 5c290a5e42c3 ("USB: usb-skeleton: fix runtime PM after driver unbind")
-Cc: stable <stable@vger.kernel.org>
+Fixes: 66e3e591891d ("usb: Add driver for Altus Metrum ChaosKey device (v2)")
+Cc: stable <stable@vger.kernel.org>     # 4.1
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009170944.30057-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009153848.8664-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/misc/chaoskey.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -63,6 +63,7 @@ struct usb_skel {
- 	spinlock_t		err_lock;		/* lock for errors */
- 	struct kref		kref;
- 	struct mutex		io_mutex;		/* synchronize I/O with disconnect */
-+	unsigned long		disconnected:1;
- 	wait_queue_head_t	bulk_in_wait;		/* to wait for an ongoing read */
- };
- #define to_skel_dev(d) container_of(d, struct usb_skel, kref)
-@@ -239,7 +240,7 @@ static ssize_t skel_read(struct file *fi
- 	if (rv < 0)
- 		return rv;
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -96,6 +96,7 @@ static void chaoskey_free(struct chaoske
+ 	usb_dbg(dev->interface, "free");
+ 	kfree(dev->name);
+ 	kfree(dev->buf);
++	usb_put_intf(dev->interface);
+ 	kfree(dev);
+ }
  
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		rv = -ENODEV;
- 		goto exit;
+@@ -144,6 +145,8 @@ static int chaoskey_probe(struct usb_int
+ 	if (dev == NULL)
+ 		return -ENOMEM;
+ 
++	dev->interface = usb_get_intf(interface);
++
+ 	dev->buf = kmalloc(size, GFP_KERNEL);
+ 
+ 	if (dev->buf == NULL) {
+@@ -169,8 +172,6 @@ static int chaoskey_probe(struct usb_int
+ 		strcat(dev->name, udev->serial);
  	}
-@@ -420,7 +421,7 @@ static ssize_t skel_write(struct file *f
  
- 	/* this lock makes sure we don't submit URBs to gone devices */
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
-@@ -571,7 +572,7 @@ static void skel_disconnect(struct usb_i
+-	dev->interface = interface;
+-
+ 	dev->in_ep = in_ep;
  
- 	/* prevent more I/O from starting */
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	usb_kill_anchored_urbs(&dev->submitted);
+ 	dev->size = size;
 
 
