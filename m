@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E02B6D9E5D
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21D9D9E55
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406730AbfJPV60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52004 "EHLO mail.kernel.org"
+        id S2438124AbfJPV6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406726AbfJPV60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:26 -0400
+        id S2438120AbfJPV6K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:10 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26F88218DE;
-        Wed, 16 Oct 2019 21:58:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66F7021D7C;
+        Wed, 16 Oct 2019 21:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263105;
-        bh=XQSP0d+cbgWEu8Jx9rYaVw4A5+/5RIOTGWGS4iAatEw=;
+        s=default; t=1571263089;
+        bh=4tGlNSxHASXe77fKr/iwjF7Jn4vL/P/jnQ4dXsy18IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PndhJpHft/ou8Dcg4kJAzz4D5Q5oyv6JHmx9NxjmFvLu/aGgi5XYMrpJ9CD2aspXy
-         6Nx4tcAPGm27EHFde+im6RbWLGQfeifNGBcemRVZNPpLQmLMI7wXxu2F16Crd4JJ+V
-         D5iOVPAd3KosFkSC1RRsPLn2saO5OPZsbwRZuHww=
+        b=iimiCU9YHyG4l5ylzBEUdVngre0AFrzKNrCz4/2BsXA83BklKosaOel3ciZCUqFXx
+         n6wqcZjezrwjrjKSftOQnL1Dg4YF95nG0irtYHu3I6hvoRA2t0YjgUt6EsLrPF2YrX
+         OJ0Tmcbz20TP9ArDsiTA/fz8S2rXXCdSeZz3UQuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Lo=C3=AFc=20Yhuel?= <loic.yhuel@gmail.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 009/112] xhci: Check all endpoints for LPM timeout
-Date:   Wed, 16 Oct 2019 14:50:01 -0700
-Message-Id: <20191016214846.317651595@linuxfoundation.org>
+Subject: [PATCH 5.3 010/112] xhci: Fix USB 3.1 capability detection on early xHCI 1.1 spec based hosts
+Date:   Wed, 16 Oct 2019 14:50:02 -0700
+Message-Id: <20191016214846.596424574@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -44,46 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Schmidt <jan@centricular.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit d500c63f80f2ea08ee300e57da5f2af1c13875f5 upstream.
+commit 47f50d61076523e1a0d5a070062c2311320eeca8 upstream.
 
-If an endpoint is encountered that returns USB3_LPM_DEVICE_INITIATED, keep
-checking further endpoints, as there might be periodic endpoints later
-that return USB3_LPM_DISABLED due to shorter service intervals.
+Early xHCI 1.1 spec did not mention USB 3.1 capable hosts should set
+sbrn to 0x31, or that the minor revision is a two digit BCD
+containing minor and sub-minor numbers.
+This was later clarified in xHCI 1.2.
 
-Without this, the code can set too high a maximum-exit-latency and
-prevent the use of multiple USB3 cameras that should be able to work.
+Some USB 3.1 capable hosts therefore have sbrn set to 0x30, or minor
+revision set to 0x1 instead of 0x10.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jan Schmidt <jan@centricular.com>
-Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
+Detect the USB 3.1 capability correctly for these hosts as well
+
+Fixes: ddd57980a0fd ("xhci: detect USB 3.2 capable host controllers correctly")
+Cc: <stable@vger.kernel.org> # v4.18+
+Cc: Loïc Yhuel <loic.yhuel@gmail.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-4-git-send-email-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/1570190373-30684-5-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
 --- a/drivers/usb/host/xhci.c
 +++ b/drivers/usb/host/xhci.c
-@@ -4673,12 +4673,12 @@ static int xhci_update_timeout_for_endpo
- 	alt_timeout = xhci_call_host_update_timeout_for_endpoint(xhci, udev,
- 		desc, state, timeout);
+@@ -5078,11 +5078,18 @@ int xhci_gen_setup(struct usb_hcd *hcd,
+ 		hcd->has_tt = 1;
+ 	} else {
+ 		/*
+-		 * Some 3.1 hosts return sbrn 0x30, use xhci supported protocol
+-		 * minor revision instead of sbrn. Minor revision is a two digit
+-		 * BCD containing minor and sub-minor numbers, only show minor.
++		 * Early xHCI 1.1 spec did not mention USB 3.1 capable hosts
++		 * should return 0x31 for sbrn, or that the minor revision
++		 * is a two digit BCD containig minor and sub-minor numbers.
++		 * This was later clarified in xHCI 1.2.
++		 *
++		 * Some USB 3.1 capable hosts therefore have sbrn 0x30, and
++		 * minor revision set to 0x1 instead of 0x10.
+ 		 */
+-		minor_rev = xhci->usb3_rhub.min_rev / 0x10;
++		if (xhci->usb3_rhub.min_rev == 0x1)
++			minor_rev = 1;
++		else
++			minor_rev = xhci->usb3_rhub.min_rev / 0x10;
  
--	/* If we found we can't enable hub-initiated LPM, or
-+	/* If we found we can't enable hub-initiated LPM, and
- 	 * the U1 or U2 exit latency was too high to allow
--	 * device-initiated LPM as well, just stop searching.
-+	 * device-initiated LPM as well, then we will disable LPM
-+	 * for this device, so stop searching any further.
- 	 */
--	if (alt_timeout == USB3_LPM_DISABLED ||
--			alt_timeout == USB3_LPM_DEVICE_INITIATED) {
-+	if (alt_timeout == USB3_LPM_DISABLED) {
- 		*timeout = alt_timeout;
- 		return -E2BIG;
- 	}
+ 		switch (minor_rev) {
+ 		case 2:
 
 
