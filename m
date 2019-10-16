@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E8DDA085
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ABC1D9F7F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732967AbfJPWMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:12:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S2395251AbfJPVzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406628AbfJPV4V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:21 -0400
+        id S2395244AbfJPVzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:32 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA0D221925;
-        Wed, 16 Oct 2019 21:56:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE951218DE;
+        Wed, 16 Oct 2019 21:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262980;
-        bh=7GqnbcH+r90nThr865WG1XKok01vq2QVJ4b1QhEQN5Y=;
+        s=default; t=1571262931;
+        bh=bqQD1JbQd7t0d/KBSwKHC0ES/WEKFwKh6Yj1/Q/t9aI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2JkH+MvONciyf/yd7aWjhLhjk5FkVr7AlfaNH8jhbTLBq08k9pU5826W44KxYPROD
-         HpTNGpH8m9LXLDYoW69s+uU93jprg73Gfa//epjGX72vQG2emTl31JVUvtami9RLeS
-         0bFNAHWbaWWExRMYmJsrBAqxWLWEYIhexsoBfT3E=
+        b=0TI8Zi2JhBlk7LlNeTzFIi84UOMEmAdjB428qEKN20wIBjyeJpnAJ23RNI7f1WTUV
+         0W3yKiqdc0YjQDi0AFz4gjS1Wx9kFz4uHt2NuE1kj8OpDFs+9LKkls3J5NdG6ke+PG
+         gixUXh5LGW9dua7BPnCBvUreLiEsbP2ieXjAKdZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hung-Te Lin <hungte@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/65] firmware: google: increment VPD key_len properly
+        stable@vger.kernel.org,
+        Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "x86@kernel.org" <x86@kernel.org>,
+        Zhenzhong Duan <zhenzhong.duan@oracle.com>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.9 91/92] x86/asm: Fix MWAITX C-state hint value
 Date:   Wed, 16 Oct 2019 14:51:04 -0700
-Message-Id: <20191016214835.824729336@linuxfoundation.org>
+Message-Id: <20191016214848.802788649@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +50,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
 
-[ Upstream commit 442f1e746e8187b9deb1590176f6b0ff19686b11 ]
+commit 454de1e7d970d6bc567686052329e4814842867c upstream.
 
-Commit 4b708b7b1a2c ("firmware: google: check if size is valid when
-decoding VPD data") adds length checks, but the new vpd_decode_entry()
-function botched the logic -- it adds the key length twice, instead of
-adding the key and value lengths separately.
+As per "AMD64 Architecture Programmer's Manual Volume 3: General-Purpose
+and System Instructions", MWAITX EAX[7:4]+1 specifies the optional hint
+of the optimized C-state. For C0 state, EAX[7:4] should be set to 0xf.
 
-On my local system, this means vpd.c's vpd_section_create_attribs() hits
-an error case after the first attribute it parses, since it's no longer
-looking at the correct offset. With this patch, I'm back to seeing all
-the correct attributes in /sys/firmware/vpd/...
+Currently, a value of 0xf is set for EAX[3:0] instead of EAX[7:4]. Fix
+this by changing MWAITX_DISABLE_CSTATES from 0xf to 0xf0.
 
-Fixes: 4b708b7b1a2c ("firmware: google: check if size is valid when decoding VPD data")
+This hasn't had any implications so far because setting reserved bits in
+EAX is simply ignored by the CPU.
+
+ [ bp: Fixup comment in delay_mwaitx() and massage. ]
+
+Signed-off-by: Janakarajan Natarajan <Janakarajan.Natarajan@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Frederic Weisbecker <frederic@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "x86@kernel.org" <x86@kernel.org>
+Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
 Cc: <stable@vger.kernel.org>
-Cc: Hung-Te Lin <hungte@chromium.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Link: https://lore.kernel.org/r/20190930214522.240680-1-briannorris@chromium.org
+Link: https://lkml.kernel.org/r/20191007190011.4859-1-Janakarajan.Natarajan@amd.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/firmware/google/vpd_decode.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/mwait.h |    2 +-
+ arch/x86/lib/delay.c         |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/google/vpd_decode.c b/drivers/firmware/google/vpd_decode.c
-index e75abe9fa122c..6c7ab2ba85d2f 100644
---- a/drivers/firmware/google/vpd_decode.c
-+++ b/drivers/firmware/google/vpd_decode.c
-@@ -62,7 +62,7 @@ static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
- 	if (max_len - consumed < *entry_len)
- 		return VPD_FAIL;
+--- a/arch/x86/include/asm/mwait.h
++++ b/arch/x86/include/asm/mwait.h
+@@ -19,7 +19,7 @@
+ #define MWAIT_ECX_INTERRUPT_BREAK	0x1
+ #define MWAITX_ECX_TIMER_ENABLE		BIT(1)
+ #define MWAITX_MAX_LOOPS		((u32)-1)
+-#define MWAITX_DISABLE_CSTATES		0xf
++#define MWAITX_DISABLE_CSTATES		0xf0
  
--	consumed += decoded_len;
-+	consumed += *entry_len;
- 	*_consumed = consumed;
- 	return VPD_OK;
- }
--- 
-2.20.1
-
+ static inline void __monitor(const void *eax, unsigned long ecx,
+ 			     unsigned long edx)
+--- a/arch/x86/lib/delay.c
++++ b/arch/x86/lib/delay.c
+@@ -112,8 +112,8 @@ static void delay_mwaitx(unsigned long _
+ 		__monitorx(raw_cpu_ptr(&cpu_tss), 0, 0);
+ 
+ 		/*
+-		 * AMD, like Intel, supports the EAX hint and EAX=0xf
+-		 * means, do not enter any deep C-state and we use it
++		 * AMD, like Intel's MWAIT version, supports the EAX hint and
++		 * EAX=0xf0 means, do not enter any deep C-state and we use it
+ 		 * here in delay() to minimize wakeup latency.
+ 		 */
+ 		__mwaitx(MWAITX_DISABLE_CSTATES, delay, MWAITX_ECX_TIMER_ENABLE);
 
 
