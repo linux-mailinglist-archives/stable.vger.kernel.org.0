@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA4CD9F81
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835BBDA147
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395270AbfJPVzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
+        id S1728372AbfJPWVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:21:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390372AbfJPVzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:35 -0400
+        id S2437522AbfJPVxc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:32 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9516C21D80;
-        Wed, 16 Oct 2019 21:55:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2BB020872;
+        Wed, 16 Oct 2019 21:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262934;
-        bh=M6SR5GjYxGUI+9nzIIp3JhPfCJi1hqJh+mra8AS75kU=;
+        s=default; t=1571262812;
+        bh=N3B1XunYOvxQ2/mobggQFW4xm0jh4n0dT7C9YTzBZa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tii2GyRwd3z2uLltI0hB8YYCxt/l+xMGPwHxNcajQngEVScQZT6a45rg6f+28ni4y
-         JGS8w6E7BCrc7AuVM8R+1cAzJesN02zYIw6bZho1OTyVh0qfQfYVnX+ckXtEXfrkfS
-         IIfuGeoHVq2pIZLsc51sEA92Gny9NMDLSXcKaWmI=
+        b=Wi8sHo11jwIvTZkdQDsXJ+EJvcISwAS06unX1pZPdAtiGRaPC5dBCzcNUuJ54I0If
+         W9QFmaau3KpeQe35c7HUYM89Jml1XTTdQHsk1L/p0MaN5uIKXW0Rlr0vkpfG2vvQKr
+         fUF0Kga7mW200MdZs/xPEU+0lmPHVJq3LUswQgQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 56/92] USB: ldusb: fix NULL-derefs on driver unbind
+Subject: [PATCH 4.4 54/79] USB: usblcd: fix I/O after disconnect
 Date:   Wed, 16 Oct 2019 14:50:29 -0700
-Message-Id: <20191016214838.885312409@linuxfoundation.org>
+Message-Id: <20191016214817.928301234@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,128 +44,126 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 58ecf131e74620305175a7aa103f81350bb37570 upstream.
+commit eb7f5a490c5edfe8126f64bc58b9ba2edef0a425 upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag, but was setting it to NULL before making sure all
-completion handlers had run. This could lead to a NULL-pointer
-dereference in a number of dev_dbg, dev_warn and dev_err statements in
-the completion handlers which relies on said pointer.
+Make sure to stop all I/O on disconnect by adding a disconnected flag
+which is used to prevent new I/O from being started and by stopping all
+ongoing I/O before returning.
 
-Fix this by unconditionally stopping all I/O and preventing
-resubmissions by poisoning the interrupt URBs at disconnect and using a
-dedicated disconnected flag.
+This also fixes a potential use-after-free on driver unbind in case the
+driver data is freed before the completion handler has run.
 
-This also makes sure that all I/O has completed by the time the
-disconnect callback returns.
-
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>	# 7bbe990c989e
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-4-johan@kernel.org
+Link: https://lore.kernel.org/r/20190926091228.24634-7-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/ldusb.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/usb/misc/usblcd.c |   33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -158,6 +158,7 @@ MODULE_PARM_DESC(min_interrupt_out_inter
- struct ld_usb {
- 	struct mutex		mutex;		/* locks this structure */
- 	struct usb_interface*	intf;		/* save off the usb interface pointer */
+--- a/drivers/usb/misc/usblcd.c
++++ b/drivers/usb/misc/usblcd.c
+@@ -17,6 +17,7 @@
+ #include <linux/slab.h>
+ #include <linux/errno.h>
+ #include <linux/mutex.h>
++#include <linux/rwsem.h>
+ #include <linux/uaccess.h>
+ #include <linux/usb.h>
+ 
+@@ -56,6 +57,8 @@ struct usb_lcd {
+ 							   using up all RAM */
+ 	struct usb_anchor	submitted;		/* URBs to wait for
+ 							   before suspend */
++	struct rw_semaphore	io_rwsem;
 +	unsigned long		disconnected:1;
+ };
+ #define to_lcd_dev(d) container_of(d, struct usb_lcd, kref)
  
- 	int			open_count;	/* number of times this port has been opened */
- 
-@@ -197,12 +198,10 @@ static void ld_usb_abort_transfers(struc
- 	/* shutdown transfer */
- 	if (dev->interrupt_in_running) {
- 		dev->interrupt_in_running = 0;
--		if (dev->intf)
--			usb_kill_urb(dev->interrupt_in_urb);
-+		usb_kill_urb(dev->interrupt_in_urb);
- 	}
- 	if (dev->interrupt_out_busy)
--		if (dev->intf)
--			usb_kill_urb(dev->interrupt_out_urb);
-+		usb_kill_urb(dev->interrupt_out_urb);
- }
- 
- /**
-@@ -210,8 +209,6 @@ static void ld_usb_abort_transfers(struc
-  */
- static void ld_usb_delete(struct ld_usb *dev)
- {
--	ld_usb_abort_transfers(dev);
--
- 	/* free data structures */
- 	usb_free_urb(dev->interrupt_in_urb);
- 	usb_free_urb(dev->interrupt_out_urb);
-@@ -267,7 +264,7 @@ static void ld_usb_interrupt_in_callback
- 
- resubmit:
- 	/* resubmit if we're still running */
--	if (dev->interrupt_in_running && !dev->buffer_overflow && dev->intf) {
-+	if (dev->interrupt_in_running && !dev->buffer_overflow) {
- 		retval = usb_submit_urb(dev->interrupt_in_urb, GFP_ATOMIC);
- 		if (retval) {
- 			dev_err(&dev->intf->dev,
-@@ -396,7 +393,7 @@ static int ld_usb_release(struct inode *
- 		retval = -ENODEV;
- 		goto unlock_exit;
- 	}
--	if (dev->intf == NULL) {
-+	if (dev->disconnected) {
- 		/* the device was unplugged before the file was released */
- 		mutex_unlock(&dev->mutex);
- 		/* unlock here as ld_usb_delete frees dev */
-@@ -427,7 +424,7 @@ static unsigned int ld_usb_poll(struct f
+@@ -141,6 +144,13 @@ static ssize_t lcd_read(struct file *fil
  
  	dev = file->private_data;
  
--	if (!dev->intf)
-+	if (dev->disconnected)
- 		return POLLERR | POLLHUP;
- 
- 	poll_wait(file, &dev->read_wait, wait);
-@@ -466,7 +463,7 @@ static ssize_t ld_usb_read(struct file *
- 	}
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->intf == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		printk(KERN_ERR "ldusb: No device or device unplugged %d\n", retval);
- 		goto unlock_exit;
-@@ -546,7 +543,7 @@ static ssize_t ld_usb_write(struct file
- 	}
- 
- 	/* verify that the device wasn't unplugged */
--	if (dev->intf == NULL) {
-+	if (dev->disconnected) {
- 		retval = -ENODEV;
- 		printk(KERN_ERR "ldusb: No device or device unplugged %d\n", retval);
- 		goto unlock_exit;
-@@ -768,6 +765,9 @@ static void ld_usb_disconnect(struct usb
- 	/* give back our minor */
- 	usb_deregister_dev(intf, &ld_usb_class);
- 
-+	usb_poison_urb(dev->interrupt_in_urb);
-+	usb_poison_urb(dev->interrupt_out_urb);
++	down_read(&dev->io_rwsem);
 +
- 	mutex_lock(&dev->mutex);
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto out_up_io;
++	}
++
+ 	/* do a blocking bulk read to get data from the device */
+ 	retval = usb_bulk_msg(dev->udev,
+ 			      usb_rcvbulkpipe(dev->udev,
+@@ -157,6 +167,9 @@ static ssize_t lcd_read(struct file *fil
+ 			retval = bytes_read;
+ 	}
  
- 	/* if the device is not opened, then we clean up right now */
-@@ -775,7 +775,7 @@ static void ld_usb_disconnect(struct usb
- 		mutex_unlock(&dev->mutex);
- 		ld_usb_delete(dev);
- 	} else {
--		dev->intf = NULL;
-+		dev->disconnected = 1;
- 		/* wake up pollers */
- 		wake_up_interruptible_all(&dev->read_wait);
- 		wake_up_interruptible_all(&dev->write_wait);
++out_up_io:
++	up_read(&dev->io_rwsem);
++
+ 	return retval;
+ }
+ 
+@@ -236,11 +249,18 @@ static ssize_t lcd_write(struct file *fi
+ 	if (r < 0)
+ 		return -EINTR;
+ 
++	down_read(&dev->io_rwsem);
++
++	if (dev->disconnected) {
++		retval = -ENODEV;
++		goto err_up_io;
++	}
++
+ 	/* create a urb, and a buffer for it, and copy the data to the urb */
+ 	urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!urb) {
+ 		retval = -ENOMEM;
+-		goto err_no_buf;
++		goto err_up_io;
+ 	}
+ 
+ 	buf = usb_alloc_coherent(dev->udev, count, GFP_KERNEL,
+@@ -277,6 +297,7 @@ static ssize_t lcd_write(struct file *fi
+ 	   the USB core will eventually free it entirely */
+ 	usb_free_urb(urb);
+ 
++	up_read(&dev->io_rwsem);
+ exit:
+ 	return count;
+ error_unanchor:
+@@ -284,7 +305,8 @@ error_unanchor:
+ error:
+ 	usb_free_coherent(dev->udev, count, buf, urb->transfer_dma);
+ 	usb_free_urb(urb);
+-err_no_buf:
++err_up_io:
++	up_read(&dev->io_rwsem);
+ 	up(&dev->limit_sem);
+ 	return retval;
+ }
+@@ -327,6 +349,7 @@ static int lcd_probe(struct usb_interfac
+ 	}
+ 	kref_init(&dev->kref);
+ 	sema_init(&dev->limit_sem, USB_LCD_CONCURRENT_WRITES);
++	init_rwsem(&dev->io_rwsem);
+ 	init_usb_anchor(&dev->submitted);
+ 
+ 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
+@@ -437,6 +460,12 @@ static void lcd_disconnect(struct usb_in
+ 	/* give back our minor */
+ 	usb_deregister_dev(interface, &lcd_class);
+ 
++	down_write(&dev->io_rwsem);
++	dev->disconnected = 1;
++	up_write(&dev->io_rwsem);
++
++	usb_kill_anchored_urbs(&dev->submitted);
++
+ 	/* decrement our usage count */
+ 	kref_put(&dev->kref, lcd_delete);
+ 
 
 
