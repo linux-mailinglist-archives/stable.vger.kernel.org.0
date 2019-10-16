@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B343DD9F55
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05AB1DA16A
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437706AbfJPVyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
+        id S2393371AbfJPWXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388866AbfJPVyS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:18 -0400
+        id S2394765AbfJPVxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:02 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6B5C21A4C;
-        Wed, 16 Oct 2019 21:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E3CA21925;
+        Wed, 16 Oct 2019 21:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262858;
-        bh=kYzjHFeSJmYMO6kYfEMX+vU+jy9Iq1brizrumZUAVe8=;
+        s=default; t=1571262781;
+        bh=7PZGtIV8pUjbgU6gth72dxv5B0tbvccGyLsGcxsm5ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=voKsnQzKq7FrAGwg4J1S3QS2RRSzqJbF6V/pc4uYxL6JCLJ9r9jUFxRbBbCSQeEOz
-         GjQGCsEIxARygVMbcaOKOCmc5FlojKJ6KJ9h7tFF5GAs3mXi4iUAZBNNqEEZObZAL1
-         S589xn1Ah640MvQbnfbva/mY5mYqpsvGCJ5DM5xI=
+        b=c3JzgZsFInpcVh6WPupe0oMpTQEf84ffh24vCi5rDq08r0KY4YGC0P+G6P8po7+We
+         z8eKcRJxAdDH9tFDQp10erLv8r7JXZNVM7XcLjasCZlhcyrY8yM/sWaybrPqt5ZRPe
+         dJAzVJCXB0ULkUVTPp1w6nV5dMF00BGhZxRcCAYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, KeMeng Shi <shikemeng@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 24/92] sched/core: Fix migration to invalid CPU in __set_cpus_allowed_ptr()
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 22/79] perf stat: Fix a segmentation fault when using repeat forever
 Date:   Wed, 16 Oct 2019 14:49:57 -0700
-Message-Id: <20191016214819.797335164@linuxfoundation.org>
+Message-Id: <20191016214751.367078730@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +49,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: KeMeng Shi <shikemeng@huawei.com>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit 714e501e16cd473538b609b3e351b2cc9f7f09ed ]
+[ Upstream commit 443f2d5ba13d65ccfd879460f77941875159d154 ]
 
-An oops can be triggered in the scheduler when running qemu on arm64:
+Observe a segmentation fault when 'perf stat' is asked to repeat forever
+with the interval option.
 
- Unable to handle kernel paging request at virtual address ffff000008effe40
- Internal error: Oops: 96000007 [#1] SMP
- Process migration/0 (pid: 12, stack limit = 0x00000000084e3736)
- pstate: 20000085 (nzCv daIf -PAN -UAO)
- pc : __ll_sc___cmpxchg_case_acq_4+0x4/0x20
- lr : move_queued_task.isra.21+0x124/0x298
- ...
- Call trace:
-  __ll_sc___cmpxchg_case_acq_4+0x4/0x20
-  __migrate_task+0xc8/0xe0
-  migration_cpu_stop+0x170/0x180
-  cpu_stopper_thread+0xec/0x178
-  smpboot_thread_fn+0x1ac/0x1e8
-  kthread+0x134/0x138
-  ret_from_fork+0x10/0x18
+Without fix:
 
-__set_cpus_allowed_ptr() will choose an active dest_cpu in affinity mask to
-migrage the process if process is not currently running on any one of the
-CPUs specified in affinity mask. __set_cpus_allowed_ptr() will choose an
-invalid dest_cpu (dest_cpu >= nr_cpu_ids, 1024 in my virtual machine) if
-CPUS in an affinity mask are deactived by cpu_down after cpumask_intersects
-check. cpumask_test_cpu() of dest_cpu afterwards is overflown and may pass if
-corresponding bit is coincidentally set. As a consequence, kernel will
-access an invalid rq address associate with the invalid CPU in
-migration_cpu_stop->__migrate_task->move_queued_task and the Oops occurs.
+  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
+  #           time             counts unit events
+       5.000211692  3,13,89,82,34,157      cycles
+      10.000380119  1,53,98,52,22,294      cycles
+      10.040467280       17,16,79,265      cycles
+  Segmentation fault
 
-The reproduce the crash:
+This problem was only observed when we use forever option aka -r 0 and
+works with limited repeats. Calling print_counter with ts being set to
+NULL, is not a correct option when interval is set. Hence avoid
+print_counter(NULL,..)  if interval is set.
 
-  1) A process repeatedly binds itself to cpu0 and cpu1 in turn by calling
-  sched_setaffinity.
+With fix:
 
-  2) A shell script repeatedly does "echo 0 > /sys/devices/system/cpu/cpu1/online"
-  and "echo 1 > /sys/devices/system/cpu/cpu1/online" in turn.
+  # perf stat -r 0 -I 5000 -e cycles -a sleep 10
+   #           time             counts unit events
+       5.019866622  3,15,14,43,08,697      cycles
+      10.039865756  3,15,16,31,95,261      cycles
+      10.059950628     1,26,05,47,158      cycles
+       5.009902655  3,14,52,62,33,932      cycles
+      10.019880228  3,14,52,22,89,154      cycles
+      10.030543876       66,90,18,333      cycles
+       5.009848281  3,14,51,98,25,437      cycles
+      10.029854402  3,15,14,93,04,918      cycles
+       5.009834177  3,14,51,95,92,316      cycles
 
-  3) Oops appears if the invalid CPU is set in memory after tested cpumask.
+Committer notes:
 
-Signed-off-by: KeMeng Shi <shikemeng@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/1568616808-16808-1-git-send-email-shikemeng@huawei.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Did the 'git bisect' to find the cset introducing the problem to add the
+Fixes tag below, and at that time the problem reproduced as:
+
+  (gdb) run stat -r0 -I500 sleep 1
+  <SNIP>
+  Program received signal SIGSEGV, Segmentation fault.
+  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
+  866		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, csv_sep);
+  (gdb) bt
+  #0  print_interval (prefix=prefix@entry=0x7fffffffc8d0 "", ts=ts@entry=0x0) at builtin-stat.c:866
+  #1  0x000000000041860a in print_counters (ts=ts@entry=0x0, argc=argc@entry=2, argv=argv@entry=0x7fffffffd640) at builtin-stat.c:938
+  #2  0x0000000000419a7f in cmd_stat (argc=2, argv=0x7fffffffd640, prefix=<optimized out>) at builtin-stat.c:1411
+  #3  0x000000000045c65a in run_builtin (p=p@entry=0x6291b8 <commands+216>, argc=argc@entry=5, argv=argv@entry=0x7fffffffd640) at perf.c:370
+  #4  0x000000000045c893 in handle_internal_command (argc=5, argv=0x7fffffffd640) at perf.c:429
+  #5  0x000000000045c8f1 in run_argv (argcp=argcp@entry=0x7fffffffd4ac, argv=argv@entry=0x7fffffffd4a0) at perf.c:473
+  #6  0x000000000045cac9 in main (argc=<optimized out>, argv=<optimized out>) at perf.c:588
+  (gdb)
+
+Mostly the same as just before this patch:
+
+  Program received signal SIGSEGV, Segmentation fault.
+  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
+  964		sprintf(prefix, "%6lu.%09lu%s", ts->tv_sec, ts->tv_nsec, config->csv_sep);
+  (gdb) bt
+  #0  0x00000000005874a7 in print_interval (config=0xa1f2a0 <stat_config>, evlist=0xbc9b90, prefix=0x7fffffffd1c0 "`", ts=0x0) at util/stat-display.c:964
+  #1  0x0000000000588047 in perf_evlist__print_counters (evlist=0xbc9b90, config=0xa1f2a0 <stat_config>, _target=0xa1f0c0 <target>, ts=0x0, argc=2, argv=0x7fffffffd670)
+      at util/stat-display.c:1172
+  #2  0x000000000045390f in print_counters (ts=0x0, argc=2, argv=0x7fffffffd670) at builtin-stat.c:656
+  #3  0x0000000000456bb5 in cmd_stat (argc=2, argv=0x7fffffffd670) at builtin-stat.c:1960
+  #4  0x00000000004dd2e0 in run_builtin (p=0xa30e00 <commands+288>, argc=5, argv=0x7fffffffd670) at perf.c:310
+  #5  0x00000000004dd54d in handle_internal_command (argc=5, argv=0x7fffffffd670) at perf.c:362
+  #6  0x00000000004dd694 in run_argv (argcp=0x7fffffffd4cc, argv=0x7fffffffd4c0) at perf.c:406
+  #7  0x00000000004dda11 in main (argc=5, argv=0x7fffffffd670) at perf.c:531
+  (gdb)
+
+Fixes: d4f63a4741a8 ("perf stat: Introduce print_counters function")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # v4.2+
+Link: http://lore.kernel.org/lkml/20190904094738.9558-3-srikar@linux.vnet.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/perf/builtin-stat.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 63be0bcfa286d..82cec9a666e7b 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1162,7 +1162,8 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
- 	if (cpumask_equal(&p->cpus_allowed, new_mask))
- 		goto out;
+diff --git a/tools/perf/builtin-stat.c b/tools/perf/builtin-stat.c
+index e77880b5094de..65a6922db7223 100644
+--- a/tools/perf/builtin-stat.c
++++ b/tools/perf/builtin-stat.c
+@@ -1416,7 +1416,7 @@ int cmd_stat(int argc, const char **argv, const char *prefix __maybe_unused)
+ 				run_idx + 1);
  
--	if (!cpumask_intersects(new_mask, cpu_valid_mask)) {
-+	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
-+	if (dest_cpu >= nr_cpu_ids) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -1183,7 +1184,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
- 	if (cpumask_test_cpu(task_cpu(p), new_mask))
- 		goto out;
- 
--	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
- 	if (task_running(rq, p) || p->state == TASK_WAKING) {
- 		struct migration_arg arg = { p, dest_cpu };
- 		/* Need help from migration thread: drop lock and wait. */
+ 		status = run_perf_stat(argc, argv);
+-		if (forever && status != -1) {
++		if (forever && status != -1 && !interval) {
+ 			print_counters(NULL, argc, argv);
+ 			perf_stat__reset_stats();
+ 		}
 -- 
 2.20.1
 
