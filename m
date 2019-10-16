@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E199BDA0D9
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05093DA14F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393761AbfJPWQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:16:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45580 "EHLO mail.kernel.org"
+        id S2405128AbfJPWVw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:21:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388653AbfJPVzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:10 -0400
+        id S2394868AbfJPVx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:28 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3014218DE;
-        Wed, 16 Oct 2019 21:55:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 161C3218DE;
+        Wed, 16 Oct 2019 21:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262909;
-        bh=bU4CuMd2VNYjjpDGrnKUfxlztZgEPyz8hEzwiyxPeGM=;
+        s=default; t=1571262808;
+        bh=OLGdegQHa3DJYJi1u/8icXbWKnf3l+8tAQ9VivWuHj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7hVxwcLp3oza5FPfK7M2OOnZyzaFJYAjZRqMTaue+GKpVxniYmku2HzoCJ46pqfP
-         oshSnHWh4Sajmi+ldQzXbxI+aLouXVXpYHpOBOy+3StoTE+UXNz/C9iHNGrtbEyQSF
-         +LT4M+Ci4Ncf0cqGWayMLVCN2jMrP09K6tG6SR8k=
+        b=ERasPI9cZBMXK9W+VRKSPZJ1S5tZdKDRIA0x7n/hXUWrxz8xAxAWFqKqLSMh0EFJQ
+         r2IfT0Yv8SOLsI5E8x0C2jPguQortJnixDzHieX3aWfjtUZhQY9hVi7JJo4YrTmjZ2
+         S8W+TJbhqJ5U3PqCEwpHBXdZ7DtltZfY8A3WWl80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 52/92] USB: iowarrior: fix use-after-free on release
+        stable@vger.kernel.org, Beni Mahler <beni.mahler@gmx.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 50/79] USB: serial: ftdi_sio: add device IDs for Sienna and Echelon PL-20
 Date:   Wed, 16 Oct 2019 14:50:25 -0700
-Message-Id: <20191016214837.207999160@linuxfoundation.org>
+Message-Id: <20191016214814.086738098@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Beni Mahler <beni.mahler@gmx.net>
 
-commit 80cd5479b525093a56ef768553045741af61b250 upstream.
+commit 357f16d9e0194cdbc36531ff88b453481560b76a upstream.
 
-The driver was accessing its struct usb_interface from its release()
-callback without holding a reference. This would lead to a
-use-after-free whenever debugging was enabled and the device was
-disconnected while its character device was open.
+Both devices added here have a FTDI chip inside. The device from Echelon
+is called 'Network Interface' it is actually a LON network gateway.
 
-Fixes: 549e83500b80 ("USB: iowarrior: Convert local dbg macro to dev_dbg")
-Cc: stable <stable@vger.kernel.org>     # 3.16
+ ID 0403:8348 Future Technology Devices International, Ltd
+ https://www.eltako.com/fileadmin/downloads/de/datenblatt/Datenblatt_PL-SW-PROF.pdf
+
+ ID 0920:7500 Network Interface
+ https://www.echelon.com/products/u20-usb-network-interface
+
+Signed-off-by: Beni Mahler <beni.mahler@gmx.net>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    9 +++++++++
+ 2 files changed, 12 insertions(+)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -248,6 +248,7 @@ static inline void iowarrior_delete(stru
- 	kfree(dev->int_in_buffer);
- 	usb_free_urb(dev->int_in_urb);
- 	kfree(dev->read_queue);
-+	usb_put_intf(dev->interface);
- 	kfree(dev);
- }
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1025,6 +1025,9 @@ static const struct usb_device_id id_tab
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
++	/* Sienna devices */
++	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
++	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
-@@ -776,7 +777,7 @@ static int iowarrior_probe(struct usb_in
- 	init_waitqueue_head(&dev->write_wait);
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -38,6 +38,9 @@
  
- 	dev->udev = udev;
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
+ #define FTDI_LUMEL_PD12_PID	0x6002
  
- 	iface_desc = interface->cur_altsetting;
- 	dev->product_id = le16_to_cpu(udev->descriptor.idProduct);
++/* Sienna Serial Interface by Secyourit GmbH */
++#define FTDI_SIENNA_PID		0x8348
++
+ /* Cyber Cortex AV by Fabulous Silicon (http://fabuloussilicon.com) */
+ #define CYBER_CORTEX_AV_PID	0x8698
+ 
+@@ -688,6 +691,12 @@
+ #define BANDB_ZZ_PROG1_USB_PID	0xBA02
+ 
+ /*
++ * Echelon USB Serial Interface
++ */
++#define ECHELON_VID		0x0920
++#define ECHELON_U20_PID		0x7500
++
++/*
+  * Intrepid Control Systems (http://www.intrepidcs.com/) ValueCAN and NeoVI
+  */
+ #define INTREPID_VID		0x093C
 
 
