@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51827D9DB6
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC27D9DC5
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394766AbfJPVwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:52:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41000 "EHLO mail.kernel.org"
+        id S2437517AbfJPVxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394721AbfJPVwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:52:24 -0400
-Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
+        id S2437513AbfJPVxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:20 -0400
+Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 514AD20872;
-        Wed, 16 Oct 2019 21:52:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFD9B21A4C;
+        Wed, 16 Oct 2019 21:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262742;
-        bh=zia0u6U50VqyyHFrQCAoWOuBsAuMqjFRq80uvANzgHg=;
+        s=default; t=1571262799;
+        bh=VIgycL42FaxYZvfYvFylTUsM+pW3BJ+crMbYSoZQlCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaUMULRyWVTXNrBHsOzETQgl0qnSwiAw0sbsbdmtC+NRYQT0bmZOwvYwds+MbfUSl
-         7tTLkzcctTOIHbG0dh/HCS0iEuQ6PqXZHei3JxF09jFZv9paprlE7FXhoinfu6zwIA
-         vvMIKNd4Je1l2YPqXLgYgSwk04n/C8rzUXfNzMa8=
+        b=pLCbxOL6yooFWwVOWcVk4vZcUcBQXrTyTCj8TP2dTlgi8EnU8wxhIVegK3sL9DDB7
+         kUDIxWwLefjq1CqmgiB+S+E+ldjJrwzwZCGdxlle7flMptoZ4MQVVPrfv/qTPqWWZn
+         0ZA1f5ImqUmUao/3P2UmKME1FaVIekyCvJ+Fnsrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.4 01/79] KVM: s390: Test for bad access register and size at the start of S390_MEM_OP
-Date:   Wed, 16 Oct 2019 14:49:36 -0700
-Message-Id: <20191016214730.169837508@linuxfoundation.org>
+        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.4 04/79] s390/cio: exclude subchannels with no parent from pseudo check
+Date:   Wed, 16 Oct 2019 14:49:39 -0700
+Message-Id: <20191016214733.936954745@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
 References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,50 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit a13b03bbb4575b350b46090af4dfd30e735aaed1 upstream.
+commit ab5758848039de9a4b249d46e4ab591197eebaf2 upstream.
 
-If the KVM_S390_MEM_OP ioctl is called with an access register >= 16,
-then there is certainly a bug in the calling userspace application.
-We check for wrong access registers, but only if the vCPU was already
-in the access register mode before (i.e. the SIE block has recorded
-it). The check is also buried somewhere deep in the calling chain (in
-the function ar_translation()), so this is somewhat hard to find.
+ccw console is created early in start_kernel and used before css is
+initialized or ccw console subchannel is registered. Until then console
+subchannel does not have a parent. For that reason assume subchannels
+with no parent are not pseudo subchannels. This fixes the following
+kasan finding:
 
-It's better to always report an error to the userspace in case this
-field is set wrong, and it's safer in the KVM code if we block wrong
-values here early instead of relying on a check somewhere deep down
-the calling chain, so let's add another check to kvm_s390_guest_mem_op()
-directly.
+BUG: KASAN: global-out-of-bounds in sch_is_pseudo_sch+0x8e/0x98
+Read of size 8 at addr 00000000000005e8 by task swapper/0/0
 
-We also should check that the "size" is non-zero here (thanks to Janosch
-Frank for the hint!). If we do not check the size, we could call vmalloc()
-with this 0 value, and this will cause a kernel warning.
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-rc8-07370-g6ac43dd12538 #2
+Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
+Call Trace:
+([<000000000012cd76>] show_stack+0x14e/0x1e0)
+ [<0000000001f7fb44>] dump_stack+0x1a4/0x1f8
+ [<00000000007d7afc>] print_address_description+0x64/0x3c8
+ [<00000000007d75f6>] __kasan_report+0x14e/0x180
+ [<00000000018a2986>] sch_is_pseudo_sch+0x8e/0x98
+ [<000000000189b950>] cio_enable_subchannel+0x1d0/0x510
+ [<00000000018cac7c>] ccw_device_recognition+0x12c/0x188
+ [<0000000002ceb1a8>] ccw_device_enable_console+0x138/0x340
+ [<0000000002cf1cbe>] con3215_init+0x25e/0x300
+ [<0000000002c8770a>] console_init+0x68a/0x9b8
+ [<0000000002c6a3d6>] start_kernel+0x4fe/0x728
+ [<0000000000100070>] startup_continue+0x70/0xd0
 
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Link: https://lkml.kernel.org/r/20190829122517.31042-1-thuth@redhat.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/kvm/kvm-s390.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/cio/css.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2471,7 +2471,7 @@ static long kvm_s390_guest_mem_op(struct
- 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
- 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -1120,6 +1120,8 @@ device_initcall(cio_settle_init);
  
--	if (mop->flags & ~supported_flags)
-+	if (mop->flags & ~supported_flags || mop->ar >= NUM_ACRS || !mop->size)
- 		return -EINVAL;
+ int sch_is_pseudo_sch(struct subchannel *sch)
+ {
++	if (!sch->dev.parent)
++		return 0;
+ 	return sch == to_css(sch->dev.parent)->pseudo_subchannel;
+ }
  
- 	if (mop->size > MEM_OP_MAX_SIZE)
 
 
