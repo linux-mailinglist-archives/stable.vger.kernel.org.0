@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE64D925D
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 15:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6408BD925E
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 15:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393583AbfJPNWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 09:22:42 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:39863 "EHLO
+        id S2404153AbfJPNWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 09:22:51 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:38109 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729306AbfJPNWm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 09:22:42 -0400
+        by vger.kernel.org with ESMTP id S1729306AbfJPNWu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 09:22:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 823D621FED;
-        Wed, 16 Oct 2019 09:22:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 16 Oct 2019 09:22:41 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 2652620F25;
+        Wed, 16 Oct 2019 09:22:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 16 Oct 2019 09:22:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jsTgs2
-        vEwxScEVUdaop3n7t2EFbd96mtzWeeJfbtWT4=; b=MO4gmi/UXG9TPiWQl+oJhT
-        1dkMf90rdZwzY4E8fWRc50WGcBAaJKcnNakKxdpUAHsUHmOlP7tHHb8wbsl/EwQD
-        XXfygHos4ik8XCQJHikCOa4t+q/Xk7ePdtdzkjvcPmqYBuzt3Qx0hRWXwR58Gk9S
-        ggapHnr0qBh399MbGgMoCWzUuPJtQo4tmNYhTweWE9Zcfm38+jYiAg0Fvd22Dcmp
-        fxR+mKKVvF1fqt9LgydScwMbA6wF0+CiHhzZLDhJtTDoRN4fqcP4WSZjziLRV6MO
-        p8J5LqoqucX1RhyHQxVeMxnuBH5eNvL2spzZ0YYBo+6jnRKaQlFqSv4F1kqK249w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=utPBxA
+        UD1Z678Dcb9EZToiS+M1RF82eJ4ByZ2rN+IF4=; b=HBxF19HjYIBQi/1qQYEVTz
+        y0hGXX97JHdy144O6CLzHhD38BiBfh0NDCuTXEN3cwEtWZxvJgvBGAWxAHTG9yyV
+        B6ATA6YlqcpbPhrQFeBDSM9J3deMqK7SnP3I/a86GPozXkNQql5c/jLeQ6eER5gR
+        jyUnJNrr4Hq9ISXlprKxktK4sfYzusEWQUHbhUP/A38i5hvaz8hPd23vVO9OUdao
+        Nz3OOxqzpEBGgmod2H1KfR6U4JMFCzFzC2+Gp6ngp2a7OOxBr39Lfg/YGQRMzomE
+        2t+MAZuC+34yOFWRJGEN7H7rhnO/EENOPsIa1Aele/ELztodMUZ+Fe+pLvAMVEOA
         ==
-X-ME-Sender: <xms:oRmnXdmNnXcnSUh7PvqprARHdVP8V6efwmA1jh5GbUfZ2XLB-bxYDA>
+X-ME-Sender: <xms:qhmnXTL4eEKt9JEVnax1C3qg0DLOJ4Xa6PWjPeCMafRXJNTD5Y_nbQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjeehgdeiiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucfkphepvddtledrudefiedrvdefiedrleegnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:oRmnXRBsBDDHfD2gWo_hX0G5mfQc--LIl75jPP4VbZvVMOQ7qDP-Lg>
-    <xmx:oRmnXfMkM3MxjErq37VkCUP1TjGRfG9hEZSAshqGRrlCflxCWseIpg>
-    <xmx:oRmnXYOTdSxop38-SIxTzyzmp9Tz2eT_WEMnBues3GYALHYMlc5Cdg>
-    <xmx:oRmnXVARB-x-6xz8PIcp-noOmteW4JZW_nulUKOLOSNH2_-BAW5wTw>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:qhmnXTNKlSOCFZ85woekQCbrDXL7txImpH-CdgrXqI3dFUnIW69JMg>
+    <xmx:qhmnXXBfrUG8XsAj750PTP5hR8s6A3L0800IagDtFo97ucUUmcZrqA>
+    <xmx:qhmnXbWfPNofTN1APg6DoXo_OmGk5Ea-802dF1K81Z2mlnus5sq_1w>
+    <xmx:qhmnXS9sZPSiISQmBmlNP9APckESugCObotpDx_Ziz9BzxiINY0HLw>
 Received: from localhost (unknown [209.136.236.94])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C8A92D6005B;
-        Wed, 16 Oct 2019 09:22:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFS: Fix O_DIRECT accounting of number of bytes read/written" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8D8DF8005B;
+        Wed, 16 Oct 2019 09:22:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] NFS: Fix O_DIRECT accounting of number of bytes read/written" failed to apply to 4.9-stable tree
 To:     trondmy@gmail.com, Anna.Schumaker@Netapp.com,
         suyj.fnst@cn.fujitsu.com, trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 16 Oct 2019 06:22:39 -0700
-Message-ID: <1571232159178150@kroah.com>
+Date:   Wed, 16 Oct 2019 06:22:40 -0700
+Message-ID: <157123216023152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
