@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5E9D9E35
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D28CD9E63
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437945AbfJPV47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49150 "EHLO mail.kernel.org"
+        id S2438060AbfJPV6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391233AbfJPV46 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:58 -0400
+        id S2438224AbfJPV6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:39 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 041F8218DE;
-        Wed, 16 Oct 2019 21:56:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A91F21928;
+        Wed, 16 Oct 2019 21:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263017;
-        bh=axZIwNdfKdDdPLE4tMS6r7yKnYi7SwZ0HbtEFjMZyz4=;
+        s=default; t=1571263119;
+        bh=jFXAIx9g4Rar81Kccj33nbuvqOQF4Z/HIzIz/pbtx48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+tYoM7C2WK2FSb2OuFLOmZ4/XMMySRBIF85KfDzUK4HTx3F4yRtzJ2lhIg/HBHf6
-         P2X6ZV7a8n5zwCNXlVWd5Pjvx6959iQNaG2qpWAX304JKtSjkZ5XsMD3uvA/47aJqJ
-         HwbjEiuNalZe0VZW5EucfI24yEYFhz3EvAll9Exg=
+        b=a8INY40GSNG4n8+h85XAJ8K5UuKS9dPBdgyFANAh7gszMwWcw58Q2GQh8Q0uTc2em
+         TD+H6KqfX5cjFJzr0FyJFUHNjFtwI9MgJlWFUxyWmnaan7Z7I+0vO0RlNths0Z7heW
+         DUNVqgpiX2IyovUXS7h/nbg9zGjEOHUmm7Xstrc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 19/81] USB: iowarrior: fix use-after-free on release
-Date:   Wed, 16 Oct 2019 14:50:30 -0700
-Message-Id: <20191016214825.028539641@linuxfoundation.org>
+Subject: [PATCH 5.3 043/112] USB: legousbtower: fix use-after-free on release
+Date:   Wed, 16 Oct 2019 14:50:35 -0700
+Message-Id: <20191016214854.683057469@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 80cd5479b525093a56ef768553045741af61b250 upstream.
+commit 726b55d0e22ca72c69c947af87785c830289ddbc upstream.
 
-The driver was accessing its struct usb_interface from its release()
+The driver was accessing its struct usb_device in its release()
 callback without holding a reference. This would lead to a
-use-after-free whenever debugging was enabled and the device was
-disconnected while its character device was open.
+use-after-free whenever the device was disconnected while the character
+device was still open.
 
-Fixes: 549e83500b80 ("USB: iowarrior: Convert local dbg macro to dev_dbg")
-Cc: stable <stable@vger.kernel.org>     # 3.16
+Fixes: fef526cae700 ("USB: legousbtower: remove custom debug macro")
+Cc: stable <stable@vger.kernel.org>     # 3.12
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009153848.8664-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    3 ++-
+ drivers/usb/misc/legousbtower.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -243,6 +243,7 @@ static inline void iowarrior_delete(stru
- 	kfree(dev->int_in_buffer);
- 	usb_free_urb(dev->int_in_urb);
- 	kfree(dev->read_queue);
-+	usb_put_intf(dev->interface);
- 	kfree(dev);
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -296,6 +296,7 @@ static inline void tower_delete (struct
+ 	kfree (dev->read_buffer);
+ 	kfree (dev->interrupt_in_buffer);
+ 	kfree (dev->interrupt_out_buffer);
++	usb_put_dev(dev->udev);
+ 	kfree (dev);
  }
  
-@@ -764,7 +765,7 @@ static int iowarrior_probe(struct usb_in
- 	init_waitqueue_head(&dev->write_wait);
+@@ -810,7 +811,7 @@ static int tower_probe (struct usb_inter
  
- 	dev->udev = udev;
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
+ 	mutex_init(&dev->lock);
  
- 	iface_desc = interface->cur_altsetting;
- 	dev->product_id = le16_to_cpu(udev->descriptor.idProduct);
+-	dev->udev = udev;
++	dev->udev = usb_get_dev(udev);
+ 	dev->open_count = 0;
+ 	dev->disconnected = 0;
+ 
 
 
