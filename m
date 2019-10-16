@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42F25DA0E3
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70641D9FCD
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727925AbfJPWQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:16:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45228 "EHLO mail.kernel.org"
+        id S2438162AbfJPV6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395138AbfJPVzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:00 -0400
+        id S2438158AbfJPV63 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:29 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74A2821925;
-        Wed, 16 Oct 2019 21:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE934218DE;
+        Wed, 16 Oct 2019 21:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262899;
-        bh=iy/VHMV6omP+D7+GJiS4gHZtt5audKdVEHGdn++DeGI=;
+        s=default; t=1571263109;
+        bh=od/c6TzyPXpf7ky7GdR+hgCyRAWNPIOfz+b/0alOEFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGWOv+RXhs/+8XGfsr0krPbYKRE/Cpyn8J7KBk2hJRHwJGlWUjFb88HQS1Q0QHgFj
-         ExhsicyExwxTJTMRsfh/B1PRlmUps/IGBsyHQcQOl7HbNapKS6tLUJucWmL3tZq8Zb
-         sHyAlfoFDIKaqPDxeQBEqgfhbuioM9HWBgAIHboU=
+        b=JovtOjimZaP+h7jnLLJ630XNFUxDdNcI0J6TATQxQnyn7lHIILpahmfhdi1VmRj3b
+         0LmYkXWcDyFt0Xq07J563qrl3kZ+pOI59WvYwrp5gGdllijbJLTcZVpo4FZg8Vtkjd
+         arzHlfN003QX5wdFwchKwWbxu/bSuBQFu1Z6uZZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 51/92] USB: iowarrior: fix use-after-free on disconnect
+        syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.3 032/112] USB: microtek: fix info-leak at probe
 Date:   Wed, 16 Oct 2019 14:50:24 -0700
-Message-Id: <20191016214836.824956867@linuxfoundation.org>
+Message-Id: <20191016214853.313145937@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +47,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit edc4746f253d907d048de680a621e121517f484b upstream.
+commit 177238c3d47d54b2ed8f0da7a4290db492f4a057 upstream.
 
-A recent fix addressing a deadlock on disconnect introduced a new bug
-by moving the present flag out of the critical section protected by the
-driver-data mutex. This could lead to a racing release() freeing the
-driver data before disconnect() is done with it.
+Add missing bulk-in endpoint sanity check to prevent uninitialised stack
+data from being reported to the system log and used as endpoint
+addresses.
 
-Due to insufficient locking a related use-after-free could be triggered
-also before the above mentioned commit. Specifically, the driver needs
-to hold the driver-data mutex also while checking the opened flag at
-disconnect().
-
-Fixes: c468a8aa790e ("usb: iowarrior: fix deadlock on disconnect")
-Fixes: 946b960d13c1 ("USB: add driver for iowarrior devices.")
-Cc: stable <stable@vger.kernel.org>	# 2.6.21
-Reported-by: syzbot+0761012cebf7bdb38137@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+5630ca7c3b2be5c9da5e@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009104846.5925-2-johan@kernel.org
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20191003070931.17009-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/iowarrior.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/usb/image/microtek.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -886,8 +886,6 @@ static void iowarrior_disconnect(struct
- 	dev = usb_get_intfdata(interface);
- 	mutex_lock(&iowarrior_open_disc_lock);
- 	usb_set_intfdata(interface, NULL);
--	/* prevent device read, write and ioctl */
--	dev->present = 0;
+--- a/drivers/usb/image/microtek.c
++++ b/drivers/usb/image/microtek.c
+@@ -716,6 +716,10 @@ static int mts_usb_probe(struct usb_inte
  
- 	minor = dev->minor;
- 	mutex_unlock(&iowarrior_open_disc_lock);
-@@ -898,8 +896,7 @@ static void iowarrior_disconnect(struct
- 	mutex_lock(&dev->mutex);
- 
- 	/* prevent device read, write and ioctl */
--
--	mutex_unlock(&dev->mutex);
-+	dev->present = 0;
- 
- 	if (dev->opened) {
- 		/* There is a process that holds a filedescriptor to the device ,
-@@ -909,8 +906,10 @@ static void iowarrior_disconnect(struct
- 		usb_kill_urb(dev->int_in_urb);
- 		wake_up_interruptible(&dev->read_wait);
- 		wake_up_interruptible(&dev->write_wait);
-+		mutex_unlock(&dev->mutex);
- 	} else {
- 		/* no process is using the device, cleanup now */
-+		mutex_unlock(&dev->mutex);
- 		iowarrior_delete(dev);
  	}
  
++	if (ep_in_current != &ep_in_set[2]) {
++		MTS_WARNING("couldn't find two input bulk endpoints. Bailing out.\n");
++		return -ENODEV;
++	}
+ 
+ 	if ( ep_out == -1 ) {
+ 		MTS_WARNING( "couldn't find an output bulk endpoint. Bailing out.\n" );
 
 
