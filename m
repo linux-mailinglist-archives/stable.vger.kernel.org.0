@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6433D9E13
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C862D9E14
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732851AbfJPV4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2406630AbfJPV4V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 16 Oct 2019 17:56:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406622AbfJPV4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:19 -0400
+        id S2406627AbfJPV4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:20 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D996721D7A;
-        Wed, 16 Oct 2019 21:56:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA9D820872;
+        Wed, 16 Oct 2019 21:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1571262979;
-        bh=0i8NEifPkeXZ3/FmjfKoxUqh11xEvFRrE2wjoyTZt/k=;
+        bh=J2Sn1aG9tQc5zNbTM4373KlEXNztfHo5wQ38E+AP4+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prpysJtTog7q4t5tlDEUvAybARKaYjym8dRLhtMEmZOwHLyuPoWN5M1HUiTyRw7+G
-         4tL38y2EspL90k+fmhzLHcMBsMIZYR0BRZUk04eCT2/RJYgXGxDyNnKN1DwZRWQQd4
-         S4oe+Q8DowuNpv9ogK0MBhSCqOzdFDPuJtXX9dPw=
+        b=lL4fL7tNWtc1offacAvhniuKZfFqHTqwnH9XklgC2wPIMc/CxqaNBphOhRUvtzLYc
+         hRsD8/6tzc0kHNBQZQFSb+ZWET0/Cgx6tyxwF0Mc+bQMznwHEiLpDQgghbj0c59Ebq
+         +ehowKj5gTyYTivLmyAFTw14diVuaSm/0F4WnK2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 48/65] CIFS: Force reval dentry if LOOKUP_REVAL flag is set
-Date:   Wed, 16 Oct 2019 14:51:02 -0700
-Message-Id: <20191016214834.999868151@linuxfoundation.org>
+        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 49/65] kernel/sysctl.c: do not override max_threads provided by userspace
+Date:   Wed, 16 Oct 2019 14:51:03 -0700
+Message-Id: <20191016214835.534949867@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
 References: <20191016214756.457746573@linuxfoundation.org>
@@ -43,53 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <piastryyy@gmail.com>
+From: Michal Hocko <mhocko@suse.com>
 
-commit 0b3d0ef9840f7be202393ca9116b857f6f793715 upstream.
+commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
 
-Mark inode for force revalidation if LOOKUP_REVAL flag is set.
-This tells the client to actually send a QueryInfo request to
-the server to obtain the latest metadata in case a directory
-or a file were changed remotely. Only do that if the client
-doesn't have a lease for the file to avoid unneeded round
-trips to the server.
+Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
+limits") because the patch is causing a regression to any workload which
+needs to override the auto-tuning of the limit provided by kernel.
 
+set_max_threads is implementing a boot time guesstimate to provide a
+sensible limit of the concurrently running threads so that runaways will
+not deplete all the memory.  This is a good thing in general but there
+are workloads which might need to increase this limit for an application
+to run (reportedly WebSpher MQ is affected) and that is simply not
+possible after the mentioned change.  It is also very dubious to
+override an admin decision by an estimation that doesn't have any direct
+relation to correctness of the kernel operation.
+
+Fix this by dropping set_max_threads from sysctl_max_threads so any
+value is accepted as long as it fits into MAX_THREADS which is important
+to check because allowing more threads could break internal robust futex
+restriction.  While at it, do not use MIN_THREADS as the lower boundary
+because it is also only a heuristic for automatic estimation and admin
+might have a good reason to stop new threads to be created even when
+below this limit.
+
+This became more severe when we switched x86 from 4k to 8k kernel
+stacks.  Starting since 6538b8ea886e ("x86_64: expand kernel stack to
+16K") (3.16) we use THREAD_SIZE_ORDER = 2 and that halved the auto-tuned
+value.
+
+In the particular case
+
+  3.12
+  kernel.threads-max = 515561
+
+  4.4
+  kernel.threads-max = 200000
+
+Neither of the two values is really insane on 32GB machine.
+
+I am not sure we want/need to tune the max_thread value further.  If
+anything the tuning should be removed altogether if proven not useful in
+general.  But we definitely need a way to override this auto-tuning.
+
+Link: http://lkml.kernel.org/r/20190922065801.GB18814@dhcp22.suse.cz
+Fixes: 16db3d3f1170 ("kernel/sysctl.c: threads-max observe limits")
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Heinrich Schuchardt <xypron.glpk@gmx.de>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/dir.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ kernel/fork.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/cifs/dir.c
-+++ b/fs/cifs/dir.c
-@@ -841,10 +841,16 @@ lookup_out:
- static int
- cifs_d_revalidate(struct dentry *direntry, unsigned int flags)
- {
-+	struct inode *inode;
-+
- 	if (flags & LOOKUP_RCU)
- 		return -ECHILD;
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2499,7 +2499,7 @@ int sysctl_max_threads(struct ctl_table
+ 	struct ctl_table t;
+ 	int ret;
+ 	int threads = max_threads;
+-	int min = MIN_THREADS;
++	int min = 1;
+ 	int max = MAX_THREADS;
  
- 	if (d_really_is_positive(direntry)) {
-+		inode = d_inode(direntry);
-+		if ((flags & LOOKUP_REVAL) && !CIFS_CACHE_READ(CIFS_I(inode)))
-+			CIFS_I(inode)->time = 0; /* force reval */
-+
- 		if (cifs_revalidate_dentry(direntry))
- 			return 0;
- 		else {
-@@ -855,7 +861,7 @@ cifs_d_revalidate(struct dentry *direntr
- 			 * attributes will have been updated by
- 			 * cifs_revalidate_dentry().
- 			 */
--			if (IS_AUTOMOUNT(d_inode(direntry)) &&
-+			if (IS_AUTOMOUNT(inode) &&
- 			   !(direntry->d_flags & DCACHE_NEED_AUTOMOUNT)) {
- 				spin_lock(&direntry->d_lock);
- 				direntry->d_flags |= DCACHE_NEED_AUTOMOUNT;
+ 	t = *table;
+@@ -2511,7 +2511,7 @@ int sysctl_max_threads(struct ctl_table
+ 	if (ret || !write)
+ 		return ret;
+ 
+-	set_max_threads(threads);
++	max_threads = threads;
+ 
+ 	return 0;
+ }
 
 
