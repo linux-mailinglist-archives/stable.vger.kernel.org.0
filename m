@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F5EDA09D
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B3CDA13C
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726633AbfJPWNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47004 "EHLO mail.kernel.org"
+        id S2392807AbfJPWVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:21:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437843AbfJPVzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:54 -0400
+        id S2437564AbfJPVxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:40 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD5C4218DE;
-        Wed, 16 Oct 2019 21:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA21F218DE;
+        Wed, 16 Oct 2019 21:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262953;
-        bh=j6J6/XrfGH0dGCQ64DCTclHY+iBTFT8Fgdv2TEDikSw=;
+        s=default; t=1571262819;
+        bh=/65x1RXpW1BL+sNWRXmIXwJn2MK+GW4GX8yPWk69DX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPsbSneWmjkLIL6ELXtQuK46gKUxmF2Z9PlO0E2VAhhxLVsB8U9UHEpsp/hDFJvtf
-         Lj4XQ/DZcKwxPAX58Tb77JAWQl8g4ZmKV4TYmM2/WuwEOJWVfOb3/iL4PSbnpf11sF
-         mgBe5rmVx/5eDZYFF9bl/J3yuCHdarwRa7SPnjs0=
+        b=jVob2SxtZrjBdJfJCAshH2e9pbWco2y4KHnZA4+PO9dohZyL8DCLKwCIObPAd6vBA
+         iRvH+HTPuTAVMTxkzXTRN/lBgpccFs6Iv2N/fkuyBG7iLs2LTxHfgZPc3FIGEez41Y
+         sLvHFA3GskNRq8/6cRzsbZRfBmGzFUsfkTi5N2gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Peter Korsgaard <jacmet@sunsite.dk>
-Subject: [PATCH 4.14 23/65] serial: uartlite: fix exit path null pointer
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 62/79] USB: legousbtower: fix open after failed reset request
 Date:   Wed, 16 Oct 2019 14:50:37 -0700
-Message-Id: <20191016214819.179163209@linuxfoundation.org>
+Message-Id: <20191016214824.430528358@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit a553add0846f355a28ed4e81134012e4a1e280c2 upstream.
+commit 0b074f6986751361ff442bc1127c1648567aa8d6 upstream.
 
-Call uart_unregister_driver() conditionally instead of
-unconditionally, only if it has been previously registered.
+The driver would return with a nonzero open count in case the reset
+control request failed. This would prevent any further attempts to open
+the char dev until the device was disconnected.
 
-This uses driver.state, just as the sh-sci.c driver does.
+Fix this by incrementing the open count only on successful open.
 
-Fixes this null pointer dereference in tty_unregister_driver(),
-since the 'driver' argument is null:
-
-  general protection fault: 0000 [#1] PREEMPT SMP KASAN PTI
-  RIP: 0010:tty_unregister_driver+0x25/0x1d0
-
-Fixes: 238b8721a554 ("[PATCH] serial uartlite driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Cc: stable <stable@vger.kernel.org>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>
-Link: https://lore.kernel.org/r/9c8e6581-6fcc-a595-0897-4d90f5d710df@infradead.org
+Link: https://lore.kernel.org/r/20190919083039.30898-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/uartlite.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/misc/legousbtower.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/uartlite.c
-+++ b/drivers/tty/serial/uartlite.c
-@@ -746,7 +746,8 @@ err_uart:
- static void __exit ulite_exit(void)
- {
- 	platform_driver_unregister(&ulite_platform_driver);
--	uart_unregister_driver(&ulite_uart_driver);
-+	if (ulite_uart_driver.state)
-+		uart_unregister_driver(&ulite_uart_driver);
- }
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -354,7 +354,6 @@ static int tower_open (struct inode *ino
+ 		retval = -EBUSY;
+ 		goto unlock_exit;
+ 	}
+-	dev->open_count = 1;
  
- module_init(ulite_init);
+ 	/* reset the tower */
+ 	result = usb_control_msg (dev->udev,
+@@ -394,13 +393,14 @@ static int tower_open (struct inode *ino
+ 		dev_err(&dev->udev->dev,
+ 			"Couldn't submit interrupt_in_urb %d\n", retval);
+ 		dev->interrupt_in_running = 0;
+-		dev->open_count = 0;
+ 		goto unlock_exit;
+ 	}
+ 
+ 	/* save device in the file's private structure */
+ 	file->private_data = dev;
+ 
++	dev->open_count = 1;
++
+ unlock_exit:
+ 	mutex_unlock(&dev->lock);
+ 
 
 
