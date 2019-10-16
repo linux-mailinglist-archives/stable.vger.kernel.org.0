@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF289DA032
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9912DA07F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439124AbfJPWJC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:09:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
+        id S2439241AbfJPWMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395502AbfJPV5j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:39 -0400
+        id S2406659AbfJPV4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:32 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0136222D3;
-        Wed, 16 Oct 2019 21:57:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9EA021D7A;
+        Wed, 16 Oct 2019 21:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263058;
-        bh=xqxhwZQAPTYk3yF0JMsCSmn0mzoykXeQq/k1xTHvKyg=;
+        s=default; t=1571262991;
+        bh=G+ewoKReLo8kaLUZAu05EM3mfMfbkjAxb+wWkYXUIVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8mIfr8rzTziyvTaSr1W4PVuWqwYDsbrWvHJAAHWty2eMbUCfjgFzSf5xthpxRzB6
-         Mkifdl4yGPLUGfm3SDdunVdSVXpQDSQrdezPc/fJ7UrWfA+GWOYx+eLICkxZbNeVi7
-         XoQcZVuSe2qsmPzqZMVWjsFMbpbmzVJSQ1/lBtCQ=
+        b=F1l2K/Mx9gYyA04odaaxpIAPiuy415YwiN5xjnjZLVanUrvLka2O1UUjmoJOC1Fjs
+         CfUWvPNIekB5WwbOOItt7dh67DVWAOxWZPgmVWlUHPz1VqveDHcuBhQIv7O9JvK2Nr
+         q6+dBiJcQfRXM28NPaz7pA78U+zmElFSo3jdyFr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 60/81] iio: adc: stm32-adc: move registers definitions
-Date:   Wed, 16 Oct 2019 14:51:11 -0700
-Message-Id: <20191016214843.701704296@linuxfoundation.org>
+        stable@vger.kernel.org, "zhengbin (A)" <zhengbin13@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.14 58/65] Fix the locking in dcache_readdir() and friends
+Date:   Wed, 16 Oct 2019 14:51:12 -0700
+Message-Id: <20191016214839.027507782@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,336 +43,222 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 31922f62bb527d749b99dbc776e514bcba29b7fe ]
+commit d4f4de5e5ef8efde85febb6876cd3c8ab1631999 upstream.
 
-Move STM32 ADC registers definitions to common header.
-This is precursor patch to:
-- iio: adc: stm32-adc: fix a race when using several adcs with dma and irq
+There are two problems in dcache_readdir() - one is that lockless traversal
+of the list needs non-trivial cooperation of d_alloc() (at least a switch
+to list_add_rcu(), and probably more than just that) and another is that
+it assumes that no removal will happen without the directory locked exclusive.
+Said assumption had always been there, never had been stated explicitly and
+is violated by several places in the kernel (devpts and selinuxfs).
 
-It keeps registers definitions as a whole block, to ease readability and
-allow simple access path to EOC bits (readl) in stm32-adc-core driver.
+        * replacement of next_positive() with different calling conventions:
+it returns struct list_head * instead of struct dentry *; the latter is
+passed in and out by reference, grabbing the result and dropping the original
+value.
+        * scan is under ->d_lock.  If we run out of timeslice, cursor is moved
+after the last position we'd reached and we reschedule; then the scan continues
+from that place.  To avoid livelocks between multiple lseek() (with cursors
+getting moved past each other, never reaching the real entries) we always
+skip the cursors, need_resched() or not.
+        * returned list_head * is either ->d_child of dentry we'd found or
+->d_subdirs of parent (if we got to the end of the list).
+        * dcache_readdir() and dcache_dir_lseek() switched to new helper.
+dcache_readdir() always holds a reference to dentry passed to dir_emit() now.
+Cursor is moved to just before the entry where dir_emit() has failed or into
+the very end of the list, if we'd run out.
+        * move_cursor() eliminated - it had sucky calling conventions and
+after fixing that it became simply list_move() (in lseek and scan_positives)
+or list_move_tail() (in readdir).
 
-Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+        All operations with the list are under ->d_lock now, and we do not
+depend upon having all file removals done with parent locked exclusive
+anymore.
 
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: "zhengbin (A)" <zhengbin13@huawei.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/stm32-adc-core.c |  27 ------
- drivers/iio/adc/stm32-adc-core.h | 136 +++++++++++++++++++++++++++++++
- drivers/iio/adc/stm32-adc.c      | 109 -------------------------
- 3 files changed, 136 insertions(+), 136 deletions(-)
+ fs/libfs.c |  134 +++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 69 insertions(+), 65 deletions(-)
 
-diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
-index ca432e7b6ff1d..ce2cc61395d63 100644
---- a/drivers/iio/adc/stm32-adc-core.c
-+++ b/drivers/iio/adc/stm32-adc-core.c
-@@ -21,33 +21,6 @@
+--- a/fs/libfs.c
++++ b/fs/libfs.c
+@@ -86,58 +86,47 @@ int dcache_dir_close(struct inode *inode
+ EXPORT_SYMBOL(dcache_dir_close);
  
- #include "stm32-adc-core.h"
+ /* parent is locked at least shared */
+-static struct dentry *next_positive(struct dentry *parent,
+-				    struct list_head *from,
+-				    int count)
++/*
++ * Returns an element of siblings' list.
++ * We are looking for <count>th positive after <p>; if
++ * found, dentry is grabbed and passed to caller via *<res>.
++ * If no such element exists, the anchor of list is returned
++ * and *<res> is set to NULL.
++ */
++static struct list_head *scan_positives(struct dentry *cursor,
++					struct list_head *p,
++					loff_t count,
++					struct dentry **res)
+ {
+-	unsigned *seq = &parent->d_inode->i_dir_seq, n;
+-	struct dentry *res;
+-	struct list_head *p;
+-	bool skipped;
+-	int i;
++	struct dentry *dentry = cursor->d_parent, *found = NULL;
  
--/* STM32F4 - common registers for all ADC instances: 1, 2 & 3 */
--#define STM32F4_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
--#define STM32F4_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x04)
+-retry:
+-	i = count;
+-	skipped = false;
+-	n = smp_load_acquire(seq) & ~1;
+-	res = NULL;
+-	rcu_read_lock();
+-	for (p = from->next; p != &parent->d_subdirs; p = p->next) {
++	spin_lock(&dentry->d_lock);
++	while ((p = p->next) != &dentry->d_subdirs) {
+ 		struct dentry *d = list_entry(p, struct dentry, d_child);
+-		if (!simple_positive(d)) {
+-			skipped = true;
+-		} else if (!--i) {
+-			res = d;
+-			break;
++		// we must at least skip cursors, to avoid livelocks
++		if (d->d_flags & DCACHE_DENTRY_CURSOR)
++			continue;
++		if (simple_positive(d) && !--count) {
++			spin_lock_nested(&d->d_lock, DENTRY_D_LOCK_NESTED);
++			if (simple_positive(d))
++				found = dget_dlock(d);
++			spin_unlock(&d->d_lock);
++			if (likely(found))
++				break;
++			count = 1;
++		}
++		if (need_resched()) {
++			list_move(&cursor->d_child, p);
++			p = &cursor->d_child;
++			spin_unlock(&dentry->d_lock);
++			cond_resched();
++			spin_lock(&dentry->d_lock);
+ 		}
+ 	}
+-	rcu_read_unlock();
+-	if (skipped) {
+-		smp_rmb();
+-		if (unlikely(*seq != n))
+-			goto retry;
+-	}
+-	return res;
+-}
 -
--/* STM32F4_ADC_CSR - bit fields */
--#define STM32F4_EOC3			BIT(17)
--#define STM32F4_EOC2			BIT(9)
--#define STM32F4_EOC1			BIT(1)
--
--/* STM32F4_ADC_CCR - bit fields */
--#define STM32F4_ADC_ADCPRE_SHIFT	16
--#define STM32F4_ADC_ADCPRE_MASK		GENMASK(17, 16)
--
--/* STM32H7 - common registers for all ADC instances */
--#define STM32H7_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
--#define STM32H7_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x08)
--
--/* STM32H7_ADC_CSR - bit fields */
--#define STM32H7_EOC_SLV			BIT(18)
--#define STM32H7_EOC_MST			BIT(2)
--
--/* STM32H7_ADC_CCR - bit fields */
--#define STM32H7_PRESC_SHIFT		18
--#define STM32H7_PRESC_MASK		GENMASK(21, 18)
--#define STM32H7_CKMODE_SHIFT		16
--#define STM32H7_CKMODE_MASK		GENMASK(17, 16)
--
- /**
-  * stm32_adc_common_regs - stm32 common registers, compatible dependent data
-  * @csr:	common status register offset
-diff --git a/drivers/iio/adc/stm32-adc-core.h b/drivers/iio/adc/stm32-adc-core.h
-index 8af507b3f32d9..94aa2d2577dc9 100644
---- a/drivers/iio/adc/stm32-adc-core.h
-+++ b/drivers/iio/adc/stm32-adc-core.h
-@@ -27,6 +27,142 @@
- #define STM32_ADC_MAX_ADCS		3
- #define STM32_ADCX_COMN_OFFSET		0x300
+-static void move_cursor(struct dentry *cursor, struct list_head *after)
+-{
+-	struct dentry *parent = cursor->d_parent;
+-	unsigned n, *seq = &parent->d_inode->i_dir_seq;
+-	spin_lock(&parent->d_lock);
+-	for (;;) {
+-		n = *seq;
+-		if (!(n & 1) && cmpxchg(seq, n, n + 1) == n)
+-			break;
+-		cpu_relax();
+-	}
+-	__list_del(cursor->d_child.prev, cursor->d_child.next);
+-	if (after)
+-		list_add(&cursor->d_child, after);
+-	else
+-		list_add_tail(&cursor->d_child, &parent->d_subdirs);
+-	smp_store_release(seq, n + 2);
+-	spin_unlock(&parent->d_lock);
++	spin_unlock(&dentry->d_lock);
++	dput(*res);
++	*res = found;
++	return p;
+ }
  
-+/* STM32F4 - Registers for each ADC instance */
-+#define STM32F4_ADC_SR			0x00
-+#define STM32F4_ADC_CR1			0x04
-+#define STM32F4_ADC_CR2			0x08
-+#define STM32F4_ADC_SMPR1		0x0C
-+#define STM32F4_ADC_SMPR2		0x10
-+#define STM32F4_ADC_HTR			0x24
-+#define STM32F4_ADC_LTR			0x28
-+#define STM32F4_ADC_SQR1		0x2C
-+#define STM32F4_ADC_SQR2		0x30
-+#define STM32F4_ADC_SQR3		0x34
-+#define STM32F4_ADC_JSQR		0x38
-+#define STM32F4_ADC_JDR1		0x3C
-+#define STM32F4_ADC_JDR2		0x40
-+#define STM32F4_ADC_JDR3		0x44
-+#define STM32F4_ADC_JDR4		0x48
-+#define STM32F4_ADC_DR			0x4C
+ loff_t dcache_dir_lseek(struct file *file, loff_t offset, int whence)
+@@ -153,17 +142,28 @@ loff_t dcache_dir_lseek(struct file *fil
+ 			return -EINVAL;
+ 	}
+ 	if (offset != file->f_pos) {
++		struct dentry *cursor = file->private_data;
++		struct dentry *to = NULL;
++		struct list_head *p;
 +
-+/* STM32F4 - common registers for all ADC instances: 1, 2 & 3 */
-+#define STM32F4_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
-+#define STM32F4_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x04)
+ 		file->f_pos = offset;
+-		if (file->f_pos >= 2) {
+-			struct dentry *cursor = file->private_data;
+-			struct dentry *to;
+-			loff_t n = file->f_pos - 2;
+-
+-			inode_lock_shared(dentry->d_inode);
+-			to = next_positive(dentry, &dentry->d_subdirs, n);
+-			move_cursor(cursor, to ? &to->d_child : NULL);
+-			inode_unlock_shared(dentry->d_inode);
++		inode_lock_shared(dentry->d_inode);
 +
-+/* STM32F4_ADC_SR - bit fields */
-+#define STM32F4_STRT			BIT(4)
-+#define STM32F4_EOC			BIT(1)
++		if (file->f_pos > 2) {
++			p = scan_positives(cursor, &dentry->d_subdirs,
++					   file->f_pos - 2, &to);
++			spin_lock(&dentry->d_lock);
++			list_move(&cursor->d_child, p);
++			spin_unlock(&dentry->d_lock);
++		} else {
++			spin_lock(&dentry->d_lock);
++			list_del_init(&cursor->d_child);
++			spin_unlock(&dentry->d_lock);
+ 		}
 +
-+/* STM32F4_ADC_CR1 - bit fields */
-+#define STM32F4_RES_SHIFT		24
-+#define STM32F4_RES_MASK		GENMASK(25, 24)
-+#define STM32F4_SCAN			BIT(8)
-+#define STM32F4_EOCIE			BIT(5)
++		dput(to);
 +
-+/* STM32F4_ADC_CR2 - bit fields */
-+#define STM32F4_SWSTART			BIT(30)
-+#define STM32F4_EXTEN_SHIFT		28
-+#define STM32F4_EXTEN_MASK		GENMASK(29, 28)
-+#define STM32F4_EXTSEL_SHIFT		24
-+#define STM32F4_EXTSEL_MASK		GENMASK(27, 24)
-+#define STM32F4_EOCS			BIT(10)
-+#define STM32F4_DDS			BIT(9)
-+#define STM32F4_DMA			BIT(8)
-+#define STM32F4_ADON			BIT(0)
-+
-+/* STM32F4_ADC_CSR - bit fields */
-+#define STM32F4_EOC3			BIT(17)
-+#define STM32F4_EOC2			BIT(9)
-+#define STM32F4_EOC1			BIT(1)
-+
-+/* STM32F4_ADC_CCR - bit fields */
-+#define STM32F4_ADC_ADCPRE_SHIFT	16
-+#define STM32F4_ADC_ADCPRE_MASK		GENMASK(17, 16)
-+
-+/* STM32H7 - Registers for each ADC instance */
-+#define STM32H7_ADC_ISR			0x00
-+#define STM32H7_ADC_IER			0x04
-+#define STM32H7_ADC_CR			0x08
-+#define STM32H7_ADC_CFGR		0x0C
-+#define STM32H7_ADC_SMPR1		0x14
-+#define STM32H7_ADC_SMPR2		0x18
-+#define STM32H7_ADC_PCSEL		0x1C
-+#define STM32H7_ADC_SQR1		0x30
-+#define STM32H7_ADC_SQR2		0x34
-+#define STM32H7_ADC_SQR3		0x38
-+#define STM32H7_ADC_SQR4		0x3C
-+#define STM32H7_ADC_DR			0x40
-+#define STM32H7_ADC_DIFSEL		0xC0
-+#define STM32H7_ADC_CALFACT		0xC4
-+#define STM32H7_ADC_CALFACT2		0xC8
-+
-+/* STM32H7 - common registers for all ADC instances */
-+#define STM32H7_ADC_CSR			(STM32_ADCX_COMN_OFFSET + 0x00)
-+#define STM32H7_ADC_CCR			(STM32_ADCX_COMN_OFFSET + 0x08)
-+
-+/* STM32H7_ADC_ISR - bit fields */
-+#define STM32MP1_VREGREADY		BIT(12)
-+#define STM32H7_EOC			BIT(2)
-+#define STM32H7_ADRDY			BIT(0)
-+
-+/* STM32H7_ADC_IER - bit fields */
-+#define STM32H7_EOCIE			STM32H7_EOC
-+
-+/* STM32H7_ADC_CR - bit fields */
-+#define STM32H7_ADCAL			BIT(31)
-+#define STM32H7_ADCALDIF		BIT(30)
-+#define STM32H7_DEEPPWD			BIT(29)
-+#define STM32H7_ADVREGEN		BIT(28)
-+#define STM32H7_LINCALRDYW6		BIT(27)
-+#define STM32H7_LINCALRDYW5		BIT(26)
-+#define STM32H7_LINCALRDYW4		BIT(25)
-+#define STM32H7_LINCALRDYW3		BIT(24)
-+#define STM32H7_LINCALRDYW2		BIT(23)
-+#define STM32H7_LINCALRDYW1		BIT(22)
-+#define STM32H7_ADCALLIN		BIT(16)
-+#define STM32H7_BOOST			BIT(8)
-+#define STM32H7_ADSTP			BIT(4)
-+#define STM32H7_ADSTART			BIT(2)
-+#define STM32H7_ADDIS			BIT(1)
-+#define STM32H7_ADEN			BIT(0)
-+
-+/* STM32H7_ADC_CFGR bit fields */
-+#define STM32H7_EXTEN_SHIFT		10
-+#define STM32H7_EXTEN_MASK		GENMASK(11, 10)
-+#define STM32H7_EXTSEL_SHIFT		5
-+#define STM32H7_EXTSEL_MASK		GENMASK(9, 5)
-+#define STM32H7_RES_SHIFT		2
-+#define STM32H7_RES_MASK		GENMASK(4, 2)
-+#define STM32H7_DMNGT_SHIFT		0
-+#define STM32H7_DMNGT_MASK		GENMASK(1, 0)
-+
-+enum stm32h7_adc_dmngt {
-+	STM32H7_DMNGT_DR_ONLY,		/* Regular data in DR only */
-+	STM32H7_DMNGT_DMA_ONESHOT,	/* DMA one shot mode */
-+	STM32H7_DMNGT_DFSDM,		/* DFSDM mode */
-+	STM32H7_DMNGT_DMA_CIRC,		/* DMA circular mode */
-+};
-+
-+/* STM32H7_ADC_CALFACT - bit fields */
-+#define STM32H7_CALFACT_D_SHIFT		16
-+#define STM32H7_CALFACT_D_MASK		GENMASK(26, 16)
-+#define STM32H7_CALFACT_S_SHIFT		0
-+#define STM32H7_CALFACT_S_MASK		GENMASK(10, 0)
-+
-+/* STM32H7_ADC_CALFACT2 - bit fields */
-+#define STM32H7_LINCALFACT_SHIFT	0
-+#define STM32H7_LINCALFACT_MASK		GENMASK(29, 0)
-+
-+/* STM32H7_ADC_CSR - bit fields */
-+#define STM32H7_EOC_SLV			BIT(18)
-+#define STM32H7_EOC_MST			BIT(2)
-+
-+/* STM32H7_ADC_CCR - bit fields */
-+#define STM32H7_PRESC_SHIFT		18
-+#define STM32H7_PRESC_MASK		GENMASK(21, 18)
-+#define STM32H7_CKMODE_SHIFT		16
-+#define STM32H7_CKMODE_MASK		GENMASK(17, 16)
-+
- /**
-  * struct stm32_adc_common - stm32 ADC driver common data (for all instances)
-  * @base:		control registers base cpu addr
-diff --git a/drivers/iio/adc/stm32-adc.c b/drivers/iio/adc/stm32-adc.c
-index 378411853d751..c52d20f7ca2ed 100644
---- a/drivers/iio/adc/stm32-adc.c
-+++ b/drivers/iio/adc/stm32-adc.c
-@@ -27,115 +27,6 @@
++		inode_unlock_shared(dentry->d_inode);
+ 	}
+ 	return offset;
+ }
+@@ -185,25 +185,29 @@ int dcache_readdir(struct file *file, st
+ {
+ 	struct dentry *dentry = file->f_path.dentry;
+ 	struct dentry *cursor = file->private_data;
+-	struct list_head *p = &cursor->d_child;
+-	struct dentry *next;
+-	bool moved = false;
++	struct list_head *anchor = &dentry->d_subdirs;
++	struct dentry *next = NULL;
++	struct list_head *p;
  
- #include "stm32-adc-core.h"
+ 	if (!dir_emit_dots(file, ctx))
+ 		return 0;
  
--/* STM32F4 - Registers for each ADC instance */
--#define STM32F4_ADC_SR			0x00
--#define STM32F4_ADC_CR1			0x04
--#define STM32F4_ADC_CR2			0x08
--#define STM32F4_ADC_SMPR1		0x0C
--#define STM32F4_ADC_SMPR2		0x10
--#define STM32F4_ADC_HTR			0x24
--#define STM32F4_ADC_LTR			0x28
--#define STM32F4_ADC_SQR1		0x2C
--#define STM32F4_ADC_SQR2		0x30
--#define STM32F4_ADC_SQR3		0x34
--#define STM32F4_ADC_JSQR		0x38
--#define STM32F4_ADC_JDR1		0x3C
--#define STM32F4_ADC_JDR2		0x40
--#define STM32F4_ADC_JDR3		0x44
--#define STM32F4_ADC_JDR4		0x48
--#define STM32F4_ADC_DR			0x4C
--
--/* STM32F4_ADC_SR - bit fields */
--#define STM32F4_STRT			BIT(4)
--#define STM32F4_EOC			BIT(1)
--
--/* STM32F4_ADC_CR1 - bit fields */
--#define STM32F4_RES_SHIFT		24
--#define STM32F4_RES_MASK		GENMASK(25, 24)
--#define STM32F4_SCAN			BIT(8)
--#define STM32F4_EOCIE			BIT(5)
--
--/* STM32F4_ADC_CR2 - bit fields */
--#define STM32F4_SWSTART			BIT(30)
--#define STM32F4_EXTEN_SHIFT		28
--#define STM32F4_EXTEN_MASK		GENMASK(29, 28)
--#define STM32F4_EXTSEL_SHIFT		24
--#define STM32F4_EXTSEL_MASK		GENMASK(27, 24)
--#define STM32F4_EOCS			BIT(10)
--#define STM32F4_DDS			BIT(9)
--#define STM32F4_DMA			BIT(8)
--#define STM32F4_ADON			BIT(0)
--
--/* STM32H7 - Registers for each ADC instance */
--#define STM32H7_ADC_ISR			0x00
--#define STM32H7_ADC_IER			0x04
--#define STM32H7_ADC_CR			0x08
--#define STM32H7_ADC_CFGR		0x0C
--#define STM32H7_ADC_SMPR1		0x14
--#define STM32H7_ADC_SMPR2		0x18
--#define STM32H7_ADC_PCSEL		0x1C
--#define STM32H7_ADC_SQR1		0x30
--#define STM32H7_ADC_SQR2		0x34
--#define STM32H7_ADC_SQR3		0x38
--#define STM32H7_ADC_SQR4		0x3C
--#define STM32H7_ADC_DR			0x40
--#define STM32H7_ADC_DIFSEL		0xC0
--#define STM32H7_ADC_CALFACT		0xC4
--#define STM32H7_ADC_CALFACT2		0xC8
--
--/* STM32H7_ADC_ISR - bit fields */
--#define STM32MP1_VREGREADY		BIT(12)
--#define STM32H7_EOC			BIT(2)
--#define STM32H7_ADRDY			BIT(0)
--
--/* STM32H7_ADC_IER - bit fields */
--#define STM32H7_EOCIE			STM32H7_EOC
--
--/* STM32H7_ADC_CR - bit fields */
--#define STM32H7_ADCAL			BIT(31)
--#define STM32H7_ADCALDIF		BIT(30)
--#define STM32H7_DEEPPWD			BIT(29)
--#define STM32H7_ADVREGEN		BIT(28)
--#define STM32H7_LINCALRDYW6		BIT(27)
--#define STM32H7_LINCALRDYW5		BIT(26)
--#define STM32H7_LINCALRDYW4		BIT(25)
--#define STM32H7_LINCALRDYW3		BIT(24)
--#define STM32H7_LINCALRDYW2		BIT(23)
--#define STM32H7_LINCALRDYW1		BIT(22)
--#define STM32H7_ADCALLIN		BIT(16)
--#define STM32H7_BOOST			BIT(8)
--#define STM32H7_ADSTP			BIT(4)
--#define STM32H7_ADSTART			BIT(2)
--#define STM32H7_ADDIS			BIT(1)
--#define STM32H7_ADEN			BIT(0)
--
--/* STM32H7_ADC_CFGR bit fields */
--#define STM32H7_EXTEN_SHIFT		10
--#define STM32H7_EXTEN_MASK		GENMASK(11, 10)
--#define STM32H7_EXTSEL_SHIFT		5
--#define STM32H7_EXTSEL_MASK		GENMASK(9, 5)
--#define STM32H7_RES_SHIFT		2
--#define STM32H7_RES_MASK		GENMASK(4, 2)
--#define STM32H7_DMNGT_SHIFT		0
--#define STM32H7_DMNGT_MASK		GENMASK(1, 0)
--
--enum stm32h7_adc_dmngt {
--	STM32H7_DMNGT_DR_ONLY,		/* Regular data in DR only */
--	STM32H7_DMNGT_DMA_ONESHOT,	/* DMA one shot mode */
--	STM32H7_DMNGT_DFSDM,		/* DFSDM mode */
--	STM32H7_DMNGT_DMA_CIRC,		/* DMA circular mode */
--};
--
--/* STM32H7_ADC_CALFACT - bit fields */
--#define STM32H7_CALFACT_D_SHIFT		16
--#define STM32H7_CALFACT_D_MASK		GENMASK(26, 16)
--#define STM32H7_CALFACT_S_SHIFT		0
--#define STM32H7_CALFACT_S_MASK		GENMASK(10, 0)
--
--/* STM32H7_ADC_CALFACT2 - bit fields */
--#define STM32H7_LINCALFACT_SHIFT	0
--#define STM32H7_LINCALFACT_MASK		GENMASK(29, 0)
--
- /* Number of linear calibration shadow registers / LINCALRDYW control bits */
- #define STM32H7_LINCALFACT_NUM		6
- 
--- 
-2.20.1
-
+ 	if (ctx->pos == 2)
+-		p = &dentry->d_subdirs;
+-	while ((next = next_positive(dentry, p, 1)) != NULL) {
++		p = anchor;
++	else
++		p = &cursor->d_child;
++
++	while ((p = scan_positives(cursor, p, 1, &next)) != anchor) {
+ 		if (!dir_emit(ctx, next->d_name.name, next->d_name.len,
+ 			      d_inode(next)->i_ino, dt_type(d_inode(next))))
+ 			break;
+-		moved = true;
+-		p = &next->d_child;
+ 		ctx->pos++;
+ 	}
+-	if (moved)
+-		move_cursor(cursor, p);
++	spin_lock(&dentry->d_lock);
++	list_move_tail(&cursor->d_child, p);
++	spin_unlock(&dentry->d_lock);
++	dput(next);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(dcache_readdir);
 
 
