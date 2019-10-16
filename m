@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 406CEDA054
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBD7D9F8F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405141AbfJPWKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49756 "EHLO mail.kernel.org"
+        id S2395370AbfJPVzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729429AbfJPV5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:57:16 -0400
+        id S2387517AbfJPVzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:50 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8877720872;
-        Wed, 16 Oct 2019 21:57:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A30F2218DE;
+        Wed, 16 Oct 2019 21:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263035;
-        bh=5iTKraSr6YCzgOAbZj3fnmt3DlD0mJRxEZgpQheQyyc=;
+        s=default; t=1571262949;
+        bh=/Qm60I01/MSUA1yqo/Wb5JuM5yJfsbegXMZ5KP1CZ4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cI/39r+VB8KwFkd1PyrRh2LzxYYXlbS5aIdkAhI5Rxzm1iVTLzmDGi/7BWMpz6aRr
-         UYkJbz+OzdgqZS/IZc5cxQ6eg4oq3VXlHH1jT0/RK+5hvI9V7qC0uZ9WVP75XtGVDI
-         857UiUg046cLGFLZig0QBV8WocNk5HoMDmz970cQ=
+        b=wxXJJYhcRTz26fjqqHHZSrTjQH39dZZnrJ2ImHMk4jaQg43wvIcyrhX70yLwJQEA0
+         +Yf6Y5NlL4Bre/COa9zGyl2nFPLP8NR8E2nuP0+B1fZ52GZaKa+u58Un9/twMQ7W1T
+         ahCJ9p8+hc6fmTXJYnWBTXZShIKRSI1ng5P5wXBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 05/81] USB: yurex: fix NULL-derefs on disconnect
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 02/65] f2fs: use EINVAL for superblock with invalid magic
 Date:   Wed, 16 Oct 2019 14:50:16 -0700
-Message-Id: <20191016214809.831170094@linuxfoundation.org>
+Message-Id: <20191016214757.197686639@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +44,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-commit aafb00a977cf7d81821f7c9d12e04c558c22dc3c upstream.
+[ Upstream commit 38fb6d0ea34299d97b031ed64fe994158b6f8eb3 ]
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag, but was setting it to NULL without making sure all
-code paths that used it were done with it.
+The kernel mount_block_root() function expects -EACESS or -EINVAL for a
+unmountable filesystem when trying to mount the root with different
+filesystem types.
 
-Before commit ef61eb43ada6 ("USB: yurex: Fix protection fault after
-device removal") this included the interrupt-in completion handler, but
-there are further accesses in dev_err and dev_dbg statements in
-yurex_write() and the driver-data destructor (sic!).
+However, in 5.3-rc1 the behavior when F2FS code cannot find valid block
+changed to return -EFSCORRUPTED(-EUCLEAN), and this error code makes
+mount_block_root() fail when trying to probe F2FS.
 
-Fix this by unconditionally stopping also the control URB at disconnect
-and by using a dedicated disconnected flag.
+When the magic number of the superblock mismatches, it has a high
+probability that it's just not a F2FS. In this case return -EINVAL seems
+to be a better result, and this return value can make mount_block_root()
+probing work again.
 
-Note that we need to take a reference to the struct usb_interface to
-avoid a use-after-free in the destructor whenever the device was
-disconnected while the character device was still open.
+Return -EINVAL when the superblock has magic mismatch, -EFSCORRUPTED in
+other cases (the magic matches but the superblock cannot be recognized).
 
-Fixes: aadd6472d904 ("USB: yurex.c: remove dbg() usage")
-Fixes: 45714104b9e8 ("USB: yurex.c: remove err() usage")
-Cc: stable <stable@vger.kernel.org>     # 3.5: ef61eb43ada6
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-6-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 10f966bbf521 ("f2fs: use generic EFSBADCRC/EFSCORRUPTED")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/yurex.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ fs/f2fs/super.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -60,6 +60,7 @@ struct usb_yurex {
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 344aa861774bd..e70975ca723b7 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1814,11 +1814,11 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 	struct super_block *sb = sbi->sb;
+ 	unsigned int blocksize;
  
- 	struct kref		kref;
- 	struct mutex		io_mutex;
-+	unsigned long		disconnected:1;
- 	struct fasync_struct	*async_queue;
- 	wait_queue_head_t	waitq;
- 
-@@ -107,6 +108,7 @@ static void yurex_delete(struct kref *kr
- 				dev->int_buffer, dev->urb->transfer_dma);
- 		usb_free_urb(dev->urb);
+-	if (F2FS_SUPER_MAGIC != le32_to_cpu(raw_super->magic)) {
++	if (le32_to_cpu(raw_super->magic) != F2FS_SUPER_MAGIC) {
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Magic Mismatch, valid(0x%x) - read(0x%x)",
+ 			F2FS_SUPER_MAGIC, le32_to_cpu(raw_super->magic));
+-		return 1;
++		return -EINVAL;
  	}
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev);
+ 
+ 	/* Currently, support only 4KB page cache size */
+@@ -1826,7 +1826,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Invalid page_cache_size (%lu), supports only 4KB\n",
+ 			PAGE_SIZE);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	/* Currently, support only 4KB block size */
+@@ -1835,7 +1835,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Invalid blocksize (%u), supports only 4KB\n",
+ 			blocksize);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	/* check log blocks per segment */
+@@ -1843,7 +1843,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Invalid log blocks per segment (%u)\n",
+ 			le32_to_cpu(raw_super->log_blocks_per_seg));
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	/* Currently, support 512/1024/2048/4096 bytes sector size */
+@@ -1853,7 +1853,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 				F2FS_MIN_LOG_SECTOR_SIZE) {
+ 		f2fs_msg(sb, KERN_INFO, "Invalid log sectorsize (%u)",
+ 			le32_to_cpu(raw_super->log_sectorsize));
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 	if (le32_to_cpu(raw_super->log_sectors_per_block) +
+ 		le32_to_cpu(raw_super->log_sectorsize) !=
+@@ -1862,7 +1862,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 			"Invalid log sectors per block(%u) log sectorsize(%u)",
+ 			le32_to_cpu(raw_super->log_sectors_per_block),
+ 			le32_to_cpu(raw_super->log_sectorsize));
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	segment_count = le32_to_cpu(raw_super->segment_count);
+@@ -1878,7 +1878,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Invalid segment count (%u)",
+ 			segment_count);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if (total_sections > segment_count ||
+@@ -1887,35 +1887,35 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Invalid segment/section count (%u, %u x %u)",
+ 			segment_count, total_sections, segs_per_sec);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if ((segment_count / segs_per_sec) < total_sections) {
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Small segment_count (%u < %u * %u)",
+ 			segment_count, segs_per_sec, total_sections);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if (segment_count > (le64_to_cpu(raw_super->block_count) >> 9)) {
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Wrong segment_count / block_count (%u > %llu)",
+ 			segment_count, le64_to_cpu(raw_super->block_count));
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if (secs_per_zone > total_sections || !secs_per_zone) {
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Wrong secs_per_zone / total_sections (%u, %u)",
+ 			secs_per_zone, total_sections);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 	if (le32_to_cpu(raw_super->extension_count) > F2FS_MAX_EXTENSION) {
+ 		f2fs_msg(sb, KERN_INFO,
+ 			"Corrupted extension count (%u > %u)",
+ 			le32_to_cpu(raw_super->extension_count),
+ 			F2FS_MAX_EXTENSION);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	if (le32_to_cpu(raw_super->cp_payload) >
+@@ -1924,7 +1924,7 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 			"Insane cp_payload (%u > %u)",
+ 			le32_to_cpu(raw_super->cp_payload),
+ 			blocks_per_seg - F2FS_CP_PACKS);
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	/* check reserved ino info */
+@@ -1936,12 +1936,12 @@ static int sanity_check_raw_super(struct f2fs_sb_info *sbi,
+ 			le32_to_cpu(raw_super->node_ino),
+ 			le32_to_cpu(raw_super->meta_ino),
+ 			le32_to_cpu(raw_super->root_ino));
+-		return 1;
++		return -EFSCORRUPTED;
+ 	}
+ 
+ 	/* check CP/SIT/NAT/SSA/MAIN_AREA area boundary */
+ 	if (sanity_check_area_boundary(sbi, bh))
+-		return 1;
++		return -EFSCORRUPTED;
+ 
+ 	return 0;
  }
-@@ -205,7 +207,7 @@ static int yurex_probe(struct usb_interf
- 	init_waitqueue_head(&dev->waitq);
+@@ -2216,11 +2216,11 @@ static int read_raw_super_block(struct f2fs_sb_info *sbi,
+ 		}
  
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	iface_desc = interface->cur_altsetting;
-@@ -316,8 +318,9 @@ static void yurex_disconnect(struct usb_
- 
- 	/* prevent more I/O from starting */
- 	usb_poison_urb(dev->urb);
-+	usb_poison_urb(dev->cntl_urb);
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	/* wakeup waiters */
-@@ -405,7 +408,7 @@ static ssize_t yurex_read(struct file *f
- 	dev = file->private_data;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		return -ENODEV;
- 	}
-@@ -440,7 +443,7 @@ static ssize_t yurex_write(struct file *
- 		goto error;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
+ 		/* sanity checking of raw super */
+-		if (sanity_check_raw_super(sbi, bh)) {
++		err = sanity_check_raw_super(sbi, bh);
++		if (err) {
+ 			f2fs_msg(sb, KERN_ERR,
+ 				"Can't find valid F2FS filesystem in %dth superblock",
+ 				block + 1);
+-			err = -EFSCORRUPTED;
+ 			brelse(bh);
+ 			continue;
+ 		}
+-- 
+2.20.1
+
 
 
