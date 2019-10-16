@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E858D9E9A
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EF56D9E42
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438648AbfJPV7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:59:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55050 "EHLO mail.kernel.org"
+        id S2395493AbfJPV5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438642AbfJPV7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:49 -0400
+        id S2395490AbfJPV5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:36 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA90A21D80;
-        Wed, 16 Oct 2019 21:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09BE421D7F;
+        Wed, 16 Oct 2019 21:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263188;
-        bh=QBtzNwCVrJp4cN4CQJnMzOVGUpLADOg3yzZ8Zb1kjw0=;
+        s=default; t=1571263056;
+        bh=7GqnbcH+r90nThr865WG1XKok01vq2QVJ4b1QhEQN5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GGZwQXdSVg0OaYgWMAt4W6+yLRyyQz++JlM4tA0aLuIFZYwJI48qkBK1ibw/td2lS
-         ANvdodFWQxFAl8uGYPRbOv9UHPzkE0p1fN1HRpBo7jPuTnZjjabrdpFyGvoq6CVZuE
-         YI7TDrsDNkn7ryvp57dBy3NNvqXaMUy0LvdXTD8k=
+        b=awH4RzxIok22DVVp1t0MXqdhkXkftAlVjSkM5CQGMLjv8OmxITV0sCnaa7ku3Sd5a
+         A0DKa8rcvz3+EeDrYNQIYecTQ+gyjx39zWFpz46lUFy+N3Yge8ASx7SNTwnwbolXuY
+         6k/ceNGO4cOxzEG1TAffWwq4JFv0riDVP3gCcgkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Wool <vitalywool@gmail.com>,
-        Markus Linnala <markus.linnala@gmail.com>,
-        Dan Streetman <ddstreet@ieee.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Henry Burns <henrywolfeburns@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 076/112] mm/z3fold.c: claim page in the beginning of free
-Date:   Wed, 16 Oct 2019 14:51:08 -0700
-Message-Id: <20191016214904.150037983@linuxfoundation.org>
+        stable@vger.kernel.org, Hung-Te Lin <hungte@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 58/81] firmware: google: increment VPD key_len properly
+Date:   Wed, 16 Oct 2019 14:51:09 -0700
+Message-Id: <20191016214843.336805131@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,91 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Wool <vitalywool@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 5b6807de11445c05b537df8324f5d7ab1c2782f9 upstream.
+[ Upstream commit 442f1e746e8187b9deb1590176f6b0ff19686b11 ]
 
-There's a really hard to reproduce race in z3fold between z3fold_free()
-and z3fold_reclaim_page().  z3fold_reclaim_page() can claim the page
-after z3fold_free() has checked if the page was claimed and
-z3fold_free() will then schedule this page for compaction which may in
-turn lead to random page faults (since that page would have been
-reclaimed by then).
+Commit 4b708b7b1a2c ("firmware: google: check if size is valid when
+decoding VPD data") adds length checks, but the new vpd_decode_entry()
+function botched the logic -- it adds the key length twice, instead of
+adding the key and value lengths separately.
 
-Fix that by claiming page in the beginning of z3fold_free() and not
-forgetting to clear the claim in the end.
+On my local system, this means vpd.c's vpd_section_create_attribs() hits
+an error case after the first attribute it parses, since it's no longer
+looking at the correct offset. With this patch, I'm back to seeing all
+the correct attributes in /sys/firmware/vpd/...
 
-[vitalywool@gmail.com: v2]
-  Link: http://lkml.kernel.org/r/20190928113456.152742cf@bigdell
-Link: http://lkml.kernel.org/r/20190926104844.4f0c6efa1366b8f5741eaba9@gmail.com
-Signed-off-by: Vitaly Wool <vitalywool@gmail.com>
-Reported-by: Markus Linnala <markus.linnala@gmail.com>
-Cc: Dan Streetman <ddstreet@ieee.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Henry Burns <henrywolfeburns@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Markus Linnala <markus.linnala@gmail.com>
+Fixes: 4b708b7b1a2c ("firmware: google: check if size is valid when decoding VPD data")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Hung-Te Lin <hungte@chromium.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Link: https://lore.kernel.org/r/20190930214522.240680-1-briannorris@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/z3fold.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/firmware/google/vpd_decode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/z3fold.c
-+++ b/mm/z3fold.c
-@@ -998,9 +998,11 @@ static void z3fold_free(struct z3fold_po
- 	struct z3fold_header *zhdr;
- 	struct page *page;
- 	enum buddy bud;
-+	bool page_claimed;
+diff --git a/drivers/firmware/google/vpd_decode.c b/drivers/firmware/google/vpd_decode.c
+index e75abe9fa122c..6c7ab2ba85d2f 100644
+--- a/drivers/firmware/google/vpd_decode.c
++++ b/drivers/firmware/google/vpd_decode.c
+@@ -62,7 +62,7 @@ static int vpd_decode_entry(const u32 max_len, const u8 *input_buf,
+ 	if (max_len - consumed < *entry_len)
+ 		return VPD_FAIL;
  
- 	zhdr = handle_to_z3fold_header(handle);
- 	page = virt_to_page(zhdr);
-+	page_claimed = test_and_set_bit(PAGE_CLAIMED, &page->private);
- 
- 	if (test_bit(PAGE_HEADLESS, &page->private)) {
- 		/* if a headless page is under reclaim, just leave.
-@@ -1008,7 +1010,7 @@ static void z3fold_free(struct z3fold_po
- 		 * has not been set before, we release this page
- 		 * immediately so we don't care about its value any more.
- 		 */
--		if (!test_and_set_bit(PAGE_CLAIMED, &page->private)) {
-+		if (!page_claimed) {
- 			spin_lock(&pool->lock);
- 			list_del(&page->lru);
- 			spin_unlock(&pool->lock);
-@@ -1044,13 +1046,15 @@ static void z3fold_free(struct z3fold_po
- 		atomic64_dec(&pool->pages_nr);
- 		return;
- 	}
--	if (test_bit(PAGE_CLAIMED, &page->private)) {
-+	if (page_claimed) {
-+		/* the page has not been claimed by us */
- 		z3fold_page_unlock(zhdr);
- 		return;
- 	}
- 	if (unlikely(PageIsolated(page)) ||
- 	    test_and_set_bit(NEEDS_COMPACTING, &page->private)) {
- 		z3fold_page_unlock(zhdr);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 	if (zhdr->cpu < 0 || !cpu_online(zhdr->cpu)) {
-@@ -1060,10 +1064,12 @@ static void z3fold_free(struct z3fold_po
- 		zhdr->cpu = -1;
- 		kref_get(&zhdr->refcount);
- 		do_compact_page(zhdr, true);
-+		clear_bit(PAGE_CLAIMED, &page->private);
- 		return;
- 	}
- 	kref_get(&zhdr->refcount);
- 	queue_work_on(zhdr->cpu, pool->compact_wq, &zhdr->work);
-+	clear_bit(PAGE_CLAIMED, &page->private);
- 	z3fold_page_unlock(zhdr);
+-	consumed += decoded_len;
++	consumed += *entry_len;
+ 	*_consumed = consumed;
+ 	return VPD_OK;
  }
- 
+-- 
+2.20.1
+
 
 
