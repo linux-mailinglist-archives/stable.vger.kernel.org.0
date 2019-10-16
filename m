@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE3CD9F69
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0FB8D9F93
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395183AbfJPVzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45446 "EHLO mail.kernel.org"
+        id S2437863AbfJPVz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395180AbfJPVzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:06 -0400
+        id S2437858AbfJPVz4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:56 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 988DB21D7F;
-        Wed, 16 Oct 2019 21:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F12F20872;
+        Wed, 16 Oct 2019 21:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262905;
-        bh=1+1fyWTqgaYeBWPbe4DGTlwrzehJQTZxrXvSRxP2qjk=;
+        s=default; t=1571262956;
+        bh=D7p1egD3uCx9qb4alD0rkTnmhpO0xomFFmgHLmj87RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beGJNmcH5pT7nae0XVIWpU64OHrLer3TfKmpG0lmrkyF2/tT43FlaMEC9wHnAr9eF
-         9yCUqHRosQ2lbfJmE9Tfm5rHC2720d6Gy+eYAYl91MMeelzV4S7ugxE4nd1/CPwGk9
-         040Vgn9n0ja1XMpl36EneAHaKCVFMbZX5/UurPWA=
+        b=BE7z7YK5XfzZqLDShyoFmkwpLdaq7NE/4AU2HR+wFqeqJXzzbS7SHJIvuwArZ7jaF
+         /JSFo5hhVVSCDAkGslikTRWdbzfmiDnFoKQuYuEunm/lh9evsZs3Hy5Xr+Y1+9z2EO
+         jXlwuyiViUIfNNQxb4FiH5ERzA56553HaPQHwKzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.9 66/92] usb: renesas_usbhs: gadget: Do not discard queues in usb_ep_set_{halt,wedge}()
+        stable@vger.kernel.org, Beni Mahler <beni.mahler@gmx.net>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 25/65] USB: serial: ftdi_sio: add device IDs for Sienna and Echelon PL-20
 Date:   Wed, 16 Oct 2019 14:50:39 -0700
-Message-Id: <20191016214842.396485132@linuxfoundation.org>
+Message-Id: <20191016214821.983489547@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Beni Mahler <beni.mahler@gmx.net>
 
-commit 1aae1394294cb71c6aa0bc904a94a7f2f1e75936 upstream.
+commit 357f16d9e0194cdbc36531ff88b453481560b76a upstream.
 
-The commit 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
-had added a usbhsg_pipe_disable() calling into
-__usbhsg_ep_set_halt_wedge() accidentally. But, this driver should
-not call the usbhsg_pipe_disable() because the function discards
-all queues. So, this patch removes it.
+Both devices added here have a FTDI chip inside. The device from Echelon
+is called 'Network Interface' it is actually a LON network gateway.
 
-Fixes: 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
-Cc: <stable@vger.kernel.org> # v3.1+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1569924633-322-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
+ ID 0403:8348 Future Technology Devices International, Ltd
+ https://www.eltako.com/fileadmin/downloads/de/datenblatt/Datenblatt_PL-SW-PROF.pdf
+
+ ID 0920:7500 Network Interface
+ https://www.echelon.com/products/u20-usb-network-interface
+
+Signed-off-by: Beni Mahler <beni.mahler@gmx.net>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/renesas_usbhs/mod_gadget.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    9 +++++++++
+ 2 files changed, 12 insertions(+)
 
---- a/drivers/usb/renesas_usbhs/mod_gadget.c
-+++ b/drivers/usb/renesas_usbhs/mod_gadget.c
-@@ -730,8 +730,6 @@ static int __usbhsg_ep_set_halt_wedge(st
- 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
- 	unsigned long flags;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1025,6 +1025,9 @@ static const struct usb_device_id id_tab
+ 	/* EZPrototypes devices */
+ 	{ USB_DEVICE(EZPROTOTYPES_VID, HJELMSLUND_USB485_ISO_PID) },
+ 	{ USB_DEVICE_INTERFACE_NUMBER(UNJO_VID, UNJO_ISODEBUG_V1_PID, 1) },
++	/* Sienna devices */
++	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
++	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
+ 	{ }					/* Terminating entry */
+ };
  
--	usbhsg_pipe_disable(uep);
--
- 	dev_dbg(dev, "set halt %d (pipe %d)\n",
- 		halt, usbhs_pipe_number(pipe));
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -39,6 +39,9 @@
  
+ #define FTDI_LUMEL_PD12_PID	0x6002
+ 
++/* Sienna Serial Interface by Secyourit GmbH */
++#define FTDI_SIENNA_PID		0x8348
++
+ /* Cyber Cortex AV by Fabulous Silicon (http://fabuloussilicon.com) */
+ #define CYBER_CORTEX_AV_PID	0x8698
+ 
+@@ -689,6 +692,12 @@
+ #define BANDB_ZZ_PROG1_USB_PID	0xBA02
+ 
+ /*
++ * Echelon USB Serial Interface
++ */
++#define ECHELON_VID		0x0920
++#define ECHELON_U20_PID		0x7500
++
++/*
+  * Intrepid Control Systems (http://www.intrepidcs.com/) ValueCAN and NeoVI
+  */
+ #define INTREPID_VID		0x093C
 
 
