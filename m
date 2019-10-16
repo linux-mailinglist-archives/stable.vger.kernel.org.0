@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8182ED9DC7
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D3BD9DB9
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394848AbfJPVxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42182 "EHLO mail.kernel.org"
+        id S2394779AbfJPVw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394842AbfJPVxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:23 -0400
-Received: from localhost (unknown [192.55.54.58])
+        id S2394765AbfJPVw2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:52:28 -0400
+Received: from localhost (li1825-44.members.linode.com [172.104.248.44])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A6721925;
-        Wed, 16 Oct 2019 21:53:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A005F218DE;
+        Wed, 16 Oct 2019 21:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262802;
-        bh=mYrFo0W9gI8djX/nmVkmDQqAzDr5zN+mypISr36JtF0=;
+        s=default; t=1571262747;
+        bh=1pWgX6uDTUOH3YJheezI2u1Praf4IWP5+BgBbA3TdN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+LT/8stROdzAdiKjWubc5if38PmqGqikDgzSB0BjrnNX9zIOtn4qObn4Pu78S7uX
-         lal70PlTnEW0+sblJzhIf8lqWtl37EnNh+fjvDqkrEKFZRl4QPEHyXwpFptgEsr9A7
-         3qDn5cg6x0OW5nmGqQc6mwnyLQKq+T7FJXgy5z0Q=
+        b=lUWgP8ZmeakA17yihpJiWULISmUQC9yjkGCusyWPj3BtKVaIZS/oqQESCYvRk42z9
+         iYKT8yC1M3/YCPaZui5kY5aygy7Z2+JxZeCw2HFdowIWwcx77P7jzR/dlpTctgOmIA
+         g5tgD2dZ37OMJurj0CubIL4ZAZj0gNUvQYGuWz20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 08/79] can: mcp251x: mcp251x_hw_reset(): allow more time after a reset
-Date:   Wed, 16 Oct 2019 14:49:43 -0700
-Message-Id: <20191016214737.921480788@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <alex.aring@gmail.com>,
+        syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: [PATCH 4.4 10/79] ieee802154: atusb: fix use-after-free at disconnect
+Date:   Wed, 16 Oct 2019 14:49:45 -0700
+Message-Id: <20191016214738.771838140@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
 References: <20191016214729.758892904@linuxfoundation.org>
@@ -43,57 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit d84ea2123f8d27144e3f4d58cd88c9c6ddc799de upstream.
+commit 7fd25e6fc035f4b04b75bca6d7e8daa069603a76 upstream.
 
-Some boards take longer than 5ms to power up after a reset, so allow
-some retries attempts before giving up.
+The disconnect callback was accessing the hardware-descriptor private
+data after having having freed it.
 
-Fixes: ff06d611a31c ("can: mcp251x: Improve mcp251x_hw_reset()")
-Cc: linux-stable <stable@vger.kernel.org>
-Tested-by: Sean Nyekjaer <sean@geanix.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
+Cc: stable <stable@vger.kernel.org>     # 4.2
+Cc: Alexander Aring <alex.aring@gmail.com>
+Reported-by: syzbot+f4509a9138a1472e7e80@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/spi/mcp251x.c |   19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/net/ieee802154/atusb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -627,7 +627,7 @@ static int mcp251x_setup(struct net_devi
- static int mcp251x_hw_reset(struct spi_device *spi)
- {
- 	struct mcp251x_priv *priv = spi_get_drvdata(spi);
--	u8 reg;
-+	unsigned long timeout;
- 	int ret;
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -756,10 +756,11 @@ static void atusb_disconnect(struct usb_
  
- 	/* Wait for oscillator startup timer after power up */
-@@ -641,10 +641,19 @@ static int mcp251x_hw_reset(struct spi_d
- 	/* Wait for oscillator startup timer after reset */
- 	mdelay(MCP251X_OST_DELAY_MS);
+ 	ieee802154_unregister_hw(atusb->hw);
  
--	reg = mcp251x_read_reg(spi, CANSTAT);
--	if ((reg & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
--		return -ENODEV;
--
-+	/* Wait for reset to finish */
-+	timeout = jiffies + HZ;
-+	while ((mcp251x_read_reg(spi, CANSTAT) & CANCTRL_REQOP_MASK) !=
-+	       CANCTRL_REQOP_CONF) {
-+		usleep_range(MCP251X_OST_DELAY_MS * 1000,
-+			     MCP251X_OST_DELAY_MS * 1000 * 2);
++	usb_put_dev(atusb->usb_dev);
 +
-+		if (time_after(jiffies, timeout)) {
-+			dev_err(&spi->dev,
-+				"MCP251x didn't enter in conf mode after reset\n");
-+			return -EBUSY;
-+		}
-+	}
- 	return 0;
- }
+ 	ieee802154_free_hw(atusb->hw);
  
+ 	usb_set_intfdata(interface, NULL);
+-	usb_put_dev(atusb->usb_dev);
+ 
+ 	pr_debug("atusb_disconnect done\n");
+ }
 
 
