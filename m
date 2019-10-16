@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8B3CDA13C
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D129D9F91
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392807AbfJPWVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42758 "EHLO mail.kernel.org"
+        id S2437838AbfJPVz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437564AbfJPVxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:40 -0400
+        id S2437851AbfJPVzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:55 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA21F218DE;
-        Wed, 16 Oct 2019 21:53:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB17920872;
+        Wed, 16 Oct 2019 21:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262819;
-        bh=/65x1RXpW1BL+sNWRXmIXwJn2MK+GW4GX8yPWk69DX0=;
+        s=default; t=1571262955;
+        bh=ctmzkKO/0+RAU0vKHEpFe2WSa3E1gEwfDsZLHH7vSGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVob2SxtZrjBdJfJCAshH2e9pbWco2y4KHnZA4+PO9dohZyL8DCLKwCIObPAd6vBA
-         iRvH+HTPuTAVMTxkzXTRN/lBgpccFs6Iv2N/fkuyBG7iLs2LTxHfgZPc3FIGEez41Y
-         sLvHFA3GskNRq8/6cRzsbZRfBmGzFUsfkTi5N2gI=
+        b=qqItVLmXFsrP44xoy1WHWovXg7Tw4QVyNFsl2Exy6A0w+a4GBxRbwedxCgCJcH9In
+         HF1R4KwbHFbacIdzxST9b/FUdiuMYnxWu7cxmrRfb7twi/tWTj5pCHeTSQIIFhgCQJ
+         MuRMlvypU73A8pxZ/nBrfPcUMMzsnWkOxhs0FlAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 62/79] USB: legousbtower: fix open after failed reset request
-Date:   Wed, 16 Oct 2019 14:50:37 -0700
-Message-Id: <20191016214824.430528358@linuxfoundation.org>
+Subject: [PATCH 4.14 24/65] USB: serial: keyspan: fix NULL-derefs on open() and write()
+Date:   Wed, 16 Oct 2019 14:50:38 -0700
+Message-Id: <20191016214819.862368298@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 0b074f6986751361ff442bc1127c1648567aa8d6 upstream.
+commit 7d7e21fafdbc7fcf0854b877bd0975b487ed2717 upstream.
 
-The driver would return with a nonzero open count in case the reset
-control request failed. This would prevent any further attempts to open
-the char dev until the device was disconnected.
+Fix NULL-pointer dereferences on open() and write() which can be
+triggered by a malicious USB device.
 
-Fix this by incrementing the open count only on successful open.
+The current URB allocation helper would fail to initialise the newly
+allocated URB if the device has unexpected endpoint descriptors,
+something which could lead NULL-pointer dereferences in a number of
+open() and write() paths when accessing the URB. For example:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:usb_clear_halt+0x11/0xc0
+	...
+	Call Trace:
+	 ? tty_port_open+0x4d/0xd0
+	 keyspan_open+0x70/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_write+0x14e/0x1f3 [keyspan]
+	...
+	Call Trace:
+	 serial_write+0x43/0xa0 [usbserial]
+	 n_tty_write+0x1af/0x4f0
+	 ? do_wait_intr_irq+0x80/0x80
+	 ? process_echoes+0x60/0x60
+	 tty_write+0x13f/0x2f0
+
+	BUG: kernel NULL pointer dereference, address: 0000000000000000
+	...
+	RIP: 0010:keyspan_usa26_send_setup+0x298/0x305 [keyspan]
+	...
+	Call Trace:
+	 keyspan_open+0x10f/0x160 [keyspan]
+	 serial_port_activate+0x5b/0x80 [usbserial]
+	 tty_port_open+0x7b/0xd0
+	 ? check_tty_count+0x43/0xa0
+	 tty_open+0xf1/0x490
+
+Fixes: fdcba53e2d58 ("fix for bugzilla #7544 (keyspan USB-to-serial converter)")
+Cc: stable <stable@vger.kernel.org>	# 2.6.21
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190919083039.30898-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/legousbtower.c |    4 ++--
+ drivers/usb/serial/keyspan.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -354,7 +354,6 @@ static int tower_open (struct inode *ino
- 		retval = -EBUSY;
- 		goto unlock_exit;
+--- a/drivers/usb/serial/keyspan.c
++++ b/drivers/usb/serial/keyspan.c
+@@ -1745,8 +1745,8 @@ static struct urb *keyspan_setup_urb(str
+ 
+ 	ep_desc = find_ep(serial, endpoint);
+ 	if (!ep_desc) {
+-		/* leak the urb, something's wrong and the callers don't care */
+-		return urb;
++		usb_free_urb(urb);
++		return NULL;
  	}
--	dev->open_count = 1;
- 
- 	/* reset the tower */
- 	result = usb_control_msg (dev->udev,
-@@ -394,13 +393,14 @@ static int tower_open (struct inode *ino
- 		dev_err(&dev->udev->dev,
- 			"Couldn't submit interrupt_in_urb %d\n", retval);
- 		dev->interrupt_in_running = 0;
--		dev->open_count = 0;
- 		goto unlock_exit;
- 	}
- 
- 	/* save device in the file's private structure */
- 	file->private_data = dev;
- 
-+	dev->open_count = 1;
-+
- unlock_exit:
- 	mutex_unlock(&dev->lock);
- 
+ 	if (usb_endpoint_xfer_int(ep_desc)) {
+ 		ep_type_name = "INT";
 
 
