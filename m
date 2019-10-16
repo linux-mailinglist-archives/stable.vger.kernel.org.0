@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B3CD9E2E
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D048D9F00
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437889AbfJPV4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48904 "EHLO mail.kernel.org"
+        id S2438407AbfJPV7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:59:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395434AbfJPV4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:48 -0400
+        id S1726231AbfJPV7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:08 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C14BE218DE;
-        Wed, 16 Oct 2019 21:56:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE54221A4C;
+        Wed, 16 Oct 2019 21:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263008;
-        bh=XE/YkTvqc1UUzp6Bz2d0CnVwHgwtQ36P/CX2TSzYC8E=;
+        s=default; t=1571263148;
+        bh=uySbU/iStrpg7gYqVAO/jw0Lt6eyVT6b5EdH9JhGSaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SK7A3K+9AVjizb0rEPRH6qgFZa3gJK1ZoQMRCvV+ZdTyLdBOw3x94zf6W0IQyWQmi
-         iWXbNgrW37NyuI3W6T0BqweLWked5PQ+MQtZKw9o3gqD0PRin7qHZkGEXuPCHFPJ1t
-         YDUzpL7vRkISrYGu2qNXrLw/ZyGYyuQrlY824F6w=
+        b=f5uKPT06r378iZZK/osr3cpQ8Ksn/XcJo5ESnIVCGZ+GwUEf9cgz8p35DauIkot14
+         pKmgeMNt/FxTRgn+Ig6APtNI1QXdMx6wk5eFAoarXHJGqlSyx6b4TyUMlgKOx2kLj0
+         myg+t/hnZoNZ+mhWdq0vgxer+gc35OQ8Bvmb9rw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 10/81] xhci: Check all endpoints for LPM timeout
-Date:   Wed, 16 Oct 2019 14:50:21 -0700
-Message-Id: <20191016214815.170211026@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 030/112] USB: serial: fix runtime PM after driver unbind
+Date:   Wed, 16 Oct 2019 14:50:22 -0700
+Message-Id: <20191016214853.073187033@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
-References: <20191016214805.727399379@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Schmidt <jan@centricular.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit d500c63f80f2ea08ee300e57da5f2af1c13875f5 upstream.
+commit d51bdb93ca7e71d7fb30a572c7b47ed0194bf3fe upstream.
 
-If an endpoint is encountered that returns USB3_LPM_DEVICE_INITIATED, keep
-checking further endpoints, as there might be periodic endpoints later
-that return USB3_LPM_DISABLED due to shorter service intervals.
+Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
+interface PM usage counter") USB drivers must always balance their
+runtime PM gets and puts, including when the driver has already been
+unbound from the interface.
 
-Without this, the code can set too high a maximum-exit-latency and
-prevent the use of multiple USB3 cameras that should be able to work.
+Leaving the interface with a positive PM usage counter would prevent a
+later bound driver from suspending the device.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jan Schmidt <jan@centricular.com>
-Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1570190373-30684-4-git-send-email-mathias.nyman@linux.intel.com
+Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191001084908.2003-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/serial/usb-serial.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4631,12 +4631,12 @@ static int xhci_update_timeout_for_endpo
- 	alt_timeout = xhci_call_host_update_timeout_for_endpoint(xhci, udev,
- 		desc, state, timeout);
+--- a/drivers/usb/serial/usb-serial.c
++++ b/drivers/usb/serial/usb-serial.c
+@@ -314,10 +314,7 @@ static void serial_cleanup(struct tty_st
+ 	serial = port->serial;
+ 	owner = serial->type->driver.owner;
  
--	/* If we found we can't enable hub-initiated LPM, or
-+	/* If we found we can't enable hub-initiated LPM, and
- 	 * the U1 or U2 exit latency was too high to allow
--	 * device-initiated LPM as well, just stop searching.
-+	 * device-initiated LPM as well, then we will disable LPM
-+	 * for this device, so stop searching any further.
- 	 */
--	if (alt_timeout == USB3_LPM_DISABLED ||
--			alt_timeout == USB3_LPM_DEVICE_INITIATED) {
-+	if (alt_timeout == USB3_LPM_DISABLED) {
- 		*timeout = alt_timeout;
- 		return -E2BIG;
- 	}
+-	mutex_lock(&serial->disc_mutex);
+-	if (!serial->disconnected)
+-		usb_autopm_put_interface(serial->interface);
+-	mutex_unlock(&serial->disc_mutex);
++	usb_autopm_put_interface(serial->interface);
+ 
+ 	usb_serial_put(serial);
+ 	module_put(owner);
 
 
