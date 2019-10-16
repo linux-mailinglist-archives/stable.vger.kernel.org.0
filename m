@@ -2,40 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CEDDA0C7
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 969BED9F9F
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393691AbfJPWPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:15:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46034 "EHLO mail.kernel.org"
+        id S2395424AbfJPV4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437812AbfJPVzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:25 -0400
+        id S2395417AbfJPV4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:44 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95A3221A49;
-        Wed, 16 Oct 2019 21:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E8A21D7D;
+        Wed, 16 Oct 2019 21:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262924;
-        bh=63xkLxkUotMUnWO/uNovp+BQgIxw8vaR63O7ZnTDUts=;
+        s=default; t=1571263003;
+        bh=8Em2bsmIAcI/tf3Ihod02Uq15PYbjOQsMAOdNwSUvTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5SjW7VE1z9GV85vyha1guUU361DmMn4apVKB2NvQBD93drw6Os6dyl5hYLJ/lb3c
-         P9e3T3iySHPwKm6iUrGazYtb2ksFvOSdHUwqpyznxIV+OK9oFeVEPFy7zoptQ5bKtQ
-         l9gqHqIwNuVlWr6ed7QlLEdujhnujDqhVF4Er6Ro=
+        b=HcPXBAAKzTiqlPdXsQ6seV/3ICMFLT4Qpban1IyigTKtBzCfgt5P65YO37F3O3v7L
+         115jhdnO1eOvCapNQ9BaQqyro7pZpDiSZHsimnEjBD2DlbvkVt3NAF4Lug3PEgGRwn
+         a/Nxgs84SkUIknWDgtafhvNOTO2ig+7SHUOFlD0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Dan Carpenter <dan.carpenter@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 84/92] Staging: fbtft: fix memory leak in fbtft_framebuffer_alloc
+        stable@vger.kernel.org, Scott Talbert <swt@techie.net>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dave Young <dyoung@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Peter Jones <pjones@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.14 43/65] efivar/ssdt: Dont iterate over EFI vars if no SSDT override was specified
 Date:   Wed, 16 Oct 2019 14:50:57 -0700
-Message-Id: <20191016214847.665387092@linuxfoundation.org>
+Message-Id: <20191016214832.914076532@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-[ Upstream commit 5bdea6060618cfcf1459dca137e89aee038ac8b9 ]
+commit c05f8f92b701576b615f30aac31fabdc0648649b upstream.
 
-In fbtft_framebuffer_alloc the error handling path should take care of
-releasing frame buffer after it is allocated via framebuffer_alloc, too.
-Therefore, in two failure cases the goto destination is changed to
-address this issue.
+The kernel command line option efivar_ssdt= allows the name to be
+specified of an EFI variable containing an ACPI SSDT table that should
+be loaded into memory by the OS, and treated as if it was provided by
+the firmware.
 
-Fixes: c296d5f9957c ("staging: fbtft: core support")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20190930030949.28615-1-navid.emamdoost@gmail.com
+Currently, that code will always iterate over the EFI variables and
+compare each name with the provided name, even if the command line
+option wasn't set to begin with.
+
+So bail early when no variable name was provided. This works around a
+boot regression on the 2012 Mac Pro, as reported by Scott.
+
+Tested-by: Scott Talbert <swt@techie.net>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: <stable@vger.kernel.org> # v4.9+
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lukas Wunner <lukas@wunner.de>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Peter Jones <pjones@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux-integrity@vger.kernel.org
+Fixes: 475fb4e8b2f4 ("efi / ACPI: load SSTDs from EFI variables")
+Link: https://lkml.kernel.org/r/20191002165904.8819-3-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/staging/fbtft/fbtft-core.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/firmware/efi/efi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
-index f4682ba44cd74..d9ba8c0f1353b 100644
---- a/drivers/staging/fbtft/fbtft-core.c
-+++ b/drivers/staging/fbtft/fbtft-core.c
-@@ -814,7 +814,7 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
- 	if (par->gamma.curves && gamma) {
- 		if (fbtft_gamma_parse_str(par,
- 			par->gamma.curves, gamma, strlen(gamma)))
--			goto alloc_fail;
-+			goto release_framebuf;
- 	}
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -266,6 +266,9 @@ static __init int efivar_ssdt_load(void)
+ 	void *data;
+ 	int ret;
  
- 	/* Transmit buffer */
-@@ -839,7 +839,7 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
- 			txbuf = devm_kzalloc(par->info->device, txbuflen, GFP_KERNEL);
- 		}
- 		if (!txbuf)
--			goto alloc_fail;
-+			goto release_framebuf;
- 		par->txbuf.buf = txbuf;
- 		par->txbuf.len = txbuflen;
- 	}
-@@ -875,6 +875,9 @@ struct fb_info *fbtft_framebuffer_alloc(struct fbtft_display *display,
- 
- 	return info;
- 
-+release_framebuf:
-+	framebuffer_release(info);
++	if (!efivar_ssdt[0])
++		return 0;
 +
- alloc_fail:
- 	vfree(vmem);
+ 	ret = efivar_init(efivar_ssdt_iter, &entries, true, &entries);
  
--- 
-2.20.1
-
+ 	list_for_each_entry_safe(entry, aux, &entries, list) {
 
 
