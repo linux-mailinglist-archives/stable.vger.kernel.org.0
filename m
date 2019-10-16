@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E96ADA13F
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7944D9F90
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405183AbfJPWVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:21:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42684 "EHLO mail.kernel.org"
+        id S1728428AbfJPVzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437558AbfJPVxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:38 -0400
+        id S2437838AbfJPVzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:53 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5E6121925;
-        Wed, 16 Oct 2019 21:53:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27C1621925;
+        Wed, 16 Oct 2019 21:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262818;
-        bh=eOzkQT98W/IYT6PiIG82ruPFZC0IMUbth5LIzdiklUE=;
+        s=default; t=1571262952;
+        bh=B0dcqoSbicMHkVqB5HcqhintxRZrIi1P7Pzde2xZLLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgWsxYPVNTvD9c3PqMfad/ObtuuvC5bKRAhnTWVFF+UEXp8sqIJxQcqUx1fcxxEWU
-         F4oAEfWNnQ9ROnbKvUIhOJlgNK5gS7YD6qH6tSGG+tBCAuA8uUJOW9XNhRpClk4SYU
-         t4YXgQc8FvGEUxnRVol9a5vigxxXsw7CILfKqrCE=
+        b=FxAmalAQLSuQaQcShACg807qlXlHt6dRG8fj9Z+ssqd0WkhPWfyI15fpLpJhgcgN7
+         lL5rLj9cHL1kPs/E7fx5LYIaW+ngYaif8gOK8HByBD3zcv+5Tx2REmF3MYwyB/2+4T
+         /Vq1LWFLEmBdCjeTNMjUMni9MHlX/+YmNUMSM2aA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f9549f5ee8a5416f0b95@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 60/79] USB: legousbtower: fix deadlock on disconnect
-Date:   Wed, 16 Oct 2019 14:50:35 -0700
-Message-Id: <20191016214822.646985725@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 22/65] USB: ldusb: fix NULL-derefs on driver unbind
+Date:   Wed, 16 Oct 2019 14:50:36 -0700
+Message-Id: <20191016214818.168238921@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
+References: <20191016214756.457746573@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,123 +44,128 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 33a7813219f208f4952ece60ee255fd983272dec upstream.
+commit 58ecf131e74620305175a7aa103f81350bb37570 upstream.
 
-Fix a potential deadlock if disconnect races with open.
+The driver was using its struct usb_interface pointer as an inverted
+disconnected flag, but was setting it to NULL before making sure all
+completion handlers had run. This could lead to a NULL-pointer
+dereference in a number of dev_dbg, dev_warn and dev_err statements in
+the completion handlers which relies on said pointer.
 
-Since commit d4ead16f50f9 ("USB: prevent char device open/deregister
-race") core holds an rw-semaphore while open is called and when
-releasing the minor number during deregistration. This can lead to an
-ABBA deadlock if a driver takes a lock in open which it also holds
-during deregistration.
+Fix this by unconditionally stopping all I/O and preventing
+resubmissions by poisoning the interrupt URBs at disconnect and using a
+dedicated disconnected flag.
 
-This effectively reverts commit 78663ecc344b ("USB: disconnect open race
-in legousbtower") which needlessly introduced this issue after a generic
-fix for this race had been added to core by commit d4ead16f50f9 ("USB:
-prevent char device open/deregister race").
+This also makes sure that all I/O has completed by the time the
+disconnect callback returns.
 
-Fixes: 78663ecc344b ("USB: disconnect open race in legousbtower")
-Cc: stable <stable@vger.kernel.org>	# 2.6.24
-Reported-by: syzbot+f9549f5ee8a5416f0b95@syzkaller.appspotmail.com
-Tested-by: syzbot+f9549f5ee8a5416f0b95@syzkaller.appspotmail.com
+Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20190919083039.30898-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20191009153848.8664-4-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/legousbtower.c |   19 ++-----------------
- 1 file changed, 2 insertions(+), 17 deletions(-)
+ drivers/usb/misc/ldusb.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/misc/legousbtower.c
-+++ b/drivers/usb/misc/legousbtower.c
-@@ -185,7 +185,6 @@ static const struct usb_device_id tower_
- };
+--- a/drivers/usb/misc/ldusb.c
++++ b/drivers/usb/misc/ldusb.c
+@@ -157,6 +157,7 @@ MODULE_PARM_DESC(min_interrupt_out_inter
+ struct ld_usb {
+ 	struct mutex		mutex;		/* locks this structure */
+ 	struct usb_interface	*intf;		/* save off the usb interface pointer */
++	unsigned long		disconnected:1;
  
- MODULE_DEVICE_TABLE (usb, tower_table);
--static DEFINE_MUTEX(open_disc_mutex);
+ 	int			open_count;	/* number of times this port has been opened */
  
- #define LEGO_USB_TOWER_MINOR_BASE	160
- 
-@@ -338,18 +337,14 @@ static int tower_open (struct inode *ino
- 		goto exit;
+@@ -196,12 +197,10 @@ static void ld_usb_abort_transfers(struc
+ 	/* shutdown transfer */
+ 	if (dev->interrupt_in_running) {
+ 		dev->interrupt_in_running = 0;
+-		if (dev->intf)
+-			usb_kill_urb(dev->interrupt_in_urb);
++		usb_kill_urb(dev->interrupt_in_urb);
  	}
- 
--	mutex_lock(&open_disc_mutex);
- 	dev = usb_get_intfdata(interface);
--
- 	if (!dev) {
--		mutex_unlock(&open_disc_mutex);
- 		retval = -ENODEV;
- 		goto exit;
- 	}
- 
- 	/* lock this device */
- 	if (mutex_lock_interruptible(&dev->lock)) {
--		mutex_unlock(&open_disc_mutex);
- 	        retval = -ERESTARTSYS;
- 		goto exit;
- 	}
-@@ -357,12 +352,10 @@ static int tower_open (struct inode *ino
- 
- 	/* allow opening only once */
- 	if (dev->open_count) {
--		mutex_unlock(&open_disc_mutex);
- 		retval = -EBUSY;
- 		goto unlock_exit;
- 	}
- 	dev->open_count = 1;
--	mutex_unlock(&open_disc_mutex);
- 
- 	/* reset the tower */
- 	result = usb_control_msg (dev->udev,
-@@ -429,10 +422,9 @@ static int tower_release (struct inode *
- 
- 	if (dev == NULL) {
- 		retval = -ENODEV;
--		goto exit_nolock;
-+		goto exit;
- 	}
- 
--	mutex_lock(&open_disc_mutex);
- 	if (mutex_lock_interruptible(&dev->lock)) {
- 	        retval = -ERESTARTSYS;
- 		goto exit;
-@@ -462,10 +454,7 @@ static int tower_release (struct inode *
- 
- unlock_exit:
- 	mutex_unlock(&dev->lock);
--
- exit:
--	mutex_unlock(&open_disc_mutex);
--exit_nolock:
- 	return retval;
+ 	if (dev->interrupt_out_busy)
+-		if (dev->intf)
+-			usb_kill_urb(dev->interrupt_out_urb);
++		usb_kill_urb(dev->interrupt_out_urb);
  }
  
-@@ -944,7 +933,6 @@ static int tower_probe (struct usb_inter
- 	if (retval) {
- 		/* something prevented us from registering this driver */
- 		dev_err(idev, "Not able to get a minor for this device.\n");
--		usb_set_intfdata (interface, NULL);
- 		goto error;
+ /**
+@@ -209,8 +208,6 @@ static void ld_usb_abort_transfers(struc
+  */
+ static void ld_usb_delete(struct ld_usb *dev)
+ {
+-	ld_usb_abort_transfers(dev);
+-
+ 	/* free data structures */
+ 	usb_free_urb(dev->interrupt_in_urb);
+ 	usb_free_urb(dev->interrupt_out_urb);
+@@ -266,7 +263,7 @@ static void ld_usb_interrupt_in_callback
+ 
+ resubmit:
+ 	/* resubmit if we're still running */
+-	if (dev->interrupt_in_running && !dev->buffer_overflow && dev->intf) {
++	if (dev->interrupt_in_running && !dev->buffer_overflow) {
+ 		retval = usb_submit_urb(dev->interrupt_in_urb, GFP_ATOMIC);
+ 		if (retval) {
+ 			dev_err(&dev->intf->dev,
+@@ -395,7 +392,7 @@ static int ld_usb_release(struct inode *
+ 		retval = -ENODEV;
+ 		goto unlock_exit;
  	}
- 	dev->minor = interface->minor;
-@@ -976,16 +964,13 @@ static void tower_disconnect (struct usb
- 	int minor;
+-	if (dev->intf == NULL) {
++	if (dev->disconnected) {
+ 		/* the device was unplugged before the file was released */
+ 		mutex_unlock(&dev->mutex);
+ 		/* unlock here as ld_usb_delete frees dev */
+@@ -426,7 +423,7 @@ static unsigned int ld_usb_poll(struct f
  
- 	dev = usb_get_intfdata (interface);
--	mutex_lock(&open_disc_mutex);
--	usb_set_intfdata (interface, NULL);
+ 	dev = file->private_data;
  
- 	minor = dev->minor;
+-	if (!dev->intf)
++	if (dev->disconnected)
+ 		return POLLERR | POLLHUP;
  
--	/* give back our minor */
-+	/* give back our minor and prevent further open() */
- 	usb_deregister_dev (interface, &tower_class);
+ 	poll_wait(file, &dev->read_wait, wait);
+@@ -465,7 +462,7 @@ static ssize_t ld_usb_read(struct file *
+ 	}
  
- 	mutex_lock(&dev->lock);
--	mutex_unlock(&open_disc_mutex);
+ 	/* verify that the device wasn't unplugged */
+-	if (dev->intf == NULL) {
++	if (dev->disconnected) {
+ 		retval = -ENODEV;
+ 		printk(KERN_ERR "ldusb: No device or device unplugged %d\n", retval);
+ 		goto unlock_exit;
+@@ -545,7 +542,7 @@ static ssize_t ld_usb_write(struct file
+ 	}
+ 
+ 	/* verify that the device wasn't unplugged */
+-	if (dev->intf == NULL) {
++	if (dev->disconnected) {
+ 		retval = -ENODEV;
+ 		printk(KERN_ERR "ldusb: No device or device unplugged %d\n", retval);
+ 		goto unlock_exit;
+@@ -762,6 +759,9 @@ static void ld_usb_disconnect(struct usb
+ 	/* give back our minor */
+ 	usb_deregister_dev(intf, &ld_usb_class);
+ 
++	usb_poison_urb(dev->interrupt_in_urb);
++	usb_poison_urb(dev->interrupt_out_urb);
++
+ 	mutex_lock(&dev->mutex);
  
  	/* if the device is not opened, then we clean up right now */
- 	if (!dev->open_count) {
+@@ -769,7 +769,7 @@ static void ld_usb_disconnect(struct usb
+ 		mutex_unlock(&dev->mutex);
+ 		ld_usb_delete(dev);
+ 	} else {
+-		dev->intf = NULL;
++		dev->disconnected = 1;
+ 		/* wake up pollers */
+ 		wake_up_interruptible_all(&dev->read_wait);
+ 		wake_up_interruptible_all(&dev->write_wait);
 
 
