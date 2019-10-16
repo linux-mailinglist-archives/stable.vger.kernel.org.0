@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6B25DA0EB
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A595D9F61
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727332AbfJPWRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45098 "EHLO mail.kernel.org"
+        id S2395101AbfJPVy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:54:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395092AbfJPVyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:55 -0400
+        id S2395099AbfJPVy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:54:56 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5B88521928;
-        Wed, 16 Oct 2019 21:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54ACB20872;
+        Wed, 16 Oct 2019 21:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262894;
-        bh=+IG6tGYgGoLbuBZ79yfPKMgVZv30lypkPm307m9NWhE=;
+        s=default; t=1571262895;
+        bh=85ImHd+iC/uz5AhcNCsQYGkHH6IrmsgFjvEXApBTSiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozkMzroh/oEI6nE29Lw1ux/fR1QQcdjsGgAMJ2SG1IbRfTS+am/MgqhEEdHq0hb3v
-         CrelDg9DeV2yUvG6aQiIywHmNjm7UR/FwsZ+8BoGLmiB2OcBFJNJsh1NzNJ/Qim/00
-         jJjGvDV+nvUUdorcyOI6oCKz7vtscCTLZW+fqhgM=
+        b=KzW7YiOy+XgZFSLcdMXQubH44PIkJDgCkSsOm7shs4sJocwsnIbU/GZRbmmmxaYN1
+         EjW4UnmbdzzAsJTULHmQV6yFNUBrQWtj6GptMbS1lsLXzjkkgpDgU2t+9GLNoheZtb
+         OxbfF2Hd9/V4gUf1C7vT+FHwHJ3/eBcrOrOjkn+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Liang ZhiCheng <liangzhicheng@baidu.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.9 11/92] timer: Read jiffies once when forwarding base clk
-Date:   Wed, 16 Oct 2019 14:49:44 -0700
-Message-Id: <20191016214807.820860828@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 4.9 12/92] watchdog: imx2_wdt: fix min() calculation in imx2_wdt_set_timeout
+Date:   Wed, 16 Oct 2019 14:49:45 -0700
+Message-Id: <20191016214808.012529416@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
 References: <20191016214759.600329427@linuxfoundation.org>
@@ -44,75 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit e430d802d6a3aaf61bd3ed03d9404888a29b9bf9 upstream.
+commit 144783a80cd2cbc45c6ce17db649140b65f203dd upstream.
 
-The timer delayed for more than 3 seconds warning was triggered during
-testing.
+Converting from ms to s requires dividing by 1000, not multiplying. So
+this is currently taking the smaller of new_timeout and 1.28e8,
+i.e. effectively new_timeout.
 
-  Workqueue: events_unbound sched_tick_remote
-  RIP: 0010:sched_tick_remote+0xee/0x100
-  ...
-  Call Trace:
-   process_one_work+0x18c/0x3a0
-   worker_thread+0x30/0x380
-   kthread+0x113/0x130
-   ret_from_fork+0x22/0x40
+The driver knows what it set max_hw_heartbeat_ms to, so use that
+value instead of doing a division at run-time.
 
-The reason is that the code in collect_expired_timers() uses jiffies
-unprotected:
+FWIW, this can easily be tested by booting into a busybox shell and
+doing "watchdog -t 5 -T 130 /dev/watchdog" - without this patch, the
+watchdog fires after 130&127 == 2 seconds.
 
-    if (next_event > jiffies)
-        base->clk = jiffies;
-
-As the compiler is allowed to reload the value base->clk can advance
-between the check and the store and in the worst case advance farther than
-next event. That causes the timer expiry to be delayed until the wheel
-pointer wraps around.
-
-Convert the code to use READ_ONCE()
-
-Fixes: 236968383cf5 ("timers: Optimize collect_expired_timers() for NOHZ")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Liang ZhiCheng <liangzhicheng@baidu.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1568894687-14499-1-git-send-email-lirongqing@baidu.com
+Fixes: b07e228eee69 "watchdog: imx2_wdt: Fix set_timeout for big timeout values"
+Cc: stable@vger.kernel.org # 5.2 plus anything the above got backported to
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20190812131356.23039-1-linux@rasmusvillemoes.dk
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/timer.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/watchdog/imx2_wdt.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -1586,21 +1586,23 @@ void timer_clear_idle(void)
- static int collect_expired_timers(struct timer_base *base,
- 				  struct hlist_head *heads)
- {
-+	unsigned long now = READ_ONCE(jiffies);
-+
- 	/*
- 	 * NOHZ optimization. After a long idle sleep we need to forward the
- 	 * base to current jiffies. Avoid a loop by searching the bitfield for
- 	 * the next expiring timer.
- 	 */
--	if ((long)(jiffies - base->clk) > 2) {
-+	if ((long)(now - base->clk) > 2) {
- 		unsigned long next = __next_timer_interrupt(base);
+--- a/drivers/watchdog/imx2_wdt.c
++++ b/drivers/watchdog/imx2_wdt.c
+@@ -58,7 +58,7 @@
  
- 		/*
- 		 * If the next timer is ahead of time forward to current
- 		 * jiffies, otherwise forward to the next expiry time:
- 		 */
--		if (time_after(next, jiffies)) {
-+		if (time_after(next, now)) {
- 			/* The call site will increment clock! */
--			base->clk = jiffies - 1;
-+			base->clk = now - 1;
- 			return 0;
- 		}
- 		base->clk = next;
+ #define IMX2_WDT_WMCR		0x08		/* Misc Register */
+ 
+-#define IMX2_WDT_MAX_TIME	128
++#define IMX2_WDT_MAX_TIME	128U
+ #define IMX2_WDT_DEFAULT_TIME	60		/* in seconds */
+ 
+ #define WDOG_SEC_TO_COUNT(s)	((s * 2 - 1) << 8)
+@@ -183,7 +183,7 @@ static int imx2_wdt_set_timeout(struct w
+ {
+ 	unsigned int actual;
+ 
+-	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
++	actual = min(new_timeout, IMX2_WDT_MAX_TIME);
+ 	__imx2_wdt_set_timeout(wdog, actual);
+ 	wdog->timeout = new_timeout;
+ 	return 0;
 
 
