@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C261D9EFE
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCAC4D9EFC
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389937AbfJPWEK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:04:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53624 "EHLO mail.kernel.org"
+        id S2438425AbfJPV7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:59:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438416AbfJPV7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:59:11 -0400
+        id S2391472AbfJPV7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:59:12 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 771BC21D7A;
-        Wed, 16 Oct 2019 21:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DACD21A4C;
+        Wed, 16 Oct 2019 21:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263150;
-        bh=ErdbU82ThM3I9cHDFmp0MNhZUp0TxhFVzZStJVwB6h8=;
+        s=default; t=1571263151;
+        bh=O8OYVUjvIYMQTnJDCWIIrkclgQg7z0kTSL1toBZGUww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntiOtuJfW+b4eA3WCjvbyNK1R5xCs+trQshov+qBHUwCdyNHxI78BF+kosfvBQYse
-         4hTsqgE5VyFiZAmPdPs4oA0HOuEfjanFfj5y+HjJooXjJXZSaNJqGv2ft6WqJ+Tckj
-         npIzrMegDMdLJLdq+BNamT/xeOresYWoe6LA89bA=
+        b=QA8jDgC44XYEVy0+dHDAJ51Va8tw5Jed+++0KatFYHTqVR+NKzFfXAF9uQrphU1mD
+         6Pps/m7PO1dfzNjYWTvVJzI67is081pmbw7iywr5GCD5yeLoEbwbrJvluLUNRxpb8G
+         NH1mg+Q7r5yMBdCEjYX2xkQoJjkz0WWF4Bs5BuDA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        David Rientjes <rientjes@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Enrico Weigelt <info@metux.net>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 078/112] mm/vmpressure.c: fix a signedness bug in vmpressure_register_event()
-Date:   Wed, 16 Oct 2019 14:51:10 -0700
-Message-Id: <20191016214904.308616614@linuxfoundation.org>
+        stable@vger.kernel.org, Mohamad Heib <mohamadh@mellanox.com>,
+        Erez Alfasi <ereza@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.3 079/112] IB/core: Fix wrong iterating on ports
+Date:   Wed, 16 Oct 2019 14:51:11 -0700
+Message-Id: <20191016214904.411039483@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -50,91 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mohamad Heib <mohamadh@mellanox.com>
 
-commit 518a86713078168acd67cf50bc0b45d54b4cce6c upstream.
+commit 1cbe866cbcb53338de33cf67262e73f9315a9725 upstream.
 
-The "mode" and "level" variables are enums and in this context GCC will
-treat them as unsigned ints so the error handling is never triggered.
+rdma_for_each_port is already incrementing the iterator's value it
+receives therefore, after the first iteration the iterator is increased by
+2 which eventually causing wrong queries and possible traces.
 
-I also removed the bogus initializer because it isn't required any more
-and it's sort of confusing.
+Fix the above by removing the old redundant incrementation that was used
+before rdma_for_each_port() macro.
 
-[akpm@linux-foundation.org: reduce implicit and explicit typecasting]
-[akpm@linux-foundation.org: fix return value, add comment, per Matthew]
-Link: http://lkml.kernel.org/r/20190925110449.GO3264@mwanda
-Fixes: 3cadfa2b9497 ("mm/vmpressure.c: convert to use match_string() helper")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Enrico Weigelt <info@metux.net>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: <stable@vger.kernel.org>
+Fixes: ea1075edcbab ("RDMA: Add and use rdma_for_each_port")
+Link: https://lore.kernel.org/r/20191002122127.17571-1-leon@kernel.org
+Signed-off-by: Mohamad Heib <mohamadh@mellanox.com>
+Reviewed-by: Erez Alfasi <ereza@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmpressure.c |   20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/infiniband/core/security.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/vmpressure.c
-+++ b/mm/vmpressure.c
-@@ -355,6 +355,9 @@ void vmpressure_prio(gfp_t gfp, struct m
-  * "hierarchy" or "local").
-  *
-  * To be used as memcg event method.
-+ *
-+ * Return: 0 on success, -ENOMEM on memory failure or -EINVAL if @args could
-+ * not be parsed.
-  */
- int vmpressure_register_event(struct mem_cgroup *memcg,
- 			      struct eventfd_ctx *eventfd, const char *args)
-@@ -362,7 +365,7 @@ int vmpressure_register_event(struct mem
- 	struct vmpressure *vmpr = memcg_to_vmpressure(memcg);
- 	struct vmpressure_event *ev;
- 	enum vmpressure_modes mode = VMPRESSURE_NO_PASSTHROUGH;
--	enum vmpressure_levels level = -1;
-+	enum vmpressure_levels level;
- 	char *spec, *spec_orig;
- 	char *token;
- 	int ret = 0;
-@@ -375,20 +378,18 @@ int vmpressure_register_event(struct mem
+--- a/drivers/infiniband/core/security.c
++++ b/drivers/infiniband/core/security.c
+@@ -426,7 +426,7 @@ int ib_create_qp_security(struct ib_qp *
+ 	int ret;
  
- 	/* Find required level */
- 	token = strsep(&spec, ",");
--	level = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
--	if (level < 0) {
--		ret = level;
-+	ret = match_string(vmpressure_str_levels, VMPRESSURE_NUM_LEVELS, token);
-+	if (ret < 0)
- 		goto out;
--	}
-+	level = ret;
- 
- 	/* Find optional mode */
- 	token = strsep(&spec, ",");
- 	if (token) {
--		mode = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
--		if (mode < 0) {
--			ret = mode;
-+		ret = match_string(vmpressure_str_modes, VMPRESSURE_NUM_MODES, token);
-+		if (ret < 0)
- 			goto out;
--		}
-+		mode = ret;
+ 	rdma_for_each_port (dev, i) {
+-		is_ib = rdma_protocol_ib(dev, i++);
++		is_ib = rdma_protocol_ib(dev, i);
+ 		if (is_ib)
+ 			break;
  	}
- 
- 	ev = kzalloc(sizeof(*ev), GFP_KERNEL);
-@@ -404,6 +405,7 @@ int vmpressure_register_event(struct mem
- 	mutex_lock(&vmpr->events_lock);
- 	list_add(&ev->node, &vmpr->events);
- 	mutex_unlock(&vmpr->events_lock);
-+	ret = 0;
- out:
- 	kfree(spec_orig);
- 	return ret;
 
 
