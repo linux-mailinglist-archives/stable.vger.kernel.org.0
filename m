@@ -2,84 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F30D862D
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 05:03:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9A07D876F
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 06:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389187AbfJPDDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 15 Oct 2019 23:03:11 -0400
-Received: from forward104p.mail.yandex.net ([77.88.28.107]:35943 "EHLO
-        forward104p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729457AbfJPDDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 15 Oct 2019 23:03:11 -0400
-Received: from mxback5j.mail.yandex.net (mxback5j.mail.yandex.net [IPv6:2a02:6b8:0:1619::10e])
-        by forward104p.mail.yandex.net (Yandex) with ESMTP id 1338D4B01B04;
-        Wed, 16 Oct 2019 06:03:05 +0300 (MSK)
-Received: from myt5-e8d19f59bd21.qloud-c.yandex.net (myt5-e8d19f59bd21.qloud-c.yandex.net [2a02:6b8:c12:3e24:0:640:e8d1:9f59])
-        by mxback5j.mail.yandex.net (nwsmtp/Yandex) with ESMTP id eRJqu7dm48-34aqGRtk;
-        Wed, 16 Oct 2019 06:03:05 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; s=mail; t=1571194985;
-        bh=8HBD9RyaLSJOSxtvT5S+4AeSlj26222duXzFg8wgclU=;
-        h=In-Reply-To:From:To:Subject:Cc:Date:References:Message-ID;
-        b=KMNeJjOw94wZwKvkADVC6dCax/VWr1TnbYwR3eyuW9j1IPhgPo/YEs+u61H1PteUS
-         kZbSrchwBRh/Jc67xG/WK3cvlnNubOp2zezvhDn9DJOV9sRXnmXxCbL175qY1+Ev6n
-         tc6diJvzC9LFQWrAJ7zYd2k56z3ZP+GzWaZoqgss=
-Authentication-Results: mxback5j.mail.yandex.net; dkim=pass header.i=@flygoat.com
-Received: by myt5-e8d19f59bd21.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id SQHfl8AhvD-30Hqfu8X;
-        Wed, 16 Oct 2019 06:03:02 +0300
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client certificate not present)
-Subject: Re: [PATCH v1] MIPS: elf_hwcap: Export userspace ASEs
-To:     "Maciej W. Rozycki" <macro@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>
-Cc:     "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
-        Meng Zhuo <mengzhuo1203@gmail.com>,
-        Paul Burton <pburton@wavecomp.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <20191010150157.17075-1-jiaxun.yang@flygoat.com>
- <MWHPR2201MB127715CCA6D7B8CCBCCC2683C1940@MWHPR2201MB1277.namprd22.prod.outlook.com>
- <alpine.LFD.2.21.1910160023280.25496@eddie.linux-mips.org>
-From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
-Message-ID: <d1d4cff7-ac3e-a9ab-ecee-cc941b0895e7@flygoat.com>
-Date:   Wed, 16 Oct 2019 11:02:56 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.2
+        id S1729376AbfJPE3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 00:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38330 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726078AbfJPE3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 00:29:40 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B28520663;
+        Wed, 16 Oct 2019 04:29:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571200178;
+        bh=O4HVQFJiYapsdHmtbuSgsOmS59EbQiDHC9sEWNuylck=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YETuhVdWQDMVOZ0Te7B1Zzy3goGNdM+ufKfn7Lds4W8oWsNSwGJzqFwDUp6bmjgg5
+         l/nRkrP7RhX6B6R41j7CMwxIBJpIY8WoQ3UUos+NCYD5xOoX2mqSv6UBy7LieoVY2I
+         6XnwaKP+jC5P4kE1GERSGc3AJStKAGwxjJbxVaMU=
+Date:   Wed, 16 Oct 2019 05:29:33 +0100
+From:   Will Deacon <will@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     Andrey Konovalov <andreyknvl@google.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        CKI Project <cki-project@redhat.com>,
+        LTP List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Szabolcs Nagy <szabolcs.nagy@arm.com>,
+        Dave P Martin <Dave.Martin@arm.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.4.0-rc2-d6c2c23.cki (stable-next)
+Message-ID: <20191016042933.bemrrurjbghuiw73@willie-the-truck>
+References: <cki.B4A567748F.PFM8G4WKXI@redhat.com>
+ <805988176.6044584.1571038139105.JavaMail.zimbra@redhat.com>
+ <CAAeHK+zxFWvCOgTYrMuD-oHJAFMn5DVYmQ6-RvU8NrapSz01mQ@mail.gmail.com>
+ <20191014162651.GF19200@arrakis.emea.arm.com>
+ <20191014213332.mmq7narumxtkqumt@willie-the-truck>
+ <20191015152651.GG13874@arrakis.emea.arm.com>
+ <20191015161453.lllrp2gfwa5evd46@willie-the-truck>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LFD.2.21.1910160023280.25496@eddie.linux-mips.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191015161453.lllrp2gfwa5evd46@willie-the-truck>
+User-Agent: NeoMutt/20170113 (1.7.2)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2019/10/16 上午7:27, Maciej W. Rozycki wrote:
-> On Thu, 10 Oct 2019, Paul Burton wrote:
+On Tue, Oct 15, 2019 at 05:14:53PM +0100, Will Deacon wrote:
+> On Tue, Oct 15, 2019 at 04:26:51PM +0100, Catalin Marinas wrote:
+> > On Mon, Oct 14, 2019 at 10:33:32PM +0100, Will Deacon wrote:
+> > > On Mon, Oct 14, 2019 at 05:26:51PM +0100, Catalin Marinas wrote:
+> > > > The options I see:
+> > > > 
+> > > > 1. Revert commit 057d3389108e and try again to document that the memory
+> > > >    syscalls do not support tagged pointers
+> > > > 
+> > > > 2. Change untagged_addr() to only 0-extend from bit 55 or leave the
+> > > >    tag unchanged if bit 55 is 1. We could mask out the tag (0 rather
+> > > >    than sign-extend) but if we had an mlock test passing ULONG_MASK,
+> > > >    then we get -ENOMEM instead of -EINVAL
+> > > > 
+> > > > 3. Make untagged_addr() depend on the TIF_TAGGED_ADDR bit and we only
+> > > >    break the ABI for applications opting in to this new ABI. We did look
+> > > >    at this but the ptrace(PEEK/POKE_DATA) needs a bit more thinking on
+> > > >    whether we check the ptrace'd process or the debugger flags
+> > > > 
+> > > > 4. Leave things as they are, consider the address space 56-bit and
+> > > >    change the test to not use LONG_MAX on arm64. This needs to be passed
+> > > >    by the sparc guys since they probably have a similar issue
+> > > 
+> > > I'm in favour of (2) or (4) as long as there's also an update to the docs.
+> > 
+> > With (4) we'd start differing from other architectures supported by
+> > Linux. This works if we consider the test to be broken. However, reading
+> > the mlock man page:
+> > 
+> >        EINVAL The result of the addition addr+len was less than addr
+> >        (e.g., the addition may have resulted in an overflow).
+> > 
+> >        ENOMEM Some of the specified address range does not correspond to
+> >        mapped pages in the address space of the process.
+> > 
+> > There is no mention of EINVAL outside the TASK_SIZE, seems to fall more
+> > within the ENOMEM description above.
 > 
->>> A Golang developer reported MIPS hwcap isn't reflecting instructions
->>> that the processor actually supported so programs can't apply optimized
->>> code at runtime.
->>>
->>> Thus we export the ASEs that can be used in userspace programs.
->>
->> Applied to mips-fixes.
-> 
->   This makes a part of the user ABI, so I would advise discussing this with
-> libc folks.  Also you probably want to report microMIPS support too.
-Hi Maciej,
+> Sorry, I was being too vague in my wording. What I was trying to say is I'm
+> ok with (2) or (4), but either way we need to update our ABI documentation
+> under Documentation/arm64/.
 
-How can hwcap advance libc? I know that Arm world is using it to probe 
-SIMD extensions in high-level programs like ffmpeg.
+Having looked at making that change, I actually think the text is ok as-is
+if we go with option (2). We only make guarantees about "valid tagged
+pointer", which are defined to "reference an address in the user process
+address space" and therefore must have bit 55 == 0.
 
-microMIPS binary can't be applied at runtime, so userspace programs 
-shouldn't aware that.
+Untested patch below.
 
-  Should I Cc this discussion to libc-alpha or other lists?
+Will
 
---
-Jiaxun
-> 
->    Maciej
-> 
+--->8
+
+From 517d979e84191ae9997c9513a88a5b798af6912f Mon Sep 17 00:00:00 2001
+From: Will Deacon <will@kernel.org>
+Date: Tue, 15 Oct 2019 21:04:18 -0700
+Subject: [PATCH] arm64: tags: Preserve tags for addresses translated via TTBR1
+
+Sign-extending TTBR1 addresses when converting to an untagged address
+breaks the documented POSIX semantics for mlock() in some obscure error
+cases where we end up returning -EINVAL instead of -ENOMEM as a direct
+result of rewriting the upper address bits.
+
+Rework the untagged_addr() macro to preserve the upper address bits for
+TTBR1 addresses and only clear the tag bits for user addresses. This
+matches the behaviour of the 'clear_address_tag' assembly macro, so
+rename that and align the implementations at the same time so that they
+use the same instruction sequences for the tag manipulation.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/stable/20191014162651.GF19200@arrakis.emea.arm.com/
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/include/asm/asm-uaccess.h |  7 +++----
+ arch/arm64/include/asm/memory.h      | 10 ++++++++--
+ arch/arm64/kernel/entry.S            |  4 ++--
+ 3 files changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm64/include/asm/asm-uaccess.h b/arch/arm64/include/asm/asm-uaccess.h
+index f74909ba29bd..5bf963830b17 100644
+--- a/arch/arm64/include/asm/asm-uaccess.h
++++ b/arch/arm64/include/asm/asm-uaccess.h
+@@ -78,10 +78,9 @@ alternative_else_nop_endif
+ /*
+  * Remove the address tag from a virtual address, if present.
+  */
+-	.macro	clear_address_tag, dst, addr
+-	tst	\addr, #(1 << 55)
+-	bic	\dst, \addr, #(0xff << 56)
+-	csel	\dst, \dst, \addr, eq
++	.macro	untagged_addr, dst, addr
++	sbfx	\dst, \addr, #0, #56
++	and	\dst, \dst, \addr
+ 	.endm
+ 
+ #endif
+diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
+index b61b50bf68b1..c23c47360664 100644
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -215,12 +215,18 @@ static inline unsigned long kaslr_offset(void)
+  * up with a tagged userland pointer. Clear the tag to get a sane pointer to
+  * pass on to access_ok(), for instance.
+  */
+-#define untagged_addr(addr)	\
++#define __untagged_addr(addr)	\
+ 	((__force __typeof__(addr))sign_extend64((__force u64)(addr), 55))
+ 
++#define untagged_addr(addr)	({					\
++	u64 __addr = (__force u64)addr;					\
++	__addr &= __untagged_addr(__addr);				\
++	(__force __typeof__(addr))__addr;				\
++})
++
+ #ifdef CONFIG_KASAN_SW_TAGS
+ #define __tag_shifted(tag)	((u64)(tag) << 56)
+-#define __tag_reset(addr)	untagged_addr(addr)
++#define __tag_reset(addr)	__untagged_addr(addr)
+ #define __tag_get(addr)		(__u8)((u64)(addr) >> 56)
+ #else
+ #define __tag_shifted(tag)	0UL
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index e304fe04b098..9ae336cc5833 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -604,7 +604,7 @@ el1_da:
+ 	 */
+ 	mrs	x3, far_el1
+ 	inherit_daif	pstate=x23, tmp=x2
+-	clear_address_tag x0, x3
++	untagged_addr	x0, x3
+ 	mov	x2, sp				// struct pt_regs
+ 	bl	do_mem_abort
+ 
+@@ -808,7 +808,7 @@ el0_da:
+ 	mrs	x26, far_el1
+ 	ct_user_exit_irqoff
+ 	enable_daif
+-	clear_address_tag x0, x26
++	untagged_addr	x0, x26
+ 	mov	x1, x25
+ 	mov	x2, sp
+ 	bl	do_mem_abort
+-- 
+2.23.0.700.g56cf767bdb-goog
+
