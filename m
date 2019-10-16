@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FA0DA0F5
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D1BCD9F39
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733243AbfJPWRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:17:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44774 "EHLO mail.kernel.org"
+        id S1732040AbfJPVx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395050AbfJPVyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:44 -0400
+        id S2394855AbfJPVxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:25 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 763ED21A49;
-        Wed, 16 Oct 2019 21:54:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3392921A4C;
+        Wed, 16 Oct 2019 21:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262883;
-        bh=fSF9rDv2ZTD2EnBy8DBvgiFivImjgF+owUIyXXBCkMw=;
+        s=default; t=1571262805;
+        bh=2/YXhLFdEXvDWwBgH8c0w48Z1nq/ZTRqxtt8A54n0uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFr5wOCYPK+IsTr72xW2rdI3qjMlC8utRBSDhRXsFdGg0HFDFJvff1hThvte611uQ
-         6wVCDxbGsrK8yxER+94A7DArfrL5fqA8450niVb9vPUnqnoa3u8jcjExnfrxURGVc8
-         /io9KqvCONsdcl6QR7M6hvtXKUvDMgVjH6/FwvFA=
+        b=xFNQttbw0rVIrBtfABdmCpIDuhME/EfiDx2x/YvERGRY2Oac4I99vGQOWI/XdwaC/
+         ZDebo9usvIyF32DxkyRXyY+DskXmog+rYKz5cwsV42dGa4+Lfxscfz5nf9Q9/HiYIa
+         BCJtKPo6pMCikQyOIOegogMsXQNe8N7mVHYqyXEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 41/92] USB: usb-skeleton: fix NULL-deref on disconnect
+        stable@vger.kernel.org,
+        syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 39/79] USB: adutux: fix use-after-free on disconnect
 Date:   Wed, 16 Oct 2019 14:50:14 -0700
-Message-Id: <20191016214832.452877889@linuxfoundation.org>
+Message-Id: <20191016214801.599309080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +46,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit bed5ef230943863b9abf5eae226a20fad9a8ff71 upstream.
+commit 44efc269db7929f6275a1fa927ef082e533ecde0 upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag and was setting it to NULL before making sure all
-completion handlers had run. This could lead to NULL-pointer
-dereferences in the dev_err() statements in the completion handlers
-which relies on said pointer.
+The driver was clearing its struct usb_device pointer, which it used as
+an inverted disconnected flag, before deregistering the character device
+and without serialising against racing release().
 
-Fix this by using a dedicated disconnected flag.
+This could lead to a use-after-free if a racing release() callback
+observes the cleared pointer and frees the driver data before
+disconnect() is finished with it.
 
-Note that this is also addresses a NULL-pointer dereference at release()
-and a struct usb_interface reference leak introduced by a recent runtime
-PM fix, which depends on and should have been submitted together with
-this patch.
+This could also lead to NULL-pointer dereferences in a racing open().
 
-Fixes: 4212cd74ca6f ("USB: usb-skeleton.c: remove err() usage")
-Fixes: 5c290a5e42c3 ("USB: usb-skeleton: fix runtime PM after driver unbind")
-Cc: stable <stable@vger.kernel.org>
+Fixes: f08812d5eb8f ("USB: FIx locks and urb->status in adutux (updated)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.24
+Reported-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
+Tested-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009170944.30057-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20190925092913.8608-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    7 ++++---
+ drivers/usb/misc/adutux.c |    7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -63,6 +63,7 @@ struct usb_skel {
- 	spinlock_t		err_lock;		/* lock for errors */
- 	struct kref		kref;
- 	struct mutex		io_mutex;		/* synchronize I/O with disconnect */
-+	unsigned long		disconnected:1;
- 	wait_queue_head_t	bulk_in_wait;		/* to wait for an ongoing read */
- };
- #define to_skel_dev(d) container_of(d, struct usb_skel, kref)
-@@ -239,7 +240,7 @@ static ssize_t skel_read(struct file *fi
- 	if (rv < 0)
- 		return rv;
+--- a/drivers/usb/misc/adutux.c
++++ b/drivers/usb/misc/adutux.c
+@@ -803,14 +803,15 @@ static void adu_disconnect(struct usb_in
  
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		rv = -ENODEV;
- 		goto exit;
- 	}
-@@ -420,7 +421,7 @@ static ssize_t skel_write(struct file *f
+ 	dev = usb_get_intfdata(interface);
  
- 	/* this lock makes sure we don't submit URBs to gone devices */
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* disconnect() was called */
-+	if (dev->disconnected) {		/* disconnect() was called */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
-@@ -580,7 +581,7 @@ static void skel_disconnect(struct usb_i
+-	mutex_lock(&dev->mtx);	/* not interruptible */
+-	dev->udev = NULL;	/* poison */
+ 	usb_deregister_dev(interface, &adu_class);
+-	mutex_unlock(&dev->mtx);
  
- 	/* prevent more I/O from starting */
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
+ 	mutex_lock(&adutux_mutex);
+ 	usb_set_intfdata(interface, NULL);
  
- 	usb_kill_anchored_urbs(&dev->submitted);
++	mutex_lock(&dev->mtx);	/* not interruptible */
++	dev->udev = NULL;	/* poison */
++	mutex_unlock(&dev->mtx);
++
+ 	/* if the device is not opened, then we clean up right now */
+ 	if (!dev->open_count)
+ 		adu_delete(dev);
 
 
