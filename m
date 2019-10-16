@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F445D9E18
+	by mail.lfdr.de (Postfix) with ESMTP id 893EAD9E19
 	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406643AbfJPV40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
+        id S2406650AbfJPV42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:56:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732322AbfJPV40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:26 -0400
+        id S2406644AbfJPV41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:56:27 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FB6A21925;
-        Wed, 16 Oct 2019 21:56:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A0FB21D7E;
+        Wed, 16 Oct 2019 21:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262985;
-        bh=Dc9+ogRIAZPbdKsx3Y3UPw4dJ/jP6cmYHivfV2jcg8w=;
+        s=default; t=1571262986;
+        bh=qFP1NjO6W8Srt9bBH9rasyAL70V1cecuNsWg7IKsMEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOnNju/OlG89HZ15Ale60cyIsh/xJQ0wvXamx+ojzUpAnW+hRa5ZqMJCf3HBfVFVv
-         DXOkcMPixyQCH2qcC4MueD9FrkUawb1S1s8+VYpft+QcgNvpwdAHuPZvoS7wPUsknC
-         so6JgtvPCSiGNKmTPPCezqwc/XLw5KN45xHRscXU=
+        b=S75StnAgxkuU2RBkJ+9IBDM9SUEvP9m/2NnojWmv6M1rSJeddZFhac3odUsC3PvEG
+         FLIxlG+tyxtNXedtFHdVXARkay6tdPqGMlI0rPo5TOX/TQlS394ozvS1OENQzez8Mr
+         XFRVOZoJd5p5pvyj8GedfLdLLicUkdlHGqnfBj2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Klinger <ak@it-klinger.de>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/65] iio: adc: hx711: fix bug in sampling of data
-Date:   Wed, 16 Oct 2019 14:51:08 -0700
-Message-Id: <20191016214837.290861729@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 55/65] btrfs: fix incorrect updating of log root tree
+Date:   Wed, 16 Oct 2019 14:51:09 -0700
+Message-Id: <20191016214837.671712650@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
 References: <20191016214756.457746573@linuxfoundation.org>
@@ -45,79 +45,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Klinger <ak@it-klinger.de>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 4043ecfb5fc4355a090111e14faf7945ff0fdbd5 ]
+commit 4203e968947071586a98b5314fd7ffdea3b4f971 upstream.
 
-Fix bug in sampling function hx711_cycle() when interrupt occures while
-PD_SCK is high. If PD_SCK is high for at least 60 us power down mode of
-the sensor is entered which in turn leads to a wrong measurement.
+We've historically had reports of being unable to mount file systems
+because the tree log root couldn't be read.  Usually this is the "parent
+transid failure", but could be any of the related errors, including
+"fsid mismatch" or "bad tree block", depending on which block got
+allocated.
 
-Switch off interrupts during a PD_SCK high period and move query of DOUT
-to the latest point of time which is at the end of PD_SCK low period.
+The modification of the individual log root items are serialized on the
+per-log root root_mutex.  This means that any modification to the
+per-subvol log root_item is completely protected.
 
-This bug exists in the driver since it's initial addition. The more
-interrupts on the system the higher is the probability that it happens.
+However we update the root item in the log root tree outside of the log
+root tree log_mutex.  We do this in order to allow multiple subvolumes
+to be updated in each log transaction.
 
-Fixes: c3b2fdd0ea7e ("iio: adc: hx711: Add IIO driver for AVIA HX711")
-Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is problematic however because when we are writing the log root
+tree out we update the super block with the _current_ log root node
+information.  Since these two operations happen independently of each
+other, you can end up updating the log root tree in between writing out
+the dirty blocks and setting the super block to point at the current
+root.
+
+This means we'll point at the new root node that hasn't been written
+out, instead of the one we should be pointing at.  Thus whatever garbage
+or old block we end up pointing at complains when we mount the file
+system later and try to replay the log.
+
+Fix this by copying the log's root item into a local root item copy.
+Then once we're safely under the log_root_tree->log_mutex we update the
+root item in the log_root_tree.  This way we do not modify the
+log_root_tree while we're committing it, fixing the problem.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Chris Mason <clm@fb.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/iio/adc/hx711.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/btrfs/tree-log.c |   36 +++++++++++++++++++++++++++---------
+ 1 file changed, 27 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/adc/hx711.c b/drivers/iio/adc/hx711.c
-index 8eb3f1bbe332b..0dec733471d56 100644
---- a/drivers/iio/adc/hx711.c
-+++ b/drivers/iio/adc/hx711.c
-@@ -101,14 +101,14 @@ struct hx711_data {
- 
- static int hx711_cycle(struct hx711_data *hx711_data)
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -2729,7 +2729,8 @@ out:
+  * in the tree of log roots
+  */
+ static int update_log_root(struct btrfs_trans_handle *trans,
+-			   struct btrfs_root *log)
++			   struct btrfs_root *log,
++			   struct btrfs_root_item *root_item)
  {
--	int val;
-+	unsigned long flags;
- 
- 	/*
- 	 * if preempted for more then 60us while PD_SCK is high:
- 	 * hx711 is going in reset
- 	 * ==> measuring is false
- 	 */
--	preempt_disable();
-+	local_irq_save(flags);
- 	gpiod_set_value(hx711_data->gpiod_pd_sck, 1);
- 
- 	/*
-@@ -118,7 +118,6 @@ static int hx711_cycle(struct hx711_data *hx711_data)
- 	 */
- 	ndelay(hx711_data->data_ready_delay_ns);
- 
--	val = gpiod_get_value(hx711_data->gpiod_dout);
- 	/*
- 	 * here we are not waiting for 0.2 us as suggested by the datasheet,
- 	 * because the oscilloscope showed in a test scenario
-@@ -126,7 +125,7 @@ static int hx711_cycle(struct hx711_data *hx711_data)
- 	 * and 0.56 us for PD_SCK low on TI Sitara with 800 MHz
- 	 */
- 	gpiod_set_value(hx711_data->gpiod_pd_sck, 0);
--	preempt_enable();
-+	local_irq_restore(flags);
- 
- 	/*
- 	 * make it a square wave for addressing cases with capacitance on
-@@ -134,7 +133,8 @@ static int hx711_cycle(struct hx711_data *hx711_data)
- 	 */
- 	ndelay(hx711_data->data_ready_delay_ns);
- 
--	return val;
-+	/* sample as late as possible */
-+	return gpiod_get_value(hx711_data->gpiod_dout);
+ 	struct btrfs_fs_info *fs_info = log->fs_info;
+ 	int ret;
+@@ -2737,10 +2738,10 @@ static int update_log_root(struct btrfs_
+ 	if (log->log_transid == 1) {
+ 		/* insert root item on the first sync */
+ 		ret = btrfs_insert_root(trans, fs_info->log_root_tree,
+-				&log->root_key, &log->root_item);
++				&log->root_key, root_item);
+ 	} else {
+ 		ret = btrfs_update_root(trans, fs_info->log_root_tree,
+-				&log->root_key, &log->root_item);
++				&log->root_key, root_item);
+ 	}
+ 	return ret;
  }
+@@ -2836,6 +2837,7 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct btrfs_root *log = root->log_root;
+ 	struct btrfs_root *log_root_tree = fs_info->log_root_tree;
++	struct btrfs_root_item new_root_item;
+ 	int log_transid = 0;
+ 	struct btrfs_log_ctx root_log_ctx;
+ 	struct blk_plug plug;
+@@ -2901,18 +2903,26 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 		goto out;
+ 	}
  
- static int hx711_read(struct hx711_data *hx711_data)
--- 
-2.20.1
-
++	/*
++	 * We _must_ update under the root->log_mutex in order to make sure we
++	 * have a consistent view of the log root we are trying to commit at
++	 * this moment.
++	 *
++	 * We _must_ copy this into a local copy, because we are not holding the
++	 * log_root_tree->log_mutex yet.  This is important because when we
++	 * commit the log_root_tree we must have a consistent view of the
++	 * log_root_tree when we update the super block to point at the
++	 * log_root_tree bytenr.  If we update the log_root_tree here we'll race
++	 * with the commit and possibly point at the new block which we may not
++	 * have written out.
++	 */
+ 	btrfs_set_root_node(&log->root_item, log->node);
++	memcpy(&new_root_item, &log->root_item, sizeof(new_root_item));
+ 
+ 	root->log_transid++;
+ 	log->log_transid = root->log_transid;
+ 	root->log_start_pid = 0;
+ 	/*
+-	 * Update or create log root item under the root's log_mutex to prevent
+-	 * races with concurrent log syncs that can lead to failure to update
+-	 * log root item because it was not created yet.
+-	 */
+-	ret = update_log_root(trans, log);
+-	/*
+ 	 * IO has been started, blocks of the log tree have WRITTEN flag set
+ 	 * in their headers. new modifications of the log will be written to
+ 	 * new positions. so it's safe to allow log writers to go in.
+@@ -2932,6 +2942,14 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	mutex_unlock(&log_root_tree->log_mutex);
+ 
+ 	mutex_lock(&log_root_tree->log_mutex);
++
++	/*
++	 * Now we are safe to update the log_root_tree because we're under the
++	 * log_mutex, and we're a current writer so we're holding the commit
++	 * open until we drop the log_mutex.
++	 */
++	ret = update_log_root(trans, log, &new_root_item);
++
+ 	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
+ 		/*
+ 		 * Implicit memory barrier after atomic_dec_and_test
 
 
