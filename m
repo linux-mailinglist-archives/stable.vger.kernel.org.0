@@ -2,110 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CCEDA202
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 01:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66FEDA213
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 01:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391126AbfJPXQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 19:16:26 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:38363 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729316AbfJPXQ0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 19:16:26 -0400
-Received: by mail-wr1-f65.google.com with SMTP id y18so154613wrn.5
-        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 16:16:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=DuxaasQDGSmeM5a27TvCaaA03/gc3DVSoWtS/XGOuLU=;
-        b=ouLvYVUBIck0BGv7peUbgFG+0ZAzVkNAvUl+r/0qLtMuhl22ty59iahUf1lOXw8iwv
-         tsaWW+q1Eu6fV2ONkIT2oJWKtJaTG47CdWqrcUEmKiGM+HcCjPV+I5dEQZqFoqMkvWru
-         2O5vks1/6BuAYjaAbJ211OD25oRrIFtZCoGBV0DqMdzXqbZtB5EaEdrkfVvaGnxUPIeS
-         eeAmBm0Hz4RoAufivEpJc0koxW3RIUaek02/uttuEOkc84hl4A2dOyqT6nFuUtrz3nIq
-         n+t/g6TVCtQCt/8m4GbmHElhB6U/c1Q+ySz4mAtrC9qmeEllWnLEDb4XOudFBe8dbu45
-         jYDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=DuxaasQDGSmeM5a27TvCaaA03/gc3DVSoWtS/XGOuLU=;
-        b=cAEEfeE21F+FrHYuMqET+xk9kPtXYkc9J7yGOM6ZV0TY5EsAfrp/SQg/c7tkn8jXgu
-         8mTk2ivdJs9B2PqBOiBFg/Ijul18tGZ+zK/KUeF8YHoCdCcdRc/Jr1jdSNPSg1/vCB5K
-         /cFUsCiNktzY7NMlOSoxohgFlIFEh/Lu1t/7oHC2c6rwWyEIfv2bozhYAcdLfUBITdU+
-         CzjT4+zSHEctKbVIS5E314vW4bTcSBz5/+MgserOUrFqm2DUCnCpT9ip1ifjcB+Tzhsm
-         EZB8CRDKM1LiNsWbvfMjF1MomO2ss01CvX3Qp0pbtlcJcMGTT8uX/R0XxGsD8gkFoS9c
-         zIEA==
-X-Gm-Message-State: APjAAAVRIqIWXZ7Z/XltHHCfhLYsKeLdvuEVmGDhbmQMOMnKQDw+nA4Z
-        f3yRn+5Y4LJF5NHo2bVvVX2/4ZcQEfg=
-X-Google-Smtp-Source: APXvYqzLiSjp9cXQFFUwBbQilgHscURmx0qZ1fNtJE/l12nQPXFE9Af8mkFcjDCdBNPwJ4ePRJD6Dg==
-X-Received: by 2002:adf:e28f:: with SMTP id v15mr272232wri.130.1571267784332;
-        Wed, 16 Oct 2019 16:16:24 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id c4sm272526wru.31.2019.10.16.16.16.23
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 16 Oct 2019 16:16:23 -0700 (PDT)
-Message-ID: <5da7a4c7.1c69fb81.82764.13e8@mx.google.com>
-Date:   Wed, 16 Oct 2019 16:16:23 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2391247AbfJPXX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 19:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725970AbfJPXX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 19:23:59 -0400
+Received: from localhost (unknown [192.55.54.58])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1F8B20872;
+        Wed, 16 Oct 2019 23:23:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571268238;
+        bh=igapbZGpLlKRzBdYxMTU1tCbvC2o5pyly0l6ltnqaAQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1qbmwoid57B9hFBwPWg+OWygSZUrw22vI6dINmFlY7wSMOPDtrFUs06xMuHrOfJyL
+         QZ7ZMEaGtm0XtCgt0z7sZQ+Tz85DuNq0ousESvViYgloWYilcgjXv2frZXWpVq8rgk
+         0qbasP5hiEQXf1i2A/Dp9WOzrwqDSIwtOfSZQ0kM=
+Date:   Wed, 16 Oct 2019 16:23:58 -0700
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Richard Leitner <richard.leitner@skidata.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH 5.3 112/112] ASoC: sgtl5000: add ADC mute control
+Message-ID: <20191016232358.GA994597@kroah.com>
+References: <20191016214844.038848564@linuxfoundation.org>
+ <20191016214907.599726506@linuxfoundation.org>
+ <20191016220044.GB11473@sirena.co.uk>
+ <20191016221025.GA990599@kroah.com>
+ <20191016223518.GC11473@sirena.co.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.196-79-g7ebd71384564
-Subject: stable-rc/linux-4.4.y boot: 69 boots: 1 failed,
- 63 passed with 5 offline (v4.4.196-79-g7ebd71384564)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191016223518.GC11473@sirena.co.uk>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 69 boots: 1 failed, 63 passed with 5 offline (v=
-4.4.196-79-g7ebd71384564)
+On Wed, Oct 16, 2019 at 11:35:18PM +0100, Mark Brown wrote:
+> On Wed, Oct 16, 2019 at 03:10:25PM -0700, Greg Kroah-Hartman wrote:
+> > On Wed, Oct 16, 2019 at 11:00:44PM +0100, Mark Brown wrote:
+> > > On Wed, Oct 16, 2019 at 02:51:44PM -0700, Greg Kroah-Hartman wrote:
+> > > > From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+> 
+> > > > commit 694b14554d75f2a1ae111202e71860d58b434a21 upstream.
+> 
+> > > > This control mute/unmute the ADC input of SGTL5000
+> > > > using its CHIP_ANA_CTRL register.
+> 
+> > > This seems like a new feature and not an obvious candidate for stable?
+> 
+> > there was a long email from Richard that said:
+> > 	Upstream commit 631bc8f0134a ("ASoC: sgtl5000: Fix of unmute
+> > 	outputs on probe"), which is e9f621efaebd in v5.3 replaced
+> > 	snd_soc_component_write with snd_soc_component_update_bits and
+> > 	therefore no longer cleared the MUTE_ADC flag. This caused the
+> > 	ADC to stay muted and recording doesn't work any longer. This
+> > 	patch fixes this problem by adding a Switch control for
+> > 	MUTE_ADC.
+> 
+> > That's why I took this.  If this isn't true, I'll be glad to drop this.
+> 
+> That's probably not an appropriate fix for stable - it's going to add a
+> new control which users will need to manually set (or hope their
+> userspace automatically figures out that it should set for them, more
+> advanced userspaces like PulseAudio should) which isn't a drop in fix. 
+> You could either drop the backport that was done for zero cross or take
+> a new patch that clears the MUTE_ADC flag (rather than punting to
+> userspace to do so), or just be OK with what you've got at the minute
+> which might be fine given the lack of user reports.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.196-79-g7ebd71384564/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.196-79-g7ebd71384564/
+Ok, I'll gladly go drop it, thanks!
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.196-79-g7ebd71384564
-Git Commit: 7ebd71384564c11837771110950e23e0c4e4c127
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 40 unique boards, 17 SoC families, 13 builds out of 190
-
-Boot Failure Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+greg k-h
