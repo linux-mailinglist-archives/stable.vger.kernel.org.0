@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20703D9FC6
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A6EAD9F35
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406705AbfJPV6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S2437499AbfJPVxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406703AbfJPV6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:15 -0400
+        id S2437493AbfJPVxR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:17 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE7020872;
-        Wed, 16 Oct 2019 21:58:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDB4C21A4C;
+        Wed, 16 Oct 2019 21:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263095;
-        bh=WRL3sT47+SA5WctN36UU6w5wSnvVV/ScBydEcOXw0q8=;
+        s=default; t=1571262796;
+        bh=1/dcvrGyVo+rJlh4HrdLoILKlmKywpO6PIYyZp5cuTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eee7CNkxiODH4JobAfPWmL28INdc7oUtchfdfp//KZ043ouaBcoB1f5618omb7oH
-         yj4DZU222kzw0vQLuZQ/gpWUrVWSPktMoSEKyq4MvJFsebkSJ3bQSUstgAerAAu0JO
-         IWJkGlFumQb1/HZMjrjEZWN/15BNsvraQWGi49TQ=
+        b=uBgzVbo8ZJl9k3qKR58O6Tn9L8ah9A2HZlto1038JkFCB139csvRWK5vvReSVjIhF
+         NUemT77KYYItd1s2MVdwFp23a8eR38ceedVqpYp1Cu5unTw0Nxov1v/Dp7zYF+AbGm
+         yIWJ511TQt+mcUsfO2FZMODoajcOkLKIYZVn+hrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 017/112] USB: adutux: fix use-after-free on release
-Date:   Wed, 16 Oct 2019 14:50:09 -0700
-Message-Id: <20191016214848.653423627@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 35/79] xhci: Check all endpoints for LPM timeout
+Date:   Wed, 16 Oct 2019 14:50:10 -0700
+Message-Id: <20191016214758.855504020@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jan Schmidt <jan@centricular.com>
 
-commit 123a0f125fa3d2104043697baa62899d9e549272 upstream.
+commit d500c63f80f2ea08ee300e57da5f2af1c13875f5 upstream.
 
-The driver was accessing its struct usb_device in its release()
-callback without holding a reference. This would lead to a
-use-after-free whenever the device was disconnected while the character
-device was still open.
+If an endpoint is encountered that returns USB3_LPM_DEVICE_INITIATED, keep
+checking further endpoints, as there might be periodic endpoints later
+that return USB3_LPM_DISABLED due to shorter service intervals.
 
-Fixes: 66d4bc30d128 ("USB: adutux: remove custom debug macro")
-Cc: stable <stable@vger.kernel.org>     # 3.12
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-2-johan@kernel.org
+Without this, the code can set too high a maximum-exit-latency and
+prevent the use of multiple USB3 cameras that should be able to work.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jan Schmidt <jan@centricular.com>
+Tested-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-4-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/adutux.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/misc/adutux.c
-+++ b/drivers/usb/misc/adutux.c
-@@ -149,6 +149,7 @@ static void adu_delete(struct adu_device
- 	kfree(dev->read_buffer_secondary);
- 	kfree(dev->interrupt_in_buffer);
- 	kfree(dev->interrupt_out_buffer);
-+	usb_put_dev(dev->udev);
- 	kfree(dev);
- }
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4529,12 +4529,12 @@ static int xhci_update_timeout_for_endpo
+ 	alt_timeout = xhci_call_host_update_timeout_for_endpoint(xhci, udev,
+ 		desc, state, timeout);
  
-@@ -664,7 +665,7 @@ static int adu_probe(struct usb_interfac
- 
- 	mutex_init(&dev->mtx);
- 	spin_lock_init(&dev->buflock);
--	dev->udev = udev;
-+	dev->udev = usb_get_dev(udev);
- 	init_waitqueue_head(&dev->read_wait);
- 	init_waitqueue_head(&dev->write_wait);
- 
+-	/* If we found we can't enable hub-initiated LPM, or
++	/* If we found we can't enable hub-initiated LPM, and
+ 	 * the U1 or U2 exit latency was too high to allow
+-	 * device-initiated LPM as well, just stop searching.
++	 * device-initiated LPM as well, then we will disable LPM
++	 * for this device, so stop searching any further.
+ 	 */
+-	if (alt_timeout == USB3_LPM_DISABLED ||
+-			alt_timeout == USB3_LPM_DEVICE_INITIATED) {
++	if (alt_timeout == USB3_LPM_DISABLED) {
+ 		*timeout = alt_timeout;
+ 		return -E2BIG;
+ 	}
 
 
