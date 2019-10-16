@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0AAD9E5B
+	by mail.lfdr.de (Postfix) with ESMTP id 76660D9E5C
 	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:03:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438146AbfJPV6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51866 "EHLO mail.kernel.org"
+        id S2406725AbfJPV6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2438138AbfJPV6V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:58:21 -0400
+        id S2406721AbfJPV6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:24 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A011921D7A;
-        Wed, 16 Oct 2019 21:58:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2091420872;
+        Wed, 16 Oct 2019 21:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571263100;
-        bh=5iTKraSr6YCzgOAbZj3fnmt3DlD0mJRxEZgpQheQyyc=;
+        s=default; t=1571263104;
+        bh=Yvrpl7ksr+raZkl7uMri24cS7MHpxqOEopRZMeVVV0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guKfM7KbvK5PF1/sM8vzJgV4i1KSCMvXHsLTJ1wgoOGnGEfc9zk3hJ6MXgvy6D9d/
-         FoCkyRKQqz7yUyyOmUxexvkJJ+aGngmAuQ3J1Wr6hUa+77THa9SsPrwcs5D0l1y/OO
-         P78h7VKbyd8gWqsjpAlTgcoh8Ul+eebB15+5Pjhw=
+        b=GDDPYJfnDpdwZure15bg//ngUfLoVMBdun8jmG/OFYSYLtIgmb/hkQ6Pnl6Mf+//z
+         pA3VzmRQMBJ808DaMR0kjJQN441fu2HELApOhRs/LYQI26dEtgYE3MgPzJPtyXkFiM
+         XWdy7OK7LcKezgj4YPWmX4dguCKTsXLv8t+oLgpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 004/112] USB: yurex: fix NULL-derefs on disconnect
-Date:   Wed, 16 Oct 2019 14:49:56 -0700
-Message-Id: <20191016214845.056145749@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Schmidt <jan@centricular.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.3 008/112] xhci: Prevent device initiated U1/U2 link pm if exit latency is too long
+Date:   Wed, 16 Oct 2019 14:50:00 -0700
+Message-Id: <20191016214846.208520697@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
 References: <20191016214844.038848564@linuxfoundation.org>
@@ -42,92 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit aafb00a977cf7d81821f7c9d12e04c558c22dc3c upstream.
+commit cd9d9491e835a845c1a98b8471f88d26285e0bb9 upstream.
 
-The driver was using its struct usb_interface pointer as an inverted
-disconnected flag, but was setting it to NULL without making sure all
-code paths that used it were done with it.
+If host/hub initiated link pm is prevented by a driver flag we still must
+ensure that periodic endpoints have longer service intervals than link pm
+exit latency before allowing device initiated link pm.
 
-Before commit ef61eb43ada6 ("USB: yurex: Fix protection fault after
-device removal") this included the interrupt-in completion handler, but
-there are further accesses in dev_err and dev_dbg statements in
-yurex_write() and the driver-data destructor (sic!).
+Fix this by continue walking and checking endpoint service interval if
+xhci_get_timeout_no_hub_lpm() returns anything else than USB3_LPM_DISABLED
 
-Fix this by unconditionally stopping also the control URB at disconnect
-and by using a dedicated disconnected flag.
+While at it fix the split line error message
 
-Note that we need to take a reference to the struct usb_interface to
-avoid a use-after-free in the destructor whenever the device was
-disconnected while the character device was still open.
-
-Fixes: aadd6472d904 ("USB: yurex.c: remove dbg() usage")
-Fixes: 45714104b9e8 ("USB: yurex.c: remove err() usage")
-Cc: stable <stable@vger.kernel.org>     # 3.5: ef61eb43ada6
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009153848.8664-6-johan@kernel.org
+Tested-by: Jan Schmidt <jan@centricular.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1570190373-30684-3-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/yurex.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/misc/yurex.c
-+++ b/drivers/usb/misc/yurex.c
-@@ -60,6 +60,7 @@ struct usb_yurex {
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4789,10 +4789,12 @@ static u16 xhci_calculate_lpm_timeout(st
+ 		if (intf->dev.driver) {
+ 			driver = to_usb_driver(intf->dev.driver);
+ 			if (driver && driver->disable_hub_initiated_lpm) {
+-				dev_dbg(&udev->dev, "Hub-initiated %s disabled "
+-						"at request of driver %s\n",
+-						state_name, driver->name);
+-				return xhci_get_timeout_no_hub_lpm(udev, state);
++				dev_dbg(&udev->dev, "Hub-initiated %s disabled at request of driver %s\n",
++					state_name, driver->name);
++				timeout = xhci_get_timeout_no_hub_lpm(udev,
++								      state);
++				if (timeout == USB3_LPM_DISABLED)
++					return timeout;
+ 			}
+ 		}
  
- 	struct kref		kref;
- 	struct mutex		io_mutex;
-+	unsigned long		disconnected:1;
- 	struct fasync_struct	*async_queue;
- 	wait_queue_head_t	waitq;
- 
-@@ -107,6 +108,7 @@ static void yurex_delete(struct kref *kr
- 				dev->int_buffer, dev->urb->transfer_dma);
- 		usb_free_urb(dev->urb);
- 	}
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev);
- }
-@@ -205,7 +207,7 @@ static int yurex_probe(struct usb_interf
- 	init_waitqueue_head(&dev->waitq);
- 
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	iface_desc = interface->cur_altsetting;
-@@ -316,8 +318,9 @@ static void yurex_disconnect(struct usb_
- 
- 	/* prevent more I/O from starting */
- 	usb_poison_urb(dev->urb);
-+	usb_poison_urb(dev->cntl_urb);
- 	mutex_lock(&dev->io_mutex);
--	dev->interface = NULL;
-+	dev->disconnected = 1;
- 	mutex_unlock(&dev->io_mutex);
- 
- 	/* wakeup waiters */
-@@ -405,7 +408,7 @@ static ssize_t yurex_read(struct file *f
- 	dev = file->private_data;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		return -ENODEV;
- 	}
-@@ -440,7 +443,7 @@ static ssize_t yurex_write(struct file *
- 		goto error;
- 
- 	mutex_lock(&dev->io_mutex);
--	if (!dev->interface) {		/* already disconnected */
-+	if (dev->disconnected) {		/* already disconnected */
- 		mutex_unlock(&dev->io_mutex);
- 		retval = -ENODEV;
- 		goto error;
 
 
