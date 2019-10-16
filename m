@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1607DDA15D
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC954DA009
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392304AbfJPWWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:22:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
+        id S2407035AbfJPWHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394828AbfJPVxN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:13 -0400
+        id S2406693AbfJPV6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:58:14 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9551421A49;
-        Wed, 16 Oct 2019 21:53:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 861DE20872;
+        Wed, 16 Oct 2019 21:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262792;
-        bh=fpLQ2Tqn5ClQrR5wKEzBdrBg43SvOeIDj3WgCJAtVGQ=;
+        s=default; t=1571263093;
+        bh=PAYf8s8/30odfXMIUrZmJ6XX6OBvHvz49VyVtIGCtdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufPB6pT4V36GJlAuYlyzA8bddK+9lvZf/pgcxHYU9dbGUdA7CJkriAPbhog6pjPoL
-         rDmw3dUT51YPjd1CT4kyyjD0eEqWqmPCkUpBMPU22sCdFxb0mmC+C2cdWklFzm3i+0
-         PXMaueDhE284nl3/43mT7SBfcXZVXnHj7lZgjh6Q=
+        b=TFFzxXbegIxodqr3DU9JeIuYu+zi7IvEaTa5fZY4LYiewBOVr5k/EHPNqLu1uourA
+         q9rj4AutjpiGWJLl2m0N3CwQYr6u0cltZHBdrW45KZ2ERjqOuTnVplhUVFQVWtKVk7
+         +d7TGs7MuOHgHfmB1Tz0CTHCgyynV7I9/2OMq3NE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 32/79] USB: usb-skeleton: fix runtime PM after driver unbind
+        stable@vger.kernel.org,
+        syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.3 015/112] USB: adutux: fix use-after-free on disconnect
 Date:   Wed, 16 Oct 2019 14:50:07 -0700
-Message-Id: <20191016214757.562734008@linuxfoundation.org>
+Message-Id: <20191016214847.953154975@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
+References: <20191016214844.038848564@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +46,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit 5c290a5e42c3387e82de86965784d30e6c5270fd upstream.
+commit 44efc269db7929f6275a1fa927ef082e533ecde0 upstream.
 
-Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
-interface PM usage counter") USB drivers must always balance their
-runtime PM gets and puts, including when the driver has already been
-unbound from the interface.
+The driver was clearing its struct usb_device pointer, which it used as
+an inverted disconnected flag, before deregistering the character device
+and without serialising against racing release().
 
-Leaving the interface with a positive PM usage counter would prevent a
-later bound driver from suspending the device.
+This could lead to a use-after-free if a racing release() callback
+observes the cleared pointer and frees the driver data before
+disconnect() is finished with it.
 
-Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
-Cc: stable <stable@vger.kernel.org>
+This could also lead to NULL-pointer dereferences in a racing open().
+
+Fixes: f08812d5eb8f ("USB: FIx locks and urb->status in adutux (updated)")
+Cc: stable <stable@vger.kernel.org>     # 2.6.24
+Reported-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
+Tested-by: syzbot+0243cb250a51eeefb8cc@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191001084908.2003-2-johan@kernel.org
+Link: https://lore.kernel.org/r/20190925092913.8608-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usb-skeleton.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/usb/misc/adutux.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -75,6 +75,7 @@ static void skel_delete(struct kref *kre
- 	struct usb_skel *dev = to_skel_dev(kref);
+--- a/drivers/usb/misc/adutux.c
++++ b/drivers/usb/misc/adutux.c
+@@ -762,14 +762,15 @@ static void adu_disconnect(struct usb_in
  
- 	usb_free_urb(dev->bulk_in_urb);
-+	usb_put_intf(dev->interface);
- 	usb_put_dev(dev->udev);
- 	kfree(dev->bulk_in_buffer);
- 	kfree(dev);
-@@ -126,10 +127,7 @@ static int skel_release(struct inode *in
- 		return -ENODEV;
+ 	dev = usb_get_intfdata(interface);
  
- 	/* allow the device to be autosuspended */
--	mutex_lock(&dev->io_mutex);
--	if (dev->interface)
--		usb_autopm_put_interface(dev->interface);
--	mutex_unlock(&dev->io_mutex);
-+	usb_autopm_put_interface(dev->interface);
+-	mutex_lock(&dev->mtx);	/* not interruptible */
+-	dev->udev = NULL;	/* poison */
+ 	usb_deregister_dev(interface, &adu_class);
+-	mutex_unlock(&dev->mtx);
  
- 	/* decrement the count on our device */
- 	kref_put(&dev->kref, skel_delete);
-@@ -511,7 +509,7 @@ static int skel_probe(struct usb_interfa
- 	init_waitqueue_head(&dev->bulk_in_wait);
+ 	mutex_lock(&adutux_mutex);
+ 	usb_set_intfdata(interface, NULL);
  
- 	dev->udev = usb_get_dev(interface_to_usbdev(interface));
--	dev->interface = interface;
-+	dev->interface = usb_get_intf(interface);
- 
- 	/* set up the endpoint information */
- 	/* use only the first bulk-in and bulk-out endpoints */
++	mutex_lock(&dev->mtx);	/* not interruptible */
++	dev->udev = NULL;	/* poison */
++	mutex_unlock(&dev->mtx);
++
+ 	/* if the device is not opened, then we clean up right now */
+ 	if (!dev->open_count)
+ 		adu_delete(dev);
 
 
