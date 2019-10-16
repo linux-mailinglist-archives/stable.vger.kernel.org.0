@@ -2,54 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E4CD9F72
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791A2DA129
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437767AbfJPVzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45834 "EHLO mail.kernel.org"
+        id S1727388AbfJPWUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 18:20:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437759AbfJPVzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:55:19 -0400
+        id S2394914AbfJPVxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:53 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BB3520872;
-        Wed, 16 Oct 2019 21:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E806B21928;
+        Wed, 16 Oct 2019 21:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262918;
-        bh=LDZOW25CksuYhiJrj429Qcn7l6gHU+rXtoF0UIaiRyo=;
+        s=default; t=1571262833;
+        bh=vUuNRPi0giYYGTuJjTLfH79nTUgyyKJXjKsXqgR5Pg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tS77SCkIz7cOskk55gyAesspOa4Cb2wlbd65gAmMMB+AfsciTJinvTOot3qOsgYG
-         0V+Ry76hFeB47s6Nt41ZxUNDy8nTNQz0scTCvHhYcUqk4DyZCfu/u5GVOnfzZjjPdI
-         Y9qbjFlKVuPlWGSQGqEB08xYecz/LCBQptTv/snI=
+        b=aESJMlQYAs9uhbNenSr5CfBsbPgr/ogbmQEalr5qAy6ggpq7nL/rqZBtdv1jfz48P
+         rJEGr3m5BUBWettEixMgs1VkYQZ+clZLOsiGYZaotTcLs6KDTCx4wPRYvxeeJDFzxw
+         N7j0uHj6c7awzr9Rxr/avclT3ryON6Unr/eztBLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Brian Robbins <brianrob@microsoft.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 78/92] perf inject jit: Fix JIT_CODE_MOVE filename
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 76/79] media: stkwebcam: fix runtime PM after driver unbind
 Date:   Wed, 16 Oct 2019 14:50:51 -0700
-Message-Id: <20191016214846.371892544@linuxfoundation.org>
+Message-Id: <20191016214833.510973225@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,73 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve MacLean <Steve.MacLean@microsoft.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b59711e9b0d22fd47abfa00602fd8c365cdd3ab7 upstream.
+commit 30045f2174aab7fb4db7a9cf902d0aa6c75856a7 upstream.
 
-During perf inject --jit, JIT_CODE_MOVE records were injecting MMAP records
-with an incorrect filename. Specifically it was missing the ".so" suffix.
+Since commit c2b71462d294 ("USB: core: Fix bug caused by duplicate
+interface PM usage counter") USB drivers must always balance their
+runtime PM gets and puts, including when the driver has already been
+unbound from the interface.
 
-Further the JIT_CODE_LOAD record were silently truncating the
-jr->load.code_index field to 32 bits before generating the filename.
+Leaving the interface with a positive PM usage counter would prevent a
+later bound driver from suspending the device.
 
-Make both records emit the same filename based on the full 64 bit
-code_index field.
+Note that runtime PM has never actually been enabled for this driver
+since the support_autosuspend flag in its usb_driver struct is not set.
 
-Fixes: 9b07e27f88b9 ("perf inject: Add jitdump mmap injection support")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Brian Robbins <brianrob@microsoft.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB1362FF8F127B31DBF4121528F7800@BN8PR21MB1362.namprd21.prod.outlook.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: c2b71462d294 ("USB: core: Fix bug caused by duplicate interface PM usage counter")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191001084908.2003-5-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/jitdump.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/usb/stkwebcam/stk-webcam.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/perf/util/jitdump.c
-+++ b/tools/perf/util/jitdump.c
-@@ -369,7 +369,7 @@ static int jit_repipe_code_load(struct j
- 	size_t size;
- 	u16 idr_size;
- 	const char *sym;
--	uint32_t count;
-+	uint64_t count;
- 	int ret, csize;
- 	pid_t pid, tid;
- 	struct {
-@@ -391,7 +391,7 @@ static int jit_repipe_code_load(struct j
- 		return -1;
+--- a/drivers/media/usb/stkwebcam/stk-webcam.c
++++ b/drivers/media/usb/stkwebcam/stk-webcam.c
+@@ -642,8 +642,7 @@ static int v4l_stk_release(struct file *
+ 		dev->owner = NULL;
+ 	}
  
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%u.so",
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 			jd->dir,
- 			pid,
- 			count);
-@@ -493,7 +493,7 @@ static int jit_repipe_code_move(struct j
- 		return -1;
- 
- 	filename = event->mmap2.filename;
--	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%"PRIu64,
-+	size = snprintf(filename, PATH_MAX, "%s/jitted-%d-%" PRIu64 ".so",
- 	         jd->dir,
- 	         pid,
- 		 jr->move.code_index);
+-	if (is_present(dev))
+-		usb_autopm_put_interface(dev->interface);
++	usb_autopm_put_interface(dev->interface);
+ 	mutex_unlock(&dev->lock);
+ 	return v4l2_fh_release(fp);
+ }
 
 
