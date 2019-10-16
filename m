@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9912DA07F
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A544D9FB6
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2439241AbfJPWMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48214 "EHLO mail.kernel.org"
+        id S2395520AbfJPV5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406659AbfJPV4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:56:32 -0400
+        id S2395507AbfJPV5k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:57:40 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9EA021D7A;
-        Wed, 16 Oct 2019 21:56:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F019F21D7A;
+        Wed, 16 Oct 2019 21:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262991;
-        bh=G+ewoKReLo8kaLUZAu05EM3mfMfbkjAxb+wWkYXUIVc=;
+        s=default; t=1571263059;
+        bh=mtdqMHulVyKXbq3Tr2bNi74wNnHB7ppgGT1q3gSmhwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1l2K/Mx9gYyA04odaaxpIAPiuy415YwiN5xjnjZLVanUrvLka2O1UUjmoJOC1Fjs
-         CfUWvPNIekB5WwbOOItt7dh67DVWAOxWZPgmVWlUHPz1VqveDHcuBhQIv7O9JvK2Nr
-         q6+dBiJcQfRXM28NPaz7pA78U+zmElFSo3jdyFr0=
+        b=Paopr+5lklS1JYg/weezT+qORU5YnvW8ffn6OkwF6Ah82j0/zJacFPYhjnM3Tyyvs
+         5R3C6GLpyuQmvTjhnypMVIPg/g7STB4yOfZSjNiJVx5BK0pLcVth4q7jQp17ZbLL6b
+         uszo8DMyYB1Zs+AX4eIVyUCkNc05f60tL1lI1tQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "zhengbin (A)" <zhengbin13@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.14 58/65] Fix the locking in dcache_readdir() and friends
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 61/81] iio: adc: stm32-adc: fix a race when using several adcs with dma and irq
 Date:   Wed, 16 Oct 2019 14:51:12 -0700
-Message-Id: <20191016214839.027507782@linuxfoundation.org>
+Message-Id: <20191016214843.894642341@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214756.457746573@linuxfoundation.org>
-References: <20191016214756.457746573@linuxfoundation.org>
+In-Reply-To: <20191016214805.727399379@linuxfoundation.org>
+References: <20191016214805.727399379@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,222 +45,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit d4f4de5e5ef8efde85febb6876cd3c8ab1631999 upstream.
+[ Upstream commit dcb10920179ab74caf88a6f2afadecfc2743b910 ]
 
-There are two problems in dcache_readdir() - one is that lockless traversal
-of the list needs non-trivial cooperation of d_alloc() (at least a switch
-to list_add_rcu(), and probably more than just that) and another is that
-it assumes that no removal will happen without the directory locked exclusive.
-Said assumption had always been there, never had been stated explicitly and
-is violated by several places in the kernel (devpts and selinuxfs).
+End of conversion may be handled by using IRQ or DMA. There may be a
+race when two conversions complete at the same time on several ADCs.
+EOC can be read as 'set' for several ADCs, with:
+- an ADC configured to use IRQs. EOCIE bit is set. The handler is normally
+  called in this case.
+- an ADC configured to use DMA. EOCIE bit isn't set. EOC triggers the DMA
+  request instead. It's then automatically cleared by DMA read. But the
+  handler gets called due to status bit is temporarily set (IRQ triggered
+  by the other ADC).
+So both EOC status bit in CSR and EOCIE control bit must be checked
+before invoking the interrupt handler (e.g. call ISR only for
+IRQ-enabled ADCs).
 
-        * replacement of next_positive() with different calling conventions:
-it returns struct list_head * instead of struct dentry *; the latter is
-passed in and out by reference, grabbing the result and dropping the original
-value.
-        * scan is under ->d_lock.  If we run out of timeslice, cursor is moved
-after the last position we'd reached and we reschedule; then the scan continues
-from that place.  To avoid livelocks between multiple lseek() (with cursors
-getting moved past each other, never reaching the real entries) we always
-skip the cursors, need_resched() or not.
-        * returned list_head * is either ->d_child of dentry we'd found or
-->d_subdirs of parent (if we got to the end of the list).
-        * dcache_readdir() and dcache_dir_lseek() switched to new helper.
-dcache_readdir() always holds a reference to dentry passed to dir_emit() now.
-Cursor is moved to just before the entry where dir_emit() has failed or into
-the very end of the list, if we'd run out.
-        * move_cursor() eliminated - it had sucky calling conventions and
-after fixing that it became simply list_move() (in lseek and scan_positives)
-or list_move_tail() (in readdir).
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
 
-        All operations with the list are under ->d_lock now, and we do not
-depend upon having all file removals done with parent locked exclusive
-anymore.
-
-Cc: stable@vger.kernel.org
-Reported-by: "zhengbin (A)" <zhengbin13@huawei.com>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/libfs.c |  134 +++++++++++++++++++++++++++++++------------------------------
- 1 file changed, 69 insertions(+), 65 deletions(-)
+ drivers/iio/adc/stm32-adc-core.c | 43 +++++++++++++++++++++++++++++---
+ drivers/iio/adc/stm32-adc-core.h |  1 +
+ 2 files changed, 41 insertions(+), 3 deletions(-)
 
---- a/fs/libfs.c
-+++ b/fs/libfs.c
-@@ -86,58 +86,47 @@ int dcache_dir_close(struct inode *inode
- EXPORT_SYMBOL(dcache_dir_close);
+diff --git a/drivers/iio/adc/stm32-adc-core.c b/drivers/iio/adc/stm32-adc-core.c
+index ce2cc61395d63..38eb966930793 100644
+--- a/drivers/iio/adc/stm32-adc-core.c
++++ b/drivers/iio/adc/stm32-adc-core.c
+@@ -27,12 +27,16 @@
+  * @eoc1:	adc1 end of conversion flag in @csr
+  * @eoc2:	adc2 end of conversion flag in @csr
+  * @eoc3:	adc3 end of conversion flag in @csr
++ * @ier:	interrupt enable register offset for each adc
++ * @eocie_msk:	end of conversion interrupt enable mask in @ier
+  */
+ struct stm32_adc_common_regs {
+ 	u32 csr;
+ 	u32 eoc1_msk;
+ 	u32 eoc2_msk;
+ 	u32 eoc3_msk;
++	u32 ier;
++	u32 eocie_msk;
+ };
  
- /* parent is locked at least shared */
--static struct dentry *next_positive(struct dentry *parent,
--				    struct list_head *from,
--				    int count)
-+/*
-+ * Returns an element of siblings' list.
-+ * We are looking for <count>th positive after <p>; if
-+ * found, dentry is grabbed and passed to caller via *<res>.
-+ * If no such element exists, the anchor of list is returned
-+ * and *<res> is set to NULL.
-+ */
-+static struct list_head *scan_positives(struct dentry *cursor,
-+					struct list_head *p,
-+					loff_t count,
-+					struct dentry **res)
+ struct stm32_adc_priv;
+@@ -241,6 +245,8 @@ static const struct stm32_adc_common_regs stm32f4_adc_common_regs = {
+ 	.eoc1_msk = STM32F4_EOC1,
+ 	.eoc2_msk = STM32F4_EOC2,
+ 	.eoc3_msk = STM32F4_EOC3,
++	.ier = STM32F4_ADC_CR1,
++	.eocie_msk = STM32F4_EOCIE,
+ };
+ 
+ /* STM32H7 common registers definitions */
+@@ -248,8 +254,24 @@ static const struct stm32_adc_common_regs stm32h7_adc_common_regs = {
+ 	.csr = STM32H7_ADC_CSR,
+ 	.eoc1_msk = STM32H7_EOC_MST,
+ 	.eoc2_msk = STM32H7_EOC_SLV,
++	.ier = STM32H7_ADC_IER,
++	.eocie_msk = STM32H7_EOCIE,
+ };
+ 
++static const unsigned int stm32_adc_offset[STM32_ADC_MAX_ADCS] = {
++	0, STM32_ADC_OFFSET, STM32_ADC_OFFSET * 2,
++};
++
++static unsigned int stm32_adc_eoc_enabled(struct stm32_adc_priv *priv,
++					  unsigned int adc)
++{
++	u32 ier, offset = stm32_adc_offset[adc];
++
++	ier = readl_relaxed(priv->common.base + offset + priv->cfg->regs->ier);
++
++	return ier & priv->cfg->regs->eocie_msk;
++}
++
+ /* ADC common interrupt for all instances */
+ static void stm32_adc_irq_handler(struct irq_desc *desc)
  {
--	unsigned *seq = &parent->d_inode->i_dir_seq, n;
--	struct dentry *res;
--	struct list_head *p;
--	bool skipped;
--	int i;
-+	struct dentry *dentry = cursor->d_parent, *found = NULL;
+@@ -260,13 +282,28 @@ static void stm32_adc_irq_handler(struct irq_desc *desc)
+ 	chained_irq_enter(chip, desc);
+ 	status = readl_relaxed(priv->common.base + priv->cfg->regs->csr);
  
--retry:
--	i = count;
--	skipped = false;
--	n = smp_load_acquire(seq) & ~1;
--	res = NULL;
--	rcu_read_lock();
--	for (p = from->next; p != &parent->d_subdirs; p = p->next) {
-+	spin_lock(&dentry->d_lock);
-+	while ((p = p->next) != &dentry->d_subdirs) {
- 		struct dentry *d = list_entry(p, struct dentry, d_child);
--		if (!simple_positive(d)) {
--			skipped = true;
--		} else if (!--i) {
--			res = d;
--			break;
-+		// we must at least skip cursors, to avoid livelocks
-+		if (d->d_flags & DCACHE_DENTRY_CURSOR)
-+			continue;
-+		if (simple_positive(d) && !--count) {
-+			spin_lock_nested(&d->d_lock, DENTRY_D_LOCK_NESTED);
-+			if (simple_positive(d))
-+				found = dget_dlock(d);
-+			spin_unlock(&d->d_lock);
-+			if (likely(found))
-+				break;
-+			count = 1;
-+		}
-+		if (need_resched()) {
-+			list_move(&cursor->d_child, p);
-+			p = &cursor->d_child;
-+			spin_unlock(&dentry->d_lock);
-+			cond_resched();
-+			spin_lock(&dentry->d_lock);
- 		}
- 	}
--	rcu_read_unlock();
--	if (skipped) {
--		smp_rmb();
--		if (unlikely(*seq != n))
--			goto retry;
--	}
--	return res;
--}
--
--static void move_cursor(struct dentry *cursor, struct list_head *after)
--{
--	struct dentry *parent = cursor->d_parent;
--	unsigned n, *seq = &parent->d_inode->i_dir_seq;
--	spin_lock(&parent->d_lock);
--	for (;;) {
--		n = *seq;
--		if (!(n & 1) && cmpxchg(seq, n, n + 1) == n)
--			break;
--		cpu_relax();
--	}
--	__list_del(cursor->d_child.prev, cursor->d_child.next);
--	if (after)
--		list_add(&cursor->d_child, after);
--	else
--		list_add_tail(&cursor->d_child, &parent->d_subdirs);
--	smp_store_release(seq, n + 2);
--	spin_unlock(&parent->d_lock);
-+	spin_unlock(&dentry->d_lock);
-+	dput(*res);
-+	*res = found;
-+	return p;
- }
+-	if (status & priv->cfg->regs->eoc1_msk)
++	/*
++	 * End of conversion may be handled by using IRQ or DMA. There may be a
++	 * race here when two conversions complete at the same time on several
++	 * ADCs. EOC may be read 'set' for several ADCs, with:
++	 * - an ADC configured to use DMA (EOC triggers the DMA request, and
++	 *   is then automatically cleared by DR read in hardware)
++	 * - an ADC configured to use IRQs (EOCIE bit is set. The handler must
++	 *   be called in this case)
++	 * So both EOC status bit in CSR and EOCIE control bit must be checked
++	 * before invoking the interrupt handler (e.g. call ISR only for
++	 * IRQ-enabled ADCs).
++	 */
++	if (status & priv->cfg->regs->eoc1_msk &&
++	    stm32_adc_eoc_enabled(priv, 0))
+ 		generic_handle_irq(irq_find_mapping(priv->domain, 0));
  
- loff_t dcache_dir_lseek(struct file *file, loff_t offset, int whence)
-@@ -153,17 +142,28 @@ loff_t dcache_dir_lseek(struct file *fil
- 			return -EINVAL;
- 	}
- 	if (offset != file->f_pos) {
-+		struct dentry *cursor = file->private_data;
-+		struct dentry *to = NULL;
-+		struct list_head *p;
-+
- 		file->f_pos = offset;
--		if (file->f_pos >= 2) {
--			struct dentry *cursor = file->private_data;
--			struct dentry *to;
--			loff_t n = file->f_pos - 2;
--
--			inode_lock_shared(dentry->d_inode);
--			to = next_positive(dentry, &dentry->d_subdirs, n);
--			move_cursor(cursor, to ? &to->d_child : NULL);
--			inode_unlock_shared(dentry->d_inode);
-+		inode_lock_shared(dentry->d_inode);
-+
-+		if (file->f_pos > 2) {
-+			p = scan_positives(cursor, &dentry->d_subdirs,
-+					   file->f_pos - 2, &to);
-+			spin_lock(&dentry->d_lock);
-+			list_move(&cursor->d_child, p);
-+			spin_unlock(&dentry->d_lock);
-+		} else {
-+			spin_lock(&dentry->d_lock);
-+			list_del_init(&cursor->d_child);
-+			spin_unlock(&dentry->d_lock);
- 		}
-+
-+		dput(to);
-+
-+		inode_unlock_shared(dentry->d_inode);
- 	}
- 	return offset;
- }
-@@ -185,25 +185,29 @@ int dcache_readdir(struct file *file, st
- {
- 	struct dentry *dentry = file->f_path.dentry;
- 	struct dentry *cursor = file->private_data;
--	struct list_head *p = &cursor->d_child;
--	struct dentry *next;
--	bool moved = false;
-+	struct list_head *anchor = &dentry->d_subdirs;
-+	struct dentry *next = NULL;
-+	struct list_head *p;
+-	if (status & priv->cfg->regs->eoc2_msk)
++	if (status & priv->cfg->regs->eoc2_msk &&
++	    stm32_adc_eoc_enabled(priv, 1))
+ 		generic_handle_irq(irq_find_mapping(priv->domain, 1));
  
- 	if (!dir_emit_dots(file, ctx))
- 		return 0;
+-	if (status & priv->cfg->regs->eoc3_msk)
++	if (status & priv->cfg->regs->eoc3_msk &&
++	    stm32_adc_eoc_enabled(priv, 2))
+ 		generic_handle_irq(irq_find_mapping(priv->domain, 2));
  
- 	if (ctx->pos == 2)
--		p = &dentry->d_subdirs;
--	while ((next = next_positive(dentry, p, 1)) != NULL) {
-+		p = anchor;
-+	else
-+		p = &cursor->d_child;
-+
-+	while ((p = scan_positives(cursor, p, 1, &next)) != anchor) {
- 		if (!dir_emit(ctx, next->d_name.name, next->d_name.len,
- 			      d_inode(next)->i_ino, dt_type(d_inode(next))))
- 			break;
--		moved = true;
--		p = &next->d_child;
- 		ctx->pos++;
- 	}
--	if (moved)
--		move_cursor(cursor, p);
-+	spin_lock(&dentry->d_lock);
-+	list_move_tail(&cursor->d_child, p);
-+	spin_unlock(&dentry->d_lock);
-+	dput(next);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(dcache_readdir);
+ 	chained_irq_exit(chip, desc);
+diff --git a/drivers/iio/adc/stm32-adc-core.h b/drivers/iio/adc/stm32-adc-core.h
+index 94aa2d2577dc9..2579d514c2a34 100644
+--- a/drivers/iio/adc/stm32-adc-core.h
++++ b/drivers/iio/adc/stm32-adc-core.h
+@@ -25,6 +25,7 @@
+  * --------------------------------------------------------
+  */
+ #define STM32_ADC_MAX_ADCS		3
++#define STM32_ADC_OFFSET		0x100
+ #define STM32_ADCX_COMN_OFFSET		0x300
+ 
+ /* STM32F4 - Registers for each ADC instance */
+-- 
+2.20.1
+
 
 
