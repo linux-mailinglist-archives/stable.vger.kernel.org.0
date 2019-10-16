@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04FB6DA138
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE3CD9F69
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 00:23:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407524AbfJPWUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 18:20:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42802 "EHLO mail.kernel.org"
+        id S2395183AbfJPVzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:55:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394883AbfJPVxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:53:41 -0400
+        id S2395180AbfJPVzG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:55:06 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D0D921D7F;
-        Wed, 16 Oct 2019 21:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 988DB21D7F;
+        Wed, 16 Oct 2019 21:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262821;
-        bh=+WHMJPY9Vs1h+DK/XD29qKX+c1rTvE9yIux+6B5TVKg=;
+        s=default; t=1571262905;
+        bh=1+1fyWTqgaYeBWPbe4DGTlwrzehJQTZxrXvSRxP2qjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=how330wB5fePDUzojtC3FW5aVCwv9yJ/9T7Mwyv2C3YEjyLC1DVzDHkX7oNgYdmnX
-         92+mY58/hYHvXfar6t5gGNe2zcXwxvlwKCtm82eDiH7ChcYUwLtKWn2EjVdZvnRqlT
-         RHjRLzQLW0ko0WnJbLA+6soKGlbKSsG3jaX2hWzk=
+        b=beGJNmcH5pT7nae0XVIWpU64OHrLer3TfKmpG0lmrkyF2/tT43FlaMEC9wHnAr9eF
+         9yCUqHRosQ2lbfJmE9Tfm5rHC2720d6Gy+eYAYl91MMeelzV4S7ugxE4nd1/CPwGk9
+         040Vgn9n0ja1XMpl36EneAHaKCVFMbZX5/UurPWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Navid Emamdoost <navid.emamdoost@gmail.com>
-Subject: [PATCH 4.4 64/79] staging: vt6655: Fix memory leak in vt6655_probe
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.9 66/92] usb: renesas_usbhs: gadget: Do not discard queues in usb_ep_set_{halt,wedge}()
 Date:   Wed, 16 Oct 2019 14:50:39 -0700
-Message-Id: <20191016214825.771120699@linuxfoundation.org>
+Message-Id: <20191016214842.396485132@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-References: <20191016214729.758892904@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+References: <20191016214759.600329427@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 80b15db5e1e9c3300de299b2d43d1aafb593e6ac upstream.
+commit 1aae1394294cb71c6aa0bc904a94a7f2f1e75936 upstream.
 
-In vt6655_probe, if vnt_init() fails the cleanup code needs to be called
-like other error handling cases. The call to device_free_info() is
-added.
+The commit 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
+had added a usbhsg_pipe_disable() calling into
+__usbhsg_ep_set_halt_wedge() accidentally. But, this driver should
+not call the usbhsg_pipe_disable() because the function discards
+all queues. So, this patch removes it.
 
-Fixes: 67013f2c0e58 ("staging: vt6655: mac80211 conversion add main mac80211 functions")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191004200319.22394-1-navid.emamdoost@gmail.com
+Fixes: 97664a207bc2 ("usb: renesas_usbhs: shrink spin lock area")
+Cc: <stable@vger.kernel.org> # v3.1+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1569924633-322-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/vt6655/device_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/renesas_usbhs/mod_gadget.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/staging/vt6655/device_main.c
-+++ b/drivers/staging/vt6655/device_main.c
-@@ -1668,8 +1668,10 @@ vt6655_probe(struct pci_dev *pcid, const
+--- a/drivers/usb/renesas_usbhs/mod_gadget.c
++++ b/drivers/usb/renesas_usbhs/mod_gadget.c
+@@ -730,8 +730,6 @@ static int __usbhsg_ep_set_halt_wedge(st
+ 	struct device *dev = usbhsg_gpriv_to_dev(gpriv);
+ 	unsigned long flags;
  
- 	priv->hw->max_signal = 100;
+-	usbhsg_pipe_disable(uep);
+-
+ 	dev_dbg(dev, "set halt %d (pipe %d)\n",
+ 		halt, usbhs_pipe_number(pipe));
  
--	if (vnt_init(priv))
-+	if (vnt_init(priv)) {
-+		device_free_info(priv);
- 		return -ENODEV;
-+	}
- 
- 	device_print_info(priv);
- 	pci_set_drvdata(pcid, priv);
 
 
