@@ -2,83 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6425D91F9
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 15:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62073D9254
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 15:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405307AbfJPNGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 09:06:30 -0400
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:45153 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405306AbfJPNGa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 09:06:30 -0400
-Received: by mail-qk1-f194.google.com with SMTP id z67so22606263qkb.12
-        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 06:06:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ibLQ/kFLIHda3Y//bQcDwf2homCjSjyyoH0S4z0cTi0=;
-        b=a94BSy1heELw6oQDUPEnoTERpUHN+acuOd0wnC3jqn9l5uUkZyf9dZrbPfBsgyyjoB
-         46cVLk2CsG3+k+5q4BQZRP+CZ7CIyNtt9MxsxFE1T1Hi3/x7CG7lfGFm7Y12IG6UFBex
-         3dwOAE21oTPYTqCK0ab/6nxRLdx9SmwmLVp8+FfFitRb0jbq+JQ5z8lfl7IFGgmP3plc
-         lSFppFRtCbW6HlaxC++0Ip6P65ryKDvkL+6ngS5Dh+P78wnOxhrM+uqc4grIOclXyUXh
-         YRQZ3y9fQAGFSOkuMZxLHc6xMNt6fNBpmLJrnqHbgvQjqFWyUijlsAuHihXc/qHECE4I
-         ji0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ibLQ/kFLIHda3Y//bQcDwf2homCjSjyyoH0S4z0cTi0=;
-        b=aDbbBNytzPVyDicPMxO/KHiXNq+5jLCrjVXYipZ/n1TX3ibpElsAXoFhaTvfep8wHM
-         bRCcK0CVSU2OW/44cLW3aKNiUyJpRJf0TSPWdsOUNT9bCvNRmbM1R8e6KLj6UczeRbD9
-         RthWl655TGpei241UEg7kOdfz6n3yoz/lWUbWZFRSj9kJw9AgozNy5ncthZiHCkHvwvf
-         HdvUT3lIZRDNP1r69xUjtDGJRJ0Jqw59KMEa8PFHYeagqSF/uFNEZGgizXFQTg7+NnVt
-         GvQNAVbKgnCq1EetvmiM43rcQ7GsZfGkGEqkElFWInixvq0LdjN2pfck/CuEm2fLpWJf
-         lj4A==
-X-Gm-Message-State: APjAAAVi9B2OeBUG/BWVsKrPwIbGte+5cqBAljsmK0DKpw/4OoKrMRh1
-        YjPsj1c6dCL6/6wpjn0Y7wLeOr4VafPi1Jcvth9JOPoF
-X-Google-Smtp-Source: APXvYqy+NEWe4TqFletEN/CXcIe/pp7ETy4SmUg71QD2TK/ETQMTLSHfXEKD6o3Wu7yhacbaqLmMOspTKMUXblUjUDI=
-X-Received: by 2002:a05:620a:2f4:: with SMTP id a20mr3378514qko.163.1571231189266;
- Wed, 16 Oct 2019 06:06:29 -0700 (PDT)
+        id S2388141AbfJPNVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 09:21:50 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:52585 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729306AbfJPNVu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 09:21:50 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 6552A21B4C;
+        Wed, 16 Oct 2019 09:21:49 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 16 Oct 2019 09:21:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=AwECeG
+        E1S8pTUp26BEnG9jkbAZ0RmAPLqKvuROQVImA=; b=FKC5hkPPSf+c7g5KJnFqru
+        Y9GYqogCEWGDHtgh27ScLllG+8ALvV5+boBDzTL+tvlMOYroHrM/+OrFf8DZTUIw
+        uMpcNMS4YcJU86JPjI5CTo+kXOEh7nzpGnAA0nCV2amjuXX1e5Pv3h1NIaxrKWGL
+        DIaHaowaAJzlV7yyXkDi7ZHQAG+PQg3EdGD7pHHM6+mFnl/52PtPtAbElI5lPeQ/
+        NIzQQ0xMWyT+C/kmRmRovcsZRwPw3N4Pgx6FDpHVcRRdaImilHmjGgRLlgW79Qnu
+        JVXH4vuR9iUEzwLIoYp3GhHu65jvvv+0J7L7PGb/yRwE/+Efj2jrtmWNK5zINNCA
+        ==
+X-ME-Sender: <xms:bRmnXZmtvxrCwSkmz2ZGFdy9aVIjizv4OvfQYJHxpPaTH-ZO9TuZnA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrjeehgdeihecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucfkphepvddtledrudefiedrvdefiedrleegnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:bRmnXVQWQmIFPEHi8wI8BdVMSwP3dsyXt-ToseliWuQef1ulN8l30w>
+    <xmx:bRmnXQX2qWxNDf95WZ0F7febDZwmlnxhoi_lRGyxzyxSwdzdY5gpMA>
+    <xmx:bRmnXRIlzpEIJzkoyjKMw5oNlieuEPdU9m6_4eN37YxDm-6uktyvDA>
+    <xmx:bRmnXYARmxaSLGjGde9Zv4iSlITxmIc7KL4b8psL7HC5afQCpkI-cA>
+Received: from localhost (unknown [209.136.236.94])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4CDC780061;
+        Wed, 16 Oct 2019 09:21:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix memory leak due to concurrent append writes with" failed to apply to 4.19-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 16 Oct 2019 06:21:47 -0700
+Message-ID: <1571232107144137@kroah.com>
 MIME-Version: 1.0
-References: <20191014155341.13145-1-brgl@bgdev.pl>
-In-Reply-To: <20191014155341.13145-1-brgl@bgdev.pl>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Wed, 16 Oct 2019 15:06:18 +0200
-Message-ID: <CACRpkdYL_PGbksmav7b1t=jPzGZG4Y_mXoH7Dvdgs69Qhh-UFg@mail.gmail.com>
-Subject: Re: [PATCH v5.3] gpio: fix getting nonexclusive gpiods from DT
-To:     Bartosz Golaszewski <brgl@bgdev.pl>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 14, 2019 at 5:53 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
 
-> From: Marco Felsch <m.felsch@pengutronix.de>
->
-> Since commit ec757001c818 ("gpio: Enable nonexclusive gpiods from DT
-> nodes") we are able to get GPIOD_FLAGS_BIT_NONEXCLUSIVE marked gpios.
-> Currently the gpiolib uses the wrong flags variable for the check. We
-> need to check the gpiod_flags instead of the of_gpio_flags else we
-> return -EBUSY for GPIOD_FLAGS_BIT_NONEXCLUSIVE marked and requested
-> gpiod's.
->
-> Fixes: ec757001c818 gpio: Enable nonexclusive gpiods from DT nodes
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-> [Bartosz: the function was moved to gpiolib-of.c so updated the patch]
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> [Bartosz: backported to v5.3.y]
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Thanks for fixing up this backport Bartosz, much appreciated!
+thanks,
 
-Yours,
-Linus Walleij
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From c67d970f0ea8dcc423e112137d34334fa0abb8ec Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 30 Sep 2019 10:20:25 +0100
+Subject: [PATCH] Btrfs: fix memory leak due to concurrent append writes with
+ fiemap
+
+When we have a buffered write that starts at an offset greater than or
+equals to the file's size happening concurrently with a full ranged
+fiemap, we can end up leaking an extent state structure.
+
+Suppose we have a file with a size of 1Mb, and before the buffered write
+and fiemap are performed, it has a single extent state in its io tree
+representing the range from 0 to 1Mb, with the EXTENT_DELALLOC bit set.
+
+The following sequence diagram shows how the memory leak happens if a
+fiemap a buffered write, starting at offset 1Mb and with a length of
+4Kb, are performed concurrently.
+
+          CPU 1                                                  CPU 2
+
+  extent_fiemap()
+    --> it's a full ranged fiemap
+        range from 0 to LLONG_MAX - 1
+        (9223372036854775807)
+
+    --> locks range in the inode's
+        io tree
+      --> after this we have 2 extent
+          states in the io tree:
+          --> 1 for range [0, 1Mb[ with
+              the bits EXTENT_LOCKED and
+              EXTENT_DELALLOC_BITS set
+          --> 1 for the range
+              [1Mb, LLONG_MAX[ with
+              the EXTENT_LOCKED bit set
+
+                                                  --> start buffered write at offset
+                                                      1Mb with a length of 4Kb
+
+                                                  btrfs_file_write_iter()
+
+                                                    btrfs_buffered_write()
+                                                      --> cached_state is NULL
+
+                                                      lock_and_cleanup_extent_if_need()
+                                                        --> returns 0 and does not lock
+                                                            range because it starts
+                                                            at current i_size / eof
+
+                                                      --> cached_state remains NULL
+
+                                                      btrfs_dirty_pages()
+                                                        btrfs_set_extent_delalloc()
+                                                          (...)
+                                                          __set_extent_bit()
+
+                                                            --> splits extent state for range
+                                                                [1Mb, LLONG_MAX[ and now we
+                                                                have 2 extent states:
+
+                                                                --> one for the range
+                                                                    [1Mb, 1Mb + 4Kb[ with
+                                                                    EXTENT_LOCKED set
+                                                                --> another one for the range
+                                                                    [1Mb + 4Kb, LLONG_MAX[ with
+                                                                    EXTENT_LOCKED set as well
+
+                                                            --> sets EXTENT_DELALLOC on the
+                                                                extent state for the range
+                                                                [1Mb, 1Mb + 4Kb[
+                                                            --> caches extent state
+                                                                [1Mb, 1Mb + 4Kb[ into
+                                                                @cached_state because it has
+                                                                the bit EXTENT_LOCKED set
+
+                                                    --> btrfs_buffered_write() ends up
+                                                        with a non-NULL cached_state and
+                                                        never calls anything to release its
+                                                        reference on it, resulting in a
+                                                        memory leak
+
+Fix this by calling free_extent_state() on cached_state if the range was
+not locked by lock_and_cleanup_extent_if_need().
+
+The same issue can happen if anything else other than fiemap locks a range
+that covers eof and beyond.
+
+This could be triggered, sporadically, by test case generic/561 from the
+fstests suite, which makes duperemove run concurrently with fsstress, and
+duperemove does plenty of calls to fiemap. When CONFIG_BTRFS_DEBUG is set
+the leak is reported in dmesg/syslog when removing the btrfs module with
+a message like the following:
+
+  [77100.039461] BTRFS: state leak: start 6574080 end 6582271 state 16402 in tree 0 refs 1
+
+Otherwise (CONFIG_BTRFS_DEBUG not set) detectable with kmemleak.
+
+CC: stable@vger.kernel.org # 4.16+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 8fe4eb7e5045..27e5b269e729 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1591,7 +1591,6 @@ static noinline ssize_t btrfs_buffered_write(struct kiocb *iocb,
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+ 	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	struct page **pages = NULL;
+-	struct extent_state *cached_state = NULL;
+ 	struct extent_changeset *data_reserved = NULL;
+ 	u64 release_bytes = 0;
+ 	u64 lockstart;
+@@ -1611,6 +1610,7 @@ static noinline ssize_t btrfs_buffered_write(struct kiocb *iocb,
+ 		return -ENOMEM;
+ 
+ 	while (iov_iter_count(i) > 0) {
++		struct extent_state *cached_state = NULL;
+ 		size_t offset = offset_in_page(pos);
+ 		size_t sector_offset;
+ 		size_t write_bytes = min(iov_iter_count(i),
+@@ -1758,9 +1758,20 @@ static noinline ssize_t btrfs_buffered_write(struct kiocb *iocb,
+ 		if (copied > 0)
+ 			ret = btrfs_dirty_pages(inode, pages, dirty_pages,
+ 						pos, copied, &cached_state);
++
++		/*
++		 * If we have not locked the extent range, because the range's
++		 * start offset is >= i_size, we might still have a non-NULL
++		 * cached extent state, acquired while marking the extent range
++		 * as delalloc through btrfs_dirty_pages(). Therefore free any
++		 * possible cached extent state to avoid a memory leak.
++		 */
+ 		if (extents_locked)
+ 			unlock_extent_cached(&BTRFS_I(inode)->io_tree,
+ 					     lockstart, lockend, &cached_state);
++		else
++			free_extent_state(cached_state);
++
+ 		btrfs_delalloc_release_extents(BTRFS_I(inode), reserve_bytes,
+ 					       true);
+ 		if (ret) {
+
