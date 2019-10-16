@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF83D9DE0
-	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:56:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5A7D9DC6
+	for <lists+stable@lfdr.de>; Wed, 16 Oct 2019 23:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390362AbfJPVyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 17:54:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44118 "EHLO mail.kernel.org"
+        id S2394841AbfJPVxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 17:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437703AbfJPVyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 16 Oct 2019 17:54:19 -0400
+        id S2394837AbfJPVxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 16 Oct 2019 17:53:22 -0400
 Received: from localhost (unknown [192.55.54.58])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1968222C9;
-        Wed, 16 Oct 2019 21:54:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8CE321A4C;
+        Wed, 16 Oct 2019 21:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571262859;
-        bh=8osOiuLEA4bTqyQk3oWduH2334I6xYBmy+/krY4WAf4=;
+        s=default; t=1571262801;
+        bh=A/GUR8jKlGoJbWO4krzlD2ky3UB/AYk6f6PkrqbWfYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iThn3MpLeP8J8OQNbwX4dJ+gX0kiE96rNIeuiJMsRWzN75Sd8XJt27Vy6A6ANyDiL
-         pMD9iEL6WSpyWC3zbrAyV0MTNU+cjx5hquFLZ3ooxXZY+C7BWW7kbsN5K0ozmmbHfm
-         BDqB/BBEkHcqD06rngx+RybwPr8PtB1P6l0KCwf0=
+        b=LusOh1wUhGqE212qpG8MbB2LrW4l0qfYXTFdjvEfi1asYBqPzvkhzs+9MOo0WMyjz
+         Pdwb93CumDI/21W9CnWZ/ff3Cz1JLsfxzEvqn6KYaniW1RZO7jnb4LLFww/aTjjPGW
+         g0/DzLk80L5mtCLxM8xbYMx8SGQRYDBG865Df9eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [PATCH 4.9 07/92] powerpc/powernv: Restrict OPAL symbol map to only be readable by root
-Date:   Wed, 16 Oct 2019 14:49:40 -0700
-Message-Id: <20191016214804.493683777@linuxfoundation.org>
+Subject: [PATCH 4.4 07/79] powerpc/powernv: Restrict OPAL symbol map to only be readable by root
+Date:   Wed, 16 Oct 2019 14:49:42 -0700
+Message-Id: <20191016214736.089883453@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
-References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+References: <20191016214729.758892904@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +66,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/platforms/powernv/opal.c
 +++ b/arch/powerpc/platforms/powernv/opal.c
-@@ -579,7 +579,10 @@ static ssize_t symbol_map_read(struct fi
+@@ -580,7 +580,10 @@ static ssize_t symbol_map_read(struct fi
  				       bin_attr->size);
  }
  
@@ -78,7 +78,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  static void opal_export_symmap(void)
  {
-@@ -596,10 +599,10 @@ static void opal_export_symmap(void)
+@@ -597,10 +600,10 @@ static void opal_export_symmap(void)
  		return;
  
  	/* Setup attributes */
