@@ -2,118 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB01DA4CF
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 06:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3073FDA506
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 07:13:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407777AbfJQEmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 00:42:15 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:46355 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404642AbfJQEmP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 00:42:15 -0400
-Received: by mail-wr1-f68.google.com with SMTP id o18so626778wrv.13
-        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 21:42:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=FeN1uImmkW/5svFPNeJ8S+pwMABF7Pq8US6YmpdEvHM=;
-        b=N8KqaYCcgNZ1PLNJ0jl0sL+hJfMalVxkH8eBtE4YyJKxE3t0ayhlg2ZH7I1KtYyRor
-         TjniFk1L7AS2TdkkzLd6t2FQ0wC2NAs1v2BlawWopqYLYciOjZ+0EUI0feBakmDGInAw
-         uRqM+SnQQCEI6DU/Mw6oPpcPAFh9x9CUZ2dkalVp431SUvZWwrggX/zsHOpUus88WG4H
-         1Xy9x5RfUnXHiwCQLm2KRU4j5/Po9TDiqkbutBW0upl7PSoZ867zc4/1wVCIieyg9kpE
-         PMWnJlIeEA324yiRtywj4L044Rhw0k9pFTuNEtdOZ0v4DrChIuvxEk11R0cwf9MIgLnx
-         O1xQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=FeN1uImmkW/5svFPNeJ8S+pwMABF7Pq8US6YmpdEvHM=;
-        b=ZImRUqQsZCQQ4UOb5MZ7CkrngY5hAtpZUr3uzytz0ZOxVOmnhKVd6A79GMkOWE01+j
-         QT7iGBG+HTNMWoEv8It/r0T+G/Dn9SLj25qDEAnYFhZ0RwTeNS0rywamXHDadrLIqWbl
-         0xAvrJCZwL1IuIN+YN+SSFaVUBDgHXkM7vd6IOps/hxg7wUvlZ9KFRt9/V+x1DbjvfG/
-         yjfkp3W3NzCBVzeMIPu6qTubBbC7vAPRjX8buA3X1kzzGzKo9Zsaz7o6Xw1omGjF1EV2
-         VbSVzbFu3Q0w8nVhqsnZEhg1mZZsc1SGtIcEUL1wOotiVMxNpiG2Vs182Byc6ax3EGxe
-         H2Lw==
-X-Gm-Message-State: APjAAAUtaAJ+OZOCCXJZPQRHHT1HTMmtcvJfGorrJyzgS41PbSQhIjFL
-        LaUa2wKDaWOhRke2k3JQowBqog==
-X-Google-Smtp-Source: APXvYqyRgLA0YsHBhsmE0gRlgCH2mUpBqjA5s6uY6vRMib6ZlHLGLLw6Fa2SbQn1rlxTZJHTGhrFMw==
-X-Received: by 2002:adf:fbc8:: with SMTP id d8mr1089002wrs.205.1571287331374;
-        Wed, 16 Oct 2019 21:42:11 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id n1sm933941wrg.67.2019.10.16.21.42.10
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 16 Oct 2019 21:42:10 -0700 (PDT)
-Message-ID: <5da7f122.1c69fb81.95db3.3e85@mx.google.com>
-Date:   Wed, 16 Oct 2019 21:42:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1732174AbfJQFNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 01:13:52 -0400
+Received: from mout.gmx.net ([212.227.17.20]:39353 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728999AbfJQFNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 01:13:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1571289230;
+        bh=J7FP3t4JMdLSDPBp9qhs5mJ2AV+f9hOJR9uxZdxXzLA=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=VJMgi6kE+NXdhNh9mDCgofv9eQEjnZj8sBRZTXq+O8iQGblTj3/fiUjKpsCtQrtjR
+         yz/zuJ5CDgIsPDqfKYpnF4q8c8aGjM92sRNrYGIV56pFLRxWFxpBcCOKwrx+50Hb1F
+         G2+CGQeyXPiLYy8tfhZLIOpK5KVpEty9qLaqG6LA=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.20.60] ([92.116.184.228]) by mail.gmx.com (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MZktj-1iW89B16xT-00WmA8; Thu, 17
+ Oct 2019 07:13:50 +0200
+Subject: Re: [PATCH] parisc/pci: Switch LBA PCI bus from Hard Fail to Soft
+ Fail mode
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <20191014192901.GA13704@ls3530.fritz.box>
+ <20191016211843.GC856391@kroah.com>
+From:   Helge Deller <deller@gmx.de>
+Message-ID: <ae03cfe5-b9d0-e05d-5c54-80ee3f91fbc4@gmx.de>
+Date:   Thu, 17 Oct 2019 07:13:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
+In-Reply-To: <20191016211843.GC856391@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.6-112-gcbb18cd3e478
-In-Reply-To: <20191016214844.038848564@linuxfoundation.org>
-References: <20191016214844.038848564@linuxfoundation.org>
-Subject: Re: [PATCH 5.3 000/112] 5.3.7-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+X-Provags-ID: V03:K1:luEjPkmLLs0jR2yzivFV3wI1jTqbUsoHqJ31Qu7kayfC8t7rtGQ
+ W1PXJnr8vzhDitzR/wfa8epuBXMwtiux25q5AcSfjhV3eImMapyL9bQRvTxiYcwvaS0i4Al
+ XdaU5urv7+OzogjJyXZzR4KpOgoM2KXzSho6/+bQqazWN3R//PRyXLyWuKeZIFv49A7wbE3
+ UGRB3klH1lXyyDan2ozzQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:d7QIWvSRtkE=:EhafhxMAlH8WVJRkveEFuX
+ sOKeWRwBHB1u9E4yOBiW+3yVxN3OZd4Abw3Ji4J0zxFWtiobjaoaF2k7CTYovVj3pe5DUpdxb
+ Ab/aHumgivhP2s7vEG2F75W09B3zYEfDP8nKpGdfw/4lOxKC3RmCb5tp980xH4OH2b8I1FYjf
+ MzQkSTbS6Sg5243HmHihWP60tiFesIMuX3ITOeIdyickdElzZf6fn9+Hnwi3rOIVSWNC4L7WR
+ IYdWfrLjSg4/55rYpH40qkVJj7+pSS3hWsa7GTD45zSNYuEX2mgL5ehVahdrGpbFS/71FLb0T
+ JhCUdS2uu1uNxae7nvOEtrFPoyu3hOHHI8LgvAZoOLZlX4iHPN4265OCUXRiJFdCQKOTj5iJE
+ 5LWAeiXrwwgyBCP13IWUqXqlev3m7tH0a+gGQdVguvj8NVZu6FtH7K69bLunWl8Shb6D7y0CC
+ LSWDgX/hGOJXkbNtKj0erygUJeUjFEgELp53QfbaYYRwvDzn0f4z+yP+f/fmbFN+CeYTQoPvZ
+ kFOPKqzLwRqhLcEnhLKAI1himWjbHsAd3SqwA4ywAE5r8sl3iXXyaMvwQKsH1Gs4t2IsWtwa/
+ Xjz2uqKnXTC3m7YDusJmBi8j429tZ3Jln7GYO3uK/3jBnd8KXg4KRZ6ebbf4xg14Lrm/qB87q
+ xpbyCn0Stjz56iSnI7KESwjHpLvW1l2OVyLIjF9z3rbwth+17iWc62suhBAU82c/govg9mL78
+ rwRHq9Sq9IDNDAXarTL7LPlFRPod9m30k+7sIxzW5F3+EdYVkamlzVWFBk4Rd+AzA1Vy3Qca3
+ ZyYuLsv4J8nlelzNx/CGqcRPtEvoypDRvPJK/R5t7Fl2Ft+lP7fplUUWZ3/jix65Z4Z7hUvyE
+ bS5i3oihUQw8iB2fM17Xrt+QT2KgoYLI230mDJyCPZY69BECSmZ+Bjur9OG/RANB4XYbnqfjl
+ k/LYHO3c3suZcmvp0+ES26pkAfSSMCJa9Jwf8BOiIZVdhqRKPK3Qil2CFvETWLKcypOv5yaqH
+ ceTFKEu5cvMINOcQ2CezzreZcNHZamk3XEpQ7ZUoVkrKDfyVw6QjCrKZBkfyM73RtxMqOg8Fx
+ EE4hFsgorn4PRuf5cWqv5KId3CX9tAv4j/4KLcpbQwwdF3t7/umGhY+ww9ntT/76D3d3lWQuT
+ FWXZZFWS6/KVB+DL3edaptqh5mpzPxhlXyCnnEZkJ1tYxp3lO+C1iakwvLwHkTPJ3e2Oa3Qpk
+ QOX4YkSJ6gsRbAQifukHa1sKp2zbgw+6OxEL2gw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 118 boots: 1 failed, 109 passed with 7 offline,=
- 1 untried/unknown (v5.3.6-112-gcbb18cd3e478)
+Hi Greg,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.6-112-gcbb18cd3e478/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.6-112-gcbb18cd3e478/
+On 16.10.19 23:18, Greg KH wrote:
+> On Mon, Oct 14, 2019 at 09:29:01PM +0200, Helge Deller wrote:
+>> can you please add the patch below into all stable kernels up until (an=
+d
+>> including) kernel 4.16 ?
+>>
+>> It's upstream patch b845f66f78bf which was merged in kernel 4.17.
+>>
+>
+> It's already there, it was released in the following kernel releases:
+> 	3.18.111 4.4.134 4.9.104 4.14.45 4.16.13 4.17
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.6-112-gcbb18cd3e478
-Git Commit: cbb18cd3e47885e336b42ce05d553b44e1e3a7a0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 78 unique boards, 25 SoC families, 17 builds out of 208
+Ah, great!
 
-Boot Failure Detected:
+> So are you sure it is still needed?
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-khadas-vim2: 1 failed lab
+Yes. I double-checked.
+The last report I got was from a debian-installer.
+It used a Debian kernel "4.16.5-1", which didn't had the patch in, so
+I sent this mail to get it backported.
+Nice to see that it's in. Now "only" the debian install kernel needs updat=
+e.
 
-Offline Platforms:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Thanks!
+Helge
