@@ -2,91 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E40EEDA298
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 02:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1118ADA29C
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 02:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728320AbfJQANl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 16 Oct 2019 20:13:41 -0400
-Received: from 18.mo6.mail-out.ovh.net ([46.105.73.110]:45540 "EHLO
-        18.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726820AbfJQANl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 20:13:41 -0400
-X-Greylist: delayed 8958 seconds by postgrey-1.27 at vger.kernel.org; Wed, 16 Oct 2019 20:13:40 EDT
-Received: from player759.ha.ovh.net (unknown [10.108.57.44])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 11F671E4BCB
-        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 23:44:20 +0200 (CEST)
-Received: from kaod.org (lns-bzn-46-82-253-208-248.adsl.proxad.net [82.253.208.248])
-        (Authenticated sender: groug@kaod.org)
-        by player759.ha.ovh.net (Postfix) with ESMTPSA id 56850B179636;
-        Wed, 16 Oct 2019 21:44:06 +0000 (UTC)
-Date:   Wed, 16 Oct 2019 23:44:03 +0200
-From:   Greg Kurz <groug@kaod.org>
-To:     Paul Mackerras <paulus@ozlabs.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        =?UTF-8?B?Q8OpZHJpYw==?= Le Goater <clg@kaod.org>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim =?UTF-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        kvm-ppc@vger.kernel.org, kvm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] KVM: PPC: Book3S: HV: XIVE: Allocate less VPs in
- OPAL
-Message-ID: <20191016234403.77cdf150@bahia.lan>
-In-Reply-To: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
-References: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S2387667AbfJQAQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 16 Oct 2019 20:16:47 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:38946 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731644AbfJQAQr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 16 Oct 2019 20:16:47 -0400
+Received: by mail-wr1-f66.google.com with SMTP id r3so245430wrj.6
+        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 17:16:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3pn+zb/J1x9Q0gco+xjHeLwbk+I1z+PjLH54ZxyGGKY=;
+        b=sG1PtGwfJRXxIWmO3BBpZHK8G2y4uWE7SXWoeAhhFw7iN9nDCXou531j2qXYhUPJWB
+         Ugclrykz4QK3tiLpTZZfX7T9UzhELNzYqbYFChENf8fbiSMScLeLYSKaPXb7ewwjfK5Z
+         904t93+v+qDiQ7R8I1FF7laGZmytCYMaqkNFKaYlqPku+rtq31+Q7fG5DZ65ttks5YLj
+         1C3369jH1hqDItM9URxxmPzR8aLyR4a6nUIIJy9mkFquwWuunHU4Igv87kEKIaibAsbd
+         8bZ5V74YkPULMRrJX9LlLavsDRHsQz3khP11chYgfqpa5hAoR6um478eDACqsPBS7Qk/
+         qMeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3pn+zb/J1x9Q0gco+xjHeLwbk+I1z+PjLH54ZxyGGKY=;
+        b=KHzWWLjkJEq+kTycO9dglUzYqP2zyxQinPJinlA2BPRqz5kuDb+V/ImCGU76T9HUnk
+         HfOVMIlTLLrvkY7Q5/qGkscsV08M325O7oFHW9f0mVRzYxRVrWe6xEHN/qXjaW4RWbyB
+         P5SOUNubrPSB7wGxWW1xb/9U1+NBZlqarhIaAGq+1PW0Y7MEb1sBk+VDrCDp7jkURc/y
+         qflgLHnKO2bCDaKF8lsgXB972wU1jXHUKekzua5mMEy+IKgqi045dzexnoQG+kwJCcgp
+         uctZpup14Q04k5tk6s6s7cMrTtgqtvEKFrC+MozWVyVlLlrafz61S7CGMj4nYdgHDV2/
+         7ibA==
+X-Gm-Message-State: APjAAAWS6o+GH2RSGzUvZLOa7fC5sBhZ9zFaJvkiUA8MebLx8/9xLBpO
+        r3XAssadYoAHSLDzZOmKY5LSgg7b/ss=
+X-Google-Smtp-Source: APXvYqyTTvjGVMfsO6ykZWuYosABTR6urmD1qLq3SBe4RJnhwqEu2/3AWciagIOkUGiYHaMxarQIeg==
+X-Received: by 2002:adf:f343:: with SMTP id e3mr395405wrp.315.1571271404976;
+        Wed, 16 Oct 2019 17:16:44 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g185sm542114wme.10.2019.10.16.17.16.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 16 Oct 2019 17:16:44 -0700 (PDT)
+Message-ID: <5da7b2ec.1c69fb81.dae70.275e@mx.google.com>
+Date:   Wed, 16 Oct 2019 17:16:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Ovh-Tracer-Id: 10318872647401970107
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrjeehgdduieekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddm
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.6-111-g62691bf9f844
+Subject: stable-rc/linux-5.3.y boot: 99 boots: 0 failed,
+ 94 passed with 5 offline (v5.3.6-111-g62691bf9f844)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 27 Sep 2019 13:53:32 +0200
-Greg Kurz <groug@kaod.org> wrote:
+stable-rc/linux-5.3.y boot: 99 boots: 0 failed, 94 passed with 5 offline (v=
+5.3.6-111-g62691bf9f844)
 
-> This brings some fixes and allows to start more VMs with an in-kernel
-> XIVE or XICS-on-XIVE device.
-> 
-> Changes since v1 (https://patchwork.ozlabs.org/cover/1166099/):
-> - drop a useless patch
-> - add a patch to show VP ids in debugfs
-> - update some changelogs
-> - fix buggy check in patch 5
-> - Cc: stable 
-> 
-> --
-> Greg
-> 
-> ---
-> 
-> Greg Kurz (6):
->       KVM: PPC: Book3S HV: XIVE: Set kvm->arch.xive when VPs are allocated
->       KVM: PPC: Book3S HV: XIVE: Ensure VP isn't already in use
->       KVM: PPC: Book3S HV: XIVE: Show VP id in debugfs
->       KVM: PPC: Book3S HV: XIVE: Compute the VP id in a common helper
->       KVM: PPC: Book3S HV: XIVE: Make VP block size configurable
->       KVM: PPC: Book3S HV: XIVE: Allow userspace to set the # of VPs
-> 
-> 
->  Documentation/virt/kvm/devices/xics.txt |   14 +++
->  Documentation/virt/kvm/devices/xive.txt |    8 ++
->  arch/powerpc/include/uapi/asm/kvm.h     |    3 +
->  arch/powerpc/kvm/book3s_xive.c          |  142 ++++++++++++++++++++++++-------
->  arch/powerpc/kvm/book3s_xive.h          |   17 ++++
->  arch/powerpc/kvm/book3s_xive_native.c   |   40 +++------
->  6 files changed, 167 insertions(+), 57 deletions(-)
-> 
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.6-111-g62691bf9f844/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.6-111-g62691bf9f844/
 
-Ping ?
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.6-111-g62691bf9f844
+Git Commit: 62691bf9f8443d9a341d2355c7a57532cfc75b2b
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 69 unique boards, 24 SoC families, 17 builds out of 208
 
-Cheers,
+Offline Platforms:
 
---
-Greg
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
