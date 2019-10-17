@@ -2,217 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD48DB81C
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 22:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08E0DB853
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 22:34:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393263AbfJQUC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 16:02:29 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:44345 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394622AbfJQUC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 16:02:29 -0400
-Received: by mail-lj1-f193.google.com with SMTP id m13so3827647ljj.11
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 13:02:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=uyfTpc4uoGGfUXhiiQ1ULESUjtJAjGktU/a6QTF0Zxk=;
-        b=ODXUKTq6gV6Zgod339kE7rlWH0ZnqPl50KwGglJq5xCspeReCHnduUb4AEu3vi4e91
-         HiDEvxN6Cea4dbNCmZa5h3CySEQAqwknzeog8qejMsL2mUcmJCtl7aGsCN0L4uwvZ6N5
-         o/jhjerrNZxplOaJXZkIT0nHd21x4oqgULlstIPItodHfnnzb37w7EOPg+EOX3p/CKL+
-         5VZiP32aIaSqJCHhREt/zwIZsiCwyUbM+7IRJcNWjWbu1oCsscAfFOR/MycSsagKUics
-         XCQXUNZyU7MwHpjkrdFWnNu0wNqDO7BelKt9XD2SY8GJmXaahzmZgqxB6eZ2kppDdEHK
-         B5Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=uyfTpc4uoGGfUXhiiQ1ULESUjtJAjGktU/a6QTF0Zxk=;
-        b=jlS0H4tb3WvDeSiug2KLSVJwh2C/KyqQxjYR24edTcW/Tsk8mfVk5ZDzTeOqmz2YOd
-         /Y38BrudBGhuMhtZ8ffNFSK5b4dwYDLNMuBQ+A9Ii0Ptv6YJNyt+vPC+Fqi7QF/c+0pb
-         QvoWFNagz1YhoHKTJ8aP5hSCyNEdxNmmW7qXsNat564Pm9kY4B+IFYAc9dSLwaLQDsFO
-         USCo104LHfSuf9mgE3V0F+7cNUjaHdykJlSUI8gY/4XwYYVY0om7IlvYUxuE7GI3qxo8
-         4IowKCd6EipJ1RAz9ppcAvQB/rpMA2j9aqPMDQgNb29KUPE+bFlbyY34quQYdewDmKnN
-         KYuQ==
-X-Gm-Message-State: APjAAAVQhg3bRcKUQ3xys4EQUTwxJID3dSDqum9OWDVsnIeh5SEmnD7X
-        c6CGDCdZXdhdv/XUfdOKg9v3rPX6rL+u9ivcraOgEg==
-X-Google-Smtp-Source: APXvYqz7YfwiA1STU4iQjyXHFbERzSURVwH4loWX5wkYhcI2X5zdovKfhKrbF7BblnhYxlc1K6FFMYSctkyjJv+atac=
-X-Received: by 2002:a2e:5354:: with SMTP id t20mr3675619ljd.227.1571342546083;
- Thu, 17 Oct 2019 13:02:26 -0700 (PDT)
+        id S2390041AbfJQUeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 16:34:25 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56026 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728177AbfJQUeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 16:34:24 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 7D36C7FDFA;
+        Thu, 17 Oct 2019 20:34:24 +0000 (UTC)
+Received: from linux-ws.nc.xsintricity.com (ovpn-112-37.rdu2.redhat.com [10.10.112.37])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5379E19C70;
+        Thu, 17 Oct 2019 20:34:23 +0000 (UTC)
+Message-ID: <0af4756e60b72629cad79e93ce7f0c8a8451f116.camel@redhat.com>
+Subject: Re: [PATCH for-rc 1/2] IB/hfi1: Avoid excessive retry for TID RDMA
+ READ request
+From:   Doug Ledford <dledford@redhat.com>
+To:     Dennis Dalessandro <dennis.dalessandro@intel.com>, jgg@ziepe.ca
+Cc:     linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
+Date:   Thu, 17 Oct 2019 16:34:20 -0400
+In-Reply-To: <20191004204035.26542.41684.stgit@awfm-01.aw.intel.com>
+References: <20191004203739.26542.57060.stgit@awfm-01.aw.intel.com>
+         <20191004204035.26542.41684.stgit@awfm-01.aw.intel.com>
+Organization: Red Hat, Inc.
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-tAxF7jddLh5b38osEc7G"
+User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
 MIME-Version: 1.0
-References: <20191016214729.758892904@linuxfoundation.org>
-In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 18 Oct 2019 01:32:14 +0530
-Message-ID: <CA+G9fYvfDTFpba=XTMvOebUjJO1x3keK_cYiEq_x28OEHnatpw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/79] 4.4.197-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Thu, 17 Oct 2019 20:34:24 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 17 Oct 2019 at 03:23, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.197 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri 18 Oct 2019 09:43:41 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.197-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+--=-tAxF7jddLh5b38osEc7G
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Summary
-------------------------------------------------------------------------
+On Fri, 2019-10-04 at 16:40 -0400, Dennis Dalessandro wrote:
+> From: Kaike Wan <kaike.wan@intel.com>
+>=20
+> A TID RDMA READ request could be retried under one of the following
+> conditions:
+> - The RC retry timer expires;
+> - A later TID RDMA READ RESP packet is received before the next
+>   expected one.
+> For the latter, under normal conditions, the PSN in IB space is used
+> for comparison. More specifically, the IB PSN in the incoming TID RDMA
+> READ RESP packet is compared with the last IB PSN of a given TID RDMA
+> READ request to determine if the request should be retried. This is
+> similar to the retry logic for noraml RDMA READ request.
+>=20
+> However, if a TID RDMA READ RESP packet is lost due to congestion,
+> header suppresion will be disabled and each incoming packet will raise
+> an interrupt until the hardware flow is reloaded. Under this
+> condition,
+> each packet KDETH PSN will be checked by software against r_next_psn
+> and a retry will be requested if the packet KDETH PSN is later than
+> r_next_psn. Since each TID RDMA READ segment could have up to 64
+> packets and each TID RDMA READ request could have many segments, we
+> could make far more retries under such conditions, and thus leading to
+> RETRY_EXC_ERR status.
+>=20
+> This patch fixes the issue by removing the retry when the incoming
+> packet KDETH PSN is later than r_next_psn. Instead, it resorts to
+> RC timer and normal IB PSN comparison for any request retry.
+>=20
+> Fixes: 9905bf06e890 ("IB/hfi1: Add functions to receive TID RDMA READ
+> response")
+> Cc: <stable@vger.kernel.org>
+> Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+> Signed-off-by: Kaike Wan <kaike.wan@intel.com>
+> Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 
-kernel: 4.4.197-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: cb63cd392f388e3874d4bc23b0090c3e137bf22d
-git describe: v4.4.196-80-gcb63cd392f38
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.196-80-gcb63cd392f38
-
-
-No regressions (compared to build v4.4.196)
-
-
-No fixes (compared to build v4.4.196)
-
-Ran 12991 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* kselftest
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* libhugetlbfs
-* install-android-platform-tools-r2600
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.197-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.197-rc1-hikey-20191016-586
-git commit: 8ef378ea28b5d306c5655fc0b219b8dc01fb1b3f
-git describe: 4.4.197-rc1-hikey-20191016-586
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.197-rc1-hikey-20191016-586
-
-
-No regressions (compared to build 4.4.197-rc1-hikey-20191016-585)
-
-
-No fixes (compared to build 4.4.197-rc1-hikey-20191016-585)
-
-Ran 1523 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
+Thanks, applied to for-rc.
 
 --=20
-Linaro LKFT
-https://lkft.linaro.org
+Doug Ledford <dledford@redhat.com>
+    GPG KeyID: B826A3330E572FDD
+    Fingerprint =3D AE6B 1BDA 122B 23B4 265B  1274 B826 A333 0E57 2FDD
+
+--=-tAxF7jddLh5b38osEc7G
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEErmsb2hIrI7QmWxJ0uCajMw5XL90FAl2o0EwACgkQuCajMw5X
+L92LCA/+KLULbI2AvkAcSBEYv3k1hAkTIo+FzfJj3o0/OGLQi2DvwyDpp/KLIJm5
+NwdQHKpRq9rGuPxzcNekNrKVvWGnDKzCvLusajY1WF1q5j0A3cGDZPLbEvBA05Uo
+K86v1u+BR+6UvibjkDP+ZGc9os2H8TTFuFmRd9aKdHgopzRPM7eNcOBMG5d8Pccf
+H7pz4Q9fWQMIpYwRgJJkaBtJqTSNCoSyHqeL3c6gCRIwbsPS9rT6TBCrCF2qAsst
+eoe/PjjARu3DrAXYB187CPTit9k73xXwxtHSS2UrmV4voItfTOA3c52qCloVfDWh
+vOpo3+DYW5qiete6JC5EKQbPT4uxvxGclzE9XA+aW03P5UkqDhdDvr8KF7qvujbj
+0CvphbqlJHxJ6JXmXl0Yvw9TeHL+0TwxJzvY+BP1MfkT1eUp/mx44uTCS3Xx0w+n
+IgE2mhL+LxNla/hso/pGdzBUpnS9SyauICArSIjdX0v+pWRj1l0sxnrYTgXyzfUb
+Id1CT8/b5+gqE9Qke3fzsyImdgI51xc0npt5eLqCQoPFHkHlyUYWduGwHmTUqnwA
+3ND/YK/kfjPlPQ1Oh3HFXneoIO6ZGqnJ0atJjBod1dnjrGuaGtKvJEfu3WQjeDvg
+zlu4F6OIT3QuFVAHvB4oUSLxF0JYeUYt8EVE1oYUg/M8gqogPNI=
+=lj3R
+-----END PGP SIGNATURE-----
+
+--=-tAxF7jddLh5b38osEc7G--
+
