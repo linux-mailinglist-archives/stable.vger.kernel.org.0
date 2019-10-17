@@ -2,60 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37D1ADB5A0
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 20:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4315ADB5B8
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 20:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395528AbfJQSLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 14:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56190 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2395229AbfJQSLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Oct 2019 14:11:30 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64E0E21835;
-        Thu, 17 Oct 2019 18:11:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571335889;
-        bh=q4wTAlyVFBhPMRS0AB+M0djN9O6RVkiuHL493TiXn28=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WMNKsL10d0wYLvLCwl+zGhPNo+VMVQ8sotsWc4e0N8j09l5HYpQkH00OJf1rI/yLw
-         yO3TPAMESMp6FMLiejKCy7OqjhKBji0QnIxPT/JpFQxrPT0y4cUO80u0qzU21mSsbK
-         Zsb103jKDHBUwxgsD0Q12FmvntZPRsdVqtTsFnjg=
-Date:   Thu, 17 Oct 2019 14:11:28 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
-Cc:     "jic23@kernel.org" <jic23@kernel.org>,
-        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] iio: imu: inv_mpu6050: fix no data on MPU6050
-Message-ID: <20191017181128.GX31224@sasha-vm>
-References: <20191016144253.24554-1-jmaneyrol@invensense.com>
- <20191017143142.489CF21848@mail.kernel.org>
- <MN2PR12MB3373BC1DE5152A4546940EB3C46D0@MN2PR12MB3373.namprd12.prod.outlook.com>
+        id S2438338AbfJQSS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 14:18:58 -0400
+Received: from sender4-of-o54.zoho.com ([136.143.188.54]:21412 "EHLO
+        sender4-of-o54.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2438465AbfJQSS6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 14:18:58 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1571336301; cv=none; 
+        d=zoho.com; s=zohoarc; 
+        b=lagggj9ZXvDDIV7/derIiQExwv5MI/xc+UOh4ezgQDExS+e69htC0j1LdG0HVtmhv6ln2ZyYCQ+RqWcJzaJAsjr9Ty6qdOWWyOYBAVKfWRa70zq+N9VeB4r3ObtV3im93CfvTt1G4Mb+P9aBYWdJSe0s7Y4ZGprySexbizifByg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zoho.com; s=zohoarc; 
+        t=1571336301; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=e+DmBc0k0wkI4KLvSKQhrZ/7KcWo1MMr/deLd6MWJZw=; 
+        b=DEQm9onx0wvrGf0Sm1Orwas4WGPoFuhShAwcodKfRhhnKfQrJSNFSWVzO2p4x9dBHAIpQefkpuyV0wo18pYmNCtWZftC+sSe9ZCAraU/+gB8bVoY8ByPtYoMIQyXzng+Ozi9szULxQ5+u9eATzE98Vd1D4/zQvKFNfi7Hd8XpB8=
+ARC-Authentication-Results: i=1; mx.zoho.com;
+        dkim=pass  header.i=didiksetiawan.com;
+        spf=pass  smtp.mailfrom=ds@didiksetiawan.com;
+        dmarc=pass header.from=<ds@didiksetiawan.com> header.from=<ds@didiksetiawan.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1571336301;
+        s=zoho; d=didiksetiawan.com; i=ds@didiksetiawan.com;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
+        l=858; bh=e+DmBc0k0wkI4KLvSKQhrZ/7KcWo1MMr/deLd6MWJZw=;
+        b=BKsGMwn/vwAMgIMD/sdhSg9h7UfVgn9L1HdJMnoPBM55UzU9rRITVizYVXGzWtwA
+        tSv3c/gsToA0d1NGvSSEnmhKqTYTkSscye0W4Yn0iGosn6c9z0CEUr5ZdbvmbSCD/oJ
+        ncmTvHP6HmUINU5tN+/Ydsl+dOCH19ZRMZFC134M=
+Received: from thinkpad-e420s (120.188.94.47 [120.188.94.47]) by mx.zohomail.com
+        with SMTPS id 1571336299478949.125726423069; Thu, 17 Oct 2019 11:18:19 -0700 (PDT)
+Date:   Fri, 18 Oct 2019 01:18:08 +0700
+From:   Didik Setiawan <ds@didiksetiawan.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/79] 4.4.197-stable review
+Message-ID: <20191017181808.GA8883@thinkpad-e420s>
+References: <20191016214729.758892904@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <MN2PR12MB3373BC1DE5152A4546940EB3C46D0@MN2PR12MB3373.namprd12.prod.outlook.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
+X-ZohoMailClient: External
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 17, 2019 at 02:43:55PM +0000, Jean-Baptiste Maneyrol wrote:
->Hello Sacha,
->
->I can do a specific patch for backporting to kernel 4.19 and older ones if needed.
->This is really simple.
->
->Tell me if this is OK for you and how to proceed.
+On Wed, Oct 16, 2019 at 02:49:35PM -0700, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.197 release.
+> There are 79 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 18 Oct 2019 09:43:41 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.197-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+ 
+Compiled, booted, and no regressions found on my x86_64 system.
 
-If you do end up doing a backport, just send it either as a reply to
-this mail, or add a "4.19" tag and send it over to
-stable@vger.kernel.org.
-
--- 
 Thanks,
-Sasha
+Didik Setiawan 
+
