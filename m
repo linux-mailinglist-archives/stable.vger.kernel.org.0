@@ -2,82 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8350DAFCA
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 16:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCDFDB041
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 16:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395005AbfJQOU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 10:20:26 -0400
-Received: from relay7-d.mail.gandi.net ([217.70.183.200]:37963 "EHLO
-        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394917AbfJQOUZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 10:20:25 -0400
-X-Originating-IP: 86.207.98.53
-Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id 038FE20019;
-        Thu, 17 Oct 2019 14:20:22 +0000 (UTC)
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org,
+        id S2437961AbfJQOkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 10:40:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51482 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2437960AbfJQOkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 10:40:53 -0400
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE7721A4C;
+        Thu, 17 Oct 2019 14:40:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571323252;
+        bh=VX9fM7owBzI3MerH5NcTg4JBJr4yjrXcJnJfhpSpTgY=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Y16Nz+zgA5q80JcW+zeFLY43dxPSW7zyJl1X1ctxNhDxz3Atxcju5fiMqV25CIrfi
+         c2gdqKcdjgrKcsldgnhpoE1HFCD58AMDGf/NyrDWRGTq3TWZjg92jnNVwAqdx39WHE
+         dUQiyNZvVBd819QauCNoaIbFHh4dcZi53va2kTrA=
+Subject: Re: [PATCH 4.4 00/79] 4.4.197-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/7] spi: atmel: Fix CS high support
-Date:   Thu, 17 Oct 2019 16:18:41 +0200
-Message-Id: <20191017141846.7523-3-gregory.clement@bootlin.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191017141846.7523-1-gregory.clement@bootlin.com>
-References: <20191017141846.7523-1-gregory.clement@bootlin.com>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20191016214729.758892904@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <37c7cc8e-f531-0834-7352-c88c2a025c13@kernel.org>
+Date:   Thu, 17 Oct 2019 08:40:51 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191016214729.758892904@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Until a few years ago, this driver was only used with CS GPIO. The
-only exception is CS0 on AT91RM9200 which has to use internal CS. A
-limitation of the internal CS is that they don't support CS High.
+On 10/16/19 3:49 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.197 release.
+> There are 79 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri 18 Oct 2019 09:43:41 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.197-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-So by using the CS GPIO the CS high configuration was available except
-for the particular case CS0 on RM9200.
+Compiled and booted on my test system. No dmesg regressions.
 
-When the support for the internal chip-select was added, the check of
-the CS high support was not updated. Due to this the driver accepts
-this configuration for all the SPI controller v2 (used by all SoCs
-excepting the AT91RM9200) whereas the hardware doesn't support it for
-infernal CS.
-
-This patch fixes the test to match the hardware capabilities.
-
-Fixes: 4820303480a1 ("spi: atmel: add support for the internal chip-select of the spi controller")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
----
- drivers/spi/spi-atmel.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/spi/spi-atmel.c b/drivers/spi/spi-atmel.c
-index 7a17c3e2a8ee..6e08ae539bc0 100644
---- a/drivers/spi/spi-atmel.c
-+++ b/drivers/spi/spi-atmel.c
-@@ -1176,10 +1176,8 @@ static int atmel_spi_setup(struct spi_device *spi)
- 	as = spi_master_get_devdata(spi->master);
- 
- 	/* see notes above re chipselect */
--	if (!atmel_spi_is_v2(as)
--			&& spi->chip_select == 0
--			&& (spi->mode & SPI_CS_HIGH)) {
--		dev_dbg(&spi->dev, "setup: can't be active-high\n");
-+	if (!as->use_cs_gpios && (spi->mode & SPI_CS_HIGH)) {
-+		dev_warn(&spi->dev, "setup: non GPIO CS can't be active-high\n");
- 		return -EINVAL;
- 	}
- 
--- 
-2.23.0
-
+thanks,
+-- Shuah
