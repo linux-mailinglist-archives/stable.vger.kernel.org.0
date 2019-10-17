@@ -2,115 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20140DB57C
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 20:05:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D1ADB5A0
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 20:11:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395172AbfJQSFp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 14:05:45 -0400
-Received: from mail-il1-f195.google.com ([209.85.166.195]:35421 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389832AbfJQSFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 14:05:45 -0400
-Received: by mail-il1-f195.google.com with SMTP id j9so2971729ilr.2;
-        Thu, 17 Oct 2019 11:05:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9e6esXdSKEchwo9t/UhDN2I/NCXL7m7+/GS8N3ZNVaw=;
-        b=pywovx149iqExuPpCztzKPaZyHlSqopn1Yu6ZuQhPKw6kzhNWw/tEKI1Iq6tkYxn+E
-         Ny6vInaz8h3aq0ByQ/eTn0kIYSFU5ZEXl4hA4Ybg0DjBQWH1bI2/hChDrUBJWjpzUN0P
-         sCa9Df10e9ysv5XE80CEQzMRwRhJMmPnyWT4L41CNnw+jTvnjeC2aj6HzHcKr1sZnrFe
-         E4aubbc8D+4XxvgYEhHczLMlytY1NqNcCCDsL80CjMQr/jYvlbB2b+OXQtbN7Bnxzr6T
-         eeqyBo8JtAPnFZbWCtgrVCMkWKdoZ+vntrZJS6RF9jHrkSWtEp01+WdVBybwnhctoN0y
-         Fr4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9e6esXdSKEchwo9t/UhDN2I/NCXL7m7+/GS8N3ZNVaw=;
-        b=jDcmOgJb2XejoRimVOU9VKF1JH2Jf4Jsy4KVXOIt3o6ln1b4gRCH3eqbRXfYhwE57R
-         SAZsJx97wj7bQzTGM/CDaj/1GXPsFq8gxfqckpwdLYgitvkI3M7iNK9mE1pat+njqkt5
-         IFZhPxgLxo5biskx76NcX9SH8kmmobac0v6zq7v3EPLNbhOmwjZn9gejmHaMVBTocZNi
-         f3/EGPaBYNYDY9nT0wKbNU1VT2BDAMBcYbunyCcAcg+b9on4AQQtL0kiUpFfAGnYITtA
-         rPbwYPEGL+KzcKzlARXBCTJuD5awEPct1QT++hT24xbBnIMjRx61itJN4r0utca7NSEL
-         dTQA==
-X-Gm-Message-State: APjAAAU+sdwZu12u7lJn2jCApkSMfIkla1w5SWQ6WKHTz+6yWRq56J+F
-        ZLoInkz7T8sVeONIaJpwtqzXWWJnaBbe7euUQgQ=
-X-Google-Smtp-Source: APXvYqwhwDIMPJoLzHwPVEvU2F9RoxMzXULGAdvGmW2ojPx7JzrM7mkHKQqk4RD2cXkAHW+OVeWRX0R7l1G1AxI4u5U=
-X-Received: by 2002:a92:6a04:: with SMTP id f4mr5306698ilc.205.1571335543030;
- Thu, 17 Oct 2019 11:05:43 -0700 (PDT)
+        id S2395528AbfJQSLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 14:11:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56190 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2395229AbfJQSLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 14:11:30 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64E0E21835;
+        Thu, 17 Oct 2019 18:11:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571335889;
+        bh=q4wTAlyVFBhPMRS0AB+M0djN9O6RVkiuHL493TiXn28=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WMNKsL10d0wYLvLCwl+zGhPNo+VMVQ8sotsWc4e0N8j09l5HYpQkH00OJf1rI/yLw
+         yO3TPAMESMp6FMLiejKCy7OqjhKBji0QnIxPT/JpFQxrPT0y4cUO80u0qzU21mSsbK
+         Zsb103jKDHBUwxgsD0Q12FmvntZPRsdVqtTsFnjg=
+Date:   Thu, 17 Oct 2019 14:11:28 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+Cc:     "jic23@kernel.org" <jic23@kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] iio: imu: inv_mpu6050: fix no data on MPU6050
+Message-ID: <20191017181128.GX31224@sasha-vm>
+References: <20191016144253.24554-1-jmaneyrol@invensense.com>
+ <20191017143142.489CF21848@mail.kernel.org>
+ <MN2PR12MB3373BC1DE5152A4546940EB3C46D0@MN2PR12MB3373.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-References: <20191002122542.8449-1-tomi.valkeinen@ti.com> <CAHCN7xLjGkLHMWejEk-3vJ-OwzjB+BXtnPWoonh4mAVxbkzMWQ@mail.gmail.com>
-In-Reply-To: <CAHCN7xLjGkLHMWejEk-3vJ-OwzjB+BXtnPWoonh4mAVxbkzMWQ@mail.gmail.com>
-From:   Adam Ford <aford173@gmail.com>
-Date:   Thu, 17 Oct 2019 13:05:31 -0500
-Message-ID: <CAHCN7xKN7CePgajQLH61dBaoLWZ4VMxo39_xJOWHyvM3x_0i=A@mail.gmail.com>
-Subject: Re: [PATCH] drm/omap: fix max fclk divider for omap36xx
-To:     Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <MN2PR12MB3373BC1DE5152A4546940EB3C46D0@MN2PR12MB3373.namprd12.prod.outlook.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 13, 2019 at 10:56 AM Adam Ford <aford173@gmail.com> wrote:
+On Thu, Oct 17, 2019 at 02:43:55PM +0000, Jean-Baptiste Maneyrol wrote:
+>Hello Sacha,
 >
-> On Wed, Oct 2, 2019 at 7:25 AM Tomi Valkeinen <tomi.valkeinen@ti.com> wrote:
-> >
-> > The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
-> > (in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
-> > correct, and using divider of 32 breaks DSS with a flood or underflows
-> > and sync losts. Dividers up to 31 seem to work fine.
-> >
-> > There is another patch to the DT files to limit the divider correctly,
-> > but as the DSS driver also needs to know the maximum divider to be able
-> > to iteratively find good rates, we also need to do the fix in the DSS
-> > driver.
-> >
+>I can do a specific patch for backporting to kernel 4.19 and older ones if needed.
+>This is really simple.
 >
-> Tomi,
->
-> Is there any way you can do a patch for the FB version for the older
-> 4.9 and 4.14 kernels?  I think they are still defaulting to the omapfb
-> instead of DRM, so the underflow issue still appears by default and
-> the patch only impacts the DRM version of the driver.  If not, do you
-> have any objections if I submit a patch to stable for those two LTS
-> branches?
+>Tell me if this is OK for you and how to proceed.
 
-Gentle nudge on this question.  I can do the work, but I just
-permission so don't overstep.
+If you do end up doing a backport, just send it either as a reply to
+this mail, or add a "4.19" tag and send it over to
+stable@vger.kernel.org.
 
-adam
->
-> thanks,
->
-> adam
-> > Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> > Cc: Adam Ford <aford173@gmail.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/gpu/drm/omapdrm/dss/dss.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/gpu/drm/omapdrm/dss/dss.c b/drivers/gpu/drm/omapdrm/dss/dss.c
-> > index e226324adb69..4bdd63b57100 100644
-> > --- a/drivers/gpu/drm/omapdrm/dss/dss.c
-> > +++ b/drivers/gpu/drm/omapdrm/dss/dss.c
-> > @@ -1083,7 +1083,7 @@ static const struct dss_features omap34xx_dss_feats = {
-> >
-> >  static const struct dss_features omap3630_dss_feats = {
-> >         .model                  =       DSS_MODEL_OMAP3,
-> > -       .fck_div_max            =       32,
-> > +       .fck_div_max            =       31,
-> >         .fck_freq_max           =       173000000,
-> >         .dss_fck_multiplier     =       1,
-> >         .parent_clk_name        =       "dpll4_ck",
-> > --
-> > Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-> > Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
-> >
+-- 
+Thanks,
+Sasha
