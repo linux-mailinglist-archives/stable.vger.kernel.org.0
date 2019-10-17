@@ -2,92 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFC48DB2CA
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 18:50:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFFBDB329
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 19:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503042AbfJQQuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 12:50:55 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:36518 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394336AbfJQQuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 12:50:55 -0400
-Received: by mail-il1-f194.google.com with SMTP id z2so2731126ilb.3
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 09:50:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tBLNQqGbXkMMNFqwqmoHYpYR0omjyH2DGrqLk8lOHRU=;
-        b=MvI8fZNQWqbbSWHSvnZ/YilFT8r4cXVjXFQLbWKFHwMU8rmnUzL7K0U7z5JH/0eobW
-         tbUj8KjJpd9z05VN5jN3ZzXxr8yawzv+YjV/j/bJdAAWZMxY4CF+Mn4J3g8EbucRK0HU
-         ocyC0XJjnK9HgOO3KDcSz/Q2uRNI1vIBMro+XbyDI5y7q72LPb93CBqPwRsp5244gISA
-         mCRHf/ofo4mbZL+TotrdbLWcutWnrPd3oEYetBwlcx97bIfKJdbH5dYcoimf1YyvuaJ2
-         j+a1Ymg/cLrIUhAfHFlH7TCAjLWLLrq+PSotmrhtIsIaitOcf84U8EHheu9nDsOTE2qw
-         MKBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tBLNQqGbXkMMNFqwqmoHYpYR0omjyH2DGrqLk8lOHRU=;
-        b=YCOlQiN0DGbXNocys8IHsEfmbOfBvhVeTtCXO2XEYXFeWs5xHFEKRD9XU31BGcOv/2
-         XxT4l9mv9ZZnvUiPKkxz7xzfTUh4NpqbB4KhL4ksWLMtJ+ZuVxx/7Nh+eGfVRs3vR+OM
-         Q+GwUaEhmcxckpYiL8Qc+l+g++DchSGPJzPeoEb2Qh+sIIoQEOwjvW9affE8NdpuWwwF
-         01TxV3a8KyCeaCKQjwlzXopLRRTQoBuB8m8zr51yCs7wmVZNFkMj+/+emU+aQG9Uf35E
-         Cjb0tUy+zdhlCM/f+7sr/AvHZa1EszdERLFLbLXt+j2RajPPqxmDTmhhIaz6PBFId608
-         R3Bw==
-X-Gm-Message-State: APjAAAXtgCh/lr6CdMvMzC0tcQ98u/0nv0EAcJunv/X0umWX76nRpyYM
-        4qCbbtzlK9Rlx7GcvzmpdFIKo58IehNqxK0INgPCCw==
-X-Google-Smtp-Source: APXvYqzaJqnOh8u1ffkHjbOR8474PuKjMUFOrqsL8xsQWJAm4wh9nEWyJeiQKud1Q6f+SzNL5TC5NIZfvS6/nl1YvvE=
-X-Received: by 2002:a92:40c4:: with SMTP id d65mr4939938ill.50.1571331054413;
- Thu, 17 Oct 2019 09:50:54 -0700 (PDT)
+        id S2440643AbfJQRTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 13:19:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37646 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728639AbfJQRTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 13:19:55 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2069B20872;
+        Thu, 17 Oct 2019 17:19:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571332794;
+        bh=fkXKLDfWaA7lFTgqJsrX3X37be5F5YLryM7NAGSqj1U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Py7+YBWrBJXnll38jre94lW2Q7oCwuyUtBbvKH7kR/FpgwQE4QFlF7Vu4zgTDYx7E
+         CuAUcv68/FcvRvELbZA5jllBFZNOGfFk84D6bPt0XlWXmcl8fLNZsQoKcN52szir8a
+         9im9bonHnRDq+CdycxZBo62X8+oJ0iEshqG+6iFo=
+Date:   Thu, 17 Oct 2019 13:19:53 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: Re: [PATCH 4.19 62/81] cifs: use cifsInodeInfo->open_file_lock while
+ iterating to avoid a panic
+Message-ID: <20191017171953.GV31224@sasha-vm>
+References: <20191016214805.727399379@linuxfoundation.org>
+ <20191016214843.979454273@linuxfoundation.org>
+ <20191017085538.GA5847@amd>
+ <20191017160117.GA1083277@kroah.com>
 MIME-Version: 1.0
-References: <20191015065937.23169-1-mathieu.poirier@linaro.org> <20191016183121.GD801860@kroah.com>
-In-Reply-To: <20191016183121.GD801860@kroah.com>
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-Date:   Thu, 17 Oct 2019 10:50:43 -0600
-Message-ID: <CANLsYkzg2kwxTG=+RZr4CNqQxNSttcyp_bbmO2u=Vq=HJ5_xtA@mail.gmail.com>
-Subject: Re: [stable 4.19][PATCH 1/4] ARM: dts: am4372: Set memory bandwidth
- limit for DISPC
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "# 4 . 7" <stable@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20191017160117.GA1083277@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 16 Oct 2019 at 12:31, Greg KH <gregkh@linuxfoundation.org> wrote:
+On Thu, Oct 17, 2019 at 09:01:17AM -0700, Greg Kroah-Hartman wrote:
+>On Thu, Oct 17, 2019 at 10:55:39AM +0200, Pavel Machek wrote:
+>> Hi!
+>>
+>> > From: Dave Wysochanski <dwysocha@redhat.com>
+>> >
+>> > Commit 487317c99477 ("cifs: add spinlock for the openFileList to
+>> > cifsInodeInfo") added cifsInodeInfo->open_file_lock spin_lock to protect
+>>
+>> > Fixes: 487317c99477 ("cifs: add spinlock for the openFileList to cifsInodeInfo")
+>> >
+>> > CC: Stable <stable@vger.kernel.org>
+>> > Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+>> > Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+>> > Signed-off-by: Steve French <stfrench@microsoft.com>
+>>
+>> This is missing upstream commit ID and a signoff.
 >
-> On Tue, Oct 15, 2019 at 12:59:34AM -0600, Mathieu Poirier wrote:
-> > From: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> >
-> > commit f90ec6cdf674248dcad85bf9af6e064bf472b841 upstream
-> >
-> > Set memory bandwidth limit to filter out resolutions above 720p@60Hz to
-> > avoid underflow errors due to the bandwidth needs of higher resolutions.
-> >
-> > am43xx can not provide enough bandwidth to DISPC to correctly handle
-> > 'high' resolutions.
-> >
-> > Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> > Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
-> > Signed-off-by: Tony Lindgren <tony@atomide.com>
-> > Cc: stable <stable@vger.kernel.org> # 4.19
-> > Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-> > ---
-> >  arch/arm/boot/dts/am4372.dtsi | 2 ++
-> >  1 file changed, 2 insertions(+)
->
-> What about 5.3?  Is this ok there?
->
+>Good catch, Sasha forgot to do that :(
 
-Yes - all the patches in this series are also applicable (and apply) to 5.3.y
+I was actually thinking I'll need to replace it with David's patch. Let
+me look into it.
 
+-- 
 Thanks,
-Mathieu
-
-> thanks,
->
-> greg k-h
+Sasha
