@@ -2,74 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE707DAB56
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 13:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABAFDAB6A
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 13:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387949AbfJQLjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 07:39:43 -0400
-Received: from mx2.suse.de ([195.135.220.15]:59798 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727991AbfJQLjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Oct 2019 07:39:43 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 3FE09B717;
-        Thu, 17 Oct 2019 11:39:41 +0000 (UTC)
-Date:   Thu, 17 Oct 2019 13:39:39 +0200
-From:   Michal Hocko <mhocko@kernel.org>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.19 56/81] kernel/sysctl.c: do not override max_threads
- provided by userspace
-Message-ID: <20191017113939.GH24485@dhcp22.suse.cz>
-References: <20191016214805.727399379@linuxfoundation.org>
- <20191016214842.621065901@linuxfoundation.org>
- <20191017105940.GA5966@amd>
- <20191017110516.GG24485@dhcp22.suse.cz>
- <b41558c732384c6280f0fe18823aa7e1@AcuMS.aculab.com>
+        id S2502124AbfJQLrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 07:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59990 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502113AbfJQLrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 07:47:00 -0400
+Received: from localhost (unknown [209.136.236.94])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 984A32082C;
+        Thu, 17 Oct 2019 11:46:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571312818;
+        bh=BGGdP34jTjoBsKcz7gQvolmVC90iVG0fX2/bdXKMIa8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RtPFd2ScxlErGSDcf344njs6dtqct63lCLYzog2Zj95NrZOUa9w2qL7vhmGOB0u5Y
+         /8sqtm+N0I0SIrCT1VL9c9eSW2q/ZqSQBXBrjW6UqiK/t/QDzSesTbirgN3rFbiYs/
+         SwrXSo9gMHoYou9QNQboVYv1jCWXThs8W7dUBy7o=
+Date:   Thu, 17 Oct 2019 04:46:58 -0700
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Richard Leitner <richard.leitner@skidata.com>
+Cc:     Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Oleksandr Suvorov <oleksandr.suvorov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Igor Opaniuk <igor.opaniuk@toradex.com>,
+        Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH 5.3 112/112] ASoC: sgtl5000: add ADC mute control
+Message-ID: <20191017114658.GB1020613@kroah.com>
+References: <20191016214844.038848564@linuxfoundation.org>
+ <20191016214907.599726506@linuxfoundation.org>
+ <20191016220044.GB11473@sirena.co.uk>
+ <20191016221025.GA990599@kroah.com>
+ <20191016223518.GC11473@sirena.co.uk>
+ <20191016232358.GA994597@kroah.com>
+ <de9630e5-341f-b48d-029a-ef1a516bf820@skidata.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b41558c732384c6280f0fe18823aa7e1@AcuMS.aculab.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <de9630e5-341f-b48d-029a-ef1a516bf820@skidata.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu 17-10-19 11:25:47, David Laight wrote:
-> From: Michal Hocko
-> > Sent: 17 October 2019 12:05
-> ...
-> > > Plus, I don't see any locking here, should this be WRITE_ONCE() at
-> > > minimum?
+On Thu, Oct 17, 2019 at 11:20:32AM +0200, Richard Leitner wrote:
+> 
+> On 17/10/2019 01:23, Greg Kroah-Hartman wrote:
+> > On Wed, Oct 16, 2019 at 11:35:18PM +0100, Mark Brown wrote:
+> > > On Wed, Oct 16, 2019 at 03:10:25PM -0700, Greg Kroah-Hartman wrote:
+> > > > On Wed, Oct 16, 2019 at 11:00:44PM +0100, Mark Brown wrote:
+> > > > > On Wed, Oct 16, 2019 at 02:51:44PM -0700, Greg Kroah-Hartman wrote:
+> > > > > > From: Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+> > > 
+> > > > > > commit 694b14554d75f2a1ae111202e71860d58b434a21 upstream.
+> > > 
+> > > > > > This control mute/unmute the ADC input of SGTL5000
+> > > > > > using its CHIP_ANA_CTRL register.
+> > > 
+> > > > > This seems like a new feature and not an obvious candidate for stable?
+> > > 
+> > > > there was a long email from Richard that said:
+> > > > 	Upstream commit 631bc8f0134a ("ASoC: sgtl5000: Fix of unmute
+> > > > 	outputs on probe"), which is e9f621efaebd in v5.3 replaced
+> > > > 	snd_soc_component_write with snd_soc_component_update_bits and
+> > > > 	therefore no longer cleared the MUTE_ADC flag. This caused the
+> > > > 	ADC to stay muted and recording doesn't work any longer. This
+> > > > 	patch fixes this problem by adding a Switch control for
+> > > > 	MUTE_ADC.
+> > > 
+> > > > That's why I took this.  If this isn't true, I'll be glad to drop this.
+> > > 
+> > > That's probably not an appropriate fix for stable - it's going to add a
+> > > new control which users will need to manually set (or hope their
+> > > userspace automatically figures out that it should set for them, more
+> > > advanced userspaces like PulseAudio should) which isn't a drop in fix.
+> > > You could either drop the backport that was done for zero cross or take
+> > > a new patch that clears the MUTE_ADC flag (rather than punting to
+> > > userspace to do so), or just be OK with what you've got at the minute
+> > > which might be fine given the lack of user reports.
 > > 
-> > Why would that matter? Do you expect several root processes race to set
-> > the value?
+> > Ok, I'll gladly go drop it, thanks!
 > 
-> One of them wins. No one is going to notice is the value is set an extra time.
-
-Right, this is quite obvious. The question is whether/how much it really
-matters.
-
-> WRITE_ONCE() is rarely required.
-> Probably only if other code is going to update the value after seeing the first write.
-> (eg if you are unlocking a mutex - although they have to be more complex)
+> Mark, thanks for the clarification! I haven't thought of breaking anything
+> with the backport as it worked fine for our application.
 > 
-> READ_ONCE() is a different matter.
-> IMHO the compiler shouldn't be allowed to do more reads than the source requests.
+> Greg, just to be sure:
+> 
+> Are you going to drop this patch and revert e9f621efaebd for v5.3?
 
+I dropped this patch.
 
-Right, we are talking about setting an int value. While nobody can rule
-out that the compiler splitting the single write into multiple ones I
-would be quite curious about seeing that...
--- 
-Michal Hocko
-SUSE Labs
+If the revert is needed, please send that and I will be glad to queue it
+up for the next round of releases.
+
+thanks,
+
+greg k-h
