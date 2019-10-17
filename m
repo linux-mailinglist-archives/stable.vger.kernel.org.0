@@ -2,111 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 572EBDA6E9
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 10:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00696DA7B9
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 10:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408095AbfJQIF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 04:05:29 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52582 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727791AbfJQIF2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 04:05:28 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9H82WKM123413
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 04:05:26 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2vpk59juqk-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 04:05:25 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <sandipan@linux.ibm.com>;
-        Thu, 17 Oct 2019 09:05:24 +0100
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Thu, 17 Oct 2019 09:05:21 +0100
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x9H85JgJ55443520
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 17 Oct 2019 08:05:20 GMT
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8D2AA4067;
-        Thu, 17 Oct 2019 08:05:19 +0000 (GMT)
-Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1C0DDA406E;
-        Thu, 17 Oct 2019 08:05:18 +0000 (GMT)
-Received: from tpad450.ibmuc.com (unknown [9.199.32.220])
-        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 17 Oct 2019 08:05:17 +0000 (GMT)
-From:   Sandipan Das <sandipan@linux.ibm.com>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, aneesh.kumar@linux.ibm.com,
-        mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org,
-        "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>
-Subject: [PATCH stable 4.14 6/6] selftests/powerpc: Fix compile error on tlbie_test due to newer gcc
-Date:   Thu, 17 Oct 2019 13:35:05 +0530
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191017080505.8348-1-sandipan@linux.ibm.com>
-References: <20191017080505.8348-1-sandipan@linux.ibm.com>
+        id S2408305AbfJQIs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 04:48:27 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:25809 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2393243AbfJQIs1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 04:48:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571302105;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=P23yKEodgmnfGUw9sfhLwiVnwWH7sPsG4YJ+YL5V5tM=;
+        b=fwvF2pCKOpcVrn3xpwuRJX/NCFTTtSOmzmEOozk+/rsBhZK2Yb2TV9T+36inbKeSkRLyMp
+        hUbC8ycLT7Jb4if8UrOhRR7CAIejb+SnL+jXlKgD4ARA2tJVMhgvFmlpqu4aicSuqwrWXb
+        7zLwABIX18+oR3nKIOMDbcuMqHS7Amc=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-357-qjiC0ovcPX6QtuPSXPjeWg-1; Thu, 17 Oct 2019 04:48:24 -0400
+Received: by mail-qk1-f200.google.com with SMTP id q80so1385335qke.22
+        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 01:48:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ITrwUcZNhHdbR5/yJdBac5vGGHSYPWf4FBJkw33BU+U=;
+        b=JmXeiZZ+udftg/zpWVzkpPCZK88qvlNBNuXcMNazbBrMNhasG6Cy5l1iMITqYqo2WX
+         Wnqh5Z0E4/vvHw1jEUDzXWqlNMS+tSnLvlv+lL6GPKWTPQL+7Jct6xzu5LR7+9BWlFzJ
+         8T75ASlJHIBP3ZOq5KbvntsBOlfwq1zDe6jFG8uFz5y+uOhI9S+MarsSlRZSvhty+Ray
+         ExAbAmWW6umm5tXfVHVk6f0DIHG+5gVXoIJCDJZoorUAo47cApMU1hvlrO0TS8B/Qo59
+         JT1g5eYD4Nbpypo3U0YX07YBmxXeQaYYHJm4JtkcGXIVVtFx6UdHyvSl5KGu0w0HOO6i
+         LVWQ==
+X-Gm-Message-State: APjAAAXGd+CaL411zuI4V3m4tnMYGgfF4iZHjrRVJ8C4+DWX2pNDe4Jl
+        CGlM5GSNcCMqA9ykLzSRJVL/l1WAy05+ofW+INAmE/AiMfHJTUIi7zpA1bX9dTJlfO37aUbLvob
+        ZQhG6SyUGvoH6F1bWpcJ9UFX7edmXdiyB
+X-Received: by 2002:ac8:38bb:: with SMTP id f56mr2664258qtc.154.1571302101138;
+        Thu, 17 Oct 2019 01:48:21 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqw6KHex7FZUFA1EICrnIh9zS+/BKcB7zS+GZg/tObmOEO5bLx2+4/yRRVT89C+jjp59lTtx3kazw3v1B4kfIfg=
+X-Received: by 2002:ac8:38bb:: with SMTP id f56mr2664246qtc.154.1571302100911;
+ Thu, 17 Oct 2019 01:48:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19101708-0012-0000-0000-00000358DA61
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19101708-0013-0000-0000-00002193F679
-Message-Id: <20191017080505.8348-6-sandipan@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-17_03:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1910170071
+References: <20191016182935.5616-1-andrew.smirnov@gmail.com>
+ <20191016182935.5616-3-andrew.smirnov@gmail.com> <CAO-hwJ++YWtX29YefGzaEfCLDA=npZwUxDCkDzxALAmLLqv7FQ@mail.gmail.com>
+ <CAHQ1cqHcm2z4dTJ-3kx-_e3_1mpz9x_AQ+GP_j-nqL=3Gm-AtQ@mail.gmail.com>
+In-Reply-To: <CAHQ1cqHcm2z4dTJ-3kx-_e3_1mpz9x_AQ+GP_j-nqL=3Gm-AtQ@mail.gmail.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Thu, 17 Oct 2019 10:48:09 +0200
+Message-ID: <CAO-hwJJ8EJOtYYrsvh=bZKmMisRUADO-w6G7QRSGXe_-cdobUw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] HID: logitech-hidpp: rework device validation
+To:     Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Sam Bazely <sambazley@fastmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        Austin Palmer <austinp@valvesoftware.com>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "3.8+" <stable@vger.kernel.org>
+X-MC-Unique: qjiC0ovcPX6QtuPSXPjeWg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>
+On Wed, Oct 16, 2019 at 9:38 PM Andrey Smirnov <andrew.smirnov@gmail.com> w=
+rote:
+>
+> On Wed, Oct 16, 2019 at 12:24 PM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > Hi Andrey,
+> >
+> > On Wed, Oct 16, 2019 at 8:30 PM Andrey Smirnov <andrew.smirnov@gmail.co=
+m> wrote:
+> > >
+> > > G920 device only advertises REPORT_ID_HIDPP_LONG and
+> > > REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
+> > > for REPORT_ID_HIDPP_SHORT with optional=3Dfalse will always fail and
+> > > prevent G920 to be recognized as a valid HID++ device.
+> > >
+> > > To fix this and improve some other aspects, modify
+> > > hidpp_validate_device() as follows:
+> > >
+> > >   - Inline the code of hidpp_validate_report() to simplify
+> > >     distingushing between non-present and invalid report descriptors
+> > >
+> > >   - Drop the check for id >=3D HID_MAX_IDS || id < 0 since all of our
+> > >     IDs are static and known to satisfy that at compile time
+> > >
+> > >   - Change the algorithms to check all possible report
+> > >     types (including very long report) and deem the device as a valid
+> > >     HID++ device if it supports at least one
+> > >
+> > >   - Treat invalid report length as a hard stop for the validation
+> > >     algorithm, meaning that if any of the supported reports has
+> > >     invalid length we assume the worst and treat the device as a
+> > >     generic HID device.
+> > >
+> > >   - Fold initialization of hidpp->very_long_report_length into
+> > >     hidpp_validate_device() since it already fetches very long report
+> > >     length and validates its value
+> > >
+> > > Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to=
+ be handled by this module")
+> > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D204191
+> > > Reported-by: Sam Bazely <sambazley@fastmail.com>
+> > > Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> > > Cc: Jiri Kosina <jikos@kernel.org>
+> > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > Cc: Henrik Rydberg <rydberg@bitmath.org>
+> > > Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> > > Cc: Austin Palmer <austinp@valvesoftware.com>
+> > > Cc: linux-input@vger.kernel.org
+> > > Cc: linux-kernel@vger.kernel.org
+> > > Cc: stable@vger.kernel.org # 5.2+
+> > > ---
+> > >  drivers/hid/hid-logitech-hidpp.c | 54 ++++++++++++++++++------------=
+--
+> > >  1 file changed, 30 insertions(+), 24 deletions(-)
+> > >
+> > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logit=
+ech-hidpp.c
+> > > index 85911586b3b6..8c4be991f387 100644
+> > > --- a/drivers/hid/hid-logitech-hidpp.c
+> > > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > > @@ -3498,34 +3498,45 @@ static int hidpp_get_report_length(struct hid=
+_device *hdev, int id)
+> > >         return report->field[0]->report_count + 1;
+> > >  }
+> > >
+> > > -static bool hidpp_validate_report(struct hid_device *hdev, int id,
+> > > -                                 int expected_length, bool optional)
+> > > +static bool hidpp_validate_device(struct hid_device *hdev)
+> > >  {
+> > > -       int report_length;
+> > > +       struct hidpp_device *hidpp =3D hid_get_drvdata(hdev);
+> > > +       int id, report_length, supported_reports =3D 0;
+> > > +
+> > > +       id =3D REPORT_ID_HIDPP_SHORT;
+> > > +       report_length =3D hidpp_get_report_length(hdev, id);
+> > > +       if (report_length) {
+> > > +               if (report_length < HIDPP_REPORT_SHORT_LENGTH)
+> > > +                       goto bad_device;
+> > >
+> > > -       if (id >=3D HID_MAX_IDS || id < 0) {
+> > > -               hid_err(hdev, "invalid HID report id %u\n", id);
+> > > -               return false;
+> > > +               supported_reports++;
+> > >         }
+> > >
+> > > +       id =3D REPORT_ID_HIDPP_LONG;
+> > >         report_length =3D hidpp_get_report_length(hdev, id);
+> > > -       if (!report_length)
+> > > -               return optional;
+> > > +       if (report_length) {
+> > > +               if (report_length < HIDPP_REPORT_LONG_LENGTH)
+> > > +                       goto bad_device;
+> > >
+> > > -       if (report_length < expected_length) {
+> > > -               hid_warn(hdev, "not enough values in hidpp report %d\=
+n", id);
+> > > -               return false;
+> > > +               supported_reports++;
+> > >         }
+> > >
+> > > -       return true;
+> > > -}
+> > > +       id =3D REPORT_ID_HIDPP_VERY_LONG;
+> > > +       report_length =3D hidpp_get_report_length(hdev, id);
+> > > +       if (report_length) {
+> > > +               if (report_length > HIDPP_REPORT_LONG_LENGTH &&
+> > > +                   report_length < HIDPP_REPORT_VERY_LONG_MAX_LENGTH=
+)
+> >
+> > Can you double check the conditions here?
+> > It's late, but I think you inverted the tests as we expect the report
+> > length to be between HIDPP_REPORT_LONG_LENGTH and
+> > HIDPP_REPORT_VERY_LONG_MAX_LENGTH inclusive, while here this creates a
+> > bad_device.
+>
+> Hmm, I think you are right. Not sure why I didn't catch it on G920
+> since it support very long reports AFAIR. Will re-spin and double
+> check in v3. Sorry about that.
+>
 
-commit 5b216ea1c40cf06eead15054c70e238c9bd4729e upstream.
+Oh, the issue is that the very long HID++ reports on the G920 are
+HIDPP_REPORT_VERY_LONG_MAX_LENGTH long, which means the test will fail
+for those.
 
-Newer versions of GCC (>= 9) demand that the size of the string to be
-copied must be explicitly smaller than the size of the destination.
-Thus, the NULL char has to be taken into account on strncpy.
-
-This will avoid the following compiling error:
-
-  tlbie_test.c: In function 'main':
-  tlbie_test.c:639:4: error: 'strncpy' specified bound 100 equals destination size
-      strncpy(logdir, optarg, LOGDIR_NAME_SIZE);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cc1: all warnings being treated as errors
-
-Cc: stable@vger.kernel.org # v4.14
-Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191003211010.9711-1-desnesn@linux.ibm.com
-[sandipan: Backported to v4.14]
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
----
- tools/testing/selftests/powerpc/mm/tlbie_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/testing/selftests/powerpc/mm/tlbie_test.c b/tools/testing/selftests/powerpc/mm/tlbie_test.c
-index 9868a5ddd847..f85a0938ab25 100644
---- a/tools/testing/selftests/powerpc/mm/tlbie_test.c
-+++ b/tools/testing/selftests/powerpc/mm/tlbie_test.c
-@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
- 			nrthreads = strtoul(optarg, NULL, 10);
- 			break;
- 		case 'l':
--			strncpy(logdir, optarg, LOGDIR_NAME_SIZE);
-+			strncpy(logdir, optarg, LOGDIR_NAME_SIZE - 1);
- 			break;
- 		case 't':
- 			run_time = strtoul(optarg, NULL, 10);
--- 
-2.21.0
+Cheers,
+Benjamin
 
