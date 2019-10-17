@@ -2,71 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF3EADB198
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 17:55:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6970DB1AA
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 17:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395426AbfJQPzc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 11:55:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44470 "EHLO mail.kernel.org"
+        id S2392630AbfJQP7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 11:59:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393660AbfJQPzb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Oct 2019 11:55:31 -0400
+        id S2390726AbfJQP7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 17 Oct 2019 11:59:36 -0400
 Received: from localhost (unknown [192.55.54.60])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C8E821835;
-        Thu, 17 Oct 2019 15:55:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0D9321835;
+        Thu, 17 Oct 2019 15:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571327731;
-        bh=diocG/Rt1f0gK06qV1OaITtWGAh2IgnLkH3mfgWfeiw=;
+        s=default; t=1571327974;
+        bh=2CRNB1p1GOnl8ECcjxkKpwficsiVPrm6HqbiYt9a9T8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gUxoLl8qzUNejKGWlB4SsovetEBlGJcSI9/aLK9FnNBb+ELDsHLrp3e++ZOOo+Ltb
-         ySJNoSp/3fspJlVzUy7QomxQcUWzn3/Ci+ReWVzE+xAhAlY89a4ZRuldyUq/8CwWz6
-         55XGuaKNN/7sQpyPQSNe55FHn2Rwm9ybb6hQniyk=
-Date:   Thu, 17 Oct 2019 08:55:30 -0700
+        b=SRi7c2OikBn7ZfVce+efv7hSv5e/IUd+J8B6BGqls5oZNRVoY3b4N5HbOppjdnvJO
+         ZLFWTy2V5U8uizihJfafbq5ElQu0D1qoOdKeFFqsv7rlNpfIgTxbNYxYp4XdCtHFl5
+         mtnoXaD0eNPX0piXhXJjRSMi32W41jVTLsdwoMdU=
+Date:   Thu, 17 Oct 2019 08:59:33 -0700
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     shuah <shuah@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.3 000/112] 5.3.7-stable review
-Message-ID: <20191017155530.GA1079687@kroah.com>
-References: <20191016214844.038848564@linuxfoundation.org>
- <acdb7f75-fa39-32ee-0e6d-ba0098a2ca35@kernel.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Erik Schmauss <erik.schmauss@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        John Garry <john.garry@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 68/81] ACPICA: ACPI 6.3: PPTT add additional fields
+ in Processor Structure Flags
+Message-ID: <20191017155933.GC1079687@kroah.com>
+References: <20191016214805.727399379@linuxfoundation.org>
+ <20191016214846.058277835@linuxfoundation.org>
+ <20191017085912.GA8594@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <acdb7f75-fa39-32ee-0e6d-ba0098a2ca35@kernel.org>
+In-Reply-To: <20191017085912.GA8594@amd>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 17, 2019 at 09:13:00AM -0600, shuah wrote:
-> On 10/16/19 3:49 PM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.3.7 release.
-> > There are 112 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Fri 18 Oct 2019 09:43:41 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.7-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
+On Thu, Oct 17, 2019 at 10:59:12AM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Compiled and booted on my test system. No dmesg regressions.
+> > From: Erik Schmauss <erik.schmauss@intel.com>
+> > 
+> > Commit b5eab512e7cffb2bb37c4b342b5594e9e75fd486 upstream.
+> 
+> So this introduces another format of "upstream" information. So far I
+> had this:
+> 
+> 		ma = re.match(".*Upstream commit ([0-9a-f]*) .*", l)
+> 		...
+>                 ma = re.match("commit ([0-9a-f]*) upstream[.]*", l)
 
-Thanks for testing all of these and letting me know.
+do a case-insensitive search :)
+
+> I believe this information belongs to the signoff area; it is
+> important to know who pushed patch to the upstream and who is pusing
+> it to the stable.
+> 
+> Could we just introduce "Upstream: <sha1>" tag and use it? It would
+> improve consistency...
+
+It would, I have plans for that, been busy with other stuff...
+
+thanks,
 
 greg k-h
