@@ -2,278 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0288DDA528
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 07:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81691DA567
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 08:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390641AbfJQFio convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 17 Oct 2019 01:38:44 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:45174 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731603AbfJQFio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Oct 2019 01:38:44 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A27054FCDA
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 05:38:43 +0000 (UTC)
-Received: from [172.54.96.74] (cpt-1049.paas.prod.upshift.rdu2.redhat.com [10.0.19.65])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id EC8DC60872;
-        Thu, 17 Oct 2019 05:38:35 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2404736AbfJQGVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 02:21:22 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:33631 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731726AbfJQGVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 02:21:22 -0400
+Received: by mail-lj1-f193.google.com with SMTP id a22so1247944ljd.0
+        for <stable@vger.kernel.org>; Wed, 16 Oct 2019 23:21:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=vJwljksPMBM6dZICB00B0fndAGErly1ln+LuF+3T1Rg=;
+        b=zjE7WN8Zy0vPZUWHzZrqOD97ssZvZUOaL9dpeEI7xBaaBeXQE1LJKoBDcG+3XDkUhB
+         DIyU5B/rVpwBFbyeDFMMYA9A245D7hrI30lt2yrK992oRHIJKoSuA/rzidJ/VLg+ptit
+         SZYkPIJ09G8CKS/J9IPSZrAaQyokbacW3FpTnYSzMYyjFroLtsd7zVzVM3LHjJsyKxCb
+         TVu5nTiE916jxYnqkGbsOoK+OUo/muc+Pfr9kwd0ImvQVO6T8OIQBN9ViPn7evumH02I
+         Oh7HN9bQnu87n+Y+JIpxuAW3QVdCu1Gu+YA+7FKjkknUoSjqY3DZ2PwfwOgLL43QKeFk
+         7BFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=vJwljksPMBM6dZICB00B0fndAGErly1ln+LuF+3T1Rg=;
+        b=gfKdQuO9WnWmETGcMmPc8KP+BsP5V2lwOZ01H/gB+uV1xktNKUd6XXFtkbCHd/Mfk+
+         YML7cCQnoE1Q2aSTxuazULCMwHNiwGJJKFPDnGxCYe2N3M8Obr3WBuMJ+yEyNTmUNHOT
+         BCL4lhGNX05Dc2BBGkBpcPCwei8MmXW61tQYT0iGxi+nIgF5tlAu3zK9Fk1GxZNfiPpe
+         6hT0teDoMvwmwb/afUX8NaYJ536atDidQkVU0KFWxGyj0UmlVbqozmxuci9dN87ADEH8
+         sKf783qDb+jxHYMNiwViuJ1LWS8dDUJBqpNOfj1geHUAq5HxbMrSKuYauRYZpXqjJnQC
+         94vA==
+X-Gm-Message-State: APjAAAVX2HvLlSWooOP6qVr1cR4M7zWuwDhr56VEZfz0tkQ1nHWaT/Ll
+        g4xZVurUs4oDN6+EMWzJcuGA1lQCwyB9mJJeR5Rg6w==
+X-Google-Smtp-Source: APXvYqxmmTxaeIoGxwbq8L1+RJyEQesoPePa6UviAVrooX49W5WsmJeeGXHxaWGK4+b7b5GbWQsKJ7zgLPRb3H0J8Fw=
+X-Received: by 2002:a2e:9702:: with SMTP id r2mr1116080lji.194.1571293280339;
+ Wed, 16 Oct 2019 23:21:20 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.7-rc1-38a3b9f.cki
- (stable)
-CC:     Yi Zhang <yi.zhang@redhat.com>, Zorro Lang <zlong@redhat.com>,
-        Rachel Sibley <rasibley@redhat.com>
-Message-ID: <cki.21160FC738.AK25DASS9C@redhat.com>
-X-Gitlab-Pipeline-ID: 229323
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/229323
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Thu, 17 Oct 2019 05:38:43 +0000 (UTC)
-Date:   Thu, 17 Oct 2019 01:38:44 -0400
+References: <20191016214759.600329427@linuxfoundation.org>
+In-Reply-To: <20191016214759.600329427@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 17 Oct 2019 11:51:08 +0530
+Message-ID: <CA+G9fYtYEcvwRGpXFf+JnqZz+P=pgHZ4R9NAVezpSpq0BmEZvA@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/92] 4.9.197-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 17 Oct 2019 at 03:24, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.197 release.
+> There are 92 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri 18 Oct 2019 09:43:41 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.197-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Hello,
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-We ran automated tests on a recent commit from this kernel tree:
+Summary
+------------------------------------------------------------------------
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 38a3b9f512fa - Linux 5.3.7-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here:
-
-  https://artifacts.cki-project.org/pipelines/229323
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=1 targz-pkg
+kernel: 4.9.197-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.9.y
+git commit: 5749cdc967d4817de5000f6054619fb41b4f4333
+git describe: v4.9.196-93-g5749cdc967d4
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.196-93-g5749cdc967d4
 
 
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
+No regressions (compared to build v4.9.196)
 
-  aarch64:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ Storage blktests
 
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
-         🚧 ✅ Networking ipsec: basic netns transport
-         🚧 ✅ Networking ipsec: basic netns tunnel
+No fixes (compared to build v4.9.196)
 
-  ppc64le:
-      Host 1:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ❌ Storage blktests
+Ran 23358 total tests in the following environments and test suites.
 
-      Host 2:
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ Usex - version 1.9-29
-         🚧 ✅ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ✅ POSIX pjd-fstest suites
-         🚧 ✅ Memory function: kaslr
-         🚧 ✅ Networking bridge: sanity
-         🚧 ✅ Networking MACsec: sanity
-         🚧 ✅ Networking route: pmtu
-         🚧 ✅ Networking tunnel: geneve basic test
-         🚧 ✅ L2TP basic test
-         🚧 ✅ Networking ipsec: basic netns tunnel
-         🚧 ✅ Networking vnic: ipvlan/basic
-         🚧 ✅ ALSA PCM loopback test
-         🚧 ✅ ALSA Control (mixer) Userspace Element test
-         🚧 ✅ storage: dm/common
-         🚧 ✅ trace: ftrace/tracer
-         🚧 ✅ Networking route_func: local
-         🚧 ✅ Networking route_func: forward
+Environments
+--------------
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15 - arm
+- x86_64
 
-  x86_64:
-      Host 1:
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+* prep-tmp-disk
+* ssuite
 
-         ⚡ Internal infrastructure issues prevented one or more tests (marked
-         with ⚡⚡⚡) from running on this architecture.
-         This is not the fault of the kernel that was tested.
-
-         ✅ Boot test
-         ✅ Podman system integration test (as root)
-         ✅ Podman system integration test (as user)
-         ✅ Loopdev Sanity
-         ✅ jvm test suite
-         ✅ Memory function: memfd_create
-         ✅ AMTU (Abstract Machine Test Utility)
-         ✅ LTP: openposix test suite
-         ✅ Ethernet drivers sanity
-         ✅ Networking socket: fuzz
-         ✅ Networking sctp-auth: sockopts test
-         ✅ Networking: igmp conformance test
-         ✅ Networking TCP: keepalive test
-         ✅ Networking UDP: socket
-         ✅ Networking tunnel: gre basic
-         ✅ Networking tunnel: vxlan basic
-         ✅ audit: audit testsuite test
-         ✅ httpd: mod_ssl smoke sanity
-         ✅ iotop: sanity
-         ✅ tuned: tune-processes-through-perf
-         ✅ pciutils: sanity smoke test
-         ✅ Usex - version 1.9-29
-         ✅ storage: SCSI VPD
-         ✅ stress: stress-ng
-         🚧 ⚡⚡⚡ LTP lite
-         🚧 ✅ CIFS Connectathon
-         🚧 ❌ POSIX pjd-fstest suites
-         🚧 ⚡⚡⚡ Memory function: kaslr
-         🚧 ⚡⚡⚡ Networking bridge: sanity
-         🚧 ⚡⚡⚡ Networking MACsec: sanity
-         🚧 ⚡⚡⚡ Networking route: pmtu
-         🚧 ⚡⚡⚡ Networking tunnel: geneve basic test
-         🚧 ⚡⚡⚡ L2TP basic test
-         🚧 ⚡⚡⚡ Networking vnic: ipvlan/basic
-         🚧 ⚡⚡⚡ ALSA PCM loopback test
-         🚧 ⚡⚡⚡ ALSA Control (mixer) Userspace Element test
-         🚧 ⚡⚡⚡ storage: dm/common
-         🚧 ⚡⚡⚡ trace: ftrace/tracer
-         🚧 ⚡⚡⚡ Networking route_func: local
-         🚧 ⚡⚡⚡ Networking route_func: forward
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns transport
-         🚧 ⚡⚡⚡ Networking ipsec: basic netns tunnel
-
-      Host 2:
-         ✅ Boot test
-         ✅ xfstests: ext4
-         ✅ xfstests: xfs
-         ✅ selinux-policy: serge-testsuite
-         ✅ lvm thinp sanity
-         ✅ storage: software RAID testing
-         🚧 ✅ IOMMU boot test
-         🚧 ✅ Storage blktests
-
-      Host 3:
-         ✅ Boot test
-         ✅ Storage SAN device stress - mpt3sas driver
-
-      Host 4:
-         ✅ Boot test
-         ✅ Storage SAN device stress - megaraid_sas
-
-      Host 5:
-         ✅ Boot test
-         🚧 ✅ IPMI driver test
-         🚧 ❌ IPMItool loop stress test
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with 🚧. Such tests are
-executed but their results are not taken into account. Tests are waived when
-their results are not reliable enough, e.g. when they're just introduced or are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with ⏱. Reports for non-upstream kernels have
-a Beaker recipe linked to next to each host.
+--=20
+Linaro LKFT
+https://lkft.linaro.org
