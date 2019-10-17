@@ -2,114 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A54DB285
-	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 18:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5C0DB28C
+	for <lists+stable@lfdr.de>; Thu, 17 Oct 2019 18:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727508AbfJQQhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 17 Oct 2019 12:37:04 -0400
-Received: from mail-eopbgr790043.outbound.protection.outlook.com ([40.107.79.43]:15305
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729529AbfJQQhD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 17 Oct 2019 12:37:03 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mDgcsFbiTKx2x/laEVH+iJdCcgNgJrJN1yKuxj+Hd+HLln1hOdz6xMH5V0uH/Gkz0LSn8B3Xzc1XzerovOwcDxvFCw5ZPlHBYR/MtlfCVkAUQ/5urfwTwKOv2Jy2mI01IIYLDnGvh3Eptke7UwkdO2wSnSvpS311FXkELqB691i4J/dhcHiLxYG9mTN/oT9jeHjGg/cQjOLr4Df5VoC50w0Bg3fr+JxIngvdZf2tKhYIpEP8vNjRVsGPXNnZfmLhXVO3gAkMQ5e/lJkDTNuSBMkcs2BtVYT5MJhV4UNkIH0vOD99bb8MaQ9ziqq6hcYAJ7KRv1WgsiLWqbZZzRV71Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Y+x57QXn1I/hs86FjiAWQRmt3RzlPt55bAQfaa7cls=;
- b=JurrrOvNmbovs1rPmmumJ8trSm4DNtO1U3c0n53t+CXa6Wf//nWha2MQloA9bf0UKPe0WmRhnjm+bKdB4CiNZ+gUJ3fXP5LBSIKDWvACIJ8l1E8yWKnziFidRcDje+StrfLwWwN5PVw0T7pb1eIlEpwzgMCjXswMN5NqLSOeifnMzaRTFhfQPgCQ5KoJHA3DLHrXC5YcWbODVyZX6iCb2/yZgcEpAQpFwVsmaSVjwk4lMiwrhoN21Q3u92SA2ioHL3MaV5lTFuGOGqqsJ6GSrvaTTYLMG3Kw3/cR154sPDkpOOPKtEPxCoED9ZTfrHe7jZ0HdZ+ZHM3oEZ10TX+OCg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9Y+x57QXn1I/hs86FjiAWQRmt3RzlPt55bAQfaa7cls=;
- b=zLCFLkEt9iqPqzydun+fZjTWlx3BFHwtyKqnmd5Xmv+bjM67TCyTXh6D9W8bK44gi4aH+Fsl+zS5QzfyXdItWbeUEPBnTUpAq90lM8TwP7N8pG7AifxOqEtwYJUUGJJWnWW+gk3U7O8gaYW06lt+hTIf3hpE9a8SGmufCdNcYao=
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
- MN2PR05MB6798.namprd05.prod.outlook.com (52.132.175.214) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2347.11; Thu, 17 Oct 2019 16:37:00 +0000
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::f9be:d2d8:1003:99b5]) by MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::f9be:d2d8:1003:99b5%6]) with mapi id 15.20.2347.021; Thu, 17 Oct 2019
- 16:37:00 +0000
-From:   Ajay Kaher <akaher@vmware.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     "dchinner@redhat.com" <dchinner@redhat.com>,
+        id S2439720AbfJQQjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 17 Oct 2019 12:39:09 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:46420 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729529AbfJQQjJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 17 Oct 2019 12:39:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=sf8bXsEJ/gzi9qX1n3MNwbVkGFNy3+em1T/PTgOoIT8=; b=dFeTnLcQm7koViz9LdetehxIn
+        ZaE2dDqWvOxXHpKQCSdnXBm9INDomi6AfUvhaQY1T4ErhRMYP+Ka49ykZvSLxM5KW9+vLQwT2jquP
+        VYrKT8gseZspi8qEWErv4DfzppEuXlviU23K7J8beHI7TymT/lYpZHVq2EBJfmGJu2caQ=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.co.uk>)
+        id 1iL8nq-0001RY-8s; Thu, 17 Oct 2019 16:39:06 +0000
+Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
+        id 641542742BAC; Thu, 17 Oct 2019 17:39:05 +0100 (BST)
+Date:   Thu, 17 Oct 2019 17:39:05 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Oleksandr Suvorov <oleksandr.suvorov@toradex.com>
+Cc:     "festevam@gmail.com" <festevam@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Steven Rostedt <srostedt@vmware.com>,
-        Srivatsa Bhat <srivatsab@vmware.com>,
-        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Srinidhi Rao <srinidhir@vmware.com>,
-        Vikash Bansal <bvikas@vmware.com>,
-        Anish Swaminathan <anishs@vmware.com>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>
-Subject: Re: [4.9.y PATCH] xfs: clear sb->s_fs_info on mount failure
-Thread-Topic: [4.9.y PATCH] xfs: clear sb->s_fs_info on mount failure
-Thread-Index: AQHVeJ883Cj90kJZYkWUHWw9u04UBadRD8wAgAHwX4CACt4fgIABnrsA
-Date:   Thu, 17 Oct 2019 16:37:00 +0000
-Message-ID: <6B4E533E-6853-44B0-AF94-EC27EBC082F4@vmware.com>
-References: <1569965031-30745-1-git-send-email-akaher@vmware.com>
- <20191008174758.GA3013565@kroah.com>
- <F4C3D25C-A8FC-4A31-8CC2-1ABBA6CDF1C1@vmware.com>
- <20191016212209.GE856391@kroah.com>
-In-Reply-To: <20191016212209.GE856391@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=akaher@vmware.com; 
-x-originating-ip: [2405:204:549c:9b0:157a:adf0:3cf7:b301]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 2e2b0870-6d40-4f09-7252-08d753203bed
-x-ms-traffictypediagnostic: MN2PR05MB6798:|MN2PR05MB6798:|MN2PR05MB6798:
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MN2PR05MB6798FB70EEE1E5D77DC77A58BB6D0@MN2PR05MB6798.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:268;
-x-forefront-prvs: 01930B2BA8
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(136003)(396003)(39860400002)(346002)(376002)(366004)(199004)(189003)(99286004)(6246003)(2906002)(4326008)(4744005)(76176011)(6916009)(6506007)(5660300002)(186003)(6116002)(33656002)(305945005)(102836004)(316002)(6512007)(7736002)(53546011)(256004)(81166006)(81156014)(8936002)(476003)(11346002)(8676002)(14444005)(229853002)(446003)(486006)(6436002)(478600001)(2616005)(6486002)(46003)(54906003)(71190400001)(71200400001)(25786009)(14454004)(76116006)(66556008)(66946007)(66476007)(64756008)(36756003)(66446008)(91956017)(86362001);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6798;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: nYgE6n01BnQyjMrc1VgLq9rVM3KNYgbpCFwx7/Se5JO+4gWcglAQWr39+mFG3AT6rs/yflbIoREh02uWjm8YAZD8tm0A2UVCXl0xqVTLQC5onajI9Dej1EEeMYNArdAD8L8LA/s0507IbmkyquYNnZAsU0fGRPcJat81tYRg0z4RGZ7bRsJogISHFryj/YZf2IChljOOu42DxB1REdUJ+fDWVmJYX/jz4gyUuJspbmItcTA9hjC9/ZE51kAXc2oiwftrcVCqkFZh2h6IdVNguQcXLq+HwXKT7OVzRQFI/avZ7rBiaglot0PtCInDalMBySN5AKztuMyv5QxoP3gvAlPLiA2fyNQQL6+34aj2yItDx3Wv9zVIIZWQb8bmOTeNgGeu0v1DHtjp1b9kbVZKrXaD4cSkprgpppvGHM/j0S8=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <A300459832016F40A65EE322E1B6F24B@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        Igor Opaniuk <igor.opaniuk@toradex.com>
+Subject: Re: [PATCH 5.3 112/112] ASoC: sgtl5000: add ADC mute control
+Message-ID: <20191017163905.GH4976@sirena.co.uk>
+References: <20191016214907.599726506@linuxfoundation.org>
+ <20191016220044.GB11473@sirena.co.uk>
+ <20191016221025.GA990599@kroah.com>
+ <20191016223518.GC11473@sirena.co.uk>
+ <20191016232358.GA994597@kroah.com>
+ <de9630e5-341f-b48d-029a-ef1a516bf820@skidata.com>
+ <AM6PR05MB653568E379699EE907E146BDF96D0@AM6PR05MB6535.eurprd05.prod.outlook.com>
+ <CAGgjyvFQQ4E5VfZ3nwFu+7UiGOmkyXK-n9PHjo1p=iYNX5JrPw@mail.gmail.com>
+ <20191017111122.GA4976@sirena.co.uk>
+ <b90f4cfc04686a669d145b5c5e7e59e2edf58779.camel@toradex.com>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2e2b0870-6d40-4f09-7252-08d753203bed
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Oct 2019 16:37:00.4960
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: J67k0AI4VbgG7ji+/jytcOfVzrojy46FRmvA3IoTgdNCqp4yHjC21HAZu2OgVv/1P3XHxRUiqxmFvwfxn+HA8A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6798
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="bpVaumkpfGNUagdU"
+Content-Disposition: inline
+In-Reply-To: <b90f4cfc04686a669d145b5c5e7e59e2edf58779.camel@toradex.com>
+X-Cookie: Shut off engine before fueling.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQrvu79PbiAxNy8xMC8xOSwgMjo1MiBBTSwgIkdyZWcgS0giIDxncmVna2hAbGludXhmb3VuZGF0
-aW9uLm9yZz4gd3JvdGU6DQoNCj4gT24gV2VkLCBPY3QgMDksIDIwMTkgYXQgMDU6NTQ6MzZQTSAr
-MDAwMCwgQWpheSBLYWhlciB3cm90ZToNCj4gPiANCj4gPiANCj4gPiBPbiAwOC8xMC8xOSwgMTE6
-MTggUE0sICJHcmVnIEtIIiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+IHdyb3RlOg0KPiA+
-IA0KPiA+ID4gT24gV2VkLCBPY3QgMDIsIDIwMTkgYXQgMDI6NTM6NTFBTSArMDUzMCwgQWpheSBL
-YWhlciB3cm90ZToNCj4gPiA+ID4gRnJvbTogRGF2ZSBDaGlubmVyIDxkY2hpbm5lckByZWRoYXQu
-Y29tPg0KPiA+ID4gPiANCj4gPiA+ID4gY29tbWl0IGM5ZmJkN2JiYzIzZGJkZDczMzY0YmU0ZDA0
-NWU1ZDM2MTJjZjZlODIgdXBzdHJlYW0uDQo+ID4gICAgIA0KPiA+ID4gWW91IGhhdmUgc2VudCBh
-IDQuNC55IGFuZCA0LjkueSwgYnV0IHdoYXQgYWJvdXQgNC4xNC55PyAgSSBjYW4ndCB0YWtlDQo+
-ID4gPiB0aGlzIHBhdGNoIGZvciB0aGUgb2xkZXIga2VybmVscyB3aXRob3V0IGEgNC4xNC55IHBh
-dGNoLCBzb3JyeS4gIFdlDQo+ID4gPiBkb24ndCB3YW50IGFueW9uZSB0byB1cGdyYWRlIGFuZCB0
-aGVuIGhpdCBhIGZpeGVkIGJ1Zy4NCj4gPiANCj4gPiBTZW50IGZvciA0LjE0LnkgYXMgd2VsbC4g
-VGhhbmtzIGZvciBzcGVjaWZ5aW5nIGFib3V0IDQuMTQueSBmb3IgdGhpcyBwYXRjaC4NCj4gICAg
-DQo+IFRoYW5rcyBmb3IgdGhhdCwgbm93IHF1ZXVlZCB1cCBmb3IgYWxsIDMgdHJlZXMuDQoNClRo
-YW5rcyBHcmVnLCBhcHByZWNpYXRlIHlvdXIgZ3VpZGFuY2UgYW5kIGRlY2lzaW9ucy4NCg0KPiAg
-Z3JlZyBrLWgNCiAgICANCg0K
+
+--bpVaumkpfGNUagdU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Thu, Oct 17, 2019 at 02:16:09PM +0000, Oleksandr Suvorov wrote:
+
+> All versions of driver sgtl5000 (since creating in 2011) has a bug in
+> sgtl5000_probe():
+> ...
+>        snd_soc_write(codec, SGTL5000_CHIP_ANA_CTRL,
+>                        SGTL5000_HP_ZCD_EN |
+>                        SGTL5000_ADC_ZCD_EN);
+> ...
+> This command rewrites the whole register value instead of just enabling
+> ZCD feature for headphone and adc.
+
+> This register has bits for HP/LineOut/ADC muting, thus sgtl5000_probe()
+> always unmutes HP/LineOut/ADC.
+
+Yes, or at the very least this is a badly documented bit of intentional
+code.  I suspect it may be the latter but at this point we can't tell.
+
+> 1. drop this patch and revert 631bc8f0134ae in stable versions 4.19,
+> 5.2, 5.3.
+> So the bug with unmuting all outputs and ADC on device probing will
+> still present in all kernel versions that include sgtl500 codec driver.
+
+This patch here being adding the userspace control of the switch and
+631bc8f0134ae being the patch that made the ZC change only update the
+specific bits rather than write an absolute value to the register.  This
+means that we end up with the audio unmuted but no user control over
+this at runtime.  From a user perspective I think this is fine, it's not
+ideal that there's no control but they can still record.
+
+Please include human readable descriptions of things like commits and
+issues being discussed in e-mail in your mails, this makes them much
+easier for humans to read.
+
+> 2. keep 631bc8f0134ae and add 694b14554d75f to 4.19, 5.2 and 5.3.
+
+This means the patch that makes ZC only update the ZC bits and also the
+patch that makes the mutes user controllable, the default being muted.
+As I pointed out up thread this would mean that someone upgrading to a
+newer stable may need to change their userspace to do the unmute instead
+of having things unconditionally unmuted by the driver.  This is not
+really what people expect from stable updates, we want them to be able
+to pull these in without thinking about it.  i
+
+To backport the addition of the controls to stable we'd need an
+additional change which sets the default for this control to unmuted,
+there's a case for having such a change upstream regardless but it's
+still not clear if any of these changes are really fixes in the sense
+that we mean for stable.
+
+> 3. add 631bc8f0134ae to 4.4, 4.9 and 4.14
+>    add 694b14554d75f to 4.4-5.3
+>    add 904a987345258 to 4.4
+
+This is basically the same as 2 except it adds some more user
+controllable mute controls with 904a987345258 and does different things
+in different versions for reasons I'm not clear on.  It has the same
+issue.
+
+> So this bug will be fixed in all supported versions.
+
+It is not clear that this is even a bug in the first place, it's not
+full functionality but that doesn't mean that it's a bug it just means
+that there's some missing functionality.
+
+--bpVaumkpfGNUagdU
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2omSgACgkQJNaLcl1U
+h9BFtwf/WoLBa6iKrS4oD2smJ7x7F9F12LWoy914JRUB1yrc5XVpYCUlO49bY3e5
+qFaPCMJi1VGslhCnWai614kNU4Utca3R04QaWyniljAiQuJdFz4GBDJCfeQgjr10
+rp082YJoky/l6d7uelGhsUmDgWIDtQVgs5Hnc/NniR0/94QAc55fh5TRSZD9U4KI
+7yuMh7kU9zl/05aHVIJ+YmrBuk7TqmCLAcfMqSfpeolvt5I0WvC4KyB0A0C7Ybbg
+0bpuIwzSMXsNPTo36fcoUvMhOaRxJ4TYchz65+wGWnLKVH8l3V3agJgKf60atwrd
+fc93BCk7uqBfZG+SxKFKhL3urP/vKw==
+=tOWv
+-----END PGP SIGNATURE-----
+
+--bpVaumkpfGNUagdU--
