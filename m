@@ -2,33 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 303BCDD212
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:08:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E22CCDD216
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:08:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387705AbfJRWIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40764 "EHLO mail.kernel.org"
+        id S2387752AbfJRWI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387691AbfJRWIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:21 -0400
+        id S2387736AbfJRWIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAE02222C2;
-        Fri, 18 Oct 2019 22:08:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F005E22466;
+        Fri, 18 Oct 2019 22:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436501;
-        bh=XmiV9shyhIDIa3OFpD1U1MBqHaPljeOFs1xJ8axEo0U=;
+        s=default; t=1571436504;
+        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cG6WNgc4YoaXQ8iIKDOgwMGbEBQc97xzbU/SppNqEs1l+/6TUIsPIrEQ0S1RlYxEB
-         oPzTG7tx1Pu9AdyzNylgah6hpI1vJ5rvkc0o8fLErb5CoPXm9ZmZC9E3oxyBaX6IVm
-         tM2bA+X7giJhYQiyOwgkbr2OQd4a10cj5YXv//tc=
+        b=O/RcqMe6VzR/JtbwbUEISh3Qo+0HznGAbyqAA4hBcve/0jqzWNnQ6UDaJgKbKTPv5
+         L4aEFqJoJzlGA1vhzpTNzyPMsxUZgcPqL3/PWTzucrftfVXZxlMV0LsUrNUi4lTzbl
+         oR1AF+94DPuQI39Z18s/atVoOPkXd+6Mi85uHJo8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/56] ALSA: hda/realtek - Apply ALC294 hp init also for S4 resume
-Date:   Fri, 18 Oct 2019 18:07:11 -0400
-Message-Id: <20191018220753.10002-14-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Samuel Dionne-Riel <samuel@dionne-riel.com>,
+        Richard Weinberger <richard.weinberger@gmail.com>,
+        Graham Christensen <graham@grahamc.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/56] exec: load_script: Do not exec truncated interpreter path
+Date:   Fri, 18 Oct 2019 18:07:13 -0400
+Message-Id: <20191018220753.10002-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -41,38 +49,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit f6ef4e0e284251ff795c541db1129c84515ed044 ]
+[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
 
-The init sequence for ALC294 headphone stuff is needed not only for
-the boot up time but also for the resume from hibernation, where the
-device is switched from the boot kernel without sound driver to the
-suspended image.  Since we record the PM event in the device
-power_state field, we can now recognize the call pattern and apply the
-sequence conditionally.
+Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
+shebang string") was trying to protect against a confused exec of a
+truncated interpreter path. However, it was overeager and also refused
+to truncate arguments as well, which broke userspace, and it was
+reverted. This attempts the protection again, but allows arguments to
+remain truncated. In an effort to improve readability, helper functions
+and comments have been added.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Cc: Richard Weinberger <richard.weinberger@gmail.com>
+Cc: Graham Christensen <graham@grahamc.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 48 insertions(+), 9 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index ab7bc7ebb7215..fc935794d432d 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3245,7 +3245,9 @@ static void alc294_init(struct hda_codec *codec)
- {
- 	struct alc_spec *spec = codec->spec;
+diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
+index 7cde3f46ad263..e996174cbfc02 100644
+--- a/fs/binfmt_script.c
++++ b/fs/binfmt_script.c
+@@ -14,13 +14,30 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
  
--	if (!spec->done_hp_init) {
-+	/* required only at boot or S4 resume time */
-+	if (!spec->done_hp_init ||
-+	    codec->core.dev.power.power_state.event == PM_EVENT_RESTORE) {
- 		alc294_hp_init(codec);
- 		spec->done_hp_init = true;
- 	}
++static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
++static inline char *next_non_spacetab(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (!spacetab(*first))
++			return first;
++	return NULL;
++}
++static inline char *next_terminator(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (spacetab(*first) || !*first)
++			return first;
++	return NULL;
++}
++
+ static int load_script(struct linux_binprm *bprm)
+ {
+ 	const char *i_arg, *i_name;
+-	char *cp;
++	char *cp, *buf_end;
+ 	struct file *file;
+ 	int retval;
+ 
++	/* Not ours to exec if we don't start with "#!". */
+ 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
+ 		return -ENOEXEC;
+ 
+@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
+ 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
+ 		return -ENOENT;
+ 
+-	/*
+-	 * This section does the #! interpretation.
+-	 * Sorta complicated, but hopefully it will work.  -TYT
+-	 */
+-
++	/* Release since we are not mapping a binary into memory. */
+ 	allow_write_access(bprm->file);
+ 	fput(bprm->file);
+ 	bprm->file = NULL;
+ 
+-	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+-	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+-		cp = bprm->buf+BINPRM_BUF_SIZE-1;
++	/*
++	 * This section handles parsing the #! line into separate
++	 * interpreter path and argument strings. We must be careful
++	 * because bprm->buf is not yet guaranteed to be NUL-terminated
++	 * (though the buffer will have trailing NUL padding when the
++	 * file size was smaller than the buffer size).
++	 *
++	 * We do not want to exec a truncated interpreter path, so either
++	 * we find a newline (which indicates nothing is truncated), or
++	 * we find a space/tab/NUL after the interpreter path (which
++	 * itself may be preceded by spaces/tabs). Truncating the
++	 * arguments is fine: the interpreter can re-read the script to
++	 * parse them on its own.
++	 */
++	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
++	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
++	if (!cp) {
++		cp = next_non_spacetab(bprm->buf + 2, buf_end);
++		if (!cp)
++			return -ENOEXEC; /* Entire buf is spaces/tabs */
++		/*
++		 * If there is no later space/tab/NUL we must assume the
++		 * interpreter path is truncated.
++		 */
++		if (!next_terminator(cp, buf_end))
++			return -ENOEXEC;
++		cp = buf_end;
++	}
++	/* NUL-terminate the buffer and any trailing spaces/tabs. */
+ 	*cp = '\0';
+ 	while (cp > bprm->buf) {
+ 		cp--;
 -- 
 2.20.1
 
