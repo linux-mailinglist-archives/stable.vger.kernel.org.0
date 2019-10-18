@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD2FCDD303
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8061EDD317
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388768AbfJRWJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:09:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41976 "EHLO mail.kernel.org"
+        id S2392308AbfJRWOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:14:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388745AbfJRWJR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:17 -0400
+        id S2388761AbfJRWJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 53ED9205F4;
-        Fri, 18 Oct 2019 22:09:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75069222C2;
+        Fri, 18 Oct 2019 22:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436557;
-        bh=NLWDYhQ7BlPtONutR4aCq9O3/nd9q7B7s6ExkFNCdB8=;
+        s=default; t=1571436558;
+        bh=vo9KI/6ReG4GAX0/NrUSIFMAlhImi0q1vwrXi1egK4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsJZSeOdK5gHNNCAlDQYGm5/5yWZsNPcOzqR+3929wbrR+bC//hwZA5IeJHnuDErm
-         F73ftStbUhDsheZVQRhTwMYNzsWsIzZu8agmdmiIQZ98OTXChBNJ5V0eGC2dr2y9BP
-         YOWmG7INU8IRzS5oXq7ef9laWLR5gVccasoZTCFE=
+        b=fyCLyGGjcUQkafh3wy6ZLXiwbqOdDP3hf8hsFTwmvl9NAWRg3sdrYszbLNkEZUUzX
+         RYNWwuaZ/8B8d6/1nnQchDpVW5ImZnGBDIP3UMYzhk0tEO1M55hSPU32KWWdqnzg78
+         J6UV7rR+42tuernckzfPuk2L4mB90JCeP5rUpkLY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 54/56] NFSv4: Fix leak of clp->cl_acceptor string
-Date:   Fri, 18 Oct 2019 18:07:51 -0400
-Message-Id: <20191018220753.10002-54-sashal@kernel.org>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 55/56] s390/uaccess: avoid (false positive) compiler warnings
+Date:   Fri, 18 Oct 2019 18:07:52 -0400
+Message-Id: <20191018220753.10002-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,58 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-[ Upstream commit 1047ec868332034d1fbcb2fae19fe6d4cb869ff2 ]
+[ Upstream commit 062795fcdcb2d22822fb42644b1d76a8ad8439b3 ]
 
-Our client can issue multiple SETCLIENTID operations to the same
-server in some circumstances. Ensure that calls to
-nfs4_proc_setclientid() after the first one do not overwrite the
-previously allocated cl_acceptor string.
+Depending on inlining decisions by the compiler, __get/put_user_fn
+might become out of line. Then the compiler is no longer able to tell
+that size can only be 1,2,4 or 8 due to the check in __get/put_user
+resulting in false positives like
 
-unreferenced object 0xffff888461031800 (size 32):
-  comm "mount.nfs", pid 2227, jiffies 4294822467 (age 1407.749s)
-  hex dump (first 32 bytes):
-    6e 66 73 40 6b 6c 69 6d 74 2e 69 62 2e 31 30 31  nfs@klimt.ib.101
-    35 67 72 61 6e 67 65 72 2e 6e 65 74 00 00 00 00  5granger.net....
-  backtrace:
-    [<00000000ab820188>] __kmalloc+0x128/0x176
-    [<00000000eeaf4ec8>] gss_stringify_acceptor+0xbd/0x1a7 [auth_rpcgss]
-    [<00000000e85e3382>] nfs4_proc_setclientid+0x34e/0x46c [nfsv4]
-    [<000000003d9cf1fa>] nfs40_discover_server_trunking+0x7a/0xed [nfsv4]
-    [<00000000b81c3787>] nfs4_discover_server_trunking+0x81/0x244 [nfsv4]
-    [<000000000801b55f>] nfs4_init_client+0x1b0/0x238 [nfsv4]
-    [<00000000977daf7f>] nfs4_set_client+0xfe/0x14d [nfsv4]
-    [<0000000053a68a2a>] nfs4_create_server+0x107/0x1db [nfsv4]
-    [<0000000088262019>] nfs4_remote_mount+0x2c/0x59 [nfsv4]
-    [<00000000e84a2fd0>] legacy_get_tree+0x2d/0x4c
-    [<00000000797e947c>] vfs_get_tree+0x20/0xc7
-    [<00000000ecabaaa8>] fc_mount+0xe/0x36
-    [<00000000f15fafc2>] vfs_kern_mount+0x74/0x8d
-    [<00000000a3ff4e26>] nfs_do_root_mount+0x8a/0xa3 [nfsv4]
-    [<00000000d1c2b337>] nfs4_try_mount+0x58/0xad [nfsv4]
-    [<000000004c9bddee>] nfs_fs_mount+0x820/0x869 [nfs]
+./arch/s390/include/asm/uaccess.h: In function ‘__put_user_fn’:
+./arch/s390/include/asm/uaccess.h:113:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  113 |  return rc;
+      |         ^~
+./arch/s390/include/asm/uaccess.h: In function ‘__get_user_fn’:
+./arch/s390/include/asm/uaccess.h:143:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  143 |  return rc;
+      |         ^~
 
-Fixes: f11b2a1cfbf5 ("nfs4: copy acceptor name from context ... ")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+These functions are supposed to be always inlined. Mark it as such.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/include/asm/uaccess.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 6409ff4876cb5..af062e9f45803 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5655,6 +5655,7 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
- 	}
- 	status = task->tk_status;
- 	if (setclientid.sc_cred) {
-+		kfree(clp->cl_acceptor);
- 		clp->cl_acceptor = rpcauth_stringify_acceptor(setclientid.sc_cred);
- 		put_rpccred(setclientid.sc_cred);
- 	}
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index 689eae8d38591..bd7a19a0aecf7 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -95,7 +95,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ 	__rc;							\
+ })
+ 
+-static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
++static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x810000UL;
+ 	int rc;
+@@ -125,7 +125,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ 	return rc;
+ }
+ 
+-static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
++static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x81UL;
+ 	int rc;
 -- 
 2.20.1
 
