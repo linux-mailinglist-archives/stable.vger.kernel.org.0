@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF887DD193
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31C1DD195
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727641AbfJRWED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S1727803AbfJRWEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:04:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727616AbfJRWEC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:02 -0400
+        id S1727730AbfJRWEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45F4D222CD;
-        Fri, 18 Oct 2019 22:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FCCC222C3;
+        Fri, 18 Oct 2019 22:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436241;
-        bh=1Ua/KLz2Zw5RYyuFpUKjROxfwsvNuH6AFnFVSVl/NgM=;
+        s=default; t=1571436247;
+        bh=eAV/jO+TLQ0C4hnh/l6aSCSrwb/gp7mDLddYD/SJ/m4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G85yZd9Q0ViYogTu/46KZIAuWwtO/Ed4V5yXLK46wOx85xqTKPV5RsaooYURqfQ+R
-         XzGIrpKyo64MmgVpnSIqDUsaAgslI54EVDpwa4Su8xpDB5Xm+Uekw1Km1JZoeneMaP
-         vz/XFqhba2gU2LWMnYPZyBNJdtMcL4Azx0Ev5LHY=
+        b=mv/qj/SvkIA0aAJVtcwGh5LkNe1uwNpQ0ITBL4MlXpwFf+CDxkvWCFYg+1E9O+BNh
+         j5S+UNzjTmgHt4xMsle2kbbv07fEOrM1RQWNGcu39EKhaudwopemcjOqI6qkuvadIN
+         pgNcw0XeggVCzI+PIzf6oC4Su3lwarvKItq7SREE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 26/89] arm64: Fix incorrect irqflag restore for priority masking for compat
-Date:   Fri, 18 Oct 2019 18:02:21 -0400
-Message-Id: <20191018220324.8165-26-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 31/89] tty: n_hdlc: fix build on SPARC
+Date:   Fri, 18 Oct 2019 18:02:26 -0400
+Message-Id: <20191018220324.8165-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -43,42 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f46f27a576cc3b1e3d45ea50bc06287aa46b04b2 ]
+[ Upstream commit 47a7e5e97d4edd7b14974d34f0e5a5560fad2915 ]
 
-Commit bd82d4bd2188 ("arm64: Fix incorrect irqflag restore for priority
-masking") added a macro to the entry.S call paths that leave the
-PSTATE.I bit set. This tells the pPNMI masking logic that interrupts
-are masked by the CPU, not by the PMR. This value is read back by
-local_daif_save().
+Fix tty driver build on SPARC by not using __exitdata.
+It appears that SPARC does not support section .exit.data.
 
-Commit bd82d4bd2188 added this call to el0_svc, as el0_svc_handler
-is called with interrupts masked. el0_svc_compat was missed, but should
-be covered in the same way as both of these paths end up in
-el0_svc_common(), which expects to unmask interrupts.
+Fixes these build errors:
 
-Fixes: bd82d4bd2188 ("arm64: Fix incorrect irqflag restore for priority masking")
-Signed-off-by: James Morse <james.morse@arm.com>
-Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Fixes: 063246641d4a ("format-security: move static strings to const")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/675e7bd9-955b-3ff3-1101-a973b58b5b75@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/entry.S | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/n_hdlc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index 84a822748c84e..e304fe04b098d 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -775,6 +775,7 @@ el0_sync_compat:
- 	b.ge	el0_dbg
- 	b	el0_inv
- el0_svc_compat:
-+	gic_prio_kentry_setup tmp=x1
- 	mov	x0, sp
- 	bl	el0_svc_compat_handler
- 	b	ret_to_user
+diff --git a/drivers/tty/n_hdlc.c b/drivers/tty/n_hdlc.c
+index e55c79eb64309..98361acd3053f 100644
+--- a/drivers/tty/n_hdlc.c
++++ b/drivers/tty/n_hdlc.c
+@@ -968,6 +968,11 @@ static int __init n_hdlc_init(void)
+ 	
+ }	/* end of init_module() */
+ 
++#ifdef CONFIG_SPARC
++#undef __exitdata
++#define __exitdata
++#endif
++
+ static const char hdlc_unregister_ok[] __exitdata =
+ 	KERN_INFO "N_HDLC: line discipline unregistered\n";
+ static const char hdlc_unregister_fail[] __exitdata =
 -- 
 2.20.1
 
