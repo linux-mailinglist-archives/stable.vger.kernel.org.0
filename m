@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A52DD49F
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:27:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F24DD4C7
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727630AbfJRWEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35642 "EHLO mail.kernel.org"
+        id S1727671AbfJRW1V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:27:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727598AbfJRWEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:01 -0400
+        id S1727637AbfJRWED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20EC220679;
-        Fri, 18 Oct 2019 22:04:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BBE2222C3;
+        Fri, 18 Oct 2019 22:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436240;
-        bh=7mNEQb4odMCK8DC3X0ofHK/HaZhcSp9aEhBH5SILLYY=;
+        s=default; t=1571436242;
+        bh=KDouM1x/ZhUC/AxhtbM10VlvxvdYU4eTIV21usld9RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUypFvpj2UuEgxOvBSw+zPUfH0QagKrnMu0Z7dBGhrG4PcVKjczv2I9sQsPZKUkJi
-         5NdnAaBnLSAFRVeddFFZqAtaWlFlN/3vzJekwvRd9df+T2ov9y38tsDLR/I6p23KAB
-         yhLO/O67K5ijnbQe/lVdtkTsff4BjxxyfJiYO3AU=
+        b=R+hdJW+6Jj42Zqq+ixfLel6Tmz14SkrkcE4pB1aIXo0ichxaqna/H8na6MwDK1Qqm
+         h5isWJlzJ4hWjKRiWjpZQyvxV2GlK58akJ8r5KVtkOOgr+C+2QuvIsT+LJHVs2xUSQ
+         D56gtFK05Ev6KS9D13e7RV/WR23QfIqbJXWnskpo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julien Grall <julien.grall@arm.com>, mark.brown@arm.com,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 25/89] arm64: cpufeature: Effectively expose FRINT capability to userspace
-Date:   Fri, 18 Oct 2019 18:02:20 -0400
-Message-Id: <20191018220324.8165-25-sashal@kernel.org>
+Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 27/89] arm64: ftrace: Ensure synchronisation in PLT setup for Neoverse-N1 #1542419
+Date:   Fri, 18 Oct 2019 18:02:22 -0400
+Message-Id: <20191018220324.8165-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -42,44 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <julien.grall@arm.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 7230f7e99fecc684180322b056fad3853d1029d3 ]
+[ Upstream commit dd8a1f13488438c6c220b7cafa500baaf21a6e53 ]
 
-The HWCAP framework will detect a new capability based on the sanitized
-version of the ID registers.
+CPUs affected by Neoverse-N1 #1542419 may execute a stale instruction if
+it was recently modified. The affected sequence requires freshly written
+instructions to be executable before a branch to them is updated.
 
-Sanitization is based on a whitelist, so any field not described will end
-up to be zeroed.
+There are very few places in the kernel that modify executable text,
+all but one come with sufficient synchronisation:
+ * The module loader's flush_module_icache() calls flush_icache_range(),
+   which does a kick_all_cpus_sync()
+ * bpf_int_jit_compile() calls flush_icache_range().
+ * Kprobes calls aarch64_insn_patch_text(), which does its work in
+   stop_machine().
+ * static keys and ftrace both patch between nops and branches to
+   existing kernel code (not generated code).
 
-At the moment, ID_AA64ISAR1_EL1.FRINTTS is not described in
-ftr_id_aa64isar1. This means the field will be zeroed and therefore the
-userspace will not be able to see the HWCAP even if the hardware
-supports the feature.
+The affected sequence is the interaction between ftrace and modules.
+The module PLT is cleaned using __flush_icache_range() as the trampoline
+shouldn't be executable until we update the branch to it.
 
-This can be fixed by describing the field in ftr_id_aa64isar1.
+Drop the double-underscore so that this path runs kick_all_cpus_sync()
+too.
 
-Fixes: ca9503fc9e98 ("arm64: Expose FRINT capabilities to userspace")
-Signed-off-by: Julien Grall <julien.grall@arm.com>
-Cc: mark.brown@arm.com
+Signed-off-by: James Morse <james.morse@arm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kernel/ftrace.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 9323bcc40a58a..cabebf1a79768 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -136,6 +136,7 @@ static const struct arm64_ftr_bits ftr_id_aa64isar0[] = {
+diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
+index 1717732579742..06e56b4703153 100644
+--- a/arch/arm64/kernel/ftrace.c
++++ b/arch/arm64/kernel/ftrace.c
+@@ -121,10 +121,16 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
  
- static const struct arm64_ftr_bits ftr_id_aa64isar1[] = {
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_SB_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_FRINTTS_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE_IF_IS_ENABLED(CONFIG_ARM64_PTR_AUTH),
- 		       FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_GPI_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE_IF_IS_ENABLED(CONFIG_ARM64_PTR_AUTH),
+ 			/*
+ 			 * Ensure updated trampoline is visible to instruction
+-			 * fetch before we patch in the branch.
++			 * fetch before we patch in the branch. Although the
++			 * architecture doesn't require an IPI in this case,
++			 * Neoverse-N1 erratum #1542419 does require one
++			 * if the TLB maintenance in module_enable_ro() is
++			 * skipped due to rodata_enabled. It doesn't seem worth
++			 * it to make it conditional given that this is
++			 * certainly not a fast-path.
+ 			 */
+-			__flush_icache_range((unsigned long)&dst[0],
+-					     (unsigned long)&dst[1]);
++			flush_icache_range((unsigned long)&dst[0],
++					   (unsigned long)&dst[1]);
+ 		}
+ 		addr = (unsigned long)dst;
+ #else /* CONFIG_ARM64_MODULE_PLTS */
 -- 
 2.20.1
 
