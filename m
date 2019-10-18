@@ -2,67 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99DADDD34B
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1D6DD349
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387504AbfJRWIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
+        id S2387539AbfJRWIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387487AbfJRWID (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:03 -0400
+        id S2387524AbfJRWIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 092D22245A;
-        Fri, 18 Oct 2019 22:07:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4895F205F4;
+        Fri, 18 Oct 2019 22:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436481;
-        bh=fnbbc7uR40pu9gEMufBDqXBhxqlq0xybhEADZGmXZlk=;
+        s=default; t=1571436486;
+        bh=NwcaHzqZ1lU4FzfoWU8IZZNT9FuebeODGEm+5dugqd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0UVVFYXaCYLwrEowZrFLzcgEsTHSUZSXpv2eltbzUJ/RxLn2hyrIiO+T9Mrn+hC4
-         yTGeza5C9iTdhcp4PB3UAgpxkfW9ckxmdHrYImc4mbyf8vrlMCPEkqPU8bJAqCbfAT
-         IC4yDflXpKBjZL4f5LrRE48hRXbT/wMCrvYLOClw=
+        b=vsF8NQtedU68/tgWYtn7QdCspwhbXH4pLWzcmcP5O47emDRtE7p5pC4/DeOwzeFN7
+         tnHh5qh1Xn+8NfOQ+FhalC7q+pnnyBg21serAu5dhaF5QXOTrVitVp1A+P4dfmjDSM
+         M6KJB+T3CBjMw0Q/vJaa2TS+pivwrx8f1+QoBHzs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pavel.tatashin@microsoft.com>,
-        Rashmica Gupta <rashmica.g@gmail.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Neuling <mikey@neuling.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        John Allen <jallen@linux.vnet.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Len Brown <lenb@kernel.org>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Mathieu Malaterre <malat@debian.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Nathan Fontenot <nfont@linux.vnet.ibm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 04/56] powerpc/powernv: hold device_hotplug_lock when calling memtrace_offline_pages()
-Date:   Fri, 18 Oct 2019 18:07:01 -0400
-Message-Id: <20191018220753.10002-4-sashal@kernel.org>
+Cc:     Julian Sax <jsbc@gmx.de>, Tim Aldridge <taldridge@mac.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/56] HID: i2c-hid: add Direkt-Tek DTLAPY133-1 to descriptor override
+Date:   Fri, 18 Oct 2019 18:07:02 -0400
+Message-Id: <20191018220753.10002-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -75,93 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Julian Sax <jsbc@gmx.de>
 
-[ Upstream commit 5666848774ef43d3db5151ec518f1deb63515c20 ]
+[ Upstream commit 399474e4c1100bca264ed14fa3ad0d68fab484d8 ]
 
-Let's perform all checking + offlining + removing under
-device_hotplug_lock, so nobody can mess with these devices via sysfs
-concurrently.
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-[david@redhat.com: take device_hotplug_lock outside of loop]
-  Link: http://lkml.kernel.org/r/20180927092554.13567-6-david@redhat.com
-Link: http://lkml.kernel.org/r/20180925091457.28651-6-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Reviewed-by: Rashmica Gupta <rashmica.g@gmail.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Rashmica Gupta <rashmica.g@gmail.com>
-Cc: Michael Neuling <mikey@neuling.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: John Allen <jallen@linux.vnet.ibm.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Tim Aldridge <taldridge@mac.com>
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/memtrace.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
-index c9a6d4f3403ce..cfbd242c3e011 100644
---- a/arch/powerpc/platforms/powernv/memtrace.c
-+++ b/arch/powerpc/platforms/powernv/memtrace.c
-@@ -99,6 +99,7 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
- 	return 0;
- }
- 
-+/* called with device_hotplug_lock held */
- static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
- {
- 	u64 end_pfn = start_pfn + nr_pages - 1;
-@@ -139,6 +140,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 	/* Trace memory needs to be aligned to the size */
- 	end_pfn = round_down(end_pfn - nr_pages, nr_pages);
- 
-+	lock_device_hotplug();
- 	for (base_pfn = end_pfn; base_pfn > start_pfn; base_pfn -= nr_pages) {
- 		if (memtrace_offline_pages(nid, base_pfn, nr_pages) == true) {
- 			/*
-@@ -147,7 +149,6 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 			 * we never try to remove memory that spans two iomem
- 			 * resources.
- 			 */
--			lock_device_hotplug();
- 			end_pfn = base_pfn + nr_pages;
- 			for (pfn = base_pfn; pfn < end_pfn; pfn += bytes>> PAGE_SHIFT) {
- 				remove_memory(nid, pfn << PAGE_SHIFT, bytes);
-@@ -156,6 +157,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 			return base_pfn << PAGE_SHIFT;
- 		}
- 	}
-+	unlock_device_hotplug();
- 
- 	return 0;
- }
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index cac262a912c12..89f2976f9c534 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -330,6 +330,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Direkt-Tek DTLAPY133-1",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Direkt-Tek"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "DTLAPY133-1"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{
+ 		.ident = "Mediacom Flexbook Edge 11",
+ 		.matches = {
 -- 
 2.20.1
 
