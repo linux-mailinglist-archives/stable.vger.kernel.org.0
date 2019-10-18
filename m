@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51ABEDD222
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3164EDD224
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388203AbfJRWIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41346 "EHLO mail.kernel.org"
+        id S2388266AbfJRWIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388133AbfJRWIr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:47 -0400
+        id S2388232AbfJRWIu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1200E22459;
-        Fri, 18 Oct 2019 22:08:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66F4A2245D;
+        Fri, 18 Oct 2019 22:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436527;
-        bh=xLXdFi8n6WZrtC00jlEDcjziMRoPWb3Glh6aR0819tU=;
+        s=default; t=1571436530;
+        bh=7Hz5cFinExP0sQs8VQ/Osxg5CIeMdGKkH2cwpUXVmLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hAl1+qTaAZ0MuxX+4tORn/TCxGieyB712ofq2JHfkxusJfsypPm6Z/t2FwMvUlhpD
-         /YyF4zu+cLO1FHgNvtmO9a8mRlnnlGmKGyFKHWVlz4MuQwwGmozpGgeN/pGZWunNrA
-         yIRE61+T933XRikd0sXD8iicDhkmfaX7O0HPyQSg=
+        b=dyslc6VtSF0ite7QHOVoqMjp9L5zGuDnZQwHYu0qZnqvFP2MswXcCDFpTE9FlfmA0
+         l9hZ+j8wg7YgGlPe+U9B46SL+WZEneU+5fn2uz2Haz/GJ2ZQvA5f3Dm3sJt//6NhQO
+         BntINGQEAUR8W5ugneKWTT0aA6PhThfN3zjGxtXo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Adam Ford <aford173@gmail.com>,
+        Yegor Yefremov <yegorslists@googlemail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 33/56] tty: n_hdlc: fix build on SPARC
-Date:   Fri, 18 Oct 2019 18:07:30 -0400
-Message-Id: <20191018220753.10002-33-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 36/56] serial: mctrl_gpio: Check for NULL pointer
+Date:   Fri, 18 Oct 2019 18:07:33 -0400
+Message-Id: <20191018220753.10002-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -47,50 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 47a7e5e97d4edd7b14974d34f0e5a5560fad2915 ]
+[ Upstream commit 37e3ab00e4734acc15d96b2926aab55c894f4d9c ]
 
-Fix tty driver build on SPARC by not using __exitdata.
-It appears that SPARC does not support section .exit.data.
+When using mctrl_gpio_to_gpiod, it dereferences gpios into a single
+requested GPIO.  This dereferencing can break if gpios is NULL,
+so this patch adds a NULL check before dereferencing it.  If
+gpios is NULL, this function will also return NULL.
 
-Fixes these build errors:
-
-`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
-`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
-`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
-`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 063246641d4a ("format-security: move static strings to const")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Link: https://lore.kernel.org/r/675e7bd9-955b-3ff3-1101-a973b58b5b75@infradead.org
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Yegor Yefremov <yegorslists@googlemail.com>
+Link: https://lore.kernel.org/r/20191006163314.23191-1-aford173@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_hdlc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/serial_mctrl_gpio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/tty/n_hdlc.c b/drivers/tty/n_hdlc.c
-index 08bd6b965847f..e83dea8d6633a 100644
---- a/drivers/tty/n_hdlc.c
-+++ b/drivers/tty/n_hdlc.c
-@@ -969,6 +969,11 @@ static int __init n_hdlc_init(void)
- 	
- }	/* end of init_module() */
- 
-+#ifdef CONFIG_SPARC
-+#undef __exitdata
-+#define __exitdata
-+#endif
+diff --git a/drivers/tty/serial/serial_mctrl_gpio.c b/drivers/tty/serial/serial_mctrl_gpio.c
+index 42e42e3e7a6e6..388f710468490 100644
+--- a/drivers/tty/serial/serial_mctrl_gpio.c
++++ b/drivers/tty/serial/serial_mctrl_gpio.c
+@@ -69,6 +69,9 @@ EXPORT_SYMBOL_GPL(mctrl_gpio_set);
+ struct gpio_desc *mctrl_gpio_to_gpiod(struct mctrl_gpios *gpios,
+ 				      enum mctrl_gpio_idx gidx)
+ {
++	if (gpios == NULL)
++		return NULL;
 +
- static const char hdlc_unregister_ok[] __exitdata =
- 	KERN_INFO "N_HDLC: line discipline unregistered\n";
- static const char hdlc_unregister_fail[] __exitdata =
+ 	return gpios->gpio[gidx];
+ }
+ EXPORT_SYMBOL_GPL(mctrl_gpio_to_gpiod);
 -- 
 2.20.1
 
