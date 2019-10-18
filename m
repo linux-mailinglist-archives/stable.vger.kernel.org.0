@@ -2,87 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F18BDC5B3
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 15:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0E8DC5F7
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 15:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442789AbfJRNFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 09:05:17 -0400
-Received: from mail-il1-f196.google.com ([209.85.166.196]:41948 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389472AbfJRNFQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 09:05:16 -0400
-Received: by mail-il1-f196.google.com with SMTP id z10so5449082ilo.8;
-        Fri, 18 Oct 2019 06:05:15 -0700 (PDT)
+        id S2410279AbfJRNZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 09:25:33 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:35960 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729109AbfJRNZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 09:25:33 -0400
+Received: by mail-lj1-f195.google.com with SMTP id v24so6243744ljj.3;
+        Fri, 18 Oct 2019 06:25:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=wslZP9DyUNwxdK90AGoUp/+vNWKDF9e6TBPPPKDycR4=;
-        b=R26e3FoL8FgJN2mCMM/VZQPzwm6UsJc7GLuX4uVFH2N2mklVJoAxY7Umfit1hI6Z5z
-         MShdWDJwM5jodqTXjq/gWkY5ApLNa1lFw5MXEJAJD5B52mjrYGJ1zASE4D87kJYZpM80
-         u0l0APphzADqlPbWMlI7qI2lGrYmldhOQP1N/5qFN3lIBUtyurGrHEw3gkbqlvEU1bHp
-         33r7rwaSFhMll9ldeioA7+/ElW3Vpi/snZ7TCdmGZzkHkxupp/DrSznmacIqnOYDKyHN
-         oXAzRt7VlzJKcRUCHItkJjV+RCPJEaVOX/w53mRNN6ahpzySIhLjFy04aSf6Ze6LQ3h5
-         lpyw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lF1BtpGFJkCASpl5WSWPvr60tGpzDuIXmmIMMq39PQI=;
+        b=rnmvCCNNWjE7wD3FgdVmW00kWt25xtwi4OglY6YgqfL4vRpG13U+cIvYKK4ki+hY81
+         OASKWhDGIF6uHTu/t4KZvfIaeHC2965PeVcNmShf8ON0I9gbaFcRtb/QcYZAZu5KnYnj
+         Gatt24gDlfNBbF04He18mskX5P2rU6kZOy1zbIX8pAz3kt1nB+6ogTCxuTBFKlsbA2/X
+         gQSmM7mg7YTz1fuDsP16zZfuPOOCcT7bpU6BuX613QRHqhEKleE7u29NN8BLd/JLHrvm
+         kh7XBbRXhFhWoHfqcMPw86u8OubxWPESpOyQFVF1eA6ZdWxWPxBcdfqgb5M7pPfRk8ys
+         w4TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=wslZP9DyUNwxdK90AGoUp/+vNWKDF9e6TBPPPKDycR4=;
-        b=D8os1W1cz89RqtXgRBWh0AD1oY9j2mlO1qoRqdMmqJIeTOlVchramGqPzkf4WBea3O
-         erjrCBw8BzOAKcjb1XY/NXhO4iVy1SLuhuz2NipjgfNHEhd0VroLQnya+D8W/0qnsF2B
-         ZeZJ+wxK2bzIFxlfAD8IfBnwKtmdx4/xp9zQ7Hkvt3d8fNWLVN+VoGWJjTUo1sFd5sFK
-         SdjxCaqZDpqujPteUWsD//XL++E19eKDRFaZcgFvKUDWj9ozHd/M4U4yBTWS26A0gjU+
-         nBPA2zaUC2yrqXM+nSa5qg0JSS952HYrWGCopFdOWy5lS+PrD0LlGB21hxkLe8+tljmk
-         9vkg==
-X-Gm-Message-State: APjAAAXO+117DIhZGfBBOXhtLNxK/zGTOZWuucGEXdErFn5CMy4JiaRn
-        gZqprxoSaZpofWRqjeERP1QqO0Bg9Bs=
-X-Google-Smtp-Source: APXvYqyVLyg3TSt8bgKaczCT8sQ+l5ipZRXdDehyXDMBnKImdJLAjHgbrbjbyA85mvpwRuxVNcHyew==
-X-Received: by 2002:a92:c849:: with SMTP id b9mr9215673ilq.68.1571403914324;
-        Fri, 18 Oct 2019 06:05:14 -0700 (PDT)
-Received: from localhost.localdomain (c-73-37-219-234.hsd1.mn.comcast.net. [73.37.219.234])
-        by smtp.gmail.com with ESMTPSA id h62sm2622831ild.78.2019.10.18.06.05.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Oct 2019 06:05:13 -0700 (PDT)
-From:   Adam Ford <aford173@gmail.com>
-To:     linux-fbdev@vger.kernel.org
-Cc:     linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tomi.valkeinen@ti.com, adam.ford@logicpd.com,
-        Adam Ford <aford173@gmail.com>, stable@vger.kernel.org
-Subject: [PATCH] fbdev/omap: fix max fclk divider for omap36xx
-Date:   Fri, 18 Oct 2019 08:05:07 -0500
-Message-Id: <20191018130507.29893-1-aford173@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lF1BtpGFJkCASpl5WSWPvr60tGpzDuIXmmIMMq39PQI=;
+        b=tCGr8xeGftf+BHAaLK93J3VByaRoM0wELphdSKqWR2fEXgf+L8sPEzpJtepHHtit1G
+         zBZrX6wD/dxyb9utzp02Jf+NJDChkjk/Sb6dfah+npfj72mKVnKBxR1ljmLHVpSrlTPR
+         dddlB5kAWpHGOg4PvrelC740OOf6VvRRT9nUnmC+X02/TcRnHEFYFEkJ980yN75DmdxK
+         zIEgnJExSg5UjQtnXYQ/amSKg337WIHJHCd3d0Xz+Y55XShNQB3aHlbSQLFz3vpkL9VY
+         jCPRYr7oHeia4l70TX68apt7QjOpLYenSdCxjUiziQU6Xepsf2DGJsiE06yUFIOZJo/Z
+         nu0g==
+X-Gm-Message-State: APjAAAWD9rTlWDjkbJMhb4SZActqBc8zRWiqfvGvysdzbAP8TNw2fkWK
+        aVgaFDfNVObo4Y7ca3b5rOq4lcuiGi8JkmiqWok=
+X-Google-Smtp-Source: APXvYqxBWxZcbSmPnmp2TiOdZhdxUmFsCcBX+5WFJGNoV6aA5tYzjMdRq7eRtbqxUHM80PfUpkgNI/cW/JzO1C5ZYIA=
+X-Received: by 2002:a2e:b4d5:: with SMTP id r21mr6084759ljm.149.1571405130323;
+ Fri, 18 Oct 2019 06:25:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <20191018093934.29695-1-s.hauer@pengutronix.de>
+In-Reply-To: <20191018093934.29695-1-s.hauer@pengutronix.de>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Fri, 18 Oct 2019 10:25:21 -0300
+Message-ID: <CAOMZO5DUoj4xVZQSvk9Juw9z37UgrMn3g24h2_pAMxuTkBjw4g@mail.gmail.com>
+Subject: Re: [PATCH] mmc: mxs: fix flags passed to dmaengine_prep_slave_sg
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Bruno Thomsen <bruno.thomsen@gmail.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
-(in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
-correct, and using divider of 32 breaks DSS with a flood or underflows
-and sync losts. Dividers up to 31 seem to work fine.
+Hi Sascha,
 
-There is another patch to the DT files to limit the divider correctly,
-but as the DSS driver also needs to know the maximum divider to be able
-to iteratively find good rates, we also need to do the fix in the DSS
-driver.
+On Fri, Oct 18, 2019 at 6:39 AM Sascha Hauer <s.hauer@pengutronix.de> wrote:
+>
+> Since ceeeb99cd821 we no longer abuse the DMA_CTRL_ACK flag for custom
+> driver use and introduced the MXS_DMA_CTRL_WAIT4END instead. We have not
+> changed all users to this flag though. This patch fixes it for the
+> mxs-mmc driver.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Cc: stable@vger.kernel.org # linux-4.4.y only
+If I read this correctly, this patch is not the complete fix for all users.
 
-diff --git a/drivers/video/fbdev/omap2/dss/dss.c b/drivers/video/fbdev/omap2/dss/dss.c
-index 9200a8668b49..a57c3a5f4bf8 100644
---- a/drivers/video/fbdev/omap2/dss/dss.c
-+++ b/drivers/video/fbdev/omap2/dss/dss.c
-@@ -843,7 +843,7 @@ static const struct dss_features omap34xx_dss_feats = {
- };
- 
- static const struct dss_features omap3630_dss_feats = {
--	.fck_div_max		=	32,
-+	.fck_div_max		=	31,
- 	.dss_fck_multiplier	=	1,
- 	.parent_clk_name	=	"dpll4_ck",
- 	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
--- 
-2.17.1
-
+Wouldn't it be better to revert the offending commit instead?
