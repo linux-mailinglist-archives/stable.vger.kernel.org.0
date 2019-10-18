@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CEDDD3F6
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68020DD3F3
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731221AbfJRWVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38216 "EHLO mail.kernel.org"
+        id S1731195AbfJRWGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:06:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731138AbfJRWGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:16 -0400
+        id S1731176AbfJRWGR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF9232245B;
-        Fri, 18 Oct 2019 22:06:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDF942245D;
+        Fri, 18 Oct 2019 22:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436375;
-        bh=UVWN1IQsnHONNGn6shfGmJKv7yWKE5L+vnchf3/8s1I=;
+        s=default; t=1571436376;
+        bh=LNNQLMxHuH//SF79byo4zmELq1YgTbZqrKBWxPS1E2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvokMGt29IIJjp7rIroVqV6zGHeWV3WK0RjTrlYHE4/+hRrPtIAxTvTQxI+SSg+NK
-         KK6idg1DPGJ4jhPdYhmvSxL9xlvQsX5GSEvjD5rNvP0aLK8QZUTMee+9DQchasaFdI
-         TqWYBBO4hJri51dmiaBbKb9VyC314Z1LfVl/AaWs=
+        b=jRGMIYdtROGSkjtkyx3ePTTyBds6rcYNfq4ZzvDykyIlDkC7JKFLKP1i65ZKNuYIA
+         HbWJT+5Jr1KBlc/GRPoYDFgnYMXbA/FdpShX2+fGZ6l5bNmj3KXiD2lMWZdwToLy4Z
+         +39iXdhLffdtDLkrMfORe6VRvj7N0KeD36l2ZizI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Simon Gene Gottlieb <simon@gottliebtfreitag.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 029/100] HID: steam: fix deadlock with input devices.
-Date:   Fri, 18 Oct 2019 18:04:14 -0400
-Message-Id: <20191018220525.9042-29-sashal@kernel.org>
+Cc:     "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Song Liu <songliubraving@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 030/100] samples: bpf: fix: seg fault with NULL pointer arg
+Date:   Fri, 18 Oct 2019 18:04:15 -0400
+Message-Id: <20191018220525.9042-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -44,102 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: "Daniel T. Lee" <danieltimlee@gmail.com>
 
-[ Upstream commit 6b538cc21334b83f09b25dec4aa2d2726bf07ed0 ]
+[ Upstream commit d59dd69d5576d699d7d3f5da0b4738c3a36d0133 ]
 
-When using this driver with the wireless dongle and some usermode
-program that monitors every input device (acpid, for example), while
-another usermode client opens and closes the low-level device
-repeadedly, the system eventually deadlocks.
+When NULL pointer accidentally passed to write_kprobe_events,
+due to strlen(NULL), segmentation fault happens.
+Changed code returns -1 to deal with this situation.
 
-The reason is that steam_input_register_device() must not be called with
-the mutex held, because the input subsystem has its own synchronization
-that clashes with this one: it is possible that steam_input_open() is
-called before input_register_device() returns, and since
-steam_input_open() needs to lock the mutex, it deadlocks.
+Bug issued with Smatch, static analysis.
 
-However we must hold the mutex when calling any function that sends
-commands to the controller. If not, random commands end up falling fail.
-
-Reported-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ samples/bpf/bpf_load.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 8141cadfca0e3..8dae0f9b819e0 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -499,6 +499,7 @@ static void steam_battery_unregister(struct steam_device *steam)
- static int steam_register(struct steam_device *steam)
+diff --git a/samples/bpf/bpf_load.c b/samples/bpf/bpf_load.c
+index 5061a2ec45646..176c04a454dc9 100644
+--- a/samples/bpf/bpf_load.c
++++ b/samples/bpf/bpf_load.c
+@@ -59,7 +59,9 @@ static int write_kprobe_events(const char *val)
  {
- 	int ret;
-+	bool client_opened;
+ 	int fd, ret, flags;
  
- 	/*
- 	 * This function can be called several times in a row with the
-@@ -511,9 +512,11 @@ static int steam_register(struct steam_device *steam)
- 		 * Unlikely, but getting the serial could fail, and it is not so
- 		 * important, so make up a serial number and go on.
- 		 */
-+		mutex_lock(&steam->mutex);
- 		if (steam_get_serial(steam) < 0)
- 			strlcpy(steam->serial_no, "XXXXXXXXXX",
- 					sizeof(steam->serial_no));
-+		mutex_unlock(&steam->mutex);
- 
- 		hid_info(steam->hdev, "Steam Controller '%s' connected",
- 				steam->serial_no);
-@@ -528,13 +531,15 @@ static int steam_register(struct steam_device *steam)
- 	}
- 
- 	mutex_lock(&steam->mutex);
--	if (!steam->client_opened) {
-+	client_opened = steam->client_opened;
-+	if (!client_opened)
- 		steam_set_lizard_mode(steam, lizard_mode);
-+	mutex_unlock(&steam->mutex);
-+
-+	if (!client_opened)
- 		ret = steam_input_register(steam);
--	} else {
-+	else
- 		ret = 0;
--	}
--	mutex_unlock(&steam->mutex);
- 
- 	return ret;
- }
-@@ -630,14 +635,21 @@ static void steam_client_ll_close(struct hid_device *hdev)
- {
- 	struct steam_device *steam = hdev->driver_data;
- 
-+	unsigned long flags;
-+	bool connected;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	connected = steam->connected;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = false;
-+	if (connected)
-+		steam_set_lizard_mode(steam, lizard_mode);
- 	mutex_unlock(&steam->mutex);
- 
--	if (steam->connected) {
--		steam_set_lizard_mode(steam, lizard_mode);
-+	if (connected)
- 		steam_input_register(steam);
--	}
- }
- 
- static int steam_client_ll_raw_request(struct hid_device *hdev,
+-	if ((val != NULL) && (val[0] == '\0'))
++	if (val == NULL)
++		return -1;
++	else if (val[0] == '\0')
+ 		flags = O_WRONLY | O_TRUNC;
+ 	else
+ 		flags = O_WRONLY | O_APPEND;
 -- 
 2.20.1
 
