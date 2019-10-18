@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A1BDD2E6
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E5CDD334
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388048AbfJRWIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41202 "EHLO mail.kernel.org"
+        id S2392698AbfJRWP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388035AbfJRWIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:40 -0400
+        id S2387779AbfJRWIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:43 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D4B422466;
-        Fri, 18 Oct 2019 22:08:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDB0F22459;
+        Fri, 18 Oct 2019 22:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436520;
-        bh=Eadezpx4hJatFGFqkr2djcRhSm0C6yPSUVhZaEGuvjE=;
+        s=default; t=1571436522;
+        bh=6abuT28sK6AoYiuBi3gJJhKE0CsBcX2cC6f2YW2v8ns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYGBEme3lIuc265kVSTp6XTO6VzZLBGdg6Eab8ZY0IUr1cjgc+1wI0kGlAn3pvN7G
-         V3ivB7uyn9uhMtXbK6HwpgoQFP4fTM4e3db45P41iRKjCs8XsfspPe/vQNN6MIDyxS
-         VhMYjrIaSYqyURiAN4clqetJvnv8O+Bb9r9hu54A=
+        b=lhAU3s43+A65y1jDyrctYfQrCRbcbAj8nPd6NYY825Q8DBR10SJJf+5rQFGHIVX1A
+         9b6gZaI6FDXhLJeTsv+0GYvAvDVu7zN74tbEUuZQzJmn7czofe/0GJWZWwivZATU+0
+         DomMsKty9ml/PPu54VGGwkaC4KuqmxkAzrrsnUgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 27/56] RDMA/hfi1: Prevent memory leak in sdma_init
-Date:   Fri, 18 Oct 2019 18:07:24 -0400
-Message-Id: <20191018220753.10002-27-sashal@kernel.org>
+Cc:     Dexuan Cui <decui@microsoft.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 29/56] HID: hyperv: Use in-place iterator API in the channel callback
+Date:   Fri, 18 Oct 2019 18:07:26 -0400
+Message-Id: <20191018220753.10002-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -44,40 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit 34b3be18a04ecdc610aae4c48e5d1b799d8689f6 ]
+[ Upstream commit 6a297c90efa68b2864483193b8bfb0d19478600c ]
 
-In sdma_init if rhashtable_init fails the allocated memory for
-tmp_sdma_rht should be released.
+Simplify the ring buffer handling with the in-place API.
 
-Fixes: 5a52a7acf7e2 ("IB/hfi1: NULL pointer dereference when freeing rhashtable")
-Link: https://lore.kernel.org/r/20190925144543.10141-1-navid.emamdoost@gmail.com
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Acked-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Also avoid the dynamic allocation and the memory leak in the channel
+callback function.
+
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/hid-hyperv.c | 56 +++++++---------------------------------
+ 1 file changed, 10 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 6781bcdb10b31..741938409f8e3 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -1529,8 +1529,11 @@ int sdma_init(struct hfi1_devdata *dd, u8 port)
- 	}
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 5f1de24206ab2..220b3e5c9c39d 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -322,60 +322,24 @@ static void mousevsc_on_receive(struct hv_device *device,
  
- 	ret = rhashtable_init(tmp_sdma_rht, &sdma_rht_params);
--	if (ret < 0)
-+	if (ret < 0) {
-+		kfree(tmp_sdma_rht);
- 		goto bail;
+ static void mousevsc_on_channel_callback(void *context)
+ {
+-	const int packet_size = 0x100;
+-	int ret;
+ 	struct hv_device *device = context;
+-	u32 bytes_recvd;
+-	u64 req_id;
+ 	struct vmpacket_descriptor *desc;
+-	unsigned char	*buffer;
+-	int	bufferlen = packet_size;
+-
+-	buffer = kmalloc(bufferlen, GFP_ATOMIC);
+-	if (!buffer)
+-		return;
+-
+-	do {
+-		ret = vmbus_recvpacket_raw(device->channel, buffer,
+-					bufferlen, &bytes_recvd, &req_id);
+-
+-		switch (ret) {
+-		case 0:
+-			if (bytes_recvd <= 0) {
+-				kfree(buffer);
+-				return;
+-			}
+-			desc = (struct vmpacket_descriptor *)buffer;
+-
+-			switch (desc->type) {
+-			case VM_PKT_COMP:
+-				break;
+-
+-			case VM_PKT_DATA_INBAND:
+-				mousevsc_on_receive(device, desc);
+-				break;
+-
+-			default:
+-				pr_err("unhandled packet type %d, tid %llx len %d\n",
+-					desc->type, req_id, bytes_recvd);
+-				break;
+-			}
+ 
++	foreach_vmbus_pkt(desc, device->channel) {
++		switch (desc->type) {
++		case VM_PKT_COMP:
+ 			break;
+ 
+-		case -ENOBUFS:
+-			kfree(buffer);
+-			/* Handle large packet */
+-			bufferlen = bytes_recvd;
+-			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+-
+-			if (!buffer)
+-				return;
++		case VM_PKT_DATA_INBAND:
++			mousevsc_on_receive(device, desc);
++			break;
+ 
++		default:
++			pr_err("Unhandled packet type %d, tid %llx len %d\n",
++			       desc->type, desc->trans_id, desc->len8 * 8);
+ 			break;
+ 		}
+-	} while (1);
+-
 +	}
-+
- 	dd->sdma_rht = tmp_sdma_rht;
+ }
  
- 	dd_dev_info(dd, "SDMA num_sdma: %u\n", dd->num_sdma);
+ static int mousevsc_connect_to_vsp(struct hv_device *device)
 -- 
 2.20.1
 
