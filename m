@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51C4DDD479
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61C0CDD463
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728993AbfJRWYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:24:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36700 "EHLO mail.kernel.org"
+        id S1729027AbfJRWFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:05:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728947AbfJRWE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:57 -0400
+        id S1728978AbfJRWE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB7E02245A;
-        Fri, 18 Oct 2019 22:04:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 047F52245D;
+        Fri, 18 Oct 2019 22:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436296;
-        bh=M2HzMP+l+Weo8FPbty/bQt2z8x2v4tAHox0FIemkwwE=;
+        s=default; t=1571436297;
+        bh=wcM6TwOsJEJ4ba0dvvFQxuCQYRTD52M8/Wbqdh7BNoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNw6x9AZfiqn74/FDK4j/YtZpihauN+e0ozH2BJohw0gq2RwxpLked+47uzHi6nht
-         9hgpyJnY10xYtsbMUhkdaDMONdGxga6XN+/iGY0iH1Wozb+5afXD+jk+1rWFh0uSgz
-         +HQWVMDZDakqftpSSVCZnV0Bu3vt7/zwDaitYf08=
+        b=HR8nzIqIF8eH9WXTVTSNWVVj/up/FCqg2SsdY7mvZ56CmAC2/DoFVt1KaKgRPCWKN
+         Zhss8wWmhvK8v6t0S+4zhllmDed8GJ5GNntnzeveWNQmEr93NSbl5vti8jPIoajqiI
+         KEbt0UOOCx09PPi9wc8juG2nGs/s3hRtAMQZ7Cy4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nirmoy Das <nirmoy.das@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 68/89] drm/amdgpu: fix memory leak
-Date:   Fri, 18 Oct 2019 18:03:03 -0400
-Message-Id: <20191018220324.8165-68-sashal@kernel.org>
+Cc:     Andreas Klinger <ak@it-klinger.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 69/89] iio: adc: hx711: fix bug in sampling of data
+Date:   Fri, 18 Oct 2019 18:03:04 -0400
+Message-Id: <20191018220324.8165-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,69 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Andreas Klinger <ak@it-klinger.de>
 
-[ Upstream commit 083164dbdb17c5ea4ad92c1782b59c9d75567790 ]
+[ Upstream commit 4043ecfb5fc4355a090111e14faf7945ff0fdbd5 ]
 
-cleanup error handling code and make sure temporary info array
-with the handles are freed by amdgpu_bo_list_put() on
-idr_replace()'s failure.
+Fix bug in sampling function hx711_cycle() when interrupt occures while
+PD_SCK is high. If PD_SCK is high for at least 60 us power down mode of
+the sensor is entered which in turn leads to a wrong measurement.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Switch off interrupts during a PD_SCK high period and move query of DOUT
+to the latest point of time which is at the end of PD_SCK low period.
+
+This bug exists in the driver since it's initial addition. The more
+interrupts on the system the higher is the probability that it happens.
+
+Fixes: c3b2fdd0ea7e ("iio: adc: hx711: Add IIO driver for AVIA HX711")
+Signed-off-by: Andreas Klinger <ak@it-klinger.de>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/iio/adc/hx711.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-index 7bcf86c619995..61e38e43ad1d5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_bo_list.c
-@@ -270,7 +270,7 @@ int amdgpu_bo_list_ioctl(struct drm_device *dev, void *data,
+diff --git a/drivers/iio/adc/hx711.c b/drivers/iio/adc/hx711.c
+index 88c7fe15003b7..62e6c8badd22a 100644
+--- a/drivers/iio/adc/hx711.c
++++ b/drivers/iio/adc/hx711.c
+@@ -100,14 +100,14 @@ struct hx711_data {
  
- 	r = amdgpu_bo_create_list_entry_array(&args->in, &info);
- 	if (r)
--		goto error_free;
-+		return r;
+ static int hx711_cycle(struct hx711_data *hx711_data)
+ {
+-	int val;
++	unsigned long flags;
  
- 	switch (args->in.operation) {
- 	case AMDGPU_BO_LIST_OP_CREATE:
-@@ -283,8 +283,7 @@ int amdgpu_bo_list_ioctl(struct drm_device *dev, void *data,
- 		r = idr_alloc(&fpriv->bo_list_handles, list, 1, 0, GFP_KERNEL);
- 		mutex_unlock(&fpriv->bo_list_lock);
- 		if (r < 0) {
--			amdgpu_bo_list_put(list);
--			return r;
-+			goto error_put_list;
- 		}
+ 	/*
+ 	 * if preempted for more then 60us while PD_SCK is high:
+ 	 * hx711 is going in reset
+ 	 * ==> measuring is false
+ 	 */
+-	preempt_disable();
++	local_irq_save(flags);
+ 	gpiod_set_value(hx711_data->gpiod_pd_sck, 1);
  
- 		handle = r;
-@@ -306,9 +305,8 @@ int amdgpu_bo_list_ioctl(struct drm_device *dev, void *data,
- 		mutex_unlock(&fpriv->bo_list_lock);
+ 	/*
+@@ -117,7 +117,6 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 */
+ 	ndelay(hx711_data->data_ready_delay_ns);
  
- 		if (IS_ERR(old)) {
--			amdgpu_bo_list_put(list);
- 			r = PTR_ERR(old);
--			goto error_free;
-+			goto error_put_list;
- 		}
+-	val = gpiod_get_value(hx711_data->gpiod_dout);
+ 	/*
+ 	 * here we are not waiting for 0.2 us as suggested by the datasheet,
+ 	 * because the oscilloscope showed in a test scenario
+@@ -125,7 +124,7 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 * and 0.56 us for PD_SCK low on TI Sitara with 800 MHz
+ 	 */
+ 	gpiod_set_value(hx711_data->gpiod_pd_sck, 0);
+-	preempt_enable();
++	local_irq_restore(flags);
  
- 		amdgpu_bo_list_put(old);
-@@ -325,8 +323,10 @@ int amdgpu_bo_list_ioctl(struct drm_device *dev, void *data,
+ 	/*
+ 	 * make it a square wave for addressing cases with capacitance on
+@@ -133,7 +132,8 @@ static int hx711_cycle(struct hx711_data *hx711_data)
+ 	 */
+ 	ndelay(hx711_data->data_ready_delay_ns);
  
- 	return 0;
- 
-+error_put_list:
-+	amdgpu_bo_list_put(list);
-+
- error_free:
--	if (info)
--		kvfree(info);
-+	kvfree(info);
- 	return r;
+-	return val;
++	/* sample as late as possible */
++	return gpiod_get_value(hx711_data->gpiod_dout);
  }
+ 
+ static int hx711_read(struct hx711_data *hx711_data)
 -- 
 2.20.1
 
