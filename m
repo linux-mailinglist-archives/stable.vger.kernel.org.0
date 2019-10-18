@@ -2,85 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83E4BDC3E7
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 13:22:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A7C0DC565
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 14:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390536AbfJRLWN convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 18 Oct 2019 07:22:13 -0400
-Received: from mail.delivery-3-us-west-2.prod.hydra.sophos.com ([34.212.96.102]:41794
-        "EHLO mail.delivery-3-us-west-2.prod.hydra.sophos.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728497AbfJRLWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 07:22:13 -0400
-X-Greylist: delayed 495 seconds by postgrey-1.27 at vger.kernel.org; Fri, 18 Oct 2019 07:22:13 EDT
-Received: from mail.delivery-254-us-west-2.prod.hydra.sophos.com (ip-172-17-1-135.us-west-2.compute.internal [172.17.1.135])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.delivery-3-us-west-2.prod.hydra.sophos.com (Postfix) with ESMTPS id 46vk1f4t29z5dy
-        for <stable@vger.kernel.org>; Fri, 18 Oct 2019 11:13:58 +0000 (UTC)
-Received: from ip-172-17-1-221.us-west-2.compute.internal (ip-172-17-1-221.us-west-2.compute.internal [127.0.0.1])
-        by mail.delivery-254-us-west-2.prod.hydra.sophos.com (Postfix) with ESMTP id 46vk1d0zFvzFpVV;
-        Fri, 18 Oct 2019 11:13:57 +0000 (UTC)
-X-Sophos-Email-ID: 46986f0e4ef9469b8ff26593a5d6fc17
-Received: from EXM01.TISD-AD.tomballisd.net (unknown [50.228.85.207])
- (using TLSv1 with cipher AES256-SHA (256/256 bits))
- (No client certificate requested)
- by relay-us-west-2.prod.hydra.sophos.com (Postfix) with ESMTPS id
- 46vk1S3TMHzlVjd; Fri, 18 Oct 2019 11:13:48 +0000 (UTC)
-Received: from EXM01.TISD-AD.tomballisd.net (10.8.101.115) by
- EXM01.TISD-AD.tomballisd.net (10.8.101.115) with Microsoft SMTP Server (TLS)
- id 15.0.1365.1; Fri, 18 Oct 2019 06:13:38 -0500
-Received: from EXM01.TISD-AD.tomballisd.net ([::1]) by
- EXM01.TISD-AD.tomballisd.net ([fe80::9dd0:78e4:daed:5bf0%13]) with mapi id
- 15.00.1365.000; Fri, 18 Oct 2019 06:13:37 -0500
-From:   Barbara Coleman <barbaracoleman@tomballisd.net>
-Subject: Darlehen
-Thread-Topic: Darlehen
-Thread-Index: AQHVhaT6mz8uAskFrEKSpQA8MvWOfg==
-Date:   Fri, 18 Oct 2019 11:13:37 +0000
-Message-ID: <1571397213414.42860@tomballisd.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [70.32.0.114]
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-X-LASED-Pver: 0000002
-X-Sophos-Email: [us-west-2] Antispam-Engine: 3.4.1,
- AntispamData: 2019.10.18.105717
-X-LASED-SpamProbabilty: 0.083173
-X-LASED-Hits: BODYTEXTP_SIZE_3000_LESS 0.000000,
- BODYTEXTP_SIZE_400_LESS 0.000000, BODY_SIZE_1000_LESS 0.000000,
- BODY_SIZE_2000_LESS 0.000000, BODY_SIZE_300_399 0.000000,
- BODY_SIZE_5000_LESS 0.000000, BODY_SIZE_7000_LESS 0.000000,
- HTML_00_01 0.050000, HTML_00_10 0.050000, MISSING_HEADERS 0.000000,
- NO_URI_HTTPS 0.000000, OUTBOUND 0.000000, OUTBOUND_SOPHOS 0.000000,
- RDNS_NXDOMAIN 0.000000, RDNS_SUSP_GENERIC 0.000000, SUBJ_1WORD 0.100000,
- TO_MALFORMED 0.000000, WEBMAIL_SOURCE 0.000000, WEBMAIL_XOIP 0.000000,
- WEBMAIL_X_IP_HDR 0.000000, __ANY_URI 0.000000, __BODY_NO_MAILTO 0.000000,
- __CT 0.000000, __CTE 0.000000, __CT_TEXT_PLAIN 0.000000,
- __FRAUD_BODY_WEBMAIL 0.000000, __FRAUD_MONEY 0.000000,
- __FRAUD_MONEY_CURRENCY 0.000000, __FRAUD_MONEY_CURRENCY_DOLLAR 0.000000,
- __FRAUD_MONEY_CURRENCY_EURO 0.000000, __FRAUD_MONEY_DENOMINATION 0.000000,
- __FRAUD_MONEY_VALUE 0.000000, __FRAUD_WEBMAIL 0.000000,
- __FW_1LN_BOT_MSGID 0.000000, __HAS_FROM 0.000000, __HAS_MSGID 0.000000,
- __HAS_XOIP 0.000000, __MIME_TEXT_ONLY 0.000000, __MIME_TEXT_P 0.000000,
- __MIME_TEXT_P1 0.000000, __MIME_VERSION 0.000000, __NETFLIX_URI_ONLY 0.000000,
- __NO_HTML_TAG_RAW 0.000000, __PHISH_SPEAR_STRUCTURE_1 0.000000,
- __PHISH_SPEAR_STRUCTURE_2 0.000000, __SANE_MSGID 0.000000,
- __URI_NO_WWW 0.000000, __URI_NS 0.000000
-X-LASED-Authed: 1
-X-LASED-Spam: NonSpam
-To:     unlisted-recipients:; (no To-header on input)
+        id S2391193AbfJRMt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 08:49:58 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:43470 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726706AbfJRMt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 08:49:58 -0400
+Received: by mail-io1-f65.google.com with SMTP id v2so7250694iob.10;
+        Fri, 18 Oct 2019 05:49:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=vt2yevto8JpVokDOAHk/MhpPGOGQv2lzrfEs5YW1bcs=;
+        b=iJ5TSOPL6guDtN+KkWvp7kq9fmbhR6QT7qC4fHwOqs6WlpIcdWtK+D90h8pl8wzGny
+         5nsnGSra/XZ0yKI/66CRCG1s24VKLQRy5yojj19uhmeiwyAo57k3UsCw5uix68W3in0A
+         at0rdp0RXaNp9DxEbO7zIpYwuODy8CoIhrzhntfzoe0vorcEmCTPyGAGv1B13FlCDVEF
+         rdSY0+i/aDWZMJHBYTnPNw+S8WyT3pOELkI/ToEjxHOz7aC7uTxiLz2N4LV00uMC7Vvk
+         rE/BdRxCBEAv13ZASSKL1Cl85btRQOTnGOGK11X0rcbL/o7TroRihlv9are58zGZu12y
+         CBeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=vt2yevto8JpVokDOAHk/MhpPGOGQv2lzrfEs5YW1bcs=;
+        b=eA5mIjQEaA/9ajeYsLIPCVQanr9sFz99zxALAN+H4NNaYokf3/j3xozOAjKjyjivkG
+         X2n9rInEFZMAGyl2NZCQykVH4Oot++asArL99uoLy1DoVF0PnDWTFMZagcJd4S7DLdnG
+         k5tDNsA4CkLUZl9TcOalMNzfDujd3xOlArd6bIb16Av0fRtlEUL1IIxNTlK/rwfidUQG
+         PGft/X008jgcLeDBgcRIPuoJvRT3QAvyVjSAs0/R5AOgQRwNcCumIqGDh2YCQAoBVeMv
+         llDV78i/bYJhu7aphDa26MQ+a1/VOiWj2QekmlJz9QzUKy2cMtsiTkNV1pgoDnm/NCnD
+         7hjA==
+X-Gm-Message-State: APjAAAUzbRVP5HfXSBycPIz/ydsKATGNS3+ARM2ej0nCtqnijN+ZPwlY
+        NSp8eoX0kCyP5EVh3nTBm0OaJMjB44A=
+X-Google-Smtp-Source: APXvYqyzzvszH1UbTyYx0NKA2hnNmpf8BjkjTNbKO7/3o54SB64EMA8N5/EMTTSPCcKrWfhQGNSgZg==
+X-Received: by 2002:a5e:9e0a:: with SMTP id i10mr8199609ioq.172.1571402996741;
+        Fri, 18 Oct 2019 05:49:56 -0700 (PDT)
+Received: from localhost.localdomain (c-73-37-219-234.hsd1.mn.comcast.net. [73.37.219.234])
+        by smtp.gmail.com with ESMTPSA id q74sm2003992iod.72.2019.10.18.05.49.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Oct 2019 05:49:55 -0700 (PDT)
+From:   Adam Ford <aford173@gmail.com>
+To:     linux-fbdev@vger.kernel.org
+Cc:     linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
+        tomi.valkeinen@ti.com, adam.ford@logicpd.com,
+        Adam Ford <aford173@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] fbdev/omap: fix max fclk divider for omap36xx
+Date:   Fri, 18 Oct 2019 07:49:38 -0500
+Message-Id: <20191018124938.29313-1-aford173@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The OMAP36xx and AM/DM37x TRMs say that the maximum divider for DSS fclk
+(in CM_CLKSEL_DSS) is 32. Experimentation shows that this is not
+correct, and using divider of 32 breaks DSS with a flood or underflows
+and sync losts. Dividers up to 31 seem to work fine.
 
+There is another patch to the DT files to limit the divider correctly,
+but as the DSS driver also needs to know the maximum divider to be able
+to iteratively find good rates, we also need to do the fix in the DSS
+driver.
 
-Benötigen Sie einen Kredit, um Ihre Rechnungen zu begleichen oder ein eigenes Unternehmen zu gründen? Wir geben alle Arten von Darlehen zu einem Zinssatz von 3% ab
-Das Minimum von 5.000,00 USD bis zum Maximum von 100 Millionen US-Dollar, Pfund, Euro. Bei Interesse kontaktieren Sie uns per E-Mail:  pw18443@aol.com  E-Mail:  pw18443@financier.com
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: stable@vger.kernel.org #linux-4.9.y+
+
+diff --git a/drivers/video/fbdev/omap2/omapfb/dss/dss.c b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+index 48c6500c24e1..4429ad37b64c 100644
+--- a/drivers/video/fbdev/omap2/omapfb/dss/dss.c
++++ b/drivers/video/fbdev/omap2/omapfb/dss/dss.c
+@@ -843,7 +843,7 @@ static const struct dss_features omap34xx_dss_feats = {
+ };
+ 
+ static const struct dss_features omap3630_dss_feats = {
+-	.fck_div_max		=	32,
++	.fck_div_max		=	31,
+ 	.dss_fck_multiplier	=	1,
+ 	.parent_clk_name	=	"dpll4_ck",
+ 	.dpi_select_source	=	&dss_dpi_select_source_omap2_omap3,
+-- 
+2.17.1
+
