@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E2ADD2B4
+	by mail.lfdr.de (Postfix) with ESMTP id 03D36DD2B2
 	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:14:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403807AbfJRWNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:13:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42406 "EHLO mail.kernel.org"
+        id S2389292AbfJRWJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:09:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389253AbfJRWJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:47 -0400
+        id S2389286AbfJRWJs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E38A022477;
-        Fri, 18 Oct 2019 22:09:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA1E222474;
+        Fri, 18 Oct 2019 22:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436586;
-        bh=uhc6qrmgYf8tNuiZPGZcsbbrTbtSfMBBHflqUUXRHqw=;
+        s=default; t=1571436587;
+        bh=6YTxUo/vV96WT4vAvISg0yT5ieDjpadh9376XMiWhpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjkyIWz/ilKep35HrCmdQsbMF0rAF6h2UZoGuGlVlCxPeVsawLViZyAKu9yXEwpKU
-         iq8l6uLXlYE5bVdDcSqQzSZpgIOBznc/n34GX9h1hSQuJ/5cxlcJqKikD8Dh6jMExC
-         QZuuhKffBU5ZvQbCo8tTC0XKeEPiGlDJbIxNegP8=
+        b=ZgQXJxNGCe4pQtVjuc1XMwi/hNkwqdlv3suHN/DS9pEYNQmRO2Qcsm/AMlNUCdz89
+         2hiO5yQvqgGkYtmb71J80yZwTgCkQZ4j47yd4Zrj12MQAVcsrOf/EO3jx49V2udUg6
+         dbs+TCZ9V6h52G5RkyiIspNmF0OkDzXPT4c9dU50=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Austin Kim <austindh.kim@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 15/29] fs: cifs: mute -Wunused-const-variable message
-Date:   Fri, 18 Oct 2019 18:09:06 -0400
-Message-Id: <20191018220920.10545-15-sashal@kernel.org>
+Cc:     Adam Ford <aford173@gmail.com>,
+        Yegor Yefremov <yegorslists@googlemail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 16/29] serial: mctrl_gpio: Check for NULL pointer
+Date:   Fri, 18 Oct 2019 18:09:07 -0400
+Message-Id: <20191018220920.10545-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220920.10545-1-sashal@kernel.org>
 References: <20191018220920.10545-1-sashal@kernel.org>
@@ -43,41 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit dd19c106a36690b47bb1acc68372f2b472b495b8 ]
+[ Upstream commit 37e3ab00e4734acc15d96b2926aab55c894f4d9c ]
 
-After 'Initial git repository build' commit,
-'mapping_table_ERRHRD' variable has not been used.
+When using mctrl_gpio_to_gpiod, it dereferences gpios into a single
+requested GPIO.  This dereferencing can break if gpios is NULL,
+so this patch adds a NULL check before dereferencing it.  If
+gpios is NULL, this function will also return NULL.
 
-So 'mapping_table_ERRHRD' const variable could be removed
-to mute below warning message:
-
-   fs/cifs/netmisc.c:120:40: warning: unused variable 'mapping_table_ERRHRD' [-Wunused-const-variable]
-   static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
-                                           ^
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Yegor Yefremov <yegorslists@googlemail.com>
+Link: https://lore.kernel.org/r/20191006163314.23191-1-aford173@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/netmisc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/tty/serial/serial_mctrl_gpio.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
-index cc88f4f0325ef..bed9733302279 100644
---- a/fs/cifs/netmisc.c
-+++ b/fs/cifs/netmisc.c
-@@ -130,10 +130,6 @@ static const struct smb_to_posix_error mapping_table_ERRSRV[] = {
- 	{0, 0}
- };
- 
--static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
--	{0, 0}
--};
--
- /*
-  * Convert a string containing text IPv4 or IPv6 address to binary form.
-  *
+diff --git a/drivers/tty/serial/serial_mctrl_gpio.c b/drivers/tty/serial/serial_mctrl_gpio.c
+index d2da6aa7f27d0..1bb15edcf1e77 100644
+--- a/drivers/tty/serial/serial_mctrl_gpio.c
++++ b/drivers/tty/serial/serial_mctrl_gpio.c
+@@ -68,6 +68,9 @@ EXPORT_SYMBOL_GPL(mctrl_gpio_set);
+ struct gpio_desc *mctrl_gpio_to_gpiod(struct mctrl_gpios *gpios,
+ 				      enum mctrl_gpio_idx gidx)
+ {
++	if (gpios == NULL)
++		return NULL;
++
+ 	return gpios->gpio[gidx];
+ }
+ EXPORT_SYMBOL_GPL(mctrl_gpio_to_gpiod);
 -- 
 2.20.1
 
