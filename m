@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6B5DD40D
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D2CDD433
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729685AbfJRWF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:05:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37206 "EHLO mail.kernel.org"
+        id S1729695AbfJRWXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729541AbfJRWFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:05:22 -0400
+        id S1729482AbfJRWF2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:05:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE7DA20679;
-        Fri, 18 Oct 2019 22:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E98A222C2;
+        Fri, 18 Oct 2019 22:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436321;
-        bh=LKQ3SUcS0O1HPhubqHJSlaoEhXrbVSoPR6JIftk12GY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqoecOvlE6RVqdiYWwxj6pMuhdjB12HPSASJdXnyMYVrLuTyBiuMcrDBn448xVwro
-         KrVuw6oqmWcCcXpSG9pLBlXiy0+hTIuLGpavIIAH2qHwb/dVH6gVWwT5vxNOwn/HTN
-         zJsXsC/zvEu8FZpQg+/KYJhWZjKz/yxC8lU3+qbw=
+        s=default; t=1571436327;
+        bh=atw4UZaQccT3eKFCQyThccWL3IxyuknKXsMHVAawv3s=;
+        h=From:To:Cc:Subject:Date:From;
+        b=lTMh4D0/HdLF9jI+3lfVdMWmbzThp3AiXxBxqp/ZJ3Uj7lCAhqDdJR4s//oIyXkY6
+         vPSnwpqVBnrV/4KzwG1ZXF787SsJcy0h2C+d7PPYcqE+gY5xD23Ht7S4zU/WO4IZWd
+         pjEGUQyjGRoHPLfUi7SlWOyUr9jsF9MJYAapcoY8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Mladek <pmladek@suse.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 89/89] tracing: Initialize iter->seq after zeroing in tracing_read_pipe()
-Date:   Fri, 18 Oct 2019 18:03:24 -0400
-Message-Id: <20191018220324.8165-89-sashal@kernel.org>
+Cc:     Ahmad Masri <amasri@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, wil6210@qca.qualcomm.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 001/100] wil6210: fix freeing of rx buffers in EDMA mode
+Date:   Fri, 18 Oct 2019 18:03:46 -0400
+Message-Id: <20191018220525.9042-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
-References: <20191018220324.8165-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,80 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: Ahmad Masri <amasri@codeaurora.org>
 
-[ Upstream commit d303de1fcf344ff7c15ed64c3f48a991c9958775 ]
+[ Upstream commit 6470f31927b46846d957628b719dcfda05446664 ]
 
-A customer reported the following softlockup:
+After being associated with some EDMA rx traffic, upon "down" driver
+doesn't free all skbs in the rx ring.
+Modify wil_move_all_rx_buff_to_free_list to loop on active list of rx
+buffers, unmap the physical memory and free the skb.
 
-[899688.160002] NMI watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [test.sh:16464]
-[899688.160002] CPU: 0 PID: 16464 Comm: test.sh Not tainted 4.12.14-6.23-azure #1 SLE12-SP4
-[899688.160002] RIP: 0010:up_write+0x1a/0x30
-[899688.160002] Kernel panic - not syncing: softlockup: hung tasks
-[899688.160002] RIP: 0010:up_write+0x1a/0x30
-[899688.160002] RSP: 0018:ffffa86784d4fde8 EFLAGS: 00000257 ORIG_RAX: ffffffffffffff12
-[899688.160002] RAX: ffffffff970fea00 RBX: 0000000000000001 RCX: 0000000000000000
-[899688.160002] RDX: ffffffff00000001 RSI: 0000000000000080 RDI: ffffffff970fea00
-[899688.160002] RBP: ffffffffffffffff R08: ffffffffffffffff R09: 0000000000000000
-[899688.160002] R10: 0000000000000000 R11: 0000000000000000 R12: ffff8b59014720d8
-[899688.160002] R13: ffff8b59014720c0 R14: ffff8b5901471090 R15: ffff8b5901470000
-[899688.160002]  tracing_read_pipe+0x336/0x3c0
-[899688.160002]  __vfs_read+0x26/0x140
-[899688.160002]  vfs_read+0x87/0x130
-[899688.160002]  SyS_read+0x42/0x90
-[899688.160002]  do_syscall_64+0x74/0x160
-
-It caught the process in the middle of trace_access_unlock(). There is
-no loop. So, it must be looping in the caller tracing_read_pipe()
-via the "waitagain" label.
-
-Crashdump analyze uncovered that iter->seq was completely zeroed
-at this point, including iter->seq.seq.size. It means that
-print_trace_line() was never able to print anything and
-there was no forward progress.
-
-The culprit seems to be in the code:
-
-	/* reset all but tr, trace, and overruns */
-	memset(&iter->seq, 0,
-	       sizeof(struct trace_iterator) -
-	       offsetof(struct trace_iterator, seq));
-
-It was added by the commit 53d0aa773053ab182877 ("ftrace:
-add logic to record overruns"). It was v2.6.27-rc1.
-It was the time when iter->seq looked like:
-
-     struct trace_seq {
-	unsigned char		buffer[PAGE_SIZE];
-	unsigned int		len;
-     };
-
-There was no "size" variable and zeroing was perfectly fine.
-
-The solution is to reinitialize the structure after or without
-zeroing.
-
-Link: http://lkml.kernel.org/r/20191011142134.11997-1-pmladek@suse.com
-
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Ahmad Masri <amasri@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/wil6210/txrx_edma.c | 44 +++++++-------------
+ 1 file changed, 14 insertions(+), 30 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 563e80f9006a4..79573ec5e0267 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5999,6 +5999,7 @@ tracing_read_pipe(struct file *filp, char __user *ubuf,
- 	       sizeof(struct trace_iterator) -
- 	       offsetof(struct trace_iterator, seq));
- 	cpumask_clear(iter->started);
-+	trace_seq_init(&iter->seq);
- 	iter->pos = -1;
+diff --git a/drivers/net/wireless/ath/wil6210/txrx_edma.c b/drivers/net/wireless/ath/wil6210/txrx_edma.c
+index 3e7fc2983cbb3..409a6fa8b6c8f 100644
+--- a/drivers/net/wireless/ath/wil6210/txrx_edma.c
++++ b/drivers/net/wireless/ath/wil6210/txrx_edma.c
+@@ -234,9 +234,10 @@ static int wil_rx_refill_edma(struct wil6210_priv *wil)
+ 	struct wil_ring *ring = &wil->ring_rx;
+ 	u32 next_head;
+ 	int rc = 0;
+-	u32 swtail = *ring->edma_rx_swtail.va;
++	ring->swtail = *ring->edma_rx_swtail.va;
  
- 	trace_event_read_lock();
+-	for (; next_head = wil_ring_next_head(ring), (next_head != swtail);
++	for (; next_head = wil_ring_next_head(ring),
++	     (next_head != ring->swtail);
+ 	     ring->swhead = next_head) {
+ 		rc = wil_ring_alloc_skb_edma(wil, ring, ring->swhead);
+ 		if (unlikely(rc)) {
+@@ -264,43 +265,26 @@ static void wil_move_all_rx_buff_to_free_list(struct wil6210_priv *wil,
+ 					      struct wil_ring *ring)
+ {
+ 	struct device *dev = wil_to_dev(wil);
+-	u32 next_tail;
+-	u32 swhead = (ring->swhead + 1) % ring->size;
++	struct list_head *active = &wil->rx_buff_mgmt.active;
+ 	dma_addr_t pa;
+-	u16 dmalen;
+ 
+-	for (; next_tail = wil_ring_next_tail(ring), (next_tail != swhead);
+-	     ring->swtail = next_tail) {
+-		struct wil_rx_enhanced_desc dd, *d = &dd;
+-		struct wil_rx_enhanced_desc *_d =
+-			(struct wil_rx_enhanced_desc *)
+-			&ring->va[ring->swtail].rx.enhanced;
+-		struct sk_buff *skb;
+-		u16 buff_id;
++	while (!list_empty(active)) {
++		struct wil_rx_buff *rx_buff =
++			list_first_entry(active, struct wil_rx_buff, list);
++		struct sk_buff *skb = rx_buff->skb;
+ 
+-		*d = *_d;
+-
+-		/* Extract the SKB from the rx_buff management array */
+-		buff_id = __le16_to_cpu(d->mac.buff_id);
+-		if (buff_id >= wil->rx_buff_mgmt.size) {
+-			wil_err(wil, "invalid buff_id %d\n", buff_id);
+-			continue;
+-		}
+-		skb = wil->rx_buff_mgmt.buff_arr[buff_id].skb;
+-		wil->rx_buff_mgmt.buff_arr[buff_id].skb = NULL;
+ 		if (unlikely(!skb)) {
+-			wil_err(wil, "No Rx skb at buff_id %d\n", buff_id);
++			wil_err(wil, "No Rx skb at buff_id %d\n", rx_buff->id);
+ 		} else {
+-			pa = wil_rx_desc_get_addr_edma(&d->dma);
+-			dmalen = le16_to_cpu(d->dma.length);
+-			dma_unmap_single(dev, pa, dmalen, DMA_FROM_DEVICE);
+-
++			rx_buff->skb = NULL;
++			memcpy(&pa, skb->cb, sizeof(pa));
++			dma_unmap_single(dev, pa, wil->rx_buf_len,
++					 DMA_FROM_DEVICE);
+ 			kfree_skb(skb);
+ 		}
+ 
+ 		/* Move the buffer from the active to the free list */
+-		list_move(&wil->rx_buff_mgmt.buff_arr[buff_id].list,
+-			  &wil->rx_buff_mgmt.free);
++		list_move(&rx_buff->list, &wil->rx_buff_mgmt.free);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
