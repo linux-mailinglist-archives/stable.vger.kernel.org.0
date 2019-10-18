@@ -2,96 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6BA5DBC1F
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 06:55:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 421F7DBC35
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 06:59:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409485AbfJREzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 00:55:55 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:33282 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392808AbfJREzz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 00:55:55 -0400
-Received: by mail-io1-f68.google.com with SMTP id z19so5947178ior.0;
-        Thu, 17 Oct 2019 21:55:54 -0700 (PDT)
+        id S2389944AbfJRE6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 00:58:11 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:52310 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2393732AbfJRE6G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 00:58:06 -0400
+Received: by mail-wm1-f67.google.com with SMTP id r19so4692343wmh.2
+        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 21:58:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3ehKOW/N+FTLF+YoAGhVTdIuexN5qbQUY1mLWAZQXhU=;
-        b=Rn0xH2r9CfVldbfAXR7dSTkpYMinTskC7GYU6kajDgPXiOplHYv2cNAhOEVnSzJXDA
-         F3tzNodRaDbkqwWcXSYR2sBad8nlbqIlHcGBnB+uCNHls3MTX3mA0oU/RXvbUx1L8Xmk
-         kSQ0C21flTDCxiO8tBAPxNTZA5f+DMilVkHmkvdvZREOnlxyec446GobkM2/Xtoc0gTK
-         L4dK+WyJLJ8f8o1TvjoqJI/DS3CtErgMAPfo8SFJtWOzlCHUhnHjK+ZBut9abgqMVCaC
-         HJalSa+BV8SiaTeRYOLhIms9VBsLmkRN1h+4aGwm5Xw85RU6GjRi+L+aC3CWcPmWlTJC
-         viAw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Qrd+uqjewjZCrHujpXseNa75mr2lrfPIQg/ZOtdpnzE=;
+        b=CQKJzeI2O2yskztc7bKLBwHyj5BfZ+3dRc/L1N7qaYu9MM+J2yuz7h7saHxJT3FPIO
+         8y8bb1+XKryCR1lUaMvlr64/ld1Q8Y5KXP1gv+2Scc5phTZwJ6EJGu7pDLmwmUpRG1EW
+         RpQwWczriSBsT76v/XVPx6NeZ5LnDuRSjXR7ewRx38NGq5hKStSA/P1cpQUtUw0nIe2T
+         4TT+dPcwQSNahqU4T9WJ8rPEUXqURNC1G8Wly8HfLOobXDX2//WEA+t9vUdZYHHWlhso
+         dWLdeuvhrzMQPw8VW+eEw+ghdDyobx8yJ7d5+gLP8CngpI2RKl4iOm4o8hoABSbPRZ/o
+         PyBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3ehKOW/N+FTLF+YoAGhVTdIuexN5qbQUY1mLWAZQXhU=;
-        b=l43R3y3d8YA++QGShbVbLt5YJ3NLpltk0UDWF7MbiKuMlN/4MkwSB0F4tnyKKNICMM
-         YF1ollKBKNtvbIUMJ5SEJUFUbj6pHLPYJ6Wi86bLBR7/e+M3TKx/D0GIOLboILfCsB3S
-         h9v+skFZ7GHw/pil7BEsIqtfSfKtJGY82aGWbAwKM78vgCvewIE5l4lb6f9xq8D2u8V1
-         zBi4TEIXotRtrAEkeYiQeSvU6Da6qBO6SsoI08Eb16zAlqGiU9i1VdbfNahf4oNJaPlm
-         Yp/d7GavStWllhZmQ+KBE6RfKXgbjBi/a5rLsGQz1FuRMJCXBBjxc5IRepxcR4lrvKlF
-         cmHg==
-X-Gm-Message-State: APjAAAXVKNk0BTtr+ncuDIdtdwrTS2gmV7oFiyUEQJU4+UCzTNwyHDG/
-        JWqPAi5n4Fgxp59lqvYUA0BP60jm/AcCUKGHvCQ9Iagx
-X-Google-Smtp-Source: APXvYqxgS5ct0v8h7EZnQaxNd7n2Gy9Yn06F3wrKDNTFF1bjL6NRVgvhUFG8RaKqVn3zR8oyEpdCL+wHTr4gIP47/3Y=
-X-Received: by 2002:a5e:db46:: with SMTP id r6mr4668633iop.287.1571372761181;
- Thu, 17 Oct 2019 21:26:01 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Qrd+uqjewjZCrHujpXseNa75mr2lrfPIQg/ZOtdpnzE=;
+        b=RclRzjDswvBDEDZBYRz5Cg+zJ08THhnyM1nxmKPU/cE6DBgMn49kPja3Z26RCFQEs2
+         AN5QqERJy5SZOxse+QdX5yzaqO/fevSbm+vGQlsHWfG/kSDDIhXjyah8GwLaQIVFgyS6
+         L5TjESB6M4Ru3ID2I34ufmYLtdTsRSCq8wxmaEvGqLjLlVBLMZY/BUFAPDLUz9cJatpI
+         2FeggN8ZpIiyaKWOuwPbTE+8ounVgwJDcECodUMt6Zv1/DIWC1AE4IueOgSvArtLPn7q
+         9CfBRI9B3CYgtZhtOh++jvM9QHsdlSAwY1NhTQHk2TFd4kmkP7t6a1EfhMk7+XifhXyR
+         s8lQ==
+X-Gm-Message-State: APjAAAWvyEuBhiyrvWLl6Qly0NM7HhkyQganF3hT8FylTKMHG3uHHQiQ
+        SOT01MorWDcGaCdkJVcDVwuHtkiNw32M+g==
+X-Google-Smtp-Source: APXvYqzy88R9o0DsH/5aFaBCrmDJwKHG4BJA9gpe+exH4YJ5WCcABMgumbJpstxNHjtrHYFqxMCB+g==
+X-Received: by 2002:a1c:6308:: with SMTP id x8mr5729675wmb.140.1571372929042;
+        Thu, 17 Oct 2019 21:28:49 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r7sm4063584wrt.28.2019.10.17.21.28.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Oct 2019 21:28:48 -0700 (PDT)
+Message-ID: <5da93f80.1c69fb81.18020.5147@mx.google.com>
+Date:   Thu, 17 Oct 2019 21:28:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20191016182935.5616-4-andrew.smirnov@gmail.com> <20191017143149.449AA21D7C@mail.kernel.org>
-In-Reply-To: <20191017143149.449AA21D7C@mail.kernel.org>
-From:   Andrey Smirnov <andrew.smirnov@gmail.com>
-Date:   Thu, 17 Oct 2019 21:25:49 -0700
-Message-ID: <CAHQ1cqHF+3S1xYCVs19U7Hr+SjMp+z3QhW-KsKDSa00VMGN8FA@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] HID: logitech-hidpp: do all FF cleanup in hidpp_ff_destroy()
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.150
+Subject: stable/linux-4.14.y boot: 49 boots: 0 failed, 49 passed (v4.14.150)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 17, 2019 at 7:31 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: ff21a635dd1a9 HID: logitech-hidpp: Force feedback support for the Logitech G920.
->
-> The bot has tested the following trees: v5.3.6, v4.19.79, v4.14.149, v4.9.196.
->
-> v5.3.6: Build OK!
-> v4.19.79: Failed to apply! Possible dependencies:
->     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
->
-> v4.14.149: Failed to apply! Possible dependencies:
->     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
->
-> v4.9.196: Failed to apply! Possible dependencies:
->     6bd4e65d521f9 ("HID: logitech-hidpp: remove HIDPP_QUIRK_CONNECT_EVENTS")
->     91cf9a98ae412 ("HID: logitech-hidpp: make .probe usbhid capable")
->     a4bf6153b3177 ("HID: logitech-hidpp: add a sysfs file to tell we support power_supply")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+stable/linux-4.14.y boot: 49 boots: 0 failed, 49 passed (v4.14.150)
 
-Looks like I'd have to mark this one as 5.2+ as well. Please disregard
-this series in favor of v3 that will be sent out shortly.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.150/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.150/
 
-Thanks,
-Andrey Smirnov
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.150
+Git Commit: b98aebd298246df37b472c52a2ee1023256d02e3
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 33 unique boards, 14 SoC families, 10 builds out of 201
+
+---
+For more info write to <info@kernelci.org>
