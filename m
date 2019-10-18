@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8902DD276
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67513DD27C
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390452AbfJRWKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:10:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43566 "EHLO mail.kernel.org"
+        id S2390362AbfJRWL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390417AbfJRWKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:10:36 -0400
+        id S2390467AbfJRWKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:10:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE65A2248A;
-        Fri, 18 Oct 2019 22:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 085B222489;
+        Fri, 18 Oct 2019 22:10:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436635;
-        bh=DuplhoRQredmAuojEW6TUPC1yPAM/K2dTnu2HW9tcM4=;
+        s=default; t=1571436636;
+        bh=lP2pAvB6Rw5N/daorLa+suvXjl8IjHZIuTeSFUXi00A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aq77ZbIssFOVb3HNsZMeVE+0afuHXkmjw443EA8iv/vza7c9tzYIR1IaiALPAuXaA
-         Q5asNN91udoV28AXcHeO7nVMx/T6iqk0U/qOM5fj2rds2zJ//NXxr2MjnTdkcXM7W6
-         2O5R+h9OMOgJhMe5xQbvU8vmHIyOzuf3lSwX2g4k=
+        b=GdSFKIRhRDeXlVJKytMIOQmCw5spDLRPU2tuR1FWquoCM8PItTROVnVtc8J0/0eWw
+         yUD1K6Skn2Ys9tvta0BTEpHLf1B6AnZaayTSwOla4fFHl/WzJrrPhrfEiYvJdGwHld
+         DDBZnZaib1ogwJ6Q3YIj16YZy8sUXTnSP+m9DVKQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>, linux-mips@linux-mips.org
-Subject: [PATCH AUTOSEL 4.4 18/21] MIPS: fw: sni: Fix out of bounds init of o32 stack
-Date:   Fri, 18 Oct 2019 18:10:04 -0400
-Message-Id: <20191018221007.10851-18-sashal@kernel.org>
+Cc:     Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 19/21] USB: usb-skeleton: fix use-after-free after driver unbind
+Date:   Fri, 18 Oct 2019 18:10:05 -0400
+Message-Id: <20191018221007.10851-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018221007.10851-1-sashal@kernel.org>
 References: <20191018221007.10851-1-sashal@kernel.org>
@@ -45,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit efcb529694c3b707dc0471b312944337ba16e4dd ]
+[ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
 
-Use ARRAY_SIZE to caluculate the top of the o32 stack.
+The driver failed to stop its read URB on disconnect, something which
+could lead to a use-after-free in the completion handler after driver
+unbind in case the character device has been closed.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/fw/sni/sniprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/usb-skeleton.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/fw/sni/sniprom.c b/arch/mips/fw/sni/sniprom.c
-index 6aa264b9856ac..7c6151d412bd7 100644
---- a/arch/mips/fw/sni/sniprom.c
-+++ b/arch/mips/fw/sni/sniprom.c
-@@ -42,7 +42,7 @@
+diff --git a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
+index 545d09b8081d5..be0fc67ce4f39 100644
+--- a/drivers/usb/usb-skeleton.c
++++ b/drivers/usb/usb-skeleton.c
+@@ -593,6 +593,7 @@ static void skel_disconnect(struct usb_interface *interface)
+ 	dev->interface = NULL;
+ 	mutex_unlock(&dev->io_mutex);
  
- /* O32 stack has to be 8-byte aligned. */
- static u64 o32_stk[4096];
--#define O32_STK	  &o32_stk[sizeof(o32_stk)]
-+#define O32_STK	  (&o32_stk[ARRAY_SIZE(o32_stk)])
++	usb_kill_urb(dev->bulk_in_urb);
+ 	usb_kill_anchored_urbs(&dev->submitted);
  
- #define __PROM_O32(fun, arg) fun arg __asm__(#fun); \
- 				     __asm__(#fun " = call_o32")
+ 	/* decrement our usage count */
 -- 
 2.20.1
 
