@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80514DD444
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E4CDD40C
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405298AbfJRWXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
+        id S1729500AbfJRWFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:05:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729419AbfJRWFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:05:16 -0400
+        id S1729482AbfJRWFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:05:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A58D22459;
-        Fri, 18 Oct 2019 22:05:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 647D9222D2;
+        Fri, 18 Oct 2019 22:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436316;
-        bh=c1WbYc7+1DaUk7tz5oVMf3z3M5NgNPMbvxSbncKOJaI=;
+        s=default; t=1571436317;
+        bh=o8P20wrNaZNXOqJF+YTebFW1ptiMmPp0UsImFpua9LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtGZ0CLCeos4fmToUieEPTIyfdvoSUyORncso4DpbgK5O/BciV0F2NzIK7HkBcaeP
-         Tsst6eRCKz9Ug3Al5BvoXqxVn8w3jQhynn4FuNNpSo6lb5eAP1jRHy4OxbrwAFn29M
-         1jCt7m09ProMAx3G8+wAIfha+CCE6flkyRpIPoi4=
+        b=hOi6OKOZyAfd3fQ4xIALDojORDcMCOL+lnIB6L0+vYbAVo4atc6LMcq6bi5d32vtB
+         pkMjAZOMTzODOeRG0ILTybSJ4IGkc9j78Ts8W+PCqrob/IGCaafawGJeYBT/Ln0JQb
+         JO3bv4YPr7tao2DyAte/fAhp0gcZIKDMXZUdrZa8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 84/89] virt: vbox: fix memory leak in hgcm_call_preprocess_linaddr
-Date:   Fri, 18 Oct 2019 18:03:19 -0400
-Message-Id: <20191018220324.8165-84-sashal@kernel.org>
+Cc:     Xiubo Li <xiubli@redhat.com>, Mike Christie <mchristi@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 5.3 85/89] nbd: fix possible sysfs duplicate warning
+Date:   Fri, 18 Oct 2019 18:03:20 -0400
+Message-Id: <20191018220324.8165-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -44,47 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit e0b0cb9388642c104838fac100a4af32745621e2 ]
+[ Upstream commit 862488105b84ca744b3d8ff131e0fcfe10644be1 ]
 
-In hgcm_call_preprocess_linaddr memory is allocated for bounce_buf but
-is not released if copy_form_user fails. In order to prevent memory leak
-in case of failure, the assignment to bounce_buf_ret is moved before the
-error check. This way the allocated bounce_buf will be released by the
-caller.
+1. nbd_put takes the mutex and drops nbd->ref to 0. It then does
+idr_remove and drops the mutex.
 
-Fixes: 579db9d45cb4 ("virt: Add vboxguest VMMDEV communication code")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20190930204223.3660-1-navid.emamdoost@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+2. nbd_genl_connect takes the mutex. idr_find/idr_for_each fails
+to find an existing device, so it does nbd_dev_add.
+
+3. just before the nbd_put could call nbd_dev_remove or not finished
+totally, but if nbd_dev_add try to add_disk, we can hit:
+
+debugfs: Directory 'nbd1' with parent 'block' already present!
+
+This patch will make sure all the disk add/remove stuff are done
+by holding the nbd_index_mutex lock.
+
+Reported-by: Mike Christie <mchristi@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virt/vboxguest/vboxguest_utils.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virt/vboxguest/vboxguest_utils.c b/drivers/virt/vboxguest/vboxguest_utils.c
-index 75fd140b02ff8..43c391626a000 100644
---- a/drivers/virt/vboxguest/vboxguest_utils.c
-+++ b/drivers/virt/vboxguest/vboxguest_utils.c
-@@ -220,6 +220,8 @@ static int hgcm_call_preprocess_linaddr(
- 	if (!bounce_buf)
- 		return -ENOMEM;
- 
-+	*bounce_buf_ret = bounce_buf;
-+
- 	if (copy_in) {
- 		ret = copy_from_user(bounce_buf, (void __user *)buf, len);
- 		if (ret)
-@@ -228,7 +230,6 @@ static int hgcm_call_preprocess_linaddr(
- 		memset(bounce_buf, 0, len);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 0b727f7432f9e..bd164192045b0 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -230,8 +230,8 @@ static void nbd_put(struct nbd_device *nbd)
+ 	if (refcount_dec_and_mutex_lock(&nbd->refs,
+ 					&nbd_index_mutex)) {
+ 		idr_remove(&nbd_index_idr, nbd->index);
+-		mutex_unlock(&nbd_index_mutex);
+ 		nbd_dev_remove(nbd);
++		mutex_unlock(&nbd_index_mutex);
  	}
- 
--	*bounce_buf_ret = bounce_buf;
- 	hgcm_call_add_pagelist_size(bounce_buf, len, extra);
- 	return 0;
  }
+ 
 -- 
 2.20.1
 
