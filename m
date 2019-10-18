@@ -2,36 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 842A1DD34D
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DADDD34B
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393220AbfJRWRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40368 "EHLO mail.kernel.org"
+        id S2387504AbfJRWIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387430AbfJRWH4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:56 -0400
+        id S2387487AbfJRWID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84612222D1;
-        Fri, 18 Oct 2019 22:07:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 092D22245A;
+        Fri, 18 Oct 2019 22:07:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436476;
-        bh=3csVmTOHNGTB+c9xUv/fHEeweHnvr5OV6v+ydEEUMDo=;
+        s=default; t=1571436481;
+        bh=fnbbc7uR40pu9gEMufBDqXBhxqlq0xybhEADZGmXZlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UtpwT+NJQ000CGAj3zB4FB8nZvH5H6I4HYqA1AtwkooSYKHpy4ipWs+TCObEgWlyr
-         3im/NQlgWJNygbqYLc9z4taAA0LjIXdbw66wcerGbekhVds4IwIBzQXbtnSGsTt7up
-         W3KbEiV/6VfxJm5K47LHSrWV52Z3FHKKin55aoFo=
+        b=y0UVVFYXaCYLwrEowZrFLzcgEsTHSUZSXpv2eltbzUJ/RxLn2hyrIiO+T9Mrn+hC4
+         yTGeza5C9iTdhcp4PB3UAgpxkfW9ckxmdHrYImc4mbyf8vrlMCPEkqPU8bJAqCbfAT
+         IC4yDflXpKBjZL4f5LrRE48hRXbT/wMCrvYLOClw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Dick Kennedy <dick.kennedy@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/56] scsi: lpfc: Fix a duplicate 0711 log message number.
-Date:   Fri, 18 Oct 2019 18:06:59 -0400
-Message-Id: <20191018220753.10002-2-sashal@kernel.org>
+Cc:     David Hildenbrand <david@redhat.com>,
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Rashmica Gupta <rashmica.g@gmail.com>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Neuling <mikey@neuling.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        John Allen <jallen@linux.vnet.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Len Brown <lenb@kernel.org>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Nathan Fontenot <nfont@linux.vnet.ibm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 04/56] powerpc/powernv: hold device_hotplug_lock when calling memtrace_offline_pages()
+Date:   Fri, 18 Oct 2019 18:07:01 -0400
+Message-Id: <20191018220753.10002-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -44,33 +75,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 2c4c91415a05677acc5c8131a5eb472d4aa96ae1 ]
+[ Upstream commit 5666848774ef43d3db5151ec518f1deb63515c20 ]
 
-Renumber one of the 0711 log messages so there isn't a duplication.
+Let's perform all checking + offlining + removing under
+device_hotplug_lock, so nobody can mess with these devices via sysfs
+concurrently.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+[david@redhat.com: take device_hotplug_lock outside of loop]
+  Link: http://lkml.kernel.org/r/20180927092554.13567-6-david@redhat.com
+Link: http://lkml.kernel.org/r/20180925091457.28651-6-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Reviewed-by: Rashmica Gupta <rashmica.g@gmail.com>
+Acked-by: Balbir Singh <bsingharora@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Rashmica Gupta <rashmica.g@gmail.com>
+Cc: Michael Neuling <mikey@neuling.org>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: John Allen <jallen@linux.vnet.ibm.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/powernv/memtrace.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index 4ade13d72deb3..07cb671bb8550 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -4152,7 +4152,7 @@ lpfc_scsi_cmd_iocb_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pIocbIn,
- 	/* If pCmd was set to NULL from abort path, do not call scsi_done */
- 	if (xchg(&lpfc_cmd->pCmd, NULL) == NULL) {
- 		lpfc_printf_vlog(vport, KERN_INFO, LOG_FCP,
--				 "0711 FCP cmd already NULL, sid: 0x%06x, "
-+				 "5688 FCP cmd already NULL, sid: 0x%06x, "
- 				 "did: 0x%06x, oxid: 0x%04x\n",
- 				 vport->fc_myDID,
- 				 (pnode) ? pnode->nlp_DID : 0,
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
+index c9a6d4f3403ce..cfbd242c3e011 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -99,6 +99,7 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
+ 	return 0;
+ }
+ 
++/* called with device_hotplug_lock held */
+ static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
+ {
+ 	u64 end_pfn = start_pfn + nr_pages - 1;
+@@ -139,6 +140,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 	/* Trace memory needs to be aligned to the size */
+ 	end_pfn = round_down(end_pfn - nr_pages, nr_pages);
+ 
++	lock_device_hotplug();
+ 	for (base_pfn = end_pfn; base_pfn > start_pfn; base_pfn -= nr_pages) {
+ 		if (memtrace_offline_pages(nid, base_pfn, nr_pages) == true) {
+ 			/*
+@@ -147,7 +149,6 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 			 * we never try to remove memory that spans two iomem
+ 			 * resources.
+ 			 */
+-			lock_device_hotplug();
+ 			end_pfn = base_pfn + nr_pages;
+ 			for (pfn = base_pfn; pfn < end_pfn; pfn += bytes>> PAGE_SHIFT) {
+ 				remove_memory(nid, pfn << PAGE_SHIFT, bytes);
+@@ -156,6 +157,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 			return base_pfn << PAGE_SHIFT;
+ 		}
+ 	}
++	unlock_device_hotplug();
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
