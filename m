@@ -2,93 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F346FDC875
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 17:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F367CDCA08
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 17:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404777AbfJRP3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 11:29:37 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:48873 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393138AbfJRP3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 11:29:37 -0400
-Received: from localhost (aclermont-ferrand-651-1-259-53.w86-207.abo.wanadoo.fr [86.207.98.53])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id A7A76200004;
-        Fri, 18 Oct 2019 15:29:33 +0000 (UTC)
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] spi: Fix SPI_CS_HIGH setting when using native and GPIO CS
-Date:   Fri, 18 Oct 2019 17:29:29 +0200
-Message-Id: <20191018152929.3287-1-gregory.clement@bootlin.com>
-X-Mailer: git-send-email 2.23.0
+        id S2390780AbfJRP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 11:58:19 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:37585 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726506AbfJRP6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 11:58:18 -0400
+Received: by mail-lf1-f67.google.com with SMTP id g21so3998705lfh.4;
+        Fri, 18 Oct 2019 08:58:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ttfvaz7iNEFfCRYhhy3E48U+pPKKC4mHvgM6ZOuohSI=;
+        b=dJP58M9vHzMkCf5/o1RrXt+Ia+M2sk7thkCGT5jKU/ktMPYcBavPvfLMXyywixcrPv
+         r/6s8/18Z5CoAeKMdO1OZLaBmrvILDFBHpzwJQ85zpmRT+Boxn6ZPEI93y8MKTJjJheE
+         W/rb1fK1YoVS1YUL2Px4AlGUGSG+ZZ6RGXUPz70KSkMa5IAZKxe9NBUdqqdchiV7KhkK
+         1Xvqh3SyPfi8eOVUbWT9sYXsxtuKDF1ICO9aybHMBEE+5QSavljNbwXrD5nAD0CTcJYw
+         X+6TG+pJyLtrs0S7Me+HHqOxC+BgZjzyjqms3chepSWMUTa1GAuI7MkDajSZw7SSFcgs
+         GrOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ttfvaz7iNEFfCRYhhy3E48U+pPKKC4mHvgM6ZOuohSI=;
+        b=Z+Nb0CrSXOowkvCHmYM6IG9uVdVBBe3OoDHT0dVF9zhOxgELYTLoGWMe7F4U0W9gTw
+         yfJ7MRAkh7Nwld8YiiF1B1Q+SuQzpKPSeAXwxiRep+TUwheBwT8eE+dgairYfDOEf6og
+         5cLS8ssVRr/k1Hl/oh2DqQ65lHBBrd0FY2Q1mFOPtIdTIybVjY6TIgYw7Els4s8Q8Fbz
+         12aq7UWmi4g/FULZjQKhsoVXTsN7i9ET1NF1g4uPvkHeYNG0A1R5wWxx+eN/2q1cGwr4
+         1wsJYJUu2tOtuh/xmEFJTf6rOW4gDNvnPXy9d2WVlW3gDYBzHlm3u44eqxDRDe4EgW3D
+         HPKQ==
+X-Gm-Message-State: APjAAAX0O2AXpPkChE4Ecw+Ro+n4RzqruSWY0TRlESOXJUJkhj/+6/ir
+        XcbtVSOPFCSAcso4+KlX2Crc+a2bGEjOq6Tfn/U=
+X-Google-Smtp-Source: APXvYqxP8/0QV8rT3k2NWSOm1ssIagw4Xb5opwj1fUKOPiN7qQ+KYU0iCPMlNK9Oe5i3uj2Oyc/w2A1YY5CYIyNcmAM=
+X-Received: by 2002:ac2:4a68:: with SMTP id q8mr6761021lfp.20.1571414296651;
+ Fri, 18 Oct 2019 08:58:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191018093934.29695-1-s.hauer@pengutronix.de>
+ <CAOMZO5DUoj4xVZQSvk9Juw9z37UgrMn3g24h2_pAMxuTkBjw4g@mail.gmail.com> <20191018133435.oncn7nktihpqyj4z@pengutronix.de>
+In-Reply-To: <20191018133435.oncn7nktihpqyj4z@pengutronix.de>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Fri, 18 Oct 2019 12:58:07 -0300
+Message-ID: <CAOMZO5DLebwVYJGfT=n+j3T62Ps8eJAZWKCb55Xck=thimubrA@mail.gmail.com>
+Subject: Re: [PATCH] mmc: mxs: fix flags passed to dmaengine_prep_slave_sg
+To:     Sascha Hauer <s.hauer@pengutronix.de>
+Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Bruno Thomsen <bruno.thomsen@gmail.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When improving the CS GPIO support at core level, the SPI_CS_HIGH
-has been enabled for all the CS lines used for a given SPI controller.
+On Fri, Oct 18, 2019 at 10:34 AM Sascha Hauer <s.hauer@pengutronix.de> wrote:
 
-However, the SPI framework allows to have on the same controller native
-CS and GPIO CS. The native CS may not support the SPI_CS_HIGH, so they
-should not be setup automatically.
+> We would probably also have to revert the exec_op conversion of the gpmi
+> NAND driver, something which I'd rather not do.
 
-With this patch the setting is done only for the CS that will use a
-GPIO as CS
+Ok, understood. Thanks for the clarification.
 
-Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
----
- drivers/spi/spi.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+Better go with your patch then.
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 5414a10afd65..1b68acc28c8f 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1880,15 +1880,7 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
- 		spi->mode |= SPI_3WIRE;
- 	if (of_property_read_bool(nc, "spi-lsb-first"))
- 		spi->mode |= SPI_LSB_FIRST;
--
--	/*
--	 * For descriptors associated with the device, polarity inversion is
--	 * handled in the gpiolib, so all chip selects are "active high" in
--	 * the logical sense, the gpiolib will invert the line if need be.
--	 */
--	if (ctlr->use_gpio_descriptors)
--		spi->mode |= SPI_CS_HIGH;
--	else if (of_property_read_bool(nc, "spi-cs-high"))
-+	if (of_property_read_bool(nc, "spi-cs-high"))
- 		spi->mode |= SPI_CS_HIGH;
- 
- 	/* Device DUAL/QUAD mode */
-@@ -1952,6 +1944,14 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
- 	}
- 	spi->chip_select = value;
- 
-+	/*
-+	 * For descriptors associated with the device, polarity inversion is
-+	 * handled in the gpiolib, so all gpio chip selects are "active high"
-+	 * in the logical sense, the gpiolib will invert the line if need be.
-+	 */
-+	if ((ctlr->use_gpio_descriptors) && ctlr->cs_gpiods[spi->chip_select])
-+		spi->mode |= SPI_CS_HIGH;
-+
- 	/* Device speed */
- 	rc = of_property_read_u32(nc, "spi-max-frequency", &value);
- 	if (rc) {
--- 
-2.23.0
-
+Thanks
