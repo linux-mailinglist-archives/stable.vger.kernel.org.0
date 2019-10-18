@@ -2,103 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33549DC0C7
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C777DC154
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:40:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392050AbfJRJXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 05:23:04 -0400
-Received: from mga03.intel.com ([134.134.136.65]:45040 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725818AbfJRJXD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 05:23:03 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Oct 2019 02:23:02 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.67,311,1566889200"; 
-   d="scan'208";a="190312549"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga008.jf.intel.com with ESMTP; 18 Oct 2019 02:23:00 -0700
-Received: from andy by smile with local (Exim 4.92.2)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1iLOTM-0000TP-45; Fri, 18 Oct 2019 12:23:00 +0300
-Date:   Fri, 18 Oct 2019 12:23:00 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation
-Message-ID: <20191018092300.GV32742@smile.fi.intel.com>
-References: <20191018090842.11189-1-hdegoede@redhat.com>
+        id S2442438AbfJRJjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 05:39:53 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:60999 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2442433AbfJRJjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 05:39:53 -0400
+Received: from dude.hi.pengutronix.de ([2001:67c:670:100:1d::7])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1iLOjf-0006mw-3H; Fri, 18 Oct 2019 11:39:51 +0200
+Received: from sha by dude.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1iLOje-0007me-LL; Fri, 18 Oct 2019 11:39:50 +0200
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     linux-mmc@vger.kernel.org
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        Bruno Thomsen <bruno.thomsen@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] mmc: mxs: fix flags passed to dmaengine_prep_slave_sg
+Date:   Fri, 18 Oct 2019 11:39:34 +0200
+Message-Id: <20191018093934.29695-1-s.hauer@pengutronix.de>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191018090842.11189-1-hdegoede@redhat.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::7
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 18, 2019 at 11:08:42AM +0200, Hans de Goede wrote:
-> Commit 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux
-> GPIO translation") has made the cherryview gpio numbers sparse, to get
-> a 1:1 mapping between ACPI pin numbers and gpio numbers in Linux.
-> 
-> This has greatly simplified things, but the code setting the
-> irq_valid_mask was not updated for this, so the valid mask is still in
-> the old "compressed" numbering with the gaps in the pin numbers skipped,
-> which is wrong as irq_valid_mask needs to be expressed in gpio numbers.
-> 
-> This results in the following error on devices using pin 24 (0x0018) on
-> the north GPIO controller as an ACPI event source:
-> 
-> [    0.422452] cherryview-pinctrl INT33FF:01: Failed to translate GPIO to IRQ
-> 
-> This has been reported (by email) to be happening on a Caterpillar CAT T20
-> tablet and I've reproduced this myself on a Medion Akoya e2215t 2-in-1.
-> 
-> This commit uses the pin number instead of the compressed index into
-> community->pins to clear the correct bits in irq_valid_mask for GPIOs
-> using GPEs for interrupts, fixing these errors and in case of the
-> Medion Akoya e2215t also fixing the LID switch not working.
+Since ceeeb99cd821 we no longer abuse the DMA_CTRL_ACK flag for custom
+driver use and introduced the MXS_DMA_CTRL_WAIT4END instead. We have not
+changed all users to this flag though. This patch fixes it for the
+mxs-mmc driver.
 
-Thanks!
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: ceeeb99cd821 ("dmaengine: mxs: rename custom flag")
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Tested-by: Fabio Estevam <festevam@gmail.com>
+Reported-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Tested-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/mmc/host/mxs-mmc.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Fixes: 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO translation")
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/pinctrl/intel/pinctrl-cherryview.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-> index aae51c507f59..02ff5e8b0510 100644
-> --- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-> +++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-> @@ -1563,7 +1563,7 @@ static void chv_init_irq_valid_mask(struct gpio_chip *chip,
->  		intsel >>= CHV_PADCTRL0_INTSEL_SHIFT;
->  
->  		if (intsel >= community->nirqs)
-> -			clear_bit(i, valid_mask);
-> +			clear_bit(desc->number, valid_mask);
->  	}
->  }
->  
-> -- 
-> 2.23.0
-> 
-
+diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
+index 78e7e350655c..4031217d21c3 100644
+--- a/drivers/mmc/host/mxs-mmc.c
++++ b/drivers/mmc/host/mxs-mmc.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
++#include <linux/dma/mxs-dma.h>
+ #include <linux/highmem.h>
+ #include <linux/clk.h>
+ #include <linux/err.h>
+@@ -266,7 +267,7 @@ static void mxs_mmc_bc(struct mxs_mmc_host *host)
+ 	ssp->ssp_pio_words[2] = cmd1;
+ 	ssp->dma_dir = DMA_NONE;
+ 	ssp->slave_dirn = DMA_TRANS_NONE;
+-	desc = mxs_mmc_prep_dma(host, DMA_CTRL_ACK);
++	desc = mxs_mmc_prep_dma(host, MXS_DMA_CTRL_WAIT4END);
+ 	if (!desc)
+ 		goto out;
+ 
+@@ -311,7 +312,7 @@ static void mxs_mmc_ac(struct mxs_mmc_host *host)
+ 	ssp->ssp_pio_words[2] = cmd1;
+ 	ssp->dma_dir = DMA_NONE;
+ 	ssp->slave_dirn = DMA_TRANS_NONE;
+-	desc = mxs_mmc_prep_dma(host, DMA_CTRL_ACK);
++	desc = mxs_mmc_prep_dma(host, MXS_DMA_CTRL_WAIT4END);
+ 	if (!desc)
+ 		goto out;
+ 
+@@ -441,7 +442,7 @@ static void mxs_mmc_adtc(struct mxs_mmc_host *host)
+ 	host->data = data;
+ 	ssp->dma_dir = dma_data_dir;
+ 	ssp->slave_dirn = slave_dirn;
+-	desc = mxs_mmc_prep_dma(host, DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
++	desc = mxs_mmc_prep_dma(host, DMA_PREP_INTERRUPT | MXS_DMA_CTRL_WAIT4END);
+ 	if (!desc)
+ 		goto out;
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.23.0
 
