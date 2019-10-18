@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0BFDD3B6
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D5C0DD3B8
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731720AbfJRWGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38520 "EHLO mail.kernel.org"
+        id S1731757AbfJRWGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:06:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731678AbfJRWGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:34 -0400
+        id S1731717AbfJRWGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0540E2245B;
-        Fri, 18 Oct 2019 22:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E07B222D1;
+        Fri, 18 Oct 2019 22:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436394;
-        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
+        s=default; t=1571436395;
+        bh=S+UP34fBgco5qEy2lVaj8NvPWE1I+JMG2cDvjgizkSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlQBTM4izgVXv46h8WgEUTvNCbHPb6OC2+Rn89n8wAuUel7V9433A1aFaOODwdYrU
-         HwHpSvLW0yMUwUYDN+Gaql1Tm1pN1YQ3lzuYvNWZz5ejcPbmL8dSiBYQ9sHWC9upJY
-         kApa2mki6kI4C94VPKGTXzr0sRVPsW/opD5H850Q=
+        b=SfcqN+19ZnxdkADOKVReuvA0OvE/dqWzK9GAmJO3FycB7Qr2nqjNmFcOesM9g6cP4
+         NlFk6/PqefmKHgM9Gy14sgmE1QZ4b3QO19pgbdOdNhksX4QJBGGstuAfXQNeffKZV9
+         zgi8nCxCyk5gvin6rABd4GlL6kZKj1gWJHDeUp14=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Samuel Dionne-Riel <samuel@dionne-riel.com>,
-        Richard Weinberger <richard.weinberger@gmail.com>,
-        Graham Christensen <graham@grahamc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 045/100] exec: load_script: Do not exec truncated interpreter path
-Date:   Fri, 18 Oct 2019 18:04:30 -0400
-Message-Id: <20191018220525.9042-45-sashal@kernel.org>
+Cc:     Andrew Lunn <andrew@lunn.ch>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 046/100] net: dsa: mv88e6xxx: Release lock while requesting IRQ
+Date:   Fri, 18 Oct 2019 18:04:31 -0400
+Message-Id: <20191018220525.9042-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -49,117 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
+[ Upstream commit 342a0ee70acbee97fdeb91349420f8744eb291fb ]
 
-Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
-shebang string") was trying to protect against a confused exec of a
-truncated interpreter path. However, it was overeager and also refused
-to truncate arguments as well, which broke userspace, and it was
-reverted. This attempts the protection again, but allows arguments to
-remain truncated. In an effort to improve readability, helper functions
-and comments have been added.
+There is no need to hold the register lock while requesting the GPIO
+interrupt. By not holding it we can also avoid a false positive
+lockdep splat.
 
-Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: Graham Christensen <graham@grahamc.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 9 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
-index 7cde3f46ad263..e996174cbfc02 100644
---- a/fs/binfmt_script.c
-+++ b/fs/binfmt_script.c
-@@ -14,13 +14,30 @@
- #include <linux/err.h>
- #include <linux/fs.h>
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 703e6bdaf0e1f..d075f0f7a3de8 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -456,10 +456,12 @@ static int mv88e6xxx_g1_irq_setup(struct mv88e6xxx_chip *chip)
+ 	 */
+ 	irq_set_lockdep_class(chip->irq, &lock_key, &request_key);
  
-+static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
-+static inline char *next_non_spacetab(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (!spacetab(*first))
-+			return first;
-+	return NULL;
-+}
-+static inline char *next_terminator(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (spacetab(*first) || !*first)
-+			return first;
-+	return NULL;
-+}
-+
- static int load_script(struct linux_binprm *bprm)
- {
- 	const char *i_arg, *i_name;
--	char *cp;
-+	char *cp, *buf_end;
- 	struct file *file;
- 	int retval;
++	mutex_unlock(&chip->reg_lock);
+ 	err = request_threaded_irq(chip->irq, NULL,
+ 				   mv88e6xxx_g1_irq_thread_fn,
+ 				   IRQF_ONESHOT,
+ 				   dev_name(chip->dev), chip);
++	mutex_lock(&chip->reg_lock);
+ 	if (err)
+ 		mv88e6xxx_g1_irq_free_common(chip);
  
-+	/* Not ours to exec if we don't start with "#!". */
- 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
- 		return -ENOEXEC;
- 
-@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
- 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
- 		return -ENOENT;
- 
--	/*
--	 * This section does the #! interpretation.
--	 * Sorta complicated, but hopefully it will work.  -TYT
--	 */
--
-+	/* Release since we are not mapping a binary into memory. */
- 	allow_write_access(bprm->file);
- 	fput(bprm->file);
- 	bprm->file = NULL;
- 
--	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
--	if ((cp = strchr(bprm->buf, '\n')) == NULL)
--		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	/*
-+	 * This section handles parsing the #! line into separate
-+	 * interpreter path and argument strings. We must be careful
-+	 * because bprm->buf is not yet guaranteed to be NUL-terminated
-+	 * (though the buffer will have trailing NUL padding when the
-+	 * file size was smaller than the buffer size).
-+	 *
-+	 * We do not want to exec a truncated interpreter path, so either
-+	 * we find a newline (which indicates nothing is truncated), or
-+	 * we find a space/tab/NUL after the interpreter path (which
-+	 * itself may be preceded by spaces/tabs). Truncating the
-+	 * arguments is fine: the interpreter can re-read the script to
-+	 * parse them on its own.
-+	 */
-+	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
-+	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
-+	if (!cp) {
-+		cp = next_non_spacetab(bprm->buf + 2, buf_end);
-+		if (!cp)
-+			return -ENOEXEC; /* Entire buf is spaces/tabs */
-+		/*
-+		 * If there is no later space/tab/NUL we must assume the
-+		 * interpreter path is truncated.
-+		 */
-+		if (!next_terminator(cp, buf_end))
-+			return -ENOEXEC;
-+		cp = buf_end;
-+	}
-+	/* NUL-terminate the buffer and any trailing spaces/tabs. */
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
 -- 
 2.20.1
 
