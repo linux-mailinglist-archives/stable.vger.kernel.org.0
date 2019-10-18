@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D9EDD353
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA477DD352
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733286AbfJRWHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:07:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40212 "EHLO mail.kernel.org"
+        id S1733311AbfJRWHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:07:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733241AbfJRWHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:48 -0400
+        id S1733281AbfJRWHu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:07:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D95CE222D1;
-        Fri, 18 Oct 2019 22:07:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7859C222D4;
+        Fri, 18 Oct 2019 22:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436467;
-        bh=7anIju3GzbRm18JdCkJS7Bg+9lKUk0OQ3BDxqqY5L24=;
+        s=default; t=1571436470;
+        bh=xXS8p/EblncHJQHEhAPsiIeE9RiB5ZxpflNfzXPTfaQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bu2c6ZrzQNAgR6iUWOCpixSD+B04Rsv6aarfMBTMe8KLw9q7Wx2uK/MQyVraFke2I
-         UH8guMLvzeUnMb6sox1lEzGI8oKUoucXPhGlKZnPbwVMg7ikEz2U9Bvk6HlqPLRrOf
-         G9ys6yR/f1qX27nunWHK5WhWXcguntLWaS2eoS90=
+        b=krHBCYfAoKl/7I6w37QsAmUlEvsQ4tFsLkZpX78updqCRPT25w6jG/p3Vl/BkuW89
+         w6rFKpoV9+A2KI2xrUS2k+2WrXHCutrrPJNxNKjyVCMENQz+at+UlmtNpP/eEuQ7Wy
+         Sf/taBhtmsKZoEQLavGGYLS3m+ABPxpldCWIBWII=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiubo Li <xiubli@redhat.com>, Mike Christie <mchristi@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 4.19 097/100] nbd: fix possible sysfs duplicate warning
-Date:   Fri, 18 Oct 2019 18:05:22 -0400
-Message-Id: <20191018220525.9042-97-sashal@kernel.org>
+Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 099/100] s390/uaccess: avoid (false positive) compiler warnings
+Date:   Fri, 18 Oct 2019 18:05:24 -0400
+Message-Id: <20191018220525.9042-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,47 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-[ Upstream commit 862488105b84ca744b3d8ff131e0fcfe10644be1 ]
+[ Upstream commit 062795fcdcb2d22822fb42644b1d76a8ad8439b3 ]
 
-1. nbd_put takes the mutex and drops nbd->ref to 0. It then does
-idr_remove and drops the mutex.
+Depending on inlining decisions by the compiler, __get/put_user_fn
+might become out of line. Then the compiler is no longer able to tell
+that size can only be 1,2,4 or 8 due to the check in __get/put_user
+resulting in false positives like
 
-2. nbd_genl_connect takes the mutex. idr_find/idr_for_each fails
-to find an existing device, so it does nbd_dev_add.
+./arch/s390/include/asm/uaccess.h: In function ‘__put_user_fn’:
+./arch/s390/include/asm/uaccess.h:113:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  113 |  return rc;
+      |         ^~
+./arch/s390/include/asm/uaccess.h: In function ‘__get_user_fn’:
+./arch/s390/include/asm/uaccess.h:143:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  143 |  return rc;
+      |         ^~
 
-3. just before the nbd_put could call nbd_dev_remove or not finished
-totally, but if nbd_dev_add try to add_disk, we can hit:
+These functions are supposed to be always inlined. Mark it as such.
 
-debugfs: Directory 'nbd1' with parent 'block' already present!
-
-This patch will make sure all the disk add/remove stuff are done
-by holding the nbd_index_mutex lock.
-
-Reported-by: Mike Christie <mchristi@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/uaccess.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index bc2fa4e85f0ca..d445195945618 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -228,8 +228,8 @@ static void nbd_put(struct nbd_device *nbd)
- 	if (refcount_dec_and_mutex_lock(&nbd->refs,
- 					&nbd_index_mutex)) {
- 		idr_remove(&nbd_index_idr, nbd->index);
--		mutex_unlock(&nbd_index_mutex);
- 		nbd_dev_remove(nbd);
-+		mutex_unlock(&nbd_index_mutex);
- 	}
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index 5332f628c1edc..40194f8c772a0 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -84,7 +84,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ 	__rc;							\
+ })
+ 
+-static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
++static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x010000UL;
+ 	int rc;
+@@ -114,7 +114,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ 	return rc;
  }
  
+-static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
++static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x01UL;
+ 	int rc;
 -- 
 2.20.1
 
