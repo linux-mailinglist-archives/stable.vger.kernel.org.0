@@ -2,80 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29451DBE2D
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 09:18:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35162DBE6A
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 09:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728362AbfJRHSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 03:18:42 -0400
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:39622 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726857AbfJRHSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 03:18:42 -0400
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id x9I7IVJt118924;
-        Fri, 18 Oct 2019 02:18:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1571383111;
-        bh=OilUv+GFguDJ3YR661ZCA0FSuZHVAgyHf27fIiSPtBQ=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=VFA9s4S3oEa6/V0fDs4K7SMjpWK/KswAWW8GBkMBbvZv1jBytBIFi93E2cQNu3kXC
-         A8S1vzbTVkmVP6IKcZXBT1/XH/ZTOMwUqeBAyP+Wcoyyq/ZQwnzdI+pAGEgLxzbwyt
-         87fEZ/tztleAif7MSNLX9JL2VC3rfhdo/D7JOp8E=
-Received: from DFLE109.ent.ti.com (dfle109.ent.ti.com [10.64.6.30])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id x9I7IVZl044520;
-        Fri, 18 Oct 2019 02:18:31 -0500
-Received: from DFLE113.ent.ti.com (10.64.6.34) by DFLE109.ent.ti.com
- (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Fri, 18
- Oct 2019 02:18:22 -0500
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE113.ent.ti.com
- (10.64.6.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
- Frontend Transport; Fri, 18 Oct 2019 02:18:22 -0500
-Received: from [192.168.2.6] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id x9I7ITTV080168;
-        Fri, 18 Oct 2019 02:18:29 -0500
-Subject: Re: [PATCH] drm/omap: fix max fclk divider for omap36xx
-To:     Adam Ford <aford173@gmail.com>
-CC:     dri-devel <dri-devel@lists.freedesktop.org>,
-        Linux-OMAP <linux-omap@vger.kernel.org>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        stable <stable@vger.kernel.org>
-References: <20191002122542.8449-1-tomi.valkeinen@ti.com>
- <CAHCN7xLjGkLHMWejEk-3vJ-OwzjB+BXtnPWoonh4mAVxbkzMWQ@mail.gmail.com>
- <CAHCN7xKN7CePgajQLH61dBaoLWZ4VMxo39_xJOWHyvM3x_0i=A@mail.gmail.com>
-From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
-Message-ID: <406842b9-18f0-ddf7-5317-4ace265d0ac2@ti.com>
-Date:   Fri, 18 Oct 2019 10:18:28 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S2504661AbfJRHci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 03:32:38 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:38598 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2504654AbfJRHci (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 03:32:38 -0400
+Received: by mail-lj1-f194.google.com with SMTP id b20so5155000ljj.5;
+        Fri, 18 Oct 2019 00:32:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M59q7a9C0OgA4oCmsCvNmrsotdikD3/oQO5y00c53pE=;
+        b=QDjSdwVhwSC0JWfWLJhp/h9DdZY9n0KxIP8OCUJAgh30ovPE8RBv1vHr+hVbVE0tME
+         iJD/yM8B0njK1VSHughXZlw5SQkhpbffxcCOWITVKsRI0dqS8/ILGqUXSDE6L6GQObAB
+         8Spdl/ikovaOjEkQ7UyA0Glo6fnrOJKKEAP/gqHenduF5Lu0WFI9N0bTzyfpDg3zfBV2
+         IRnoDoHGZNoLlHtk2Azb1de+77SEAhw9DcNfUSfk+GVqyQLuuShl+xT1Ca29rp3J6LGC
+         y80VJ4sumAssPPDxX3/qBR8wbdfQ+PliuJhcYWI5xzyfTw1IL0YY22z+NQybKAWp1Wdy
+         emHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M59q7a9C0OgA4oCmsCvNmrsotdikD3/oQO5y00c53pE=;
+        b=OqejqXKR2Btm1eTSswEz+ntVUVN002t/R6PIbFviDA8rDmBsMfnOqN1irwdOo3hjLk
+         YCQJmYJPPmSSliIOEzh3BExrQKzDWEeiUZ8AayTQPl8freFcAAWECvbqNSjxLkdTQxQH
+         4kBGov1jEAb74kfS/wwJFKQ6ZC0kK+QCpj9Tek0yKgWE5jmyg2HTCo2Z5ljF7rAOuRYV
+         CGtjMwbu5cewKg1OpkImqfETsVT4bRSnps0DURCtaijdt2vXKKxSPkUdDmLC/DiX+kCY
+         LzDHJlA+CWX3ZvLndruQAhUAB/FTET9F+bvfxQ79i8N6bJpAMb6VP2lEpy23OeWbbf4U
+         8qSQ==
+X-Gm-Message-State: APjAAAUKB0TO2VE+TYCtmu/wgTBKNDFG/DLwK/HVpgBXIRZMFh15wFHX
+        891On3Yw/5kr2uKORTWgdzQPvF5k2OXAXMhuJaY=
+X-Google-Smtp-Source: APXvYqxGOxFAMF/DGekSaTRLTT9JUI7FrVcOqmXscMrke5xrFR1FwSh6E7g1AZnXqZ7em90pHobqgkjM7M2X9uVhFI0=
+X-Received: by 2002:a2e:b4a8:: with SMTP id q8mr5095902ljm.106.1571383954846;
+ Fri, 18 Oct 2019 00:32:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHCN7xKN7CePgajQLH61dBaoLWZ4VMxo39_xJOWHyvM3x_0i=A@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+References: <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A22E@ALPMBAPA12.e2k.ad.ge.com>
+ <20191004182711.GC6945@linux.intel.com> <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2A38B@ALPMBAPA12.e2k.ad.ge.com>
+ <20191007000520.GA17116@linux.intel.com> <59b88042-9c56-c891-f75e-7c0719eb5ff9@linux.ibm.com>
+ <20191008234935.GA13926@linux.intel.com> <20191008235339.GB13926@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2B995@ALPMBAPA12.e2k.ad.ge.com>
+ <20191014190033.GA15552@linux.intel.com> <1571081397.3728.9.camel@HansenPartnership.com>
+ <20191016110031.GE10184@linux.intel.com> <1571229252.3477.7.camel@HansenPartnership.com>
+In-Reply-To: <1571229252.3477.7.camel@HansenPartnership.com>
+From:   Janne Karhunen <janne.karhunen@gmail.com>
+Date:   Fri, 18 Oct 2019 10:32:23 +0300
+Message-ID: <CAE=NcrbSrqNUF_Jhe4cL=BSmY=p45nS8axkSJC6HWeGo2NnXDA@mail.gmail.com>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+To:     James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
+        Ken Goldman <kgold@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 17/10/2019 21:05, Adam Ford wrote:
+On Wed, Oct 16, 2019 at 6:35 PM James Bottomley
+<James.Bottomley@hansenpartnership.com> wrote:
 
->> Is there any way you can do a patch for the FB version for the older
->> 4.9 and 4.14 kernels?  I think they are still defaulting to the omapfb
->> instead of DRM, so the underflow issue still appears by default and
->> the patch only impacts the DRM version of the driver.  If not, do you
->> have any objections if I submit a patch to stable for those two LTS
->> branches?
-> 
-> Gentle nudge on this question.  I can do the work, but I just
-> permission so don't overstep.
+> > The documentation says that krng is suitable for key generation.
+> > Should the documentation changed to state that it is unsuitable?
+>
+> How do you get that from the argument above?  The krng is about the
+> best we have in terms of unpredictable key generation, so of course it
+> is suitable ... provided you give the entropy enough time to have
+> sufficient entropy.
 
-Sure, go ahead.
+Yes, so it can be both the safest and the least safe option available.
+By default it's the worst one, but use it wisely and it can be the
+best source. Hence I was proposing that kconfig option + boot time
+printout to make this clear for everyone..
 
-  Tomi
 
--- 
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+--
+Janne
