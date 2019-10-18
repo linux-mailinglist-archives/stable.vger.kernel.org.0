@@ -2,67 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CEBDD42F
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA77DD410
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732678AbfJRWW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:22:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37428 "EHLO mail.kernel.org"
+        id S1729889AbfJRWFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729541AbfJRWFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729866AbfJRWFf (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 18 Oct 2019 18:05:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3E85222D2;
-        Fri, 18 Oct 2019 22:05:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F832222C6;
+        Fri, 18 Oct 2019 22:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436334;
-        bh=ciDTbb48whY0btX4Jeq3lVC0e8CX6K6hmGMsNlR6hrw=;
+        s=default; t=1571436335;
+        bh=zVWc36t1YQ5i5dLYsdN3Ycb+XDGeIMymeTrjmDPd9qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UE87X9DwzKTm4uCCLkjacgaa/Y26a63fiqeElJKkk3LRJbreqVYTw7LVAF5KL1d8J
-         tCpfCD13XOl7IYioiiAaYnGIr7OifjKOnIBWYzCaIX0Y93HBSTUsQsiHi0d/OIG0Wn
-         yjD1RxEQDbbTrpjt6TIexsjGSP1jleYMGGPNVy8w=
+        b=KotNSeiVwdL1tKPDukF8dL37DjA+exJpTmBPibNkp2qctkNj97vihqPOTfZ3QPkhe
+         ij0u3PK8sxcgSWGBDG/pFjsrwnJsp3fP67JtgwyUsZz+yFKRA/juJPw/7KAUMdXlDh
+         /ADhEs00sYwilzbdT8b0EB+LGrgsQlHOmYQq7bpk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Hildenbrand <david@redhat.com>,
-        Pavel Tatashin <pavel.tatashin@microsoft.com>,
-        Rashmica Gupta <rashmica.g@gmail.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Neuling <mikey@neuling.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        John Allen <jallen@linux.vnet.ibm.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kate Stewart <kstewart@linuxfoundation.org>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Len Brown <lenb@kernel.org>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Mathieu Malaterre <malat@debian.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Nathan Fontenot <nfont@linux.vnet.ibm.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 005/100] powerpc/powernv: hold device_hotplug_lock when calling memtrace_offline_pages()
-Date:   Fri, 18 Oct 2019 18:03:50 -0400
-Message-Id: <20191018220525.9042-5-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 006/100] f2fs: fix to recover inode's i_gc_failures during POR
+Date:   Fri, 18 Oct 2019 18:03:51 -0400
+Message-Id: <20191018220525.9042-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -75,93 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 5666848774ef43d3db5151ec518f1deb63515c20 ]
+[ Upstream commit 7de36cf3e4087207f42a88992f8cb615a1bd902e ]
 
-Let's perform all checking + offlining + removing under
-device_hotplug_lock, so nobody can mess with these devices via sysfs
-concurrently.
+inode.i_gc_failures is used to indicate that skip count of migrating
+on blocks of inode, we should guarantee it can be recovered in sudden
+power-off case.
 
-[david@redhat.com: take device_hotplug_lock outside of loop]
-  Link: http://lkml.kernel.org/r/20180927092554.13567-6-david@redhat.com
-Link: http://lkml.kernel.org/r/20180925091457.28651-6-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Reviewed-by: Rashmica Gupta <rashmica.g@gmail.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Rashmica Gupta <rashmica.g@gmail.com>
-Cc: Michael Neuling <mikey@neuling.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: John Allen <jallen@linux.vnet.ibm.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Kate Stewart <kstewart@linuxfoundation.org>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/memtrace.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/f2fs/recovery.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
-index a29fdf8a2e56e..232bf5987f91d 100644
---- a/arch/powerpc/platforms/powernv/memtrace.c
-+++ b/arch/powerpc/platforms/powernv/memtrace.c
-@@ -70,6 +70,7 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
- 	return 0;
- }
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 0b224f4a4a656..281ba46b5b359 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -226,6 +226,8 @@ static void recover_inode(struct inode *inode, struct page *page)
  
-+/* called with device_hotplug_lock held */
- static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
- {
- 	u64 end_pfn = start_pfn + nr_pages - 1;
-@@ -110,6 +111,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 	/* Trace memory needs to be aligned to the size */
- 	end_pfn = round_down(end_pfn - nr_pages, nr_pages);
+ 	F2FS_I(inode)->i_advise = raw->i_advise;
+ 	F2FS_I(inode)->i_flags = le32_to_cpu(raw->i_flags);
++	F2FS_I(inode)->i_gc_failures[GC_FAILURE_PIN] =
++				le16_to_cpu(raw->i_gc_failures);
  
-+	lock_device_hotplug();
- 	for (base_pfn = end_pfn; base_pfn > start_pfn; base_pfn -= nr_pages) {
- 		if (memtrace_offline_pages(nid, base_pfn, nr_pages) == true) {
- 			/*
-@@ -118,7 +120,6 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 			 * we never try to remove memory that spans two iomem
- 			 * resources.
- 			 */
--			lock_device_hotplug();
- 			end_pfn = base_pfn + nr_pages;
- 			for (pfn = base_pfn; pfn < end_pfn; pfn += bytes>> PAGE_SHIFT) {
- 				remove_memory(nid, pfn << PAGE_SHIFT, bytes);
-@@ -127,6 +128,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
- 			return base_pfn << PAGE_SHIFT;
- 		}
- 	}
-+	unlock_device_hotplug();
+ 	recover_inline_flags(inode, raw);
  
- 	return 0;
- }
 -- 
 2.20.1
 
