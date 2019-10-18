@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7092CDD283
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA8BDD273
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390321AbfJRWLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
+        id S2390351AbfJRWKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:10:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390229AbfJRWKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:10:31 -0400
+        id S2390312AbfJRWKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:10:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABA8F22479;
-        Fri, 18 Oct 2019 22:10:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BA6D222D1;
+        Fri, 18 Oct 2019 22:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436630;
-        bh=fry4oSyHeunB2T5myi7abXI9AvaNsGHVM56HfHU+S0s=;
+        s=default; t=1571436631;
+        bh=1FToogkIY8Hsa4SVq/KUItZyuhUtpk68aHUfQPLdhjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dK86aC9VpbsxcwE2oJa3dnuQSdwAYgj392FCaHMdu5ul3HmKuDlf/l8JLyfIkjbaR
-         lPbSBCF5RBgmF4/x78ULdb5qg6ccsvOQYHI/BwsaHNJiAKLB8cPKNE1NsaVyM+5B/J
-         zbIdZSt8JGVg4Oe41fqSAqyjOQ6fKlww2RsPp4aA=
+        b=DLULtT02u/wpCs8nNvYpYayjoGjlDXruE0oahAgUcXbCle9Q+QUqgiDpP0LgGPrzV
+         Jv5WvyXMIKKrQ93vTW0KrF/Y+WgX1/IsPX/9OhxptUc5KMhyGOG29C3vpyH4ut7rXK
+         iz0F8YlvdvVBTYe8DHSJ/myRwGBqhUbBkuvFzyxY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
@@ -32,13 +32,12 @@ Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
         Junxiao Bi <junxiao.bi@oracle.com>,
         Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
         Jun Piao <piaojun@huawei.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 14/21] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
-Date:   Fri, 18 Oct 2019 18:10:00 -0400
-Message-Id: <20191018221007.10851-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 15/21] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_info_scan_inode_alloc()
+Date:   Fri, 18 Oct 2019 18:10:01 -0400
+Message-Id: <20191018221007.10851-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018221007.10851-1-sashal@kernel.org>
 References: <20191018221007.10851-1-sashal@kernel.org>
@@ -53,34 +52,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
+[ Upstream commit 2abb7d3b12d007c30193f48bebed781009bebdd2 ]
 
-In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
-check whether loc->xl_entry is NULL:
+In ocfs2_info_scan_inode_alloc(), there is an if statement on line 283
+to check whether inode_alloc is NULL:
 
-    if (loc->xl_entry)
+    if (inode_alloc)
 
-When loc->xl_entry is NULL, it is used on line 2158:
+When inode_alloc is NULL, it is used on line 287:
 
-    ocfs2_xa_add_entry(loc, name_hash);
-        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
-        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+    ocfs2_inode_lock(inode_alloc, &bh, 0);
+        ocfs2_inode_lock_full_nested(inode, ...)
+            struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
 
-and line 2164:
+Thus, a possible null-pointer dereference may occur.
 
-    ocfs2_xa_add_namevalue(loc, xi);
-        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
-        loc->xl_entry->xe_name_len = xi->xi_name_len;
+To fix this bug, inode_alloc is checked on line 286.
 
-Thus, possible null-pointer dereferences may occur.
+This bug is found by a static analysis tool STCheck written by us.
 
-To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
-abnormally returns with -EINVAL.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
-Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
+Link: http://lkml.kernel.org/r/20190726033717.32359-1-baijiaju1990@gmail.com
 Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Mark Fasheh <mark@fasheh.com>
@@ -89,90 +80,26 @@ Cc: Junxiao Bi <junxiao.bi@oracle.com>
 Cc: Changwei Ge <gechangwei@live.cn>
 Cc: Gang He <ghe@suse.com>
 Cc: Jun Piao <piaojun@huawei.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
- 1 file changed, 23 insertions(+), 33 deletions(-)
+ fs/ocfs2/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-index 06faa608e5622..dfa6d45dc4dc4 100644
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -1475,18 +1475,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
- 	return loc->xl_ops->xlo_check_space(loc, xi);
- }
+diff --git a/fs/ocfs2/ioctl.c b/fs/ocfs2/ioctl.c
+index 3cb097ccce607..79232296b7d2b 100644
+--- a/fs/ocfs2/ioctl.c
++++ b/fs/ocfs2/ioctl.c
+@@ -289,7 +289,7 @@ static int ocfs2_info_scan_inode_alloc(struct ocfs2_super *osb,
+ 	if (inode_alloc)
+ 		mutex_lock(&inode_alloc->i_mutex);
  
--static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
--{
--	loc->xl_ops->xlo_add_entry(loc, name_hash);
--	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
--	/*
--	 * We can't leave the new entry's xe_name_offset at zero or
--	 * add_namevalue() will go nuts.  We set it to the size of our
--	 * storage so that it can never be less than any other entry.
--	 */
--	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
--}
--
- static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
- 				   struct ocfs2_xattr_info *xi)
- {
-@@ -2118,29 +2106,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
- 	if (rc)
- 		goto out;
- 
--	if (loc->xl_entry) {
--		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
--			orig_value_size = loc->xl_entry->xe_value_size;
--			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
--			if (rc)
--				goto out;
--			goto alloc_value;
--		}
-+	if (!loc->xl_entry) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
- 
--		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
--			orig_clusters = ocfs2_xa_value_clusters(loc);
--			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
--			if (rc) {
--				mlog_errno(rc);
--				ocfs2_xa_cleanup_value_truncate(loc,
--								"overwriting",
--								orig_clusters);
--				goto out;
--			}
-+	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
-+		orig_value_size = loc->xl_entry->xe_value_size;
-+		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
-+		if (rc)
-+			goto out;
-+		goto alloc_value;
-+	}
-+
-+	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
-+		orig_clusters = ocfs2_xa_value_clusters(loc);
-+		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
-+		if (rc) {
-+			mlog_errno(rc);
-+			ocfs2_xa_cleanup_value_truncate(loc,
-+							"overwriting",
-+							orig_clusters);
-+			goto out;
- 		}
--		ocfs2_xa_wipe_namevalue(loc);
--	} else
--		ocfs2_xa_add_entry(loc, name_hash);
-+	}
-+	ocfs2_xa_wipe_namevalue(loc);
- 
- 	/*
- 	 * If we get here, we have a blank entry.  Fill it.  We grow our
+-	if (o2info_coherent(&fi->ifi_req)) {
++	if (inode_alloc && o2info_coherent(&fi->ifi_req)) {
+ 		status = ocfs2_inode_lock(inode_alloc, &bh, 0);
+ 		if (status < 0) {
+ 			mlog_errno(status);
 -- 
 2.20.1
 
