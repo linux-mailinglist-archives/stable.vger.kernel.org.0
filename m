@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E50DD2DD
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3E23DD2DF
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387809AbfJRWI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40926 "EHLO mail.kernel.org"
+        id S2387826AbfJRWIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387798AbfJRWI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:29 -0400
+        id S2387814AbfJRWIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DBB0222C2;
-        Fri, 18 Oct 2019 22:08:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36465222D1;
+        Fri, 18 Oct 2019 22:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436508;
-        bh=HDsv24RpewDnlRB22Fo8IdX8RsS0btuV9oTMySaKPco=;
+        s=default; t=1571436509;
+        bh=gzJIr3oEpeI6UESWP5YHp1gXpssUBoR3tv0ZGUfuQ44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZcqajXV60nD2r+DiBGM/ZeVpWdf1OiJoWv4xjCWVxm/XernE1nBX+Ioc61k5UPncb
-         xlkLRkDkl2fDDWtCi2+5p/1vb7WnVm4POCt96IoI7LvKA6apEh2sU173hhdWWTOmaZ
-         6D48VoWi4HO1Y9JjrkvXzfcHTjbUREWqImAFBTsE=
+        b=C8kT2lyYkwwRDvmtah0RcvC2oFSAkiRMAZcP4Uiepi1XziBFPVwjH4kcvgEpXX5v4
+         /FDLjmeF9/tcfYKxRd1lDV5G3PS8T2CfZuStcYd90xQHn/ScPStg4QXYrGIChtgtOZ
+         PSxlLys8+Pzyqiqg+CWUwq3QlDzHKek7SF0F5Geg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Remi Pommarel <repk@triplefau.lt>,
-        Elie Roudninski <xademax@gmail.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+Cc:     Pascal Bouwmann <bouwmann@tau-tec.de>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 19/56] iio: adc: meson_saradc: Fix memory allocation order
-Date:   Fri, 18 Oct 2019 18:07:16 -0400
-Message-Id: <20191018220753.10002-19-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 20/56] iio: fix center temperature of bmc150-accel-core
+Date:   Fri, 18 Oct 2019 18:07:17 -0400
+Message-Id: <20191018220753.10002-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -47,58 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Pascal Bouwmann <bouwmann@tau-tec.de>
 
-[ Upstream commit de10ac47597e7a3596b27631d0d5ce5f48d2c099 ]
+[ Upstream commit 6c59a962e081df6d8fe43325bbfabec57e0d4751 ]
 
-meson_saradc's irq handler uses priv->regmap so make sure that it is
-allocated before the irq get enabled.
+The center temperature of the supported devices stored in the constant
+BMC150_ACCEL_TEMP_CENTER_VAL is not 24 degrees but 23 degrees.
 
-This also fixes crash when CONFIG_DEBUG_SHIRQ is enabled, as device
-managed resources are freed in the inverted order they had been
-allocated, priv->regmap was freed before the spurious fake irq that
-CONFIG_DEBUG_SHIRQ adds called the handler.
+It seems that some datasheets were inconsistent on this value leading
+to the error.  For most usecases will only make minor difference so
+not queued for stable.
 
-Fixes: 3af109131b7eb8 ("iio: adc: meson-saradc: switch from polling to interrupt mode")
-Reported-by: Elie Roudninski <xademax@gmail.com>
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Elie ROUDNINSKI <xademax@gmail.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Pascal Bouwmann <bouwmann@tau-tec.de>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/meson_saradc.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/iio/accel/bmc150-accel-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/meson_saradc.c b/drivers/iio/adc/meson_saradc.c
-index 2515badf8b280..9b2121f249263 100644
---- a/drivers/iio/adc/meson_saradc.c
-+++ b/drivers/iio/adc/meson_saradc.c
-@@ -976,6 +976,11 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
+diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
+index 807299dd45ebf..7e86a5b7ec4e8 100644
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -125,7 +125,7 @@
+ #define BMC150_ACCEL_SLEEP_1_SEC		0x0F
  
-+	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
-+					     priv->data->regmap_config);
-+	if (IS_ERR(priv->regmap))
-+		return PTR_ERR(priv->regmap);
-+
- 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
- 	if (!irq)
- 		return -EINVAL;
-@@ -985,11 +990,6 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
+ #define BMC150_ACCEL_REG_TEMP			0x08
+-#define BMC150_ACCEL_TEMP_CENTER_VAL		24
++#define BMC150_ACCEL_TEMP_CENTER_VAL		23
  
--	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
--					     priv->data->regmap_config);
--	if (IS_ERR(priv->regmap))
--		return PTR_ERR(priv->regmap);
--
- 	priv->clkin = devm_clk_get(&pdev->dev, "clkin");
- 	if (IS_ERR(priv->clkin)) {
- 		dev_err(&pdev->dev, "failed to get clkin\n");
+ #define BMC150_ACCEL_AXIS_TO_REG(axis)	(BMC150_ACCEL_REG_XOUT_L + (axis * 2))
+ #define BMC150_AUTO_SUSPEND_DELAY_MS		2000
 -- 
 2.20.1
 
