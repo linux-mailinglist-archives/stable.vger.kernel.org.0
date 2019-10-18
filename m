@@ -2,139 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0D3DCD58
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 20:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863B6DCEC0
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 20:54:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2634394AbfJRSHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 14:07:19 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:45320 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2505757AbfJRSHR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 14:07:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=UWYU2hlp/17q+ZNz6t8G1ig3ksQwGbwgwvY2Lux56Yk=; b=JqPCc9ztbqfq
-        YSnIrMln6LZiMJrCkj5Yq128E60d+oXbv7oWH0G0CtqD0z3X+lROeWhcIjkT10OY59dEvCKncns10
-        0rZk1rwVRh1AtMJjGNWPfBzgvpN5lX1MLg1Hqd4xAQpqaAOWdOIvH9pb9QkfrBVCycfL+kW83BCEC
-        mJSR0=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iLWec-0004I2-Rf; Fri, 18 Oct 2019 18:07:10 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 4E1912743259; Fri, 18 Oct 2019 19:07:10 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-spi@vger.kernel.org,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Mark Brown <broonie@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        <stable@vger.kernel.org>, stable@vger.kernel.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Applied "spi: Fix SPI_CS_HIGH setting when using native and GPIO CS" to the spi tree
-In-Reply-To: <20191018152929.3287-1-gregory.clement@bootlin.com>
-X-Patchwork-Hint: ignore
-Message-Id: <20191018180710.4E1912743259@ypsilon.sirena.org.uk>
-Date:   Fri, 18 Oct 2019 19:07:10 +0100 (BST)
+        id S2436551AbfJRSyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 14:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726421AbfJRSyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 14:54:16 -0400
+Received: from localhost (unknown [38.98.37.137])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5FA920640;
+        Fri, 18 Oct 2019 18:54:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571424856;
+        bh=MmHzR/qqTCqYdJBZROIwR3QfICG+jnyKouwESr1R/yI=;
+        h=Subject:To:From:Date:From;
+        b=BZWb5TI7wdeiyKsS5SzQlx8mYIWCHeRq9Qga52KZrLf1qnL3DO84TavZpFfE0Gx5o
+         81Gc+A5XhIjmCC1v6yvQz7f9y+SPnCsbGv7jjgyqWmbOHRlt9HNAXEdkodFiL9ZCpo
+         i6HoS+gnwWMENbYAA0NT2H2rHfOBMVFvZnWZ7uHo=
+Subject: patch "USB: serial: ti_usb_3410_5052: fix port-close races" added to usb-linus
+To:     johan@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 18 Oct 2019 11:53:58 -0700
+Message-ID: <1571424838185183@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
 
-   spi: Fix SPI_CS_HIGH setting when using native and GPIO CS
+This is a note to let you know that I've just added the patch titled
 
-has been applied to the spi tree at
+    USB: serial: ti_usb_3410_5052: fix port-close races
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-5.4
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+If you have any questions about this process, please let me know.
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
 
-Thanks,
-Mark
+From 6f1d1dc8d540a9aa6e39b9cb86d3a67bbc1c8d8d Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Fri, 11 Oct 2019 11:57:35 +0200
+Subject: USB: serial: ti_usb_3410_5052: fix port-close races
 
-From 3e5ec1db8bfee845d9f8560d1c64aeaccd586398 Mon Sep 17 00:00:00 2001
-From: Gregory CLEMENT <gregory.clement@bootlin.com>
-Date: Fri, 18 Oct 2019 17:29:29 +0200
-Subject: [PATCH] spi: Fix SPI_CS_HIGH setting when using native and GPIO CS
+Fix races between closing a port and opening or closing another port on
+the same device which could lead to a failure to start or stop the
+shared interrupt URB. The latter could potentially cause a
+use-after-free or worse in the completion handler on driver unbind.
 
-When improving the CS GPIO support at core level, the SPI_CS_HIGH
-has been enabled for all the CS lines used for a given SPI controller.
-
-However, the SPI framework allows to have on the same controller native
-CS and GPIO CS. The native CS may not support the SPI_CS_HIGH, so they
-should not be setup automatically.
-
-With this patch the setting is done only for the CS that will use a
-GPIO as CS
-
-Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Link: https://lore.kernel.org/r/20191018152929.3287-1-gregory.clement@bootlin.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/spi/spi.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/usb/serial/ti_usb_3410_5052.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index f8b4654a57d3..d07517151340 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -1711,15 +1711,7 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
- 		spi->mode |= SPI_3WIRE;
- 	if (of_property_read_bool(nc, "spi-lsb-first"))
- 		spi->mode |= SPI_LSB_FIRST;
--
--	/*
--	 * For descriptors associated with the device, polarity inversion is
--	 * handled in the gpiolib, so all chip selects are "active high" in
--	 * the logical sense, the gpiolib will invert the line if need be.
--	 */
--	if (ctlr->use_gpio_descriptors)
--		spi->mode |= SPI_CS_HIGH;
--	else if (of_property_read_bool(nc, "spi-cs-high"))
-+	if (of_property_read_bool(nc, "spi-cs-high"))
- 		spi->mode |= SPI_CS_HIGH;
+diff --git a/drivers/usb/serial/ti_usb_3410_5052.c b/drivers/usb/serial/ti_usb_3410_5052.c
+index dd0ad67aa71e..9174ba2e06da 100644
+--- a/drivers/usb/serial/ti_usb_3410_5052.c
++++ b/drivers/usb/serial/ti_usb_3410_5052.c
+@@ -776,7 +776,6 @@ static void ti_close(struct usb_serial_port *port)
+ 	struct ti_port *tport;
+ 	int port_number;
+ 	int status;
+-	int do_unlock;
+ 	unsigned long flags;
  
- 	/* Device DUAL/QUAD mode */
-@@ -1783,6 +1775,14 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
+ 	tdev = usb_get_serial_data(port->serial);
+@@ -800,16 +799,13 @@ static void ti_close(struct usb_serial_port *port)
+ 			"%s - cannot send close port command, %d\n"
+ 							, __func__, status);
+ 
+-	/* if mutex_lock is interrupted, continue anyway */
+-	do_unlock = !mutex_lock_interruptible(&tdev->td_open_close_lock);
++	mutex_lock(&tdev->td_open_close_lock);
+ 	--tport->tp_tdev->td_open_port_count;
+-	if (tport->tp_tdev->td_open_port_count <= 0) {
++	if (tport->tp_tdev->td_open_port_count == 0) {
+ 		/* last port is closed, shut down interrupt urb */
+ 		usb_kill_urb(port->serial->port[0]->interrupt_in_urb);
+-		tport->tp_tdev->td_open_port_count = 0;
  	}
- 	spi->chip_select = value;
+-	if (do_unlock)
+-		mutex_unlock(&tdev->td_open_close_lock);
++	mutex_unlock(&tdev->td_open_close_lock);
+ }
  
-+	/*
-+	 * For descriptors associated with the device, polarity inversion is
-+	 * handled in the gpiolib, so all gpio chip selects are "active high"
-+	 * in the logical sense, the gpiolib will invert the line if need be.
-+	 */
-+	if ((ctlr->use_gpio_descriptors) && ctlr->cs_gpiods[spi->chip_select])
-+		spi->mode |= SPI_CS_HIGH;
-+
- 	/* Device speed */
- 	rc = of_property_read_u32(nc, "spi-max-frequency", &value);
- 	if (rc) {
+ 
 -- 
-2.20.1
+2.23.0
+
 
