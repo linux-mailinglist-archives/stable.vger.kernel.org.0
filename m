@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9D5DC724
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 16:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B0EDC726
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 16:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442887AbfJROSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2442884AbfJROSl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Oct 2019 10:18:41 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:35811 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2442841AbfJROSk (ORCPT
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:44840 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732676AbfJROSk (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 10:18:40 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w6so4872305lfl.2;
-        Fri, 18 Oct 2019 07:18:39 -0700 (PDT)
+Received: by mail-lj1-f194.google.com with SMTP id m13so6385824ljj.11;
+        Fri, 18 Oct 2019 07:18:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=x5fLSsgcwRkjtr6+BGZpbF35YRXG1jBQ4j2b2IIrKsw=;
-        b=aPOvcs1Nhzc3I1O3HsmpZEpdIyG8y8SG4x9Bi0HLnEdlrWXpq8DdJtUUpMrW2IVWz8
-         2GaqHInlmblecx21nJ5iPkrLuw64mOVNW803gNkn/1D37t4t3/7Rck9xnZjRWdgWQqLy
-         4m59H5dF2c2d+aqOgt7Ted4dDFYeCzBdC9NKc7a68Gf8pgpnkgPOiiOoZF5uXL8ErH5S
-         cVAh8M1qxzKvhFBDO/NcQL1cAqVA+Dg3cY40x44ZZ0mVys9AXl72MIdHHgyB64bW80/T
-         WbzpNgjvK3C4HDL/O8WYJBzE7CXT1u8lvgg7+hak+cxQ+SdrXjw9uWlwOEZsBMgJxpWJ
-         Sqow==
-X-Gm-Message-State: APjAAAX7WT7fx7JNzVg3ELRsc7327P7BOp+wRFZ3ZEK5zfrtwxsE/DOa
-        tf0m6NSTvoyuShH8WFREAZ4=
-X-Google-Smtp-Source: APXvYqwjzLZK3eeD7S7jRV6sdX/7KxZzeRukRCeOaTZmcwv/z19KM/T90ml2KOu3T+i9K4iwNjvqVQ==
-X-Received: by 2002:a05:6512:219:: with SMTP id a25mr6443149lfo.155.1571408318664;
+        bh=lK62GsaMPQOlyqa+AeKYuWxGPH9VRYmA+fAbIM8QXgg=;
+        b=UNMMwzrk7l/zo+MYQg8qxs0W8w+SoRYxOpfAT493SwFYcLSyACYWSDQzxjiBRSt8qY
+         +pE7IXhgGFUrN4fDEna2IW7CNxmz0fDwt/wWx5Qzd0F9vV3aRlzZxvsiwdX64RCIJtr9
+         a5C6G+zhvFNIwoWvEM5T9CJTVHErlTSMQaXFaCCLWgHRlupg8vKwSZ7ViDXEFzkLDIeO
+         9HoExPgMa2Zq0Yj/bjsb/gz3B6yyyWQVnh8REXnSKx4TsQNZoMGVthhC86MKvUwFucCR
+         LbK6S4wwszjpPyzvQpXDI40x3K7lXVMzFj5cYvwIv8uI3Q+y0CsRlw9Zs0FJ2shBAX+G
+         voKw==
+X-Gm-Message-State: APjAAAW6Z05oqDPCmq7ml0vfN7g3hMGhP+EU82gcy3D+ZsKUPSNrfwbu
+        kYDEfiCK2L08AqKaMVjHAfI=
+X-Google-Smtp-Source: APXvYqyT+4O2YoCKFj1gH2GwxW0feEY6wE3RN9nro6b0WUC13Xddq6uNuukLGSswJDT8hLZUJpCl6Q==
+X-Received: by 2002:a2e:86cd:: with SMTP id n13mr6579303ljj.252.1571408318149;
         Fri, 18 Oct 2019 07:18:38 -0700 (PDT)
 Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id c16sm2632736lfj.8.2019.10.18.07.18.36
+        by smtp.gmail.com with ESMTPSA id z26sm2202097lji.79.2019.10.18.07.18.36
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
         Fri, 18 Oct 2019 07:18:36 -0700 (PDT)
 Received: from johan by xi.terra with local (Exim 4.92.2)
         (envelope-from <johan@xi.terra>)
-        id 1iLT5d-0006C9-6I; Fri, 18 Oct 2019 16:18:49 +0200
+        id 1iLT5d-0006CE-9Q; Fri, 18 Oct 2019 16:18:49 +0200
 From:   Johan Hovold <johan@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Alan Stern <stern@rowland.harvard.edu>,
@@ -43,11 +43,10 @@ Cc:     Alan Stern <stern@rowland.harvard.edu>,
         "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
         linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        syzbot+6fe95b826644f7f12b0b@syzkaller.appspotmail.com
-Subject: [PATCH 1/2] USB: ldusb: fix read info leaks
-Date:   Fri, 18 Oct 2019 16:17:49 +0200
-Message-Id: <20191018141750.23756-2-johan@kernel.org>
+        stable <stable@vger.kernel.org>
+Subject: [PATCH RFC 2/2] USB: ldusb: fix ring-buffer locking
+Date:   Fri, 18 Oct 2019 16:17:50 +0200
+Message-Id: <20191018141750.23756-3-johan@kernel.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191018141750.23756-1-johan@kernel.org>
 References: <20191018141750.23756-1-johan@kernel.org>
@@ -58,76 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix broken read implementation, which could be used to trigger slab info
-leaks.
+The custom ring-buffer implementation was merged without any locking
+whatsoever, but a spinlock was later added by commit 9d33efd9a791
+("USB: ldusb bugfix").
 
-The driver failed to check if the custom ring buffer was still empty
-when waking up after having waited for more data. This would happen on
-every interrupt-in completion, even if no data had been added to the
-ring buffer (e.g. on disconnect events).
-
-Due to missing sanity checks and uninitialised (kmalloced) ring-buffer
-entries, this meant that huge slab info leaks could easily be triggered.
-
-Note that the empty-buffer check after wakeup is enough to fix the info
-leak on disconnect, but let's clear the buffer on allocation and add a
-sanity check to read() to prevent further leaks.
+The lock did not cover the loads from the ring-buffer-entry after
+determining the buffer was non-empty, nor the update of the tail index
+once the entry had been processed. The former could lead to stale data
+being returned, while the latter could lead to memory corruption on
+sufficiently weakly ordered architectures.
 
 Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+Fixes: 9d33efd9a791 ("USB: ldusb bugfix")
 Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Reported-by: syzbot+6fe95b826644f7f12b0b@syzkaller.appspotmail.com
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/misc/ldusb.c | 18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ drivers/usb/misc/ldusb.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
-index 147c90c2a4e5..94780e14e95d 100644
+index 94780e14e95d..c6cf2fa6cf4c 100644
 --- a/drivers/usb/misc/ldusb.c
 +++ b/drivers/usb/misc/ldusb.c
-@@ -464,7 +464,7 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
+@@ -477,11 +477,11 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
  
- 	/* wait for data */
- 	spin_lock_irq(&dev->rbsl);
--	if (dev->ring_head == dev->ring_tail) {
-+	while (dev->ring_head == dev->ring_tail) {
- 		dev->interrupt_in_done = 0;
- 		spin_unlock_irq(&dev->rbsl);
- 		if (file->f_flags & O_NONBLOCK) {
-@@ -474,12 +474,17 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
- 		retval = wait_event_interruptible(dev->read_wait, dev->interrupt_in_done);
- 		if (retval < 0)
- 			goto unlock_exit;
--	} else {
--		spin_unlock_irq(&dev->rbsl);
-+
-+		spin_lock_irq(&dev->rbsl);
+ 		spin_lock_irq(&dev->rbsl);
  	}
-+	spin_unlock_irq(&dev->rbsl);
+-	spin_unlock_irq(&dev->rbsl);
  
  	/* actual_buffer contains actual_length + interrupt_in_buffer */
  	actual_buffer = (size_t *)(dev->ring_buffer + dev->ring_tail * (sizeof(size_t)+dev->interrupt_in_endpoint_size));
-+	if (*actual_buffer > sizeof(size_t) + dev->interrupt_in_endpoint_size) {
-+		retval = -EIO;
-+		goto unlock_exit;
-+	}
- 	bytes_to_read = min(count, *actual_buffer);
+ 	if (*actual_buffer > sizeof(size_t) + dev->interrupt_in_endpoint_size) {
++		spin_unlock_irq(&dev->rbsl);
+ 		retval = -EIO;
+ 		goto unlock_exit;
+ 	}
+@@ -489,17 +489,26 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
  	if (bytes_to_read < *actual_buffer)
  		dev_warn(&dev->intf->dev, "Read buffer overflow, %zd bytes dropped\n",
-@@ -690,10 +695,9 @@ static int ld_usb_probe(struct usb_interface *intf, const struct usb_device_id *
- 		dev_warn(&intf->dev, "Interrupt out endpoint not found (using control endpoint instead)\n");
+ 			 *actual_buffer-bytes_to_read);
++	spin_unlock_irq(&dev->rbsl);
++
++	/*
++	 * Pairs with spin_unlock_irqrestore() in
++	 * ld_usb_interrupt_in_callback() and makes sure the ring-buffer entry
++	 * has been updated before copy_to_user().
++	 */
++	smp_rmb();
  
- 	dev->interrupt_in_endpoint_size = usb_endpoint_maxp(dev->interrupt_in_endpoint);
--	dev->ring_buffer =
--		kmalloc_array(ring_buffer_size,
--			      sizeof(size_t) + dev->interrupt_in_endpoint_size,
--			      GFP_KERNEL);
-+	dev->ring_buffer = kcalloc(ring_buffer_size,
-+			sizeof(size_t) + dev->interrupt_in_endpoint_size,
-+			GFP_KERNEL);
- 	if (!dev->ring_buffer)
- 		goto error;
- 	dev->interrupt_in_buffer = kmalloc(dev->interrupt_in_endpoint_size, GFP_KERNEL);
+ 	/* copy one interrupt_in_buffer from ring_buffer into userspace */
+ 	if (copy_to_user(buffer, actual_buffer+1, bytes_to_read)) {
+ 		retval = -EFAULT;
+ 		goto unlock_exit;
+ 	}
+-	dev->ring_tail = (dev->ring_tail+1) % ring_buffer_size;
+-
+ 	retval = bytes_to_read;
+ 
+ 	spin_lock_irq(&dev->rbsl);
++
++	dev->ring_tail = (dev->ring_tail + 1) % ring_buffer_size;
++
+ 	if (dev->buffer_overflow) {
+ 		dev->buffer_overflow = 0;
+ 		spin_unlock_irq(&dev->rbsl);
 -- 
 2.23.0
 
