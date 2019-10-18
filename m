@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 406F0DD340
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1C4BDD2D9
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392825AbfJRWQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:16:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
+        id S2387743AbfJRWIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387677AbfJRWIV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:21 -0400
+        id S2387718AbfJRWIX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E5202245A;
-        Fri, 18 Oct 2019 22:08:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC1F0222D4;
+        Fri, 18 Oct 2019 22:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436500;
-        bh=a4hWbx/OJTFq6/zncSC4Cw+aLZpikdZTGHzDZjdvTL4=;
+        s=default; t=1571436502;
+        bh=TQNB6+YYrNI4qrmWcNwpXm8lQBVbYfOD1DIc59zaRi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKGVEraRE6vT0B81xsEsu4LaqbA43qI8jUM4s2W5t+jdhf257r1FU/opjOdRhZ5et
-         mcuXUuhyctEmcdR3X9ZaVMjKTl6CuIrlckPwq+ManHFN+UWHj1CURqJwxca9XXuGgR
-         kEN1pIx3Vjcxo2WKfFL8E1qui7SuFRxHl8vZs8EM=
+        b=Qcm9p+6O+cTlCKzCvuuDWTvZS2eegtvWDZHF3qsBmeJ0KOLRHnsIssnDpoKiIxdKt
+         t027WLcR48+fDg2VjcL+qI80YE7RZdD6/0/LNwxnwD1kDCmX1Cszz7922NeqzA8QmN
+         WnEPQV8b7it581uD6tlOc4de5njYdaRAI4n3f18Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nir Dotan <nird@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 13/56] mlxsw: spectrum: Set LAG port collector only when active
-Date:   Fri, 18 Oct 2019 18:07:10 -0400
-Message-Id: <20191018220753.10002-13-sashal@kernel.org>
+Cc:     =?UTF-8?q?Lucas=20A=2E=20M=2E=20Magalh=C3=A3es?= 
+        <lucmaga@gmail.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 15/56] media: vimc: Remove unused but set variables
+Date:   Fri, 18 Oct 2019 18:07:12 -0400
+Message-Id: <20191018220753.10002-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,132 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nir Dotan <nird@mellanox.com>
+From: Lucas A. M. Magalhães <lucmaga@gmail.com>
 
-[ Upstream commit 48ebab31d424fbdb8ede8914923bec671a933246 ]
+[ Upstream commit 5515e414f42bf2769caae15b634004d456658284 ]
 
-The LAG port collecting (receive) function was mistakenly set when the
-port was registered as a LAG member, while it should be set only when
-the port collection state is set to true. Set LAG port to collecting
-when it is set to distributing, as described in the IEEE link
-aggregation standard coupled control mux machine state diagram.
+Remove unused but set variables to clean up the code and avoid
+warning.
 
-Signed-off-by: Nir Dotan <nird@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lucas A. M. Magalhães <lucmaga@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 62 ++++++++++++++-----
- 1 file changed, 45 insertions(+), 17 deletions(-)
+ drivers/media/platform/vimc/vimc-sensor.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 5c74787f903b7..a909aa315a92a 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -4077,9 +4077,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
- 	err = mlxsw_sp_lag_col_port_add(mlxsw_sp_port, lag_id, port_index);
- 	if (err)
- 		goto err_col_port_add;
--	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port, lag_id);
--	if (err)
--		goto err_col_port_enable;
- 
- 	mlxsw_core_lag_mapping_set(mlxsw_sp->core, lag_id, port_index,
- 				   mlxsw_sp_port->local_port);
-@@ -4094,8 +4091,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
- 
- 	return 0;
- 
--err_col_port_enable:
--	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
- err_col_port_add:
- 	if (!lag->ref_count)
- 		mlxsw_sp_lag_destroy(mlxsw_sp, lag_id);
-@@ -4114,7 +4109,6 @@ static void mlxsw_sp_port_lag_leave(struct mlxsw_sp_port *mlxsw_sp_port,
- 	lag = mlxsw_sp_lag_get(mlxsw_sp, lag_id);
- 	WARN_ON(lag->ref_count == 0);
- 
--	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, lag_id);
- 	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
- 
- 	/* Any VLANs configured on the port are no longer valid */
-@@ -4159,21 +4153,56 @@ static int mlxsw_sp_lag_dist_port_remove(struct mlxsw_sp_port *mlxsw_sp_port,
- 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(sldr), sldr_pl);
- }
- 
--static int mlxsw_sp_port_lag_tx_en_set(struct mlxsw_sp_port *mlxsw_sp_port,
--				       bool lag_tx_enabled)
-+static int
-+mlxsw_sp_port_lag_col_dist_enable(struct mlxsw_sp_port *mlxsw_sp_port)
+diff --git a/drivers/media/platform/vimc/vimc-sensor.c b/drivers/media/platform/vimc/vimc-sensor.c
+index 70cee5c0c89a5..29a16f8a4123c 100644
+--- a/drivers/media/platform/vimc/vimc-sensor.c
++++ b/drivers/media/platform/vimc/vimc-sensor.c
+@@ -200,13 +200,6 @@ static void *vimc_sen_process_frame(struct vimc_ent_device *ved,
  {
--	if (lag_tx_enabled)
--		return mlxsw_sp_lag_dist_port_add(mlxsw_sp_port,
--						  mlxsw_sp_port->lag_id);
--	else
--		return mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
--						     mlxsw_sp_port->lag_id);
-+	int err;
-+
-+	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port,
-+					   mlxsw_sp_port->lag_id);
-+	if (err)
-+		return err;
-+
-+	err = mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	if (err)
-+		goto err_dist_port_add;
-+
-+	return 0;
-+
-+err_dist_port_add:
-+	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	return err;
-+}
-+
-+static int
-+mlxsw_sp_port_lag_col_dist_disable(struct mlxsw_sp_port *mlxsw_sp_port)
-+{
-+	int err;
-+
-+	err = mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
-+					    mlxsw_sp_port->lag_id);
-+	if (err)
-+		return err;
-+
-+	err = mlxsw_sp_lag_col_port_disable(mlxsw_sp_port,
-+					    mlxsw_sp_port->lag_id);
-+	if (err)
-+		goto err_col_port_disable;
-+
-+	return 0;
-+
-+err_col_port_disable:
-+	mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	return err;
- }
+ 	struct vimc_sen_device *vsen = container_of(ved, struct vimc_sen_device,
+ 						    ved);
+-	const struct vimc_pix_map *vpix;
+-	unsigned int frame_size;
+-
+-	/* Calculate the frame size */
+-	vpix = vimc_pix_map_by_code(vsen->mbus_format.code);
+-	frame_size = vsen->mbus_format.width * vpix->bpp *
+-		     vsen->mbus_format.height;
  
- static int mlxsw_sp_port_lag_changed(struct mlxsw_sp_port *mlxsw_sp_port,
- 				     struct netdev_lag_lower_state_info *info)
- {
--	return mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port, info->tx_enabled);
-+	if (info->tx_enabled)
-+		return mlxsw_sp_port_lag_col_dist_enable(mlxsw_sp_port);
-+	else
-+		return mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
- }
- 
- static int mlxsw_sp_port_stp_set(struct mlxsw_sp_port *mlxsw_sp_port,
-@@ -4309,8 +4338,7 @@ static int mlxsw_sp_netdevice_port_upper_event(struct net_device *lower_dev,
- 				err = mlxsw_sp_port_lag_join(mlxsw_sp_port,
- 							     upper_dev);
- 			} else {
--				mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port,
--							    false);
-+				mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
- 				mlxsw_sp_port_lag_leave(mlxsw_sp_port,
- 							upper_dev);
- 			}
+ 	tpg_fill_plane_buffer(&vsen->tpg, 0, 0, vsen->frame);
+ 	return vsen->frame;
 -- 
 2.20.1
 
