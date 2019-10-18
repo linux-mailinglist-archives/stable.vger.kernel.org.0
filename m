@@ -2,125 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B0EDC726
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 16:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6078DDC77A
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 16:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2442884AbfJROSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 10:18:41 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:44840 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732676AbfJROSk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 10:18:40 -0400
-Received: by mail-lj1-f194.google.com with SMTP id m13so6385824ljj.11;
-        Fri, 18 Oct 2019 07:18:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=lK62GsaMPQOlyqa+AeKYuWxGPH9VRYmA+fAbIM8QXgg=;
-        b=UNMMwzrk7l/zo+MYQg8qxs0W8w+SoRYxOpfAT493SwFYcLSyACYWSDQzxjiBRSt8qY
-         +pE7IXhgGFUrN4fDEna2IW7CNxmz0fDwt/wWx5Qzd0F9vV3aRlzZxvsiwdX64RCIJtr9
-         a5C6G+zhvFNIwoWvEM5T9CJTVHErlTSMQaXFaCCLWgHRlupg8vKwSZ7ViDXEFzkLDIeO
-         9HoExPgMa2Zq0Yj/bjsb/gz3B6yyyWQVnh8REXnSKx4TsQNZoMGVthhC86MKvUwFucCR
-         LbK6S4wwszjpPyzvQpXDI40x3K7lXVMzFj5cYvwIv8uI3Q+y0CsRlw9Zs0FJ2shBAX+G
-         voKw==
-X-Gm-Message-State: APjAAAW6Z05oqDPCmq7ml0vfN7g3hMGhP+EU82gcy3D+ZsKUPSNrfwbu
-        kYDEfiCK2L08AqKaMVjHAfI=
-X-Google-Smtp-Source: APXvYqyT+4O2YoCKFj1gH2GwxW0feEY6wE3RN9nro6b0WUC13Xddq6uNuukLGSswJDT8hLZUJpCl6Q==
-X-Received: by 2002:a2e:86cd:: with SMTP id n13mr6579303ljj.252.1571408318149;
-        Fri, 18 Oct 2019 07:18:38 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id z26sm2202097lji.79.2019.10.18.07.18.36
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 18 Oct 2019 07:18:36 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@xi.terra>)
-        id 1iLT5d-0006CE-9Q; Fri, 18 Oct 2019 16:18:49 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        Oliver Neukum <oneukum@suse.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH RFC 2/2] USB: ldusb: fix ring-buffer locking
-Date:   Fri, 18 Oct 2019 16:17:50 +0200
-Message-Id: <20191018141750.23756-3-johan@kernel.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191018141750.23756-1-johan@kernel.org>
-References: <20191018141750.23756-1-johan@kernel.org>
+        id S2391594AbfJROgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 10:36:48 -0400
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:55481 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390610AbfJROgs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 10:36:48 -0400
+X-Originating-IP: 86.250.200.211
+Received: from localhost.localdomain (lfbn-1-17395-211.w86-250.abo.wanadoo.fr [86.250.200.211])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay4-d.mail.gandi.net (Postfix) with ESMTPSA id 31813E0014;
+        Fri, 18 Oct 2019 14:36:45 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Cc:     <linux-mtd@lists.infradead.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>
+Subject: [PATCH] mtd: spear_smi: Fix nonalignment not handled in memcpy_toio
+Date:   Fri, 18 Oct 2019 16:36:43 +0200
+Message-Id: <20191018143643.29676-1-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The custom ring-buffer implementation was merged without any locking
-whatsoever, but a spinlock was later added by commit 9d33efd9a791
-("USB: ldusb bugfix").
+Any write with either dd or flashcp to a device driven by the
+spear_smi.c driver will pass through the spear_smi_cpy_toio()
+function. This function will get called for chunks of up to 256 bytes.
+If the amount of data is smaller, we may have a problem if the data
+length is not 4-byte aligned. In this situation, the kernel panics
+during the memcpy:
 
-The lock did not cover the loads from the ring-buffer-entry after
-determining the buffer was non-empty, nor the update of the tail index
-once the entry had been processed. The former could lead to stale data
-being returned, while the latter could lead to memory corruption on
-sufficiently weakly ordered architectures.
+    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
+    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
+    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
+    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
+    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
+    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
+    [...]
+    PC is at memcpy+0xcc/0x330
 
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Fixes: 9d33efd9a791 ("USB: ldusb bugfix")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Workaround this issue by using the alternate _memcpy_toio() method
+which at least does not present the same problem.
+
+Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
+Cc: stable@vger.kernel.org
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- drivers/usb/misc/ldusb.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
-index 94780e14e95d..c6cf2fa6cf4c 100644
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -477,11 +477,11 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
+Hello,
+
+This patch could not be tested with a mainline kernel (only compiled)
+but was tested with a stable 4.14.x kernel. I have really no idea why
+memcpy fails in this situation that's why I propose this workaround
+but I bet there is something deeper not working.
+
+Thanks,
+Miquèl
+
+ drivers/mtd/devices/spear_smi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/devices/spear_smi.c b/drivers/mtd/devices/spear_smi.c
+index 986f81d2f93e..d888625a3244 100644
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -614,7 +614,7 @@ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
+ 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
  
- 		spin_lock_irq(&dev->rbsl);
- 	}
--	spin_unlock_irq(&dev->rbsl);
+-	memcpy_toio(dest, src, len);
++	_memcpy_toio(dest, src, len);
  
- 	/* actual_buffer contains actual_length + interrupt_in_buffer */
- 	actual_buffer = (size_t *)(dev->ring_buffer + dev->ring_tail * (sizeof(size_t)+dev->interrupt_in_endpoint_size));
- 	if (*actual_buffer > sizeof(size_t) + dev->interrupt_in_endpoint_size) {
-+		spin_unlock_irq(&dev->rbsl);
- 		retval = -EIO;
- 		goto unlock_exit;
- 	}
-@@ -489,17 +489,26 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
- 	if (bytes_to_read < *actual_buffer)
- 		dev_warn(&dev->intf->dev, "Read buffer overflow, %zd bytes dropped\n",
- 			 *actual_buffer-bytes_to_read);
-+	spin_unlock_irq(&dev->rbsl);
-+
-+	/*
-+	 * Pairs with spin_unlock_irqrestore() in
-+	 * ld_usb_interrupt_in_callback() and makes sure the ring-buffer entry
-+	 * has been updated before copy_to_user().
-+	 */
-+	smp_rmb();
+ 	writel(ctrlreg1, dev->io_base + SMI_CR1);
  
- 	/* copy one interrupt_in_buffer from ring_buffer into userspace */
- 	if (copy_to_user(buffer, actual_buffer+1, bytes_to_read)) {
- 		retval = -EFAULT;
- 		goto unlock_exit;
- 	}
--	dev->ring_tail = (dev->ring_tail+1) % ring_buffer_size;
--
- 	retval = bytes_to_read;
- 
- 	spin_lock_irq(&dev->rbsl);
-+
-+	dev->ring_tail = (dev->ring_tail + 1) % ring_buffer_size;
-+
- 	if (dev->buffer_overflow) {
- 		dev->buffer_overflow = 0;
- 		spin_unlock_irq(&dev->rbsl);
 -- 
-2.23.0
+2.20.1
 
