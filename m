@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F198DD4D5
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CA6DD4CE
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727637AbfJRW1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:27:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35526 "EHLO mail.kernel.org"
+        id S2406493AbfJRW12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727398AbfJRWD4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:03:56 -0400
+        id S1727521AbfJRWD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:03:58 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57B6322459;
-        Fri, 18 Oct 2019 22:03:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73ACD22467;
+        Fri, 18 Oct 2019 22:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436236;
-        bh=Gi+8uHxb/nH/ASrO4/N8M/j/xYpLyDr7wlMxycKl+WI=;
+        s=default; t=1571436237;
+        bh=j4NMKFZCEhXHqiCHNdvO7vjenNr3RiF8my1Dx+JIa0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i7AuZM5g3O44Dee9QsFtBqZCW4l9v7y0Uvqjqy/pNhZ8cMTJTNbPEyXV9u0OeZa+e
-         SBbRRrLBVedE3yCHAr0JD7QAsJeslSFoD9SYrIsjUCdtYAVtVGe3DGYbVb1akE8Gdh
-         1UVZJ2k/+BuLT3YUFY6aTh/mmlqyR5DTNdoHuKts=
+        b=GF21DK0CgQFtCx+W56It068F5uPeCmYzz6UyjsA/XHWrq/jSzo8VXjGPlu/IgR3O8
+         sUpMJjo4ertgNz2UrZv+LcPtMd5WhHXcd+EE/EMcEkuLmDDwvhZ70K1Xn7gQVPHZYe
+         s4gCeTKiJU04/RQMX/HN8DXETbLtVao0+wDQG2QQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dexuan Cui <decui@microsoft.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 21/89] HID: hyperv: Use in-place iterator API in the channel callback
-Date:   Fri, 18 Oct 2019 18:02:16 -0400
-Message-Id: <20191018220324.8165-21-sashal@kernel.org>
+Cc:     Cristian Marussi <cristian.marussi@arm.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 22/89] kselftest: exclude failed TARGETS from runlist
+Date:   Fri, 18 Oct 2019 18:02:17 -0400
+Message-Id: <20191018220324.8165-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -43,97 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 6a297c90efa68b2864483193b8bfb0d19478600c ]
+[ Upstream commit 131b30c94fbc0adb15f911609884dd39dada8f00 ]
 
-Simplify the ring buffer handling with the in-place API.
+A TARGET which failed to be built/installed should not be included in the
+runlist generated inside the run_kselftest.sh script.
 
-Also avoid the dynamic allocation and the memory leak in the channel
-callback function.
-
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-hyperv.c | 56 +++++++---------------------------------
- 1 file changed, 10 insertions(+), 46 deletions(-)
+ tools/testing/selftests/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 7795831d37c21..f363163200759 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -314,60 +314,24 @@ static void mousevsc_on_receive(struct hv_device *device,
+diff --git a/tools/testing/selftests/Makefile b/tools/testing/selftests/Makefile
+index 25b43a8c2b159..1779923d7a7b8 100644
+--- a/tools/testing/selftests/Makefile
++++ b/tools/testing/selftests/Makefile
+@@ -198,8 +198,12 @@ ifdef INSTALL_PATH
+ 	echo "  cat /dev/null > \$$logfile" >> $(ALL_SCRIPT)
+ 	echo "fi" >> $(ALL_SCRIPT)
  
- static void mousevsc_on_channel_callback(void *context)
- {
--	const int packet_size = 0x100;
--	int ret;
- 	struct hv_device *device = context;
--	u32 bytes_recvd;
--	u64 req_id;
- 	struct vmpacket_descriptor *desc;
--	unsigned char	*buffer;
--	int	bufferlen = packet_size;
--
--	buffer = kmalloc(bufferlen, GFP_ATOMIC);
--	if (!buffer)
--		return;
--
--	do {
--		ret = vmbus_recvpacket_raw(device->channel, buffer,
--					bufferlen, &bytes_recvd, &req_id);
--
--		switch (ret) {
--		case 0:
--			if (bytes_recvd <= 0) {
--				kfree(buffer);
--				return;
--			}
--			desc = (struct vmpacket_descriptor *)buffer;
--
--			switch (desc->type) {
--			case VM_PKT_COMP:
--				break;
--
--			case VM_PKT_DATA_INBAND:
--				mousevsc_on_receive(device, desc);
--				break;
--
--			default:
--				pr_err("unhandled packet type %d, tid %llx len %d\n",
--					desc->type, req_id, bytes_recvd);
--				break;
--			}
- 
-+	foreach_vmbus_pkt(desc, device->channel) {
-+		switch (desc->type) {
-+		case VM_PKT_COMP:
- 			break;
- 
--		case -ENOBUFS:
--			kfree(buffer);
--			/* Handle large packet */
--			bufferlen = bytes_recvd;
--			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
--
--			if (!buffer)
--				return;
-+		case VM_PKT_DATA_INBAND:
-+			mousevsc_on_receive(device, desc);
-+			break;
- 
-+		default:
-+			pr_err("Unhandled packet type %d, tid %llx len %d\n",
-+			       desc->type, desc->trans_id, desc->len8 * 8);
- 			break;
- 		}
--	} while (1);
--
-+	}
- }
- 
- static int mousevsc_connect_to_vsp(struct hv_device *device)
++	@# While building run_kselftest.sh skip also non-existent TARGET dirs:
++	@# they could be the result of a build failure and should NOT be
++	@# included in the generated runlist.
+ 	for TARGET in $(TARGETS); do \
+ 		BUILD_TARGET=$$BUILD/$$TARGET;	\
++		[ ! -d $$INSTALL_PATH/$$TARGET ] && echo "Skipping non-existent dir: $$TARGET" && continue; \
+ 		echo "[ -w /dev/kmsg ] && echo \"kselftest: Running tests in $$TARGET\" >> /dev/kmsg" >> $(ALL_SCRIPT); \
+ 		echo "cd $$TARGET" >> $(ALL_SCRIPT); \
+ 		echo -n "run_many" >> $(ALL_SCRIPT); \
 -- 
 2.20.1
 
