@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7948ADD2BB
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:14:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D3ADD23D
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:10:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389220AbfJRWJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42326 "EHLO mail.kernel.org"
+        id S2389234AbfJRWJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389198AbfJRWJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:44 -0400
+        id S2389215AbfJRWJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B12A322475;
-        Fri, 18 Oct 2019 22:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D367122476;
+        Fri, 18 Oct 2019 22:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436583;
-        bh=oRp6FLuQ2dT5U3OHIfhPQWl85hmIQQJT7IQ+xrwJ9uo=;
+        s=default; t=1571436584;
+        bh=BT5g7okK7GOY7awUj1RlSha07wwJtV+TgL6wEfrCD0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jg6CR3iFN6JCG3DYCIkGEY3jKNrtMC5G8RA6c8ml/IXxuNBPxLHMjMZgD/HG+W85S
-         5sGZH3hTKUvFY1mIUZvI+wbGppbWjEkQPIyfzsbrYHXrrUHLSV6ofhMVBjHKXp1HY/
-         8zkvUWKdBFkDaB6VtfQ7qGIkF9ruUZJLioEXRSZI=
+        b=FYxf4940zUBKxVoAA7boSygVLBbBfOcjGzTVu0N2elgjz6MYXM4d8XRQkLnOJd1E/
+         Mfi8cHe7yM7xtNykYGzCU9FZu+WZH0t0dGMum/FaeELSHdF9DzV6fJEnyyjNk6Tyvo
+         +LHO3KLrqywlw7gvNcCMyly4LtS36ypDq7kmBIbQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Connor Kuehl <connor.kuehl@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.9 12/29] staging: rtl8188eu: fix null dereference when kzalloc fails
-Date:   Fri, 18 Oct 2019 18:09:03 -0400
-Message-Id: <20191018220920.10545-12-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/29] RDMA/iwcm: Fix a lock inversion issue
+Date:   Fri, 18 Oct 2019 18:09:04 -0400
+Message-Id: <20191018220920.10545-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220920.10545-1-sashal@kernel.org>
 References: <20191018220920.10545-1-sashal@kernel.org>
@@ -43,46 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Connor Kuehl <connor.kuehl@canonical.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 955c1532a34305f2f780b47f0c40cc7c65500810 ]
+[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
 
-If kzalloc() returns NULL, the error path doesn't stop the flow of
-control from entering rtw_hal_read_chip_version() which dereferences the
-null pointer. Fix this by adding a 'goto' to the error path to more
-gracefully handle the issue and avoid proceeding with initialization
-steps that we're no longer prepared to handle.
+This patch fixes the lock inversion complaint:
 
-Also update the debug message to be more consistent with the other debug
-messages in this function.
+============================================
+WARNING: possible recursive locking detected
+5.3.0-rc7-dbg+ #1 Not tainted
+--------------------------------------------
+kworker/u16:6/171 is trying to acquire lock:
+00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
 
-Addresses-Coverity: ("Dereference after null check")
+but task is already holding lock:
+00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
 
-Signed-off-by: Connor Kuehl <connor.kuehl@canonical.com>
-Link: https://lore.kernel.org/r/20190927214415.899-1-connor.kuehl@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&id_priv->handler_mutex);
+  lock(&id_priv->handler_mutex);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+3 locks held by kworker/u16:6/171:
+ #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
+ #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
+ #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+
+stack backtrace:
+CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+Call Trace:
+ dump_stack+0x8a/0xd6
+ __lock_acquire.cold+0xe1/0x24d
+ lock_acquire+0x106/0x240
+ __mutex_lock+0x12e/0xcb0
+ mutex_lock_nested+0x1f/0x30
+ rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+ iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
+ cm_work_handler+0xe62/0x1100 [iw_cm]
+ process_one_work+0x56d/0xac0
+ worker_thread+0x7a/0x5d0
+ kthread+0x1bc/0x210
+ ret_from_fork+0x24/0x30
+
+This is not a bug as there are actually two lock classes here.
+
+Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
+Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-index d22360849b883..d4a7d740fc620 100644
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -366,8 +366,10 @@ static struct adapter *rtw_usb_if1_init(struct dvobj_priv *dvobj,
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 85d4ef319c905..dcfbf326f45c9 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2119,9 +2119,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
+ 		conn_id->cm_id.iw = NULL;
+ 		cma_exch(conn_id, RDMA_CM_DESTROYING);
+ 		mutex_unlock(&conn_id->handler_mutex);
++		mutex_unlock(&listen_id->handler_mutex);
+ 		cma_deref_id(conn_id);
+ 		rdma_destroy_id(&conn_id->id);
+-		goto out;
++		return ret;
  	}
  
- 	padapter->HalData = kzalloc(sizeof(struct hal_data_8188e), GFP_KERNEL);
--	if (!padapter->HalData)
--		DBG_88E("cant not alloc memory for HAL DATA\n");
-+	if (!padapter->HalData) {
-+		DBG_88E("Failed to allocate memory for HAL data\n");
-+		goto free_adapter;
-+	}
- 
- 	padapter->intf_start = &usb_intf_start;
- 	padapter->intf_stop = &usb_intf_stop;
+ 	mutex_unlock(&conn_id->handler_mutex);
 -- 
 2.20.1
 
