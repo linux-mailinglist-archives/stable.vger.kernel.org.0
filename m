@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A276DD2A7
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E617CDD2A2
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392000AbfJRWNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42718 "EHLO mail.kernel.org"
+        id S2391908AbfJRWNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:13:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389518AbfJRWJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:57 -0400
+        id S2389538AbfJRWJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A623C22477;
-        Fri, 18 Oct 2019 22:09:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49C7C2247F;
+        Fri, 18 Oct 2019 22:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436596;
-        bh=dJCFZfdjuoZfITQS5k280XeKvlJT908QEaa8PE/Dwy0=;
+        s=default; t=1571436598;
+        bh=LtgV19MgtfFX69rc+LOivsTvlCGFkpIRKuEDQjfkHRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQ7P5qEeABsbrq+3P6Wg88NTdxafScgTqMZJHFQRUzCra/V55M12mtay4NL0C6mvq
-         /A10IXGScmqXKWeg8pah0W0PstMVwaOQlI83HGO35D+Za7c4tkxZO6N/zn7kNWMEIr
-         agxojRk5RxaMoG2dHSflFR5eHwOvb9o7Op36RvTw=
+        b=U9vrcw2iufThw41x0SXf6DLPt/YrH47MNF8lCCuLH2itRJQJw7196GrLxJ3EKPfBM
+         jXJzIyyVyWe1XJ2XkU+KHn9vPkadMyp9nhY6UigK5qaZnrjEFiDI27BHa9ABYnfF3R
+         l0c566RoSijYfVIyew2J5hZzZ3D0VoLyaGM+wa+M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
@@ -35,9 +35,9 @@ Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 21/29] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_write_end_nolock()
-Date:   Fri, 18 Oct 2019 18:09:12 -0400
-Message-Id: <20191018220920.10545-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 22/29] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_info_scan_inode_alloc()
+Date:   Fri, 18 Oct 2019 18:09:13 -0400
+Message-Id: <20191018220920.10545-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220920.10545-1-sashal@kernel.org>
 References: <20191018220920.10545-1-sashal@kernel.org>
@@ -52,26 +52,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 583fee3e12df0e6f1f66f063b989d8e7fed0e65a ]
+[ Upstream commit 2abb7d3b12d007c30193f48bebed781009bebdd2 ]
 
-In ocfs2_write_end_nolock(), there are an if statement on lines 1976,
-2047 and 2058, to check whether handle is NULL:
+In ocfs2_info_scan_inode_alloc(), there is an if statement on line 283
+to check whether inode_alloc is NULL:
 
-    if (handle)
+    if (inode_alloc)
 
-When handle is NULL, it is used on line 2045:
+When inode_alloc is NULL, it is used on line 287:
 
-	ocfs2_update_inode_fsync_trans(handle, inode, 1);
-        oi->i_sync_tid = handle->h_transaction->t_tid;
+    ocfs2_inode_lock(inode_alloc, &bh, 0);
+        ocfs2_inode_lock_full_nested(inode, ...)
+            struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
 
 Thus, a possible null-pointer dereference may occur.
 
-To fix this bug, handle is checked before calling
-ocfs2_update_inode_fsync_trans().
+To fix this bug, inode_alloc is checked on line 286.
 
 This bug is found by a static analysis tool STCheck written by us.
 
-Link: http://lkml.kernel.org/r/20190726033705.32307-1-baijiaju1990@gmail.com
+Link: http://lkml.kernel.org/r/20190726033717.32359-1-baijiaju1990@gmail.com
 Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Mark Fasheh <mark@fasheh.com>
@@ -84,23 +84,22 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index 7c20a23c0ed7d..6ad76397b31de 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2046,7 +2046,8 @@ int ocfs2_write_end_nolock(struct address_space *mapping,
- 		inode->i_mtime = inode->i_ctime = current_time(inode);
- 		di->i_mtime = di->i_ctime = cpu_to_le64(inode->i_mtime.tv_sec);
- 		di->i_mtime_nsec = di->i_ctime_nsec = cpu_to_le32(inode->i_mtime.tv_nsec);
--		ocfs2_update_inode_fsync_trans(handle, inode, 1);
-+		if (handle)
-+			ocfs2_update_inode_fsync_trans(handle, inode, 1);
- 	}
- 	if (handle)
- 		ocfs2_journal_dirty(handle, wc->w_di_bh);
+diff --git a/fs/ocfs2/ioctl.c b/fs/ocfs2/ioctl.c
+index 4506ec5ec2ea6..bfc44644301ca 100644
+--- a/fs/ocfs2/ioctl.c
++++ b/fs/ocfs2/ioctl.c
+@@ -289,7 +289,7 @@ static int ocfs2_info_scan_inode_alloc(struct ocfs2_super *osb,
+ 	if (inode_alloc)
+ 		inode_lock(inode_alloc);
+ 
+-	if (o2info_coherent(&fi->ifi_req)) {
++	if (inode_alloc && o2info_coherent(&fi->ifi_req)) {
+ 		status = ocfs2_inode_lock(inode_alloc, &bh, 0);
+ 		if (status < 0) {
+ 			mlog_errno(status);
 -- 
 2.20.1
 
