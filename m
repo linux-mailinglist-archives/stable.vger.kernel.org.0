@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE3CDD3E3
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6C5DD3B2
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404604AbfJRWVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:21:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38364 "EHLO mail.kernel.org"
+        id S1731500AbfJRWG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:06:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731439AbfJRWGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:25 -0400
+        id S1731464AbfJRWG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDB92222D4;
-        Fri, 18 Oct 2019 22:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21C5A2245C;
+        Fri, 18 Oct 2019 22:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436384;
-        bh=b3xdM3roLtUKI9V1E4GtHK+Asz06JOQbR6cG2m2Koxg=;
+        s=default; t=1571436386;
+        bh=UQ/uFpk4S7BzLMHs2yTm3rFt5SUAUbCRReh1EfkI7Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQRhrXiUFtkpsDvJlZV+DoXCRULgsGMWK+Cow+U51wP5Ig2KKvPNvLEeYgErI/0mu
-         jnPgmlW4M4xbeF7+JzmtaPHTaqWeBuFZz5evV8KjM/+JDmngeZ3ROtb1ZLqak5ABj4
-         nx69jAHbFE/hVrWxh3tuyF0F0+g13ZALC1tm6Vyc=
+        b=mS2GIGsxpvt++A/ZP0JBZnQGBwOtH3DfGLqEtKYLa4qMSHEsBe1l9q7WlPzPKrDfu
+         kmVtbce/FF6c2iqx8XBDfwKXJTF97vaLKkMCeB0IEMXpt7s/rdc7bO4xmWmZFIYmNH
+         LNsFx1IlgX8ivSko6akFgFe6bxKkee0cS2HgTx8A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nir Dotan <nird@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+Cc:     Jose Abreu <jose.abreu@synopsys.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Joao Pinto <jpinto@synopsys.com>,
         "David S . Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 037/100] mlxsw: spectrum: Set LAG port collector only when active
-Date:   Fri, 18 Oct 2019 18:04:22 -0400
-Message-Id: <20191018220525.9042-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 038/100] net: stmmac: Fix NAPI poll in TX path when in multi-queue
+Date:   Fri, 18 Oct 2019 18:04:23 -0400
+Message-Id: <20191018220525.9042-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -44,132 +48,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nir Dotan <nird@mellanox.com>
+From: Jose Abreu <jose.abreu@synopsys.com>
 
-[ Upstream commit 48ebab31d424fbdb8ede8914923bec671a933246 ]
+[ Upstream commit 4ccb45857c2c0776d0f72e39768295062c1a0de1 ]
 
-The LAG port collecting (receive) function was mistakenly set when the
-port was registered as a LAG member, while it should be set only when
-the port collection state is set to true. Set LAG port to collecting
-when it is set to distributing, as described in the IEEE link
-aggregation standard coupled control mux machine state diagram.
+Commit 8fce33317023 introduced the concept of NAPI per-channel and
+independent cleaning of TX path.
 
-Signed-off-by: Nir Dotan <nird@mellanox.com>
-Acked-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+This is currently breaking performance in some cases. The scenario
+happens when all packets are being received in Queue 0 but the TX is
+performed in Queue != 0.
+
+Fix this by using different NAPI instances per each TX and RX queue, as
+suggested by Florian.
+
+Changes from v2:
+	- Only force restart transmission if there are pending packets
+Changes from v1:
+	- Pass entire ring size to TX clean path (Florian)
+
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlxsw/spectrum.c    | 62 ++++++++++++++-----
- 1 file changed, 45 insertions(+), 17 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   5 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 115 ++++++++++--------
+ 2 files changed, 68 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index ee126bcf7c350..ccd9aca281b37 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -4410,9 +4410,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
- 	err = mlxsw_sp_lag_col_port_add(mlxsw_sp_port, lag_id, port_index);
- 	if (err)
- 		goto err_col_port_add;
--	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port, lag_id);
--	if (err)
--		goto err_col_port_enable;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+index 63e1064b27a24..e697ecd9b0a64 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+@@ -78,11 +78,10 @@ struct stmmac_rx_queue {
+ };
  
- 	mlxsw_core_lag_mapping_set(mlxsw_sp->core, lag_id, port_index,
- 				   mlxsw_sp_port->local_port);
-@@ -4427,8 +4424,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
+ struct stmmac_channel {
+-	struct napi_struct napi ____cacheline_aligned_in_smp;
++	struct napi_struct rx_napi ____cacheline_aligned_in_smp;
++	struct napi_struct tx_napi ____cacheline_aligned_in_smp;
+ 	struct stmmac_priv *priv_data;
+ 	u32 index;
+-	int has_rx;
+-	int has_tx;
+ };
  
- 	return 0;
+ struct stmmac_tc_entry {
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 0101ebaecf028..ab48d384166bc 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -155,7 +155,10 @@ static void stmmac_disable_all_queues(struct stmmac_priv *priv)
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
  
--err_col_port_enable:
--	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
- err_col_port_add:
- 	if (!lag->ref_count)
- 		mlxsw_sp_lag_destroy(mlxsw_sp, lag_id);
-@@ -4447,7 +4442,6 @@ static void mlxsw_sp_port_lag_leave(struct mlxsw_sp_port *mlxsw_sp_port,
- 	lag = mlxsw_sp_lag_get(mlxsw_sp, lag_id);
- 	WARN_ON(lag->ref_count == 0);
- 
--	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, lag_id);
- 	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
- 
- 	/* Any VLANs configured on the port are no longer valid */
-@@ -4492,21 +4486,56 @@ static int mlxsw_sp_lag_dist_port_remove(struct mlxsw_sp_port *mlxsw_sp_port,
- 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(sldr), sldr_pl);
+-		napi_disable(&ch->napi);
++		if (queue < rx_queues_cnt)
++			napi_disable(&ch->rx_napi);
++		if (queue < tx_queues_cnt)
++			napi_disable(&ch->tx_napi);
+ 	}
  }
  
--static int mlxsw_sp_port_lag_tx_en_set(struct mlxsw_sp_port *mlxsw_sp_port,
--				       bool lag_tx_enabled)
-+static int
-+mlxsw_sp_port_lag_col_dist_enable(struct mlxsw_sp_port *mlxsw_sp_port)
- {
--	if (lag_tx_enabled)
--		return mlxsw_sp_lag_dist_port_add(mlxsw_sp_port,
--						  mlxsw_sp_port->lag_id);
--	else
--		return mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
--						     mlxsw_sp_port->lag_id);
-+	int err;
-+
-+	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port,
-+					   mlxsw_sp_port->lag_id);
-+	if (err)
-+		return err;
-+
-+	err = mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	if (err)
-+		goto err_dist_port_add;
-+
-+	return 0;
-+
-+err_dist_port_add:
-+	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	return err;
-+}
-+
-+static int
-+mlxsw_sp_port_lag_col_dist_disable(struct mlxsw_sp_port *mlxsw_sp_port)
-+{
-+	int err;
-+
-+	err = mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
-+					    mlxsw_sp_port->lag_id);
-+	if (err)
-+		return err;
-+
-+	err = mlxsw_sp_lag_col_port_disable(mlxsw_sp_port,
-+					    mlxsw_sp_port->lag_id);
-+	if (err)
-+		goto err_col_port_disable;
-+
-+	return 0;
-+
-+err_col_port_disable:
-+	mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
-+	return err;
+@@ -173,7 +176,10 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
+ 
+-		napi_enable(&ch->napi);
++		if (queue < rx_queues_cnt)
++			napi_enable(&ch->rx_napi);
++		if (queue < tx_queues_cnt)
++			napi_enable(&ch->tx_napi);
+ 	}
  }
  
- static int mlxsw_sp_port_lag_changed(struct mlxsw_sp_port *mlxsw_sp_port,
- 				     struct netdev_lag_lower_state_info *info)
- {
--	return mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port, info->tx_enabled);
-+	if (info->tx_enabled)
-+		return mlxsw_sp_port_lag_col_dist_enable(mlxsw_sp_port);
+@@ -1946,6 +1952,10 @@ static int stmmac_tx_clean(struct stmmac_priv *priv, int budget, u32 queue)
+ 		mod_timer(&priv->eee_ctrl_timer, STMMAC_LPI_T(eee_timer));
+ 	}
+ 
++	/* We still have pending packets, let's call for a new scheduling */
++	if (tx_q->dirty_tx != tx_q->cur_tx)
++		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
++
+ 	__netif_tx_unlock_bh(netdev_get_tx_queue(priv->dev, queue));
+ 
+ 	return count;
+@@ -2036,23 +2046,15 @@ static int stmmac_napi_check(struct stmmac_priv *priv, u32 chan)
+ 	int status = stmmac_dma_interrupt_status(priv, priv->ioaddr,
+ 						 &priv->xstats, chan);
+ 	struct stmmac_channel *ch = &priv->channel[chan];
+-	bool needs_work = false;
+-
+-	if ((status & handle_rx) && ch->has_rx) {
+-		needs_work = true;
+-	} else {
+-		status &= ~handle_rx;
+-	}
+ 
+-	if ((status & handle_tx) && ch->has_tx) {
+-		needs_work = true;
+-	} else {
+-		status &= ~handle_tx;
++	if ((status & handle_rx) && (chan < priv->plat->rx_queues_to_use)) {
++		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
++		napi_schedule_irqoff(&ch->rx_napi);
+ 	}
+ 
+-	if (needs_work && napi_schedule_prep(&ch->napi)) {
++	if ((status & handle_tx) && (chan < priv->plat->tx_queues_to_use)) {
+ 		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
+-		__napi_schedule(&ch->napi);
++		napi_schedule_irqoff(&ch->tx_napi);
+ 	}
+ 
+ 	return status;
+@@ -2248,8 +2250,14 @@ static void stmmac_tx_timer(struct timer_list *t)
+ 
+ 	ch = &priv->channel[tx_q->queue_index];
+ 
+-	if (likely(napi_schedule_prep(&ch->napi)))
+-		__napi_schedule(&ch->napi);
++	/*
++	 * If NAPI is already running we can miss some events. Let's rearm
++	 * the timer and try again.
++	 */
++	if (likely(napi_schedule_prep(&ch->tx_napi)))
++		__napi_schedule(&ch->tx_napi);
 +	else
-+		return mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
++		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
  }
  
- static int mlxsw_sp_port_stp_set(struct mlxsw_sp_port *mlxsw_sp_port,
-@@ -4668,8 +4697,7 @@ static int mlxsw_sp_netdevice_port_upper_event(struct net_device *lower_dev,
- 				err = mlxsw_sp_port_lag_join(mlxsw_sp_port,
- 							     upper_dev);
- 			} else {
--				mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port,
--							    false);
-+				mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
- 				mlxsw_sp_port_lag_leave(mlxsw_sp_port,
- 							upper_dev);
- 			}
+ /**
+@@ -3506,7 +3514,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
+ 			else
+ 				skb->ip_summed = CHECKSUM_UNNECESSARY;
+ 
+-			napi_gro_receive(&ch->napi, skb);
++			napi_gro_receive(&ch->rx_napi, skb);
+ 
+ 			priv->dev->stats.rx_packets++;
+ 			priv->dev->stats.rx_bytes += frame_len;
+@@ -3520,40 +3528,45 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
+ 	return count;
+ }
+ 
+-/**
+- *  stmmac_poll - stmmac poll method (NAPI)
+- *  @napi : pointer to the napi structure.
+- *  @budget : maximum number of packets that the current CPU can receive from
+- *	      all interfaces.
+- *  Description :
+- *  To look at the incoming frames and clear the tx resources.
+- */
+-static int stmmac_napi_poll(struct napi_struct *napi, int budget)
++static int stmmac_napi_poll_rx(struct napi_struct *napi, int budget)
+ {
+ 	struct stmmac_channel *ch =
+-		container_of(napi, struct stmmac_channel, napi);
++		container_of(napi, struct stmmac_channel, rx_napi);
+ 	struct stmmac_priv *priv = ch->priv_data;
+-	int work_done, rx_done = 0, tx_done = 0;
+ 	u32 chan = ch->index;
++	int work_done;
+ 
+ 	priv->xstats.napi_poll++;
+ 
+-	if (ch->has_tx)
+-		tx_done = stmmac_tx_clean(priv, budget, chan);
+-	if (ch->has_rx)
+-		rx_done = stmmac_rx(priv, budget, chan);
++	work_done = stmmac_rx(priv, budget, chan);
++	if (work_done < budget && napi_complete_done(napi, work_done))
++		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
++	return work_done;
++}
+ 
+-	work_done = max(rx_done, tx_done);
+-	work_done = min(work_done, budget);
++static int stmmac_napi_poll_tx(struct napi_struct *napi, int budget)
++{
++	struct stmmac_channel *ch =
++		container_of(napi, struct stmmac_channel, tx_napi);
++	struct stmmac_priv *priv = ch->priv_data;
++	struct stmmac_tx_queue *tx_q;
++	u32 chan = ch->index;
++	int work_done;
+ 
+-	if (work_done < budget && napi_complete_done(napi, work_done)) {
+-		int stat;
++	priv->xstats.napi_poll++;
++
++	work_done = stmmac_tx_clean(priv, DMA_TX_SIZE, chan);
++	work_done = min(work_done, budget);
+ 
++	if (work_done < budget && napi_complete_done(napi, work_done))
+ 		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
+-		stat = stmmac_dma_interrupt_status(priv, priv->ioaddr,
+-						   &priv->xstats, chan);
+-		if (stat && napi_reschedule(napi))
+-			stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
++
++	/* Force transmission restart */
++	tx_q = &priv->tx_queue[chan];
++	if (tx_q->cur_tx != tx_q->dirty_tx) {
++		stmmac_enable_dma_transmission(priv, priv->ioaddr);
++		stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr,
++				       chan);
+ 	}
+ 
+ 	return work_done;
+@@ -4376,13 +4389,14 @@ int stmmac_dvr_probe(struct device *device,
+ 		ch->priv_data = priv;
+ 		ch->index = queue;
+ 
+-		if (queue < priv->plat->rx_queues_to_use)
+-			ch->has_rx = true;
+-		if (queue < priv->plat->tx_queues_to_use)
+-			ch->has_tx = true;
+-
+-		netif_napi_add(ndev, &ch->napi, stmmac_napi_poll,
+-			       NAPI_POLL_WEIGHT);
++		if (queue < priv->plat->rx_queues_to_use) {
++			netif_napi_add(ndev, &ch->rx_napi, stmmac_napi_poll_rx,
++				       NAPI_POLL_WEIGHT);
++		}
++		if (queue < priv->plat->tx_queues_to_use) {
++			netif_napi_add(ndev, &ch->tx_napi, stmmac_napi_poll_tx,
++				       NAPI_POLL_WEIGHT);
++		}
+ 	}
+ 
+ 	mutex_init(&priv->lock);
+@@ -4438,7 +4452,10 @@ int stmmac_dvr_probe(struct device *device,
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
+ 
+-		netif_napi_del(&ch->napi);
++		if (queue < priv->plat->rx_queues_to_use)
++			netif_napi_del(&ch->rx_napi);
++		if (queue < priv->plat->tx_queues_to_use)
++			netif_napi_del(&ch->tx_napi);
+ 	}
+ error_hw_init:
+ 	destroy_workqueue(priv->wq);
 -- 
 2.20.1
 
