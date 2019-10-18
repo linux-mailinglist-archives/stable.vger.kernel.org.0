@@ -2,71 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CECEDBFEF
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 10:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE49DC094
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632832AbfJRIar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 04:30:47 -0400
-Received: from [217.140.110.172] ([217.140.110.172]:58292 "EHLO foss.arm.com"
-        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
-        id S1727573AbfJRIar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 04:30:47 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 4F9EF32B;
-        Fri, 18 Oct 2019 01:30:16 -0700 (PDT)
-Received: from [192.168.1.103] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C62413F718;
-        Fri, 18 Oct 2019 01:30:13 -0700 (PDT)
-Subject: Re: [PATCH] lib/vdso: Use __arch_use_vsyscall() to indicate fallback
-To:     Andy Lutomirski <luto@kernel.org>, Huacai Chen <chenhc@lemote.com>,
-        Maxime Bizon <mbizon@freebox.fr>
-Cc:     Thomas Gleixner <tglx@linutronix.de>, chenhuacai@gmail.com,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-References: <1571367619-13573-1-git-send-email-chenhc@lemote.com>
- <CALCETrWXRgkQOJGRqa_sOLAG2zhjsEX6b86T2VTsNYN9ECRrtA@mail.gmail.com>
-From:   Vincenzo Frascino <vincenzo.frascino@arm.com>
-Message-ID: <6581a6e8-45c9-a80c-d2a4-33466f5712fd@arm.com>
-Date:   Fri, 18 Oct 2019 09:32:09 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S2406672AbfJRJIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 05:08:48 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:7462 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2406023AbfJRJIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 05:08:48 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B89E6C057F2C;
+        Fri, 18 Oct 2019 09:08:47 +0000 (UTC)
+Received: from shalem.localdomain.com (ovpn-117-168.ams2.redhat.com [10.36.117.168])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7D73560BF1;
+        Fri, 18 Oct 2019 09:08:44 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-gpio@vger.kernel.org,
+        linux-acpi@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation
+Date:   Fri, 18 Oct 2019 11:08:42 +0200
+Message-Id: <20191018090842.11189-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CALCETrWXRgkQOJGRqa_sOLAG2zhjsEX6b86T2VTsNYN9ECRrtA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 18 Oct 2019 09:08:47 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andy and Hucan,
+Commit 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux
+GPIO translation") has made the cherryview gpio numbers sparse, to get
+a 1:1 mapping between ACPI pin numbers and gpio numbers in Linux.
 
-On 10/18/19 4:15 AM, Andy Lutomirski wrote:
-> On Thu, Oct 17, 2019 at 7:57 PM Huacai Chen <chenhc@lemote.com> wrote:
->>
->> In do_hres(), we currently use whether the return value of __arch_get_
->> hw_counter() is negtive to indicate fallback, but this is not a good
->> idea. Because:
->>
->> 1, ARM64 returns ULL_MAX but MIPS returns 0 when clock_mode is invalid;
->> 2, For a 64bit counter, a "negtive" value of counter is actually valid.
-> 
-> s/negtive/negative
-> 
-> What's the actual bug?  Is it that MIPS is returning 0 but the check
-> is < 0?  Sounds like MIPS should get fixed.
-> 
+This has greatly simplified things, but the code setting the
+irq_valid_mask was not updated for this, so the valid mask is still in
+the old "compressed" numbering with the gaps in the pin numbers skipped,
+which is wrong as irq_valid_mask needs to be expressed in gpio numbers.
 
-I submitted a patch for this yesterday to the MIPS maintainers [1]. The MIPS32
-r1 implementation had a bug when VDSO_CLOCK_NONE was set.
+This results in the following error on devices using pin 24 (0x0018) on
+the north GPIO controller as an ACPI event source:
 
-The issue has been reported by Maxime Bizon who tested the fix as well.
+[    0.422452] cherryview-pinctrl INT33FF:01: Failed to translate GPIO to IRQ
 
-[1] https://patchwork.kernel.org/patch/11193391/
+This has been reported (by email) to be happening on a Caterpillar CAT T20
+tablet and I've reproduced this myself on a Medion Akoya e2215t 2-in-1.
 
+This commit uses the pin number instead of the compressed index into
+community->pins to clear the correct bits in irq_valid_mask for GPIOs
+using GPEs for interrupts, fixing these errors and in case of the
+Medion Akoya e2215t also fixing the LID switch not working.
+
+Cc: stable@vger.kernel.org
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO translation")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/pinctrl/intel/pinctrl-cherryview.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
+index aae51c507f59..02ff5e8b0510 100644
+--- a/drivers/pinctrl/intel/pinctrl-cherryview.c
++++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
+@@ -1563,7 +1563,7 @@ static void chv_init_irq_valid_mask(struct gpio_chip *chip,
+ 		intsel >>= CHV_PADCTRL0_INTSEL_SHIFT;
+ 
+ 		if (intsel >= community->nirqs)
+-			clear_bit(i, valid_mask);
++			clear_bit(desc->number, valid_mask);
+ 	}
+ }
+ 
 -- 
-Regards,
-Vincenzo
+2.23.0
+
