@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D96ADD3A0
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F15CBDD39B
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732372AbfJRWTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:19:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39184 "EHLO mail.kernel.org"
+        id S1732409AbfJRWTK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:19:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732341AbfJRWHE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:04 -0400
+        id S1732372AbfJRWHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:07:05 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DC17222D2;
-        Fri, 18 Oct 2019 22:07:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0BBC222D1;
+        Fri, 18 Oct 2019 22:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436423;
-        bh=X3v+SOQIpdYf6iNAzKXGy4IuE0/gqSJw5bT5h8guRU4=;
+        s=default; t=1571436424;
+        bh=RKoO/50WWCrVLJkafaQkr4EOtCU9gOnnE+awNfgmwaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubDEJ3l8iXA5tUV8nq3oRhRRvdUYbn/u60TW16f9aIxV6TdcQCDjvjm05+noXY3YD
-         plgQvNiR1gsqaW/lxc6PiCfkgqyHLGp9i/zx046X50lMgj5gRdhNVGqflFCIiTV9qc
-         1u0xkhy+oPkjkZ9Hzf5VtocWRnristUzzOssr6go=
+        b=J3+7DCEgDu76lCxX0/yXQ2HimHN6oeP1QcoDi1P2XowE6syFIeuFZlghUvx8Gp8+r
+         UxsM+W8DlGRVZm6VZiP9wiSpC3g95nS0FK/5GHgzUoV3ujKfeVtV7YLn5DKNIa1Ks2
+         E9RAmRlXTq3BjTquugO7AjTGLx7Zpmsq9sCVE8Bc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 065/100] RDMA/iwcm: Fix a lock inversion issue
-Date:   Fri, 18 Oct 2019 18:04:50 -0400
-Message-Id: <20191018220525.9042-65-sashal@kernel.org>
+Cc:     Dexuan Cui <decui@microsoft.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 066/100] HID: hyperv: Use in-place iterator API in the channel callback
+Date:   Fri, 18 Oct 2019 18:04:51 -0400
+Message-Id: <20191018220525.9042-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -43,85 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Dexuan Cui <decui@microsoft.com>
 
-[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
+[ Upstream commit 6a297c90efa68b2864483193b8bfb0d19478600c ]
 
-This patch fixes the lock inversion complaint:
+Simplify the ring buffer handling with the in-place API.
 
-============================================
-WARNING: possible recursive locking detected
-5.3.0-rc7-dbg+ #1 Not tainted
---------------------------------------------
-kworker/u16:6/171 is trying to acquire lock:
-00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+Also avoid the dynamic allocation and the memory leak in the channel
+callback function.
 
-but task is already holding lock:
-00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&id_priv->handler_mutex);
-  lock(&id_priv->handler_mutex);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-3 locks held by kworker/u16:6/171:
- #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
- #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
- #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
-
-stack backtrace:
-CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
-Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-Workqueue: iw_cm_wq cm_work_handler [iw_cm]
-Call Trace:
- dump_stack+0x8a/0xd6
- __lock_acquire.cold+0xe1/0x24d
- lock_acquire+0x106/0x240
- __mutex_lock+0x12e/0xcb0
- mutex_lock_nested+0x1f/0x30
- rdma_destroy_id+0x78/0x4a0 [rdma_cm]
- iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
- cm_work_handler+0xe62/0x1100 [iw_cm]
- process_one_work+0x56d/0xac0
- worker_thread+0x7a/0x5d0
- kthread+0x1bc/0x210
- ret_from_fork+0x24/0x30
-
-This is not a bug as there are actually two lock classes here.
-
-Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
-Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Dexuan Cui <decui@microsoft.com>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-hyperv.c | 56 +++++++---------------------------------
+ 1 file changed, 10 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 6257be21cbedd..1f373ba573b6d 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2270,9 +2270,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
- 		conn_id->cm_id.iw = NULL;
- 		cma_exch(conn_id, RDMA_CM_DESTROYING);
- 		mutex_unlock(&conn_id->handler_mutex);
-+		mutex_unlock(&listen_id->handler_mutex);
- 		cma_deref_id(conn_id);
- 		rdma_destroy_id(&conn_id->id);
--		goto out;
-+		return ret;
- 	}
+diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+index 704049e62d58a..4d1496f60071f 100644
+--- a/drivers/hid/hid-hyperv.c
++++ b/drivers/hid/hid-hyperv.c
+@@ -322,60 +322,24 @@ static void mousevsc_on_receive(struct hv_device *device,
  
- 	mutex_unlock(&conn_id->handler_mutex);
+ static void mousevsc_on_channel_callback(void *context)
+ {
+-	const int packet_size = 0x100;
+-	int ret;
+ 	struct hv_device *device = context;
+-	u32 bytes_recvd;
+-	u64 req_id;
+ 	struct vmpacket_descriptor *desc;
+-	unsigned char	*buffer;
+-	int	bufferlen = packet_size;
+-
+-	buffer = kmalloc(bufferlen, GFP_ATOMIC);
+-	if (!buffer)
+-		return;
+-
+-	do {
+-		ret = vmbus_recvpacket_raw(device->channel, buffer,
+-					bufferlen, &bytes_recvd, &req_id);
+-
+-		switch (ret) {
+-		case 0:
+-			if (bytes_recvd <= 0) {
+-				kfree(buffer);
+-				return;
+-			}
+-			desc = (struct vmpacket_descriptor *)buffer;
+-
+-			switch (desc->type) {
+-			case VM_PKT_COMP:
+-				break;
+-
+-			case VM_PKT_DATA_INBAND:
+-				mousevsc_on_receive(device, desc);
+-				break;
+-
+-			default:
+-				pr_err("unhandled packet type %d, tid %llx len %d\n",
+-					desc->type, req_id, bytes_recvd);
+-				break;
+-			}
+ 
++	foreach_vmbus_pkt(desc, device->channel) {
++		switch (desc->type) {
++		case VM_PKT_COMP:
+ 			break;
+ 
+-		case -ENOBUFS:
+-			kfree(buffer);
+-			/* Handle large packet */
+-			bufferlen = bytes_recvd;
+-			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
+-
+-			if (!buffer)
+-				return;
++		case VM_PKT_DATA_INBAND:
++			mousevsc_on_receive(device, desc);
++			break;
+ 
++		default:
++			pr_err("Unhandled packet type %d, tid %llx len %d\n",
++			       desc->type, desc->trans_id, desc->len8 * 8);
+ 			break;
+ 		}
+-	} while (1);
+-
++	}
+ }
+ 
+ static int mousevsc_connect_to_vsp(struct hv_device *device)
 -- 
 2.20.1
 
