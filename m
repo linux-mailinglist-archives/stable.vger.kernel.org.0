@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D416DD4BC
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 354A4DD4B7
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406273AbfJRW0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35780 "EHLO mail.kernel.org"
+        id S2406189AbfJRW0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727821AbfJRWEK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:10 -0400
+        id S1727804AbfJRWEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1872222C5;
-        Fri, 18 Oct 2019 22:04:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80A6222C6;
+        Fri, 18 Oct 2019 22:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436249;
-        bh=NjxgLiEaplHS39J1mvZTecb/FKS7xh3ECqXe5Meeb1E=;
+        s=default; t=1571436250;
+        bh=Q2r+wUblGCSZcJscrAMf78V19psDjFOH4jTfp5UiFkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7tdWfg4UlopICbWd2CYzSZlmga3l/r8e1AfGqqu+PNuQ9fQNi0rQ1AlaYDbhzxds
-         mHeYluE886vIeb6gBrgHM8QTWWo0SEFDqhM96WWhTiMh1k/glUUOGDSKE37swfzVns
-         K3vbeq+M6q5FVU9neyRM7ynhe8vmELxkM980g11E=
+        b=gjtXs+OMQ5DL4slE8rdGyUHtz0A3JOqyVvyOFxBErG5/K8ZJyeYwN3v03WSXOtbTz
+         Nm1oxeHYVlnhq9d1YXuxCdSK+rESgzGzkpcJ/7Q0oAX8L6nzvaJkKyZXeE22l/Vxo2
+         WtU/zUK43vcEBSfuShdsITzA0d4pOdn3tFjIKoWQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Leon Romanovsky <leonro@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 33/89] RDMA/core: Fix an error handling path in 'res_get_common_doit()'
-Date:   Fri, 18 Oct 2019 18:02:28 -0400
-Message-Id: <20191018220324.8165-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 34/89] RDMA/cm: Fix memory leak in cm_add/remove_one
+Date:   Fri, 18 Oct 2019 18:02:29 -0400
+Message-Id: <20191018220324.8165-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -43,37 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jack Morgenstein <jackm@dev.mellanox.co.il>
 
-[ Upstream commit ab59ca3eb4e7059727df85eee68bda169d26c8f8 ]
+[ Upstream commit 94635c36f3854934a46d9e812e028d4721bbb0e6 ]
 
-According to surrounding error paths, it is likely that 'goto err_get;' is
-expected here. Otherwise, a call to 'rdma_restrack_put(res);' would be
-missing.
+In the process of moving the debug counters sysfs entries, the commit
+mentioned below eliminated the cm_infiniband sysfs directory.
 
-Fixes: c5dfe0ea6ffa ("RDMA/nldev: Add resource tracker doit callback")
-Link: https://lore.kernel.org/r/20190818091044.8845-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+This sysfs directory was tied to the cm_port object allocated in procedure
+cm_add_one().
+
+Before the commit below, this cm_port object was freed via a call to
+kobject_put(port->kobj) in procedure cm_remove_port_fs().
+
+Since port no longer uses its kobj, kobject_put(port->kobj) was eliminated.
+This, however, meant that kfree was never called for the cm_port buffers.
+
+Fix this by adding explicit kfree(port) calls to functions cm_add_one()
+and cm_remove_one().
+
+Note: the kfree call in the first chunk below (in the cm_add_one error
+flow) fixes an old, undetected memory leak.
+
+Fixes: c87e65cfb97c ("RDMA/cm: Move debug counters to be under relevant IB device")
+Link: https://lore.kernel.org/r/20190916071154.20383-2-leon@kernel.org
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
 Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/nldev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index 020c269765584..91e2cc9ddb9f8 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -1230,7 +1230,7 @@ static int res_get_common_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
- 	if (!msg) {
- 		ret = -ENOMEM;
--		goto err;
-+		goto err_get;
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index da10e6ccb43cd..5920c0085d35b 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -4399,6 +4399,7 @@ static void cm_add_one(struct ib_device *ib_device)
+ error1:
+ 	port_modify.set_port_cap_mask = 0;
+ 	port_modify.clr_port_cap_mask = IB_PORT_CM_SUP;
++	kfree(port);
+ 	while (--i) {
+ 		if (!rdma_cap_ib_cm(ib_device, i))
+ 			continue;
+@@ -4407,6 +4408,7 @@ static void cm_add_one(struct ib_device *ib_device)
+ 		ib_modify_port(ib_device, port->port_num, 0, &port_modify);
+ 		ib_unregister_mad_agent(port->mad_agent);
+ 		cm_remove_port_fs(port);
++		kfree(port);
+ 	}
+ free:
+ 	kfree(cm_dev);
+@@ -4460,6 +4462,7 @@ static void cm_remove_one(struct ib_device *ib_device, void *client_data)
+ 		spin_unlock_irq(&cm.state_lock);
+ 		ib_unregister_mad_agent(cur_mad_agent);
+ 		cm_remove_port_fs(port);
++		kfree(port);
  	}
  
- 	nlh = nlmsg_put(msg, NETLINK_CB(skb).portid, nlh->nlmsg_seq,
+ 	kfree(cm_dev);
 -- 
 2.20.1
 
