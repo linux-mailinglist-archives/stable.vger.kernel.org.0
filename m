@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07410DD385
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:19:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D03FDD378
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388151AbfJRWSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39786 "EHLO mail.kernel.org"
+        id S1733001AbfJRWHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732932AbfJRWHc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:32 -0400
+        id S1732971AbfJRWHe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:07:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 420DD2245B;
-        Fri, 18 Oct 2019 22:07:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF776222C2;
+        Fri, 18 Oct 2019 22:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436451;
-        bh=2MwhBruz8QdI3sEGgqpLqqGmZkYq661yl/ZJ1kyxMhE=;
+        s=default; t=1571436452;
+        bh=vftKeGfZD1oTHtGExan21UU6YoxR31kKt1v/Sey+J10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SR5d067kkF4ZJSWZd6TiWn1yEwVnuQhkpXtDIxZpNAvZO2ypYEj1FRF5a8T/D8A2X
-         rLDoTk1lwepUDwkwYU1mUbMPmq29+GzXz2FjTT022naCPFzTBSlxU6jxE0dzUCNGX4
-         16LRiGWBQc3rwCOKBcPhqR1latDGoGOv+vmyyGDw=
+        b=jUhsZ21mXtsAZfJzOTVYpBdgtPAJpAL25Z49SHe3cYByLkQB6YogMPB/Dyb9SPQFk
+         o/2F0IKGHcL5bQ8Nk6UeGwjz11ZSC0kz4vpoM9+croT5H8dV/FGXYqoCzhHr+T1NOs
+         /9TsOO8dRo86a2/QHlj4vG5udrnOZdMzqmF8bjYg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        ak@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@kernel.org>,
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 085/100] x86/cpu: Add Comet Lake to the Intel CPU models header
-Date:   Fri, 18 Oct 2019 18:05:10 -0400
-Message-Id: <20191018220525.9042-85-sashal@kernel.org>
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rik van Riel <riel@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 086/100] sched/vtime: Fix guest/system mis-accounting on task switch
+Date:   Fri, 18 Oct 2019 18:05:11 -0400
+Message-Id: <20191018220525.9042-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -47,47 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit 8d7c6ac3b2371eb1cbc9925a88f4d10efff374de ]
+[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
 
-Comet Lake is the new 10th Gen Intel processor. Add two new CPU model
-numbers to the Intel family list.
+vtime_account_system() assumes that the target task to account cputime
+to is always the current task. This is most often true indeed except on
+task switch where we call:
 
-The CPU model numbers are not published in the SDM yet but they come
-from an authoritative internal source.
+	vtime_common_task_switch(prev)
+		vtime_account_system(prev)
 
- [ bp: Touch up commit message. ]
+Here prev is the scheduling-out task where we account the cputime to. It
+doesn't match current that is already the scheduling-in task at this
+stage of the context switch.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: ak@linux.intel.com
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+So we end up checking the wrong task flags to determine if we are
+accounting guest or system time to the previous task.
+
+As a result the wrong task is used to check if the target is running in
+guest mode. We may then spuriously account or leak either system or
+guest time on task switch.
+
+Fix this assumption and also turn vtime_guest_enter/exit() to use the
+task passed in parameter as well to avoid future similar issues.
+
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/1570549810-25049-2-git-send-email-kan.liang@linux.intel.com
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
+Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/sched/cputime.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 82a57d344b9bc..2a8e5f78e23c4 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -61,6 +61,9 @@
- #define INTEL_FAM6_TIGERLAKE_L		0x8C
- #define INTEL_FAM6_TIGERLAKE		0x8D
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 0796f938c4f0d..54eb9457b21d3 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -739,7 +739,7 @@ void vtime_account_system(struct task_struct *tsk)
  
-+#define INTEL_FAM6_COMETLAKE		0xA5
-+#define INTEL_FAM6_COMETLAKE_L		0xA6
-+
- /* "Small Core" Processors (Atom) */
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	/* We might have scheduled out from guest path */
+-	if (current->flags & PF_VCPU)
++	if (tsk->flags & PF_VCPU)
+ 		vtime_account_guest(tsk, vtime);
+ 	else
+ 		__vtime_account_system(tsk, vtime);
+@@ -782,7 +782,7 @@ void vtime_guest_enter(struct task_struct *tsk)
+ 	 */
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	__vtime_account_system(tsk, vtime);
+-	current->flags |= PF_VCPU;
++	tsk->flags |= PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_enter);
+@@ -793,7 +793,7 @@ void vtime_guest_exit(struct task_struct *tsk)
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	vtime_account_guest(tsk, vtime);
+-	current->flags &= ~PF_VCPU;
++	tsk->flags &= ~PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_exit);
 -- 
 2.20.1
 
