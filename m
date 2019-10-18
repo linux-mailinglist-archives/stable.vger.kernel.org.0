@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73694DD480
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E714DD460
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728750AbfJRWY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:24:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
+        id S1728847AbfJRWEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728740AbfJRWEr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:47 -0400
+        id S1728812AbfJRWEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD16522467;
-        Fri, 18 Oct 2019 22:04:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D37A222CC;
+        Fri, 18 Oct 2019 22:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436287;
-        bh=1Bp5QXY3r3Fb+fDqXdQe66OxpU2X041hGzALEvclh84=;
+        s=default; t=1571436289;
+        bh=jn36PS6JD/UCan94jV0PXlMdlJkaCs61c+4OM1G1KZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MipYs+6vmCA+l06k6iIqkYHE5dTSBbr45LVJHNBPxaNnyaoEKnLdmJ26wMlSYCLEf
-         AwqWYWLgoGCYEFad5ZGYuW4Ne8HmEJTU7VJW8/KTjaHhbduMKPso4tClJxVSHetfik
-         Tq8DdT6Efp7Lcc1D+8k5+z8psnYxGBQVrcW3shCE=
+        b=EF2bXxepyfWSkqVLPYRAhxLXHQTvbrN2FSuuY1DbJGs002vYmOYwWvbHyFkgoNTHR
+         EwzpM68PVZi/ys7wLdRTm3McCf+jLCOPknsPrR1/eMGFdd6fnmsdcMWdHpoSDtCz3T
+         S3Ws2bmlrFuXoe+1aR1Mn9JRlHAGsnUQjTNLuGrY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kan Liang <kan.liang@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
-        ak@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>,
-        Ingo Molnar <mingo@kernel.org>,
+Cc:     Xuewei Zhang <xueweiz@google.com>, Phil Auld <pauld@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 62/89] x86/cpu: Add Comet Lake to the Intel CPU models header
-Date:   Fri, 18 Oct 2019 18:02:57 -0400
-Message-Id: <20191018220324.8165-62-sashal@kernel.org>
+        Anton Blanchard <anton@ozlabs.org>,
+        Ben Segall <bsegall@google.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 63/89] sched/fair: Scale bandwidth quota and period without losing quota/period ratio precision
+Date:   Fri, 18 Oct 2019 18:02:58 -0400
+Message-Id: <20191018220324.8165-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -47,47 +52,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Xuewei Zhang <xueweiz@google.com>
 
-[ Upstream commit 8d7c6ac3b2371eb1cbc9925a88f4d10efff374de ]
+[ Upstream commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 ]
 
-Comet Lake is the new 10th Gen Intel processor. Add two new CPU model
-numbers to the Intel family list.
+The quota/period ratio is used to ensure a child task group won't get
+more bandwidth than the parent task group, and is calculated as:
 
-The CPU model numbers are not published in the SDM yet but they come
-from an authoritative internal source.
+  normalized_cfs_quota() = [(quota_us << 20) / period_us]
 
- [ bp: Touch up commit message. ]
+If the quota/period ratio was changed during this scaling due to
+precision loss, it will cause inconsistency between parent and child
+task groups.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Cc: ak@linux.intel.com
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+See below example:
+
+A userspace container manager (kubelet) does three operations:
+
+ 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
+ 2) Create a few children cgroups.
+ 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
+
+These operations are expected to succeed. However, if the scaling of
+147/128 happens before step 3, quota and period of the parent cgroup
+will be changed:
+
+  new_quota: 1148437ns,   1148us
+ new_period: 11484375ns, 11484us
+
+And when step 3 comes in, the ratio of the child cgroup will be
+104857, which will be larger than the parent cgroup ratio (104821),
+and will fail.
+
+Scaling them by a factor of 2 will fix the problem.
+
+Tested-by: Phil Auld <pauld@redhat.com>
+Signed-off-by: Xuewei Zhang <xueweiz@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Phil Auld <pauld@redhat.com>
+Cc: Anton Blanchard <anton@ozlabs.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mel Gorman <mgorman@suse.de>
 Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/1570549810-25049-2-git-send-email-kan.liang@linux.intel.com
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
+Link: https://lkml.kernel.org/r/20191004001243.140897-1-xueweiz@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/sched/fair.c | 36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 9ae1c0f05fd2d..3525014c71da9 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -76,6 +76,9 @@
- #define INTEL_FAM6_TIGERLAKE_L		0x8C
- #define INTEL_FAM6_TIGERLAKE		0x8D
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 86cfc5d5129ce..16b5d29bd7300 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4995,20 +4995,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
+ 		if (++count > 3) {
+ 			u64 new, old = ktime_to_ns(cfs_b->period);
  
-+#define INTEL_FAM6_COMETLAKE		0xA5
-+#define INTEL_FAM6_COMETLAKE_L		0xA6
+-			new = (old * 147) / 128; /* ~115% */
+-			new = min(new, max_cfs_quota_period);
+-
+-			cfs_b->period = ns_to_ktime(new);
+-
+-			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
+-			cfs_b->quota *= new;
+-			cfs_b->quota = div64_u64(cfs_b->quota, old);
+-
+-			pr_warn_ratelimited(
+-	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
+-				smp_processor_id(),
+-				div_u64(new, NSEC_PER_USEC),
+-				div_u64(cfs_b->quota, NSEC_PER_USEC));
++			/*
++			 * Grow period by a factor of 2 to avoid losing precision.
++			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
++			 * to fail.
++			 */
++			new = old * 2;
++			if (new < max_cfs_quota_period) {
++				cfs_b->period = ns_to_ktime(new);
++				cfs_b->quota *= 2;
 +
- /* "Small Core" Processors (Atom) */
++				pr_warn_ratelimited(
++	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
++					smp_processor_id(),
++					div_u64(new, NSEC_PER_USEC),
++					div_u64(cfs_b->quota, NSEC_PER_USEC));
++			} else {
++				pr_warn_ratelimited(
++	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
++					smp_processor_id(),
++					div_u64(old, NSEC_PER_USEC),
++					div_u64(cfs_b->quota, NSEC_PER_USEC));
++			}
  
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
+ 			/* reset count so we don't come right back in here */
+ 			count = 0;
 -- 
 2.20.1
 
