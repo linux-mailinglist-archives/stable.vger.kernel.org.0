@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA14DD220
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:09:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51ABEDD222
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388096AbfJRWIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41242 "EHLO mail.kernel.org"
+        id S2388203AbfJRWIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388072AbfJRWIm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:42 -0400
+        id S2388133AbfJRWIr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D83E922468;
-        Fri, 18 Oct 2019 22:08:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1200E22459;
+        Fri, 18 Oct 2019 22:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436521;
-        bh=+WwV0E1ym9y6aqcP9TKtSk5RdtH6hq+0LURBV+jXbNw=;
+        s=default; t=1571436527;
+        bh=xLXdFi8n6WZrtC00jlEDcjziMRoPWb3Glh6aR0819tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyCyijJ0NqIhu3+USMpJeYmWVdFCIBmUe6rfk89KNUmoJygCfh4z5QZqnWZD7k10v
-         60NbGMqKZP/q9POPQR0t6RWFEBKlgBMbp58manGiXIzDG1pbcZxQjjI+9xaxSnQBHG
-         YhVfjHiEqXMzblz5y0sB08IqO7hzLfwvVJ3TMqps=
+        b=hAl1+qTaAZ0MuxX+4tORn/TCxGieyB712ofq2JHfkxusJfsypPm6Z/t2FwMvUlhpD
+         /YyF4zu+cLO1FHgNvtmO9a8mRlnnlGmKGyFKHWVlz4MuQwwGmozpGgeN/pGZWunNrA
+         yIRE61+T933XRikd0sXD8iicDhkmfaX7O0HPyQSg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 28/56] RDMA/iwcm: Fix a lock inversion issue
-Date:   Fri, 18 Oct 2019 18:07:25 -0400
-Message-Id: <20191018220753.10002-28-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 33/56] tty: n_hdlc: fix build on SPARC
+Date:   Fri, 18 Oct 2019 18:07:30 -0400
+Message-Id: <20191018220753.10002-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -43,85 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
+[ Upstream commit 47a7e5e97d4edd7b14974d34f0e5a5560fad2915 ]
 
-This patch fixes the lock inversion complaint:
+Fix tty driver build on SPARC by not using __exitdata.
+It appears that SPARC does not support section .exit.data.
 
-============================================
-WARNING: possible recursive locking detected
-5.3.0-rc7-dbg+ #1 Not tainted
---------------------------------------------
-kworker/u16:6/171 is trying to acquire lock:
-00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+Fixes these build errors:
 
-but task is already holding lock:
-00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
+`.exit.data' referenced in section `.exit.text' of drivers/tty/n_hdlc.o: defined in discarded section `.exit.data' of drivers/tty/n_hdlc.o
 
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&id_priv->handler_mutex);
-  lock(&id_priv->handler_mutex);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-3 locks held by kworker/u16:6/171:
- #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
- #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
- #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
-
-stack backtrace:
-CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
-Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-Workqueue: iw_cm_wq cm_work_handler [iw_cm]
-Call Trace:
- dump_stack+0x8a/0xd6
- __lock_acquire.cold+0xe1/0x24d
- lock_acquire+0x106/0x240
- __mutex_lock+0x12e/0xcb0
- mutex_lock_nested+0x1f/0x30
- rdma_destroy_id+0x78/0x4a0 [rdma_cm]
- iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
- cm_work_handler+0xe62/0x1100 [iw_cm]
- process_one_work+0x56d/0xac0
- worker_thread+0x7a/0x5d0
- kthread+0x1bc/0x210
- ret_from_fork+0x24/0x30
-
-This is not a bug as there are actually two lock classes here.
-
-Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
-Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Fixes: 063246641d4a ("format-security: move static strings to const")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Link: https://lore.kernel.org/r/675e7bd9-955b-3ff3-1101-a973b58b5b75@infradead.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/n_hdlc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 7c5eca312aa88..f698c6a28c142 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2212,9 +2212,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
- 		conn_id->cm_id.iw = NULL;
- 		cma_exch(conn_id, RDMA_CM_DESTROYING);
- 		mutex_unlock(&conn_id->handler_mutex);
-+		mutex_unlock(&listen_id->handler_mutex);
- 		cma_deref_id(conn_id);
- 		rdma_destroy_id(&conn_id->id);
--		goto out;
-+		return ret;
- 	}
+diff --git a/drivers/tty/n_hdlc.c b/drivers/tty/n_hdlc.c
+index 08bd6b965847f..e83dea8d6633a 100644
+--- a/drivers/tty/n_hdlc.c
++++ b/drivers/tty/n_hdlc.c
+@@ -969,6 +969,11 @@ static int __init n_hdlc_init(void)
+ 	
+ }	/* end of init_module() */
  
- 	mutex_unlock(&conn_id->handler_mutex);
++#ifdef CONFIG_SPARC
++#undef __exitdata
++#define __exitdata
++#endif
++
+ static const char hdlc_unregister_ok[] __exitdata =
+ 	KERN_INFO "N_HDLC: line discipline unregistered\n";
+ static const char hdlc_unregister_fail[] __exitdata =
 -- 
 2.20.1
 
