@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A35DD2BE
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3951DD2C0
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389097AbfJRWJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
+        id S2392174AbfJRWN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:13:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389049AbfJRWJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:38 -0400
+        id S2389086AbfJRWJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BA3F22468;
-        Fri, 18 Oct 2019 22:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDBEF2245C;
+        Fri, 18 Oct 2019 22:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436577;
-        bh=3fIb/XpE5v/FmqlNuybYCPwnbwJAl3gVKkv+KO2OZGw=;
+        s=default; t=1571436578;
+        bh=fvJzHdU9Qd6JEQUwzHjNZOEkm8bYYmPhJVkgfQ1kHjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+7r/xosIiGmb/zp1zW18pp99Cch0VBJQlJCXl8sl7AA6HiyLvXsFd54WetQhpfHF
-         gHsg9ufzVcU3IRsuU0PR+nG2nCkkBFgEDjalDoW0+ikh2MF3UUbNCRC+hlDNlGSp//
-         7TpXPQCz2vLHhSLWhj2BvdabqNtkIHSu0gM/d1AY=
+        b=FMzy4mkD3wzW4USyNeNP9kx0G8Mi/tMJCBWXn7oNtzSp7xs3ZokbgOWzERcUEBxbU
+         WsuEHvoylt69xf4Res0zl+1gK12bu9pSOzJ4zeO4kRhw7lbuTXNChGyECWUQupBBKY
+         EZYXF06sr2L+YFzNGBcxY5JdDgFKUZye2+rwPtS8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Samuel Dionne-Riel <samuel@dionne-riel.com>,
-        Richard Weinberger <richard.weinberger@gmail.com>,
-        Graham Christensen <graham@grahamc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 08/29] exec: load_script: Do not exec truncated interpreter path
-Date:   Fri, 18 Oct 2019 18:08:59 -0400
-Message-Id: <20191018220920.10545-8-sashal@kernel.org>
+Cc:     Pascal Bouwmann <bouwmann@tau-tec.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 09/29] iio: fix center temperature of bmc150-accel-core
+Date:   Fri, 18 Oct 2019 18:09:00 -0400
+Message-Id: <20191018220920.10545-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220920.10545-1-sashal@kernel.org>
 References: <20191018220920.10545-1-sashal@kernel.org>
@@ -49,118 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Pascal Bouwmann <bouwmann@tau-tec.de>
 
-[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
+[ Upstream commit 6c59a962e081df6d8fe43325bbfabec57e0d4751 ]
 
-Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
-shebang string") was trying to protect against a confused exec of a
-truncated interpreter path. However, it was overeager and also refused
-to truncate arguments as well, which broke userspace, and it was
-reverted. This attempts the protection again, but allows arguments to
-remain truncated. In an effort to improve readability, helper functions
-and comments have been added.
+The center temperature of the supported devices stored in the constant
+BMC150_ACCEL_TEMP_CENTER_VAL is not 24 degrees but 23 degrees.
 
-Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: Graham Christensen <graham@grahamc.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+It seems that some datasheets were inconsistent on this value leading
+to the error.  For most usecases will only make minor difference so
+not queued for stable.
+
+Signed-off-by: Pascal Bouwmann <bouwmann@tau-tec.de>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 9 deletions(-)
+ drivers/iio/accel/bmc150-accel-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
-index afdf4e3cafc2a..37c2093a24d3c 100644
---- a/fs/binfmt_script.c
-+++ b/fs/binfmt_script.c
-@@ -14,14 +14,31 @@
- #include <linux/err.h>
- #include <linux/fs.h>
+diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
+index c3888822add1a..b6254ce9ab3b3 100644
+--- a/drivers/iio/accel/bmc150-accel-core.c
++++ b/drivers/iio/accel/bmc150-accel-core.c
+@@ -125,7 +125,7 @@
+ #define BMC150_ACCEL_SLEEP_1_SEC		0x0F
  
-+static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
-+static inline char *next_non_spacetab(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (!spacetab(*first))
-+			return first;
-+	return NULL;
-+}
-+static inline char *next_terminator(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (spacetab(*first) || !*first)
-+			return first;
-+	return NULL;
-+}
-+
- static int load_script(struct linux_binprm *bprm)
- {
- 	const char *i_arg, *i_name;
--	char *cp;
-+	char *cp, *buf_end;
- 	struct file *file;
- 	char interp[BINPRM_BUF_SIZE];
- 	int retval;
+ #define BMC150_ACCEL_REG_TEMP			0x08
+-#define BMC150_ACCEL_TEMP_CENTER_VAL		24
++#define BMC150_ACCEL_TEMP_CENTER_VAL		23
  
-+	/* Not ours to exec if we don't start with "#!". */
- 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
- 		return -ENOEXEC;
- 
-@@ -34,18 +51,40 @@ static int load_script(struct linux_binprm *bprm)
- 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
- 		return -ENOENT;
- 
--	/*
--	 * This section does the #! interpretation.
--	 * Sorta complicated, but hopefully it will work.  -TYT
--	 */
--
-+	/* Release since we are not mapping a binary into memory. */
- 	allow_write_access(bprm->file);
- 	fput(bprm->file);
- 	bprm->file = NULL;
- 
--	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
--	if ((cp = strchr(bprm->buf, '\n')) == NULL)
--		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	/*
-+	 * This section handles parsing the #! line into separate
-+	 * interpreter path and argument strings. We must be careful
-+	 * because bprm->buf is not yet guaranteed to be NUL-terminated
-+	 * (though the buffer will have trailing NUL padding when the
-+	 * file size was smaller than the buffer size).
-+	 *
-+	 * We do not want to exec a truncated interpreter path, so either
-+	 * we find a newline (which indicates nothing is truncated), or
-+	 * we find a space/tab/NUL after the interpreter path (which
-+	 * itself may be preceded by spaces/tabs). Truncating the
-+	 * arguments is fine: the interpreter can re-read the script to
-+	 * parse them on its own.
-+	 */
-+	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
-+	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
-+	if (!cp) {
-+		cp = next_non_spacetab(bprm->buf + 2, buf_end);
-+		if (!cp)
-+			return -ENOEXEC; /* Entire buf is spaces/tabs */
-+		/*
-+		 * If there is no later space/tab/NUL we must assume the
-+		 * interpreter path is truncated.
-+		 */
-+		if (!next_terminator(cp, buf_end))
-+			return -ENOEXEC;
-+		cp = buf_end;
-+	}
-+	/* NUL-terminate the buffer and any trailing spaces/tabs. */
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
+ #define BMC150_ACCEL_AXIS_TO_REG(axis)	(BMC150_ACCEL_REG_XOUT_L + (axis * 2))
+ #define BMC150_AUTO_SUSPEND_DELAY_MS		2000
 -- 
 2.20.1
 
