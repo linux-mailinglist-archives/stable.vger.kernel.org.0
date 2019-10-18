@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF97DD2DB
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E50DD2DD
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387793AbfJRWI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40876 "EHLO mail.kernel.org"
+        id S2387809AbfJRWI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387779AbfJRWI1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:27 -0400
+        id S2387798AbfJRWI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 456EB2245A;
-        Fri, 18 Oct 2019 22:08:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DBB0222C2;
+        Fri, 18 Oct 2019 22:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436507;
-        bh=XYF7y0BM07GfP9nY7zrjKzNbEKYrD2mjyfQAzvcSNZg=;
+        s=default; t=1571436508;
+        bh=HDsv24RpewDnlRB22Fo8IdX8RsS0btuV9oTMySaKPco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmAFxMIog1l7f+e9p/J01xP31wgx1kpRcVe+JOpBMTxNz/kXhoJZ8UOKoUJuIR/+f
-         3ZPx7QYBPenhqGw7cFBTGxsBpDD8+GWhhaUHQFCCG6P7cxrhaZ34Lh/ewmtTSWvq8D
-         XdygxW5fQKPS69UxKmly6t0bHYHiBzhHDmCG3LJk=
+        b=ZcqajXV60nD2r+DiBGM/ZeVpWdf1OiJoWv4xjCWVxm/XernE1nBX+Ioc61k5UPncb
+         xlkLRkDkl2fDDWtCi2+5p/1vb7WnVm4POCt96IoI7LvKA6apEh2sU173hhdWWTOmaZ
+         6D48VoWi4HO1Y9JjrkvXzfcHTjbUREWqImAFBTsE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Van Asbroeck <thesven73@gmail.com>,
-        Alexander Kurz <akurz@blala.de>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 18/56] power: supply: max14656: fix potential use-after-free
-Date:   Fri, 18 Oct 2019 18:07:15 -0400
-Message-Id: <20191018220753.10002-18-sashal@kernel.org>
+Cc:     Remi Pommarel <repk@triplefau.lt>,
+        Elie Roudninski <xademax@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 19/56] iio: adc: meson_saradc: Fix memory allocation order
+Date:   Fri, 18 Oct 2019 18:07:16 -0400
+Message-Id: <20191018220753.10002-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -45,69 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Van Asbroeck <thesven73@gmail.com>
+From: Remi Pommarel <repk@triplefau.lt>
 
-[ Upstream commit 252fbeb86ceffa549af9842cefca2412d53a7653 ]
+[ Upstream commit de10ac47597e7a3596b27631d0d5ce5f48d2c099 ]
 
-Explicitly cancel/sync the irq_work delayed work, otherwise
-there's a chance that it will run after the device is removed,
-which would result in a use-after-free.
+meson_saradc's irq handler uses priv->regmap so make sure that it is
+allocated before the irq get enabled.
 
-Note that cancel/sync should happen:
-- after irq's have been disabled, as the isr re-schedules the work
-- before the power supply is unregistered, because the work func
-    uses the power supply handle.
+This also fixes crash when CONFIG_DEBUG_SHIRQ is enabled, as device
+managed resources are freed in the inverted order they had been
+allocated, priv->regmap was freed before the spurious fake irq that
+CONFIG_DEBUG_SHIRQ adds called the handler.
 
-Cc: Alexander Kurz <akurz@blala.de>
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 3af109131b7eb8 ("iio: adc: meson-saradc: switch from polling to interrupt mode")
+Reported-by: Elie Roudninski <xademax@gmail.com>
+Signed-off-by: Remi Pommarel <repk@triplefau.lt>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Tested-by: Elie ROUDNINSKI <xademax@gmail.com>
+Reviewed-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../power/supply/max14656_charger_detector.c    | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/iio/adc/meson_saradc.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
-index d19307f791c68..9e6472834e373 100644
---- a/drivers/power/supply/max14656_charger_detector.c
-+++ b/drivers/power/supply/max14656_charger_detector.c
-@@ -240,6 +240,14 @@ static enum power_supply_property max14656_battery_props[] = {
- 	POWER_SUPPLY_PROP_MANUFACTURER,
- };
+diff --git a/drivers/iio/adc/meson_saradc.c b/drivers/iio/adc/meson_saradc.c
+index 2515badf8b280..9b2121f249263 100644
+--- a/drivers/iio/adc/meson_saradc.c
++++ b/drivers/iio/adc/meson_saradc.c
+@@ -976,6 +976,11 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
  
-+static void stop_irq_work(void *data)
-+{
-+	struct max14656_chip *chip = data;
++	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
++					     priv->data->regmap_config);
++	if (IS_ERR(priv->regmap))
++		return PTR_ERR(priv->regmap);
 +
-+	cancel_delayed_work_sync(&chip->irq_work);
-+}
-+
-+
- static int max14656_probe(struct i2c_client *client,
- 			  const struct i2c_device_id *id)
- {
-@@ -278,8 +286,6 @@ static int max14656_probe(struct i2c_client *client,
- 	if (ret)
- 		return -ENODEV;
- 
--	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
--
- 	chip->detect_psy = devm_power_supply_register(dev,
- 		       &chip->psy_desc, &psy_cfg);
- 	if (IS_ERR(chip->detect_psy)) {
-@@ -287,6 +293,13 @@ static int max14656_probe(struct i2c_client *client,
+ 	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+ 	if (!irq)
  		return -EINVAL;
- 	}
+@@ -985,11 +990,6 @@ static int meson_sar_adc_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
-+	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
-+	ret = devm_add_action(dev, stop_irq_work, chip);
-+	if (ret) {
-+		dev_err(dev, "devm_add_action %d failed\n", ret);
-+		return ret;
-+	}
-+
- 	ret = devm_request_irq(dev, chip->irq, max14656_irq,
- 			       IRQF_TRIGGER_FALLING,
- 			       MAX14656_NAME, chip);
+-	priv->regmap = devm_regmap_init_mmio(&pdev->dev, base,
+-					     priv->data->regmap_config);
+-	if (IS_ERR(priv->regmap))
+-		return PTR_ERR(priv->regmap);
+-
+ 	priv->clkin = devm_clk_get(&pdev->dev, "clkin");
+ 	if (IS_ERR(priv->clkin)) {
+ 		dev_err(&pdev->dev, "failed to get clkin\n");
 -- 
 2.20.1
 
