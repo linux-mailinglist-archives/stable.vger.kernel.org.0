@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C19DD301
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9ABEDD31A
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388710AbfJRWJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S2392362AbfJRWOs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:14:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388696AbfJRWJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:09:15 -0400
+        id S2388719AbfJRWJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:09:16 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06A972245D;
-        Fri, 18 Oct 2019 22:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BEE72246A;
+        Fri, 18 Oct 2019 22:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436554;
-        bh=Omud9UZmBtqGj7SrMm7Par2Ho2glxFczkFyI3U1glN4=;
+        s=default; t=1571436556;
+        bh=dcVigU6fDMmZoextzHaCniTrTK6eBi3KgAmY8viInsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eaXCw7Eiwa/ojNJ1u00MQ4YpteNdxOhCFK35joQWbpRDSGCFBBZevbvf8udCJMFxM
-         0eM/3Uedq6jh0+cIMei4XMjTo91slfbAGovlucE9bR0HtUpJlbFFiKS9NCY2bIUBKo
-         AelI3v7HxCl2GylOtN797YngmmZXouk8PmkGDNo8=
+        b=z5TSf3fEqy8DarWcxh48UXXVG1XUS5/ElpNR7Xh7idaj9R7si1WGh9hHD1ndkK0Ck
+         TJhHeMOi6Xn/oxp7QJlb8wt3tKj98969aYlo33RxEdstMKCRwy6AjMZpm4Oo75no9b
+         z/L1nKHCrGd7T5VJ+a7cSjCtd1NCoABQ+4XgqUvE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 52/56] USB: usb-skeleton: fix use-after-free after driver unbind
-Date:   Fri, 18 Oct 2019 18:07:49 -0400
-Message-Id: <20191018220753.10002-52-sashal@kernel.org>
+Cc:     Xiubo Li <xiubli@redhat.com>, Mike Christie <mchristi@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 4.14 53/56] nbd: fix possible sysfs duplicate warning
+Date:   Fri, 18 Oct 2019 18:07:50 -0400
+Message-Id: <20191018220753.10002-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -43,35 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
+[ Upstream commit 862488105b84ca744b3d8ff131e0fcfe10644be1 ]
 
-The driver failed to stop its read URB on disconnect, something which
-could lead to a use-after-free in the completion handler after driver
-unbind in case the character device has been closed.
+1. nbd_put takes the mutex and drops nbd->ref to 0. It then does
+idr_remove and drops the mutex.
 
-Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+2. nbd_genl_connect takes the mutex. idr_find/idr_for_each fails
+to find an existing device, so it does nbd_dev_add.
+
+3. just before the nbd_put could call nbd_dev_remove or not finished
+totally, but if nbd_dev_add try to add_disk, we can hit:
+
+debugfs: Directory 'nbd1' with parent 'block' already present!
+
+This patch will make sure all the disk add/remove stuff are done
+by holding the nbd_index_mutex lock.
+
+Reported-by: Mike Christie <mchristi@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usb-skeleton.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/usb-skeleton.c b/drivers/usb/usb-skeleton.c
-index bb0bd732e29ab..2af5a9a0e189e 100644
---- a/drivers/usb/usb-skeleton.c
-+++ b/drivers/usb/usb-skeleton.c
-@@ -576,6 +576,7 @@ static void skel_disconnect(struct usb_interface *interface)
- 	dev->interface = NULL;
- 	mutex_unlock(&dev->io_mutex);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index a234600849558..3e45004407963 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -228,8 +228,8 @@ static void nbd_put(struct nbd_device *nbd)
+ 	if (refcount_dec_and_mutex_lock(&nbd->refs,
+ 					&nbd_index_mutex)) {
+ 		idr_remove(&nbd_index_idr, nbd->index);
+-		mutex_unlock(&nbd_index_mutex);
+ 		nbd_dev_remove(nbd);
++		mutex_unlock(&nbd_index_mutex);
+ 	}
+ }
  
-+	usb_kill_urb(dev->bulk_in_urb);
- 	usb_kill_anchored_urbs(&dev->submitted);
- 
- 	/* decrement our usage count */
 -- 
 2.20.1
 
