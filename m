@@ -2,70 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F367CDCA08
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 17:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A52CDCBA3
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 18:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390780AbfJRP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 11:58:19 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:37585 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726506AbfJRP6S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 11:58:18 -0400
-Received: by mail-lf1-f67.google.com with SMTP id g21so3998705lfh.4;
-        Fri, 18 Oct 2019 08:58:17 -0700 (PDT)
+        id S2405941AbfJRQgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 12:36:11 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:37398 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730786AbfJRQgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 12:36:11 -0400
+Received: by mail-pf1-f195.google.com with SMTP id y5so4213914pfo.4
+        for <stable@vger.kernel.org>; Fri, 18 Oct 2019 09:36:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ttfvaz7iNEFfCRYhhy3E48U+pPKKC4mHvgM6ZOuohSI=;
-        b=dJP58M9vHzMkCf5/o1RrXt+Ia+M2sk7thkCGT5jKU/ktMPYcBavPvfLMXyywixcrPv
-         r/6s8/18Z5CoAeKMdO1OZLaBmrvILDFBHpzwJQ85zpmRT+Boxn6ZPEI93y8MKTJjJheE
-         W/rb1fK1YoVS1YUL2Px4AlGUGSG+ZZ6RGXUPz70KSkMa5IAZKxe9NBUdqqdchiV7KhkK
-         1Xvqh3SyPfi8eOVUbWT9sYXsxtuKDF1ICO9aybHMBEE+5QSavljNbwXrD5nAD0CTcJYw
-         X+6TG+pJyLtrs0S7Me+HHqOxC+BgZjzyjqms3chepSWMUTa1GAuI7MkDajSZw7SSFcgs
-         GrOA==
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=Bye135gwA1svZblRSZCCqjJ0pb5KXJ36Pgiefcf2DQY=;
+        b=JqjIkhRx2SvqMM1489kPjibumhUQKoZNWSY3TZ/nKULBQFgG5OQSKI2BCTJJ7D5Uih
+         wPwEy/nlsOwbvqwLjuUTvjy+u7C74Nh/PmLWkqrTif8X2y2SorrUynVHI92/JZ8WXGFE
+         JumSiErFubDM+PEttZ9RQmguyAda29gp1fPX0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ttfvaz7iNEFfCRYhhy3E48U+pPKKC4mHvgM6ZOuohSI=;
-        b=Z+Nb0CrSXOowkvCHmYM6IG9uVdVBBe3OoDHT0dVF9zhOxgELYTLoGWMe7F4U0W9gTw
-         yfJ7MRAkh7Nwld8YiiF1B1Q+SuQzpKPSeAXwxiRep+TUwheBwT8eE+dgairYfDOEf6og
-         5cLS8ssVRr/k1Hl/oh2DqQ65lHBBrd0FY2Q1mFOPtIdTIybVjY6TIgYw7Els4s8Q8Fbz
-         12aq7UWmi4g/FULZjQKhsoVXTsN7i9ET1NF1g4uPvkHeYNG0A1R5wWxx+eN/2q1cGwr4
-         1wsJYJUu2tOtuh/xmEFJTf6rOW4gDNvnPXy9d2WVlW3gDYBzHlm3u44eqxDRDe4EgW3D
-         HPKQ==
-X-Gm-Message-State: APjAAAX0O2AXpPkChE4Ecw+Ro+n4RzqruSWY0TRlESOXJUJkhj/+6/ir
-        XcbtVSOPFCSAcso4+KlX2Crc+a2bGEjOq6Tfn/U=
-X-Google-Smtp-Source: APXvYqxP8/0QV8rT3k2NWSOm1ssIagw4Xb5opwj1fUKOPiN7qQ+KYU0iCPMlNK9Oe5i3uj2Oyc/w2A1YY5CYIyNcmAM=
-X-Received: by 2002:ac2:4a68:: with SMTP id q8mr6761021lfp.20.1571414296651;
- Fri, 18 Oct 2019 08:58:16 -0700 (PDT)
-MIME-Version: 1.0
-References: <20191018093934.29695-1-s.hauer@pengutronix.de>
- <CAOMZO5DUoj4xVZQSvk9Juw9z37UgrMn3g24h2_pAMxuTkBjw4g@mail.gmail.com> <20191018133435.oncn7nktihpqyj4z@pengutronix.de>
-In-Reply-To: <20191018133435.oncn7nktihpqyj4z@pengutronix.de>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Fri, 18 Oct 2019 12:58:07 -0300
-Message-ID: <CAOMZO5DLebwVYJGfT=n+j3T62Ps8eJAZWKCb55Xck=thimubrA@mail.gmail.com>
-Subject: Re: [PATCH] mmc: mxs: fix flags passed to dmaengine_prep_slave_sg
-To:     Sascha Hauer <s.hauer@pengutronix.de>
-Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bruno Thomsen <bruno.thomsen@gmail.com>,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=Bye135gwA1svZblRSZCCqjJ0pb5KXJ36Pgiefcf2DQY=;
+        b=nrbea/f7vbW3jpzb/ygIe/LVODFqL2AY9no7/Bfw5z3Q7LMVg0GrEObU5U0WJdG36h
+         PZhHi12jRsA42a3+H0gteDAJV3hvffy4658D33zd1mxH8BiyDGhI1GUySZQDsH0Esc4t
+         oBUyettunekGChBWtYxqWVUVZfFasvD+xSAucTTayLLqwARUU9OhVrz/4z/JIuvD5UzK
+         yUkI+3JyMNmICVJ+BRmTtZmH6xZS2dN5MjIoupRXQ12u22+BSYmvL56cnM1pGASt0YXO
+         bP+YRil5YGC0VD3oZuO8Mh0hncg+KqYuXBHD6IlvGkXCLeHxclWE6r0z+eRELXZpnnVj
+         Z8ig==
+X-Gm-Message-State: APjAAAVkZlHZ/hveCcO6JPc84MVVmwbMVELLJhSV+Y2MneY/wHdezdc2
+        3FJAxpPIjrotDIbZFvXplnBeuqrJZoTyEEcoHS0NAL94ya/IcUCpPiOwHIQIr537Ck4+1QI9pol
+        ZFEPrBWRn7MUwHLrtnUaVzz1CBHssVPHEQXHFW6RG8LmraOnu6M5YJlPffWonQ1POfK7d0mg=
+X-Google-Smtp-Source: APXvYqzD/qt6MHkD1pK6flLL5LHVVOJ2Ajha+rl3DPyHpe600uM4wBypQgjk0Zslwx2Zxy0J0/N8tw==
+X-Received: by 2002:aa7:9842:: with SMTP id n2mr7883881pfq.258.1571416570119;
+        Fri, 18 Oct 2019 09:36:10 -0700 (PDT)
+Received: from [10.69.45.46] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id e127sm7457161pfe.37.2019.10.18.09.36.04
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 18 Oct 2019 09:36:07 -0700 (PDT)
+Subject: Re: [PATCH] lpfc: remove left-over BUILD_NVME defines
+To:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Hannes Reinecke <hare@suse.de>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        James Bottomley <james.bottomley@hansenpartnership.com>,
+        linux-scsi@vger.kernel.org,
+        Martin George <martin.george@netapp.com>,
+        Daniel Wagner <daniel.wagner@suse.com>,
+        Hannes Reinecke <hare@suse.com>,
+        James Smart <james.smart@broadcom.com>,
         stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <20191017150019.75769-1-hare@suse.de> <yq1eezake0f.fsf@oracle.com>
+From:   James Smart <james.smart@broadcom.com>
+Message-ID: <0e739a86-a462-9d44-9ef9-24a4488c0d87@broadcom.com>
+Date:   Fri, 18 Oct 2019 09:36:02 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <yq1eezake0f.fsf@oracle.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 18, 2019 at 10:34 AM Sascha Hauer <s.hauer@pengutronix.de> wrote:
+On 10/17/2019 7:01 PM, Martin K. Petersen wrote:
+> Hannes,
+>
+>> The BUILD_NVME define never got defined anywhere, causing NVMe
+>> commands to be treated as SCSI commands when freeing the buffers.
+>> This was causing a stuck discovery and a horrible crash in
+>> lpfc_set_rrq_active() later on.
+> Applied to 5.4/scsi-fixes, thanks!
+>
 
-> We would probably also have to revert the exec_op conversion of the gpmi
-> NAND driver, something which I'd rather not do.
+The offending patches that introduced the define are:
 
-Ok, understood. Thanks for the clarification.
+ From 12.2.0.0:
+scsi: lpfc: Move SCSI and NVME Stats to hardware queue structures
+commit    4c47efc140fa926f00aa59c248458d95bd7b5eab
+ From 12.4.0.0:
+scsi: lpfc: Merge per-protocol WQ/CQ pairs into single per-cpu pair
+commit    c00f62e6c5468ed0673c583f1ff284274e817410
 
-Better go with your patch then.
+The 12.2 patch just misses some stats - no big deal.
+But the 12.4 patch introduces a logic error, and is in the head of the 
+stable tree.
 
-Thanks
+I assume that 5.4/scsi-fixes will get merged into 5.4 pre-release, and 
+that the stable tree will rebase to pick it up ?
+
+-- james
+
+
