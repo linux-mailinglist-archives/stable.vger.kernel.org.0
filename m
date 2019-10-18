@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB032DD18B
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA89DD18F
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727377AbfJRWDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:03:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
+        id S1727491AbfJRWDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727277AbfJRWDp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:03:45 -0400
+        id S1727460AbfJRWDz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:03:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6605F222C2;
-        Fri, 18 Oct 2019 22:03:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CBBF222D3;
+        Fri, 18 Oct 2019 22:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436224;
-        bh=FUBtfGEJkZabC1oRBZ71y9SS7gccP9wjCtq+zvjf7/c=;
+        s=default; t=1571436233;
+        bh=fDteLza2W1wJUfSTg/wf7TafiBkuex3xqUTpb6zVZQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGTmwiprrdrHPzivcdeoCjhN14vdOLFsw9BpL+OeqSybk2upBNLkLeTbfi7K7ytTK
-         sTAoLMNZbTwYWVkGczJF7lJb1Bydh0DJPjMTScM9y9MBwa99jv8R/GtOoUi7U3xi5A
-         VHjlr5N7qr2vGpM2H5mMnARMUlUP1PAIlEZZakwg=
+        b=XO9LiVOcRnV+PwvlVBaFRzIAZptSebYrbl4XPH4uMa1sPB/ouESXF1TshMop+SZhz
+         9goy0YuL3qnSqu1kQ8pcbopSj68Ic77zCQVMMjmsB8p/AKMRh/wUsZ1f8sNBM4DHpD
+         kMWe9gZBuqB+pWhK2cKIV9vpF3nIXZEVjsAZX8wY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 12/89] perf annotate: Fix arch specific ->init() failure errors
-Date:   Fri, 18 Oct 2019 18:02:07 -0400
-Message-Id: <20191018220324.8165-12-sashal@kernel.org>
+Cc:     Potnuri Bharat Teja <bharat@chelsio.com>,
+        Rahul Kundu <rahul.kundu@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 19/89] RDMA/iw_cxgb4: fix SRQ access from dump_qp()
+Date:   Fri, 18 Oct 2019 18:02:14 -0400
+Message-Id: <20191018220324.8165-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -48,138 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit 42d7a9107d83223a5fcecc6732d626a6c074cbc2 ]
+[ Upstream commit 91724c1e5afe45b64970036170659726e7dc5cff ]
 
-They are called from symbol__annotate() and to propagate errors that can
-help understand the problem make them return what
-symbol__strerror_disassemble() known, i.e. errno codes and other
-annotation specific errors in a special, out of errnos, range.
+dump_qp() is wrongly trying to dump SRQ structures as QP when SRQ is used
+by the application. This patch matches the QPID before dumping them.  Also
+removes unwanted SRQ id addition to QP id xarray.
 
-Reported-by: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-Cc: Will Deacon <will@kernel.org>
-Link: https://lkml.kernel.org/n/tip-pqx7srcv7tixgid251aeboj6@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 2f43129127e6 ("cxgb4: Convert qpidr to XArray")
+Link: https://lore.kernel.org/r/20190930074119.20046-1-bharat@chelsio.com
+Signed-off-by: Rahul Kundu <rahul.kundu@chelsio.com>
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/arm/annotate/instructions.c   | 4 ++--
- tools/perf/arch/arm64/annotate/instructions.c | 4 ++--
- tools/perf/arch/s390/annotate/instructions.c  | 6 ++++--
- tools/perf/arch/x86/annotate/instructions.c   | 6 ++++--
- tools/perf/util/annotate.c                    | 6 ++++++
- tools/perf/util/annotate.h                    | 2 ++
- 6 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/infiniband/hw/cxgb4/device.c |  7 +++++--
+ drivers/infiniband/hw/cxgb4/qp.c     | 10 +---------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/tools/perf/arch/arm/annotate/instructions.c b/tools/perf/arch/arm/annotate/instructions.c
-index c7d1a69b894fe..19ac54758c713 100644
---- a/tools/perf/arch/arm/annotate/instructions.c
-+++ b/tools/perf/arch/arm/annotate/instructions.c
-@@ -36,7 +36,7 @@ static int arm__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
- 
- 	arm = zalloc(sizeof(*arm));
- 	if (!arm)
--		return -1;
-+		return ENOMEM;
- 
- #define ARM_CONDS "(cc|cs|eq|ge|gt|hi|le|ls|lt|mi|ne|pl|vc|vs)"
- 	err = regcomp(&arm->call_insn, "^blx?" ARM_CONDS "?$", REG_EXTENDED);
-@@ -58,5 +58,5 @@ static int arm__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
- 	regfree(&arm->call_insn);
- out_free_arm:
- 	free(arm);
--	return -1;
-+	return SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP;
- }
-diff --git a/tools/perf/arch/arm64/annotate/instructions.c b/tools/perf/arch/arm64/annotate/instructions.c
-index 8f70a1b282dfb..223e2f161f414 100644
---- a/tools/perf/arch/arm64/annotate/instructions.c
-+++ b/tools/perf/arch/arm64/annotate/instructions.c
-@@ -94,7 +94,7 @@ static int arm64__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
- 
- 	arm = zalloc(sizeof(*arm));
- 	if (!arm)
--		return -1;
-+		return ENOMEM;
- 
- 	/* bl, blr */
- 	err = regcomp(&arm->call_insn, "^blr?$", REG_EXTENDED);
-@@ -117,5 +117,5 @@ static int arm64__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
- 	regfree(&arm->call_insn);
- out_free_arm:
- 	free(arm);
--	return -1;
-+	return SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP;
- }
-diff --git a/tools/perf/arch/s390/annotate/instructions.c b/tools/perf/arch/s390/annotate/instructions.c
-index 89bb8f2c54cee..a50e70baf9183 100644
---- a/tools/perf/arch/s390/annotate/instructions.c
-+++ b/tools/perf/arch/s390/annotate/instructions.c
-@@ -164,8 +164,10 @@ static int s390__annotate_init(struct arch *arch, char *cpuid __maybe_unused)
- 	if (!arch->initialized) {
- 		arch->initialized = true;
- 		arch->associate_instruction_ops = s390__associate_ins_ops;
--		if (cpuid)
--			err = s390__cpuid_parse(arch, cpuid);
-+		if (cpuid) {
-+			if (s390__cpuid_parse(arch, cpuid))
-+				err = SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING;
-+		}
+diff --git a/drivers/infiniband/hw/cxgb4/device.c b/drivers/infiniband/hw/cxgb4/device.c
+index a8b9548bd1a26..599340c1f0b82 100644
+--- a/drivers/infiniband/hw/cxgb4/device.c
++++ b/drivers/infiniband/hw/cxgb4/device.c
+@@ -242,10 +242,13 @@ static void set_ep_sin6_addrs(struct c4iw_ep *ep,
  	}
+ }
  
- 	return err;
-diff --git a/tools/perf/arch/x86/annotate/instructions.c b/tools/perf/arch/x86/annotate/instructions.c
-index 44f5aba78210e..7eb5621c021d8 100644
---- a/tools/perf/arch/x86/annotate/instructions.c
-+++ b/tools/perf/arch/x86/annotate/instructions.c
-@@ -196,8 +196,10 @@ static int x86__annotate_init(struct arch *arch, char *cpuid)
- 	if (arch->initialized)
- 		return 0;
+-static int dump_qp(struct c4iw_qp *qp, struct c4iw_debugfs_data *qpd)
++static int dump_qp(unsigned long id, struct c4iw_qp *qp,
++		   struct c4iw_debugfs_data *qpd)
+ {
+ 	int space;
+ 	int cc;
++	if (id != qp->wq.sq.qid)
++		return 0;
  
--	if (cpuid)
--		err = x86__cpuid_parse(arch, cpuid);
-+	if (cpuid) {
-+		if (x86__cpuid_parse(arch, cpuid))
-+			err = SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING;
-+	}
+ 	space = qpd->bufsize - qpd->pos - 1;
+ 	if (space == 0)
+@@ -350,7 +353,7 @@ static int qp_open(struct inode *inode, struct file *file)
  
- 	arch->initialized = true;
- 	return err;
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index ca8b517e38fa8..b475449f955ef 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1625,6 +1625,12 @@ int symbol__strerror_disassemble(struct symbol *sym __maybe_unused, struct map *
- 	case SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF:
- 		scnprintf(buf, buflen, "Please link with binutils's libopcode to enable BPF annotation");
- 		break;
-+	case SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP:
-+		scnprintf(buf, buflen, "Problems with arch specific instruction name regular expressions.");
-+		break;
-+	case SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING:
-+		scnprintf(buf, buflen, "Problems while parsing the CPUID in the arch specific initialization.");
-+		break;
- 	default:
- 		scnprintf(buf, buflen, "Internal error: Invalid %d error code\n", errnum);
- 		break;
-diff --git a/tools/perf/util/annotate.h b/tools/perf/util/annotate.h
-index 5bc0cf655d377..a1191995fe77e 100644
---- a/tools/perf/util/annotate.h
-+++ b/tools/perf/util/annotate.h
-@@ -370,6 +370,8 @@ enum symbol_disassemble_errno {
+ 	xa_lock_irq(&qpd->devp->qps);
+ 	xa_for_each(&qpd->devp->qps, index, qp)
+-		dump_qp(qp, qpd);
++		dump_qp(index, qp, qpd);
+ 	xa_unlock_irq(&qpd->devp->qps);
  
- 	SYMBOL_ANNOTATE_ERRNO__NO_VMLINUX	= __SYMBOL_ANNOTATE_ERRNO__START,
- 	SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF,
-+	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING,
-+	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP,
+ 	qpd->buf[qpd->pos++] = 0;
+diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
+index eb9368be28c1d..bbcac539777a2 100644
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -2737,15 +2737,11 @@ int c4iw_create_srq(struct ib_srq *ib_srq, struct ib_srq_init_attr *attrs,
+ 	if (CHELSIO_CHIP_VERSION(rhp->rdev.lldi.adapter_type) > CHELSIO_T6)
+ 		srq->flags = T4_SRQ_LIMIT_SUPPORT;
  
- 	__SYMBOL_ANNOTATE_ERRNO__END,
- };
+-	ret = xa_insert_irq(&rhp->qps, srq->wq.qid, srq, GFP_KERNEL);
+-	if (ret)
+-		goto err_free_queue;
+-
+ 	if (udata) {
+ 		srq_key_mm = kmalloc(sizeof(*srq_key_mm), GFP_KERNEL);
+ 		if (!srq_key_mm) {
+ 			ret = -ENOMEM;
+-			goto err_remove_handle;
++			goto err_free_queue;
+ 		}
+ 		srq_db_key_mm = kmalloc(sizeof(*srq_db_key_mm), GFP_KERNEL);
+ 		if (!srq_db_key_mm) {
+@@ -2789,8 +2785,6 @@ int c4iw_create_srq(struct ib_srq *ib_srq, struct ib_srq_init_attr *attrs,
+ 	kfree(srq_db_key_mm);
+ err_free_srq_key_mm:
+ 	kfree(srq_key_mm);
+-err_remove_handle:
+-	xa_erase_irq(&rhp->qps, srq->wq.qid);
+ err_free_queue:
+ 	free_srq_queue(srq, ucontext ? &ucontext->uctx : &rhp->rdev.uctx,
+ 		       srq->wr_waitp);
+@@ -2813,8 +2807,6 @@ void c4iw_destroy_srq(struct ib_srq *ibsrq, struct ib_udata *udata)
+ 	rhp = srq->rhp;
+ 
+ 	pr_debug("%s id %d\n", __func__, srq->wq.qid);
+-
+-	xa_erase_irq(&rhp->qps, srq->wq.qid);
+ 	ucontext = rdma_udata_to_drv_context(udata, struct c4iw_ucontext,
+ 					     ibucontext);
+ 	free_srq_queue(srq, ucontext ? &ucontext->uctx : &rhp->rdev.uctx,
 -- 
 2.20.1
 
