@@ -2,92 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3E0DD3C2
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07EFDD421
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732236AbfJRWTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
+        id S2391031AbfJRWWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:22:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732163AbfJRWG5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:57 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726205AbfJRWWH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:22:07 -0400
+Received: from localhost (unknown [12.245.223.10])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBFC222459;
-        Fri, 18 Oct 2019 22:06:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85ACC205C9;
+        Fri, 18 Oct 2019 22:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436416;
-        bh=uTy1kjyuPAGz2wZWF8FBRTZHEkVSNj5vNXv4AoaQbpI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QH6A0pEl+r0J6XMEAyYwZdzGRfvx9egO6yXZUv17N2UUo//3gSd3HU5Tl4hpZik/K
-         mmJt12ufGhn2LOALP4CtQ4GggTaX40Gx7zo/voNueYazrlHswJm0J0kc0qTMhlTakq
-         MnyN+NR6KTScSL8AQpG8uO95RVczklvVrKv9agWo=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 060/100] perf annotate: Propagate the symbol__annotate() error return
-Date:   Fri, 18 Oct 2019 18:04:45 -0400
-Message-Id: <20191018220525.9042-60-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
+        s=default; t=1571437326;
+        bh=qAIBQeIpmd6hAmZu10ZR2fdEX8y4SeQuRmmYFchHdsI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=u3KZZ1LTgCdf45rUtjlIg48GKcVjFB96rdYjKcelrz6bAiB8rkEUhdcqzsDDy3nZU
+         cYukfsuKsZH8Jd+/C6akNROyFB/FRD/Oz9nSUU9z6GpCJkNh74RvWAgRcJh1rbU6nb
+         gdnBKR6Oetd8v8ClUPucqUHTWyC4xz3AJcc4Ve6Y=
+Date:   Fri, 18 Oct 2019 18:22:05 -0400
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 095/100] USB: usb-skeleton: fix
+ use-after-free after driver unbind
+Message-ID: <20191018222205.GA6978@kroah.com>
 References: <20191018220525.9042-1-sashal@kernel.org>
+ <20191018220525.9042-95-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191018220525.9042-95-sashal@kernel.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+On Fri, Oct 18, 2019 at 06:05:20PM -0400, Sasha Levin wrote:
+> From: Johan Hovold <johan@kernel.org>
+> 
+> [ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
+> 
+> The driver failed to stop its read URB on disconnect, something which
+> could lead to a use-after-free in the completion handler after driver
+> unbind in case the character device has been closed.
+> 
+> Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/usb/usb-skeleton.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-[ Upstream commit 211f493b611eef012841f795166c38ec7528738d ]
+This file does not even get built in the kernel tree, no need to
+backport anything for it :)
 
-We were just returning -1 in symbol__annotate() when symbol__annotate()
-failed, propagate its error as it is used later to pass to
-symbol__strerror_disassemble() to present a error message to the user,
-that in some cases were getting:
+thanks,
 
-  "Invalid -1 error code"
-
-Fix it to propagate the error.
-
-Reported-by: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-Cc: Will Deacon <will@kernel.org>
-Link: https://lkml.kernel.org/n/tip-0tj89rs9g7nbcyd5skadlvuu@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- tools/perf/util/annotate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index b4946ef48b621..83a3ad4256c5b 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -2757,7 +2757,7 @@ int symbol__annotate2(struct symbol *sym, struct map *map, struct perf_evsel *ev
- 
- out_free_offsets:
- 	zfree(&notes->offsets);
--	return -1;
-+	return err;
- }
- 
- #define ANNOTATION__CFG(n) \
--- 
-2.20.1
-
+greg k-h
