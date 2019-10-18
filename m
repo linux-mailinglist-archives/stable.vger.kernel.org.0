@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15CBDD39B
+	by mail.lfdr.de (Postfix) with ESMTP id 1462ADD399
 	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732409AbfJRWTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39192 "EHLO mail.kernel.org"
+        id S1728951AbfJRWTA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:19:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732372AbfJRWHF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:05 -0400
+        id S1732409AbfJRWHG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:07:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0BBC222D1;
-        Fri, 18 Oct 2019 22:07:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE318222D4;
+        Fri, 18 Oct 2019 22:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436424;
-        bh=RKoO/50WWCrVLJkafaQkr4EOtCU9gOnnE+awNfgmwaM=;
+        s=default; t=1571436425;
+        bh=BYsbJjo25ob2w4vEbmdMvtR1SJRInPAA1UGSNr2lkXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3+7DCEgDu76lCxX0/yXQ2HimHN6oeP1QcoDi1P2XowE6syFIeuFZlghUvx8Gp8+r
-         UxsM+W8DlGRVZm6VZiP9wiSpC3g95nS0FK/5GHgzUoV3ujKfeVtV7YLn5DKNIa1Ks2
-         E9RAmRlXTq3BjTquugO7AjTGLx7Zpmsq9sCVE8Bc=
+        b=q3TxJDjM7EzRiWo1RgrR1XHtlzGK+KS+w2FYIezGNW/M2/cTrJ5T8IlmEbactIBHg
+         7Z3CZne1MG7zkwPKv+loc/0i6KNchRwFGF0/Fh2zSEgpdk2CiWnkF/5z3P+DOHWgyB
+         u1OApzPGyjmoxA5/FIooebDyy0PoB9YSZFp0bi4U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dexuan Cui <decui@microsoft.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, devel@linuxdriverproject.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 066/100] HID: hyperv: Use in-place iterator API in the channel callback
-Date:   Fri, 18 Oct 2019 18:04:51 -0400
-Message-Id: <20191018220525.9042-66-sashal@kernel.org>
+Cc:     ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 067/100] nfs: Fix nfsi->nrequests count error on nfs_inode_remove_request
+Date:   Fri, 18 Oct 2019 18:04:52 -0400
+Message-Id: <20191018220525.9042-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -43,97 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dexuan Cui <decui@microsoft.com>
+From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 6a297c90efa68b2864483193b8bfb0d19478600c ]
+[ Upstream commit 33ea5aaa87cdae0f9af4d6b7ee4f650a1a36fd1d ]
 
-Simplify the ring buffer handling with the in-place API.
+When xfstests testing, there are some WARNING as below:
 
-Also avoid the dynamic allocation and the memory leak in the channel
-callback function.
+WARNING: CPU: 0 PID: 6235 at fs/nfs/inode.c:122 nfs_clear_inode+0x9c/0xd8
+Modules linked in:
+CPU: 0 PID: 6235 Comm: umount.nfs
+Hardware name: linux,dummy-virt (DT)
+pstate: 60000005 (nZCv daif -PAN -UAO)
+pc : nfs_clear_inode+0x9c/0xd8
+lr : nfs_evict_inode+0x60/0x78
+sp : fffffc000f68fc00
+x29: fffffc000f68fc00 x28: fffffe00c53155c0
+x27: fffffe00c5315000 x26: fffffc0009a63748
+x25: fffffc000f68fd18 x24: fffffc000bfaaf40
+x23: fffffc000936d3c0 x22: fffffe00c4ff5e20
+x21: fffffc000bfaaf40 x20: fffffe00c4ff5d10
+x19: fffffc000c056000 x18: 000000000000003c
+x17: 0000000000000000 x16: 0000000000000000
+x15: 0000000000000040 x14: 0000000000000228
+x13: fffffc000c3a2000 x12: 0000000000000045
+x11: 0000000000000000 x10: 0000000000000000
+x9 : 0000000000000000 x8 : 0000000000000000
+x7 : 0000000000000000 x6 : fffffc00084b027c
+x5 : fffffc0009a64000 x4 : fffffe00c0e77400
+x3 : fffffc000c0563a8 x2 : fffffffffffffffb
+x1 : 000000000000764e x0 : 0000000000000001
+Call trace:
+ nfs_clear_inode+0x9c/0xd8
+ nfs_evict_inode+0x60/0x78
+ evict+0x108/0x380
+ dispose_list+0x70/0xa0
+ evict_inodes+0x194/0x210
+ generic_shutdown_super+0xb0/0x220
+ nfs_kill_super+0x40/0x88
+ deactivate_locked_super+0xb4/0x120
+ deactivate_super+0x144/0x160
+ cleanup_mnt+0x98/0x148
+ __cleanup_mnt+0x38/0x50
+ task_work_run+0x114/0x160
+ do_notify_resume+0x2f8/0x308
+ work_pending+0x8/0x14
 
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+The nrequest should be increased/decreased only if PG_INODE_REF flag
+was setted.
+
+But in the nfs_inode_remove_request function, it maybe decrease when
+no PG_INODE_REF flag, this maybe lead nrequests count error.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-hyperv.c | 56 +++++++---------------------------------
- 1 file changed, 10 insertions(+), 46 deletions(-)
+ fs/nfs/write.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 704049e62d58a..4d1496f60071f 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -322,60 +322,24 @@ static void mousevsc_on_receive(struct hv_device *device,
+diff --git a/fs/nfs/write.c b/fs/nfs/write.c
+index 5ab997912d8d5..117ffd90419e2 100644
+--- a/fs/nfs/write.c
++++ b/fs/nfs/write.c
+@@ -783,7 +783,6 @@ static void nfs_inode_remove_request(struct nfs_page *req)
+ 	struct nfs_inode *nfsi = NFS_I(inode);
+ 	struct nfs_page *head;
  
- static void mousevsc_on_channel_callback(void *context)
- {
--	const int packet_size = 0x100;
--	int ret;
- 	struct hv_device *device = context;
--	u32 bytes_recvd;
--	u64 req_id;
- 	struct vmpacket_descriptor *desc;
--	unsigned char	*buffer;
--	int	bufferlen = packet_size;
--
--	buffer = kmalloc(bufferlen, GFP_ATOMIC);
--	if (!buffer)
--		return;
--
--	do {
--		ret = vmbus_recvpacket_raw(device->channel, buffer,
--					bufferlen, &bytes_recvd, &req_id);
--
--		switch (ret) {
--		case 0:
--			if (bytes_recvd <= 0) {
--				kfree(buffer);
--				return;
--			}
--			desc = (struct vmpacket_descriptor *)buffer;
--
--			switch (desc->type) {
--			case VM_PKT_COMP:
--				break;
--
--			case VM_PKT_DATA_INBAND:
--				mousevsc_on_receive(device, desc);
--				break;
--
--			default:
--				pr_err("unhandled packet type %d, tid %llx len %d\n",
--					desc->type, req_id, bytes_recvd);
--				break;
--			}
+-	atomic_long_dec(&nfsi->nrequests);
+ 	if (nfs_page_group_sync_on_bit(req, PG_REMOVE)) {
+ 		head = req->wb_head;
  
-+	foreach_vmbus_pkt(desc, device->channel) {
-+		switch (desc->type) {
-+		case VM_PKT_COMP:
- 			break;
+@@ -796,8 +795,10 @@ static void nfs_inode_remove_request(struct nfs_page *req)
+ 		spin_unlock(&mapping->private_lock);
+ 	}
  
--		case -ENOBUFS:
--			kfree(buffer);
--			/* Handle large packet */
--			bufferlen = bytes_recvd;
--			buffer = kmalloc(bytes_recvd, GFP_ATOMIC);
--
--			if (!buffer)
--				return;
-+		case VM_PKT_DATA_INBAND:
-+			mousevsc_on_receive(device, desc);
-+			break;
- 
-+		default:
-+			pr_err("Unhandled packet type %d, tid %llx len %d\n",
-+			       desc->type, desc->trans_id, desc->len8 * 8);
- 			break;
- 		}
--	} while (1);
--
+-	if (test_and_clear_bit(PG_INODE_REF, &req->wb_flags))
++	if (test_and_clear_bit(PG_INODE_REF, &req->wb_flags)) {
+ 		nfs_release_request(req);
++		atomic_long_dec(&nfsi->nrequests);
 +	}
  }
  
- static int mousevsc_connect_to_vsp(struct hv_device *device)
+ static void
 -- 
 2.20.1
 
