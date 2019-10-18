@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2FEDD403
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E26DDD3FE
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730798AbfJRWGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:06:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38080 "EHLO mail.kernel.org"
+        id S1730915AbfJRWGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730760AbfJRWGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:08 -0400
+        id S1730835AbfJRWGJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADE16205F4;
-        Fri, 18 Oct 2019 22:06:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAC70222D4;
+        Fri, 18 Oct 2019 22:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436367;
-        bh=EkgPa+/bbt0VO+Jpe6yN+mBPY92zQyr3iwOjdFfnoKQ=;
+        s=default; t=1571436368;
+        bh=E1aoj9R79rabJbJBVwCZX4iH1w2YJ9tDbCCLe60+T58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1r1nQIrbMbr4/+eZXUTxQmsgvZMTlAuCEX1v7m0wYGEn4OHg3Sx3mT0NAWma6IL+H
-         yEl/jfQ7eQYTavfTTDshhnnFzSiuorraWJyVEJpvkSXqOJE/Hpk/1Gh7Jp8GQc45Z/
-         Q21LNzVReHU8veDChOjV4Cifw4tvL6m1rnwT3bJ0=
+        b=ghrQZnmx+aNRZDb3mP/yc6dmMirRrC55BmCcagRTM5jS4oN3mE/Zox5X7vesZCe/t
+         kTZkSfGhcI3lOIVup69wv1HCvTcraYHhQomLIyPNN0MkLwyhJyndwebjp0A0SQvqRx
+         SCZod9ujvfh09FXcwrKJzE7nrf08tEgryWQs/6Ec=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Abhishek Ambure <aambure@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 022/100] ath10k: assign 'n_cipher_suites = 11' for WCN3990 to enable WPA3
-Date:   Fri, 18 Oct 2019 18:04:07 -0400
-Message-Id: <20191018220525.9042-22-sashal@kernel.org>
+Cc:     Yi Wang <wang.yi59@zte.com.cn>, Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@linux-mips.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 023/100] clk: boston: unregister clks on failure in clk_boston_setup()
+Date:   Fri, 18 Oct 2019 18:04:08 -0400
+Message-Id: <20191018220525.9042-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -44,40 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhishek Ambure <aambure@codeaurora.org>
+From: Yi Wang <wang.yi59@zte.com.cn>
 
-[ Upstream commit 7ba31e6e0cdc0cc2e60e1fcbf467f3c95aea948e ]
+[ Upstream commit 8b627f616ed63dcaf922369fc14a5daf8ad03038 ]
 
-Hostapd uses CCMP, GCMP & GCMP-256 as 'wpa_pairwise' option to run WPA3.
-In WCN3990 firmware cipher suite numbers 9 to 11 are for CCMP,
-GCMP & GCMP-256.
+The registered clks should unregister when something wrong happens
+before going out in function clk_boston_setup().
 
-To enable CCMP, GCMP & GCMP-256 cipher suites in WCN3990 firmware,
-host sets 'n_cipher_suites = 11' while initializing hardware parameters.
-
-Tested HW: WCN3990
-Tested FW: WLAN.HL.2.0-01188-QCAHLSWMTPLZ-1
-
-Signed-off-by: Abhishek Ambure <aambure@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/imgtec/clk-boston.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
-index 5210cffb53440..2791ef2fd716c 100644
---- a/drivers/net/wireless/ath/ath10k/core.c
-+++ b/drivers/net/wireless/ath/ath10k/core.c
-@@ -532,7 +532,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
- 		.hw_ops = &wcn3990_ops,
- 		.decap_align_bytes = 1,
- 		.num_peers = TARGET_HL_10_TLV_NUM_PEERS,
--		.n_cipher_suites = 8,
-+		.n_cipher_suites = 11,
- 		.ast_skid_limit = TARGET_HL_10_TLV_AST_SKID_LIMIT,
- 		.num_wds_entries = TARGET_HL_10_TLV_NUM_WDS_ENTRIES,
- 		.target_64bit = true,
+diff --git a/drivers/clk/imgtec/clk-boston.c b/drivers/clk/imgtec/clk-boston.c
+index f5d54a64d33c5..dddda45127a80 100644
+--- a/drivers/clk/imgtec/clk-boston.c
++++ b/drivers/clk/imgtec/clk-boston.c
+@@ -73,31 +73,39 @@ static void __init clk_boston_setup(struct device_node *np)
+ 	hw = clk_hw_register_fixed_rate(NULL, "input", NULL, 0, in_freq);
+ 	if (IS_ERR(hw)) {
+ 		pr_err("failed to register input clock: %ld\n", PTR_ERR(hw));
+-		goto error;
++		goto fail_input;
+ 	}
+ 	onecell->hws[BOSTON_CLK_INPUT] = hw;
+ 
+ 	hw = clk_hw_register_fixed_rate(NULL, "sys", "input", 0, sys_freq);
+ 	if (IS_ERR(hw)) {
+ 		pr_err("failed to register sys clock: %ld\n", PTR_ERR(hw));
+-		goto error;
++		goto fail_sys;
+ 	}
+ 	onecell->hws[BOSTON_CLK_SYS] = hw;
+ 
+ 	hw = clk_hw_register_fixed_rate(NULL, "cpu", "input", 0, cpu_freq);
+ 	if (IS_ERR(hw)) {
+ 		pr_err("failed to register cpu clock: %ld\n", PTR_ERR(hw));
+-		goto error;
++		goto fail_cpu;
+ 	}
+ 	onecell->hws[BOSTON_CLK_CPU] = hw;
+ 
+ 	err = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, onecell);
+-	if (err)
++	if (err) {
+ 		pr_err("failed to add DT provider: %d\n", err);
++		goto fail_clk_add;
++	}
+ 
+ 	return;
+ 
+-error:
++fail_clk_add:
++	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_CPU]);
++fail_cpu:
++	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_SYS]);
++fail_sys:
++	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_INPUT]);
++fail_input:
+ 	kfree(onecell);
+ }
+ 
 -- 
 2.20.1
 
