@@ -2,101 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5479DBD75
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 08:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29451DBE2D
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 09:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732104AbfJRGDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 02:03:49 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36499 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394009AbfJRGDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 02:03:47 -0400
-Received: by mail-wm1-f66.google.com with SMTP id m18so4820062wmc.1
-        for <stable@vger.kernel.org>; Thu, 17 Oct 2019 23:03:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9Unze797F4OAXVu9/Ldiobow7V8413AVee7evFeR1uM=;
-        b=H6t/EsvcgNMsVvuijfJ1uxY3osHMneCXtQQQrlzZN6rXaANC+BXEZDM0tIOkRwmYeQ
-         MtpX+AFi0N1W28L3rQenHTBi7Q9BPuZDbRrWNEvuvYZWCoecskZRIEFOHFSQldNEUTlL
-         xe2DkAP/LViRCqr+7zQfhJ1GwjSa0as8ubohcyC4Cezi/ASv/+iOtUSeN+a7TKz67qs6
-         lFjrVmK0LIFLQOSckKYawd89dE4TPc50OmrbRn0ne46pmlhA6lzY4yDIcbRvc+Zx5ZQV
-         0KHLpEz8Q66Zc4XLmyDWCLui5J/+swoRy1lJQ+eMAAbrNtursAtaNsrd/O5rjPl6fqKG
-         WAQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9Unze797F4OAXVu9/Ldiobow7V8413AVee7evFeR1uM=;
-        b=KNIopU1BAPf08Mg6CMIEXn8NrDhdSfIai189YFNeugvz7E6qU4lJ9+xfbXTDjSAB/5
-         PsyflCrys5pFPnWy4d0LWqu6S7jGpP2spx6gsT/LasZ32xTsoS0xbL1w0hLY6f9ea8Ke
-         0VRrTdMR2NYv7Ij/wfvA8P6MDBv9s8SgvNAzv2dj7nbN8DtmqOeBRsHwIUQztXp/EyTM
-         FrUcUiEpayTlUAI7J6fm1trTyCNrTKVoVGMsmvJLciFJuzqeB/IiZ1L9QB/ip2RpV0Jk
-         +pwtLfhQrA01iTmbu2nsidWgSVEI+QYrBIw14wgR4LRbpNJJ9C26DhPe/KIFeYnJ0w7b
-         MmVA==
-X-Gm-Message-State: APjAAAXYIjjlez9buC9cRlFi9zRQFirMuTJnfLTSMn2pyxLRuN2fKzbG
-        mee/ioD2PQHzhDGMjaCpknNkT1rw/7tbXg==
-X-Google-Smtp-Source: APXvYqyNAvKkQAOe/MqbDFbvQryQBRjh/1DaWR8bla4Lh/BYQjRmuqF0I6fGAHI+6XNGLUbKvdlomw==
-X-Received: by 2002:a7b:cb03:: with SMTP id u3mr5901411wmj.126.1571378625795;
-        Thu, 17 Oct 2019 23:03:45 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o19sm5380814wmh.27.2019.10.17.23.03.45
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 17 Oct 2019 23:03:45 -0700 (PDT)
-Message-ID: <5da955c1.1c69fb81.fb1c6.c2a1@mx.google.com>
-Date:   Thu, 17 Oct 2019 23:03:45 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728362AbfJRHSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 03:18:42 -0400
+Received: from fllv0016.ext.ti.com ([198.47.19.142]:39622 "EHLO
+        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726857AbfJRHSm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 03:18:42 -0400
+Received: from fllv0035.itg.ti.com ([10.64.41.0])
+        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id x9I7IVJt118924;
+        Fri, 18 Oct 2019 02:18:31 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
+        s=ti-com-17Q1; t=1571383111;
+        bh=OilUv+GFguDJ3YR661ZCA0FSuZHVAgyHf27fIiSPtBQ=;
+        h=Subject:To:CC:References:From:Date:In-Reply-To;
+        b=VFA9s4S3oEa6/V0fDs4K7SMjpWK/KswAWW8GBkMBbvZv1jBytBIFi93E2cQNu3kXC
+         A8S1vzbTVkmVP6IKcZXBT1/XH/ZTOMwUqeBAyP+Wcoyyq/ZQwnzdI+pAGEgLxzbwyt
+         87fEZ/tztleAif7MSNLX9JL2VC3rfhdo/D7JOp8E=
+Received: from DFLE109.ent.ti.com (dfle109.ent.ti.com [10.64.6.30])
+        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTP id x9I7IVZl044520;
+        Fri, 18 Oct 2019 02:18:31 -0500
+Received: from DFLE113.ent.ti.com (10.64.6.34) by DFLE109.ent.ti.com
+ (10.64.6.30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Fri, 18
+ Oct 2019 02:18:22 -0500
+Received: from fllv0039.itg.ti.com (10.64.41.19) by DFLE113.ent.ti.com
+ (10.64.6.34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
+ Frontend Transport; Fri, 18 Oct 2019 02:18:22 -0500
+Received: from [192.168.2.6] (ileax41-snat.itg.ti.com [10.172.224.153])
+        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id x9I7ITTV080168;
+        Fri, 18 Oct 2019 02:18:29 -0500
+Subject: Re: [PATCH] drm/omap: fix max fclk divider for omap36xx
+To:     Adam Ford <aford173@gmail.com>
+CC:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux-OMAP <linux-omap@vger.kernel.org>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>,
+        stable <stable@vger.kernel.org>
+References: <20191002122542.8449-1-tomi.valkeinen@ti.com>
+ <CAHCN7xLjGkLHMWejEk-3vJ-OwzjB+BXtnPWoonh4mAVxbkzMWQ@mail.gmail.com>
+ <CAHCN7xKN7CePgajQLH61dBaoLWZ4VMxo39_xJOWHyvM3x_0i=A@mail.gmail.com>
+From:   Tomi Valkeinen <tomi.valkeinen@ti.com>
+Message-ID: <406842b9-18f0-ddf7-5317-4ace265d0ac2@ti.com>
+Date:   Fri, 18 Oct 2019 10:18:28 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.7
-Subject: stable/linux-5.3.y boot: 69 boots: 2 failed, 67 passed (v5.3.7)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CAHCN7xKN7CePgajQLH61dBaoLWZ4VMxo39_xJOWHyvM3x_0i=A@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.3.y boot: 69 boots: 2 failed, 67 passed (v5.3.7)
+On 17/10/2019 21:05, Adam Ford wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-3.y/kernel/v5.3.7/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
-rnel/v5.3.7/
+>> Is there any way you can do a patch for the FB version for the older
+>> 4.9 and 4.14 kernels?  I think they are still defaulting to the omapfb
+>> instead of DRM, so the underflow issue still appears by default and
+>> the patch only impacts the DRM version of the driver.  If not, do you
+>> have any objections if I submit a patch to stable for those two LTS
+>> branches?
+> 
+> Gentle nudge on this question.  I can do the work, but I just
+> permission so don't overstep.
 
-Tree: stable
-Branch: linux-5.3.y
-Git Describe: v5.3.7
-Git Commit: 83f4462ce1557090edd040535e5055e1dcf36120
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 51 unique boards, 17 SoC families, 13 builds out of 208
+Sure, go ahead.
 
-Boot Regressions Detected:
+  Tomi
 
-i386:
-
-    i386_defconfig:
-        gcc-8:
-          qemu_i386:
-              lab-baylibre: new failure (last pass: v5.3.6)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8096-db820c: 1 failed lab
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 1 failed lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
+Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
