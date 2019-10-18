@@ -2,56 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 641C7DD0A7
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 22:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D68BDD0A8
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 22:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404351AbfJRUxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 16:53:17 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:41082 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390535AbfJRUxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 16:53:17 -0400
-Received: by mail-io1-f68.google.com with SMTP id n26so9003089ioj.8
-        for <stable@vger.kernel.org>; Fri, 18 Oct 2019 13:53:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=e+NUKiKT5tk9JKxGzSqZYPj8LGqZWvtvliS/rf8R4OE=;
-        b=hGrjWZbTsnQr0jL/X6Ck0nEAWg31BfCwgEndmUOV1b/BSk6W3jJawnrpFVR5qYyVIR
-         htd/zmkHWjsTL6ZjUSaiATuDEdLTiHnC9UhKjAt5QOH46sNn6Plqo7/Srl3lNC64j0wr
-         KGogyqo0Qqm00CItefUQ/+F+MLNejwKyA/cMWQuA1IKHC5Idabqi+6w98wKm7R7b+JWr
-         AbZNaAc8/9q+LcQvTGOFCZxfzolt9gyZWk/M8PVYQg8UhTHzdsuqugXUgK6glRbJGWye
-         4eDrQiRoUHk+7cGARHi3ksdwPiagq91jB4ywZV2371269rKbFNRH6jVOhbQex45SnyHg
-         2w3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=e+NUKiKT5tk9JKxGzSqZYPj8LGqZWvtvliS/rf8R4OE=;
-        b=qJgiwZXjMpw2BaraHh3vx4myVfFcCDzZ/WHDJmY2/3Ee6ujEfcEHGh3AUr0s0iAvLE
-         5/uotR6qMEDYmco6ahaWByiFgNehNfJQWYePnIsM8GaPpJDYXB/eegUkgWnIew5TiZYH
-         Spdamr0SYSDXNHh7FWqqbLNYXItI/FF7aLGWvbFzPaFlrZgH0c1zRlnAl+z7arCi3GN3
-         bs8cyjE1z7bhgt6k7ySmZyEAcem+pTQGFQ2xHGBra9STb9RzScNxXlHlLR4PM9HoEmGl
-         UkpTCn10kXl4XsTYu3yR2eXL0uyeGb8jMeO2QiFu0REGOxhdWbR168wn1Kq5AwVmEpZU
-         M9sQ==
-X-Gm-Message-State: APjAAAUwgR7unPnNEUX3dfJJCMtk/SJnqzfOwtqSCCbjYeQEwh/9PvuL
-        PRB6ZFX7+3VMEErRPAPvc+z6D2YV1LLMlIvKX6Q=
-X-Google-Smtp-Source: APXvYqyqwhdlo63r0QIs9irJkLJIuMYwxITH/t8uulfHr4VC7si+aGGoCOiFtqvbuqje8nShe5MqwVmQMnDB6kt9ygM=
-X-Received: by 2002:a02:cceb:: with SMTP id l11mr11182527jaq.80.1571431996625;
- Fri, 18 Oct 2019 13:53:16 -0700 (PDT)
+        id S2404444AbfJRUxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 16:53:33 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:55376 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390535AbfJRUxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 16:53:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=mUPVBXLV4K5EO90WfnmPs43qm4UQmzSkfjJgIXw2cYY=; b=UvV6Zikb2r1VEfOW9HSLCda1N
+        GTXKwNoLNX4SsOHuLnDq2T/huk5dySxjgOHkaSSoF0vgffTwNSm4dvs2G9dHCb/uDHFpp3KV53nV8
+        BFprSAvyq9YVpeNvwPZRBiohNRQ1rKMbPibru/nvnC3jPEUcjYh/QG0fdajBx0sGDalzbeV2LvOCq
+        FIuRpRcnebuYQ2RgGDCimVef1lcGtWd3cWHYLlzv9qzuKwHwY0Z+JIGJw27a99iyCKKAF8/9A7uQ4
+        eC28+UvmStHQB8F5xClsAIe7Z125qJj1AVvgDZzhElicScrjiCJzLrCEPuIJ7iyDOUBnctOQQ68AV
+        cMpINGAzg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iLZFZ-0001Yi-CR; Fri, 18 Oct 2019 20:53:29 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CF4E8301124;
+        Fri, 18 Oct 2019 22:52:30 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id BE1D820238A88; Fri, 18 Oct 2019 22:53:26 +0200 (CEST)
+Date:   Fri, 18 Oct 2019 22:53:26 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Dave Chiluk <chiluk+linux@indeed.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: Please backport de53fd7aedb1 : sched/fair: Fix low cpu usage
+ with high throttling by removing expiration of cpu-local slices
+Message-ID: <20191018205326.GB1817@hirez.programming.kicks-ass.net>
+References: <CAC=E7cUXpUDgpvsmMaMU6sAydbfD0FEJiK25R1r=e9=YtcPjGw@mail.gmail.com>
+ <20190925064414.GA1449297@kroah.com>
+ <CAC=E7cXcujmbwMnmXeH2=80Lkki+j_b=WE4KCWaM1mYafDaWSA@mail.gmail.com>
+ <20190927131332.GO8171@sasha-vm>
+ <CAC=E7cVyO=j8FKBKkdOU2KOM_O=3XmXZd0OoyYCDWez_twuk-A@mail.gmail.com>
+ <20191003065135.GA1813585@kroah.com>
+ <CAC=E7cWYpdA1Ufds6OoAu+5eP+kTXY1OzZ8O7nLYrfb_tCBEZg@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ac0:8ad9:0:0:0:0:0 with HTTP; Fri, 18 Oct 2019 13:53:16
- -0700 (PDT)
-Reply-To: sgt.hester33@gmail.com
-From:   Ann Hester <0813103kalu@gmail.com>
-Date:   Fri, 18 Oct 2019 20:53:16 +0000
-Message-ID: <CAMtpwBHKd0BPtoRu7DBEHWLr4NZ2cbESaG+zCTFqgN5drz7sHQ@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAC=E7cWYpdA1Ufds6OoAu+5eP+kTXY1OzZ8O7nLYrfb_tCBEZg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please reply me.
+On Fri, Oct 18, 2019 at 03:23:02PM -0500, Dave Chiluk wrote:
+> @Ben @Ingo @Peter
+> Can you please please ack this backport request?
+> 
+> Thank you,
+> Dave Chiluk
+> 
+> On Thu, Oct 3, 2019 at 1:51 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Thu, Oct 03, 2019 at 12:15:02AM -0500, Dave Chiluk wrote:
+> > > @Greg KH, Qian Cai's compiler warning fix has now been integrated into
+> > > Linus' tree as commit: 763a9ec06c409
+> > >
+> > > Both de53fd7aedb1 and 763a9ec06c40 are now apart of v5.4-rc1.  Can you
+> > > please queue up these fixes for backport to all stable kernels.
+> >
+> > I need an ack from the scheduler maintainers that this is ok to do so...
+
+Sure I suppose, but what makes this commit special? Don't you normally
+take just about anything?
