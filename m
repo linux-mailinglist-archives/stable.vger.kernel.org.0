@@ -2,86 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3A5DC09A
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33549DC0C7
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:23:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409634AbfJRJKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 05:10:31 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:35345 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390299AbfJRJKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 05:10:31 -0400
-Received: by mail-wm1-f66.google.com with SMTP id n124so1628242wmf.0;
-        Fri, 18 Oct 2019 02:10:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=tvcmzGhLeZkxuf9ToVdncFXWo0QaAaf8aWbn5IRZGzA=;
-        b=ShHdKxh0asbe71PboVz42EC1qtiQ+dMApLvaWlZnHqJKcY3NGtDUi3fVSUs9xpczog
-         lfhBXxnMKN/muwgmZ7/W8ym/UOmNNQUEne0PoFV/y+vQBmXwCNRJL7E8rvERb3d6lyMg
-         vUoM1MFtA0Lq6hjxmWp7TvkMOjIf8JsfK1TGPM7IWSJ4DFo2R9fpB76p+0GMUncj+pGD
-         c77mWq5FwQDDW3R+SN96FVLS7pa2MwEd/qLb5HSqKW7uIBxmPa2fIVxLejqP9/Rfru/q
-         qg4Clav0uTBbULjzHOy1Mk5xGcJqNuLjvmqceFZmGFfP287uEYzZRQLEtAnrkNq0GasR
-         C78Q==
-X-Gm-Message-State: APjAAAXWevCykF9TjaMkBmyAq/yNtFNnVz7/7eRaWx3K2a8t3FAmyZpk
-        cAhRpDovuMTEqjYJHRh4MUQ=
-X-Google-Smtp-Source: APXvYqziqZLR4vn4LyxCRSuWOYI9Qs0YPzQPmqLEKV0ZESE6R24Eq9bGX8+MRAg6L7/ls7/y22o9Uw==
-X-Received: by 2002:a1c:6389:: with SMTP id x131mr6613679wmb.55.1571389829353;
-        Fri, 18 Oct 2019 02:10:29 -0700 (PDT)
-Received: from debian (19.142.6.51.dyn.plus.net. [51.6.142.19])
-        by smtp.gmail.com with ESMTPSA id l11sm4782010wmh.34.2019.10.18.02.10.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Oct 2019 02:10:28 -0700 (PDT)
-Date:   Fri, 18 Oct 2019 10:10:26 +0100
-From:   Wei Liu <wei.liu@kernel.org>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
-        Paul Durrant <paul@xen.org>,
-        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
-Subject: Re: [PATCH] xen/netback: fix error path of xenvif_connect_data()
-Message-ID: <20191018091026.fu4gykxx2mmbdfk3@debian>
-References: <20191018074549.4778-1-jgross@suse.com>
+        id S2392050AbfJRJXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 05:23:04 -0400
+Received: from mga03.intel.com ([134.134.136.65]:45040 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725818AbfJRJXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 05:23:03 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Oct 2019 02:23:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,311,1566889200"; 
+   d="scan'208";a="190312549"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga008.jf.intel.com with ESMTP; 18 Oct 2019 02:23:00 -0700
+Received: from andy by smile with local (Exim 4.92.2)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1iLOTM-0000TP-45; Fri, 18 Oct 2019 12:23:00 +0300
+Date:   Fri, 18 Oct 2019 12:23:00 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation
+Message-ID: <20191018092300.GV32742@smile.fi.intel.com>
+References: <20191018090842.11189-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191018074549.4778-1-jgross@suse.com>
-User-Agent: NeoMutt/20180716
+In-Reply-To: <20191018090842.11189-1-hdegoede@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 18, 2019 at 09:45:49AM +0200, Juergen Gross wrote:
-> xenvif_connect_data() calls module_put() in case of error. This is
-> wrong as there is no related module_get().
+On Fri, Oct 18, 2019 at 11:08:42AM +0200, Hans de Goede wrote:
+> Commit 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux
+> GPIO translation") has made the cherryview gpio numbers sparse, to get
+> a 1:1 mapping between ACPI pin numbers and gpio numbers in Linux.
 > 
-> Remove the superfluous module_put().
+> This has greatly simplified things, but the code setting the
+> irq_valid_mask was not updated for this, so the valid mask is still in
+> the old "compressed" numbering with the gaps in the pin numbers skipped,
+> which is wrong as irq_valid_mask needs to be expressed in gpio numbers.
 > 
-> Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
-> Cc: <stable@vger.kernel.org> # 3.12
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Reviewed-by: Paul Durrant <paul@xen.org>
+> This results in the following error on devices using pin 24 (0x0018) on
+> the north GPIO controller as an ACPI event source:
+> 
+> [    0.422452] cherryview-pinctrl INT33FF:01: Failed to translate GPIO to IRQ
+> 
+> This has been reported (by email) to be happening on a Caterpillar CAT T20
+> tablet and I've reproduced this myself on a Medion Akoya e2215t 2-in-1.
+> 
+> This commit uses the pin number instead of the compressed index into
+> community->pins to clear the correct bits in irq_valid_mask for GPIOs
+> using GPEs for interrupts, fixing these errors and in case of the
+> Medion Akoya e2215t also fixing the LID switch not working.
 
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Thanks!
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Fixes: 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO translation")
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
->  drivers/net/xen-netback/interface.c | 1 -
->  1 file changed, 1 deletion(-)
+>  drivers/pinctrl/intel/pinctrl-cherryview.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-> index 240f762b3749..103ed00775eb 100644
-> --- a/drivers/net/xen-netback/interface.c
-> +++ b/drivers/net/xen-netback/interface.c
-> @@ -719,7 +719,6 @@ int xenvif_connect_data(struct xenvif_queue *queue,
->  	xenvif_unmap_frontend_data_rings(queue);
->  	netif_napi_del(&queue->napi);
->  err:
-> -	module_put(THIS_MODULE);
->  	return err;
+> diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
+> index aae51c507f59..02ff5e8b0510 100644
+> --- a/drivers/pinctrl/intel/pinctrl-cherryview.c
+> +++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
+> @@ -1563,7 +1563,7 @@ static void chv_init_irq_valid_mask(struct gpio_chip *chip,
+>  		intsel >>= CHV_PADCTRL0_INTSEL_SHIFT;
+>  
+>  		if (intsel >= community->nirqs)
+> -			clear_bit(i, valid_mask);
+> +			clear_bit(desc->number, valid_mask);
+>  	}
 >  }
 >  
 > -- 
-> 2.16.4
+> 2.23.0
 > 
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
