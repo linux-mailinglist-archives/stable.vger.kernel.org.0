@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6AD4DD47C
+	by mail.lfdr.de (Postfix) with ESMTP id 39417DD47B
 	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393047AbfJRWYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728947AbfJRWYs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Oct 2019 18:24:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728836AbfJRWEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:51 -0400
+        id S1728877AbfJRWEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6394D2245C;
-        Fri, 18 Oct 2019 22:04:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C35A2222D1;
+        Fri, 18 Oct 2019 22:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436290;
-        bh=NynUHA4qevW95zKm+h3K9YX279or91FM4C/MRJ+5jkI=;
+        s=default; t=1571436291;
+        bh=q4gA284Acw4GIJYTIVOl+MOguuyn/m44jy1aaSgaG34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQxPYW5YNaa63MhM5KQVz7VpSnaDzd5QZaC0Mp7fJ4lyY2AYtbJJ8iHoltuPa6IEt
-         4haadkFYkmkcCkItEWvrUJDRh1FUHE61YRNkiQoQUtcuQvh5Oyd1NrXKQjPZzKYqQx
-         Ro0dYAwhvhTRSAdjijbq7Rh4CpAnlGkoAocfINbo=
+        b=0pKD7R3Cwd6l868zR6qayhWRK6BQzYB5bqBC/6HkQbkxboJ2jxSjWygwTzzjZgrQt
+         hMFspj5J5U7kr6IF/5XyY30URCdDYl/it5hH8s3Yg0K950/3eEcs/tuR+7726XeFpo
+         k6ujJJdmAaxZj+heZ7HZPCupJgGQ8GkewYNOZB4A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frederic Weisbecker <frederic@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
+Cc:     Song Liu <songliubraving@fb.com>, Hechao Li <hechaol@fb.com>,
+        Peter Zijlstra <peterz@infradead.org>, kernel-team@fb.com,
+        Jie Meng <jmeng@fb.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Wanpeng Li <wanpengli@tencent.com>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 64/89] sched/vtime: Fix guest/system mis-accounting on task switch
-Date:   Fri, 18 Oct 2019 18:02:59 -0400
-Message-Id: <20191018220324.8165-64-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 65/89] perf/core: Rework memory accounting in perf_mmap()
+Date:   Fri, 18 Oct 2019 18:03:00 -0400
+Message-Id: <20191018220324.8165-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -47,77 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
+[ Upstream commit d44248a41337731a111374822d7d4451b64e73e4 ]
 
-vtime_account_system() assumes that the target task to account cputime
-to is always the current task. This is most often true indeed except on
-task switch where we call:
+perf_mmap() always increases user->locked_vm. As a result, "extra" could
+grow bigger than "user_extra", which doesn't make sense. Here is an
+example case:
 
-	vtime_common_task_switch(prev)
-		vtime_account_system(prev)
+(Note: Assume "user_lock_limit" is very small.)
 
-Here prev is the scheduling-out task where we account the cputime to. It
-doesn't match current that is already the scheduling-in task at this
-stage of the context switch.
+  | # of perf_mmap calls |vma->vm_mm->pinned_vm|user->locked_vm|
+  | 0                    | 0                   | 0             |
+  | 1                    | user_extra          | user_extra    |
+  | 2                    | 3 * user_extra      | 2 * user_extra|
+  | 3                    | 6 * user_extra      | 3 * user_extra|
+  | 4                    | 10 * user_extra     | 4 * user_extra|
 
-So we end up checking the wrong task flags to determine if we are
-accounting guest or system time to the previous task.
+Fix this by maintaining proper user_extra and extra.
 
-As a result the wrong task is used to check if the target is running in
-guest mode. We may then spuriously account or leak either system or
-guest time on task switch.
-
-Fix this assumption and also turn vtime_guest_enter/exit() to use the
-task passed in parameter as well to avoid future similar issues.
-
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Reviewed-By: Hechao Li <hechaol@fb.com>
+Reported-by: Hechao Li <hechaol@fb.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <kernel-team@fb.com>
+Cc: Jie Meng <jmeng@fb.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
-Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
+Link: https://lkml.kernel.org/r/20190904214618.3795672-1-songliubraving@fb.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cputime.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/events/core.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 2305ce89a26cf..46ed4e1383e21 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -740,7 +740,7 @@ void vtime_account_system(struct task_struct *tsk)
- 
- 	write_seqcount_begin(&vtime->seqcount);
- 	/* We might have scheduled out from guest path */
--	if (current->flags & PF_VCPU)
-+	if (tsk->flags & PF_VCPU)
- 		vtime_account_guest(tsk, vtime);
- 	else
- 		__vtime_account_system(tsk, vtime);
-@@ -783,7 +783,7 @@ void vtime_guest_enter(struct task_struct *tsk)
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 0463c1151baeb..a0120bdbce177 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -5585,7 +5585,8 @@ static void perf_mmap_close(struct vm_area_struct *vma)
+ 	 * undo the VM accounting.
  	 */
- 	write_seqcount_begin(&vtime->seqcount);
- 	__vtime_account_system(tsk, vtime);
--	current->flags |= PF_VCPU;
-+	tsk->flags |= PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
- }
- EXPORT_SYMBOL_GPL(vtime_guest_enter);
-@@ -794,7 +794,7 @@ void vtime_guest_exit(struct task_struct *tsk)
  
- 	write_seqcount_begin(&vtime->seqcount);
- 	vtime_account_guest(tsk, vtime);
--	current->flags &= ~PF_VCPU;
-+	tsk->flags &= ~PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
- }
- EXPORT_SYMBOL_GPL(vtime_guest_exit);
+-	atomic_long_sub((size >> PAGE_SHIFT) + 1, &mmap_user->locked_vm);
++	atomic_long_sub((size >> PAGE_SHIFT) + 1 - mmap_locked,
++			&mmap_user->locked_vm);
+ 	atomic64_sub(mmap_locked, &vma->vm_mm->pinned_vm);
+ 	free_uid(mmap_user);
+ 
+@@ -5729,8 +5730,20 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+ 
+ 	user_locked = atomic_long_read(&user->locked_vm) + user_extra;
+ 
+-	if (user_locked > user_lock_limit)
++	if (user_locked <= user_lock_limit) {
++		/* charge all to locked_vm */
++	} else if (atomic_long_read(&user->locked_vm) >= user_lock_limit) {
++		/* charge all to pinned_vm */
++		extra = user_extra;
++		user_extra = 0;
++	} else {
++		/*
++		 * charge locked_vm until it hits user_lock_limit;
++		 * charge the rest from pinned_vm
++		 */
+ 		extra = user_locked - user_lock_limit;
++		user_extra -= extra;
++	}
+ 
+ 	lock_limit = rlimit(RLIMIT_MEMLOCK);
+ 	lock_limit >>= PAGE_SHIFT;
 -- 
 2.20.1
 
