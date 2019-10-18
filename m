@@ -2,84 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BE49DC094
-	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:08:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3A5DC09A
+	for <lists+stable@lfdr.de>; Fri, 18 Oct 2019 11:10:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406672AbfJRJIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 05:08:48 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:7462 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406023AbfJRJIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 05:08:48 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B89E6C057F2C;
-        Fri, 18 Oct 2019 09:08:47 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-117-168.ams2.redhat.com [10.36.117.168])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7D73560BF1;
-        Fri, 18 Oct 2019 09:08:44 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-gpio@vger.kernel.org,
-        linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation
-Date:   Fri, 18 Oct 2019 11:08:42 +0200
-Message-Id: <20191018090842.11189-1-hdegoede@redhat.com>
+        id S2409634AbfJRJKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 05:10:31 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:35345 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390299AbfJRJKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 05:10:31 -0400
+Received: by mail-wm1-f66.google.com with SMTP id n124so1628242wmf.0;
+        Fri, 18 Oct 2019 02:10:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=tvcmzGhLeZkxuf9ToVdncFXWo0QaAaf8aWbn5IRZGzA=;
+        b=ShHdKxh0asbe71PboVz42EC1qtiQ+dMApLvaWlZnHqJKcY3NGtDUi3fVSUs9xpczog
+         lfhBXxnMKN/muwgmZ7/W8ym/UOmNNQUEne0PoFV/y+vQBmXwCNRJL7E8rvERb3d6lyMg
+         vUoM1MFtA0Lq6hjxmWp7TvkMOjIf8JsfK1TGPM7IWSJ4DFo2R9fpB76p+0GMUncj+pGD
+         c77mWq5FwQDDW3R+SN96FVLS7pa2MwEd/qLb5HSqKW7uIBxmPa2fIVxLejqP9/Rfru/q
+         qg4Clav0uTBbULjzHOy1Mk5xGcJqNuLjvmqceFZmGFfP287uEYzZRQLEtAnrkNq0GasR
+         C78Q==
+X-Gm-Message-State: APjAAAXWevCykF9TjaMkBmyAq/yNtFNnVz7/7eRaWx3K2a8t3FAmyZpk
+        cAhRpDovuMTEqjYJHRh4MUQ=
+X-Google-Smtp-Source: APXvYqziqZLR4vn4LyxCRSuWOYI9Qs0YPzQPmqLEKV0ZESE6R24Eq9bGX8+MRAg6L7/ls7/y22o9Uw==
+X-Received: by 2002:a1c:6389:: with SMTP id x131mr6613679wmb.55.1571389829353;
+        Fri, 18 Oct 2019 02:10:29 -0700 (PDT)
+Received: from debian (19.142.6.51.dyn.plus.net. [51.6.142.19])
+        by smtp.gmail.com with ESMTPSA id l11sm4782010wmh.34.2019.10.18.02.10.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Oct 2019 02:10:28 -0700 (PDT)
+Date:   Fri, 18 Oct 2019 10:10:26 +0100
+From:   Wei Liu <wei.liu@kernel.org>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     xen-devel@lists.xenproject.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Wei Liu <wei.liu@kernel.org>,
+        Paul Durrant <paul@xen.org>,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org
+Subject: Re: [PATCH] xen/netback: fix error path of xenvif_connect_data()
+Message-ID: <20191018091026.fu4gykxx2mmbdfk3@debian>
+References: <20191018074549.4778-1-jgross@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 18 Oct 2019 09:08:47 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191018074549.4778-1-jgross@suse.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux
-GPIO translation") has made the cherryview gpio numbers sparse, to get
-a 1:1 mapping between ACPI pin numbers and gpio numbers in Linux.
+On Fri, Oct 18, 2019 at 09:45:49AM +0200, Juergen Gross wrote:
+> xenvif_connect_data() calls module_put() in case of error. This is
+> wrong as there is no related module_get().
+> 
+> Remove the superfluous module_put().
+> 
+> Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
+> Cc: <stable@vger.kernel.org> # 3.12
+> Signed-off-by: Juergen Gross <jgross@suse.com>
+> Reviewed-by: Paul Durrant <paul@xen.org>
 
-This has greatly simplified things, but the code setting the
-irq_valid_mask was not updated for this, so the valid mask is still in
-the old "compressed" numbering with the gaps in the pin numbers skipped,
-which is wrong as irq_valid_mask needs to be expressed in gpio numbers.
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
 
-This results in the following error on devices using pin 24 (0x0018) on
-the north GPIO controller as an ACPI event source:
-
-[    0.422452] cherryview-pinctrl INT33FF:01: Failed to translate GPIO to IRQ
-
-This has been reported (by email) to be happening on a Caterpillar CAT T20
-tablet and I've reproduced this myself on a Medion Akoya e2215t 2-in-1.
-
-This commit uses the pin number instead of the compressed index into
-community->pins to clear the correct bits in irq_valid_mask for GPIOs
-using GPEs for interrupts, fixing these errors and in case of the
-Medion Akoya e2215t also fixing the LID switch not working.
-
-Cc: stable@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-Fixes: 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO translation")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/pinctrl/intel/pinctrl-cherryview.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-index aae51c507f59..02ff5e8b0510 100644
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1563,7 +1563,7 @@ static void chv_init_irq_valid_mask(struct gpio_chip *chip,
- 		intsel >>= CHV_PADCTRL0_INTSEL_SHIFT;
- 
- 		if (intsel >= community->nirqs)
--			clear_bit(i, valid_mask);
-+			clear_bit(desc->number, valid_mask);
- 	}
- }
- 
--- 
-2.23.0
-
+> ---
+>  drivers/net/xen-netback/interface.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+> index 240f762b3749..103ed00775eb 100644
+> --- a/drivers/net/xen-netback/interface.c
+> +++ b/drivers/net/xen-netback/interface.c
+> @@ -719,7 +719,6 @@ int xenvif_connect_data(struct xenvif_queue *queue,
+>  	xenvif_unmap_frontend_data_rings(queue);
+>  	netif_napi_del(&queue->napi);
+>  err:
+> -	module_put(THIS_MODULE);
+>  	return err;
+>  }
+>  
+> -- 
+> 2.16.4
+> 
