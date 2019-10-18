@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F24DD4C7
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42305DD4C5
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:28:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727671AbfJRW1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35672 "EHLO mail.kernel.org"
+        id S2393705AbfJRW1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:27:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727637AbfJRWED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:03 -0400
+        id S1727671AbfJRWEE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:04 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4BBE2222C3;
-        Fri, 18 Oct 2019 22:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D9752246A;
+        Fri, 18 Oct 2019 22:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436242;
-        bh=KDouM1x/ZhUC/AxhtbM10VlvxvdYU4eTIV21usld9RQ=;
+        s=default; t=1571436243;
+        bh=a7lsjfD5XOqATd/HHMEqnA12kAyKJex2d6w/wuLsBQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R+hdJW+6Jj42Zqq+ixfLel6Tmz14SkrkcE4pB1aIXo0ichxaqna/H8na6MwDK1Qqm
-         h5isWJlzJ4hWjKRiWjpZQyvxV2GlK58akJ8r5KVtkOOgr+C+2QuvIsT+LJHVs2xUSQ
-         D56gtFK05Ev6KS9D13e7RV/WR23QfIqbJXWnskpo=
+        b=MOvscl0bkm45WNJOAu1nCLtf1L5BpeMYQW4Pl4vx9hMc+Fakmgq4lAHaTklfTNP+r
+         U95+8NxdJTq2M/zqaV+A0yf8HLTQuA8xlkXVZovR3V7KEF21SNQpJ7tFHfJlngg8zp
+         tyFO/53ILPoSiImSTxnGcaTM1CSKrsbmbw1Sa7xs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 27/89] arm64: ftrace: Ensure synchronisation in PLT setup for Neoverse-N1 #1542419
-Date:   Fri, 18 Oct 2019 18:02:22 -0400
-Message-Id: <20191018220324.8165-27-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 28/89] tty: serial: owl: Fix the link time qualifier of 'owl_uart_exit()'
+Date:   Fri, 18 Oct 2019 18:02:23 -0400
+Message-Id: <20191018220324.8165-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -42,62 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit dd8a1f13488438c6c220b7cafa500baaf21a6e53 ]
+[ Upstream commit 6264dab6efd6069f0387efb078a9960b5642377b ]
 
-CPUs affected by Neoverse-N1 #1542419 may execute a stale instruction if
-it was recently modified. The affected sequence requires freshly written
-instructions to be executable before a branch to them is updated.
+'exit' functions should be marked as __exit, not __init.
 
-There are very few places in the kernel that modify executable text,
-all but one come with sufficient synchronisation:
- * The module loader's flush_module_icache() calls flush_icache_range(),
-   which does a kick_all_cpus_sync()
- * bpf_int_jit_compile() calls flush_icache_range().
- * Kprobes calls aarch64_insn_patch_text(), which does its work in
-   stop_machine().
- * static keys and ftrace both patch between nops and branches to
-   existing kernel code (not generated code).
-
-The affected sequence is the interaction between ftrace and modules.
-The module PLT is cleaned using __flush_icache_range() as the trampoline
-shouldn't be executable until we update the branch to it.
-
-Drop the double-underscore so that this path runs kick_all_cpus_sync()
-too.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: fc60a8b675bd ("tty: serial: owl: Implement console driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20190910041129.6978-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ftrace.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/tty/serial/owl-uart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index 1717732579742..06e56b4703153 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -121,10 +121,16 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+diff --git a/drivers/tty/serial/owl-uart.c b/drivers/tty/serial/owl-uart.c
+index 29a6dc6a8d23c..73fcc6bdb0312 100644
+--- a/drivers/tty/serial/owl-uart.c
++++ b/drivers/tty/serial/owl-uart.c
+@@ -742,7 +742,7 @@ static int __init owl_uart_init(void)
+ 	return ret;
+ }
  
- 			/*
- 			 * Ensure updated trampoline is visible to instruction
--			 * fetch before we patch in the branch.
-+			 * fetch before we patch in the branch. Although the
-+			 * architecture doesn't require an IPI in this case,
-+			 * Neoverse-N1 erratum #1542419 does require one
-+			 * if the TLB maintenance in module_enable_ro() is
-+			 * skipped due to rodata_enabled. It doesn't seem worth
-+			 * it to make it conditional given that this is
-+			 * certainly not a fast-path.
- 			 */
--			__flush_icache_range((unsigned long)&dst[0],
--					     (unsigned long)&dst[1]);
-+			flush_icache_range((unsigned long)&dst[0],
-+					   (unsigned long)&dst[1]);
- 		}
- 		addr = (unsigned long)dst;
- #else /* CONFIG_ARM64_MODULE_PLTS */
+-static void __init owl_uart_exit(void)
++static void __exit owl_uart_exit(void)
+ {
+ 	platform_driver_unregister(&owl_uart_platform_driver);
+ 	uart_unregister_driver(&owl_uart_driver);
 -- 
 2.20.1
 
