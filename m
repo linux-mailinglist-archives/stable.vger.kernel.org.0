@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E714DD460
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6AD4DD47C
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728847AbfJRWEu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:04:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36548 "EHLO mail.kernel.org"
+        id S2393047AbfJRWYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:24:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728812AbfJRWEu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:50 -0400
+        id S1728836AbfJRWEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:04:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D37A222CC;
-        Fri, 18 Oct 2019 22:04:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6394D2245C;
+        Fri, 18 Oct 2019 22:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436289;
-        bh=jn36PS6JD/UCan94jV0PXlMdlJkaCs61c+4OM1G1KZo=;
+        s=default; t=1571436290;
+        bh=NynUHA4qevW95zKm+h3K9YX279or91FM4C/MRJ+5jkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EF2bXxepyfWSkqVLPYRAhxLXHQTvbrN2FSuuY1DbJGs002vYmOYwWvbHyFkgoNTHR
-         EwzpM68PVZi/ys7wLdRTm3McCf+jLCOPknsPrR1/eMGFdd6fnmsdcMWdHpoSDtCz3T
-         S3Ws2bmlrFuXoe+1aR1Mn9JRlHAGsnUQjTNLuGrY=
+        b=iQxPYW5YNaa63MhM5KQVz7VpSnaDzd5QZaC0Mp7fJ4lyY2AYtbJJ8iHoltuPa6IEt
+         4haadkFYkmkcCkItEWvrUJDRh1FUHE61YRNkiQoQUtcuQvh5Oyd1NrXKQjPZzKYqQx
+         Ro0dYAwhvhTRSAdjijbq7Rh4CpAnlGkoAocfINbo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xuewei Zhang <xueweiz@google.com>, Phil Auld <pauld@redhat.com>,
+Cc:     Frederic Weisbecker <frederic@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ben Segall <bsegall@google.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
+        Rik van Riel <riel@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        Wanpeng Li <wanpengli@tencent.com>,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 63/89] sched/fair: Scale bandwidth quota and period without losing quota/period ratio precision
-Date:   Fri, 18 Oct 2019 18:02:58 -0400
-Message-Id: <20191018220324.8165-63-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 64/89] sched/vtime: Fix guest/system mis-accounting on task switch
+Date:   Fri, 18 Oct 2019 18:02:59 -0400
+Message-Id: <20191018220324.8165-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -52,109 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewei Zhang <xueweiz@google.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 ]
+[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
 
-The quota/period ratio is used to ensure a child task group won't get
-more bandwidth than the parent task group, and is calculated as:
+vtime_account_system() assumes that the target task to account cputime
+to is always the current task. This is most often true indeed except on
+task switch where we call:
 
-  normalized_cfs_quota() = [(quota_us << 20) / period_us]
+	vtime_common_task_switch(prev)
+		vtime_account_system(prev)
 
-If the quota/period ratio was changed during this scaling due to
-precision loss, it will cause inconsistency between parent and child
-task groups.
+Here prev is the scheduling-out task where we account the cputime to. It
+doesn't match current that is already the scheduling-in task at this
+stage of the context switch.
 
-See below example:
+So we end up checking the wrong task flags to determine if we are
+accounting guest or system time to the previous task.
 
-A userspace container manager (kubelet) does three operations:
+As a result the wrong task is used to check if the target is running in
+guest mode. We may then spuriously account or leak either system or
+guest time on task switch.
 
- 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
- 2) Create a few children cgroups.
- 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
+Fix this assumption and also turn vtime_guest_enter/exit() to use the
+task passed in parameter as well to avoid future similar issues.
 
-These operations are expected to succeed. However, if the scaling of
-147/128 happens before step 3, quota and period of the parent cgroup
-will be changed:
-
-  new_quota: 1148437ns,   1148us
- new_period: 11484375ns, 11484us
-
-And when step 3 comes in, the ratio of the child cgroup will be
-104857, which will be larger than the parent cgroup ratio (104821),
-and will fail.
-
-Scaling them by a factor of 2 will fix the problem.
-
-Tested-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Xuewei Zhang <xueweiz@google.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Phil Auld <pauld@redhat.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mel Gorman <mgorman@suse.de>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Rik van Riel <riel@redhat.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Link: https://lkml.kernel.org/r/20191004001243.140897-1-xueweiz@google.com
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
+Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ kernel/sched/cputime.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 86cfc5d5129ce..16b5d29bd7300 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4995,20 +4995,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 2305ce89a26cf..46ed4e1383e21 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -740,7 +740,7 @@ void vtime_account_system(struct task_struct *tsk)
  
--			new = (old * 147) / 128; /* ~115% */
--			new = min(new, max_cfs_quota_period);
--
--			cfs_b->period = ns_to_ktime(new);
--
--			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
--			cfs_b->quota *= new;
--			cfs_b->quota = div64_u64(cfs_b->quota, old);
--
--			pr_warn_ratelimited(
--	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
--				smp_processor_id(),
--				div_u64(new, NSEC_PER_USEC),
--				div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			/*
-+			 * Grow period by a factor of 2 to avoid losing precision.
-+			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
-+			 * to fail.
-+			 */
-+			new = old * 2;
-+			if (new < max_cfs_quota_period) {
-+				cfs_b->period = ns_to_ktime(new);
-+				cfs_b->quota *= 2;
-+
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(new, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			} else {
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(old, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			}
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	/* We might have scheduled out from guest path */
+-	if (current->flags & PF_VCPU)
++	if (tsk->flags & PF_VCPU)
+ 		vtime_account_guest(tsk, vtime);
+ 	else
+ 		__vtime_account_system(tsk, vtime);
+@@ -783,7 +783,7 @@ void vtime_guest_enter(struct task_struct *tsk)
+ 	 */
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	__vtime_account_system(tsk, vtime);
+-	current->flags |= PF_VCPU;
++	tsk->flags |= PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_enter);
+@@ -794,7 +794,7 @@ void vtime_guest_exit(struct task_struct *tsk)
  
- 			/* reset count so we don't come right back in here */
- 			count = 0;
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	vtime_account_guest(tsk, vtime);
+-	current->flags &= ~PF_VCPU;
++	tsk->flags &= ~PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_exit);
 -- 
 2.20.1
 
