@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F26E9DD476
+	by mail.lfdr.de (Postfix) with ESMTP id 17920DD474
 	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394491AbfJRWYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
+        id S2394408AbfJRWY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:24:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728993AbfJRWE7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:04:59 -0400
+        id S1729016AbfJRWFA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:05:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EEEE20679;
-        Fri, 18 Oct 2019 22:04:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3899E22466;
+        Fri, 18 Oct 2019 22:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436298;
-        bh=KT6JUrdslB3ISnhA1e5qu4apPwPFT29frazQVGLrH9w=;
+        s=default; t=1571436300;
+        bh=VIrO3j77dxxMsFMeGPCcjYVY6hTOJ/CDZb3WA56IXZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pUitnbIb4idLkYAgJ1WPahi57kbRl1UgMb36wzjRg8iYrvfZfcTFzbPh9820Ms0mb
-         71DOOzeAr2OcyCWhlKXOLT/3yiN+ajobJ1hv46z0n3gId7f1SZBqXLyvX/v/GdlqmH
-         hEgEw71pigqQ2G2qcCyjU9yHKDoxCTe/326ZeUO8=
+        b=GUjnCJ3U41uFKa0/A6Lmm61xxnchByZ5Hojn6worYiOkbWUKiQjIWUDyR5h+7cw4E
+         e269FOhQApEtjYFNzb/2FyW23zmHKI+bGHzzXIYI9BQIlpff7AKa3gQn6O5Gs8maau
+         el2E0MZzb64in1s8lqvFQuewXZA3vIoqtKmcA/kw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Popa <stefan.popa@analog.com>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 70/89] iio: accel: adxl372: Fix/remove limitation for FIFO samples
-Date:   Fri, 18 Oct 2019 18:03:05 -0400
-Message-Id: <20191018220324.8165-70-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 71/89] iio: accel: adxl372: Fix push to buffers lost samples
+Date:   Fri, 18 Oct 2019 18:03:06 -0400
+Message-Id: <20191018220324.8165-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
@@ -45,12 +45,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Popa <stefan.popa@analog.com>
 
-[ Upstream commit d202ce4787e446556c6b9d01f84734c3f8174ba3 ]
+[ Upstream commit 62df81b74393079debf04961c48cb22268fc5fab ]
 
-Currently, the driver sets the FIFO_SAMPLES register with the number of
-sample sets (maximum of 170 for 3 axis data, 256 for 2-axis and 512 for
-single axis). However, the FIFO_SAMPLES register should store the number
-of samples, regardless of how the FIFO format is configured.
+One in two sample sets was lost by multiplying fifo_set_size with
+sizeof(u16). Also, the double number of available samples were pushed to
+the iio buffers.
 
 Signed-off-by: Stefan Popa <stefan.popa@analog.com>
 Fixes: f4f55ce38e5f ("iio:adxl372: Add FIFO and interrupts support")
@@ -58,34 +57,23 @@ Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/adxl372.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/iio/accel/adxl372.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/iio/accel/adxl372.c b/drivers/iio/accel/adxl372.c
-index 055227cb3d43c..863fe61a371fb 100644
+index 863fe61a371fb..fbad4b45fe42d 100644
 --- a/drivers/iio/accel/adxl372.c
 +++ b/drivers/iio/accel/adxl372.c
-@@ -474,12 +474,17 @@ static int adxl372_configure_fifo(struct adxl372_state *st)
- 	if (ret < 0)
- 		return ret;
+@@ -553,8 +553,7 @@ static irqreturn_t adxl372_trigger_handler(int irq, void  *p)
+ 			goto err;
  
--	fifo_samples = st->watermark & 0xFF;
-+	/*
-+	 * watermark stores the number of sets; we need to write the FIFO
-+	 * registers with the number of samples
-+	 */
-+	fifo_samples = (st->watermark * st->fifo_set_size);
- 	fifo_ctl = ADXL372_FIFO_CTL_FORMAT_MODE(st->fifo_format) |
- 		   ADXL372_FIFO_CTL_MODE_MODE(st->fifo_mode) |
--		   ADXL372_FIFO_CTL_SAMPLES_MODE(st->watermark);
-+		   ADXL372_FIFO_CTL_SAMPLES_MODE(fifo_samples);
- 
--	ret = regmap_write(st->regmap, ADXL372_FIFO_SAMPLES, fifo_samples);
-+	ret = regmap_write(st->regmap,
-+			   ADXL372_FIFO_SAMPLES, fifo_samples & 0xFF);
- 	if (ret < 0)
- 		return ret;
- 
+ 		/* Each sample is 2 bytes */
+-		for (i = 0; i < fifo_entries * sizeof(u16);
+-		     i += st->fifo_set_size * sizeof(u16))
++		for (i = 0; i < fifo_entries; i += st->fifo_set_size)
+ 			iio_push_to_buffers(indio_dev, &st->fifo_buf[i]);
+ 	}
+ err:
 -- 
 2.20.1
 
