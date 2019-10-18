@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E2EDD1DF
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33398DD1E4
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731679AbfJRWGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38506 "EHLO mail.kernel.org"
+        id S1731993AbfJRWGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731660AbfJRWGd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:06:33 -0400
+        id S1731975AbfJRWGq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:06:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13A43222D1;
-        Fri, 18 Oct 2019 22:06:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71F6B222CC;
+        Fri, 18 Oct 2019 22:06:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436392;
-        bh=uub7qoWJO07kCGY9mnSTpLi4SKi0+yvY+LER2AED5r4=;
+        s=default; t=1571436405;
+        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDru+jKmDHlhxvHqibX3EYEpp/csaQO3PhjuBD0TqZuTGSAImXFM5QjX4HaOsAqtz
-         h9GgFSFTR3G+2+wMiWrNLLiohdMLYEUbSQbNnUnPk+aJUV0iR0i+/52564Wj7iQdaX
-         Jxi5PMt6XpVeQdtxkOCc4OzSoKF5V0s5EukfgSi0=
+        b=rPDyGK+Xqg/m+d+W/O0vqEMFENQ514K/y5SpbTarVLsHnzpl9woGCIFIVbC+fEK35
+         01fdpg5XSpErZU3UCpFXR/thvACADeIhqqy1M7OjJ4BqacuALQjsQOqQZ7NjSk1SYt
+         /YXTMFYi2rqjBVNEWxp8YEKqoiUgu4p0kHsccWIY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 044/100] ext4: disallow files with EXT4_JOURNAL_DATA_FL from EXT4_IOC_SWAP_BOOT
-Date:   Fri, 18 Oct 2019 18:04:29 -0400
-Message-Id: <20191018220525.9042-44-sashal@kernel.org>
+Cc:     Ian Rogers <irogers@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 053/100] perf tests: Avoid raising SEGV using an obvious NULL dereference
+Date:   Fri, 18 Oct 2019 18:04:38 -0400
+Message-Id: <20191018220525.9042-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -42,32 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 6e589291f4b1b700ca12baec5930592a0d51e63c ]
+[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
 
-A malicious/clueless root user can use EXT4_IOC_SWAP_BOOT to force a
-corner casew which can lead to the file system getting corrupted.
-There's no usefulness to allowing this, so just prohibit this case.
+An optimized build such as:
 
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
+
+will turn the dereference operation into a ud2 instruction, raising a
+SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+
+Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
+
+  https://lkml.org/lkml/2019/7/8/1234
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17092
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17909
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/perf/tests/perf-hooks.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
-index abb6fcff0a1d3..783c54bb2ce75 100644
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -132,6 +132,7 @@ static long swap_inode_boot_loader(struct super_block *sb,
+diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
+index a693bcf017ea2..44c16fd11bf6e 100644
+--- a/tools/perf/tests/perf-hooks.c
++++ b/tools/perf/tests/perf-hooks.c
+@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
+ static void the_hook(void *_hook_flags)
+ {
+ 	int *hook_flags = _hook_flags;
+-	int *p = NULL;
  
- 	if (inode->i_nlink != 1 || !S_ISREG(inode->i_mode) ||
- 	    IS_SWAPFILE(inode) || IS_ENCRYPTED(inode) ||
-+	    (EXT4_I(inode)->i_flags & EXT4_JOURNAL_DATA_FL) ||
- 	    ext4_has_inline_data(inode)) {
- 		err = -EINVAL;
- 		goto journal_err_out;
+ 	*hook_flags = 1234;
+ 
+ 	/* Generate a segfault, test perf_hooks__recover */
+-	*p = 0;
++	raise(SIGSEGV);
+ }
+ 
+ int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
 -- 
 2.20.1
 
