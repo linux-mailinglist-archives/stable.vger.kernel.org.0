@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E42D9DD1F3
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:08:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09AC1DD1FD
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:08:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732546AbfJRWHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:07:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39254 "EHLO mail.kernel.org"
+        id S1732867AbfJRWH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732528AbfJRWHL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:07:11 -0400
+        id S1732825AbfJRWH0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:07:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45701222D4;
-        Fri, 18 Oct 2019 22:07:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0327F2246D;
+        Fri, 18 Oct 2019 22:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436430;
-        bh=HY2dTaaSDHEp+P4iea/XnCJQu8WkixiXr/krmgVV+2I=;
+        s=default; t=1571436445;
+        bh=hPVGPpuQjbY6YzEOwRSUm73eB3cXzpvsyl8+rusrhQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JmfGQ0njL3UPxhTtd4iT6ZsW773s3TY2yOWKVUhE6uqaN+SCKX0kfe81fnujQhebN
-         OCpBiZszroMMZpzMy9f05iQJl1B61bgV5pfVqe+MQF3afXNOweIBE5CoyvE9EruvAj
-         WEbmm/mOrN4LCZnPwfLKBRnUZzZjhsOYY71q1Rg8=
+        b=mGBJgFrz9n/5dLzJE4lNFnNGxyK4E/dk6oGOzzn0p+Tj9dbFUAEPFQw1tI6x3Ylnd
+         7fCSKAv1HpYru0XpMgoXbe7CyOAM1zdmcTNqnh240trZi6zClwAePdWZFQD6qCc6KF
+         LPHYMtknzN2DvcvjOTJKT6bNiEGynEWqjBfRvNP8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 071/100] RDMA/cxgb4: Do not dma memory off of the stack
-Date:   Fri, 18 Oct 2019 18:04:56 -0400
-Message-Id: <20191018220525.9042-71-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 081/100] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
+Date:   Fri, 18 Oct 2019 18:05:06 -0400
+Message-Id: <20191018220525.9042-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220525.9042-1-sashal@kernel.org>
 References: <20191018220525.9042-1-sashal@kernel.org>
@@ -45,107 +51,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg KH <gregkh@linuxfoundation.org>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb ]
+[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
 
-Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
-which is generally considered a very bad thing.  On some architectures it
-could be a security problem, but odds are none of them actually run this
-driver, so it's just a "normal" bug.
+In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
+check whether loc->xl_entry is NULL:
 
-Resolve this by allocating the memory for a message off of the heap
-instead of the stack.  kmalloc() always will give us a proper memory
-location that DMA will work correctly from.
+    if (loc->xl_entry)
 
-Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+When loc->xl_entry is NULL, it is used on line 2158:
+
+    ocfs2_xa_add_entry(loc, name_hash);
+        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+
+and line 2164:
+
+    ocfs2_xa_add_namevalue(loc, xi);
+        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
+        loc->xl_entry->xe_name_len = xi->xi_name_len;
+
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
+abnormally returns with -EINVAL.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
+Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/mem.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
+ 1 file changed, 23 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/mem.c b/drivers/infiniband/hw/cxgb4/mem.c
-index 7b76e6f81aeb4..f2fb7318abc10 100644
---- a/drivers/infiniband/hw/cxgb4/mem.c
-+++ b/drivers/infiniband/hw/cxgb4/mem.c
-@@ -274,13 +274,17 @@ static int write_tpt_entry(struct c4iw_rdev *rdev, u32 reset_tpt_entry,
- 			   struct sk_buff *skb, struct c4iw_wr_wait *wr_waitp)
- {
- 	int err;
--	struct fw_ri_tpte tpt;
-+	struct fw_ri_tpte *tpt;
- 	u32 stag_idx;
- 	static atomic_t key;
- 
- 	if (c4iw_fatal_error(rdev))
- 		return -EIO;
- 
-+	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
-+	if (!tpt)
-+		return -ENOMEM;
-+
- 	stag_state = stag_state > 0;
- 	stag_idx = (*stag) >> 8;
- 
-@@ -290,6 +294,7 @@ static int write_tpt_entry(struct c4iw_rdev *rdev, u32 reset_tpt_entry,
- 			mutex_lock(&rdev->stats.lock);
- 			rdev->stats.stag.fail++;
- 			mutex_unlock(&rdev->stats.lock);
-+			kfree(tpt);
- 			return -ENOMEM;
- 		}
- 		mutex_lock(&rdev->stats.lock);
-@@ -304,28 +309,28 @@ static int write_tpt_entry(struct c4iw_rdev *rdev, u32 reset_tpt_entry,
- 
- 	/* write TPT entry */
- 	if (reset_tpt_entry)
--		memset(&tpt, 0, sizeof(tpt));
-+		memset(tpt, 0, sizeof(*tpt));
- 	else {
--		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
-+		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
- 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
- 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
- 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
--		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
-+		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
- 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
- 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
- 						      FW_RI_VA_BASED_TO))|
- 			FW_RI_TPTE_PS_V(page_size));
--		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
-+		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
- 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
--		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
--		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
--		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
--		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
--		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
-+		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
-+		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
-+		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
-+		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
-+		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
- 	}
- 	err = write_adapter_mem(rdev, stag_idx +
- 				(rdev->lldi.vr->stag.start >> 5),
--				sizeof(tpt), &tpt, skb, wr_waitp);
-+				sizeof(*tpt), tpt, skb, wr_waitp);
- 
- 	if (reset_tpt_entry) {
- 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
-@@ -333,6 +338,7 @@ static int write_tpt_entry(struct c4iw_rdev *rdev, u32 reset_tpt_entry,
- 		rdev->stats.stag.cur -= 32;
- 		mutex_unlock(&rdev->stats.lock);
- 	}
-+	kfree(tpt);
- 	return err;
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index c146e12a8601f..0d80e0df6c241 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -1498,18 +1498,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
+ 	return loc->xl_ops->xlo_check_space(loc, xi);
  }
  
+-static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
+-{
+-	loc->xl_ops->xlo_add_entry(loc, name_hash);
+-	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+-	/*
+-	 * We can't leave the new entry's xe_name_offset at zero or
+-	 * add_namevalue() will go nuts.  We set it to the size of our
+-	 * storage so that it can never be less than any other entry.
+-	 */
+-	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+-}
+-
+ static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
+ 				   struct ocfs2_xattr_info *xi)
+ {
+@@ -2141,29 +2129,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
+ 	if (rc)
+ 		goto out;
+ 
+-	if (loc->xl_entry) {
+-		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
+-			orig_value_size = loc->xl_entry->xe_value_size;
+-			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
+-			if (rc)
+-				goto out;
+-			goto alloc_value;
+-		}
++	if (!loc->xl_entry) {
++		rc = -EINVAL;
++		goto out;
++	}
+ 
+-		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
+-			orig_clusters = ocfs2_xa_value_clusters(loc);
+-			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
+-			if (rc) {
+-				mlog_errno(rc);
+-				ocfs2_xa_cleanup_value_truncate(loc,
+-								"overwriting",
+-								orig_clusters);
+-				goto out;
+-			}
++	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
++		orig_value_size = loc->xl_entry->xe_value_size;
++		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
++		if (rc)
++			goto out;
++		goto alloc_value;
++	}
++
++	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
++		orig_clusters = ocfs2_xa_value_clusters(loc);
++		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
++		if (rc) {
++			mlog_errno(rc);
++			ocfs2_xa_cleanup_value_truncate(loc,
++							"overwriting",
++							orig_clusters);
++			goto out;
+ 		}
+-		ocfs2_xa_wipe_namevalue(loc);
+-	} else
+-		ocfs2_xa_add_entry(loc, name_hash);
++	}
++	ocfs2_xa_wipe_namevalue(loc);
+ 
+ 	/*
+ 	 * If we get here, we have a blank entry.  Fill it.  We grow our
 -- 
 2.20.1
 
