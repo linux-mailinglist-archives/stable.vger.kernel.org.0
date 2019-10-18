@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9C6DD2EF
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA953DD2F4
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388301AbfJRWIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 18:08:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41428 "EHLO mail.kernel.org"
+        id S2388345AbfJRWI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 18:08:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388271AbfJRWIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 18:08:53 -0400
+        id S2388311AbfJRWIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 18:08:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 879262245A;
-        Fri, 18 Oct 2019 22:08:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C537B22466;
+        Fri, 18 Oct 2019 22:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436532;
-        bh=BtPthEbFZO7N9aUGHPdmlHuHW+pZd5gl9U2hNUPHWCw=;
+        s=default; t=1571436534;
+        bh=BQznuFgVQfqp84u8/GPWmIUgThSN1012WBeQa99r7uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmo7MIizcvVfIYsRbgzxGl2h9a0qhqwODcNxcxL5/EaN0D4HYG+k6M1q2dH2WO0x8
-         i0i1Y3/t73Bwik3CC7h2HxTI6MBPnd5h2+5TnlQExQGHi5FT/GEke0i1KH1lYJc+nT
-         QoBQhF5FmJO9kTIf2SHlvDU7zXo+VIuDTVKZz9ow=
+        b=PBLK5mbXZZR/c7qBl7nYxLK2Orz2Jbim3iob1qKEn+lRIMwNcVxYaGjv9Pb0LtOpq
+         aKMnDk1xyIaF+gAzhkEc8DLZI1oNn2/XR0oDmSACHEPWct8wF2H+mabQzWPHipantX
+         LdodIPz2vAa+S7Wnow1X3FLs8Py9JA0qNm1/PUx4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Wunner <lukas@wunner.de>,
+Cc:     Dave Young <dyoung@redhat.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Matthew Garrett <mjg59@google.com>,
         Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
         Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
         Jerry Snitselaar <jsnitsel@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
+        Lukas Wunner <lukas@wunner.de>, Lyude Paul <lyude@redhat.com>,
         Octavian Purdila <octavian.purdila@intel.com>,
         Peter Jones <pjones@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
@@ -41,9 +40,9 @@ Cc:     Lukas Wunner <lukas@wunner.de>,
         Thomas Gleixner <tglx@linutronix.de>,
         linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 37/56] efi/cper: Fix endianness of PCIe class code
-Date:   Fri, 18 Oct 2019 18:07:34 -0400
-Message-Id: <20191018220753.10002-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 38/56] efi/x86: Do not clean dummy variable in kexec path
+Date:   Fri, 18 Oct 2019 18:07:35 -0400
+Message-Id: <20191018220753.10002-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220753.10002-1-sashal@kernel.org>
 References: <20191018220753.10002-1-sashal@kernel.org>
@@ -56,32 +55,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Dave Young <dyoung@redhat.com>
 
-[ Upstream commit 6fb9367a15d1a126d222d738b2702c7958594a5f ]
+[ Upstream commit 2ecb7402cfc7f22764e7bbc80790e66eadb20560 ]
 
-The CPER parser assumes that the class code is big endian, but at least
-on this edk2-derived Intel Purley platform it's little endian:
+kexec reboot fails randomly in UEFI based KVM guest.  The firmware
+just resets while calling efi_delete_dummy_variable();  Unfortunately
+I don't know how to debug the firmware, it is also possible a potential
+problem on real hardware as well although nobody reproduced it.
 
-    efi: EFI v2.50 by EDK II BIOS ID:PLYDCRB1.86B.0119.R05.1701181843
-    DMI: Intel Corporation PURLEY/PURLEY, BIOS PLYDCRB1.86B.0119.R05.1701181843 01/18/2017
+The intention of the efi_delete_dummy_variable is to trigger garbage collection
+when entering virtual mode.  But SetVirtualAddressMap can only run once
+for each physical reboot, thus kexec_enter_virtual_mode() is not necessarily
+a good place to clean a dummy object.
 
-    {1}[Hardware Error]:   device_id: 0000:5d:00.0
-    {1}[Hardware Error]:   slot: 0
-    {1}[Hardware Error]:   secondary_bus: 0x5e
-    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2030
-    {1}[Hardware Error]:   class_code: 000406
-                                       ^^^^^^ (should be 060400)
+Drop the efi_delete_dummy_variable so that kexec reboot can work.
 
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Dave Young <dyoung@redhat.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Matthew Garrett <mjg59@google.com>
 Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Dave Young <dyoung@redhat.com>
 Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
 Cc: Jerry Snitselaar <jsnitsel@redhat.com>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lukas Wunner <lukas@wunner.de>
 Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Garrett <mjg59@google.com>
 Cc: Octavian Purdila <octavian.purdila@intel.com>
 Cc: Peter Jones <pjones@redhat.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
@@ -89,26 +87,27 @@ Cc: Scott Talbert <swt@techie.net>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: linux-efi@vger.kernel.org
 Cc: linux-integrity@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191002165904.8819-2-ard.biesheuvel@linaro.org
+Link: https://lkml.kernel.org/r/20191002165904.8819-8-ard.biesheuvel@linaro.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/cper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/platform/efi/efi.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
-index db404aab82b2a..209dc5aefc310 100644
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -498,7 +498,7 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
- 		printk("%s""vendor_id: 0x%04x, device_id: 0x%04x\n", pfx,
- 		       pcie->device_id.vendor_id, pcie->device_id.device_id);
- 		p = pcie->device_id.class_code;
--		printk("%s""class_code: %02x%02x%02x\n", pfx, p[0], p[1], p[2]);
-+		printk("%s""class_code: %02x%02x%02x\n", pfx, p[2], p[1], p[0]);
- 	}
- 	if (pcie->validation_bits & CPER_PCIE_VALID_SERIAL_NUMBER)
- 		printk("%s""serial number: 0x%04x, 0x%04x\n", pfx,
+diff --git a/arch/x86/platform/efi/efi.c b/arch/x86/platform/efi/efi.c
+index 9061babfbc83d..335a62e74a2e9 100644
+--- a/arch/x86/platform/efi/efi.c
++++ b/arch/x86/platform/efi/efi.c
+@@ -893,9 +893,6 @@ static void __init kexec_enter_virtual_mode(void)
+ 
+ 	if (efi_enabled(EFI_OLD_MEMMAP) && (__supported_pte_mask & _PAGE_NX))
+ 		runtime_code_page_mkexec();
+-
+-	/* clean DUMMY object */
+-	efi_delete_dummy_variable();
+ #endif
+ }
+ 
 -- 
 2.20.1
 
