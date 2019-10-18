@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C863DD45E
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2251EDD45C
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 00:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728684AbfJRWEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728510AbfJRWEq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 18 Oct 2019 18:04:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36462 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728607AbfJRWEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728651AbfJRWEp (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 18 Oct 2019 18:04:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F2082245C;
-        Fri, 18 Oct 2019 22:04:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFF5B2246B;
+        Fri, 18 Oct 2019 22:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571436284;
-        bh=M5sVEkLfwvxy3JlQ9ejc5M3w1uVEQ8hslW83InsFHO4=;
+        s=default; t=1571436285;
+        bh=Odrr+zmNdI6AN052yBovEOwzEQZbeXlYtg8noSwp/dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqwZ7+mVtVWGh9O/Lt/r0Hmt/0PeaWa+kkehKPS7wV1EN4z1/79fg6/8MgleNJulX
-         U52SsFgl+3PJfTl5p3dVF3hFtSKsjyOmMVgINqWLBsMJTOAw4/UVSPW6ZyD4ABWq2r
-         cLO3y8Qv63nMWcH+SWgrE+5bFQ4ZCuRJBBwSB9MQ=
+        b=NASvWmS9Tu0L/UrZlxFPE0N1xQB3aCJoCn8Hd6wd08mu2VxoUSJuKJTyCQd/4YK2q
+         nqNMbgzqpcmQcGMWDX2Si4cv5Ghp03WUz0j1OBRo+kVnDN4yeXT7bxT2v55dpyB9le
+         5QM+Fv7AXo6lhIkHYyFRb6SncFtRpft1OG7ZbXiE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Austin Kim <austindh.kim@gmail.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 60/89] btrfs: silence maybe-uninitialized warning in clone_range
-Date:   Fri, 18 Oct 2019 18:02:55 -0400
-Message-Id: <20191018220324.8165-60-sashal@kernel.org>
+Cc:     Yunfeng Ye <yeyunfeng@huawei.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 61/89] arm64: armv8_deprecated: Checking return value for memory allocation
+Date:   Fri, 18 Oct 2019 18:02:56 -0400
+Message-Id: <20191018220324.8165-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191018220324.8165-1-sashal@kernel.org>
 References: <20191018220324.8165-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,51 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 431d39887d6273d6d84edf3c2eab09f4200e788a ]
+[ Upstream commit 3e7c93bd04edfb0cae7dad1215544c9350254b8f ]
 
-GCC throws warning message as below:
+There are no return value checking when using kzalloc() and kcalloc() for
+memory allocation. so add it.
 
-‘clone_src_i_size’ may be used uninitialized in this function
-[-Wmaybe-uninitialized]
- #define IS_ALIGNED(x, a)  (((x) & ((typeof(x))(a) - 1)) == 0)
-                       ^
-fs/btrfs/send.c:5088:6: note: ‘clone_src_i_size’ was declared here
- u64 clone_src_i_size;
-   ^
-The clone_src_i_size is only used as call-by-reference
-in a call to get_inode_info().
-
-Silence the warning by initializing clone_src_i_size to 0.
-
-Note that the warning is a false positive and reported by older versions
-of GCC (eg. 7.x) but not eg 9.x. As there have been numerous people, the
-patch is applied. Setting clone_src_i_size to 0 does not otherwise make
-sense and would not do any action in case the code changes in the future.
-
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add note ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/armv8_deprecated.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index c3c0c064c25da..91c702b4cae9d 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -5070,7 +5070,7 @@ static int clone_range(struct send_ctx *sctx,
- 	struct btrfs_path *path;
- 	struct btrfs_key key;
- 	int ret;
--	u64 clone_src_i_size;
-+	u64 clone_src_i_size = 0;
+diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
+index 2ec09debc2bb1..ca158be21f833 100644
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -174,6 +174,9 @@ static void __init register_insn_emulation(struct insn_emulation_ops *ops)
+ 	struct insn_emulation *insn;
  
- 	/*
- 	 * Prevent cloning from a zero offset with a length matching the sector
+ 	insn = kzalloc(sizeof(*insn), GFP_KERNEL);
++	if (!insn)
++		return;
++
+ 	insn->ops = ops;
+ 	insn->min = INSN_UNDEF;
+ 
+@@ -233,6 +236,8 @@ static void __init register_insn_emulation_sysctl(void)
+ 
+ 	insns_sysctl = kcalloc(nr_insn_emulated + 1, sizeof(*sysctl),
+ 			       GFP_KERNEL);
++	if (!insns_sysctl)
++		return;
+ 
+ 	raw_spin_lock_irqsave(&insn_emulation_lock, flags);
+ 	list_for_each_entry(insn, &insn_emulation, node) {
 -- 
 2.20.1
 
