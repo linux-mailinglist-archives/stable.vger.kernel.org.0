@@ -2,57 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3408DDA92
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 21:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 776B1DDAD3
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 22:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726092AbfJSTCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 15:02:30 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:39625 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726078AbfJSTCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 15:02:30 -0400
-Received: by mail-oi1-f193.google.com with SMTP id w144so7942834oia.6;
-        Sat, 19 Oct 2019 12:02:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8fkGTWJ7nV0zqlGQILKgkuirDJcGK5IownLExBhIIBU=;
-        b=m5FCJQzIgdyMX2abqBZPdulqgf4gkVcT82duLjP5DtD10mhWnlySxHWD+m0iO2H9lQ
-         3YPfofm4Rn4Xh2VxvFWjEn9tzgEHAoheUkLhJdana7rBj5YmKQPt0RVzZddUzywamsoC
-         yuEquaOiJVZ4pnBrVIIAQHliQ35uuvj/gekmtT+r+RSlyRDv0XZndgB7XF4DhTu6Uvq5
-         N+DQBII5tkieA1sbby3stY1IQwyo/PwmCRDlowEzgieC7BMbesyQbS3Hun5f+BYn/v06
-         3DriPsFWGPqxG2jPs3z4s0igKfyaxvR3AE60VBp43nhp/CPiWDLNW/fB4V95ELsnEX+e
-         f14w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=8fkGTWJ7nV0zqlGQILKgkuirDJcGK5IownLExBhIIBU=;
-        b=ELUjdx5Px4Lde8mpQipV2AqEXZMwpcTVj15HOXO2Rdy6W2DW+mWszFpFSdBagHzjjf
-         zo9D3/ZmhS56+yoeh/DNSnApKGgsM5MWAz+BHoxkAbLsoXay4c6a80afjxXQ98Phnrh5
-         Un6KAfD4lMrOHBsnWFDgca5AKM03l5wPFeXNiZc7Qyy4b7qLMxTgFEeB7WbrL9eKL5mn
-         r1j3Wx6bgNaR/Jf0XzglWk8pEN65wksmsBJi0M/1b/6sxZNZerlJKLMKAzm4h0cQ5Yxm
-         zWnxW1KNN52icJuPycsNbcmNkJYe0mPQdA1CTsuke1NN808o7BQsKogEHINFEVS5nuHa
-         zbhg==
-X-Gm-Message-State: APjAAAXsfypIPs9CGP7Q7bnsceYf5BbhTzwZ2VjSSwQIdGNqmMlzk7on
-        7q5ADWsO37RbUNU8T0V6pyo=
-X-Google-Smtp-Source: APXvYqymv6JZ8koXfAiU6tyYOENvYSJwCkWYKATrdJieaXMpadqJvX5c2Us3xWjWxttswpivc4UZEQ==
-X-Received: by 2002:aca:5357:: with SMTP id h84mr12928325oib.17.1571511748862;
-        Sat, 19 Oct 2019 12:02:28 -0700 (PDT)
-Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id 109sm2621930otc.52.2019.10.19.12.02.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Oct 2019 12:02:28 -0700 (PDT)
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-To:     kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Stable <stable@vger.kernel.org>
-Subject: [PATCH] rtlwifi: rtl_pci: Fix problem of too small skb->len
-Date:   Sat, 19 Oct 2019 14:02:22 -0500
-Message-Id: <20191019190222.29681-1-Larry.Finger@lwfinger.net>
-X-Mailer: git-send-email 2.23.0
+        id S1726143AbfJSURt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 16:17:49 -0400
+Received: from mx2a.mailbox.org ([80.241.60.219]:49861 "EHLO mx2a.mailbox.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726129AbfJSURt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Oct 2019 16:17:49 -0400
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:105:465:1:2:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-CHACHA20-POLY1305 (256/256 bits))
+        (No client certificate requested)
+        by mx2a.mailbox.org (Postfix) with ESMTPS id E5003A133B;
+        Sat, 19 Oct 2019 22:17:45 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at heinlein-support.de
+Received: from smtp2.mailbox.org ([80.241.60.241])
+        by spamfilter02.heinlein-hosting.de (spamfilter02.heinlein-hosting.de [80.241.56.116]) (amavisd-new, port 10030)
+        with ESMTP id tS8T5X5iyvkP; Sat, 19 Oct 2019 22:17:43 +0200 (CEST)
+From:   Hauke Mehrtens <hauke@hauke-m.de>
+To:     catalin.marinas@arm.com, will@kernel.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org, musl@lists.openwall.com,
+        Hauke Mehrtens <hauke@hauke-m.de>, stable@vger.kernel.org
+Subject: [PATCH] arm64: uapi: Fix user space compile with musl libc
+Date:   Sat, 19 Oct 2019 22:17:17 +0200
+Message-Id: <20191019201717.15358-1-hauke@hauke-m.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -60,41 +35,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
-only"), buffers whose length is too short cause a WARN_ON(1) to be
-executed. This change exposed a fault in rtlwifi drivers, which is fixed
-by increasing the length of the affected buffer before it is sent to
-mac80211.
+musl libc also defines the structures in their arch/aarch64/bits/signal.h
+header file. Some applications like strace and gdb include both of them
+and then the structure definitions are clashing and the build of these
+user space applications fails.
 
-Cc: Stable <stable@vger.kernel.org> # v5.0+
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+This patch allows a libc to define a constant which tells the kernel
+header file that the libc already defined these structures and that they
+should not be defined by the kernel uapi header files any more to
+prevent clashes. This is done in a similar way as it is already done for
+other header files.
+
+When this patch was accepted into the kernel I will also update musl
+libc to define these constants.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+Cc: stable@vger.kernel.org
 ---
+ arch/arm64/include/uapi/asm/sigcontext.h | 13 +++++++++++++
+ include/uapi/linux/libc-compat.h         | 20 ++++++++++++++++++++
+ 2 files changed, 33 insertions(+)
 
-Kalle,
-
-Please send to v5.4.
-
-Larry
----
-
- drivers/net/wireless/realtek/rtlwifi/pci.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c b/drivers/net/wireless/realtek/rtlwifi/pci.c
-index 6087ec7a90a6..bb5144b7c64f 100644
---- a/drivers/net/wireless/realtek/rtlwifi/pci.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
-@@ -692,7 +692,10 @@ static void _rtl_pci_rx_to_mac80211(struct ieee80211_hw *hw,
- 		dev_kfree_skb_any(skb);
- 	} else {
- 		struct sk_buff *uskb = NULL;
-+		int len = skb->len;
+diff --git a/arch/arm64/include/uapi/asm/sigcontext.h b/arch/arm64/include/uapi/asm/sigcontext.h
+index 8b0ebce92427..92d911146137 100644
+--- a/arch/arm64/include/uapi/asm/sigcontext.h
++++ b/arch/arm64/include/uapi/asm/sigcontext.h
+@@ -20,7 +20,9 @@
+ #ifndef __ASSEMBLY__
  
-+		if (unlikely(len <= FCS_LEN))
-+			len = FCS_LEN + 2;
- 		uskb = dev_alloc_skb(skb->len + 128);
- 		if (likely(uskb)) {
- 			memcpy(IEEE80211_SKB_RXCB(uskb), &rx_status,
+ #include <linux/types.h>
++#include <linux/libc-compat.h>
+ 
++#if __UAPI_DEF_SIGCONTEXT
+ /*
+  * Signal context structure - contains all info to do with the state
+  * before the signal handler was invoked.
+@@ -35,6 +37,7 @@ struct sigcontext {
+ 	/* 4K reserved for FP/SIMD state and future expansion */
+ 	__u8 __reserved[4096] __attribute__((__aligned__(16)));
+ };
++#endif
+ 
+ /*
+  * Allocation of __reserved[]:
+@@ -57,6 +60,7 @@ struct sigcontext {
+  * generated when userspace does not opt in for any such extension.
+  */
+ 
++#if __UAPI_DEF_AARCH64_CTX
+ /*
+  * Header to be used at the beginning of structures extending the user
+  * context. Such structures must be placed after the rt_sigframe on the stack
+@@ -67,7 +71,9 @@ struct _aarch64_ctx {
+ 	__u32 magic;
+ 	__u32 size;
+ };
++#endif
+ 
++#if __UAPI_DEF_FPSIMD_CONTEXT
+ #define FPSIMD_MAGIC	0x46508001
+ 
+ struct fpsimd_context {
+@@ -76,7 +82,9 @@ struct fpsimd_context {
+ 	__u32 fpcr;
+ 	__uint128_t vregs[32];
+ };
++#endif
+ 
++#if __UAPI_DEF_ESR_CONTEXT
+ /*
+  * Note: similarly to all other integer fields, each V-register is stored in an
+  * endianness-dependent format, with the byte at offset i from the start of the
+@@ -93,7 +101,9 @@ struct esr_context {
+ 	struct _aarch64_ctx head;
+ 	__u64 esr;
+ };
++#endif
+ 
++#if __UAPI_DEF_EXTRA_CONTEXT
+ /*
+  * extra_context: describes extra space in the signal frame for
+  * additional structures that don't fit in sigcontext.__reserved[].
+@@ -128,7 +138,9 @@ struct extra_context {
+ 	__u32 size; /* size in bytes of the extra space */
+ 	__u32 __reserved[3];
+ };
++#endif
+ 
++#if __UAPI_DEF_SVE_CONTEXT
+ #define SVE_MAGIC	0x53564501
+ 
+ struct sve_context {
+@@ -136,6 +148,7 @@ struct sve_context {
+ 	__u16 vl;
+ 	__u16 __reserved[3];
+ };
++#endif
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
+diff --git a/include/uapi/linux/libc-compat.h b/include/uapi/linux/libc-compat.h
+index 8254c937c9f4..a863130f4638 100644
+--- a/include/uapi/linux/libc-compat.h
++++ b/include/uapi/linux/libc-compat.h
+@@ -264,4 +264,24 @@
+ 
+ #endif /* __GLIBC__ */
+ 
++/* Definitions for arch/arm64/include/uapi/asm/sigcontext.h */
++#ifndef __UAPI_DEF_SIGCONTEXT
++#define __UAPI_DEF_SIGCONTEXT		1
++#endif
++#ifndef __UAPI_DEF_AARCH64_CTX
++#define __UAPI_DEF_AARCH64_CTX		1
++#endif
++#ifndef __UAPI_DEF_FPSIMD_CONTEXT
++#define __UAPI_DEF_FPSIMD_CONTEXT	1
++#endif
++#ifndef __UAPI_DEF_ESR_CONTEXT
++#define __UAPI_DEF_ESR_CONTEXT		1
++#endif
++#ifndef __UAPI_DEF_EXTRA_CONTEXT
++#define __UAPI_DEF_EXTRA_CONTEXT	1
++#endif
++#ifndef __UAPI_DEF_SVE_CONTEXT
++#define __UAPI_DEF_SVE_CONTEXT		1
++#endif
++
+ #endif /* _UAPI_LIBC_COMPAT_H */
 -- 
-2.23.0
+2.20.1
 
