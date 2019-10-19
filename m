@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 657DEDD5BB
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 02:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 696B6DD5B6
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 02:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbfJSASb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 20:18:31 -0400
-Received: from condef-04.nifty.com ([202.248.20.69]:30861 "EHLO
-        condef-04.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727388AbfJSASb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 20:18:31 -0400
-Received: from conssluserg-01.nifty.com ([10.126.8.80])by condef-04.nifty.com with ESMTP id x9J0Dmfd017755
-        for <stable@vger.kernel.org>; Sat, 19 Oct 2019 09:13:48 +0900
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com [209.85.222.46]) (authenticated)
-        by conssluserg-01.nifty.com with ESMTP id x9J0DhVI017441;
-        Sat, 19 Oct 2019 09:13:44 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com x9J0DhVI017441
+        id S2404131AbfJSAPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 20:15:04 -0400
+Received: from conssluserg-03.nifty.com ([210.131.2.82]:46420 "EHLO
+        conssluserg-03.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728453AbfJSAPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 18 Oct 2019 20:15:03 -0400
+Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com [209.85.217.45]) (authenticated)
+        by conssluserg-03.nifty.com with ESMTP id x9J0Enup018065;
+        Sat, 19 Oct 2019 09:14:50 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-03.nifty.com x9J0Enup018065
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1571444024;
-        bh=Wv7SDO7TGz/Tz/kPoq97RTLIMVXEt2S+6Yr6mw+gDCQ=;
+        s=dec2015msa; t=1571444090;
+        bh=ObtrhjJLtVvUcEuk7d6WPsh0EgcUSH6MV5cSvNA/oRA=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=qiFlhYVBWH7HcAHa04a0nidYNnCnZHQY+DeY0xGKGwNJa1W70j6ualaYq5jjbei7Q
-         P0um+gifV5M5Isba1elISoevdeTYTvYVo+IEQZvfPEPAi3ROzpZ97MNGbVtXp/hr6S
-         C7NJr+SBe2+MffR3Mmv4rXjGb4m703A0rEuKsGUFbbvRVUMxdlarZPmASzStUihaTW
-         F7PTu2wrtwAtPEmVRw52VavGHZ7/s9dcNkNl6ZviYD+KYHI/Y0HoxDDFKJn/x6KaOm
-         U/aN4/z6b3N8Es3NGkKRp/W04yH52En28mxmOllC7turK959Lb1IJcMKhaLE4Ojp6B
-         3Mg4brqp1262Q==
-X-Nifty-SrcIP: [209.85.222.46]
-Received: by mail-ua1-f46.google.com with SMTP id l13so2338807uap.8;
-        Fri, 18 Oct 2019 17:13:44 -0700 (PDT)
-X-Gm-Message-State: APjAAAX/TkFC5XQJsNcLY2bIJo7JNP6DZM2EPPfir952rYF9Fs9bfqkL
-        n1AUebqcGfqaLUcOu+3uDlbXLT4LsEk3cJl/CcY=
-X-Google-Smtp-Source: APXvYqwLdG24TcKRI2xGdPVyXycA/P86iGVpj388RYLudVH3Yy2vabgr2OOiiA0cJgKnUH8lbg94E4aPGHgyjlzHrec=
-X-Received: by 2002:ab0:59ed:: with SMTP id k42mr7047231uad.25.1571444023192;
- Fri, 18 Oct 2019 17:13:43 -0700 (PDT)
+        b=Wnyu941P8MMYoJPpC5X21INNKZ2qDQnzcYH484B3ak7th0zMIhM0fmAc1+9udSEVJ
+         pAo5D7L2TzGc2i5z+lNgOpCOHRGaSh2DVz22zYFvszixoVkqh2CcrZtG2MlDt0k92k
+         gTVXC5A0YhG1LCg+oVRGQnL5N5PdRcuVfbjg6xPHZPK+IKyunQ5Fg74QZ7i3Ihmkrv
+         hVJlLUXEi59Y2p3XH82iERbZMpFHYFnkJ/Oo674IXJalp8AH6IGs/Z3UjVP1iSk00l
+         rl4QxSjOLGH0co7wwdQRGt+SyEmCvjUe+varC5tW/Vu6PwIJjm2ONoTdCibudL5BV/
+         rl314TSpYB6lQ==
+X-Nifty-SrcIP: [209.85.217.45]
+Received: by mail-vs1-f45.google.com with SMTP id s7so5216819vsl.2;
+        Fri, 18 Oct 2019 17:14:50 -0700 (PDT)
+X-Gm-Message-State: APjAAAXBrw52bXgz90rGgHXRl6J77NYXsxiRs8SeKVhimyVTjOOqbtyc
+        Ddh1VM+zAikeNNx8AK5nnXhRkRLUxIw+dVtESHk=
+X-Google-Smtp-Source: APXvYqzrDt+dWmfKbnc4Mz74p3lyUBSTxtM5qVGBCj4hiblh+r+/CaWvNSFAUEmrim2fAW/s3bS1mPXWZ+j/+/aWMfA=
+X-Received: by 2002:a05:6102:97:: with SMTP id t23mr7279808vsp.179.1571444089167;
+ Fri, 18 Oct 2019 17:14:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191018220525.9042-1-sashal@kernel.org> <20191018220525.9042-77-sashal@kernel.org>
-In-Reply-To: <20191018220525.9042-77-sashal@kernel.org>
+References: <20191018220324.8165-1-sashal@kernel.org> <20191018220324.8165-50-sashal@kernel.org>
+In-Reply-To: <20191018220324.8165-50-sashal@kernel.org>
 From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-Date:   Sat, 19 Oct 2019 09:13:07 +0900
-X-Gmail-Original-Message-ID: <CAK7LNATx=yY2Tmfd-BkmPjsqOFc+wUAtKzR7UpmU83LueVDQQw@mail.gmail.com>
-Message-ID: <CAK7LNATx=yY2Tmfd-BkmPjsqOFc+wUAtKzR7UpmU83LueVDQQw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.19 077/100] kbuild: fix build error of 'make
+Date:   Sat, 19 Oct 2019 09:14:13 +0900
+X-Gmail-Original-Message-ID: <CAK7LNARovn6jNGUBQbn-0KbwsCfC6GHE-ybqHDvRUXiCCDuMZA@mail.gmail.com>
+Message-ID: <CAK7LNARovn6jNGUBQbn-0KbwsCfC6GHE-ybqHDvRUXiCCDuMZA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.3 50/89] kbuild: fix build error of 'make
  nsdeps' in clean tree
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -56,9 +54,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-On Sat, Oct 19, 2019 at 7:18 AM Sasha Levin <sashal@kernel.org> wrote:
+On Sat, Oct 19, 2019 at 7:04 AM Sasha Levin <sashal@kernel.org> wrote:
 >
 > From: Masahiro Yamada <yamada.masahiro@socionext.com>
 >
@@ -82,22 +78,20 @@ On Sat, Oct 19, 2019 at 7:18 AM Sasha Levin <sashal@kernel.org> wrote:
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
 
-
 nsdeps was introduced in v5.4
 
 Please do not backport this commit.
 
-Thanks.
 
 
 >  Makefile | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 >
 > diff --git a/Makefile b/Makefile
-> index 4d29c7370b464..80f169534c4a7 100644
+> index d7469f0926a67..62b9640d007a0 100644
 > --- a/Makefile
 > +++ b/Makefile
-> @@ -566,7 +566,7 @@ endif
+> @@ -594,7 +594,7 @@ endif
 >  # in addition to whatever we do anyway.
 >  # Just "make" or "make all" shall build modules as well
 >
