@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67FFDDA2E
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 20:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A3DDDA75
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 20:44:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726552AbfJSSl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 14:41:59 -0400
-Received: from mo4-p04-ob.smtp.rzone.de ([85.215.255.120]:9822 "EHLO
+        id S1726738AbfJSSnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 14:43:01 -0400
+Received: from mo4-p04-ob.smtp.rzone.de ([85.215.255.120]:34744 "EHLO
         mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726381AbfJSSl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 14:41:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1571510511;
+        with ESMTP id S1726101AbfJSSlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 14:41:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1571510508;
         s=strato-dkim-0002; d=goldelico.com;
         h=References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
         X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
-        bh=/pObl1FM2M6AHMr9luNDZ5UQLwObvzqffucymVvdQFs=;
-        b=f8WNaBqP71JuDMDfUgg9Pw5eQ1uAhZ0R9P5Kp3arMhjRoNg3ggfQ3GyTYSUUcwgu+F
-        BGRWbqSvgx7ZyKwWzZSdGRCCP/5MyTGafm5S63eTO+sIwYBoAXbAMRatgUZWIYXFVSOm
-        ashgOX+yqyB7udrmnewWVUZvQq2FWPdVkYWCvo8iGUF7+0/YjU2dafascI9nRp30epEx
-        Z8u48cdrIkM1lZucGjwYSJPmT2GetkrHNORdiYkCXbAodDE910Ct95JHQIDwG3JnGBMf
-        LMmE+S7aVkk2dI3kuoisoTRRxbhaXNNSvtnrXzVr/vAJk1gMhfrPQpA7q8rHN8EY1UC6
-        bACg==
+        bh=01rqe/WWWS1jdN6uwfrdHLE5RSg5tpvr2uQMZiCIpfI=;
+        b=X6aF03PhFJXulPWhbugDFOgcclQefSCiiyboyXhCZd9ZeJvOAbuirCCaIiTWlpbZvJ
+        yU40POGkqe0HvDyTMeavUmqdzai+d2G6i9YG9WkuFrGY8a6FC0462Gu797yvcubBON+b
+        eiIpU2dqcErCLgqEWp4rPs+h3972Vbnlx6g9T2xi17a6gIgid0uAXc14TsC+hfPLIP92
+        X46h05RIeMt+uffBe1hQLzh/QmWmTrGxL4RJQ1sCaVFZkuzQ9DbVY/KLkC/4p7IMKJO7
+        O+07/I9DpE7lAPM6UXUd5681NyJPxsQ/yLfRlXkl0mri8y3r95h4uqlKd4i93dPLIGVq
+        7LEw==
 X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o12DNOsPj0pAyXkHTz8="
 X-RZG-CLASS-ID: mo00
 Received: from iMac.fritz.box
         by smtp.strato.de (RZmta 44.28.1 DYNA|AUTH)
-        with ESMTPSA id R0b2a8v9JIfXFMR
+        with ESMTPSA id R0b2a8v9JIfZFMT
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
         (Client did not present a certificate);
-        Sat, 19 Oct 2019 20:41:33 +0200 (CEST)
+        Sat, 19 Oct 2019 20:41:35 +0200 (CEST)
 From:   "H. Nikolaus Schaller" <hns@goldelico.com>
 To:     =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
         Tony Lindgren <tony@atomide.com>,
@@ -57,9 +57,9 @@ Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
         linux-mmc@vger.kernel.org, linux-wireless@vger.kernel.org,
         netdev@vger.kernel.org, letux-kernel@openphoenux.org,
         kernel@pyra-handheld.com, stable@vger.kernel.org
-Subject: [PATCH v2 06/11] omap: pdata-quirks: remove openpandora quirks for mmc3 and wl1251
-Date:   Sat, 19 Oct 2019 20:41:21 +0200
-Message-Id: <9cb3b9f9bee4aa50a19bf47742cff095b8c2fbfb.1571510481.git.hns@goldelico.com>
+Subject: [PATCH v2 08/11] mmc: sdio: fix wl1251 vendor id
+Date:   Sat, 19 Oct 2019 20:41:23 +0200
+Message-Id: <75c6048ae4ad940b05aba7edb40f91876f497780.1571510481.git.hns@goldelico.com>
 X-Mailer: git-send-email 2.19.1
 In-Reply-To: <cover.1571510481.git.hns@goldelico.com>
 References: <cover.1571510481.git.hns@goldelico.com>
@@ -70,134 +70,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With a wl1251 child node of mmc3 in the device tree decoded
-in omap_hsmmc.c to handle special wl1251 initialization, we do
-no longer need to instantiate the mmc3 through pdata quirks.
+v4.11-rc1 did introduce a patch series that rearranged the
+sdio quirks into a header file. Unfortunately this did forget
+to handle SDIO_VENDOR_ID_TI differently between wl1251 and
+wl1271 with the result that although the wl1251 was found on
+the sdio bus, the firmware did not load any more and there was
+no interface registration.
 
-We also can remove the wlan regulator and reset/interrupt definitions
-and do them through device tree.
+This patch defines separate constants to be used by sdio quirks
+and drivers.
 
-Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+Fixes: 884f38607897 ("mmc: core: move some sdio IDs out of quirks file")
 
 Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Cc: <stable@vger.kernel.org> # 4.7.0
+Cc: <stable@vger.kernel.org> # 4.11.0
 ---
- arch/arm/mach-omap2/pdata-quirks.c | 93 ------------------------------
- 1 file changed, 93 deletions(-)
+ include/linux/mmc/sdio_ids.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/pdata-quirks.c b/arch/arm/mach-omap2/pdata-quirks.c
-index 89734ef9ab1e..ecc1ef632951 100644
---- a/arch/arm/mach-omap2/pdata-quirks.c
-+++ b/arch/arm/mach-omap2/pdata-quirks.c
-@@ -303,108 +303,15 @@ static void __init omap3_logicpd_torpedo_init(void)
- }
+diff --git a/include/linux/mmc/sdio_ids.h b/include/linux/mmc/sdio_ids.h
+index d1a5d5df02f5..08b25c02b5a1 100644
+--- a/include/linux/mmc/sdio_ids.h
++++ b/include/linux/mmc/sdio_ids.h
+@@ -71,6 +71,8 @@
  
- /* omap3pandora legacy devices */
--#define PANDORA_WIFI_IRQ_GPIO		21
--#define PANDORA_WIFI_NRESET_GPIO	23
+ #define SDIO_VENDOR_ID_TI			0x0097
+ #define SDIO_DEVICE_ID_TI_WL1271		0x4076
++#define SDIO_VENDOR_ID_TI_WL1251		0x104c
++#define SDIO_DEVICE_ID_TI_WL1251		0x9066
  
- static struct platform_device pandora_backlight = {
- 	.name	= "pandora-backlight",
- 	.id	= -1,
- };
- 
--static struct regulator_consumer_supply pandora_vmmc3_supply[] = {
--	REGULATOR_SUPPLY("vmmc", "omap_hsmmc.2"),
--};
--
--static struct regulator_init_data pandora_vmmc3 = {
--	.constraints = {
--		.valid_ops_mask		= REGULATOR_CHANGE_STATUS,
--	},
--	.num_consumer_supplies	= ARRAY_SIZE(pandora_vmmc3_supply),
--	.consumer_supplies	= pandora_vmmc3_supply,
--};
--
--static struct fixed_voltage_config pandora_vwlan = {
--	.supply_name		= "vwlan",
--	.microvolts		= 1800000, /* 1.8V */
--	.gpio			= PANDORA_WIFI_NRESET_GPIO,
--	.startup_delay		= 50000, /* 50ms */
--	.enable_high		= 1,
--	.init_data		= &pandora_vmmc3,
--};
--
--static struct platform_device pandora_vwlan_device = {
--	.name		= "reg-fixed-voltage",
--	.id		= 1,
--	.dev = {
--		.platform_data = &pandora_vwlan,
--	},
--};
--
--static void pandora_wl1251_init_card(struct mmc_card *card)
--{
--	/*
--	 * We have TI wl1251 attached to MMC3. Pass this information to
--	 * SDIO core because it can't be probed by normal methods.
--	 */
--	if (card->type == MMC_TYPE_SDIO || card->type == MMC_TYPE_SD_COMBO) {
--		card->quirks |= MMC_QUIRK_NONSTD_SDIO;
--		card->cccr.wide_bus = 1;
--		card->cis.vendor = 0x104c;
--		card->cis.device = 0x9066;
--		card->cis.blksize = 512;
--		card->cis.max_dtr = 24000000;
--		card->ocr = 0x80;
--	}
--}
--
--static struct omap2_hsmmc_info pandora_mmc3[] = {
--	{
--		.mmc		= 3,
--		.caps		= MMC_CAP_4_BIT_DATA | MMC_CAP_POWER_OFF_CARD,
--		.gpio_cd	= -EINVAL,
--		.gpio_wp	= -EINVAL,
--		.init_card	= pandora_wl1251_init_card,
--	},
--	{}	/* Terminator */
--};
--
--static void __init pandora_wl1251_init(void)
--{
--	struct wl1251_platform_data pandora_wl1251_pdata;
--	int ret;
--
--	memset(&pandora_wl1251_pdata, 0, sizeof(pandora_wl1251_pdata));
--
--	pandora_wl1251_pdata.power_gpio = -1;
--
--	ret = gpio_request_one(PANDORA_WIFI_IRQ_GPIO, GPIOF_IN, "wl1251 irq");
--	if (ret < 0)
--		goto fail;
--
--	pandora_wl1251_pdata.irq = gpio_to_irq(PANDORA_WIFI_IRQ_GPIO);
--	if (pandora_wl1251_pdata.irq < 0)
--		goto fail_irq;
--
--	pandora_wl1251_pdata.use_eeprom = true;
--	ret = wl1251_set_platform_data(&pandora_wl1251_pdata);
--	if (ret < 0)
--		goto fail_irq;
--
--	return;
--
--fail_irq:
--	gpio_free(PANDORA_WIFI_IRQ_GPIO);
--fail:
--	pr_err("wl1251 board initialisation failed\n");
--}
--
- static void __init omap3_pandora_legacy_init(void)
- {
- 	platform_device_register(&pandora_backlight);
--	platform_device_register(&pandora_vwlan_device);
--	omap_hsmmc_init(pandora_mmc3);
--	omap_hsmmc_late_init(pandora_mmc3);
--	pandora_wl1251_init();
- }
- #endif /* CONFIG_ARCH_OMAP3 */
- 
+ #define SDIO_VENDOR_ID_STE			0x0020
+ #define SDIO_DEVICE_ID_STE_CW1200		0x2280
 -- 
 2.19.1
 
