@@ -2,125 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB5CDD8BA
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 14:44:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F80DD9A0
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 18:23:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725828AbfJSMoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 08:44:54 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:39031 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725792AbfJSMoy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 08:44:54 -0400
-Received: by mail-qk1-f196.google.com with SMTP id 4so7939507qki.6
-        for <stable@vger.kernel.org>; Sat, 19 Oct 2019 05:44:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=Y1pNnx7azjMyBmKbfoaao8n1E9x8MFlqAXT4r4KbzyA=;
-        b=fjgT0NJyYGHTrZlRPPiU8k66c3u4CRrOrjwPkMZkmFspqzpfQHSEZ8+w2XgDDIzy42
-         Zzxb8pE3rxwjFXLSGmWS19TneUYzQTy79+qZNb2rMpQBc7zF5K/5PEbcqaYjccfO8YPN
-         y5DoGjg4cG2qVnELNE7nmOrhiANESCKGlOso5z5267PkNVIBwsduSdCFLEXXOEiDpyGH
-         0q0ZEMLPDmIuI++92aUM2A71tNfhPaUZXrLLlAxJICOGyoEh8hhTztaKnFhT5NlMLOZY
-         K0whSsaye0ZqsI6/i+9ZHdguMrFd3vpoHe++SA8YCqMx8pCDH+BA9bU5R+I3akM8W8Lf
-         jigg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=Y1pNnx7azjMyBmKbfoaao8n1E9x8MFlqAXT4r4KbzyA=;
-        b=bP1X8pOPdKsax9snvZU4wJtL76NqHvGk9nKzZ5oIXoavx4WRJsG9NuPVX7hpqj0bsE
-         49UwsAO7L3ayDwf2Lu3udkbq2dm4egWNlugWXU4d1Fp+xpynnUb7NQtLL3YMZRcJOwdu
-         a5X1bTn09GjeyXzg41Jmf1Gh3fG2jpTRwA4uYt9yEzidpZYx7WVKPt670bEBUMx2Zen0
-         ilhY0x10M07Hw9nxwODI5Yli2k2Fa9ps1yswoQ4W9BnYfBt9PJkO/h3u5TBxuULtz45R
-         AtG6rMFDmSFUYQTeJB/7Kzotfi+dVZAcCFj1SmHxLqfiWJmW1YI/c8VegMiJlJtH2tZy
-         3Aug==
-X-Gm-Message-State: APjAAAVt6QEZi6MDfyn4GpoSXHk+1B4/+97BDl5KCTGfTeTb8QvRIwbH
-        RVqO8ff7eNbKRMhsD2VpSiHhwgRqASaANa++Qaw=
-X-Google-Smtp-Source: APXvYqwz01rGWTBFfZxgC2Rmkkxz5cGCnlpTZWSsiBPDs7lfus3zQUKKSHR5SxJSkZ9H9umXl5n9nt/c6AJxmD/RpAE=
-X-Received: by 2002:a37:9907:: with SMTP id b7mr14131106qke.452.1571489092709;
- Sat, 19 Oct 2019 05:44:52 -0700 (PDT)
+        id S1726077AbfJSQXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 12:23:00 -0400
+Received: from muru.com ([72.249.23.125]:38240 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726008AbfJSQXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Oct 2019 12:23:00 -0400
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id 265D880E2;
+        Sat, 19 Oct 2019 16:23:33 +0000 (UTC)
+Date:   Sat, 19 Oct 2019 09:22:55 -0700
+From:   Tony Lindgren <tony@atomide.com>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-omap <linux-omap@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
+        kernel@pyra-handheld.com,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>
+Subject: Re: [PATCH 5/9] omap: pdata-quirks: remove openpandora quirks for
+ mmc3 and wl1251
+Message-ID: <20191019162255.GR5610@atomide.com>
+References: <63f59daa6b6e079905ff128b88282cf2c72e3540.1571430329.git.hns@goldelico.com>
+ <20191019133621.C1CE421897@mail.kernel.org>
+ <A0434659-A282-44AA-90E9-D234ADF8A04A@goldelico.com>
 MIME-Version: 1.0
-Reply-To: sebastient766@gmail.com
-Received: by 2002:a0c:f692:0:0:0:0:0 with HTTP; Sat, 19 Oct 2019 05:44:52
- -0700 (PDT)
-From:   =?UTF-8?B?TXIuU8OpYmFzdGllbiBUb25p?= <sebastient766@gmail.com>
-Date:   Sat, 19 Oct 2019 12:44:52 +0000
-X-Google-Sender-Auth: Nh7Tv46UOLn2EnFEUVkoIdooAQo
-Message-ID: <CAA_LgCaSW5R=1CAQXgCgwDFp23AmSry9FpvQ3wgZPYUWK+10=Q@mail.gmail.com>
-Subject: Dear Friend,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A0434659-A282-44AA-90E9-D234ADF8A04A@goldelico.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-FROM MR.S=C3=89BASTIEN TONI
-AUDIT& ACCOUNT MANAGER
-BANK OF AFRICA (B.O.A)
-OUAGADOUGOU BURKINA FASO
-WEST AFRICA.
+* H. Nikolaus Schaller <hns@goldelico.com> [191019 15:18]:
+> 
+> > Am 19.10.2019 um 15:36 schrieb Sasha Levin <sashal@kernel.org>:
+> > 
+> > Hi,
+> > 
+> > [This is an automated email]
+> > 
+> > This commit has been processed because it contains a "Fixes:" tag,
+> > fixing commit: 81eef6ca92014 mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel.
+> > 
+> > The bot has tested the following trees: v5.3.6, v4.19.79, v4.14.149, v4.9.196.
+> > 
+> > v5.3.6: Build OK!
+> > v4.19.79: Failed to apply! Possible dependencies:
+> >    Unable to calculate
+> > 
+> > v4.14.149: Failed to apply! Possible dependencies:
+> >    0486738928bf0 ("ARM: OMAP1: ams-delta: add GPIO lookup tables")
+> >    0920ca103f8d8 ("ARM: sa1100: provide infrastructure to support generic CF sockets")
+> >    29786e9b6551b ("ARM: sa1100/assabet: convert to generic CF sockets")
+> >    2bcb1be092370 ("Input: ams_delta_serio: Replace power GPIO with regulator")
+> >    56de7570b3264 ("Input: ams_delta_serio: use private structure")
+> >    7be893aa2d6a1 ("pcmcia: sa1100: provide generic CF support")
+> >    b51af86559d4b ("ARM: sa1100/shannon: convert to generic CF sockets")
+> >    b955153bfa68d ("ARM: sa1100/assabet: add BCR/BSR GPIO driver")
+> >    c2f9b05fd5c12 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
+> >    df88c57689278 ("Input: ams_delta_serio: convert to platform driver")
+> >    efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
+> 
+> ^^^ this is the relevant one.
+> 
+> > 
+> > v4.9.196: Failed to apply! Possible dependencies:
+> >    0486738928bf0 ("ARM: OMAP1: ams-delta: add GPIO lookup tables")
+> >    072f58af1dfbc ("ARM: dts: Add devicetree for the Raspberry Pi 3, for arm32 (v6)")
+> >    1aa1d858f582c ("ARM: dts: bcm283x: Add dtsi for OTG mode")
+> >    29786e9b6551b ("ARM: sa1100/assabet: convert to generic CF sockets")
+> >    2bcb1be092370 ("Input: ams_delta_serio: Replace power GPIO with regulator")
+> >    3bfe25fa9f8a5 ("ARM: dts: bcm283x: Move the BCM2837 DT contents from arm64 to arm.")
+> >    56de7570b3264 ("Input: ams_delta_serio: use private structure")
+> >    6c1b417adc8fa ("ARM: pxa: ezx: use the new pxa_camera platform_data")
+> >    7ade445c26269 ("ARM: pxa: magician: Add support for ADS7846 touchscreen")
+> >    8f9bafbb92c03 ("ARM: dts: aspeed: Add Romulus BMC platform")
+> >    b24413180f560 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
+> >    b5478c1b67bcd ("alpha: add asm/extable.h")
+> >    b955153bfa68d ("ARM: sa1100/assabet: add BCR/BSR GPIO driver")
+> >    d9fa04725f27f ("ARM: pxa: em-x270: use the new pxa_camera platform_data")
+> >    df88c57689278 ("Input: ams_delta_serio: convert to platform driver")
+> >    efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
+> >    fe7bf9dcfff5b ("ARM: dts: add a devicetree for Raidsonic NAS IB-4220-B")
+> > 
+> > 
+> > NOTE: The patch will not be queued to stable trees until it is upstream.
+> > 
+> > How should we proceed with this patch?
+> 
+> I have checked and the reason is that 
+> 
+> efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
+> 
+> was introduced after v.4.19 which was also partially reverted by this patch
+> if based on mainline.
+> 
+> I have split it up into the partial revert of efdfeb079cc3b  for mainline
+> and the real patch which now applies to all relevant stable trees.
+> 
+> So I'll sent a v2 asap.
 
-Dear Friend,
+Please also remove arch/arm/mach-omap2/hsmmc.[ch] as I think that
+can be now done :)
 
-With due respect, I have decided to contact you on
-abusinesstransaction  that will be beneficial to both of us. At the
-bank last account and  auditing evaluation, my staffs came across an
-old account which was being
-maintained by a foreign client who we learn was among the deceased
-passengers of motor accident on November.2003, the deceased was unable
-to run this account since his death. Theaccount has  remained dormant
-without the knowledge of his family since it was put in a  safe
-deposit account in the bank for future investment by the client.
+Regards,
 
-Since his demise, even the members of his family haven't applied for
-claims  over this fund and it has been in the safe deposit account
-until I  discovered that it cannot be claimed since our client
-isaforeign national
-and we are sure that he has no next of kin here to file claims over
-the money. As the director of the department, this  discovery was
-brought to my office so as to decide what is to bedone.I  decided to
-seek ways through which to transfer this money out of the bank  and
-out of the country too.
-
-The total amount in the account is 18.6 million with my positions as
-staffs  of the bank, I am handicapped because I cannot operate foreign
-accounts and  cannot lay bonafide claim over this money. The client
-was a foreign  national and you will only be asked to act as his next
-of kin and I will  supply you with all the necessary information and
-bank data to assist you in being able to transfer this money to any
-bank of your  choice where this money could be transferred into.The
-total sum will be  shared as follows: 50% for me, 50% for you and
-expenses incidental occur  during the transfer will be incur by both
-of us. The transfer is risk free
-on both sides hence you are going to follow my instruction till the
-fund  transfer to your account. Since I work in this bank that is why
-you should  be confident in the success of this transaction because
-you will be updated
-with information as at when desired.
-
-I will wish you to keep this transaction secret and confidential as I
-am  hoping to retire with my share of this money at the end of
-transaction  which will be when this money is safety in your account.
-I will then come
-over to your country for sharing according to the previously agreed
-percentages. You might even have to advise me on  possibilities of
-investment in your country or elsewhere of our choice. May  God help
-you to help me to a restive retirement, Amen,And You have to  contact
-me through my private e-mail at(sebastient766@gmail.com)Please for
-further information and inquires  feel free to contact me back
-immediately for more explanation and better  understanding I want you
-to assure me your capability of handling this  project with trust by
-providing me your following information details such as:
-
-(1)NAME..............
-(2)AGE:................
-(3)SEX:.....................
-(4)PHONE NUMBER:.................
-(5)OCCUPATION:.....................
-(6)YOUR COUNTRY:.....................
-
-Yours sincerely,
-Mr.S=C3=A9bastien Toni
+Tony
