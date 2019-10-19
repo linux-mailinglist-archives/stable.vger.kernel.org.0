@@ -2,71 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0D1DD7C2
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 11:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 729D1DD7DA
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 12:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726561AbfJSJpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 05:45:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47164 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725294AbfJSJpc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Oct 2019 05:45:32 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 1364389F301;
-        Sat, 19 Oct 2019 09:45:32 +0000 (UTC)
-Received: from shalem.localdomain.com (ovpn-116-37.ams2.redhat.com [10.36.116.37])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4509B19481;
-        Sat, 19 Oct 2019 09:45:30 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Hans de Goede <hdegoede@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] tpm: Switch to platform_get_irq_optional()
-Date:   Sat, 19 Oct 2019 11:45:28 +0200
-Message-Id: <20191019094528.27850-1-hdegoede@redhat.com>
+        id S1725535AbfJSKBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 06:01:48 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:59086 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725283AbfJSKBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 06:01:48 -0400
+Received: from [5.158.153.52] (helo=nanos.tec.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tglx@linutronix.de>)
+        id 1iLlYH-0004Fy-IZ; Sat, 19 Oct 2019 12:01:37 +0200
+Date:   Sat, 19 Oct 2019 12:01:32 +0200 (CEST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     Huacai Chen <chenhc@lemote.com>
+cc:     Andy Lutomirski <luto@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Paul Burton <paul.burton@mips.com>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH] lib/vdso: Use __arch_use_vsyscall() to indicate
+ fallback
+In-Reply-To: <CAAhV-H6VkW5-hMOrzAQeyHT4pYGExZR6eTRbPHSPK50GAkigCw@mail.gmail.com>
+Message-ID: <alpine.DEB.2.21.1910191156240.2098@nanos.tec.linutronix.de>
+References: <1571367619-13573-1-git-send-email-chenhc@lemote.com> <CALCETrWXRgkQOJGRqa_sOLAG2zhjsEX6b86T2VTsNYN9ECRrtA@mail.gmail.com> <CAAhV-H6VkW5-hMOrzAQeyHT4pYGExZR6eTRbPHSPK50GAkigCw@mail.gmail.com>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.6.2 (mx1.redhat.com [10.5.110.68]); Sat, 19 Oct 2019 09:45:32 +0000 (UTC)
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 7723f4c5ecdb ("driver core: platform: Add an error message to
-platform_get_irq*()"), platform_get_irq() will call dev_err() on an error,
-as the IRQ usage in the tpm_tis driver is optional, this is undesirable.
+On Sat, 19 Oct 2019, Huacai Chen wrote:
+> On Fri, Oct 18, 2019 at 11:15 AM Andy Lutomirski <luto@kernel.org> wrote:
+> >
+> > On Thu, Oct 17, 2019 at 7:57 PM Huacai Chen <chenhc@lemote.com> wrote:
+> > >
+> > > In do_hres(), we currently use whether the return value of __arch_get_
+> > > hw_counter() is negtive to indicate fallback, but this is not a good
+> > > idea. Because:
+> > >
+> > > 1, ARM64 returns ULL_MAX but MIPS returns 0 when clock_mode is invalid;
+> > > 2, For a 64bit counter, a "negtive" value of counter is actually valid.
+> >
+> > s/negtive/negative
+> >
+> > What's the actual bug?  Is it that MIPS is returning 0 but the check
+> > is < 0?  Sounds like MIPS should get fixed.
+> My original bug is what Vincenzo said, MIPS has a boot failure if no
+> valid clock_mode, and surely MIPS need to fix. However, when I try to
+> fix it, I found that clock_getres() has another problem, because
+> __cvdso_clock_getres_common() get vd[CS_HRES_COARSE].hrtimer_res, but
+> hrtimer_res is set in update_vdso_data() which relies on
+> __arch_use_vsyscall().
 
-Specifically this leads to this new false-positive error being logged:
-[    5.135413] tpm_tis MSFT0101:00: IRQ index 0 not found
+__arch_use_vsyscall() is a pointless exercise TBH. The VDSO data should be
+updated unconditionally so all the trivial interfaces like time() and
+getres() just work independently of the functions which depend on the
+underlying clocksource.
 
-This commit switches to platform_get_irq_optional(), which does not log
-an error, fixing this.
+This functions have a fallback operation already:
 
-Cc: <stable@vger.kernel.org> # 5.4.x
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/char/tpm/tpm_tis.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Let __arch_get_hw_counter() return U64_MAX and the syscall fallback is
+invoked.
 
-diff --git a/drivers/char/tpm/tpm_tis.c b/drivers/char/tpm/tpm_tis.c
-index e4fdde93ed4c..e7df342a317d 100644
---- a/drivers/char/tpm/tpm_tis.c
-+++ b/drivers/char/tpm/tpm_tis.c
-@@ -286,7 +286,7 @@ static int tpm_tis_plat_probe(struct platform_device *pdev)
- 	}
- 	tpm_info.res = *res;
- 
--	tpm_info.irq = platform_get_irq(pdev, 0);
-+	tpm_info.irq = platform_get_irq_optional(pdev, 0);
- 	if (tpm_info.irq <= 0) {
- 		if (pdev != force_pdev)
- 			tpm_info.irq = -1;
--- 
-2.23.0
+__arch_use_vsyscall() should just be removed.
 
+Thanks,
+
+	tglx
