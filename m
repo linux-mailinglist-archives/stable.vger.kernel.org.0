@@ -2,117 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F80DD9A0
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 18:23:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE13ADD9A9
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 18:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726077AbfJSQXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 12:23:00 -0400
-Received: from muru.com ([72.249.23.125]:38240 "EHLO muru.com"
+        id S1726049AbfJSQki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 12:40:38 -0400
+Received: from mga14.intel.com ([192.55.52.115]:32566 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726008AbfJSQXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 19 Oct 2019 12:23:00 -0400
-Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 265D880E2;
-        Sat, 19 Oct 2019 16:23:33 +0000 (UTC)
-Date:   Sat, 19 Oct 2019 09:22:55 -0700
-From:   Tony Lindgren <tony@atomide.com>
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        devicetree <devicetree@vger.kernel.org>,
-        linux-omap <linux-omap@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
-        kernel@pyra-handheld.com,
-        Discussions about the Letux Kernel 
-        <letux-kernel@openphoenux.org>
-Subject: Re: [PATCH 5/9] omap: pdata-quirks: remove openpandora quirks for
- mmc3 and wl1251
-Message-ID: <20191019162255.GR5610@atomide.com>
-References: <63f59daa6b6e079905ff128b88282cf2c72e3540.1571430329.git.hns@goldelico.com>
- <20191019133621.C1CE421897@mail.kernel.org>
- <A0434659-A282-44AA-90E9-D234ADF8A04A@goldelico.com>
+        id S1725948AbfJSQki (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 19 Oct 2019 12:40:38 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Oct 2019 09:40:37 -0700
+X-IronPort-AV: E=Sophos;i="5.67,316,1566889200"; 
+   d="scan'208";a="201001939"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Oct 2019 09:40:37 -0700
+Subject: [PATCH] fs/dax: Fix pmd vs pte conflict detection
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-fsdevel@vger.kernel.org
+Cc:     Jeff Smits <jeff.smits@intel.com>,
+        Doug Nelson <doug.nelson@intel.com>, stable@vger.kernel.org,
+        Jan Kara <jack@suse.cz>,
+        "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
+        linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org
+Date:   Sat, 19 Oct 2019 09:26:19 -0700
+Message-ID: <157150237973.3940076.12626102230619807187.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A0434659-A282-44AA-90E9-D234ADF8A04A@goldelico.com>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* H. Nikolaus Schaller <hns@goldelico.com> [191019 15:18]:
-> 
-> > Am 19.10.2019 um 15:36 schrieb Sasha Levin <sashal@kernel.org>:
-> > 
-> > Hi,
-> > 
-> > [This is an automated email]
-> > 
-> > This commit has been processed because it contains a "Fixes:" tag,
-> > fixing commit: 81eef6ca92014 mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel.
-> > 
-> > The bot has tested the following trees: v5.3.6, v4.19.79, v4.14.149, v4.9.196.
-> > 
-> > v5.3.6: Build OK!
-> > v4.19.79: Failed to apply! Possible dependencies:
-> >    Unable to calculate
-> > 
-> > v4.14.149: Failed to apply! Possible dependencies:
-> >    0486738928bf0 ("ARM: OMAP1: ams-delta: add GPIO lookup tables")
-> >    0920ca103f8d8 ("ARM: sa1100: provide infrastructure to support generic CF sockets")
-> >    29786e9b6551b ("ARM: sa1100/assabet: convert to generic CF sockets")
-> >    2bcb1be092370 ("Input: ams_delta_serio: Replace power GPIO with regulator")
-> >    56de7570b3264 ("Input: ams_delta_serio: use private structure")
-> >    7be893aa2d6a1 ("pcmcia: sa1100: provide generic CF support")
-> >    b51af86559d4b ("ARM: sa1100/shannon: convert to generic CF sockets")
-> >    b955153bfa68d ("ARM: sa1100/assabet: add BCR/BSR GPIO driver")
-> >    c2f9b05fd5c12 ("media: arch: sh: ecovec: Use new renesas-ceu camera driver")
-> >    df88c57689278 ("Input: ams_delta_serio: convert to platform driver")
-> >    efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
-> 
-> ^^^ this is the relevant one.
-> 
-> > 
-> > v4.9.196: Failed to apply! Possible dependencies:
-> >    0486738928bf0 ("ARM: OMAP1: ams-delta: add GPIO lookup tables")
-> >    072f58af1dfbc ("ARM: dts: Add devicetree for the Raspberry Pi 3, for arm32 (v6)")
-> >    1aa1d858f582c ("ARM: dts: bcm283x: Add dtsi for OTG mode")
-> >    29786e9b6551b ("ARM: sa1100/assabet: convert to generic CF sockets")
-> >    2bcb1be092370 ("Input: ams_delta_serio: Replace power GPIO with regulator")
-> >    3bfe25fa9f8a5 ("ARM: dts: bcm283x: Move the BCM2837 DT contents from arm64 to arm.")
-> >    56de7570b3264 ("Input: ams_delta_serio: use private structure")
-> >    6c1b417adc8fa ("ARM: pxa: ezx: use the new pxa_camera platform_data")
-> >    7ade445c26269 ("ARM: pxa: magician: Add support for ADS7846 touchscreen")
-> >    8f9bafbb92c03 ("ARM: dts: aspeed: Add Romulus BMC platform")
-> >    b24413180f560 ("License cleanup: add SPDX GPL-2.0 license identifier to files with no license")
-> >    b5478c1b67bcd ("alpha: add asm/extable.h")
-> >    b955153bfa68d ("ARM: sa1100/assabet: add BCR/BSR GPIO driver")
-> >    d9fa04725f27f ("ARM: pxa: em-x270: use the new pxa_camera platform_data")
-> >    df88c57689278 ("Input: ams_delta_serio: convert to platform driver")
-> >    efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
-> >    fe7bf9dcfff5b ("ARM: dts: add a devicetree for Raidsonic NAS IB-4220-B")
-> > 
-> > 
-> > NOTE: The patch will not be queued to stable trees until it is upstream.
-> > 
-> > How should we proceed with this patch?
-> 
-> I have checked and the reason is that 
-> 
-> efdfeb079cc3b ("regulator: fixed: Convert to use GPIO descriptor only")
-> 
-> was introduced after v.4.19 which was also partially reverted by this patch
-> if based on mainline.
-> 
-> I have split it up into the partial revert of efdfeb079cc3b  for mainline
-> and the real patch which now applies to all relevant stable trees.
-> 
-> So I'll sent a v2 asap.
+Check for NULL entries before checking the entry order, otherwise NULL
+is misinterpreted as a present pte conflict. The 'order' check needs to
+happen before the locked check as an unlocked entry at the wrong order
+must fallback to lookup the correct order.
 
-Please also remove arch/arm/mach-omap2/hsmmc.[ch] as I think that
-can be now done :)
+Reported-by: Jeff Smits <jeff.smits@intel.com>
+Reported-by: Doug Nelson <doug.nelson@intel.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 23c84eb78375 ("dax: Fix missed wakeup with PMD faults")
+Cc: Jan Kara <jack@suse.cz>
+Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+---
+ fs/dax.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Regards,
+diff --git a/fs/dax.c b/fs/dax.c
+index a71881e77204..08160011d94c 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -221,10 +221,11 @@ static void *get_unlocked_entry(struct xa_state *xas, unsigned int order)
+ 
+ 	for (;;) {
+ 		entry = xas_find_conflict(xas);
++		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
++			return entry;
+ 		if (dax_entry_order(entry) < order)
+ 			return XA_RETRY_ENTRY;
+-		if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
+-				!dax_is_locked(entry))
++		if (!dax_is_locked(entry))
+ 			return entry;
+ 
+ 		wq = dax_entry_waitqueue(xas, entry, &ewait.key);
 
-Tony
