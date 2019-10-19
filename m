@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB437DD64E
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 05:19:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EF3ADD64F
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 05:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbfJSDTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 23:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32796 "EHLO mail.kernel.org"
+        id S1727274AbfJSDTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 23:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727253AbfJSDTh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 23:19:37 -0400
+        id S1727253AbfJSDTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 23:19:42 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D818222CC;
-        Sat, 19 Oct 2019 03:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CACD222D2;
+        Sat, 19 Oct 2019 03:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571455175;
-        bh=3UWo0wmv2Y2fugCfhnrIFGKLkAdBi4wr/PywH0Bz/J8=;
+        s=default; t=1571455181;
+        bh=m1wtvzX8juBuxn4/oypACVCM/Rsw10rWPSIyuPEee3g=;
         h=Date:From:To:Subject:From;
-        b=O2FZgFp9m4dehj932K/UaLja6YYSgViSHuenwqMsRSpT+Li/Ki7DlHOU5/9bz11yQ
-         2W0WAA2TxBDbL/DKDwsk7/oZoSvKrPpsWZ3Y8pLQ7ICHPrWHYXXgna10IJh1fvC9Ks
-         8z7u+qarUz+ehm/mR5R+xHXfXsWVaRyABcFmP2cM=
-Date:   Fri, 18 Oct 2019 20:19:33 -0700
+        b=dJ0iBVQyHdgVfk2xj9Gxih620PaylN2Jbu1OnuTMHpRNEk8H13zxWFgWqYfka5fKJ
+         VDChwNAfqc99b3QKpc8bsFNk9Og9KY95Qe1KNjWhRH9QEE5qFaM8xdjm+Y2KrfsPDQ
+         /FMJmdS+9NyuXu5BZ2cadAOmPy6g+olDLdI7j1bQ=
+Date:   Fri, 18 Oct 2019 20:19:39 -0700
 From:   akpm@linux-foundation.org
 To:     akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
         aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com,
@@ -47,40 +47,112 @@ To:     akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
         will@kernel.org, willy@infradead.org,
         yamada.masahiro@socionext.com, yaojun8558363@gmail.com,
         ysato@users.sourceforge.jp, yuzhao@google.com
-Subject:  [patch 06/26] mm/memory_hotplug: don't access
- uninitialized memmaps in shrink_pgdat_span()
-Message-ID: <20191019031933.PakTLd2V_%akpm@linux-foundation.org>
+Subject:  [patch 07/26] mm/memunmap: don't access uninitialized
+ memmap in memunmap_pages()
+Message-ID: <20191019031939.9XlSnLGcS%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
-Subject: mm/memory_hotplug: don't access uninitialized memmaps in shrink_pgdat_span()
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Subject: mm/memunmap: don't access uninitialized memmap in memunmap_pages()
 
-We might use the nid of memmaps that were never initialized.  For example,
-if the memmap was poisoned, we will crash the kernel in pfn_to_nid() right
-now.  Let's use the calculated boundaries of the separate zones instead. 
-This now also avoids having to iterate over a whole bunch of subsections
-again, after shrinking one zone.
+Patch series "mm/memory_hotplug: Shrink zones before removing memory", v6.
 
-Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug"),
-the memmap was initialized to 0 and the node was set to the right value. 
-After that commit, the node might be garbage.
+This series fixes the access of uninitialized memmaps when shrinking
+zones/nodes and when removing memory.  Also, it contains all fixes for
+crashes that can be triggered when removing certain namespace using
+memunmap_pages() - ZONE_DEVICE, reported by Aneesh.
 
-We'll have to fix shrink_zone_span() next.
+We stop trying to shrink ZONE_DEVICE, as it's buggy, fixing it would be
+more involved (we don't have SECTION_IS_ONLINE as an indicator), and
+shrinking is only of limited use (set_zone_contiguous() cannot detect the
+ZONE_DEVICE as contiguous).
 
-Link: http://lkml.kernel.org/r/20191006085646.5768-4-david@redhat.com
-Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[d0dc12e86b319]
+We continue shrinking !ZONE_DEVICE zones, however, I reduced the amount of
+code to a minimum.  Shrinking is especially necessary to keep
+zone->contiguous set where possible, especially, on memory unplug of DIMMs
+at zone boundaries.
+
+--------------------------------------------------------------------------
+
+Zones are now properly shrunk when offlining memory blocks or when
+onlining failed.  This allows to properly shrink zones on memory unplug
+even if the separate memory blocks of a DIMM were onlined to different
+zones or re-onlined to a different zone after offlining.
+
+Example:
+
+:/# cat /proc/zoneinfo
+Node 1, zone  Movable
+        spanned  0
+        present  0
+        managed  0
+:/# echo "online_movable" > /sys/devices/system/memory/memory41/state
+:/# echo "online_movable" > /sys/devices/system/memory/memory43/state
+:/# cat /proc/zoneinfo
+Node 1, zone  Movable
+        spanned  98304
+        present  65536
+        managed  65536
+:/# echo 0 > /sys/devices/system/memory/memory43/online
+:/# cat /proc/zoneinfo
+Node 1, zone  Movable
+        spanned  32768
+        present  32768
+        managed  32768
+:/# echo 0 > /sys/devices/system/memory/memory41/online
+:/# cat /proc/zoneinfo
+Node 1, zone  Movable
+        spanned  0
+        present  0
+        managed  0
+
+
+This patch (of 10):
+
+With an altmap, the memmap falling into the reserved altmap space are not
+initialized and, therefore, contain a garbage NID and a garbage zone. 
+Make sure to read the NID/zone from a memmap that was initialized.
+
+This fixes a kernel crash that is observed when destroying a namespace:
+
+[   81.356173] kernel BUG at include/linux/mm.h:1107!
+cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
+    pc: c0000000004b9728: memunmap_pages+0x238/0x340
+    lr: c0000000004b9724: memunmap_pages+0x234/0x340
+...
+    pid   = 3669, comm = ndctl
+kernel BUG at include/linux/mm.h:1107!
+[c000000274087ba0] c0000000009e3500 devm_action_release+0x30/0x50
+[c000000274087bc0] c0000000009e4758 release_nodes+0x268/0x2d0
+[c000000274087c30] c0000000009dd144 device_release_driver_internal+0x174/0x240
+[c000000274087c70] c0000000009d9dfc unbind_store+0x13c/0x190
+[c000000274087cb0] c0000000009d8a24 drv_attr_store+0x44/0x60
+[c000000274087cd0] c0000000005a7470 sysfs_kf_write+0x70/0xa0
+[c000000274087d10] c0000000005a5cac kernfs_fop_write+0x1ac/0x290
+[c000000274087d60] c0000000004be45c __vfs_write+0x3c/0x70
+[c000000274087d80] c0000000004c26e4 vfs_write+0xe4/0x200
+[c000000274087dd0] c0000000004c2a6c ksys_write+0x7c/0x140
+[c000000274087e20] c00000000000bbd0 system_call+0x5c/0x68
+
+The "page_zone(pfn_to_page(pfn)" was introduced by 69324b8f4833 ("mm,
+devm_memremap_pages: add MEMORY_DEVICE_PRIVATE support"), however, I
+think we will never have driver reserved memory with
+MEMORY_DEVICE_PRIVATE (no altmap AFAIKS).
+
+[david@redhat.com: minimze code changes, rephrase description]
+Link: http://lkml.kernel.org/r/20191006085646.5768-2-david@redhat.com
+Fixes: 2c2a5af6fed2 ("mm, memory_hotplug: add nid parameter to arch_remove_memory")
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Logan Gunthorpe <logang@deltatee.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Damian Tometzki <damian.tometzki@gmail.com>
 Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 Cc: Alexander Potapenko <glider@google.com>
 Cc: Andy Lutomirski <luto@kernel.org>
@@ -90,7 +162,6 @@ Cc: Borislav Petkov <bp@alien8.de>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Damian Tometzki <damian.tometzki@gmail.com>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: Fenghua Yu <fenghua.yu@intel.com>
 Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
@@ -99,18 +170,18 @@ Cc: Halil Pasic <pasic@linux.ibm.com>
 Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
 Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
 Cc: Jun Yao <yaojun8558363@gmail.com>
-Cc: Logan Gunthorpe <logang@deltatee.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
 Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 Cc: Mel Gorman <mgorman@techsingularity.net>
 Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@suse.com>
 Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Cc: Pankaj Gupta <pagupta@redhat.com>
 Cc: Paul Mackerras <paulus@samba.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
 Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Qian Cai <cai@lca.pw>
@@ -123,108 +194,46 @@ Cc: Tony Luck <tony.luck@intel.com>
 Cc: Vasily Gorbik <gor@linux.ibm.com>
 Cc: Vlastimil Babka <vbabka@suse.cz>
 Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
 Cc: Will Deacon <will@kernel.org>
 Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Cc: Yu Zhao <yuzhao@google.com>
-Cc: <stable@vger.kernel.org>	[4.13+]
+Cc: <stable@vger.kernel.org>	[5.0+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory_hotplug.c |   74 +++++++++---------------------------------
- 1 file changed, 16 insertions(+), 58 deletions(-)
+ mm/memremap.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/mm/memory_hotplug.c~mm-memory_hotplug-dont-access-uninitialized-memmaps-in-shrink_pgdat_span
-+++ a/mm/memory_hotplug.c
-@@ -436,67 +436,25 @@ static void shrink_zone_span(struct zone
- 	zone_span_writeunlock(zone);
- }
- 
--static void shrink_pgdat_span(struct pglist_data *pgdat,
--			      unsigned long start_pfn, unsigned long end_pfn)
-+static void update_pgdat_span(struct pglist_data *pgdat)
+--- a/mm/memremap.c~mm-memunmap-dont-access-uninitialized-memmap-in-memunmap_pages
++++ a/mm/memremap.c
+@@ -103,6 +103,7 @@ static void dev_pagemap_cleanup(struct d
+ void memunmap_pages(struct dev_pagemap *pgmap)
  {
--	unsigned long pgdat_start_pfn = pgdat->node_start_pfn;
--	unsigned long p = pgdat_end_pfn(pgdat); /* pgdat_end_pfn namespace clash */
--	unsigned long pgdat_end_pfn = p;
--	unsigned long pfn;
--	int nid = pgdat->node_id;
--
--	if (pgdat_start_pfn == start_pfn) {
--		/*
--		 * If the section is smallest section in the pgdat, it need
--		 * shrink pgdat->node_start_pfn and pgdat->node_spanned_pages.
--		 * In this case, we find second smallest valid mem_section
--		 * for shrinking zone.
--		 */
--		pfn = find_smallest_section_pfn(nid, NULL, end_pfn,
--						pgdat_end_pfn);
--		if (pfn) {
--			pgdat->node_start_pfn = pfn;
--			pgdat->node_spanned_pages = pgdat_end_pfn - pfn;
--		}
--	} else if (pgdat_end_pfn == end_pfn) {
--		/*
--		 * If the section is biggest section in the pgdat, it need
--		 * shrink pgdat->node_spanned_pages.
--		 * In this case, we find second biggest valid mem_section for
--		 * shrinking zone.
--		 */
--		pfn = find_biggest_section_pfn(nid, NULL, pgdat_start_pfn,
--					       start_pfn);
--		if (pfn)
--			pgdat->node_spanned_pages = pfn - pgdat_start_pfn + 1;
--	}
--
--	/*
--	 * If the section is not biggest or smallest mem_section in the pgdat,
--	 * it only creates a hole in the pgdat. So in this case, we need not
--	 * change the pgdat.
--	 * But perhaps, the pgdat has only hole data. Thus it check the pgdat
--	 * has only hole or not.
--	 */
--	pfn = pgdat_start_pfn;
--	for (; pfn < pgdat_end_pfn; pfn += PAGES_PER_SUBSECTION) {
--		if (unlikely(!pfn_valid(pfn)))
--			continue;
--
--		if (pfn_to_nid(pfn) != nid)
--			continue;
--
--		/* Skip range to be removed */
--		if (pfn >= start_pfn && pfn < end_pfn)
--			continue;
-+	unsigned long node_start_pfn = 0, node_end_pfn = 0;
-+	struct zone *zone;
+ 	struct resource *res = &pgmap->res;
++	struct page *first_page;
+ 	unsigned long pfn;
+ 	int nid;
  
--		/* If we find valid section, we have nothing to do */
--		return;
-+	for (zone = pgdat->node_zones;
-+	     zone < pgdat->node_zones + MAX_NR_ZONES; zone++) {
-+		unsigned long zone_end_pfn = zone->zone_start_pfn +
-+					     zone->spanned_pages;
+@@ -111,14 +112,16 @@ void memunmap_pages(struct dev_pagemap *
+ 		put_page(pfn_to_page(pfn));
+ 	dev_pagemap_cleanup(pgmap);
+ 
++	/* make sure to access a memmap that was actually initialized */
++	first_page = pfn_to_page(pfn_first(pgmap));
 +
-+		/* No need to lock the zones, they can't change. */
-+		if (zone_end_pfn > node_end_pfn)
-+			node_end_pfn = zone_end_pfn;
-+		if (zone->zone_start_pfn < node_start_pfn)
-+			node_start_pfn = zone->zone_start_pfn;
- 	}
+ 	/* pages are dead and unused, undo the arch mapping */
+-	nid = page_to_nid(pfn_to_page(PHYS_PFN(res->start)));
++	nid = page_to_nid(first_page);
  
--	/* The pgdat has no valid section */
--	pgdat->node_start_pfn = 0;
--	pgdat->node_spanned_pages = 0;
-+	pgdat->node_start_pfn = node_start_pfn;
-+	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
- }
- 
- static void __remove_zone(struct zone *zone, unsigned long start_pfn,
-@@ -507,7 +465,7 @@ static void __remove_zone(struct zone *z
- 
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
--	shrink_pgdat_span(pgdat, start_pfn, start_pfn + nr_pages);
-+	update_pgdat_span(pgdat);
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
- }
- 
+ 	mem_hotplug_begin();
+ 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
+-		pfn = PHYS_PFN(res->start);
+-		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
+-				 PHYS_PFN(resource_size(res)), NULL);
++		__remove_pages(page_zone(first_page), PHYS_PFN(res->start),
++			       PHYS_PFN(resource_size(res)), NULL);
+ 	} else {
+ 		arch_remove_memory(nid, res->start, resource_size(res),
+ 				pgmap_altmap(pgmap));
 _
