@@ -2,81 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B930DDB54
-	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 00:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85444DDB67
+	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 01:11:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726146AbfJSWXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 18:23:43 -0400
-Received: from albert.telenet-ops.be ([195.130.137.90]:36826 "EHLO
-        albert.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726148AbfJSWXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 18:23:43 -0400
-Received: from [141.134.114.20] ([141.134.114.20])
-        by albert.telenet-ops.be with bizsmtp
-        id FaPg210020SUBdp06aPgDP; Sun, 20 Oct 2019 00:23:41 +0200
-Subject: Re: [PATCH] rtlwifi: rtl_pci: Fix problem of too small skb->len
-To:     Larry Finger <Larry.Finger@lwfinger.net>, kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
-        Stable <stable@vger.kernel.org>
-References: <20191019190222.29681-1-Larry.Finger@lwfinger.net>
-From:   "ian.schram" <ian.schram@telenet.be>
-Message-ID: <05f25c80-51a9-bfad-ea4a-3c17b0eecf64@telenet.be>
-Date:   Sun, 20 Oct 2019 00:23:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.2
+        id S1726146AbfJSXKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 19:10:16 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:35483 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbfJSXKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 19:10:13 -0400
+Received: by mail-ot1-f66.google.com with SMTP id z6so8037697otb.2
+        for <stable@vger.kernel.org>; Sat, 19 Oct 2019 16:10:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6V+goadp04lgp/6ouBZ08nnuiR9ZWMieowK64fMJJPo=;
+        b=fvmToX7RhHX15J5XNflMsTcTNnjDjUc+03b9RJ9IzDfHKW+ha2Pvtrwen5Kj1hOVkI
+         7IvzLMfYo5WOsYQPNi1pPjq83hd4BPzrAhD+byEiWhCrqKCHnBfBplkdJANy4Y4xfq9O
+         F3MKgd81AdNmz99JPnxqi1dEPJFyfFURzhByULjZd/ddnWi4WsnzwkMfvQAwaCI/KUEQ
+         Z/tWnSRMlDqgrueeSLcbfZ5u6IT3Fm3M0RHUENJiofrHx3m6DS6MUS1VXmTvZS+yvbtv
+         WMnb9Tp1XzNtcPKkniBWTGF+U3d3aBQm2aSL/r2CtFbkVSW40/sMTmF22l/5SsbiKR38
+         7oUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6V+goadp04lgp/6ouBZ08nnuiR9ZWMieowK64fMJJPo=;
+        b=XBXs4R3KPjHLGKGXZ0mddxIrs8OgvXLxKjRSv2Xmfzh94dN7m5z7eokGnyAxkeCbHV
+         zwrAuYkllNuzmvFyeumIoImrVXWz6Btvax0qS9yLRc5NdeWA1YlvK4Vg4G6xILKO7ALK
+         DLe1IcuwZyekX4SuEsTFU0g1fEafKyQTzPCOjSnxhAVsIm2rOyLP4vtw56UFaikU7bxB
+         yZP/HWLYyik3Yfb8SMOY1UrLF2LEFHwI0C9KX7h0gsGc5HdkOt6XmO8iAIgusF3ptBlW
+         L92FJd26rBl2mW2KjNbE/CRoWWK54TjDfxGFyVozHGF1YHugvWrG7T1zPZtG3pfuL076
+         zdzQ==
+X-Gm-Message-State: APjAAAXkChUWiSIfFILJ/QEkMOqJS+hPn0/eoUplyf8aIwj8PPfrAubt
+        9ja92aAoTJYUnIkEY16+e5mGy0U9wJgxDOLRNtu61A==
+X-Google-Smtp-Source: APXvYqwVmgrM8/hkJM+rSC4kzo3Uext5IYl8OOxkbKEkTk91yIuX8Rv6+rZQ8op0qxcaadFmv/oFPnRqVJ8/JKRoTzw=
+X-Received: by 2002:a9d:7843:: with SMTP id c3mr12157037otm.71.1571526612232;
+ Sat, 19 Oct 2019 16:10:12 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191019190222.29681-1-Larry.Finger@lwfinger.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <157150237973.3940076.12626102230619807187.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <20191019205003.GN32665@bombadil.infradead.org>
+In-Reply-To: <20191019205003.GN32665@bombadil.infradead.org>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Sat, 19 Oct 2019 16:09:59 -0700
+Message-ID: <CAPcyv4jj-BqhPj3vB5=G7YfGPvBgugEZ39gf+3Wwn6BC1fAUJw@mail.gmail.com>
+Subject: Re: [PATCH] fs/dax: Fix pmd vs pte conflict detection
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Jeff Smits <jeff.smits@intel.com>,
+        Doug Nelson <doug.nelson@intel.com>,
+        stable <stable@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        linux-nvdimm <linux-nvdimm@lists.01.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Sat, Oct 19, 2019 at 1:50 PM Matthew Wilcox <willy@infradead.org> wrote:
+>
+> On Sat, Oct 19, 2019 at 09:26:19AM -0700, Dan Williams wrote:
+> > Check for NULL entries before checking the entry order, otherwise NULL
+> > is misinterpreted as a present pte conflict. The 'order' check needs to
+> > happen before the locked check as an unlocked entry at the wrong order
+> > must fallback to lookup the correct order.
+> >
+> > Reported-by: Jeff Smits <jeff.smits@intel.com>
+> > Reported-by: Doug Nelson <doug.nelson@intel.com>
+> > Cc: <stable@vger.kernel.org>
+> > Fixes: 23c84eb78375 ("dax: Fix missed wakeup with PMD faults")
+> > Cc: Jan Kara <jack@suse.cz>
+> > Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > ---
+> >  fs/dax.c |    5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/fs/dax.c b/fs/dax.c
+> > index a71881e77204..08160011d94c 100644
+> > --- a/fs/dax.c
+> > +++ b/fs/dax.c
+> > @@ -221,10 +221,11 @@ static void *get_unlocked_entry(struct xa_state *xas, unsigned int order)
+> >
+> >       for (;;) {
+> >               entry = xas_find_conflict(xas);
+> > +             if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
+> > +                     return entry;
+> >               if (dax_entry_order(entry) < order)
+> >                       return XA_RETRY_ENTRY;
+> > -             if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
+> > -                             !dax_is_locked(entry))
+> > +             if (!dax_is_locked(entry))
+> >                       return entry;
+>
+> Yes, I think this works.  Should we also add:
+>
+>  static unsigned int dax_entry_order(void *entry)
+>  {
+> +       BUG_ON(!xa_is_value(entry));
+>         if (xa_to_value(entry) & DAX_PMD)
+>                 return PMD_ORDER;
+>         return 0;
+>  }
+>
+> which would have caught this logic error before it caused a performance
+> regression?
 
-
-This patch doesn't appear to do anything? The increased length is not actually
-used, is a part of the patch missing?
-
-
-ps: superficial reading, i am not hampered by any specific knowledge of this driver.
-
-On 2019-10-19 21:02, Larry Finger wrote:
-> In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
-> only"), buffers whose length is too short cause a WARN_ON(1) to be
-> executed. This change exposed a fault in rtlwifi drivers, which is fixed
-> by increasing the length of the affected buffer before it is sent to
-> mac80211.
-> 
-> Cc: Stable <stable@vger.kernel.org> # v5.0+
-> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-> ---
-> 
-> Kalle,
-> 
-> Please send to v5.4.
-> 
-> Larry
-> ---
-> 
->   drivers/net/wireless/realtek/rtlwifi/pci.c | 3 +++
->   1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c b/drivers/net/wireless/realtek/rtlwifi/pci.c
-> index 6087ec7a90a6..bb5144b7c64f 100644
-> --- a/drivers/net/wireless/realtek/rtlwifi/pci.c
-> +++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
-> @@ -692,7 +692,10 @@ static void _rtl_pci_rx_to_mac80211(struct ieee80211_hw *hw,
->   		dev_kfree_skb_any(skb);
->   	} else {
->   		struct sk_buff *uskb = NULL;
-> +		int len = skb->len;
->   
-> +		if (unlikely(len <= FCS_LEN))
-> +			len = FCS_LEN + 2;
->   		uskb = dev_alloc_skb(skb->len + 128);
->   		if (likely(uskb)) {
->   			memcpy(IEEE80211_SKB_RXCB(uskb), &rx_status,
-> 
+Sounds good will add it to v2.
