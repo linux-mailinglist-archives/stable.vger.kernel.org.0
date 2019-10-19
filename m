@@ -2,238 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF3ADD64F
-	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 05:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5C2DD650
+	for <lists+stable@lfdr.de>; Sat, 19 Oct 2019 05:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727274AbfJSDTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 18 Oct 2019 23:19:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32920 "EHLO mail.kernel.org"
+        id S1727276AbfJSDTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 18 Oct 2019 23:19:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727253AbfJSDTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 18 Oct 2019 23:19:42 -0400
+        id S1727253AbfJSDTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 18 Oct 2019 23:19:47 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CACD222D2;
-        Sat, 19 Oct 2019 03:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CA882245A;
+        Sat, 19 Oct 2019 03:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571455181;
-        bh=m1wtvzX8juBuxn4/oypACVCM/Rsw10rWPSIyuPEee3g=;
+        s=default; t=1571455184;
+        bh=MjgBiJIMyG6fX/1CbUQ385pXqz4L702WRbFBnsn71eo=;
         h=Date:From:To:Subject:From;
-        b=dJ0iBVQyHdgVfk2xj9Gxih620PaylN2Jbu1OnuTMHpRNEk8H13zxWFgWqYfka5fKJ
-         VDChwNAfqc99b3QKpc8bsFNk9Og9KY95Qe1KNjWhRH9QEE5qFaM8xdjm+Y2KrfsPDQ
-         /FMJmdS+9NyuXu5BZ2cadAOmPy6g+olDLdI7j1bQ=
-Date:   Fri, 18 Oct 2019 20:19:39 -0700
+        b=nAjs71vD8nJkz8kAJoQNJxJ4NHQd83Xd7kKe1rArkFWRcCg+bZWVHlbYK4tkQFMFg
+         bSDuQzreItWQvlrmMh4v+rmrRF27M28xiQLE8e8uXvjKTAclRumdMBIf0NfltV7KQH
+         brcMLfflgAu6ImwwIt2KC9yNFscAzGeMoNlfsET4=
+Date:   Fri, 18 Oct 2019 20:19:44 -0700
 From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
-        aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com,
-        benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
-        cai@lca.pw, catalin.marinas@arm.com, christophe.leroy@c-s.fr,
-        dalias@libc.org, damian.tometzki@gmail.com,
-        dan.j.williams@intel.com, dave.hansen@linux.intel.com,
-        david@redhat.com, fenghua.yu@intel.com, gerald.schaefer@de.ibm.com,
-        glider@google.com, gor@linux.ibm.com, gregkh@linuxfoundation.org,
-        heiko.carstens@de.ibm.com, hpa@zytor.com, ira.weiny@intel.com,
-        jgg@ziepe.ca, linux-mm@kvack.org, logang@deltatee.com,
-        luto@kernel.org, mark.rutland@arm.com, mgorman@techsingularity.net,
-        mhocko@suse.com, mingo@redhat.com, mm-commits@vger.kernel.org,
-        mpe@ellerman.id.au, osalvador@suse.de, pagupta@redhat.com,
-        pasha.tatashin@soleen.com, pasic@linux.ibm.com, paulus@samba.org,
-        pavel.tatashin@microsoft.com, peterz@infradead.org,
-        richard.weiyang@gmail.com, richardw.yang@linux.intel.com,
-        robin.murphy@arm.com, rppt@linux.ibm.com, stable@vger.kernel.org,
-        steve.capper@arm.com, tglx@linutronix.de, thomas.lendacky@amd.com,
-        tony.luck@intel.com, torvalds@linux-foundation.org, vbabka@suse.cz,
-        will@kernel.org, willy@infradead.org,
-        yamada.masahiro@socionext.com, yaojun8558363@gmail.com,
-        ysato@users.sourceforge.jp, yuzhao@google.com
-Subject:  [patch 07/26] mm/memunmap: don't access uninitialized
- memmap in memunmap_pages()
-Message-ID: <20191019031939.9XlSnLGcS%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, guro@fb.com, kgraul@linux.ibm.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        rientjes@google.com, shakeelb@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vbabka@suse.cz,
+        vdavydov.dev@gmail.com
+Subject:  [patch 08/26] mm: memcg/slab: fix panic in __free_slab()
+ caused by premature memcg pointer release
+Message-ID: <20191019031944.h58lFNXmn%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: mm/memunmap: don't access uninitialized memmap in memunmap_pages()
+=46rom: Roman Gushchin <guro@fb.com>
+Subject: mm: memcg/slab: fix panic in __free_slab() caused by premature mem=
+cg pointer release
 
-Patch series "mm/memory_hotplug: Shrink zones before removing memory", v6.
+Karsten reported the following panic in __free_slab() happening on a s390x
+machine:
 
-This series fixes the access of uninitialized memmaps when shrinking
-zones/nodes and when removing memory.  Also, it contains all fixes for
-crashes that can be triggered when removing certain namespace using
-memunmap_pages() - ZONE_DEVICE, reported by Aneesh.
+349.361168 Unable to handle kernel pointer dereference in virtual kernel ad=
+dress space
+349.361210 Failing address: 0000000000000000 TEID: 0000000000000483
+349.361223 Fault in home space mode while using kernel ASCE.
+349.361240 AS:00000000017d4007 R3:000000007fbd0007 S:000000007fbff000 P:000=
+000000000003d
+349.361340 Oops: 0004 ilc:3 =C3=9D#1=C2=A8 PREEMPT SMP
+349.361349 Modules linked in: tcp_diag inet_diag xt_tcpudp ip6t_rpfilter ip=
+6t_REJECT \
+nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_nat ip6table=
+_mangle \
+ip6table_raw ip6table_security iptable_at nf_nat
+349.361436 CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-05872-g6133e3e4b=
+ada-dirty #14
+349.361445 Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
+349.361450 Krnl PSW : 0704d00180000000 00000000003cadb6 (__free_slab+0x686/=
+0x6b0)
+349.361464            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI=
+:0 EA:3
+349.361470 Krnl GPRS: 00000000f3a32928 0000000000000000 000000007fbf5d00 00=
+0000000117c4b8
+349.361475            0000000000000000 000000009e3291c1 0000000000000000 00=
+00000000000000
+349.361481            0000000000000003 0000000000000008 000000002b478b00 00=
+0003d080a97600
+349.361481            0000000000000003 0000000000000008 000000002b478b00 00=
+0003d080a97600
+349.361486            000000000117ba00 000003e000057db0 00000000003cabcc 00=
+0003e000057c78
+349.361500 Krnl Code: 00000000003cada6: e310a1400004        lg      %r1,320=
+(%r10)
+349.361500            00000000003cadac: c0e50046c286        brasl   %r14,ca=
+32b8
+349.361500           #00000000003cadb2: a7f4fe36            brc     15,3caa=
+1e
+349.361500           >00000000003cadb6: e32060800024        stg     %r2,128=
+(%r6)
+349.361500            00000000003cadbc: a7f4fd9e            brc     15,3ca8=
+f8
+349.361500            00000000003cadc0: c0e50046790c        brasl   %r14,c9=
+9fd8
+349.361500            00000000003cadc6: a7f4fe2c            brc     15,3caa
+349.361500            00000000003cadc6: a7f4fe2c            brc     15,3caa=
+1e
+349.361500            00000000003cadca: ecb1ffff00d9        aghik   %r11,%r=
+1,-1
+349.361619 Call Trace:
+349.361627 (<00000000003cabcc> __free_slab+0x49c/0x6b0)
+349.361634  <00000000001f5886> rcu_core+0x5a6/0x7e0
+349.361643  <0000000000ca2dea> __do_softirq+0xf2/0x5c0
+349.361652  <0000000000152644> irq_exit+0x104/0x130
+349.361659  <000000000010d222> do_IRQ+0x9a/0xf0
+349.361667  <0000000000ca2344> ext_int_handler+0x130/0x134
+349.361674  <0000000000103648> enabled_wait+0x58/0x128
+349.361681 (<0000000000103634> enabled_wait+0x44/0x128)
+349.361688  <0000000000103b00> arch_cpu_idle+0x40/0x58
+349.361695  <0000000000ca0544> default_idle_call+0x3c/0x68
+349.361704  <000000000018eaa4> do_idle+0xec/0x1c0
+349.361748  <000000000018ee0e> cpu_startup_entry+0x36/0x40
+349.361756  <000000000122df34> arch_call_rest_init+0x5c/0x88
+349.361761  <0000000000000000> 0x0
+349.361765 INFO: lockdep is turned off.
+349.361769 Last Breaking-Event-Address:
+349.361774  <00000000003ca8f4> __free_slab+0x1c4/0x6b0
+349.361781 Kernel panic - not syncing: Fatal exception in interrupt
 
-We stop trying to shrink ZONE_DEVICE, as it's buggy, fixing it would be
-more involved (we don't have SECTION_IS_ONLINE as an indicator), and
-shrinking is only of limited use (set_zone_contiguous() cannot detect the
-ZONE_DEVICE as contiguous).
+The kernel panics on an attempt to dereference the NULL memcg pointer.
+When shutdown_cache() is called from the kmem_cache_destroy() context, a
+memcg kmem_cache might have empty slab pages in a partial list, which are
+still charged to the memory cgroup.  These pages are released by
+free_partial() at the beginning of shutdown_cache(): either directly or by
+scheduling a RCU-delayed work (if the kmem_cache has the
+SLAB_TYPESAFE_BY_RCU flag).  The latter case is when the reported panic
+can happen: memcg_unlink_cache() is called immediately after shrinking
+partial lists, without waiting for scheduled RCU works.  It sets the
+kmem_cache->memcg_params.memcg pointer to NULL, and the following attempt
+to dereference it by __free_slab() from the RCU work context causes the
+panic.
 
-We continue shrinking !ZONE_DEVICE zones, however, I reduced the amount of
-code to a minimum.  Shrinking is especially necessary to keep
-zone->contiguous set where possible, especially, on memory unplug of DIMMs
-at zone boundaries.
+To fix the issue, let's postpone the release of the memcg pointer to
+destroy_memcg_params().  It's called from a separate work context by
+slab_caches_to_rcu_destroy_workfn(), which contains a full RCU barrier.=20
+This guarantees that all scheduled page release RCU works will complete
+before the memcg pointer will be zeroed.
 
---------------------------------------------------------------------------
+Big thanks for Karsten for the perfect report containing all necessary
+information, his help with the analysis of the problem and testing of the
+fix.
 
-Zones are now properly shrunk when offlining memory blocks or when
-onlining failed.  This allows to properly shrink zones on memory unplug
-even if the separate memory blocks of a DIMM were onlined to different
-zones or re-onlined to a different zone after offlining.
-
-Example:
-
-:/# cat /proc/zoneinfo
-Node 1, zone  Movable
-        spanned  0
-        present  0
-        managed  0
-:/# echo "online_movable" > /sys/devices/system/memory/memory41/state
-:/# echo "online_movable" > /sys/devices/system/memory/memory43/state
-:/# cat /proc/zoneinfo
-Node 1, zone  Movable
-        spanned  98304
-        present  65536
-        managed  65536
-:/# echo 0 > /sys/devices/system/memory/memory43/online
-:/# cat /proc/zoneinfo
-Node 1, zone  Movable
-        spanned  32768
-        present  32768
-        managed  32768
-:/# echo 0 > /sys/devices/system/memory/memory41/online
-:/# cat /proc/zoneinfo
-Node 1, zone  Movable
-        spanned  0
-        present  0
-        managed  0
-
-
-This patch (of 10):
-
-With an altmap, the memmap falling into the reserved altmap space are not
-initialized and, therefore, contain a garbage NID and a garbage zone. 
-Make sure to read the NID/zone from a memmap that was initialized.
-
-This fixes a kernel crash that is observed when destroying a namespace:
-
-[   81.356173] kernel BUG at include/linux/mm.h:1107!
-cpu 0x1: Vector: 700 (Program Check) at [c000000274087890]
-    pc: c0000000004b9728: memunmap_pages+0x238/0x340
-    lr: c0000000004b9724: memunmap_pages+0x234/0x340
-...
-    pid   = 3669, comm = ndctl
-kernel BUG at include/linux/mm.h:1107!
-[c000000274087ba0] c0000000009e3500 devm_action_release+0x30/0x50
-[c000000274087bc0] c0000000009e4758 release_nodes+0x268/0x2d0
-[c000000274087c30] c0000000009dd144 device_release_driver_internal+0x174/0x240
-[c000000274087c70] c0000000009d9dfc unbind_store+0x13c/0x190
-[c000000274087cb0] c0000000009d8a24 drv_attr_store+0x44/0x60
-[c000000274087cd0] c0000000005a7470 sysfs_kf_write+0x70/0xa0
-[c000000274087d10] c0000000005a5cac kernfs_fop_write+0x1ac/0x290
-[c000000274087d60] c0000000004be45c __vfs_write+0x3c/0x70
-[c000000274087d80] c0000000004c26e4 vfs_write+0xe4/0x200
-[c000000274087dd0] c0000000004c2a6c ksys_write+0x7c/0x140
-[c000000274087e20] c00000000000bbd0 system_call+0x5c/0x68
-
-The "page_zone(pfn_to_page(pfn)" was introduced by 69324b8f4833 ("mm,
-devm_memremap_pages: add MEMORY_DEVICE_PRIVATE support"), however, I
-think we will never have driver reserved memory with
-MEMORY_DEVICE_PRIVATE (no altmap AFAIKS).
-
-[david@redhat.com: minimze code changes, rephrase description]
-Link: http://lkml.kernel.org/r/20191006085646.5768-2-david@redhat.com
-Fixes: 2c2a5af6fed2 ("mm, memory_hotplug: add nid parameter to arch_remove_memory")
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Logan Gunthorpe <logang@deltatee.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Damian Tometzki <damian.tometzki@gmail.com>
-Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Halil Pasic <pasic@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jun Yao <yaojun8558363@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Pankaj Gupta <pagupta@redhat.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Yu Zhao <yuzhao@google.com>
-Cc: <stable@vger.kernel.org>	[5.0+]
+Link: http://lkml.kernel.org/r/20191010160549.1584316-1-guro@fb.com
+Fixes: fb2f2b0adb98 ("mm: memcg/slab: reparent memcg kmem_caches on cgroup =
+removal")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Karsten Graul <kgraul@linux.ibm.com>
+Tested-by: Karsten Graul <kgraul@linux.ibm.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Karsten Graul <kgraul@linux.ibm.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memremap.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ mm/slab_common.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/mm/memremap.c~mm-memunmap-dont-access-uninitialized-memmap-in-memunmap_pages
-+++ a/mm/memremap.c
-@@ -103,6 +103,7 @@ static void dev_pagemap_cleanup(struct d
- void memunmap_pages(struct dev_pagemap *pgmap)
+--- a/mm/slab_common.c~mm-memcg-slab-fix-panic-in-__free_slab-caused-by-pre=
+mature-memcg-pointer-release
++++ a/mm/slab_common.c
+@@ -178,10 +178,13 @@ static int init_memcg_params(struct kmem
+=20
+ static void destroy_memcg_params(struct kmem_cache *s)
  {
- 	struct resource *res = &pgmap->res;
-+	struct page *first_page;
- 	unsigned long pfn;
- 	int nid;
- 
-@@ -111,14 +112,16 @@ void memunmap_pages(struct dev_pagemap *
- 		put_page(pfn_to_page(pfn));
- 	dev_pagemap_cleanup(pgmap);
- 
-+	/* make sure to access a memmap that was actually initialized */
-+	first_page = pfn_to_page(pfn_first(pgmap));
-+
- 	/* pages are dead and unused, undo the arch mapping */
--	nid = page_to_nid(pfn_to_page(PHYS_PFN(res->start)));
-+	nid = page_to_nid(first_page);
- 
- 	mem_hotplug_begin();
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
--		pfn = PHYS_PFN(res->start);
--		__remove_pages(page_zone(pfn_to_page(pfn)), pfn,
--				 PHYS_PFN(resource_size(res)), NULL);
-+		__remove_pages(page_zone(first_page), PHYS_PFN(res->start),
-+			       PHYS_PFN(resource_size(res)), NULL);
+-	if (is_root_cache(s))
++	if (is_root_cache(s)) {
+ 		kvfree(rcu_access_pointer(s->memcg_params.memcg_caches));
+-	else
++	} else {
++		mem_cgroup_put(s->memcg_params.memcg);
++		WRITE_ONCE(s->memcg_params.memcg, NULL);
+ 		percpu_ref_exit(&s->memcg_params.refcnt);
++	}
+ }
+=20
+ static void free_memcg_params(struct rcu_head *rcu)
+@@ -253,8 +256,6 @@ static void memcg_unlink_cache(struct km
  	} else {
- 		arch_remove_memory(nid, res->start, resource_size(res),
- 				pgmap_altmap(pgmap));
+ 		list_del(&s->memcg_params.children_node);
+ 		list_del(&s->memcg_params.kmem_caches_node);
+-		mem_cgroup_put(s->memcg_params.memcg);
+-		WRITE_ONCE(s->memcg_params.memcg, NULL);
+ 	}
+ }
+ #else
 _
