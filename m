@@ -2,108 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA59DDBDF
-	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 03:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C11DDBE4
+	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 03:58:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726259AbfJTBxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 21:53:16 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:40169 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726036AbfJTBxQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 21:53:16 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 2F80F39A;
-        Sat, 19 Oct 2019 21:53:15 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sat, 19 Oct 2019 21:53:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=N7lvcTtfqNF2xYQM7/Bw3plnmv
-        vQ+7cm6jFmlCIU9kY=; b=XzpmTSYf304D7ctUTQaARkdHOH9BxSX7I9RVTgMam6
-        cHAVn+hjjdrQYbmBApGhmFBUFlACGcQmQLIHLSa5OofXBSWyzsw5qSH0g+Tw1IQU
-        1xIm7aOwEGXpYGpWSwLJxdjgTKJ8bKV2iKMkrd9HfvudneCmoUWvl4sYquIJ9y4a
-        O13UXaCyYPCWkwvkNaKmvujxRAuoylIhgCZ10Gjlr/jFCqMk4DfdbpqRcxLQizHd
-        T8Ig1d6WsygMLO3ACpQOvpnk3VfGL72gJDY9WZGAtljNL7N6eNlqj5anzV0+JySd
-        rvHwtCp/0ef7gOC8Dve/FgT9FpT+G4IlJ7bLLEhXRO0Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N7lvcTtfqNF2xYQM7
-        /Bw3plnmvvQ+7cm6jFmlCIU9kY=; b=SZyA4O/DupIKRp3c1clm7qFsgFaujhduF
-        bLlYTMb8jbtE9tBHPaSkcMLYIv4YXb+RkO5USD2a5+sT/8gL+cQrqmEw4+XMJYdd
-        A8VBrCvx1aNyuO/J6vbB/qt9ITbwnsNSWl3f6pQeY8LaTKvemfJN/nWR9fUPcZIw
-        +/pqAjhk8bcGNE9fQejogA30bwMUyilVUo8y1N4aBAM99gsnMT7voO6eGuePJsN6
-        6O6UM4M1jg8KGlad8WBXCp80zmMjYw+u0Kmcixk4uVph4kQ+pJHJLCDxwk9ZEeqs
-        oIMd6oLphsG07aWYhQTuaABAz0plnTPlHe0x5j+368v0QVhSMmTqw==
-X-ME-Sender: <xms:Cr6rXa3jZ0qgIKG9Mt5QkpflThxqUQHX6_zJWqfotfxNBAY1wEdCAQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrkedvgdehudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
-    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecukfhppeejtd
-    drudefhedrudegkedrudehudenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghl
-    sehshhholhhlrghnugdrohhrghenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Cr6rXdTj7rZmrudjctWmIYgdkfk62G5o0gtEgCz4EUOBdxD9yEqh1w>
-    <xmx:Cr6rXcbidpCwh_EMKhjZJ_bCRFZs8JV_TSO1C5KriAQL158j9FTTDw>
-    <xmx:Cr6rXa4nvErZ2X2IvLIb696F5GcjmrTboRilA07qZtRrkVORNBtjmQ>
-    <xmx:Cr6rXdtTEHuSXxB3dGL5HeeXQHwvQye-JN9vErWtCWEHHTnm54P77w>
-Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 04CD6D6005A;
-        Sat, 19 Oct 2019 21:53:13 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org
-Subject: [PATCH] usb: xhci: fix Immediate Data Transfer endianness
-Date:   Sat, 19 Oct 2019 20:53:13 -0500
-Message-Id: <20191020015313.4558-1-samuel@sholland.org>
-X-Mailer: git-send-email 2.21.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726300AbfJTB6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 21:58:22 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:41578 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726036AbfJTB6W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 21:58:22 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 5A12660D59; Sun, 20 Oct 2019 01:58:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571536701;
+        bh=IA/2nenmpm2hIMv7OY+2bIdqFwYtpWLS+0Q+Q2dzqwI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=I3cBTjqjSQ6vKw7eQRGCOEjvojj34FfnONu+JR0Q9l8L/SK5PCCFm2ZT0JPnZP5xR
+         lI7p+1yBoAu5CJYnqLgwjjryDX37vs2k+w8GozJKEETRIOBfeuJcoXHFo83f1nccqp
+         hYEJSlKni7OFMXmJ0iCOaQcjZ2EWGbv0X2c7HhB8=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from cgoldswo-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: cgoldswo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 4E1B760D38;
+        Sun, 20 Oct 2019 01:58:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571536700;
+        bh=IA/2nenmpm2hIMv7OY+2bIdqFwYtpWLS+0Q+Q2dzqwI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=acbHJzaf64weUMSWKM1saVt2iNwkt454/CYcxmxj/lbJsiEBmwBAR+kyg+WLr3EY2
+         0bRVZgBODmbcmyL6gQ8omKlltFaDfeiVFSNZrXrXBPyT/GhX2af3Cyygly/0Gjgslr
+         K7koKWYlZL1Dls05rImMU/uYWdAG0FvfKYxPbOjs=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 4E1B760D38
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=cgoldswo@codeaurora.org
+From:   Chris Goldsworthy <cgoldswo@codeaurora.org>
+To:     robh+dt@kernel.org
+Cc:     Chris Goldsworthy <cgoldswo@codeaurora.org>,
+        devicetree@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] of: reserved_mem: add missing of_node_put() for proper ref-counting
+Date:   Sat, 19 Oct 2019 18:57:24 -0700
+Message-Id: <1571536644-13840-1-git-send-email-cgoldswo@codeaurora.org>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The arguments to queue_trb are always byteswapped to LE for placement in
-the ring, but this should not happen in the case of immediate data; the
-bytes copied out of transfer_buffer are already in the correct order.
-Add a complementary byteswap so the bytes end up in the ring correctly.
+Commit d698a388146c ("of: reserved-memory: ignore disabled memory-region
+nodes") added an early return in of_reserved_mem_device_init_by_idx(), but
+didn't call of_node_put() on a device_node whose ref-count was incremented
+in the call to of_parse_phandle() preceding the early exit.
 
-This was observed on BE ppc64 with a "Texas Instruments TUSB73x0
-SuperSpeed USB 3.0 xHCI Host Controller [104c:8241]" as a ch341
-usb-serial adapter ("1a86:7523 QinHeng Electronics HL-340 USB-Serial
-adapter") always transmitting the same character (generally NUL) over
-the serial link regardless of the key pressed.
-
+Fixes: d698a388146c ("of: reserved-memory: ignore disabled memory-region nodes")
+Signed-off-by: Chris Goldsworthy <cgoldswo@codeaurora.org>
+To: Rob Herring <robh+dt@kernel.org>
+Cc: devicetree@vger.kernel.org
 Cc: stable@vger.kernel.org
-Fixes: 33e39350ebd2 ("usb: xhci: add Immediate Data Transfer support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-arm-msm@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
 ---
- drivers/usb/host/xhci-ring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/of/of_reserved_mem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 85ceb43e3405..e7aab31fd9a5 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3330,6 +3330,7 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
- 			if (xhci_urb_suitable_for_idt(urb)) {
- 				memcpy(&send_addr, urb->transfer_buffer,
- 				       trb_buff_len);
-+				le64_to_cpus(&send_addr);
- 				field |= TRB_IDT;
- 			}
- 		}
-@@ -3475,6 +3476,7 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
- 		if (xhci_urb_suitable_for_idt(urb)) {
- 			memcpy(&addr, urb->transfer_buffer,
- 			       urb->transfer_buffer_length);
-+			le64_to_cpus(&addr);
- 			field |= TRB_IDT;
- 		} else {
- 			addr = (u64) urb->transfer_dma;
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index 7989703..6bd610e 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -324,8 +324,10 @@ int of_reserved_mem_device_init_by_idx(struct device *dev,
+ 	if (!target)
+ 		return -ENODEV;
+ 
+-	if (!of_device_is_available(target))
++	if (!of_device_is_available(target)) {
++		of_node_put(target);
+ 		return 0;
++	}
+ 
+ 	rmem = __find_rmem(target);
+ 	of_node_put(target);
 -- 
-2.21.0
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
 
