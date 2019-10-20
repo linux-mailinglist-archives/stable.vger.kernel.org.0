@@ -2,120 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A743DDB6D
-	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 01:27:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958E3DDBCD
+	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 03:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726167AbfJSX1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 19:27:36 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:41399 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726162AbfJSX1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 19:27:36 -0400
-Received: by mail-oi1-f196.google.com with SMTP id g81so8176890oib.8
-        for <stable@vger.kernel.org>; Sat, 19 Oct 2019 16:27:35 -0700 (PDT)
+        id S1726217AbfJTBMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 21:12:01 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:32881 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726036AbfJTBMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 21:12:01 -0400
+Received: by mail-ot1-f67.google.com with SMTP id 60so8146604otu.0;
+        Sat, 19 Oct 2019 18:12:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=3J1jZ/n3oL2BPGIWFZaJFKJlZuVwc5pXYUu/dIK5arI=;
-        b=T+psi48ohJfRR1GMOlfSgYdd36qHs4P9a+xR60PQDWs3XG25CJh+FKeinlvLdnlLte
-         oLrZIR2ogyz8jn3NT2WGneJtpW71T/aReyOSWiKqztT8WNXSJLeGenz7OYkdOS+p1SfO
-         vwjaXIvW8eTssResIjsUvMEXNZ7ma8OGuIiL9wDfzZiaLTgffog1aifUBAZJNQ2/tfU3
-         eu5jESGsp9//2zkHW0jD4WsqRgNh3Br8DxOTmSw1n4J410a1FaE51KOUW8YecPDEkld5
-         GdekJkpvPWaJkfuY2VPbXoLS1kQIeymhGLSf4UGWu4Z+K/s+Y9QaOvUqpKtoYIdGRXRz
-         qPQg==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=tmeNnBR9S1SCuFrJpp3kQZBcbxBQd+8zTBR6qv6nK40=;
+        b=gOIvq4CYqKV7ceeTZx2PrjuoOOIHq6QoyFzaH4d6D0d+LJaW/ttUKW8bcjgv7brdsg
+         Qp8mBJqbBoIRrik1pg9nE7gOdImzL1fcTgRHQMD+Ief46jodtwxXM//Pl1n45ewWWkTj
+         RZ6WXGiYp2sWBqa3b76kZe2SSXHMIdOvZjS6ju2+GY0B1Y96ICtUAXEKdW4gf7bocgwS
+         wuxBd9Phr8ms6vGe32oFYyCii2KDqKSVuhH1M+kzXF/lOTUXrNAhNh8Ii+9cqnvOPpXo
+         ubYaQqIGBTSapGOu1c2dxY4wN3RVUDXshQv28OpWqWaZWtk0z2T6xAjQfVT0yWQDrZho
+         vSgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3J1jZ/n3oL2BPGIWFZaJFKJlZuVwc5pXYUu/dIK5arI=;
-        b=PGJEdS1vmqzimNuGGzEL43A14gxRncYitHBJWZgv6jEzhTV7G523yrloo1zP8FcRKr
-         uxp/kcSw2oeDxCMceAMyov7hxLdH2UFcfpfIXYp65QH+JJGmBoDfBT/CvJ2C6Ej7yIWF
-         AkbM+e1WfsFyf7QC9P7tl6Cj08L8Z1S2F+A86raMB1VooI8UGjLwcnYW9oUxEz4ZdedW
-         8r+6PMmenrIplxeGWoODqnHbQII3kxxxLpvGe0lzm3Fa7c+A2PH23NIGJiJNuqrs1dJd
-         VfTDxLmBHX30R9ggk/nY0lQYbZpYeoKMlyPD9VoaIX7NArsnN7SatdbaYFub9Ll0B1gz
-         mC/w==
-X-Gm-Message-State: APjAAAUlYPWG8DX7nhKom7LlhE4a0u4QbRbw8tsKsce0YxAOGU/L/fsG
-        IvaiX+V9KZGvGtZZexxQWFtRzIXeiZ8pCeNqe1Ne5A==
-X-Google-Smtp-Source: APXvYqwTmZrTbxXuJ19lehyTkMwlX85En8TEvDWQiYgioR6j7EF0BYhEAUOgoPXcnncF+IB6q91TK5YYOJ0uaOHO+Yw=
-X-Received: by 2002:aca:620a:: with SMTP id w10mr13893693oib.0.1571527655430;
- Sat, 19 Oct 2019 16:27:35 -0700 (PDT)
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=tmeNnBR9S1SCuFrJpp3kQZBcbxBQd+8zTBR6qv6nK40=;
+        b=kxgCIkYcEeWI5AKt3llu/42dQwOqTKGE3gmUPV4xybXQP8YxZQIBvIbCqYH0SRO5Mv
+         EihjotzvnHURQK2GJy/MIuKAVI/0NQep7xVzQAcJbQlqKqdpyviUMP5eijAN3BZF42Gy
+         DKmwvoQfXwIa5cJSpgoqlp6wtVVr7WHRYoe/NuiVl7DQRm4uYkKFQVLShS18Yb42tbPz
+         WACWNUrnOMdSJo/z8WsJAOSXK7jp/Sk3bakDVGnv45Yi2qjcEEE4C4J/lHb/ClZJMWP3
+         qQM1RgFlyPOLuCsdZpTVE/dEw7B7Hn3xxaproJkVbC4fATLZGUr3qZ2bUv0SMhU7Xnj5
+         aefg==
+X-Gm-Message-State: APjAAAVf04eaKYSP/7VA3k6x8zMbpnn9p4I5w4ujUqRonHG/I9zVkGuo
+        fISRduTw92gNzIS0bjS2kIA=
+X-Google-Smtp-Source: APXvYqy9n6pKg6zz2lyPx0o6xFTJmoEz774m82v191/8fXtcheaPGhgEEvPNTvVjJVNgsYzqoTw7jw==
+X-Received: by 2002:a05:6830:10cc:: with SMTP id z12mr12740335oto.20.1571533920123;
+        Sat, 19 Oct 2019 18:12:00 -0700 (PDT)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id x140sm2631535oix.42.2019.10.19.18.11.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Oct 2019 18:11:58 -0700 (PDT)
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH V2] rtlwifi: rtl_pci: Fix problem of too small skb->len
+Date:   Sat, 19 Oct 2019 20:11:53 -0500
+Message-Id: <20191020011153.29383-1-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-References: <157150237973.3940076.12626102230619807187.stgit@dwillia2-desk3.amr.corp.intel.com>
- <20191019205003.GN32665@bombadil.infradead.org> <CAPcyv4jj-BqhPj3vB5=G7YfGPvBgugEZ39gf+3Wwn6BC1fAUJw@mail.gmail.com>
-In-Reply-To: <CAPcyv4jj-BqhPj3vB5=G7YfGPvBgugEZ39gf+3Wwn6BC1fAUJw@mail.gmail.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Sat, 19 Oct 2019 16:27:24 -0700
-Message-ID: <CAPcyv4hDXWTEZC__3zK8PeJNStmsjwzAQb+CqDOUYjuLx0J9Ag@mail.gmail.com>
-Subject: Re: [PATCH] fs/dax: Fix pmd vs pte conflict detection
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Jeff Smits <jeff.smits@intel.com>,
-        Doug Nelson <doug.nelson@intel.com>,
-        stable <stable@vger.kernel.org>, Jan Kara <jack@suse.cz>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 19, 2019 at 4:09 PM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> On Sat, Oct 19, 2019 at 1:50 PM Matthew Wilcox <willy@infradead.org> wrote:
-> >
-> > On Sat, Oct 19, 2019 at 09:26:19AM -0700, Dan Williams wrote:
-> > > Check for NULL entries before checking the entry order, otherwise NULL
-> > > is misinterpreted as a present pte conflict. The 'order' check needs to
-> > > happen before the locked check as an unlocked entry at the wrong order
-> > > must fallback to lookup the correct order.
-> > >
-> > > Reported-by: Jeff Smits <jeff.smits@intel.com>
-> > > Reported-by: Doug Nelson <doug.nelson@intel.com>
-> > > Cc: <stable@vger.kernel.org>
-> > > Fixes: 23c84eb78375 ("dax: Fix missed wakeup with PMD faults")
-> > > Cc: Jan Kara <jack@suse.cz>
-> > > Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> > > ---
-> > >  fs/dax.c |    5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/fs/dax.c b/fs/dax.c
-> > > index a71881e77204..08160011d94c 100644
-> > > --- a/fs/dax.c
-> > > +++ b/fs/dax.c
-> > > @@ -221,10 +221,11 @@ static void *get_unlocked_entry(struct xa_state *xas, unsigned int order)
-> > >
-> > >       for (;;) {
-> > >               entry = xas_find_conflict(xas);
-> > > +             if (!entry || WARN_ON_ONCE(!xa_is_value(entry)))
-> > > +                     return entry;
-> > >               if (dax_entry_order(entry) < order)
-> > >                       return XA_RETRY_ENTRY;
-> > > -             if (!entry || WARN_ON_ONCE(!xa_is_value(entry)) ||
-> > > -                             !dax_is_locked(entry))
-> > > +             if (!dax_is_locked(entry))
-> > >                       return entry;
-> >
-> > Yes, I think this works.  Should we also add:
-> >
-> >  static unsigned int dax_entry_order(void *entry)
-> >  {
-> > +       BUG_ON(!xa_is_value(entry));
-> >         if (xa_to_value(entry) & DAX_PMD)
-> >                 return PMD_ORDER;
-> >         return 0;
-> >  }
-> >
-> > which would have caught this logic error before it caused a performance
-> > regression?
->
-> Sounds good will add it to v2.
+In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
+only"), buffers whose length is too short cause a WARN_ON(1) to be
+executed. This change exposed a fault in rtlwifi drivers, which is fixed
+by increasing the length of the affected buffer before it is sent to
+mac80211.
 
-...except that there are multiple dax helpers that have the 'value'
-entry assumption. I'd rather do all of them in a separate patch, or
-none of them. It turns out that after this change all
-dax_entry_order() invocations are now protected by a xa_is_value()
-assert earlier in the calling function.
+Cc: Stable <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+---
+V2 - added missing usage of new len
+---
+Please Apply to 5.4
+---
+ drivers/net/wireless/realtek/rtlwifi/pci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c b/drivers/net/wireless/realtek/rtlwifi/pci.c
+index 6087ec7a90a6..3e9185162e51 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/pci.c
++++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
+@@ -692,12 +692,15 @@ static void _rtl_pci_rx_to_mac80211(struct ieee80211_hw *hw,
+ 		dev_kfree_skb_any(skb);
+ 	} else {
+ 		struct sk_buff *uskb = NULL;
++		int len = skb->len;
+ 
++		if (unlikely(len <= FCS_LEN))
++			len = FCS_LEN + 2;
+ 		uskb = dev_alloc_skb(skb->len + 128);
+ 		if (likely(uskb)) {
+ 			memcpy(IEEE80211_SKB_RXCB(uskb), &rx_status,
+ 			       sizeof(rx_status));
+-			skb_put_data(uskb, skb->data, skb->len);
++			skb_put_data(uskb, skb->data, len);
+ 			dev_kfree_skb_any(skb);
+ 			ieee80211_rx_irqsafe(hw, uskb);
+ 		} else {
+-- 
+2.23.0
+
