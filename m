@@ -2,86 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88B43DE057
-	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 22:13:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD7FCDE0A2
+	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 23:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725945AbfJTUNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Oct 2019 16:13:17 -0400
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:36237 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725940AbfJTUNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Oct 2019 16:13:16 -0400
-Received: by mail-ot1-f66.google.com with SMTP id 67so9251525oto.3;
-        Sun, 20 Oct 2019 13:13:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:subject:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=G+2eqRRy4akls0unQNzeQFHny5jIQlyDN020J7AGyQc=;
-        b=JdNB3IqMzsHXrJnNdQsSyJeytpFuiwA4dUwsY+gsS3RfDwW36Tsa1BqxJ2U/N7ULaN
-         mYymbmzmkaBa1WwNouPkTReYEjadmBiiLSLlwEmRcwuubjZdttHcqRO++dtIuc0uxPdy
-         CliS/V+rdKANoBCVSJ9t5CSsxgwwxQ+s7vMVqEpVp54OOLVCi0mNY/c0YbHw/mNc2m/F
-         83e51FEV7CJiQJ7FVmcLWk5iTfq64OCNsMuNi24+EBDKlyN2clBHwTJX/DNkDji/X9O2
-         vmINZTyMDh+V9gB5Lzl7hhcrO2hQM7neNwwuklmNIzx5Xcipv0BxQDCO41UCPmcoCdHm
-         lYVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:subject:to:cc:references:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=G+2eqRRy4akls0unQNzeQFHny5jIQlyDN020J7AGyQc=;
-        b=S+1ZA88CXFahMF5N2rag4somcLy37Ws2EoFkouGD8jW6te7n2qEmmQb23OJ3KrHu/D
-         TK7oJJ9V+ihLXaKObLWVhyiUU1vdaGere+pP7gtDEtW2EMC3bYPo9764Ozf90cKaAM5R
-         2hozaWlq59a4RGWTP9ontCaXROwjCqqTEBQXbxXnexPlYcedVKMhAJKhdqCN/eWNQml4
-         RLuZ6gzJcGzGKQ57ezri7qsaLqiIgrnoZ41BDv+pxScEIglAGsc4qajHyxynD0BEQNUt
-         RrfZnb4oFxhiF4T2qgISCPjGDdEq7my5NiwCw42oB7hz90b6f/GVk/uJGvw1CU7Xkin5
-         tjyA==
-X-Gm-Message-State: APjAAAX8p6lDQASoUWBLG0IpRj7WdEvaXbXrbwmE1RqHoKLp8iegn5N0
-        uBtPukvlA9bvZOCNUZpKnYFhlOO5
-X-Google-Smtp-Source: APXvYqxmahmZichoOikLt9k6kxKGSHHII//DVkKmRgFF63iTf6Jdu8PJM8NYCzYaPoi3Q0IwiGTHgQ==
-X-Received: by 2002:a9d:5886:: with SMTP id x6mr14921331otg.351.1571602395728;
-        Sun, 20 Oct 2019 13:13:15 -0700 (PDT)
-Received: from [192.168.1.122] (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id w13sm3165528oih.54.2019.10.20.13.13.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 20 Oct 2019 13:13:15 -0700 (PDT)
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-Subject: Re: [PATCH V2] rtlwifi: rtl_pci: Fix problem of too small skb->len
-To:     Kalle Valo <kvalo@codeaurora.org>
-Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
-        Stable <stable@vger.kernel.org>
-References: <20191020011153.29383-1-Larry.Finger@lwfinger.net>
- <874l03lt29.fsf@codeaurora.org>
-Message-ID: <11ea185a-e2e8-5371-e9b3-4ac6f7880a00@lwfinger.net>
-Date:   Sun, 20 Oct 2019 15:13:14 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S1726583AbfJTVP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Oct 2019 17:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59416 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726301AbfJTVP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 20 Oct 2019 17:15:56 -0400
+Received: from earth.universe (cust-west-pareq2-46-193-15-226.wb.wifirst.net [46.193.15.226])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7BF021928;
+        Sun, 20 Oct 2019 21:15:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571606156;
+        bh=tte/sBnIuHSqFUj7METw8OCBnma6Bu9TdJjj9VE6aFE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CE1T6S4FRlUGeNzuEmYs5bwhJKmlCmh/XFk1nKSJj/b9M1uxmY8tS4vBnt+CabvC5
+         um3MGzeABGtQwTDIhLWit2WJghI8eAyiPrXYyRlv5iMjlsN6gHoExsqTl8+FPTdQJy
+         4aVub/3iSELPtCHczXt/cHfEP9Db5moLQ3XT/kDs=
+Received: by earth.universe (Postfix, from userid 1000)
+        id EBE0B3C0CA0; Sun, 20 Oct 2019 23:15:53 +0200 (CEST)
+Date:   Sun, 20 Oct 2019 23:15:53 +0200
+From:   Sebastian Reichel <sre@kernel.org>
+To:     Sven Van Asbroeck <thesven73@gmail.com>
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v1] power: supply: ltc2941-battery-gauge: fix
+ use-after-free
+Message-ID: <20191020211553.cjfdpvhyqilhsbh4@earth.universe>
+References: <20190919151137.9960-1-TheSven73@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <874l03lt29.fsf@codeaurora.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="3swbex74wzskpsoz"
+Content-Disposition: inline
+In-Reply-To: <20190919151137.9960-1-TheSven73@gmail.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/20/19 3:28 AM, Kalle Valo wrote:
-> Larry Finger <Larry.Finger@lwfinger.net> writes:
-> 
->> In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
->> only"), buffers whose length is too short cause a WARN_ON(1) to be
->> executed. This change exposed a fault in rtlwifi drivers, which is fixed
->> by increasing the length of the affected buffer before it is sent to
->> mac80211.
-> 
-> With what frames, or in what scenarios, do you get these warnings?
 
-I am not sure how they happen, but the firmware reports a 3-byte packet, which 
-leads to the warning. After looking at the code path again, a better approach 
-would be to consider those short packets the same way that those with CRC or 
-hardware errors and drop them.
+--3swbex74wzskpsoz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-After more testing, I will send V3 using that approach.
+Hi,
 
-Larry
+On Thu, Sep 19, 2019 at 11:11:37AM -0400, Sven Van Asbroeck wrote:
+> This driver's remove path calls cancel_delayed_work().
+> However, that function does not wait until the work function
+> finishes. This could mean that the work function is still
+> running after the driver's remove function has finished,
+> which would result in a use-after-free.
+>=20
+> Fix by calling cancel_delayed_work_sync(), which ensures that
+> that the work is properly cancelled, no longer running, and
+> unable to re-schedule itself.
+>=20
+> This issue was detected with the help of Coccinelle.
+>=20
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+> ---
+
+Thanks, queued.
+
+-- Sebastian
+
+>  drivers/power/supply/ltc2941-battery-gauge.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/power/supply/ltc2941-battery-gauge.c b/drivers/power=
+/supply/ltc2941-battery-gauge.c
+> index da49436176cd..30a9014b2f95 100644
+> --- a/drivers/power/supply/ltc2941-battery-gauge.c
+> +++ b/drivers/power/supply/ltc2941-battery-gauge.c
+> @@ -449,7 +449,7 @@ static int ltc294x_i2c_remove(struct i2c_client *clie=
+nt)
+>  {
+>  	struct ltc294x_info *info =3D i2c_get_clientdata(client);
+> =20
+> -	cancel_delayed_work(&info->work);
+> +	cancel_delayed_work_sync(&info->work);
+>  	power_supply_unregister(info->supply);
+>  	return 0;
+>  }
+> --=20
+> 2.17.1
+>=20
+
+--3swbex74wzskpsoz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAl2szokACgkQ2O7X88g7
++pqaChAApkJ+IwkcPqnt9sjPKSq0gxzC0zCQD2pFm+XFbAVmLBUEFHOX+cwcZWDi
+CjlDRncen3sw9x29akza1mCaiQ0DxFbNVjZOswhRjkxkl5AcfMJZfv+QuhdRVeO2
+6MvpGeS4rhrLNL/HGnNILMrkIc/92FxTluxf+gcwO4XV4C6G7wGm3gmC9oTYi9MK
+zoRj+ucWdhP2/7TN4KzGt2ki7qnOQ2X1wzhqwZCzgeGnxWKaMx3bovrLW+bfFF9P
+BTlovcmOAmKssbBOJxNLoQE1F3+rjcx+QDaS4bzGbVfyLNoPYNsDgRSBzm6J6qHW
+cfshuVENlDUiqF1olQLBsBnlJPBgB/KH1QzTJQH6NWHTfx/sNO85xv8c2rGzIa8v
+8P0zxSFpBcmKPVbvgfNS0MoyxX39AmfTzy7bsJ855rL+wyvZmavI1vNZ8Sr0nTTY
+3IytCA3E5PSt2anm/Q/v+/1xzGHOygQbM1UrZg3pED4Ytt+SA3hwMx/f3lVfZa9y
+PPSJTgzXMA1LhwjAuKDKyoblJ6J1ZqBud0Q91W0rDJI71ci3LZgdfj/NxN2GPrr1
+Ge0J/jNEtpUOzpTuCz8NOIHGuOKoYpjLY1j1sCD8enc47MA8PVLBoCYk0VKE7wu6
+7IqwsYkATfXhAp0zz/G7bOqXGFSBrYUlnJkwMu8BSj38OjJ5oYc=
+=3Vuq
+-----END PGP SIGNATURE-----
+
+--3swbex74wzskpsoz--
