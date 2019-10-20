@@ -2,125 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B131DDBCF
-	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 03:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EA59DDBDF
+	for <lists+stable@lfdr.de>; Sun, 20 Oct 2019 03:53:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726204AbfJTBNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 19 Oct 2019 21:13:42 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:32969 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726036AbfJTBNm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 21:13:42 -0400
-Received: by mail-oi1-f193.google.com with SMTP id a15so8315755oic.0;
-        Sat, 19 Oct 2019 18:13:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=fbjtrTwV/qweB3GLJOtY6Y3VDm+9k3ygd6yFcHUDd/I=;
-        b=ceQqlJjPLVpSbZQIP5r8TynJGPzCMBsxR8hmgoOeSROqdQu8pgoQ1l/DWD7ersZyEN
-         DdxRQG5a0oz9aPx8PHUoxjihk6WsSi/LU37C1g1OLwudRVkLNr358gjkG6aa245CZZad
-         9UBFNeJ4wm3gHbX9m8jFS4SD0VYJOldIAnmXjq9inKi8gNkfWnq6lbFTMLCR52Fl1LSq
-         QENxA1ZCEPvNrOxo4i1r08ima0sCDF3w1Ml1ryRlnwAHdZAof5hzizroqcBQdeL7vj+D
-         bTx4WCef0CIEX/Sl2iL7BQ/i9rnDlBqZUjNMFmRJMGP4OBV9iNY8v86gxy4ixTljYIhz
-         FPyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=fbjtrTwV/qweB3GLJOtY6Y3VDm+9k3ygd6yFcHUDd/I=;
-        b=MpensErKx+N2se+LIsA6HnJBimrrXw//coGRnqCjlJ91qROSwzaElrYZFu6exV1PsP
-         01l31h1tMcUjHNNS5heNj+Wp4yP9rDJhX92yz1xGm3YsD2pXoDAZghUgAeQe66JbcEKK
-         jU8M7zn9SqBdw4hvr4Zjn1slJZ1EM0PVkujdSoRz7dQKpPUT0uNEAmcMH33Df1xkbc7b
-         iY0YBTiA0+d0Phw+jCi5EQsAPa36U/aerRN1zcO3MIOKPi4qyWn3TVNkKzOkbq/Kuurl
-         Q102FaDxsn622F1ucNrGLw5pRKa8xzL/b5IAHWbhOnUH3IsMT5kucPvHFb9SUpzm57Yo
-         gLnQ==
-X-Gm-Message-State: APjAAAVOPfbJMw/zR1LxqWO34TdcAFF6tZGn0DXnMKg7kTfSRngxFIoy
-        VPdxQUknUKaDoEPYOYcEbgBsfmYL
-X-Google-Smtp-Source: APXvYqxkrCaD4IneFODQ3NPxJcxOKW3SSGDij7pRGcIX5pd10Rc5YwPPnUK3aLDOo1AszwS8xxZrCA==
-X-Received: by 2002:aca:5ed7:: with SMTP id s206mr13104954oib.134.1571534021039;
-        Sat, 19 Oct 2019 18:13:41 -0700 (PDT)
-Received: from [192.168.1.122] (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
-        by smtp.gmail.com with ESMTPSA id t22sm2953914otc.9.2019.10.19.18.13.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 19 Oct 2019 18:13:40 -0700 (PDT)
-Subject: Re: [PATCH] rtlwifi: rtl_pci: Fix problem of too small skb->len
-To:     "ian.schram" <ian.schram@telenet.be>, kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
-        Stable <stable@vger.kernel.org>
-References: <20191019190222.29681-1-Larry.Finger@lwfinger.net>
- <05f25c80-51a9-bfad-ea4a-3c17b0eecf64@telenet.be>
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-Message-ID: <20649f24-6412-4fac-f640-c611916aa85c@lwfinger.net>
-Date:   Sat, 19 Oct 2019 20:13:39 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S1726259AbfJTBxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 19 Oct 2019 21:53:16 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:40169 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726036AbfJTBxQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 19 Oct 2019 21:53:16 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 2F80F39A;
+        Sat, 19 Oct 2019 21:53:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sat, 19 Oct 2019 21:53:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=N7lvcTtfqNF2xYQM7/Bw3plnmv
+        vQ+7cm6jFmlCIU9kY=; b=XzpmTSYf304D7ctUTQaARkdHOH9BxSX7I9RVTgMam6
+        cHAVn+hjjdrQYbmBApGhmFBUFlACGcQmQLIHLSa5OofXBSWyzsw5qSH0g+Tw1IQU
+        1xIm7aOwEGXpYGpWSwLJxdjgTKJ8bKV2iKMkrd9HfvudneCmoUWvl4sYquIJ9y4a
+        O13UXaCyYPCWkwvkNaKmvujxRAuoylIhgCZ10Gjlr/jFCqMk4DfdbpqRcxLQizHd
+        T8Ig1d6WsygMLO3ACpQOvpnk3VfGL72gJDY9WZGAtljNL7N6eNlqj5anzV0+JySd
+        rvHwtCp/0ef7gOC8Dve/FgT9FpT+G4IlJ7bLLEhXRO0Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=N7lvcTtfqNF2xYQM7
+        /Bw3plnmvvQ+7cm6jFmlCIU9kY=; b=SZyA4O/DupIKRp3c1clm7qFsgFaujhduF
+        bLlYTMb8jbtE9tBHPaSkcMLYIv4YXb+RkO5USD2a5+sT/8gL+cQrqmEw4+XMJYdd
+        A8VBrCvx1aNyuO/J6vbB/qt9ITbwnsNSWl3f6pQeY8LaTKvemfJN/nWR9fUPcZIw
+        +/pqAjhk8bcGNE9fQejogA30bwMUyilVUo8y1N4aBAM99gsnMT7voO6eGuePJsN6
+        6O6UM4M1jg8KGlad8WBXCp80zmMjYw+u0Kmcixk4uVph4kQ+pJHJLCDxwk9ZEeqs
+        oIMd6oLphsG07aWYhQTuaABAz0plnTPlHe0x5j+368v0QVhSMmTqw==
+X-ME-Sender: <xms:Cr6rXa3jZ0qgIKG9Mt5QkpflThxqUQHX6_zJWqfotfxNBAY1wEdCAQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrkedvgdehudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
+    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecukfhppeejtd
+    drudefhedrudegkedrudehudenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghl
+    sehshhholhhlrghnugdrohhrghenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:Cr6rXdTj7rZmrudjctWmIYgdkfk62G5o0gtEgCz4EUOBdxD9yEqh1w>
+    <xmx:Cr6rXcbidpCwh_EMKhjZJ_bCRFZs8JV_TSO1C5KriAQL158j9FTTDw>
+    <xmx:Cr6rXa4nvErZ2X2IvLIb696F5GcjmrTboRilA07qZtRrkVORNBtjmQ>
+    <xmx:Cr6rXdtTEHuSXxB3dGL5HeeXQHwvQye-JN9vErWtCWEHHTnm54P77w>
+Received: from titanium.stl.sholland.net (70-135-148-151.lightspeed.stlsmo.sbcglobal.net [70.135.148.151])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 04CD6D6005A;
+        Sat, 19 Oct 2019 21:53:13 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Samuel Holland <samuel@sholland.org>, stable@vger.kernel.org
+Subject: [PATCH] usb: xhci: fix Immediate Data Transfer endianness
+Date:   Sat, 19 Oct 2019 20:53:13 -0500
+Message-Id: <20191020015313.4558-1-samuel@sholland.org>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-In-Reply-To: <05f25c80-51a9-bfad-ea4a-3c17b0eecf64@telenet.be>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/19/19 5:23 PM, ian.schram wrote:
-> Hi,
-> 
-> 
-> This patch doesn't appear to do anything? The increased length is not actually
-> used, is a part of the patch missing?
-> 
-> 
-> ps: superficial reading, i am not hampered by any specific knowledge of this 
-> driver.
-> 
-> On 2019-10-19 21:02, Larry Finger wrote:
->> In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
->> only"), buffers whose length is too short cause a WARN_ON(1) to be
->> executed. This change exposed a fault in rtlwifi drivers, which is fixed
->> by increasing the length of the affected buffer before it is sent to
->> mac80211.
->>
->> Cc: Stable <stable@vger.kernel.org> # v5.0+
->> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
->> ---
->>
->> Kalle,
->>
->> Please send to v5.4.
->>
->> Larry
->> ---
->>
->>   drivers/net/wireless/realtek/rtlwifi/pci.c | 3 +++
->>   1 file changed, 3 insertions(+)
->>
->> diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c 
->> b/drivers/net/wireless/realtek/rtlwifi/pci.c
->> index 6087ec7a90a6..bb5144b7c64f 100644
->> --- a/drivers/net/wireless/realtek/rtlwifi/pci.c
->> +++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
->> @@ -692,7 +692,10 @@ static void _rtl_pci_rx_to_mac80211(struct ieee80211_hw *hw,
->>           dev_kfree_skb_any(skb);
->>       } else {
->>           struct sk_buff *uskb = NULL;
->> +        int len = skb->len;
->> +        if (unlikely(len <= FCS_LEN))
->> +            len = FCS_LEN + 2;
->>           uskb = dev_alloc_skb(skb->len + 128);
->>           if (likely(uskb)) {
->>               memcpy(IEEE80211_SKB_RXCB(uskb), &rx_status,
->>
+The arguments to queue_trb are always byteswapped to LE for placement in
+the ring, but this should not happen in the case of immediate data; the
+bytes copied out of transfer_buffer are already in the correct order.
+Add a complementary byteswap so the bytes end up in the ring correctly.
 
-Ian,
+This was observed on BE ppc64 with a "Texas Instruments TUSB73x0
+SuperSpeed USB 3.0 xHCI Host Controller [104c:8241]" as a ch341
+usb-serial adapter ("1a86:7523 QinHeng Electronics HL-340 USB-Serial
+adapter") always transmitting the same character (generally NUL) over
+the serial link regardless of the key pressed.
 
-Yes, I debugged using a different tree and missed one use of the new len. V2 
-submitted.
+Cc: stable@vger.kernel.org
+Fixes: 33e39350ebd2 ("usb: xhci: add Immediate Data Transfer support")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+---
+ drivers/usb/host/xhci-ring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Thanks for noticing.
-
-Larry
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 85ceb43e3405..e7aab31fd9a5 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -3330,6 +3330,7 @@ int xhci_queue_bulk_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+ 			if (xhci_urb_suitable_for_idt(urb)) {
+ 				memcpy(&send_addr, urb->transfer_buffer,
+ 				       trb_buff_len);
++				le64_to_cpus(&send_addr);
+ 				field |= TRB_IDT;
+ 			}
+ 		}
+@@ -3475,6 +3476,7 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *xhci, gfp_t mem_flags,
+ 		if (xhci_urb_suitable_for_idt(urb)) {
+ 			memcpy(&addr, urb->transfer_buffer,
+ 			       urb->transfer_buffer_length);
++			le64_to_cpus(&addr);
+ 			field |= TRB_IDT;
+ 		} else {
+ 			addr = (u64) urb->transfer_dma;
+-- 
+2.21.0
 
