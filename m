@@ -2,136 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A03F6DECBF
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 14:49:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCD1DED16
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 15:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728401AbfJUMtV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 08:49:21 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35033 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728479AbfJUMtV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 08:49:21 -0400
-Received: by mail-pg1-f194.google.com with SMTP id c8so2954492pgb.2;
-        Mon, 21 Oct 2019 05:49:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=+q3Pz7iL34R36Jp34sL215JsL0y1yMeb6aT9y4kfQGo=;
-        b=HL1CGUD6Nz7+su39RPl9DRZCvAkH4cA/DgGsB0v7D7/OojLwQ2HtZTC6R+Y/HKIT/C
-         ArlkbztVJx40v0JIKm0kOqhgtdcuogxNq5NFHTMURWlAz2mvhG85xEQT2lPImT7LMwZc
-         iE9AhrrO7/OvolJVcURhbxbLcGakEtPTgJDJrp9Wc78TJ2fE3mfi/0ute/HbAV+j1v4H
-         pXvppoJXLCdLKfGaL9+8wIGbai6GuK02eCwxSoSebFUEDRvkCWB6yQmXJKF1R0YdsZ4i
-         YmIfzuBWPPEBK37R8y5hh3t5RqTIcGaZZx46oi/ZoJv6fx0NrF7sAuBObkDydd4aAW7Z
-         e9DQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=+q3Pz7iL34R36Jp34sL215JsL0y1yMeb6aT9y4kfQGo=;
-        b=n6QzW0Loz5bisVQ59X89/uIcuxsMUIWKb7Qy1bds8XXQo160WQ7qqvLsDmfS9gxWcb
-         WnBokOIENAa1eo4iFxYRvWudIgxeOomEmCfJTSqyJC6V2WFVAV0V9LrjM6UQ8qKoyeUs
-         h9MQxMl/HO6TADTKCPyCRt5aFcyAlPiNsm5aZwrv/k40NOWix9EOiB/L8lsCD5YPY5Rd
-         H2Gz5+MKAitVx5PxqVEb2TfUkq3Yuusc3V5HcONLHAhGjL/Tt5kAtzOABrGriV7rgfrE
-         QzfhEyUhZLjryiMOQagIQMLarBs9NwBM1ihvwKPgD/iH1NyU4yeVlivz+xWq6y+YGPm+
-         EDUQ==
-X-Gm-Message-State: APjAAAXPud0dDoZx6gF8PhRo5IAPZ+Z/EwNVH5r/dUpna55Xg7TdJFCC
-        xqCTjGQLvl6ESzbEKaGFVfY=
-X-Google-Smtp-Source: APXvYqxossI4aU6pwFJhCfrqbj+HZM5LrpmwZru5RzRY1sbBA19PrYqquaB2cYODlJ4r1w8mqqfQvw==
-X-Received: by 2002:a63:cb4c:: with SMTP id m12mr12957134pgi.58.1571662160373;
-        Mon, 21 Oct 2019 05:49:20 -0700 (PDT)
-Received: from software.domain.org ([66.42.68.162])
-        by smtp.gmail.com with ESMTPSA id b3sm13562285pjp.13.2019.10.21.05.49.12
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Mon, 21 Oct 2019 05:49:19 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        chenhuacai@gmail.com, linux-kernel@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH 110/110] lib/vdso: Improve do_hres() and update vdso data unconditionally
-Date:   Mon, 21 Oct 2019 20:52:00 +0800
-Message-Id: <1571662320-1280-1-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
+        id S1728146AbfJUNGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 09:06:07 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:59098 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727322AbfJUNGH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 09:06:07 -0400
+Received: from [213.220.153.21] (helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1iMXMB-0007Nx-7n; Mon, 21 Oct 2019 13:04:19 +0000
+Date:   Mon, 21 Oct 2019 15:04:18 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc:     Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
+        bsingharora@gmail.com, dvyukov@google.com, elver@google.com,
+        parri.andrea@gmail.com, stable@vger.kernel.org,
+        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com
+Subject: Re: [PATCH v6] taskstats: fix data-race
+Message-ID: <20191021130417.5yi7pxpigsydz5po@wittgenstein>
+References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
+ <20191021113327.22365-1-christian.brauner@ubuntu.com>
+ <efaecf5d-b528-24ba-1955-e1b190ece98c@rasmusvillemoes.dk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <efaecf5d-b528-24ba-1955-e1b190ece98c@rasmusvillemoes.dk>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In do_hres(), we currently use whether the return value of __arch_get_
-hw_counter() is negative to indicate fallback, but this is not a good
-idea because:
+On Mon, Oct 21, 2019 at 02:19:01PM +0200, Rasmus Villemoes wrote:
+> On 21/10/2019 13.33, Christian Brauner wrote:
+> > The first approach used smp_load_acquire() and smp_store_release().
+> > However, after having discussed this it seems that the data dependency
+> > for kmem_cache_alloc() would be fixed by WRITE_ONCE().
+> > Furthermore, the smp_load_acquire() would only manage to order the stats
+> > check before the thread_group_empty() check. So it seems just using
+> > READ_ONCE() and WRITE_ONCE() will do the job and I wanted to bring this
+> > up for discussion at least.
+> > 
+> > /* v6 */
+> > - Christian Brauner <christian.brauner@ubuntu.com>:
+> >   - bring up READ_ONCE()/WRITE_ONCE() approach for discussion
+> > ---
+> >  kernel/taskstats.c | 26 +++++++++++++++-----------
+> >  1 file changed, 15 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+> > index 13a0f2e6ebc2..111bb4139aa2 100644
+> > --- a/kernel/taskstats.c
+> > +++ b/kernel/taskstats.c
+> > @@ -554,25 +554,29 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+> >  static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
+> >  {
+> >  	struct signal_struct *sig = tsk->signal;
+> > -	struct taskstats *stats;
+> > +	struct taskstats *stats_new, *stats;
+> >  
+> > -	if (sig->stats || thread_group_empty(tsk))
+> > -		goto ret;
+> > +	/* Pairs with WRITE_ONCE() below. */
+> > +	stats = READ_ONCE(sig->stats);
+> > +	if (stats || thread_group_empty(tsk))
+> > +		return stats;
+> >  
+> >  	/* No problem if kmem_cache_zalloc() fails */
+> > -	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+> > +	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+> >  
+> >  	spin_lock_irq(&tsk->sighand->siglock);
+> > -	if (!sig->stats) {
+> > -		sig->stats = stats;
+> > -		stats = NULL;
+> > +	if (!stats) {
+> > +		stats = stats_new;
+> > +		/* Pairs with READ_ONCE() above. */
+> > +		WRITE_ONCE(sig->stats, stats_new);
+> > +		stats_new = NULL;
+> 
+> No idea about the memory ordering issues, but don't you need to
+> load/check sig->stats again? Otherwise it seems that two threads might
+> both see !sig->stats, both allocate a stats_new, and both
+> unconditionally in turn assign their stats_new to sig->stats. Then the
+> first assignment ends up becoming a memory leak (and any writes through
+> that pointer done by the caller end up in /dev/null...)
 
-1, ARM64 returns ULL_MAX but MIPS returns 0 when clock_mode is invalid;
-2, For a 64bit counter, a "negative" value of counter is actually valid.
+Trigger hand too fast. I guess you're thinking sm like:
 
-It is sure that MIPS has a bug when clock_mode is invalid and should
-return ULL_MAX as ARM64 does (Vincenzo has already submitted a patch).
-But do_hres() can still be improved so we use U64_MAX as the only
-"invalid" return value -- this is still not fully correct, but it is
-the simplest fix and has no problem in most cases (we can hardly see a
-64bit counter overflow).
-
-By the way, currently update_vdso_data() and update_vsyscall_tz() rely
-on __arch_use_vsyscall(), which causes __cvdso_clock_getres() and some
-other functions get wrong results when clock_mode is invalid. So, we
-update vdso data unconditionally.
-
-Fixes: 00b26474c2f1613d7ab894c5 ("lib/vdso: Provide generic VDSO implementation")
-Fixes: 44f57d788e7deecb50484353 ("timekeeping: Provide a generic update_vsyscall() implementation")
-Cc: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- kernel/time/vsyscall.c  | 9 +++------
- lib/vdso/gettimeofday.c | 2 +-
- 2 files changed, 4 insertions(+), 7 deletions(-)
-
-diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
-index 4bc37ac..5ee0f77 100644
---- a/kernel/time/vsyscall.c
-+++ b/kernel/time/vsyscall.c
-@@ -110,8 +110,7 @@ void update_vsyscall(struct timekeeper *tk)
- 	nsec		= nsec + tk->wall_to_monotonic.tv_nsec;
- 	vdso_ts->sec	+= __iter_div_u64_rem(nsec, NSEC_PER_SEC, &vdso_ts->nsec);
- 
--	if (__arch_use_vsyscall(vdata))
--		update_vdso_data(vdata, tk);
-+	update_vdso_data(vdata, tk);
- 
- 	__arch_update_vsyscall(vdata, tk);
- 
-@@ -124,10 +123,8 @@ void update_vsyscall_tz(void)
+diff --git a/kernel/taskstats.c b/kernel/taskstats.c
+index 13a0f2e6ebc2..c4e1ed11e785 100644
+--- a/kernel/taskstats.c
++++ b/kernel/taskstats.c
+@@ -554,25 +554,27 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
+ static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
  {
- 	struct vdso_data *vdata = __arch_get_k_vdso_data();
+ 	struct signal_struct *sig = tsk->signal;
+-	struct taskstats *stats;
++	struct taskstats *stats_new, *stats;
  
--	if (__arch_use_vsyscall(vdata)) {
--		vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
--		vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
--	}
-+	vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
-+	vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+-	if (sig->stats || thread_group_empty(tsk))
+-		goto ret;
++	stats = READ_ONCE(sig->stats);
++	if (stats || thread_group_empty(tsk))
++		return stats;
  
- 	__arch_sync_vdso_data(vdata);
+-	/* No problem if kmem_cache_zalloc() fails */
+-	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
++	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
+ 
+ 	spin_lock_irq(&tsk->sighand->siglock);
+-	if (!sig->stats) {
+-		sig->stats = stats;
+-		stats = NULL;
++	stats = READ_ONCE(sig->stats);
++	if (!stats) {
++		stats = stats_new;
++		WRITE_ONCE(sig->stats, stats_new);
++		stats_new = NULL;
+ 	}
+ 	spin_unlock_irq(&tsk->sighand->siglock);
+ 
+-	if (stats)
+-		kmem_cache_free(taskstats_cache, stats);
+-ret:
+-	return sig->stats;
++	if (stats_new)
++		kmem_cache_free(taskstats_cache, stats_new);
++
++	return stats;
  }
-diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-index e630e7f..5a31643 100644
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -50,7 +50,7 @@ static int do_hres(const struct vdso_data *vd, clockid_t clk,
- 		cycles = __arch_get_hw_counter(vd->clock_mode);
- 		ns = vdso_ts->nsec;
- 		last = vd->cycle_last;
--		if (unlikely((s64)cycles < 0))
-+		if (unlikely(cycles == U64_MAX))
- 			return -1;
- 
- 		ns += vdso_calc_delta(cycles, last, vd->mask, vd->mult);
--- 
-2.7.0
-
