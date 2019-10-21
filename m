@@ -2,95 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A529ADE2E3
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 06:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CE9DE452
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 08:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725613AbfJUEGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 00:06:22 -0400
-Received: from bilbo.ozlabs.org ([203.11.71.1]:54785 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725468AbfJUEGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Oct 2019 00:06:22 -0400
-Received: by ozlabs.org (Postfix, from userid 1003)
-        id 46xNNq5r9cz9sPL; Mon, 21 Oct 2019 15:06:19 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ozlabs.org; s=201707;
-        t=1571630779; bh=0gIwOYRl+uLZLFdtC8UjqQo4XwJkG5ky/1miRAY9OXI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uFrQ7d0o8UWnjar+mh+ZFxZ1mDSn3m5dIt9yNR6EqQjYSz1EYO+gIccKPoGpunI5w
-         0AIDCeEV2WBtpDEynARdN3dmOcdhJM/fktF67Gj2ra7tJr4gvR28m8CQBssIPjSIwN
-         U+u4hcS38D9+iwBu7BjxWGoo8+oFHHwNY4vNnciPhJ64J28qsWZqvIBSFwlYJtLfEH
-         bZybTxodoBoGatjBQtJDljCS71wqI6zuDjmg3XA9343R20BAZQS+pbXCIDJDjHm8qN
-         OdhRKdFynZLg5RyG/Xh6q1+iJlbfbEDRxoNwj79dGZ+VOCq7TUTKpG/Vvn//wnWYYs
-         40PcjWjjhHX3g==
-Date:   Mon, 21 Oct 2019 15:06:15 +1100
-From:   Paul Mackerras <paulus@ozlabs.org>
-To:     Greg Kurz <groug@kaod.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        =?iso-8859-1?Q?C=E9dric?= Le Goater <clg@kaod.org>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>,
-        kvm-ppc@vger.kernel.org, kvm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] KVM: PPC: Book3S: HV: XIVE: Allocate less VPs in
- OPAL
-Message-ID: <20191021040615.GA20714@oak.ozlabs.ibm.com>
-References: <156958521220.1503771.2119482814236775333.stgit@bahia.lan>
- <20191016234403.77cdf150@bahia.lan>
+        id S1726596AbfJUGIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 02:08:18 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:35567 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726039AbfJUGIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 02:08:17 -0400
+Received: by mail-wm1-f67.google.com with SMTP id 14so4757454wmu.0
+        for <stable@vger.kernel.org>; Sun, 20 Oct 2019 23:08:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4/kY4Iuh46NZmdPYDysMt8pq2ZGIAr2/rIRYTWprc/0=;
+        b=oB1t6MTnzf47Ko9MJt4hXHXmaNHS2l9pnu0h4fYYHPxKIGDHcsgPdVyoo/NsSbv1O2
+         uCTLW6kDH+oaDa+OMJSo40Otaxe8aaCJyyKm9bN3s9j4EHVixD6E9soNlalXtzJTWADB
+         DJAKX4ZjYEgZQhvNbjmZOLQGmhA8Tfzz55vmJQ2/davbZjC6n55rh+rbvIs7L5/4FTeh
+         v8rUweDQ7PsWfJKC1LWaVdS5zxkjcbVH9fZsEzb+BaiK8YYGPR1pSrYpSBoj+M+uiEAl
+         Gg2xxpmKbyh4ZnDMCR1dI6pO2bfUnkE9t5szRJWG2hWKS4uYzRdfRc2y2t5fUGvCStDh
+         /nlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4/kY4Iuh46NZmdPYDysMt8pq2ZGIAr2/rIRYTWprc/0=;
+        b=CtP66oUAyza0Dcg2wnMmDCXd/M6HxV7UWOYZAt1onrWvpl9cOrM5zYOWBMbQd+5a62
+         2dak8EIcLRs+1bA9zGP2GDgz9Rwjbf5SCwiSFj4vZyLh7HSzO3DSTA9xrhX6xH5XqkFR
+         fHL7+mOkGLQGdKQW7kP5TuvIM3bZoEo89+FVJxmX/dyf+6RTL5b3+LI86lWhBK67hYQG
+         yyTOoKdkKwFymYIYBT0H5osPFsjYx1tR+DNRfqBYuN2gV+u7WEl47fb6VxQB1Ey2KnXh
+         O5hTy9+KtGlKpIjmeD0Hknq1fs4Jn77/e5IGirLqhEbSWmPDfx4mweuFiqgJEflqu/l5
+         KScg==
+X-Gm-Message-State: APjAAAXFvGpw48WDROvM/PnoQLY5Y+9a285aHWggByxkhZlrvlFieBt+
+        ZTyLQgWR2ZYyOT9qw1bpiagSRsZoFc19crunkUijQg==
+X-Google-Smtp-Source: APXvYqx7XQxrLMJoK6NNdCUXziFruma0esfovBxJGHOWgCA/3qMDBV1vUmG67RGywQZI7SPK2OszFu1whjLRm3Zdceg=
+X-Received: by 2002:a7b:cb54:: with SMTP id v20mr16697896wmj.119.1571638093988;
+ Sun, 20 Oct 2019 23:08:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191016234403.77cdf150@bahia.lan>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20191018220525.9042-1-sashal@kernel.org> <20191018220525.9042-63-sashal@kernel.org>
+In-Reply-To: <20191018220525.9042-63-sashal@kernel.org>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Mon, 21 Oct 2019 08:08:02 +0200
+Message-ID: <CAKv+Gu_6vzE-Je4G-ZZ=jU1qAWnCcADr7cJ_MG8m+tPzcC0QBw@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 063/100] crypto: arm/aes-ce - add dependency
+ on AES library
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "open list:HARDWARE RANDOM NUMBER GENERATOR CORE" 
+        <linux-crypto@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 16, 2019 at 11:44:03PM +0200, Greg Kurz wrote:
-> On Fri, 27 Sep 2019 13:53:32 +0200
-> Greg Kurz <groug@kaod.org> wrote:
-> 
-> > This brings some fixes and allows to start more VMs with an in-kernel
-> > XIVE or XICS-on-XIVE device.
-> > 
-> > Changes since v1 (https://patchwork.ozlabs.org/cover/1166099/):
-> > - drop a useless patch
-> > - add a patch to show VP ids in debugfs
-> > - update some changelogs
-> > - fix buggy check in patch 5
-> > - Cc: stable 
-> > 
-> > --
-> > Greg
-> > 
-> > ---
-> > 
-> > Greg Kurz (6):
-> >       KVM: PPC: Book3S HV: XIVE: Set kvm->arch.xive when VPs are allocated
-> >       KVM: PPC: Book3S HV: XIVE: Ensure VP isn't already in use
-> >       KVM: PPC: Book3S HV: XIVE: Show VP id in debugfs
-> >       KVM: PPC: Book3S HV: XIVE: Compute the VP id in a common helper
-> >       KVM: PPC: Book3S HV: XIVE: Make VP block size configurable
-> >       KVM: PPC: Book3S HV: XIVE: Allow userspace to set the # of VPs
-> > 
-> > 
-> >  Documentation/virt/kvm/devices/xics.txt |   14 +++
-> >  Documentation/virt/kvm/devices/xive.txt |    8 ++
-> >  arch/powerpc/include/uapi/asm/kvm.h     |    3 +
-> >  arch/powerpc/kvm/book3s_xive.c          |  142 ++++++++++++++++++++++++-------
-> >  arch/powerpc/kvm/book3s_xive.h          |   17 ++++
-> >  arch/powerpc/kvm/book3s_xive_native.c   |   40 +++------
-> >  6 files changed, 167 insertions(+), 57 deletions(-)
-> > 
-> 
-> Ping ?
+On Sat, 19 Oct 2019 at 00:07, Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>
+> [ Upstream commit f703964fc66804e6049f2670fc11045aa8359b1a ]
+>
+> The ARM accelerated AES driver depends on the new AES library for
+> its non-SIMD fallback so express this in its Kconfig declaration.
+>
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-I'm about to send a pull request to Paolo for 2/6 (to go into 5.4) and
-I'm preparing a tree of stuff for 5.5 that will include the rest of
-the patches.  However, I have been delayed by the fact that multipath
-SCSI is currently broken upstream on the P8 test box that I use, so I
-haven't been able to test things.
+Please drop this, it doesn't belong in -stable.
 
-Paul.
+> ---
+>  arch/arm/crypto/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/arch/arm/crypto/Kconfig b/arch/arm/crypto/Kconfig
+> index b8e69fe282b8d..44278f375ae23 100644
+> --- a/arch/arm/crypto/Kconfig
+> +++ b/arch/arm/crypto/Kconfig
+> @@ -89,6 +89,7 @@ config CRYPTO_AES_ARM_CE
+>         tristate "Accelerated AES using ARMv8 Crypto Extensions"
+>         depends on KERNEL_MODE_NEON
+>         select CRYPTO_BLKCIPHER
+> +       select CRYPTO_LIB_AES
+>         select CRYPTO_SIMD
+>         help
+>           Use an implementation of AES in CBC, CTR and XTS modes that uses
+> --
+> 2.20.1
+>
