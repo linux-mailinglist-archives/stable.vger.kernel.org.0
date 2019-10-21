@@ -2,46 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B108BDE64F
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 10:28:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91ECDE655
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 10:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfJUI2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 04:28:33 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:27496 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727047AbfJUI2d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 04:28:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1571646512;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Gz00+Twny7yE9efbQh6949Yl0LL93FuRzfJ8xHPNvtw=;
-        b=OxwIoB+CJ2qtBBQyfam9Q97WOIYsoI5zZx7R9lP5BxBC9KQlapatxwmF/OoTFjOnWrsHDl
-        Wi36VqbeR/Chn8YdDvxtQX3D+PS+dM8xAQLHt5ESebOezRsxKyY975XlkGd+kCP6vGzwWJ
-        t5D6b0tPDoLSo56TdYJNKkByOGLmx70=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-368-Tc0YJI4sMVeMAx8tzIlxfQ-1; Mon, 21 Oct 2019 04:28:29 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D38DB47B;
-        Mon, 21 Oct 2019 08:28:27 +0000 (UTC)
-Received: from [10.36.116.198] (ovpn-116-198.ams2.redhat.com [10.36.116.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F3FFD60126;
-        Mon, 21 Oct 2019 08:28:16 +0000 (UTC)
-Subject: Re: [patch 07/26] mm/memunmap: don't access uninitialized memmap in
- memunmap_pages()
-To:     Michal Hocko <mhocko@kernel.org>, linux-kernel@vger.kernel.org
+        id S1727785AbfJUI2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 04:28:46 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34342 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727768AbfJUI2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Oct 2019 04:28:45 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 685AFB077;
+        Mon, 21 Oct 2019 08:28:42 +0000 (UTC)
+Date:   Mon, 21 Oct 2019 10:28:41 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     linux-kernel@vger.kernel.org
 Cc:     akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
         aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com,
         benh@kernel.crashing.org, borntraeger@de.ibm.com, bp@alien8.de,
         cai@lca.pw, catalin.marinas@arm.com, christophe.leroy@c-s.fr,
         dalias@libc.org, damian.tometzki@gmail.com,
         dan.j.williams@intel.com, dave.hansen@linux.intel.com,
-        fenghua.yu@intel.com, gerald.schaefer@de.ibm.com,
+        david@redhat.com, fenghua.yu@intel.com, gerald.schaefer@de.ibm.com,
         glider@google.com, gor@linux.ibm.com, gregkh@linuxfoundation.org,
         heiko.carstens@de.ibm.com, hpa@zytor.com, ira.weiny@intel.com,
         jgg@ziepe.ca, linux-mm@kvack.org, logang@deltatee.com,
@@ -57,37 +40,197 @@ Cc:     akpm@linux-foundation.org, alexander.h.duyck@linux.intel.com,
         will@kernel.org, willy@infradead.org,
         yamada.masahiro@socionext.com, yaojun8558363@gmail.com,
         ysato@users.sourceforge.jp, yuzhao@google.com
-References: <20191019031939.9XlSnLGcS%akpm@linux-foundation.org>
- <20191021082610.GC9379@dhcp22.suse.cz>
-From:   David Hildenbrand <david@redhat.com>
-Organization: Red Hat GmbH
-Message-ID: <8ae0ba46-371b-9fed-0225-2c05bd3d6748@redhat.com>
-Date:   Mon, 21 Oct 2019 10:28:16 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+Subject: Re: [patch 06/26] mm/memory_hotplug: don't access uninitialized
+ memmaps in shrink_pgdat_span()
+Message-ID: <20191021082841.GD9379@dhcp22.suse.cz>
+References: <20191019031933.PakTLd2V_%akpm@linux-foundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20191021082610.GC9379@dhcp22.suse.cz>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-MC-Unique: Tc0YJI4sMVeMAx8tzIlxfQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191019031933.PakTLd2V_%akpm@linux-foundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21.10.19 10:26, Michal Hocko wrote:
-> Has this been properly reviewed? I do not see any Acks nor Reviewed-bys.
->=20
+Has this been reviewed properly? I do not see any Acks nor Reviewed-bys.
+Did Aneesh gave it some testing?
 
-As I modified this patch while carrying it along, it at least has my=20
-implicit Ack/RB.
+On Fri 18-10-19 20:19:33, Andrew Morton wrote:
+> From: David Hildenbrand <david@redhat.com>
+> Subject: mm/memory_hotplug: don't access uninitialized memmaps in shrink_pgdat_span()
+> 
+> We might use the nid of memmaps that were never initialized.  For example,
+> if the memmap was poisoned, we will crash the kernel in pfn_to_nid() right
+> now.  Let's use the calculated boundaries of the separate zones instead. 
+> This now also avoids having to iterate over a whole bunch of subsections
+> again, after shrinking one zone.
+> 
+> Before commit d0dc12e86b31 ("mm/memory_hotplug: optimize memory hotplug"),
+> the memmap was initialized to 0 and the node was set to the right value. 
+> After that commit, the node might be garbage.
+> 
+> We'll have to fix shrink_zone_span() next.
+> 
+> Link: http://lkml.kernel.org/r/20191006085646.5768-4-david@redhat.com
+> Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[d0dc12e86b319]
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> Cc: Oscar Salvador <osalvador@suse.de>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Wei Yang <richardw.yang@linux.intel.com>
+> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> Cc: Alexander Potapenko <glider@google.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Cc: Damian Tometzki <damian.tometzki@gmail.com>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Fenghua Yu <fenghua.yu@intel.com>
+> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Halil Pasic <pasic@linux.ibm.com>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Ira Weiny <ira.weiny@intel.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Jun Yao <yaojun8558363@gmail.com>
+> Cc: Logan Gunthorpe <logang@deltatee.com>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+> Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> Cc: Mel Gorman <mgorman@techsingularity.net>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Mike Rapoport <rppt@linux.ibm.com>
+> Cc: Pankaj Gupta <pagupta@redhat.com>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Qian Cai <cai@lca.pw>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Steve Capper <steve.capper@arm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Tom Lendacky <thomas.lendacky@amd.com>
+> Cc: Tony Luck <tony.luck@intel.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+> Cc: Yu Zhao <yuzhao@google.com>
+> Cc: <stable@vger.kernel.org>	[4.13+]
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  mm/memory_hotplug.c |   74 +++++++++---------------------------------
+>  1 file changed, 16 insertions(+), 58 deletions(-)
+> 
+> --- a/mm/memory_hotplug.c~mm-memory_hotplug-dont-access-uninitialized-memmaps-in-shrink_pgdat_span
+> +++ a/mm/memory_hotplug.c
+> @@ -436,67 +436,25 @@ static void shrink_zone_span(struct zone
+>  	zone_span_writeunlock(zone);
+>  }
+>  
+> -static void shrink_pgdat_span(struct pglist_data *pgdat,
+> -			      unsigned long start_pfn, unsigned long end_pfn)
+> +static void update_pgdat_span(struct pglist_data *pgdat)
+>  {
+> -	unsigned long pgdat_start_pfn = pgdat->node_start_pfn;
+> -	unsigned long p = pgdat_end_pfn(pgdat); /* pgdat_end_pfn namespace clash */
+> -	unsigned long pgdat_end_pfn = p;
+> -	unsigned long pfn;
+> -	int nid = pgdat->node_id;
+> -
+> -	if (pgdat_start_pfn == start_pfn) {
+> -		/*
+> -		 * If the section is smallest section in the pgdat, it need
+> -		 * shrink pgdat->node_start_pfn and pgdat->node_spanned_pages.
+> -		 * In this case, we find second smallest valid mem_section
+> -		 * for shrinking zone.
+> -		 */
+> -		pfn = find_smallest_section_pfn(nid, NULL, end_pfn,
+> -						pgdat_end_pfn);
+> -		if (pfn) {
+> -			pgdat->node_start_pfn = pfn;
+> -			pgdat->node_spanned_pages = pgdat_end_pfn - pfn;
+> -		}
+> -	} else if (pgdat_end_pfn == end_pfn) {
+> -		/*
+> -		 * If the section is biggest section in the pgdat, it need
+> -		 * shrink pgdat->node_spanned_pages.
+> -		 * In this case, we find second biggest valid mem_section for
+> -		 * shrinking zone.
+> -		 */
+> -		pfn = find_biggest_section_pfn(nid, NULL, pgdat_start_pfn,
+> -					       start_pfn);
+> -		if (pfn)
+> -			pgdat->node_spanned_pages = pfn - pgdat_start_pfn + 1;
+> -	}
+> -
+> -	/*
+> -	 * If the section is not biggest or smallest mem_section in the pgdat,
+> -	 * it only creates a hole in the pgdat. So in this case, we need not
+> -	 * change the pgdat.
+> -	 * But perhaps, the pgdat has only hole data. Thus it check the pgdat
+> -	 * has only hole or not.
+> -	 */
+> -	pfn = pgdat_start_pfn;
+> -	for (; pfn < pgdat_end_pfn; pfn += PAGES_PER_SUBSECTION) {
+> -		if (unlikely(!pfn_valid(pfn)))
+> -			continue;
+> -
+> -		if (pfn_to_nid(pfn) != nid)
+> -			continue;
+> -
+> -		/* Skip range to be removed */
+> -		if (pfn >= start_pfn && pfn < end_pfn)
+> -			continue;
+> +	unsigned long node_start_pfn = 0, node_end_pfn = 0;
+> +	struct zone *zone;
+>  
+> -		/* If we find valid section, we have nothing to do */
+> -		return;
+> +	for (zone = pgdat->node_zones;
+> +	     zone < pgdat->node_zones + MAX_NR_ZONES; zone++) {
+> +		unsigned long zone_end_pfn = zone->zone_start_pfn +
+> +					     zone->spanned_pages;
+> +
+> +		/* No need to lock the zones, they can't change. */
+> +		if (zone_end_pfn > node_end_pfn)
+> +			node_end_pfn = zone_end_pfn;
+> +		if (zone->zone_start_pfn < node_start_pfn)
+> +			node_start_pfn = zone->zone_start_pfn;
+>  	}
+>  
+> -	/* The pgdat has no valid section */
+> -	pgdat->node_start_pfn = 0;
+> -	pgdat->node_spanned_pages = 0;
+> +	pgdat->node_start_pfn = node_start_pfn;
+> +	pgdat->node_spanned_pages = node_end_pfn - node_start_pfn;
+>  }
+>  
+>  static void __remove_zone(struct zone *zone, unsigned long start_pfn,
+> @@ -507,7 +465,7 @@ static void __remove_zone(struct zone *z
+>  
+>  	pgdat_resize_lock(zone->zone_pgdat, &flags);
+>  	shrink_zone_span(zone, start_pfn, start_pfn + nr_pages);
+> -	shrink_pgdat_span(pgdat, start_pfn, start_pfn + nr_pages);
+> +	update_pgdat_span(pgdat);
+>  	pgdat_resize_unlock(zone->zone_pgdat, &flags);
+>  }
+>  
+> _
 
---=20
-
-Thanks,
-
-David / dhildenb
-
+-- 
+Michal Hocko
+SUSE Labs
