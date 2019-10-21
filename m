@@ -2,153 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B128BDEAFE
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 13:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8699EDEB1D
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 13:39:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728475AbfJULdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 07:33:32 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:57248 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727685AbfJULdc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 07:33:32 -0400
-Received: from [213.220.153.21] (helo=localhost.localdomain)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iMVwI-0007A3-CJ; Mon, 21 Oct 2019 11:33:30 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
-        christian.brauner@ubuntu.com
-Cc:     bsingharora@gmail.com, dvyukov@google.com, elver@google.com,
-        parri.andrea@gmail.com, stable@vger.kernel.org,
-        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
-        syzkaller-bugs@googlegroups.com
-Subject: [PATCH v6] taskstats: fix data-race
-Date:   Mon, 21 Oct 2019 13:33:27 +0200
-Message-Id: <20191021113327.22365-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191009114809.8643-1-christian.brauner@ubuntu.com>
-References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
+        id S1728279AbfJULjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 07:39:45 -0400
+Received: from mga05.intel.com ([192.55.52.43]:17908 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727685AbfJULjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Oct 2019 07:39:45 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Oct 2019 04:39:44 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.67,323,1566889200"; 
+   d="scan'208";a="201346357"
+Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.130])
+  by orsmga006.jf.intel.com with ESMTP; 21 Oct 2019 04:39:40 -0700
+Date:   Mon, 21 Oct 2019 14:39:39 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
+        Ken Goldman <kgold@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
+        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
+Message-ID: <20191021113939.GA11649@linux.intel.com>
+References: <20191008234935.GA13926@linux.intel.com>
+ <20191008235339.GB13926@linux.intel.com>
+ <BCA04D5D9A3B764C9B7405BBA4D4A3C035F2B995@ALPMBAPA12.e2k.ad.ge.com>
+ <20191014190033.GA15552@linux.intel.com>
+ <1571081397.3728.9.camel@HansenPartnership.com>
+ <20191016110031.GE10184@linux.intel.com>
+ <1571229252.3477.7.camel@HansenPartnership.com>
+ <20191016162543.GB6279@linux.intel.com>
+ <1571253029.17520.5.camel@HansenPartnership.com>
+ <20191017180440.GG6667@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191017180440.GG6667@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When assiging and testing taskstats in taskstats_exit() there's a race
-when writing and reading sig->stats when a thread-group with more than
-one thread exits:
+On Thu, Oct 17, 2019 at 09:04:40PM +0300, Jarkko Sakkinen wrote:
+> On Wed, Oct 16, 2019 at 03:10:29PM -0400, James Bottomley wrote:
+> > On Wed, 2019-10-16 at 19:25 +0300, Jarkko Sakkinen wrote:
+> > > On Wed, Oct 16, 2019 at 08:34:12AM -0400, James Bottomley wrote:
+> > > > reversible ciphers are generally frowned upon in random number
+> > > > generation, that's why the krng uses chacha20.  In general I think
+> > > > we shouldn't try to code our own mixing and instead should get the
+> > > > krng to do it for us using whatever the algorithm du jour that the
+> > > > crypto guys have blessed is.  That's why I proposed adding the TPM
+> > > > output to the krng as entropy input and then taking the output of
+> > > > the krng.
+> > > 
+> > > It is already registered as hwrng. What else?
+> > 
+> > It only contributes entropy once at start of OS.
+> 
+> Ok.
+> 
+> > >  Was the issue that it is only used as seed when the rng is init'd
+> > > first? I haven't at this point gone to the internals of krng.
+> > 
+> > Basically it was similar to your xor patch except I got the kernel rng
+> > to do the mixing, so it would use the chacha20 cipher at the moment
+> > until they decide that's unsafe and change it to something else:
+> > 
+> > https://lore.kernel.org/linux-crypto/1570227068.17537.4.camel@HansenPartnership.com/
+> > 
+> > It uses add_hwgenerator_randomness() to do the mixing.  It also has an
+> > unmixed source so that read of the TPM hwrng device works as expected.
+> 
+> Thinking that could this potentially racy? I.e. between the calls
+> something else could eat the entropy added?
 
-cpu0:
-thread catches fatal signal and whole thread-group gets taken down
- do_exit()
- do_group_exit()
- taskstats_exit()
- taskstats_tgid_alloc()
-The tasks reads sig->stats without holding sighand lock.
+Also, what is wrong just taking one value from krng and mixing
+it with a value from TPM RNG where needed? That would be non-racy
+too.
 
-cpu1:
-task calls exit_group()
- do_exit()
- do_group_exit()
- taskstats_exit()
- taskstats_tgid_alloc()
-The task takes sighand lock and assigns new stats to sig->stats.
-
-The first approach used smp_load_acquire() and smp_store_release().
-However, after having discussed this it seems that the data dependency
-for kmem_cache_alloc() would be fixed by WRITE_ONCE().
-Furthermore, the smp_load_acquire() would only manage to order the stats
-check before the thread_group_empty() check. So it seems just using
-READ_ONCE() and WRITE_ONCE() will do the job and I wanted to bring this
-up for discussion at least.
-
-Reported-by: syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com
-Fixes: 34ec12349c8a ("taskstats: cleanup ->signal->stats allocation")
-Cc: Will Deacon <will@kernel.org>
-Cc: Marco Elver <elver@google.com>
-Cc: Andrea Parri <parri.andrea@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
-/* v1 */
-Link: https://lore.kernel.org/r/20191005112806.13960-1-christian.brauner@ubuntu.com
-
-/* v2 */
-Link: https://lore.kernel.org/r/20191006235216.7483-1-christian.brauner@ubuntu.com
-- Dmitry Vyukov <dvyukov@google.com>, Marco Elver <elver@google.com>:
-  - fix the original double-checked locking using memory barriers
-
-/* v3 */
-Link: https://lore.kernel.org/r/20191007110117.1096-1-christian.brauner@ubuntu.com
-- Andrea Parri <parri.andrea@gmail.com>:
-  - document memory barriers to make checkpatch happy
-
-/* v4 */
-Link: https://lore.kernel.org/r/20191009113134.5171-1-christian.brauner@ubuntu.com
-- Andrea Parri <parri.andrea@gmail.com>:
-  - use smp_load_acquire(), not READ_ONCE()
-  - update commit message
-
-/* v5 */
-Link: https://lore.kernel.org/r/20191009114809.8643-1-christian.brauner@ubuntu.com
-- Andrea Parri <parri.andrea@gmail.com>:
-  - fix typo in smp_load_acquire()
-
-/* v6 */
-- Christian Brauner <christian.brauner@ubuntu.com>:
-  - bring up READ_ONCE()/WRITE_ONCE() approach for discussion
----
- kernel/taskstats.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
-
-diff --git a/kernel/taskstats.c b/kernel/taskstats.c
-index 13a0f2e6ebc2..111bb4139aa2 100644
---- a/kernel/taskstats.c
-+++ b/kernel/taskstats.c
-@@ -554,25 +554,29 @@ static int taskstats_user_cmd(struct sk_buff *skb, struct genl_info *info)
- static struct taskstats *taskstats_tgid_alloc(struct task_struct *tsk)
- {
- 	struct signal_struct *sig = tsk->signal;
--	struct taskstats *stats;
-+	struct taskstats *stats_new, *stats;
- 
--	if (sig->stats || thread_group_empty(tsk))
--		goto ret;
-+	/* Pairs with WRITE_ONCE() below. */
-+	stats = READ_ONCE(sig->stats);
-+	if (stats || thread_group_empty(tsk))
-+		return stats;
- 
- 	/* No problem if kmem_cache_zalloc() fails */
--	stats = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
-+	stats_new = kmem_cache_zalloc(taskstats_cache, GFP_KERNEL);
- 
- 	spin_lock_irq(&tsk->sighand->siglock);
--	if (!sig->stats) {
--		sig->stats = stats;
--		stats = NULL;
-+	if (!stats) {
-+		stats = stats_new;
-+		/* Pairs with READ_ONCE() above. */
-+		WRITE_ONCE(sig->stats, stats_new);
-+		stats_new = NULL;
- 	}
- 	spin_unlock_irq(&tsk->sighand->siglock);
- 
--	if (stats)
--		kmem_cache_free(taskstats_cache, stats);
--ret:
--	return sig->stats;
-+	if (stats_new)
-+		kmem_cache_free(taskstats_cache, stats_new);
-+
-+	return stats;
- }
- 
- /* Send pid data out on exit */
--- 
-2.23.0
-
+/Jarkko
