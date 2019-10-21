@@ -2,86 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9300DF0BB
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 17:03:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38550DF111
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 17:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727101AbfJUPDf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 11:03:35 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:36171 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727040AbfJUPDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 11:03:35 -0400
-Received: by mail-pg1-f193.google.com with SMTP id 23so7988142pgk.3;
-        Mon, 21 Oct 2019 08:03:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YysD+jLXOtCHN+Nj/7OSWUXgBwzuMOL8wpxsblD8TUk=;
-        b=e0k7twuaZUExyk2fa3QcR5GERKGKEuyxy5qa6k63guOvao8TsoRvRBxOohSEGsAyC0
-         4Rc1HSBIfkXLMKfTZRG1Wm1xRTYU6zEiDny0jFo5rWDYjrBNg36YCxjDWjjxYJrPyZIF
-         v2RmDLhaMQfvBfqSWTS2GgEYd20JT1F7ya8gYCS+MxR2Ksg3mslIIfnXveuQBl7LO3sO
-         uK/i8fNw3+7OLK8VLTuXFYV1Xi7IGW9cNBKxilQDVdbHsky5/zRutbCO1KL8TFqUcfsA
-         T+k40Emj1X+obvSw4BDFFFCQ/pJang7/oL759d8ZSLd4DJE9aOTQi7vbyc23e4RIVGfe
-         TfPg==
-X-Gm-Message-State: APjAAAUEYCwbeIo6RzqLaWF/oC7Dx2EINzNBty1c9TSFY56eTunbN9U4
-        fLWPnyGfIGVXJPnOnDVR8VvFpZ9NcKw=
-X-Google-Smtp-Source: APXvYqwQEilLnY9QBdQTKCAP8SsgsY9R3ViUViiCw5GzHbxRATrxaLjOK3VY9v6KP4bsc5qcb8RzDQ==
-X-Received: by 2002:a63:5813:: with SMTP id m19mr26410611pgb.43.1571670214224;
-        Mon, 21 Oct 2019 08:03:34 -0700 (PDT)
-Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
-        by smtp.gmail.com with ESMTPSA id w134sm17137669pfd.4.2019.10.21.08.03.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 21 Oct 2019 08:03:33 -0700 (PDT)
-Subject: Re: [PATCH 1/4] RDMA/core: Fix ib_dma_max_seg_size()
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-References: <20191021021030.1037-1-bvanassche@acm.org>
- <20191021021030.1037-2-bvanassche@acm.org> <20191021140917.GB25178@ziepe.ca>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <bf742476-89cd-51ef-0047-da813ab318fb@acm.org>
-Date:   Mon, 21 Oct 2019 08:03:32 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1728183AbfJUPRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 11:17:12 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:51794 "HELO
+        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1727945AbfJUPRM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 11:17:12 -0400
+Received: (qmail 4979 invoked by uid 2102); 21 Oct 2019 11:17:11 -0400
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 21 Oct 2019 11:17:11 -0400
+Date:   Mon, 21 Oct 2019 11:17:11 -0400 (EDT)
+From:   Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To:     Johan Hovold <johan@kernel.org>
+cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Oliver Neukum <oneukum@suse.com>,
+        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH RFC v2 2/2] USB: ldusb: fix ring-buffer locking
+In-Reply-To: <20191018151955.25135-3-johan@kernel.org>
+Message-ID: <Pine.LNX.4.44L0.1910211109400.1673-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-In-Reply-To: <20191021140917.GB25178@ziepe.ca>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/21/19 7:09 AM, Jason Gunthorpe wrote:
-> On Sun, Oct 20, 2019 at 07:10:27PM -0700, Bart Van Assche wrote:
->> diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
->> index 6a47ba85c54c..e6c167d03aae 100644
->> +++ b/include/rdma/ib_verbs.h
->> @@ -4043,9 +4043,7 @@ static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
->>    */
->>   static inline unsigned int ib_dma_max_seg_size(struct ib_device *dev)
->>   {
->> -	struct device_dma_parameters *p = dev->dma_device->dma_parms;
->> -
->> -	return p ? p->max_segment_size : UINT_MAX;
->> +	return dma_get_max_seg_size(dev->dma_device);
->>   }
+On Fri, 18 Oct 2019, Johan Hovold wrote:
+
+> The custom ring-buffer implementation was merged without any locking
+> whatsoever, but a spinlock was later added by commit 9d33efd9a791
+> ("USB: ldusb bugfix").
 > 
-> Should we get rid of this wrapper?
+> The lock did not cover the loads from the ring-buffer entry after
+> determining the buffer was non-empty, nor the update of the tail index
+> once the entry had been processed. The former could lead to stale data
+> being returned, while the latter could lead to memory corruption on
+> sufficiently weakly ordered architectures.
 
-Hi Jason,
+Let's see if I understand this correctly.
 
-In general I agree that getting rid of single line inline functions is 
-good. In this case however I'd like to keep the wrapper such that RDMA 
-ULP code does not have to deal with the choice between dev->dma_device 
-and &dev->dev. From struct ib_device:
-  /* Do not access @dma_device directly from ULP nor from HW drivers. */
-struct device                *dma_device;
+The completion routine stores a buffer-length value at the location 
+actual_buffer points to, and it stores the buffer contents themselves 
+in the immediately following bytes.  All this happens while the 
+dev->rbsl spinlock is held.
 
-Thanks,
+Later on the read routine loads a value from *actual_buffer while
+holding the spinlock, but drops the spinlock before copying the
+immediately following buffer contents to userspace.
 
-Bart.
+Your question is whether the read routine needs to call smp_rmb() after 
+dropping the spinlock and before doing copy_to_user(), right?
+
+The answer is: No, smp_rmb() isn't needed.  All the data stored while
+ld_usb_interrupt_in_callback() held the spinlock will be visible to
+ld_usb_read() while it holds the spinlock and afterward (assuming the
+critical section in ld_usb_read() runs after the critical section in 
+ld_usb_interrupt_in_callback() -- but you know this is true because of 
+the value you read from *actual_buffer).
+
+Alan Stern
+
+> Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+> Fixes: 9d33efd9a791 ("USB: ldusb bugfix")
+> Cc: stable <stable@vger.kernel.org>     # 2.6.13
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/usb/misc/ldusb.c | 15 ++++++++++++---
+>  1 file changed, 12 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
+> index 15b5f06fb0b3..6b5843b0071e 100644
+> --- a/drivers/usb/misc/ldusb.c
+> +++ b/drivers/usb/misc/ldusb.c
+> @@ -477,11 +477,11 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
+>  
+>  		spin_lock_irq(&dev->rbsl);
+>  	}
+> -	spin_unlock_irq(&dev->rbsl);
+>  
+>  	/* actual_buffer contains actual_length + interrupt_in_buffer */
+>  	actual_buffer = (size_t *)(dev->ring_buffer + dev->ring_tail * (sizeof(size_t)+dev->interrupt_in_endpoint_size));
+>  	if (*actual_buffer > dev->interrupt_in_endpoint_size) {
+> +		spin_unlock_irq(&dev->rbsl);
+>  		retval = -EIO;
+>  		goto unlock_exit;
+>  	}
+> @@ -489,17 +489,26 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
+>  	if (bytes_to_read < *actual_buffer)
+>  		dev_warn(&dev->intf->dev, "Read buffer overflow, %zd bytes dropped\n",
+>  			 *actual_buffer-bytes_to_read);
+> +	spin_unlock_irq(&dev->rbsl);
+> +
+> +	/*
+> +	 * Pairs with spin_unlock_irqrestore() in
+> +	 * ld_usb_interrupt_in_callback() and makes sure the ring-buffer entry
+> +	 * has been updated before copy_to_user().
+> +	 */
+> +	smp_rmb();
+>  
+>  	/* copy one interrupt_in_buffer from ring_buffer into userspace */
+>  	if (copy_to_user(buffer, actual_buffer+1, bytes_to_read)) {
+>  		retval = -EFAULT;
+>  		goto unlock_exit;
+>  	}
+> -	dev->ring_tail = (dev->ring_tail+1) % ring_buffer_size;
+> -
+>  	retval = bytes_to_read;
+>  
+>  	spin_lock_irq(&dev->rbsl);
+> +
+> +	dev->ring_tail = (dev->ring_tail + 1) % ring_buffer_size;
+> +
+>  	if (dev->buffer_overflow) {
+>  		dev->buffer_overflow = 0;
+>  		spin_unlock_irq(&dev->rbsl);
+> 
+
+
