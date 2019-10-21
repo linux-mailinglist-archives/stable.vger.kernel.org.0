@@ -2,96 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C985DE175
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 02:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EDDCDE1A0
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 02:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726610AbfJUAd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 20 Oct 2019 20:33:28 -0400
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:40123 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726576AbfJUAd2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 20 Oct 2019 20:33:28 -0400
-Received: by mail-qk1-f193.google.com with SMTP id y81so6970963qkb.7
-        for <stable@vger.kernel.org>; Sun, 20 Oct 2019 17:33:26 -0700 (PDT)
+        id S1726681AbfJUA5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 20 Oct 2019 20:57:04 -0400
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:36088 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726641AbfJUA5E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 20 Oct 2019 20:57:04 -0400
+Received: by mail-oi1-f195.google.com with SMTP id k20so9632375oih.3;
+        Sun, 20 Oct 2019 17:57:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
+        h=sender:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=115n8fVPcb6FFdMlLEXy4f+oj6Xj6AxVK8mXd42SbSI=;
-        b=udxVlbReBn0R6KxKUYWX3gxJrhCJmXqPSnaKiuLxToSDKmSRsTjrI3RzK1N+4fozuI
-         GCIo5AVNSiSCy9iSuNmJf6JpAb0/25kHBRiIl2ERiYgk3ZCbSW43Fu653NVB1+HDpdsF
-         rZgtCLWr4L1+izd82Rk4AjbPF4AkMIpFvX1DrXGxWxGXjG8mk0Q3Oh9Am9xkx0rPZ3Zc
-         NxVvgfE6GuKVtCbX1e0P2J4j6cXOA4ID9/7jhzJIs1QY9blf8+E6ho1SJlbGuiayR/+N
-         Bo1u+u7eBjpTHg/RauCbakDVr/l1HQMnZA/UBnvaKkNZOoVxdBlZgL1F9+gBAeYiDgY8
-         Q95g==
+        bh=0+8yL95iA9xl8GU+Ns3sN6nA5PQJhOhlYk6Bv5EKaG0=;
+        b=pU/2ULMA0Zej7JRCpaDtxdTKojYZt7kRfMz5O6x2B+eD4Dg2+IXPx6S0nq1nRh7Hti
+         PB200PaupDDwJqoPTLb/qXzC4tMQGLlbFPqyNF5RgJf9uJTK9DIjA5STp9t7ge0djlKe
+         BspOJtDAVyxoQKYWlaah/uxr6ybFUeoG577bRhgelHCDRDWKOvmTtf63eX8kPpnsEJCs
+         z59uDUkhkQtCPluu2dec/yxZaSgjKYXnqksWM5EbyTOVW6bTWIPsfdfhXstvKsEDt5xB
+         2oQ6rOBDirjmDaynnUArJBor5dEQsIjI8LOCQh8Wib64hNFWrfGgyiTR7vRe6/9OVxy0
+         C4aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=115n8fVPcb6FFdMlLEXy4f+oj6Xj6AxVK8mXd42SbSI=;
-        b=WOAnXqCjvTdLRW4gOCY+G7Yo3JqrWULWdaIRWYrfsK1+ZXbS22kLnJ9im4Wke6TLBN
-         Az2QTivuaPBoLDM7pXHYUtcNCOSpU2atQQSasAQubDgBeU/JBML8iZVCiAfXs7YOg85U
-         k/2cPwpKfLn5PPKn7I6rKY4k5ae0jMeJT8v73tn0zmw7KqxN7ZNU0W6Ty3utyUG2DG15
-         HeIrQeGRvG1qcS70c7Db3MgzqYBpeCJHE/KaV9F3hmakGb0i23WV2KpcMeOBDaoPkjYm
-         qr6IhRdtMw+2Zw0ZuTHJHf+1SlFBY9+qWOdudARN3Jh0aeuSvGf1TigXRSKzNrzxhM7s
-         XZ7g==
-X-Gm-Message-State: APjAAAVpjShkyur1wbDUx+dQqubR7T04umLK8f8XnmkJ/lQduWKmwiBV
-        s3WMV1UOkhTyzgKlFjxcYx15RK6eTKFW8H5ZHsY=
-X-Google-Smtp-Source: APXvYqwvydV/JqP+cmkMSh+BI2KrOLQgE7ZdTNIkeB1AxWlfoDAD6GixXd8UQdW4qkluTsWpmSlCFl8wN696eDLN+/A=
-X-Received: by 2002:a37:68c2:: with SMTP id d185mr20361696qkc.297.1571618005565;
- Sun, 20 Oct 2019 17:33:25 -0700 (PDT)
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=0+8yL95iA9xl8GU+Ns3sN6nA5PQJhOhlYk6Bv5EKaG0=;
+        b=ZAMml3FjL4GHzDBSFu2RHoMrKjgZf7gci9JtSzp75Fr0w58RZH8AznQyokbPPpkt6z
+         fytacE0gwxvqdsjZs4NxfkhJrgMo+veRdzGyWXuDBumGvyr8MRwgpP4JqHzqrBCrM6CG
+         xJmy8Suv9IrE31erUhqgT0us7smZ9mPTUpMQl8wXKd9IMtGaD3lG3HcAi6a1IpOoHsr7
+         nhVTraIlwngnoBo0M/QMCG4fadqmL5UYvfcUvh4mj6HhmSj+ZYU0Z/nf2TSBeOVc4pZZ
+         +RO+6XpdCtH065zYtBgM3LaXx8Z91YKoWFwD+1F01nt9qhjAPpKIXbuB07wLUiAhCuaW
+         raFg==
+X-Gm-Message-State: APjAAAX69yUnTLti5TCf6htIW3Kibnl8/B5FoP7y3o/30D9WE/ZW6Mad
+        5EppXEjGkq+7ktYf9Jr5WfAt5XoF
+X-Google-Smtp-Source: APXvYqxqVdmvXlYe078dVvRutR4VmN0GdcnINxJCtUY73aXIyLhWTO6iGI+uJPXsuz6mg6omM1q3SQ==
+X-Received: by 2002:aca:c4d4:: with SMTP id u203mr17303935oif.121.1571619423006;
+        Sun, 20 Oct 2019 17:57:03 -0700 (PDT)
+Received: from localhost.localdomain (cpe-24-31-245-230.kc.res.rr.com. [24.31.245.230])
+        by smtp.gmail.com with ESMTPSA id j138sm3321765oib.2.2019.10.20.17.57.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Oct 2019 17:57:01 -0700 (PDT)
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Stable <stable@vger.kernel.org>
+Subject: [PATCH V3] rtlwifi: rtl_pci: Fix problem of too small skb->len
+Date:   Sun, 20 Oct 2019 19:56:58 -0500
+Message-Id: <20191021005658.31391-1-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Received: by 2002:a0c:a3e1:0:0:0:0:0 with HTTP; Sun, 20 Oct 2019 17:33:25
- -0700 (PDT)
-Reply-To: ayishagddafio@mail.com
-From:   AISHA GADDAFI <theodoreguerinrevsister@gmail.com>
-Date:   Sun, 20 Oct 2019 17:33:25 -0700
-Message-ID: <CAD5W7L8HoqCp_axFeN=CWhqGXMgip9bCh8MggXMEFYZR4ggP9A@mail.gmail.com>
-Subject: Lieber Freund (Assalamu Alaikum),
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Lieber Freund (Assalamu Alaikum),
+In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
+only"), buffers whose length is too short cause a WARN_ON(1) to be
+executed. This change exposed a fault in rtlwifi drivers, which is fixed
+by regarding packets with skb->len <= FCS_LEN as though they are in error
+and dropping them. The test is now annotated as likely.
 
-Ich bin vor einer privaten Suche auf Ihren E-Mail-Kontakt gesto=C3=9Fen
-Ihre Hilfe. Mein Name ist Aisha Al-Qaddafi, alleinerziehende Mutter und Wit=
-we
-mit drei Kindern. Ich bin die einzige biologische Tochter des sp=C3=A4ten L=
-ibyers
-Pr=C3=A4sident (Oberst Muammar Gaddafi).
+Cc: Stable <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+---
+V2 - content dropped
+V3 - changed fix to drop packet rather than arbitrarily increasing the length.
+---
+Material for 5.4.
+---
+ drivers/net/wireless/realtek/rtlwifi/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Ich habe Investmentfonds im Wert von siebenundzwanzig Millionen und
-f=C3=BCnfhunderttausend
-United State Dollar (27.500.000,00 $) und ich brauche eine
-vertrauensw=C3=BCrdige Investition
-Manager / Partner wegen meines aktuellen Fl=C3=BCchtlingsstatus bin ich jed=
-och
-Interesse an Ihnen f=C3=BCr die Unterst=C3=BCtzung von Investitionsprojekte=
-n in
-Ihrem Land, kann sein
-Von dort aus k=C3=B6nnen wir in n=C3=A4chster Zukunft eine Gesch=C3=A4ftsbe=
-ziehung aufbauen.
+diff --git a/drivers/net/wireless/realtek/rtlwifi/pci.c b/drivers/net/wireless/realtek/rtlwifi/pci.c
+index 6087ec7a90a6..f88d26535978 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/pci.c
++++ b/drivers/net/wireless/realtek/rtlwifi/pci.c
+@@ -822,7 +822,7 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
+ 		hdr = rtl_get_hdr(skb);
+ 		fc = rtl_get_fc(skb);
+ 
+-		if (!stats.crc && !stats.hwerror) {
++		if (!stats.crc && !stats.hwerror && (skb->len > FCS_LEN)) {
+ 			memcpy(IEEE80211_SKB_RXCB(skb), &rx_status,
+ 			       sizeof(rx_status));
+ 
+@@ -859,6 +859,7 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
+ 				_rtl_pci_rx_to_mac80211(hw, skb, rx_status);
+ 			}
+ 		} else {
++			/* drop packets with errors or those too short */
+ 			dev_kfree_skb_any(skb);
+ 		}
+ new_trx_end:
+-- 
+2.23.0
 
-Ich bin gerne bereit, mit Ihnen das Verh=C3=A4ltnis der Beteiligungsquote z=
-u teilen
-st=C3=BCtzen Sie sich auf die zuk=C3=BCnftigen Investitionen, die Gewinne e=
-rzielen.
-
-Wenn Sie bereit sind, dieses Projekt in meinem Namen durchzuf=C3=BChren,
-antworten Sie bitte dringend
-Damit ich Ihnen mehr Informationen =C3=BCber die Investmentfonds geben kann=
-.
-
-Ihre dringende Antwort wird gesch=C3=A4tzt. Schreiben Sie mir an diese
-E-Mail-Adresse (
-ayishagddafio@mail.com ) zur weiteren Diskussion.
-
-Freundliche Gr=C3=BC=C3=9Fe
-Frau Aisha Al-Gaddafi
-Antwort an: ayishagddafio@mail.com
