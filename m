@@ -2,192 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D6A3DF50E
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 20:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95E81DF6E5
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 22:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726672AbfJUSaS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 14:30:18 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:34605 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727110AbfJUSaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 14:30:18 -0400
-Received: by mail-lj1-f195.google.com with SMTP id j19so14437258lja.1;
-        Mon, 21 Oct 2019 11:30:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=ts+6T0Vx6W3F2XGuWMeDvC9HfhWnz9E3GMgfVXKqPzU=;
-        b=Xh0vRa1SUTsa5mon0D0odHCTz3qjmUG/i4uECjMHoMdQJ0gxmBaWuCQdoYZ3v+WgfL
-         9D31h2qMA+jKMawzrqP1ZVPeNr9DrYSt0oqBJJEfySO/jbADutZTYsp0HnOK0RiM+ZeN
-         YZ8Yxc4DCAd/8fvTKFLq9Ag5hjxfRunYPzzh7v+DK/AwCFM43j7ngsk+NK5NzG3qmN1b
-         bKgiuzq2Wq2ZLhJRfQVhv0cfOUCkHJ+9EHmVpwzZG8jSWAkRR/Z0MgWggXYFh3pQ0dw0
-         BFoysrSEJc4d7vXbRKG/S3JvRrEhIHYm/P4VHkOc0bbYlGHmselAlZSJZhUhNYAaRpnM
-         +35g==
-X-Gm-Message-State: APjAAAUw/BhVy9Rn+hpTU+hfnX07+TcoCV3hzwjWuLHSFrDS/LI+gDCQ
-        /R9BW5Dz1zu5XdAl1KWbI0k=
-X-Google-Smtp-Source: APXvYqypIus5VQMILkgXDjCXtHwwFtmkZfWifAW4OFA0PaZJTvPnERZNy5029fmXfI5d/oCydol5Ow==
-X-Received: by 2002:a2e:a0d6:: with SMTP id f22mr16159186ljm.81.1571682614838;
-        Mon, 21 Oct 2019 11:30:14 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id 77sm7313934ljf.85.2019.10.21.11.30.13
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 21 Oct 2019 11:30:13 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@kernel.org>)
-        id 1iMcRn-00032x-L2; Mon, 21 Oct 2019 20:30:27 +0200
-Date:   Mon, 21 Oct 2019 20:30:27 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Johan Hovold <johan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Oliver Neukum <oneukum@suse.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH RFC v2 2/2] USB: ldusb: fix ring-buffer locking
-Message-ID: <20191021183027.GN24768@localhost>
-References: <20191018151955.25135-3-johan@kernel.org>
- <Pine.LNX.4.44L0.1910211109400.1673-100000@iolanthe.rowland.org>
+        id S1730052AbfJUUmo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 16:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43286 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728914AbfJUUmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Oct 2019 16:42:44 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E93B12067B;
+        Mon, 21 Oct 2019 20:42:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571690562;
+        bh=ZYYHAnf+cQbvA6r1St0iHBkMnxvvvYQgMCXtGdvpSmw=;
+        h=Date:From:To:Subject:From;
+        b=UFl5g8umgDDXz9i8QvUC81KVJQ0FbboKmrztMOJ8C1aHyyiTH3sxEzNegz9dyf4S6
+         vyF6Xb7GCV4GUfCWbnYeJn84jpNLM+hMU47x0G11mWaOPpS6thfuzdvaj2QmU55HJp
+         3teFn3mSDgnwpilAmG7+UwzDVEviZXBsnqtBqjNs=
+Date:   Mon, 21 Oct 2019 13:42:41 -0700
+From:   akpm@linux-foundation.org
+To:     david@redhat.com, gregkh@linuxfoundation.org, mhocko@suse.com,
+        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
+        rafael@kernel.org, stable@vger.kernel.org
+Subject:  [merged]
+ =?US-ASCII?Q?drivers-base-memoryc-dont-access-uninitialized-memmaps-in-s?=
+ =?US-ASCII?Q?oft=5Foffline=5Fpage=5Fstore.patch?= removed from -mm tree
+Message-ID: <20191021204241.Ee3KmnvEd%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.1910211109400.1673-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 21, 2019 at 11:17:11AM -0400, Alan Stern wrote:
-> On Fri, 18 Oct 2019, Johan Hovold wrote:
-> 
-> > The custom ring-buffer implementation was merged without any locking
-> > whatsoever, but a spinlock was later added by commit 9d33efd9a791
-> > ("USB: ldusb bugfix").
-> > 
-> > The lock did not cover the loads from the ring-buffer entry after
-> > determining the buffer was non-empty, nor the update of the tail index
-> > once the entry had been processed. The former could lead to stale data
-> > being returned, while the latter could lead to memory corruption on
-> > sufficiently weakly ordered architectures.
-> 
-> Let's see if I understand this correctly.
-> 
-> The completion routine stores a buffer-length value at the location 
-> actual_buffer points to, and it stores the buffer contents themselves 
-> in the immediately following bytes.  All this happens while the 
-> dev->rbsl spinlock is held.
 
-Right.
+The patch titled
+     Subject: drivers/base/memory.c: don't access uninitialized memmaps in soft_offline_page_store()
+has been removed from the -mm tree.  Its filename was
+     drivers-base-memoryc-dont-access-uninitialized-memmaps-in-soft_offline_page_store.patch
 
-> Later on the read routine loads a value from *actual_buffer while
-> holding the spinlock, but drops the spinlock before copying the
-> immediately following buffer contents to userspace.
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-It doesn't currently hold the spinlock while reading *actual_buffer,
-only when checking if the ring-buffer is non-empty. The patch below
-extends the check to cover also the load from *actual_buffer.
+------------------------------------------------------
+From: David Hildenbrand <david@redhat.com>
+Subject: drivers/base/memory.c: don't access uninitialized memmaps in soft_offline_page_store()
 
-> Your question is whether the read routine needs to call smp_rmb() after 
-> dropping the spinlock and before doing copy_to_user(), right?
+Uninitialized memmaps contain garbage and in the worst case trigger kernel
+BUGs, especially with CONFIG_PAGE_POISONING.  They should not get touched.
 
-Right, or alternatively, if an smp_rmb() after dropping the spinlock and
-before loading *actual_buffer is needed.
+Right now, when trying to soft-offline a PFN that resides on a memory
+block that was never onlined, one gets a misleading error with
+CONFIG_PAGE_POISONING:
 
-> The answer is: No, smp_rmb() isn't needed.  All the data stored while
-> ld_usb_interrupt_in_callback() held the spinlock will be visible to
-> ld_usb_read() while it holds the spinlock and afterward (assuming the
-> critical section in ld_usb_read() runs after the critical section in 
-> ld_usb_interrupt_in_callback() -- but you know this is true because of 
-> the value you read from *actual_buffer).
+  :/# echo 5637144576 > /sys/devices/system/memory/soft_offline_page
+  [   23.097167] soft offline: 0x150000 page already poisoned
 
-Did you mean the value "read from dev->ring_head" (which tells us the
-ring-buffer has been updated) here?
+But the actual result depends on the garbage in the memmap.
 
-We currently have something like this in ld_usb_read():
+soft_offline_page() can only work with online pages, it returns -EIO in
+case of ZONE_DEVICE.  Make sure to only forward pages that are online
+(iow, managed by the buddy) and, therefore, have an initialized memmap.
 
-	spin_lock_irq(&lock);
-	while (head == tail) {
-		spin_unlock(&lock);
-		wait_event(event);
-		spin_lock(&lock);
-	}
-	spin_unlock_irq(&lock);
+Add a check against pfn_to_online_page() and similarly return -EIO.
 
-	entry = &buffer[tail];
-	len = *entry;
-	copy_to_user(buf, entry + 1, len);
+Link: http://lkml.kernel.org/r/20191010141200.8985-1-david@redhat.com
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.13+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-	/* update tail */
+ drivers/base/memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-And without an smp_rmb() after dropping the spinlock, what prevents the
-load from *entry from being done before the load from head? Nothing,
-right (the spin_unlock_irq() is only a compiler barrier for later
-loads)? But that's fine because all stores done by the completion
-handler under the spinlock would of course be visible at that point.
+--- a/drivers/base/memory.c~drivers-base-memoryc-dont-access-uninitialized-memmaps-in-soft_offline_page_store
++++ a/drivers/base/memory.c
+@@ -540,6 +540,9 @@ static ssize_t soft_offline_page_store(s
+ 	pfn >>= PAGE_SHIFT;
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
++	if (!pfn_to_online_page(pfn))
++		return -EIO;
+ 	ret = soft_offline_page(pfn_to_page(pfn), 0);
+ 	return ret == 0 ? count : ret;
+ }
+_
 
-So the current code is fine wrt to copy_to_user(), and only the tail
-bits below are actually needed.
+Patches currently in -mm which might be from david@redhat.com are
 
-Thanks, Alan! Had myself confused there.
+mm-memory_hotplug-export-generic_online_page.patch
+hv_balloon-use-generic_online_page.patch
+mm-memory_hotplug-remove-__online_page_free-and-__online_page_increment_counters.patch
+mm-memory_hotplug-dont-access-uninitialized-memmaps-in-shrink_zone_span.patch
+mm-memory_hotplug-shrink-zones-when-offlining-memory.patch
+mm-memory_hotplug-poison-memmap-in-remove_pfn_range_from_zone.patch
+mm-memory_hotplug-we-always-have-a-zone-in-find_smallestbiggest_section_pfn.patch
+mm-memory_hotplug-dont-check-for-all-holes-in-shrink_zone_span.patch
+mm-memory_hotplug-drop-local-variables-in-shrink_zone_span.patch
+mm-memory_hotplug-cleanup-__remove_pages.patch
 
-Johan
-
-> > Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-> > Fixes: 9d33efd9a791 ("USB: ldusb bugfix")
-> > Cc: stable <stable@vger.kernel.org>     # 2.6.13
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/usb/misc/ldusb.c | 15 ++++++++++++---
-> >  1 file changed, 12 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/usb/misc/ldusb.c b/drivers/usb/misc/ldusb.c
-> > index 15b5f06fb0b3..6b5843b0071e 100644
-> > --- a/drivers/usb/misc/ldusb.c
-> > +++ b/drivers/usb/misc/ldusb.c
-> > @@ -477,11 +477,11 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
-> >  
-> >  		spin_lock_irq(&dev->rbsl);
-> >  	}
-> > -	spin_unlock_irq(&dev->rbsl);
-> >  
-> >  	/* actual_buffer contains actual_length + interrupt_in_buffer */
-> >  	actual_buffer = (size_t *)(dev->ring_buffer + dev->ring_tail * (sizeof(size_t)+dev->interrupt_in_endpoint_size));
-> >  	if (*actual_buffer > dev->interrupt_in_endpoint_size) {
-> > +		spin_unlock_irq(&dev->rbsl);
-> >  		retval = -EIO;
-> >  		goto unlock_exit;
-> >  	}
-> > @@ -489,17 +489,26 @@ static ssize_t ld_usb_read(struct file *file, char __user *buffer, size_t count,
-> >  	if (bytes_to_read < *actual_buffer)
-> >  		dev_warn(&dev->intf->dev, "Read buffer overflow, %zd bytes dropped\n",
-> >  			 *actual_buffer-bytes_to_read);
-> > +	spin_unlock_irq(&dev->rbsl);
-> > +
-> > +	/*
-> > +	 * Pairs with spin_unlock_irqrestore() in
-> > +	 * ld_usb_interrupt_in_callback() and makes sure the ring-buffer entry
-> > +	 * has been updated before copy_to_user().
-> > +	 */
-> > +	smp_rmb();
-> >  
-> >  	/* copy one interrupt_in_buffer from ring_buffer into userspace */
-> >  	if (copy_to_user(buffer, actual_buffer+1, bytes_to_read)) {
-> >  		retval = -EFAULT;
-> >  		goto unlock_exit;
-> >  	}
-> > -	dev->ring_tail = (dev->ring_tail+1) % ring_buffer_size;
-> > -
-> >  	retval = bytes_to_read;
-> >  
-> >  	spin_lock_irq(&dev->rbsl);
-> > +
-> > +	dev->ring_tail = (dev->ring_tail + 1) % ring_buffer_size;
-> > +
-> >  	if (dev->buffer_overflow) {
-> >  		dev->buffer_overflow = 0;
-> >  		spin_unlock_irq(&dev->rbsl);
-> > 
-> 
-> 
