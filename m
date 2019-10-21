@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18E80DF6E7
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 22:42:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 827F8DF6E9
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 22:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730296AbfJUUms (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 16:42:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43386 "EHLO mail.kernel.org"
+        id S1730300AbfJUUm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 16:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728914AbfJUUms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Oct 2019 16:42:48 -0400
+        id S1728914AbfJUUm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 21 Oct 2019 16:42:56 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 983AD20882;
-        Mon, 21 Oct 2019 20:42:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C52EE2086D;
+        Mon, 21 Oct 2019 20:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571690567;
-        bh=/bfZVQXAvaqUMjkBnhMibJf9PBJ1hbKEtK3Thz+bVIQ=;
+        s=default; t=1571690575;
+        bh=gEVeZmwJAdlMRB4IxEe6+aJjvFiR4vBaPi91vt1a7E8=;
         h=Date:From:To:Subject:From;
-        b=dNFMlGUb7gWwnDhSrMwoC/JmQc1iyCx/0cNe5P2TW5ZD9dQFEUbXPrh9LJROK8QVt
-         VZnjJfG8nUn3aDYzmfdW62VBOhVDKG4L+okvgOrIYm/JBjGWxTe13MfaYluJP4nvUt
-         AGRvUY1uFQm2HbsIa681xlmGPnO7BaXM5dgBrCDA=
-Date:   Mon, 21 Oct 2019 13:42:47 -0700
+        b=LGi7b32V2IzwTxJ/n8F3VBmQ3RPXOSALqlesNCbw5UAuBWjegtIGBOaduT9AC8ncu
+         WoZTzPgkkvdjYT5oEYRsUrxh62gRZbFhijjYkGfbMPO2YSulvm9zvHhQz/3S1NaOc/
+         8H3rvp5dATfmgn+tHepn/6cXQulpG6uj/ljK+k2c=
+Date:   Mon, 21 Oct 2019 13:42:54 -0700
 From:   akpm@linux-foundation.org
-To:     david@redhat.com, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        n-horiguchi@ah.jp.nec.com, stable@vger.kernel.org
+To:     cai@lca.pw, david@redhat.com, gregkh@linuxfoundation.org,
+        mhocko@suse.com, miles.chen@mediatek.com,
+        mm-commits@vger.kernel.org, peterz@infradead.org,
+        rppt@linux.vnet.ibm.com, stable@vger.kernel.org,
+        tglx@linutronix.de, vbabka@suse.cz
 Subject:  [merged]
- =?US-ASCII?Q?mm-memory-failurec-dont-access-uninitialized-memmaps-in-memo?=
- =?US-ASCII?Q?ry=5Ffailure.patch?= removed from -mm tree
-Message-ID: <20191021204247.sglb4tIHl%akpm@linux-foundation.org>
+ =?US-ASCII?Q?mm-page=5Fowner-dont-access-uninitialized-memmaps-when-rea?=
+ =?US-ASCII?Q?ding-proc-pagetypeinfo.patch?= removed from -mm tree
+Message-ID: <20191021204254.aJe_1YetF%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -41,72 +44,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/memory-failure.c: don't access uninitialized memmaps in memory_failure()
+     Subject: mm/page_owner: don't access uninitialized memmaps when reading /proc/pagetypeinfo
 has been removed from the -mm tree.  Its filename was
-     mm-memory-failurec-dont-access-uninitialized-memmaps-in-memory_failure.patch
+     mm-page_owner-dont-access-uninitialized-memmaps-when-reading-proc-pagetypeinfo.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: David Hildenbrand <david@redhat.com>
-Subject: mm/memory-failure.c: don't access uninitialized memmaps in memory_failure()
+From: Qian Cai <cai@lca.pw>
+Subject: mm/page_owner: don't access uninitialized memmaps when reading /proc/pagetypeinfo
 
-We should check for pfn_to_online_page() to not access uninitialized
-memmaps. Reshuffle the code so 		we don't have to duplicate the error
-message.
+Uninitialized memmaps contain garbage and in the worst case trigger kernel
+BUGs, especially with CONFIG_PAGE_POISONING.  They should not get touched.
 
-Link: http://lkml.kernel.org/r/20191009142435.3975-3-david@redhat.com
+For example, when not onlining a memory block that is spanned by a zone
+and reading /proc/pagetypeinfo with CONFIG_DEBUG_VM_PGFLAGS and
+CONFIG_PAGE_POISONING, we can trigger a kernel BUG:
+
+:/# echo 1 > /sys/devices/system/memory/memory40/online
+:/# echo 1 > /sys/devices/system/memory/memory42/online
+:/# cat /proc/pagetypeinfo > test.file
+  [   42.489856] page:fffff2c585200000 is uninitialized and poisoned
+  [   42.489861] raw: ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff
+  [   42.492235] raw: ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff
+  [   42.493501] page dumped because: VM_BUG_ON_PAGE(PagePoisoned(p))
+  [   42.494533] There is not page extension available.
+  [   42.495358] ------------[ cut here ]------------
+  [   42.496163] kernel BUG at include/linux/mm.h:1107!
+  [   42.497069] invalid opcode: 0000 [#1] SMP NOPTI
+
+Please note that this change does not affect ZONE_DEVICE, because
+pagetypeinfo_showmixedcount_print() is called from
+mm/vmstat.c:pagetypeinfo_showmixedcount() only for populated zones, and
+ZONE_DEVICE is never populated (zone->present_pages always 0).
+
+[david@redhat.com: move check to outer loop, add comment, rephrase description]
+Link: http://lkml.kernel.org/r/20191011140638.8160-1-david@redhat.com
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online") # visible after d0dc12e86b319
+Signed-off-by: Qian Cai <cai@lca.pw>
 Signed-off-by: David Hildenbrand <david@redhat.com>
-Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
-Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Michal Hocko <mhocko@kernel.org>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Miles Chen <miles.chen@mediatek.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: <stable@vger.kernel.org>	[4.13+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/memory-failure.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ mm/page_owner.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/memory-failure.c~mm-memory-failurec-dont-access-uninitialized-memmaps-in-memory_failure
-+++ a/mm/memory-failure.c
-@@ -1257,17 +1257,19 @@ int memory_failure(unsigned long pfn, in
- 	if (!sysctl_memory_failure_recovery)
- 		panic("Memory failure on page %lx", pfn);
+--- a/mm/page_owner.c~mm-page_owner-dont-access-uninitialized-memmaps-when-reading-proc-pagetypeinfo
++++ a/mm/page_owner.c
+@@ -271,7 +271,8 @@ void pagetypeinfo_showmixedcount_print(s
+ 	 * not matter as the mixed block count will still be correct
+ 	 */
+ 	for (; pfn < end_pfn; ) {
+-		if (!pfn_valid(pfn)) {
++		page = pfn_to_online_page(pfn);
++		if (!page) {
+ 			pfn = ALIGN(pfn + 1, MAX_ORDER_NR_PAGES);
+ 			continue;
+ 		}
+@@ -279,13 +280,13 @@ void pagetypeinfo_showmixedcount_print(s
+ 		block_end_pfn = ALIGN(pfn + 1, pageblock_nr_pages);
+ 		block_end_pfn = min(block_end_pfn, end_pfn);
  
--	if (!pfn_valid(pfn)) {
-+	p = pfn_to_online_page(pfn);
-+	if (!p) {
-+		if (pfn_valid(pfn)) {
-+			pgmap = get_dev_pagemap(pfn, NULL);
-+			if (pgmap)
-+				return memory_failure_dev_pagemap(pfn, flags,
-+								  pgmap);
-+		}
- 		pr_err("Memory failure: %#lx: memory outside kernel control\n",
- 			pfn);
- 		return -ENXIO;
- 	}
+-		page = pfn_to_page(pfn);
+ 		pageblock_mt = get_pageblock_migratetype(page);
  
--	pgmap = get_dev_pagemap(pfn, NULL);
--	if (pgmap)
--		return memory_failure_dev_pagemap(pfn, flags, pgmap);
--
--	p = pfn_to_page(pfn);
- 	if (PageHuge(p))
- 		return memory_failure_hugetlb(pfn, flags);
- 	if (TestSetPageHWPoison(p)) {
+ 		for (; pfn < block_end_pfn; pfn++) {
+ 			if (!pfn_valid_within(pfn))
+ 				continue;
+ 
++			/* The pageblock is online, no need to recheck. */
+ 			page = pfn_to_page(pfn);
+ 
+ 			if (page_zone(page) != zone)
 _
 
-Patches currently in -mm which might be from david@redhat.com are
+Patches currently in -mm which might be from cai@lca.pw are
 
-mm-memory_hotplug-export-generic_online_page.patch
-hv_balloon-use-generic_online_page.patch
-mm-memory_hotplug-remove-__online_page_free-and-__online_page_increment_counters.patch
-mm-memory_hotplug-dont-access-uninitialized-memmaps-in-shrink_zone_span.patch
-mm-memory_hotplug-shrink-zones-when-offlining-memory.patch
-mm-memory_hotplug-poison-memmap-in-remove_pfn_range_from_zone.patch
-mm-memory_hotplug-we-always-have-a-zone-in-find_smallestbiggest_section_pfn.patch
-mm-memory_hotplug-dont-check-for-all-holes-in-shrink_zone_span.patch
-mm-memory_hotplug-drop-local-variables-in-shrink_zone_span.patch
-mm-memory_hotplug-cleanup-__remove_pages.patch
+z3fold-add-inter-page-compaction-fix.patch
+hugetlb-remove-unused-hstate-in-hugetlb_fault_mutex_hash-fix-fix.patch
 
