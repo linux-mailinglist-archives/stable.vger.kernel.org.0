@@ -2,85 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 812BCDEE4F
-	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 15:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2486ADEE6B
+	for <lists+stable@lfdr.de>; Mon, 21 Oct 2019 15:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729123AbfJUNtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 09:49:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46506 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728083AbfJUNtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Oct 2019 09:49:01 -0400
-Received: from localhost (unknown [107.87.137.115])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728958AbfJUNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 09:53:45 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:53466 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727152AbfJUNxp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 09:53:45 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id D8DE96076A; Mon, 21 Oct 2019 13:53:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571666024;
+        bh=kHPCqSDycA6KEAoUomcYWPc5e+ajK/BLVgtYOFqyX/U=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=agAZZCc0thnjJLrM4UWbDytEAm6inBPfud7Bj+Kr6Pe//dsnGfwh0GpTQlSJcnlop
+         k1LJTV+I4k2kvg7QoRQalaUaxYQSqT19rAn2mrOJwEFru6VV9QvnyK0vYGzRB2+c8s
+         j6y4qjvtz64/wx0RbSkRRYG4kRqH06Qn1MH8M1BA=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        pdx-caf-mail.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.7 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        DKIM_INVALID,DKIM_SIGNED,SPF_NONE autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C2612053B;
-        Mon, 21 Oct 2019 13:48:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571665738;
-        bh=ySbWnaqJexdqBk/baKlyM5Agouu1qs77BQ86seAmqVQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E13iGTfvwvVEb4mMT8FTeElz6uhJ/XfVhU+BRahFUOWjpvj1qmGUPkJQydFX6hROl
-         MyjylgyBFfLuWERg2YGJxh/QlzVhuWjUhJfKSZyE9CTaKnvXnGjgnD6B2iUvHP/E18
-         XErPOq6Bw6TGFhHbIxNdh4KYA3IX/pInIg8c2iWo=
-Date:   Mon, 21 Oct 2019 09:48:56 -0400
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        Oliver Neukum <oneukum@suse.com>,
-        "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: Re: [PATCH RFC v2 2/2] USB: ldusb: fix ring-buffer locking
-Message-ID: <20191021134856.GA35072@kroah.com>
-References: <20191018151955.25135-1-johan@kernel.org>
- <20191018151955.25135-3-johan@kernel.org>
- <20191018185458.GA1191145@kroah.com>
- <20191021085627.GD24768@localhost>
+        (Authenticated sender: kvalo@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 2796060112;
+        Mon, 21 Oct 2019 13:53:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1571666024;
+        bh=kHPCqSDycA6KEAoUomcYWPc5e+ajK/BLVgtYOFqyX/U=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=agAZZCc0thnjJLrM4UWbDytEAm6inBPfud7Bj+Kr6Pe//dsnGfwh0GpTQlSJcnlop
+         k1LJTV+I4k2kvg7QoRQalaUaxYQSqT19rAn2mrOJwEFru6VV9QvnyK0vYGzRB2+c8s
+         j6y4qjvtz64/wx0RbSkRRYG4kRqH06Qn1MH8M1BA=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 2796060112
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Larry Finger <Larry.Finger@lwfinger.net>
+Cc:     linux-wireless@vger.kernel.org, pkshih@realtek.com,
+        Stable <stable@vger.kernel.org>
+Subject: Re: [PATCH V3] rtlwifi: rtl_pci: Fix problem of too small skb->len
+References: <20191021005658.31391-1-Larry.Finger@lwfinger.net>
+Date:   Mon, 21 Oct 2019 16:53:40 +0300
+In-Reply-To: <20191021005658.31391-1-Larry.Finger@lwfinger.net> (Larry
+        Finger's message of "Sun, 20 Oct 2019 19:56:58 -0500")
+Message-ID: <87zhhuurvf.fsf@kamboji.qca.qualcomm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191021085627.GD24768@localhost>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 21, 2019 at 10:56:27AM +0200, Johan Hovold wrote:
-> On Fri, Oct 18, 2019 at 11:54:58AM -0700, Greg Kroah-Hartman wrote:
-> > On Fri, Oct 18, 2019 at 05:19:55PM +0200, Johan Hovold wrote:
-> > > The custom ring-buffer implementation was merged without any locking
-> > > whatsoever, but a spinlock was later added by commit 9d33efd9a791
-> > > ("USB: ldusb bugfix").
-> > > 
-> > > The lock did not cover the loads from the ring-buffer entry after
-> > > determining the buffer was non-empty, nor the update of the tail index
-> > > once the entry had been processed. The former could lead to stale data
-> > > being returned, while the latter could lead to memory corruption on
-> > > sufficiently weakly ordered architectures.
-> > 
-> > Ugh.
-> > 
-> > This almost looks sane, but what's the odds there is some other issue in
-> > here as well?  Would it make sense to just convert the code to use the
-> > "standard" ring buffer code instead?
-> 
-> Yeah, long term that may be the right thing to do, but I wanted a
-> minimal fix addressing the issue at hand without having to reimplement
-> the driver and fix all other (less-critical) issues in there...
-> 
-> For the ring-buffer corruption / info-leak issue, these two patches
-> should be sufficient though.
-> 
-> Copying the ring-buffer entry to a temporary buffer while holding the
-> lock might still be preferred to avoid having to deal with barrier
-> subtleties. But unless someone speaks out against 2/2, I'd just go ahead
-> and apply it.
+Larry Finger <Larry.Finger@lwfinger.net> writes:
 
-Ok, feel free to resend this and I'll queue it up, it's gone from my
-queue :(
+> In commit 8020919a9b99 ("mac80211: Properly handle SKB with radiotap
+> only"), buffers whose length is too short cause a WARN_ON(1) to be
+> executed. This change exposed a fault in rtlwifi drivers, which is fixed
+> by regarding packets with skb->len <= FCS_LEN as though they are in error
+> and dropping them. The test is now annotated as likely.
+>
+> Cc: Stable <stable@vger.kernel.org> # v5.0+
+> Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+> ---
+> V2 - content dropped
+> V3 - changed fix to drop packet rather than arbitrarily increasing the length.
 
-thanks,
+Much better, thanks.
 
-greg k-h
+> Material for 5.4.
+
+Ok, I'll queue it for v5.4.
+
+-- 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
