@@ -2,173 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F4FE0B8C
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 20:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5877EE0C06
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 20:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbfJVSjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 14:39:48 -0400
-Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:34748 "EHLO
-        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727851AbfJVSjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 14:39:48 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07487;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Tfw2B3M_1571769577;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tfw2B3M_1571769577)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Wed, 23 Oct 2019 02:39:44 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     aarcange@redhat.com, kirill.shutemov@linux.intel.com,
-        hughd@google.com, gavin.dg@linux.alibaba.com,
-        akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] mm: thp: handle page cache THP correctly in PageTransCompoundMap
-Date:   Wed, 23 Oct 2019 02:39:37 +0800
-Message-Id: <1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1732517AbfJVSzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Oct 2019 14:55:13 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:34775 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732322AbfJVSzN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 14:55:13 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 2FDD13C04C1;
+        Tue, 22 Oct 2019 20:55:10 +0200 (CEST)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id 1Mi11-ba1-B3; Tue, 22 Oct 2019 20:55:04 +0200 (CEST)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id 4517C3C009D;
+        Tue, 22 Oct 2019 20:55:04 +0200 (CEST)
+Received: from vmlxhi-102.adit-jv.com (10.72.93.184) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Tue, 22 Oct
+ 2019 20:55:03 +0200
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, <alsa-devel@alsa-project.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>,
+        Jiada Wang <jiada_wang@mentor.com>,
+        Timo Wischer <twischer@de.adit-jv.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        <stable@vger.kernel.org>
+Subject: [RESEND PATCH] ASoC: rsnd: dma: fix SSI9 4/5/6/7 busif dma address
+Date:   Tue, 22 Oct 2019 20:54:29 +0200
+Message-ID: <20191022185429.12769-1-erosca@de.adit-jv.com>
+X-Mailer: git-send-email 2.23.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.72.93.184]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We have usecase to use tmpfs as QEMU memory backend and we would like to
-take the advantage of THP as well.  But, our test shows the EPT is not
-PMD mapped even though the underlying THP are PMD mapped on host.
-The number showed by /sys/kernel/debug/kvm/largepage is much less than
-the number of PMD mapped shmem pages as the below:
+From: Jiada Wang <jiada_wang@mentor.com>
 
-7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   579584 kB
-[snip]
-Locked:                0 kB
+Currently each SSI unit's busif dma address is calculated by
+following calculation formula:
+0xec540000 + 0x1000 * id + busif / 4 * 0xA000 + busif % 4 * 0x400
 
-cat /sys/kernel/debug/kvm/largepages
-12
+But according to R-Car3 HW manual 41.1.4 Register Configuration,
+ssi9 4/5/6/7 busif data register address
+(SSI9_4_BUSIF/SSI9_5_BUSIF/SSI9_6_BUSIF/SSI9_7_BUSIF)
+are out of this rule.
 
-And some benchmarks do worse than with anonymous THPs.
+This patch updates the calculation formula to correct
+ssi9 4/5/6/7 busif data register address.
 
-By digging into the code we figured out that commit 127393fbe597 ("mm:
-thp: kvm: fix memory corruption in KVM with THP enabled") checks if
-there is a single PTE mapping on the page for anonymous THP when
-setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
-cache THP since every subpage of page cache THP would get _mapcount
-inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
-false for page cache THP.  This would prevent KVM from setting up PMD
-mapped EPT entry.
-
-So we need handle page cache THP correctly.  However, when page cache
-THP's PMD gets split, kernel just remove the map instead of setting up
-PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
-the subpages may get PTE mapped even though it is still a THP since the
-page cache THP may be mapped by other processes at the mean time.
-
-Checking its _mapcount and whether the THP is double mapped or not since
-we can't tell if the single PTE mapping comes from the current process
-or not by _mapcount.  Although this may report some false negative cases
-(PTE mapped by other processes), it looks not trivial to make this
-accurate.
-
-With this fix /sys/kernel/debug/kvm/largepage would show reasonable
-pages are PMD mapped by EPT as the below:
-
-7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   557056 kB
-[snip]
-Locked:                0 kB
-
-cat /sys/kernel/debug/kvm/largepages
-271
-
-And the benchmarks are as same as anonymous THPs.
-
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org> 4.8+
+Fixes: 5e45a6fab3b9 ("ASoc: rsnd: dma: Calculate dma address with consider of BUSIF")
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: Timo Wischer <twischer@de.adit-jv.com>
+[erosca: minor improvements in commit description]
+Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Cc: stable@vger.kernel.org # v4.20+
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
 ---
- include/linux/page-flags.h | 54 ++++++++++++++++++++++++++++------------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index f91cb88..3b8e5c5 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -610,27 +610,6 @@ static inline int PageTransCompound(struct page *page)
- }
+Originally submitted as https://patchwork.kernel.org/patch/10825513/
+("ASoC: rsnd: dma: fix SSI9 4/5/6/7 busif dma address")
+
+---
+ sound/soc/sh/rcar/dma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sound/soc/sh/rcar/dma.c b/sound/soc/sh/rcar/dma.c
+index 0324a5c39619..28f65eba2bb4 100644
+--- a/sound/soc/sh/rcar/dma.c
++++ b/sound/soc/sh/rcar/dma.c
+@@ -508,10 +508,10 @@ static struct rsnd_mod_ops rsnd_dmapp_ops = {
+ #define RDMA_SSI_I_N(addr, i)	(addr ##_reg - 0x00300000 + (0x40 * i) + 0x8)
+ #define RDMA_SSI_O_N(addr, i)	(addr ##_reg - 0x00300000 + (0x40 * i) + 0xc)
  
- /*
-- * PageTransCompoundMap is the same as PageTransCompound, but it also
-- * guarantees the primary MMU has the entire compound page mapped
-- * through pmd_trans_huge, which in turn guarantees the secondary MMUs
-- * can also map the entire compound page. This allows the secondary
-- * MMUs to call get_user_pages() only once for each compound page and
-- * to immediately map the entire compound page with a single secondary
-- * MMU fault. If there will be a pmd split later, the secondary MMUs
-- * will get an update through the MMU notifier invalidation through
-- * split_huge_pmd().
-- *
-- * Unlike PageTransCompound, this is safe to be called only while
-- * split_huge_pmd() cannot run from under us, like if protected by the
-- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
-- * positives.
-- */
--static inline int PageTransCompoundMap(struct page *page)
--{
--	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
--}
--
--/*
-  * PageTransTail returns true for both transparent huge pages
-  * and hugetlbfs pages, so it should only be called when it's known
-  * that hugetlbfs pages aren't involved.
-@@ -681,6 +660,39 @@ static inline int TestClearPageDoubleMap(struct page *page)
- 	return test_and_clear_bit(PG_double_map, &page[1].flags);
- }
+-#define RDMA_SSIU_I_N(addr, i, j) (addr ##_reg - 0x00441000 + (0x1000 * (i)) + (((j) / 4) * 0xA000) + (((j) % 4) * 0x400))
++#define RDMA_SSIU_I_N(addr, i, j) (addr ##_reg - 0x00441000 + (0x1000 * (i)) + (((j) / 4) * 0xA000) + (((j) % 4) * 0x400) - (0x4000 * ((i) / 9) * ((j) / 4)))
+ #define RDMA_SSIU_O_N(addr, i, j) RDMA_SSIU_I_N(addr, i, j)
  
-+/*
-+ * PageTransCompoundMap is the same as PageTransCompound, but it also
-+ * guarantees the primary MMU has the entire compound page mapped
-+ * through pmd_trans_huge, which in turn guarantees the secondary MMUs
-+ * can also map the entire compound page. This allows the secondary
-+ * MMUs to call get_user_pages() only once for each compound page and
-+ * to immediately map the entire compound page with a single secondary
-+ * MMU fault. If there will be a pmd split later, the secondary MMUs
-+ * will get an update through the MMU notifier invalidation through
-+ * split_huge_pmd().
-+ *
-+ * Unlike PageTransCompound, this is safe to be called only while
-+ * split_huge_pmd() cannot run from under us, like if protected by the
-+ * MMU notifier, otherwise it may result in page->_mapcount check false
-+ * positives.
-+ *
-+ * We have to treat page cache THP differently since every subpage of it
-+ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
-+ * mapped in the current process so checking PageDoubleMap flag to rule
-+ * this out.
-+ */
-+static inline int PageTransCompoundMap(struct page *page)
-+{
-+	bool pmd_mapped;
-+
-+	if (PageAnon(page))
-+		pmd_mapped = atomic_read(&page->_mapcount) < 0;
-+	else
-+		pmd_mapped = atomic_read(&page->_mapcount) >= 0 &&
-+			     !PageDoubleMap(compound_head(page));
-+
-+	return PageTransCompound(page) && pmd_mapped;
-+}
- #else
- TESTPAGEFLAG_FALSE(TransHuge)
- TESTPAGEFLAG_FALSE(TransCompound)
+-#define RDMA_SSIU_I_P(addr, i, j) (addr ##_reg - 0x00141000 + (0x1000 * (i)) + (((j) / 4) * 0xA000) + (((j) % 4) * 0x400))
++#define RDMA_SSIU_I_P(addr, i, j) (addr ##_reg - 0x00141000 + (0x1000 * (i)) + (((j) / 4) * 0xA000) + (((j) % 4) * 0x400) - (0x4000 * ((i) / 9) * ((j) / 4)))
+ #define RDMA_SSIU_O_P(addr, i, j) RDMA_SSIU_I_P(addr, i, j)
+ 
+ #define RDMA_SRC_I_N(addr, i)	(addr ##_reg - 0x00500000 + (0x400 * i))
 -- 
-1.8.3.1
+2.23.0
 
