@@ -2,65 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91800E0AB4
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 19:31:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F4FE0B8C
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 20:39:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbfJVRah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 13:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33022 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730363AbfJVRag (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Oct 2019 13:30:36 -0400
-Received: from localhost (mobile-166-172-186-56.mycingular.net [166.172.186.56])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA683214E0;
-        Tue, 22 Oct 2019 17:30:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571765436;
-        bh=/Qi9Ddplq+ThOzoxz8MXfVI7wTIN23upnkeFhKU4goM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Hf5wf+rPgbt5cD4IOfGfJD03wEMdk76mQUZ/DLxMi/LMLb2Js1/8oGgcMZtLOYEtr
-         Ns7JsXTyw5cAWvJgSSRxkGhMg7BqnXGXkWSkVBk1++AY/xt4D0baTMG+F3TRqKBF6d
-         94dGiaoPQm/llg4fqYy07SGSiYMlB+Yi1HEoDFlQ=
-Date:   Tue, 22 Oct 2019 13:30:33 -0400
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "jic23@kernel.org" <jic23@kernel.org>
-Subject: Re: [PATCH 4.19] iio: imu: inv_mpu6050: fix no data on MPU6050
-Message-ID: <20191022173033.GB230934@kroah.com>
-References: <20191022131239.13847-1-jmaneyrol@invensense.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191022131239.13847-1-jmaneyrol@invensense.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S1729696AbfJVSjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Oct 2019 14:39:48 -0400
+Received: from out30-54.freemail.mail.aliyun.com ([115.124.30.54]:34748 "EHLO
+        out30-54.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727851AbfJVSjs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 14:39:48 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R581e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07487;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Tfw2B3M_1571769577;
+Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tfw2B3M_1571769577)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Wed, 23 Oct 2019 02:39:44 +0800
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+To:     aarcange@redhat.com, kirill.shutemov@linux.intel.com,
+        hughd@google.com, gavin.dg@linux.alibaba.com,
+        akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] mm: thp: handle page cache THP correctly in PageTransCompoundMap
+Date:   Wed, 23 Oct 2019 02:39:37 +0800
+Message-Id: <1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 22, 2019 at 01:13:07PM +0000, Jean-Baptiste Maneyrol wrote:
-> Some chips have a fifo overflow bit issue where the bit is always
-> set. The result is that every data is dropped.
-> 
-> Change fifo overflow management by checking fifo count against
-> a maximum value.
-> 
-> Add fifo size in chip hardware set of values.
-> 
-> Fixes: f5057e7b2dba ("iio: imu: inv_mpu6050: better fifo overflow handling")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-> ---
->  drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |  8 ++++++++
->  drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  2 ++
->  drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c | 15 ++++++++++++---
->  3 files changed, 22 insertions(+), 3 deletions(-)
+We have usecase to use tmpfs as QEMU memory backend and we would like to
+take the advantage of THP as well.  But, our test shows the EPT is not
+PMD mapped even though the underlying THP are PMD mapped on host.
+The number showed by /sys/kernel/debug/kvm/largepage is much less than
+the number of PMD mapped shmem pages as the below:
 
-What is the git commit id of this patch in Linus's tree?
+7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   579584 kB
+[snip]
+Locked:                0 kB
 
-thanks,
+cat /sys/kernel/debug/kvm/largepages
+12
 
-greg k-h
+And some benchmarks do worse than with anonymous THPs.
+
+By digging into the code we figured out that commit 127393fbe597 ("mm:
+thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+there is a single PTE mapping on the page for anonymous THP when
+setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
+cache THP since every subpage of page cache THP would get _mapcount
+inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
+false for page cache THP.  This would prevent KVM from setting up PMD
+mapped EPT entry.
+
+So we need handle page cache THP correctly.  However, when page cache
+THP's PMD gets split, kernel just remove the map instead of setting up
+PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+the subpages may get PTE mapped even though it is still a THP since the
+page cache THP may be mapped by other processes at the mean time.
+
+Checking its _mapcount and whether the THP is double mapped or not since
+we can't tell if the single PTE mapping comes from the current process
+or not by _mapcount.  Although this may report some false negative cases
+(PTE mapped by other processes), it looks not trivial to make this
+accurate.
+
+With this fix /sys/kernel/debug/kvm/largepage would show reasonable
+pages are PMD mapped by EPT as the below:
+
+7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   557056 kB
+[snip]
+Locked:                0 kB
+
+cat /sys/kernel/debug/kvm/largepages
+271
+
+And the benchmarks are as same as anonymous THPs.
+
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org> 4.8+
+---
+ include/linux/page-flags.h | 54 ++++++++++++++++++++++++++++------------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
+
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index f91cb88..3b8e5c5 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -610,27 +610,6 @@ static inline int PageTransCompound(struct page *page)
+ }
+ 
+ /*
+- * PageTransCompoundMap is the same as PageTransCompound, but it also
+- * guarantees the primary MMU has the entire compound page mapped
+- * through pmd_trans_huge, which in turn guarantees the secondary MMUs
+- * can also map the entire compound page. This allows the secondary
+- * MMUs to call get_user_pages() only once for each compound page and
+- * to immediately map the entire compound page with a single secondary
+- * MMU fault. If there will be a pmd split later, the secondary MMUs
+- * will get an update through the MMU notifier invalidation through
+- * split_huge_pmd().
+- *
+- * Unlike PageTransCompound, this is safe to be called only while
+- * split_huge_pmd() cannot run from under us, like if protected by the
+- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
+- * positives.
+- */
+-static inline int PageTransCompoundMap(struct page *page)
+-{
+-	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
+-}
+-
+-/*
+  * PageTransTail returns true for both transparent huge pages
+  * and hugetlbfs pages, so it should only be called when it's known
+  * that hugetlbfs pages aren't involved.
+@@ -681,6 +660,39 @@ static inline int TestClearPageDoubleMap(struct page *page)
+ 	return test_and_clear_bit(PG_double_map, &page[1].flags);
+ }
+ 
++/*
++ * PageTransCompoundMap is the same as PageTransCompound, but it also
++ * guarantees the primary MMU has the entire compound page mapped
++ * through pmd_trans_huge, which in turn guarantees the secondary MMUs
++ * can also map the entire compound page. This allows the secondary
++ * MMUs to call get_user_pages() only once for each compound page and
++ * to immediately map the entire compound page with a single secondary
++ * MMU fault. If there will be a pmd split later, the secondary MMUs
++ * will get an update through the MMU notifier invalidation through
++ * split_huge_pmd().
++ *
++ * Unlike PageTransCompound, this is safe to be called only while
++ * split_huge_pmd() cannot run from under us, like if protected by the
++ * MMU notifier, otherwise it may result in page->_mapcount check false
++ * positives.
++ *
++ * We have to treat page cache THP differently since every subpage of it
++ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
++ * mapped in the current process so checking PageDoubleMap flag to rule
++ * this out.
++ */
++static inline int PageTransCompoundMap(struct page *page)
++{
++	bool pmd_mapped;
++
++	if (PageAnon(page))
++		pmd_mapped = atomic_read(&page->_mapcount) < 0;
++	else
++		pmd_mapped = atomic_read(&page->_mapcount) >= 0 &&
++			     !PageDoubleMap(compound_head(page));
++
++	return PageTransCompound(page) && pmd_mapped;
++}
+ #else
+ TESTPAGEFLAG_FALSE(TransHuge)
+ TESTPAGEFLAG_FALSE(TransCompound)
+-- 
+1.8.3.1
+
