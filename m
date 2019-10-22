@@ -2,162 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 750C9DF813
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 00:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23EEDDFBB1
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 04:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730350AbfJUWh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 21 Oct 2019 18:37:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729620AbfJUWh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 21 Oct 2019 18:37:29 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40D3120700;
-        Mon, 21 Oct 2019 22:37:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1571697446;
-        bh=9RSmFckSxl0LM+8wLyz4g3+tean2D+twDKer9hd0CPQ=;
-        h=Date:From:To:Subject:From;
-        b=0NrAYmKYLgIujGzP6XzNJ1npux82AI291vq/GWlfbqcuRpDms3/hJt1ug+rmzObp8
-         /9GOI6K7TYOVhvUF/KSP6i9X1UOLCNOTah7+0NE3o5JP/pLV7DDFeHcLwABQbPmeyI
-         uxxh+/DLehfxX5taXSwkcrBaMEUw2pQl0lkZUiwE=
-Date:   Mon, 21 Oct 2019 15:37:25 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, vbabka@suse.cz, tglx@linutronix.de,
-        stable@vger.kernel.org, mhocko@suse.com, matt@codeblueprint.co.uk,
-        cai@lca.pw, bp@alien8.de, mgorman@techsingularity.net
-Subject:  +
- mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.patch
- added to -mm tree
-Message-ID: <20191021223725.uB__L%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.11
+        id S1730370AbfJVCh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 21 Oct 2019 22:37:29 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:34725 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727264AbfJVCh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 21 Oct 2019 22:37:28 -0400
+Received: by mail-io1-f68.google.com with SMTP id q1so18564970ion.1;
+        Mon, 21 Oct 2019 19:37:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wD3owoO7Hcsn6F+M0fWwB4WG/OmBuK67PCnu7DWOZmU=;
+        b=lMJVRkWFpSmzFUcvFuoEepZWNFPBmatWCsHa1UBAE+glA7VTw3xHUkKkMOLlJr39Ef
+         SKqPSo1rr/MEjM6sJtbFTmyEQ9WoL5y8w+aLwTIQQ03G8MLS9B33qDNWSf8TUrt2pmcv
+         Aa3z6/GGjoqSsCdA6qPk6M+EMDfcPy6LgthThrEB6BzQomAS9X+c07eX5/KVTQMocDb9
+         9xnC2siL4OkvZXXd1Tgj8tRL/AxiNOrULtaWTNenftB0cLy0GQpt6cEGHb6zC2mdAJ0R
+         JiXlsutJpPl01KFQgZ+ITc+q2/jHlBB0CIQVRO1dZ+49dCThBPMLMN62VJIGkySANNkY
+         Epyg==
+X-Gm-Message-State: APjAAAVdJaDUVelkj7TwH+dK5ioUC6p9aVOcYCFymrDDRLFBuEZXiAlu
+        1/QxdZWLHQbd254m62I/Tk72arU0rrkvhWEQokA=
+X-Google-Smtp-Source: APXvYqzXfIsGMFvjAZ7AUYcylJqFT1rB9WKhtgf2N4eZKTgy1KjKCQwtphZt8HrV8RX4H8uLZpnd8bOs4Pcvj+d0Zv0=
+X-Received: by 2002:a02:cc4e:: with SMTP id i14mr1545623jaq.32.1571711847683;
+ Mon, 21 Oct 2019 19:37:27 -0700 (PDT)
+MIME-Version: 1.0
+References: <1571662320-1280-1-git-send-email-chenhc@lemote.com>
+ <alpine.DEB.2.21.1910211648200.1904@nanos.tec.linutronix.de> <alpine.DEB.2.21.1910211658040.1904@nanos.tec.linutronix.de>
+In-Reply-To: <alpine.DEB.2.21.1910211658040.1904@nanos.tec.linutronix.de>
+From:   Huacai Chen <chenhc@lemote.com>
+Date:   Tue, 22 Oct 2019 10:42:55 +0800
+Message-ID: <CAAhV-H4PEcCgOBL8ksjc+4LC9VPoCRBMtuGEK6ckmdJYXjdcSg@mail.gmail.com>
+Subject: Re: [PATCH 110/110] lib/vdso: Improve do_hres() and update vdso data unconditionally
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Paul Burton <paul.burton@mips.com>,
+        "open list:MIPS" <linux-mips@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Thomas,
 
-The patch titled
-     Subject: mm, meminit: recalculate pcpu batch and high limits after init completes
-has been added to the -mm tree.  Its filename is
-     mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.patch
+If we use (s64)cycles < 0, then how to solve the problem that a 64bit
+counter become negative?
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.patch
+Maybe we can change the "invalid" value from U64_MAX to 0?  I think
+the performance of "cycles == 0" is better than "cycles == U64_MAX".
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Huacai
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Mel Gorman <mgorman@techsingularity.net>
-Subject: mm, meminit: recalculate pcpu batch and high limits after init completes
-
-Deferred memory initialisation updates zone->managed_pages during the
-initialisation phase but before that finishes, the per-cpu page allocator
-(pcpu) calculates the number of pages allocated/freed in batches as well
-as the maximum number of pages allowed on a per-cpu list.  As
-zone->managed_pages is not up to date yet, the pcpu initialisation
-calculates inappropriately low batch and high values.
-
-This increases zone lock contention quite severely in some cases with the
-degree of severity depending on how many CPUs share a local zone and the
-size of the zone.  A private report indicated that kernel build times were
-excessive with extremely high system CPU usage.  A perf profile indicated
-that a large chunk of time was lost on zone->lock contention.
-
-This patch recalculates the pcpu batch and high values after deferred
-initialisation completes for every populated zone in the system.  It was
-tested on a 2-socket AMD EPYC 2 machine using a kernel compilation
-workload -- allmodconfig and all available CPUs.
-
-mmtests configuration: config-workload-kernbench-max Configuration was
-modified to build on a fresh XFS partition.
-
-kernbench
-                                5.4.0-rc3              5.4.0-rc3
-                                  vanilla           resetpcpu-v2
-Amean     user-256    13249.50 (   0.00%)    16401.31 * -23.79%*
-Amean     syst-256    14760.30 (   0.00%)     4448.39 *  69.86%*
-Amean     elsp-256      162.42 (   0.00%)      119.13 *  26.65%*
-Stddev    user-256       42.97 (   0.00%)       19.15 (  55.43%)
-Stddev    syst-256      336.87 (   0.00%)        6.71 (  98.01%)
-Stddev    elsp-256        2.46 (   0.00%)        0.39 (  84.03%)
-
-                   5.4.0-rc3    5.4.0-rc3
-                     vanilla resetpcpu-v2
-Duration User       39766.24     49221.79
-Duration System     44298.10     13361.67
-Duration Elapsed      519.11       388.87
-
-The patch reduces system CPU usage by 69.86% and total build time by
-26.65%. The variance of system CPU usage is also much reduced.
-
-Before, this was the breakdown of batch and high values over all zones was.
-
-    256               batch: 1
-    256               batch: 63
-    512               batch: 7
-    256               high:  0
-    256               high:  378
-    512               high:  42
-
-512 pcpu pagesets had a batch limit of 7 and a high limit of 42.  After
-the patch:
-
-    256               batch: 1
-    768               batch: 63
-    256               high:  0
-    768               high:  378
-
-Link: http://lkml.kernel.org/r/20191021094808.28824-2-mgorman@techsingularity.net
-Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Qian Cai <cai@lca.pw>
-Cc: <stable@vger.kernel.org>	[4.1+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_alloc.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/mm/page_alloc.c~mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes
-+++ a/mm/page_alloc.c
-@@ -1948,6 +1948,14 @@ void __init page_alloc_init_late(void)
- 	wait_for_completion(&pgdat_init_all_done_comp);
- 
- 	/*
-+	 * The number of managed pages has changed due to the initialisation
-+	 * so the pcpu batch and high limits needs to be updated or the limits
-+	 * will be artificially small.
-+	 */
-+	for_each_populated_zone(zone)
-+		zone_pcp_update(zone);
-+
-+	/*
- 	 * We initialized the rest of the deferred pages.  Permanently disable
- 	 * on-demand struct page initialization.
- 	 */
-_
-
-Patches currently in -mm which might be from mgorman@techsingularity.net are
-
-mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.patch
-mm-pcp-share-common-code-between-memory-hotplug-and-percpu-sysctl-handler.patch
-mm-pcpu-make-zone-pcp-updates-and-reset-internal-to-the-mm.patch
-
+On Mon, Oct 21, 2019 at 10:58 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> On Mon, 21 Oct 2019, Thomas Gleixner wrote:
+>
+> > On Mon, 21 Oct 2019, Huacai Chen wrote:
+> > > @@ -50,7 +50,7 @@ static int do_hres(const struct vdso_data *vd, clockid_t clk,
+> > >             cycles = __arch_get_hw_counter(vd->clock_mode);
+> > >             ns = vdso_ts->nsec;
+> > >             last = vd->cycle_last;
+> > > -           if (unlikely((s64)cycles < 0))
+> > > +           if (unlikely(cycles == U64_MAX))
+> > >                     return -1;
+> >
+> > That used to create worse code than the weird (s64) type cast which has the
+> > same effect. Did you double check that there is no change?
+>
+> It still does for 32bit.
