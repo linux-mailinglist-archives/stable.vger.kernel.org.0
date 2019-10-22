@@ -2,148 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC9CE0C0C
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 20:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3227EE0DBA
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 23:18:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732509AbfJVS4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 14:56:47 -0400
-Received: from mga05.intel.com ([192.55.52.43]:59250 "EHLO mga05.intel.com"
+        id S1733080AbfJVVSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Oct 2019 17:18:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731740AbfJVS4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 22 Oct 2019 14:56:46 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Oct 2019 11:56:46 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,217,1569308400"; 
-   d="scan'208";a="197208822"
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by fmsmga007.fm.intel.com with SMTP; 22 Oct 2019 11:56:44 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Tue, 22 Oct 2019 21:56:43 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Andrija <akijo97@gmail.com>
-Subject: [PATCH] drm/i915: Fix PCH reference clock for FDI on HSW/BDW
-Date:   Tue, 22 Oct 2019 21:56:43 +0300
-Message-Id: <20191022185643.1483-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.21.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1731573AbfJVVSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Oct 2019 17:18:07 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1926A2084B;
+        Tue, 22 Oct 2019 21:18:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1571779086;
+        bh=kbh5e8Xz+dI+qAf5vLHeiPRjRShfIrDFHf75zEiUeug=;
+        h=Date:From:To:Subject:From;
+        b=IbFhZRe0mrNkTC5qC/Jj8RqZlQfFYgGBFnXgzK/Bu5U83j583X9UB2Qc0Q5qG2Hw2
+         Zm5Q0yTPPCThafFmqizR13ykXVc8+rPw1d2UTbwKIh3FwTB3HMCJkOafChP4abtoRF
+         ID9NZEO41EXuMdb/XldsLse43MHC6njkp6hv9xds=
+Date:   Tue, 22 Oct 2019 14:18:05 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        kirill.shutemov@linux.intel.com, hughd@google.com,
+        gavin.dg@linux.alibaba.com, aarcange@redhat.com,
+        yang.shi@linux.alibaba.com
+Subject:  +
+ mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch added to
+ -mm tree
+Message-ID: <20191022211805.zx49q%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.11
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-The change to skip the PCH reference initialization during fastboot
-did end up breaking FDI. To fix that let's try to do the PCH reference
-init whenever we're disabling a DPLL that was using said reference
-previously.
+The patch titled
+     Subject: mm: thp: handle page cache THP correctly in PageTransCompoundMap
+has been added to the -mm tree.  Its filename is
+     mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
 
-Cc: stable@vger.kernel.org
-Tested-by: Andrija <akijo97@gmail.com>
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112084
-Fixes: b16c7ed95caf ("drm/i915: Do not touch the PCH SSC reference if a PLL is using it")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: thp: handle page cache THP correctly in PageTransCompoundMap
+
+We have a usecase to use tmpfs as QEMU memory backend and we would like to
+take the advantage of THP as well.  But our test shows the EPT is not PMD
+mapped even though the underlying THP are PMD mapped on host.  The number
+showed by /sys/kernel/debug/kvm/largepage is much less than the number of
+PMD mapped shmem pages as the below:
+
+7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   579584 kB
+[snip]
+Locked:                0 kB
+
+cat /sys/kernel/debug/kvm/largepages
+12
+
+And some benchmarks do worse than with anonymous THPs.
+
+By digging into the code we figured out that commit 127393fbe597 ("mm:
+thp: kvm: fix memory corruption in KVM with THP enabled") checks if there
+is a single PTE mapping on the page for anonymous THP when setting up EPT
+map.  But, the _mapcount < 0 check doesn't fit to page cache THP since
+every subpage of page cache THP would get _mapcount inc'ed once it is PMD
+mapped, so PageTransCompoundMap() always returns false for page cache THP.
+This would prevent KVM from setting up PMD mapped EPT entry.
+
+So we need handle page cache THP correctly.  However, when page cache
+THP's PMD gets split, kernel just remove the map instead of setting up PTE
+map like what anonymous THP does.  Before KVM calls get_user_pages() the
+subpages may get PTE mapped even though it is still a THP since the page
+cache THP may be mapped by other processes at the mean time.
+
+Checking its _mapcount and whether the THP is double mapped or not since
+we can't tell if the single PTE mapping comes from the current process or
+not by _mapcount.  Although this may report some false negative cases (PTE
+mapped by other processes), it looks not trivial to make this accurate.
+
+With this fix /sys/kernel/debug/kvm/largepage would show reasonable pages
+are PMD mapped by EPT as the below:
+
+7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   557056 kB
+[snip]
+Locked:                0 kB
+
+cat /sys/kernel/debug/kvm/largepages
+271
+
+And the benchmarks are as same as anonymous THPs.
+
+Link: http://lkml.kernel.org/r/1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_display.c  | 11 ++++++-----
- drivers/gpu/drm/i915/display/intel_dpll_mgr.c | 15 +++++++++++++++
- drivers/gpu/drm/i915/i915_drv.h               |  2 ++
- 3 files changed, 23 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-index 236fdf122e47..da76f794a965 100644
---- a/drivers/gpu/drm/i915/display/intel_display.c
-+++ b/drivers/gpu/drm/i915/display/intel_display.c
-@@ -9359,7 +9359,6 @@ static bool wrpll_uses_pch_ssc(struct drm_i915_private *dev_priv,
- static void lpt_init_pch_refclk(struct drm_i915_private *dev_priv)
- {
- 	struct intel_encoder *encoder;
--	bool pch_ssc_in_use = false;
- 	bool has_fdi = false;
- 
- 	for_each_intel_encoder(&dev_priv->drm, encoder) {
-@@ -9387,22 +9386,24 @@ static void lpt_init_pch_refclk(struct drm_i915_private *dev_priv)
- 	 * clock hierarchy. That would also allow us to do
- 	 * clock bending finally.
- 	 */
-+	dev_priv->pch_ssc_use = 0;
-+
- 	if (spll_uses_pch_ssc(dev_priv)) {
- 		DRM_DEBUG_KMS("SPLL using PCH SSC\n");
--		pch_ssc_in_use = true;
-+		dev_priv->pch_ssc_use |= BIT(DPLL_ID_SPLL);
- 	}
- 
- 	if (wrpll_uses_pch_ssc(dev_priv, DPLL_ID_WRPLL1)) {
- 		DRM_DEBUG_KMS("WRPLL1 using PCH SSC\n");
--		pch_ssc_in_use = true;
-+		dev_priv->pch_ssc_use |= BIT(DPLL_ID_WRPLL1);
- 	}
- 
- 	if (wrpll_uses_pch_ssc(dev_priv, DPLL_ID_WRPLL2)) {
- 		DRM_DEBUG_KMS("WRPLL2 using PCH SSC\n");
--		pch_ssc_in_use = true;
-+		dev_priv->pch_ssc_use |= BIT(DPLL_ID_WRPLL2);
- 	}
- 
--	if (pch_ssc_in_use)
-+	if (dev_priv->pch_ssc_use)
- 		return;
- 
- 	if (has_fdi) {
-diff --git a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-index ec10fa7d3c69..3ce0a023eee0 100644
---- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-+++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
-@@ -526,16 +526,31 @@ static void hsw_ddi_wrpll_disable(struct drm_i915_private *dev_priv,
- 	val = I915_READ(WRPLL_CTL(id));
- 	I915_WRITE(WRPLL_CTL(id), val & ~WRPLL_PLL_ENABLE);
- 	POSTING_READ(WRPLL_CTL(id));
-+
-+	/*
-+	 * Try to set up the PCH reference clock once all DPLLs
-+	 * that depend on it have been shut down.
-+	 */
-+	if (dev_priv->pch_ssc_use & BIT(id))
-+		intel_init_pch_refclk(dev_priv);
+ include/linux/page-flags.h |   54 +++++++++++++++++++++--------------
+ 1 file changed, 33 insertions(+), 21 deletions(-)
+
+--- a/include/linux/page-flags.h~mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap
++++ a/include/linux/page-flags.h
+@@ -610,27 +610,6 @@ static inline int PageTransCompound(stru
  }
  
- static void hsw_ddi_spll_disable(struct drm_i915_private *dev_priv,
- 				 struct intel_shared_dpll *pll)
- {
-+	enum intel_dpll_id id = pll->info->id;
- 	u32 val;
- 
- 	val = I915_READ(SPLL_CTL);
- 	I915_WRITE(SPLL_CTL, val & ~SPLL_PLL_ENABLE);
- 	POSTING_READ(SPLL_CTL);
-+
-+	/*
-+	 * Try to set up the PCH reference clock once all DPLLs
-+	 * that depend on it have been shut down.
-+	 */
-+	if (dev_priv->pch_ssc_use & BIT(id))
-+		intel_init_pch_refclk(dev_priv);
+ /*
+- * PageTransCompoundMap is the same as PageTransCompound, but it also
+- * guarantees the primary MMU has the entire compound page mapped
+- * through pmd_trans_huge, which in turn guarantees the secondary MMUs
+- * can also map the entire compound page. This allows the secondary
+- * MMUs to call get_user_pages() only once for each compound page and
+- * to immediately map the entire compound page with a single secondary
+- * MMU fault. If there will be a pmd split later, the secondary MMUs
+- * will get an update through the MMU notifier invalidation through
+- * split_huge_pmd().
+- *
+- * Unlike PageTransCompound, this is safe to be called only while
+- * split_huge_pmd() cannot run from under us, like if protected by the
+- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
+- * positives.
+- */
+-static inline int PageTransCompoundMap(struct page *page)
+-{
+-	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
+-}
+-
+-/*
+  * PageTransTail returns true for both transparent huge pages
+  * and hugetlbfs pages, so it should only be called when it's known
+  * that hugetlbfs pages aren't involved.
+@@ -681,6 +660,39 @@ static inline int TestClearPageDoubleMap
+ 	return test_and_clear_bit(PG_double_map, &page[1].flags);
  }
  
- static bool hsw_ddi_wrpll_get_hw_state(struct drm_i915_private *dev_priv,
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 8882c0908c3b..5332825e0ce4 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1348,6 +1348,8 @@ struct drm_i915_private {
- 		} contexts;
- 	} gem;
- 
-+	u8 pch_ssc_use;
++/*
++ * PageTransCompoundMap is the same as PageTransCompound, but it also
++ * guarantees the primary MMU has the entire compound page mapped
++ * through pmd_trans_huge, which in turn guarantees the secondary MMUs
++ * can also map the entire compound page. This allows the secondary
++ * MMUs to call get_user_pages() only once for each compound page and
++ * to immediately map the entire compound page with a single secondary
++ * MMU fault. If there will be a pmd split later, the secondary MMUs
++ * will get an update through the MMU notifier invalidation through
++ * split_huge_pmd().
++ *
++ * Unlike PageTransCompound, this is safe to be called only while
++ * split_huge_pmd() cannot run from under us, like if protected by the
++ * MMU notifier, otherwise it may result in page->_mapcount check false
++ * positives.
++ *
++ * We have to treat page cache THP differently since every subpage of it
++ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
++ * mapped in the current process so checking PageDoubleMap flag to rule
++ * this out.
++ */
++static inline int PageTransCompoundMap(struct page *page)
++{
++	bool pmd_mapped;
 +
- 	/* For i915gm/i945gm vblank irq workaround */
- 	u8 vblank_enabled;
- 
--- 
-2.21.0
++	if (PageAnon(page))
++		pmd_mapped = atomic_read(&page->_mapcount) < 0;
++	else
++		pmd_mapped = atomic_read(&page->_mapcount) >= 0 &&
++			     !PageDoubleMap(compound_head(page));
++
++	return PageTransCompound(page) && pmd_mapped;
++}
+ #else
+ TESTPAGEFLAG_FALSE(TransHuge)
+ TESTPAGEFLAG_FALSE(TransCompound)
+_
+
+Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+
+mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+mm-vmscan-remove-unused-scan_control-parameter-from-pageout.patch
 
