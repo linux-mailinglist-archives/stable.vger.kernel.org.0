@@ -2,114 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5E6E05D9
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 16:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA339E060A
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 16:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389029AbfJVOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 10:04:22 -0400
-Received: from smtprelay-out1.synopsys.com ([198.182.47.102]:35144 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388435AbfJVOEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 10:04:22 -0400
-Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 2495DC0D58;
-        Tue, 22 Oct 2019 14:04:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1571753061; bh=PlFMRCj9hMpOe7fD5AdKfYzQfRNkA41VuXOPF/zY0I4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gUpL5SAIZnWNDGO7a7mPmwl+MZsM4kZ/WNmGkOAhaybPAIxG93H+Md4ylWbSmYM4u
-         G2HeqRFYlpkzD/FtIhHyQAcixWNH/HqEZHT3Xil5C+L6xZJwb7ZDTmy5nA55tajZWc
-         DgnY4zmdYgUwRnJaaA5ifsvMZPC1aslwSzaS10lndy8u+kEQadASEcfzmPNiYP4Dht
-         WIBc1YathvVxpEaLQWHg9/y0O8blWzbxCfnNPH3vWhFd+Q4wz3/iH10m7yxgBTGwZs
-         6oNmYp6EP/Tlxa0gm1rWNAZd1Io4M+FmB495C2Aoj4SoATtLn5P20WrCx6CS3xFxWa
-         okEiGQG5PoYCA==
-Received: from ru20arcgnu1.internal.synopsys.com (ru20arcgnu1.internal.synopsys.com [10.121.9.48])
-        by mailhost.synopsys.com (Postfix) with ESMTP id CA9CDA005D;
-        Tue, 22 Oct 2019 14:04:13 +0000 (UTC)
-From:   Alexey Brodkin <Alexey.Brodkin@synopsys.com>
-To:     linux-snps-arc@lists.infradead.org
-Cc:     linux-kernel@vger.kernel.org,
-        Alexey Brodkin <Alexey.Brodkin@synopsys.com>,
+        id S1729425AbfJVOKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Oct 2019 10:10:37 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:53505 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728448AbfJVOKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 10:10:36 -0400
+Received: from localhost.localdomain (lfbn-1-17395-211.w86-250.abo.wanadoo.fr [86.250.200.211])
+        (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id BEBEC200014;
+        Tue, 22 Oct 2019 14:10:33 +0000 (UTC)
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>
+Cc:     <linux-mtd@lists.infradead.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Boris Brezillon <boris.brezillon@collabora.com>,
         stable@vger.kernel.org
-Subject: [PATCH] ARC: perf: Accommodate big-endian CPU
-Date:   Tue, 22 Oct 2019 17:04:11 +0300
-Message-Id: <20191022140411.10193-1-abrodkin@synopsys.com>
-X-Mailer: git-send-email 2.16.2
+Subject: [PATCH v3] mtd: spear_smi: Fix Write Burst mode
+Date:   Tue, 22 Oct 2019 16:10:31 +0200
+Message-Id: <20191022141031.31087-1-miquel.raynal@bootlin.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-8-letter strings representing ARC perf events are stores in two
-32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
+Any write with either dd or flashcp to a device driven by the
+spear_smi.c driver will pass through the spear_smi_cpy_toio()
+function. This function will get called for chunks of up to 256 bytes.
+If the amount of data is smaller, we may have a problem if the data
+length is not 4-byte aligned. In this situation, the kernel panics
+during the memcpy:
 
-And the same order of bytes in the word is used regardless CPU endianness.
+    # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
+    spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
+    spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
+    spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
+    spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
+    Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
+    [...]
+    PC is at memcpy+0xcc/0x330
 
-Which means in case of big-endian CPU core we need to swap bytes to get
-the same order as if it was on little-endian CPU.
+The above error occurs because the implementation of memcpy_toio()
+tries to optimize the number of I/O by writing 4 bytes at a time as
+much as possible, until there are less than 4 bytes left and then
+switches to word or byte writes.
 
-Otherwise we're seeing the following error message on boot:
-------------------------->8----------------------
-ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
-sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  sysfs_warn_dup+0x46/0x58
-  sysfs_add_file_mode_ns+0xb2/0x168
-  create_files+0x70/0x2a0
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
-Failed to register pmu: arc_pct, reason -17
-Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  __warn+0x9c/0xd4
-  warn_slowpath_fmt+0x22/0x2c
-  perf_event_sysfs_init+0x70/0xa0
----[ end trace a75fb9a9837bd1ec ]---
-------------------------->8----------------------
+Unfortunately, the specification states about the Write Burst mode:
 
-What happens here we're trying to register more than one raw perf event
-with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
-and encoded into two 32-bit words. In this particular case we deal with 2
-events:
- * "IJMP____" which counts all jump & branch instructions
- * "IJMPC___" which counts only conditional jumps & branches
+        "the next AHB Write request should point to the next
+	incremented address and should have the same size (byte,
+	half-word or word)"
 
-Those strings are split in two 32-bit words this way "IJMP" + "____" &
-"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
-being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
+This means ARM architecture implementation of memcpy_toio() cannot
+reliably be used blindly here. Workaround this situation by update the
+write path to stick to byte access when the burst length is not
+multiple of 4.
 
-And since we interpret read array of ASCII letters as a null-terminated string
-on big-endian CPU we end up with 2 events of the same name "PMJI".
-
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
+Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Boris Brezillon <boris.brezillon@collabora.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 ---
- arch/arc/kernel/perf_event.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arc/kernel/perf_event.c b/arch/arc/kernel/perf_event.c
-index 861a8aea51f9..661fd842ea97 100644
---- a/arch/arc/kernel/perf_event.c
-+++ b/arch/arc/kernel/perf_event.c
-@@ -614,8 +614,8 @@ static int arc_pmu_device_probe(struct platform_device *pdev)
- 	/* loop thru all available h/w condition indexes */
- 	for (i = 0; i < cc_bcr.c; i++) {
- 		write_aux_reg(ARC_REG_CC_INDEX, i);
--		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
--		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
-+		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
-+		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
+Changes in v3:
+==============
+* Prevent writes to non 4-byte aligned addresses to fail.
+* Use the IS_ALIGNED() macro.
+* Add a comment to explain why the 'memcpy_toio_b' helper is needed
+  directly in the code.
+
+Changes in v2:
+==============
+* This time I think the patch really fixes the problem: we use a
+  memcpy_toio_b() function to force byte access only when needed. We
+  don't use the _memcpy_toio() helper anymore as the fact that it is
+  doing byte access is purely an implementation detail and is not part
+  of the API, while the function is also flagged as "should be
+  optimized".
+* One could argue that potentially memcpy_toio() does not ensure by
+  design 4-bytes access only but I think it is good enough to use it
+  in this case as the ARM implementation of this function is already
+  extensively optimized. I also find clearer to use it than 
+  adding my own spear_smi_mempy_toio_l(). Please tell me if you disagree
+  with this.
+* The volatile keyword has been taken voluntarily from the _memcpy_toio()
+  implementation I was about to use previously.
+
+
+ drivers/mtd/devices/spear_smi.c | 38 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 37 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/devices/spear_smi.c b/drivers/mtd/devices/spear_smi.c
+index 986f81d2f93e..348961663cf4 100644
+--- a/drivers/mtd/devices/spear_smi.c
++++ b/drivers/mtd/devices/spear_smi.c
+@@ -592,6 +592,26 @@ static int spear_mtd_read(struct mtd_info *mtd, loff_t from, size_t len,
+ 	return 0;
+ }
  
- 		arc_pmu_map_hw_event(i, cc_name.str);
- 		arc_pmu_add_raw_event_attr(i, cc_name.str);
++/*
++ * The purpose of this function is to ensure a memcpy_toio() with byte writes
++ * only. Its structure is inspired from the ARM implementation of _memcpy_toio()
++ * which also does single byte writes but cannot be used here as this is just an
++ * implementation detail and not part of the API. Not mentioning the comment
++ * stating that _memcpy_toio() should be optimized.
++ */
++static void spear_smi_memcpy_toio_b(volatile void __iomem *dest,
++				    const void *src, size_t len)
++{
++	const unsigned char *from = src;
++
++	while (len) {
++		len--;
++		writeb(*from, dest);
++		from++;
++		dest++;
++	}
++}
++
+ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 		void __iomem *dest, const void *src, size_t len)
+ {
+@@ -614,7 +634,23 @@ static inline int spear_smi_cpy_toio(struct spear_smi *dev, u32 bank,
+ 	ctrlreg1 = readl(dev->io_base + SMI_CR1);
+ 	writel((ctrlreg1 | WB_MODE) & ~SW_MODE, dev->io_base + SMI_CR1);
+ 
+-	memcpy_toio(dest, src, len);
++	/*
++	 * In Write Burst mode (WB_MODE), the specs states that writes must be:
++	 * - incremental
++	 * - of the same size
++	 * The ARM implementation of memcpy_toio() will optimize the number of
++	 * I/O by using as much 4-byte writes as possible, surrounded by
++	 * 2-byte/1-byte access if:
++	 * - the destination is not 4-byte aligned
++	 * - the length is not a multiple of 4-byte.
++	 * Avoid this alternance of write access size by using our own 'byte
++	 * access' helper if at least one of the two conditions above is true.
++	 */
++	if (IS_ALIGNED(len, sizeof(u32)) &&
++	    IS_ALIGNED((unsigned int)dest, sizeof(u32)))
++		memcpy_toio(dest, src, len);
++	else
++		spear_smi_memcpy_toio_b(dest, src, len);
+ 
+ 	writel(ctrlreg1, dev->io_base + SMI_CR1);
+ 
 -- 
-2.16.2
+2.20.1
 
