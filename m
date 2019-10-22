@@ -2,110 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FF39E0409
-	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 14:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E9BE0421
+	for <lists+stable@lfdr.de>; Tue, 22 Oct 2019 14:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731649AbfJVMlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 08:41:20 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40923 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731405AbfJVMlU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 08:41:20 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iMtTC-0006aF-Pt; Tue, 22 Oct 2019 14:41:02 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 53A7F1C0090;
-        Tue, 22 Oct 2019 14:41:02 +0200 (CEST)
-Date:   Tue, 22 Oct 2019 12:41:01 -0000
-From:   "tip-bot2 for Alexander Shishkin" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/aux: Fix AUX output stopping
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20191022073940.61814-1-alexander.shishkin@linux.intel.com>
-References: <20191022073940.61814-1-alexander.shishkin@linux.intel.com>
+        id S2389023AbfJVMqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 22 Oct 2019 08:46:34 -0400
+Received: from [217.140.110.172] ([217.140.110.172]:51644 "EHLO foss.arm.com"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S1728346AbfJVMqe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 22 Oct 2019 08:46:34 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C3248168F;
+        Tue, 22 Oct 2019 05:46:11 -0700 (PDT)
+Received: from [10.1.194.37] (e113632-lin.cambridge.arm.com [10.1.194.37])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 420CA3F71F;
+        Tue, 22 Oct 2019 05:46:10 -0700 (PDT)
+Subject: Re: [PATCH v3 1/2] sched/topology: Don't try to build empty sched
+ domains
+To:     Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org
+Cc:     lizefan@huawei.com, tj@kernel.org, hannes@cmpxchg.org,
+        mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
+        morten.rasmussen@arm.com, qperret@google.com,
+        stable@vger.kernel.org
+References: <20191015154250.12951-1-valentin.schneider@arm.com>
+ <20191015154250.12951-2-valentin.schneider@arm.com>
+ <20dc939f-4102-334e-5fde-a442ee7eaa5e@arm.com>
+From:   Valentin Schneider <valentin.schneider@arm.com>
+Message-ID: <b38c30cd-f990-dd98-b414-c284f8f32cfd@arm.com>
+Date:   Tue, 22 Oct 2019 13:46:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Message-ID: <157174806200.29376.5249502095555132828.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20dc939f-4102-334e-5fde-a442ee7eaa5e@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the perf/urgent branch of tip:
+On 22/10/2019 12:43, Dietmar Eggemann wrote:
+> First I thought we can do with a little less drama by only preventing
+> arch_scale_cpu_capacity() from consuming >= nr_cpu_ids.
+> 
+> @@ -1894,6 +1894,9 @@ static struct sched_domain_topology_level
+>         struct sched_domain_topology_level *tl, *asym_tl = NULL;
+>         unsigned long cap;
+> 
+> +       if (cpumask_empty(cpu_map))
+> +               return NULL;
+> +
+> 
+> Until I tried to hp'ed in CPU4 after CPU4/5 had been hp'ed out (your
+> example further below) and I got another:
+> 
+> [   68.014564] Unable to handle kernel paging request at virtual address
+> fffe8009903d8ee0
+> ...
+> [   68.191293] Call trace:
+> [   68.193712]  partition_sched_domains_locked+0x1a4/0x4a0
+> [   68.198882]  rebuild_sched_domains_locked+0x4d0/0x7b0
+> [   68.203880]  rebuild_sched_domains+0x24/0x40
+> [   68.208104]  cpuset_hotplug_workfn+0xe0/0x5f8
+> ...
+> 
+> @@ -2213,6 +2216,11 @@ void partition_sched_domains_locked(int
+> ndoms_new, cpumask_var_t doms_new[],
+>                                * will be recomputed in function
+>                                * update_tasks_root_domain().
+>                                */
+> +                             if (cpumask_empty(doms_cur[i]))
+> +                                    printk("doms_cur[%d] empty\n", i);
+> +
+>                               rd = cpu_rq(cpumask_any(doms_cur[i]))->rd;
+> 
+> doms_cur[i] is empty when hp'ing in CPU4 again.
+> 
+> Your patch fixes this as well.
+> 
 
-Commit-ID:     f3a519e4add93b7b31a6616f0b09635ff2e6a159
-Gitweb:        https://git.kernel.org/tip/f3a519e4add93b7b31a6616f0b09635ff2e6a159
-Author:        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-AuthorDate:    Tue, 22 Oct 2019 10:39:40 +03:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Tue, 22 Oct 2019 14:39:37 +02:00
+Thanks for giving it a spin!
 
-perf/aux: Fix AUX output stopping
+> Might be worth noting that this is not only about asym CPU capacity
+> handling but missing checks after cpumask operations in case the cpuset
+> is empty.
 
-Commit:
+Aye, we end up saving whatever we're given (doms_cur = doms_new at the end
+of the rebuild). As you pointed out this is also an issue for the operation
+done by
 
-  8a58ddae2379 ("perf/core: Fix exclusive events' grouping")
+  f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting information")
 
-allows CAP_EXCLUSIVE events to be grouped with other events. Since all
-of those also happen to be AUX events (which is not the case the other
-way around, because arch/s390), this changes the rules for stopping the
-output: the AUX event may not be on its PMU's context any more, if it's
-grouped with a HW event, in which case it will be on that HW event's
-context instead. If that's the case, munmap() of the AUX buffer can't
-find and stop the AUX event, potentially leaving the last reference with
-the atomic context, which will then end up freeing the AUX buffer. This
-will then trip warnings:
-
-Fix this by using the context's PMU context when looking for events
-to stop, instead of the event's PMU context.
-
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191022073940.61814-1-alexander.shishkin@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
----
- kernel/events/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index f5d7950..bb3748d 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -6949,7 +6949,7 @@ static void __perf_event_output_stop(struct perf_event *event, void *data)
- static int __perf_pmu_output_stop(void *info)
- {
- 	struct perf_event *event = info;
--	struct pmu *pmu = event->pmu;
-+	struct pmu *pmu = event->ctx->pmu;
- 	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
- 	struct remote_output ro = {
- 		.rb	= event->rb,
+but it has been introduced after the asymmetry check, hence why I'm tagging
+the latter for stable.
