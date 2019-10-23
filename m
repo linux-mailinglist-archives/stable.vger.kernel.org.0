@@ -2,66 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41686E24CA
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 22:50:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1F62E2514
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 23:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391478AbfJWUuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 16:50:23 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:40569 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390611AbfJWUuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 16:50:22 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07486;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Tg.Zevt_1571863816;
-Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tg.Zevt_1571863816)
+        id S2405567AbfJWVTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 17:19:46 -0400
+Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:51402 "EHLO
+        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404502AbfJWVTq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 17:19:46 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Tg.SaQl_1571865575;
+Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tg.SaQl_1571865575)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 24 Oct 2019 04:50:19 +0800
-Subject: Re: [v2 PATCH] mm: thp: handle page cache THP correctly in
- PageTransCompoundMap
-To:     Hugh Dickins <hughd@google.com>
-Cc:     aarcange@redhat.com, kirill.shutemov@linux.intel.com,
-        gavin.dg@linux.alibaba.com, akpm@linux-foundation.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <1571850304-82802-1-git-send-email-yang.shi@linux.alibaba.com>
- <alpine.LSU.2.11.1910231157570.1088@eggly.anvils>
- <4d3c14ef-ee86-2719-70d6-68f1a8b42c28@linux.alibaba.com>
- <alpine.LSU.2.11.1910231250260.1794@eggly.anvils>
+          Thu, 24 Oct 2019 05:19:42 +0800
 From:   Yang Shi <yang.shi@linux.alibaba.com>
-Message-ID: <d500d98e-3577-ced1-9614-7aa5e09e6dbe@linux.alibaba.com>
-Date:   Wed, 23 Oct 2019 13:50:14 -0700
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
- Gecko/20100101 Thunderbird/52.7.0
-MIME-Version: 1.0
-In-Reply-To: <alpine.LSU.2.11.1910231250260.1794@eggly.anvils>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+To:     hughd@google.com, aarcange@redhat.com,
+        kirill.shutemov@linux.intel.com, willy@infradead.org,
+        gavin.dg@linux.alibaba.com, akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [v4 PATCH] mm: thp: handle page cache THP correctly in PageTransCompoundMap
+Date:   Thu, 24 Oct 2019 05:19:35 +0800
+Message-Id: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+We have usecase to use tmpfs as QEMU memory backend and we would like to
+take the advantage of THP as well.  But, our test shows the EPT is not
+PMD mapped even though the underlying THP are PMD mapped on host.
+The number showed by /sys/kernel/debug/kvm/largepage is much less than
+the number of PMD mapped shmem pages as the below:
 
+7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   579584 kB
+[snip]
+Locked:                0 kB
 
-On 10/23/19 1:00 PM, Hugh Dickins wrote:
-> On Wed, 23 Oct 2019, Yang Shi wrote:
->> On 10/23/19 12:28 PM, Hugh Dickins wrote:
->>>> +	return map_count >= 0 &&
->>> You have added a map_count >= 0 test there. Okay, not wrong, but not
->>> necessary, and not consistent with what's returned in the PageAnon
->>> case (if this were called for an unmapped page).
->> I was thinking about this too. I'm wondering there might be a case that the
->> PMD is split and it was the last PMD map, in this case subpage's _mapcount is
->> also equal to compound_mapcount (both is -1). So, it would return true, then
->> KVM may setup PMD map in EPT, but it might be PTE mapped later on the host.
->> But, I'm not quite sure if this is really possible or if this is really a
->> integrity problem. So, I thought it might be safer to add this check.
-> The mmu_notifier_invalidate_range_start.._end() in __split_huge_pmd(),
-> with KVM's locking and sequence counting, is required to protect
-> against such races.
+cat /sys/kernel/debug/kvm/largepages
+12
 
-OK, it sounds safe. Thanks for confirming. Will post v4 soon.
+And some benchmarks do worse than with anonymous THPs.
 
->
-> Hugh
+By digging into the code we figured out that commit 127393fbe597 ("mm:
+thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+there is a single PTE mapping on the page for anonymous THP when
+setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
+cache THP since every subpage of page cache THP would get _mapcount
+inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
+false for page cache THP.  This would prevent KVM from setting up PMD
+mapped EPT entry.
+
+So we need handle page cache THP correctly.  However, when page cache
+THP's PMD gets split, kernel just remove the map instead of setting up
+PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+the subpages may get PTE mapped even though it is still a THP since the
+page cache THP may be mapped by other processes at the mean time.
+
+Checking its _mapcount and whether the THP has PTE mapped or not.
+Although this may report some false negative cases (PTE mapped by other
+processes), it looks not trivial to make this accurate.
+
+With this fix /sys/kernel/debug/kvm/largepage would show reasonable
+pages are PMD mapped by EPT as the below:
+
+7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+Size:            4194304 kB
+[snip]
+AnonHugePages:         0 kB
+ShmemPmdMapped:   557056 kB
+[snip]
+Locked:                0 kB
+
+cat /sys/kernel/debug/kvm/largepages
+271
+
+And the benchmarks are as same as anonymous THPs.
+
+Fixes: dd78fedde4b9 ("rmap: support file thp")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Suggested-by: Hugh Dickins <hughd@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org> 4.8+
+---
+ include/linux/mm.h         |  5 -----
+ include/linux/mm_types.h   |  5 +++++
+ include/linux/page-flags.h | 20 ++++++++++++++++++--
+ 3 files changed, 23 insertions(+), 7 deletions(-)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index cc29227..a2adf95 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -695,11 +695,6 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
+ 
+ extern void kvfree(const void *addr);
+ 
+-static inline atomic_t *compound_mapcount_ptr(struct page *page)
+-{
+-	return &page[1].compound_mapcount;
+-}
+-
+ static inline int compound_mapcount(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 2222fa7..270aa8f 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -221,6 +221,11 @@ struct page {
+ #endif
+ } _struct_page_alignment;
+ 
++static inline atomic_t *compound_mapcount_ptr(struct page *page)
++{
++	return &page[1].compound_mapcount;
++}
++
+ /*
+  * Used for sizing the vmemmap region on some architectures
+  */
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index f91cb88..1bf83c8 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -622,12 +622,28 @@ static inline int PageTransCompound(struct page *page)
+  *
+  * Unlike PageTransCompound, this is safe to be called only while
+  * split_huge_pmd() cannot run from under us, like if protected by the
+- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
++ * MMU notifier, otherwise it may result in page->_mapcount check false
+  * positives.
++ *
++ * We have to treat page cache THP differently since every subpage of it
++ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
++ * mapped in the current process so comparing subpage's _mapcount to
++ * compound_mapcount to filter out PTE mapped case.
+  */
+ static inline int PageTransCompoundMap(struct page *page)
+ {
+-	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
++	struct page *head;
++
++	if (!PageTransCompound(page))
++		return 0;
++
++	if (PageAnon(page))
++		return atomic_read(&page->_mapcount) < 0;
++
++	head = compound_head(page);
++	/* File THP is PMD mapped and not PTE mapped */
++	return atomic_read(&page->_mapcount) ==
++	       atomic_read(compound_mapcount_ptr(head));
+ }
+ 
+ /*
+-- 
+1.8.3.1
 
