@@ -2,108 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A013EE1B47
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66BFDE1BBF
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 15:05:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391802AbfJWMvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 08:51:02 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:49246 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391775AbfJWMvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:51:00 -0400
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iNG6I-0001hf-3r; Wed, 23 Oct 2019 14:50:54 +0200
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id AF66D1C0089;
-        Wed, 23 Oct 2019 14:50:53 +0200 (CEST)
-Date:   Wed, 23 Oct 2019 12:50:53 -0000
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] lib/vdso: Make clock_getres() POSIX compliant again
-Cc:     Andreas Schwab <schwab@linux-m68k.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <alpine.DEB.2.21.1910211202260.1904@nanos.tec.linutronix.de>
-References: <alpine.DEB.2.21.1910211202260.1904@nanos.tec.linutronix.de>
+        id S2390750AbfJWNFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 09:05:52 -0400
+Received: from forwardcorp1o.mail.yandex.net ([95.108.205.193]:50458 "EHLO
+        forwardcorp1o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2390642AbfJWNFv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 09:05:51 -0400
+Received: from mxbackcorp1o.mail.yandex.net (mxbackcorp1o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::301])
+        by forwardcorp1o.mail.yandex.net (Yandex) with ESMTP id 0897E2E15C8;
+        Wed, 23 Oct 2019 16:05:48 +0300 (MSK)
+Received: from iva8-b53eb3f76dc7.qloud-c.yandex.net (iva8-b53eb3f76dc7.qloud-c.yandex.net [2a02:6b8:c0c:2ca1:0:640:b53e:b3f7])
+        by mxbackcorp1o.mail.yandex.net (nwsmtp/Yandex) with ESMTP id CMEAkgWXLY-5ll4G81u;
+        Wed, 23 Oct 2019 16:05:47 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
+        t=1571835947; bh=kJuDEoi2DnAZHHcr2TKjwcZ45kR0BazMsfLIWVC/fKw=;
+        h=In-Reply-To:Message-ID:Date:References:To:From:Subject:Cc;
+        b=gKsN9ChSZUXTNXJVimiIvzGt1vtfImTBEHX2tgVfaG/SbXwzTAXcSs0vjXAqCy6bX
+         KQePOZ6K/6SvFKakG+KOTu84oRsR0WuH1v6wJwx2XtccdE0BipE2P8SSOy9MkHkH2T
+         C+/MVh3Y1vaawFNdUrmT5IqKUF0t4PiPp+pc+JSo=
+Authentication-Results: mxbackcorp1o.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
+Received: from dynamic-red.dhcp.yndx.net (dynamic-red.dhcp.yndx.net [2a02:6b8:0:40c:3d43:d63f:7907:141a])
+        by iva8-b53eb3f76dc7.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id PM1IhkX4dm-5lW0x5l0;
+        Wed, 23 Oct 2019 16:05:47 +0300
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (Client certificate not present)
+Subject: Re: [PATCH 4.4 1/2] x86/vdso: Remove direct HPET mapping into
+ userspace
+From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+        Andy Lutomirski <luto@kernel.org>
+References: <157183247628.2324.16440279839073827980.stgit@buzz>
+Message-ID: <00665546-4ad7-758c-d205-02f2fdca7e6e@yandex-team.ru>
+Date:   Wed, 23 Oct 2019 16:05:47 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Message-ID: <157183505345.29376.7588508845309452690.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <157183247628.2324.16440279839073827980.stgit@buzz>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-CA
 Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+On 23/10/2019 15.07, Konstantin Khlebnikov wrote:
+> commit 1ed95e52d902035e39a715ff3a314a893a96e5b7 upstream.
+> 
+> Commit d96d87834d5b870402a4a5b565706a4869ebc020 in v4.4.190 which is
+> backport of upstream commit 1ed95e52d902035e39a715ff3a314a893a96e5b7
+> removed only HPET access from vdso but leaved HPET mapped in "vvar".
+> So userspace still could read HPET directly and confuse hardware.
+> 
+> This patch removes mapping HPET page into userspace.
+> 
+> Fixes: d96d87834d5b ("x86/vdso: Remove direct HPET access through the vDSO") # v4.4.190
+> Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+> Link: https://lore.kernel.org/lkml/6fd42b2b-e29a-1fd6-03d1-e9da9192e6c5@yandex-team.ru/
+> ---
+>   arch/x86/entry/vdso/vma.c |   14 --------------
+>   1 file changed, 14 deletions(-)
+> 
+> diff --git a/arch/x86/entry/vdso/vma.c b/arch/x86/entry/vdso/vma.c
+> index 6b46648588d8..cc0a3c16a95d 100644
+> --- a/arch/x86/entry/vdso/vma.c
+> +++ b/arch/x86/entry/vdso/vma.c
+> @@ -18,7 +18,6 @@
+>   #include <asm/vdso.h>
+>   #include <asm/vvar.h>
+>   #include <asm/page.h>
+> -#include <asm/hpet.h>
+>   #include <asm/desc.h>
+>   #include <asm/cpufeature.h>
+>   
+> @@ -159,19 +158,6 @@ static int map_vdso(const struct vdso_image *image, bool calculate_addr)
+>   	if (ret)
+>   		goto up_fail;
+>   
+> -#ifdef CONFIG_HPET_TIMER
+> -	if (hpet_address && image->sym_hpet_page) {
 
-Commit-ID:     1638b8f096ca165965189b9626564c933c79fe63
-Gitweb:        https://git.kernel.org/tip/1638b8f096ca165965189b9626564c933c79fe63
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Mon, 21 Oct 2019 12:07:15 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Wed, 23 Oct 2019 14:48:23 +02:00
+Probably this patch is not required.
+It seems after removing symbol "hpet_page" from vdso code
+image->sym_hpet_page always is NULL and this branch never executed.
 
-lib/vdso: Make clock_getres() POSIX compliant again
-
-A recent commit removed the NULL pointer check from the clock_getres()
-implementation causing a test case to fault.
-
-POSIX requires an explicit NULL pointer check for clock_getres() aside of
-the validity check of the clock_id argument for obscure reasons.
-
-Add it back for both 32bit and 64bit.
-
-Note, this is only a partial revert of the offending commit which does not
-bring back the broken fallback invocation in the the 32bit compat
-implementations of clock_getres() and clock_gettime().
-
-Fixes: a9446a906f52 ("lib/vdso/32: Remove inconsistent NULL pointer checks")
-Reported-by: Andreas Schwab <schwab@linux-m68k.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1910211202260.1904@nanos.tec.linutronix.de
-
----
- lib/vdso/gettimeofday.c |  9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/lib/vdso/gettimeofday.c b/lib/vdso/gettimeofday.c
-index e630e7f..45f57fd 100644
---- a/lib/vdso/gettimeofday.c
-+++ b/lib/vdso/gettimeofday.c
-@@ -214,9 +214,10 @@ int __cvdso_clock_getres_common(clockid_t clock, struct __kernel_timespec *res)
- 		return -1;
- 	}
- 
--	res->tv_sec = 0;
--	res->tv_nsec = ns;
--
-+	if (likely(res)) {
-+		res->tv_sec = 0;
-+		res->tv_nsec = ns;
-+	}
- 	return 0;
- }
- 
-@@ -245,7 +246,7 @@ __cvdso_clock_getres_time32(clockid_t clock, struct old_timespec32 *res)
- 		ret = clock_getres_fallback(clock, &ts);
- #endif
- 
--	if (likely(!ret)) {
-+	if (likely(!ret && res)) {
- 		res->tv_sec = ts.tv_sec;
- 		res->tv_nsec = ts.tv_nsec;
- 	}
+> -		ret = io_remap_pfn_range(vma,
+> -			text_start + image->sym_hpet_page,
+> -			hpet_address >> PAGE_SHIFT,
+> -			PAGE_SIZE,
+> -			pgprot_noncached(PAGE_READONLY));
+> -
+> -		if (ret)
+> -			goto up_fail;
+> -	}
+> -#endif
+> -
+>   	pvti = pvclock_pvti_cpu0_va();
+>   	if (pvti && image->sym_pvclock_page) {
+>   		ret = remap_pfn_range(vma,
+> 
