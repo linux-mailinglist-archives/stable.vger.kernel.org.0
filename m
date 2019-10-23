@@ -2,92 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8B2E1B1F
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A926DE1B24
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390292AbfJWMox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 08:44:53 -0400
-Received: from mail-il1-f193.google.com ([209.85.166.193]:46064 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391686AbfJWMox (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:44:53 -0400
-Received: by mail-il1-f193.google.com with SMTP id u1so18734884ilq.12
-        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 05:44:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KCumm8k8QZFgEaXx7omB9aOrf4hbPGxPHtVfgyDzsMc=;
-        b=LDTrBOZ1+JfvlvTSEcwWYsX9iOf1MJ/3FxEIKmXp4Akg+bT8+VGTRqQHVDd0X/Pc8T
-         5peWru6fWsvOmE81EZWhTYodhcZWSfRwnVLoQ0s9+ZDDJ/wAAZrBGoxyK91L011Q5jzu
-         umB3NkXBxTUnTlLHb+HXzytdkPhcf1BA8k7x0rxVXD7NxX77WPNhl8tSSfn2K4G3Imkm
-         YBZoa2UtM3fuSmJUMEVaDEh7uC4j1VHlaQpAN5OSJxiejDk5dW1RaiTNhXQwM1kZjybM
-         KgOs1OaZDxXllyfDA4j/gHmEPbj8cobL+taLvSWPV+eyYoiJgVO333jORm+eRbQOVfmR
-         BfKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KCumm8k8QZFgEaXx7omB9aOrf4hbPGxPHtVfgyDzsMc=;
-        b=gNGDBx0UrJ+9JbEs56JrIwics8l4jmCK1R7ql5tw1rpwqCmDHueZA0BkDPCt1fCtWS
-         n+Esq9AUNLd+ViI403nhCLamI8CJCFyAj4bK+o966rhglxy2njhIklgiW/H4wC+WSk1T
-         KOXFZ6CHygzng725/3/gJ++IJ+SIRzqyAN6FRtCWJTYxexe+l8WMcFEFXMpz6fgJdRIV
-         xSMgXbZhcjeZKuTvEtx6MJSOYKelPWK17KZDSmF81ne0yGg6x9z2+aF58LRG/l9gNE3k
-         LDKWrbhI39W3JeZa5t1nDLupxJquNAaAMuM+X/lkESmBJk3SYQizaF0ze5pKGEXaycgV
-         zgKQ==
-X-Gm-Message-State: APjAAAWaj0w++SOW6IWb9SzeSJE0EuCripBOyOJnHO3G8qS6aJMCQqGM
-        YWVR1uj69TTZHCYTzQMUWeOz+wad5emPKHO3iZoz/2G4
-X-Google-Smtp-Source: APXvYqzGbgRiDbN76eWO+FVMnXbtQ0VH2X2AA23kY/MsgxfNsvGqm1CxUlxMFtF/ZtAbu7rSzhosvv+FbY0J/2Yjnno=
-X-Received: by 2002:a92:5ac2:: with SMTP id b63mr39871670ilg.192.1571834692034;
- Wed, 23 Oct 2019 05:44:52 -0700 (PDT)
+        id S2390079AbfJWMqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 08:46:19 -0400
+Received: from mga11.intel.com ([192.55.52.93]:60015 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2403914AbfJWMqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Oct 2019 08:46:19 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Oct 2019 05:46:18 -0700
+X-IronPort-AV: E=Sophos;i="5.68,220,1569308400"; 
+   d="scan'208";a="191819544"
+Received: from ideak-desk.fi.intel.com ([10.237.68.142])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Oct 2019 05:46:17 -0700
+Date:   Wed, 23 Oct 2019 15:44:50 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     Ville Syrjala <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, Andrija <akijo97@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH] drm/i915: Fix PCH reference clock for FDI on
+ HSW/BDW
+Message-ID: <20191023124450.GA11288@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20191022185643.1483-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-References: <20191023013635.2512-1-oohall@gmail.com> <20191023112102.GN28442@gate.crashing.org>
-In-Reply-To: <20191023112102.GN28442@gate.crashing.org>
-From:   "Oliver O'Halloran" <oohall@gmail.com>
-Date:   Wed, 23 Oct 2019 23:44:41 +1100
-Message-ID: <CAOSf1CGjVt1v4RcazXTLkbm=fsswF8a5nqsLZod4=YwymLXPvg@mail.gmail.com>
-Subject: Re: [PATCH] powerpc/boot: Fix the initrd being overwritten under qemu
-To:     Segher Boessenkool <segher@kernel.crashing.org>
-Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191022185643.1483-1-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 10:21 PM Segher Boessenkool
-<segher@kernel.crashing.org> wrote:
->
-> On Wed, Oct 23, 2019 at 12:36:35PM +1100, Oliver O'Halloran wrote:
-> > When booting under OF the zImage expects the initrd address and size to be
-> > passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
-> > currently doesn't do this so the zImage is not aware of the initrd
-> > location.  This can result in initrd corruption either though the zImage
-> > extracting the vmlinux over the initrd, or by the vmlinux overwriting the
-> > initrd when relocating itself.
-> >
-> > QEMU does put the linux,initrd-start and linux,initrd-end properties into
-> > the devicetree to vmlinux to find the initrd. We can work around the SLOF
-> > bug by also looking those properties in the zImage.
->
-> This is not a bug.  What boot protocol requires passing the initrd start
-> and size in GPR3, GPR4?
->
-> The CHRP binding (what SLOF implements) requires passing two zeroes here.
-> And ePAPR requires passing the address of a device tree and a zero, plus
-> something in GPR6 to allow distinguishing what it does.
+On Tue, Oct 22, 2019 at 09:56:43PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> The change to skip the PCH reference initialization during fastboot
+> did end up breaking FDI. To fix that let's try to do the PCH reference
+> init whenever we're disabling a DPLL that was using said reference
+> previously.
+> 
+> Cc: stable@vger.kernel.org
+> Tested-by: Andrija <akijo97@gmail.com>
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112084
+> Fixes: b16c7ed95caf ("drm/i915: Do not touch the PCH SSC reference if a PLL is using it")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-This is what is assumed by the zImage.pseries. I have no idea where
-that assumption comes from,A B
+Reviewed-by: Imre Deak <imre.deak@intel.com>
 
-> As Alexey says, initramfs works just fine, so please use that?  initrd was
-> deprecated when this code was written already.
-
-That's not what Alexey said and the distinction between an initrd and
-an initramfs is completely arbitrary.
-
->
->
-> Segher
+> ---
+>  drivers/gpu/drm/i915/display/intel_display.c  | 11 ++++++-----
+>  drivers/gpu/drm/i915/display/intel_dpll_mgr.c | 15 +++++++++++++++
+>  drivers/gpu/drm/i915/i915_drv.h               |  2 ++
+>  3 files changed, 23 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+> index 236fdf122e47..da76f794a965 100644
+> --- a/drivers/gpu/drm/i915/display/intel_display.c
+> +++ b/drivers/gpu/drm/i915/display/intel_display.c
+> @@ -9359,7 +9359,6 @@ static bool wrpll_uses_pch_ssc(struct drm_i915_private *dev_priv,
+>  static void lpt_init_pch_refclk(struct drm_i915_private *dev_priv)
+>  {
+>  	struct intel_encoder *encoder;
+> -	bool pch_ssc_in_use = false;
+>  	bool has_fdi = false;
+>  
+>  	for_each_intel_encoder(&dev_priv->drm, encoder) {
+> @@ -9387,22 +9386,24 @@ static void lpt_init_pch_refclk(struct drm_i915_private *dev_priv)
+>  	 * clock hierarchy. That would also allow us to do
+>  	 * clock bending finally.
+>  	 */
+> +	dev_priv->pch_ssc_use = 0;
+> +
+>  	if (spll_uses_pch_ssc(dev_priv)) {
+>  		DRM_DEBUG_KMS("SPLL using PCH SSC\n");
+> -		pch_ssc_in_use = true;
+> +		dev_priv->pch_ssc_use |= BIT(DPLL_ID_SPLL);
+>  	}
+>  
+>  	if (wrpll_uses_pch_ssc(dev_priv, DPLL_ID_WRPLL1)) {
+>  		DRM_DEBUG_KMS("WRPLL1 using PCH SSC\n");
+> -		pch_ssc_in_use = true;
+> +		dev_priv->pch_ssc_use |= BIT(DPLL_ID_WRPLL1);
+>  	}
+>  
+>  	if (wrpll_uses_pch_ssc(dev_priv, DPLL_ID_WRPLL2)) {
+>  		DRM_DEBUG_KMS("WRPLL2 using PCH SSC\n");
+> -		pch_ssc_in_use = true;
+> +		dev_priv->pch_ssc_use |= BIT(DPLL_ID_WRPLL2);
+>  	}
+>  
+> -	if (pch_ssc_in_use)
+> +	if (dev_priv->pch_ssc_use)
+>  		return;
+>  
+>  	if (has_fdi) {
+> diff --git a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
+> index ec10fa7d3c69..3ce0a023eee0 100644
+> --- a/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
+> +++ b/drivers/gpu/drm/i915/display/intel_dpll_mgr.c
+> @@ -526,16 +526,31 @@ static void hsw_ddi_wrpll_disable(struct drm_i915_private *dev_priv,
+>  	val = I915_READ(WRPLL_CTL(id));
+>  	I915_WRITE(WRPLL_CTL(id), val & ~WRPLL_PLL_ENABLE);
+>  	POSTING_READ(WRPLL_CTL(id));
+> +
+> +	/*
+> +	 * Try to set up the PCH reference clock once all DPLLs
+> +	 * that depend on it have been shut down.
+> +	 */
+> +	if (dev_priv->pch_ssc_use & BIT(id))
+> +		intel_init_pch_refclk(dev_priv);
+>  }
+>  
+>  static void hsw_ddi_spll_disable(struct drm_i915_private *dev_priv,
+>  				 struct intel_shared_dpll *pll)
+>  {
+> +	enum intel_dpll_id id = pll->info->id;
+>  	u32 val;
+>  
+>  	val = I915_READ(SPLL_CTL);
+>  	I915_WRITE(SPLL_CTL, val & ~SPLL_PLL_ENABLE);
+>  	POSTING_READ(SPLL_CTL);
+> +
+> +	/*
+> +	 * Try to set up the PCH reference clock once all DPLLs
+> +	 * that depend on it have been shut down.
+> +	 */
+> +	if (dev_priv->pch_ssc_use & BIT(id))
+> +		intel_init_pch_refclk(dev_priv);
+>  }
+>  
+>  static bool hsw_ddi_wrpll_get_hw_state(struct drm_i915_private *dev_priv,
+> diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+> index 8882c0908c3b..5332825e0ce4 100644
+> --- a/drivers/gpu/drm/i915/i915_drv.h
+> +++ b/drivers/gpu/drm/i915/i915_drv.h
+> @@ -1348,6 +1348,8 @@ struct drm_i915_private {
+>  		} contexts;
+>  	} gem;
+>  
+> +	u8 pch_ssc_use;
+> +
+>  	/* For i915gm/i945gm vblank irq workaround */
+>  	u8 vblank_enabled;
+>  
+> -- 
+> 2.21.0
+> 
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
