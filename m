@@ -2,109 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EF0E199C
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D1BE19C1
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391179AbfJWMIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 08:08:05 -0400
-Received: from forwardcorp1j.mail.yandex.net ([5.45.199.163]:56852 "EHLO
-        forwardcorp1j.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388063AbfJWMIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:08:04 -0400
-Received: from mxbackcorp2j.mail.yandex.net (mxbackcorp2j.mail.yandex.net [IPv6:2a02:6b8:0:1619::119])
-        by forwardcorp1j.mail.yandex.net (Yandex) with ESMTP id 4D66D2E14CB;
-        Wed, 23 Oct 2019 15:08:01 +0300 (MSK)
-Received: from myt4-4db2488e778a.qloud-c.yandex.net (myt4-4db2488e778a.qloud-c.yandex.net [2a02:6b8:c00:884:0:640:4db2:488e])
-        by mxbackcorp2j.mail.yandex.net (nwsmtp/Yandex) with ESMTP id 23hWWxoMel-7xeeCThm;
-        Wed, 23 Oct 2019 15:08:01 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru; s=default;
-        t=1571832481; bh=+B+SvaOCbgDDknC/2/JkY6GiT3BAkTSKqe+q0hZmdlw=;
-        h=In-Reply-To:Message-ID:References:Date:To:From:Subject:Cc;
-        b=tzSWkQhA4CPHGRIdvmwXGPPyvByP7Wq4cfsdBGS4wvh9k51+5d0ckRWpwur27Eo7w
-         qOw0Ptu+5Uc3rY+hRDT5jeW2E/ERffU4VzoR4PclK96pTOpm17UlVL7lF/7eqiW1nI
-         /yLyPpwcNoBsly4QnDJQ8P5Wljg7RAPAtlTUDAn0=
-Authentication-Results: mxbackcorp2j.mail.yandex.net; dkim=pass header.i=@yandex-team.ru
-Received: from dynamic-red.dhcp.yndx.net (dynamic-red.dhcp.yndx.net [2a02:6b8:0:40c:3d43:d63f:7907:141a])
-        by myt4-4db2488e778a.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id lZqZQXZMm5-7xVWhAw5;
-        Wed, 23 Oct 2019 15:07:59 +0300
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (Client certificate not present)
-Subject: [PATCH 4.4 2/2] x86/vdso: Remove hpet_page from vDSO
-From:   Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-        Andy Lutomirski <luto@kernel.org>
-Date:   Wed, 23 Oct 2019 15:07:59 +0300
-Message-ID: <157183247929.2324.17980647890399201165.stgit@buzz>
-In-Reply-To: <157183247628.2324.16440279839073827980.stgit@buzz>
-References: <157183247628.2324.16440279839073827980.stgit@buzz>
-User-Agent: StGit/0.17.1-dirty
+        id S2389248AbfJWMQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 08:16:13 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:51610 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730796AbfJWMQN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:16:13 -0400
+Received: by mail-wm1-f67.google.com with SMTP id q70so13804830wme.1;
+        Wed, 23 Oct 2019 05:16:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=CVMZIlFOmsUq+Vskr+tW0iGHn90ty7G6Hxjpnt8OG8M=;
+        b=ojnE0DcvbLt/j4uUZPeFzmfKmga2rO8E+9NXFcWrlKCvPSGUgr/vQUU+szzDg1mDA+
+         v5NhCBILtyORwkN20a+IzCYLSo0bhiFsahfEB5sOikH758RLyZdDpnK4LsnhdngGsI7Q
+         jq3Z7lDpcyKYLQ6He4l2vT2rSbdmO3/R74AlnQvfKurtejnhO9FBxTBItXeVcM92zZvB
+         dl56umDy9DdZX68gLVthIzBQFJEeG9E3tmamcBX6IiC6Dg7isKf9s1Rb17K7BNQa2tI9
+         VHYNAv7l98J09PaL6TE344tTiLdPL3w/vbngEYCQSU2/6Zhi4FwLQwR9oCw1x9zOTmTg
+         EPJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=CVMZIlFOmsUq+Vskr+tW0iGHn90ty7G6Hxjpnt8OG8M=;
+        b=oe/Kib51tvoG5skXGBDRuLLGSIFTSB+2fttQgBbjEWxH4haKTvDj2TCO+li+jNl6tK
+         2VFs3HdcufEGdT9/ZVJkkrOSDtj/wCXYiB7IUBOsXu+WKcSNQa9ZaZ61iRr1aRb2A+dc
+         p0mqMROwdr2LTCo92YT+X1ST3pOprkmenKiupvbPIskpdCHbJ1LVBEt6DhxcfWqmvFgR
+         7PiaCoUuZZU5xq+SZ2m8D1EQkke33eXdj15eeyU4wEJ4Wo4L3C0ix+Etuc+wMI7bJSjD
+         sQcoo4wsT5rvfLrRgfbQKK7gjZOarHeMFQxFupRykW1AcAdarxVHlhYeJTWIe/FrzZHT
+         Kkzg==
+X-Gm-Message-State: APjAAAW0Ps5WABEvoAA7IvR2VokWQ+PssuOL5gXpm0VzxlMCduD46usO
+        s0ueEPugLp42N6XP2CDeiXCO8GBZvTU=
+X-Google-Smtp-Source: APXvYqyPu5nM/9wohUAJp6nNJluOH/TU3xDM7gzETkX6nv5t8ka6YdF9i5MOGNXaVmNYHrsl/qf8Hw==
+X-Received: by 2002:a1c:6405:: with SMTP id y5mr3559550wmb.175.1571832970440;
+        Wed, 23 Oct 2019 05:16:10 -0700 (PDT)
+Received: from andrea.guest.corp.microsoft.com ([2a01:110:8012:1012:517c:6bd4:d9e0:aab5])
+        by smtp.gmail.com with ESMTPSA id a189sm7930047wma.2.2019.10.23.05.16.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Oct 2019 05:16:09 -0700 (PDT)
+Date:   Wed, 23 Oct 2019 14:16:03 +0200
+From:   Andrea Parri <parri.andrea@gmail.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org,
+        bsingharora@gmail.com, dvyukov@google.com, elver@google.com,
+        stable@vger.kernel.org,
+        syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com,
+        syzkaller-bugs@googlegroups.com
+Subject: Re: [PATCH v6] taskstats: fix data-race
+Message-ID: <20191023121603.GA16344@andrea.guest.corp.microsoft.com>
+References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
+ <20191021113327.22365-1-christian.brauner@ubuntu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191021113327.22365-1-christian.brauner@ubuntu.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Zhang <zhang.jia@linux.alibaba.com>
+On Mon, Oct 21, 2019 at 01:33:27PM +0200, Christian Brauner wrote:
+> When assiging and testing taskstats in taskstats_exit() there's a race
+> when writing and reading sig->stats when a thread-group with more than
+> one thread exits:
+> 
+> cpu0:
+> thread catches fatal signal and whole thread-group gets taken down
+>  do_exit()
+>  do_group_exit()
+>  taskstats_exit()
+>  taskstats_tgid_alloc()
+> The tasks reads sig->stats without holding sighand lock.
+> 
+> cpu1:
+> task calls exit_group()
+>  do_exit()
+>  do_group_exit()
+>  taskstats_exit()
+>  taskstats_tgid_alloc()
+> The task takes sighand lock and assigns new stats to sig->stats.
+> 
+> The first approach used smp_load_acquire() and smp_store_release().
+> However, after having discussed this it seems that the data dependency
+> for kmem_cache_alloc() would be fixed by WRITE_ONCE().
+> Furthermore, the smp_load_acquire() would only manage to order the stats
+> check before the thread_group_empty() check. So it seems just using
+> READ_ONCE() and WRITE_ONCE() will do the job and I wanted to bring this
+> up for discussion at least.
 
-Commit 81d30225bc0c246b53270eb90b23cfbb941a186d upstream.
+Mmh, the RELEASE was intended to order the memory initialization in
+kmem_cache_zalloc() with the later ->stats pointer assignment; AFAICT,
+there is no data dependency between such memory accesses.
 
-This trivial cleanup finalizes the removal of vDSO HPET support.
+Correspondingly, the ACQUIRE was intended to order the ->stats pointer
+load with later, _independent dereferences of the same pointer; the
+latter are, e.g., in taskstats_exit() (but not thread_group_empty()).
 
-Fixes: 1ed95e52d902 ("x86/vdso: Remove direct HPET access through the vDSO")
-Signed-off-by: Jia Zhang <zhang.jia@linux.alibaba.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: luto@kernel.org
-Cc: bp@alien8.de
-Link: https://lkml.kernel.org/r/20190401114045.7280-1-zhang.jia@linux.alibaba.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
----
- arch/x86/entry/vdso/vdso2c.c |    3 ---
- arch/x86/include/asm/vdso.h  |    1 -
- 2 files changed, 4 deletions(-)
+Looking again, I see that fill_tgid_exit()'s dereferences of ->stats
+are protected by ->siglock: maybe you meant to rely on such a critical
+section pairing with the critical section in taskstats_tgid_alloc()?
 
-diff --git a/arch/x86/entry/vdso/vdso2c.c b/arch/x86/entry/vdso/vdso2c.c
-index 491020b2826d..6446ba489eb2 100644
---- a/arch/x86/entry/vdso/vdso2c.c
-+++ b/arch/x86/entry/vdso/vdso2c.c
-@@ -72,7 +72,6 @@ const char *outfilename;
- enum {
- 	sym_vvar_start,
- 	sym_vvar_page,
--	sym_hpet_page,
- 	sym_pvclock_page,
- 	sym_VDSO_FAKE_SECTION_TABLE_START,
- 	sym_VDSO_FAKE_SECTION_TABLE_END,
-@@ -80,7 +79,6 @@ enum {
- 
- const int special_pages[] = {
- 	sym_vvar_page,
--	sym_hpet_page,
- 	sym_pvclock_page,
- };
- 
-@@ -92,7 +90,6 @@ struct vdso_sym {
- struct vdso_sym required_syms[] = {
- 	[sym_vvar_start] = {"vvar_start", true},
- 	[sym_vvar_page] = {"vvar_page", true},
--	[sym_hpet_page] = {"hpet_page", true},
- 	[sym_pvclock_page] = {"pvclock_page", true},
- 	[sym_VDSO_FAKE_SECTION_TABLE_START] = {
- 		"VDSO_FAKE_SECTION_TABLE_START", false
-diff --git a/arch/x86/include/asm/vdso.h b/arch/x86/include/asm/vdso.h
-index deabaf9759b6..c2a1188cd0bf 100644
---- a/arch/x86/include/asm/vdso.h
-+++ b/arch/x86/include/asm/vdso.h
-@@ -21,7 +21,6 @@ struct vdso_image {
- 	long sym_vvar_start;  /* Negative offset to the vvar area */
- 
- 	long sym_vvar_page;
--	long sym_hpet_page;
- 	long sym_pvclock_page;
- 	long sym_VDSO32_NOTE_MASK;
- 	long sym___kernel_sigreturn;
+That memcpy(-, tsk->signal->stats, -) at the end of taskstats_exit()
+also bugs me: could these dereferences of ->stats happen concurrently
+with other stores to the same memory locations?
 
+Thanks,
+  Andrea
