@@ -2,126 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BAEDE1AE3
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C8B2E1B1F
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 14:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390574AbfJWMkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 08:40:08 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:36836 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390403AbfJWMkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:40:08 -0400
-Received: by mail-qt1-f194.google.com with SMTP id d17so17400931qto.3
-        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 05:40:07 -0700 (PDT)
+        id S2390292AbfJWMox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 08:44:53 -0400
+Received: from mail-il1-f193.google.com ([209.85.166.193]:46064 "EHLO
+        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391686AbfJWMox (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 08:44:53 -0400
+Received: by mail-il1-f193.google.com with SMTP id u1so18734884ilq.12
+        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 05:44:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=sHrU87Sp2KOFYTsvWXjU9c1Yq8vcTmrg/74YWaKD3a8=;
-        b=V0U8f57hbh/kqVmvb4NEPwMp/oVE2TvJJWWuT8r2xtWeb2kjEKRohU30BBj1D4O2un
-         4Asp50Vk4TlgIM4WOGwFVlt/TKVbThDn4wyzVG59Zg9+ehmrTo5NkWDVECEvYB/p05ij
-         89oRzrjxzraFKPjN92uVcsNx6zorvZm3IXBPH0CJnFkAR5xewOtEd+zm7O/1awHRUvka
-         gzQC9ZXN4h8zvTHMuZSl/BqXLn6DFqWjwp8DRxUAQoKbeC/souX0wtOIWdofNAByg3P0
-         Va5RZDDIzcEaNgGF1aVCdJs+hTI8BcvIB0LhK1Gn37xmbwkx14+Hsx2pRSHXAnmh6ST1
-         LA9A==
+        bh=KCumm8k8QZFgEaXx7omB9aOrf4hbPGxPHtVfgyDzsMc=;
+        b=LDTrBOZ1+JfvlvTSEcwWYsX9iOf1MJ/3FxEIKmXp4Akg+bT8+VGTRqQHVDd0X/Pc8T
+         5peWru6fWsvOmE81EZWhTYodhcZWSfRwnVLoQ0s9+ZDDJ/wAAZrBGoxyK91L011Q5jzu
+         umB3NkXBxTUnTlLHb+HXzytdkPhcf1BA8k7x0rxVXD7NxX77WPNhl8tSSfn2K4G3Imkm
+         YBZoa2UtM3fuSmJUMEVaDEh7uC4j1VHlaQpAN5OSJxiejDk5dW1RaiTNhXQwM1kZjybM
+         KgOs1OaZDxXllyfDA4j/gHmEPbj8cobL+taLvSWPV+eyYoiJgVO333jORm+eRbQOVfmR
+         BfKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=sHrU87Sp2KOFYTsvWXjU9c1Yq8vcTmrg/74YWaKD3a8=;
-        b=Fejwq7w6MCvzW0zXa2bCVOV9c1Kqt50ppchYiWC2p8Sn3gXj6UthfuPTUZWmAMaL5I
-         oNoW1FMVYiRvFxBumPeQpz0GJU4YmltnYUbS0avbTHjlr+/vbsYAadP/r5V1EsyzeRdZ
-         VPcQwMry32mc/idAlrQXfJq5jzzg+lQNK/Gkp/UfPNbBoCtz0MBOrK7L4kHRwzoec1k5
-         LIuYJOcZzbGYTCOMiW3UPw5bi5bbP//wFUoLVL05uwhEk7u6wCxLKzf1gDJcw+z5HJXZ
-         CkiDPOU0KGxksufdujUf1yuKjsnDJzF3jeGIp0GQIa82e2A2KGE/XT2MunyiUueFoZHY
-         wLxg==
-X-Gm-Message-State: APjAAAW388YB5oLlyYFWRKB+uwFBN5SJfFk7SgOUGqh1QsLgrVfNeaJ2
-        k1YWH2HC5k8UVucYJm7K0nL7C57/G4glwTPwevjSwg==
-X-Google-Smtp-Source: APXvYqxmYjzw+S8GEZ4LSXFaGlWKYoIc87ESkRfbQVUthnxlSIcx3JRuSQnJS6UdQAlWpKex6x4TgBf0F79RTchEsJo=
-X-Received: by 2002:a0c:fec3:: with SMTP id z3mr8670778qvs.122.1571834406888;
- Wed, 23 Oct 2019 05:40:06 -0700 (PDT)
+        bh=KCumm8k8QZFgEaXx7omB9aOrf4hbPGxPHtVfgyDzsMc=;
+        b=gNGDBx0UrJ+9JbEs56JrIwics8l4jmCK1R7ql5tw1rpwqCmDHueZA0BkDPCt1fCtWS
+         n+Esq9AUNLd+ViI403nhCLamI8CJCFyAj4bK+o966rhglxy2njhIklgiW/H4wC+WSk1T
+         KOXFZ6CHygzng725/3/gJ++IJ+SIRzqyAN6FRtCWJTYxexe+l8WMcFEFXMpz6fgJdRIV
+         xSMgXbZhcjeZKuTvEtx6MJSOYKelPWK17KZDSmF81ne0yGg6x9z2+aF58LRG/l9gNE3k
+         LDKWrbhI39W3JeZa5t1nDLupxJquNAaAMuM+X/lkESmBJk3SYQizaF0ze5pKGEXaycgV
+         zgKQ==
+X-Gm-Message-State: APjAAAWaj0w++SOW6IWb9SzeSJE0EuCripBOyOJnHO3G8qS6aJMCQqGM
+        YWVR1uj69TTZHCYTzQMUWeOz+wad5emPKHO3iZoz/2G4
+X-Google-Smtp-Source: APXvYqzGbgRiDbN76eWO+FVMnXbtQ0VH2X2AA23kY/MsgxfNsvGqm1CxUlxMFtF/ZtAbu7rSzhosvv+FbY0J/2Yjnno=
+X-Received: by 2002:a92:5ac2:: with SMTP id b63mr39871670ilg.192.1571834692034;
+ Wed, 23 Oct 2019 05:44:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
- <20191021113327.22365-1-christian.brauner@ubuntu.com> <20191023121603.GA16344@andrea.guest.corp.microsoft.com>
-In-Reply-To: <20191023121603.GA16344@andrea.guest.corp.microsoft.com>
-From:   Dmitry Vyukov <dvyukov@google.com>
-Date:   Wed, 23 Oct 2019 14:39:55 +0200
-Message-ID: <CACT4Y+Y86HFnQGHyxv+f32tKDJXnRxmL7jQ3tGxVcksvtK3L7Q@mail.gmail.com>
-Subject: Re: [PATCH v6] taskstats: fix data-race
-To:     Andrea Parri <parri.andrea@gmail.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Will Deacon <will@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, bsingharora@gmail.com,
-        Marco Elver <elver@google.com>,
-        stable <stable@vger.kernel.org>,
-        syzbot <syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+References: <20191023013635.2512-1-oohall@gmail.com> <20191023112102.GN28442@gate.crashing.org>
+In-Reply-To: <20191023112102.GN28442@gate.crashing.org>
+From:   "Oliver O'Halloran" <oohall@gmail.com>
+Date:   Wed, 23 Oct 2019 23:44:41 +1100
+Message-ID: <CAOSf1CGjVt1v4RcazXTLkbm=fsswF8a5nqsLZod4=YwymLXPvg@mail.gmail.com>
+Subject: Re: [PATCH] powerpc/boot: Fix the initrd being overwritten under qemu
+To:     Segher Boessenkool <segher@kernel.crashing.org>
+Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 2:16 PM Andrea Parri <parri.andrea@gmail.com> wrote:
+On Wed, Oct 23, 2019 at 10:21 PM Segher Boessenkool
+<segher@kernel.crashing.org> wrote:
 >
-> On Mon, Oct 21, 2019 at 01:33:27PM +0200, Christian Brauner wrote:
-> > When assiging and testing taskstats in taskstats_exit() there's a race
-> > when writing and reading sig->stats when a thread-group with more than
-> > one thread exits:
+> On Wed, Oct 23, 2019 at 12:36:35PM +1100, Oliver O'Halloran wrote:
+> > When booting under OF the zImage expects the initrd address and size to be
+> > passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
+> > currently doesn't do this so the zImage is not aware of the initrd
+> > location.  This can result in initrd corruption either though the zImage
+> > extracting the vmlinux over the initrd, or by the vmlinux overwriting the
+> > initrd when relocating itself.
 > >
-> > cpu0:
-> > thread catches fatal signal and whole thread-group gets taken down
-> >  do_exit()
-> >  do_group_exit()
-> >  taskstats_exit()
-> >  taskstats_tgid_alloc()
-> > The tasks reads sig->stats without holding sighand lock.
-> >
-> > cpu1:
-> > task calls exit_group()
-> >  do_exit()
-> >  do_group_exit()
-> >  taskstats_exit()
-> >  taskstats_tgid_alloc()
-> > The task takes sighand lock and assigns new stats to sig->stats.
-> >
-> > The first approach used smp_load_acquire() and smp_store_release().
-> > However, after having discussed this it seems that the data dependency
-> > for kmem_cache_alloc() would be fixed by WRITE_ONCE().
-> > Furthermore, the smp_load_acquire() would only manage to order the stats
-> > check before the thread_group_empty() check. So it seems just using
-> > READ_ONCE() and WRITE_ONCE() will do the job and I wanted to bring this
-> > up for discussion at least.
+> > QEMU does put the linux,initrd-start and linux,initrd-end properties into
+> > the devicetree to vmlinux to find the initrd. We can work around the SLOF
+> > bug by also looking those properties in the zImage.
 >
-> Mmh, the RELEASE was intended to order the memory initialization in
-> kmem_cache_zalloc() with the later ->stats pointer assignment; AFAICT,
-> there is no data dependency between such memory accesses.
-
-I agree. This needs smp_store_release. The latest version that I
-looked at contained:
-smp_store_release(&sig->stats, stats_new);
-
-> Correspondingly, the ACQUIRE was intended to order the ->stats pointer
-> load with later, _independent dereferences of the same pointer; the
-> latter are, e.g., in taskstats_exit() (but not thread_group_empty()).
-
-How these later loads can be completely independent of the pointer
-value? They need to obtain the pointer value from somewhere. And this
-can only be done by loaded it. And if a thread loads a pointer and
-then dereferences that pointer, that's a data/address dependency and
-we assume this is now covered by READ_ONCE.
-Or these later loads of the pointer can also race with the store? If
-so, I think they also need to use READ_ONCE (rather than turn this earlier
-pointer load into acquire).
-
-
-> Looking again, I see that fill_tgid_exit()'s dereferences of ->stats
-> are protected by ->siglock: maybe you meant to rely on such a critical
-> section pairing with the critical section in taskstats_tgid_alloc()?
+> This is not a bug.  What boot protocol requires passing the initrd start
+> and size in GPR3, GPR4?
 >
-> That memcpy(-, tsk->signal->stats, -) at the end of taskstats_exit()
-> also bugs me: could these dereferences of ->stats happen concurrently
-> with other stores to the same memory locations?
+> The CHRP binding (what SLOF implements) requires passing two zeroes here.
+> And ePAPR requires passing the address of a device tree and a zero, plus
+> something in GPR6 to allow distinguishing what it does.
+
+This is what is assumed by the zImage.pseries. I have no idea where
+that assumption comes from,A B
+
+> As Alexey says, initramfs works just fine, so please use that?  initrd was
+> deprecated when this code was written already.
+
+That's not what Alexey said and the distinction between an initrd and
+an initramfs is completely arbitrary.
+
 >
-> Thanks,
->   Andrea
+>
+> Segher
