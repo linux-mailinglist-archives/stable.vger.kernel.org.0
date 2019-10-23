@@ -2,90 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEEC0E2480
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 22:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41686E24CA
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 22:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388504AbfJWUV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 16:21:58 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:39575 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731998AbfJWUV6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 16:21:58 -0400
-Received: by mail-pl1-f196.google.com with SMTP id s17so10632962plp.6;
-        Wed, 23 Oct 2019 13:21:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=UdG4edqjssTCSConqbp18kQyfuAFBkmlrZkIsoc/cFg=;
-        b=EtsMV/ZgECD/GaaEEZ/C1rQVGA5E+k1cw2jV7kw8FDJnqJLYULZxoZR6oeu/d7P9RN
-         bw1swq4NIdAB5NbA2evmvaequHvbXgrzfxBwV09PIMtfr/J2YPzNOStbFksAZd/bsmoA
-         GcOVPG+GFnId3sBlne9RcoV0M+JUGZcaqtwy/QfNuFl19oSlsAO4ymoG4N50CYHtdTAd
-         kW5810g/zOUJAiOHt9ydqXndXahU/DXEck5e2VgcLq1O7c74X4AEK7Ek3bycjFNMW78B
-         guYGbwu89pBXX6QKxNszLHhHWzu3F+XGlHfOlkkEfmMElHZjA9EEtpON/6PR2/2pKgUb
-         BrrQ==
-X-Gm-Message-State: APjAAAVGGHj7DeNRQz7oG3YwZ8syM7GUm+EJA6FCDO82EwAyo+BUo338
-        eyNRpKnBZ9ERWpBXmmYKJWRRPcQp
-X-Google-Smtp-Source: APXvYqyVaNh0dVyvQ3ICFG9R+lltNv+0S/lBpLOIYjl/hoT3Wr/rsq/yuTGkBmsG/JADmInSXUQkrA==
-X-Received: by 2002:a17:902:9a92:: with SMTP id w18mr11627505plp.223.1571862117387;
-        Wed, 23 Oct 2019 13:21:57 -0700 (PDT)
-Received: from localhost.net ([2601:647:4000:c3:e5ef:65f1:8f3f:3a78])
-        by smtp.gmail.com with ESMTPSA id j10sm23656535pfn.128.2019.10.23.13.21.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Oct 2019 13:21:56 -0700 (PDT)
-From:   Bart Van Assche <bvanassche@acm.org>
-To:     "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     Mike Christie <mchristi@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, target-devel@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Varun Prakash <varun@chelsio.com>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
+        id S2391478AbfJWUuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 16:50:23 -0400
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:40569 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2390611AbfJWUuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 16:50:22 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07486;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Tg.Zevt_1571863816;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tg.Zevt_1571863816)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 24 Oct 2019 04:50:19 +0800
+Subject: Re: [v2 PATCH] mm: thp: handle page cache THP correctly in
+ PageTransCompoundMap
+To:     Hugh Dickins <hughd@google.com>
+Cc:     aarcange@redhat.com, kirill.shutemov@linux.intel.com,
+        gavin.dg@linux.alibaba.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH] target/cxgbit: Fix cxgbit_fw4_ack()
-Date:   Wed, 23 Oct 2019 13:21:50 -0700
-Message-Id: <20191023202150.22173-1-bvanassche@acm.org>
-X-Mailer: git-send-email 2.23.0
+References: <1571850304-82802-1-git-send-email-yang.shi@linux.alibaba.com>
+ <alpine.LSU.2.11.1910231157570.1088@eggly.anvils>
+ <4d3c14ef-ee86-2719-70d6-68f1a8b42c28@linux.alibaba.com>
+ <alpine.LSU.2.11.1910231250260.1794@eggly.anvils>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <d500d98e-3577-ced1-9614-7aa5e09e6dbe@linux.alibaba.com>
+Date:   Wed, 23 Oct 2019 13:50:14 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <alpine.LSU.2.11.1910231250260.1794@eggly.anvils>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use the pointer 'p' after having tested that pointer instead of before.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Varun Prakash <varun@chelsio.com>
-Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: <stable@vger.kernel.org>
-Fixes: 5cadafb236df ("target/cxgbit: Fix endianness annotations")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- drivers/target/iscsi/cxgbit/cxgbit_cm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/target/iscsi/cxgbit/cxgbit_cm.c b/drivers/target/iscsi/cxgbit/cxgbit_cm.c
-index c70caf4ea490..a2b5c796bbc4 100644
---- a/drivers/target/iscsi/cxgbit/cxgbit_cm.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_cm.c
-@@ -1831,7 +1831,7 @@ static void cxgbit_fw4_ack(struct cxgbit_sock *csk, struct sk_buff *skb)
- 
- 	while (credits) {
- 		struct sk_buff *p = cxgbit_sock_peek_wr(csk);
--		const u32 csum = (__force u32)p->csum;
-+		u32 csum;
- 
- 		if (unlikely(!p)) {
- 			pr_err("csk 0x%p,%u, cr %u,%u+%u, empty.\n",
-@@ -1840,6 +1840,7 @@ static void cxgbit_fw4_ack(struct cxgbit_sock *csk, struct sk_buff *skb)
- 			break;
- 		}
- 
-+		csum = (__force u32)p->csum;
- 		if (unlikely(credits < csum)) {
- 			pr_warn("csk 0x%p,%u, cr %u,%u+%u, < %u.\n",
- 				csk,  csk->tid,
--- 
-2.23.0
+On 10/23/19 1:00 PM, Hugh Dickins wrote:
+> On Wed, 23 Oct 2019, Yang Shi wrote:
+>> On 10/23/19 12:28 PM, Hugh Dickins wrote:
+>>>> +	return map_count >= 0 &&
+>>> You have added a map_count >= 0 test there. Okay, not wrong, but not
+>>> necessary, and not consistent with what's returned in the PageAnon
+>>> case (if this were called for an unmapped page).
+>> I was thinking about this too. I'm wondering there might be a case that the
+>> PMD is split and it was the last PMD map, in this case subpage's _mapcount is
+>> also equal to compound_mapcount (both is -1). So, it would return true, then
+>> KVM may setup PMD map in EPT, but it might be PTE mapped later on the host.
+>> But, I'm not quite sure if this is really possible or if this is really a
+>> integrity problem. So, I thought it might be safer to add this check.
+> The mmu_notifier_invalidate_range_start.._end() in __split_huge_pmd(),
+> with KVM's locking and sequence counting, is required to protect
+> against such races.
+
+OK, it sounds safe. Thanks for confirming. Will post v4 soon.
+
+>
+> Hugh
 
