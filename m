@@ -2,109 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A4AE21AB
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 19:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D701E21AD
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 19:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbfJWRWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 13:22:49 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:33529 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728553AbfJWRWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 13:22:49 -0400
-Received: by mail-wm1-f66.google.com with SMTP id 6so162908wmf.0
-        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 10:22:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QbTra0uJ3GAK5aRJqKs09WvEOgigU1h/A1zQ/ViboTg=;
-        b=IbRlo7RbDs6RKF2lRHfynAfbkUxVBVujJoTmSGYxMfIyrepEAJRAWqUB6W9NosHMFd
-         MGb62Ulg8FZmhsPagKjXGsDGvTXx29y9VbdwHUpoXlAA4eahExIpmqF0ya9HF+57dXey
-         VBMk52BrwKfhkZAJi3CWTajtr4Z9JCoInbEkPgK2imdbnJisADco/9jdbVbBEJa2F21o
-         /kRw+H3Yp+nOcCl5Fuhb/0D1/cBkKZFHmNEcFryuM9bLW9wLBgFH8SL/Yyi5AB20cBn5
-         y9Yvyq7h/OvsET9rwKzOXeP3OePyKos8O2Kw/C+osRxoZXES9JRoWCZo7ZdFR+daPWpo
-         UtMg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QbTra0uJ3GAK5aRJqKs09WvEOgigU1h/A1zQ/ViboTg=;
-        b=N/mVLY1kdbsUDuONW4lKMLXrRKe+dzBNh2v9m9DtHR5rpx8EwCnOUxn5ojKU8UbPIU
-         F52pS2A/w7t6fDvsyI+QT5ccmJKhg2kI3KDrgUU/B4pCM5JTWK2F3JzO9GQFcRXGsoFd
-         8aLtdKP2I6INDOQWbETpODab0c9Ksuk2bkv8S1HpKTPXswZrlU88LdPVin0CIA9mgFCe
-         Is1FbWO/jndzkowVkcGGdoLsgOqVTVQChL3D3qFJev0CKtOTwLv2hKXsTpYqfPfgpwIL
-         6MrrEdb0xWZU+gBqIPoyv2iDYdd1IoDGSeYMp3UCnWD3OrdVydMXS8VkwU1doBH3n7sa
-         krYA==
-X-Gm-Message-State: APjAAAWDbfRbpmh/8K/cOPQLYAOdvPoAvocWxWEXUxYFqRPaIsyPiu7u
-        TGdUILbtjKRTTLHzj1PoxGhyFA==
-X-Google-Smtp-Source: APXvYqyEPTDJfwPpntTOrPlMjxRx+A1Aaeut5CV2NFF2pZSD9ukVtTP4DXj647WsJWur7fhrRMjWvg==
-X-Received: by 2002:a1c:68c5:: with SMTP id d188mr905258wmc.139.1571851366834;
-        Wed, 23 Oct 2019 10:22:46 -0700 (PDT)
-Received: from google.com ([2a00:79e0:d:210:e751:37a0:1e95:e65d])
-        by smtp.gmail.com with ESMTPSA id g5sm7020355wma.43.2019.10.23.10.22.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Oct 2019 10:22:46 -0700 (PDT)
-Date:   Wed, 23 Oct 2019 18:22:44 +0100
-From:   Alessio Balsini <balsini@android.com>
-To:     gregkh@linuxfoundation.org
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-team@android.com, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 4.9 4.14] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
-Message-ID: <20191023172244.GA164146@google.com>
-References: <20190805115309.GJ2349@hirez.programming.kicks-ass.net>
- <20191023171736.161697-1-balsini@android.com>
+        id S1728715AbfJWRY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 13:24:26 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:32780 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727079AbfJWRY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 13:24:26 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=bG3/WLQ3BKtHlYI3WFB7izs5MtpxdRb40qU5GLuq7Kc=; b=uGPIy0ZlzUq7xee7gYH6zC3G2
+        pSrOyTAvWP+Wpg6vgAZSinr7A2/uNC+nOEmCHmCOqLTI8/zJvB+NLkxefC248I+ClUm+cwguY+Nln
+        i2myUnQID2xvEzjNYXcRnH8vMWKtCF64XjrlHnPS4x02FrIsPQGxBNGyWP+pHdwlqDXK2KYql6Smm
+        b/VttAo5viTNxoBVU/xaMwnpd/goLs5Uf3vsX9NKku6Qk7xB7NAmSuVrOGChBDT/j0bVb7HrZjlZE
+        yblsP/9LqUE4osPgpwuuiFPziJsaIIm+qmX4gSbd5fFkKKoVZcevHIu1LvRofn9XdxY1AvtHUgeZx
+        ZC6VLKRlA==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iNKMu-0006oY-I8; Wed, 23 Oct 2019 17:24:20 +0000
+Date:   Wed, 23 Oct 2019 10:24:20 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     hughd@google.com, aarcange@redhat.com,
+        kirill.shutemov@linux.intel.com, gavin.dg@linux.alibaba.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v2 PATCH] mm: thp: handle page cache THP correctly in
+ PageTransCompoundMap
+Message-ID: <20191023172420.GB2963@bombadil.infradead.org>
+References: <1571850304-82802-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191023171736.161697-1-balsini@android.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1571850304-82802-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ops, please forgive the wrong in-reply-to messge id :)
+On Thu, Oct 24, 2019 at 01:05:04AM +0800, Yang Shi wrote:
+> +	return map_count >= 0 &&
+> +	       map_count == atomic_read(&head[1].compound_mapcount);
+>  }
 
-Cheers,
-Alessio
+I didn't like Hugh's duplicate definition either.  May I suggest:
 
-On Wed, Oct 23, 2019 at 06:17:36PM +0100, Alessio Balsini wrote:
-> [ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
-> 
-> Enabling Direct I/O with loop devices helps reducing memory usage by
-> avoiding double caching.  32 bit applications running on 64 bits systems
-> are currently not able to request direct I/O because is missing from the
-> lo_compat_ioctl.
-> 
-> This patch fixes the compatibility issue mentioned above by exporting
-> LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
-> The input argument for this ioctl is a single long converted to a 1-bit
-> boolean, so compatibility is preserved.
-> 
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Alessio Balsini <balsini@android.com>
-> Signed-off-by: Jens Axboe <axboe@kernel.dk>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/block/loop.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-> index da3902ac16c86..8aadd4d0c3a88 100644
-> --- a/drivers/block/loop.c
-> +++ b/drivers/block/loop.c
-> @@ -1557,6 +1557,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
->  		arg = (unsigned long) compat_ptr(arg);
->  	case LOOP_SET_FD:
->  	case LOOP_CHANGE_FD:
-> +	case LOOP_SET_DIRECT_IO:
->  		err = lo_ioctl(bdev, mode, cmd, arg);
->  		break;
->  	default:
-> -- 
-> 2.23.0.866.gb869b98d4c-goog
-> 
-> -- 
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
-> 
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 2f2199a51941..3d0efd937d2b 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -695,11 +695,6 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
+ 
+ extern void kvfree(const void *addr);
+ 
+-static inline atomic_t *compound_mapcount_ptr(struct page *page)
+-{
+-	return &page[1].compound_mapcount;
+-}
+-
+ static inline int compound_mapcount(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 2222fa795284..270aa8fd2800 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -221,6 +221,11 @@ struct page {
+ #endif
+ } _struct_page_alignment;
+ 
++static inline atomic_t *compound_mapcount_ptr(struct page *page)
++{
++	return &page[1].compound_mapcount;
++}
++
+ /*
+  * Used for sizing the vmemmap region on some architectures
+  */
