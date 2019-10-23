@@ -2,92 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7663CE16BF
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 11:55:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05738E1741
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 12:03:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390920AbfJWJz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 05:55:58 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:38444 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390384AbfJWJz6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 05:55:58 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id 811B73C04C1;
-        Wed, 23 Oct 2019 11:55:55 +0200 (CEST)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id gK48FXrscP2K; Wed, 23 Oct 2019 11:55:48 +0200 (CEST)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id EA0613C009D;
-        Wed, 23 Oct 2019 11:55:48 +0200 (CEST)
-Received: from vmlxhi-102.adit-jv.com (10.72.93.184) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 23 Oct
- 2019 11:55:48 +0200
-Date:   Wed, 23 Oct 2019 11:55:45 +0200
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-CC:     Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, <alsa-devel@alsa-project.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>,
-        Jiada Wang <jiada_wang@mentor.com>,
-        Timo Wischer <twischer@de.adit-jv.com>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        <stable@vger.kernel.org>
-Subject: Re: [RESEND PATCH] ASoC: rsnd: dma: fix SSI9 4/5/6/7 busif dma
- address
-Message-ID: <20191023095545.GA20748@vmlxhi-102.adit-jv.com>
-References: <20191022185429.12769-1-erosca@de.adit-jv.com>
- <87h840z3l3.wl-kuninori.morimoto.gx@renesas.com>
+        id S2390940AbfJWKDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 06:03:49 -0400
+Received: from mga05.intel.com ([192.55.52.43]:56935 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390897AbfJWKDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Oct 2019 06:03:49 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 23 Oct 2019 03:03:48 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,220,1569308400"; 
+   d="scan'208";a="223133571"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.170]) ([10.237.72.170])
+  by fmsmga004.fm.intel.com with ESMTP; 23 Oct 2019 03:03:47 -0700
+Subject: Re: [PATCH] usb: xhci: fix Immediate Data Transfer endianness
+To:     Samuel Holland <samuel@sholland.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20191020015313.4558-1-samuel@sholland.org>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Message-ID: <f5029323-9b3b-1c66-3c89-c3230d5a24ea@linux.intel.com>
+Date:   Wed, 23 Oct 2019 13:05:54 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <87h840z3l3.wl-kuninori.morimoto.gx@renesas.com>
-User-Agent: Mutt/1.12.1+40 (7f8642d4ee82) (2019-06-28)
-X-Originating-IP: [10.72.93.184]
+In-Reply-To: <20191020015313.4558-1-samuel@sholland.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Morimoto-san,
-
-On Wed, Oct 23, 2019 at 09:51:36AM +0900, Kuninori Morimoto wrote:
+On 20.10.2019 4.53, Samuel Holland wrote:
+> The arguments to queue_trb are always byteswapped to LE for placement in
+> the ring, but this should not happen in the case of immediate data; the
+> bytes copied out of transfer_buffer are already in the correct order.
+> Add a complementary byteswap so the bytes end up in the ring correctly.
 > 
-> Hi
+> This was observed on BE ppc64 with a "Texas Instruments TUSB73x0
+> SuperSpeed USB 3.0 xHCI Host Controller [104c:8241]" as a ch341
+> usb-serial adapter ("1a86:7523 QinHeng Electronics HL-340 USB-Serial
+> adapter") always transmitting the same character (generally NUL) over
+> the serial link regardless of the key pressed.
 > 
-> > From: Jiada Wang <jiada_wang@mentor.com>
-> > 
-> > Currently each SSI unit's busif dma address is calculated by
-> > following calculation formula:
-> > 0xec540000 + 0x1000 * id + busif / 4 * 0xA000 + busif % 4 * 0x400
-> > 
-> > But according to R-Car3 HW manual 41.1.4 Register Configuration,
-> > ssi9 4/5/6/7 busif data register address
-> > (SSI9_4_BUSIF/SSI9_5_BUSIF/SSI9_6_BUSIF/SSI9_7_BUSIF)
-> > are out of this rule.
-> > 
-> > This patch updates the calculation formula to correct
-> > ssi9 4/5/6/7 busif data register address.
-> > 
-> > Fixes: 5e45a6fab3b9 ("ASoc: rsnd: dma: Calculate dma address with consider of BUSIF")
-> > Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
-> > Signed-off-by: Timo Wischer <twischer@de.adit-jv.com>
-> > [erosca: minor improvements in commit description]
-> > Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-> > Cc: stable@vger.kernel.org # v4.20+
-> > Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-> > ---
-> 
-> Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-Many thanks for the prompt responses.
+Thanks, nice catch.
 
--- 
-Best Regards,
-Eugeniu
+It's unfortunate that we ended up with a situation where this fix is the
+least intrusive one.
+With IDT we would just want to memcpy() bytes an not care about endianness,
+but on BE we end up storing data bytes in a u64, and start with a complementary u64
+byteswap to counter a later u32 byteswap done after splitting the u64 to upper
+and lower 32 bit parts.
+
+This because that TRB field is normally used for 64bit data buffer pointers,
+and all code is written to support that
+
+adding to queue
+
+-Mathias
