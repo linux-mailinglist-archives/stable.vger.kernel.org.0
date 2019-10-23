@@ -2,209 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FA5E0FB7
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 03:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5EEE11B1
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 07:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732328AbfJWBgv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 22 Oct 2019 21:36:51 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:36606 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730047AbfJWBgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 22 Oct 2019 21:36:51 -0400
-Received: by mail-pl1-f196.google.com with SMTP id j11so9242461plk.3
-        for <stable@vger.kernel.org>; Tue, 22 Oct 2019 18:36:49 -0700 (PDT)
+        id S1732358AbfJWFaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 01:30:10 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:46464 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730204AbfJWFaK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 01:30:10 -0400
+Received: by mail-pg1-f196.google.com with SMTP id e15so11401784pgu.13
+        for <stable@vger.kernel.org>; Tue, 22 Oct 2019 22:30:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OM8bN9MJyNNkzeGUBmug5r4lWDXudOi8fXUM7aLJQ+U=;
-        b=oR4wR/4LU9LDaKwlww1pGQZhz9/3ywO2vPpTkXa/MZxlAtiHfacK19/81TD3xGLv5c
-         uzDzzevvElSP9GlkzMzVFkck+o2fpKirGMEdlt9x1VLA7H9/q3UIxAlZf9ogMnIeDcVu
-         Y9RjaACugmdfBCQYXkThOg4YT3xHInQ55NVd9g8Gcsznp1UfSFFYhhR82Hec9kks52R4
-         QgD9i29wLdl9cz9S4r6ACqMk6bdez7Wjfaa0jwak5KJdfijyFQ2dXAHdT7322FsR/KUe
-         JyGIsU8K01dZlq1Hdn/fqG+c0tAvskhkcrfcp1DQRpghj0EOq/DOsNeqlNYQphIUSKPf
-         EwAA==
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=2rDF05/6n06417wlJVscVUcvibGyzQU00P9mXQIXKPI=;
+        b=unyYhVkChYE/uDac0HDbcWN0G8GoHP0zxWY0fxtb/LUoGEbwhJnX7Hq4/MHWxVy0GI
+         55H5/ynS1xRqnl675xUK6TOKQbmqdwH403PiCwfecCtzIWLiuQ0Hih64KGKiQcs1moN4
+         rmaSUaxUfu1MBS/4nKdguaTTHWlr/AE2gAnOFCZoCY+k2yxizr5uv3QofF1JssrjF177
+         g0msVuAH6XdCkxKodaYqaow5W6ZPZTpLu3b1pJ8yn7bKa19VfzWEM/XHUj7yb7uI99f8
+         kJFdIJIE2CC7nT7/TqQGv0aN1DbEeoFYAwp9A9K9g8BBGzMVTNqZKZT6sIMOoi6GS7dE
+         kD7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=OM8bN9MJyNNkzeGUBmug5r4lWDXudOi8fXUM7aLJQ+U=;
-        b=kwVmz6PxTk9ZHlv8GVGxA8lk9T8AgxmMm+4e7vupI8GLtZ/5XgBoDqaZuX2EC7PXLA
-         OC5/XwyksPukoVtnBgepH8vVRxnzYQoNEb9AVIyy40rm3v4JhLJk6f5RHBvYuS5/b07m
-         3nwbGVEB9RF2vAiOelTieDuOCZzHy+mG+hD/lMfab7kGE7KDQwmIodDLcVWXLnH6BOMr
-         YdAR/UaWt8ZBL/0/csBBSSTLPH8X2rFoVohqDNBlHbWhZyVnjNS93EpZbmBiVWjwwmSp
-         pbkeP12VZnuPEeUJOz0yw8Hluoc1xauYTMqeI9Fe9PIkxSVW/9cFkcmRugCHRTKzRF5p
-         sMLA==
-X-Gm-Message-State: APjAAAUJdhJyBIlk+bOGCVsO3bLFeo8NAdmi/GXljvAyhsc5iLREBYvR
-        gUBsEfbSkSz3U6QK95ZbNrk=
-X-Google-Smtp-Source: APXvYqx9P773du+LVA2aBDRnaH9qMFhvD1XkFtBuz7vmvsYtQfcwUv77QlZmU/X7vSS3rnUUJO1BzQ==
-X-Received: by 2002:a17:902:d88c:: with SMTP id b12mr6899086plz.254.1571794608638;
-        Tue, 22 Oct 2019 18:36:48 -0700 (PDT)
-Received: from wafer.ozlabs.ibm.com.ozlabs.ibm.com ([122.99.82.10])
-        by smtp.gmail.com with ESMTPSA id g4sm19711026pfo.33.2019.10.22.18.36.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 22 Oct 2019 18:36:47 -0700 (PDT)
-From:   Oliver O'Halloran <oohall@gmail.com>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Oliver O'Halloran <oohall@gmail.com>, stable@vger.kernel.org,
-        Alexey Kardashevskiy <aik@ozlabs.ru>
-Subject: [PATCH] powerpc/boot: Fix the initrd being overwritten under qemu
-Date:   Wed, 23 Oct 2019 12:36:35 +1100
-Message-Id: <20191023013635.2512-1-oohall@gmail.com>
-X-Mailer: git-send-email 2.21.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=2rDF05/6n06417wlJVscVUcvibGyzQU00P9mXQIXKPI=;
+        b=tUa4IT7dPHqRNuyryJfybUmZbV3fkqjxpVhVQ85gaVd75KMrhTMpsUPSm5u4FltKWU
+         IIQeVLduK5XjBv6su4apCg4EaOwqTTlnohsNte/PqY+32YD+rFu0aOIS7V+N0sNa5uL1
+         1C7F5dZzOifx1oik0stJyafILL5RB15axOEQaS4NsyvPPX5SHtZXFnBr+AW+t8s9jX7X
+         84CaPH5h79PbwA+B+6O8AEJmsmhP04DxGqot2026+RI57st5TOcrsSI+B8cWXxYXtEP2
+         C7oZZgirIQ1OybzOT1iiDLyJtUCzwOr9MGiiS19OA4//j8EAiC1jS7iDvjD6jSWHKj/H
+         X+bQ==
+X-Gm-Message-State: APjAAAUN5kvvyhwuB8BW14nS7lZoNoto4vzsKi9l0sDr2EYDX9jyM8+K
+        wm7PDqrcM+ke5JPY7KL562S/5A==
+X-Google-Smtp-Source: APXvYqxRwNayP0aERsMuW4AmJWpia1ARqwMiw0nTvlpYpmTN1wiwajanp5beDtUvou4COtPyjAqQnw==
+X-Received: by 2002:a63:d450:: with SMTP id i16mr7822345pgj.126.1571808608951;
+        Tue, 22 Oct 2019 22:30:08 -0700 (PDT)
+Received: from localhost ([122.172.151.112])
+        by smtp.gmail.com with ESMTPSA id v1sm20270144pjd.22.2019.10.22.22.30.07
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 22 Oct 2019 22:30:07 -0700 (PDT)
+Date:   Wed, 23 Oct 2019 11:00:05 +0530
+From:   Viresh Kumar <viresh.kumar@linaro.org>
+To:     Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Cc:     linux-pm@vger.kernel.org,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Rafael Wysocki <rjw@rjwysocki.net>,
+        "v5 . 0+" <stable@vger.kernel.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] opp: of: drop incorrect lockdep_assert_held()
+Message-ID: <20191023053005.m4y4bcebgi4km35q@vireshk-i7>
+References: <6306e18beab9deff6ee6b32f489390908495fe14.1570703431.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6306e18beab9deff6ee6b32f489390908495fe14.1570703431.git.viresh.kumar@linaro.org>
+User-Agent: NeoMutt/20180716-391-311a52
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When booting under OF the zImage expects the initrd address and size to be
-passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
-currently doesn't do this so the zImage is not aware of the initrd
-location.  This can result in initrd corruption either though the zImage
-extracting the vmlinux over the initrd, or by the vmlinux overwriting the
-initrd when relocating itself.
+On 10-10-19, 16:00, Viresh Kumar wrote:
+> _find_opp_of_np() doesn't traverse the list of OPP tables but instead
+> just the entries within an OPP table and so only requires to lock the
+> OPP table itself.
+> 
+> The lockdep_assert_held() was added there by mistake and isn't really
+> required.
+> 
+> Fixes: 5d6d106fa455 ("OPP: Populate required opp tables from "required-opps" property")
+> Cc: v5.0+ <stable@vger.kernel.org> # v5.0+
+> Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+>  drivers/opp/of.c | 2 --
+>  1 file changed, 2 deletions(-)
+> 
+> diff --git a/drivers/opp/of.c b/drivers/opp/of.c
+> index 1813f5ad5fa2..6dc41faf74b5 100644
+> --- a/drivers/opp/of.c
+> +++ b/drivers/opp/of.c
+> @@ -77,8 +77,6 @@ static struct dev_pm_opp *_find_opp_of_np(struct opp_table *opp_table,
+>  {
+>  	struct dev_pm_opp *opp;
+>  
+> -	lockdep_assert_held(&opp_table_lock);
+> -
+>  	mutex_lock(&opp_table->lock);
+>  
+>  	list_for_each_entry(opp, &opp_table->opp_list, node) {
 
-QEMU does put the linux,initrd-start and linux,initrd-end properties into
-the devicetree to vmlinux to find the initrd. We can work around the SLOF
-bug by also looking those properties in the zImage.
+@Niklas, any inputs from your side  here would be appreciated :)
 
-Cc: stable@vger.kernel.org
-Cc: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
----
-First noticed here: https://unix.stackexchange.com/questions/547023/linux-kernel-on-ppc64le-vmlinux-equivalent-in-arch-powerpc-boot
----
- arch/powerpc/boot/devtree.c | 21 +++++++++++++++++++++
- arch/powerpc/boot/main.c    |  7 +++++++
- arch/powerpc/boot/of.h      | 16 ----------------
- arch/powerpc/boot/ops.h     |  1 +
- arch/powerpc/boot/swab.h    | 17 +++++++++++++++++
- 5 files changed, 46 insertions(+), 16 deletions(-)
-
-diff --git a/arch/powerpc/boot/devtree.c b/arch/powerpc/boot/devtree.c
-index 5d91036..ac5c26b 100644
---- a/arch/powerpc/boot/devtree.c
-+++ b/arch/powerpc/boot/devtree.c
-@@ -13,6 +13,7 @@
- #include "string.h"
- #include "stdio.h"
- #include "ops.h"
-+#include "swab.h"
- 
- void dt_fixup_memory(u64 start, u64 size)
- {
-@@ -318,6 +319,26 @@ int dt_xlate_reg(void *node, int res, unsigned long *addr, unsigned long *size)
- 	return dt_xlate(node, res, reglen, addr, size);
- }
- 
-+int dt_read_addr(void *node, const char *prop, unsigned long *out_addr)
-+{
-+	int reglen;
-+
-+	*out_addr = 0;
-+
-+	reglen = getprop(node, prop, prop_buf, sizeof(prop_buf)) / 4;
-+	if (reglen == 2) {
-+		u64 v0 = be32_to_cpu(prop_buf[0]);
-+		u64 v1 = be32_to_cpu(prop_buf[1]);
-+		*out_addr = (v0 << 32) | v1;
-+	} else if (reglen == 1) {
-+		*out_addr = be32_to_cpu(prop_buf[0]);
-+	} else {
-+		return 0;
-+	}
-+
-+	return 1;
-+}
-+
- int dt_xlate_addr(void *node, u32 *buf, int buflen, unsigned long *xlated_addr)
- {
- 
-diff --git a/arch/powerpc/boot/main.c b/arch/powerpc/boot/main.c
-index a9d2091..518af24 100644
---- a/arch/powerpc/boot/main.c
-+++ b/arch/powerpc/boot/main.c
-@@ -112,6 +112,13 @@ static struct addr_range prep_initrd(struct addr_range vmlinux, void *chosen,
- 	} else if (initrd_size > 0) {
- 		printf("Using loader supplied ramdisk at 0x%lx-0x%lx\n\r",
- 		       initrd_addr, initrd_addr + initrd_size);
-+	} else if (chosen) {
-+		unsigned long initrd_end;
-+
-+		dt_read_addr(chosen, "linux,initrd-start", &initrd_addr);
-+		dt_read_addr(chosen, "linux,initrd-end", &initrd_end);
-+
-+		initrd_size = initrd_end - initrd_addr;
- 	}
- 
- 	/* If there's no initrd at all, we're done */
-diff --git a/arch/powerpc/boot/of.h b/arch/powerpc/boot/of.h
-index 31b2f5d..dc24770 100644
---- a/arch/powerpc/boot/of.h
-+++ b/arch/powerpc/boot/of.h
-@@ -26,22 +26,6 @@ typedef u16			__be16;
- typedef u32			__be32;
- typedef u64			__be64;
- 
--#ifdef __LITTLE_ENDIAN__
--#define cpu_to_be16(x) swab16(x)
--#define be16_to_cpu(x) swab16(x)
--#define cpu_to_be32(x) swab32(x)
--#define be32_to_cpu(x) swab32(x)
--#define cpu_to_be64(x) swab64(x)
--#define be64_to_cpu(x) swab64(x)
--#else
--#define cpu_to_be16(x) (x)
--#define be16_to_cpu(x) (x)
--#define cpu_to_be32(x) (x)
--#define be32_to_cpu(x) (x)
--#define cpu_to_be64(x) (x)
--#define be64_to_cpu(x) (x)
--#endif
--
- #define PROM_ERROR (-1u)
- 
- #endif /* _PPC_BOOT_OF_H_ */
-diff --git a/arch/powerpc/boot/ops.h b/arch/powerpc/boot/ops.h
-index e060676..5100dd7 100644
---- a/arch/powerpc/boot/ops.h
-+++ b/arch/powerpc/boot/ops.h
-@@ -95,6 +95,7 @@ void *simple_alloc_init(char *base, unsigned long heap_size,
- extern void flush_cache(void *, unsigned long);
- int dt_xlate_reg(void *node, int res, unsigned long *addr, unsigned long *size);
- int dt_xlate_addr(void *node, u32 *buf, int buflen, unsigned long *xlated_addr);
-+int dt_read_addr(void *node, const char *prop, unsigned long *out);
- int dt_is_compatible(void *node, const char *compat);
- void dt_get_reg_format(void *node, u32 *naddr, u32 *nsize);
- int dt_get_virtual_reg(void *node, void **addr, int nres);
-diff --git a/arch/powerpc/boot/swab.h b/arch/powerpc/boot/swab.h
-index 11d2069..82db2c1 100644
---- a/arch/powerpc/boot/swab.h
-+++ b/arch/powerpc/boot/swab.h
-@@ -27,4 +27,21 @@ static inline u64 swab64(u64 x)
- 		(u64)((x & (u64)0x00ff000000000000ULL) >> 40) |
- 		(u64)((x & (u64)0xff00000000000000ULL) >> 56);
- }
-+
-+#ifdef __LITTLE_ENDIAN__
-+#define cpu_to_be16(x) swab16(x)
-+#define be16_to_cpu(x) swab16(x)
-+#define cpu_to_be32(x) swab32(x)
-+#define be32_to_cpu(x) swab32(x)
-+#define cpu_to_be64(x) swab64(x)
-+#define be64_to_cpu(x) swab64(x)
-+#else
-+#define cpu_to_be16(x) (x)
-+#define be16_to_cpu(x) (x)
-+#define cpu_to_be32(x) (x)
-+#define be32_to_cpu(x) (x)
-+#define cpu_to_be64(x) (x)
-+#define be64_to_cpu(x) (x)
-+#endif
-+
- #endif /* _PPC_BOOT_SWAB_H_ */
 -- 
-2.9.5
-
+viresh
