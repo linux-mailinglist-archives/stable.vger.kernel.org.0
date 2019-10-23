@@ -2,89 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68857E142B
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 10:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88665E1495
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 10:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390321AbfJWI13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 04:27:29 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:45076 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390260AbfJWI13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 04:27:29 -0400
-Received: by mail-lf1-f68.google.com with SMTP id v8so14738739lfa.12;
-        Wed, 23 Oct 2019 01:27:27 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=+BrgSnZCer5UhRsZl4X7zqgqCerRzQvBH6cwLmm1CnM=;
-        b=HI/6Ls542Gr4OKd2Ngr8Ak3SU1zpNWkkmq+6GBvXR8AHzw+qZOmWsyGKHHxpnEOnpz
-         YLSzpQGx67Xkx/cXesSM20PlRkyOrX9/RUsnb6PV63EEq8hY6YFHYMgCFl+iaW28J6qB
-         5ZPNIh0Reh509Rddtku+ngn+DbbVK/k8PXxIIOTek1XmebPVTCL4D/inITSNk0PoQ98o
-         1P4IGRJ4AOL5D/08h9OJKNG148BhQDovoUDgjeU5t19FPRuovYRjBhHNI1YneNu7VUvA
-         O9DzPPieGsRlCxQLD/O42wqtFakq+kfpP6TE8m0PhigGhmRELZYU3KzY347tHU0dX3gH
-         bFbg==
-X-Gm-Message-State: APjAAAXlui92r8iAVPdlkt5Vr9e9sF3n+np3ABK/yGuIToOuIFyjeG6X
-        ViAWiZ1HcUKsWJrvy9Asgh6esPiW
-X-Google-Smtp-Source: APXvYqw+9/yUnQGsArwINEUVGFu4MzLP/NJVoAT3Vw0w3glyFhkEnq2gFz1VWCtf6lPdUnJevJNOzg==
-X-Received: by 2002:ac2:5507:: with SMTP id j7mr22043724lfk.75.1571819247001;
-        Wed, 23 Oct 2019 01:27:27 -0700 (PDT)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id n3sm9001439lfl.62.2019.10.23.01.27.25
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Oct 2019 01:27:26 -0700 (PDT)
-Received: from johan by xi.terra with local (Exim 4.92.2)
-        (envelope-from <johan@xi.terra>)
-        id 1iNBza-00064N-Md; Wed, 23 Oct 2019 10:27:42 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Wolfgang Grandegger <wg@grandegger.com>, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        syzbot+863724e7128e14b26732@syzkaller.appspotmail.com
-Subject: [PATCH] can: peak_usb: fix slab info leak
-Date:   Wed, 23 Oct 2019 10:27:05 +0200
-Message-Id: <20191023082705.23283-1-johan@kernel.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <0000000000007a638805951153c5@google.com>
-References: <0000000000007a638805951153c5@google.com>
+        id S2390331AbfJWIqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 04:46:17 -0400
+Received: from [217.140.110.172] ([217.140.110.172]:44834 "EHLO foss.arm.com"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S2390034AbfJWIqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 23 Oct 2019 04:46:17 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0A4AB332;
+        Wed, 23 Oct 2019 01:45:58 -0700 (PDT)
+Received: from [192.168.0.9] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EB1E53F71A;
+        Wed, 23 Oct 2019 01:45:55 -0700 (PDT)
+Subject: Re: [PATCH v3 2/2] sched/topology: Allow sched_asym_cpucapacity to be
+ disabled
+To:     Valentin Schneider <valentin.schneider@arm.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org
+Cc:     lizefan@huawei.com, tj@kernel.org, hannes@cmpxchg.org,
+        mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
+        morten.rasmussen@arm.com, qperret@google.com,
+        stable@vger.kernel.org
+References: <20191015154250.12951-1-valentin.schneider@arm.com>
+ <20191015154250.12951-3-valentin.schneider@arm.com>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+Message-ID: <fb378e1c-4b13-5ac4-8c86-8422b5362c7b@arm.com>
+Date:   Wed, 23 Oct 2019 10:45:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191015154250.12951-3-valentin.schneider@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix a small slab info leak due to a failure to clear the command buffer
-at allocation.
+On 15/10/2019 17:42, Valentin Schneider wrote:
+> While the static key is correctly initialized as being disabled, it will
+> remain forever enabled once turned on. This means that if we start with an
+> asymmetric system and hotplug out enough CPUs to end up with an SMP system,
+> the static key will remain set - which is obviously wrong. We should detect
+> this and turn off things like misfit migration and capacity aware wakeups.
+> 
+> As Quentin pointed out, having separate root domains makes this slightly
+> trickier. We could have exclusive cpusets that create an SMP island - IOW,
+> the domains within this root domain will not see any asymmetry. This means
+> we need to count how many asymmetric root domains we have.
 
-The first 16 bytes of the command buffer are always sent to the device
-in pcan_usb_send_cmd() even though only the first two may have been
-initialised in case no argument payload is provided (e.g. when waiting
-for a response).
+Could you make the example a little bit more obvious so we'll remember
+later the exact testcase?
 
-Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
-Cc: stable <stable@vger.kernel.org>     # 3.4
-Reported-by: syzbot+863724e7128e14b26732@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/net/can/usb/peak_usb/pcan_usb_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+We start with 2 asym (hmp) (CPU capacity) exclusive cpusets and we turn
+one into a sym (smp) exclusive cpuset via CPU hp.
 
-diff --git a/drivers/net/can/usb/peak_usb/pcan_usb_core.c b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-index 65dce642b86b..0b7766b715fd 100644
---- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-+++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
-@@ -750,7 +750,7 @@ static int peak_usb_create_dev(const struct peak_usb_adapter *peak_usb_adapter,
- 	dev = netdev_priv(netdev);
- 
- 	/* allocate a buffer large enough to send commands */
--	dev->cmd_buf = kmalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
-+	dev->cmd_buf = kzalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
- 	if (!dev->cmd_buf) {
- 		err = -ENOMEM;
- 		goto lbl_free_candev;
--- 
-2.23.0
+This patch w/ extra debug on Juno [CPU0 - CPU5] = [L b b L L L]:
 
+root@juno:~# ./scripts/create_excl_cpusets3
+[   32.898483] detach_destroy_domains(): sched_asym_cpucapacity is
+disabled cpu_map=0-5
+[   32.906255] build_sched_domains(): sched_asym_cpucapacity is enabled
+cpu_map=0-1,3
+[   32.913813] build_sched_domains(): sched_asym_cpucapacity is enabled
+cpu_map=2,4-5
+root@juno:~# echo 0 > /sys/devices/system/cpu/cpu1/online
+[   62.709591] IRQ 2: no longer affine to CPU1
+[   62.713840] CPU1: shutdown
+[   62.716525] psci: CPU1 killed.
+root@juno:~# [   62.728779] detach_destroy_domains():
+sched_asym_cpucapacity still enabled cpu_map=0-1,3 <-- Your v1 would
+just have disabled sched_asym_cpucapacity here.
+
+A hint that systems with a mix of asym and sym CPU capacity rd's have to
+live with the fact that specific asym code is also enabled for the CPUs
+of the smp rd's wouldn't harm here.
+
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+
+> Change the simple key enablement to an increment, and decrement the key
+> counter when destroying domains that cover asymmetric CPUs.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
+> Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+> ---
+>  kernel/sched/topology.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+> index 9318acf1d1fe..f0e730143380 100644
+> --- a/kernel/sched/topology.c
+> +++ b/kernel/sched/topology.c
+> @@ -2029,7 +2029,7 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
+>  	rcu_read_unlock();
+>  
+>  	if (has_asym)
+> -		static_branch_enable_cpuslocked(&sched_asym_cpucapacity);
+> +		static_branch_inc_cpuslocked(&sched_asym_cpucapacity);
+>  
+>  	if (rq && sched_debug_enabled) {
+>  		pr_info("root domain span: %*pbl (max cpu_capacity = %lu)\n",
+> @@ -2125,7 +2125,10 @@ int sched_init_domains(const struct cpumask *cpu_map)
+>  static void detach_destroy_domains(const struct cpumask *cpu_map)
+>  {
+>  	int i;
+> +	unsigned int cpu = cpumask_any(cpu_map);
+> +
+> +	if (rcu_access_pointer(per_cpu(sd_asym_cpucapacity, cpu)))
+> +		static_branch_dec_cpuslocked(&sched_asym_cpucapacity);
+>  
+>  	rcu_read_lock();
+>  	for_each_cpu(i, cpu_map)
+> --
+> 2.22.0
