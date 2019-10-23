@@ -2,142 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBBC6E215E
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 19:05:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A21E219D
+	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 19:18:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727297AbfJWRFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 13:05:17 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:38061 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726812AbfJWRFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 13:05:17 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R451e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04446;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Tg.1n3m_1571850304;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tg.1n3m_1571850304)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 24 Oct 2019 01:05:15 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     hughd@google.com, aarcange@redhat.com,
-        kirill.shutemov@linux.intel.com, gavin.dg@linux.alibaba.com,
-        akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v2 PATCH] mm: thp: handle page cache THP correctly in PageTransCompoundMap
-Date:   Thu, 24 Oct 2019 01:05:04 +0800
-Message-Id: <1571850304-82802-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1726205AbfJWRSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 13:18:18 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:39378 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728549AbfJWRSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 13:18:18 -0400
+Received: by mail-wm1-f67.google.com with SMTP id r141so10839472wme.4
+        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 10:18:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=android.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=48XDzmeFiM9yOQfqbOoh8NKzWofKTXbdxGBYN62jtKs=;
+        b=K0hKL19qHw3J5tEam6YX1YovarKMfA3S6y4cNF77riVmCADwA/pXcYvmY0AeRHQ++Y
+         jIRM4zjpusmWcKoGcs1aG+IZEIaqeUcXqXbxWbxyqAXzTYi8q2iFgrUS+HRVCAY45cwA
+         OM+2clMI8peNxrDQUz6R18LprsOW4U7o1S9yUo1oU1nnr5EyvGHDwuvvgr2S70OeAlee
+         nqzFU5+Qt9bYt1TvxhXxJjm5enxaXLlnBA+hFq9MOiJdtN6VSULqfbftc8LjaUPw3WRR
+         JnAQXuWP7Es9gpasa98YAoNwV2rjgVR2XwUo9EYnWUVjRYrTdKrEXsNyY71PrfjfwBEU
+         PTNA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=48XDzmeFiM9yOQfqbOoh8NKzWofKTXbdxGBYN62jtKs=;
+        b=oArM6ZC4/z9ONE+BEGjSAtY8vGjymmiKmHbxUStN/BGsSYMbukYuH8AR6TjoHPalI8
+         /X/HFgR3L4lcJ+OYNaMv9ZIBifk3xSook5JfuKmxoIX/P1c92NL2583xSqm/vEJzoGzH
+         NwF8lPrdYgRF0QzmanOlr0EQpYdUtCudbjfVFinv+9F/mP9LOjF/n9LVHIIrVTTTt2Id
+         wzdFWezTUeLP4lT1VgPUk45XgAiKVfNUk5TX8eCX7GsXuPY765RAwisfgn0YH+3bepWG
+         U2I8xWhvIefd9ij4aDLtAA3lI+rFRkiVtHOS4EUQ9qUUgmamnqn2ty7sfiuG8ERcKV4e
+         lAlQ==
+X-Gm-Message-State: APjAAAW+cCuMu1C2eKkf1UKvDbrWfHT1B/+DpoliDcq77GotRCW+6ABY
+        KlMM3HwS3kc+bG0UpNIA+YcznYk8cMJkz6jq
+X-Google-Smtp-Source: APXvYqzNDT5y6csWeVLItVHdqJPlxCEQp3G7g/uwZZKeYuvL1K3rIgc2YTkz8U/QH+j0z4bPJx5fmQ==
+X-Received: by 2002:a7b:c049:: with SMTP id u9mr931749wmc.12.1571851094909;
+        Wed, 23 Oct 2019 10:18:14 -0700 (PDT)
+Received: from balsini.lon.corp.google.com ([2a00:79e0:d:210:e751:37a0:1e95:e65d])
+        by smtp.gmail.com with ESMTPSA id r65sm21571740wmr.9.2019.10.23.10.18.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Oct 2019 10:18:14 -0700 (PDT)
+From:   Alessio Balsini <balsini@android.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-team@android.com, Alessio Balsini <balsini@android.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 4.9 4.14] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+Date:   Wed, 23 Oct 2019 18:17:36 +0100
+Message-Id: <20191023171736.161697-1-balsini@android.com>
+X-Mailer: git-send-email 2.23.0.866.gb869b98d4c-goog
+In-Reply-To: <20190805115309.GJ2349@hirez.programming.kicks-ass.net>
+References: <20190805115309.GJ2349@hirez.programming.kicks-ass.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We have usecase to use tmpfs as QEMU memory backend and we would like to
-take the advantage of THP as well.  But, our test shows the EPT is not
-PMD mapped even though the underlying THP are PMD mapped on host.
-The number showed by /sys/kernel/debug/kvm/largepage is much less than
-the number of PMD mapped shmem pages as the below:
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   579584 kB
-[snip]
-Locked:                0 kB
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-cat /sys/kernel/debug/kvm/largepages
-12
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
 
-And some benchmarks do worse than with anonymous THPs.
-
-By digging into the code we figured out that commit 127393fbe597 ("mm:
-thp: kvm: fix memory corruption in KVM with THP enabled") checks if
-there is a single PTE mapping on the page for anonymous THP when
-setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
-cache THP since every subpage of page cache THP would get _mapcount
-inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
-false for page cache THP.  This would prevent KVM from setting up PMD
-mapped EPT entry.
-
-So we need handle page cache THP correctly.  However, when page cache
-THP's PMD gets split, kernel just remove the map instead of setting up
-PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
-the subpages may get PTE mapped even though it is still a THP since the
-page cache THP may be mapped by other processes at the mean time.
-
-Checking its _mapcount and whether the THP has PTE mapped or not.
-Although this may report some false negative cases (PTE mapped by other
-processes), it looks not trivial to make this accurate.
-
-With this fix /sys/kernel/debug/kvm/largepage would show reasonable
-pages are PMD mapped by EPT as the below:
-
-7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   557056 kB
-[snip]
-Locked:                0 kB
-
-cat /sys/kernel/debug/kvm/largepages
-271
-
-And the benchmarks are as same as anonymous THPs.
-
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org> 4.8+
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-v2: Adopted the suggestion from Hugh to use _mapcount and compound_mapcount.
-    But I just open coding compound_mapcount to avoid duplicating the
-    definition of compound_mapcount_ptr in two different files.  Since
-    "compound_mapcount" looks self-explained so I'm supposed the open
-    coding would not affect the readability.
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- include/linux/page-flags.h | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index f91cb88..954a877 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -622,12 +622,30 @@ static inline int PageTransCompound(struct page *page)
-  *
-  * Unlike PageTransCompound, this is safe to be called only while
-  * split_huge_pmd() cannot run from under us, like if protected by the
-- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
-+ * MMU notifier, otherwise it may result in page->_mapcount check false
-  * positives.
-+ *
-+ * We have to treat page cache THP differently since every subpage of it
-+ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
-+ * mapped in the current process so comparing subpage's _mapcount to
-+ * compound_mapcount ot filter out PTE mapped case.
-  */
- static inline int PageTransCompoundMap(struct page *page)
- {
--	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
-+	struct page *head;
-+	int map_count;
-+
-+	if (!PageTransCompound(page))
-+		return 0;
-+
-+	if (PageAnon(page))
-+		return atomic_read(&page->_mapcount) < 0;
-+
-+	head = compound_head(page);
-+	map_count = atomic_read(&page->_mapcount);
-+	/* File THP is PMD mapped and not double mapped */
-+	return map_count >= 0 &&
-+	       map_count == atomic_read(&head[1].compound_mapcount);
- }
- 
- /*
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index da3902ac16c86..8aadd4d0c3a88 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1557,6 +1557,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 		arg = (unsigned long) compat_ptr(arg);
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 -- 
-1.8.3.1
+2.23.0.866.gb869b98d4c-goog
 
