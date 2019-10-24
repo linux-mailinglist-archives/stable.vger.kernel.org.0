@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6550CE32C7
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21F1BE32C8
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727466AbfJXMsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:48:51 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:40479 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726463AbfJXMsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:48:51 -0400
-Received: by mail-wm1-f65.google.com with SMTP id w9so1303734wmm.5
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:48:47 -0700 (PDT)
+        id S1726463AbfJXMsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:48:52 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:36730 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726812AbfJXMsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:48:52 -0400
+Received: by mail-wm1-f67.google.com with SMTP id c22so2487680wmd.1
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:48:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=txEoJ8554brixsArEG7cSK/HZLmr9bOMKSTm/83Drkc=;
-        b=u9trsbQEdXb6Zo/XCOi+xZ4AROTQa5h7W2zdDbrTVCV3B/QhRp7hNtMaerWIGhuGFB
-         QkUwK5KuWacWWWvHL8JJ+va3MEpmVGPO5eInOSnTPnnxGqptEXb5h5+XZ3W/odklOsix
-         6ZOAHSa0XZpiOFiWgEbAaPT/Wpkz+FH6tzH0soSamG3hWN3iJMmY+H5qvAdoBuYJ65jr
-         5iXYRQgv8zrciXJRHoWVL5IYmWgZOa4azGExNVWBA8I3X1DfaR9XKy0zMjOdnAkxJVGA
-         labSE8v5KaY5hbVPTfuynaJb6m8/bcAzU0l4V5W2OCbDHxlDlee2JFOPv3kEEVYp7wRc
-         yDrw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=6HmtDRBfzbb3BO1zV/CqCVvZCsNWI78TpY20YkbBqDE=;
+        b=E7xvx35KoMZewkEQLc/PbX3YAj3kWICYrguhIdnR0v4QnuVX47KXD6Txk0J+0Je6B/
+         77nZ1UHZ7yDKUA8HraE1lZro5SC18qOoOYDcBvfex5Aw6Rdgwg11+AE1e8uygwOuz+MT
+         kzGoLoudLhtkVi1QN/VIGKfnKCyPN4QSfUEruyrX85WXnZP3kpXDRCCMT8HyfezaVCkB
+         Tic1rGkYilkEneMsp1Kkz25D2YbVJLhXNj0ZpK/r/KE2U7/SiDnKetL9vbws7FgrLodt
+         d0Hl6y0aaiD05Q/IYQiqgMCtRfW/XQfzXYnT2hw2eFglXrOAotsczh947/9LUvZDQaaC
+         cWKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=txEoJ8554brixsArEG7cSK/HZLmr9bOMKSTm/83Drkc=;
-        b=Wrc4glxIQ7Z4S2Vmn/+WgyCC6VohZyYNuznwUxMH131DWuwIPJON7xid5akL8sacmp
-         jwQYyY1NdU+y2QytAh/DYjg3UGEpONmCvujCCygKSR8v+RmqhaoK5UdeaLeFDh1Z/ILg
-         xMWmcSBvlLSScv6NmANMeGGr8FJL3BKMiaCHtCXgqiQtceGRIrsX1ePgunZi6HOnQtns
-         qLWHEspZJ6/ULh0UtevL2e22ohS54JNOHFJHmfD8QpZkTnltmdP+JkI7onBId6xHrW3e
-         VLLN3MwvGxn+2J8MlFizpuH56VfnOPeiq57cCIKCahJkWP4Iea4xoMQESRwU25huOQY3
-         vMqA==
-X-Gm-Message-State: APjAAAUG9LTCQ94XZzrJ6PmGFni8Cqgdk0yaCdC/yL+cIbZXz8ue9v2F
-        kdZJmGbpADAGnj8FR9aefYw1nCxW1DVb6DFK
-X-Google-Smtp-Source: APXvYqyApIczPxUVzViN8r2MhLwRchxBW8kzEQ1DjAGYYl8Omy4ehRRkEdReYDr24B0uGmQVxb12QA==
-X-Received: by 2002:a1c:7c10:: with SMTP id x16mr2571531wmc.117.1571921326878;
-        Thu, 24 Oct 2019 05:48:46 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=6HmtDRBfzbb3BO1zV/CqCVvZCsNWI78TpY20YkbBqDE=;
+        b=l5WktpfqkY/s+WMMT4ELl9Z8/vh5r6t1mU6frSj/p3tgLN+ZHqKbzD00AOPwXg7Qd7
+         4SLjcs00bS3iDPiwRCIoN7+Jw1PoM1DchCF3OBzaBe9BWCuph6fQthnNSGp++F8QijGK
+         zbZkQXejiTb8vH1WY27WrfQ/EvLPiETzpoWv3yobTHsyeD4Uir9E3ILVzA13fP0PMga9
+         jKkYXUEqPF4wX+DMzrYaDN4Gin8EHGCPV38NW+L0wnmpllPEqmNoA0kBrOsRCScIo84n
+         5szfEA3aDRdkBVrU7yCgXjnjPASbwco3P+MuCO+PKBwtZLDYUl9WUihl5uEMQjITaq0q
+         Mr7Q==
+X-Gm-Message-State: APjAAAXj94BliV5UP67vsGseHlq+AsihCQwovA9+8lysIw8w458Kehyj
+        eORMkP5GxxpuUy2qs19+YwHLRl6zbl9/38JX
+X-Google-Smtp-Source: APXvYqxPkkp+DyW+CzcZ5ozLedZD1k+V29lUKKv16sV5m9bMH8+erduurDEt22nWkIFUkFJ9D3vUng==
+X-Received: by 2002:a05:600c:2042:: with SMTP id p2mr2614878wmg.174.1571921328377;
+        Thu, 24 Oct 2019 05:48:48 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.45
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:48:45 -0700 (PDT)
+        Thu, 24 Oct 2019 05:48:47 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -54,11 +54,14 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Suzuki K Poulose <suzuki.poulose@arm.com>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>
-Subject: [PATCH for-stable-4.14 00/48] arm64 spec mitigation backports
-Date:   Thu, 24 Oct 2019 14:47:45 +0200
-Message-Id: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        James Morse <james.morse@arm.com>
+Subject: [PATCH for-stable-4.14 01/48] arm64: sysreg: Move to use definitions for all the SCTLR bits
+Date:   Thu, 24 Oct 2019 14:47:46 +0200
+Message-Id: <20191024124833.4158-2-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
+References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -66,143 +69,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a backport to v4.14 of the arm64 patches that exist in mainline
-and v4.19-stable to support CPUs that implement the SSBS capability, which
-gives the OS and user space control over whether Speculative Store Bypass 
-is permitted in certain contexts. This gives a substantial performance
-boost on hardware that implements it.
+From: James Morse <james.morse@arm.com>
 
-At the same time, this series backports arm64 support for reporting
-of vulnerabilities via syfs. This is covered by the same series since
-it produces a much cleaner backport, where none of the 16 original patches
-required any changes beyond some manual mangling of the context to make
-them apply.
+[ Upstream commit 7a00d68ebe5f07cb1db17e7fedfd031f0d87e8bb ]
 
-NOTE: in addition to the 16 patches that were also backported to v4.19
-earlier, this series contains an additional 32 (!) patches that were
-included as prerequisites, even though by themselves they wouldn't qualify
-as stable backports. This was a conscious decision, and made the backport
-considerably cleaner, and should also make future backports of arm64
-specific fixes less painful.
+__cpu_setup() configures SCTLR_EL1 using some hard coded hex masks,
+and el2_setup() duplicates some this when setting RES1 bits.
 
-Build tested using a fair number of randconfig builds. Boot tested
-under KVM and on ThunderX2. Many thanks to Suzuki and Alexandru for the
-internal review and testing.
+Lets make this the same as KVM's hyp_init, which uses named bits.
 
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Suzuki K Poulose <suzuki.poulose@arm.com>
-Cc: Jeremy Linton <jeremy.linton@arm.com>
-Cc: Andre Przywara <andre.przywara@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+First, we add definitions for all the SCTLR_EL{1,2} bits, the RES{1,0}
+bits, and those we want to set or clear.
 
-Dave Martin (1):
-  arm64: capabilities: Update prototype for enable call back
+Add a build_bug checks to ensures all bits are either set or clear.
+This means we don't need to preserve endian-ness configuration
+generated elsewhere.
 
-Dongjiu Geng (1):
-  arm64: v8.4: Support for new floating point multiplication
-    instructions
+Finally, move the head.S and proc.S users of these hard-coded masks
+over to the macro versions.
 
-James Morse (1):
-  arm64: sysreg: Move to use definitions for all the SCTLR bits
+Signed-off-by: James Morse <james.morse@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+---
+ arch/arm64/include/asm/sysreg.h | 65 +++++++++++++++++++-
+ arch/arm64/kernel/head.S        | 13 +---
+ arch/arm64/mm/proc.S            | 24 +-------
+ 3 files changed, 67 insertions(+), 35 deletions(-)
 
-Jeremy Linton (6):
-  arm64: add sysfs vulnerability show for meltdown
-  arm64: Always enable ssb vulnerability detection
-  arm64: Provide a command line to disable spectre_v2 mitigation
-  arm64: Always enable spectre-v2 vulnerability detection
-  arm64: add sysfs vulnerability show for spectre-v2
-  arm64: add sysfs vulnerability show for speculative store bypass
-
-Josh Poimboeuf (1):
-  arm64/speculation: Support 'mitigations=' cmdline option
-
-Marc Zyngier (4):
-  arm64: Get rid of __smccc_workaround_1_hvc_*
-  arm64: Advertise mitigation of Spectre-v2, or lack thereof
-  arm64: Force SSBS on context switch
-  arm64: Use firmware to detect CPUs that are not affected by Spectre-v2
-
-Mark Rutland (5):
-  arm64: move SCTLR_EL{1,2} assertions to <asm/sysreg.h>
-  arm64: add PSR_AA32_* definitions
-  arm64: Introduce sysreg_clear_set()
-  arm64: don't zero DIT on signal return
-  arm64: fix SSBS sanitization
-
-Mian Yousaf Kaukab (2):
-  arm64: Add sysfs vulnerability show for spectre-v1
-  arm64: enable generic CPU vulnerabilites support
-
-Shanker Donthineni (1):
-  arm64: KVM: Use SMCCC_ARCH_WORKAROUND_1 for Falkor BP hardening
-
-Suzuki K Poulose (22):
-  arm64: Expose support for optional ARMv8-A features
-  arm64: Fix the feature type for ID register fields
-  arm64: Documentation: cpu-feature-registers: Remove RES0 fields
-  arm64: Expose Arm v8.4 features
-  arm64: capabilities: Move errata work around check on boot CPU
-  arm64: capabilities: Move errata processing code
-  arm64: capabilities: Prepare for fine grained capabilities
-  arm64: capabilities: Add flags to handle the conflicts on late CPU
-  arm64: capabilities: Unify the verification
-  arm64: capabilities: Filter the entries based on a given mask
-  arm64: capabilities: Prepare for grouping features and errata work
-    arounds
-  arm64: capabilities: Split the processing of errata work arounds
-  arm64: capabilities: Allow features based on local CPU scope
-  arm64: capabilities: Group handling of features and errata workarounds
-  arm64: capabilities: Introduce weak features based on local CPU
-  arm64: capabilities: Restrict KPTI detection to boot-time CPUs
-  arm64: capabilities: Add support for features enabled early
-  arm64: capabilities: Change scope of VHE to Boot CPU feature
-  arm64: capabilities: Clean up midr range helpers
-  arm64: Add helpers for checking CPU MIDR against a range
-  arm64: Add MIDR encoding for Arm Cortex-A55 and Cortex-A35
-  arm64: capabilities: Add support for checks based on a list of MIDRs
-
-Will Deacon (4):
-  arm64: cpufeature: Detect SSBS and advertise to userspace
-  arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3
-  KVM: arm64: Set SCTLR_EL2.DSSBS if SSBD is forcefully disabled and
-    !vhe
-  arm64: ssbs: Don't treat CPUs with SSBS as unaffected by SSB
-
- Documentation/admin-guide/kernel-parameters.txt |  16 +-
- Documentation/arm64/cpu-feature-registers.txt   |  26 +-
- arch/arm64/Kconfig                              |   1 +
- arch/arm64/include/asm/cpucaps.h                |   6 +-
- arch/arm64/include/asm/cpufeature.h             | 250 +++++++++-
- arch/arm64/include/asm/cputype.h                |  43 ++
- arch/arm64/include/asm/kvm_asm.h                |   2 -
- arch/arm64/include/asm/kvm_host.h               |  11 +
- arch/arm64/include/asm/processor.h              |  22 +-
- arch/arm64/include/asm/ptrace.h                 |  58 ++-
- arch/arm64/include/asm/sysreg.h                 |  95 +++-
- arch/arm64/include/asm/virt.h                   |   6 -
- arch/arm64/include/uapi/asm/hwcap.h             |  12 +
- arch/arm64/include/uapi/asm/ptrace.h            |   1 +
- arch/arm64/kernel/bpi.S                         |  19 +-
- arch/arm64/kernel/cpu_errata.c                  | 495 +++++++++++--------
- arch/arm64/kernel/cpufeature.c                  | 517 ++++++++++++++------
- arch/arm64/kernel/cpuinfo.c                     |  12 +
- arch/arm64/kernel/fpsimd.c                      |   1 +
- arch/arm64/kernel/head.S                        |  13 +-
- arch/arm64/kernel/process.c                     |  31 ++
- arch/arm64/kernel/ptrace.c                      |  13 +-
- arch/arm64/kernel/smp.c                         |  44 --
- arch/arm64/kernel/ssbd.c                        |  22 +
- arch/arm64/kernel/traps.c                       |   4 +-
- arch/arm64/kvm/hyp/entry.S                      |  12 -
- arch/arm64/kvm/hyp/switch.c                     |  10 -
- arch/arm64/kvm/hyp/sysreg-sr.c                  |  11 +
- arch/arm64/mm/fault.c                           |   3 +-
- arch/arm64/mm/proc.S                            |  24 +-
- 30 files changed, 1268 insertions(+), 512 deletions(-)
-
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index ede80d47d0ef..cd32a968ff5b 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -20,6 +20,7 @@
+ #ifndef __ASM_SYSREG_H
+ #define __ASM_SYSREG_H
+ 
++#include <asm/compiler.h>
+ #include <linux/stringify.h>
+ 
+ /*
+@@ -297,25 +298,81 @@
+ 
+ /* Common SCTLR_ELx flags. */
+ #define SCTLR_ELx_EE    (1 << 25)
++#define SCTLR_ELx_WXN	(1 << 19)
+ #define SCTLR_ELx_I	(1 << 12)
+ #define SCTLR_ELx_SA	(1 << 3)
+ #define SCTLR_ELx_C	(1 << 2)
+ #define SCTLR_ELx_A	(1 << 1)
+ #define SCTLR_ELx_M	1
+ 
++#define SCTLR_ELx_FLAGS	(SCTLR_ELx_M | SCTLR_ELx_A | SCTLR_ELx_C | \
++			 SCTLR_ELx_SA | SCTLR_ELx_I)
++
++/* SCTLR_EL2 specific flags. */
+ #define SCTLR_EL2_RES1	((1 << 4)  | (1 << 5)  | (1 << 11) | (1 << 16) | \
+ 			 (1 << 18) | (1 << 22) | (1 << 23) | (1 << 28) | \
+ 			 (1 << 29))
++#define SCTLR_EL2_RES0	((1 << 6)  | (1 << 7)  | (1 << 8)  | (1 << 9)  | \
++			 (1 << 10) | (1 << 13) | (1 << 14) | (1 << 15) | \
++			 (1 << 17) | (1 << 20) | (1 << 21) | (1 << 24) | \
++			 (1 << 26) | (1 << 27) | (1 << 30) | (1 << 31))
++
++#ifdef CONFIG_CPU_BIG_ENDIAN
++#define ENDIAN_SET_EL2		SCTLR_ELx_EE
++#define ENDIAN_CLEAR_EL2	0
++#else
++#define ENDIAN_SET_EL2		0
++#define ENDIAN_CLEAR_EL2	SCTLR_ELx_EE
++#endif
++
++/* SCTLR_EL2 value used for the hyp-stub */
++#define SCTLR_EL2_SET	(ENDIAN_SET_EL2   | SCTLR_EL2_RES1)
++#define SCTLR_EL2_CLEAR	(SCTLR_ELx_M      | SCTLR_ELx_A    | SCTLR_ELx_C   | \
++			 SCTLR_ELx_SA     | SCTLR_ELx_I    | SCTLR_ELx_WXN | \
++			 ENDIAN_CLEAR_EL2 | SCTLR_EL2_RES0)
++
++/* Check all the bits are accounted for */
++#define SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL2_SET ^ SCTLR_EL2_CLEAR) != ~0)
+ 
+-#define SCTLR_ELx_FLAGS	(SCTLR_ELx_M | SCTLR_ELx_A | SCTLR_ELx_C | \
+-			 SCTLR_ELx_SA | SCTLR_ELx_I)
+ 
+ /* SCTLR_EL1 specific flags. */
+ #define SCTLR_EL1_UCI		(1 << 26)
++#define SCTLR_EL1_E0E		(1 << 24)
+ #define SCTLR_EL1_SPAN		(1 << 23)
++#define SCTLR_EL1_NTWE		(1 << 18)
++#define SCTLR_EL1_NTWI		(1 << 16)
+ #define SCTLR_EL1_UCT		(1 << 15)
++#define SCTLR_EL1_DZE		(1 << 14)
++#define SCTLR_EL1_UMA		(1 << 9)
+ #define SCTLR_EL1_SED		(1 << 8)
++#define SCTLR_EL1_ITD		(1 << 7)
+ #define SCTLR_EL1_CP15BEN	(1 << 5)
++#define SCTLR_EL1_SA0		(1 << 4)
++
++#define SCTLR_EL1_RES1	((1 << 11) | (1 << 20) | (1 << 22) | (1 << 28) | \
++			 (1 << 29))
++#define SCTLR_EL1_RES0  ((1 << 6)  | (1 << 10) | (1 << 13) | (1 << 17) | \
++			 (1 << 21) | (1 << 27) | (1 << 30) | (1 << 31))
++
++#ifdef CONFIG_CPU_BIG_ENDIAN
++#define ENDIAN_SET_EL1		(SCTLR_EL1_E0E | SCTLR_ELx_EE)
++#define ENDIAN_CLEAR_EL1	0
++#else
++#define ENDIAN_SET_EL1		0
++#define ENDIAN_CLEAR_EL1	(SCTLR_EL1_E0E | SCTLR_ELx_EE)
++#endif
++
++#define SCTLR_EL1_SET	(SCTLR_ELx_M    | SCTLR_ELx_C    | SCTLR_ELx_SA   |\
++			 SCTLR_EL1_SA0  | SCTLR_EL1_SED  | SCTLR_ELx_I    |\
++			 SCTLR_EL1_DZE  | SCTLR_EL1_UCT  | SCTLR_EL1_NTWI |\
++			 SCTLR_EL1_NTWE | SCTLR_EL1_SPAN | ENDIAN_SET_EL1 |\
++			 SCTLR_EL1_UCI  | SCTLR_EL1_RES1)
++#define SCTLR_EL1_CLEAR	(SCTLR_ELx_A   | SCTLR_EL1_CP15BEN | SCTLR_EL1_ITD    |\
++			 SCTLR_EL1_UMA | SCTLR_ELx_WXN     | ENDIAN_CLEAR_EL1 |\
++			 SCTLR_EL1_RES0)
++
++/* Check all the bits are accounted for */
++#define SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != ~0)
+ 
+ /* id_aa64isar0 */
+ #define ID_AA64ISAR0_RDM_SHIFT		28
+@@ -463,6 +520,7 @@
+ 
+ #else
+ 
++#include <linux/build_bug.h>
+ #include <linux/types.h>
+ 
+ asm(
+@@ -519,6 +577,9 @@ static inline void config_sctlr_el1(u32 clear, u32 set)
+ {
+ 	u32 val;
+ 
++	SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS;
++	SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS;
++
+ 	val = read_sysreg(sctlr_el1);
+ 	val &= ~clear;
+ 	val |= set;
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index 1371542de0d3..92cc7b51f100 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -388,17 +388,13 @@ ENTRY(el2_setup)
+ 	mrs	x0, CurrentEL
+ 	cmp	x0, #CurrentEL_EL2
+ 	b.eq	1f
+-	mrs	x0, sctlr_el1
+-CPU_BE(	orr	x0, x0, #(3 << 24)	)	// Set the EE and E0E bits for EL1
+-CPU_LE(	bic	x0, x0, #(3 << 24)	)	// Clear the EE and E0E bits for EL1
++	mov_q	x0, (SCTLR_EL1_RES1 | ENDIAN_SET_EL1)
+ 	msr	sctlr_el1, x0
+ 	mov	w0, #BOOT_CPU_MODE_EL1		// This cpu booted in EL1
+ 	isb
+ 	ret
+ 
+-1:	mrs	x0, sctlr_el2
+-CPU_BE(	orr	x0, x0, #(1 << 25)	)	// Set the EE bit for EL2
+-CPU_LE(	bic	x0, x0, #(1 << 25)	)	// Clear the EE bit for EL2
++1:	mov_q	x0, (SCTLR_EL2_RES1 | ENDIAN_SET_EL2)
+ 	msr	sctlr_el2, x0
+ 
+ #ifdef CONFIG_ARM64_VHE
+@@ -505,10 +501,7 @@ install_el2_stub:
+ 	 * requires no configuration, and all non-hyp-specific EL2 setup
+ 	 * will be done via the _EL1 system register aliases in __cpu_setup.
+ 	 */
+-	/* sctlr_el1 */
+-	mov	x0, #0x0800			// Set/clear RES{1,0} bits
+-CPU_BE(	movk	x0, #0x33d0, lsl #16	)	// Set EE and E0E on BE systems
+-CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
++	mov_q	x0, (SCTLR_EL1_RES1 | ENDIAN_SET_EL1)
+ 	msr	sctlr_el1, x0
+ 
+ 	/* Coprocessor traps. */
+diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
+index 65b040152184..ecbc060807d2 100644
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -430,11 +430,7 @@ ENTRY(__cpu_setup)
+ 	/*
+ 	 * Prepare SCTLR
+ 	 */
+-	adr	x5, crval
+-	ldp	w5, w6, [x5]
+-	mrs	x0, sctlr_el1
+-	bic	x0, x0, x5			// clear bits
+-	orr	x0, x0, x6			// set bits
++	mov_q	x0, SCTLR_EL1_SET
+ 	/*
+ 	 * Set/prepare TCR and TTBR. We use 512GB (39-bit) address range for
+ 	 * both user and kernel.
+@@ -470,21 +466,3 @@ ENTRY(__cpu_setup)
+ 	msr	tcr_el1, x10
+ 	ret					// return to head.S
+ ENDPROC(__cpu_setup)
+-
+-	/*
+-	 * We set the desired value explicitly, including those of the
+-	 * reserved bits. The values of bits EE & E0E were set early in
+-	 * el2_setup, which are left untouched below.
+-	 *
+-	 *                 n n            T
+-	 *       U E      WT T UD     US IHBS
+-	 *       CE0      XWHW CZ     ME TEEA S
+-	 * .... .IEE .... NEAI TE.I ..AD DEN0 ACAM
+-	 * 0011 0... 1101 ..0. ..0. 10.. .0.. .... < hardware reserved
+-	 * .... .1.. .... 01.1 11.1 ..01 0.01 1101 < software settings
+-	 */
+-	.type	crval, #object
+-crval:
+-	.word	0xfcffffff			// clear
+-	.word	0x34d5d91d			// set
+-	.popsection
 -- 
 2.20.1
 
