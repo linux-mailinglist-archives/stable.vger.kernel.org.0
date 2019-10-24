@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91D3EE32E5
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA24E32E6
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502112AbfJXMtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:49:35 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:40571 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502106AbfJXMtf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:35 -0400
-Received: by mail-wm1-f67.google.com with SMTP id w9so1306206wmm.5
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:31 -0700 (PDT)
+        id S2502106AbfJXMtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:49:36 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:40576 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502111AbfJXMtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:36 -0400
+Received: by mail-wm1-f65.google.com with SMTP id w9so1306314wmm.5
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=gzFM3RyzENfVewP1wnm0lxMkCup4hV7qkdK3Ri3PuLQ=;
-        b=SAOryz4qpF7vLLg8STwu/HsXJnEmiJKZ6wctIgxpjR42vqnnEn9dUORMvRtal8iNeG
-         hi0m0QtCMdEhFInZZw3rkEEUj+/ewHeIhYGzxO1DYgl8UkS90BJbOFX7ES84MVB537zn
-         MYCJyLiN7mb127hwZoaIWuSQDrW5jKb1ue1z9EUIJwHTxQ5AB192EmhdkfMM8GvaPZSk
-         IDx2KwCH95cY/ceZ8Bq8Leu69oNtSkYdNPX67FaFIdyE67RNmNURmN6GlojwSJ2+ceKh
-         E8q6LeGZjRyDU3rsuVOhkj0t65PgFowrIDKYs/m7mYWviR/1L+LPLbQ4Czf/Jok210YH
-         qpVQ==
+        bh=iH5ScDlNm2VFRLMaaO2Sqe3ThsWOiflSACcQzmSoM8w=;
+        b=eZoJfXp+/10GbeXcIEIPwWN9yVSLaInOBHTMOyrydvHnh4CPncPQ3qS7uSZw99Lb88
+         D9/2ufoJRjmlFe6iJR0Lc7AoFeq5Dwgx+/OTpczefbbwbVIFsB+1lAVNgCurkteQALoy
+         oLwtW+XECd91hkUrEwTfbt9FZOprTUkAACHciDtPvEG/SKyTff6SLn2lQT6VD83kKkbn
+         5fRVWYE3IMgHSJw+/bL8iMjkbwE9toGvsTCPvO4LiS2LPJoPpxkCLxwLtls5sGyTRyKv
+         JAqIqKdNpPetBRvFohdsKvSEk9O2z2sUszSLDtDLBO2YCzr8bN3iAwxhuNmsLTiV5K7E
+         nDFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=gzFM3RyzENfVewP1wnm0lxMkCup4hV7qkdK3Ri3PuLQ=;
-        b=kcodhzDRbrhKXX7xEmlbIcnJW2H+QOi3Kn/JKSs4bdFdUeWH5TvurqiFYsZ1lxB53G
-         gNLhijQjBtE7EkFyfvCqQAYmule9InfYdCBRN3QSKpoLrFzQeDradJ6YbCHOAzVKz2Ip
-         jemOlqr85PFsXDTdBFv3gk4DHStPIaKrm7x7eIAcVCmgbbfbEb6iwEO645ysCz3kpJyd
-         iiJDTKVJSGk5cUtS3oegRygE76HkscOB8VFPZollJ7zB2Pzm6eAXOPaRnuPEOo25eK3L
-         y1Iexww4yV6mueoRzWAFQJpylYPJPD/q/w7ZLkH2hFkOxMPDwEWCpQz8GVcrVLc9Wk4w
-         Pktw==
-X-Gm-Message-State: APjAAAX1elAwt2Mg73AZdRlzN1NlVqYNSNsm2821I/10Na9fobI1uPQY
-        NrVrkLuUwr/6c4A8A3FaqYvuBsp4ohEFaLpv
-X-Google-Smtp-Source: APXvYqyj/Sj4E41LfuERM6jrNgtz92qufNbFsd18sDKiI8NFBFzUnXPCgmW+lj1ArkkgRB++VMMqcQ==
-X-Received: by 2002:a1c:f018:: with SMTP id a24mr4666375wmb.77.1571921371016;
-        Thu, 24 Oct 2019 05:49:31 -0700 (PDT)
+        bh=iH5ScDlNm2VFRLMaaO2Sqe3ThsWOiflSACcQzmSoM8w=;
+        b=l/0xzVW284b5bCr18W03F1XfPM9pH1sHB1/TDjdKPpI+AliYnFAzutasCHBa4IRyzU
+         9lN+hr3BSueiPiId2VzIiLpOyjPGIjU651hOLoaY6DgyABPYgUZANQycphB5nl+6R/tH
+         kuZKZrF+NvUjot1t+eGdyHQwyi0eanpYjuoCUj/yXAcR0rekXMX34oWs8B5O0WapYxh8
+         g8YH9at7HsKJbJnqNSpTodFtY399HXRrqBraTwL7LEZm2XjrkF73hMKd1tPl9fsVaGVM
+         MBHA7yuiRm2WKj+rWZmVwoJybHIhznV2awkNFKrNdMO7q84pb8RQqicL6IsVqwRWUnU8
+         hNpg==
+X-Gm-Message-State: APjAAAWt4fvMKbIa/tQswpIHXJUw4BojlwHAtzZfMy3fOOW9mdhHtq5D
+        Iomw/UXapRQl9LMMJutFW3q5NXUSN0/80FC2
+X-Google-Smtp-Source: APXvYqzE6XKosqO/1ix2S8XbFeL1BxjEgOMZP1Hg1xbTeLuaGWgleQaP9bpveP19cPgi8SNHt/qSUw==
+X-Received: by 2002:a7b:cbc6:: with SMTP id n6mr2627016wmi.161.1571921372479;
+        Thu, 24 Oct 2019 05:49:32 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.49.29
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.49.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:49:30 -0700 (PDT)
+        Thu, 24 Oct 2019 05:49:31 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -55,11 +55,11 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Dave Martin <dave.martin@arm.com>
-Subject: [PATCH for-stable-4.14 26/48] arm64: Add helpers for checking CPU MIDR against a range
-Date:   Thu, 24 Oct 2019 14:48:11 +0200
-Message-Id: <20191024124833.4158-27-ard.biesheuvel@linaro.org>
+        Dave Martin <dave.martin@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH for-stable-4.14 27/48] arm64: Add MIDR encoding for Arm Cortex-A55 and Cortex-A35
+Date:   Thu, 24 Oct 2019 14:48:12 +0200
+Message-Id: <20191024124833.4158-28-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
@@ -72,141 +72,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 1df310505d6d544802016f6bae49aab836ae8510 ]
+[ Upstream commit 6e616864f21160d8d503523b60a53a29cecc6f24 ]
 
-Add helpers for checking if the given CPU midr falls in a range
-of variants/revisions for a given model.
+Update the MIDR encodings for the Cortex-A55 and Cortex-A35
 
-Cc: Will Deacon <will.deacon@arm.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Reviewed-by: Dave Martin <dave.martin@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm64/include/asm/cpufeature.h |  4 +--
- arch/arm64/include/asm/cputype.h    | 30 ++++++++++++++++++++
- arch/arm64/kernel/cpu_errata.c      | 18 +++++-------
- 3 files changed, 39 insertions(+), 13 deletions(-)
+ arch/arm64/include/asm/cputype.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
-index 839aaa1505a3..ade058ada2b0 100644
---- a/arch/arm64/include/asm/cpufeature.h
-+++ b/arch/arm64/include/asm/cpufeature.h
-@@ -10,6 +10,7 @@
- #define __ASM_CPUFEATURE_H
- 
- #include <asm/cpucaps.h>
-+#include <asm/cputype.h>
- #include <asm/hwcap.h>
- #include <asm/sysreg.h>
- 
-@@ -302,8 +303,7 @@ struct arm64_cpu_capabilities {
- 	void (*cpu_enable)(const struct arm64_cpu_capabilities *cap);
- 	union {
- 		struct {	/* To be used for erratum handling only */
--			u32 midr_model;
--			u32 midr_range_min, midr_range_max;
-+			struct midr_range midr_range;
- 		};
- 
- 		struct {	/* Feature register checking */
 diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index 04569aa267fd..c60eb29ea261 100644
+index c60eb29ea261..ef03243beaae 100644
 --- a/arch/arm64/include/asm/cputype.h
 +++ b/arch/arm64/include/asm/cputype.h
-@@ -125,6 +125,36 @@
+@@ -85,6 +85,8 @@
+ #define ARM_CPU_PART_CORTEX_A53		0xD03
+ #define ARM_CPU_PART_CORTEX_A73		0xD09
+ #define ARM_CPU_PART_CORTEX_A75		0xD0A
++#define ARM_CPU_PART_CORTEX_A35		0xD04
++#define ARM_CPU_PART_CORTEX_A55		0xD05
  
- #define read_cpuid(reg)			read_sysreg_s(SYS_ ## reg)
+ #define APM_CPU_PART_POTENZA		0x000
  
-+/*
-+ * Represent a range of MIDR values for a given CPU model and a
-+ * range of variant/revision values.
-+ *
-+ * @model	- CPU model as defined by MIDR_CPU_MODEL
-+ * @rv_min	- Minimum value for the revision/variant as defined by
-+ *		  MIDR_CPU_VAR_REV
-+ * @rv_max	- Maximum value for the variant/revision for the range.
-+ */
-+struct midr_range {
-+	u32 model;
-+	u32 rv_min;
-+	u32 rv_max;
-+};
-+
-+#define MIDR_RANGE(m, v_min, r_min, v_max, r_max)		\
-+	{							\
-+		.model = m,					\
-+		.rv_min = MIDR_CPU_VAR_REV(v_min, r_min),	\
-+		.rv_max = MIDR_CPU_VAR_REV(v_max, r_max),	\
-+	}
-+
-+#define MIDR_ALL_VERSIONS(m) MIDR_RANGE(m, 0, 0, 0xf, 0xf)
-+
-+static inline bool is_midr_in_range(u32 midr, struct midr_range const *range)
-+{
-+	return MIDR_IS_CPU_MODEL_RANGE(midr, range->model,
-+				 range->rv_min, range->rv_max);
-+}
-+
- /*
-  * The CPU ID never changes at run time, so we might as well tell the
-  * compiler that it's constant.  Use this function to read the CPU ID
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 1e87e1427cc3..a3675d279b90 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -26,10 +26,10 @@
- static bool __maybe_unused
- is_affected_midr_range(const struct arm64_cpu_capabilities *entry, int scope)
- {
-+	u32 midr = read_cpuid_id();
-+
- 	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
--	return MIDR_IS_CPU_MODEL_RANGE(read_cpuid_id(), entry->midr_model,
--				       entry->midr_range_min,
--				       entry->midr_range_max);
-+	return is_midr_in_range(midr, &entry->midr_range);
- }
- 
- static bool __maybe_unused
-@@ -43,7 +43,7 @@ is_kryo_midr(const struct arm64_cpu_capabilities *entry, int scope)
- 	model &= MIDR_IMPLEMENTOR_MASK | (0xf00 << MIDR_PARTNUM_SHIFT) |
- 		 MIDR_ARCHITECTURE_MASK;
- 
--	return model == entry->midr_model;
-+	return model == entry->midr_range.model;
- }
- 
- static bool
-@@ -407,15 +407,11 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
- 
- #define CAP_MIDR_RANGE(model, v_min, r_min, v_max, r_max)	\
- 	.matches = is_affected_midr_range,			\
--	.midr_model = model,					\
--	.midr_range_min = MIDR_CPU_VAR_REV(v_min, r_min),	\
--	.midr_range_max = MIDR_CPU_VAR_REV(v_max, r_max)
-+	.midr_range = MIDR_RANGE(model, v_min, r_min, v_max, r_max)
- 
- #define CAP_MIDR_ALL_VERSIONS(model)					\
- 	.matches = is_affected_midr_range,				\
--	.midr_model = model,						\
--	.midr_range_min = MIDR_CPU_VAR_REV(0, 0),			\
--	.midr_range_max = (MIDR_VARIANT_MASK | MIDR_REVISION_MASK)
-+	.midr_range = MIDR_ALL_VERSIONS(model)
- 
- #define MIDR_FIXED(rev, revidr_mask) \
- 	.fixed_revs = (struct arm64_midr_revidr[]){{ (rev), (revidr_mask) }, {}}
-@@ -556,7 +552,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		.desc = "Qualcomm Technologies Kryo erratum 1003",
- 		.capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
--		.midr_model = MIDR_QCOM_KRYO,
-+		.midr_range.model = MIDR_QCOM_KRYO,
- 		.matches = is_kryo_midr,
- 	},
- #endif
+@@ -108,6 +110,8 @@
+ #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+ #define MIDR_CORTEX_A73 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
+ #define MIDR_CORTEX_A75 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
++#define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
++#define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
 -- 
 2.20.1
 
