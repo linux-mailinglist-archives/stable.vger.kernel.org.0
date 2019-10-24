@@ -2,85 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 939ADE348A
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 15:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE8D0E34D2
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 15:55:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393691AbfJXNn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 09:43:28 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36081 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393656AbfJXNn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 09:43:27 -0400
-Received: by mail-wm1-f66.google.com with SMTP id c22so2671207wmd.1;
-        Thu, 24 Oct 2019 06:43:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=FGm/Y7V816AbGprOQHUkgpBjccypqHGHqD5N/dMxVkw=;
-        b=WemCD9WeMOlk2CrvosRt1hMf4Lxem6lm1hZUuyoJj0K6NGWgX+19cYcBRdqNTF1ixs
-         nlh1LJY5VZtICct6frTaqVEVQql6wmU2dSjd6C3zNeiwgELILHPNudrwZvNdIlVDEPLq
-         BJ73ykuJ+94u4uQBPNyV6tMgo0+ZUCp+bITF5QywIsdfDdC7jUIdAE17pFsc36PxQ4xV
-         vTCReHMAJl8u78OBLKl+EAV7iyvexnZ1AhZoSIYgkKHBhwgYVLTcTBZkhYdtjrBMVgMm
-         QjtxBqDMzT3+wxvIx9QrBTJjUHsuCvdPR3l7fqri3ZZWQX/SN7CDxmP1Gcl/uWO84fe1
-         4Lgg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=FGm/Y7V816AbGprOQHUkgpBjccypqHGHqD5N/dMxVkw=;
-        b=i4lX+0Oc7ue6+81NUA8GZE/BHEtuP+L/IdnPtVmBAncwlFhQvzkutC5jEEA1QDX81B
-         0CQfh7yu9zCxJh8FCd6ZsXqNH0pMG40lsJKgkt4Iuc+fVl/R/JXqCWYDuVvAdt7wz0PM
-         esbIwRz8vXWKIeNCpPrXs9jVIl2ER6NWpaVcJ9YaIpoHWokjfJngU07SkrZoOsfenlyH
-         TV/HSHGB4UNMas6vEa3nC1ob2SxGwh4ygZq9Ro1o6J8lY9zGMHQNEH2uquwZAqM0U3ek
-         c6way7LGxSiv2n5en8OWif332jn23Ugrdqa0G1AbiSycPDf5KoGDypL49mCdBFIYykbT
-         xotA==
-X-Gm-Message-State: APjAAAW0kvt/Kphgd1ouWfEbFhC9FkPjPavkrPiCrFNsSRUc9k2vn7YZ
-        BDoSANhk70t1kYwCa4Ig4h4=
-X-Google-Smtp-Source: APXvYqzOXOUeSsq0bKR1Uijb/ZiwdTPLXJEsLwvGyotcdrS+xtT/7Fg0PiKSxgnSjNVkIwYqOuYnSQ==
-X-Received: by 2002:a7b:cd19:: with SMTP id f25mr5273390wmj.154.1571924605222;
-        Thu, 24 Oct 2019 06:43:25 -0700 (PDT)
-Received: from andrea.guest.corp.microsoft.com ([2a01:110:8012:1012:e185:86b0:69d4:5ba5])
-        by smtp.gmail.com with ESMTPSA id o6sm15323168wrx.89.2019.10.24.06.43.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 06:43:24 -0700 (PDT)
-Date:   Thu, 24 Oct 2019 15:43:19 +0200
-From:   Andrea Parri <parri.andrea@gmail.com>
-To:     Dmitry Vyukov <dvyukov@google.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Will Deacon <will@kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>, bsingharora@gmail.com,
-        Marco Elver <elver@google.com>,
-        stable <stable@vger.kernel.org>,
-        syzbot <syzbot+c5d03165a1bd1dead0c1@syzkaller.appspotmail.com>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Subject: Re: [PATCH v6] taskstats: fix data-race
-Message-ID: <20191024134319.GA12693@andrea.guest.corp.microsoft.com>
-References: <20191009114809.8643-1-christian.brauner@ubuntu.com>
- <20191021113327.22365-1-christian.brauner@ubuntu.com>
- <20191023121603.GA16344@andrea.guest.corp.microsoft.com>
- <CACT4Y+Y86HFnQGHyxv+f32tKDJXnRxmL7jQ3tGxVcksvtK3L7Q@mail.gmail.com>
- <20191024113155.GA7406@andrea.guest.corp.microsoft.com>
- <CACT4Y+Z2-mm6Qk0cecJdiA5B_VsQ1v8k2z+RWrDQv6dTNFXFog@mail.gmail.com>
- <20191024130502.GA11335@andrea.guest.corp.microsoft.com>
- <CACT4Y+ahUr11pQQ7=dw80Abj5owUPnPdufbMYvsKLM6iDg5QQg@mail.gmail.com>
+        id S2389590AbfJXNz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 09:55:56 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:46838 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727811AbfJXNz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 09:55:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=kg4p9QmhdYnEgh5fEIpCK0L9e+qEFrZicmEw63GMdL4=; b=N6vNRt713Eoqm74U78+NNGSdn
+        Ca5QDmEc0clEfBPYdPqUqLA/TFXSOfH0EUVQQMLN9RE6Cda7w+xR5hOmrB8BQ1xpsys6G6mydq2RY
+        SBIRFhAWG1MmBtv8JPiuxCVKNWEWL3IC77HhcOnD/reExSF7qr3aOw5P7I2OHGfUALECXl0+c9K4K
+        aA6+Z1QFehO7Ng/YR55OIHKDvPsXeGQ1QbcDZXqc//4SWbkjFslRgbpkX5NFAFS95UsSfxPhKoroe
+        O13CVMb0FKJ5EK1CcwogvlT/ZwY+SRXoBEPHIkbzvxdnU4EDnhvBUN73MN/OXoVYnJeMdNEF2DAiO
+        6n3r8rgdw==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iNdad-0005C2-Dp; Thu, 24 Oct 2019 13:55:47 +0000
+Date:   Thu, 24 Oct 2019 06:55:47 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     hughd@google.com, aarcange@redhat.com,
+        kirill.shutemov@linux.intel.com, gavin.dg@linux.alibaba.com,
+        akpm@linux-foundation.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [v4 PATCH] mm: thp: handle page cache THP correctly in
+ PageTransCompoundMap
+Message-ID: <20191024135547.GH2963@bombadil.infradead.org>
+References: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CACT4Y+ahUr11pQQ7=dw80Abj5owUPnPdufbMYvsKLM6iDg5QQg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> But why? I think kernel contains lots of such cases and it seems to be
-> officially documented by the LKMM:
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/tools/memory-model/Documentation/explanation.txt
-> address dependencies and ppo
+On Thu, Oct 24, 2019 at 05:19:35AM +0800, Yang Shi wrote:
+> We have usecase to use tmpfs as QEMU memory backend and we would like to
+> take the advantage of THP as well.  But, our test shows the EPT is not
+> PMD mapped even though the underlying THP are PMD mapped on host.
+> The number showed by /sys/kernel/debug/kvm/largepage is much less than
+> the number of PMD mapped shmem pages as the below:
+> 
+> 7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+> Size:            4194304 kB
+> [snip]
+> AnonHugePages:         0 kB
+> ShmemPmdMapped:   579584 kB
+> [snip]
+> Locked:                0 kB
+> 
+> cat /sys/kernel/debug/kvm/largepages
+> 12
+> 
+> And some benchmarks do worse than with anonymous THPs.
+> 
+> By digging into the code we figured out that commit 127393fbe597 ("mm:
+> thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+> there is a single PTE mapping on the page for anonymous THP when
+> setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
+> cache THP since every subpage of page cache THP would get _mapcount
+> inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
+> false for page cache THP.  This would prevent KVM from setting up PMD
+> mapped EPT entry.
+> 
+> So we need handle page cache THP correctly.  However, when page cache
+> THP's PMD gets split, kernel just remove the map instead of setting up
+> PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+> the subpages may get PTE mapped even though it is still a THP since the
+> page cache THP may be mapped by other processes at the mean time.
+> 
+> Checking its _mapcount and whether the THP has PTE mapped or not.
+> Although this may report some false negative cases (PTE mapped by other
+> processes), it looks not trivial to make this accurate.
 
-Well, that same documentation also alerts about some of the pitfalls
-developers can incur while relying on dependencies.  I'm sure you're
-more than aware of some of the debate surrounding these issues.
-
-  Andrea
+I don't understand why you care how it's mapped into userspace.  If there
+is a PMD-sized page in the page cache, then you can use a PMD mapping
+in the EPT tables to map it.  Why would another process having a PTE
+mapping on the page cause you to not use a PMD mapping?
