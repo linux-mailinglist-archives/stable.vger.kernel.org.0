@@ -2,86 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D70E9E36C8
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 17:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F866E37B7
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 18:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2503260AbfJXPgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 11:36:25 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:36818 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2503224AbfJXPgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 11:36:25 -0400
-Received: by mail-qt1-f196.google.com with SMTP id d17so23886162qto.3
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 08:36:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=PO7ANvqkotQ+g2bEe1Hw5w8nqdc9eXAxdBwSeKbXh9w=;
-        b=FId3UXasjX6Go4JKCdP9+7lxwA49XZBN71M4vkDWmLldPXBkrsuqTO2rO7bgkx3O6t
-         LgQkEtHBKo1SxGszCEqiQoQeClXADtm2nJBTrrpjFqT1cIk3juNv2mW2/whMq36OkZ+B
-         tTEUF80A8yDyZURrNU6/LEggk00JMBoW48WuMDoJh7+KQfQ8v9NoEa7ohwZWfEjQpE7T
-         BHR9nfWruZWnGJaLhVzlFWwqqVH7iLWz64UdtjvMuuq206vU8/Lihh/yCKV/elWqRqbf
-         fflz6yKsmNNmp3+gdXLZFfDYH1zS5MRES24kZjpxYE+aEbJRW6nm76rZ858kq7rUksqC
-         9aZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=PO7ANvqkotQ+g2bEe1Hw5w8nqdc9eXAxdBwSeKbXh9w=;
-        b=S/Mjs/Ix8SxoPBsMVVpvNIoyu2GpSWi7a3Ti2EsjxI+bwcqQE8ZzNeP2hl8/808Au/
-         QSXRkgOLChAtBLCtgMu0gGYGXWNVkhTLfoLVNet/Pp34SHJQgbDc6jOimzv6h1yaSQoY
-         GL6CI1sLI17DwM6AJaOLn/9EBOYqK7ARknrqixcYAaNVC5W1jMratDIrcM+gOdnjp7eC
-         CfXOO4G0ev+P8bWLtfDVeqFVYqRawgr9hCsUZ+eJryhladH9u+HbhtLXsTqhgIv60bWv
-         JVcFEUpaEnHtFmR29FG8Q7eZwNpsvca4ztAIKf4CPrAHyvXdo6uznOzDB8jud/ziXiRd
-         KoWA==
-X-Gm-Message-State: APjAAAXBxFpLjm8ZysJ/zaKfN/oHaK+Degynp1CTBL3zGT/Visx/0U86
-        V/fXQqPs8H0/nOJ82SlPfB5ftA==
-X-Google-Smtp-Source: APXvYqwCZloe629xxoBYgjtTP/gXJ5ZCbyJJpXE/9FDAkwrQZD9eu8FjjhnLm6HCLqlPMhdSZu1wNQ==
-X-Received: by 2002:a0c:e64e:: with SMTP id c14mr2422699qvn.13.1571931384065;
-        Thu, 24 Oct 2019 08:36:24 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-180.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.180])
-        by smtp.gmail.com with ESMTPSA id k187sm3427463qkb.20.2019.10.24.08.36.23
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 24 Oct 2019 08:36:23 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1iNf9y-0007SF-Sp; Thu, 24 Oct 2019 12:36:22 -0300
-Date:   Thu, 24 Oct 2019 12:36:22 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Peter Huewe <peterhuewe@gmx.de>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] tpm: Switch to platform_get_irq_optional()
-Message-ID: <20191024153622.GU23952@ziepe.ca>
-References: <20191019094528.27850-1-hdegoede@redhat.com>
- <20191021140502.GA25178@ziepe.ca>
- <20191023113248.GA21973@linux.intel.com>
+        id S2439784AbfJXQUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 12:20:05 -0400
+Received: from foss.arm.com ([217.140.110.172]:55716 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2436636AbfJXQUF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Oct 2019 12:20:05 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5D7F7328;
+        Thu, 24 Oct 2019 09:19:49 -0700 (PDT)
+Received: from [192.168.0.9] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8E9AC3F71F;
+        Thu, 24 Oct 2019 09:19:47 -0700 (PDT)
+Subject: Re: [PATCH v4 1/2] sched/topology: Don't try to build empty sched
+ domains
+To:     Valentin Schneider <valentin.schneider@arm.com>,
+        linux-kernel@vger.kernel.org, cgroups@vger.kernel.org
+Cc:     lizefan@huawei.com, tj@kernel.org, hannes@cmpxchg.org,
+        mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
+        morten.rasmussen@arm.com, qperret@google.com,
+        stable@vger.kernel.org
+References: <20191023153745.19515-1-valentin.schneider@arm.com>
+ <20191023153745.19515-2-valentin.schneider@arm.com>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+Message-ID: <27d8a51d-a899-67f4-8b74-224281f25cef@arm.com>
+Date:   Thu, 24 Oct 2019 18:19:38 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191023113248.GA21973@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191023153745.19515-2-valentin.schneider@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 23, 2019 at 02:32:48PM +0300, Jarkko Sakkinen wrote:
-> On Mon, Oct 21, 2019 at 11:05:02AM -0300, Jason Gunthorpe wrote:
-> > On Sat, Oct 19, 2019 at 11:45:28AM +0200, Hans de Goede wrote:
-> > > Since commit 7723f4c5ecdb ("driver core: platform: Add an error message to
-> > > platform_get_irq*()"), platform_get_irq() will call dev_err() on an error,
-> > > as the IRQ usage in the tpm_tis driver is optional, this is undesirable.
-> > 
-> > This should have a fixes line for the above, or maybe the commit that
-> > addtion the _optional version..
+On 23/10/2019 17:37, Valentin Schneider wrote:
+> Turns out hotplugging CPUs that are in exclusive cpusets can lead to the
+> cpuset code feeding empty cpumasks to the sched domain rebuild machinery.
+> This leads to the following splat:
+
+[...]
+
+> The faulty line in question is
 > 
-> Is this fixing something?
+>   cap = arch_scale_cpu_capacity(cpumask_first(cpu_map));
+> 
+> and we're not checking the return value against nr_cpu_ids (we shouldn't
+> have to!), which leads to the above.
+> 
+> Prevent generate_sched_domains() from returning empty cpumasks, and add
+> some assertion in build_sched_domains() to scream bloody murder if it
+> happens again.
+> 
+> The above splat was obtained on my Juno r0 with:
+> 
+>   cgcreate -g cpuset:asym
+>   cgset -r cpuset.cpus=0-3 asym
+>   cgset -r cpuset.mems=0 asym
+>   cgset -r cpuset.cpu_exclusive=1 asym
+> 
+>   cgcreate -g cpuset:smp
+>   cgset -r cpuset.cpus=4-5 smp
+>   cgset -r cpuset.mems=0 smp
+>   cgset -r cpuset.cpu_exclusive=1 smp
+> 
+>   cgset -r cpuset.sched_load_balance=0 .
+> 
+>   echo 0 > /sys/devices/system/cpu/cpu4/online
+>   echo 0 > /sys/devices/system/cpu/cpu5/online
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 05484e098448 ("sched/topology: Add SD_ASYM_CPUCAPACITY flag detection")
 
-Yes, an earlier commit caused new bogus warnings to appear, this is
-fixing that regression
+Sorry for being picky but IMHO you should also mention that it fixes
 
-Jason
+f9a25f776d78 ("cpusets: Rebuild root domain deadline accounting
+information")
+
+Tested it on a hikey620 (8 CPus SMP) with v5.4-rc4 and a local fix for
+asym_cpu_capacity_level().
+2 exclusive cpusets [0-3] and [4-7], hp'ing out [0-3] and then hp'ing in
+[0] again.
+
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index 5a174ae6ecf3..8f83e8e3ea9a 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -2203,8 +2203,19 @@ void partition_sched_domains_locked(int
+ndoms_new, cpumask_var_t doms_new[],
+        for (i = 0; i < ndoms_cur; i++) {
+                for (j = 0; j < n && !new_topology; j++) {
+                        if (cpumask_equal(doms_cur[i], doms_new[j]) &&
+-                           dattrs_equal(dattr_cur, i, dattr_new, j))
++                           dattrs_equal(dattr_cur, i, dattr_new, j)) {
++                               struct root_domain *rd;
++
++                        /*
++                         * This domain won't be destroyed and as such
++                         * its dl_bw->total_bw needs to be cleared.  It
++                         * will be recomputed in function
++                         * update_tasks_root_domain().
++                         */
++                         rd = cpu_rq(cpumask_any(doms_cur[i]))->rd;
+
+We have an issue here if doms_cur[i] is empty.
+
++                         dl_clear_root_domain(rd);
+                          goto match1;
+
+
+There is yet another similar issue behind the first one
+(asym_cpu_capacity_level()).
+
+342 static bool build_perf_domains(const struct cpumask *cpu_map)
+ 343 {
+ 344     int i, nr_pd = 0, nr_cs = 0, nr_cpus = cpumask_weight(cpu_map);
+ 345     struct perf_domain *pd = NULL, *tmp;
+ 346     int cpu = cpumask_first(cpu_map);          <--- !!!
+ 347     struct root_domain *rd = cpu_rq(cpu)->rd;  <--- !!!
+ 348     struct cpufreq_policy *policy;
+ 349     struct cpufreq_governor *gov;
+ ...
+ 406     tmp = rd->pd;                              <--- !!!
+
+Caught when running hikey620 (8 CPus SMP) with v5.4-rc4 and a local fix
+for asym_cpu_capacity_level() with CONFIG_ENERGY_MODEL=y.
+
+There might be other places in build_sched_domains() suffering from the
+same issue. So I assume it's wise to not call it with an empty cpu_map
+and warn if done so.
+
+[...]
