@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BA38E32FD
+	by mail.lfdr.de (Postfix) with ESMTP id 88F61E32FE
 	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502146AbfJXMuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:50:02 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:50856 "EHLO
+        id S1730784AbfJXMuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:50:03 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54124 "EHLO
         mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502139AbfJXMuC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:50:02 -0400
-Received: by mail-wm1-f65.google.com with SMTP id q13so2708499wmj.0
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:50:01 -0700 (PDT)
+        with ESMTP id S2502116AbfJXMuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:50:03 -0400
+Received: by mail-wm1-f65.google.com with SMTP id n7so1871770wmc.3
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:50:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=SUWSamHXQkQdCDGVETSveVvsUczyUjeOGzRV9FfWi1Y=;
-        b=B8RnpKz2nK/aSU6+oIk4WFSrsezkLkLPx/2Ro7MypdXHd9YPdlsrvq8EikTUjTgwYz
-         FczY8FiXesqebr7kTKLOPTtTNOJWKGJB7fqid0oH+fHth00gWKB85I9g/cEs/vxWiuvX
-         hz/67AXL0d/UyelwfPO1JooxOEJ0jeBCzhYVNFwGxOfGCOsAsvDPxhUXrc7BB2yLcwJZ
-         8InGwwuYdZ/wS1C4HTigF+7E9JnDVTSR9ChKeL7BZnv6wv8ywHKOsauclLZ2Q80d4azO
-         PIpgSErBbv+2XSdI3rBLpLFYmYSw0gZFeUEIfGtaP3vFnvntXfApwq5hpABiR8jTQRz/
-         YDnA==
+        bh=1TXdc1CmrZ/ckjcWcEzqehZfZHfUvN6n3zMEabAraTw=;
+        b=ur0hIhaHS4BdmbKFtzUR2LVNQtiRKeeeOyey48YVQHGZaNkzjCCNc6ogOitBuVa6sZ
+         h4usvwExHTmRxgVBoDUbugA/PQ8Y/wPazr1oYiuqEc7RgqfsX9luMhY1MB622WL3Z90w
+         MvE54UbJ8K+27pZf0KcfPeLAWbzwDrlVbVjFXg3qj61pBkxjS1L1cViidemP5+Q1Anel
+         suuunUYdWqVXBOzk5IV3bVEFG+aiOq7uhFxxGKm0VHmCa+jzYx1rtQEsUXgmU8hZO7ur
+         AomqugCQe5pQZhmIoqzT5bhWWwcMQY3kXftvCHT5QE3Zwy4HvDR0vtWygYxHPXLdo1RN
+         wFTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=SUWSamHXQkQdCDGVETSveVvsUczyUjeOGzRV9FfWi1Y=;
-        b=oyJs7nGZUlp5pLBKvsWPZZKU84NFUFpWSg+9X3nERzYE6hOrfZGS1Io9AOJgbbU3cb
-         Ir8WPE02aNM6tmfeV5eP3BWwO4tgLv6Axk+2Cha7UIzy8PvFVmlfWRKqQg0t842a1SAC
-         rGwdxyyB1CIpHfuniQzqFUySUuUE4fRn6AKBJGfk+I64QNtdEFISnWg0DIBf0mAjbdG2
-         fgsGGrYahm33fcB3eb7Yr47OcwIXESdQuLN0ifbVhc7l3GGfX/ofPmL4ULIKSIIm9n0U
-         T7QYDVReyqEL01inbukicBdiz0ihH0yKBhQVkpYOuUz6BvSo+tJtEgtUHXtfjTp/t/p9
-         XBdg==
-X-Gm-Message-State: APjAAAWn4LxYj0XmqQh4QUh3s1iUscCWwi5yBBWFtrbRAYkM11tXu1Md
-        z+WBOPxHUfs+l6vJNryFjJI6lexRgkixL1vh
-X-Google-Smtp-Source: APXvYqxVvBsQDgpqWxyd7Sl43SHhmKm33aqLJg2kjGjJkbjtjqMZaoBU2bInIUEjtqs1H8zPQ/eumA==
-X-Received: by 2002:a1c:f20e:: with SMTP id s14mr4581910wmc.118.1571921400142;
-        Thu, 24 Oct 2019 05:50:00 -0700 (PDT)
+        bh=1TXdc1CmrZ/ckjcWcEzqehZfZHfUvN6n3zMEabAraTw=;
+        b=C0IqUrvLHglAHHNqwaH29ENkLGr2axeSoPtnkCH5hxg/JWFcB5aj3Z7AvzJsxUQmDe
+         oPxt+y6emozQ06yv5Uclh2/yqGuuY+5qFeVNv1Vvy1HlKBq7U0AtnyzwPTISIFBHqZ8Z
+         ldohp+2qbZMcvee5TsHPSDUi4o8un3tnvVhGBW+4FCrfIxRVm7+gP9YH81/ySslx1ca/
+         NE1rkndLe67Sqya6mKr/An4AG27qRnujx8p6hGCXxs8FKM8SpQjnlB/HE9q6Bit09MHR
+         IrzXPff8jKwikU4b1miHJMjOfAprRQ1EigSwvHKTUSR1dtDMakcMs5YVnt7RS61pOu2A
+         jM2w==
+X-Gm-Message-State: APjAAAXfVOKsqL4KEmqqB3gcrG/rYBvEGneUXkSKpZmyYfpdJ8nk777b
+        DBRM0LVe/Vo5VuYH4SMxrSSBcz8bgUZve6EO
+X-Google-Smtp-Source: APXvYqwS/tObi9zvlpZYOJ7EjaINw6uHItwqALfs5px5Ru7Ai4g9mBoxznjB3+H28c6+8bHpXOub9g==
+X-Received: by 2002:a7b:cbc6:: with SMTP id n6mr2628724wmi.161.1571921401695;
+        Thu, 24 Oct 2019 05:50:01 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.49.58
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.50.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:49:59 -0700 (PDT)
+        Thu, 24 Oct 2019 05:50:00 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -55,10 +55,12 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>
-Subject: [PATCH for-stable-4.14 46/48] arm64: Force SSBS on context switch
-Date:   Thu, 24 Oct 2019 14:48:31 +0200
-Message-Id: <20191024124833.4158-47-ard.biesheuvel@linaro.org>
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH for-stable-4.14 47/48] arm64: Use firmware to detect CPUs that are not affected by Spectre-v2
+Date:   Thu, 24 Oct 2019 14:48:32 +0200
+Message-Id: <20191024124833.4158-48-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
@@ -71,117 +73,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-[ Upstream commit cbdf8a189a66001c36007bf0f5c975d0376c5c3a ]
+[ Upstream commit 517953c2c47f9c00a002f588ac856a5bc70cede3 ]
 
-On a CPU that doesn't support SSBS, PSTATE[12] is RES0.  In a system
-where only some of the CPUs implement SSBS, we end-up losing track of
-the SSBS bit across task migration.
+The SMCCC ARCH_WORKAROUND_1 service can indicate that although the
+firmware knows about the Spectre-v2 mitigation, this particular
+CPU is not vulnerable, and it is thus not necessary to call
+the firmware on this CPU.
 
-To address this issue, let's force the SSBS bit on context switch.
+Let's use this information to our benefit.
 
-Fixes: 8f04e8e6e29c ("arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3")
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-[will: inverted logic and added comments]
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm64/include/asm/processor.h | 14 ++++++++--
- arch/arm64/kernel/process.c        | 29 +++++++++++++++++++-
- 2 files changed, 40 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/cpu_errata.c | 32 ++++++++++++++------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
-index ec1725c6df21..9eb95ab19924 100644
---- a/arch/arm64/include/asm/processor.h
-+++ b/arch/arm64/include/asm/processor.h
-@@ -148,6 +148,16 @@ static inline void start_thread_common(struct pt_regs *regs, unsigned long pc)
- 	regs->pc = pc;
- }
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 55526738ccbc..ca718250d5bd 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -190,22 +190,36 @@ static int detect_harden_bp_fw(void)
+ 	case PSCI_CONDUIT_HVC:
+ 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
+ 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
+-		if ((int)res.a0 < 0)
++		switch ((int)res.a0) {
++		case 1:
++			/* Firmware says we're just fine */
++			return 0;
++		case 0:
++			cb = call_hvc_arch_workaround_1;
++			/* This is a guest, no need to patch KVM vectors */
++			smccc_start = NULL;
++			smccc_end = NULL;
++			break;
++		default:
+ 			return -1;
+-		cb = call_hvc_arch_workaround_1;
+-		/* This is a guest, no need to patch KVM vectors */
+-		smccc_start = NULL;
+-		smccc_end = NULL;
++		}
+ 		break;
  
-+static inline void set_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_SSBS_BIT;
-+}
-+
-+static inline void set_compat_ssbs_bit(struct pt_regs *regs)
-+{
-+	regs->pstate |= PSR_AA32_SSBS_BIT;
-+}
-+
- static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 				unsigned long sp)
- {
-@@ -155,7 +165,7 @@ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
- 	regs->pstate = PSR_MODE_EL0t;
+ 	case PSCI_CONDUIT_SMC:
+ 		arm_smccc_1_1_smc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
+ 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
+-		if ((int)res.a0 < 0)
++		switch ((int)res.a0) {
++		case 1:
++			/* Firmware says we're just fine */
++			return 0;
++		case 0:
++			cb = call_smc_arch_workaround_1;
++			smccc_start = __smccc_workaround_1_smc_start;
++			smccc_end = __smccc_workaround_1_smc_end;
++			break;
++		default:
+ 			return -1;
+-		cb = call_smc_arch_workaround_1;
+-		smccc_start = __smccc_workaround_1_smc_start;
+-		smccc_end = __smccc_workaround_1_smc_end;
++		}
+ 		break;
  
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_SSBS_BIT;
-+		set_ssbs_bit(regs);
- 
- 	regs->sp = sp;
- }
-@@ -174,7 +184,7 @@ static inline void compat_start_thread(struct pt_regs *regs, unsigned long pc,
- #endif
- 
- 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
--		regs->pstate |= PSR_AA32_SSBS_BIT;
-+		set_compat_ssbs_bit(regs);
- 
- 	regs->compat_sp = sp;
- }
-diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index 532ad6be9c2b..243fd247d04e 100644
---- a/arch/arm64/kernel/process.c
-+++ b/arch/arm64/kernel/process.c
-@@ -298,7 +298,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
- 			childregs->pstate |= PSR_UAO_BIT;
- 
- 		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
--			childregs->pstate |= PSR_SSBS_BIT;
-+			set_ssbs_bit(childregs);
- 
- 		p->thread.cpu_context.x19 = stack_start;
- 		p->thread.cpu_context.x20 = stk_sz;
-@@ -339,6 +339,32 @@ void uao_thread_switch(struct task_struct *next)
- 	}
- }
- 
-+/*
-+ * Force SSBS state on context-switch, since it may be lost after migrating
-+ * from a CPU which treats the bit as RES0 in a heterogeneous system.
-+ */
-+static void ssbs_thread_switch(struct task_struct *next)
-+{
-+	struct pt_regs *regs = task_pt_regs(next);
-+
-+	/*
-+	 * Nothing to do for kernel threads, but 'regs' may be junk
-+	 * (e.g. idle task) so check the flags and bail early.
-+	 */
-+	if (unlikely(next->flags & PF_KTHREAD))
-+		return;
-+
-+	/* If the mitigation is enabled, then we leave SSBS clear. */
-+	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
-+	    test_tsk_thread_flag(next, TIF_SSBD))
-+		return;
-+
-+	if (compat_user_mode(regs))
-+		set_compat_ssbs_bit(regs);
-+	else if (user_mode(regs))
-+		set_ssbs_bit(regs);
-+}
-+
- /*
-  * We store our current task in sp_el0, which is clobbered by userspace. Keep a
-  * shadow copy so that we can restore this upon entry from userspace.
-@@ -367,6 +393,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
- 	contextidr_thread_switch(next);
- 	entry_task_switch(next);
- 	uao_thread_switch(next);
-+	ssbs_thread_switch(next);
- 
- 	/*
- 	 * Complete any pending TLB or cache maintenance on this CPU in case
+ 	default:
 -- 
 2.20.1
 
