@@ -2,110 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21724E2943
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 06:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A96EE29B7
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 07:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725881AbfJXEGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 00:06:09 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:46474 "EHLO
+        id S2408390AbfJXFCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 01:02:22 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:43970 "EHLO
         mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725811AbfJXEGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 00:06:09 -0400
-Received: by mail-pg1-f196.google.com with SMTP id e15so13376130pgu.13;
-        Wed, 23 Oct 2019 21:06:09 -0700 (PDT)
+        with ESMTP id S1725298AbfJXFCV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 01:02:21 -0400
+Received: by mail-pg1-f196.google.com with SMTP id l24so8539369pgh.10;
+        Wed, 23 Oct 2019 22:02:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=atI3gS2MGyIOjrTR3VunsKklUxG6dRrAl/pbBtzsoWc=;
-        b=mmj2bmcy+JWI/uUf9GNnYjUK9DAwI76y/91IqmvFESwdIyvy/6ySLAQ/u8wKznhQ2r
-         QxHwYtbsAdPqQ2IS41S5Ih4Xav4Ig1H0flttKRwmjmE6uG2WVSXICYTYAfTbHYMclSsu
-         x9UqpOndh0xGHy90bagZ4AWwFXK1VN5BcSXEuOcZaBvMcqmYBg5bC19pCQ93ZQRucHFR
-         hjscDb0V4nOVDmV5vf5gnGevqHi9iarwvlpYy0qonUZ1DQ6gHSEsK+/ly3DEM+GvgZkr
-         ZUol4j5oQgN9dq2d0yln8XWSBydUbkL7xSQhwEtX9X8L/WppC37M1iRQcDCpjKUgISco
-         It6A==
-X-Gm-Message-State: APjAAAUVF+QnmDCxdWG3Tb5f0ZU0ywu97k4nJTjjA8QMLnSDhPOCsbfu
-        /TYW4G0yjz5SNJnq5kTqWaBmpeodkR9Frw==
-X-Google-Smtp-Source: APXvYqzFD35dvIj1is9aDYIJkqFuwSM9EbPEVTCqFA/d/Fsrill3EaFOFte4LDEAQR5p3TYTnG5Q/w==
-X-Received: by 2002:a63:f854:: with SMTP id v20mr8946190pgj.92.1571889968341;
-        Wed, 23 Oct 2019 21:06:08 -0700 (PDT)
-Received: from localhost ([2601:646:8a00:9810:5af3:56d9:f882:39d4])
-        by smtp.gmail.com with ESMTPSA id l62sm26476097pfl.167.2019.10.23.21.06.07
+        h=x-gm-message-state:message-id:date:from:to:cc:cc:cc:subject
+         :references:in-reply-to;
+        bh=8F5ySKRZr9V5FEeQpHSOPXmmMaNr3Mx87NU9ELmhZRg=;
+        b=lr+7ZbCyrjy+yaZ0aCEKVdNJtdHCoJi8GUFJqQLUH7PnKAD3o2925gQqQBn0hkS5Vy
+         QMJv4OH869DUxdEIhXojQhoHpqOlUmRCYM4hIP8G3V+srqaZ772jYiCLrrLAmk8InSdX
+         /PVoFqJhM6gkCJ4wsDGrzIfd3qsnCk3bZsOefKWfJ1QBbclEaWBLY0UfTFje5pFf6L8x
+         oMCa9fUxXbxKY5jlZ123JTspCYKnKhB3n6oQyrQ+LIX7yHG+NclN9Czy0Ot/puYU3tAw
+         mqURt9ZlrxpQ92vYH7ESU1ThNR0tm88iL9803evkmfQsWoIN8dA+EgztmjzS4XGK4tAJ
+         UBww==
+X-Gm-Message-State: APjAAAVLLFYKZ9yY+Q26p7j1HG96o7EBJHkfWY8Vgg2yzLyHmFxdEjXo
+        X/G0DswLhoCVuQQ0FOOUunc=
+X-Google-Smtp-Source: APXvYqy7cMtcmkSp77OgFZBCPky6lqO8/DWsIDXUzPHZ7nfD7tr2WBu36bw90v+aFO2aTDUDvsn62Q==
+X-Received: by 2002:a17:90a:8c02:: with SMTP id a2mr4543343pjo.79.1571893340916;
+        Wed, 23 Oct 2019 22:02:20 -0700 (PDT)
+Received: from localhost ([2601:646:8a00:9810:5cfa:8da3:1021:be72])
+        by smtp.gmail.com with ESMTPSA id f21sm21876384pgh.85.2019.10.23.22.02.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Oct 2019 21:06:07 -0700 (PDT)
-Date:   Wed, 23 Oct 2019 21:06:24 -0700
+        Wed, 23 Oct 2019 22:02:20 -0700 (PDT)
+Message-ID: <5db1305c.1c69fb81.3345f.9763@mx.google.com>
+Date:   Wed, 23 Oct 2019 22:02:19 -0700
 From:   Paul Burton <paulburton@kernel.org>
-To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc:     linux-mips@vger.kernel.org, paul.burton@mips.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] MIPS: elf_hwcap: Export microMIPS and vz
-Message-ID: <20191024040624.eezpuusvhujfffud@lantea.localdomain>
-References: <20191023152551.10535-1-jiaxun.yang@flygoat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20191023152551.10535-1-jiaxun.yang@flygoat.com>
-User-Agent: NeoMutt/20180716
+To:     Paul Burton <paulburton@kernel.org>
+CC:     linux-mips@vger.kernel.org
+CC:     linux-kernel@vger.kernel.org, Paul Burton <paulburton@kernel.org>,
+        Dmitry Korotin <dkorotin@wavecomp.com>, stable@vger.kernel.org
+CC:     linux-mips@vger.kernel.org
+Subject: Re: [PATCH] MIPS: tlbex: Fix build_restore_pagemask KScratch restore
+References:  <20191018223848.1128468-1-paulburton@kernel.org>
+In-Reply-To:  <20191018223848.1128468-1-paulburton@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Jiaxun,
+Hello,
 
-On Wed, Oct 23, 2019 at 11:25:51PM +0800, Jiaxun Yang wrote:
-> After further discussion with userland library develpoer,
-> we addressed another two ASEs that can be used runtimely in programs.
+Paul Burton wrote:
+> build_restore_pagemask() will restore the value of register $1/$at when
+> its restore_scratch argument is non-zero, and aims to do so by filling a
+> branch delay slot. Commit 0b24cae4d535 ("MIPS: Add missing EHB in mtc0
+> -> mfc0 sequence.") added an EHB instruction (Execution Hazard Barrier)
+> prior to restoring $1 from a KScratch register, in order to resolve a
+> hazard that can result in stale values of the KScratch register being
+> observed. In particular, P-class CPUs from MIPS with out of order
+> execution pipelines such as the P5600 & P6600 are affected.
 > 
-> Export them in hwcap as well to benefit userspace programs.
+> Unfortunately this EHB instruction was inserted in the branch delay slot
+> causing the MFC0 instruction which performs the restoration to no longer
+> execute along with the branch. The result is that the $1 register isn't
+> actually restored, ie. the TLB refill exception handler clobbers it -
+> which is exactly the problem the EHB is meant to avoid for the P-class
+> CPUs.
 > 
-> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-> Cc: <stable@vger.kernel.org> # 4.4+
-> ---
->  arch/mips/include/uapi/asm/hwcap.h | 2 ++
->  arch/mips/kernel/cpu-probe.c       | 7 ++++++-
->  2 files changed, 8 insertions(+), 1 deletion(-)
+> Similarly build_get_pgd_vmalloc() will restore the value of $1/$at when
+> its mode argument equals refill_scratch, and suffers from the same
+> problem.
 > 
-> diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
-> index 1ade1daa4921..e1a9bac62149 100644
-> --- a/arch/mips/include/uapi/asm/hwcap.h
-> +++ b/arch/mips/include/uapi/asm/hwcap.h
-> @@ -17,5 +17,7 @@
->  #define HWCAP_LOONGSON_MMI  (1 << 11)
->  #define HWCAP_LOONGSON_EXT  (1 << 12)
->  #define HWCAP_LOONGSON_EXT2 (1 << 13)
-> +#define HWCAP_MIPS_MICROMIPS (1 << 14)
-> +#define HWCAP_MIPS_VZ       (1 << 15)
+> Fix this by in both cases moving the EHB earlier in the emitted code.
+> There's no reason it needs to immediately precede the MFC0 - it simply
+> needs to be between the MTC0 & MFC0.
+> 
+> This bug only affects Cavium Octeon systems which use
+> build_fast_tlb_refill_handler().
 
-What's the motivation for exposing VZ? Userland can't actually use it
-without something like KVM, which already exposes a means of detecting
-whether VZ is supported (try the creating a VM of type KVM_VM_MIPS_VZ &
-see if it works). I'm not sure what userland would be able to do with
-this information in AT_HWCAP.
+Applied to mips-fixes.
+
+> commit b42aa3fd5957
+> https://git.kernel.org/mips/c/b42aa3fd5957
+> 
+> Signed-off-by: Paul Burton <paulburton@kernel.org>
+> Fixes: 0b24cae4d535 ("MIPS: Add missing EHB in mtc0 -> mfc0 sequence.")
 
 Thanks,
     Paul
 
->  #endif /* _UAPI_ASM_HWCAP_H */
-> diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-> index f521cbf934e7..11e853d88aae 100644
-> --- a/arch/mips/kernel/cpu-probe.c
-> +++ b/arch/mips/kernel/cpu-probe.c
-> @@ -2213,8 +2213,13 @@ void cpu_probe(void)
->  	if (cpu_has_loongson_ext2)
->  		elf_hwcap |= HWCAP_LOONGSON_EXT2;
->  
-> -	if (cpu_has_vz)
-> +	if (cpu_has_mmips)
-> +		elf_hwcap |= HWCAP_MIPS_MICROMIPS;
-> +
-> +	if (cpu_has_vz) {
-> +		elf_hwcap |= HWCAP_MIPS_VZ;
->  		cpu_probe_vz(c);
-> +	}
->  
->  	cpu_probe_vmbits(c);
->  
-> -- 
-> 2.23.0
-> 
+[ This message was auto-generated; if you believe anything is incorrect
+  then please email paulburton@kernel.org to report it. ]
