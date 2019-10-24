@@ -2,170 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F62E2514
-	for <lists+stable@lfdr.de>; Wed, 23 Oct 2019 23:19:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D3FE27BD
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 03:31:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405567AbfJWVTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 17:19:46 -0400
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:51402 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404502AbfJWVTq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 17:19:46 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0Tg.SaQl_1571865575;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tg.SaQl_1571865575)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 24 Oct 2019 05:19:42 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     hughd@google.com, aarcange@redhat.com,
-        kirill.shutemov@linux.intel.com, willy@infradead.org,
-        gavin.dg@linux.alibaba.com, akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [v4 PATCH] mm: thp: handle page cache THP correctly in PageTransCompoundMap
-Date:   Thu, 24 Oct 2019 05:19:35 +0800
-Message-Id: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S2392609AbfJXBbb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 21:31:31 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:33955 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726925AbfJXBba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 21:31:30 -0400
+Received: by mail-pl1-f194.google.com with SMTP id k7so11021116pll.1
+        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 18:31:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ozlabs-ru.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=arF3YmYTeGOymWEryZyzJhsK75nsBwwo2INIrx/ufRQ=;
+        b=LUALCt9h2NVU5Imdt5RbHKdn9ROO0oO2ZIg7thR62m0PyjX8CC6OPJp/1py9q9ZZI+
+         aMa/YqPdDdUr2c49eyt+ClBVMYr6igZINRBxUXTmmXYQ1CM9LTaZWjYCB2KWZWwB465K
+         X9cA4/O8IH3E4vjd2OqCk3Dt9e+Jc4w2sD9X9O8+i0ksF0Cse3fKhTyhB1tUAx3CbwFH
+         S2sGD4eBL8iuYuUoTutLeLwNt/VPFMXcmdwFqvYiiKNnyqjuqGR6TyflvC8SL+VZVflF
+         H31COkbBDOuRwIDnV/DGKovZTn6Z+Xr0sG8PqjXrTd4G+A2OjL0xCVXTAkBJvLpK4kFE
+         w4jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=arF3YmYTeGOymWEryZyzJhsK75nsBwwo2INIrx/ufRQ=;
+        b=meoA7bQzsdkNzDA23hHKi7VWtmhNNSSFC63O92PH/l0dskysnhWo0Pvrh+EmFQLZFS
+         gX+N/P2OSABAbKBsSN0Kj3H/Ju66Ytkk0OsCWRSaT4q/tLU/sTDtgAbPIjx7uQ0F+R7h
+         ghl2sho9hnu1cSI32SkG68bSvWNLug9sOCJAifyf8NXsoJ3CZMVpjwl7HrYvOjXQCiAD
+         d2GWpFOhOdnVydUaj0bk21O2537LbfiG9XAauXNcfQKM9pZp3g2s1OPlnENlZJQDjDrp
+         9WpjezvX4Yep9UpQAGCtfqMfLDzaTOOxtzBdEiG912MzYBPOZ4V+Agk458KNuLXQikGb
+         8epQ==
+X-Gm-Message-State: APjAAAV6mV561RxKBkxDPRRT+6ARUi9djUCkbSygjM33f/hRc8vBdpRO
+        ixkjMDMB6/sUDFpPSMx9klSmW2BQBR8=
+X-Google-Smtp-Source: APXvYqxZ7M530jyFEeOny9b9BTeRErzdOEMAs7WU2ofmXdGAz9lpgOaICBqSf6rofiksH9TotOPh/g==
+X-Received: by 2002:a17:902:bf43:: with SMTP id u3mr6892435pls.339.1571880689327;
+        Wed, 23 Oct 2019 18:31:29 -0700 (PDT)
+Received: from [10.61.2.175] ([122.99.82.10])
+        by smtp.gmail.com with ESMTPSA id o185sm31921345pfg.136.2019.10.23.18.31.26
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 23 Oct 2019 18:31:28 -0700 (PDT)
+Subject: Re: [PATCH] powerpc/boot: Fix the initrd being overwritten under qemu
+To:     Segher Boessenkool <segher@kernel.crashing.org>,
+        Oliver O'Halloran <oohall@gmail.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
+References: <20191023013635.2512-1-oohall@gmail.com>
+ <20191023112102.GN28442@gate.crashing.org>
+From:   Alexey Kardashevskiy <aik@ozlabs.ru>
+Autocrypt: addr=aik@ozlabs.ru; keydata=
+ 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
+Message-ID: <90a0f702-6891-cd14-f190-5682d7c3778e@ozlabs.ru>
+Date:   Thu, 24 Oct 2019 12:31:24 +1100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.2
+MIME-Version: 1.0
+In-Reply-To: <20191023112102.GN28442@gate.crashing.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We have usecase to use tmpfs as QEMU memory backend and we would like to
-take the advantage of THP as well.  But, our test shows the EPT is not
-PMD mapped even though the underlying THP are PMD mapped on host.
-The number showed by /sys/kernel/debug/kvm/largepage is much less than
-the number of PMD mapped shmem pages as the below:
 
-7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   579584 kB
-[snip]
-Locked:                0 kB
 
-cat /sys/kernel/debug/kvm/largepages
-12
+On 23/10/2019 22:21, Segher Boessenkool wrote:
+> On Wed, Oct 23, 2019 at 12:36:35PM +1100, Oliver O'Halloran wrote:
+>> When booting under OF the zImage expects the initrd address and size to be
+>> passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
+>> currently doesn't do this so the zImage is not aware of the initrd
+>> location.  This can result in initrd corruption either though the zImage
+>> extracting the vmlinux over the initrd, or by the vmlinux overwriting the
+>> initrd when relocating itself.
+>>
+>> QEMU does put the linux,initrd-start and linux,initrd-end properties into
+>> the devicetree to vmlinux to find the initrd. We can work around the SLOF
+>> bug by also looking those properties in the zImage.
+> 
+> This is not a bug.  What boot protocol requires passing the initrd start
+> and size in GPR3, GPR4?
 
-And some benchmarks do worse than with anonymous THPs.
+So far I was unable to identify it...
 
-By digging into the code we figured out that commit 127393fbe597 ("mm:
-thp: kvm: fix memory corruption in KVM with THP enabled") checks if
-there is a single PTE mapping on the page for anonymous THP when
-setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
-cache THP since every subpage of page cache THP would get _mapcount
-inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
-false for page cache THP.  This would prevent KVM from setting up PMD
-mapped EPT entry.
+> The CHRP binding (what SLOF implements) requires passing two zeroes here.
+> And ePAPR requires passing the address of a device tree and a zero, plus
+> something in GPR6 to allow distinguishing what it does.
+> 
+> As Alexey says, initramfs works just fine, so please use that?  initrd was
+> deprecated when this code was written already.
 
-So we need handle page cache THP correctly.  However, when page cache
-THP's PMD gets split, kernel just remove the map instead of setting up
-PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
-the subpages may get PTE mapped even though it is still a THP since the
-page cache THP may be mapped by other processes at the mean time.
+I did not say about anything working fine :)
 
-Checking its _mapcount and whether the THP has PTE mapped or not.
-Although this may report some false negative cases (PTE mapped by other
-processes), it looks not trivial to make this accurate.
+In my case I was using a new QEMU which does full FDT on client-arch-support and that thing would put the original
+linux,initrd-start/end to the FDT even though the initrd was unpacked and the properties were changes in SLOF. With that
+fixed, this is an alternative fix for SLOF but I am not pushing it out as I have no idea about the bindings and this
+also breaks "vmlinux".
 
-With this fix /sys/kernel/debug/kvm/largepage would show reasonable
-pages are PMD mapped by EPT as the below:
 
-7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
-Size:            4194304 kB
-[snip]
-AnonHugePages:         0 kB
-ShmemPmdMapped:   557056 kB
-[snip]
-Locked:                0 kB
-
-cat /sys/kernel/debug/kvm/largepages
-271
-
-And the benchmarks are as same as anonymous THPs.
-
-Fixes: dd78fedde4b9 ("rmap: support file thp")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org> 4.8+
----
- include/linux/mm.h         |  5 -----
- include/linux/mm_types.h   |  5 +++++
- include/linux/page-flags.h | 20 ++++++++++++++++++--
- 3 files changed, 23 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index cc29227..a2adf95 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -695,11 +695,6 @@ static inline void *kvcalloc(size_t n, size_t size, gfp_t flags)
- 
- extern void kvfree(const void *addr);
- 
--static inline atomic_t *compound_mapcount_ptr(struct page *page)
--{
--	return &page[1].compound_mapcount;
--}
--
- static inline int compound_mapcount(struct page *page)
- {
- 	VM_BUG_ON_PAGE(!PageCompound(page), page);
-diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
-index 2222fa7..270aa8f 100644
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -221,6 +221,11 @@ struct page {
- #endif
- } _struct_page_alignment;
- 
-+static inline atomic_t *compound_mapcount_ptr(struct page *page)
-+{
-+	return &page[1].compound_mapcount;
-+}
+diff --git a/slof/fs/client.fs b/slof/fs/client.fs
+index 8a7f6ac4326d..138177e4c2a3 100644
+--- a/slof/fs/client.fs
++++ b/slof/fs/client.fs
+@@ -45,6 +45,17 @@ VARIABLE  client-callback \ Address of client's callback function
+   >r  ciregs >r7 !  ciregs >r6 !  client-entry-point @ ciregs >r5 !
+   \ Initialise client-stack-pointer
+   cistack ciregs >r1 !
 +
- /*
-  * Used for sizing the vmemmap region on some architectures
-  */
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index f91cb88..1bf83c8 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -622,12 +622,28 @@ static inline int PageTransCompound(struct page *page)
-  *
-  * Unlike PageTransCompound, this is safe to be called only while
-  * split_huge_pmd() cannot run from under us, like if protected by the
-- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
-+ * MMU notifier, otherwise it may result in page->_mapcount check false
-  * positives.
-+ *
-+ * We have to treat page cache THP differently since every subpage of it
-+ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
-+ * mapped in the current process so comparing subpage's _mapcount to
-+ * compound_mapcount to filter out PTE mapped case.
-  */
- static inline int PageTransCompoundMap(struct page *page)
- {
--	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
-+	struct page *head;
++  s" linux,initrd-end" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
++  s" linux,initrd-start" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
++  2dup - dup IF
++    ciregs >r4 !
++    ciregs >r3 !
++    drop
++  ELSE
++    3drop
++  THEN
 +
-+	if (!PageTransCompound(page))
-+		return 0;
-+
-+	if (PageAnon(page))
-+		return atomic_read(&page->_mapcount) < 0;
-+
-+	head = compound_head(page);
-+	/* File THP is PMD mapped and not PTE mapped */
-+	return atomic_read(&page->_mapcount) ==
-+	       atomic_read(compound_mapcount_ptr(head));
- }
- 
- /*
+
+
 -- 
-1.8.3.1
-
+Alexey
