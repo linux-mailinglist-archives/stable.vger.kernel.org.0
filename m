@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 251BBE32D2
+	by mail.lfdr.de (Postfix) with ESMTP id E8414E32D3
 	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728017AbfJXMtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:49:02 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:43898 "EHLO
+        id S1728342AbfJXMtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:49:03 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33087 "EHLO
         mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729573AbfJXMtC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:02 -0400
-Received: by mail-wr1-f66.google.com with SMTP id c2so20704783wrr.10
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:00 -0700 (PDT)
+        with ESMTP id S1727913AbfJXMtD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:03 -0400
+Received: by mail-wr1-f66.google.com with SMTP id s1so17173382wro.0
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=pQHOE9je+o2KIZotzirVAqZyJOl8UTJpxGNddMrz2bc=;
-        b=vSeTdskIfiiwLmYZADgabGz9Thax5o878HRmpnqnm84lfhnAW23aQKmGDyNIu98DPA
-         i0KEYBBSPBvVY1hJoTaM7ogOHvyUfpJ8uJvfh03AEXIJ7z8WvSdPdkaoHjx86B7leY7K
-         bRPVB1AdUWlaMXiyaOaeo2m31QzvD/5vv9uWm2RMRk0qT7CXWsd7QqAsk7q1FRNupWQx
-         yhOiEBAccQegdxVHKEBVtKBl0t/rLOXExeKBF2zr8hSN2x6HwoDLgeRL1Nb1PjNi3nTO
-         9eBuSrpxZ9lVwNwkeoYeNV4QXLwSUeXRV4zbw83xF+L/kqzmNZd9A0ozzNsea4HV5665
-         DCnw==
+        bh=FGLorEesDsfAmxFmFpT9rKaAuqHDIZiwQnvART+qIuc=;
+        b=MXhIjmhcLgKtMpSxfoK4lgqDGGGPPMeIXzPvfIklgcEiN1VW0+wWD0Nmsc12sy4rvW
+         GtH3Y/nSZQ0MYWQedpRU07eBaivkLHkgvLJnwQYGTdMzSSGiIsKUY/HBT/GVEnsRQ5Lv
+         fxoknWwwuFN1jjkRIy2LIG7qEerbISYAfGyC4vvPs1wl4Y7qlA5Le5ap2vCjNl+g/g8Y
+         5oeHwPyjBmeEyFB8EOZDaktDzha0+o2fFVr+H+LIb/Klr3/ndgpCnz2BGOM9y8XvbZo8
+         8htrYg+UWhh+TjhxX82u8vZvWo60iRj3P/66ZOfywVcSjtHWW0POPWlBbr9prlP2R9UA
+         U7LA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pQHOE9je+o2KIZotzirVAqZyJOl8UTJpxGNddMrz2bc=;
-        b=e26UgXYhoSgSN4ynuTKQx7HmVD9zZqB0mVQQqrsqQSpPy5MKQrxiZt0xj/216wAI2C
-         dB/NWODGR2xKaSqX3oMX7c48fSr16y7xun9fG6kleHhuAVPqUxIHpaYzQ2M08x2955Qr
-         k9wRjyL4At1t2PHIGV9ap1o9ClY6Lfeqcp+p5Yz9DSiAWdIHn/ZS3z40uAbDKwPl5J9x
-         af7yOgukT/HIld9Lr4GUCZymUc2Eu/5WFq+cK8y5qlbHwjSH777V0urjd9DJQwgIluUb
-         tmjSiuWdSK9N7gEYpzKm69j9d1XmSd19DHuDNfzYJLSUYKHLBgINpwdF7zdNTr6yZJv/
-         y73Q==
-X-Gm-Message-State: APjAAAWOW3+L26R7aa2UIGBL5zlyyZ7h2nszqtUB+qidcoanAdveIAbB
-        THZXqpTat52VsnLanV1UWaBeAGzjeyPD4MzF
-X-Google-Smtp-Source: APXvYqzJUox4l49fwqD2MX4Ncb1kEfl2HuJfR3JPF+OL5CDj9rUdhTJBjYck8esY/jzgcnwnH0MHyw==
-X-Received: by 2002:adf:f04e:: with SMTP id t14mr3494051wro.106.1571921339610;
-        Thu, 24 Oct 2019 05:48:59 -0700 (PDT)
+        bh=FGLorEesDsfAmxFmFpT9rKaAuqHDIZiwQnvART+qIuc=;
+        b=sO9DVtkc4XzOr3i8dQxboSXvJx8640LiB64fdcM8/jwWWxs5MT8+vsBGwjOGSvlo7+
+         4AalS0MiXOmAUEzLJLgsZN1gkyMCpIbnWOORlahTvlKv/B8lWGzOQXMg01jxLXr5+0gB
+         Uc4HCiNJ9VwFX3FLr/tqOhXmAqptVImUqo/m/tuBrNVEkk0MViP/hFBV+LX3QVk9ZIw4
+         xoKTuSxtVGq7zPqvdby6OvgNxmebucpBoKdZ5y+UNzCsrMq49Ep2ZwEvDCjj6Pj+lS61
+         mtkEaFIDsKlLwFEgTvVgjymTDEr1DnMYGKYuz+EfNR+7XFJVQ1B6pixJixoyChaq+vh9
+         SWfA==
+X-Gm-Message-State: APjAAAUv+cOBvBj+SFv3/y/FN8noObdvtxvMKCWWboh1iX8ac+qfSftG
+        RIg5V1mc45xMunFTxOy4/nsvL7TKDaNc6tzJ
+X-Google-Smtp-Source: APXvYqyxDsf+oHw0Qw6bS8CMDyzYGGTpwJJiE4SWp99PkKNotE+FP0kEU5hY9UNQ6IWzMZvg/okmyg==
+X-Received: by 2002:a5d:678e:: with SMTP id v14mr3573451wru.393.1571921341138;
+        Thu, 24 Oct 2019 05:49:01 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.58
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:48:58 -0700 (PDT)
+        Thu, 24 Oct 2019 05:49:00 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -55,12 +55,11 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH for-stable-4.14 08/48] arm64: add PSR_AA32_* definitions
-Date:   Thu, 24 Oct 2019 14:47:53 +0200
-Message-Id: <20191024124833.4158-9-ard.biesheuvel@linaro.org>
+        Dave Martin <dave.martin@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>
+Subject: [PATCH for-stable-4.14 09/48] arm64: Introduce sysreg_clear_set()
+Date:   Thu, 24 Oct 2019 14:47:54 +0200
+Message-Id: <20191024124833.4158-10-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
@@ -73,120 +72,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 25086263425641c74123f9387426c23072b299ea ]
+[ Upstream commit 6ebdf4db8fa564a150f46d32178af0873eb5abbb ]
 
-The AArch32 CPSR/SPSR format is *almost* identical to the AArch64
-SPSR_ELx format for exceptions taken from AArch32, but the two have
-diverged with the addition of DIT, and we need to treat the two as
-logically distinct.
+Currently we have a couple of helpers to manipulate bits in particular
+sysregs:
 
-This patch adds new definitions for the SPSR_ELx format for exceptions
-taken from AArch32, with a consistent PSR_AA32_ prefix. The existing
-COMPAT_PSR_ definitions will be used for the PSR format as seen from
-AArch32.
+ * config_sctlr_el1(u32 clear, u32 set)
 
-Definitions of DIT are provided for both, and inline functions are
-provided to map between the two formats. Note that for SPSR_ELx, the
-(RES0) J bit has been re-allocated as the DIT bit.
+ * change_cpacr(u64 val, u64 mask)
 
-Once users of the COMPAT_PSR definitions have been migrated over to the
-PSR_AA32 definitions, the (majority of) the former will be removed, so
-no efforts is made to avoid duplication until then.
+The parameters of these differ in naming convention, order, and size,
+which is unfortunate. They also differ slightly in behaviour, as
+change_cpacr() skips the sysreg write if the bits are unchanged, which
+is a useful optimization when sysreg writes are expensive.
+
+Before we gain yet another sysreg manipulation function, let's
+unify these with a common helper, providing a consistent order for
+clear/set operands, and the write skipping behaviour from
+change_cpacr(). Code will be migrated to the new helper in subsequent
+patches.
 
 Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Christoffer Dall <christoffer.dall@arm.com>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Cc: Suzuki Poulose <suzuki.poulose@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Reviewed-by: Dave Martin <dave.martin@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm64/include/asm/ptrace.h | 57 +++++++++++++++++++-
- 1 file changed, 56 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/sysreg.h | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/arm64/include/asm/ptrace.h b/arch/arm64/include/asm/ptrace.h
-index 6069d66e0bc2..1b2a253de6a1 100644
---- a/arch/arm64/include/asm/ptrace.h
-+++ b/arch/arm64/include/asm/ptrace.h
-@@ -35,7 +35,37 @@
- #define COMPAT_PTRACE_GETHBPREGS	29
- #define COMPAT_PTRACE_SETHBPREGS	30
+diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
+index f0ce6ea6c6d8..5f391630d0f4 100644
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -584,6 +584,17 @@ asm(
+ 	asm volatile("msr_s " __stringify(r) ", %x0" : : "rZ" (__val));	\
+ } while (0)
  
--/* AArch32 CPSR bits */
-+/* SPSR_ELx bits for exceptions taken from AArch32 */
-+#define PSR_AA32_MODE_MASK	0x0000001f
-+#define PSR_AA32_MODE_USR	0x00000010
-+#define PSR_AA32_MODE_FIQ	0x00000011
-+#define PSR_AA32_MODE_IRQ	0x00000012
-+#define PSR_AA32_MODE_SVC	0x00000013
-+#define PSR_AA32_MODE_ABT	0x00000017
-+#define PSR_AA32_MODE_HYP	0x0000001a
-+#define PSR_AA32_MODE_UND	0x0000001b
-+#define PSR_AA32_MODE_SYS	0x0000001f
-+#define PSR_AA32_T_BIT		0x00000020
-+#define PSR_AA32_F_BIT		0x00000040
-+#define PSR_AA32_I_BIT		0x00000080
-+#define PSR_AA32_A_BIT		0x00000100
-+#define PSR_AA32_E_BIT		0x00000200
-+#define PSR_AA32_DIT_BIT	0x01000000
-+#define PSR_AA32_Q_BIT		0x08000000
-+#define PSR_AA32_V_BIT		0x10000000
-+#define PSR_AA32_C_BIT		0x20000000
-+#define PSR_AA32_Z_BIT		0x40000000
-+#define PSR_AA32_N_BIT		0x80000000
-+#define PSR_AA32_IT_MASK	0x0600fc00	/* If-Then execution state mask */
-+#define PSR_AA32_GE_MASK	0x000f0000
++/*
++ * Modify bits in a sysreg. Bits in the clear mask are zeroed, then bits in the
++ * set mask are set. Other bits are left as-is.
++ */
++#define sysreg_clear_set(sysreg, clear, set) do {			\
++	u64 __scs_val = read_sysreg(sysreg);				\
++	u64 __scs_new = (__scs_val & ~(u64)(clear)) | (set);		\
++	if (__scs_new != __scs_val)					\
++		write_sysreg(__scs_new, sysreg);			\
++} while (0)
 +
-+#ifdef CONFIG_CPU_BIG_ENDIAN
-+#define PSR_AA32_ENDSTATE	PSR_AA32_E_BIT
-+#else
-+#define PSR_AA32_ENDSTATE	0
-+#endif
-+
-+/* AArch32 CPSR bits, as seen in AArch32 */
- #define COMPAT_PSR_MODE_MASK	0x0000001f
- #define COMPAT_PSR_MODE_USR	0x00000010
- #define COMPAT_PSR_MODE_FIQ	0x00000011
-@@ -50,6 +80,7 @@
- #define COMPAT_PSR_I_BIT	0x00000080
- #define COMPAT_PSR_A_BIT	0x00000100
- #define COMPAT_PSR_E_BIT	0x00000200
-+#define COMPAT_PSR_DIT_BIT	0x00200000
- #define COMPAT_PSR_J_BIT	0x01000000
- #define COMPAT_PSR_Q_BIT	0x08000000
- #define COMPAT_PSR_V_BIT	0x10000000
-@@ -111,6 +142,30 @@
- #define compat_sp_fiq	regs[29]
- #define compat_lr_fiq	regs[30]
- 
-+static inline unsigned long compat_psr_to_pstate(const unsigned long psr)
-+{
-+	unsigned long pstate;
-+
-+	pstate = psr & ~COMPAT_PSR_DIT_BIT;
-+
-+	if (psr & COMPAT_PSR_DIT_BIT)
-+		pstate |= PSR_AA32_DIT_BIT;
-+
-+	return pstate;
-+}
-+
-+static inline unsigned long pstate_to_compat_psr(const unsigned long pstate)
-+{
-+	unsigned long psr;
-+
-+	psr = pstate & ~PSR_AA32_DIT_BIT;
-+
-+	if (pstate & PSR_AA32_DIT_BIT)
-+		psr |= COMPAT_PSR_DIT_BIT;
-+
-+	return psr;
-+}
-+
- /*
-  * This struct defines the way the registers are stored on the stack during an
-  * exception. Note that sizeof(struct pt_regs) has to be a multiple of 16 (for
+ static inline void config_sctlr_el1(u32 clear, u32 set)
+ {
+ 	u32 val;
 -- 
 2.20.1
 
