@@ -2,147 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E25E374B
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 17:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C56EE3629
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 17:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391245AbfJXP5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 11:57:22 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50453 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389313AbfJXP5V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 11:57:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1571932641;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gXiCj2zY2Ut1vFe48odKp1CcDmx3S+KKbQVXOdnSjyw=;
-        b=VbLP9DeuhrQAPxgjjRJ7H+rdwDSyRqU4Cy5drWxqpHD7wShHh9z3XGmLwVC/C45KSPfgo4
-        L0XovshgJideFPqXUWqIXacekfOAYI7jFTNAAOUD8MhJrOgDsUn7M1nc5yVVsXwc71tFBe
-        uL+k9Ky4goZwrZrxTCRgxSV6OYyC9Ug=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-124-ClHpqv9-OreWZoqfqWOZUg-1; Thu, 24 Oct 2019 10:31:35 -0400
-Received: by mail-wr1-f70.google.com with SMTP id q14so1378213wrw.4
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 07:31:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=T/Xlag7Vv94i/fFZydhE/2Ef/Fmjkx03xUXJUBM16NE=;
-        b=SZv79U5N1bEQoE0n8K087MXWKrHWgNYnTuuPW+W4CD+5lwa681nftsJFHXo/ZfixXa
-         yrAHUv2xmybZuwY7cLRytCL1NMVttoV+bEbEA3ZlJ32yqilOMvOy989VTqfmPoxMoaWy
-         Afbpml/ZwS7/OZPM3yhvq1seK16goYTs5M+oPRgLwz3Hg9jIX4T4dlUPTXePs8LH7XvS
-         p4z7/cs3QapdkbzHw7BfE9SX6845JM7NHgbcn8SCwI/1gcA8+jNDDTfvSXx7WjIqKFtf
-         Nj1RFtspF4GwFqTQdT9pK/K+EGi4l9UObjSRSOVjNUCxLSKP6zxf75q3o3cC+KwCQHXk
-         cl+g==
-X-Gm-Message-State: APjAAAWqvkWCuOjjsvZk3tUDkgW6TxlikkOBIOwjNzfeRumJJiyx4eP3
-        VrjFDEmEqLx2lnxO8pCdw69/Etts0W1tksmf2aILQCOal4A8bILF8Bn2AAQQpfIXPW09alfEkcs
-        VbSfAkuJAmZJle1KM
-X-Received: by 2002:adf:bd8f:: with SMTP id l15mr4084410wrh.362.1571927246888;
-        Thu, 24 Oct 2019 07:27:26 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqyHFHFBiqf2jd4RSI7FQ83LyEV3UvhtzKxFIwh4b5Evb3qiH8AY4i0BFMxyaOtnXcmlN/ePXg==
-X-Received: by 2002:adf:bd8f:: with SMTP id l15mr4084393wrh.362.1571927246663;
-        Thu, 24 Oct 2019 07:27:26 -0700 (PDT)
-Received: from shalem.localdomain (2001-1c00-0c14-2800-ec23-a060-24d5-2453.cable.dynamic.v6.ziggo.nl. [2001:1c00:c14:2800:ec23:a060:24d5:2453])
-        by smtp.gmail.com with ESMTPSA id w18sm7921842wrl.75.2019.10.24.07.27.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Oct 2019 07:27:25 -0700 (PDT)
-Subject: Re: [PATCH] tpm: Switch to platform_get_irq_optional()
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-References: <20191019094528.27850-1-hdegoede@redhat.com>
- <20191021154942.GB4525@linux.intel.com>
- <80409d36-53fa-d159-d864-51b8495dc306@redhat.com>
- <20191023113733.GB21973@linux.intel.com>
- <d6adeb21-f7b3-5c64-fa32-03a8ee21cc53@redhat.com>
- <20191024142519.GA3881@linux.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <c6a0c3e3-c5c8-80d9-b6b6-bf45d66f4b32@redhat.com>
-Date:   Thu, 24 Oct 2019 16:27:24 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S2409573AbfJXPHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 11:07:21 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:5174 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2407327AbfJXPHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Oct 2019 11:07:21 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 408701071410A51A4E65;
+        Thu, 24 Oct 2019 23:07:15 +0800 (CST)
+Received: from linux-ibm.site (10.175.102.37) by
+ DGGEMS407-HUB.china.huawei.com (10.3.19.207) with Microsoft SMTP Server id
+ 14.3.439.0; Thu, 24 Oct 2019 23:07:08 +0800
+From:   zhong jiang <zhongjiang@huawei.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <willy@infradead.org>, <stable@vger.kernel.org>, <vbabka@suse.cz>,
+        <mhocko@suse.com>, <linux-mm@kvack.org>, <zhongjiang@huawei.com>
+Subject: [RPF STABLE PATCH] mm/memfd: should be lock the radix_tree when iterating its slot
+Date:   Thu, 24 Oct 2019 23:03:20 +0800
+Message-ID: <1571929400-12147-1-git-send-email-zhongjiang@huawei.com>
+X-Mailer: git-send-email 1.7.12.4
 MIME-Version: 1.0
-In-Reply-To: <20191024142519.GA3881@linux.intel.com>
-Content-Language: en-US
-X-MC-Unique: ClHpqv9-OreWZoqfqWOZUg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Originating-IP: [10.175.102.37]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Recently, We test an linux 4.19 stable and find the following issue.
 
-On 24-10-2019 16:25, Jarkko Sakkinen wrote:
-> On Wed, Oct 23, 2019 at 04:32:57PM +0200, Hans de Goede wrote:
->> Hi,
->>
->> On 23-10-2019 13:37, Jarkko Sakkinen wrote:
->>> On Mon, Oct 21, 2019 at 05:56:56PM +0200, Hans de Goede wrote:
->>>> Hi,
->>>>
->>>> On 21-10-2019 17:49, Jarkko Sakkinen wrote:
->>>>> On Sat, Oct 19, 2019 at 11:45:28AM +0200, Hans de Goede wrote:
->>>>>> Since commit 7723f4c5ecdb ("driver core: platform: Add an error mess=
-age to
->>>>>> platform_get_irq*()"), platform_get_irq() will call dev_err() on an =
-error,
->>>>>> as the IRQ usage in the tpm_tis driver is optional, this is undesira=
-ble.
->>>>>>
->>>>>> Specifically this leads to this new false-positive error being logge=
-d:
->>>>>> [    5.135413] tpm_tis MSFT0101:00: IRQ index 0 not found
->>>>>>
->>>>>> This commit switches to platform_get_irq_optional(), which does not =
-log
->>>>>> an error, fixing this.
->>>>>>
->>>>>> Cc: <stable@vger.kernel.org> # 5.4.x
->>>>>
->>>>> Incorrect format (should be wo '<' and '>').
->>>>
->>>> According to:
->>>>
->>>> https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.htm=
-l
->>>>
->>>> the '<' and '>' should be added when adding a # <kerner>
->>>
->>> OK, right so it was. This first patch that I'm reviewing with such
->>> commit.
->>>
->>>>> Also, not sure why this should be backported to stable kernel anyway.
->>>>
->>>> Because false-positive error messages are bad and cause users to
->>>> file false-positive bug-reports.
->>>
->>> Neither categorizes into a regression albeit being unfortunate
->>> glitches.
->>
->> The stable series also does other small fixes, such as adding new
->> pci/usb-ids, etc. This clearly falls within this. IMHO ideally this
->> should go to a 5.4-rc# making the whole discussion moot, but since
->> I was afraid it would not make 5.4, I added the Cc: stable.
->=20
-> I get adding PCI/USB id as it extends the hardware support for the
-> stable kernel without risking its stability. This patch is factors
-> less useful.
+kernel BUG at lib/radix-tree.c:1429!
+invalid opcode: 0000 [#1] SMP KASAN PTI
+CPU: 7 PID: 6935 Comm: syz-executor.2 Not tainted 4.19.36 #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:radix_tree_tag_set+0x200/0x2f0 lib/radix-tree.c:1429
+Code: 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 44 24 10 e8 a3 29 7e fe 48 8b 44 24 10 48 0f ab 03 e9 d2 fe ff ff e8 90 29 7e fe <0f> 0b 48 c7 c7 e0 5a 87 84 e8 f0 e7 08 ff 4c 89 ef e8 4a ff ac fe
+RSP: 0018:ffff88837b13fb60 EFLAGS: 00010016
+RAX: 0000000000040000 RBX: ffff8883c5515d58 RCX: ffffffff82cb2ef0
+RDX: 0000000000000b72 RSI: ffffc90004cf2000 RDI: ffff8883c5515d98
+RBP: ffff88837b13fb98 R08: ffffed106f627f7e R09: ffffed106f627f7e
+R10: 0000000000000001 R11: ffffed106f627f7d R12: 0000000000000004
+R13: ffffea000d7fea80 R14: 1ffff1106f627f6f R15: 0000000000000002
+FS:  00007fa1b8df2700(0000) GS:ffff8883e2fc0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa1b8df1db8 CR3: 000000037d4d2001 CR4: 0000000000160ee0
+Call Trace:
+ memfd_tag_pins mm/memfd.c:51 [inline]
+ memfd_wait_for_pins+0x2c5/0x12d0 mm/memfd.c:81
+ memfd_add_seals mm/memfd.c:215 [inline]
+ memfd_fcntl+0x33d/0x4a0 mm/memfd.c:247
+ do_fcntl+0x589/0xeb0 fs/fcntl.c:421
+ __do_sys_fcntl fs/fcntl.c:463 [inline]
+ __se_sys_fcntl fs/fcntl.c:448 [inline]
+ __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:448
+ do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:293
 
-It also has about 0% chance of causing regressions and it does
-help to avoid false--positive bug reports.
+By reviewing the code, I find that there is an race between iterate
+the radix_tree and radix_tree_insert/delete. Because the former just
+access its slot in rcu protected period. but it fails to prevent the
+radix_tree from being changed.
 
-TBH I'm quite surprised we are even having this discussion...
+Cc: stable@vger.kernel.org
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+---
+ mm/memfd.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-Regards,
-
-Hans
+diff --git a/mm/memfd.c b/mm/memfd.c
+index 2bb5e25..0b3fedc 100644
+--- a/mm/memfd.c
++++ b/mm/memfd.c
+@@ -37,8 +37,8 @@ static void memfd_tag_pins(struct address_space *mapping)
+ 
+ 	lru_add_drain();
+ 	start = 0;
+-	rcu_read_lock();
+ 
++	xa_lock_irq(&mapping->i_pages);
+ 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
+ 		page = radix_tree_deref_slot(slot);
+ 		if (!page || radix_tree_exception(page)) {
+@@ -47,18 +47,16 @@ static void memfd_tag_pins(struct address_space *mapping)
+ 				continue;
+ 			}
+ 		} else if (page_count(page) - page_mapcount(page) > 1) {
+-			xa_lock_irq(&mapping->i_pages);
+ 			radix_tree_tag_set(&mapping->i_pages, iter.index,
+ 					   MEMFD_TAG_PINNED);
+-			xa_unlock_irq(&mapping->i_pages);
+ 		}
+ 
+ 		if (need_resched()) {
+ 			slot = radix_tree_iter_resume(slot, &iter);
+-			cond_resched_rcu();
++			cond_resched_lock(&mapping->i_pages.xa_lock);
+ 		}
+ 	}
+-	rcu_read_unlock();
++	xa_unlock_irq(&mapping->i_pages);
+ }
+ 
+ /*
+-- 
+1.7.12.4
 
