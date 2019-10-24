@@ -2,114 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A26EBE28C8
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 05:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21724E2943
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 06:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404055AbfJXDZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 23:25:39 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:39026 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390629AbfJXDZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 23:25:39 -0400
-Received: by mail-pl1-f194.google.com with SMTP id s17so11117918plp.6;
-        Wed, 23 Oct 2019 20:25:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=hL+v0VkC8nJZ/yYasVVgoGkbvgueSaBBRK1E46vpngU=;
-        b=cfP9jwhqOFa3Vyoo5fskQENeWHMYsaigLQ8xtjIEM5zJoA+Rq1Ue06Np5/krsZaMIw
-         l/EQ2wbVLdCWYJAt1DcFCMNA8NIGRky3whO9LVAAQAALv9qr/uUgTVJveuDwr279TvN1
-         JX9y/RURDl96/B5aq8Lxyzzg96YbhzeARNUhFz8ehVls68FvU1lMOVk6nlrr0OyHTO1/
-         LO3bhuZgjxvH3RwjXK1nHRmHbfVs+dxy7T6w6t7ukMsrbfg+71lHzCG8Mcb7PNijQf38
-         Yz80yF8KKyRWQTW1UNKIgpv9V76hX4cVKry9PQzlVlQIydVnuQBKc6XKE6GsT3tBd6EP
-         9eLQ==
+        id S1725881AbfJXEGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 00:06:09 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:46474 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725811AbfJXEGJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 00:06:09 -0400
+Received: by mail-pg1-f196.google.com with SMTP id e15so13376130pgu.13;
+        Wed, 23 Oct 2019 21:06:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=hL+v0VkC8nJZ/yYasVVgoGkbvgueSaBBRK1E46vpngU=;
-        b=r1gVwusupyRKxHXRvJ0jn/KucEChKkTrmaqZLV8/Z1l7QZg+h0/4ZgzYdErGbiIRPw
-         SqIKAM0eAMOB693Rz2xDv3bUBE3CpMHOOxYL1J27lhnYkELCYVjq5VRC88BWvaMIfJL/
-         3VNH05WfhqlCSQSGPibOtgdC7bJ8CIDSDt9ZhgoarOPDloWgTaWzW5zLkucjsVB1pLn3
-         4cT/k1YjqZtJlMv05P76AEFFcYg1zzJ6J5GnzE2Yj+jsdbT5aOpOC2W4kRsTbKH3nyaE
-         vfKS9TLqVOp8xGVsxk1SGi41hD4pprUgzemyUYxE14NCK7MMFevIuaDAYRNlNa7qWql6
-         tBfg==
-X-Gm-Message-State: APjAAAWiAisnC0GwYAYkv5t6UZ600A9hogWXqJb2PL6H2pVmC1f14zMd
-        FesRu+2z+nqtyqSHHgsmKk4=
-X-Google-Smtp-Source: APXvYqzbPeO9Sylf2UWrSs/mFlQJikvRlBtwZ0Ytzy9PU0f4W4+Z/AVwT9xzRUzfQkBXgjOJgWK+Hg==
-X-Received: by 2002:a17:902:524:: with SMTP id 33mr13606140plf.123.1571887538912;
-        Wed, 23 Oct 2019 20:25:38 -0700 (PDT)
-Received: from software.domain.org ([66.42.68.162])
-        by smtp.gmail.com with ESMTPSA id y10sm23642731pfe.148.2019.10.23.20.25.31
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 23 Oct 2019 20:25:38 -0700 (PDT)
-From:   Huacai Chen <chenhc@lemote.com>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        chenhuacai@gmail.com, linux-kernel@vger.kernel.org,
-        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH] timekeeping/vsyscall: Update vdso data unconditionally
-Date:   Thu, 24 Oct 2019 11:28:29 +0800
-Message-Id: <1571887709-11447-1-git-send-email-chenhc@lemote.com>
-X-Mailer: git-send-email 2.7.0
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=atI3gS2MGyIOjrTR3VunsKklUxG6dRrAl/pbBtzsoWc=;
+        b=mmj2bmcy+JWI/uUf9GNnYjUK9DAwI76y/91IqmvFESwdIyvy/6ySLAQ/u8wKznhQ2r
+         QxHwYtbsAdPqQ2IS41S5Ih4Xav4Ig1H0flttKRwmjmE6uG2WVSXICYTYAfTbHYMclSsu
+         x9UqpOndh0xGHy90bagZ4AWwFXK1VN5BcSXEuOcZaBvMcqmYBg5bC19pCQ93ZQRucHFR
+         hjscDb0V4nOVDmV5vf5gnGevqHi9iarwvlpYy0qonUZ1DQ6gHSEsK+/ly3DEM+GvgZkr
+         ZUol4j5oQgN9dq2d0yln8XWSBydUbkL7xSQhwEtX9X8L/WppC37M1iRQcDCpjKUgISco
+         It6A==
+X-Gm-Message-State: APjAAAUVF+QnmDCxdWG3Tb5f0ZU0ywu97k4nJTjjA8QMLnSDhPOCsbfu
+        /TYW4G0yjz5SNJnq5kTqWaBmpeodkR9Frw==
+X-Google-Smtp-Source: APXvYqzFD35dvIj1is9aDYIJkqFuwSM9EbPEVTCqFA/d/Fsrill3EaFOFte4LDEAQR5p3TYTnG5Q/w==
+X-Received: by 2002:a63:f854:: with SMTP id v20mr8946190pgj.92.1571889968341;
+        Wed, 23 Oct 2019 21:06:08 -0700 (PDT)
+Received: from localhost ([2601:646:8a00:9810:5af3:56d9:f882:39d4])
+        by smtp.gmail.com with ESMTPSA id l62sm26476097pfl.167.2019.10.23.21.06.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Oct 2019 21:06:07 -0700 (PDT)
+Date:   Wed, 23 Oct 2019 21:06:24 -0700
+From:   Paul Burton <paulburton@kernel.org>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     linux-mips@vger.kernel.org, paul.burton@mips.com,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] MIPS: elf_hwcap: Export microMIPS and vz
+Message-ID: <20191024040624.eezpuusvhujfffud@lantea.localdomain>
+References: <20191023152551.10535-1-jiaxun.yang@flygoat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20191023152551.10535-1-jiaxun.yang@flygoat.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In do_hres(), we currently use whether the return value of __arch_get_
-hw_counter() is negative to indicate fallback, but MIPS returns 0 when
-clock_mode is invalid.
+Hi Jiaxun,
 
-It is sure that MIPS has a bug when clock_mode is invalid and should
-return ULL_MAX as ARM64 does (Vincenzo has already submitted a patch).
-But at the time we found another bug: currently update_vsyscall() and
-update_vsyscall_tz() rely on __arch_use_vsyscall() to update the vdso
-data, which causes __cvdso_clock_getres() and some other functions get
-wrong results when clock_mode is invalid. So, in this patch we update
-vdso data unconditionally.
+On Wed, Oct 23, 2019 at 11:25:51PM +0800, Jiaxun Yang wrote:
+> After further discussion with userland library develpoer,
+> we addressed another two ASEs that can be used runtimely in programs.
+> 
+> Export them in hwcap as well to benefit userspace programs.
+> 
+> Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> Cc: <stable@vger.kernel.org> # 4.4+
+> ---
+>  arch/mips/include/uapi/asm/hwcap.h | 2 ++
+>  arch/mips/kernel/cpu-probe.c       | 7 ++++++-
+>  2 files changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
+> index 1ade1daa4921..e1a9bac62149 100644
+> --- a/arch/mips/include/uapi/asm/hwcap.h
+> +++ b/arch/mips/include/uapi/asm/hwcap.h
+> @@ -17,5 +17,7 @@
+>  #define HWCAP_LOONGSON_MMI  (1 << 11)
+>  #define HWCAP_LOONGSON_EXT  (1 << 12)
+>  #define HWCAP_LOONGSON_EXT2 (1 << 13)
+> +#define HWCAP_MIPS_MICROMIPS (1 << 14)
+> +#define HWCAP_MIPS_VZ       (1 << 15)
 
-Fixes: 44f57d788e7deecb50 ("timekeeping: Provide a generic update_vsyscall() implementation")
-Cc: stable@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- kernel/time/vsyscall.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+What's the motivation for exposing VZ? Userland can't actually use it
+without something like KVM, which already exposes a means of detecting
+whether VZ is supported (try the creating a VM of type KVM_VM_MIPS_VZ &
+see if it works). I'm not sure what userland would be able to do with
+this information in AT_HWCAP.
 
-diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
-index 4bc37ac..5ee0f77 100644
---- a/kernel/time/vsyscall.c
-+++ b/kernel/time/vsyscall.c
-@@ -110,8 +110,7 @@ void update_vsyscall(struct timekeeper *tk)
- 	nsec		= nsec + tk->wall_to_monotonic.tv_nsec;
- 	vdso_ts->sec	+= __iter_div_u64_rem(nsec, NSEC_PER_SEC, &vdso_ts->nsec);
- 
--	if (__arch_use_vsyscall(vdata))
--		update_vdso_data(vdata, tk);
-+	update_vdso_data(vdata, tk);
- 
- 	__arch_update_vsyscall(vdata, tk);
- 
-@@ -124,10 +123,8 @@ void update_vsyscall_tz(void)
- {
- 	struct vdso_data *vdata = __arch_get_k_vdso_data();
- 
--	if (__arch_use_vsyscall(vdata)) {
--		vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
--		vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
--	}
-+	vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
-+	vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
- 
- 	__arch_sync_vdso_data(vdata);
- }
--- 
-2.7.0
+Thanks,
+    Paul
 
+>  #endif /* _UAPI_ASM_HWCAP_H */
+> diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+> index f521cbf934e7..11e853d88aae 100644
+> --- a/arch/mips/kernel/cpu-probe.c
+> +++ b/arch/mips/kernel/cpu-probe.c
+> @@ -2213,8 +2213,13 @@ void cpu_probe(void)
+>  	if (cpu_has_loongson_ext2)
+>  		elf_hwcap |= HWCAP_LOONGSON_EXT2;
+>  
+> -	if (cpu_has_vz)
+> +	if (cpu_has_mmips)
+> +		elf_hwcap |= HWCAP_MIPS_MICROMIPS;
+> +
+> +	if (cpu_has_vz) {
+> +		elf_hwcap |= HWCAP_MIPS_VZ;
+>  		cpu_probe_vz(c);
+> +	}
+>  
+>  	cpu_probe_vmbits(c);
+>  
+> -- 
+> 2.23.0
+> 
