@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 631D8E3EA7
+	by mail.lfdr.de (Postfix) with ESMTP id D2C8DE3EA9
 	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 23:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729852AbfJXV5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 17:57:34 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:48985 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729853AbfJXV5d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 17:57:33 -0400
+        id S1729792AbfJXV5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 17:57:35 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45583 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729864AbfJXV5e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 17:57:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1571954252;
+        s=mimecast20190719; t=1571954253;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=tgKcp/UQQkirFK3j3v0j43XKjPdGb1ZdrCxUT50lT/k=;
-        b=R94kkVBVpLp1aMl79OFMAjWIAs3KeiEPncOPnJVFIAAvOyhPMtSlNlVjle7sSuqzNk3Z2r
-        yP6MtS/Ws8qSHE887SNW+v0twJnQc+ZQNstVu1BhyqGP5vRazWcNtQxTLZS90pUi3W9nHT
-        XDOP3lS/1pES4HTmBwJh11Tw0J+phSM=
+        bh=Wc2f957ihR4qVmijz8Bcsmg1DjiYTsCTZfFe1hx3SBs=;
+        b=BsKP6tjJ9WZZKDliPPBoO3Yn2Z/iZVVpGM1e4Q6OlMJYV0vJoThVYgcOTVHfxbl24bC5iA
+        5i3t3IfUdH5xX9Jkfbl1bQN6hFNuBpTjPafGwoY6eHok6cTSeAcgWiRHdpUeMERmCZyAe6
+        Eg8R7cqOPZV/2z9yFVIF0VngZ9ZfS7Q=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-256-3KWzjhRVO4mRKAVwwKl9ng-1; Thu, 24 Oct 2019 17:57:28 -0400
+ us-mta-92-R30luP0GMFmUkJCnRAw7xg-1; Thu, 24 Oct 2019 17:57:30 -0400
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8C4021005500;
-        Thu, 24 Oct 2019 21:57:27 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 43CDB1800D6B;
+        Thu, 24 Oct 2019 21:57:29 +0000 (UTC)
 Received: from shalem.localdomain.com (unknown [10.36.118.40])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2A3756092D;
-        Thu, 24 Oct 2019 21:57:26 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D2F4D608C1;
+        Thu, 24 Oct 2019 21:57:27 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
         Len Brown <lenb@kernel.org>
@@ -39,14 +39,14 @@ Cc:     Hans de Goede <hdegoede@redhat.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
         linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 2/3] ACPI / LPSS: Add LNXVIDEO -> BYT I2C1 to lpss_device_links
-Date:   Thu, 24 Oct 2019 23:57:22 +0200
-Message-Id: <20191024215723.145922-2-hdegoede@redhat.com>
+Subject: [PATCH v3 3/3] ACPI / LPSS: Add dmi quirk for skipping _DEP check for some device-links
+Date:   Thu, 24 Oct 2019 23:57:23 +0200
+Message-Id: <20191024215723.145922-3-hdegoede@redhat.com>
 In-Reply-To: <20191024215723.145922-1-hdegoede@redhat.com>
 References: <20191024215723.145922-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: 3KWzjhRVO4mRKAVwwKl9ng-1
+X-MC-Unique: R30luP0GMFmUkJCnRAw7xg-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
@@ -55,10 +55,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Various Asus Bay Trail devices (T100TA, T100CHI, T200TA) have an embedded
-controller connected to I2C1 and the iGPU (LNXVIDEO) _PS0/_PS3 methods
-access it, so we need to add a consumer link from LNXVIDEO to I2C1 on
-these devices to avoid suspend/resume ordering problems.
+The iGPU / GFX0 device's _PS0 method on the ASUS T200TA depends on the
+I2C1 controller (which is connected to the embedded controller). But unlike
+in the T100TA/T100CHI this dependency is not listed in the _DEP of the GFX0
+device.
+
+This results in the dev_WARN_ONCE(..., "Transfer while suspended\n") call
+in i2c-designware-master.c triggering and the AML code not working as it
+should.
+
+This commit fixes this by adding a dmi based quirk mechanism for devices
+which miss a _DEP, and adding a quirk for the LNXVIDEO depending on the
+I2C1 device on the Asus T200TA.
 
 Cc: stable@vger.kernel.org
 Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BY=
@@ -71,24 +79,74 @@ Changes in v2:
 Changes in v3:
 -Point Fixes tag to a more apropriate commit
 ---
- drivers/acpi/acpi_lpss.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/acpi_lpss.c | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index e7a4504f0fbf..cd8cf3333f04 100644
+index cd8cf3333f04..751ed38f2a10 100644
 --- a/drivers/acpi/acpi_lpss.c
 +++ b/drivers/acpi/acpi_lpss.c
-@@ -477,6 +477,8 @@ static const struct lpss_device_links lpss_device_links=
+@@ -10,6 +10,7 @@
+ #include <linux/acpi.h>
+ #include <linux/clkdev.h>
+ #include <linux/clk-provider.h>
++#include <linux/dmi.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+ #include <linux/mutex.h>
+@@ -463,6 +464,18 @@ struct lpss_device_links {
+ =09const char *consumer_hid;
+ =09const char *consumer_uid;
+ =09u32 flags;
++=09const struct dmi_system_id *dep_missing_ids;
++};
++
++/* Please keep this list sorted alphabetically by vendor and model */
++static const struct dmi_system_id i2c1_dep_missing_dmi_ids[] =3D {
++=09{
++=09=09.matches =3D {
++=09=09=09DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++=09=09=09DMI_MATCH(DMI_PRODUCT_NAME, "T200TA"),
++=09=09},
++=09},
++=09{}
+ };
+=20
+ /*
+@@ -478,7 +491,8 @@ static const struct lpss_device_links lpss_device_links=
 [] =3D {
- =09{"808622C1", "7", "80860F14", "3", DL_FLAG_PM_RUNTIME},
  =09/* CHT iGPU depends on PMIC I2C controller */
  =09{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
-+=09/* BYT iGPU depends on the Embedded Controller I2C controller (UID 1) *=
+ =09/* BYT iGPU depends on the Embedded Controller I2C controller (UID 1) *=
 /
-+=09{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+-=09{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++=09{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME,
++=09 i2c1_dep_missing_dmi_ids},
  =09/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
  =09{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
  =09/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
+@@ -577,7 +591,8 @@ static void acpi_lpss_link_consumer(struct device *dev1=
+,
+ =09if (!dev2)
+ =09=09return;
+=20
+-=09if (acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
++=09if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
++=09    || acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
+ =09=09device_link_add(dev2, dev1, link->flags);
+=20
+ =09put_device(dev2);
+@@ -592,7 +607,8 @@ static void acpi_lpss_link_supplier(struct device *dev1=
+,
+ =09if (!dev2)
+ =09=09return;
+=20
+-=09if (acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
++=09if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
++=09    || acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
+ =09=09device_link_add(dev1, dev2, link->flags);
+=20
+ =09put_device(dev2);
 --=20
 2.23.0
 
