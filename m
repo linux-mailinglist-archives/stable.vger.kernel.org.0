@@ -2,56 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D3FE27BD
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 03:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86E3FE27CF
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 03:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392609AbfJXBbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 21:31:31 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:33955 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726925AbfJXBba (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 21:31:30 -0400
-Received: by mail-pl1-f194.google.com with SMTP id k7so11021116pll.1
-        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 18:31:30 -0700 (PDT)
+        id S2405818AbfJXBrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 21:47:37 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:42757 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726925AbfJXBrg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 21:47:36 -0400
+Received: by mail-pg1-f193.google.com with SMTP id f14so13196715pgi.9
+        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 18:47:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=ozlabs-ru.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:autocrypt:message-id:date:user-agent
+        h=subject:from:to:cc:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=arF3YmYTeGOymWEryZyzJhsK75nsBwwo2INIrx/ufRQ=;
-        b=LUALCt9h2NVU5Imdt5RbHKdn9ROO0oO2ZIg7thR62m0PyjX8CC6OPJp/1py9q9ZZI+
-         aMa/YqPdDdUr2c49eyt+ClBVMYr6igZINRBxUXTmmXYQ1CM9LTaZWjYCB2KWZWwB465K
-         X9cA4/O8IH3E4vjd2OqCk3Dt9e+Jc4w2sD9X9O8+i0ksF0Cse3fKhTyhB1tUAx3CbwFH
-         S2sGD4eBL8iuYuUoTutLeLwNt/VPFMXcmdwFqvYiiKNnyqjuqGR6TyflvC8SL+VZVflF
-         H31COkbBDOuRwIDnV/DGKovZTn6Z+Xr0sG8PqjXrTd4G+A2OjL0xCVXTAkBJvLpK4kFE
-         w4jw==
+        bh=l4mk6xdzcdFwbnFZaJqBOaEwkFm4xUTf8OpC4c8be40=;
+        b=rQHcmHFFFmraME4Dhk1CzyWCn4h3Jc0aU7IsKp5PM5KSt9LfoN2Y/JnN5ot88WjgC6
+         4Kvq+mC0WiN93Ow9PL70uZ7qURzfjBNmjcm7B5cyKko+Wh/pKhOPpb+pcFcVOIbBmNcc
+         yj9soIHqbgww7pnY/nzqZdCqCrHhW/HA4PuNCdjHZhyQLccr4oW93Iz624IScsxa/URb
+         /BDyAEn4Naq4P/Tc06kKgEbcxm0j7oE8BxqcvksNPl1qHT4CSXD7j2192IQ3q3O+IJ8r
+         fHeQM5xgRfnJhXadzqM89pMqO6P+MAjmxwKlcKypGxu3Kac9vJ/iuNDjE7Ob0E9dxsCc
+         c1/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:autocrypt
+        h=x-gm-message-state:subject:from:to:cc:references:autocrypt
          :message-id:date:user-agent:mime-version:in-reply-to
          :content-language:content-transfer-encoding;
-        bh=arF3YmYTeGOymWEryZyzJhsK75nsBwwo2INIrx/ufRQ=;
-        b=meoA7bQzsdkNzDA23hHKi7VWtmhNNSSFC63O92PH/l0dskysnhWo0Pvrh+EmFQLZFS
-         gX+N/P2OSABAbKBsSN0Kj3H/Ju66Ytkk0OsCWRSaT4q/tLU/sTDtgAbPIjx7uQ0F+R7h
-         ghl2sho9hnu1cSI32SkG68bSvWNLug9sOCJAifyf8NXsoJ3CZMVpjwl7HrYvOjXQCiAD
-         d2GWpFOhOdnVydUaj0bk21O2537LbfiG9XAauXNcfQKM9pZp3g2s1OPlnENlZJQDjDrp
-         9WpjezvX4Yep9UpQAGCtfqMfLDzaTOOxtzBdEiG912MzYBPOZ4V+Agk458KNuLXQikGb
-         8epQ==
-X-Gm-Message-State: APjAAAV6mV561RxKBkxDPRRT+6ARUi9djUCkbSygjM33f/hRc8vBdpRO
-        ixkjMDMB6/sUDFpPSMx9klSmW2BQBR8=
-X-Google-Smtp-Source: APXvYqxZ7M530jyFEeOny9b9BTeRErzdOEMAs7WU2ofmXdGAz9lpgOaICBqSf6rofiksH9TotOPh/g==
-X-Received: by 2002:a17:902:bf43:: with SMTP id u3mr6892435pls.339.1571880689327;
-        Wed, 23 Oct 2019 18:31:29 -0700 (PDT)
+        bh=l4mk6xdzcdFwbnFZaJqBOaEwkFm4xUTf8OpC4c8be40=;
+        b=eMHDCXKMXmwcZ3JybJe5zpE0v62rCfIhuvSXryI/WsBHFlEP/tEExxZzsdgJ7kygnQ
+         8bb5evowDyeCKGjJXwzOYCM8caAB7+RMkq1XdDSygexdDVzfQgtiKtZO2cPqSkHfAqAH
+         zz8GpuUDLcfPRF9XS1DY0mCLzYhyOGMe+03j+ECMqapmjlUHFCrsIgiB7XXhenaapJqg
+         xLA1+NsANnTHpZj/bPOjipwDi8w0GOGkWgd9aOp/hcvV6FRqN1Yf82WNRCZXdUIj/z+Y
+         dHIUB5vOvXyybSO6O+ldn0HC2CKW0yYmQJA54022IeCKrsyfD/RViF2sY7MDRnFb+nL9
+         u7Bg==
+X-Gm-Message-State: APjAAAU05EkFoQq0FJ9KQHpUq0E+GPkjCYHB3jBagPXozpdVyo4N2AIb
+        zrm64sDCAjfcyefQW6O0jJxBtPF2VOc=
+X-Google-Smtp-Source: APXvYqwI8+jaTROvm8Pbr+xhoH6wWtSDvm07HkhyQoUlon1JL5bdolS1hSNhKqPRjRUQ6W0aZgLjQA==
+X-Received: by 2002:a63:dc45:: with SMTP id f5mr13563549pgj.250.1571881653936;
+        Wed, 23 Oct 2019 18:47:33 -0700 (PDT)
 Received: from [10.61.2.175] ([122.99.82.10])
-        by smtp.gmail.com with ESMTPSA id o185sm31921345pfg.136.2019.10.23.18.31.26
+        by smtp.gmail.com with ESMTPSA id d2sm151318pgf.10.2019.10.23.18.47.30
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Oct 2019 18:31:28 -0700 (PDT)
+        Wed, 23 Oct 2019 18:47:33 -0700 (PDT)
 Subject: Re: [PATCH] powerpc/boot: Fix the initrd being overwritten under qemu
+From:   Alexey Kardashevskiy <aik@ozlabs.ru>
 To:     Segher Boessenkool <segher@kernel.crashing.org>,
         Oliver O'Halloran <oohall@gmail.com>
 Cc:     linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org
 References: <20191023013635.2512-1-oohall@gmail.com>
  <20191023112102.GN28442@gate.crashing.org>
-From:   Alexey Kardashevskiy <aik@ozlabs.ru>
+ <90a0f702-6891-cd14-f190-5682d7c3778e@ozlabs.ru>
 Autocrypt: addr=aik@ozlabs.ru; keydata=
  mQINBE+rT0sBEADFEI2UtPRsLLvnRf+tI9nA8T91+jDK3NLkqV+2DKHkTGPP5qzDZpRSH6mD
  EePO1JqpVuIow/wGud9xaPA5uvuVgRS1q7RU8otD+7VLDFzPRiRE4Jfr2CW89Ox6BF+q5ZPV
@@ -125,12 +126,12 @@ Autocrypt: addr=aik@ozlabs.ru; keydata=
  c7E5M+/NpslPCmYnDjs5qg0/3ihh6XuOGggZQOqrYPC3PnsNs3NxirwOkVPQgO6mXxpuifvJ
  DG9EMkK8IBXnLulqVk54kf7fE0jT/d8RTtJIA92GzsgdK2rpT1MBKKVffjRFGwN7nQVOzi4T
  XrB5p+6ML7Bd84xOEGsj/vdaXmz1esuH7BOZAGEZfLRCHJ0GVCSssg==
-Message-ID: <90a0f702-6891-cd14-f190-5682d7c3778e@ozlabs.ru>
-Date:   Thu, 24 Oct 2019 12:31:24 +1100
+Message-ID: <93379f35-4c64-6992-cab5-01705f528912@ozlabs.ru>
+Date:   Thu, 24 Oct 2019 12:47:25 +1100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.2
 MIME-Version: 1.0
-In-Reply-To: <20191023112102.GN28442@gate.crashing.org>
+In-Reply-To: <90a0f702-6891-cd14-f190-5682d7c3778e@ozlabs.ru>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -141,59 +142,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 23/10/2019 22:21, Segher Boessenkool wrote:
-> On Wed, Oct 23, 2019 at 12:36:35PM +1100, Oliver O'Halloran wrote:
->> When booting under OF the zImage expects the initrd address and size to be
->> passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
->> currently doesn't do this so the zImage is not aware of the initrd
->> location.  This can result in initrd corruption either though the zImage
->> extracting the vmlinux over the initrd, or by the vmlinux overwriting the
->> initrd when relocating itself.
+On 24/10/2019 12:31, Alexey Kardashevskiy wrote:
+> 
+> 
+> On 23/10/2019 22:21, Segher Boessenkool wrote:
+>> On Wed, Oct 23, 2019 at 12:36:35PM +1100, Oliver O'Halloran wrote:
+>>> When booting under OF the zImage expects the initrd address and size to be
+>>> passed to it using registers r3 and r4. SLOF (guest firmware used by QEMU)
+>>> currently doesn't do this so the zImage is not aware of the initrd
+>>> location.  This can result in initrd corruption either though the zImage
+>>> extracting the vmlinux over the initrd, or by the vmlinux overwriting the
+>>> initrd when relocating itself.
+>>>
+>>> QEMU does put the linux,initrd-start and linux,initrd-end properties into
+>>> the devicetree to vmlinux to find the initrd. We can work around the SLOF
+>>> bug by also looking those properties in the zImage.
 >>
->> QEMU does put the linux,initrd-start and linux,initrd-end properties into
->> the devicetree to vmlinux to find the initrd. We can work around the SLOF
->> bug by also looking those properties in the zImage.
+>> This is not a bug.  What boot protocol requires passing the initrd start
+>> and size in GPR3, GPR4?
 > 
-> This is not a bug.  What boot protocol requires passing the initrd start
-> and size in GPR3, GPR4?
-
-So far I was unable to identify it...
-
-> The CHRP binding (what SLOF implements) requires passing two zeroes here.
-> And ePAPR requires passing the address of a device tree and a zero, plus
-> something in GPR6 to allow distinguishing what it does.
+> So far I was unable to identify it...
 > 
-> As Alexey says, initramfs works just fine, so please use that?  initrd was
-> deprecated when this code was written already.
+>> The CHRP binding (what SLOF implements) requires passing two zeroes here.
+>> And ePAPR requires passing the address of a device tree and a zero, plus
+>> something in GPR6 to allow distinguishing what it does.
+>>
+>> As Alexey says, initramfs works just fine, so please use that?  initrd was
+>> deprecated when this code was written already.
+> 
+> I did not say about anything working fine :)
+> 
+> In my case I was using a new QEMU which does full FDT on client-arch-support and that thing would put the original
+> linux,initrd-start/end to the FDT even though the initrd was unpacked and the properties were changes in SLOF. With that
+> fixed, this is an alternative fix for SLOF but I am not pushing it out as I have no idea about the bindings and this
+> also breaks "vmlinux".
 
-I did not say about anything working fine :)
 
-In my case I was using a new QEMU which does full FDT on client-arch-support and that thing would put the original
-linux,initrd-start/end to the FDT even though the initrd was unpacked and the properties were changes in SLOF. With that
-fixed, this is an alternative fix for SLOF but I am not pushing it out as I have no idea about the bindings and this
-also breaks "vmlinux".
+ah no, that works for vmlinux as well. Hm.
 
 
-diff --git a/slof/fs/client.fs b/slof/fs/client.fs
-index 8a7f6ac4326d..138177e4c2a3 100644
---- a/slof/fs/client.fs
-+++ b/slof/fs/client.fs
-@@ -45,6 +45,17 @@ VARIABLE  client-callback \ Address of client's callback function
-   >r  ciregs >r7 !  ciregs >r6 !  client-entry-point @ ciregs >r5 !
-   \ Initialise client-stack-pointer
-   cistack ciregs >r1 !
-+
-+  s" linux,initrd-end" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
-+  s" linux,initrd-start" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
-+  2dup - dup IF
-+    ciregs >r4 !
-+    ciregs >r3 !
-+    drop
-+  ELSE
-+    3drop
-+  THEN
-+
-
+> 
+> 
+> diff --git a/slof/fs/client.fs b/slof/fs/client.fs
+> index 8a7f6ac4326d..138177e4c2a3 100644
+> --- a/slof/fs/client.fs
+> +++ b/slof/fs/client.fs
+> @@ -45,6 +45,17 @@ VARIABLE  client-callback \ Address of client's callback function
+>    >r  ciregs >r7 !  ciregs >r6 !  client-entry-point @ ciregs >r5 !
+>    \ Initialise client-stack-pointer
+>    cistack ciregs >r1 !
+> +
+> +  s" linux,initrd-end" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
+> +  s" linux,initrd-start" get-chosen IF decode-int -rot 2drop ELSE 0 THEN
+> +  2dup - dup IF
+> +    ciregs >r4 !
+> +    ciregs >r3 !
+> +    drop
+> +  ELSE
+> +    3drop
+> +  THEN
+> +
+> 
+> 
 
 -- 
 Alexey
