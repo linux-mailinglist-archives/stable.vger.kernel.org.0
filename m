@@ -2,103 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3513E3BD2
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 21:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B45BE3C05
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 21:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392909AbfJXTLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 15:11:33 -0400
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:42063 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390786AbfJXTLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 15:11:33 -0400
-Received: by mail-qk1-f194.google.com with SMTP id m4so7539597qke.9
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 12:11:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Ks1e0HacBXB8L5bemV2sH9KBhSB1vMv/PFafjR7LxiI=;
-        b=GJe2G3KtpfbNJJuUouQKkkv3hltvAH3sCIZDE1wttL+QTAdIWIvOqdscjRoSUgTb6G
-         Dm93IbJpj1YHW+GkxdBPclgXVveqM98+BctB1PuC7RElcaC2C9mqKX0AAmdyZgNPUUQt
-         w3jhAf1EVaPt++N5pGXZuxgl+O0DbJo2VDc1lE/iXnUobi4r0u/tyQ6L3dZFiQMFnnzY
-         pPx93FBrDfrXcwz0fy3VZdmxxL7xPq2x5ELTJuf+f8bA0pyBT0BbeWT+Ntg2R9aNM1bN
-         vZLOcm7v63c1a5m3LbD5mNj6vwTnZSKpT5vwweKdIaHPJOoYpCeYpDvn2dDlGpLQnYNI
-         m+bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Ks1e0HacBXB8L5bemV2sH9KBhSB1vMv/PFafjR7LxiI=;
-        b=soiiKXx4sItr5gQBh6g2VJrwGnhepXytKnVEQS6aCsDcxYRA4GH3zdrqEM4HtNDMCT
-         7Sq5Ir8GgjRrtU4CHb0MGPVKkxq+YWGLLK8RSjiTx+pGQM9YsBXbHTuj4E3QMxQGRxLe
-         xilOtxg1BRruq+UoFOofP6/vMGzajPolbyE6CqgaHKyYn6vujJ+vUddH5pJ5hfdKg+K5
-         +T6L+Zt5B9wEN8mxlyb8ub54wLqm7vSveXtXQe812gQIBxGZM0l/aoVd2kQtjLwYdQs9
-         P61UffEj4EGoAIGk3PlOnmA9J+ofxrucGpOVWIy9RjB5n/38XJV8Bcq5xpNe6818jLdA
-         Vspw==
-X-Gm-Message-State: APjAAAUG7k3d/yZbJ4Gjy9QEG+5cEeebOuM1c/FOa5vhJNu975xs49Wx
-        9caknc3QJ2uEyMriPhKnqzmvZQ==
-X-Google-Smtp-Source: APXvYqzy93zjMo9026HgWRK2/o7c1akpxq561kc8KDmLR9SugFVZo2L9MH8msJTYcPWhA+VdQ1934g==
-X-Received: by 2002:a05:620a:200f:: with SMTP id c15mr13517958qka.263.1571944292071;
-        Thu, 24 Oct 2019 12:11:32 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-180.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.180])
-        by smtp.gmail.com with ESMTPSA id f21sm12793101qte.36.2019.10.24.12.11.31
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 24 Oct 2019 12:11:31 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1iNiWB-0005Bu-7m; Thu, 24 Oct 2019 16:11:31 -0300
-Date:   Thu, 24 Oct 2019 16:11:31 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Peter Huewe <peterhuewe@gmx.de>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-integrity@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] tpm: Switch to platform_get_irq_optional()
-Message-ID: <20191024191131.GD23952@ziepe.ca>
-References: <20191019094528.27850-1-hdegoede@redhat.com>
- <20191021154942.GB4525@linux.intel.com>
- <80409d36-53fa-d159-d864-51b8495dc306@redhat.com>
- <20191023113733.GB21973@linux.intel.com>
- <d6adeb21-f7b3-5c64-fa32-03a8ee21cc53@redhat.com>
- <20191024142519.GA3881@linux.intel.com>
- <c6a0c3e3-c5c8-80d9-b6b6-bf45d66f4b32@redhat.com>
- <20191024190942.GA12038@linux.intel.com>
+        id S2406102AbfJXTcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 15:32:32 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:55344 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405801AbfJXTcc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 15:32:32 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=vttDbr1v3prfmmWDLzJK+9NKCnOd94v+/MHN5g7eafo=; b=CbE96/yh2YdFVA3lDo3rtgUW1
+        1nKGHL5oUytt+gNKSOzQltYdAVrbAYGCVdJRDWR5ElYjyGcNuSfoi39rOSctuCSd82zqjizgevvl/
+        RItWIKeeCoaAlflHirdSRmTem7K9x/GW5JqAO0MdF/ne4ysAJoQm40sjHSG8N3Yunv5xU=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <broonie@sirena.co.uk>)
+        id 1iNiqP-0003zz-Rk; Thu, 24 Oct 2019 19:32:25 +0000
+Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
+        id 55273274293C; Thu, 24 Oct 2019 20:32:25 +0100 (BST)
+Date:   Thu, 24 Oct 2019 20:32:25 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        "kernelci.org bot" <bot@kernelci.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] spi: Fix NULL pointer when setting SPI_CS_HIGH for GPIO
+ CS
+Message-ID: <20191024193225.GM46373@sirena.co.uk>
+References: <20191024141309.22434-1-gregory.clement@bootlin.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="0+35XlDF45POFHfm"
 Content-Disposition: inline
-In-Reply-To: <20191024190942.GA12038@linux.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191024141309.22434-1-gregory.clement@bootlin.com>
+X-Cookie: Filmed before a live audience.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 24, 2019 at 10:09:42PM +0300, Jarkko Sakkinen wrote:
-> Why do you think that way?
-> 
-> I mean the commit does not even have a fixes line. It already obviously
-> implies that this kind of discussion is mandatory. Your reasoning in
-> this discussion does make sense. The problem is really the commit
-> message supplied.
-> 
-> I'd guess something like this would be more appropriate:
-> 
-> "
-> platform_get_irq() calls dev_err() on an error. As the IRQ usage in the
-> tpm_tis driver is optional, this is undesirable.
-> 
-> Specifically this leads to this new false-positive error being logged:
-> [    5.135413] tpm_tis MSFT0101:00: IRQ index 0 not found
-> 
-> This commit switches to platform_get_irq_optional(), which does not log
-> an error, fixing this.
-> 
-> Fixes: 7723f4c5ecdb ("driver core: platform: Add an error message to platform_get_irq*()"
-> Cc: <stable@vger.kernel.org> # 5.4.x
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> "
 
-This is much better, yes
+--0+35XlDF45POFHfm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Jason
+On Thu, Oct 24, 2019 at 04:13:09PM +0200, Gregory CLEMENT wrote:
+> Even if the flag use_gpio_descriptors is set, it is possible that
+> cs_gpiods was not allocated, which leads to a kernel crash:
+>=20
+> Unable to handle kernel NULL pointer dereference at virtual address 00000=
+000
+> pgd =3D (ptrval)
+> [00000000] *pgd=3D00000000
+> Internal error: Oops: 5 [#1] ARM
+> Modules linked in:
+> CPU: 0 PID: 1 Comm: swapper Tainted: G        W         5.4.0-rc3 #1
+> Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
+> PC is at of_register_spi_device+0x20c/0x38c
+> LR is at __of_find_property+0x3c/0x60
+> pc : [<c09b45dc>]    lr : [<c0c47a98>]    psr: 20000013
+
+Please think hard before including complete backtraces in upstream
+reports, they are very large and contain almost no useful information
+relative to their size so often obscure the relevant content in your
+message. If part of the backtrace is usefully illustrative then it's
+usually better to pull out the relevant sections.
+
+--0+35XlDF45POFHfm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2x/EgACgkQJNaLcl1U
+h9Dc+Qf7BOBELW73o6MOZxD5Uq2/Eahp26z5rN7PMc+EvRwda/BzHGhUTsTrotmX
+ppdm6tsBosW3dH8P6tbwXIIJHO11BO4ma/pbO5ZZloEqeo3Zvxt89+AxZD4roa26
+GEnDMWLNn2Y3L0YENJzNelC3RMBY7sIv7wMgiGZR7qadTFrx6Y3v+VLAEEEsSnA6
+f3AmuiyCWtiNyuhi1gIst/hGeDzLyNOGVJuNfH7SV4RbQVN51k9Cam5JEaBB6NjK
+PTKDGt0u2CGaKQxTZRHb8al+SznFqEk0eKU06KEWpdcPJAOPW24cLVXl2YAb6b2l
+yg1Wz4gE+9D908qKFUl3e+fimC6N+A==
+=pES0
+-----END PGP SIGNATURE-----
+
+--0+35XlDF45POFHfm--
