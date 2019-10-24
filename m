@@ -2,151 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C8DE3EA9
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 23:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E16DE4050
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 01:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729792AbfJXV5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 17:57:35 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45583 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729864AbfJXV5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 17:57:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1571954253;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Wc2f957ihR4qVmijz8Bcsmg1DjiYTsCTZfFe1hx3SBs=;
-        b=BsKP6tjJ9WZZKDliPPBoO3Yn2Z/iZVVpGM1e4Q6OlMJYV0vJoThVYgcOTVHfxbl24bC5iA
-        5i3t3IfUdH5xX9Jkfbl1bQN6hFNuBpTjPafGwoY6eHok6cTSeAcgWiRHdpUeMERmCZyAe6
-        Eg8R7cqOPZV/2z9yFVIF0VngZ9ZfS7Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-92-R30luP0GMFmUkJCnRAw7xg-1; Thu, 24 Oct 2019 17:57:30 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 43CDB1800D6B;
-        Thu, 24 Oct 2019 21:57:29 +0000 (UTC)
-Received: from shalem.localdomain.com (unknown [10.36.118.40])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D2F4D608C1;
-        Thu, 24 Oct 2019 21:57:27 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
+        id S1728146AbfJXXSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 19:18:18 -0400
+Received: from mga06.intel.com ([134.134.136.31]:33007 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726395AbfJXXSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 24 Oct 2019 19:18:18 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 Oct 2019 16:18:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,226,1569308400"; 
+   d="scan'208";a="210255295"
+Received: from cwschule-mobl.amr.corp.intel.com (HELO [10.254.104.186]) ([10.254.104.186])
+  by fmsmga001.fm.intel.com with ESMTP; 24 Oct 2019 16:18:15 -0700
+Subject: Re: [PATCH 1/3] ACPI / LPSS: Add LNXVIDEO -> BYT I2C7 to
+ lpss_device_links
+To:     "Rafael J. Wysocki" <rafael@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Mika Westerberg <mika.westerberg@linux.intel.com>,
-        linux-acpi@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH v3 3/3] ACPI / LPSS: Add dmi quirk for skipping _DEP check for some device-links
-Date:   Thu, 24 Oct 2019 23:57:23 +0200
-Message-Id: <20191024215723.145922-3-hdegoede@redhat.com>
-In-Reply-To: <20191024215723.145922-1-hdegoede@redhat.com>
-References: <20191024215723.145922-1-hdegoede@redhat.com>
+        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>
+References: <20191024212936.144648-1-hdegoede@redhat.com>
+ <CAJZ5v0jDuvEBob93wgYFuz0q1QyraOtxnbs-xqBOM_87jBnKqw@mail.gmail.com>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <5c15fd87-414a-41fb-48a2-11c675ed6cfb@linux.intel.com>
+Date:   Thu, 24 Oct 2019 18:18:15 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: R30luP0GMFmUkJCnRAw7xg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAJZ5v0jDuvEBob93wgYFuz0q1QyraOtxnbs-xqBOM_87jBnKqw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The iGPU / GFX0 device's _PS0 method on the ASUS T200TA depends on the
-I2C1 controller (which is connected to the embedded controller). But unlike
-in the T100TA/T100CHI this dependency is not listed in the _DEP of the GFX0
-device.
 
-This results in the dev_WARN_ONCE(..., "Transfer while suspended\n") call
-in i2c-designware-master.c triggering and the AML code not working as it
-should.
 
-This commit fixes this by adding a dmi based quirk mechanism for devices
-which miss a _DEP, and adding a quirk for the LNXVIDEO depending on the
-I2C1 device on the Asus T200TA.
+On 10/24/19 4:34 PM, Rafael J. Wysocki wrote:
+> On Thu, Oct 24, 2019 at 11:29 PM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> So far on Bay Trail (BYT) we only have been adding a device_link adding
+>> the iGPU (LNXVIDEO) device as consumer for the I2C controller for the
+>> PMIC for I2C5, but the PMIC only uses I2C5 on BYT CR (cost reduced) on
+>> regular BYT platforms I2C7 is used and we were not adding the device_link
+>> sometimes causing resume ordering issues.
+>>
+>> This commit adds LNXVIDEO -> BYT I2C7 to the lpss_device_links table,
+>> fixing this.
+>>
+>> Cc: stable@vger.kernel.org
+> 
+> Thanks for these fixes, but it would be kind of nice to have Fixes:
+> tags for them too.
 
-Cc: stable@vger.kernel.org
-Fixes: 2d71ee0ce72f ("ACPI / LPSS: Add a device link from the GPU to the BY=
-T I2C5 controller")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
--Add Fixes: tag
+Nice, this removes the warnings I saw on Asus T100TA
+[   56.015285] i2c_designware 80860F41:00: Transfer while suspended
 
-Changes in v3:
--Point Fixes tag to a more apropriate commit
----
- drivers/acpi/acpi_lpss.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+Thanks Hans! Feel free to take the following tag for your v2.
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index cd8cf3333f04..751ed38f2a10 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -10,6 +10,7 @@
- #include <linux/acpi.h>
- #include <linux/clkdev.h>
- #include <linux/clk-provider.h>
-+#include <linux/dmi.h>
- #include <linux/err.h>
- #include <linux/io.h>
- #include <linux/mutex.h>
-@@ -463,6 +464,18 @@ struct lpss_device_links {
- =09const char *consumer_hid;
- =09const char *consumer_uid;
- =09u32 flags;
-+=09const struct dmi_system_id *dep_missing_ids;
-+};
-+
-+/* Please keep this list sorted alphabetically by vendor and model */
-+static const struct dmi_system_id i2c1_dep_missing_dmi_ids[] =3D {
-+=09{
-+=09=09.matches =3D {
-+=09=09=09DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+=09=09=09DMI_MATCH(DMI_PRODUCT_NAME, "T200TA"),
-+=09=09},
-+=09},
-+=09{}
- };
-=20
- /*
-@@ -478,7 +491,8 @@ static const struct lpss_device_links lpss_device_links=
-[] =3D {
- =09/* CHT iGPU depends on PMIC I2C controller */
- =09{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
- =09/* BYT iGPU depends on the Embedded Controller I2C controller (UID 1) *=
-/
--=09{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
-+=09{"80860F41", "1", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME,
-+=09 i2c1_dep_missing_dmi_ids},
- =09/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
- =09{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
- =09/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
-@@ -577,7 +591,8 @@ static void acpi_lpss_link_consumer(struct device *dev1=
-,
- =09if (!dev2)
- =09=09return;
-=20
--=09if (acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
-+=09if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
-+=09    || acpi_lpss_dep(ACPI_COMPANION(dev2), ACPI_HANDLE(dev1)))
- =09=09device_link_add(dev2, dev1, link->flags);
-=20
- =09put_device(dev2);
-@@ -592,7 +607,8 @@ static void acpi_lpss_link_supplier(struct device *dev1=
-,
- =09if (!dev2)
- =09=09return;
-=20
--=09if (acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
-+=09if ((link->dep_missing_ids && dmi_check_system(link->dep_missing_ids))
-+=09    || acpi_lpss_dep(ACPI_COMPANION(dev1), ACPI_HANDLE(dev2)))
- =09=09device_link_add(dev1, dev2, link->flags);
-=20
- =09put_device(dev2);
---=20
-2.23.0
+Tested-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+
+Maybe an unrelated point, but with this series I now see a new message 
+(logged only once):
+[   46.888703] ACPI: button: The lid device is not compliant to SW_LID.
+
+Not sure what exactly this is about, but it may be linked to the fact 
+that the power button is useless to resume and somehow I have to 
+close/reopen the lid to force the device to resume.
+
+if it helps here are the traces for 2 cycles of suspend/resume.
+
+[   34.242313] PM: suspend entry (s2idle)
+[   34.246896] Filesystems sync: 0.004 seconds
+[   34.247265] Freezing user space processes ... (elapsed 0.001 seconds) 
+done.
+[   34.249250] OOM killer disabled.
+[   34.249253] Freezing remaining freezable tasks ... (elapsed 0.000 
+seconds) done.
+[   34.250195] printk: Suspending console(s) (use no_console_suspend to 
+debug)
+[   41.251352] mmc1: queuing unknown CIS tuple 0x80 (2 bytes)
+[   41.252948] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[   41.254530] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[   41.257397] mmc1: queuing unknown CIS tuple 0x80 (7 bytes)
+[   41.586893] OOM killer enabled.
+[   41.586898] Restarting tasks ... done.
+[   41.625298] video LNXVIDEO:00: Restoring backlight state
+[   41.625718] PM: suspend exit
+[   45.162584] ax88179_178a 2-1:1.0 enx00051ba24714: ax88179 - Link 
+status is: 1
+[   45.171220] IPv6: ADDRCONF(NETDEV_CHANGE): enx00051ba24714: link 
+becomes ready
+[   45.400724] ACPI: button: The lid device is not compliant to SW_LID.
+[   58.478184] PM: suspend entry (s2idle)
+[   58.528882] Filesystems sync: 0.051 seconds
+[   58.529354] Freezing user space processes ... (elapsed 0.004 seconds) 
+done.
+[   58.533708] OOM killer disabled.
+[   58.533712] Freezing remaining freezable tasks ... (elapsed 0.000 
+seconds) done.
+[   58.534648] printk: Suspending console(s) (use no_console_suspend to 
+debug)
+[   63.084134] mmc1: queuing unknown CIS tuple 0x80 (2 bytes)
+[   63.085736] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[   63.087337] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[   63.090241] mmc1: queuing unknown CIS tuple 0x80 (7 bytes)
+[   63.420651] OOM killer enabled.
+[   63.420656] Restarting tasks ... done.
+[   63.458493] video LNXVIDEO:00: Restoring backlight state
+[   63.458918] PM: suspend exit
+[   66.862343] ax88179_178a 2-1:1.0 enx00051ba24714: ax88179 - Link 
+status is: 1
+[   66.869564] IPv6: ADDRCONF(NETDEV_CHANGE): enx00051ba24714: link 
+becomes ready
 
