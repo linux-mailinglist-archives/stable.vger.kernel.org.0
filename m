@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C891E32D0
+	by mail.lfdr.de (Postfix) with ESMTP id C55A1E32D1
 	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502083AbfJXMtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:49:00 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:51413 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbfJXMtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:00 -0400
-Received: by mail-wm1-f65.google.com with SMTP id q70so2712848wme.1
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:48:57 -0700 (PDT)
+        id S1726814AbfJXMtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:49:01 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:46692 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728017AbfJXMtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:01 -0400
+Received: by mail-wr1-f68.google.com with SMTP id n15so15143788wrw.13
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:48:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=kfRV9jAD/0mxb0QXBX+/toKsoafQ0jV5cVryoy3RLjU=;
-        b=lAgjuHkuKClft2A/rGRnEcsYJKMR0mKFoSyaRW8wKOgdWaHlsLBDVhC+ji1j93REhs
-         SRvf/IZIVEdiCVk1NZ11JBRDVFTtEYBK6ySGirff7hYr6v+TCZr/bZvpceCGey7LrP34
-         RXSxk0+nQd2gwkO2ESMzINP9bKZH02+yUqixoqD3HVwSTSd9v9xsDuwHFcFOEm+JKQnV
-         rYp+IRnl8jeIlbuhzp6p0Cp5KOo+NKX3zxKKxBtKYdbJYZdZ/CwNjkmD7AMlbORqVs1H
-         m5geBn5U2azFp8myu4FMT9L5mN3ayz3OYGXN5jk7nZwNXwcNUTgFtfcSDI31RarpWdzs
-         xOWw==
+        bh=W9cyx4ZcSl1HV7/CM+Hbtgyy3aRPrRUejWESh8u2Kic=;
+        b=VT0sqCm4u8Z40XIYR4TZ6yZ8RBRzOlCkzwJrk7HOwW4qV+JPYefNpjjIM1fZ7VRxuc
+         qZnEhxZjpWvghgOa5a4+7xPr6cW/gGyvs/XG8qZCIyV784crOf05Ng0pMAfrw3xJnRbs
+         THCWGT3USGZOvcU/y8alEU7Igpk8kwXvmiy8RB/pHaTVqslr82fSs3bk9/pp82WrhCUI
+         HL10myUiarLhEpHxD5msB+aoyN8fxuxwJ7bUyHxdBGebNe0PVZs/+37pxEo3uiI+xQJd
+         Tk32yQvEyLfUc76NmzDEXIv7jBBUAjGKnMfKPpMSoJAPlBmHDn+LLQ2+9AGC0Gys8oE+
+         q9MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kfRV9jAD/0mxb0QXBX+/toKsoafQ0jV5cVryoy3RLjU=;
-        b=Lq7FdSUZmqsv3jA/wKA5LVjWkmeyU4z9xdTNniP1OurU67Gwp4uTbwXmEXGoViwaMi
-         qaEJoUSxzwR7BWYMADyyWaYsSxxJfFcSthkAy4KNdyzuDWS0pIXlCJr28mw6o+ba806a
-         Gfk1LgC1CdH4lBFw74TuKQQQSTB/w9LRcoEd5RVgfrttPWbU55JSDaHn0gPHigbH9l3p
-         k/VZkJwKQK/x96aaW1ZsIZA30jswS2PC8ruwOZZS08Wwug7epE+NhidQ7x2KB+iJs21v
-         bCMITMV6qI9bvq/LOAOef+RaCJk4TbcP0F+/9M/xQinEWD3B4ujzmAw5WAgaczxkGXTz
-         eE1Q==
-X-Gm-Message-State: APjAAAXG8dHCvrfERGEPoGTSASVcxhn0fe9aiYigl8GttoKAZSht6lae
-        pjOIfXSB+nky6R44NpcfDBTPvNYtQ4AD712l
-X-Google-Smtp-Source: APXvYqydXFfWPwZWW0a5bYAJQn1iSVmDd/yQBsIbbnpxSC4AVIeCkVT1Bn6YdC8zMwQiMHuX4PUDPw==
-X-Received: by 2002:a1c:f011:: with SMTP id a17mr4662797wmb.18.1571921336261;
-        Thu, 24 Oct 2019 05:48:56 -0700 (PDT)
+        bh=W9cyx4ZcSl1HV7/CM+Hbtgyy3aRPrRUejWESh8u2Kic=;
+        b=TwzyrM94rXH4eSjlp8Ml19oXJ+DMD4lPYhb25jFt2IgckDWGTwX6M+wY3CQGlTQwkv
+         BL3srq78iX3AHNiySTGUC18NbFk8gW3fnD/atZgQfeV0knlxsKPkKhOSqFcEkuhjbzVa
+         vuvsVNj+vMFkNYbqYqiX/p4+6MLUZEfed8M1MGny+r/sE1eq4e3eURkVwouEJI3sBWnp
+         PKUilrBv1zv2WPttBtURRGianTy9fzTjoZcHWlCNX5X/Qk9YTx68JFKxuYoPOp9poa+/
+         RwOCz1RfAkH5JA1Y764QlKRH7cnUBiZevrnYnUaFacyIK5d1nWBy/0SkG5vFHSrqb2ic
+         TQqA==
+X-Gm-Message-State: APjAAAWAVf6zzhjKfSgjyBXGcaX0QOrOhtu1ScaAorv/8mFPv0GF/qGK
+        kZzC3ibeRgAuKkIQ8vaJhUGmpJw8VM+4iUjz
+X-Google-Smtp-Source: APXvYqzxJ3ZX6s2tSP+i/CjQCCBJ/Ud5bLR4OJCLWk0TFA/ivdz4ptUJCq3hMXtYZnbV183alFPHsw==
+X-Received: by 2002:adf:fe81:: with SMTP id l1mr3608221wrr.165.1571921337977;
+        Thu, 24 Oct 2019 05:48:57 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.54
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.48.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:48:55 -0700 (PDT)
+        Thu, 24 Oct 2019 05:48:56 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -55,11 +55,12 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Dave Martin <dave.martin@arm.com>
-Subject: [PATCH for-stable-4.14 06/48] arm64: Expose Arm v8.4 features
-Date:   Thu, 24 Oct 2019 14:47:51 +0200
-Message-Id: <20191024124833.4158-7-ard.biesheuvel@linaro.org>
+        Dave Martin <dave.martin@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH for-stable-4.14 07/48] arm64: move SCTLR_EL{1,2} assertions to <asm/sysreg.h>
+Date:   Thu, 24 Oct 2019 14:47:52 +0200
+Message-Id: <20191024124833.4158-8-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
@@ -70,177 +71,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 7206dc93a58fb76421c4411eefa3c003337bcb2d ]
+[ Upstream commit 1c312e84c2d71da4101754fa6118f703f7473e01 ]
 
-Expose the new features introduced by Arm v8.4 extensions to
-Arm v8-A profile.
+Currently we assert that the SCTLR_EL{1,2}_{SET,CLEAR} bits are
+self-consistent with an assertion in config_sctlr_el1(). This is a bit
+unusual, since config_sctlr_el1() doesn't make use of these definitions,
+and is far away from the definitions themselves.
 
-These include :
+We can use the CPP #error directive to have equivalent assertions in
+<asm/sysreg.h>, next to the definitions of the set/clear bits, which is
+a bit clearer and simpler.
 
- 1) Data indpendent timing of instructions. (DIT, exposed as HWCAP_DIT)
- 2) Unaligned atomic instructions and Single-copy atomicity of loads
-    and stores. (AT, expose as HWCAP_USCAT)
- 3) LDAPR and STLR instructions with immediate offsets (extension to
-    LRCPC, exposed as HWCAP_ILRCPC)
- 4) Flag manipulation instructions (TS, exposed as HWCAP_FLAGM).
+At the same time, lets fill in the upper 32 bits for both registers in
+their respective RES0 definitions. This could be a little nicer with
+GENMASK_ULL(63, 32), but this currently lives in <linux/bitops.h>, which
+cannot safely be included from assembly, as <asm/sysreg.h> can.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
+Note the when the preprocessor evaluates an expression for an #if
+directive, all signed or unsigned values are treated as intmax_t or
+uintmax_t respectively. To avoid ambiguity, we define explicitly define
+the mask of all 64 bits.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dave Martin <dave.martin@arm.com>
+Cc: James Morse <james.morse@arm.com>
 Cc: Will Deacon <will.deacon@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Dave Martin <dave.martin@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
-[ardb: fix up context for missing SVE]
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- Documentation/arm64/cpu-feature-registers.txt | 10 ++++++++++
- arch/arm64/include/asm/sysreg.h               |  3 +++
- arch/arm64/include/uapi/asm/hwcap.h           |  4 ++++
- arch/arm64/kernel/cpufeature.c                |  7 +++++++
- arch/arm64/kernel/cpuinfo.c                   |  4 ++++
- 5 files changed, 28 insertions(+)
+ arch/arm64/include/asm/sysreg.h | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/arm64/cpu-feature-registers.txt b/Documentation/arm64/cpu-feature-registers.txt
-index 22cfb86143ee..7964f03846b1 100644
---- a/Documentation/arm64/cpu-feature-registers.txt
-+++ b/Documentation/arm64/cpu-feature-registers.txt
-@@ -110,6 +110,7 @@ infrastructure:
-      x--------------------------------------------------x
-      | Name                         |  bits   | visible |
-      |--------------------------------------------------|
-+     | TS                           | [55-52] |    y    |
-      |--------------------------------------------------|
-      | FHM                          | [51-48] |    y    |
-      |--------------------------------------------------|
-@@ -139,6 +140,7 @@ infrastructure:
-      x--------------------------------------------------x
-      | Name                         |  bits   | visible |
-      |--------------------------------------------------|
-+     | DIT                          | [51-48] |    y    |
-      |--------------------------------------------------|
-      | SVE                          | [35-32] |    y    |
-      |--------------------------------------------------|
-@@ -191,6 +193,14 @@ infrastructure:
-      | DPB                          | [3-0]   |    y    |
-      x--------------------------------------------------x
- 
-+  5) ID_AA64MMFR2_EL1 - Memory model feature register 2
-+
-+     x--------------------------------------------------x
-+     | Name                         |  bits   | visible |
-+     |--------------------------------------------------|
-+     | AT                           | [35-32] |    y    |
-+     x--------------------------------------------------x
-+
- Appendix I: Example
- ---------------------------
- 
 diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index ee4b7935155b..eab67c2e2bb3 100644
+index eab67c2e2bb3..f0ce6ea6c6d8 100644
 --- a/arch/arm64/include/asm/sysreg.h
 +++ b/arch/arm64/include/asm/sysreg.h
-@@ -375,6 +375,7 @@
- #define SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != ~0)
+@@ -315,7 +315,8 @@
+ #define SCTLR_EL2_RES0	((1 << 6)  | (1 << 7)  | (1 << 8)  | (1 << 9)  | \
+ 			 (1 << 10) | (1 << 13) | (1 << 14) | (1 << 15) | \
+ 			 (1 << 17) | (1 << 20) | (1 << 21) | (1 << 24) | \
+-			 (1 << 26) | (1 << 27) | (1 << 30) | (1 << 31))
++			 (1 << 26) | (1 << 27) | (1 << 30) | (1 << 31) | \
++			 (0xffffffffUL << 32))
+ 
+ #ifdef CONFIG_CPU_BIG_ENDIAN
+ #define ENDIAN_SET_EL2		SCTLR_ELx_EE
+@@ -331,9 +332,9 @@
+ 			 SCTLR_ELx_SA     | SCTLR_ELx_I    | SCTLR_ELx_WXN | \
+ 			 ENDIAN_CLEAR_EL2 | SCTLR_EL2_RES0)
+ 
+-/* Check all the bits are accounted for */
+-#define SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL2_SET ^ SCTLR_EL2_CLEAR) != ~0)
+-
++#if (SCTLR_EL2_SET ^ SCTLR_EL2_CLEAR) != 0xffffffffffffffff
++#error "Inconsistent SCTLR_EL2 set/clear bits"
++#endif
+ 
+ /* SCTLR_EL1 specific flags. */
+ #define SCTLR_EL1_UCI		(1 << 26)
+@@ -352,7 +353,8 @@
+ #define SCTLR_EL1_RES1	((1 << 11) | (1 << 20) | (1 << 22) | (1 << 28) | \
+ 			 (1 << 29))
+ #define SCTLR_EL1_RES0  ((1 << 6)  | (1 << 10) | (1 << 13) | (1 << 17) | \
+-			 (1 << 21) | (1 << 27) | (1 << 30) | (1 << 31))
++			 (1 << 21) | (1 << 27) | (1 << 30) | (1 << 31) | \
++			 (0xffffffffUL << 32))
+ 
+ #ifdef CONFIG_CPU_BIG_ENDIAN
+ #define ENDIAN_SET_EL1		(SCTLR_EL1_E0E | SCTLR_ELx_EE)
+@@ -371,8 +373,9 @@
+ 			 SCTLR_EL1_UMA | SCTLR_ELx_WXN     | ENDIAN_CLEAR_EL1 |\
+ 			 SCTLR_EL1_RES0)
+ 
+-/* Check all the bits are accounted for */
+-#define SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != ~0)
++#if (SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != 0xffffffffffffffff
++#error "Inconsistent SCTLR_EL1 set/clear bits"
++#endif
  
  /* id_aa64isar0 */
-+#define ID_AA64ISAR0_TS_SHIFT		52
- #define ID_AA64ISAR0_FHM_SHIFT		48
- #define ID_AA64ISAR0_DP_SHIFT		44
- #define ID_AA64ISAR0_SM4_SHIFT		40
-@@ -396,6 +397,7 @@
- /* id_aa64pfr0 */
- #define ID_AA64PFR0_CSV3_SHIFT		60
- #define ID_AA64PFR0_CSV2_SHIFT		56
-+#define ID_AA64PFR0_DIT_SHIFT		48
- #define ID_AA64PFR0_GIC_SHIFT		24
- #define ID_AA64PFR0_ASIMD_SHIFT		20
- #define ID_AA64PFR0_FP_SHIFT		16
-@@ -441,6 +443,7 @@
- #define ID_AA64MMFR1_VMIDBITS_16	2
+ #define ID_AA64ISAR0_TS_SHIFT		52
+@@ -585,9 +588,6 @@ static inline void config_sctlr_el1(u32 clear, u32 set)
+ {
+ 	u32 val;
  
- /* id_aa64mmfr2 */
-+#define ID_AA64MMFR2_AT_SHIFT		32
- #define ID_AA64MMFR2_LVA_SHIFT		16
- #define ID_AA64MMFR2_IESB_SHIFT		12
- #define ID_AA64MMFR2_LSM_SHIFT		8
-diff --git a/arch/arm64/include/uapi/asm/hwcap.h b/arch/arm64/include/uapi/asm/hwcap.h
-index f018c3deea3b..17c65c8f33cb 100644
---- a/arch/arm64/include/uapi/asm/hwcap.h
-+++ b/arch/arm64/include/uapi/asm/hwcap.h
-@@ -44,5 +44,9 @@
- #define HWCAP_SHA512		(1 << 21)
- #define HWCAP_SVE		(1 << 22)
- #define HWCAP_ASIMDFHM		(1 << 23)
-+#define HWCAP_DIT		(1 << 24)
-+#define HWCAP_USCAT		(1 << 25)
-+#define HWCAP_ILRCPC		(1 << 26)
-+#define HWCAP_FLAGM		(1 << 27)
- 
- #endif /* _UAPI__ASM_HWCAP_H */
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 258921542b00..d3a93e23a87c 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -107,6 +107,7 @@ cpufeature_pan_not_uao(const struct arm64_cpu_capabilities *entry, int __unused)
-  * sync with the documentation of the CPU feature register ABI.
-  */
- static const struct arm64_ftr_bits ftr_id_aa64isar0[] = {
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_TS_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_FHM_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_DP_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_SM4_SHIFT, 4, 0),
-@@ -132,6 +133,7 @@ static const struct arm64_ftr_bits ftr_id_aa64isar1[] = {
- static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_DIT_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_GIC_SHIFT, 4, 0),
- 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_ASIMD_SHIFT, 4, ID_AA64PFR0_ASIMD_NI),
- 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_FP_SHIFT, 4, ID_AA64PFR0_FP_NI),
-@@ -171,6 +173,7 @@ static const struct arm64_ftr_bits ftr_id_aa64mmfr1[] = {
- };
- 
- static const struct arm64_ftr_bits ftr_id_aa64mmfr2[] = {
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_AT_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_LVA_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_IESB_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_LSM_SHIFT, 4, 0),
-@@ -1054,14 +1057,18 @@ static const struct arm64_cpu_capabilities arm64_elf_hwcaps[] = {
- 	HWCAP_CAP(SYS_ID_AA64ISAR0_EL1, ID_AA64ISAR0_SM4_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_SM4),
- 	HWCAP_CAP(SYS_ID_AA64ISAR0_EL1, ID_AA64ISAR0_DP_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_ASIMDDP),
- 	HWCAP_CAP(SYS_ID_AA64ISAR0_EL1, ID_AA64ISAR0_FHM_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_ASIMDFHM),
-+	HWCAP_CAP(SYS_ID_AA64ISAR0_EL1, ID_AA64ISAR0_TS_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_FLAGM),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_FP_SHIFT, FTR_SIGNED, 0, CAP_HWCAP, HWCAP_FP),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_FP_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_FPHP),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 0, CAP_HWCAP, HWCAP_ASIMD),
- 	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_ASIMD_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_ASIMDHP),
-+	HWCAP_CAP(SYS_ID_AA64PFR0_EL1, ID_AA64PFR0_DIT_SHIFT, FTR_SIGNED, 1, CAP_HWCAP, HWCAP_DIT),
- 	HWCAP_CAP(SYS_ID_AA64ISAR1_EL1, ID_AA64ISAR1_DPB_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_DCPOP),
- 	HWCAP_CAP(SYS_ID_AA64ISAR1_EL1, ID_AA64ISAR1_JSCVT_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_JSCVT),
- 	HWCAP_CAP(SYS_ID_AA64ISAR1_EL1, ID_AA64ISAR1_FCMA_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_FCMA),
- 	HWCAP_CAP(SYS_ID_AA64ISAR1_EL1, ID_AA64ISAR1_LRCPC_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_LRCPC),
-+	HWCAP_CAP(SYS_ID_AA64ISAR1_EL1, ID_AA64ISAR1_LRCPC_SHIFT, FTR_UNSIGNED, 2, CAP_HWCAP, HWCAP_ILRCPC),
-+	HWCAP_CAP(SYS_ID_AA64MMFR2_EL1, ID_AA64MMFR2_AT_SHIFT, FTR_UNSIGNED, 1, CAP_HWCAP, HWCAP_USCAT),
- 	{},
- };
- 
-diff --git a/arch/arm64/kernel/cpuinfo.c b/arch/arm64/kernel/cpuinfo.c
-index 67afe69efb61..2188db11b654 100644
---- a/arch/arm64/kernel/cpuinfo.c
-+++ b/arch/arm64/kernel/cpuinfo.c
-@@ -76,6 +76,10 @@ static const char *const hwcap_str[] = {
- 	"sha512",
- 	"sve",
- 	"asimdfhm",
-+	"dit",
-+	"uscat",
-+	"ilrcpc",
-+	"flagm",
- 	NULL
- };
- 
+-	SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS;
+-	SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS;
+-
+ 	val = read_sysreg(sctlr_el1);
+ 	val &= ~clear;
+ 	val |= set;
 -- 
 2.20.1
 
