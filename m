@@ -2,98 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B45BE3C05
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 21:32:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75645E3E24
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 23:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406102AbfJXTcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 15:32:32 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:55344 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405801AbfJXTcc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 15:32:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=vttDbr1v3prfmmWDLzJK+9NKCnOd94v+/MHN5g7eafo=; b=CbE96/yh2YdFVA3lDo3rtgUW1
-        1nKGHL5oUytt+gNKSOzQltYdAVrbAYGCVdJRDWR5ElYjyGcNuSfoi39rOSctuCSd82zqjizgevvl/
-        RItWIKeeCoaAlflHirdSRmTem7K9x/GW5JqAO0MdF/ne4ysAJoQm40sjHSG8N3Yunv5xU=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iNiqP-0003zz-Rk; Thu, 24 Oct 2019 19:32:25 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 55273274293C; Thu, 24 Oct 2019 20:32:25 +0100 (BST)
-Date:   Thu, 24 Oct 2019 20:32:25 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc:     linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        "kernelci.org bot" <bot@kernelci.org>, stable@vger.kernel.org
-Subject: Re: [PATCH] spi: Fix NULL pointer when setting SPI_CS_HIGH for GPIO
- CS
-Message-ID: <20191024193225.GM46373@sirena.co.uk>
-References: <20191024141309.22434-1-gregory.clement@bootlin.com>
+        id S1729255AbfJXV3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 17:29:46 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:45644 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729153AbfJXV3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 17:29:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571952584;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=xdAm26JwyHkgbR50QvC+H2Fp7CLfPYdFaLeSX5jyse4=;
+        b=gNU5HAcTU72K2fLLjN8q/6Jzf8PNDHcPNyi3Gv47coU2s1PQe7IHIkmOqu/EcErFCfNn3v
+        rLTrkhYjPnNHxaVaherXjaVmzv/aH9sjc2bhjn4HZnYZbJl5ZuQkZVU7YJ3sdWkr2NXMwA
+        0JSvRROexBZylKQHJ6a5az5cXX4dUsE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-14-3NOf5ZZyM5yQtgW52tvnVg-1; Thu, 24 Oct 2019 17:29:41 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09A90800D49;
+        Thu, 24 Oct 2019 21:29:40 +0000 (UTC)
+Received: from shalem.localdomain.com (unknown [10.36.118.40])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5DB0760BF3;
+        Thu, 24 Oct 2019 21:29:38 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Len Brown <lenb@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        linux-acpi@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] ACPI / LPSS: Add LNXVIDEO -> BYT I2C7 to lpss_device_links
+Date:   Thu, 24 Oct 2019 23:29:34 +0200
+Message-Id: <20191024212936.144648-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="0+35XlDF45POFHfm"
-Content-Disposition: inline
-In-Reply-To: <20191024141309.22434-1-gregory.clement@bootlin.com>
-X-Cookie: Filmed before a live audience.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-MC-Unique: 3NOf5ZZyM5yQtgW52tvnVg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+So far on Bay Trail (BYT) we only have been adding a device_link adding
+the iGPU (LNXVIDEO) device as consumer for the I2C controller for the
+PMIC for I2C5, but the PMIC only uses I2C5 on BYT CR (cost reduced) on
+regular BYT platforms I2C7 is used and we were not adding the device_link
+sometimes causing resume ordering issues.
 
---0+35XlDF45POFHfm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This commit adds LNXVIDEO -> BYT I2C7 to the lpss_device_links table,
+fixing this.
 
-On Thu, Oct 24, 2019 at 04:13:09PM +0200, Gregory CLEMENT wrote:
-> Even if the flag use_gpio_descriptors is set, it is possible that
-> cs_gpiods was not allocated, which leads to a kernel crash:
->=20
-> Unable to handle kernel NULL pointer dereference at virtual address 00000=
-000
-> pgd =3D (ptrval)
-> [00000000] *pgd=3D00000000
-> Internal error: Oops: 5 [#1] ARM
-> Modules linked in:
-> CPU: 0 PID: 1 Comm: swapper Tainted: G        W         5.4.0-rc3 #1
-> Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
-> PC is at of_register_spi_device+0x20c/0x38c
-> LR is at __of_find_property+0x3c/0x60
-> pc : [<c09b45dc>]    lr : [<c0c47a98>]    psr: 20000013
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/acpi/acpi_lpss.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Please think hard before including complete backtraces in upstream
-reports, they are very large and contain almost no useful information
-relative to their size so often obscure the relevant content in your
-message. If part of the backtrace is usefully illustrative then it's
-usually better to pull out the relevant sections.
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index 60bbc5090abe..e7a4504f0fbf 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -473,9 +473,14 @@ struct lpss_device_links {
+  * the supplier is not enumerated until after the consumer is probed.
+  */
+ static const struct lpss_device_links lpss_device_links[] =3D {
++=09/* CHT External sdcard slot controller depends on PMIC I2C ctrl */
+ =09{"808622C1", "7", "80860F14", "3", DL_FLAG_PM_RUNTIME},
++=09/* CHT iGPU depends on PMIC I2C controller */
+ =09{"808622C1", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++=09/* BYT CR iGPU depends on PMIC I2C controller (UID 5 on CR) */
+ =09{"80860F41", "5", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
++=09/* BYT iGPU depends on PMIC I2C controller (UID 7 on non CR) */
++=09{"80860F41", "7", "LNXVIDEO", NULL, DL_FLAG_PM_RUNTIME},
+ };
+=20
+ static bool hid_uid_match(struct acpi_device *adev,
+--=20
+2.23.0
 
---0+35XlDF45POFHfm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl2x/EgACgkQJNaLcl1U
-h9Dc+Qf7BOBELW73o6MOZxD5Uq2/Eahp26z5rN7PMc+EvRwda/BzHGhUTsTrotmX
-ppdm6tsBosW3dH8P6tbwXIIJHO11BO4ma/pbO5ZZloEqeo3Zvxt89+AxZD4roa26
-GEnDMWLNn2Y3L0YENJzNelC3RMBY7sIv7wMgiGZR7qadTFrx6Y3v+VLAEEEsSnA6
-f3AmuiyCWtiNyuhi1gIst/hGeDzLyNOGVJuNfH7SV4RbQVN51k9Cam5JEaBB6NjK
-PTKDGt0u2CGaKQxTZRHb8al+SznFqEk0eKU06KEWpdcPJAOPW24cLVXl2YAb6b2l
-yg1Wz4gE+9D908qKFUl3e+fimC6N+A==
-=pES0
------END PGP SIGNATURE-----
-
---0+35XlDF45POFHfm--
