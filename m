@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DB4E32D9
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A4DE32DB
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 14:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728684AbfJXMtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 08:49:14 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51451 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729269AbfJXMtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:14 -0400
-Received: by mail-wm1-f66.google.com with SMTP id q70so2713782wme.1
-        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:12 -0700 (PDT)
+        id S1729507AbfJXMtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 08:49:16 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:44621 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729266AbfJXMtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 08:49:16 -0400
+Received: by mail-wr1-f65.google.com with SMTP id z11so2563383wro.11
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 05:49:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YWzoLxXtWbgB9RPT3uhHhCtIXIr1OLgjPS7QjmkdYNU=;
-        b=gkhu5GzQP7oHNiLstPmcoNt+2xynVsDI0Mo3hr7LFAWZUOK61NH+7gG8gxRgB+ro8V
-         kt7DDdmRo+HbRswGnuKe2R2WMa1l++/WeD1bGiyxW6h1p8V37knMxzj9v/G2koYBI26y
-         B3r61wc5n+IRCOpFZINhTyz7Cm/vvImTD4a7SSAGLZzoIfT4QU0UOAK2tlxeqRYi6+rH
-         KH1plaKf1srMREYjXt9gWkfobI+CBlh8RqP21yb0AXyZGcWh1f11aHHDc6EP9x/8RqTJ
-         I3NrulNYgYJD/rqY/Ebig5ARtNrulbeQk39PBcuu28Z4NNxmcg3WQObVOzC9B+JeuoAn
-         POmg==
+        bh=pKC8njkJSJQYH3ulUymEqE4RKZit0KDY0/L2rZ93cqQ=;
+        b=Mck9JJmO9PIyAUkYXWvG1SZk7K/VvmWi8qqrdG9N+u4hgUQV1TvvNoz6felzsVzCH+
+         GXlSUWQekS/vMnM3i3S3zzkvIOtxf9hH/LXzCUSFZmogLOYE5gLmyuBgTPVHDBd6BToK
+         Bvy0Lp2KYi+Xgn+X8I1th+wHem/uM4OQZ/+PdgtA8FsAUXoYiI9+rM3Txn1NjbGnpDoI
+         1W3sd1m6i91S/Te7AKuof/uYEWa+WFJYrgMmTbLwOw45uiUN2/RcZwCIhR/caA+eAFNz
+         h2W0yAWXESR5M+CK2DNCaUkoN0iXajSzgqHcFng/Rf4ovT/tH03sz1iuhAjepQCxOa9S
+         qgYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YWzoLxXtWbgB9RPT3uhHhCtIXIr1OLgjPS7QjmkdYNU=;
-        b=OZ6+sNtqtUzcPlqvFLYEW2dIy2RX4KYC2czif5zLGTtq8ctwvk0ucHSpVp+2y7oZ4Z
-         mUHjjV1o9k1R9ihioe21prmWgLGApXGQbJn19jS6TSO6qbbNq8R4C7cVo80aKMufNmt/
-         j1fb8Z40vU1qN10t8KZYvQjNUCvpX0me2mar9y9gfBB0WhNN68toAwHA9VcwbOgMYaVt
-         Ws6F9j6zDy7nj+vQkB29civXSsjsrBpkjCIEriYv2R2As+3LT/i1GIMYIs2XAuZmiqoI
-         oRksJ8jgE9gApEF0gfqIrYSl2u4Qfmnkl20AE3v0b+rXxeSuXYIFAgBmPt5/6nzHLOX7
-         9lgQ==
-X-Gm-Message-State: APjAAAVBZrPwXdfsJbbdzum2odSW2JNNKp0edX1Hdrq0a1Yctx4o9s+e
-        01F4PYy/Pc9Isiul8t2YGV0UUPF7LyVEALnd
-X-Google-Smtp-Source: APXvYqwhFWeQN0o+4pqP1G9jQS5lsYPuMB6O5/fxeaDkKf5UFIAFaRL8DtCMicGL/EmfcNdilX82rw==
-X-Received: by 2002:a1c:f212:: with SMTP id s18mr4621167wmc.72.1571921351065;
-        Thu, 24 Oct 2019 05:49:11 -0700 (PDT)
+        bh=pKC8njkJSJQYH3ulUymEqE4RKZit0KDY0/L2rZ93cqQ=;
+        b=CwLi6+qyEFUeAxBz+iPPw/GtVE9cKGaoKiV0+Rtkarob29fG15bRTeBqbn5HFtMGSr
+         vLCQXXhjQq9vZ01lwcEdK5xDjibDY0P+JmLfWknPFxemR4ggOtmby+Kqj09cF/OawTGW
+         aGpbH5jWAe8TmS2U9ctxPxFsJTYaMf0kOeQhds2yBTx2A2DOXCKCUUEeu74SPQwdVt+u
+         46aRP/yQh14cRJOZ5rX0zLvJaJ/WZPpzC1Zvbhzjvo06Zmi/QHY2IGBIiq8k3OAye0Ns
+         5wWUxPMDiwiM8g34WVi7TQWedSfBLsIMTXTk9QBHZY2uODmKmYwh+TOvhM4clfgRFrz7
+         yvig==
+X-Gm-Message-State: APjAAAXZ3WDc+B6KtWqFNTmqGbIJHmq8UQXpoQ6S4CiCcme7a3xy7YJr
+        jdsv6/Ok7hXtIbSfsLsP8BgF196V+nKQB+v7
+X-Google-Smtp-Source: APXvYqxYHog+kVDQUsx3zfi3QmJzOMzelDwUd0ZW2DdRzPcu5nl2p0ptsjpw6CHFU4OIMTRJbWTw9A==
+X-Received: by 2002:adf:f90d:: with SMTP id b13mr3615022wrr.316.1571921352696;
+        Thu, 24 Oct 2019 05:49:12 -0700 (PDT)
 Received: from localhost.localdomain (aaubervilliers-681-1-126-126.w90-88.abo.wanadoo.fr. [90.88.7.126])
-        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.49.09
+        by smtp.gmail.com with ESMTPSA id j22sm29111038wrd.41.2019.10.24.05.49.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Oct 2019 05:49:09 -0700 (PDT)
+        Thu, 24 Oct 2019 05:49:11 -0700 (PDT)
 From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
@@ -55,11 +55,11 @@ Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Jeremy Linton <jeremy.linton@arm.com>,
         Andre Przywara <andre.przywara@arm.com>,
         Alexandru Elisei <alexandru.elisei@arm.com>,
-        Dave Martin <dave.martin@arm.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH for-stable-4.14 15/48] arm64: capabilities: Unify the verification
-Date:   Thu, 24 Oct 2019 14:48:00 +0200
-Message-Id: <20191024124833.4158-16-ard.biesheuvel@linaro.org>
+        Will Deacon <will.deacon@arm.com>,
+        Dave Martin <dave.martin@arm.com>
+Subject: [PATCH for-stable-4.14 16/48] arm64: capabilities: Filter the entries based on a given mask
+Date:   Thu, 24 Oct 2019 14:48:01 +0200
+Message-Id: <20191024124833.4158-17-ard.biesheuvel@linaro.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
 References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
@@ -72,144 +72,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit eaac4d83daa50fc1b9b7850346e9a62adfd4647e ]
+[ Upstream commit cce360b54ce6ca1bcf4b0a870ec076d83606775e ]
 
-Now that each capability describes how to treat the conflicts
-of CPU cap state vs System wide cap state, we can unify the
-verification logic to a single place.
+While processing the list of capabilities, it is useful to
+filter out some of the entries based on the given mask for the
+scope of the capabilities to allow better control. This can be
+used later for handling LOCAL vs SYSTEM wide capabilities and more.
+All capabilities should have their scope set to either LOCAL_CPU or
+SYSTEM. No functional/flow change.
 
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Reviewed-by: Dave Martin <dave.martin@arm.com>
 Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 ---
- arch/arm64/kernel/cpufeature.c | 91 +++++++++++++-------
- 1 file changed, 58 insertions(+), 33 deletions(-)
+ arch/arm64/include/asm/cpufeature.h |  1 +
+ arch/arm64/kernel/cpufeature.c      | 33 +++++++++++++-------
+ 2 files changed, 23 insertions(+), 11 deletions(-)
 
+diff --git a/arch/arm64/include/asm/cpufeature.h b/arch/arm64/include/asm/cpufeature.h
+index 89aeeeaf81bb..b19dd89bcce9 100644
+--- a/arch/arm64/include/asm/cpufeature.h
++++ b/arch/arm64/include/asm/cpufeature.h
+@@ -207,6 +207,7 @@ extern struct arm64_ftr_reg arm64_ftr_reg_ctrel0;
+ 
+ #define SCOPE_SYSTEM				ARM64_CPUCAP_SCOPE_SYSTEM
+ #define SCOPE_LOCAL_CPU				ARM64_CPUCAP_SCOPE_LOCAL_CPU
++#define SCOPE_ALL				ARM64_CPUCAP_SCOPE_MASK
+ 
+ /*
+  * Is it permitted for a late CPU to have this capability when system
 diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 70b504d84683..e73fae0c0ca7 100644
+index e73fae0c0ca7..b88871d5f179 100644
 --- a/arch/arm64/kernel/cpufeature.c
 +++ b/arch/arm64/kernel/cpufeature.c
-@@ -1228,6 +1228,58 @@ static inline void set_sys_caps_initialised(void)
- 	sys_caps_initialised = true;
+@@ -1164,10 +1164,12 @@ static bool __this_cpu_has_cap(const struct arm64_cpu_capabilities *cap_array,
  }
  
-+/*
-+ * Run through the list of capabilities to check for conflicts.
-+ * If the system has already detected a capability, take necessary
-+ * action on this CPU.
-+ *
-+ * Returns "false" on conflicts.
-+ */
-+static bool
-+__verify_local_cpu_caps(const struct arm64_cpu_capabilities *caps_list)
-+{
-+	bool cpu_has_cap, system_has_cap;
-+	const struct arm64_cpu_capabilities *caps;
-+
-+	for (caps = caps_list; caps->matches; caps++) {
-+		cpu_has_cap = __this_cpu_has_cap(caps_list, caps->capability);
-+		system_has_cap = cpus_have_cap(caps->capability);
-+
-+		if (system_has_cap) {
-+			/*
-+			 * Check if the new CPU misses an advertised feature,
-+			 * which is not safe to miss.
-+			 */
-+			if (!cpu_has_cap && !cpucap_late_cpu_optional(caps))
-+				break;
-+			/*
-+			 * We have to issue cpu_enable() irrespective of
-+			 * whether the CPU has it or not, as it is enabeld
-+			 * system wide. It is upto the call back to take
-+			 * appropriate action on this CPU.
-+			 */
-+			if (caps->cpu_enable)
-+				caps->cpu_enable(caps);
-+		} else {
-+			/*
-+			 * Check if the CPU has this capability if it isn't
-+			 * safe to have when the system doesn't.
-+			 */
-+			if (cpu_has_cap && !cpucap_late_cpu_permitted(caps))
-+				break;
-+		}
-+	}
-+
-+	if (caps->matches) {
-+		pr_crit("CPU%d: Detected conflict for capability %d (%s), System: %d, CPU: %d\n",
-+			smp_processor_id(), caps->capability,
-+			caps->desc, system_has_cap, cpu_has_cap);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
- /*
-  * Check for CPU features that are used in early boot
-  * based on the Boot CPU value.
-@@ -1250,25 +1302,10 @@ verify_local_elf_hwcaps(const struct arm64_cpu_capabilities *caps)
- 		}
- }
- 
--static void
--verify_local_cpu_features(const struct arm64_cpu_capabilities *caps_list)
-+static void verify_local_cpu_features(void)
+ static void update_cpu_capabilities(const struct arm64_cpu_capabilities *caps,
+-				    const char *info)
++				    u16 scope_mask, const char *info)
  {
--	const struct arm64_cpu_capabilities *caps = caps_list;
--	for (; caps->matches; caps++) {
--		if (!cpus_have_cap(caps->capability))
--			continue;
--		/*
--		 * If the new CPU misses an advertised feature, we cannot proceed
--		 * further, park the cpu.
--		 */
--		if (!__this_cpu_has_cap(caps_list, caps->capability)) {
--			pr_crit("CPU%d: missing feature: %s\n",
--					smp_processor_id(), caps->desc);
--			cpu_die_early();
--		}
--		if (caps->cpu_enable)
--			caps->cpu_enable(caps);
--	}
-+	if (!__verify_local_cpu_caps(arm64_features))
-+		cpu_die_early();
++	scope_mask &= ARM64_CPUCAP_SCOPE_MASK;
+ 	for (; caps->matches; caps++) {
+-		if (!caps->matches(caps, cpucap_default_scope(caps)))
++		if (!(caps->type & scope_mask) ||
++		    !caps->matches(caps, cpucap_default_scope(caps)))
+ 			continue;
+ 
+ 		if (!cpus_have_cap(caps->capability) && caps->desc)
+@@ -1189,12 +1191,14 @@ static int __enable_cpu_capability(void *arg)
+  * CPUs
+  */
+ static void __init
+-enable_cpu_capabilities(const struct arm64_cpu_capabilities *caps)
++enable_cpu_capabilities(const struct arm64_cpu_capabilities *caps,
++			u16 scope_mask)
+ {
++	scope_mask &= ARM64_CPUCAP_SCOPE_MASK;
+ 	for (; caps->matches; caps++) {
+ 		unsigned int num = caps->capability;
+ 
+-		if (!cpus_have_cap(num))
++		if (!(caps->type & scope_mask) || !cpus_have_cap(num))
+ 			continue;
+ 
+ 		/* Ensure cpus_have_const_cap(num) works */
+@@ -1236,12 +1240,18 @@ static inline void set_sys_caps_initialised(void)
+  * Returns "false" on conflicts.
+  */
+ static bool
+-__verify_local_cpu_caps(const struct arm64_cpu_capabilities *caps_list)
++__verify_local_cpu_caps(const struct arm64_cpu_capabilities *caps_list,
++			u16 scope_mask)
+ {
+ 	bool cpu_has_cap, system_has_cap;
+ 	const struct arm64_cpu_capabilities *caps;
+ 
++	scope_mask &= ARM64_CPUCAP_SCOPE_MASK;
++
+ 	for (caps = caps_list; caps->matches; caps++) {
++		if (!(caps->type & scope_mask))
++			continue;
++
+ 		cpu_has_cap = __this_cpu_has_cap(caps_list, caps->capability);
+ 		system_has_cap = cpus_have_cap(caps->capability);
+ 
+@@ -1304,7 +1314,7 @@ verify_local_elf_hwcaps(const struct arm64_cpu_capabilities *caps)
+ 
+ static void verify_local_cpu_features(void)
+ {
+-	if (!__verify_local_cpu_caps(arm64_features))
++	if (!__verify_local_cpu_caps(arm64_features, SCOPE_ALL))
+ 		cpu_die_early();
  }
  
- /*
-@@ -1278,20 +1315,8 @@ verify_local_cpu_features(const struct arm64_cpu_capabilities *caps_list)
+@@ -1315,18 +1325,19 @@ static void verify_local_cpu_features(void)
   */
  static void verify_local_cpu_errata_workarounds(void)
  {
--	const struct arm64_cpu_capabilities *caps = arm64_errata;
--
--	for (; caps->matches; caps++) {
--		if (cpus_have_cap(caps->capability)) {
--			if (caps->cpu_enable)
--				caps->cpu_enable(caps);
--		} else if (caps->matches(caps, SCOPE_LOCAL_CPU)) {
--			pr_crit("CPU%d: Requires work around for %s, not detected"
--					" at boot time\n",
--				smp_processor_id(),
--				caps->desc ? : "an erratum");
--			cpu_die_early();
--		}
--	}
-+	if (!__verify_local_cpu_caps(arm64_errata))
-+		cpu_die_early();
+-	if (!__verify_local_cpu_caps(arm64_errata))
++	if (!__verify_local_cpu_caps(arm64_errata, SCOPE_ALL))
+ 		cpu_die_early();
  }
  
  static void update_cpu_errata_workarounds(void)
-@@ -1315,7 +1340,7 @@ static void __init enable_errata_workarounds(void)
- static void verify_local_cpu_capabilities(void)
  {
- 	verify_local_cpu_errata_workarounds();
--	verify_local_cpu_features(arm64_features);
-+	verify_local_cpu_features();
- 	verify_local_elf_hwcaps(arm64_elf_hwcaps);
- 	if (system_supports_32bit_el0())
- 		verify_local_elf_hwcaps(compat_elf_hwcaps);
+-	update_cpu_capabilities(arm64_errata, "enabling workaround for");
++	update_cpu_capabilities(arm64_errata, SCOPE_ALL,
++				"enabling workaround for");
+ }
+ 
+ static void __init enable_errata_workarounds(void)
+ {
+-	enable_cpu_capabilities(arm64_errata);
++	enable_cpu_capabilities(arm64_errata, SCOPE_ALL);
+ }
+ 
+ /*
+@@ -1368,8 +1379,8 @@ void check_local_cpu_capabilities(void)
+ 
+ static void __init setup_feature_capabilities(void)
+ {
+-	update_cpu_capabilities(arm64_features, "detected feature:");
+-	enable_cpu_capabilities(arm64_features);
++	update_cpu_capabilities(arm64_features, SCOPE_ALL, "detected:");
++	enable_cpu_capabilities(arm64_features, SCOPE_ALL);
+ }
+ 
+ DEFINE_STATIC_KEY_FALSE(arm64_const_caps_ready);
 -- 
 2.20.1
 
