@@ -2,178 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFFEE3610
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 16:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E25E374B
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 17:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502674AbfJXO57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 10:57:59 -0400
-Received: from relay8-d.mail.gandi.net ([217.70.183.201]:58169 "EHLO
-        relay8-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407327AbfJXO56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 10:57:58 -0400
-X-Originating-IP: 92.137.17.54
-Received: from localhost (alyon-657-1-975-54.w92-137.abo.wanadoo.fr [92.137.17.54])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 2EB3E1BF20B;
-        Thu, 24 Oct 2019 14:57:53 +0000 (UTC)
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Jon Hunter <jonathanh@nvidia.com>, Mark Brown <broonie@kernel.org>,
-        linux-spi@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org, linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH] spi: Fix SPI_CS_HIGH setting when using native and GPIO CS
-In-Reply-To: <dfabf9eb-4f81-91e5-55dc-caea0cdabd2d@nvidia.com>
-References: <20191018152929.3287-1-gregory.clement@bootlin.com> <dfabf9eb-4f81-91e5-55dc-caea0cdabd2d@nvidia.com>
-Date:   Thu, 24 Oct 2019 16:57:52 +0200
-Message-ID: <87zhhqp4wf.fsf@FE-laptop>
+        id S2391245AbfJXP5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 11:57:22 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50453 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2389313AbfJXP5V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 11:57:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571932641;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=gXiCj2zY2Ut1vFe48odKp1CcDmx3S+KKbQVXOdnSjyw=;
+        b=VbLP9DeuhrQAPxgjjRJ7H+rdwDSyRqU4Cy5drWxqpHD7wShHh9z3XGmLwVC/C45KSPfgo4
+        L0XovshgJideFPqXUWqIXacekfOAYI7jFTNAAOUD8MhJrOgDsUn7M1nc5yVVsXwc71tFBe
+        uL+k9Ky4goZwrZrxTCRgxSV6OYyC9Ug=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-124-ClHpqv9-OreWZoqfqWOZUg-1; Thu, 24 Oct 2019 10:31:35 -0400
+Received: by mail-wr1-f70.google.com with SMTP id q14so1378213wrw.4
+        for <stable@vger.kernel.org>; Thu, 24 Oct 2019 07:31:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=T/Xlag7Vv94i/fFZydhE/2Ef/Fmjkx03xUXJUBM16NE=;
+        b=SZv79U5N1bEQoE0n8K087MXWKrHWgNYnTuuPW+W4CD+5lwa681nftsJFHXo/ZfixXa
+         yrAHUv2xmybZuwY7cLRytCL1NMVttoV+bEbEA3ZlJ32yqilOMvOy989VTqfmPoxMoaWy
+         Afbpml/ZwS7/OZPM3yhvq1seK16goYTs5M+oPRgLwz3Hg9jIX4T4dlUPTXePs8LH7XvS
+         p4z7/cs3QapdkbzHw7BfE9SX6845JM7NHgbcn8SCwI/1gcA8+jNDDTfvSXx7WjIqKFtf
+         Nj1RFtspF4GwFqTQdT9pK/K+EGi4l9UObjSRSOVjNUCxLSKP6zxf75q3o3cC+KwCQHXk
+         cl+g==
+X-Gm-Message-State: APjAAAWqvkWCuOjjsvZk3tUDkgW6TxlikkOBIOwjNzfeRumJJiyx4eP3
+        VrjFDEmEqLx2lnxO8pCdw69/Etts0W1tksmf2aILQCOal4A8bILF8Bn2AAQQpfIXPW09alfEkcs
+        VbSfAkuJAmZJle1KM
+X-Received: by 2002:adf:bd8f:: with SMTP id l15mr4084410wrh.362.1571927246888;
+        Thu, 24 Oct 2019 07:27:26 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqyHFHFBiqf2jd4RSI7FQ83LyEV3UvhtzKxFIwh4b5Evb3qiH8AY4i0BFMxyaOtnXcmlN/ePXg==
+X-Received: by 2002:adf:bd8f:: with SMTP id l15mr4084393wrh.362.1571927246663;
+        Thu, 24 Oct 2019 07:27:26 -0700 (PDT)
+Received: from shalem.localdomain (2001-1c00-0c14-2800-ec23-a060-24d5-2453.cable.dynamic.v6.ziggo.nl. [2001:1c00:c14:2800:ec23:a060:24d5:2453])
+        by smtp.gmail.com with ESMTPSA id w18sm7921842wrl.75.2019.10.24.07.27.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Oct 2019 07:27:25 -0700 (PDT)
+Subject: Re: [PATCH] tpm: Switch to platform_get_irq_optional()
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Peter Huewe <peterhuewe@gmx.de>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org
+References: <20191019094528.27850-1-hdegoede@redhat.com>
+ <20191021154942.GB4525@linux.intel.com>
+ <80409d36-53fa-d159-d864-51b8495dc306@redhat.com>
+ <20191023113733.GB21973@linux.intel.com>
+ <d6adeb21-f7b3-5c64-fa32-03a8ee21cc53@redhat.com>
+ <20191024142519.GA3881@linux.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <c6a0c3e3-c5c8-80d9-b6b6-bf45d66f4b32@redhat.com>
+Date:   Thu, 24 Oct 2019 16:27:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20191024142519.GA3881@linux.intel.com>
+Content-Language: en-US
+X-MC-Unique: ClHpqv9-OreWZoqfqWOZUg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Jon,
+Hi,
 
-> On 18/10/2019 16:29, Gregory CLEMENT wrote:
->> When improving the CS GPIO support at core level, the SPI_CS_HIGH
->> has been enabled for all the CS lines used for a given SPI controller.
->> 
->> However, the SPI framework allows to have on the same controller native
->> CS and GPIO CS. The native CS may not support the SPI_CS_HIGH, so they
->> should not be setup automatically.
->> 
->> With this patch the setting is done only for the CS that will use a
->> GPIO as CS
->> 
->> Fixes: f3186dd87669 ("spi: Optionally use GPIO descriptors for CS GPIOs")
->> Cc: <stable@vger.kernel.org>
->> Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
->> ---
->>  drivers/spi/spi.c | 18 +++++++++---------
->>  1 file changed, 9 insertions(+), 9 deletions(-)
->> 
->> diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
->> index 5414a10afd65..1b68acc28c8f 100644
->> --- a/drivers/spi/spi.c
->> +++ b/drivers/spi/spi.c
->> @@ -1880,15 +1880,7 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
->>  		spi->mode |= SPI_3WIRE;
->>  	if (of_property_read_bool(nc, "spi-lsb-first"))
->>  		spi->mode |= SPI_LSB_FIRST;
->> -
->> -	/*
->> -	 * For descriptors associated with the device, polarity inversion is
->> -	 * handled in the gpiolib, so all chip selects are "active high" in
->> -	 * the logical sense, the gpiolib will invert the line if need be.
->> -	 */
->> -	if (ctlr->use_gpio_descriptors)
->> -		spi->mode |= SPI_CS_HIGH;
->> -	else if (of_property_read_bool(nc, "spi-cs-high"))
->> +	if (of_property_read_bool(nc, "spi-cs-high"))
->>  		spi->mode |= SPI_CS_HIGH;
->>  
->>  	/* Device DUAL/QUAD mode */
->> @@ -1952,6 +1944,14 @@ static int of_spi_parse_dt(struct spi_controller *ctlr, struct spi_device *spi,
->>  	}
->>  	spi->chip_select = value;
->>  
->> +	/*
->> +	 * For descriptors associated with the device, polarity inversion is
->> +	 * handled in the gpiolib, so all gpio chip selects are "active high"
->> +	 * in the logical sense, the gpiolib will invert the line if need be.
->> +	 */
->> +	if ((ctlr->use_gpio_descriptors) && ctlr->cs_gpiods[spi->chip_select])
->> +		spi->mode |= SPI_CS_HIGH;
->> +
->
-> This patch is causing a boot regression on one of our Tegra boards. 
-> Bisect is pointing to this commit and reverting on top of today's -next
-> fixes the problem. 
->
-> This patch is causing the following NULL pointer crash which I assume is
-> because we have not checked if 'ctlr->cs_gpiods' is valid before
-> dereferencing ...
+On 24-10-2019 16:25, Jarkko Sakkinen wrote:
+> On Wed, Oct 23, 2019 at 04:32:57PM +0200, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 23-10-2019 13:37, Jarkko Sakkinen wrote:
+>>> On Mon, Oct 21, 2019 at 05:56:56PM +0200, Hans de Goede wrote:
+>>>> Hi,
+>>>>
+>>>> On 21-10-2019 17:49, Jarkko Sakkinen wrote:
+>>>>> On Sat, Oct 19, 2019 at 11:45:28AM +0200, Hans de Goede wrote:
+>>>>>> Since commit 7723f4c5ecdb ("driver core: platform: Add an error mess=
+age to
+>>>>>> platform_get_irq*()"), platform_get_irq() will call dev_err() on an =
+error,
+>>>>>> as the IRQ usage in the tpm_tis driver is optional, this is undesira=
+ble.
+>>>>>>
+>>>>>> Specifically this leads to this new false-positive error being logge=
+d:
+>>>>>> [    5.135413] tpm_tis MSFT0101:00: IRQ index 0 not found
+>>>>>>
+>>>>>> This commit switches to platform_get_irq_optional(), which does not =
+log
+>>>>>> an error, fixing this.
+>>>>>>
+>>>>>> Cc: <stable@vger.kernel.org> # 5.4.x
+>>>>>
+>>>>> Incorrect format (should be wo '<' and '>').
+>>>>
+>>>> According to:
+>>>>
+>>>> https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.htm=
+l
+>>>>
+>>>> the '<' and '>' should be added when adding a # <kerner>
+>>>
+>>> OK, right so it was. This first patch that I'm reviewing with such
+>>> commit.
+>>>
+>>>>> Also, not sure why this should be backported to stable kernel anyway.
+>>>>
+>>>> Because false-positive error messages are bad and cause users to
+>>>> file false-positive bug-reports.
+>>>
+>>> Neither categorizes into a regression albeit being unfortunate
+>>> glitches.
+>>
+>> The stable series also does other small fixes, such as adding new
+>> pci/usb-ids, etc. This clearly falls within this. IMHO ideally this
+>> should go to a 5.4-rc# making the whole discussion moot, but since
+>> I was afraid it would not make 5.4, I added the Cc: stable.
+>=20
+> I get adding PCI/USB id as it extends the hardware support for the
+> stable kernel without risking its stability. This patch is factors
+> less useful.
 
-I've just submitted a fixe for it
+It also has about 0% chance of causing regressions and it does
+help to avoid false--positive bug reports.
 
-https://patchwork.kernel.org/patch/11209839/
+TBH I'm quite surprised we are even having this discussion...
 
+Regards,
 
-Thanks,
+Hans
 
-Gregory
-
->
-> [    2.083593] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> [    2.091800] pgd = (ptrval)
-> [    2.094513] [00000000] *pgd=00000000
-> [    2.098122] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-> [    2.103436] Modules linked in:
-> [    2.106501] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.4.0-rc4-next-20191024-00013-gdda3f5db0962 #402
-> [    2.115808] Hardware name: NVIDIA Tegra SoC (Flattened Device Tree)
-> [    2.122084] PC is at spi_register_controller+0x870/0xac0
-> [    2.127409] LR is at of_find_property+0x44/0x4c
-> [    2.131943] pc : [<c0629b98>]    lr : [<c078b068>]    psr: 20000013
-> [    2.138210] sp : ee8cdda8  ip : 00000000  fp : 00000000
-> [    2.143436] r10: eefe88e8  r9 : 00000001  r8 : eefe8898
-> [    2.148662] r7 : ee2dac00  r6 : c0d2019c  r5 : c0d20190  r4 : ee2d8800
-> [    2.155190] r3 : 00000000  r2 : 00000000  r1 : ffffffff  r0 : 00000001
-> [    2.161719] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-> [    2.168857] Control: 10c5387d  Table: 8000406a  DAC: 00000051
-> [    2.174604] Process swapper/0 (pid: 1, stack limit = 0x(ptrval))
-> [    2.180613] Stack: (0xee8cdda8 to 0xee8ce000)
-> [    2.184976] dda0:                   00000000 00000044 c0629e0c 00000000 c1004e48 c0d202c8
-> [    2.193161] ddc0: 00000000 d20df1b4 c0628544 ee2d2040 ee2d8800 eea6c010 eea6c010 40000000
-> [    2.201344] dde0: 00000000 00000055 c0f8cd14 c0629e1c ee2d8800 ee2d8bc0 eea6c010 eea6c000
-> [    2.209528] de00: 40000000 c062db18 eea6b500 ee2d8bc0 eea6c010 00000000 c10807d4 00000000
-> [    2.217710] de20: c10807d4 00000000 00000000 c05b1050 c1110834 eea6c010 c1110838 c05af028
-> [    2.225893] de40: eea6c010 c10807d4 c10807d4 c1004e48 00000000 c0f0058c c0f71854 c05af2b8
-> [    2.234077] de60: c0f71854 c078be00 c0b91164 eea6c010 00000000 c10807d4 c1004e48 00000000
-> [    2.242259] de80: c0f0058c c0f71854 c0f8cd14 c05af568 00000000 c10807d4 eea6c010 c05af5f0
-> [    2.250442] dea0: 00000000 c10807d4 c05af570 c05ad39c c0f0058c ee90ea5c eea651b4 d20df1b4
-> [    2.258626] dec0: c1077590 c10807d4 ee2d2580 c1077590 00000000 c05ae390 c0d20a60 c10c73a0
-> [    2.266809] dee0: ffffe000 c10807d4 c10c73a0 ffffe000 c0f3b368 c05b0144 c1004e48 c10c73a0
-> [    2.274992] df00: ffffe000 c010306c 0000011e c01454b4 c0de9d70 c0d32c00 00000000 00000006
-> [    2.283175] df20: 00000006 c0cbf1b0 00000000 c1004e48 c0cd2680 c0cbf224 00000000 efffcc21
-> [    2.291358] df40: efffcc45 d20df1b4 00000000 c10d4e00 c10d4e00 d20df1b4 c10d4e00 c10d4e00
-> [    2.299541] df60: 00000007 c0f71834 0000011e c0f01040 00000006 00000006 00000000 c0f0058c
-> [    2.307723] df80: c0aad7c4 00000000 c0aad7c4 00000000 00000000 00000000 00000000 00000000
-> [    2.315906] dfa0: 00000000 c0aad7cc 00000000 c01010e8 00000000 00000000 00000000 00000000
-> [    2.324088] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-> [    2.332271] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
-> [    2.340463] [<c0629b98>] (spi_register_controller) from [<c0629e1c>] (devm_spi_register_controller+0x34/0x6c)
-> [    2.350389] [<c0629e1c>] (devm_spi_register_controller) from [<c062db18>] (tegra_spi_probe+0x33c/0x448)
-> [    2.359794] [<c062db18>] (tegra_spi_probe) from [<c05b1050>] (platform_drv_probe+0x48/0x98)
-> [    2.368155] [<c05b1050>] (platform_drv_probe) from [<c05af028>] (really_probe+0x234/0x34c)
-> [    2.376427] [<c05af028>] (really_probe) from [<c05af2b8>] (driver_probe_device+0x60/0x168)
-> [    2.384699] [<c05af2b8>] (driver_probe_device) from [<c05af568>] (device_driver_attach+0x58/0x60)
-> [    2.393578] [<c05af568>] (device_driver_attach) from [<c05af5f0>] (__driver_attach+0x80/0xbc)
-> [    2.402108] [<c05af5f0>] (__driver_attach) from [<c05ad39c>] (bus_for_each_dev+0x74/0xb4)
-> [    2.410292] [<c05ad39c>] (bus_for_each_dev) from [<c05ae390>] (bus_add_driver+0x164/0x1e8)
-> [    2.418563] [<c05ae390>] (bus_add_driver) from [<c05b0144>] (driver_register+0x7c/0x114)
-> [    2.426663] [<c05b0144>] (driver_register) from [<c010306c>] (do_one_initcall+0x54/0x2a8)
-> [    2.434851] [<c010306c>] (do_one_initcall) from [<c0f01040>] (kernel_init_freeable+0x14c/0x1e8)
-> [    2.443560] [<c0f01040>] (kernel_init_freeable) from [<c0aad7cc>] (kernel_init+0x8/0x10c)
-> [    2.451747] [<c0aad7cc>] (kernel_init) from [<c01010e8>] (ret_from_fork+0x14/0x2c)
-> [    2.459318] Exception stack(0xee8cdfb0 to 0xee8cdff8)
-> [    2.464374] dfa0:                                     00000000 00000000 00000000 00000000
-> [    2.472557] dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-> [    2.480740] dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
-> [    2.487362] Code: e3520000 0a000006 e59422f8 e6ef3073 (e7923103) 
-> [    2.493510] ---[ end trace c189900877242550 ]---
->
-> Cheers
-> Jon
->
-> -- 
-> nvpublic
-
--- 
-Gregory Clement, Bootlin
-Embedded Linux and Kernel engineering
-http://bootlin.com
