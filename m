@@ -2,113 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E93E287A
-	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 04:56:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A26EBE28C8
+	for <lists+stable@lfdr.de>; Thu, 24 Oct 2019 05:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392404AbfJXC4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 23 Oct 2019 22:56:49 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:42189 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390604AbfJXC4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 22:56:49 -0400
-Received: by mail-pg1-f195.google.com with SMTP id f14so13287914pgi.9
-        for <stable@vger.kernel.org>; Wed, 23 Oct 2019 19:56:48 -0700 (PDT)
+        id S2404055AbfJXDZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 23 Oct 2019 23:25:39 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:39026 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390629AbfJXDZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 23 Oct 2019 23:25:39 -0400
+Received: by mail-pl1-f194.google.com with SMTP id s17so11117918plp.6;
+        Wed, 23 Oct 2019 20:25:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=dvriWE0Ri4yYKecmkqo5B7W02zBCeLQpMBsjbMKD0G0=;
-        b=J5YqqPZRn+eJUvJ5pbTJ3bZ4gZKxBfm6hBNiQppjyOW+oeSQIMtuB6Djo8gpXWhoAF
-         we4rAteiGbAkMxNxUAxdNQybrSq/gAcnZY5h4EYuxebgHkvxpfthDK3F8HSUPAv1YuSL
-         pbwmjPiZxteiZyD/YURN/9LrN3/OEfYHftB9y0vbZiBKW8KDB49XBD4XskhZyrHdN5cg
-         ilFrOToPHpGG33kt3XwBbDEXqAWse8detK3j9lZRKJ0JXEJDUHa4RfNoVPFKy6JAnpse
-         oM7bau9C3bfAuTZfBFWtSYko2W8SQV0fRzsBRp27w24xXUhAxRKJcZ1LEXQp46gXjrAz
-         LM+w==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id;
+        bh=hL+v0VkC8nJZ/yYasVVgoGkbvgueSaBBRK1E46vpngU=;
+        b=cfP9jwhqOFa3Vyoo5fskQENeWHMYsaigLQ8xtjIEM5zJoA+Rq1Ue06Np5/krsZaMIw
+         l/EQ2wbVLdCWYJAt1DcFCMNA8NIGRky3whO9LVAAQAALv9qr/uUgTVJveuDwr279TvN1
+         JX9y/RURDl96/B5aq8Lxyzzg96YbhzeARNUhFz8ehVls68FvU1lMOVk6nlrr0OyHTO1/
+         LO3bhuZgjxvH3RwjXK1nHRmHbfVs+dxy7T6w6t7ukMsrbfg+71lHzCG8Mcb7PNijQf38
+         Yz80yF8KKyRWQTW1UNKIgpv9V76hX4cVKry9PQzlVlQIydVnuQBKc6XKE6GsT3tBd6EP
+         9eLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=dvriWE0Ri4yYKecmkqo5B7W02zBCeLQpMBsjbMKD0G0=;
-        b=C1PT1Wey2JW3dGV4cIVaoZdAdlBiw8OIy99smOzj8fcYTXLdXFjBo2QKrR5tntM2rv
-         AzGc1HxPZuIqU59VcyicjYFFnK+2dDRUsnmK1jJjH8L46OKYKXLnPaXZtrLjh4xcNjfM
-         hkptm2TibF2W4u1JSaVGLDzXvmqi7LdzjkoLOljYcW29pzhxbyFZyqEUM3mxeSsF+U9j
-         Oq4LPUSC2P1uJDUe1EQiAkNz7nyhFOaDdOoCSHu3EoWpUnOBvkOehYp+CmqQLcKVaDT1
-         5KlUMuevlY2ihp4GINJ6re9rR5hX/RSpsYQ6GddVZRRSOcDZ7o2yJ9aoVrX3kmIQX+4O
-         dHbw==
-X-Gm-Message-State: APjAAAXrt6lDBKm+/y0GeLgzAaFkFnRdNssbPGPuOBXJKr0a55d4SOj8
-        xZ9HVpcUHB7o3Nm0CJdZIIS+pw==
-X-Google-Smtp-Source: APXvYqzmHErqih0DgWYtOnVVI91j5+trwCMTyuODEk/82Va7y1F65b+vIxAdFCcs1rQ+6SL84KK0rQ==
-X-Received: by 2002:a17:90a:22c6:: with SMTP id s64mr4227508pjc.15.1571885808199;
-        Wed, 23 Oct 2019 19:56:48 -0700 (PDT)
-Received: from localhost ([122.172.151.112])
-        by smtp.gmail.com with ESMTPSA id y126sm8847533pfg.74.2019.10.23.19.56.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 23 Oct 2019 19:56:47 -0700 (PDT)
-Date:   Thu, 24 Oct 2019 08:26:41 +0530
-From:   Viresh Kumar <viresh.kumar@linaro.org>
-To:     Niklas Cassel <niklas.cassel@linaro.org>
-Cc:     Viresh Kumar <vireshk@kernel.org>, Nishanth Menon <nm@ti.com>,
-        Stephen Boyd <sboyd@kernel.org>, linux-pm@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Rafael Wysocki <rjw@rjwysocki.net>,
-        "v5 . 0+" <stable@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] opp: of: drop incorrect lockdep_assert_held()
-Message-ID: <20191024025641.dknawrtzap4qwcm4@vireshk-i7>
-References: <6306e18beab9deff6ee6b32f489390908495fe14.1570703431.git.viresh.kumar@linaro.org>
- <20191023053005.m4y4bcebgi4km35q@vireshk-i7>
- <20191023120137.GA18078@centauri>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191023120137.GA18078@centauri>
-User-Agent: NeoMutt/20180716-391-311a52
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
+        bh=hL+v0VkC8nJZ/yYasVVgoGkbvgueSaBBRK1E46vpngU=;
+        b=r1gVwusupyRKxHXRvJ0jn/KucEChKkTrmaqZLV8/Z1l7QZg+h0/4ZgzYdErGbiIRPw
+         SqIKAM0eAMOB693Rz2xDv3bUBE3CpMHOOxYL1J27lhnYkELCYVjq5VRC88BWvaMIfJL/
+         3VNH05WfhqlCSQSGPibOtgdC7bJ8CIDSDt9ZhgoarOPDloWgTaWzW5zLkucjsVB1pLn3
+         4cT/k1YjqZtJlMv05P76AEFFcYg1zzJ6J5GnzE2Yj+jsdbT5aOpOC2W4kRsTbKH3nyaE
+         vfKS9TLqVOp8xGVsxk1SGi41hD4pprUgzemyUYxE14NCK7MMFevIuaDAYRNlNa7qWql6
+         tBfg==
+X-Gm-Message-State: APjAAAWiAisnC0GwYAYkv5t6UZ600A9hogWXqJb2PL6H2pVmC1f14zMd
+        FesRu+2z+nqtyqSHHgsmKk4=
+X-Google-Smtp-Source: APXvYqzbPeO9Sylf2UWrSs/mFlQJikvRlBtwZ0Ytzy9PU0f4W4+Z/AVwT9xzRUzfQkBXgjOJgWK+Hg==
+X-Received: by 2002:a17:902:524:: with SMTP id 33mr13606140plf.123.1571887538912;
+        Wed, 23 Oct 2019 20:25:38 -0700 (PDT)
+Received: from software.domain.org ([66.42.68.162])
+        by smtp.gmail.com with ESMTPSA id y10sm23642731pfe.148.2019.10.23.20.25.31
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 23 Oct 2019 20:25:38 -0700 (PDT)
+From:   Huacai Chen <chenhc@lemote.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        chenhuacai@gmail.com, linux-kernel@vger.kernel.org,
+        Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH] timekeeping/vsyscall: Update vdso data unconditionally
+Date:   Thu, 24 Oct 2019 11:28:29 +0800
+Message-Id: <1571887709-11447-1-git-send-email-chenhc@lemote.com>
+X-Mailer: git-send-email 2.7.0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 23-10-19, 14:01, Niklas Cassel wrote:
-> On Wed, Oct 23, 2019 at 11:00:05AM +0530, Viresh Kumar wrote:
-> > On 10-10-19, 16:00, Viresh Kumar wrote:
-> > > _find_opp_of_np() doesn't traverse the list of OPP tables but instead
-> > > just the entries within an OPP table and so only requires to lock the
-> > > OPP table itself.
-> > > 
-> > > The lockdep_assert_held() was added there by mistake and isn't really
-> > > required.
-> > > 
-> > > Fixes: 5d6d106fa455 ("OPP: Populate required opp tables from "required-opps" property")
-> > > Cc: v5.0+ <stable@vger.kernel.org> # v5.0+
-> > > Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-> > > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> > > ---
-> > >  drivers/opp/of.c | 2 --
-> > >  1 file changed, 2 deletions(-)
-> > > 
-> > > diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-> > > index 1813f5ad5fa2..6dc41faf74b5 100644
-> > > --- a/drivers/opp/of.c
-> > > +++ b/drivers/opp/of.c
-> > > @@ -77,8 +77,6 @@ static struct dev_pm_opp *_find_opp_of_np(struct opp_table *opp_table,
-> > >  {
-> > >  	struct dev_pm_opp *opp;
-> > >  
-> > > -	lockdep_assert_held(&opp_table_lock);
-> > > -
-> > >  	mutex_lock(&opp_table->lock);
-> > >  
-> > >  	list_for_each_entry(opp, &opp_table->opp_list, node) {
-> > 
-> > @Niklas, any inputs from your side  here would be appreciated :)
-> 
-> Tested-by: Niklas Cassel <niklas.cassel@linaro.org>
-> 
-> After this patch, there is still a single lockdep_assert_held()
-> left, inside _find_table_of_opp_np(), since you kept this,
-> I assume that that one is still needed?
+In do_hres(), we currently use whether the return value of __arch_get_
+hw_counter() is negative to indicate fallback, but MIPS returns 0 when
+clock_mode is invalid.
 
-Yeah, that one is required as we are traversing the list of OPP tables
-there.
+It is sure that MIPS has a bug when clock_mode is invalid and should
+return ULL_MAX as ARM64 does (Vincenzo has already submitted a patch).
+But at the time we found another bug: currently update_vsyscall() and
+update_vsyscall_tz() rely on __arch_use_vsyscall() to update the vdso
+data, which causes __cvdso_clock_getres() and some other functions get
+wrong results when clock_mode is invalid. So, in this patch we update
+vdso data unconditionally.
 
+Fixes: 44f57d788e7deecb50 ("timekeeping: Provide a generic update_vsyscall() implementation")
+Cc: stable@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+---
+ kernel/time/vsyscall.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
+index 4bc37ac..5ee0f77 100644
+--- a/kernel/time/vsyscall.c
++++ b/kernel/time/vsyscall.c
+@@ -110,8 +110,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	nsec		= nsec + tk->wall_to_monotonic.tv_nsec;
+ 	vdso_ts->sec	+= __iter_div_u64_rem(nsec, NSEC_PER_SEC, &vdso_ts->nsec);
+ 
+-	if (__arch_use_vsyscall(vdata))
+-		update_vdso_data(vdata, tk);
++	update_vdso_data(vdata, tk);
+ 
+ 	__arch_update_vsyscall(vdata, tk);
+ 
+@@ -124,10 +123,8 @@ void update_vsyscall_tz(void)
+ {
+ 	struct vdso_data *vdata = __arch_get_k_vdso_data();
+ 
+-	if (__arch_use_vsyscall(vdata)) {
+-		vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
+-		vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+-	}
++	vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
++	vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+ 
+ 	__arch_sync_vdso_data(vdata);
+ }
 -- 
-viresh
+2.7.0
+
