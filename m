@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAEC8E4E22
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC8BE4E23
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505268AbfJYN41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:56:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50762 "EHLO mail.kernel.org"
+        id S2395235AbfJYOFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:05:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505261AbfJYN40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:26 -0400
+        id S2632835AbfJYN43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:56:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DEF221D7F;
-        Fri, 25 Oct 2019 13:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD6821D7F;
+        Fri, 25 Oct 2019 13:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011785;
-        bh=N76CoPzdJ7FfQP3LJQW2Rr6UIbvii3tkzOHeMY72w/M=;
+        s=default; t=1572011789;
+        bh=4wI4BXv8dbGkn69FexzjVQhmlDi4VgU0N1H2yt7Nd+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jOBBl0JOuNBqPn4fUmlZXGtcUhQuczROkcGu0/+oJbDzDNI5DT6Ml/5XB50V9UDb
-         r7Wol/VlsNiXjRDmpLApQgvofKn48iKfP1JiOvJue3ozRx06Bg0CI9yiYmkn+T7a8b
-         leR1CVfCCdn1sz7JHGbxgfHmd50b5I0oHiPqcaqI=
+        b=SlILOK4oJLEx4AMM+s9c/fWEmUOFhIsrk1dIB0loaW2liWvpe/4Cc0SWFTZZaU3w2
+         NhA8MZZQjO1M4zG0RHktifMfaziIG7aR7FXQyDTQc7Z6aC7KXRuSmkEStxHO7ou05n
+         9oo/+g0FH1mkfj9d2ofOCdofKlaxOFVVDJdT4zFc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Emily Deng <Emily.Deng@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 12/37] drm/amdgpu/display: Fix reload driver error
-Date:   Fri, 25 Oct 2019 09:55:36 -0400
-Message-Id: <20191025135603.25093-12-sashal@kernel.org>
+Cc:     Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 13/37] powerpc/pseries/hvconsole: Fix stack overread via udbg
+Date:   Fri, 25 Oct 2019 09:55:37 -0400
+Message-Id: <20191025135603.25093-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
@@ -45,79 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emily Deng <Emily.Deng@amd.com>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit 526c654a8a0641d4289bf65effde4d6095bd8384 ]
+[ Upstream commit 934bda59f286d0221f1a3ebab7f5156a996cc37d ]
 
-Issue:
-Will have follow error when reload driver:
-[ 3986.567739] sysfs: cannot create duplicate filename '/devices/pci0000:00/0000:00:07.0/drm_dp_aux_dev'
-[ 3986.567743] CPU: 6 PID: 1767 Comm: modprobe Tainted: G           OE     5.0.0-rc1-custom #1
-[ 3986.567745] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
-[ 3986.567746] Call Trace:
-......
-[ 3986.567808]  drm_dp_aux_register_devnode+0xdc/0x140 [drm_kms_helper]
-......
-[ 3986.569081] kobject_add_internal failed for drm_dp_aux_dev with -EEXIST, don't try to register things with the same name in the same directory.
+While developing KASAN for 64-bit book3s, I hit the following stack
+over-read.
 
-Reproduce sequences:
-1.modprobe amdgpu
-2.modprobe -r amdgpu
-3.modprobe amdgpu
+It occurs because the hypercall to put characters onto the terminal
+takes 2 longs (128 bits/16 bytes) of characters at a time, and so
+hvc_put_chars() would unconditionally copy 16 bytes from the argument
+buffer, regardless of supplied length. However, udbg_hvc_putc() can
+call hvc_put_chars() with a single-byte buffer, leading to the error.
 
-Root cause:
-When unload driver, it doesn't unregister aux.
+  ==================================================================
+  BUG: KASAN: stack-out-of-bounds in hvc_put_chars+0xdc/0x110
+  Read of size 8 at addr c0000000023e7a90 by task swapper/0
 
-v2: Don't use has_aux
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.2.0-rc2-next-20190528-02824-g048a6ab4835b #113
+  Call Trace:
+    dump_stack+0x104/0x154 (unreliable)
+    print_address_description+0xa0/0x30c
+    __kasan_report+0x20c/0x224
+    kasan_report+0x18/0x30
+    __asan_report_load8_noabort+0x24/0x40
+    hvc_put_chars+0xdc/0x110
+    hvterm_raw_put_chars+0x9c/0x110
+    udbg_hvc_putc+0x154/0x200
+    udbg_write+0xf0/0x240
+    console_unlock+0x868/0xd30
+    register_console+0x970/0xe90
+    register_early_udbg_console+0xf8/0x114
+    setup_arch+0x108/0x790
+    start_kernel+0x104/0x784
+    start_here_common+0x1c/0x534
 
-Signed-off-by: Emily Deng <Emily.Deng@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  Memory state around the buggy address:
+   c0000000023e7980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
+  >c0000000023e7a80: f1 f1 01 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
+                           ^
+   c0000000023e7b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
+
+Document that a 16-byte buffer is requred, and provide it in udbg.
+
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/hvconsole.c |  2 +-
+ drivers/tty/hvc/hvc_vio.c                  | 16 +++++++++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 3b07a316680c2..5209b76262311 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2870,6 +2870,13 @@ int amdgpu_dm_connector_atomic_get_property(struct drm_connector *connector,
- 	return ret;
+diff --git a/arch/powerpc/platforms/pseries/hvconsole.c b/arch/powerpc/platforms/pseries/hvconsole.c
+index 74da18de853af..73ec15cd27080 100644
+--- a/arch/powerpc/platforms/pseries/hvconsole.c
++++ b/arch/powerpc/platforms/pseries/hvconsole.c
+@@ -62,7 +62,7 @@ EXPORT_SYMBOL(hvc_get_chars);
+  * @vtermno: The vtermno or unit_address of the adapter from which the data
+  *	originated.
+  * @buf: The character buffer that contains the character data to send to
+- *	firmware.
++ *	firmware. Must be at least 16 bytes, even if count is less than 16.
+  * @count: Send this number of characters.
+  */
+ int hvc_put_chars(uint32_t vtermno, const char *buf, int count)
+diff --git a/drivers/tty/hvc/hvc_vio.c b/drivers/tty/hvc/hvc_vio.c
+index 59eaa620bf13a..80fd06fbd712a 100644
+--- a/drivers/tty/hvc/hvc_vio.c
++++ b/drivers/tty/hvc/hvc_vio.c
+@@ -107,6 +107,14 @@ static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return got;
  }
  
-+static void amdgpu_dm_connector_unregister(struct drm_connector *connector)
-+{
-+	struct amdgpu_dm_connector *amdgpu_dm_connector = to_amdgpu_dm_connector(connector);
-+
-+	drm_dp_aux_unregister(&amdgpu_dm_connector->dm_dp_aux.aux);
-+}
-+
- static void amdgpu_dm_connector_destroy(struct drm_connector *connector)
++/**
++ * hvterm_raw_put_chars: send characters to firmware for given vterm adapter
++ * @vtermno: The virtual terminal number.
++ * @buf: The characters to send. Because of the underlying hypercall in
++ *       hvc_put_chars(), this buffer must be at least 16 bytes long, even if
++ *       you are sending fewer chars.
++ * @count: number of chars to send.
++ */
+ static int hvterm_raw_put_chars(uint32_t vtermno, const char *buf, int count)
  {
- 	struct amdgpu_dm_connector *aconnector = to_amdgpu_dm_connector(connector);
-@@ -2889,6 +2896,11 @@ static void amdgpu_dm_connector_destroy(struct drm_connector *connector)
- #endif
- 	drm_connector_unregister(connector);
- 	drm_connector_cleanup(connector);
-+	if (aconnector->i2c) {
-+		i2c_del_adapter(&aconnector->i2c->base);
-+		kfree(aconnector->i2c);
-+	}
-+
- 	kfree(connector);
- }
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+@@ -219,6 +227,7 @@ static const struct hv_ops hvterm_hvsi_ops = {
+ static void udbg_hvc_putc(char c)
+ {
+ 	int count = -1;
++	unsigned char bounce_buffer[16];
  
-@@ -2942,7 +2954,8 @@ static const struct drm_connector_funcs amdgpu_dm_connector_funcs = {
- 	.atomic_duplicate_state = amdgpu_dm_connector_atomic_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
- 	.atomic_set_property = amdgpu_dm_connector_atomic_set_property,
--	.atomic_get_property = amdgpu_dm_connector_atomic_get_property
-+	.atomic_get_property = amdgpu_dm_connector_atomic_get_property,
-+	.early_unregister = amdgpu_dm_connector_unregister
- };
- 
- static struct drm_encoder *best_encoder(struct drm_connector *connector)
+ 	if (!hvterm_privs[0])
+ 		return;
+@@ -229,7 +238,12 @@ static void udbg_hvc_putc(char c)
+ 	do {
+ 		switch(hvterm_privs[0]->proto) {
+ 		case HV_PROTOCOL_RAW:
+-			count = hvterm_raw_put_chars(0, &c, 1);
++			/*
++			 * hvterm_raw_put_chars requires at least a 16-byte
++			 * buffer, so go via the bounce buffer
++			 */
++			bounce_buffer[0] = c;
++			count = hvterm_raw_put_chars(0, bounce_buffer, 1);
+ 			break;
+ 		case HV_PROTOCOL_HVSI:
+ 			count = hvterm_hvsi_put_chars(0, &c, 1);
 -- 
 2.20.1
 
