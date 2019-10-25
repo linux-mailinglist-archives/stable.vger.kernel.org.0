@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C40E4E62
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25811E4E55
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505124AbfJYNzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49566 "EHLO mail.kernel.org"
+        id S2632723AbfJYNzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505113AbfJYNzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:55:37 -0400
+        id S2505131AbfJYNzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:55:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3CC321D82;
-        Fri, 25 Oct 2019 13:55:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D39A222BD;
+        Fri, 25 Oct 2019 13:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011735;
-        bh=jaoebFQ+mQjeTBDw9NyFsfRcNbaKuxfOprRtFceRTdE=;
+        s=default; t=1572011738;
+        bh=/5vZq0Extn35PLfohoeq1RAcB06TKXE2V7hZ+LfTC5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+3TLgx3By4BpIl6Mjjfdsw5dEDzv+VPV4WAxcvMVhR8YOzZNzDll6HKt3/AZ2APi
-         GkdsE2KEQXTtmy+PyAVXz2CKs4B4AHCMTQ76UjiXX0kr00QUqtqM5RDJ3t/NppCcSM
-         TX0PYzjuGWTDO9kCsu8YGNgCAwXX4A3TwsePpHv8=
+        b=HSUS7naFH4Y/CPocVhj7wZ6T48Xo690eu+rAMcbZvURrqgGGFPRH2IxEb6buyFBhJ
+         6WaiGdOYsmZF+OpqOA3DoS4pMwYqKgXXI81tJLdQJMNRTai4cqH8MLCE1yepJ5RbAi
+         cOA7AzbNXNp7CfdRy0c87absZt6+gBVu1yDCHGSQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 17/33] usb: typec: fusb302: Call fusb302_debugfs_init earlier
-Date:   Fri, 25 Oct 2019 09:54:49 -0400
-Message-Id: <20191025135505.24762-17-sashal@kernel.org>
+Cc:     Dag Moxnes <dag.moxnes@oracle.com>, Jenny <jenny.x.xu@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 19/33] net/rds: Whitelist rdma_cookie and rx_tstamp for usercopy
+Date:   Fri, 25 Oct 2019 09:54:51 -0400
+Message-Id: <20191025135505.24762-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135505.24762-1-sashal@kernel.org>
 References: <20191025135505.24762-1-sashal@kernel.org>
@@ -45,80 +45,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dag Moxnes <dag.moxnes@oracle.com>
 
-[ Upstream commit 1e296b5be40d309a1585c14bc55da6ff6a29ecf0 ]
+[ Upstream commit bf1867db9b850fff2dd54a1a117a684a10b8cd90 ]
 
-tcpm_register_port() will call some of the fusb302 code's callbacks
-wich in turn will call fusb302_log(). So we need to call
-fusb302_debugfs_init() before we call tcpm_register_port().
+Add the RDMA cookie and RX timestamp to the usercopy whitelist.
 
-This fixes the following warning, which was caused by the logbuffer_lock
-not yet being initialized (which is done by fusb302_debugfs_init):
+After the introduction of hardened usercopy whitelisting
+(https://lwn.net/Articles/727322/), a warning is displayed when the
+RDMA cookie or RX timestamp is copied to userspace:
 
- DEBUG_LOCKS_WARN_ON(lock->magic != lock)
- WARNING: CPU: 0 PID: 1306 at kernel/locking/mutex.c:912 __mutex_lock+0x978/0x9a0
- Modules linked in: fusb302(+) tcpm pi3usb30532 typec bq24190_charger snd_soc_sst_cht_bsw_rt5645 mei_hdcp dwc3 intel_rapl_msr udc_core ulpi gpio_keys intel_powerclamp coretemp kvm_intel brcmfmac kvm brcmutil joydev cfg80211 wdat_wdt irqbypass pcspkr intel_cstate extcon_intel_cht_wc i2c_cht_wc(E) snd_intel_sst_acpi snd_intel_sst_core snd_soc_rt5645 snd_soc_sst_atom_hifi2_platform snd_soc_acpi_intel_match snd_soc_rl6231 snd_soc_acpi intel_xhci_usb_role_switch roles hci_uart snd_soc_core btqca mei_txe btrtl processor_thermal_device mei snd_hdmi_lpe_audio lpc_ich snd_compress btbcm intel_rapl_common ac97_bus dwc3_pci snd_pcm_dmaengine intel_soc_dts_iosf btintel snd_seq bluetooth snd_seq_device snd_pcm intel_cht_int33fe_musb snd_timer intel_cht_int33fe_typec intel_hid intel_cht_int33fe_common sparse_keymap snd ecdh_generic goodix rfkill soundcore ecc spi_pxa2xx_platform max17042_battery dw_dmac int3406_thermal dptf_power acpi_pad soc_button_array int3400_thermal int3403_thermal
-  gpd_pocket_fan intel_int0002_vgpio int340x_thermal_zone acpi_thermal_rel dm_crypt mmc_block i915 crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel i2c_algo_bit drm_kms_helper drm video sdhci_acpi sdhci mmc_core pwm_lpss_platform pwm_lpss i2c_dev
- CPU: 0 PID: 1306 Comm: systemd-udevd Tainted: G            E     5.3.0-rc4+ #83
- Hardware name: Default string Default string/Default string, BIOS 5.11 06/28/2017
- RIP: 0010:__mutex_lock+0x978/0x9a0
- Code: c0 0f 84 26 f7 ff ff 44 8b 05 24 25 c8 00 45 85 c0 0f 85 16 f7 ff ff 48 c7 c6 da 55 2f ae 48 c7 c7 98 8c 2d ae e8 a0 f9 5c ff <0f> 0b e9 fc f6 ff ff 4c 89 f0 4d 89 fe 49 89 c7 e9 cf fa ff ff e8
- RSP: 0018:ffffb7a8c0523800 EFLAGS: 00010286
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 0000000000000002 RSI: 0000000000000001 RDI: 0000000000000246
- RBP: ffffb7a8c05238c0 R08: 0000000000000000 R09: 0000000000000000
- R10: ffffb7a8c0523648 R11: 0000000000000030 R12: 0000000000000000
- R13: ffffb7a8c0523990 R14: ffff9bf22f70c028 R15: ffff9bf22f70c360
- FS:  00007f39ca234940(0000) GS:ffff9bf237400000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f1f108481a0 CR3: 0000000271f28000 CR4: 00000000001006f0
- Call Trace:
-  ? find_held_lock+0x39/0x90
-  ? _fusb302_log+0x81/0x1d0 [fusb302]
-  ? vsnprintf+0x3aa/0x4f0
-  ? _fusb302_log+0x81/0x1d0 [fusb302]
-  _fusb302_log+0x81/0x1d0 [fusb302]
- ...
+kernel: WARNING: CPU: 3 PID: 5750 at
+mm/usercopy.c:81 usercopy_warn+0x8e/0xa6
+[...]
+kernel: Call Trace:
+kernel: __check_heap_object+0xb8/0x11b
+kernel: __check_object_size+0xe3/0x1bc
+kernel: put_cmsg+0x95/0x115
+kernel: rds_recvmsg+0x43d/0x620 [rds]
+kernel: sock_recvmsg+0x43/0x4a
+kernel: ___sys_recvmsg+0xda/0x1e6
+kernel: ? __handle_mm_fault+0xcae/0xf79
+kernel: __sys_recvmsg+0x51/0x8a
+kernel: SyS_recvmsg+0x12/0x1c
+kernel: do_syscall_64+0x79/0x1ae
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20190817184340.64086-3-hdegoede@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When the whitelisting feature was introduced, the memory for the RDMA
+cookie and RX timestamp in RDS was not added to the whitelist, causing
+the warning above.
+
+Signed-off-by: Dag Moxnes <dag.moxnes@oracle.com>
+Tested-by: Jenny <jenny.x.xu@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/tcpm/fusb302.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/rds/ib_recv.c | 11 ++++++++---
+ net/rds/rds.h     |  9 +++++++--
+ net/rds/recv.c    | 22 ++++++++++++----------
+ 3 files changed, 27 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/usb/typec/tcpm/fusb302.c b/drivers/usb/typec/tcpm/fusb302.c
-index c524088246ee3..2030ff8541783 100644
---- a/drivers/usb/typec/tcpm/fusb302.c
-+++ b/drivers/usb/typec/tcpm/fusb302.c
-@@ -1753,6 +1753,7 @@ static int fusb302_probe(struct i2c_client *client,
- 	INIT_WORK(&chip->irq_work, fusb302_irq_work);
- 	INIT_DELAYED_WORK(&chip->bc_lvl_handler, fusb302_bc_lvl_handler_work);
- 	init_tcpc_dev(&chip->tcpc_dev);
-+	fusb302_debugfs_init(chip);
+diff --git a/net/rds/ib_recv.c b/net/rds/ib_recv.c
+index 3cae88cbdaa02..fecd0abdc7e8e 100644
+--- a/net/rds/ib_recv.c
++++ b/net/rds/ib_recv.c
+@@ -1038,9 +1038,14 @@ int rds_ib_recv_init(void)
+ 	si_meminfo(&si);
+ 	rds_ib_sysctl_max_recv_allocation = si.totalram / 3 * PAGE_SIZE / RDS_FRAG_SIZE;
  
- 	if (client->irq) {
- 		chip->gpio_int_n_irq = client->irq;
-@@ -1778,7 +1779,6 @@ static int fusb302_probe(struct i2c_client *client,
- 		goto tcpm_unregister_port;
+-	rds_ib_incoming_slab = kmem_cache_create("rds_ib_incoming",
+-					sizeof(struct rds_ib_incoming),
+-					0, SLAB_HWCACHE_ALIGN, NULL);
++	rds_ib_incoming_slab =
++		kmem_cache_create_usercopy("rds_ib_incoming",
++					   sizeof(struct rds_ib_incoming),
++					   0, SLAB_HWCACHE_ALIGN,
++					   offsetof(struct rds_ib_incoming,
++						    ii_inc.i_usercopy),
++					   sizeof(struct rds_inc_usercopy),
++					   NULL);
+ 	if (!rds_ib_incoming_slab)
+ 		goto out;
+ 
+diff --git a/net/rds/rds.h b/net/rds/rds.h
+index f0066d1684993..e792a67dd5788 100644
+--- a/net/rds/rds.h
++++ b/net/rds/rds.h
+@@ -271,6 +271,12 @@ struct rds_ext_header_rdma_dest {
+ #define	RDS_MSG_RX_END		2
+ #define	RDS_MSG_RX_CMSG		3
+ 
++/* The following values are whitelisted for usercopy */
++struct rds_inc_usercopy {
++	rds_rdma_cookie_t	rdma_cookie;
++	ktime_t			rx_tstamp;
++};
++
+ struct rds_incoming {
+ 	refcount_t		i_refcount;
+ 	struct list_head	i_item;
+@@ -280,8 +286,7 @@ struct rds_incoming {
+ 	unsigned long		i_rx_jiffies;
+ 	struct in6_addr		i_saddr;
+ 
+-	rds_rdma_cookie_t	i_rdma_cookie;
+-	ktime_t			i_rx_tstamp;
++	struct rds_inc_usercopy i_usercopy;
+ 	u64			i_rx_lat_trace[RDS_RX_MAX_TRACES];
+ };
+ 
+diff --git a/net/rds/recv.c b/net/rds/recv.c
+index a42ba7fa06d5d..c8404971d5ab3 100644
+--- a/net/rds/recv.c
++++ b/net/rds/recv.c
+@@ -47,8 +47,8 @@ void rds_inc_init(struct rds_incoming *inc, struct rds_connection *conn,
+ 	INIT_LIST_HEAD(&inc->i_item);
+ 	inc->i_conn = conn;
+ 	inc->i_saddr = *saddr;
+-	inc->i_rdma_cookie = 0;
+-	inc->i_rx_tstamp = ktime_set(0, 0);
++	inc->i_usercopy.rdma_cookie = 0;
++	inc->i_usercopy.rx_tstamp = ktime_set(0, 0);
+ 
+ 	memset(inc->i_rx_lat_trace, 0, sizeof(inc->i_rx_lat_trace));
+ }
+@@ -62,8 +62,8 @@ void rds_inc_path_init(struct rds_incoming *inc, struct rds_conn_path *cp,
+ 	inc->i_conn = cp->cp_conn;
+ 	inc->i_conn_path = cp;
+ 	inc->i_saddr = *saddr;
+-	inc->i_rdma_cookie = 0;
+-	inc->i_rx_tstamp = ktime_set(0, 0);
++	inc->i_usercopy.rdma_cookie = 0;
++	inc->i_usercopy.rx_tstamp = ktime_set(0, 0);
+ }
+ EXPORT_SYMBOL_GPL(rds_inc_path_init);
+ 
+@@ -186,7 +186,7 @@ static void rds_recv_incoming_exthdrs(struct rds_incoming *inc, struct rds_sock
+ 		case RDS_EXTHDR_RDMA_DEST:
+ 			/* We ignore the size for now. We could stash it
+ 			 * somewhere and use it for error checking. */
+-			inc->i_rdma_cookie = rds_rdma_make_cookie(
++			inc->i_usercopy.rdma_cookie = rds_rdma_make_cookie(
+ 					be32_to_cpu(buffer.rdma_dest.h_rdma_rkey),
+ 					be32_to_cpu(buffer.rdma_dest.h_rdma_offset));
+ 
+@@ -380,7 +380,7 @@ void rds_recv_incoming(struct rds_connection *conn, struct in6_addr *saddr,
+ 				      be32_to_cpu(inc->i_hdr.h_len),
+ 				      inc->i_hdr.h_dport);
+ 		if (sock_flag(sk, SOCK_RCVTSTAMP))
+-			inc->i_rx_tstamp = ktime_get_real();
++			inc->i_usercopy.rx_tstamp = ktime_get_real();
+ 		rds_inc_addref(inc);
+ 		inc->i_rx_lat_trace[RDS_MSG_RX_END] = local_clock();
+ 		list_add_tail(&inc->i_item, &rs->rs_recv_queue);
+@@ -540,16 +540,18 @@ static int rds_cmsg_recv(struct rds_incoming *inc, struct msghdr *msg,
+ {
+ 	int ret = 0;
+ 
+-	if (inc->i_rdma_cookie) {
++	if (inc->i_usercopy.rdma_cookie) {
+ 		ret = put_cmsg(msg, SOL_RDS, RDS_CMSG_RDMA_DEST,
+-				sizeof(inc->i_rdma_cookie), &inc->i_rdma_cookie);
++				sizeof(inc->i_usercopy.rdma_cookie),
++				&inc->i_usercopy.rdma_cookie);
+ 		if (ret)
+ 			goto out;
  	}
- 	enable_irq_wake(chip->gpio_int_n_irq);
--	fusb302_debugfs_init(chip);
- 	i2c_set_clientdata(client, chip);
  
- 	return ret;
-@@ -1786,6 +1786,7 @@ static int fusb302_probe(struct i2c_client *client,
- tcpm_unregister_port:
- 	tcpm_unregister_port(chip->tcpm_port);
- destroy_workqueue:
-+	fusb302_debugfs_exit(chip);
- 	destroy_workqueue(chip->wq);
+-	if ((inc->i_rx_tstamp != 0) &&
++	if ((inc->i_usercopy.rx_tstamp != 0) &&
+ 	    sock_flag(rds_rs_to_sk(rs), SOCK_RCVTSTAMP)) {
+-		struct __kernel_old_timeval tv = ns_to_kernel_old_timeval(inc->i_rx_tstamp);
++		struct __kernel_old_timeval tv =
++			ns_to_kernel_old_timeval(inc->i_usercopy.rx_tstamp);
  
- 	return ret;
+ 		if (!sock_flag(rds_rs_to_sk(rs), SOCK_TSTAMP_NEW)) {
+ 			ret = put_cmsg(msg, SOL_SOCKET, SO_TIMESTAMP_OLD,
 -- 
 2.20.1
 
