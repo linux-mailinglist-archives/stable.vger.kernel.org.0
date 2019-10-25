@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA527E4D46
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:59:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A64E4E85
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632967AbfJYN7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:59:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
+        id S2504964AbfJYNzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:55:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2632945AbfJYN7P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:59:15 -0400
+        id S2504807AbfJYNzK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:55:10 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52669222C9;
-        Fri, 25 Oct 2019 13:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07E4221D7F;
+        Fri, 25 Oct 2019 13:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011954;
-        bh=hYJm1cFdOAmx6GLYpJvVEn8yPe42AQ1KAIXNR8DbkTg=;
+        s=default; t=1572011708;
+        bh=DoQU3h9Q8oTji2ic4HhYQ8As6rV+eRBbZgaDC+nWbOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anbmIYYOTveMRDzw4dCNxnGV6FWDMezqGn8YBISD18I7O1m8Wbj5TyaqNvXyOz3IA
-         V5qptt2g3iIXCtzbrhR8GM9dhBgCHUQGcBPAf59CEOUsSYFHKLjN1P9yYfjAdFOVsh
-         8J+hD9W0trqBGtBdVer+hGU+hJySWZ6+Cl5SfZCI=
+        b=Q11zyhXb5SHq0c8AhyOIyAZy13Ov2pJZF+RSFtofFweVFdPPY7uYQeMkjMe8DPaY6
+         TnpgQNtq9wr4c9TTTXm+Ps1/axEeIH1Rm7FQoxjbkCWTpHOs0oPldGQCl1g1DGfPTJ
+         8W4SvHE9AOCUOYB7HIsvFpGOGdh5cHj45doxoSZw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        AceLan Kao <acelan.kao@canonical.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.4 16/16] bdi: Do not use freezable workqueue
-Date:   Fri, 25 Oct 2019 09:58:40 -0400
-Message-Id: <20191025135842.25977-16-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 02/33] sch_netem: fix rcu splat in netem_enqueue()
+Date:   Fri, 25 Oct 2019 09:54:34 -0400
+Message-Id: <20191025135505.24762-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191025135842.25977-1-sashal@kernel.org>
-References: <20191025135842.25977-1-sashal@kernel.org>
+In-Reply-To: <20191025135505.24762-1-sashal@kernel.org>
+References: <20191025135505.24762-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,84 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a2b90f11217790ec0964ba9c93a4abb369758c26 ]
+[ Upstream commit 159d2c7d8106177bd9a986fd005a311fe0d11285 ]
 
-A removable block device, such as NVMe or SSD connected over Thunderbolt
-can be hot-removed any time including when the system is suspended. When
-device is hot-removed during suspend and the system gets resumed, kernel
-first resumes devices and then thaws the userspace including freezable
-workqueues. What happens in that case is that the NVMe driver notices
-that the device is unplugged and removes it from the system. This ends
-up calling bdi_unregister() for the gendisk which then schedules
-wb_workfn() to be run one more time.
+qdisc_root() use from netem_enqueue() triggers a lockdep warning.
 
-However, since the bdi_wq is still frozen flush_delayed_work() call in
-wb_shutdown() blocks forever halting system resume process. User sees
-this as hang as nothing is happening anymore.
+__dev_queue_xmit() uses rcu_read_lock_bh() which is
+not equivalent to rcu_read_lock() + local_bh_disable_bh as far
+as lockdep is concerned.
 
-Triggering sysrq-w reveals this:
+WARNING: suspicious RCU usage
+5.3.0-rc7+ #0 Not tainted
+-----------------------------
+include/net/sch_generic.h:492 suspicious rcu_dereference_check() usage!
 
-  Workqueue: nvme-wq nvme_remove_dead_ctrl_work [nvme]
-  Call Trace:
-   ? __schedule+0x2c5/0x630
-   ? wait_for_completion+0xa4/0x120
-   schedule+0x3e/0xc0
-   schedule_timeout+0x1c9/0x320
-   ? resched_curr+0x1f/0xd0
-   ? wait_for_completion+0xa4/0x120
-   wait_for_completion+0xc3/0x120
-   ? wake_up_q+0x60/0x60
-   __flush_work+0x131/0x1e0
-   ? flush_workqueue_prep_pwqs+0x130/0x130
-   bdi_unregister+0xb9/0x130
-   del_gendisk+0x2d2/0x2e0
-   nvme_ns_remove+0xed/0x110 [nvme_core]
-   nvme_remove_namespaces+0x96/0xd0 [nvme_core]
-   nvme_remove+0x5b/0x160 [nvme]
-   pci_device_remove+0x36/0x90
-   device_release_driver_internal+0xdf/0x1c0
-   nvme_remove_dead_ctrl_work+0x14/0x30 [nvme]
-   process_one_work+0x1c2/0x3f0
-   worker_thread+0x48/0x3e0
-   kthread+0x100/0x140
-   ? current_work+0x30/0x30
-   ? kthread_park+0x80/0x80
-   ret_from_fork+0x35/0x40
+other info that might help us debug this:
 
-This is not limited to NVMes so exactly same issue can be reproduced by
-hot-removing SSD (over Thunderbolt) while the system is suspended.
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by syz-executor427/8855:
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: lwtunnel_xmit_redirect include/net/lwtunnel.h:92 [inline]
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: ip_finish_output2+0x2dc/0x2570 net/ipv4/ip_output.c:214
+ #1: 00000000b5525c01 (rcu_read_lock_bh){....}, at: __dev_queue_xmit+0x20a/0x3650 net/core/dev.c:3804
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_xmit_skb net/core/dev.c:3502 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_queue_xmit+0x14b8/0x3650 net/core/dev.c:3838
 
-Prevent this from happening by removing WQ_FREEZABLE from bdi_wq.
+stack backtrace:
+CPU: 0 PID: 8855 Comm: syz-executor427 Not tainted 5.3.0-rc7+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5357
+ qdisc_root include/net/sch_generic.h:492 [inline]
+ netem_enqueue+0x1cfb/0x2d80 net/sched/sch_netem.c:479
+ __dev_xmit_skb net/core/dev.c:3527 [inline]
+ __dev_queue_xmit+0x15d2/0x3650 net/core/dev.c:3838
+ dev_queue_xmit+0x18/0x20 net/core/dev.c:3902
+ neigh_hh_output include/net/neighbour.h:500 [inline]
+ neigh_output include/net/neighbour.h:509 [inline]
+ ip_finish_output2+0x1726/0x2570 net/ipv4/ip_output.c:228
+ __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+ __ip_finish_output+0x5fc/0xb90 net/ipv4/ip_output.c:290
+ ip_finish_output+0x38/0x1f0 net/ipv4/ip_output.c:318
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip_mc_output+0x292/0xf40 net/ipv4/ip_output.c:417
+ dst_output include/net/dst.h:436 [inline]
+ ip_local_out+0xbb/0x190 net/ipv4/ip_output.c:125
+ ip_send_skb+0x42/0xf0 net/ipv4/ip_output.c:1555
+ udp_send_skb.isra.0+0x6b2/0x1160 net/ipv4/udp.c:887
+ udp_sendmsg+0x1e96/0x2820 net/ipv4/udp.c:1174
+ inet_sendmsg+0x9e/0xe0 net/ipv4/af_inet.c:807
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
+ do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reported-by: AceLan Kao <acelan.kao@canonical.com>
-Link: https://marc.info/?l=linux-kernel&m=138695698516487
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=204385
-Link: https://lore.kernel.org/lkml/20191002122136.GD2819@lahna.fi.intel.com/#t
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/backing-dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/sch_generic.h | 5 +++++
+ net/sched/sch_netem.c     | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 07e3b3b8e8469..c682fb90cf356 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -245,8 +245,8 @@ static int __init default_bdi_init(void)
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index 6b6b01234dd9d..58b1fbc884a7a 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -520,6 +520,11 @@ static inline struct Qdisc *qdisc_root(const struct Qdisc *qdisc)
+ 	return q;
+ }
+ 
++static inline struct Qdisc *qdisc_root_bh(const struct Qdisc *qdisc)
++{
++	return rcu_dereference_bh(qdisc->dev_queue->qdisc);
++}
++
+ static inline struct Qdisc *qdisc_root_sleeping(const struct Qdisc *qdisc)
  {
- 	int err;
+ 	return qdisc->dev_queue->qdisc_sleeping;
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index f5cb35e550f8d..0e44039e729c7 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -476,7 +476,7 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 	 * skb will be queued.
+ 	 */
+ 	if (count > 1 && (skb2 = skb_clone(skb, GFP_ATOMIC)) != NULL) {
+-		struct Qdisc *rootq = qdisc_root(sch);
++		struct Qdisc *rootq = qdisc_root_bh(sch);
+ 		u32 dupsave = q->duplicate; /* prevent duplicating a dup... */
  
--	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_FREEZABLE |
--					      WQ_UNBOUND | WQ_SYSFS, 0);
-+	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
-+				 WQ_SYSFS, 0);
- 	if (!bdi_wq)
- 		return -ENOMEM;
- 
+ 		q->duplicate = 0;
 -- 
 2.20.1
 
