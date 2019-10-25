@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 705A4E5315
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E99E530B
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731799AbfJYSHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 14:07:08 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46864 "EHLO
+        id S1731701AbfJYSG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 14:06:58 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46802 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731479AbfJYSFo (ORCPT
+        by vger.kernel.org with ESMTP id S1731441AbfJYSFo (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:44 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xx-0008P5-1w; Fri, 25 Oct 2019 19:05:37 +0100
+        id 1iO3xx-0008PB-2v; Fri, 25 Oct 2019 19:05:37 +0100
 Received: from ben by deadeye with local (Exim 4.92.2)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xw-0001k8-5Y; Fri, 25 Oct 2019 19:05:36 +0100
+        id 1iO3xw-0001kE-7O; Fri, 25 Oct 2019 19:05:36 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        "Nikolay Aleksandrov" <nikolay@cumulusnetworks.com>
-Date:   Fri, 25 Oct 2019 19:03:34 +0100
-Message-ID: <lsq.1572026582.518697203@decadent.org.uk>
+        "Christophe Leroy" <christophe.leroy@c-s.fr>,
+        "Herbert Xu" <herbert@gondor.apana.org.au>
+Date:   Fri, 25 Oct 2019 19:03:35 +0100
+Message-ID: <lsq.1572026582.623399615@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 33/47] net: bridge: stp: don't cache eth dest pointer
- before skb pull
+Subject: [PATCH 3.16 34/47] lib/scatterlist: Fix mapping iterator when
+ sg->offset is greater than PAGE_SIZE
 In-Reply-To: <lsq.1572026581.992411028@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,37 +47,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 2446a68ae6a8cee6d480e2f5b52f5007c7c41312 upstream.
+commit aeb87246537a83c2aff482f3f34a2e0991e02cbc upstream.
 
-Don't cache eth dest pointer before calling pskb_may_pull.
+All mapping iterator logic is based on the assumption that sg->offset
+is always lower than PAGE_SIZE.
 
-Fixes: cf0f02d04a83 ("[BRIDGE]: use llc for receiving STP packets")
-Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+But there are situations where sg->offset is such that the SG item
+is on the second page. In that case sg_copy_to_buffer() fails
+properly copying the data into the buffer. One of the reason is
+that the data will be outside the kmapped area used to access that
+data.
+
+This patch fixes the issue by adjusting the mapping iterator
+offset and pgoffset fields such that offset is always lower than
+PAGE_SIZE.
+
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Fixes: 4225fc8555a9 ("lib/scatterlist: use page iterator in the mapping iterator")
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/bridge/br_stp_bpdu.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ lib/scatterlist.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/net/bridge/br_stp_bpdu.c
-+++ b/net/bridge/br_stp_bpdu.c
-@@ -140,7 +140,6 @@ void br_send_tcn_bpdu(struct net_bridge_
- void br_stp_rcv(const struct stp_proto *proto, struct sk_buff *skb,
- 		struct net_device *dev)
+--- a/lib/scatterlist.c
++++ b/lib/scatterlist.c
+@@ -459,17 +459,18 @@ static bool sg_miter_get_next_page(struc
  {
--	const unsigned char *dest = eth_hdr(skb)->h_dest;
- 	struct net_bridge_port *p;
- 	struct net_bridge *br;
- 	const unsigned char *buf;
-@@ -169,7 +168,7 @@ void br_stp_rcv(const struct stp_proto *
- 	if (p->state == BR_STATE_DISABLED)
- 		goto out;
+ 	if (!miter->__remaining) {
+ 		struct scatterlist *sg;
+-		unsigned long pgoffset;
  
--	if (!ether_addr_equal(dest, br->group_addr))
-+	if (!ether_addr_equal(eth_hdr(skb)->h_dest, br->group_addr))
- 		goto out;
+ 		if (!__sg_page_iter_next(&miter->piter))
+ 			return false;
  
- 	if (p->flags & BR_BPDU_GUARD) {
+ 		sg = miter->piter.sg;
+-		pgoffset = miter->piter.sg_pgoffset;
+ 
+-		miter->__offset = pgoffset ? 0 : sg->offset;
++		miter->__offset = miter->piter.sg_pgoffset ? 0 : sg->offset;
++		miter->piter.sg_pgoffset += miter->__offset >> PAGE_SHIFT;
++		miter->__offset &= PAGE_SIZE - 1;
+ 		miter->__remaining = sg->offset + sg->length -
+-				(pgoffset << PAGE_SHIFT) - miter->__offset;
++				     (miter->piter.sg_pgoffset << PAGE_SHIFT) -
++				     miter->__offset;
+ 		miter->__remaining = min_t(unsigned long, miter->__remaining,
+ 					   PAGE_SIZE - miter->__offset);
+ 	}
 
