@@ -2,342 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 888D0E49E0
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 13:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27DEFE4B6F
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 14:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726272AbfJYL0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 07:26:03 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52680 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726189AbfJYL0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 07:26:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572002761;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Ls1gKRKHb9dSvlJRQ5vwbhAlwI+E7C4ypLJcB/IhBdQ=;
-        b=T9fhg6epJKO84I6EEQJlbbRZjtLA9SefruMrDbP2DEbLZn9LevzoliXmQ50lSgDQea20HP
-        7MZqy3MPNuhJWDcs8G+ADtmyM0gfusePLEifQFuFYdqPqj2rgdHj7A+pckJISCnKgFpvGi
-        JIcTyBnd82/tsRtbrPC2phM4yNL2EUg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-Ivdocx9_Ogqqe6V56OfZdA-1; Fri, 25 Oct 2019 07:26:00 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 987FD1800DD0
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 11:25:59 +0000 (UTC)
-Received: from [172.54.88.5] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1FD526092D;
-        Fri, 25 Oct 2019 11:25:57 +0000 (UTC)
+        id S1726338AbfJYMpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 08:45:08 -0400
+Received: from mx0a-00128a01.pphosted.com ([148.163.135.77]:13182 "EHLO
+        mx0a-00128a01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727890AbfJYMpI (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Fri, 25 Oct 2019 08:45:08 -0400
+Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
+        by mx0a-00128a01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id x9PCbfms006772;
+        Fri, 25 Oct 2019 08:44:44 -0400
+Received: from nam05-dm3-obe.outbound.protection.outlook.com (mail-dm3nam05lp2055.outbound.protection.outlook.com [104.47.49.55])
+        by mx0a-00128a01.pphosted.com with ESMTP id 2vt9u0hhwf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Fri, 25 Oct 2019 08:44:44 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GmR7qO+bWUfnoDG4dxRcDDXyt/4ImQdEV1cQ6/vJwMQBJqA9TK7cposLMpvhj+T/96i1UDrnBSw6vuD2wGZEB6bC1IEXl87kYEgi83qnWIBonxuhD+zfzu8YptRtO2icwAHb+GLft4mMyLrGk+Ke2Qtc5N5KaOxYjgH5kSxK08qDOkxzROxv15ZVCc875ycZazxdngeOneDnz0V9IqVK0dJL9vBIgZVgmRwAITxwohLnGAsKczW5rT09EdVlTmi7l2lQIoXQRxnLXmT5RtgwDdrlE7AhAmaNc0j4EpEvS5ZSnlIcxGdl3FYeh1A/52MfTaVHAifWu7tGbIXvbVAsUg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oaoPVDDpWo/0uJqFDQf//ZyQvmvr0TF4dHWTmx/FVeQ=;
+ b=JpKlfAsYDLwsn0/EtTSotqW2LxqGZ8fc1VOY2+2oWxnU3DOBRu3ahtafRNh5aKN6dzF4tEOtsvE1K25OwYcWChY2o/IjG97Ln/30Bb+0hwTyoa7qi27e6p0tA+toDBtvmvU18qt+rB29SIbWHAqIZe021ayB0u+JG8hJ0eik5UwLXBTmutlzsA+acDZFupWWmhQTzmVCvDCTxd6icpBk5QN8Az/CftCxnZFlUs8EgQLhxaSc4NOs1Gcvy1RhBKgcALzUx7rrga3WV7Ag2lLdSGICKGQu852qPaYsHjEnqfzZL5fCK55lP5J6YbG5bhROrZyNFFTULaPvy/MDczcfSQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 137.71.25.57) smtp.rcpttodomain=metafoo.de smtp.mailfrom=analog.com;
+ dmarc=bestguesspass action=none header.from=analog.com; dkim=none (message
+ not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=analog.onmicrosoft.com; s=selector2-analog-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oaoPVDDpWo/0uJqFDQf//ZyQvmvr0TF4dHWTmx/FVeQ=;
+ b=OrcFnaMagKSVo4l/+S+ov408/LTGa2X2gN92/cDLoCeVwFBUC4JYw2yXrvCNrcdRXXUA5JkDhl57EERB7cWPeq3CBjXFevpcjfqMzhcSp++3XCB+qyD6gqV0WNY2KjFoPz+/g/vhgE6CFpY92a7Njd8iMwvP/vcVDdL+pWgXbYs=
+Received: from DM6PR03CA0040.namprd03.prod.outlook.com (2603:10b6:5:100::17)
+ by CY4PR03MB2805.namprd03.prod.outlook.com (2603:10b6:903:134::16) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2387.22; Fri, 25 Oct
+ 2019 12:44:42 +0000
+Received: from SN1NAM02FT022.eop-nam02.prod.protection.outlook.com
+ (2a01:111:f400:7e44::205) by DM6PR03CA0040.outlook.office365.com
+ (2603:10b6:5:100::17) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2387.22 via Frontend
+ Transport; Fri, 25 Oct 2019 12:44:42 +0000
+Received-SPF: Pass (protection.outlook.com: domain of analog.com designates
+ 137.71.25.57 as permitted sender) receiver=protection.outlook.com;
+ client-ip=137.71.25.57; helo=nwd2mta2.analog.com;
+Received: from nwd2mta2.analog.com (137.71.25.57) by
+ SN1NAM02FT022.mail.protection.outlook.com (10.152.72.148) with Microsoft SMTP
+ Server (version=TLS1_0, cipher=TLS_RSA_WITH_AES_256_CBC_SHA) id 15.20.2387.20
+ via Frontend Transport; Fri, 25 Oct 2019 12:44:41 +0000
+Received: from NWD2HUBCAS7.ad.analog.com (nwd2hubcas7.ad.analog.com [10.64.69.107])
+        by nwd2mta2.analog.com (8.13.8/8.13.8) with ESMTP id x9PCiXKM020945
+        (version=TLSv1/SSLv3 cipher=AES256-SHA bits=256 verify=OK);
+        Fri, 25 Oct 2019 05:44:33 -0700
+Received: from nsa.sphairon.box (10.44.3.90) by NWD2HUBCAS7.ad.analog.com
+ (10.64.69.107) with Microsoft SMTP Server (TLS) id 14.3.408.0; Fri, 25 Oct
+ 2019 08:44:40 -0400
+From:   =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+To:     <linux-iio@vger.kernel.org>
+CC:     Lars-Peter Clausen <lars@metafoo.de>,
+        Michael Hennerich <Michael.Hennerich@analog.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Hartmut Knaack <knaack.h@gmx.de>,
+        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
+        <Stable@vger.kernel.org>
+Subject: [PATCH 1/2] iio: adis16480: Fix scales factors
+Date:   Fri, 25 Oct 2019 14:45:07 +0200
+Message-ID: <20191025124508.166648-1-nuno.sa@analog.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
-Date:   Fri, 25 Oct 2019 11:25:56 -0000
-CC:     Xiong Zhou <xzhou@redhat.com>
-Message-ID: <cki.E82C5BA409.PCJ7DVBZY5@redhat.com>
-X-Gitlab-Pipeline-ID: 246469
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/246469
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: Ivdocx9_Ogqqe6V56OfZdA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.44.3.90]
+X-ADIRoutedOnPrem: True
+X-EOPAttributedMessage: 0
+X-MS-Office365-Filtering-HT: Tenant
+X-Forefront-Antispam-Report: CIP:137.71.25.57;IPV:NLI;CTRY:US;EFV:NLI;SFV:NSPM;SFS:(10009020)(136003)(376002)(396003)(39860400002)(346002)(199004)(189003)(70586007)(53416004)(6916009)(54906003)(106002)(6116002)(5820100001)(2870700001)(50466002)(14444005)(3846002)(8936002)(47776003)(316002)(186003)(16526019)(26005)(246002)(8676002)(23676004)(70206006)(356004)(6666004)(45776006)(7736002)(126002)(7636002)(486006)(476003)(86362001)(36756003)(1076003)(478600001)(5660300002)(4326008)(50226002)(2351001)(2906002)(426003)(2616005)(305945005)(336012);DIR:OUT;SFP:1101;SCL:1;SRVR:CY4PR03MB2805;H:nwd2mta2.analog.com;FPR:;SPF:Pass;LANG:en;PTR:nwd2mail11.analog.com;A:1;MX:1;
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e3591173-9f54-4749-d938-08d759491b12
+X-MS-TrafficTypeDiagnostic: CY4PR03MB2805:
+X-Microsoft-Antispam-PRVS: <CY4PR03MB2805F526A58E4FD1A95FD0CA99650@CY4PR03MB2805.namprd03.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 02015246A9
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: DJB8HgR40LBbP+2Oie0YaLDK7FbWI7RYVOEv5af67zm048GZXEMuUNPZDEUPiw24fZW6E9hJtF48s9FjRHIn9XDN49rcYOSQDKsWbDoc5B+v1EyGDOrKfe5dKv1FKzHYSQ+adH0cZxg4O3ouk+CbJYxYbrbzXUVIRft/+ViLq9YZCUkb7LtnYTUfEb2O8er4/ETjmHkmGx9oeDib5XXbRRPRI8+7PmiPKtGINN8txTiWBGa/64v10tS6mj3w2q2fVC9c/cI7P686GWZLBKGVwC4L3f47043ELPUH27oEMMiCSCbnwopDrqfaIFc8yvAtmn9I9jrKojtMenCSvAvKTOdTeYxP34pvd9YzIIRXwd/ooQBJXFAXP+HA+P6Tl4nwiWTj2yZNwoNeEOB2Edqq97nT3PuBoNAL4H0vJMhrW6guHlTYkjjBu2J2L3S6bv9n
+X-OriginatorOrg: analog.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Oct 2019 12:44:41.6738
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e3591173-9f54-4749-d938-08d759491b12
+X-MS-Exchange-CrossTenant-Id: eaa689b4-8f87-40e0-9c6f-7228de4d754a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=eaa689b4-8f87-40e0-9c6f-7228de4d754a;Ip=[137.71.25.57];Helo=[nwd2mta2.analog.com]
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR03MB2805
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,1.0.8
+ definitions=2019-10-25_07:2019-10-25,2019-10-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 mlxscore=0 phishscore=0 priorityscore=1501 adultscore=0
+ suspectscore=1 bulkscore=0 spamscore=0 mlxlogscore=999 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1908290000 definitions=main-1910250121
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This patch fixes the scales for the gyroscope, accelerometer and
+barometer. The pressure scale was just wrong. For the others, the scale
+factors were not taking into account that a 32bit word is being read
+from the device.
 
-Hello,
+Fixes: 7abad1063deb ("iio: adis16480: Fix scale factors")
+Fixes: 9fe09f1337ee ("iio: imu: adis16480: Add support for ADIS1649x family of devices")
+Fixes: 49c4a18357c8 ("iio: imu: adis16480: Add support for ADIS16490")
+Cc: <Stable@vger.kernel.org>
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+---
+ drivers/iio/imu/adis16480.c | 77 ++++++++++++++++++++-----------------
+ 1 file changed, 41 insertions(+), 36 deletions(-)
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 365dab61f74e - Linux 5.3.7
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/246469
-
-One or more kernel tests failed:
-
-    aarch64:
-     =E2=9D=8C xfstests: xfs
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 365dab61f74e - Linux 5.3.7
-
-
-We grabbed the b536e633e23b commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  drm-free-the-writeback_job-when-it-with-an-empty-fb.patch
-  drm-clear-the-fence-pointer-when-writeback-job-signa.patch
-  clk-ti-dra7-fix-mcasp8-clock-bits.patch
-  arm-dts-fix-wrong-clocks-for-dra7-mcasp.patch
-  nvme-pci-fix-a-race-in-controller-removal.patch
-  scsi-ufs-skip-shutdown-if-hba-is-not-powered.patch
-  scsi-megaraid-disable-device-when-probe-failed-after.patch
-  scsi-qla2xxx-silence-fwdump-template-message.patch
-  scsi-qla2xxx-fix-unbound-sleep-in-fcport-delete-path.patch
-  scsi-qla2xxx-fix-stale-mem-access-on-driver-unload.patch
-  scsi-qla2xxx-fix-n2n-link-reset.patch
-  scsi-qla2xxx-fix-n2n-link-up-fail.patch
-  arm-dts-fix-gpio0-flags-for-am335x-icev2.patch
-  arm-omap2-fix-missing-reset-done-flag-for-am3-and-am.patch
-  arm-omap2-add-missing-lcdc-midlemode-for-am335x.patch
-  arm-omap2-fix-warnings-with-broken-omap2_set_init_vo.patch
-  nvme-tcp-fix-wrong-stop-condition-in-io_work.patch
-  nvme-pci-save-pci-state-before-putting-drive-into-de.patch
-  nvme-fix-an-error-code-in-nvme_init_subsystem.patch
-  nvme-rdma-fix-max_hw_sectors-calculation.patch
-  added-quirks-for-adata-xpg-sx8200-pro-512gb.patch
-  nvme-add-quirk-for-kingston-nvme-ssd-running-fw-e8fk.patch
-  nvme-allow-64-bit-results-in-passthru-commands.patch
-  drm-komeda-prevent-memory-leak-in-komeda_wb_connecto.patch
-  nvme-rdma-fix-possible-use-after-free-in-connect-tim.patch
-  blk-mq-honor-io-scheduler-for-multiqueue-devices.patch
-  ieee802154-ca8210-prevent-memory-leak.patch
-  arm-dts-am4372-set-memory-bandwidth-limit-for-dispc.patch
-  net-dsa-qca8k-use-up-to-7-ports-for-all-operations.patch
-  mips-dts-ar9331-fix-interrupt-controller-size.patch
-  xen-efi-set-nonblocking-callbacks.patch
-  loop-change-queue-block-size-to-match-when-using-dio.patch
-  nl80211-fix-null-pointer-dereference.patch
-  mac80211-fix-txq-null-pointer-dereference.patch
-  netfilter-nft_connlimit-disable-bh-on-garbage-collec.patch
-  net-mscc-ocelot-add-missing-of_node_put-after-callin.patch
-  net-dsa-rtl8366rb-add-missing-of_node_put-after-call.patch
-  net-stmmac-xgmac-not-all-unicast-addresses-may-be-av.patch
-  net-stmmac-dwmac4-always-update-the-mac-hash-filter.patch
-  net-stmmac-correctly-take-timestamp-for-ptpv2.patch
-  net-stmmac-do-not-stop-phy-if-wol-is-enabled.patch
-  net-ag71xx-fix-mdio-subnode-support.patch
-  risc-v-clear-load-reservations-while-restoring-hart-.patch
-  riscv-fix-memblock-reservation-for-device-tree-blob.patch
-  drm-amdgpu-fix-multiple-memory-leaks-in-acp_hw_init.patch
-  drm-amd-display-memory-leak.patch
-  mips-loongson-fix-the-link-time-qualifier-of-serial_.patch
-  net-hisilicon-fix-usage-of-uninitialized-variable-in.patch
-  net-stmmac-avoid-deadlock-on-suspend-resume.patch
-  selftests-kvm-fix-libkvm-build-error.patch
-  lib-textsearch-fix-escapes-in-example-code.patch
-  s390-mm-fix-wunused-but-set-variable-warnings.patch
-  r8152-set-macpassthru-in-reset_resume-callback.patch
-  net-phy-allow-for-reset-line-to-be-tied-to-a-sleepy-.patch
-  net-phy-fix-write-to-mii-ctrl1000-register.patch
-  namespace-fix-namespace.pl-script-to-support-relativ.patch
-  convert-filldir-64-from-__put_user-to-unsafe_put_use.patch
-  elf-don-t-use-map_fixed_noreplace-for-elf-executable.patch
-  make-filldir-64-verify-the-directory-entry-filename-.patch
-  uaccess-implement-a-proper-unsafe_copy_to_user-and-s.patch
-  filldir-64-remove-warn_on_once-for-bad-directory-ent.patch
-  net_sched-fix-backward-compatibility-for-tca_kind.patch
-  net_sched-fix-backward-compatibility-for-tca_act_kin.patch
-  libata-ahci-fix-pcs-quirk-application.patch
-  md-raid0-fix-warning-message-for-parameter-default_l.patch
-  revert-drm-radeon-fix-eeh-during-kexec.patch
-  ocfs2-fix-panic-due-to-ocfs2_wq-is-null.patch
-  nvme-pci-set-the-prp2-correctly-when-using-more-than-4k-page.patch
-  ipv4-fix-race-condition-between-route-lookup-and-invalidation.patch
-  ipv4-return-enetunreach-if-we-can-t-create-route-but-saddr-is-valid.patch
-  net-avoid-potential-infinite-loop-in-tc_ctl_action.patch
-  net-bcmgenet-fix-rgmii_mode_en-value-for-genet-v1-2-3.patch
-  net-bcmgenet-set-phydev-dev_flags-only-for-internal-phys.patch
-  net-i82596-fix-dma_alloc_attr-for-sni_82596.patch
-  net-ibmvnic-fix-eoi-when-running-in-xive-mode.patch
-  net-ipv6-fix-listify-ip6_rcv_finish-in-case-of-forwarding.patch
-  net-stmmac-disable-enable-ptp_ref_clk-in-suspend-resume-flow.patch
-  rxrpc-fix-possible-null-pointer-access-in-icmp-handling.patch
-  sched-etf-fix-ordering-of-packets-with-same-txtime.patch
-  sctp-change-sctp_prot-.no_autobind-with-true.patch
-  net-aquantia-temperature-retrieval-fix.patch
-  net-aquantia-when-cleaning-hw-cache-it-should-be-toggled.patch
-  net-aquantia-do-not-pass-lro-session-with-invalid-tcp-checksum.patch
-  net-aquantia-correctly-handle-macvlan-and-multicast-coexistence.patch
-  net-phy-micrel-discern-ksz8051-and-ksz8795-phys.patch
-  net-phy-micrel-update-ksz87xx-phy-name.patch
-  net-avoid-errors-when-trying-to-pop-mlps-header-on-non-mpls-packets.patch
-  net-sched-fix-corrupted-l2-header-with-mpls-push-and-pop-actions.patch
-  netdevsim-fix-error-handling-in-nsim_fib_init-and-nsim_fib_exit.patch
-  net-ethernet-broadcom-have-drivers-select-dimlib-as-needed.patch
-  net-phy-fix-link-partner-information-disappear-issue.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm thinp sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
+diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
+index b99d73887c9f..3b53bbb11bfb 100644
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -620,9 +620,13 @@ static int adis16480_read_raw(struct iio_dev *indio_dev,
+ 			*val2 = (st->chip_info->temp_scale % 1000) * 1000;
+ 			return IIO_VAL_INT_PLUS_MICRO;
+ 		case IIO_PRESSURE:
+-			*val = 0;
+-			*val2 = 4000; /* 40ubar = 0.004 kPa */
+-			return IIO_VAL_INT_PLUS_MICRO;
++			/*
++			 * max scale is 1310 mbar
++			 * max raw value is 32767 shifted for 32bits
++			 */
++			*val = 131; /* 1310mbar = 131 kPa */
++			*val2 = 32767 << 16;
++			return IIO_VAL_FRACTIONAL;
+ 		default:
+ 			return -EINVAL;
+ 		}
+@@ -783,13 +787,14 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+ 		/*
+-		 * storing the value in rad/degree and the scale in degree
+-		 * gives us the result in rad and better precession than
+-		 * storing the scale directly in rad.
++		 * Typically we do IIO_RAD_TO_DEGREE in the denominator, which
++		 * is exactly the same as IIO_DEGREE_TO_RAD in numerator, since
++		 * it gives better approximation. However, in this case we
++		 * cannot do it since it would not fit in a 32bit variable.
+ 		 */
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22887),
+-		.gyro_max_scale = 300,
+-		.accel_max_val = IIO_M_S_2_TO_G(21973),
++		.gyro_max_val = 22887 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(300),
++		.accel_max_val = IIO_M_S_2_TO_G(21973 << 16),
+ 		.accel_max_scale = 18,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -799,9 +804,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16480] = {
+ 		.channels = adis16480_channels,
+ 		.num_channels = ARRAY_SIZE(adis16480_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(12500),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(12500 << 16),
+ 		.accel_max_scale = 10,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -811,9 +816,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16485] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(20000),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(20000 << 16),
+ 		.accel_max_scale = 5,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -823,9 +828,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16488] = {
+ 		.channels = adis16480_channels,
+ 		.num_channels = ARRAY_SIZE(adis16480_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(22500),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(22500),
++		.gyro_max_val = 22500 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(22500 << 16),
+ 		.accel_max_scale = 18,
+ 		.temp_scale = 5650, /* 5.65 milli degree Celsius */
+ 		.int_clk = 2460000,
+@@ -835,9 +840,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_1] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 125,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(125),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -848,9 +853,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_2] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(18000),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 18000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -861,9 +866,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16495_3] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 2000,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(2000),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 8,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -874,9 +879,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_1] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 125,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(125),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -887,9 +892,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_2] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(18000),
+-		.gyro_max_scale = 450,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 18000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(450),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+@@ -900,9 +905,9 @@ static const struct adis16480_chip_info adis16480_chip_info[] = {
+ 	[ADIS16497_3] = {
+ 		.channels = adis16485_channels,
+ 		.num_channels = ARRAY_SIZE(adis16485_channels),
+-		.gyro_max_val = IIO_RAD_TO_DEGREE(20000),
+-		.gyro_max_scale = 2000,
+-		.accel_max_val = IIO_M_S_2_TO_G(32000),
++		.gyro_max_val = 20000 << 16,
++		.gyro_max_scale = IIO_DEGREE_TO_RAD(2000),
++		.accel_max_val = IIO_M_S_2_TO_G(32000 << 16),
+ 		.accel_max_scale = 40,
+ 		.temp_scale = 12500, /* 12.5 milli degree Celsius */
+ 		.int_clk = 4250000,
+-- 
+2.23.0
 
