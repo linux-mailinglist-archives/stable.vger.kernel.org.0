@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFACAE4E11
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110A8E4E08
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395225AbfJYOEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:04:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
+        id S2395193AbfJYOEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:04:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502245AbfJYN4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:38 -0400
+        id S1732091AbfJYN4j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:56:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECF86222C2;
-        Fri, 25 Oct 2019 13:56:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4AFED222C4;
+        Fri, 25 Oct 2019 13:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011796;
-        bh=C+qKhday8H3bTz/uY/ky59vQsDkRO3V8qewbCanTH+w=;
+        s=default; t=1572011798;
+        bh=Uo/2wz8IumRDL/GCR/T0JDnrYH1c4veTbSER1Hd9qyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPw8O1Cqt3Qmk75ThQLWjbeqRlMjK1msPZngfXeEvzvgeb4QZsCvAhi2NEaNw1IzF
-         mvmbZcUg65vXN+vrg2BHk6FlnwnDDJzaJglGsyQSNvSD6E3govS4thtxne4L1fBmcN
-         OypvLM7b/aD3W8OTYeK0K4PYof6o0WIGd1e8PiN8=
+        b=1kbKYys2veWQpxlNSWjG5I6PZF08L3IBqlGofmcdDzIUzOixQiUeyBoVCE9H2m3AL
+         +OwKjWtJ9OZZCT5T/XXyWcxdXkmaZUA8k/+1jLwanAQhhnCYd13MvD7hralS+UWiM8
+         6WL5VudorhPgSxzkgm3SHt0fm/qRmYhsHrLWh2Ho=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Clark <robdclark@chromium.org>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 18/37] drm/msm: Use the correct dma_sync calls in msm_gem
-Date:   Fri, 25 Oct 2019 09:55:42 -0400
-Message-Id: <20191025135603.25093-18-sashal@kernel.org>
+Cc:     Xin Long <lucien.xin@gmail.com>,
+        syzbot+eb349eeee854e389c36d@syzkaller.appspotmail.com,
+        syzbot+4a0643a653ac375612d1@syzkaller.appspotmail.com,
+        Edward Cree <ecree@solarflare.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/37] net: ipv6: fix listify ip6_rcv_finish in case of forwarding
+Date:   Fri, 25 Oct 2019 09:55:43 -0400
+Message-Id: <20191025135603.25093-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
@@ -45,148 +46,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Clark <robdclark@chromium.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 3de433c5b38af49a5fc7602721e2ab5d39f1e69c ]
+[ Upstream commit c7a42eb49212f93a800560662d17d5293960d3c3 ]
 
-[subject was: drm/msm: shake fist angrily at dma-mapping]
+We need a similar fix for ipv6 as Commit 0761680d5215 ("net: ipv4: fix
+listify ip_rcv_finish in case of forwarding") does for ipv4.
 
-So, using dma_sync_* for our cache needs works out w/ dma iommu ops, but
-it falls appart with dma direct ops.  The problem is that, depending on
-display generation, we can have either set of dma ops (mdp4 and dpu have
-iommu wired to mdss node, which maps to toplevel drm device, but mdp5
-has iommu wired up to the mdp sub-node within mdss).
+This issue can be reprocuded by syzbot since Commit 323ebb61e32b ("net:
+use listified RX for handling GRO_NORMAL skbs") on net-next. The call
+trace was:
 
-Fixes this splat on mdp5 devices:
+  kernel BUG at include/linux/skbuff.h:2225!
+  RIP: 0010:__skb_pull include/linux/skbuff.h:2225 [inline]
+  RIP: 0010:skb_pull+0xea/0x110 net/core/skbuff.c:1902
+  Call Trace:
+    sctp_inq_pop+0x2f1/0xd80 net/sctp/inqueue.c:202
+    sctp_endpoint_bh_rcv+0x184/0x8d0 net/sctp/endpointola.c:385
+    sctp_inq_push+0x1e4/0x280 net/sctp/inqueue.c:80
+    sctp_rcv+0x2807/0x3590 net/sctp/input.c:256
+    sctp6_rcv+0x17/0x30 net/sctp/ipv6.c:1049
+    ip6_protocol_deliver_rcu+0x2fe/0x1660 net/ipv6/ip6_input.c:397
+    ip6_input_finish+0x84/0x170 net/ipv6/ip6_input.c:438
+    NF_HOOK include/linux/netfilter.h:305 [inline]
+    NF_HOOK include/linux/netfilter.h:299 [inline]
+    ip6_input+0xe4/0x3f0 net/ipv6/ip6_input.c:447
+    dst_input include/net/dst.h:442 [inline]
+    ip6_sublist_rcv_finish+0x98/0x1e0 net/ipv6/ip6_input.c:84
+    ip6_list_rcv_finish net/ipv6/ip6_input.c:118 [inline]
+    ip6_sublist_rcv+0x80c/0xcf0 net/ipv6/ip6_input.c:282
+    ipv6_list_rcv+0x373/0x4b0 net/ipv6/ip6_input.c:316
+    __netif_receive_skb_list_ptype net/core/dev.c:5049 [inline]
+    __netif_receive_skb_list_core+0x5fc/0x9d0 net/core/dev.c:5097
+    __netif_receive_skb_list net/core/dev.c:5149 [inline]
+    netif_receive_skb_list_internal+0x7eb/0xe60 net/core/dev.c:5244
+    gro_normal_list.part.0+0x1e/0xb0 net/core/dev.c:5757
+    gro_normal_list net/core/dev.c:5755 [inline]
+    gro_normal_one net/core/dev.c:5769 [inline]
+    napi_frags_finish net/core/dev.c:5782 [inline]
+    napi_gro_frags+0xa6a/0xea0 net/core/dev.c:5855
+    tun_get_user+0x2e98/0x3fa0 drivers/net/tun.c:1974
+    tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2020
 
-   Unable to handle kernel paging request at virtual address ffffffff80000000
-   Mem abort info:
-     ESR = 0x96000144
-     Exception class = DABT (current EL), IL = 32 bits
-     SET = 0, FnV = 0
-     EA = 0, S1PTW = 0
-   Data abort info:
-     ISV = 0, ISS = 0x00000144
-     CM = 1, WnR = 1
-   swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000810e4000
-   [ffffffff80000000] pgd=0000000000000000
-   Internal error: Oops: 96000144 [#1] SMP
-   Modules linked in: btqcomsmd btqca bluetooth cfg80211 ecdh_generic ecc rfkill libarc4 panel_simple msm wcnss_ctrl qrtr_smd drm_kms_helper venus_enc venus_dec videobuf2_dma_sg videobuf2_memops drm venus_core ipv6 qrtr qcom_wcnss_pil v4l2_mem2mem qcom_sysmon videobuf2_v4l2 qmi_helpers videobuf2_common crct10dif_ce mdt_loader qcom_common videodev qcom_glink_smem remoteproc bmc150_accel_i2c bmc150_magn_i2c bmc150_accel_core bmc150_magn snd_soc_lpass_apq8016 snd_soc_msm8916_analog mms114 mc nf_defrag_ipv6 snd_soc_lpass_cpu snd_soc_apq8016_sbc industrialio_triggered_buffer kfifo_buf snd_soc_lpass_platform snd_soc_msm8916_digital drm_panel_orientation_quirks
-   CPU: 2 PID: 33 Comm: kworker/2:1 Not tainted 5.3.0-rc2 #1
-   Hardware name: Samsung Galaxy A5U (EUR) (DT)
-   Workqueue: events deferred_probe_work_func
-   pstate: 80000005 (Nzcv daif -PAN -UAO)
-   pc : __clean_dcache_area_poc+0x20/0x38
-   lr : arch_sync_dma_for_device+0x28/0x30
-   sp : ffff0000115736a0
-   x29: ffff0000115736a0 x28: 0000000000000001
-   x27: ffff800074830800 x26: ffff000011478000
-   x25: 0000000000000000 x24: 0000000000000001
-   x23: ffff000011478a98 x22: ffff800009fd1c10
-   x21: 0000000000000001 x20: ffff800075ad0a00
-   x19: 0000000000000000 x18: ffff0000112b2000
-   x17: 0000000000000000 x16: 0000000000000000
-   x15: 00000000fffffff0 x14: ffff000011455d70
-   x13: 0000000000000000 x12: 0000000000000028
-   x11: 0000000000000001 x10: ffff00001106c000
-   x9 : ffff7e0001d6b380 x8 : 0000000000001000
-   x7 : ffff7e0001d6b380 x6 : ffff7e0001d6b382
-   x5 : 0000000000000000 x4 : 0000000000001000
-   x3 : 000000000000003f x2 : 0000000000000040
-   x1 : ffffffff80001000 x0 : ffffffff80000000
-   Call trace:
-    __clean_dcache_area_poc+0x20/0x38
-    dma_direct_sync_sg_for_device+0xb8/0xe8
-    get_pages+0x22c/0x250 [msm]
-    msm_gem_get_and_pin_iova+0xdc/0x168 [msm]
-    ...
-
-Fixes the combination of two patches:
-
-Fixes: 0036bc73ccbe (drm/msm: stop abusing dma_map/unmap for cache)
-Fixes: 449fa54d6815 (dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device)
-Tested-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-[seanpaul changed subject to something more desriptive]
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190730214633.17820-1-robdclark@gmail.com
+Fixes: d8269e2cbf90 ("net: ipv6: listify ipv6_rcv() and ip6_rcv_finish()")
+Fixes: 323ebb61e32b ("net: use listified RX for handling GRO_NORMAL skbs")
+Reported-by: syzbot+eb349eeee854e389c36d@syzkaller.appspotmail.com
+Reported-by: syzbot+4a0643a653ac375612d1@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 47 +++++++++++++++++++++++++++++++----
- 1 file changed, 42 insertions(+), 5 deletions(-)
+ net/ipv6/ip6_input.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index 93b20ad23c23f..e53b7cb2211da 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -43,6 +43,46 @@ static bool use_pages(struct drm_gem_object *obj)
- 	return !msm_obj->vram_node;
+diff --git a/net/ipv6/ip6_input.c b/net/ipv6/ip6_input.c
+index 2b6d430223837..acf0749ee5bbd 100644
+--- a/net/ipv6/ip6_input.c
++++ b/net/ipv6/ip6_input.c
+@@ -80,8 +80,10 @@ static void ip6_sublist_rcv_finish(struct list_head *head)
+ {
+ 	struct sk_buff *skb, *next;
+ 
+-	list_for_each_entry_safe(skb, next, head, list)
++	list_for_each_entry_safe(skb, next, head, list) {
++		skb_list_del_init(skb);
+ 		dst_input(skb);
++	}
  }
  
-+/*
-+ * Cache sync.. this is a bit over-complicated, to fit dma-mapping
-+ * API.  Really GPU cache is out of scope here (handled on cmdstream)
-+ * and all we need to do is invalidate newly allocated pages before
-+ * mapping to CPU as uncached/writecombine.
-+ *
-+ * On top of this, we have the added headache, that depending on
-+ * display generation, the display's iommu may be wired up to either
-+ * the toplevel drm device (mdss), or to the mdp sub-node, meaning
-+ * that here we either have dma-direct or iommu ops.
-+ *
-+ * Let this be a cautionary tail of abstraction gone wrong.
-+ */
-+
-+static void sync_for_device(struct msm_gem_object *msm_obj)
-+{
-+	struct device *dev = msm_obj->base.dev->dev;
-+
-+	if (get_dma_ops(dev)) {
-+		dma_sync_sg_for_device(dev, msm_obj->sgt->sgl,
-+			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
-+	} else {
-+		dma_map_sg(dev, msm_obj->sgt->sgl,
-+			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
-+	}
-+}
-+
-+static void sync_for_cpu(struct msm_gem_object *msm_obj)
-+{
-+	struct device *dev = msm_obj->base.dev->dev;
-+
-+	if (get_dma_ops(dev)) {
-+		dma_sync_sg_for_cpu(dev, msm_obj->sgt->sgl,
-+			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
-+	} else {
-+		dma_unmap_sg(dev, msm_obj->sgt->sgl,
-+			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
-+	}
-+}
-+
- /* allocate pages from VRAM carveout, used when no IOMMU: */
- static struct page **get_pages_vram(struct drm_gem_object *obj, int npages)
- {
-@@ -108,8 +148,7 @@ static struct page **get_pages(struct drm_gem_object *obj)
- 		 * because display controller, GPU, etc. are not coherent:
- 		 */
- 		if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--			dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
--					msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
-+			sync_for_device(msm_obj);
- 	}
- 
- 	return msm_obj->pages;
-@@ -138,9 +177,7 @@ static void put_pages(struct drm_gem_object *obj)
- 			 * GPU, etc. are not coherent:
- 			 */
- 			if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--				dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
--					     msm_obj->sgt->nents,
--					     DMA_BIDIRECTIONAL);
-+				sync_for_cpu(msm_obj);
- 
- 			sg_free_table(msm_obj->sgt);
- 			kfree(msm_obj->sgt);
+ static void ip6_list_rcv_finish(struct net *net, struct sock *sk,
 -- 
 2.20.1
 
