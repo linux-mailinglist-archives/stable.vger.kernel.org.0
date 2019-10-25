@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56317E530C
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48855E538B
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:11:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731716AbfJYSG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 14:06:59 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46596 "EHLO
+        id S1731567AbfJYSGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 14:06:52 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46592 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731335AbfJYSFk (ORCPT
+        by vger.kernel.org with ESMTP id S1731329AbfJYSFk (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:40 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xv-0008OT-Vu; Fri, 25 Oct 2019 19:05:36 +0100
+        id 1iO3xw-0008OU-9K; Fri, 25 Oct 2019 19:05:36 +0100
 Received: from ben by deadeye with local (Exim 4.92.2)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xv-0001ir-JT; Fri, 25 Oct 2019 19:05:35 +0100
+        id 1iO3xv-0001iw-Kw; Fri, 25 Oct 2019 19:05:35 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,13 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ravi Bangoria" <ravi.bangoria@linux.ibm.com>,
-        "Michael Ellerman" <mpe@ellerman.id.au>
-Date:   Fri, 25 Oct 2019 19:03:18 +0100
-Message-ID: <lsq.1572026582.203708098@decadent.org.uk>
+        "=?UTF-8?q?J=C3=B6rgen=20Storvist?=" <jorgen.storvist@gmail.com>,
+        "Johan Hovold" <johan@kernel.org>
+Date:   Fri, 25 Oct 2019 19:03:19 +0100
+Message-ID: <lsq.1572026582.647608996@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 17/47] powerpc/watchpoint: Restore NV GPRs while
- returning from exception
+Subject: [PATCH 3.16 18/47] USB: serial: option: add GosunCn ZTE WeLink ME3630
 In-Reply-To: <lsq.1572026581.992411028@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,113 +46,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Jörgen Storvist <jorgen.storvist@gmail.com>
 
-commit f474c28fbcbe42faca4eb415172c07d76adcb819 upstream.
+commit 70a7444c550a75584ffcfae95267058817eff6a7 upstream.
 
-powerpc hardware triggers watchpoint before executing the instruction.
-To make trigger-after-execute behavior, kernel emulates the
-instruction. If the instruction is 'load something into non-volatile
-register', exception handler should restore emulated register state
-while returning back, otherwise there will be register state
-corruption. eg, adding a watchpoint on a list can corrput the list:
+Added USB serial option driver support for GosunCn ZTE WeLink ME3630
+series cellular modules for USB modes ECM/NCM and MBIM.
 
-  # cat /proc/kallsyms | grep kthread_create_list
-  c00000000121c8b8 d kthread_create_list
+usb-devices output MBIM mode:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 10 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=0602 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 3 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
 
-Add watchpoint on kthread_create_list->prev:
+usb-devices output ECM/NCM mode:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 11 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1476 Rev=03.18
+S:  Manufacturer=Android
+S:  Product=Android
+S:  SerialNumber=
+C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 3 Alt= 0 #EPs= 1 Cls=02(commc) Sub=06 Prot=00 Driver=cdc_ether
+I:  If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
 
-  # perf record -e mem:0xc00000000121c8c0
-
-Run some workload such that new kthread gets invoked. eg, I just
-logged out from console:
-
-  list_add corruption. next->prev should be prev (c000000001214e00), \
-	but was c00000000121c8b8. (next=c00000000121c8b8).
-  WARNING: CPU: 59 PID: 309 at lib/list_debug.c:25 __list_add_valid+0xb4/0xc0
-  CPU: 59 PID: 309 Comm: kworker/59:0 Kdump: loaded Not tainted 5.1.0-rc7+ #69
-  ...
-  NIP __list_add_valid+0xb4/0xc0
-  LR __list_add_valid+0xb0/0xc0
-  Call Trace:
-  __list_add_valid+0xb0/0xc0 (unreliable)
-  __kthread_create_on_node+0xe0/0x260
-  kthread_create_on_node+0x34/0x50
-  create_worker+0xe8/0x260
-  worker_thread+0x444/0x560
-  kthread+0x160/0x1a0
-  ret_from_kernel_thread+0x5c/0x70
-
-List corruption happened because it uses 'load into non-volatile
-register' instruction:
-
-Snippet from __kthread_create_on_node:
-
-  c000000000136be8:     addis   r29,r2,-19
-  c000000000136bec:     ld      r29,31424(r29)
-        if (!__list_add_valid(new, prev, next))
-  c000000000136bf0:     mr      r3,r30
-  c000000000136bf4:     mr      r5,r28
-  c000000000136bf8:     mr      r4,r29
-  c000000000136bfc:     bl      c00000000059a2f8 <__list_add_valid+0x8>
-
-Register state from WARN_ON():
-
-  GPR00: c00000000059a3a0 c000007ff23afb50 c000000001344e00 0000000000000075
-  GPR04: 0000000000000000 0000000000000000 0000001852af8bc1 0000000000000000
-  GPR08: 0000000000000001 0000000000000007 0000000000000006 00000000000004aa
-  GPR12: 0000000000000000 c000007ffffeb080 c000000000137038 c000005ff62aaa00
-  GPR16: 0000000000000000 0000000000000000 c000007fffbe7600 c000007fffbe7370
-  GPR20: c000007fffbe7320 c000007fffbe7300 c000000001373a00 0000000000000000
-  GPR24: fffffffffffffef7 c00000000012e320 c000007ff23afcb0 c000000000cb8628
-  GPR28: c00000000121c8b8 c000000001214e00 c000007fef5b17e8 c000007fef5b17c0
-
-Watchpoint hit at 0xc000000000136bec.
-
-  addis   r29,r2,-19
-   => r29 = 0xc000000001344e00 + (-19 << 16)
-   => r29 = 0xc000000001214e00
-
-  ld      r29,31424(r29)
-   => r29 = *(0xc000000001214e00 + 31424)
-   => r29 = *(0xc00000000121c8c0)
-
-0xc00000000121c8c0 is where we placed a watchpoint and thus this
-instruction was emulated by emulate_step. But because handle_dabr_fault
-did not restore emulated register state, r29 still contains stale
-value in above register state.
-
-Fixes: 5aae8a5370802 ("powerpc, hw_breakpoints: Implement hw_breakpoints for 64-bit server processors")
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/serial/option.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -1630,7 +1630,7 @@ handle_page_fault:
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- 	bl	do_page_fault
- 	cmpdi	r3,0
--	beq+	12f
-+	beq+	ret_from_except_lite
- 	bl	save_nvgprs
- 	mr	r5,r3
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
-@@ -1645,7 +1645,12 @@ handle_dabr_fault:
- 	ld      r5,_DSISR(r1)
- 	addi    r3,r1,STACK_FRAME_OVERHEAD
- 	bl      do_break
--12:	b       ret_from_except_lite
-+	/*
-+	 * do_break() may have changed the NV GPRS while handling a breakpoint.
-+	 * If so, we need to restore them with their updated values. Don't use
-+	 * ret_from_except_lite here.
-+	 */
-+	b       ret_from_except
- 
- 
- /* We have a page fault that hash_page could handle but HV refused
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1466,6 +1466,7 @@ static const struct usb_device_id option
+ 	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0414, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x0417, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x0602, 0xff) },	/* GosunCn ZTE WeLink ME3630 (MBIM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1008, 0xff, 0xff, 0xff),
+ 	  .driver_info = (kernel_ulong_t)&net_intf4_blacklist },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1010, 0xff, 0xff, 0xff),
+@@ -1669,6 +1670,7 @@ static const struct usb_device_id option
+ 		.driver_info = (kernel_ulong_t)&net_intf2_blacklist },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1428, 0xff, 0xff, 0xff),  /* Telewell TW-LTE 4G v2 */
+ 		.driver_info = (kernel_ulong_t)&net_intf2_blacklist },
++	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
