@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC09E4DDF
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92831E4DDE
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394810AbfJYN5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732427AbfJYN5O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 25 Oct 2019 09:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51748 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502373AbfJYN5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:09 -0400
+        id S2393513AbfJYN5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28CDC222C4;
-        Fri, 25 Oct 2019 13:57:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ACF721E6F;
+        Fri, 25 Oct 2019 13:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011829;
-        bh=zeqYmL5GoaVYe5Q3NXD8KEAQqOx4fkn4rH1/8+vbsF4=;
+        s=default; t=1572011831;
+        bh=/zLnm0RKYSbzniMjkAEMUn9ZtqQAZnRLSH/3BjQG39s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yYQlufbZmOfkqYd7De4EcI2wn5WlWcHvwjBbPmiPnWKCwERPFxNzC3IVG6H1Y0O+J
-         EoIAhprKZd3V5weNQODotRZGLP901bxtwNsdZOj8jcXNLFf2DJKTMNEjJcy0TkE9v4
-         PeEIuAptOw+BDVyuUcA6ITqiME8BBimsvJzdToWc=
+        b=HTczkWqJxV7mIV8eMzEJjISbTIIcez4ItpF8cRNqLOqZWYLH7UM1YEH1a3iVi7JkQ
+         UgAOBB1podyUHVxRrWeWEdEdHpBCtkvyOxlf8VCeGIv6fCylD9dfp63Q7IFISSmPSP
+         E0oQKpEiJ0vwGTADg4PVuLAVCvOU5CadoATFsam8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        AceLan Kao <acelan.kao@canonical.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.19 36/37] bdi: Do not use freezable workqueue
-Date:   Fri, 25 Oct 2019 09:56:00 -0400
-Message-Id: <20191025135603.25093-36-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 37/37] ALSA: hda: Add codec on bus address table lately
+Date:   Fri, 25 Oct 2019 09:56:01 -0400
+Message-Id: <20191025135603.25093-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
@@ -45,84 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a2b90f11217790ec0964ba9c93a4abb369758c26 ]
+[ Upstream commit ee5f85d9290fe25d460bd320b7fe073075d72d33 ]
 
-A removable block device, such as NVMe or SSD connected over Thunderbolt
-can be hot-removed any time including when the system is suspended. When
-device is hot-removed during suspend and the system gets resumed, kernel
-first resumes devices and then thaws the userspace including freezable
-workqueues. What happens in that case is that the NVMe driver notices
-that the device is unplugged and removes it from the system. This ends
-up calling bdi_unregister() for the gendisk which then schedules
-wb_workfn() to be run one more time.
+The call of snd_hdac_bus_add_device() is needed only for registering
+the codec onto the bus caddr_tbl[] that is referred essentially only
+in the unsol event handler.  That is, the reason of this call and the
+release by the counter-part function snd_hdac_bus_remove_device() is
+just to assure that the unsol event gets notified to the codec.
 
-However, since the bdi_wq is still frozen flush_delayed_work() call in
-wb_shutdown() blocks forever halting system resume process. User sees
-this as hang as nothing is happening anymore.
+But the current implementation of the unsol notification wouldn't work
+properly when the codec is still in a premature init state.  So this
+patch tries to work around it by delaying the caddr_tbl[] registration
+at the point of snd_hdac_device_register().
 
-Triggering sysrq-w reveals this:
+Also, the order of snd_hdac_bus_remove_device() and device_del() calls
+are shuffled to make sure that the unsol event is masked before
+deleting the device.
 
-  Workqueue: nvme-wq nvme_remove_dead_ctrl_work [nvme]
-  Call Trace:
-   ? __schedule+0x2c5/0x630
-   ? wait_for_completion+0xa4/0x120
-   schedule+0x3e/0xc0
-   schedule_timeout+0x1c9/0x320
-   ? resched_curr+0x1f/0xd0
-   ? wait_for_completion+0xa4/0x120
-   wait_for_completion+0xc3/0x120
-   ? wake_up_q+0x60/0x60
-   __flush_work+0x131/0x1e0
-   ? flush_workqueue_prep_pwqs+0x130/0x130
-   bdi_unregister+0xb9/0x130
-   del_gendisk+0x2d2/0x2e0
-   nvme_ns_remove+0xed/0x110 [nvme_core]
-   nvme_remove_namespaces+0x96/0xd0 [nvme_core]
-   nvme_remove+0x5b/0x160 [nvme]
-   pci_device_remove+0x36/0x90
-   device_release_driver_internal+0xdf/0x1c0
-   nvme_remove_dead_ctrl_work+0x14/0x30 [nvme]
-   process_one_work+0x1c2/0x3f0
-   worker_thread+0x48/0x3e0
-   kthread+0x100/0x140
-   ? current_work+0x30/0x30
-   ? kthread_park+0x80/0x80
-   ret_from_fork+0x35/0x40
-
-This is not limited to NVMes so exactly same issue can be reproduced by
-hot-removing SSD (over Thunderbolt) while the system is suspended.
-
-Prevent this from happening by removing WQ_FREEZABLE from bdi_wq.
-
-Reported-by: AceLan Kao <acelan.kao@canonical.com>
-Link: https://marc.info/?l=linux-kernel&m=138695698516487
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=204385
-Link: https://lore.kernel.org/lkml/20191002122136.GD2819@lahna.fi.intel.com/#t
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/backing-dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/hda/hdac_device.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 72e6d0c55cfad..00277c8855c68 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -249,8 +249,8 @@ static int __init default_bdi_init(void)
- {
- 	int err;
+diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
+index 020fbbbcf6f5c..21807592343f5 100644
+--- a/sound/hda/hdac_device.c
++++ b/sound/hda/hdac_device.c
+@@ -60,10 +60,6 @@ int snd_hdac_device_init(struct hdac_device *codec, struct hdac_bus *bus,
+ 	pm_runtime_get_noresume(&codec->dev);
+ 	atomic_set(&codec->in_pm, 0);
  
--	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_FREEZABLE |
--					      WQ_UNBOUND | WQ_SYSFS, 0);
-+	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
-+				 WQ_SYSFS, 0);
- 	if (!bdi_wq)
- 		return -ENOMEM;
+-	err = snd_hdac_bus_add_device(bus, codec);
+-	if (err < 0)
+-		goto error;
+-
+ 	/* fill parameters */
+ 	codec->vendor_id = snd_hdac_read_parm(codec, AC_NODE_ROOT,
+ 					      AC_PAR_VENDOR_ID);
+@@ -142,15 +138,22 @@ int snd_hdac_device_register(struct hdac_device *codec)
+ 	err = device_add(&codec->dev);
+ 	if (err < 0)
+ 		return err;
++	err = snd_hdac_bus_add_device(codec->bus, codec);
++	if (err < 0)
++		goto error;
+ 	mutex_lock(&codec->widget_lock);
+ 	err = hda_widget_sysfs_init(codec);
+ 	mutex_unlock(&codec->widget_lock);
+-	if (err < 0) {
+-		device_del(&codec->dev);
+-		return err;
+-	}
++	if (err < 0)
++		goto error_remove;
  
+ 	return 0;
++
++ error_remove:
++	snd_hdac_bus_remove_device(codec->bus, codec);
++ error:
++	device_del(&codec->dev);
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(snd_hdac_device_register);
+ 
+@@ -164,8 +167,8 @@ void snd_hdac_device_unregister(struct hdac_device *codec)
+ 		mutex_lock(&codec->widget_lock);
+ 		hda_widget_sysfs_exit(codec);
+ 		mutex_unlock(&codec->widget_lock);
+-		device_del(&codec->dev);
+ 		snd_hdac_bus_remove_device(codec->bus, codec);
++		device_del(&codec->dev);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(snd_hdac_device_unregister);
 -- 
 2.20.1
 
