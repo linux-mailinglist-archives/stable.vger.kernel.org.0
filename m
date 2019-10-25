@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1DD7E4CFA
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:57:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8EA1E4D02
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394734AbfJYN44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
+        id S2394808AbfJYN5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394728AbfJYN4z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:55 -0400
+        id S2394797AbfJYN5I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56975222C2;
-        Fri, 25 Oct 2019 13:56:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E5521E6F;
+        Fri, 25 Oct 2019 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011814;
-        bh=iUT3I7w4uAfBmEpAeqH0xKrEki4nEN/X106/GcfSGHA=;
+        s=default; t=1572011826;
+        bh=lLl/382NG8pDVJRx0pzc1ZEuxoHjguG+r8UTBHq+76s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISI1oPK8qjFX2Rcmdwqk1cGPXOMEn9QeZTvT7EwdbNPRLYcoZn+jRg4I847vqBSaE
-         evOmrlYRRV7lO4WwamBXRKQ9qJH0uv1iAC1bw13FcdYEaQcdS2kATbC9ZsfVwwmo8v
-         u0txjedX+265pG67ng+GMukPLU1TkLOQ6X96ZjKE=
+        b=YyITTS1GBtMEPt6oj5R13jY3BqHEx3rtH0SIA3td2rlICIkboWxbVOWTnsZL54w4e
+         kFG6BT2NWP/Q5IO9agejJG9OfqcFwHuPFHhBYr2sTFFwkqliBLZGLf/ENz/mybFs/C
+         +YgdknK0kGw+nvU9pjwj70ZSvoCvuDItsZE2fKCQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Mahesh Bandewar <maheshb@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+Cc:     David Ahern <dsahern@gmail.com>,
+        Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 27/37] bonding: fix potential NULL deref in bond_update_slave_arr
-Date:   Fri, 25 Oct 2019 09:55:51 -0400
-Message-Id: <20191025135603.25093-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 35/37] ipv6: Handle race in addrconf_dad_work
+Date:   Fri, 25 Oct 2019 09:55:59 -0400
+Message-Id: <20191025135603.25093-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
@@ -45,77 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit a7137534b597b7c303203e6bc3ed87e87a273bb8 ]
+[ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
 
-syzbot got a NULL dereference in bond_update_slave_arr() [1],
-happening after a failure to allocate bond->slave_arr
+Rajendra reported a kernel panic when a link was taken down:
 
-A workqueue (bond_slave_arr_handler) is supposed to retry
-the allocation later, but if the slave is removed before
-the workqueue had a chance to complete, bond->slave_arr
-can still be NULL.
+[ 6870.263084] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
+[ 6870.271856] IP: [<ffffffff8efc5764>] __ipv6_ifa_notify+0x154/0x290
 
-[1]
+<snip>
 
-Failed to build slave-array.
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-Modules linked in:
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:bond_update_slave_arr.cold+0xc6/0x198 drivers/net/bonding/bond_main.c:4039
-RSP: 0018:ffff88018fe33678 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffc9000290b000
-RDX: 0000000000000000 RSI: ffffffff82b63037 RDI: ffff88019745ea20
-RBP: ffff88018fe33760 R08: ffff880170754280 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff88019745ea00 R14: 0000000000000000 R15: ffff88018fe338b0
-FS:  00007febd837d700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000004540a0 CR3: 00000001c242e005 CR4: 00000000001626f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- [<ffffffff82b5b45e>] __bond_release_one+0x43e/0x500 drivers/net/bonding/bond_main.c:1923
- [<ffffffff82b5b966>] bond_release drivers/net/bonding/bond_main.c:2039 [inline]
- [<ffffffff82b5b966>] bond_do_ioctl+0x416/0x870 drivers/net/bonding/bond_main.c:3562
- [<ffffffff83ae25f4>] dev_ifsioc+0x6f4/0x940 net/core/dev_ioctl.c:328
- [<ffffffff83ae2e58>] dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:495
- [<ffffffff83995ffd>] sock_do_ioctl+0x1bd/0x300 net/socket.c:1088
- [<ffffffff83996a80>] sock_ioctl+0x300/0x5d0 net/socket.c:1196
- [<ffffffff81b124db>] vfs_ioctl fs/ioctl.c:47 [inline]
- [<ffffffff81b124db>] file_ioctl fs/ioctl.c:501 [inline]
- [<ffffffff81b124db>] do_vfs_ioctl+0xacb/0x1300 fs/ioctl.c:688
- [<ffffffff81b12dc6>] SYSC_ioctl fs/ioctl.c:705 [inline]
- [<ffffffff81b12dc6>] SyS_ioctl+0xb6/0xe0 fs/ioctl.c:696
- [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
- [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
+[ 6870.570501] Call Trace:
+[ 6870.573238] [<ffffffff8efc58c6>] ? ipv6_ifa_notify+0x26/0x40
+[ 6870.579665] [<ffffffff8efc98ec>] ? addrconf_dad_completed+0x4c/0x2c0
+[ 6870.586869] [<ffffffff8efe70c6>] ? ipv6_dev_mc_inc+0x196/0x260
+[ 6870.593491] [<ffffffff8efc9c6a>] ? addrconf_dad_work+0x10a/0x430
+[ 6870.600305] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
+[ 6870.606732] [<ffffffff8ea93a7a>] ? process_one_work+0x18a/0x430
+[ 6870.613449] [<ffffffff8ea93d6d>] ? worker_thread+0x4d/0x490
+[ 6870.619778] [<ffffffff8ea93d20>] ? process_one_work+0x430/0x430
+[ 6870.626495] [<ffffffff8ea99dd9>] ? kthread+0xd9/0xf0
+[ 6870.632145] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
+[ 6870.638573] [<ffffffff8ea99d00>] ? kthread_park+0x60/0x60
+[ 6870.644707] [<ffffffff8f01ae77>] ? ret_from_fork+0x57/0x70
+[ 6870.650936] Code: 31 c0 31 d2 41 b9 20 00 08 02 b9 09 00 00 0
 
-Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Mahesh Bandewar <maheshb@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+addrconf_dad_work is kicked to be scheduled when a device is brought
+up. There is a race between addrcond_dad_work getting scheduled and
+taking the rtnl lock and a process taking the link down (under rtnl).
+The latter removes the host route from the inet6_addr as part of
+addrconf_ifdown which is run for NETDEV_DOWN. The former attempts
+to use the host route in ipv6_ifa_notify. If the down event removes
+the host route due to the race to the rtnl, then the BUG listed above
+occurs.
+
+This scenario does not occur when the ipv6 address is not kept
+(net.ipv6.conf.all.keep_addr_on_down = 0) as addrconf_ifdown sets the
+state of the ifp to DEAD. Handle when the addresses are kept by checking
+IF_READY which is reset by addrconf_ifdown.
+
+The 'dead' flag for an inet6_addr is set only under rtnl, in
+addrconf_ifdown and it means the device is getting removed (or IPv6 is
+disabled). The interesting cases for changing the idev flag are
+addrconf_notify (NETDEV_UP and NETDEV_CHANGE) and addrconf_ifdown
+(reset the flag). The former does not have the idev lock - only rtnl;
+the latter has both. Based on that the existing dead + IF_READY check
+can be moved to right after the rtnl_lock in addrconf_dad_work.
+
+Fixes: f1705ec197e7 ("net: ipv6: Make address flushing on ifdown optional")
+Reported-by: Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/addrconf.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 0d2392c4b625a..2804e2d1ae5e5 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -4033,7 +4033,7 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
- 		 * this to-be-skipped slave to send a packet out.
- 		 */
- 		old_arr = rtnl_dereference(bond->slave_arr);
--		for (idx = 0; idx < old_arr->count; idx++) {
-+		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
- 			if (skipslave == old_arr->arr[idx]) {
- 				old_arr->arr[idx] =
- 				    old_arr->arr[old_arr->count-1];
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index d2968a79abea8..75f520db6a6db 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3974,6 +3974,12 @@ static void addrconf_dad_work(struct work_struct *w)
+ 
+ 	rtnl_lock();
+ 
++	/* check if device was taken down before this delayed work
++	 * function could be canceled
++	 */
++	if (idev->dead || !(idev->if_flags & IF_READY))
++		goto out;
++
+ 	spin_lock_bh(&ifp->lock);
+ 	if (ifp->state == INET6_IFADDR_STATE_PREDAD) {
+ 		action = DAD_BEGIN;
+@@ -4019,11 +4025,6 @@ static void addrconf_dad_work(struct work_struct *w)
+ 		goto out;
+ 
+ 	write_lock_bh(&idev->lock);
+-	if (idev->dead || !(idev->if_flags & IF_READY)) {
+-		write_unlock_bh(&idev->lock);
+-		goto out;
+-	}
+-
+ 	spin_lock(&ifp->lock);
+ 	if (ifp->state == INET6_IFADDR_STATE_DEAD) {
+ 		spin_unlock(&ifp->lock);
 -- 
 2.20.1
 
