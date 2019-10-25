@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 820B9E4D3B
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:59:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2B9CE4D65
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:00:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632880AbfJYN6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
+        id S2505695AbfJYN7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:59:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2393718AbfJYN6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:52 -0400
+        id S2632876AbfJYN6y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:54 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE55222CB;
-        Fri, 25 Oct 2019 13:58:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F8E3222BE;
+        Fri, 25 Oct 2019 13:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011932;
-        bh=qR4vbAuIR6QqRJdC4Ze811+0GMlQs3Y8tIAa0DxLn+U=;
+        s=default; t=1572011933;
+        bh=+ostpiwhCn1I+T0qv90CTm3Ku516+AmJJeUSaVZQlDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxhA5EdP77jPWrTv54ZZ3yJnIlsF+m2EHWh2LDAufqeQu3Z0hGIIxdP4TZDvWwonA
-         RrNEwvA0jvKNn/rnUrwUQ9UaXCNDQzeMe4Zg0BgZ4w9ndIMkECk+RZQRfmtlY9vcw+
-         DYlgb7yhJyPAfgCoFtXuMWCbqpQ6NmAX6ACNKHMs=
+        b=bwFJRduz28BntaSV+md8hjtHz6uq3km6oP2Eko9gNc31ILejHDbhiPCVsbT1PuDCu
+         IGzLIPGgvC9mvLjyLAwUBNHUZ2AyEq8xhzy8mZOrnurQxmX0VVLPBx1kR1YnhU8loi
+         S9BJgvDhIJ81RcoTqt07/hI05q7z55+D7dmykTQ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Laurence Oberman <loberman@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/16] scsi: RDMA/srp: Fix a sleep-in-invalid-context bug
-Date:   Fri, 25 Oct 2019 09:58:29 -0400
-Message-Id: <20191025135842.25977-5-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/16] sch_netem: fix rcu splat in netem_enqueue()
+Date:   Fri, 25 Oct 2019 09:58:30 -0400
+Message-Id: <20191025135842.25977-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135842.25977-1-sashal@kernel.org>
 References: <20191025135842.25977-1-sashal@kernel.org>
@@ -49,108 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fd56141244066a6a21ef458670071c58b6402035 ]
+[ Upstream commit 159d2c7d8106177bd9a986fd005a311fe0d11285 ]
 
-The previous patch guarantees that srp_queuecommand() does not get
-invoked while reconnecting occurs. Hence remove the code from
-srp_queuecommand() that prevents command queueing while reconnecting.
-This patch avoids that the following can appear in the kernel log:
+qdisc_root() use from netem_enqueue() triggers a lockdep warning.
 
-BUG: sleeping function called from invalid context at kernel/locking/mutex.c:747
-in_atomic(): 1, irqs_disabled(): 0, pid: 5600, name: scsi_eh_9
-1 lock held by scsi_eh_9/5600:
- #0:  (rcu_read_lock){....}, at: [<00000000cbb798c7>] __blk_mq_run_hw_queue+0xf1/0x1e0
-Preemption disabled at:
-[<00000000139badf2>] __blk_mq_delay_run_hw_queue+0x78/0xf0
-CPU: 9 PID: 5600 Comm: scsi_eh_9 Tainted: G        W        4.15.0-rc4-dbg+ #1
-Hardware name: Dell Inc. PowerEdge R720/0VWT90, BIOS 2.5.4 01/22/2016
+__dev_queue_xmit() uses rcu_read_lock_bh() which is
+not equivalent to rcu_read_lock() + local_bh_disable_bh as far
+as lockdep is concerned.
+
+WARNING: suspicious RCU usage
+5.3.0-rc7+ #0 Not tainted
+-----------------------------
+include/net/sch_generic.h:492 suspicious rcu_dereference_check() usage!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by syz-executor427/8855:
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: lwtunnel_xmit_redirect include/net/lwtunnel.h:92 [inline]
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: ip_finish_output2+0x2dc/0x2570 net/ipv4/ip_output.c:214
+ #1: 00000000b5525c01 (rcu_read_lock_bh){....}, at: __dev_queue_xmit+0x20a/0x3650 net/core/dev.c:3804
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_xmit_skb net/core/dev.c:3502 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_queue_xmit+0x14b8/0x3650 net/core/dev.c:3838
+
+stack backtrace:
+CPU: 0 PID: 8855 Comm: syz-executor427 Not tainted 5.3.0-rc7+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 Call Trace:
- dump_stack+0x67/0x99
- ___might_sleep+0x16a/0x250 [ib_srp]
- __mutex_lock+0x46/0x9d0
- srp_queuecommand+0x356/0x420 [ib_srp]
- scsi_dispatch_cmd+0xf6/0x3f0
- scsi_queue_rq+0x4a8/0x5f0
- blk_mq_dispatch_rq_list+0x73/0x440
- blk_mq_sched_dispatch_requests+0x109/0x1a0
- __blk_mq_run_hw_queue+0x131/0x1e0
- __blk_mq_delay_run_hw_queue+0x9a/0xf0
- blk_mq_run_hw_queue+0xc0/0x1e0
- blk_mq_start_hw_queues+0x2c/0x40
- scsi_run_queue+0x18e/0x2d0
- scsi_run_host_queues+0x22/0x40
- scsi_error_handler+0x18d/0x5f0
- kthread+0x11c/0x140
- ret_from_fork+0x24/0x30
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5357
+ qdisc_root include/net/sch_generic.h:492 [inline]
+ netem_enqueue+0x1cfb/0x2d80 net/sched/sch_netem.c:479
+ __dev_xmit_skb net/core/dev.c:3527 [inline]
+ __dev_queue_xmit+0x15d2/0x3650 net/core/dev.c:3838
+ dev_queue_xmit+0x18/0x20 net/core/dev.c:3902
+ neigh_hh_output include/net/neighbour.h:500 [inline]
+ neigh_output include/net/neighbour.h:509 [inline]
+ ip_finish_output2+0x1726/0x2570 net/ipv4/ip_output.c:228
+ __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+ __ip_finish_output+0x5fc/0xb90 net/ipv4/ip_output.c:290
+ ip_finish_output+0x38/0x1f0 net/ipv4/ip_output.c:318
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip_mc_output+0x292/0xf40 net/ipv4/ip_output.c:417
+ dst_output include/net/dst.h:436 [inline]
+ ip_local_out+0xbb/0x190 net/ipv4/ip_output.c:125
+ ip_send_skb+0x42/0xf0 net/ipv4/ip_output.c:1555
+ udp_send_skb.isra.0+0x6b2/0x1160 net/ipv4/udp.c:887
+ udp_sendmsg+0x1e96/0x2820 net/ipv4/udp.c:1174
+ inet_sendmsg+0x9e/0xe0 net/ipv4/af_inet.c:807
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
+ do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Doug Ledford <dledford@redhat.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 21 ++-------------------
- 1 file changed, 2 insertions(+), 19 deletions(-)
+ include/net/sch_generic.h | 5 +++++
+ net/sched/sch_netem.c     | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 3dbc3ed263c21..9a70267244e1a 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -2057,7 +2057,6 @@ static void srp_send_completion(struct ib_cq *cq, void *ch_ptr)
- static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- {
- 	struct srp_target_port *target = host_to_target(shost);
--	struct srp_rport *rport = target->rport;
- 	struct srp_rdma_ch *ch;
- 	struct srp_request *req;
- 	struct srp_iu *iu;
-@@ -2067,16 +2066,6 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 	u32 tag;
- 	u16 idx;
- 	int len, ret;
--	const bool in_scsi_eh = !in_interrupt() && current == shost->ehandler;
--
--	/*
--	 * The SCSI EH thread is the only context from which srp_queuecommand()
--	 * can get invoked for blocked devices (SDEV_BLOCK /
--	 * SDEV_CREATED_BLOCK). Avoid racing with srp_reconnect_rport() by
--	 * locking the rport mutex if invoked from inside the SCSI EH.
--	 */
--	if (in_scsi_eh)
--		mutex_lock(&rport->mutex);
- 
- 	scmnd->result = srp_chkready(target->rport);
- 	if (unlikely(scmnd->result))
-@@ -2138,13 +2127,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 		goto err_unmap;
- 	}
- 
--	ret = 0;
--
--unlock_rport:
--	if (in_scsi_eh)
--		mutex_unlock(&rport->mutex);
--
--	return ret;
-+	return 0;
- 
- err_unmap:
- 	srp_unmap_data(scmnd, ch, req);
-@@ -2166,7 +2149,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 		ret = SCSI_MLQUEUE_HOST_BUSY;
- 	}
- 
--	goto unlock_rport;
-+	return ret;
+diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
+index 7a5d6a0731654..ccd2a964dad7d 100644
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -289,6 +289,11 @@ static inline struct Qdisc *qdisc_root(const struct Qdisc *qdisc)
+ 	return q;
  }
  
- /*
++static inline struct Qdisc *qdisc_root_bh(const struct Qdisc *qdisc)
++{
++	return rcu_dereference_bh(qdisc->dev_queue->qdisc);
++}
++
+ static inline struct Qdisc *qdisc_root_sleeping(const struct Qdisc *qdisc)
+ {
+ 	return qdisc->dev_queue->qdisc_sleeping;
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+index 2a431628af591..caf33af4f9a7d 100644
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -464,7 +464,7 @@ static int netem_enqueue(struct sk_buff *skb, struct Qdisc *sch)
+ 	 * skb will be queued.
+ 	 */
+ 	if (count > 1 && (skb2 = skb_clone(skb, GFP_ATOMIC)) != NULL) {
+-		struct Qdisc *rootq = qdisc_root(sch);
++		struct Qdisc *rootq = qdisc_root_bh(sch);
+ 		u32 dupsave = q->duplicate; /* prevent duplicating a dup... */
+ 
+ 		q->duplicate = 0;
 -- 
 2.20.1
 
