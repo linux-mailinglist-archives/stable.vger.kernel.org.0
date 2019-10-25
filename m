@@ -2,165 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C532E53AC
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D633AE5417
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 21:05:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733134AbfJYSRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 14:17:15 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:51729 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733008AbfJYSRG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:17:06 -0400
-Received: by mail-wm1-f68.google.com with SMTP id q70so3155519wme.1
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 11:17:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=Cyl/d6woglokg3lWDB7KNeNlo4vuXNsoS2nIQA2trnw=;
-        b=gVOihQWtaSMR8CeL9/dgz3xGxh2pO+ONghzMoebCfxrFPQkv4c1T0EwxpByNnVC5tV
-         SZ+WoQ93XmL/VSLeVLM459N4UcQQf1cpu1IjvIlGP6EQiirBJLLM0AjMRtcj2DOCw1dw
-         v06rVqxsOKY64p/lG+lCX7G8Cxq0VPmHflZ8eMaA0KPtyvlmiHc2/U9x4vpaEO5np6ue
-         jkOEWHy6dZ7N1CKLjjOWRQ1q7WQswbVzkdvJdxsWBmg+ftQzPnbTQ3Tmm9nneLj06zXr
-         uhZIehIxvwJ4YyK3fS9+4kV0Hf00L6Z9VDUhWD3P7vtRwg/dn6CXQqEJ3AQcUxc1slEO
-         fMjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=Cyl/d6woglokg3lWDB7KNeNlo4vuXNsoS2nIQA2trnw=;
-        b=uLV7I4mmKZe3UsQ+dL5VFZcLLVm60fa2Ah2KQnu/9OEYqvIeSKKApO3UTNUY/2CubX
-         HIb+hOpiaY+QMA882VuKo6RIwF9MrGvjRC/0bxB9bswouZ7tOzkQkajsb/nHVeUkMOPd
-         5nbR/VPhe59LNFNtcGbpmX6K7cA5Zn8M2GlYmx0c8dBLNQyehsGZRB2un4SFNvR241X4
-         DafNK0eKNNlC3g8BmcoTiByyKaeHMqhFSlWMZHxB0c1JFxRssRGptujhD3YxsiQR9mm0
-         NS4q+ph12+nKuOjCUDqDkfmxu5A3738ciGCcF+cFyHEWHQ2QsaVTiqBLIhP6EYi5pUH+
-         3blA==
-X-Gm-Message-State: APjAAAV3jBLeZm8/KmU3up3f/rkygOERJ1MTaG/Fyxyfhj0W0JJ/L4hV
-        7tFPkWB/nQikp+7NPyjCf9sev3Jl/mzA1eakpyo=
-X-Google-Smtp-Source: APXvYqwjLMWETrit60tRAORReyVmonftUlfcSj6rX6H66+DEapFQs/ChOy1nWV9ok2wqvT1euyoKbDT2Yqr4iGPTjfY=
-X-Received: by 2002:a1c:7f96:: with SMTP id a144mr4966269wmd.143.1572027423632;
- Fri, 25 Oct 2019 11:17:03 -0700 (PDT)
+        id S1726100AbfJYTFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 15:05:49 -0400
+Received: from smtprelay0017.hostedemail.com ([216.40.44.17]:50696 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725847AbfJYTFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 15:05:49 -0400
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay03.hostedemail.com (Postfix) with ESMTP id AE4838384364;
+        Fri, 25 Oct 2019 19:05:47 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,:::::::::::::,RULES_HIT:41:69:355:379:599:800:960:973:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2393:2553:2559:2562:2692:2828:2911:3138:3139:3140:3141:3142:3353:3622:3865:3866:3867:3868:3870:3871:3872:3874:4321:4425:5007:6117:6119:6120:7576:7901:10004:10400:10848:11026:11232:11658:11914:12043:12296:12297:12438:12555:12740:12760:12895:13069:13095:13255:13311:13357:13439:14181:14659:14721:21080:21212:21433:21451:21627:30034:30045:30054:30090:30091,0,RBL:47.151.135.224:@perches.com:.lbl8.mailshell.net-62.14.0.100 64.201.201.201,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:fn,MSBL:0,DNSBL:none,Custom_rules:0:0:0,LFtime:25,LUA_SUMMARY:none
+X-HE-Tag: food96_326534c4f0a3f
+X-Filterd-Recvd-Size: 2493
+Received: from XPS-9350.home (unknown [47.151.135.224])
+        (Authenticated sender: joe@perches.com)
+        by omf16.hostedemail.com (Postfix) with ESMTPA;
+        Fri, 25 Oct 2019 19:05:46 +0000 (UTC)
+Message-ID: <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
+ event creation failed
+From:   Joe Perches <joe@perches.com>
+To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Like Xu <like.xu@linux.intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Date:   Fri, 25 Oct 2019 12:05:43 -0700
+In-Reply-To: <lsq.1572026582.631294584@decadent.org.uk>
+References: <lsq.1572026582.631294584@decadent.org.uk>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.34.1-2 
 MIME-Version: 1.0
-Received: by 2002:a7b:c642:0:0:0:0:0 with HTTP; Fri, 25 Oct 2019 11:17:03
- -0700 (PDT)
-Reply-To: aishaelgaddafi@hotmail.com
-From:   aisha GADDAFI <aishael.gaddafi12@gmail.com>
-Date:   Fri, 25 Oct 2019 20:17:03 +0200
-Message-ID: <CAGhmeUXC9d9a-oNe9nT0pDGd_-1rG9TMOZkNwfe+A3Nb7JknrA@mail.gmail.com>
-Subject: Can I invest in your country from Mrs. Aisha El Gaddafi?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dearest One
+On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
+> 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
 
-Please I want you to exercise some patience reading through this mail
-so that it will enable you have good understanding, meanwhile I will
-appreciate you to ignore and delete this mail from your mail box if
-you are not interested been my partner for the investment project in
-your country.
+This seems more like an enhancement than a bug fix.
 
-This letter may come to you as a surprise, but I want you to
-understand that it is only through an opportunity that people can meet
-each other and become friends and business partners in life. Though,
-the society today is so unpredictable that the good and the bad live
-side by side coupled with the monumental hype and crap of the abuse of
-the Internet by some unscrupulous persons in the recent times, thereby
-making it extremely difficult for genuine and legitimate business
-class persons to get attention and recognition. However, Internet was
-established for easy communication and business transaction of far
-partners but today, the same internet is use to deceived some business
-class persons so i will not be surprise to see you rejecting this
-proposal just because of what bad eggs has done to internet today.
+Is this really the type of patch that is appropriate
+for stable?
 
-Nevertheless, i want you to understand that there is still genuine and
-legitimate business class persons in internet world today so i am
-assuring you that this transaction is 100% genuine. You can give it a
-trial.
+> ------------------
+> 
+> From: Like Xu <like.xu@linux.intel.com>
+> 
+> commit 6fc3977ccc5d3c22e851f2dce2d3ce2a0a843842 upstream.
+> 
+> If a perf_event creation fails due to any reason of the host perf
+> subsystem, it has no chance to log the corresponding event for guest
+> which may cause abnormal sampling data in guest result. In debug mode,
+> this message helps to understand the state of vPMC and we may not
+> limit the number of occurrences but not in a spamming style.
+> 
+> Suggested-by: Joe Perches <joe@perches.com>
+> Signed-off-by: Like Xu <like.xu@linux.intel.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> [bwh: Backported to 3.16: adjust context]
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+>  arch/x86/kvm/pmu.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> --- a/arch/x86/kvm/pmu.c
+> +++ b/arch/x86/kvm/pmu.c
+> @@ -187,8 +187,8 @@ static void reprogram_counter(struct kvm
+>  						 intr ? kvm_perf_overflow_intr :
+>  						 kvm_perf_overflow, pmc);
+>  	if (IS_ERR(event)) {
+> -		printk_once("kvm: pmu event creation failed %ld\n",
+> -				PTR_ERR(event));
+> +		pr_debug_ratelimited("kvm_pmu: event creation failed %ld for pmc->idx = %d\n",
+> +			    PTR_ERR(event), pmc->idx);
+>  		return;
+>  	}
+>  
+> 
 
-I decided to contact you over this business, after a careful thought
-and also going the way of my instincts, believing that you are capable
-of handling this business in honesty and sincerity and also be of
-immense help towards the smooth completion of this transaction.
-
-Before I introduce myself, I wish to inform you that this letter is
-not a hoax mail and I urge you to treat it serious. This letter must,
-come to you as a big surprise, but I believe it is only a day that
-people meet and become great friends and business partners.
-
-Please I want you to read this letter very carefully and I must
-apologize for barging this message into your mail box without any
-formal introduction due to the urgency and confidentiality of this
-business and I know that this message will come to you as a surprise.
-Please, this is not a joke and I will not like you to joke with it OK.
-With due respect to your person and much sincerity of purpose, I make
-this contact with you as I believe that you can be of great
-assistance,  to me.
-
-Introductions; My names are Aisha Gaddafi,the only biological daughter
-of late Libya president Gaddafi, I want to use this opportunity to
-inform you that I need a very honest and reliable person that can help
-me look for a profitable business/ company to invest into there in
-your country then you let me know while and provide account where I
-can transfer the sum of$30,500,000.00.Dollars (Thirty million five
-hundred and fifty thousand united state dollars) for the investment in
-your country.
-
-My late father also deposited 37kg of (GOLD) in Accra Ghana a
-neighboring country where i am presently now. My plan is after
-claiming this fund, we will have enough fund to move for the claim of
-the GOLD.
-
- I am currently residing in  one of the African Countries,
-unfortunately as a refugee. At the meantime, my family is the target
-of Western nations led by Nato who  lead the death of my father at all
-costs and Our investments and bank accounts in several countries are
-their targets to freeze.
-
-I have no option rather to contact an interested foreign
-investor/partner who will be able to take absolute control of part of
-the vast cash available in a private account that my late father open
-on my behalf here in the country before his sudden death by the
-western world.
-
-If this transaction interest you, kindly reply me back immediately for
-more details on how to execute the project.Please one more
-veryimportant thing here, is that you don=E2=80=99t have to disclose it to =
-any
-body because of what is going with my entire family, if the united
-nation happens to know this account, they will freeze it as they
-freeze others so keep this transaction for yourself only until we
-finalize it. I want to transfer this money into your account
-immediately for onward investment in your country because I don=E2=80=99t w=
-ant
-the united nation to know about this account of which you are aware of
-my family problems.
-
-About me and the reason why I am now in Burkina Faso as you can read
-more in the linked below Please inter the link to read and know more
-about me and the reason why I contacted you.
-
-http://www.telegraph.co.uk/news/worldnews/africaandindianocean/libya/996720=
-3/Gaddafis-daughter-thrown-out-of-Algeria-after-she-set-fire-to-presidentia=
-l-residence.html
-
-Once again, i have the sum of US$ 30.5 Thirty Million five hundred
-thousand in one bank in Burkina Faso Called  Banque Commerciale du
-Burkina (BCB).
-
-Therefore if you are capable of running an establishment and can
-maintain the high level of secrecy required in this project, kindly
-reply with the following information for details of the project and
-please always reach me on this my below alternative email address for
-urgent attention ok. (aishaelgaddafi@hotmail.com )
-
-You are advice to contact me immediately for more details if you are
-really interested. As soon as i hear from you, i will give you mor
-details of this transaction.
-
-Best Regard
-Mrs.Aisha El Gaddafi
