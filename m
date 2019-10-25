@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B22E4D72
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D38E4D7C
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2410379AbfJYN6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54284 "EHLO mail.kernel.org"
+        id S2388504AbfJYOA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:00:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2410372AbfJYN6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:44 -0400
+        id S2410378AbfJYN6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C18421E6F;
-        Fri, 25 Oct 2019 13:58:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB847222CE;
+        Fri, 25 Oct 2019 13:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011924;
-        bh=3SoKi6IzLISdFNp1aPaetavHCeQsuyyi5mZ5Hv6IBRs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=o81kMqQevv3otWh0HExWlM8yQPaP5lxATU2QwymNr+aNCteBiFsJNH35tpwBEoHgT
-         NUbD29Q2LujDrKaid7uxpv0sbkn2eCGwz9aRMLsNhgegvGR9KefEkZzuhDASJ/eBea
-         IrlRNlZtb/WLoDfcQj2thmzfD/ROJ6DVvv0/xvE4=
+        s=default; t=1572011925;
+        bh=QVtj9yD9gM/Kn2BDw1bk2ZWLuSivu4VtM58leskAUQc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cp02R1/v5+lL6OnIZ03S7LS7qF4lPm8htoOtHNaOU3xZrD1ihfg+2Xx7P6l/dA5aG
+         SKf1ewGKeOSWysejkqVHklbKkQ8e48kB6Y6p7K2DpKKU/fZo3TKYEmaTc/Lb8RS3ZM
+         yizQ5VZWXDtgnre+8DYwfsfQNNHBOuTOjPM4Pb/0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Patrick Talbert <ptalbert@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 01/16] PCI/ASPM: Do not initialize link state when aspm_disabled is set
-Date:   Fri, 25 Oct 2019 09:58:25 -0400
-Message-Id: <20191025135842.25977-1-sashal@kernel.org>
+Cc:     Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 02/16] ACPI: video: Use vendor backlight on Sony VPCEH3U1E
+Date:   Fri, 25 Oct 2019 09:58:26 -0400
+Message-Id: <20191025135842.25977-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191025135842.25977-1-sashal@kernel.org>
+References: <20191025135842.25977-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,45 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Talbert <ptalbert@redhat.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit 17c91487364fb33797ed84022564ee7544ac4945 ]
+[ Upstream commit aefa763b18a220f5fc1d5ab02af09158b6cc36ea ]
 
-Now that ASPM is configured for *all* PCIe devices at boot, a problem is
-seen with systems that set the FADT NO_ASPM bit.  This bit indicates that
-the OS should not alter the ASPM state, but when
-pcie_aspm_init_link_state() runs it only checks for !aspm_support_enabled.
-This misses the ACPI_FADT_NO_ASPM case because that is setting
-aspm_disabled.
+On Sony Vaio VPCEH3U1E, ACPI backlight control does not work, and native
+backlight works. Thus force use vendor backlight control on this system.
 
-The result is systems may hang at boot after 1302fcf; avoidable if they
-boot with pcie_aspm=off (sets !aspm_support_enabled).
-
-Fix this by having aspm_init_link_state() check for either
-!aspm_support_enabled or acpm_disabled.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=201001
-Fixes: 1302fcf0d03e ("PCI: Configure *all* devices, not just hot-added ones")
-Signed-off-by: Patrick Talbert <ptalbert@redhat.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202401
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/aspm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/video_detect.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
-index c6a012b5ba390..6cc073f1d2d15 100644
---- a/drivers/pci/pcie/aspm.c
-+++ b/drivers/pci/pcie/aspm.c
-@@ -560,7 +560,7 @@ void pcie_aspm_init_link_state(struct pci_dev *pdev)
- 	struct pcie_link_state *link;
- 	int blacklist = !!pcie_aspm_sanity_check(pdev);
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 8c5503c0bad7c..3fc828e086b1e 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -135,6 +135,14 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "UL30A"),
+ 		},
+ 	},
++	{
++	.callback = video_detect_force_vendor,
++	.ident = "Sony VPCEH3U1E",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "VPCEH3U1E"),
++		},
++	},
  
--	if (!aspm_support_enabled)
-+	if (!aspm_support_enabled || aspm_disabled)
- 		return;
- 
- 	if (pdev->link_state)
+ 	/*
+ 	 * These models have a working acpi_video backlight control, and using
 -- 
 2.20.1
 
