@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA83E4E59
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A8C1E4E3D
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632757AbfJYNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49718 "EHLO mail.kernel.org"
+        id S2505139AbfJYNzp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:55:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2632745AbfJYNzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:55:43 -0400
+        id S2632758AbfJYNzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:55:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26843222C2;
-        Fri, 25 Oct 2019 13:55:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F9C0222CB;
+        Fri, 25 Oct 2019 13:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011742;
-        bh=5RWzo9QEth0RFKVssuXKnx/G3xiOpNSN1TtPLBONbeI=;
+        s=default; t=1572011743;
+        bh=tmHS6dNPbM8iY9hq0ePqUSvZvvPJdn4+Z3vB+QWrr4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3ylLd1lVvyoh8VETzhb4yfP06+tlKHLgFa527iXcvqaGmMcEpx7eQamtVtXWVgak
-         Ijd1ZgNxeA2eIHhXC6HwsZsyY2mL2oY3lNt3ML3bi5F5K/ke0AV31OcoLAH2/uVj2E
-         l5Yu6KyNIIs95sBZHqb6duzmMxLC1KD+3PX4wRbw=
+        b=M9K8+TWqbKTeXgrxBR919Jszce70V9bMIuw5tNIMP34vrrkNoCbShC3Z+rr/qGIOG
+         poCywqGq1BAv/Sw4ibKUzKxtRpujzgApBubLaibvwewerPX1vCX9W9zofyyBBovWJi
+         eqh1BA+ov/xcAM3yRCWFMk+TplZyvEZgojSyJouc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 23/33] Btrfs: fix inode cache block reserve leak on failure to allocate data space
-Date:   Fri, 25 Oct 2019 09:54:55 -0400
-Message-Id: <20191025135505.24762-23-sashal@kernel.org>
+Cc:     Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.3 24/33] ubi: ubi_wl_get_peb: Increase the number of attempts while getting PEB
+Date:   Fri, 25 Oct 2019 09:54:56 -0400
+Message-Id: <20191025135505.24762-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135505.24762-1-sashal@kernel.org>
 References: <20191025135505.24762-1-sashal@kernel.org>
@@ -42,234 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 29d47d00e0ae61668ee0c5d90bef2893c8abbafa ]
+[ Upstream commit 8615b94f029a4fb4306d3512aaf1c45f5fc24d4b ]
 
-If we failed to allocate the data extent(s) for the inode space cache, we
-were bailing out without releasing the previously reserved metadata. This
-was triggering the following warnings when unmounting a filesystem:
+Running stress test io_paral (A pressure ubi test in mtd-utils) on an
+UBI device with fewer PEBs (fastmap enabled) may cause ENOSPC errors and
+make UBI device read-only, but there are still free PEBs on the UBI
+device. This problem can be easily reproduced by performing the following
+steps on a 2-core machine:
+  $ modprobe nandsim first_id_byte=0x20 second_id_byte=0x33 parts=80
+  $ modprobe ubi mtd="0,0" fm_autoconvert
+  $ ./io_paral /dev/ubi0
 
-  $ cat -n fs/btrfs/inode.c
-  (...)
-  9268  void btrfs_destroy_inode(struct inode *inode)
-  9269  {
-  (...)
-  9276          WARN_ON(BTRFS_I(inode)->block_rsv.reserved);
-  9277          WARN_ON(BTRFS_I(inode)->block_rsv.size);
-  (...)
-  9281          WARN_ON(BTRFS_I(inode)->csum_bytes);
-  9282          WARN_ON(BTRFS_I(inode)->defrag_bytes);
-  (...)
+We may see the following verbose:
+(output)
+  [io_paral] update_volume():108: failed to write 380 bytes at offset
+  95920 of volume 2
+  [io_paral] update_volume():109: update: 97088 bytes
+  [io_paral] write_thread():227: function pwrite() failed with error 28
+  (No space left on device)
+  [io_paral] write_thread():229: cannot write 15872 bytes to offs 31744,
+  wrote -1
+(dmesg)
+  ubi0 error: ubi_wl_get_peb [ubi]: Unable to get a free PEB from user WL
+  pool
+  ubi0 warning: ubi_eba_write_leb [ubi]: switch to read-only mode
+  CPU: 0 PID: 2027 Comm: io_paral Not tainted 5.3.0-rc2-00001-g5986cd0 #9
+  ubi0 warning: try_write_vid_and_data [ubi]: failed to write VID header
+  to LEB 2:5, PEB 18
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0
+  -0-ga698c8995f-prebuilt.qemu.org 04/01/2014
+  Call Trace:
+    dump_stack+0x85/0xba
+    ubi_eba_write_leb+0xa1e/0xa40 [ubi]
+    vol_cdev_write+0x307/0x520 [ubi]
+    vfs_write+0xfa/0x280
+    ksys_pwrite64+0xc5/0xe0
+    __x64_sys_pwrite64+0x22/0x30
+    do_syscall_64+0xbf/0x440
 
-Several fstests test cases triggered this often, such as generic/083,
-generic/102, generic/172, generic/269 and generic/300 at least, producing
-stack traces like the following in dmesg/syslog:
+In function ubi_wl_get_peb, the operation of filling the pool
+(ubi_update_fastmap) with free PEBs and fetching a free PEB from the pool
+is not atomic. After thread A filling the pool with free PEB, free PEB may
+be taken away by thread B. When thread A checks the expression again, the
+condition is still unsatisfactory. At this time, there may still be free
+PEBs on UBI that can be filled into the pool.
 
-  [82039.079546] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9276 btrfs_destroy_inode+0x203/0x270 [btrfs]
-  (...)
-  [82039.081543] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.081912] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.082673] RIP: 0010:btrfs_destroy_inode+0x203/0x270 [btrfs]
-  (...)
-  [82039.083913] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010206
-  [82039.084320] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.084736] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.085156] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.085578] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.086000] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.086416] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.086837] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.087253] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.087672] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.088089] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.088504] Call Trace:
-  [82039.088918]  destroy_inode+0x3b/0x70
-  [82039.089340]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.089768]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.090183]  ? wait_for_completion+0x65/0x1a0
-  [82039.090607]  close_ctree+0x172/0x370 [btrfs]
-  [82039.091021]  generic_shutdown_super+0x6c/0x110
-  [82039.091427]  kill_anon_super+0xe/0x30
-  [82039.091832]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.092233]  deactivate_locked_super+0x3a/0x70
-  [82039.092636]  cleanup_mnt+0x3b/0x80
-  [82039.093039]  task_work_run+0x93/0xc0
-  [82039.093457]  exit_to_usermode_loop+0xfa/0x100
-  [82039.093856]  do_syscall_64+0x162/0x1d0
-  [82039.094244]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.094634] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.095876] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.096290] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.096700] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.097110] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.097522] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.097937] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.098350] irq event stamp: 0
-  [82039.098750] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.099150] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.099545] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.099925] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.100292] ---[ end trace f2521afa616ddccc ]---
-  [82039.100707] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9277 btrfs_destroy_inode+0x1ac/0x270 [btrfs]
-  (...)
-  [82039.103050] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.103428] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.104203] RIP: 0010:btrfs_destroy_inode+0x1ac/0x270 [btrfs]
-  (...)
-  [82039.105461] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010206
-  [82039.105866] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.106270] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.106673] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.107078] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.107487] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.107894] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.108309] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.108723] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.109146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.109567] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.109989] Call Trace:
-  [82039.110405]  destroy_inode+0x3b/0x70
-  [82039.110830]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.111257]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.111675]  ? wait_for_completion+0x65/0x1a0
-  [82039.112101]  close_ctree+0x172/0x370 [btrfs]
-  [82039.112519]  generic_shutdown_super+0x6c/0x110
-  [82039.112988]  kill_anon_super+0xe/0x30
-  [82039.113439]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.113861]  deactivate_locked_super+0x3a/0x70
-  [82039.114278]  cleanup_mnt+0x3b/0x80
-  [82039.114685]  task_work_run+0x93/0xc0
-  [82039.115083]  exit_to_usermode_loop+0xfa/0x100
-  [82039.115476]  do_syscall_64+0x162/0x1d0
-  [82039.115863]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.116254] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.117463] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.117882] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.118330] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.118743] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.119159] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.119574] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.119987] irq event stamp: 0
-  [82039.120387] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.120787] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.121182] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.121563] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.121933] ---[ end trace f2521afa616ddccd ]---
-  [82039.122353] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9278 btrfs_destroy_inode+0x1bc/0x270 [btrfs]
-  (...)
-  [82039.124606] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.125008] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.125801] RIP: 0010:btrfs_destroy_inode+0x1bc/0x270 [btrfs]
-  (...)
-  [82039.126998] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010202
-  [82039.127399] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.127803] RDX: 0000000000000001 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.128206] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.128611] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.129020] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.129428] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.129846] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.130261] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.130684] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.131142] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.131561] Call Trace:
-  [82039.131990]  destroy_inode+0x3b/0x70
-  [82039.132417]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.132844]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.133262]  ? wait_for_completion+0x65/0x1a0
-  [82039.133688]  close_ctree+0x172/0x370 [btrfs]
-  [82039.134157]  generic_shutdown_super+0x6c/0x110
-  [82039.134575]  kill_anon_super+0xe/0x30
-  [82039.134997]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.135415]  deactivate_locked_super+0x3a/0x70
-  [82039.135832]  cleanup_mnt+0x3b/0x80
-  [82039.136239]  task_work_run+0x93/0xc0
-  [82039.136637]  exit_to_usermode_loop+0xfa/0x100
-  [82039.137029]  do_syscall_64+0x162/0x1d0
-  [82039.137418]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.137812] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.139059] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.139475] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.139890] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.140302] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.140719] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.141138] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.141597] irq event stamp: 0
-  [82039.142043] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.142443] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.142839] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.143220] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.143588] ---[ end trace f2521afa616ddcce ]---
-  [82039.167472] WARNING: CPU: 3 PID: 13167 at fs/btrfs/extent-tree.c:10120 btrfs_free_block_groups+0x30d/0x460 [btrfs]
-  (...)
-  [82039.173800] CPU: 3 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.174847] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.177031] RIP: 0010:btrfs_free_block_groups+0x30d/0x460 [btrfs]
-  (...)
-  [82039.180397] RSP: 0018:ffffac0b426a7dd8 EFLAGS: 00010206
-  [82039.181574] RAX: ffff8de010a1db40 RBX: ffff8de010a1db40 RCX: 0000000000170014
-  [82039.182711] RDX: ffff8ddff4380040 RSI: ffff8de010a1da58 RDI: 0000000000000246
-  [82039.183817] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.184925] R10: ffff8de036404380 R11: ffffffffb8a5ea00 R12: ffff8de010a1b2b8
-  [82039.186090] R13: ffff8de010a1b2b8 R14: 0000000000000000 R15: dead000000000100
-  [82039.187208] FS:  00007f8db96d12c0(0000) GS:ffff8de036b80000(0000) knlGS:0000000000000000
-  [82039.188345] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.189481] CR2: 00007fb044005170 CR3: 00000002315cc006 CR4: 00000000003606e0
-  [82039.190674] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.191829] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.192978] Call Trace:
-  [82039.194160]  close_ctree+0x19a/0x370 [btrfs]
-  [82039.195315]  generic_shutdown_super+0x6c/0x110
-  [82039.196486]  kill_anon_super+0xe/0x30
-  [82039.197645]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.198696]  deactivate_locked_super+0x3a/0x70
-  [82039.199619]  cleanup_mnt+0x3b/0x80
-  [82039.200559]  task_work_run+0x93/0xc0
-  [82039.201505]  exit_to_usermode_loop+0xfa/0x100
-  [82039.202436]  do_syscall_64+0x162/0x1d0
-  [82039.203339]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.204091] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.206360] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.207132] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.207906] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.208621] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.209285] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.209984] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.210642] irq event stamp: 0
-  [82039.211306] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.211971] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.212643] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.213304] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.213875] ---[ end trace f2521afa616ddccf ]---
+This patch increases the number of attempts to obtain PEB. An extreme
+case (No free PEBs left after creating test volumes) has been tested on
+different type of machines for 100 times. The biggest number of attempts
+are shown below:
 
-Fix this by releasing the reserved metadata on failure to allocate data
-extent(s) for the inode cache.
+             x86_64     arm64
+  2-core        4         4
+  4-core        8         4
+  8-core        4         4
 
-Fixes: 69fe2d75dd91d0 ("btrfs: make the delalloc block rsv per inode")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode-map.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/ubi/fastmap-wl.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
-index 84b2c9ee52a74..45db4fb4b9599 100644
---- a/fs/btrfs/inode-map.c
-+++ b/fs/btrfs/inode-map.c
-@@ -486,6 +486,7 @@ int btrfs_save_ino_cache(struct btrfs_root *root,
- 					      prealloc, prealloc, &alloc_hint);
- 	if (ret) {
- 		btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc, true);
-+		btrfs_delalloc_release_metadata(BTRFS_I(inode), prealloc, true);
- 		goto out_put;
- 	}
+diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
+index d9e2e3a6e105f..c44c8470247e1 100644
+--- a/drivers/mtd/ubi/fastmap-wl.c
++++ b/drivers/mtd/ubi/fastmap-wl.c
+@@ -196,7 +196,7 @@ static int produce_free_peb(struct ubi_device *ubi)
+  */
+ int ubi_wl_get_peb(struct ubi_device *ubi)
+ {
+-	int ret, retried = 0;
++	int ret, attempts = 0;
+ 	struct ubi_fm_pool *pool = &ubi->fm_pool;
+ 	struct ubi_fm_pool *wl_pool = &ubi->fm_wl_pool;
  
+@@ -221,12 +221,12 @@ int ubi_wl_get_peb(struct ubi_device *ubi)
+ 
+ 	if (pool->used == pool->size) {
+ 		spin_unlock(&ubi->wl_lock);
+-		if (retried) {
++		attempts++;
++		if (attempts == 10) {
+ 			ubi_err(ubi, "Unable to get a free PEB from user WL pool");
+ 			ret = -ENOSPC;
+ 			goto out;
+ 		}
+-		retried = 1;
+ 		up_read(&ubi->fm_eba_sem);
+ 		ret = produce_free_peb(ubi);
+ 		if (ret < 0) {
 -- 
 2.20.1
 
