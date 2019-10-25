@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4839E4CDF
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F71BE4CE1
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2632793AbfJYN4S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:56:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
+        id S2505252AbfJYN4V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:56:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2632795AbfJYN4R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:17 -0400
+        id S2505244AbfJYN4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:56:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3FAA22459;
-        Fri, 25 Oct 2019 13:56:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1906A222C4;
+        Fri, 25 Oct 2019 13:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011776;
-        bh=wmDM3AG/qEIJGIcgSaYNHZAHKaejfltQf3svsNxsYKY=;
+        s=default; t=1572011780;
+        bh=A/CvQbHbjzhxBY6tspVGBAtk1iIGUmNPzlWeyfyCtuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3/PNdQ2q96mZ0C/6VCVZNH9xrNJAZ//TqG/OOv0D1IFFvFVO1xKR8/ij0x7xqssU
-         IaPKofa6y7TZGRQgXngqYNZoWQ1eAiMW9SclCANY/Q4rf15ixd6aRQ1E76BlwPxzsu
-         lRDwEIukzpSRF71VLP9DueD3/9wJQjZk0adDaD5w=
+        b=Bs3pancHWQRpukymm+KxBpeVbrdSw5LOcH6Sqkd7+0EVbnJz1DMX1gGV+uWdgStfu
+         ZomD48tCyU3/srxePu/JIEu5dTESOtpgTHATlOJ6tgRoxxemrpQZBCXfIKTBUvns5E
+         vg4RWHdd8tUI2EsvF33TLP7IUNvR6kgjPIvFU9HI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Amadeusz=20S=C5=82awi=C5=84ski?= 
-        <amadeuszx.slawinski@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 06/37] ALSA: hda: Fix race between creating and refreshing sysfs entries
-Date:   Fri, 25 Oct 2019 09:55:30 -0400
-Message-Id: <20191025135603.25093-6-sashal@kernel.org>
+Cc:     Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 10/37] driver core: platform: Fix the usage of platform device name(pdev->name)
+Date:   Fri, 25 Oct 2019 09:55:34 -0400
+Message-Id: <20191025135603.25093-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,104 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
+From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
 
-[ Upstream commit ed180abba7f1fc3cf04ffa27767b1bcc8e8c842a ]
+[ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
 
-hda_widget_sysfs_reinit() can free underlying codec->widgets structure
-on which widget_tree_create() operates. Add locking to prevent such
-issues from happening.
+Platform core is using pdev->name as the platform device name to do
+the binding of the devices with the drivers. But, when the platform
+driver overrides the platform device name with dev_set_name(),
+the pdev->name is pointing to a location which is freed and becomes
+an invalid parameter to do the binding match.
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110382
-Signed-off-by: Amadeusz Sławiński <amadeuszx.slawinski@linux.intel.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+use-after-free instance:
+
+[   33.325013] BUG: KASAN: use-after-free in strcmp+0x8c/0xb0
+[   33.330646] Read of size 1 at addr ffffffc10beae600 by task modprobe
+[   33.339068] CPU: 5 PID: 518 Comm: modprobe Tainted:
+			G S      W  O      4.19.30+ #3
+[   33.346835] Hardware name: MTP (DT)
+[   33.350419] Call trace:
+[   33.352941]  dump_backtrace+0x0/0x3b8
+[   33.356713]  show_stack+0x24/0x30
+[   33.360119]  dump_stack+0x160/0x1d8
+[   33.363709]  print_address_description+0x84/0x2e0
+[   33.368549]  kasan_report+0x26c/0x2d0
+[   33.372322]  __asan_report_load1_noabort+0x2c/0x38
+[   33.377248]  strcmp+0x8c/0xb0
+[   33.380306]  platform_match+0x70/0x1f8
+[   33.384168]  __driver_attach+0x78/0x3a0
+[   33.388111]  bus_for_each_dev+0x13c/0x1b8
+[   33.392237]  driver_attach+0x4c/0x58
+[   33.395910]  bus_add_driver+0x350/0x560
+[   33.399854]  driver_register+0x23c/0x328
+[   33.403886]  __platform_driver_register+0xd0/0xe0
+
+So, use dev_name(&pdev->dev), which fetches the platform device name from
+the kobject(dev->kobj->name) of the device instead of the pdev->name.
+
+Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hdaudio.h | 1 +
- sound/hda/hdac_device.c | 7 +++++++
- sound/hda/hdac_sysfs.c  | 3 +++
- 3 files changed, 11 insertions(+)
+ drivers/base/platform.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/sound/hdaudio.h b/include/sound/hdaudio.h
-index cd1773d0e08f0..0c68783be26fc 100644
---- a/include/sound/hdaudio.h
-+++ b/include/sound/hdaudio.h
-@@ -82,6 +82,7 @@ struct hdac_device {
- 	bool  link_power_control:1;
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index dff82a3c2caa9..5721f96a6e63e 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -853,7 +853,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+ 	if (len != -ENODEV)
+ 		return len;
  
- 	/* sysfs */
-+	struct mutex widget_lock;
- 	struct hdac_widget_tree *widgets;
+-	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
++	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", dev_name(&pdev->dev));
  
- 	/* regmap */
-diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
-index dbf02a3a8d2f2..020fbbbcf6f5c 100644
---- a/sound/hda/hdac_device.c
-+++ b/sound/hda/hdac_device.c
-@@ -55,6 +55,7 @@ int snd_hdac_device_init(struct hdac_device *codec, struct hdac_bus *bus,
- 	codec->bus = bus;
- 	codec->addr = addr;
- 	codec->type = HDA_DEV_CORE;
-+	mutex_init(&codec->widget_lock);
- 	pm_runtime_set_active(&codec->dev);
- 	pm_runtime_get_noresume(&codec->dev);
- 	atomic_set(&codec->in_pm, 0);
-@@ -141,7 +142,9 @@ int snd_hdac_device_register(struct hdac_device *codec)
- 	err = device_add(&codec->dev);
- 	if (err < 0)
- 		return err;
-+	mutex_lock(&codec->widget_lock);
- 	err = hda_widget_sysfs_init(codec);
-+	mutex_unlock(&codec->widget_lock);
- 	if (err < 0) {
- 		device_del(&codec->dev);
- 		return err;
-@@ -158,7 +161,9 @@ EXPORT_SYMBOL_GPL(snd_hdac_device_register);
- void snd_hdac_device_unregister(struct hdac_device *codec)
- {
- 	if (device_is_registered(&codec->dev)) {
-+		mutex_lock(&codec->widget_lock);
- 		hda_widget_sysfs_exit(codec);
-+		mutex_unlock(&codec->widget_lock);
- 		device_del(&codec->dev);
- 		snd_hdac_bus_remove_device(codec->bus, codec);
- 	}
-@@ -404,7 +409,9 @@ int snd_hdac_refresh_widgets(struct hdac_device *codec, bool sysfs)
- 	}
+ 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
+ }
+@@ -929,7 +929,7 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 		return rc;
  
- 	if (sysfs) {
-+		mutex_lock(&codec->widget_lock);
- 		err = hda_widget_sysfs_reinit(codec, start_nid, nums);
-+		mutex_unlock(&codec->widget_lock);
- 		if (err < 0)
- 			return err;
- 	}
-diff --git a/sound/hda/hdac_sysfs.c b/sound/hda/hdac_sysfs.c
-index fb2aa344981e6..909d5ef1179c9 100644
---- a/sound/hda/hdac_sysfs.c
-+++ b/sound/hda/hdac_sysfs.c
-@@ -395,6 +395,7 @@ static int widget_tree_create(struct hdac_device *codec)
+ 	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
+-			pdev->name);
++			dev_name(&pdev->dev));
  	return 0;
  }
  
-+/* call with codec->widget_lock held */
- int hda_widget_sysfs_init(struct hdac_device *codec)
+@@ -938,7 +938,7 @@ static const struct platform_device_id *platform_match_id(
+ 			struct platform_device *pdev)
  {
- 	int err;
-@@ -411,11 +412,13 @@ int hda_widget_sysfs_init(struct hdac_device *codec)
- 	return 0;
+ 	while (id->name[0]) {
+-		if (strcmp(pdev->name, id->name) == 0) {
++		if (strcmp(dev_name(&pdev->dev), id->name) == 0) {
+ 			pdev->id_entry = id;
+ 			return id;
+ 		}
+@@ -982,7 +982,7 @@ static int platform_match(struct device *dev, struct device_driver *drv)
+ 		return platform_match_id(pdrv->id_table, pdev) != NULL;
+ 
+ 	/* fall-back to driver name match */
+-	return (strcmp(pdev->name, drv->name) == 0);
++	return (strcmp(dev_name(&pdev->dev), drv->name) == 0);
  }
  
-+/* call with codec->widget_lock held */
- void hda_widget_sysfs_exit(struct hdac_device *codec)
- {
- 	widget_tree_free(codec);
- }
- 
-+/* call with codec->widget_lock held */
- int hda_widget_sysfs_reinit(struct hdac_device *codec,
- 			    hda_nid_t start_nid, int num_nodes)
- {
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.20.1
 
