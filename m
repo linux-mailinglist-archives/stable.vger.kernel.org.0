@@ -2,86 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3B0E5181
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85749E51C5
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387769AbfJYQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 12:45:22 -0400
-Received: from mail-io1-f54.google.com ([209.85.166.54]:38085 "EHLO
-        mail-io1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2633105AbfJYQoY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:44:24 -0400
-Received: by mail-io1-f54.google.com with SMTP id u8so3152793iom.5
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 09:44:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=FnNCWhzA8wzAQcW3IvtMxmOw0mIYmbzhbuz8jcog3z0=;
-        b=FE/GwmYd89R7oOACf+gouF5/sDJA7KfixcIXlgu0Zy2xBlflmjGhsPtumrOF2/chO7
-         ukgC7RpX2WU0ieTsoaIEsugTNO9IxVY55sHdmI8YDpkuFlrYNj3TJ3Yyh4TkMX3TEZVP
-         euzKnHoQXH1CnnfPJ8ycKy7wwlV1V2ytUcp0U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=FnNCWhzA8wzAQcW3IvtMxmOw0mIYmbzhbuz8jcog3z0=;
-        b=MHQOQ2Rv/DnIR6sVxx4lUlWaPedF2lK/FOmB6U3xSfmX4x2VXFeBlDZSy+w79X94ZD
-         X3M/hC4AWXXRP1j9vNMcHDV8oTuYerfslvis78LrGrgjt9IbrX/vC7hYKAHG0vm8Irz1
-         Lwg2lFqAn/pPEEB7z/jxNKzNE+Av4CCO/aVNwTXdvLWJSlbMXskcU17OnjQiEPkhUVUK
-         MWrK/aHfhpb9Jcp1tiFsekjdmBY5iQW8vlP4J4UBRDrMr0aNxeKX5NFcpgHCJ3aikbqZ
-         dGyYoxvWobrCbQdcGTlUJ+VqX42HZQz7N5bW8IAWQN1iFAAQuoUoAlMKGYZd4IwtqGqr
-         Telg==
-X-Gm-Message-State: APjAAAX5SFFZ6WxkCLBcQSoyzentuzoB9dicfvZJVM6y822hTLME1xAO
-        OePGP+rXE9+M8FoYFQIKJy3227r+LUQ=
-X-Google-Smtp-Source: APXvYqwGdsE5aUbh7b1e/6uOXowlc/IkNj2RVTViqEg5vn2SwFFtdFQeHWxA35W9FKSkT2wBQRNaww==
-X-Received: by 2002:a05:6638:632:: with SMTP id h18mr4816228jar.55.1572021862317;
-        Fri, 25 Oct 2019 09:44:22 -0700 (PDT)
-Received: from mail-il1-f173.google.com (mail-il1-f173.google.com. [209.85.166.173])
-        by smtp.gmail.com with ESMTPSA id k2sm328453ios.19.2019.10.25.09.44.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 25 Oct 2019 09:44:21 -0700 (PDT)
-Received: by mail-il1-f173.google.com with SMTP id m16so2374748iln.13
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 09:44:20 -0700 (PDT)
-X-Received: by 2002:a92:d101:: with SMTP id a1mr5273789ilb.142.1572021860411;
- Fri, 25 Oct 2019 09:44:20 -0700 (PDT)
+        id S2502621AbfJYQ6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 12:58:46 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:52574 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502605AbfJYQ6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:58:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=s2WyllO+A0wa9fBl4STGx4ran1+7fS8oBHVUVHKR0CA=; b=KD8Dg2HuBBverjOHGdn2ZNzS8
+        p7C7YlCaRKoJ2DtIMTcylpHPoFMkjBsr9SsQgNW0Bcc2c5saQ05TJz4hnP01rVFt8viI7UsSS/UoW
+        H0p4n4RrT/StDzvx/sSKgFAi3FXgaKFXUYOO4OG4r26W54S+4q2qz6uFi2G4nUIiGVShuokqYJQ5A
+        CG8o6E4gbsq69a9Q07XiA49VSMYc2RnlbB7VPJX80a2b9clQwYxiAOzzVC77UxJ4w4EGQUo5i82Pu
+        hBMuGOO8Pg+wOXLkuYAUz9/Nj8Np66Nm9E8BCEZhPObQoms26lzTqVokueW9h8YiAp9JFQa1ASQfb
+        mbFpFa57A==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iO2vB-00061p-Gx; Fri, 25 Oct 2019 16:58:41 +0000
+From:   Matthew Wilcox <willy@infradead.org>
+To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        dh.herrmann@gmail.com, linux-mm@kvack.org, zhongjiang@huawei.com
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 4.19] memfd: Fix locking when tagging pins
+Date:   Fri, 25 Oct 2019 09:58:34 -0700
+Message-Id: <20191025165837.22979-1-willy@infradead.org>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Fri, 25 Oct 2019 09:44:09 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Uui+a6TS85VNv3XVApq7xYifd8m_ZTmShTC2jeGEO4jg@mail.gmail.com>
-Message-ID: <CAD=FV=Uui+a6TS85VNv3XVApq7xYifd8m_ZTmShTC2jeGEO4jg@mail.gmail.com>
-Subject: Please pick ("LSM: SafeSetID: Stop releasing uninitialized ruleset")
- to 5.3 stable
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     Guenter Roeck <groeck@chromium.org>,
-        Micah Morton <mortonm@chromium.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If you're still taking things for 5.3 stable, I humbly request picking
-up commit 21ab8580b383 ("LSM: SafeSetID: Stop releasing uninitialized
-ruleset").  While bisecting other problems this crash tripped me up
-and I would have been able to bisect faster had the fix been in
-linux-stable.  Only kernel 5.3 is affected.
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-For reference, the crash for me looked like:
+The RCU lock is insufficient to protect the radix tree iteration as
+a deletion from the tree can occur before we take the spinlock to
+tag the entry.  In 4.19, this has manifested as a bug with the following
+trace:
 
-Call trace:
- __call_rcu+0x2c/0x1ac
- call_rcu+0x28/0x34
- safesetid_file_write+0x344/0x350
- __vfs_write+0x54/0x18c
- vfs_write+0xcc/0x18c
- ksys_write+0x7c/0xe4
- __arm64_sys_write+0x20/0x2c
- el0_svc_common+0x9c/0x14c
- el0_svc_compat_handler+0x28/0x34
- el0_svc_compat+0x8/0x10
+kernel BUG at lib/radix-tree.c:1429!
+invalid opcode: 0000 [#1] SMP KASAN PTI
+CPU: 7 PID: 6935 Comm: syz-executor.2 Not tainted 4.19.36 #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:radix_tree_tag_set+0x200/0x2f0 lib/radix-tree.c:1429
+Code: 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 44 24 10 e8 a3 29 7e fe 48 8b 44 24 10 48 0f ab 03 e9 d2 fe ff ff e8 90 29 7e fe <0f> 0b 48 c7 c7 e0 5a 87 84 e8 f0 e7 08 ff 4c 89 ef e8 4a ff ac fe
+RSP: 0018:ffff88837b13fb60 EFLAGS: 00010016
+RAX: 0000000000040000 RBX: ffff8883c5515d58 RCX: ffffffff82cb2ef0
+RDX: 0000000000000b72 RSI: ffffc90004cf2000 RDI: ffff8883c5515d98
+RBP: ffff88837b13fb98 R08: ffffed106f627f7e R09: ffffed106f627f7e
+R10: 0000000000000001 R11: ffffed106f627f7d R12: 0000000000000004
+R13: ffffea000d7fea80 R14: 1ffff1106f627f6f R15: 0000000000000002
+FS:  00007fa1b8df2700(0000) GS:ffff8883e2fc0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa1b8df1db8 CR3: 000000037d4d2001 CR4: 0000000000160ee0
+Call Trace:
+ memfd_tag_pins mm/memfd.c:51 [inline]
+ memfd_wait_for_pins+0x2c5/0x12d0 mm/memfd.c:81
+ memfd_add_seals mm/memfd.c:215 [inline]
+ memfd_fcntl+0x33d/0x4a0 mm/memfd.c:247
+ do_fcntl+0x589/0xeb0 fs/fcntl.c:421
+ __do_sys_fcntl fs/fcntl.c:463 [inline]
+ __se_sys_fcntl fs/fcntl.c:448 [inline]
+ __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:448
+ do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:293
 
-Thanks much.
+The problem does not occur in mainline due to the XArray rewrite which
+changed the locking to exclude modification of the tree during iteration.
+At the time, nobody realised this was a bugfix.  Backport the locking
+changes to stable.
 
--Doug
+Cc: stable@vger.kernel.org
+Reported-by: zhong jiang <zhongjiang@huawei.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ mm/memfd.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/mm/memfd.c b/mm/memfd.c
+index 2bb5e257080e..5859705dafe1 100644
+--- a/mm/memfd.c
++++ b/mm/memfd.c
+@@ -34,11 +34,12 @@ static void memfd_tag_pins(struct address_space *mapping)
+ 	void __rcu **slot;
+ 	pgoff_t start;
+ 	struct page *page;
++	unsigned int tagged = 0;
+ 
+ 	lru_add_drain();
+ 	start = 0;
+-	rcu_read_lock();
+ 
++	xa_lock_irq(&mapping->i_pages);
+ 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
+ 		page = radix_tree_deref_slot(slot);
+ 		if (!page || radix_tree_exception(page)) {
+@@ -47,18 +48,19 @@ static void memfd_tag_pins(struct address_space *mapping)
+ 				continue;
+ 			}
+ 		} else if (page_count(page) - page_mapcount(page) > 1) {
+-			xa_lock_irq(&mapping->i_pages);
+ 			radix_tree_tag_set(&mapping->i_pages, iter.index,
+ 					   MEMFD_TAG_PINNED);
+-			xa_unlock_irq(&mapping->i_pages);
+ 		}
+ 
+-		if (need_resched()) {
+-			slot = radix_tree_iter_resume(slot, &iter);
+-			cond_resched_rcu();
+-		}
++		if (++tagged % 1024)
++			continue;
++
++		slot = radix_tree_iter_resume(slot, &iter);
++		xa_unlock_irq(&mapping->i_pages);
++		cond_resched();
++		xa_lock_irq(&mapping->i_pages);
+ 	}
+-	rcu_read_unlock();
++	xa_unlock_irq(&mapping->i_pages);
+ }
+ 
+ /*
+-- 
+2.23.0
+
