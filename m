@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A57E8E4D0E
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C7C4E4D1B
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505338AbfJYN5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52322 "EHLO mail.kernel.org"
+        id S2505408AbfJYN5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505331AbfJYN5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:31 -0400
+        id S2505381AbfJYN5u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:50 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AF8F222BE;
-        Fri, 25 Oct 2019 13:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC8B821E6F;
+        Fri, 25 Oct 2019 13:57:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011850;
-        bh=vjVcnfY1w3GyMOyFPwp2LORsqbLMyXUQfGFsGauZl/s=;
+        s=default; t=1572011869;
+        bh=VxAENRe8KXE3KAQSm0XpFg7pqpD9WQdNEuOUOrj6zvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdNtZkoEh04Cl/LpPmQK+nIoqQzjbQmkeHaLRgzID70GmdF0p3NzBjbpe/ZrJoMFf
-         Ih8opC/ZBJWlRhygN0F5JNKP5fLHM9Q8M0vc/2TCLrlkHeDT21Y0F15tFjTl+Lm4IG
-         Xe/0GhFIZ6/74NBDQoOoe0nettY7rVSKVQJewCzI=
+        b=WSg8ZIpkQUKp2HfodOtYBEC6rZyLMQ8jYc4wCixiicVkoOQRMBR4bv2HWsZybj8Pp
+         ppIThQ3I0bkwWMqWmHlZX6LiElJUsd0vsryXKH4GP2qHv8Wt1r9Keae2PKQKIXd9gj
+         RSfgaLWvzKHdgGNvuV3JZKRauXUcBmuscsL/HCsU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Laurence Oberman <loberman@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/25] scsi: RDMA/srp: Fix a sleep-in-invalid-context bug
-Date:   Fri, 25 Oct 2019 09:56:57 -0400
-Message-Id: <20191025135715.25468-9-sashal@kernel.org>
+Cc:     Chandan Rajendra <chandan@linux.ibm.com>,
+        Harish Sriram <harish@linux.ibm.com>, Jan Kara <jack@suse.cz>,
+        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 19/25] jbd2: flush_descriptor(): Do not decrease buffer head's ref count
+Date:   Fri, 25 Oct 2019 09:57:07 -0400
+Message-Id: <20191025135715.25468-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
 References: <20191025135715.25468-1-sashal@kernel.org>
@@ -49,108 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Chandan Rajendra <chandan@linux.ibm.com>
 
-[ Upstream commit fd56141244066a6a21ef458670071c58b6402035 ]
+[ Upstream commit 547b9ad698b434eadca46319cb47e5875b55ef03 ]
 
-The previous patch guarantees that srp_queuecommand() does not get
-invoked while reconnecting occurs. Hence remove the code from
-srp_queuecommand() that prevents command queueing while reconnecting.
-This patch avoids that the following can appear in the kernel log:
+When executing generic/388 on a ppc64le machine, we notice the following
+call trace,
 
-BUG: sleeping function called from invalid context at kernel/locking/mutex.c:747
-in_atomic(): 1, irqs_disabled(): 0, pid: 5600, name: scsi_eh_9
-1 lock held by scsi_eh_9/5600:
- #0:  (rcu_read_lock){....}, at: [<00000000cbb798c7>] __blk_mq_run_hw_queue+0xf1/0x1e0
-Preemption disabled at:
-[<00000000139badf2>] __blk_mq_delay_run_hw_queue+0x78/0xf0
-CPU: 9 PID: 5600 Comm: scsi_eh_9 Tainted: G        W        4.15.0-rc4-dbg+ #1
-Hardware name: Dell Inc. PowerEdge R720/0VWT90, BIOS 2.5.4 01/22/2016
+VFS: brelse: Trying to free free buffer
+WARNING: CPU: 0 PID: 6637 at /root/repos/linux/fs/buffer.c:1195 __brelse+0x84/0xc0
+
 Call Trace:
- dump_stack+0x67/0x99
- ___might_sleep+0x16a/0x250 [ib_srp]
- __mutex_lock+0x46/0x9d0
- srp_queuecommand+0x356/0x420 [ib_srp]
- scsi_dispatch_cmd+0xf6/0x3f0
- scsi_queue_rq+0x4a8/0x5f0
- blk_mq_dispatch_rq_list+0x73/0x440
- blk_mq_sched_dispatch_requests+0x109/0x1a0
- __blk_mq_run_hw_queue+0x131/0x1e0
- __blk_mq_delay_run_hw_queue+0x9a/0xf0
- blk_mq_run_hw_queue+0xc0/0x1e0
- blk_mq_start_hw_queues+0x2c/0x40
- scsi_run_queue+0x18e/0x2d0
- scsi_run_host_queues+0x22/0x40
- scsi_error_handler+0x18d/0x5f0
- kthread+0x11c/0x140
- ret_from_fork+0x24/0x30
+ __brelse+0x80/0xc0 (unreliable)
+ invalidate_bh_lru+0x78/0xc0
+ on_each_cpu_mask+0xa8/0x130
+ on_each_cpu_cond_mask+0x130/0x170
+ invalidate_bh_lrus+0x44/0x60
+ invalidate_bdev+0x38/0x70
+ ext4_put_super+0x294/0x560
+ generic_shutdown_super+0xb0/0x170
+ kill_block_super+0x38/0xb0
+ deactivate_locked_super+0xa4/0xf0
+ cleanup_mnt+0x164/0x1d0
+ task_work_run+0x110/0x160
+ do_notify_resume+0x414/0x460
+ ret_from_except_lite+0x70/0x74
 
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Laurence Oberman <loberman@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Cc: Doug Ledford <dledford@redhat.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The warning happens because flush_descriptor() drops bh reference it
+does not own. The bh reference acquired by
+jbd2_journal_get_descriptor_buffer() is owned by the log_bufs list and
+gets released when this list is processed. The reference for doing IO is
+only acquired in write_dirty_buffer() later in flush_descriptor().
+
+Reported-by: Harish Sriram <harish@linux.ibm.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Chandan Rajendra <chandan@linux.ibm.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.c | 21 ++-------------------
- 1 file changed, 2 insertions(+), 19 deletions(-)
+ fs/jbd2/revoke.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 3f5b5893792cd..78e6e3b040305 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -2132,7 +2132,6 @@ static void srp_handle_qp_err(struct ib_cq *cq, struct ib_wc *wc,
- static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+diff --git a/fs/jbd2/revoke.c b/fs/jbd2/revoke.c
+index f9aefcda58541..cc7d1f094393a 100644
+--- a/fs/jbd2/revoke.c
++++ b/fs/jbd2/revoke.c
+@@ -637,10 +637,8 @@ static void flush_descriptor(journal_t *journal,
  {
- 	struct srp_target_port *target = host_to_target(shost);
--	struct srp_rport *rport = target->rport;
- 	struct srp_rdma_ch *ch;
- 	struct srp_request *req;
- 	struct srp_iu *iu;
-@@ -2142,16 +2141,6 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 	u32 tag;
- 	u16 idx;
- 	int len, ret;
--	const bool in_scsi_eh = !in_interrupt() && current == shost->ehandler;
--
--	/*
--	 * The SCSI EH thread is the only context from which srp_queuecommand()
--	 * can get invoked for blocked devices (SDEV_BLOCK /
--	 * SDEV_CREATED_BLOCK). Avoid racing with srp_reconnect_rport() by
--	 * locking the rport mutex if invoked from inside the SCSI EH.
--	 */
--	if (in_scsi_eh)
--		mutex_lock(&rport->mutex);
+ 	jbd2_journal_revoke_header_t *header;
  
- 	scmnd->result = srp_chkready(target->rport);
- 	if (unlikely(scmnd->result))
-@@ -2213,13 +2202,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 		goto err_unmap;
- 	}
+-	if (is_journal_aborted(journal)) {
+-		put_bh(descriptor);
++	if (is_journal_aborted(journal))
+ 		return;
+-	}
  
--	ret = 0;
--
--unlock_rport:
--	if (in_scsi_eh)
--		mutex_unlock(&rport->mutex);
--
--	return ret;
-+	return 0;
- 
- err_unmap:
- 	srp_unmap_data(scmnd, ch, req);
-@@ -2241,7 +2224,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
- 		ret = SCSI_MLQUEUE_HOST_BUSY;
- 	}
- 
--	goto unlock_rport;
-+	return ret;
- }
- 
- /*
+ 	header = (jbd2_journal_revoke_header_t *)descriptor->b_data;
+ 	header->r_count = cpu_to_be32(offset);
 -- 
 2.20.1
 
