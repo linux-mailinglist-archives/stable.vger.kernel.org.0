@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0163E4DA0
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8F66E4DA2
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505491AbfJYN6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53360 "EHLO mail.kernel.org"
+        id S2505528AbfJYN6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505484AbfJYN6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:09 -0400
+        id S2505502AbfJYN6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA67A222CD;
-        Fri, 25 Oct 2019 13:58:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D40E9222CB;
+        Fri, 25 Oct 2019 13:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011888;
-        bh=PgKnupQdYBqyAjhO6bP5I+70rfrYLfkOkbV+KSfxYYE=;
+        s=default; t=1572011894;
+        bh=LTN6V6hmihi+VaoMqArjWGsDY+jF6bjygzvWJgkpK/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiXINrJT/it0T9sc4oUX04PEhcwuRvpwhiS0OF63jaNGCkhY/33ckGJe2PjWbuV4C
-         JhMSNzlFwsS8ZVYwhr+lt2KZvTE/Asz781Xqsqi8BbikuWgftdH+xPN3ZbVhzAa0pv
-         hZwcOzU4kLVUwLmj9O3WqlS6xrz20st5mGfm1j+Y=
+        b=LePEQpw2NwaR8My8PP+RJ91etq11kwVVze/f6T1clE38poAX3zILV4rFTjhuJhoKn
+         PhXDKi3VNSt054usPUH3zLPoJF4V9Nqvqw3pmLz7zz5qLbJwU3QEzUXfsdB44YWvnD
+         aLNcCNeENhDYoCW1bzsXyppqXM3irqOGqunL8lHA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 04/20] driver core: platform: Fix the usage of platform device name(pdev->name)
-Date:   Fri, 25 Oct 2019 09:57:44 -0400
-Message-Id: <20191025135801.25739-4-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Laurence Oberman <loberman@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/20] scsi: RDMA/srp: Fix a sleep-in-invalid-context bug
+Date:   Fri, 25 Oct 2019 09:57:46 -0400
+Message-Id: <20191025135801.25739-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
 References: <20191025135801.25739-1-sashal@kernel.org>
@@ -43,89 +49,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
+[ Upstream commit fd56141244066a6a21ef458670071c58b6402035 ]
 
-Platform core is using pdev->name as the platform device name to do
-the binding of the devices with the drivers. But, when the platform
-driver overrides the platform device name with dev_set_name(),
-the pdev->name is pointing to a location which is freed and becomes
-an invalid parameter to do the binding match.
+The previous patch guarantees that srp_queuecommand() does not get
+invoked while reconnecting occurs. Hence remove the code from
+srp_queuecommand() that prevents command queueing while reconnecting.
+This patch avoids that the following can appear in the kernel log:
 
-use-after-free instance:
+BUG: sleeping function called from invalid context at kernel/locking/mutex.c:747
+in_atomic(): 1, irqs_disabled(): 0, pid: 5600, name: scsi_eh_9
+1 lock held by scsi_eh_9/5600:
+ #0:  (rcu_read_lock){....}, at: [<00000000cbb798c7>] __blk_mq_run_hw_queue+0xf1/0x1e0
+Preemption disabled at:
+[<00000000139badf2>] __blk_mq_delay_run_hw_queue+0x78/0xf0
+CPU: 9 PID: 5600 Comm: scsi_eh_9 Tainted: G        W        4.15.0-rc4-dbg+ #1
+Hardware name: Dell Inc. PowerEdge R720/0VWT90, BIOS 2.5.4 01/22/2016
+Call Trace:
+ dump_stack+0x67/0x99
+ ___might_sleep+0x16a/0x250 [ib_srp]
+ __mutex_lock+0x46/0x9d0
+ srp_queuecommand+0x356/0x420 [ib_srp]
+ scsi_dispatch_cmd+0xf6/0x3f0
+ scsi_queue_rq+0x4a8/0x5f0
+ blk_mq_dispatch_rq_list+0x73/0x440
+ blk_mq_sched_dispatch_requests+0x109/0x1a0
+ __blk_mq_run_hw_queue+0x131/0x1e0
+ __blk_mq_delay_run_hw_queue+0x9a/0xf0
+ blk_mq_run_hw_queue+0xc0/0x1e0
+ blk_mq_start_hw_queues+0x2c/0x40
+ scsi_run_queue+0x18e/0x2d0
+ scsi_run_host_queues+0x22/0x40
+ scsi_error_handler+0x18d/0x5f0
+ kthread+0x11c/0x140
+ ret_from_fork+0x24/0x30
 
-[   33.325013] BUG: KASAN: use-after-free in strcmp+0x8c/0xb0
-[   33.330646] Read of size 1 at addr ffffffc10beae600 by task modprobe
-[   33.339068] CPU: 5 PID: 518 Comm: modprobe Tainted:
-			G S      W  O      4.19.30+ #3
-[   33.346835] Hardware name: MTP (DT)
-[   33.350419] Call trace:
-[   33.352941]  dump_backtrace+0x0/0x3b8
-[   33.356713]  show_stack+0x24/0x30
-[   33.360119]  dump_stack+0x160/0x1d8
-[   33.363709]  print_address_description+0x84/0x2e0
-[   33.368549]  kasan_report+0x26c/0x2d0
-[   33.372322]  __asan_report_load1_noabort+0x2c/0x38
-[   33.377248]  strcmp+0x8c/0xb0
-[   33.380306]  platform_match+0x70/0x1f8
-[   33.384168]  __driver_attach+0x78/0x3a0
-[   33.388111]  bus_for_each_dev+0x13c/0x1b8
-[   33.392237]  driver_attach+0x4c/0x58
-[   33.395910]  bus_add_driver+0x350/0x560
-[   33.399854]  driver_register+0x23c/0x328
-[   33.403886]  __platform_driver_register+0xd0/0xe0
-
-So, use dev_name(&pdev->dev), which fetches the platform device name from
-the kobject(dev->kobj->name) of the device instead of the pdev->name.
-
-Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Leon Romanovsky <leonro@mellanox.com>
+Cc: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 14ff40371f013..ffa77b3df4ba2 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -845,7 +845,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
- 	if (len != -ENODEV)
- 		return len;
- 
--	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
-+	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", dev_name(&pdev->dev));
- 
- 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
- }
-@@ -921,7 +921,7 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
- 		return rc;
- 
- 	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
--			pdev->name);
-+			dev_name(&pdev->dev));
- 	return 0;
- }
- 
-@@ -930,7 +930,7 @@ static const struct platform_device_id *platform_match_id(
- 			struct platform_device *pdev)
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 74de1ae48d4f7..a3145ae1d66d2 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -2102,7 +2102,6 @@ static void srp_handle_qp_err(struct ib_cq *cq, struct ib_wc *wc,
+ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
  {
- 	while (id->name[0]) {
--		if (strcmp(pdev->name, id->name) == 0) {
-+		if (strcmp(dev_name(&pdev->dev), id->name) == 0) {
- 			pdev->id_entry = id;
- 			return id;
- 		}
-@@ -974,7 +974,7 @@ static int platform_match(struct device *dev, struct device_driver *drv)
- 		return platform_match_id(pdrv->id_table, pdev) != NULL;
+ 	struct srp_target_port *target = host_to_target(shost);
+-	struct srp_rport *rport = target->rport;
+ 	struct srp_rdma_ch *ch;
+ 	struct srp_request *req;
+ 	struct srp_iu *iu;
+@@ -2112,16 +2111,6 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 	u32 tag;
+ 	u16 idx;
+ 	int len, ret;
+-	const bool in_scsi_eh = !in_interrupt() && current == shost->ehandler;
+-
+-	/*
+-	 * The SCSI EH thread is the only context from which srp_queuecommand()
+-	 * can get invoked for blocked devices (SDEV_BLOCK /
+-	 * SDEV_CREATED_BLOCK). Avoid racing with srp_reconnect_rport() by
+-	 * locking the rport mutex if invoked from inside the SCSI EH.
+-	 */
+-	if (in_scsi_eh)
+-		mutex_lock(&rport->mutex);
  
- 	/* fall-back to driver name match */
--	return (strcmp(pdev->name, drv->name) == 0);
-+	return (strcmp(dev_name(&pdev->dev), drv->name) == 0);
+ 	scmnd->result = srp_chkready(target->rport);
+ 	if (unlikely(scmnd->result))
+@@ -2183,13 +2172,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 		goto err_unmap;
+ 	}
+ 
+-	ret = 0;
+-
+-unlock_rport:
+-	if (in_scsi_eh)
+-		mutex_unlock(&rport->mutex);
+-
+-	return ret;
++	return 0;
+ 
+ err_unmap:
+ 	srp_unmap_data(scmnd, ch, req);
+@@ -2211,7 +2194,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 		ret = SCSI_MLQUEUE_HOST_BUSY;
+ 	}
+ 
+-	goto unlock_rport;
++	return ret;
  }
  
- #ifdef CONFIG_PM_SLEEP
+ /*
 -- 
 2.20.1
 
