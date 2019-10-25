@@ -2,83 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ADD6E408B
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 02:22:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7552AE413D
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 03:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727227AbfJYAW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 24 Oct 2019 20:22:56 -0400
-Received: from aserp2120.oracle.com ([141.146.126.78]:59442 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727208AbfJYAW4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 20:22:56 -0400
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
-        by aserp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x9P0JNmv079298;
-        Fri, 25 Oct 2019 00:22:43 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : references : date : in-reply-to : message-id : mime-version :
- content-type; s=corp-2019-08-05;
- bh=8XdHHh76rUW1m1ray72wnOb07G1aA+EKzlau7o1OblI=;
- b=nN2OwrheiG4Pu28stA1TphiwBnYwGlP+EDN3D0oF41+u8fgdbduj+8k4wbfAC5YMJYhs
- HtBWRXtL/BwvAiLAoT8MqaNY+IC5M/97X4heR91j1tIvF+DtqBRIUpWav6FpgiKbhSCm
- VD4Vlghas+4Qyy80FNKOGMMjiX8YfbL8TPAlmNpfIE2Q6pH0moCOJ8Cn0cc7ZG0HnH7t
- PXZ3IRw4S2w2nrkR49W7RA6rqYgfRd3lBurAHzpO6PAJB6Qm7KeQ5XakedktWgcqkj2A
- 5O4Db2jFzVC1xBXhOPwZalWr5pdlgWLZo4NqIRtgcMnesKHhpCTljLVl0Hk2FfX1+0eo sQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by aserp2120.oracle.com with ESMTP id 2vqteq6y0p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Oct 2019 00:22:42 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x9P0J4WZ010368;
-        Fri, 25 Oct 2019 00:22:42 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by userp3020.oracle.com with ESMTP id 2vtsk67c4a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Oct 2019 00:22:42 +0000
-Received: from abhmp0003.oracle.com (abhmp0003.oracle.com [141.146.116.9])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x9P0Mdcl014923;
-        Fri, 25 Oct 2019 00:22:39 GMT
-Received: from ca-mkp.ca.oracle.com (/10.159.214.123)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 24 Oct 2019 17:22:38 -0700
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Christoph Hellwig <hch@lst.de>, target-devel@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Varun Prakash <varun@chelsio.com>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] target/cxgbit: Fix cxgbit_fw4_ack()
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-References: <20191023202150.22173-1-bvanassche@acm.org>
-Date:   Thu, 24 Oct 2019 20:22:36 -0400
-In-Reply-To: <20191023202150.22173-1-bvanassche@acm.org> (Bart Van Assche's
-        message of "Wed, 23 Oct 2019 13:21:50 -0700")
-Message-ID: <yq1ftjhd67n.fsf@oracle.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1.92 (gnu/linux)
+        id S2389409AbfJYBqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 24 Oct 2019 21:46:15 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:41811 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389344AbfJYBqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 24 Oct 2019 21:46:15 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id C285621BBF;
+        Thu, 24 Oct 2019 21:46:14 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 24 Oct 2019 21:46:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=r6eN4XO9JJEoHBGm+ZD0E1bX3mP
+        GcRauy2mPzjH+360=; b=dnQROhbo/Fg11jglD5JNIuxTG5PHIpn+jNUNnS49uPG
+        2tUy1br+1a7mXZCL5CSS43X67QwPjfoPKXi1WOIwf62qJyHUnhWuD+vkVja8icvL
+        BbJzo0v1h/9rZY//JHZcc8lnmnQrnSVELIUc4UCImQYzFuU3q1XuXvvYDmzZNSPY
+        eJQwK5VdPbPkdN+olmn79WzDZ0hClE/upsIsW10WD8H/RycWlt1I8cEnPg4/in4r
+        OT5Zx6rVY65mUCcI/6CvP+exHI7TBYQqPGagNO6V9U6X3na2ERH9zo5Yce726LsK
+        gLsQrX6BxsTQN5a4PHh9xL+fE3PirB0vM41+Bybw59g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=r6eN4X
+        O9JJEoHBGm+ZD0E1bX3mPGcRauy2mPzjH+360=; b=loS/+k8G2LMzJIRQ0vbvrQ
+        JbgHtuGUr8vm7U5ITBlV30GaO2w/MLfFMFqhWrpEQjyc9PK1JpAC17eaK4MP5lcp
+        CasMFipTOKfvh4LPkG+mJaH6JOVv3R9vR7QbHCPLbezgxAHw44xf+64p4pK5ukc4
+        3Uh0CFCKOjdZ2pgWbKQyzPZ6ypuuIz4UMXt+E51eJzChxWcRXdPqdAAW3ARegwC2
+        uCIufTf41Jc1GxCl+W03BDmOVDu1sRmasXZ3RpfW428Dsa9kTD4A5MNxsmH8Pmoh
+        o2rN85V+oH9fmtBqp+VqQH2vyIweTAJEy3ehmj1njdboz+WTFAXjaFBmNjvMaW2Q
+        ==
+X-ME-Sender: <xms:5lOyXdWMRlkGVpTtinRXOwG9FRDcW8MXtJEMCGafwrRY42rQoClTRQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrledvgdegkecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepfeekrdelkedrfeejrddufe
+    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
+    lhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:5lOyXR1KEpFPIpdAKMKpUluVif5NUtPkqAc6CuNCIPjzActgj0jmGA>
+    <xmx:5lOyXUaJxm0Bs9Phy91uYXwir3dBewLllqqbghqoGOkxrJXcTp6JAQ>
+    <xmx:5lOyXUpgZGwJTrMV8HypZu8TZty8jY1r7jgbsk3pdgeMbzCv_XH2mQ>
+    <xmx:5lOyXUiQ_tpPSfn_5tJ_RhnMwFEKxn-NRYXcfpYk-8x7Q1c5BCG2wg>
+Received: from localhost (unknown [38.98.37.137])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6B16F8005C;
+        Thu, 24 Oct 2019 21:46:13 -0400 (EDT)
+Date:   Thu, 24 Oct 2019 21:38:21 -0400
+From:   Greg KH <greg@kroah.com>
+To:     David Miller <davem@davemloft.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCHES] Networking
+Message-ID: <20191025013821.GA276472@kroah.com>
+References: <20191024.143018.729229159969899587.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9420 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=624
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1908290000 definitions=main-1910250002
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9420 signatures=668684
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=723 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1908290000
- definitions=main-1910250002
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191024.143018.729229159969899587.davem@davemloft.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 24, 2019 at 02:30:18PM -0700, David Miller wrote:
+> 
+> Please queue up the following networking bug fixes for 4.19.x and
+> 5.3.x -stable, respectively.
 
-> Use the pointer 'p' after having tested that pointer instead of before.
+All now queued up, thanks!
 
-Thanks, Bart! Applied to 5.4/scsi-fixes.
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+greg k-h
