@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D53E4DDC
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E800EE4DC5
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394797AbfJYODH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:03:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52110 "EHLO mail.kernel.org"
+        id S2505293AbfJYN5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505306AbfJYN5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:22 -0400
+        id S2393513AbfJYN5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3C53222BE;
-        Fri, 25 Oct 2019 13:57:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1949222C2;
+        Fri, 25 Oct 2019 13:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011841;
-        bh=SuwhAPmZXkC90NZr8WtJCfCL/WyjuLfEJKv88AocDD4=;
+        s=default; t=1572011842;
+        bh=iSQuWSmQqaWR/fDuDtLQOvdfWS2yJE5pw+hTI+ELux8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4Ymthp2to8j6oJngzrMDuxQo/AJ4QYG22yoLPqhdKkX9g07RX5iBwJH+QKyuESf7
-         e8kyGhvpOj/LrB8GeQAJrU765atoTNQPsmCEVAQBTyz7+5kur5kwRQmEok6lPxoTXn
-         0+S7uU6X06ZgfVAPhJIhr2sOnm8GYbu2okex8xP0=
+        b=BTaixi9yAb9pB6SGGVnBhMcANzaU7EU13YtWBGR5Rfs6gdnnVePH9BMh3nKGCDmw6
+         pFCELcTDVA4swDRIuGTVZvqxftptueYqQqYn5AH58SPxkz2l2I1VjxsKXbvS752xGA
+         Htz6Pqn/O32bj84hqn/AxXzzObZJGb2gWsvL1ivk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kovtunenko Oleksandr <alexander198961@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/25] Fixed https://bugzilla.kernel.org/show_bug.cgi?id=202935 allow write on the same file
-Date:   Fri, 25 Oct 2019 09:56:52 -0400
-Message-Id: <20191025135715.25468-4-sashal@kernel.org>
+Cc:     Keith Busch <keith.busch@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 05/25] nvme-pci: fix conflicting p2p resource adds
+Date:   Fri, 25 Oct 2019 09:56:53 -0400
+Message-Id: <20191025135715.25468-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
 References: <20191025135715.25468-1-sashal@kernel.org>
@@ -43,36 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kovtunenko Oleksandr <alexander198961@gmail.com>
+From: Keith Busch <keith.busch@intel.com>
 
-[ Upstream commit 9ab70ca653307771589e1414102c552d8dbdbbef ]
+[ Upstream commit 9fe5c59ff6a1e5e26a39b75489a1420e7eaaf0b1 ]
 
-Copychunk allows source and target to be on the same file.
-For details on restrictions see MS-SMB2 3.3.5.15.6
+The nvme pci driver had been adding its CMB resource to the P2P DMA
+subsystem everytime on on a controller reset. This results in the
+following warning:
 
-Signed-off-by: Kovtunenko Oleksandr <alexander198961@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+    ------------[ cut here ]------------
+    nvme 0000:00:03.0: Conflicting mapping in same section
+    WARNING: CPU: 7 PID: 81 at kernel/memremap.c:155 devm_memremap_pages+0xa6/0x380
+    ...
+    Call Trace:
+     pci_p2pdma_add_resource+0x153/0x370
+     nvme_reset_work+0x28c/0x17b1 [nvme]
+     ? add_timer+0x107/0x1e0
+     ? dequeue_entity+0x81/0x660
+     ? dequeue_entity+0x3b0/0x660
+     ? pick_next_task_fair+0xaf/0x610
+     ? __switch_to+0xbc/0x410
+     process_one_work+0x1cf/0x350
+     worker_thread+0x215/0x3d0
+     ? process_one_work+0x350/0x350
+     kthread+0x107/0x120
+     ? kthread_park+0x80/0x80
+     ret_from_fork+0x1f/0x30
+    ---[ end trace f7ea76ac6ee72727 ]---
+    nvme nvme0: failed to register the CMB
+
+This patch fixes this by registering the CMB with P2P only once.
+
+Signed-off-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsfs.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/nvme/host/pci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
-index c5fd5abf72069..262048e6073f3 100644
---- a/fs/cifs/cifsfs.c
-+++ b/fs/cifs/cifsfs.c
-@@ -998,11 +998,6 @@ ssize_t cifs_file_copychunk_range(unsigned int xid,
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index cd11cced36781..5f820c784a7e8 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1546,6 +1546,9 @@ static void __iomem *nvme_map_cmb(struct nvme_dev *dev)
+ 	void __iomem *cmb;
+ 	int bar;
  
- 	cifs_dbg(FYI, "copychunk range\n");
++	if (dev->cmb_size)
++		return;
++
+ 	dev->cmbsz = readl(dev->bar + NVME_REG_CMBSZ);
+ 	if (!(NVME_CMB_SZ(dev->cmbsz)))
+ 		return NULL;
+@@ -2034,7 +2037,6 @@ static void nvme_pci_disable(struct nvme_dev *dev)
+ {
+ 	struct pci_dev *pdev = to_pci_dev(dev->dev);
  
--	if (src_inode == target_inode) {
--		rc = -EINVAL;
--		goto out;
--	}
--
- 	if (!src_file->private_data || !dst_file->private_data) {
- 		rc = -EBADF;
- 		cifs_dbg(VFS, "missing cifsFileInfo on copy range src file\n");
+-	nvme_release_cmb(dev);
+ 	pci_free_irq_vectors(pdev);
+ 
+ 	if (pci_is_enabled(pdev)) {
+@@ -2437,6 +2439,7 @@ static void nvme_remove(struct pci_dev *pdev)
+ 	nvme_stop_ctrl(&dev->ctrl);
+ 	nvme_remove_namespaces(&dev->ctrl);
+ 	nvme_dev_disable(dev, true);
++	nvme_release_cmb(dev);
+ 	nvme_free_host_mem(dev);
+ 	nvme_dev_remove_admin(dev);
+ 	nvme_free_queues(dev, 0);
 -- 
 2.20.1
 
