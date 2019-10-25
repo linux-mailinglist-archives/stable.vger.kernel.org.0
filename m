@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B3AE531F
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B9EE5386
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731731AbfJYSHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 14:07:01 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46934 "EHLO
+        id S1731538AbfJYSGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 14:06:51 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46698 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731503AbfJYSFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:45 -0400
+        by vger.kernel.org with ESMTP id S1731405AbfJYSFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:42 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xy-0008Oi-Sd; Fri, 25 Oct 2019 19:05:38 +0100
+        id 1iO3xz-0008Ov-FF; Fri, 25 Oct 2019 19:05:39 +0100
 Received: from ben by deadeye with local (Exim 4.92.2)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xw-0001kn-Dn; Fri, 25 Oct 2019 19:05:36 +0100
+        id 1iO3xw-0001ks-Eg; Fri, 25 Oct 2019 19:05:36 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,22 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Takashi Iwai" <tiwai@suse.de>,
-        syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com,
-        syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com
-Date:   Fri, 25 Oct 2019 19:03:42 +0100
-Message-ID: <lsq.1572026582.796070921@decadent.org.uk>
+        "Mikko Rapeli" <mikko.rapeli@iki.fi>,
+        "Fabian Frederick" <fabf@skynet.be>,
+        "Zhouyang Jia" <jiazhouyang09@gmail.com>,
+        "Yann Droneaud" <ydroneaud@opteya.com>,
+        "Sam Protsenko" <semen.protsenko@linaro.org>,
+        "David Howells" <dhowells@redhat.com>,
+        "Colin Ian King" <colin.king@canonical.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Arnd Bergmann" <arnd@arndb.de>,
+        "Jan Harkes" <jaharkes@cs.cmu.edu>,
+        "Dan Carpenter" <dan.carpenter@oracle.com>
+Date:   Fri, 25 Oct 2019 19:03:43 +0100
+Message-ID: <lsq.1572026582.453051988@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 41/47] ALSA: seq: Break too long mutex context in the
- write loop
+Subject: [PATCH 3.16 42/47] coda: pass the host file in vma->vm_file on mmap
 In-Reply-To: <lsq.1572026581.992411028@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,70 +55,165 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 
-commit ede34f397ddb063b145b9e7d79c6026f819ded13 upstream.
+commit 7fa0a1da3dadfd9216df7745a1331fdaa0940d1c upstream.
 
-The fix for the racy writes and ioctls to sequencer widened the
-application of client->ioctl_mutex to the whole write loop.  Although
-it does unlock/relock for the lengthy operation like the event dup,
-the loop keeps the ioctl_mutex for the whole time in other
-situations.  This may take quite long time if the user-space would
-give a huge buffer, and this is a likely cause of some weird behavior
-spotted by syzcaller fuzzer.
+Patch series "Coda updates".
 
-This patch puts a simple workaround, just adding a mutex break in the
-loop when a large number of events have been processed.  This
-shouldn't hit any performance drop because the threshold is set high
-enough for usual operations.
+The following patch series is a collection of various fixes for Coda,
+most of which were collected from linux-fsdevel or linux-kernel but
+which have as yet not found their way upstream.
 
-Fixes: 7bd800915677 ("ALSA: seq: More protection for concurrent write and ioctl races")
-Reported-by: syzbot+97aae04ce27e39cbfca9@syzkaller.appspotmail.com
-Reported-by: syzbot+4c595632b98bb8ffcc66@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This patch (of 22):
+
+Various file systems expect that vma->vm_file points at their own file
+handle, several use file_inode(vma->vm_file) to get at their inode or
+use vma->vm_file->private_data.  However the way Coda wrapped mmap on a
+host file broke this assumption, vm_file was still pointing at the Coda
+file and the host file systems would scribble over Coda's inode and
+private file data.
+
+This patch fixes the incorrect expectation and wraps vm_ops->open and
+vm_ops->close to allow Coda to track when the vm_area_struct is
+destroyed so we still release the reference on the Coda file handle at
+the right time.
+
+Link: http://lkml.kernel.org/r/0e850c6e59c0b147dc2dcd51a3af004c948c3697.1558117389.git.jaharkes@cs.cmu.edu
+Signed-off-by: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Fabian Frederick <fabf@skynet.be>
+Cc: Mikko Rapeli <mikko.rapeli@iki.fi>
+Cc: Sam Protsenko <semen.protsenko@linaro.org>
+Cc: Yann Droneaud <ydroneaud@opteya.com>
+Cc: Zhouyang Jia <jiazhouyang09@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 3.16: Keep calling file_operations::mmap directly]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/core/seq/seq_clientmgr.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/coda/file.c | 70 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 68 insertions(+), 2 deletions(-)
 
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -1014,7 +1014,7 @@ static ssize_t snd_seq_write(struct file
- {
- 	struct snd_seq_client *client = file->private_data;
- 	int written = 0, len;
--	int err;
-+	int err, handled;
- 	struct snd_seq_event event;
+--- a/fs/coda/file.c
++++ b/fs/coda/file.c
+@@ -26,6 +26,13 @@
+ #include "coda_linux.h"
+ #include "coda_int.h"
  
- 	if (!(snd_seq_file_flags(file) & SNDRV_SEQ_LFLG_OUTPUT))
-@@ -1027,6 +1027,8 @@ static ssize_t snd_seq_write(struct file
- 	if (!client->accept_output || client->pool == NULL)
- 		return -ENXIO;
- 
-+ repeat:
-+	handled = 0;
- 	/* allocate the pool now if the pool is not allocated yet */ 
- 	mutex_lock(&client->ioctl_mutex);
- 	if (client->pool->size > 0 && !snd_seq_write_pool_allocated(client)) {
-@@ -1086,12 +1088,19 @@ static ssize_t snd_seq_write(struct file
- 						   0, 0, &client->ioctl_mutex);
- 		if (err < 0)
- 			break;
-+		handled++;
- 
- 	__skip_event:
- 		/* Update pointers and counts */
- 		count -= len;
- 		buf += len;
- 		written += len;
++struct coda_vm_ops {
++	atomic_t refcnt;
++	struct file *coda_file;
++	const struct vm_operations_struct *host_vm_ops;
++	struct vm_operations_struct vm_ops;
++};
 +
-+		/* let's have a coffee break if too many events are queued */
-+		if (++handled >= 200) {
-+			mutex_unlock(&client->ioctl_mutex);
-+			goto repeat;
-+		}
+ static ssize_t
+ coda_file_read(struct file *coda_file, char __user *buf, size_t count, loff_t *ppos)
+ {
+@@ -93,6 +100,34 @@ coda_file_write(struct file *coda_file,
+ 	return ret;
+ }
+ 
++static void
++coda_vm_open(struct vm_area_struct *vma)
++{
++	struct coda_vm_ops *cvm_ops =
++		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
++
++	atomic_inc(&cvm_ops->refcnt);
++
++	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->open)
++		cvm_ops->host_vm_ops->open(vma);
++}
++
++static void
++coda_vm_close(struct vm_area_struct *vma)
++{
++	struct coda_vm_ops *cvm_ops =
++		container_of(vma->vm_ops, struct coda_vm_ops, vm_ops);
++
++	if (cvm_ops->host_vm_ops && cvm_ops->host_vm_ops->close)
++		cvm_ops->host_vm_ops->close(vma);
++
++	if (atomic_dec_and_test(&cvm_ops->refcnt)) {
++		vma->vm_ops = cvm_ops->host_vm_ops;
++		fput(cvm_ops->coda_file);
++		kfree(cvm_ops);
++	}
++}
++
+ static int
+ coda_file_mmap(struct file *coda_file, struct vm_area_struct *vma)
+ {
+@@ -100,6 +135,8 @@ coda_file_mmap(struct file *coda_file, s
+ 	struct coda_inode_info *cii;
+ 	struct file *host_file;
+ 	struct inode *coda_inode, *host_inode;
++	struct coda_vm_ops *cvm_ops;
++	int ret;
+ 
+ 	cfi = CODA_FTOC(coda_file);
+ 	BUG_ON(!cfi || cfi->cfi_magic != CODA_MAGIC);
+@@ -108,6 +145,13 @@ coda_file_mmap(struct file *coda_file, s
+ 	if (!host_file->f_op->mmap)
+ 		return -ENODEV;
+ 
++	if (WARN_ON(coda_file != vma->vm_file))
++		return -EIO;
++
++	cvm_ops = kmalloc(sizeof(struct coda_vm_ops), GFP_KERNEL);
++	if (!cvm_ops)
++		return -ENOMEM;
++
+ 	coda_inode = file_inode(coda_file);
+ 	host_inode = file_inode(host_file);
+ 
+@@ -121,6 +165,7 @@ coda_file_mmap(struct file *coda_file, s
+ 	 * the container file on us! */
+ 	else if (coda_inode->i_mapping != host_inode->i_mapping) {
+ 		spin_unlock(&cii->c_lock);
++		kfree(cvm_ops);
+ 		return -EBUSY;
  	}
  
-  out:
+@@ -129,7 +174,29 @@ coda_file_mmap(struct file *coda_file, s
+ 	cfi->cfi_mapcount++;
+ 	spin_unlock(&cii->c_lock);
+ 
+-	return host_file->f_op->mmap(host_file, vma);
++	vma->vm_file = get_file(host_file);
++	ret = host_file->f_op->mmap(host_file, vma);
++
++	if (ret) {
++		/* if ->mmap fails, our caller will put coda_file so we
++		 * should drop the reference to the host_file that we got.
++		 */
++		fput(host_file);
++		kfree(cvm_ops);
++	} else {
++		/* here we add redirects for the open/close vm_operations */
++		cvm_ops->host_vm_ops = vma->vm_ops;
++		if (vma->vm_ops)
++			cvm_ops->vm_ops = *vma->vm_ops;
++
++		cvm_ops->vm_ops.open = coda_vm_open;
++		cvm_ops->vm_ops.close = coda_vm_close;
++		cvm_ops->coda_file = coda_file;
++		atomic_set(&cvm_ops->refcnt, 1);
++
++		vma->vm_ops = &cvm_ops->vm_ops;
++	}
++	return ret;
+ }
+ 
+ int coda_open(struct inode *coda_inode, struct file *coda_file)
+@@ -239,4 +306,3 @@ const struct file_operations coda_file_o
+ 	.fsync		= coda_fsync,
+ 	.splice_read	= coda_file_splice_read,
+ };
+-
 
