@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A530E4DFC
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B62E4DF3
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2394710AbfJYODz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:03:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51400 "EHLO mail.kernel.org"
+        id S2394739AbfJYODr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:03:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394725AbfJYN4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:56:53 -0400
+        id S2394740AbfJYN45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:56:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3342821D7F;
-        Fri, 25 Oct 2019 13:56:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23A9521D7F;
+        Fri, 25 Oct 2019 13:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011813;
-        bh=a+GKRQsj12e49IKqnLb4YIPS1p3NkJgRmAz+07Mktog=;
+        s=default; t=1572011817;
+        bh=ISAo5vn+007S4sNbFtUYwHTVpHMeCjtJiDa8U5Y8dL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fN4BV8qGGtkDspxwvwGWAp+K6fekNDk002vsLZ1KCiKzvIdHbFBc/7ZU/yunMIl3p
-         dTj9aBMV75JyTB2AAGjkXjOdmc8Egqoe/njxNh1vMTz3BVZiGp6FXwZpBHKyroWEJG
-         lmyTYOntmqAqru0kvcEVUrsMCCW7jnXkt5Dg9smc=
+        b=BBLeCfegR7seo/Cjb+iCjBhXC6lNFmfdnIM1tSDvlPsmVXRm+V1MKjfu454G5beMt
+         eZ4BY2Tui3FLHfw9tRl65e90u1L+gK2YlWTUiNi5EE0om94WArp25FqzFK1dl7/CVJ
+         s57T5OlZ6VS0cPBmORbMl46kx1PqMro0I3naeowk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 26/37] NFC: pn533: fix use-after-free and memleaks
-Date:   Fri, 25 Oct 2019 09:55:50 -0400
-Message-Id: <20191025135603.25093-26-sashal@kernel.org>
+Cc:     Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 28/37] net: usb: sr9800: fix uninitialized local variable
+Date:   Fri, 25 Oct 2019 09:55:52 -0400
+Message-Id: <20191025135603.25093-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135603.25093-1-sashal@kernel.org>
 References: <20191025135603.25093-1-sashal@kernel.org>
@@ -44,53 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-[ Upstream commit 6af3aa57a0984e061f61308fe181a9a12359fecc ]
+[ Upstream commit 77b6d09f4ae66d42cd63b121af67780ae3d1a5e9 ]
 
-The driver would fail to deregister and its class device and free
-related resources on late probe errors.
+Make sure res does not contain random value if the call to
+sr_read_cmd fails for some reason.
 
-Reported-by: syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com
-Fixes: 32ecc75ded72 ("NFC: pn533: change order operations in dev registation")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reported-by: syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533/usb.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/usb/sr9800.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nfc/pn533/usb.c b/drivers/nfc/pn533/usb.c
-index 5d823e965883b..fcb57d64d97e6 100644
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -559,18 +559,25 @@ static int pn533_usb_probe(struct usb_interface *interface,
+diff --git a/drivers/net/usb/sr9800.c b/drivers/net/usb/sr9800.c
+index 35f39f23d8814..8f8c9ede88c26 100644
+--- a/drivers/net/usb/sr9800.c
++++ b/drivers/net/usb/sr9800.c
+@@ -336,7 +336,7 @@ static void sr_set_multicast(struct net_device *net)
+ static int sr_mdio_read(struct net_device *net, int phy_id, int loc)
+ {
+ 	struct usbnet *dev = netdev_priv(net);
+-	__le16 res;
++	__le16 res = 0;
  
- 	rc = pn533_finalize_setup(priv);
- 	if (rc)
--		goto error;
-+		goto err_deregister;
- 
- 	usb_set_intfdata(interface, phy);
- 
- 	return 0;
- 
-+err_deregister:
-+	pn533_unregister_device(phy->priv);
- error:
-+	usb_kill_urb(phy->in_urb);
-+	usb_kill_urb(phy->out_urb);
-+	usb_kill_urb(phy->ack_urb);
-+
- 	usb_free_urb(phy->in_urb);
- 	usb_free_urb(phy->out_urb);
- 	usb_free_urb(phy->ack_urb);
- 	usb_put_dev(phy->udev);
- 	kfree(in_buf);
-+	kfree(phy->ack_buffer);
- 
- 	return rc;
- }
+ 	mutex_lock(&dev->phy_mutex);
+ 	sr_set_sw_mii(dev);
 -- 
 2.20.1
 
