@@ -2,120 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B9CE5651
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 23:58:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38FACE56C3
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 00:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726304AbfJYV6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 17:58:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35856 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725801AbfJYV6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 17:58:39 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C51421D81;
-        Fri, 25 Oct 2019 21:58:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572040716;
-        bh=pmeQEHgG0RJxKthreJtG3rpwf51KqbGumNfRo6fQoGg=;
-        h=Date:From:To:Subject:From;
-        b=q2SexUW95ceCqBmsOjRiPXOlJRrLVbdOEBLtImuQMhz3q2Cil9XQuU/Qe1HE7itef
-         hKnGAE5zMpooampVr5iBNSSihrSZ+TWbadY2zOXwAdj/6NtsAZ2D/odtqiNQtRUEJa
-         ExWKh8MgnvsEQWFhxSmKIJ7HDt4jC+BFN/mZeQIk=
-Date:   Fri, 25 Oct 2019 14:58:35 -0700
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, aquini@redhat.com, david@redhat.com,
-        gregkh@linuxfoundation.org, guro@fb.com, hannes@cmpxchg.org,
-        jannh@google.com, khlebnikov@yandex-team.ru, longman@redhat.com,
-        mgorman@suse.de, mhocko@suse.com, mm-commits@vger.kernel.org,
-        rientjes@google.com, songliubraving@fb.com, stable@vger.kernel.org,
-        vbabka@suse.cz
-Subject:  +
- mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch added to -mm tree
-Message-ID: <20191025215835.5xawORM5h%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726364AbfJYW6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 18:58:41 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:42492 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725881AbfJYW6l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 18:58:41 -0400
+Received: by mail-pf1-f195.google.com with SMTP id 21so2579646pfj.9;
+        Fri, 25 Oct 2019 15:58:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=id3Jag4Ah2PkB7BKapHcKYtTL7WashnqZLKEAmMbsoE=;
+        b=MZScq3UdhvrmlDVe5EBsvK0Lvfrl7WM4JQr+TE/GRKfD4gUaIR0owHKfBgG8w33fOt
+         UIdAGLtdrd9FpbMX9u8jtNA4PA2GJhclvMkpkJBjyHSgOH476+AGX81P8e0qns4ZNjU8
+         pFKFn7vbiu4lmtp/QbrmJagAF4N4P/FbH15/P5DWPH+z+QUjZBEcL6OcFhjkPxvbOe7J
+         ioI9xXQQUfmRDqHVtsSMU9PTkzBxz0ewhrEj1bGlutnRx/w7EfYAP2AEUTlUm0mmzdtG
+         7KiPBusBFv7V/Gqm9rm34EAUuQzMpyqgUCa4/e7xyu4gKOZOdVPqR/8QrY+Hkigu5RSL
+         trvg==
+X-Gm-Message-State: APjAAAUrC/VsFr+B1NF61C8kLAqWUQd6TeXMHIJI2M1eM8IrgIq1RIlq
+        6+0F/YdHNcCZwUUEH/d2+rA=
+X-Google-Smtp-Source: APXvYqxVNh2jQV3Ol7QSf63nwA0BzgNLtjQm8Jc74eJh4xlOySDdcvTkNaZoexKrf+dv3WMptsoYLQ==
+X-Received: by 2002:a63:258:: with SMTP id 85mr7097403pgc.352.1572044318650;
+        Fri, 25 Oct 2019 15:58:38 -0700 (PDT)
+Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
+        by smtp.gmail.com with ESMTPSA id o123sm3243983pfg.161.2019.10.25.15.58.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Oct 2019 15:58:37 -0700 (PDT)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: [PATCH v2 1/4] RDMA/core: Fix ib_dma_max_seg_size()
+Date:   Fri, 25 Oct 2019 15:58:27 -0700
+Message-Id: <20191025225830.257535-2-bvanassche@acm.org>
+X-Mailer: git-send-email 2.24.0.rc0.303.g954a862665-goog
+In-Reply-To: <20191025225830.257535-1-bvanassche@acm.org>
+References: <20191025225830.257535-1-bvanassche@acm.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+If dev->dma_device->params == NULL then the maximum DMA segment size is
+64 KB. See also the dma_get_max_seg_size() implementation. This patch
+fixes the following kernel warning:
 
-The patch titled
-     Subject: mm, vmstat: hide /proc/pagetypeinfo from normal users
-has been added to the -mm tree.  Its filename is
-     mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
+DMA-API: infiniband rxe0: mapping sg segment longer than device claims to support [len=126976] [max=65536]
+WARNING: CPU: 4 PID: 4848 at kernel/dma/debug.c:1220 debug_dma_map_sg+0x3d9/0x450
+RIP: 0010:debug_dma_map_sg+0x3d9/0x450
+Call Trace:
+ srp_queuecommand+0x626/0x18d0 [ib_srp]
+ scsi_queue_rq+0xd02/0x13e0 [scsi_mod]
+ __blk_mq_try_issue_directly+0x2b3/0x3f0
+ blk_mq_request_issue_directly+0xac/0xf0
+ blk_insert_cloned_request+0xdf/0x170
+ dm_mq_queue_rq+0x43d/0x830 [dm_mod]
+ __blk_mq_try_issue_directly+0x2b3/0x3f0
+ blk_mq_request_issue_directly+0xac/0xf0
+ blk_mq_try_issue_list_directly+0xb8/0x170
+ blk_mq_sched_insert_requests+0x23c/0x3b0
+ blk_mq_flush_plug_list+0x529/0x730
+ blk_flush_plug_list+0x21f/0x260
+ blk_mq_make_request+0x56b/0xf20
+ generic_make_request+0x196/0x660
+ submit_bio+0xae/0x290
+ blkdev_direct_IO+0x822/0x900
+ generic_file_direct_write+0x110/0x200
+ __generic_file_write_iter+0x124/0x2a0
+ blkdev_write_iter+0x168/0x270
+ aio_write+0x1c4/0x310
+ io_submit_one+0x971/0x1390
+ __x64_sys_io_submit+0x12a/0x390
+ do_syscall_64+0x6f/0x2e0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Michal Hocko <mhocko@suse.com>
-Subject: mm, vmstat: hide /proc/pagetypeinfo from normal users
-
-/proc/pagetypeinfo is a debugging tool to examine internal page allocator
-state wrt to fragmentation.  It is not very useful for any other use so
-normal users really do not need to read this file.
-
-Waiman Long has noticed that reading this file can have negative side
-effects because zone->lock is necessary for gathering data and that a)
-interferes with the page allocator and its users and b) can lead to hard
-lockups on large machines which have very long free_list.
-
-Reduce both issues by simply not exporting the file to regular users.
-
-Link: http://lkml.kernel.org/r/20191025072610.18526-2-mhocko@kernel.org
-Fixes: 467c996c1e19 ("Print out statistics in relation to fragmentation avoidance to /proc/pagetypeinfo")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reported-by: Waiman Long <longman@redhat.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Waiman Long <longman@redhat.com>
-Acked-by: Rafael Aquini <aquini@redhat.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Jann Horn <jannh@google.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Christoph Hellwig <hch@lst.de>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 0b5cb3300ae5 ("RDMA/srp: Increase max_segment_size")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 ---
+ include/rdma/ib_verbs.h | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
- mm/vmstat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/vmstat.c~mm-vmstat-hide-proc-pagetypeinfo-from-normal-users
-+++ a/mm/vmstat.c
-@@ -1972,7 +1972,7 @@ void __init init_mm_internals(void)
- #endif
- #ifdef CONFIG_PROC_FS
- 	proc_create_seq("buddyinfo", 0444, NULL, &fragmentation_op);
--	proc_create_seq("pagetypeinfo", 0444, NULL, &pagetypeinfo_op);
-+	proc_create_seq("pagetypeinfo", 0400, NULL, &pagetypeinfo_op);
- 	proc_create_seq("vmstat", 0444, NULL, &vmstat_op);
- 	proc_create_seq("zoneinfo", 0444, NULL, &zoneinfo_op);
- #endif
-_
-
-Patches currently in -mm which might be from mhocko@suse.com are
-
-mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
-mm-vmstat-reduce-zone-lock-holding-time-by-proc-pagetypeinfo.patch
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index cca9985b4cbc..0626b62ed107 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -4057,9 +4057,7 @@ static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
+  */
+ static inline unsigned int ib_dma_max_seg_size(struct ib_device *dev)
+ {
+-	struct device_dma_parameters *p = dev->dma_device->dma_parms;
+-
+-	return p ? p->max_segment_size : UINT_MAX;
++	return dma_get_max_seg_size(dev->dma_device);
+ }
+ 
+ /**
+-- 
+2.24.0.rc0.303.g954a862665-goog
 
