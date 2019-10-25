@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F135FE4D34
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 820B9E4D3B
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505641AbfJYN6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
+        id S2632880AbfJYN6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505629AbfJYN6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:38 -0400
+        id S2393718AbfJYN6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71A6422468;
-        Fri, 25 Oct 2019 13:58:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFE55222CB;
+        Fri, 25 Oct 2019 13:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011917;
-        bh=ScSf29wy/z0+TqMEs+UGzGHvGOs5YW8Cj1Ywt+/gRoo=;
+        s=default; t=1572011932;
+        bh=qR4vbAuIR6QqRJdC4Ze811+0GMlQs3Y8tIAa0DxLn+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p2fzwRdEHT/6RBAZthGTFE8jBgVXAEx4eT64WA0OSThSPSkHc3yVHEJbdC+MGGpkm
-         y1XzcI92KwTftWlOFETwkq8ov8COPNyhQGghvDaWnA0XvGARf7rLgeD5A293dUZfDa
-         OrLa6iwcRWc6ReMopCtveLVFxkgmKDV99hE8kXa8=
+        b=fxhA5EdP77jPWrTv54ZZ3yJnIlsF+m2EHWh2LDAufqeQu3Z0hGIIxdP4TZDvWwonA
+         RrNEwvA0jvKNn/rnUrwUQ9UaXCNDQzeMe4Zg0BgZ4w9ndIMkECk+RZQRfmtlY9vcw+
+         DYlgb7yhJyPAfgCoFtXuMWCbqpQ6NmAX6ACNKHMs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Ahern <dsahern@gmail.com>,
-        Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 19/20] ipv6: Handle race in addrconf_dad_work
-Date:   Fri, 25 Oct 2019 09:57:59 -0400
-Message-Id: <20191025135801.25739-19-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Laurence Oberman <loberman@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 05/16] scsi: RDMA/srp: Fix a sleep-in-invalid-context bug
+Date:   Fri, 25 Oct 2019 09:58:29 -0400
+Message-Id: <20191025135842.25977-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
-References: <20191025135801.25739-1-sashal@kernel.org>
+In-Reply-To: <20191025135842.25977-1-sashal@kernel.org>
+References: <20191025135842.25977-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,93 +49,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
+[ Upstream commit fd56141244066a6a21ef458670071c58b6402035 ]
 
-Rajendra reported a kernel panic when a link was taken down:
+The previous patch guarantees that srp_queuecommand() does not get
+invoked while reconnecting occurs. Hence remove the code from
+srp_queuecommand() that prevents command queueing while reconnecting.
+This patch avoids that the following can appear in the kernel log:
 
-[ 6870.263084] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
-[ 6870.271856] IP: [<ffffffff8efc5764>] __ipv6_ifa_notify+0x154/0x290
+BUG: sleeping function called from invalid context at kernel/locking/mutex.c:747
+in_atomic(): 1, irqs_disabled(): 0, pid: 5600, name: scsi_eh_9
+1 lock held by scsi_eh_9/5600:
+ #0:  (rcu_read_lock){....}, at: [<00000000cbb798c7>] __blk_mq_run_hw_queue+0xf1/0x1e0
+Preemption disabled at:
+[<00000000139badf2>] __blk_mq_delay_run_hw_queue+0x78/0xf0
+CPU: 9 PID: 5600 Comm: scsi_eh_9 Tainted: G        W        4.15.0-rc4-dbg+ #1
+Hardware name: Dell Inc. PowerEdge R720/0VWT90, BIOS 2.5.4 01/22/2016
+Call Trace:
+ dump_stack+0x67/0x99
+ ___might_sleep+0x16a/0x250 [ib_srp]
+ __mutex_lock+0x46/0x9d0
+ srp_queuecommand+0x356/0x420 [ib_srp]
+ scsi_dispatch_cmd+0xf6/0x3f0
+ scsi_queue_rq+0x4a8/0x5f0
+ blk_mq_dispatch_rq_list+0x73/0x440
+ blk_mq_sched_dispatch_requests+0x109/0x1a0
+ __blk_mq_run_hw_queue+0x131/0x1e0
+ __blk_mq_delay_run_hw_queue+0x9a/0xf0
+ blk_mq_run_hw_queue+0xc0/0x1e0
+ blk_mq_start_hw_queues+0x2c/0x40
+ scsi_run_queue+0x18e/0x2d0
+ scsi_run_host_queues+0x22/0x40
+ scsi_error_handler+0x18d/0x5f0
+ kthread+0x11c/0x140
+ ret_from_fork+0x24/0x30
 
-<snip>
-
-[ 6870.570501] Call Trace:
-[ 6870.573238] [<ffffffff8efc58c6>] ? ipv6_ifa_notify+0x26/0x40
-[ 6870.579665] [<ffffffff8efc98ec>] ? addrconf_dad_completed+0x4c/0x2c0
-[ 6870.586869] [<ffffffff8efe70c6>] ? ipv6_dev_mc_inc+0x196/0x260
-[ 6870.593491] [<ffffffff8efc9c6a>] ? addrconf_dad_work+0x10a/0x430
-[ 6870.600305] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
-[ 6870.606732] [<ffffffff8ea93a7a>] ? process_one_work+0x18a/0x430
-[ 6870.613449] [<ffffffff8ea93d6d>] ? worker_thread+0x4d/0x490
-[ 6870.619778] [<ffffffff8ea93d20>] ? process_one_work+0x430/0x430
-[ 6870.626495] [<ffffffff8ea99dd9>] ? kthread+0xd9/0xf0
-[ 6870.632145] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
-[ 6870.638573] [<ffffffff8ea99d00>] ? kthread_park+0x60/0x60
-[ 6870.644707] [<ffffffff8f01ae77>] ? ret_from_fork+0x57/0x70
-[ 6870.650936] Code: 31 c0 31 d2 41 b9 20 00 08 02 b9 09 00 00 0
-
-addrconf_dad_work is kicked to be scheduled when a device is brought
-up. There is a race between addrcond_dad_work getting scheduled and
-taking the rtnl lock and a process taking the link down (under rtnl).
-The latter removes the host route from the inet6_addr as part of
-addrconf_ifdown which is run for NETDEV_DOWN. The former attempts
-to use the host route in ipv6_ifa_notify. If the down event removes
-the host route due to the race to the rtnl, then the BUG listed above
-occurs.
-
-This scenario does not occur when the ipv6 address is not kept
-(net.ipv6.conf.all.keep_addr_on_down = 0) as addrconf_ifdown sets the
-state of the ifp to DEAD. Handle when the addresses are kept by checking
-IF_READY which is reset by addrconf_ifdown.
-
-The 'dead' flag for an inet6_addr is set only under rtnl, in
-addrconf_ifdown and it means the device is getting removed (or IPv6 is
-disabled). The interesting cases for changing the idev flag are
-addrconf_notify (NETDEV_UP and NETDEV_CHANGE) and addrconf_ifdown
-(reset the flag). The former does not have the idev lock - only rtnl;
-the latter has both. Based on that the existing dead + IF_READY check
-can be moved to right after the rtnl_lock in addrconf_dad_work.
-
-Fixes: f1705ec197e7 ("net: ipv6: Make address flushing on ifdown optional")
-Reported-by: Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Leon Romanovsky <leonro@mellanox.com>
+Cc: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/addrconf.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.c | 21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 6b1310d5e8087..61fd8ff922d97 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3859,6 +3859,12 @@ static void addrconf_dad_work(struct work_struct *w)
- 
- 	rtnl_lock();
- 
-+	/* check if device was taken down before this delayed work
-+	 * function could be canceled
-+	 */
-+	if (idev->dead || !(idev->if_flags & IF_READY))
-+		goto out;
-+
- 	spin_lock_bh(&ifp->lock);
- 	if (ifp->state == INET6_IFADDR_STATE_PREDAD) {
- 		action = DAD_BEGIN;
-@@ -3902,11 +3908,6 @@ static void addrconf_dad_work(struct work_struct *w)
- 		goto out;
- 
- 	write_lock_bh(&idev->lock);
--	if (idev->dead || !(idev->if_flags & IF_READY)) {
--		write_unlock_bh(&idev->lock);
--		goto out;
--	}
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 3dbc3ed263c21..9a70267244e1a 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -2057,7 +2057,6 @@ static void srp_send_completion(struct ib_cq *cq, void *ch_ptr)
+ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ {
+ 	struct srp_target_port *target = host_to_target(shost);
+-	struct srp_rport *rport = target->rport;
+ 	struct srp_rdma_ch *ch;
+ 	struct srp_request *req;
+ 	struct srp_iu *iu;
+@@ -2067,16 +2066,6 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 	u32 tag;
+ 	u16 idx;
+ 	int len, ret;
+-	const bool in_scsi_eh = !in_interrupt() && current == shost->ehandler;
 -
- 	spin_lock(&ifp->lock);
- 	if (ifp->state == INET6_IFADDR_STATE_DEAD) {
- 		spin_unlock(&ifp->lock);
+-	/*
+-	 * The SCSI EH thread is the only context from which srp_queuecommand()
+-	 * can get invoked for blocked devices (SDEV_BLOCK /
+-	 * SDEV_CREATED_BLOCK). Avoid racing with srp_reconnect_rport() by
+-	 * locking the rport mutex if invoked from inside the SCSI EH.
+-	 */
+-	if (in_scsi_eh)
+-		mutex_lock(&rport->mutex);
+ 
+ 	scmnd->result = srp_chkready(target->rport);
+ 	if (unlikely(scmnd->result))
+@@ -2138,13 +2127,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 		goto err_unmap;
+ 	}
+ 
+-	ret = 0;
+-
+-unlock_rport:
+-	if (in_scsi_eh)
+-		mutex_unlock(&rport->mutex);
+-
+-	return ret;
++	return 0;
+ 
+ err_unmap:
+ 	srp_unmap_data(scmnd, ch, req);
+@@ -2166,7 +2149,7 @@ static int srp_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *scmnd)
+ 		ret = SCSI_MLQUEUE_HOST_BUSY;
+ 	}
+ 
+-	goto unlock_rport;
++	return ret;
+ }
+ 
+ /*
 -- 
 2.20.1
 
