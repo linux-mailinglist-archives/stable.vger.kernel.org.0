@@ -2,78 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE7FE4EDA
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42606E4F08
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393911AbfJYOXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:23:03 -0400
-Received: from mail-il1-f196.google.com ([209.85.166.196]:36143 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392999AbfJYOXD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 10:23:03 -0400
-Received: by mail-il1-f196.google.com with SMTP id s75so2009519ilc.3;
-        Fri, 25 Oct 2019 07:23:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ePhtzU5NI6z2BX2GKzTIAEd2EINs+iRTKDQWAsMttns=;
-        b=V6JKuvB8C9r57btbIHWT9QPSij4Qf9wRAL966ReKuoUJJQsIL7YcP62zdSPHfNJdhS
-         BRJYHY6s2yx/0uMtNUNPftQ2Q3WVS64fUCSIW0D2K7ljqduyMiKms6uxLENAtGvOVesG
-         m1R74DhamLyH8vrS28kWW0hlDZnj/6+3o9G9AJi82IYKOoMAhfWr8g8ZYp2IziO6l5Ps
-         ejzCcVf1U3a/YY1w6ZZDCTQeBkHzQVh8oWAtLn9KNUur1v01Jo/c/OfI8eOOqDbhoCM2
-         SSOxSRZqdbrV69DMcKz4zCQ4LRW4iXiT/dHttQCMW7zOxHbQc8r76055f/GaCCK7903t
-         SNjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ePhtzU5NI6z2BX2GKzTIAEd2EINs+iRTKDQWAsMttns=;
-        b=obtC0t7w2c+PPtd4kf8SytFD3NWiy3HVsVYB6iOx6penPGjg2UCEGoPy2+G2qDbEiW
-         +AE7pbHDqx0PHJTkUj8a+qMD76TTzsCRAi3qat5Bg7VlSrgvY0hLy5b7RN5loQc5o71c
-         vuA/+XU2dSVm1F4smidCGzutIyjhao2U9zeKBIV7Dx8vAcK2J7+MEdVv02kW1ger2D8L
-         hmblUOZlHXTV0XKZo52g8VvatkrBTqBELA3Ld3256UGfmnfPkVNp4AOODL07jVzyAGsA
-         DRLxoS2YluLLHNowEyiQAaiVlIsxQa8x64mF/Ch9POB47aH27HMUb5QeAes6z3NpE+zj
-         idDA==
-X-Gm-Message-State: APjAAAXLf5tQ2DsxpR6rckcKrOP2yBoSUCiZF+pQWY4kLlpAGZbs9dPS
-        xeFe9ep2QWm/CKYI/D/7Qd9ltZxE
-X-Google-Smtp-Source: APXvYqwd5FaJDyLRZxvSrDF+ugbwgjF6WU/G/6DS2v6aOS1/J+mH1PSz7Wdg6gxoi7G+N9WlwBonpQ==
-X-Received: by 2002:a92:9a54:: with SMTP id t81mr4282508ili.147.1572013381778;
-        Fri, 25 Oct 2019 07:23:01 -0700 (PDT)
-Received: from ?IPv6:2601:282:800:fd80:b19c:9c8b:8bde:d55c? ([2601:282:800:fd80:b19c:9c8b:8bde:d55c])
-        by smtp.googlemail.com with ESMTPSA id j21sm297593ioj.86.2019.10.25.07.23.00
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 25 Oct 2019 07:23:00 -0700 (PDT)
-Subject: Re: [PATCH AUTOSEL 4.9 19/20] ipv6: Handle race in addrconf_dad_work
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-References: <20191025135801.25739-1-sashal@kernel.org>
- <20191025135801.25739-19-sashal@kernel.org>
-From:   David Ahern <dsahern@gmail.com>
-Message-ID: <f3c4a11c-b5b5-455a-6c88-83b8cc56623d@gmail.com>
-Date:   Fri, 25 Oct 2019 08:22:59 -0600
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:52.0)
- Gecko/20100101 Thunderbird/52.9.1
-MIME-Version: 1.0
-In-Reply-To: <20191025135801.25739-19-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S2404155AbfJYO20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:28:26 -0400
+Received: from mga02.intel.com ([134.134.136.20]:10575 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730064AbfJYO20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 10:28:26 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Oct 2019 07:28:25 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,228,1569308400"; 
+   d="scan'208";a="192554841"
+Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
+  by orsmga008.jf.intel.com with ESMTP; 25 Oct 2019 07:28:24 -0700
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+To:     <gregkh@linuxfoundation.org>
+Cc:     <linux-usb@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        "# v5 . 3" <stable@vger.kernel.org>
+Subject: [PATCH 1/3] xhci: Fix use-after-free regression in xhci clear hub TT implementation
+Date:   Fri, 25 Oct 2019 17:30:27 +0300
+Message-Id: <1572013829-14044-2-git-send-email-mathias.nyman@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1572013829-14044-1-git-send-email-mathias.nyman@linux.intel.com>
+References: <1572013829-14044-1-git-send-email-mathias.nyman@linux.intel.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/25/19 7:57 AM, Sasha Levin wrote:
-> From: David Ahern <dsahern@gmail.com>
-> 
-> [ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
-> 
+commit ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer") schedules work
+to clear TT buffer, but causes a use-after-free regression at the same time
 
-that patch was reverted in favor of a different solution. It should NOT
-be backported to any releases.
+Make sure hub_tt_work finishes before endpoint is disabled, otherwise
+the work will dereference already freed endpoint and device related
+pointers.
+
+This was triggered when usb core failed to read the configuration
+descriptor of a FS/LS device during enumeration.
+xhci driver queued clear_tt_work while usb core freed and reallocated
+a new device for the next enumeration attempt.
+
+EHCI driver implents ehci_endpoint_disable() that makes sure
+clear_tt_work has finished before it returns, but xhci lacks this support.
+usb core will call hcd->driver->endpoint_disable() callback before
+disabling endpoints, so we want this in xhci as well.
+
+The added xhci_endpoint_disable() is based on ehci_endpoint_disable()
+
+Fixes: ef513be0a905 ("usb: xhci: Add Clear_TT_Buffer")
+Cc: <stable@vger.kernel.org> # v5.3
+Reported-by: Johan Hovold <johan@kernel.org>
+Suggested-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Tested-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+---
+ drivers/usb/host/xhci.c | 54 ++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 45 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 517ec3206f6e..6c17e3fe181a 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3071,6 +3071,48 @@ void xhci_cleanup_stalled_ring(struct xhci_hcd *xhci, unsigned int ep_index,
+ 	}
+ }
+ 
++static void xhci_endpoint_disable(struct usb_hcd *hcd,
++				  struct usb_host_endpoint *host_ep)
++{
++	struct xhci_hcd		*xhci;
++	struct xhci_virt_device	*vdev;
++	struct xhci_virt_ep	*ep;
++	struct usb_device	*udev;
++	unsigned long		flags;
++	unsigned int		ep_index;
++
++	xhci = hcd_to_xhci(hcd);
++rescan:
++	spin_lock_irqsave(&xhci->lock, flags);
++
++	udev = (struct usb_device *)host_ep->hcpriv;
++	if (!udev || !udev->slot_id)
++		goto done;
++
++	vdev = xhci->devs[udev->slot_id];
++	if (!vdev)
++		goto done;
++
++	ep_index = xhci_get_endpoint_index(&host_ep->desc);
++	ep = &vdev->eps[ep_index];
++	if (!ep)
++		goto done;
++
++	/* wait for hub_tt_work to finish clearing hub TT */
++	if (ep->ep_state & EP_CLEARING_TT) {
++		spin_unlock_irqrestore(&xhci->lock, flags);
++		schedule_timeout_uninterruptible(1);
++		goto rescan;
++	}
++
++	if (ep->ep_state)
++		xhci_dbg(xhci, "endpoint disable with ep_state 0x%x\n",
++			 ep->ep_state);
++done:
++	host_ep->hcpriv = NULL;
++	spin_unlock_irqrestore(&xhci->lock, flags);
++}
++
+ /*
+  * Called after usb core issues a clear halt control message.
+  * The host side of the halt should already be cleared by a reset endpoint
+@@ -5238,20 +5280,13 @@ static void xhci_clear_tt_buffer_complete(struct usb_hcd *hcd,
+ 	unsigned int ep_index;
+ 	unsigned long flags;
+ 
+-	/*
+-	 * udev might be NULL if tt buffer is cleared during a failed device
+-	 * enumeration due to a halted control endpoint. Usb core might
+-	 * have allocated a new udev for the next enumeration attempt.
+-	 */
+-
+ 	xhci = hcd_to_xhci(hcd);
++
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	udev = (struct usb_device *)ep->hcpriv;
+-	if (!udev)
+-		return;
+ 	slot_id = udev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&ep->desc);
+ 
+-	spin_lock_irqsave(&xhci->lock, flags);
+ 	xhci->devs[slot_id]->eps[ep_index].ep_state &= ~EP_CLEARING_TT;
+ 	xhci_ring_doorbell_for_active_rings(xhci, slot_id, ep_index);
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+@@ -5288,6 +5323,7 @@ static const struct hc_driver xhci_hc_driver = {
+ 	.free_streams =		xhci_free_streams,
+ 	.add_endpoint =		xhci_add_endpoint,
+ 	.drop_endpoint =	xhci_drop_endpoint,
++	.endpoint_disable =	xhci_endpoint_disable,
+ 	.endpoint_reset =	xhci_endpoint_reset,
+ 	.check_bandwidth =	xhci_check_bandwidth,
+ 	.reset_bandwidth =	xhci_reset_bandwidth,
+-- 
+2.7.4
 
