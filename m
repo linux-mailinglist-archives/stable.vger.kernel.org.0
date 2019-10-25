@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C7C4E4D1B
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A37E4D1D
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505408AbfJYN5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:57:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52838 "EHLO mail.kernel.org"
+        id S2505443AbfJYN6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505381AbfJYN5u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:50 -0400
+        id S2505438AbfJYN6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:00 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC8B821E6F;
-        Fri, 25 Oct 2019 13:57:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2995721E6F;
+        Fri, 25 Oct 2019 13:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011869;
-        bh=VxAENRe8KXE3KAQSm0XpFg7pqpD9WQdNEuOUOrj6zvg=;
+        s=default; t=1572011879;
+        bh=kg3I6XAl43kpIssCoiead1gOzFH9ZyHlPFJo5xIoQXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WSg8ZIpkQUKp2HfodOtYBEC6rZyLMQ8jYc4wCixiicVkoOQRMBR4bv2HWsZybj8Pp
-         ppIThQ3I0bkwWMqWmHlZX6LiElJUsd0vsryXKH4GP2qHv8Wt1r9Keae2PKQKIXd9gj
-         RSfgaLWvzKHdgGNvuV3JZKRauXUcBmuscsL/HCsU=
+        b=RCcQkFu4EPYF2xr/X5h8RbHacTovJY+3f0h8pDfvk2fEfX06TYRnUs8q+QPi26qpc
+         f2URJbj9JS/2h/1foDjGaIAAPfVGn3O+hcZ96OPrH06zaZGLNm97C3h1o24VvWMYwE
+         +nM0pIBdm970U+jmp2T5qHUsQ52qldHEDkTUyaww=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chandan Rajendra <chandan@linux.ibm.com>,
-        Harish Sriram <harish@linux.ibm.com>, Jan Kara <jack@suse.cz>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 19/25] jbd2: flush_descriptor(): Do not decrease buffer head's ref count
-Date:   Fri, 25 Oct 2019 09:57:07 -0400
-Message-Id: <20191025135715.25468-19-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        AceLan Kao <acelan.kao@canonical.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.14 25/25] bdi: Do not use freezable workqueue
+Date:   Fri, 25 Oct 2019 09:57:13 -0400
+Message-Id: <20191025135715.25468-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
 References: <20191025135715.25468-1-sashal@kernel.org>
@@ -44,63 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandan Rajendra <chandan@linux.ibm.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 547b9ad698b434eadca46319cb47e5875b55ef03 ]
+[ Upstream commit a2b90f11217790ec0964ba9c93a4abb369758c26 ]
 
-When executing generic/388 on a ppc64le machine, we notice the following
-call trace,
+A removable block device, such as NVMe or SSD connected over Thunderbolt
+can be hot-removed any time including when the system is suspended. When
+device is hot-removed during suspend and the system gets resumed, kernel
+first resumes devices and then thaws the userspace including freezable
+workqueues. What happens in that case is that the NVMe driver notices
+that the device is unplugged and removes it from the system. This ends
+up calling bdi_unregister() for the gendisk which then schedules
+wb_workfn() to be run one more time.
 
-VFS: brelse: Trying to free free buffer
-WARNING: CPU: 0 PID: 6637 at /root/repos/linux/fs/buffer.c:1195 __brelse+0x84/0xc0
+However, since the bdi_wq is still frozen flush_delayed_work() call in
+wb_shutdown() blocks forever halting system resume process. User sees
+this as hang as nothing is happening anymore.
 
-Call Trace:
- __brelse+0x80/0xc0 (unreliable)
- invalidate_bh_lru+0x78/0xc0
- on_each_cpu_mask+0xa8/0x130
- on_each_cpu_cond_mask+0x130/0x170
- invalidate_bh_lrus+0x44/0x60
- invalidate_bdev+0x38/0x70
- ext4_put_super+0x294/0x560
- generic_shutdown_super+0xb0/0x170
- kill_block_super+0x38/0xb0
- deactivate_locked_super+0xa4/0xf0
- cleanup_mnt+0x164/0x1d0
- task_work_run+0x110/0x160
- do_notify_resume+0x414/0x460
- ret_from_except_lite+0x70/0x74
+Triggering sysrq-w reveals this:
 
-The warning happens because flush_descriptor() drops bh reference it
-does not own. The bh reference acquired by
-jbd2_journal_get_descriptor_buffer() is owned by the log_bufs list and
-gets released when this list is processed. The reference for doing IO is
-only acquired in write_dirty_buffer() later in flush_descriptor().
+  Workqueue: nvme-wq nvme_remove_dead_ctrl_work [nvme]
+  Call Trace:
+   ? __schedule+0x2c5/0x630
+   ? wait_for_completion+0xa4/0x120
+   schedule+0x3e/0xc0
+   schedule_timeout+0x1c9/0x320
+   ? resched_curr+0x1f/0xd0
+   ? wait_for_completion+0xa4/0x120
+   wait_for_completion+0xc3/0x120
+   ? wake_up_q+0x60/0x60
+   __flush_work+0x131/0x1e0
+   ? flush_workqueue_prep_pwqs+0x130/0x130
+   bdi_unregister+0xb9/0x130
+   del_gendisk+0x2d2/0x2e0
+   nvme_ns_remove+0xed/0x110 [nvme_core]
+   nvme_remove_namespaces+0x96/0xd0 [nvme_core]
+   nvme_remove+0x5b/0x160 [nvme]
+   pci_device_remove+0x36/0x90
+   device_release_driver_internal+0xdf/0x1c0
+   nvme_remove_dead_ctrl_work+0x14/0x30 [nvme]
+   process_one_work+0x1c2/0x3f0
+   worker_thread+0x48/0x3e0
+   kthread+0x100/0x140
+   ? current_work+0x30/0x30
+   ? kthread_park+0x80/0x80
+   ret_from_fork+0x35/0x40
 
-Reported-by: Harish Sriram <harish@linux.ibm.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Chandan Rajendra <chandan@linux.ibm.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This is not limited to NVMes so exactly same issue can be reproduced by
+hot-removing SSD (over Thunderbolt) while the system is suspended.
+
+Prevent this from happening by removing WQ_FREEZABLE from bdi_wq.
+
+Reported-by: AceLan Kao <acelan.kao@canonical.com>
+Link: https://marc.info/?l=linux-kernel&m=138695698516487
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204385
+Link: https://lore.kernel.org/lkml/20191002122136.GD2819@lahna.fi.intel.com/#t
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/revoke.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ mm/backing-dev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/jbd2/revoke.c b/fs/jbd2/revoke.c
-index f9aefcda58541..cc7d1f094393a 100644
---- a/fs/jbd2/revoke.c
-+++ b/fs/jbd2/revoke.c
-@@ -637,10 +637,8 @@ static void flush_descriptor(journal_t *journal,
+diff --git a/mm/backing-dev.c b/mm/backing-dev.c
+index 6fa31754eadd9..e38655f1d7794 100644
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -246,8 +246,8 @@ static int __init default_bdi_init(void)
  {
- 	jbd2_journal_revoke_header_t *header;
+ 	int err;
  
--	if (is_journal_aborted(journal)) {
--		put_bh(descriptor);
-+	if (is_journal_aborted(journal))
- 		return;
--	}
+-	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_FREEZABLE |
+-					      WQ_UNBOUND | WQ_SYSFS, 0);
++	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
++				 WQ_SYSFS, 0);
+ 	if (!bdi_wq)
+ 		return -ENOMEM;
  
- 	header = (jbd2_journal_revoke_header_t *)descriptor->b_data;
- 	header->r_count = cpu_to_be32(offset);
 -- 
 2.20.1
 
