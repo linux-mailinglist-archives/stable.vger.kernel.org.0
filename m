@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAB1E538F
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6605CE5314
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 20:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731613AbfJYSGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 14:06:53 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46560 "EHLO
+        id S1731792AbfJYSHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 14:07:07 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46852 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731348AbfJYSFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:41 -0400
+        by vger.kernel.org with ESMTP id S1731474AbfJYSFo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 14:05:44 -0400
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xw-0008Oh-BI; Fri, 25 Oct 2019 19:05:36 +0100
+        id 1iO3xw-0008Oi-Dj; Fri, 25 Oct 2019 19:05:36 +0100
 Received: from ben by deadeye with local (Exim 4.92.2)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iO3xv-0001jA-PJ; Fri, 25 Oct 2019 19:05:35 +0100
+        id 1iO3xv-0001jG-QG; Fri, 25 Oct 2019 19:05:35 +0100
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
-        "Vishnu DASA" <vdasa@vmware.com>,
-        "Jorgen Hansen" <jhansen@vmware.com>,
-        "Adit Ranadive" <aditr@vmware.com>
-Date:   Fri, 25 Oct 2019 19:03:22 +0100
-Message-ID: <lsq.1572026582.678105203@decadent.org.uk>
+        "Brian Norris" <briannorris@chromium.org>,
+        "Kalle Valo" <kvalo@codeaurora.org>, "Takashi Iwai" <tiwai@suse.de>
+Date:   Fri, 25 Oct 2019 19:03:23 +0100
+Message-ID: <lsq.1572026582.561095120@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 21/47] VMCI: Fix integer overflow in VMCI handle arrays
+Subject: [PATCH 3.16 22/47] mwifiex: Don't abort on small, spec-compliant
+ vendor IEs
 In-Reply-To: <lsq.1572026581.992411028@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,372 +47,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Vishnu DASA <vdasa@vmware.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 1c2eb5b2853c9f513690ba6b71072d8eb65da16a upstream.
+commit 63d7ef36103d26f20325a921ecc96a3288560146 upstream.
 
-The VMCI handle array has an integer overflow in
-vmci_handle_arr_append_entry when it tries to expand the array. This can be
-triggered from a guest, since the doorbell link hypercall doesn't impose a
-limit on the number of doorbell handles that a VM can create in the
-hypervisor, and these handles are stored in a handle array.
+Per the 802.11 specification, vendor IEs are (at minimum) only required
+to contain an OUI. A type field is also included in ieee80211.h (struct
+ieee80211_vendor_ie) but doesn't appear in the specification. The
+remaining fields (subtype, version) are a convention used in WMM
+headers.
 
-In this change, we introduce a mandatory max capacity for handle
-arrays/lists to avoid excessive memory usage.
+Thus, we should not reject vendor-specific IEs that have only the
+minimum length (3 bytes) -- we should skip over them (since we only want
+to match longer IEs, that match either WMM or WPA formats). We can
+reject elements that don't have the minimum-required 3 byte OUI.
 
-Signed-off-by: Vishnu Dasa <vdasa@vmware.com>
-Reviewed-by: Adit Ranadive <aditr@vmware.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While we're at it, move the non-standard subtype and version fields into
+the WMM structs, to avoid this confusion in the future about generic
+"vendor header" attributes.
+
+Fixes: 685c9b7750bf ("mwifiex: Abort at too short BSS descriptor element")
+Cc: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 3.16: adjust filenames, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/misc/vmw_vmci/vmci_context.c      | 80 +++++++++++++----------
- drivers/misc/vmw_vmci/vmci_handle_array.c | 38 +++++++----
- drivers/misc/vmw_vmci/vmci_handle_array.h | 29 +++++---
- include/linux/vmw_vmci_defs.h             | 11 +++-
- 4 files changed, 99 insertions(+), 59 deletions(-)
+ drivers/net/wireless/mwifiex/fw.h        | 12 +++++++++---
+ drivers/net/wireless/mwifiex/scan.c      | 18 +++++++++++-------
+ drivers/net/wireless/mwifiex/sta_ioctl.c |  4 ++--
+ drivers/net/wireless/mwifiex/wmm.c       |  2 +-
+ 4 files changed, 23 insertions(+), 13 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_context.c
-+++ b/drivers/misc/vmw_vmci/vmci_context.c
-@@ -28,6 +28,9 @@
- #include "vmci_driver.h"
- #include "vmci_event.h"
+--- a/drivers/net/wireless/mwifiex/fw.h
++++ b/drivers/net/wireless/mwifiex/fw.h
+@@ -1398,9 +1398,10 @@ struct mwifiex_ie_types_wmm_queue_status
+ struct ieee_types_vendor_header {
+ 	u8 element_id;
+ 	u8 len;
+-	u8 oui[4];	/* 0~2: oui, 3: oui_type */
+-	u8 oui_subtype;
+-	u8 version;
++	struct {
++		u8 oui[3];
++		u8 oui_type;
++	} __packed oui;
+ } __packed;
  
-+/* Use a wide upper bound for the maximum contexts. */
-+#define VMCI_MAX_CONTEXTS 2000
-+
- /*
-  * List of current VMCI contexts.  Contexts can be added by
-  * vmci_ctx_create() and removed via vmci_ctx_destroy().
-@@ -124,19 +127,22 @@ struct vmci_ctx *vmci_ctx_create(u32 cid
- 	/* Initialize host-specific VMCI context. */
- 	init_waitqueue_head(&context->host_context.wait_queue);
- 
--	context->queue_pair_array = vmci_handle_arr_create(0);
-+	context->queue_pair_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_QP_COUNT);
- 	if (!context->queue_pair_array) {
- 		error = -ENOMEM;
- 		goto err_free_ctx;
- 	}
- 
--	context->doorbell_array = vmci_handle_arr_create(0);
-+	context->doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->doorbell_array) {
- 		error = -ENOMEM;
- 		goto err_free_qp_array;
- 	}
- 
--	context->pending_doorbell_array = vmci_handle_arr_create(0);
-+	context->pending_doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->pending_doorbell_array) {
- 		error = -ENOMEM;
- 		goto err_free_db_array;
-@@ -211,7 +217,7 @@ static int ctx_fire_notification(u32 con
- 	 * We create an array to hold the subscribers we find when
- 	 * scanning through all contexts.
+ struct ieee_types_wmm_parameter {
+@@ -1414,6 +1415,9 @@ struct ieee_types_wmm_parameter {
+ 	 *   Version     [1]
  	 */
--	subscriber_array = vmci_handle_arr_create(0);
-+	subscriber_array = vmci_handle_arr_create(0, VMCI_MAX_CONTEXTS);
- 	if (subscriber_array == NULL)
- 		return VMCI_ERROR_NO_MEM;
+ 	struct ieee_types_vendor_header vend_hdr;
++	u8 oui_subtype;
++	u8 version;
++
+ 	u8 qos_info_bitmap;
+ 	u8 reserved;
+ 	struct ieee_types_wmm_ac_parameters ac_params[IEEE80211_NUM_ACS];
+@@ -1431,6 +1435,8 @@ struct ieee_types_wmm_info {
+ 	 *   Version     [1]
+ 	 */
+ 	struct ieee_types_vendor_header vend_hdr;
++	u8 oui_subtype;
++	u8 version;
  
-@@ -630,20 +636,26 @@ int vmci_ctx_add_notification(u32 contex
+ 	u8 qos_info_bitmap;
+ } __packed;
+--- a/drivers/net/wireless/mwifiex/scan.c
++++ b/drivers/net/wireless/mwifiex/scan.c
+@@ -1284,21 +1284,25 @@ int mwifiex_update_bss_desc_with_ie(stru
+ 			break;
  
- 	spin_lock(&context->lock);
+ 		case WLAN_EID_VENDOR_SPECIFIC:
+-			if (element_len + 2 < sizeof(vendor_ie->vend_hdr))
+-				return -EINVAL;
+-
+ 			vendor_ie = (struct ieee_types_vendor_specific *)
+ 					current_ptr;
  
--	list_for_each_entry(n, &context->notifier_list, node) {
--		if (vmci_handle_is_equal(n->handle, notifier->handle)) {
--			exists = true;
--			break;
-+	if (context->n_notifiers < VMCI_MAX_CONTEXTS) {
-+		list_for_each_entry(n, &context->notifier_list, node) {
-+			if (vmci_handle_is_equal(n->handle, notifier->handle)) {
-+				exists = true;
+-			if (!memcmp
+-			    (vendor_ie->vend_hdr.oui, wpa_oui,
+-			     sizeof(wpa_oui))) {
++			/* 802.11 requires at least 3-byte OUI. */
++			if (element_len < sizeof(vendor_ie->vend_hdr.oui.oui))
++				return -EINVAL;
++
++			/* Not long enough for a match? Skip it. */
++			if (element_len < sizeof(wpa_oui))
 +				break;
-+			}
- 		}
--	}
- 
--	if (exists) {
--		kfree(notifier);
--		result = VMCI_ERROR_ALREADY_EXISTS;
-+		if (exists) {
-+			kfree(notifier);
-+			result = VMCI_ERROR_ALREADY_EXISTS;
-+		} else {
-+			list_add_tail_rcu(&notifier->node,
-+					  &context->notifier_list);
-+			context->n_notifiers++;
-+			result = VMCI_SUCCESS;
-+		}
- 	} else {
--		list_add_tail_rcu(&notifier->node, &context->notifier_list);
--		context->n_notifiers++;
--		result = VMCI_SUCCESS;
-+		kfree(notifier);
-+		result = VMCI_ERROR_NO_MEM;
- 	}
- 
- 	spin_unlock(&context->lock);
-@@ -728,8 +740,7 @@ static int vmci_ctx_get_chkpt_doorbells(
- 					u32 *buf_size, void **pbuf)
- {
- 	struct dbell_cpt_state *dbells;
--	size_t n_doorbells;
--	int i;
-+	u32 i, n_doorbells;
- 
- 	n_doorbells = vmci_handle_arr_get_size(context->doorbell_array);
- 	if (n_doorbells > 0) {
-@@ -867,7 +878,8 @@ int vmci_ctx_rcv_notifications_get(u32 c
- 	spin_lock(&context->lock);
- 
- 	*db_handle_array = context->pending_doorbell_array;
--	context->pending_doorbell_array = vmci_handle_arr_create(0);
-+	context->pending_doorbell_array =
-+		vmci_handle_arr_create(0, VMCI_MAX_GUEST_DOORBELL_COUNT);
- 	if (!context->pending_doorbell_array) {
- 		context->pending_doorbell_array = *db_handle_array;
- 		*db_handle_array = NULL;
-@@ -949,12 +961,11 @@ int vmci_ctx_dbell_create(u32 context_id
- 		return VMCI_ERROR_NOT_FOUND;
- 
- 	spin_lock(&context->lock);
--	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle)) {
--		vmci_handle_arr_append_entry(&context->doorbell_array, handle);
--		result = VMCI_SUCCESS;
--	} else {
-+	if (!vmci_handle_arr_has_entry(context->doorbell_array, handle))
-+		result = vmci_handle_arr_append_entry(&context->doorbell_array,
-+						      handle);
-+	else
- 		result = VMCI_ERROR_DUPLICATE_ENTRY;
--	}
- 
- 	spin_unlock(&context->lock);
- 	vmci_ctx_put(context);
-@@ -1090,15 +1101,16 @@ int vmci_ctx_notify_dbell(u32 src_cid,
- 			if (!vmci_handle_arr_has_entry(
- 					dst_context->pending_doorbell_array,
- 					handle)) {
--				vmci_handle_arr_append_entry(
-+				result = vmci_handle_arr_append_entry(
- 					&dst_context->pending_doorbell_array,
- 					handle);
--
--				ctx_signal_notify(dst_context);
--				wake_up(&dst_context->host_context.wait_queue);
--
-+				if (result == VMCI_SUCCESS) {
-+					ctx_signal_notify(dst_context);
-+					wake_up(&dst_context->host_context.wait_queue);
-+				}
-+			} else {
-+				result = VMCI_SUCCESS;
- 			}
--			result = VMCI_SUCCESS;
- 		}
- 		spin_unlock(&dst_context->lock);
- 	}
-@@ -1125,13 +1137,11 @@ int vmci_ctx_qp_create(struct vmci_ctx *
- 	if (context == NULL || vmci_handle_is_invalid(handle))
- 		return VMCI_ERROR_INVALID_ARGS;
- 
--	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle)) {
--		vmci_handle_arr_append_entry(&context->queue_pair_array,
--					     handle);
--		result = VMCI_SUCCESS;
--	} else {
-+	if (!vmci_handle_arr_has_entry(context->queue_pair_array, handle))
-+		result = vmci_handle_arr_append_entry(
-+			&context->queue_pair_array, handle);
-+	else
- 		result = VMCI_ERROR_DUPLICATE_ENTRY;
--	}
- 
- 	return result;
- }
---- a/drivers/misc/vmw_vmci/vmci_handle_array.c
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.c
-@@ -16,24 +16,29 @@
- #include <linux/slab.h>
- #include "vmci_handle_array.h"
- 
--static size_t handle_arr_calc_size(size_t capacity)
-+static size_t handle_arr_calc_size(u32 capacity)
- {
--	return sizeof(struct vmci_handle_arr) +
-+	return VMCI_HANDLE_ARRAY_HEADER_SIZE +
- 	    capacity * sizeof(struct vmci_handle);
- }
- 
--struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity)
-+struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity)
- {
- 	struct vmci_handle_arr *array;
- 
-+	if (max_capacity == 0 || capacity > max_capacity)
-+		return NULL;
 +
- 	if (capacity == 0)
--		capacity = VMCI_HANDLE_ARRAY_DEFAULT_SIZE;
-+		capacity = min((u32)VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY,
-+			       max_capacity);
++			if (!memcmp(&vendor_ie->vend_hdr.oui, wpa_oui,
++				    sizeof(wpa_oui))) {
+ 				bss_entry->bcn_wpa_ie =
+ 					(struct ieee_types_vendor_specific *)
+ 					current_ptr;
+ 				bss_entry->wpa_offset = (u16)
+ 					(current_ptr - bss_entry->beacon_buf);
+-			} else if (!memcmp(vendor_ie->vend_hdr.oui, wmm_oui,
++			} else if (!memcmp(&vendor_ie->vend_hdr.oui, wmm_oui,
+ 				    sizeof(wmm_oui))) {
+ 				if (total_ie_len ==
+ 				    sizeof(struct ieee_types_wmm_parameter) ||
+--- a/drivers/net/wireless/mwifiex/sta_ioctl.c
++++ b/drivers/net/wireless/mwifiex/sta_ioctl.c
+@@ -1318,7 +1318,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
+ 	pvendor_ie = (struct ieee_types_vendor_header *) ie_data_ptr;
+ 	/* Test to see if it is a WPA IE, if not, then it is a gen IE */
+ 	if (((pvendor_ie->element_id == WLAN_EID_VENDOR_SPECIFIC) &&
+-	     (!memcmp(pvendor_ie->oui, wpa_oui, sizeof(wpa_oui)))) ||
++	     (!memcmp(&pvendor_ie->oui, wpa_oui, sizeof(wpa_oui)))) ||
+ 	    (pvendor_ie->element_id == WLAN_EID_RSN)) {
  
- 	array = kmalloc(handle_arr_calc_size(capacity), GFP_ATOMIC);
- 	if (!array)
- 		return NULL;
+ 		/* IE is a WPA/WPA2 IE so call set_wpa function */
+@@ -1343,7 +1343,7 @@ mwifiex_set_gen_ie_helper(struct mwifiex
+ 		 */
+ 		pvendor_ie = (struct ieee_types_vendor_header *) ie_data_ptr;
+ 		if ((pvendor_ie->element_id == WLAN_EID_VENDOR_SPECIFIC) &&
+-		    (!memcmp(pvendor_ie->oui, wps_oui, sizeof(wps_oui)))) {
++		    (!memcmp(&pvendor_ie->oui, wps_oui, sizeof(wps_oui)))) {
+ 			priv->wps.session_enable = true;
+ 			dev_dbg(priv->adapter->dev,
+ 				"info: WPS Session Enabled.\n");
+--- a/drivers/net/wireless/mwifiex/wmm.c
++++ b/drivers/net/wireless/mwifiex/wmm.c
+@@ -241,7 +241,7 @@ mwifiex_wmm_setup_queue_priorities(struc
  
- 	array->capacity = capacity;
-+	array->max_capacity = max_capacity;
- 	array->size = 0;
+ 	dev_dbg(priv->adapter->dev, "info: WMM Parameter IE: version=%d, "
+ 		"qos_info Parameter Set Count=%d, Reserved=%#x\n",
+-		wmm_ie->vend_hdr.version, wmm_ie->qos_info_bitmap &
++		wmm_ie->version, wmm_ie->qos_info_bitmap &
+ 		IEEE80211_WMM_IE_AP_QOSINFO_PARAM_SET_CNT_MASK,
+ 		wmm_ie->reserved);
  
- 	return array;
-@@ -44,27 +49,34 @@ void vmci_handle_arr_destroy(struct vmci
- 	kfree(array);
- }
- 
--void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
--				  struct vmci_handle handle)
-+int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				 struct vmci_handle handle)
- {
- 	struct vmci_handle_arr *array = *array_ptr;
- 
- 	if (unlikely(array->size >= array->capacity)) {
- 		/* reallocate. */
- 		struct vmci_handle_arr *new_array;
--		size_t new_capacity = array->capacity * VMCI_ARR_CAP_MULT;
--		size_t new_size = handle_arr_calc_size(new_capacity);
-+		u32 capacity_bump = min(array->max_capacity - array->capacity,
-+					array->capacity);
-+		size_t new_size = handle_arr_calc_size(array->capacity +
-+						       capacity_bump);
-+
-+		if (array->size >= array->max_capacity)
-+			return VMCI_ERROR_NO_MEM;
- 
- 		new_array = krealloc(array, new_size, GFP_ATOMIC);
- 		if (!new_array)
--			return;
-+			return VMCI_ERROR_NO_MEM;
- 
--		new_array->capacity = new_capacity;
-+		new_array->capacity += capacity_bump;
- 		*array_ptr = array = new_array;
- 	}
- 
- 	array->entries[array->size] = handle;
- 	array->size++;
-+
-+	return VMCI_SUCCESS;
- }
- 
- /*
-@@ -74,7 +86,7 @@ struct vmci_handle vmci_handle_arr_remov
- 						struct vmci_handle entry_handle)
- {
- 	struct vmci_handle handle = VMCI_INVALID_HANDLE;
--	size_t i;
-+	u32 i;
- 
- 	for (i = 0; i < array->size; i++) {
- 		if (vmci_handle_is_equal(array->entries[i], entry_handle)) {
-@@ -109,7 +121,7 @@ struct vmci_handle vmci_handle_arr_remov
-  * Handle at given index, VMCI_INVALID_HANDLE if invalid index.
-  */
- struct vmci_handle
--vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index)
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index)
- {
- 	if (unlikely(index >= array->size))
- 		return VMCI_INVALID_HANDLE;
-@@ -120,7 +132,7 @@ vmci_handle_arr_get_entry(const struct v
- bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
- 			       struct vmci_handle entry_handle)
- {
--	size_t i;
-+	u32 i;
- 
- 	for (i = 0; i < array->size; i++)
- 		if (vmci_handle_is_equal(array->entries[i], entry_handle))
---- a/drivers/misc/vmw_vmci/vmci_handle_array.h
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.h
-@@ -17,32 +17,41 @@
- #define _VMCI_HANDLE_ARRAY_H_
- 
- #include <linux/vmw_vmci_defs.h>
-+#include <linux/limits.h>
- #include <linux/types.h>
- 
--#define VMCI_HANDLE_ARRAY_DEFAULT_SIZE 4
--#define VMCI_ARR_CAP_MULT 2	/* Array capacity multiplier */
--
- struct vmci_handle_arr {
--	size_t capacity;
--	size_t size;
-+	u32 capacity;
-+	u32 max_capacity;
-+	u32 size;
-+	u32 pad;
- 	struct vmci_handle entries[];
- };
- 
--struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity);
-+#define VMCI_HANDLE_ARRAY_HEADER_SIZE				\
-+	offsetof(struct vmci_handle_arr, entries)
-+/* Select a default capacity that results in a 64 byte sized array */
-+#define VMCI_HANDLE_ARRAY_DEFAULT_CAPACITY			6
-+/* Make sure that the max array size can be expressed by a u32 */
-+#define VMCI_HANDLE_ARRAY_MAX_CAPACITY				\
-+	((U32_MAX - VMCI_HANDLE_ARRAY_HEADER_SIZE - 1) /	\
-+	sizeof(struct vmci_handle))
-+
-+struct vmci_handle_arr *vmci_handle_arr_create(u32 capacity, u32 max_capacity);
- void vmci_handle_arr_destroy(struct vmci_handle_arr *array);
--void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
--				  struct vmci_handle handle);
-+int vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				 struct vmci_handle handle);
- struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
- 						struct vmci_handle
- 						entry_handle);
- struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array);
- struct vmci_handle
--vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index);
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, u32 index);
- bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
- 			       struct vmci_handle entry_handle);
- struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array);
- 
--static inline size_t vmci_handle_arr_get_size(
-+static inline u32 vmci_handle_arr_get_size(
- 	const struct vmci_handle_arr *array)
- {
- 	return array->size;
---- a/include/linux/vmw_vmci_defs.h
-+++ b/include/linux/vmw_vmci_defs.h
-@@ -75,9 +75,18 @@ enum {
- 
- /*
-  * A single VMCI device has an upper limit of 128MB on the amount of
-- * memory that can be used for queue pairs.
-+ * memory that can be used for queue pairs. Since each queue pair
-+ * consists of at least two pages, the memory limit also dictates the
-+ * number of queue pairs a guest can create.
-  */
- #define VMCI_MAX_GUEST_QP_MEMORY (128 * 1024 * 1024)
-+#define VMCI_MAX_GUEST_QP_COUNT  (VMCI_MAX_GUEST_QP_MEMORY / PAGE_SIZE / 2)
-+
-+/*
-+ * There can be at most PAGE_SIZE doorbells since there is one doorbell
-+ * per byte in the doorbell bitmap page.
-+ */
-+#define VMCI_MAX_GUEST_DOORBELL_COUNT PAGE_SIZE
- 
- /*
-  * Queues with pre-mapped data pages must be small, so that we don't pin
 
