@@ -2,152 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49C2CE5011
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 17:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EF06E501D
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 17:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2440630AbfJYPZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 11:25:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53604 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731226AbfJYPZh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 11:25:37 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7324721D7F;
-        Fri, 25 Oct 2019 15:25:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572017135;
-        bh=dSx7rE1J+3SZP7KDCK328smpGaLJtvBgkr6tq3Ic3co=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Xz+zgHOH05B2vW4JbReW8JOD6Lt23nD/yJ+ZYTD+KjU40NB0+pMemPkD4eLfnvTtD
-         7WJhOvrQN1cak2a5Sz48zcY0iDh4F8yKh9OuIDw6sEhP+kEpow6gMycIZjgb9yfjkE
-         6rEDbqFfW5WwgWCgWFG5Zjw9eK71kUWWZKif1Sqs=
-Date:   Fri, 25 Oct 2019 11:25:34 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
-        stable <stable@vger.kernel.org>, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH for-stable-4.14 42/48] arm64: Always enable spectre-v2
- vulnerability detection
-Message-ID: <20191025152534.GF31224@sasha-vm>
-References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
- <20191024124833.4158-43-ard.biesheuvel@linaro.org>
- <b41df418-2e09-ac29-92cd-3910f0c05c50@arm.com>
- <CAKv+Gu8zW08_TKgvU4yHh=8E4_cnhx7iLoeOrYfmoy4m7ofwsA@mail.gmail.com>
+        id S2440755AbfJYP15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 11:27:57 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:37605 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2440754AbfJYP15 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 11:27:57 -0400
+Received: by mail-lf1-f68.google.com with SMTP id b20so2103090lfp.4
+        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 08:27:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=shutemov-name.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=p1Hpmsd781iQPQDBjQH17bW2u73+OuLAp5jOLLAjrpU=;
+        b=UjpzsMmefP9GXBLnHTmzYQaImtlmjwNNXQBPcTENIshdDReqiRpsXTajTZ5+KU5WOr
+         sMORwXoI9mw57B1wzSdN9dDcXPRDeKZ2E/Cwj26oupxnaWLqtZ8gjpoW3CvuTVuQQu7U
+         UipzSYuGz4Htd+a0tUdJRH9nHwoBEfud7JY0wppGc/BIWMzXb1hwTtXy7G8R117Yr4aF
+         a789TgwI+45jxxaL8wR5yp/78EU06i3pcebfatjq4+2dwfY/Wgijw8bLrDn9vASP4YBa
+         Cz+a6j1fBxpDKKljotXQqF5dP4xcCJI2v4IvM7v3awR5zJflIA/ZGIPKa32z+Q7QVf+s
+         PeWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=p1Hpmsd781iQPQDBjQH17bW2u73+OuLAp5jOLLAjrpU=;
+        b=Z7NF1vNo64gdiwVPI9do8W6pSyCVgRC5OFnMK4mC4ZefJpE/K5CYJWVjEmZaOSv4mS
+         g8OBjLO6356Y4wO10/10jH0syXlu8lk/xSVLRtlmr4dDPW7nW6eSDre9HoWtFj2jB25u
+         BBXy7qK2Kyd9Q3GxNP4tlb7EghqWl7Fl3cRh75jPqF1mtCaU25ciG7OJtoNF8P8WW7Hs
+         ylusWFw6+KoXr0qQzXP31HnQLcdKucxcRHX09VAduwkyqGQeoVzWh7CuxN3utrJyes4V
+         BBB2tHeBYQD8PEswlB5LRBaLGD6A2IUlZOHdvNMPW1doBnLudCSEWTpFX4JnvAudjZgo
+         DjKg==
+X-Gm-Message-State: APjAAAVKBAAdnU9pKXNEGTFGTONP7H6DhKOUJ739APAfsUXEFQpW0sGz
+        JZNBDmt2S8ZQ1eag/vZyOyBulQ==
+X-Google-Smtp-Source: APXvYqx8ut170aduTcnwpN2s58bh8CtaxjaBrLwb48WkUcqiuDYotYDlIZtCagLNprtwWMYn8tqYbQ==
+X-Received: by 2002:a19:c6d6:: with SMTP id w205mr2917433lff.17.1572017275214;
+        Fri, 25 Oct 2019 08:27:55 -0700 (PDT)
+Received: from box.localdomain ([86.57.175.117])
+        by smtp.gmail.com with ESMTPSA id c21sm1020556lfh.33.2019.10.25.08.27.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Oct 2019 08:27:54 -0700 (PDT)
+Received: by box.localdomain (Postfix, from userid 1000)
+        id D8B1010267F; Fri, 25 Oct 2019 18:27:53 +0300 (+03)
+Date:   Fri, 25 Oct 2019 18:27:53 +0300
+From:   "Kirill A. Shutemov" <kirill@shutemov.name>
+To:     Yang Shi <yang.shi@linux.alibaba.com>
+Cc:     hughd@google.com, aarcange@redhat.com,
+        kirill.shutemov@linux.intel.com, willy@infradead.org,
+        gavin.dg@linux.alibaba.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [v4 PATCH] mm: thp: handle page cache THP correctly in
+ PageTransCompoundMap
+Message-ID: <20191025152753.qdob7tpdnnzlje6k@box>
+References: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAKv+Gu8zW08_TKgvU4yHh=8E4_cnhx7iLoeOrYfmoy4m7ofwsA@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 24, 2019 at 04:37:12PM +0200, Ard Biesheuvel wrote:
->On Thu, 24 Oct 2019 at 16:34, Alexandru Elisei <alexandru.elisei@arm.com> wrote:
->>
->> Hi,
->>
->> On 10/24/19 1:48 PM, Ard Biesheuvel wrote:
->> > From: Jeremy Linton <jeremy.linton@arm.com>
->> >
->> > [ Upstream commit 8c1e3d2bb44cbb998cb28ff9a18f105fee7f1eb3 ]
->> >
->> > Ensure we are always able to detect whether or not the CPU is affected
->> > by Spectre-v2, so that we can later advertise this to userspace.
->> >
->> > Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
->> > Reviewed-by: Andre Przywara <andre.przywara@arm.com>
->> > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
->> > Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
->> > Signed-off-by: Will Deacon <will.deacon@arm.com>
->> > Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->> > ---
->> >  arch/arm64/kernel/cpu_errata.c | 15 ++++++++-------
->> >  1 file changed, 8 insertions(+), 7 deletions(-)
->> >
->> > diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
->> > index bf6d8aa9b45a..647c533cfd90 100644
->> > --- a/arch/arm64/kernel/cpu_errata.c
->> > +++ b/arch/arm64/kernel/cpu_errata.c
->> > @@ -76,7 +76,6 @@ cpu_enable_trap_ctr_access(const struct arm64_cpu_capabilities *__unused)
->> >       config_sctlr_el1(SCTLR_EL1_UCT, 0);
->> >  }
->> >
->> > -#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
->> >  #include <asm/mmu_context.h>
->> >  #include <asm/cacheflush.h>
->> >
->> > @@ -217,11 +216,11 @@ static int detect_harden_bp_fw(void)
->> >           ((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR_V1))
->> >               cb = qcom_link_stack_sanitization;
->> >
->> > -     install_bp_hardening_cb(cb, smccc_start, smccc_end);
->> > +     if (IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR))
->> > +             install_bp_hardening_cb(cb, smccc_start, smccc_end);
->> >
->> >       return 1;
->> >  }
->> > -#endif       /* CONFIG_HARDEN_BRANCH_PREDICTOR */
->> >
->> >  DEFINE_PER_CPU_READ_MOSTLY(u64, arm64_ssbd_callback_required);
->> >
->> > @@ -457,7 +456,6 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
->> >       .type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,                 \
->> >       CAP_MIDR_RANGE_LIST(midr_list)
->> >
->> > -#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
->> >  /*
->> >   * List of CPUs that do not need any Spectre-v2 mitigation at all.
->> >   */
->> > @@ -489,6 +487,12 @@ check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
->> >       if (!need_wa)
->> >               return false;
->> >
->> > +     if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
->> > +             pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
->> > +             __hardenbp_enab = false;
->>
->> This breaks when building, because __hardenbp_enab is declared in the next patch:
->>
->> $ make -j32 defconfig && make -j32
->>
->> [..]
->> arch/arm64/kernel/cpu_errata.c: In function ‘check_branch_predictor’:
->> arch/arm64/kernel/cpu_errata.c:492:3: error: ‘__hardenbp_enab’ undeclared (first
->> use in this function)
->>    __hardenbp_enab = false;
->>    ^~~~~~~~~~~~~~~
->> arch/arm64/kernel/cpu_errata.c:492:3: note: each undeclared identifier is reported
->> only once for each function it appears in
->> make[1]: *** [scripts/Makefile.build:326: arch/arm64/kernel/cpu_errata.o] Error 1
->> make[1]: *** Waiting for unfinished jobs....
->>
->
->Indeed, but as discussed, this matches the state of both mainline and
->v4.19, which carry these patches in the same [wrong] order as well.
->
->Greg should confirm, but as I understand it, it is preferred to be
->bug-compatible with mainline rather than fixing problems when spotting
->them while doing the backport.
+On Thu, Oct 24, 2019 at 05:19:35AM +0800, Yang Shi wrote:
+> We have usecase to use tmpfs as QEMU memory backend and we would like to
+> take the advantage of THP as well.  But, our test shows the EPT is not
+> PMD mapped even though the underlying THP are PMD mapped on host.
+> The number showed by /sys/kernel/debug/kvm/largepage is much less than
+> the number of PMD mapped shmem pages as the below:
+> 
+> 7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+> Size:            4194304 kB
+> [snip]
+> AnonHugePages:         0 kB
+> ShmemPmdMapped:   579584 kB
+> [snip]
+> Locked:                0 kB
+> 
+> cat /sys/kernel/debug/kvm/largepages
+> 12
+> 
+> And some benchmarks do worse than with anonymous THPs.
+> 
+> By digging into the code we figured out that commit 127393fbe597 ("mm:
+> thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+> there is a single PTE mapping on the page for anonymous THP when
+> setting up EPT map.  But, the _mapcount < 0 check doesn't fit to page
+> cache THP since every subpage of page cache THP would get _mapcount
+> inc'ed once it is PMD mapped, so PageTransCompoundMap() always returns
+> false for page cache THP.  This would prevent KVM from setting up PMD
+> mapped EPT entry.
+> 
+> So we need handle page cache THP correctly.  However, when page cache
+> THP's PMD gets split, kernel just remove the map instead of setting up
+> PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+> the subpages may get PTE mapped even though it is still a THP since the
+> page cache THP may be mapped by other processes at the mean time.
+> 
+> Checking its _mapcount and whether the THP has PTE mapped or not.
+> Although this may report some false negative cases (PTE mapped by other
+> processes), it looks not trivial to make this accurate.
+> 
+> With this fix /sys/kernel/debug/kvm/largepage would show reasonable
+> pages are PMD mapped by EPT as the below:
+> 
+> 7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+> Size:            4194304 kB
+> [snip]
+> AnonHugePages:         0 kB
+> ShmemPmdMapped:   557056 kB
+> [snip]
+> Locked:                0 kB
+> 
+> cat /sys/kernel/debug/kvm/largepages
+> 271
+> 
+> And the benchmarks are as same as anonymous THPs.
+> 
+> Fixes: dd78fedde4b9 ("rmap: support file thp")
+> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+> Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+> Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+> Suggested-by: Hugh Dickins <hughd@google.com>
+> Cc: Andrea Arcangeli <aarcange@redhat.com>
+> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: <stable@vger.kernel.org> 4.8+
 
-Is it just patch ordering? If so I'd rather fix it, there's no reason to
-carry this issue into the stable trees.
+Looks good to me.
 
-We reserve "bug compatibility" for functional issues that are not yet
-fixed upstream, it doesn't seem to be the case here.
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 
 -- 
-Thanks,
-Sasha
+ Kirill A. Shutemov
