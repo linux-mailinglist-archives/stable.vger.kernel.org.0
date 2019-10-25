@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8C1E4E3D
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:06:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E85E4E5A
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505139AbfJYNzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49788 "EHLO mail.kernel.org"
+        id S2436819AbfJYOG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2632758AbfJYNzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:55:44 -0400
+        id S2505138AbfJYNzq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:55:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F9C0222CB;
-        Fri, 25 Oct 2019 13:55:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3756D2084C;
+        Fri, 25 Oct 2019 13:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011743;
-        bh=tmHS6dNPbM8iY9hq0ePqUSvZvvPJdn4+Z3vB+QWrr4k=;
+        s=default; t=1572011744;
+        bh=vcEe/AZRcAACSEWJpKR8lWOXG7KeCano0noHAQBGTgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9K8+TWqbKTeXgrxBR919Jszce70V9bMIuw5tNIMP34vrrkNoCbShC3Z+rr/qGIOG
-         poCywqGq1BAv/Sw4ibKUzKxtRpujzgApBubLaibvwewerPX1vCX9W9zofyyBBovWJi
-         eqh1BA+ov/xcAM3yRCWFMk+TplZyvEZgojSyJouc=
+        b=giifTOcdoDpypXG6cgB+mrTsgkBCdeP9KL+HJUQ70nCrRrp8tzqPzviBxAlophz1+
+         Ci3jbvDRV4gvguiwtShSY+WthCXHYfhMmCbBNTGOMFMLanMuELNXWGFZgCW8gAXh4l
+         2Nn4aFbMihEGRLHFZ9oxLft/uVUw93CUN464Czxc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 24/33] ubi: ubi_wl_get_peb: Increase the number of attempts while getting PEB
-Date:   Fri, 25 Oct 2019 09:54:56 -0400
-Message-Id: <20191025135505.24762-24-sashal@kernel.org>
+Cc:     Vlad Buslov <vladbu@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 25/33] net: sched: sch_htb: don't call qdisc_put() while holding tree lock
+Date:   Fri, 25 Oct 2019 09:54:57 -0400
+Message-Id: <20191025135505.24762-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135505.24762-1-sashal@kernel.org>
 References: <20191025135505.24762-1-sashal@kernel.org>
@@ -43,98 +43,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Vlad Buslov <vladbu@mellanox.com>
 
-[ Upstream commit 8615b94f029a4fb4306d3512aaf1c45f5fc24d4b ]
+[ Upstream commit 4ce70b4aed5752332b268909336b351721965dc4 ]
 
-Running stress test io_paral (A pressure ubi test in mtd-utils) on an
-UBI device with fewer PEBs (fastmap enabled) may cause ENOSPC errors and
-make UBI device read-only, but there are still free PEBs on the UBI
-device. This problem can be easily reproduced by performing the following
-steps on a 2-core machine:
-  $ modprobe nandsim first_id_byte=0x20 second_id_byte=0x33 parts=80
-  $ modprobe ubi mtd="0,0" fm_autoconvert
-  $ ./io_paral /dev/ubi0
+Recent changes that removed rtnl dependency from rules update path of tc
+also made tcf_block_put() function sleeping. This function is called from
+ops->destroy() of several Qdisc implementations, which in turn is called by
+qdisc_put(). Some Qdiscs call qdisc_put() while holding sch tree spinlock,
+which results sleeping-while-atomic BUG.
 
-We may see the following verbose:
-(output)
-  [io_paral] update_volume():108: failed to write 380 bytes at offset
-  95920 of volume 2
-  [io_paral] update_volume():109: update: 97088 bytes
-  [io_paral] write_thread():227: function pwrite() failed with error 28
-  (No space left on device)
-  [io_paral] write_thread():229: cannot write 15872 bytes to offs 31744,
-  wrote -1
-(dmesg)
-  ubi0 error: ubi_wl_get_peb [ubi]: Unable to get a free PEB from user WL
-  pool
-  ubi0 warning: ubi_eba_write_leb [ubi]: switch to read-only mode
-  CPU: 0 PID: 2027 Comm: io_paral Not tainted 5.3.0-rc2-00001-g5986cd0 #9
-  ubi0 warning: try_write_vid_and_data [ubi]: failed to write VID header
-  to LEB 2:5, PEB 18
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0
-  -0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-    dump_stack+0x85/0xba
-    ubi_eba_write_leb+0xa1e/0xa40 [ubi]
-    vol_cdev_write+0x307/0x520 [ubi]
-    vfs_write+0xfa/0x280
-    ksys_pwrite64+0xc5/0xe0
-    __x64_sys_pwrite64+0x22/0x30
-    do_syscall_64+0xbf/0x440
+Steps to reproduce for htb:
 
-In function ubi_wl_get_peb, the operation of filling the pool
-(ubi_update_fastmap) with free PEBs and fetching a free PEB from the pool
-is not atomic. After thread A filling the pool with free PEB, free PEB may
-be taken away by thread B. When thread A checks the expression again, the
-condition is still unsatisfactory. At this time, there may still be free
-PEBs on UBI that can be filled into the pool.
+tc qdisc add dev ens1f0 root handle 1: htb default 12
+tc class add dev ens1f0 parent 1: classid 1:1 htb rate 100kbps ceil 100kbps
+tc qdisc add dev ens1f0 parent 1:1 handle 40: sfq perturb 10
+tc class add dev ens1f0 parent 1:1 classid 1:2 htb rate 100kbps ceil 100kbps
 
-This patch increases the number of attempts to obtain PEB. An extreme
-case (No free PEBs left after creating test volumes) has been tested on
-different type of machines for 100 times. The biggest number of attempts
-are shown below:
+Resulting dmesg:
 
-             x86_64     arm64
-  2-core        4         4
-  4-core        8         4
-  8-core        4         4
+[ 4791.148551] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:909
+[ 4791.151354] in_atomic(): 1, irqs_disabled(): 0, pid: 27273, name: tc
+[ 4791.152805] INFO: lockdep is turned off.
+[ 4791.153605] CPU: 19 PID: 27273 Comm: tc Tainted: G        W         5.3.0-rc8+ #721
+[ 4791.154336] Hardware name: Supermicro SYS-2028TP-DECR/X10DRT-P, BIOS 2.0b 03/30/2017
+[ 4791.155075] Call Trace:
+[ 4791.155803]  dump_stack+0x85/0xc0
+[ 4791.156529]  ___might_sleep.cold+0xac/0xbc
+[ 4791.157251]  __mutex_lock+0x5b/0x960
+[ 4791.157966]  ? console_unlock+0x363/0x5d0
+[ 4791.158676]  ? tcf_chain0_head_change_cb_del.isra.0+0x1b/0xf0
+[ 4791.159395]  ? tcf_chain0_head_change_cb_del.isra.0+0x1b/0xf0
+[ 4791.160103]  tcf_chain0_head_change_cb_del.isra.0+0x1b/0xf0
+[ 4791.160815]  tcf_block_put_ext.part.0+0x21/0x50
+[ 4791.161530]  tcf_block_put+0x50/0x70
+[ 4791.162233]  sfq_destroy+0x15/0x50 [sch_sfq]
+[ 4791.162936]  qdisc_destroy+0x5f/0x160
+[ 4791.163642]  htb_change_class.cold+0x5df/0x69d [sch_htb]
+[ 4791.164505]  tc_ctl_tclass+0x19d/0x480
+[ 4791.165360]  rtnetlink_rcv_msg+0x170/0x4b0
+[ 4791.166191]  ? netlink_deliver_tap+0x95/0x400
+[ 4791.166907]  ? rtnl_dellink+0x2d0/0x2d0
+[ 4791.167625]  netlink_rcv_skb+0x49/0x110
+[ 4791.168345]  netlink_unicast+0x171/0x200
+[ 4791.169058]  netlink_sendmsg+0x224/0x3f0
+[ 4791.169771]  sock_sendmsg+0x5e/0x60
+[ 4791.170475]  ___sys_sendmsg+0x2ae/0x330
+[ 4791.171183]  ? ___sys_recvmsg+0x159/0x1f0
+[ 4791.171894]  ? do_wp_page+0x9c/0x790
+[ 4791.172595]  ? __handle_mm_fault+0xcd3/0x19e0
+[ 4791.173309]  __sys_sendmsg+0x59/0xa0
+[ 4791.174024]  do_syscall_64+0x5c/0xb0
+[ 4791.174725]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 4791.175435] RIP: 0033:0x7f0aa41497b8
+[ 4791.176129] Code: 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 65 8f 0c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 48 83 ec 28 89 5
+4
+[ 4791.177532] RSP: 002b:00007fff4e37d588 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+[ 4791.178243] RAX: ffffffffffffffda RBX: 000000005d8132f7 RCX: 00007f0aa41497b8
+[ 4791.178947] RDX: 0000000000000000 RSI: 00007fff4e37d5f0 RDI: 0000000000000003
+[ 4791.179662] RBP: 0000000000000000 R08: 0000000000000001 R09: 00000000020149a0
+[ 4791.180382] R10: 0000000000404eda R11: 0000000000000246 R12: 0000000000000001
+[ 4791.181100] R13: 000000000047f640 R14: 0000000000000000 R15: 0000000000000000
 
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+In htb_change_class() function save parent->leaf.q to local temporary
+variable and put reference to it after sch tree lock is released in order
+not to call potentially sleeping cls API in atomic section. This is safe to
+do because Qdisc has already been reset by qdisc_purge_queue() inside sch
+tree lock critical section.
+
+Fixes: c266f64dbfa2 ("net: sched: protect block state with mutex")
+Signed-off-by: Vlad Buslov <vladbu@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/fastmap-wl.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/sched/sch_htb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
-index d9e2e3a6e105f..c44c8470247e1 100644
---- a/drivers/mtd/ubi/fastmap-wl.c
-+++ b/drivers/mtd/ubi/fastmap-wl.c
-@@ -196,7 +196,7 @@ static int produce_free_peb(struct ubi_device *ubi)
-  */
- int ubi_wl_get_peb(struct ubi_device *ubi)
- {
--	int ret, retried = 0;
-+	int ret, attempts = 0;
- 	struct ubi_fm_pool *pool = &ubi->fm_pool;
- 	struct ubi_fm_pool *wl_pool = &ubi->fm_wl_pool;
+diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
+index 7bcf20ef91453..8184c87da8bec 100644
+--- a/net/sched/sch_htb.c
++++ b/net/sched/sch_htb.c
+@@ -1302,6 +1302,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+ 	struct htb_class *cl = (struct htb_class *)*arg, *parent;
+ 	struct nlattr *opt = tca[TCA_OPTIONS];
+ 	struct nlattr *tb[TCA_HTB_MAX + 1];
++	struct Qdisc *parent_qdisc = NULL;
+ 	struct tc_htb_opt *hopt;
+ 	u64 rate64, ceil64;
+ 	int warn = 0;
+@@ -1401,7 +1402,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+ 		if (parent && !parent->level) {
+ 			/* turn parent into inner node */
+ 			qdisc_purge_queue(parent->leaf.q);
+-			qdisc_put(parent->leaf.q);
++			parent_qdisc = parent->leaf.q;
+ 			if (parent->prio_activity)
+ 				htb_deactivate(q, parent);
  
-@@ -221,12 +221,12 @@ int ubi_wl_get_peb(struct ubi_device *ubi)
+@@ -1480,6 +1481,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+ 	cl->cbuffer = PSCHED_TICKS2NS(hopt->cbuffer);
  
- 	if (pool->used == pool->size) {
- 		spin_unlock(&ubi->wl_lock);
--		if (retried) {
-+		attempts++;
-+		if (attempts == 10) {
- 			ubi_err(ubi, "Unable to get a free PEB from user WL pool");
- 			ret = -ENOSPC;
- 			goto out;
- 		}
--		retried = 1;
- 		up_read(&ubi->fm_eba_sem);
- 		ret = produce_free_peb(ubi);
- 		if (ret < 0) {
+ 	sch_tree_unlock(sch);
++	qdisc_put(parent_qdisc);
+ 
+ 	if (warn)
+ 		pr_warn("HTB: quantum of class %X is %s. Consider r2q change.\n",
 -- 
 2.20.1
 
