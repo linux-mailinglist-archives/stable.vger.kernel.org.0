@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63689E4E32
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5C2E4E38
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:06:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505190AbfJYNz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
+        id S2395315AbfJYOFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:05:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505182AbfJYNz4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:55:56 -0400
+        id S2505194AbfJYNz5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:55:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C03AB222C9;
-        Fri, 25 Oct 2019 13:55:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FC30222CD;
+        Fri, 25 Oct 2019 13:55:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011754;
-        bh=rlocA8g38g9I8z4t3d/Svrv3R3ZY2CKk7/WiK2gEcvw=;
+        s=default; t=1572011756;
+        bh=iI2WbB/rCnOHq0Uw2puFP3RXiZkcf6+ZTzmBSTYmT9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCqDzIM9KKygW74BtKRotsK9mtY07fORKLLuSlE8r5cvktIycnd7OKvjBCT38Bh6A
-         AyE0/UeTZh4V3KpxHRJKCxkO/uui5aSeJCt7DG+PPTKdSE5/OS1duPjnGT3okSbm38
-         MWqaTWHKz3l/9BEFSSAM48OdeKtI/AahMo95DuFM=
+        b=npENqa+Mm1SxruPsddlpj+5wIXAq+ysTDVKvoRk6uZxlPikfkG0K4C3VNatszz4Cz
+         aghIKSZK5z6AzHjwZabRF4o0PRE4FSCXA6Vyy9j6hKSvPi3bDvnGe1dl2KC/IrzFcF
+         Ac+0UkKuCGLCxDM8MPbTpdwyKmn2kytJB2ycLchc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xin Long <lucien.xin@gmail.com>, Ying Xu <yinxu@redhat.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 31/33] sctp: add chunks to sk_backlog when the newsk sk_socket is not set
-Date:   Fri, 25 Oct 2019 09:55:03 -0400
-Message-Id: <20191025135505.24762-31-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 32/33] ALSA: hda: Add codec on bus address table lately
+Date:   Fri, 25 Oct 2019 09:55:04 -0400
+Message-Id: <20191025135505.24762-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135505.24762-1-sashal@kernel.org>
 References: <20191025135505.24762-1-sashal@kernel.org>
@@ -46,127 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 819be8108fded0b9e710bbbf81193e52f7bab2f7 ]
+[ Upstream commit ee5f85d9290fe25d460bd320b7fe073075d72d33 ]
 
-This patch is to fix a NULL-ptr deref in selinux_socket_connect_helper:
+The call of snd_hdac_bus_add_device() is needed only for registering
+the codec onto the bus caddr_tbl[] that is referred essentially only
+in the unsol event handler.  That is, the reason of this call and the
+release by the counter-part function snd_hdac_bus_remove_device() is
+just to assure that the unsol event gets notified to the codec.
 
-  [...] kasan: GPF could be caused by NULL-ptr deref or user memory access
-  [...] RIP: 0010:selinux_socket_connect_helper+0x94/0x460
-  [...] Call Trace:
-  [...]  selinux_sctp_bind_connect+0x16a/0x1d0
-  [...]  security_sctp_bind_connect+0x58/0x90
-  [...]  sctp_process_asconf+0xa52/0xfd0 [sctp]
-  [...]  sctp_sf_do_asconf+0x785/0x980 [sctp]
-  [...]  sctp_do_sm+0x175/0x5a0 [sctp]
-  [...]  sctp_assoc_bh_rcv+0x285/0x5b0 [sctp]
-  [...]  sctp_backlog_rcv+0x482/0x910 [sctp]
-  [...]  __release_sock+0x11e/0x310
-  [...]  release_sock+0x4f/0x180
-  [...]  sctp_accept+0x3f9/0x5a0 [sctp]
-  [...]  inet_accept+0xe7/0x720
+But the current implementation of the unsol notification wouldn't work
+properly when the codec is still in a premature init state.  So this
+patch tries to work around it by delaying the caddr_tbl[] registration
+at the point of snd_hdac_device_register().
 
-It was caused by that the 'newsk' sk_socket was not set before going to
-security sctp hook when processing asconf chunk with SCTP_PARAM_ADD_IP
-or SCTP_PARAM_SET_PRIMARY:
+Also, the order of snd_hdac_bus_remove_device() and device_del() calls
+are shuffled to make sure that the unsol event is masked before
+deleting the device.
 
-  inet_accept()->
-    sctp_accept():
-      lock_sock():
-          lock listening 'sk'
-                                          do_softirq():
-                                            sctp_rcv():  <-- [1]
-                                                asconf chunk arrives and
-                                                enqueued in 'sk' backlog
-      sctp_sock_migrate():
-          set asoc's sk to 'newsk'
-      release_sock():
-          sctp_backlog_rcv():
-            lock 'newsk'
-            sctp_process_asconf()  <-- [2]
-            unlock 'newsk'
-    sock_graft():
-        set sk_socket  <-- [3]
-
-As it shows, at [1] the asconf chunk would be put into the listening 'sk'
-backlog, as accept() was holding its sock lock. Then at [2] asconf would
-get processed with 'newsk' as asoc's sk had been set to 'newsk'. However,
-'newsk' sk_socket is not set until [3], while selinux_sctp_bind_connect()
-would deref it, then kernel crashed.
-
-Here to fix it by adding the chunk to sk_backlog until newsk sk_socket is
-set when .accept() is done.
-
-Note that sk->sk_socket can be NULL when the sock is closed, so SOCK_DEAD
-flag is also needed to check in sctp_newsk_ready().
-
-Thanks to Ondrej for reviewing the code.
-
-Fixes: d452930fd3b9 ("selinux: Add SCTP support")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Suggested-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204565
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/sctp.h |  5 +++++
- net/sctp/input.c        | 12 +++++++++---
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ sound/hda/hdac_device.c | 21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
-index 5d60f13d2347b..3ab5c6bbb90bd 100644
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -610,4 +610,9 @@ static inline __u32 sctp_min_frag_point(struct sctp_sock *sp, __u16 datasize)
- 	return sctp_mtu_payload(sp, SCTP_DEFAULT_MINSEGMENT, datasize);
- }
+diff --git a/sound/hda/hdac_device.c b/sound/hda/hdac_device.c
+index b26cc93e7e103..033bcef8751a8 100644
+--- a/sound/hda/hdac_device.c
++++ b/sound/hda/hdac_device.c
+@@ -61,10 +61,6 @@ int snd_hdac_device_init(struct hdac_device *codec, struct hdac_bus *bus,
+ 	pm_runtime_get_noresume(&codec->dev);
+ 	atomic_set(&codec->in_pm, 0);
  
-+static inline bool sctp_newsk_ready(const struct sock *sk)
-+{
-+	return sock_flag(sk, SOCK_DEAD) || sk->sk_socket;
-+}
+-	err = snd_hdac_bus_add_device(bus, codec);
+-	if (err < 0)
+-		goto error;
+-
+ 	/* fill parameters */
+ 	codec->vendor_id = snd_hdac_read_parm(codec, AC_NODE_ROOT,
+ 					      AC_PAR_VENDOR_ID);
+@@ -143,15 +139,22 @@ int snd_hdac_device_register(struct hdac_device *codec)
+ 	err = device_add(&codec->dev);
+ 	if (err < 0)
+ 		return err;
++	err = snd_hdac_bus_add_device(codec->bus, codec);
++	if (err < 0)
++		goto error;
+ 	mutex_lock(&codec->widget_lock);
+ 	err = hda_widget_sysfs_init(codec);
+ 	mutex_unlock(&codec->widget_lock);
+-	if (err < 0) {
+-		device_del(&codec->dev);
+-		return err;
+-	}
++	if (err < 0)
++		goto error_remove;
+ 
+ 	return 0;
 +
- #endif /* __net_sctp_h__ */
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 1008cdc44dd61..156e24ad54ea4 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -243,7 +243,7 @@ int sctp_rcv(struct sk_buff *skb)
- 		bh_lock_sock(sk);
++ error_remove:
++	snd_hdac_bus_remove_device(codec->bus, codec);
++ error:
++	device_del(&codec->dev);
++	return err;
+ }
+ EXPORT_SYMBOL_GPL(snd_hdac_device_register);
+ 
+@@ -165,8 +168,8 @@ void snd_hdac_device_unregister(struct hdac_device *codec)
+ 		mutex_lock(&codec->widget_lock);
+ 		hda_widget_sysfs_exit(codec);
+ 		mutex_unlock(&codec->widget_lock);
+-		device_del(&codec->dev);
+ 		snd_hdac_bus_remove_device(codec->bus, codec);
++		device_del(&codec->dev);
  	}
- 
--	if (sock_owned_by_user(sk)) {
-+	if (sock_owned_by_user(sk) || !sctp_newsk_ready(sk)) {
- 		if (sctp_add_backlog(sk, skb)) {
- 			bh_unlock_sock(sk);
- 			sctp_chunk_free(chunk);
-@@ -321,7 +321,7 @@ int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb)
- 		local_bh_disable();
- 		bh_lock_sock(sk);
- 
--		if (sock_owned_by_user(sk)) {
-+		if (sock_owned_by_user(sk) || !sctp_newsk_ready(sk)) {
- 			if (sk_add_backlog(sk, skb, sk->sk_rcvbuf))
- 				sctp_chunk_free(chunk);
- 			else
-@@ -336,7 +336,13 @@ int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb)
- 		if (backloged)
- 			return 0;
- 	} else {
--		sctp_inq_push(inqueue, chunk);
-+		if (!sctp_newsk_ready(sk)) {
-+			if (!sk_add_backlog(sk, skb, sk->sk_rcvbuf))
-+				return 0;
-+			sctp_chunk_free(chunk);
-+		} else {
-+			sctp_inq_push(inqueue, chunk);
-+		}
- 	}
- 
- done:
+ }
+ EXPORT_SYMBOL_GPL(snd_hdac_device_unregister);
 -- 
 2.20.1
 
