@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09940E4D30
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F135FE4D34
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505571AbfJYN61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
+        id S2505641AbfJYN6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505559AbfJYN60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:26 -0400
+        id S2505629AbfJYN6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:38 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 340DF222C4;
-        Fri, 25 Oct 2019 13:58:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71A6422468;
+        Fri, 25 Oct 2019 13:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011905;
-        bh=BW/7LX13A/wIKysvZrjp8mcwIsSHN7h+36idyLK+kKg=;
+        s=default; t=1572011917;
+        bh=ScSf29wy/z0+TqMEs+UGzGHvGOs5YW8Cj1Ywt+/gRoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTalfNo7QfH1YID05JvafRk/CFNP90mDIcbaKwGrUxcfvwD0potYpYQ/iwzoN573u
-         qQ8JFnP9vO0f66Rl7kRePjCfaZSu43PBXjArVMUJBZAj2Kzj9UqGtDpscISDl2At9B
-         oVeXk70OsAM67ZpW3if9hvzzO5QeASs2St5mmaUA=
+        b=p2fzwRdEHT/6RBAZthGTFE8jBgVXAEx4eT64WA0OSThSPSkHc3yVHEJbdC+MGGpkm
+         y1XzcI92KwTftWlOFETwkq8ov8COPNyhQGghvDaWnA0XvGARf7rLgeD5A293dUZfDa
+         OrLa6iwcRWc6ReMopCtveLVFxkgmKDV99hE8kXa8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        syzbot+6b825a6494a04cc0e3f7@syzkaller.appspotmail.com,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
+Cc:     David Ahern <dsahern@gmail.com>,
+        Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/20] llc: fix sk_buff leak in llc_conn_service()
-Date:   Fri, 25 Oct 2019 09:57:51 -0400
-Message-Id: <20191025135801.25739-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 19/20] ipv6: Handle race in addrconf_dad_work
+Date:   Fri, 25 Oct 2019 09:57:59 -0400
+Message-Id: <20191025135801.25739-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
 References: <20191025135801.25739-1-sashal@kernel.org>
@@ -44,193 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: David Ahern <dsahern@gmail.com>
 
-[ Upstream commit b74555de21acd791f12c4a1aeaf653dd7ac21133 ]
+[ Upstream commit a3ce2a21bb8969ae27917281244fa91bf5f286d7 ]
 
-syzbot reported:
+Rajendra reported a kernel panic when a link was taken down:
 
-    BUG: memory leak
-    unreferenced object 0xffff88811eb3de00 (size 224):
-       comm "syz-executor559", pid 7315, jiffies 4294943019 (age 10.300s)
-       hex dump (first 32 bytes):
-         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-         00 a0 38 24 81 88 ff ff 00 c0 f2 15 81 88 ff ff  ..8$............
-       backtrace:
-         [<000000008d1c66a1>] kmemleak_alloc_recursive  include/linux/kmemleak.h:55 [inline]
-         [<000000008d1c66a1>] slab_post_alloc_hook mm/slab.h:439 [inline]
-         [<000000008d1c66a1>] slab_alloc_node mm/slab.c:3269 [inline]
-         [<000000008d1c66a1>] kmem_cache_alloc_node+0x153/0x2a0 mm/slab.c:3579
-         [<00000000447d9496>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:198
-         [<000000000cdbf82f>] alloc_skb include/linux/skbuff.h:1058 [inline]
-         [<000000000cdbf82f>] llc_alloc_frame+0x66/0x110 net/llc/llc_sap.c:54
-         [<000000002418b52e>] llc_conn_ac_send_sabme_cmd_p_set_x+0x2f/0x140  net/llc/llc_c_ac.c:777
-         [<000000001372ae17>] llc_exec_conn_trans_actions net/llc/llc_conn.c:475  [inline]
-         [<000000001372ae17>] llc_conn_service net/llc/llc_conn.c:400 [inline]
-         [<000000001372ae17>] llc_conn_state_process+0x1ac/0x640  net/llc/llc_conn.c:75
-         [<00000000f27e53c1>] llc_establish_connection+0x110/0x170  net/llc/llc_if.c:109
-         [<00000000291b2ca0>] llc_ui_connect+0x10e/0x370 net/llc/af_llc.c:477
-         [<000000000f9c740b>] __sys_connect+0x11d/0x170 net/socket.c:1840
-         [...]
+[ 6870.263084] BUG: unable to handle kernel NULL pointer dereference at 00000000000000a8
+[ 6870.271856] IP: [<ffffffff8efc5764>] __ipv6_ifa_notify+0x154/0x290
 
-The bug is that most callers of llc_conn_send_pdu() assume it consumes a
-reference to the skb, when actually due to commit b85ab56c3f81 ("llc:
-properly handle dev_queue_xmit() return value") it doesn't.
+<snip>
 
-Revert most of that commit, and instead make the few places that need
-llc_conn_send_pdu() to *not* consume a reference call skb_get() before.
+[ 6870.570501] Call Trace:
+[ 6870.573238] [<ffffffff8efc58c6>] ? ipv6_ifa_notify+0x26/0x40
+[ 6870.579665] [<ffffffff8efc98ec>] ? addrconf_dad_completed+0x4c/0x2c0
+[ 6870.586869] [<ffffffff8efe70c6>] ? ipv6_dev_mc_inc+0x196/0x260
+[ 6870.593491] [<ffffffff8efc9c6a>] ? addrconf_dad_work+0x10a/0x430
+[ 6870.600305] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
+[ 6870.606732] [<ffffffff8ea93a7a>] ? process_one_work+0x18a/0x430
+[ 6870.613449] [<ffffffff8ea93d6d>] ? worker_thread+0x4d/0x490
+[ 6870.619778] [<ffffffff8ea93d20>] ? process_one_work+0x430/0x430
+[ 6870.626495] [<ffffffff8ea99dd9>] ? kthread+0xd9/0xf0
+[ 6870.632145] [<ffffffff8f01ade4>] ? __switch_to_asm+0x34/0x70
+[ 6870.638573] [<ffffffff8ea99d00>] ? kthread_park+0x60/0x60
+[ 6870.644707] [<ffffffff8f01ae77>] ? ret_from_fork+0x57/0x70
+[ 6870.650936] Code: 31 c0 31 d2 41 b9 20 00 08 02 b9 09 00 00 0
 
-Fixes: b85ab56c3f81 ("llc: properly handle dev_queue_xmit() return value")
-Reported-by: syzbot+6b825a6494a04cc0e3f7@syzkaller.appspotmail.com
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+addrconf_dad_work is kicked to be scheduled when a device is brought
+up. There is a race between addrcond_dad_work getting scheduled and
+taking the rtnl lock and a process taking the link down (under rtnl).
+The latter removes the host route from the inet6_addr as part of
+addrconf_ifdown which is run for NETDEV_DOWN. The former attempts
+to use the host route in ipv6_ifa_notify. If the down event removes
+the host route due to the race to the rtnl, then the BUG listed above
+occurs.
+
+This scenario does not occur when the ipv6 address is not kept
+(net.ipv6.conf.all.keep_addr_on_down = 0) as addrconf_ifdown sets the
+state of the ifp to DEAD. Handle when the addresses are kept by checking
+IF_READY which is reset by addrconf_ifdown.
+
+The 'dead' flag for an inet6_addr is set only under rtnl, in
+addrconf_ifdown and it means the device is getting removed (or IPv6 is
+disabled). The interesting cases for changing the idev flag are
+addrconf_notify (NETDEV_UP and NETDEV_CHANGE) and addrconf_ifdown
+(reset the flag). The former does not have the idev lock - only rtnl;
+the latter has both. Based on that the existing dead + IF_READY check
+can be moved to right after the rtnl_lock in addrconf_dad_work.
+
+Fixes: f1705ec197e7 ("net: ipv6: Make address flushing on ifdown optional")
+Reported-by: Rajendra Dendukuri <rajendra.dendukuri@broadcom.com>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc_conn.h |  2 +-
- net/llc/llc_c_ac.c     |  8 ++++++--
- net/llc/llc_conn.c     | 32 +++++++++-----------------------
- 3 files changed, 16 insertions(+), 26 deletions(-)
+ net/ipv6/addrconf.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/llc_conn.h b/include/net/llc_conn.h
-index df528a6235487..ea985aa7a6c5e 100644
---- a/include/net/llc_conn.h
-+++ b/include/net/llc_conn.h
-@@ -104,7 +104,7 @@ void llc_sk_reset(struct sock *sk);
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 6b1310d5e8087..61fd8ff922d97 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3859,6 +3859,12 @@ static void addrconf_dad_work(struct work_struct *w)
  
- /* Access to a connection */
- int llc_conn_state_process(struct sock *sk, struct sk_buff *skb);
--int llc_conn_send_pdu(struct sock *sk, struct sk_buff *skb);
-+void llc_conn_send_pdu(struct sock *sk, struct sk_buff *skb);
- void llc_conn_rtn_pdu(struct sock *sk, struct sk_buff *skb);
- void llc_conn_resend_i_pdu_as_cmd(struct sock *sk, u8 nr, u8 first_p_bit);
- void llc_conn_resend_i_pdu_as_rsp(struct sock *sk, u8 nr, u8 first_f_bit);
-diff --git a/net/llc/llc_c_ac.c b/net/llc/llc_c_ac.c
-index 4b60f68cb4925..8354ae40ec85b 100644
---- a/net/llc/llc_c_ac.c
-+++ b/net/llc/llc_c_ac.c
-@@ -372,6 +372,7 @@ int llc_conn_ac_send_i_cmd_p_set_1(struct sock *sk, struct sk_buff *skb)
- 	llc_pdu_init_as_i_cmd(skb, 1, llc->vS, llc->vR);
- 	rc = llc_mac_hdr_init(skb, llc->dev->dev_addr, llc->daddr.mac);
- 	if (likely(!rc)) {
-+		skb_get(skb);
- 		llc_conn_send_pdu(sk, skb);
- 		llc_conn_ac_inc_vs_by_1(sk, skb);
- 	}
-@@ -389,7 +390,8 @@ static int llc_conn_ac_send_i_cmd_p_set_0(struct sock *sk, struct sk_buff *skb)
- 	llc_pdu_init_as_i_cmd(skb, 0, llc->vS, llc->vR);
- 	rc = llc_mac_hdr_init(skb, llc->dev->dev_addr, llc->daddr.mac);
- 	if (likely(!rc)) {
--		rc = llc_conn_send_pdu(sk, skb);
-+		skb_get(skb);
-+		llc_conn_send_pdu(sk, skb);
- 		llc_conn_ac_inc_vs_by_1(sk, skb);
- 	}
- 	return rc;
-@@ -406,6 +408,7 @@ int llc_conn_ac_send_i_xxx_x_set_0(struct sock *sk, struct sk_buff *skb)
- 	llc_pdu_init_as_i_cmd(skb, 0, llc->vS, llc->vR);
- 	rc = llc_mac_hdr_init(skb, llc->dev->dev_addr, llc->daddr.mac);
- 	if (likely(!rc)) {
-+		skb_get(skb);
- 		llc_conn_send_pdu(sk, skb);
- 		llc_conn_ac_inc_vs_by_1(sk, skb);
- 	}
-@@ -916,7 +919,8 @@ static int llc_conn_ac_send_i_rsp_f_set_ackpf(struct sock *sk,
- 	llc_pdu_init_as_i_cmd(skb, llc->ack_pf, llc->vS, llc->vR);
- 	rc = llc_mac_hdr_init(skb, llc->dev->dev_addr, llc->daddr.mac);
- 	if (likely(!rc)) {
--		rc = llc_conn_send_pdu(sk, skb);
-+		skb_get(skb);
-+		llc_conn_send_pdu(sk, skb);
- 		llc_conn_ac_inc_vs_by_1(sk, skb);
- 	}
- 	return rc;
-diff --git a/net/llc/llc_conn.c b/net/llc/llc_conn.c
-index b9290a183a2fd..94c78cc49d3e0 100644
---- a/net/llc/llc_conn.c
-+++ b/net/llc/llc_conn.c
-@@ -30,7 +30,7 @@
- #endif
+ 	rtnl_lock();
  
- static int llc_find_offset(int state, int ev_type);
--static int llc_conn_send_pdus(struct sock *sk, struct sk_buff *skb);
-+static void llc_conn_send_pdus(struct sock *sk);
- static int llc_conn_service(struct sock *sk, struct sk_buff *skb);
- static int llc_exec_conn_trans_actions(struct sock *sk,
- 				       struct llc_conn_state_trans *trans,
-@@ -193,11 +193,11 @@ int llc_conn_state_process(struct sock *sk, struct sk_buff *skb)
- 	return rc;
- }
++	/* check if device was taken down before this delayed work
++	 * function could be canceled
++	 */
++	if (idev->dead || !(idev->if_flags & IF_READY))
++		goto out;
++
+ 	spin_lock_bh(&ifp->lock);
+ 	if (ifp->state == INET6_IFADDR_STATE_PREDAD) {
+ 		action = DAD_BEGIN;
+@@ -3902,11 +3908,6 @@ static void addrconf_dad_work(struct work_struct *w)
+ 		goto out;
  
--int llc_conn_send_pdu(struct sock *sk, struct sk_buff *skb)
-+void llc_conn_send_pdu(struct sock *sk, struct sk_buff *skb)
- {
- 	/* queue PDU to send to MAC layer */
- 	skb_queue_tail(&sk->sk_write_queue, skb);
--	return llc_conn_send_pdus(sk, skb);
-+	llc_conn_send_pdus(sk);
- }
- 
- /**
-@@ -255,7 +255,7 @@ void llc_conn_resend_i_pdu_as_cmd(struct sock *sk, u8 nr, u8 first_p_bit)
- 	if (howmany_resend > 0)
- 		llc->vS = (llc->vS + 1) % LLC_2_SEQ_NBR_MODULO;
- 	/* any PDUs to re-send are queued up; start sending to MAC */
--	llc_conn_send_pdus(sk, NULL);
-+	llc_conn_send_pdus(sk);
- out:;
- }
- 
-@@ -296,7 +296,7 @@ void llc_conn_resend_i_pdu_as_rsp(struct sock *sk, u8 nr, u8 first_f_bit)
- 	if (howmany_resend > 0)
- 		llc->vS = (llc->vS + 1) % LLC_2_SEQ_NBR_MODULO;
- 	/* any PDUs to re-send are queued up; start sending to MAC */
--	llc_conn_send_pdus(sk, NULL);
-+	llc_conn_send_pdus(sk);
- out:;
- }
- 
-@@ -340,16 +340,12 @@ int llc_conn_remove_acked_pdus(struct sock *sk, u8 nr, u16 *how_many_unacked)
- /**
-  *	llc_conn_send_pdus - Sends queued PDUs
-  *	@sk: active connection
-- *	@hold_skb: the skb held by caller, or NULL if does not care
-  *
-- *	Sends queued pdus to MAC layer for transmission. When @hold_skb is
-- *	NULL, always return 0. Otherwise, return 0 if @hold_skb is sent
-- *	successfully, or 1 for failure.
-+ *	Sends queued pdus to MAC layer for transmission.
-  */
--static int llc_conn_send_pdus(struct sock *sk, struct sk_buff *hold_skb)
-+static void llc_conn_send_pdus(struct sock *sk)
- {
- 	struct sk_buff *skb;
--	int ret = 0;
- 
- 	while ((skb = skb_dequeue(&sk->sk_write_queue)) != NULL) {
- 		struct llc_pdu_sn *pdu = llc_pdu_sn_hdr(skb);
-@@ -361,20 +357,10 @@ static int llc_conn_send_pdus(struct sock *sk, struct sk_buff *hold_skb)
- 			skb_queue_tail(&llc_sk(sk)->pdu_unack_q, skb);
- 			if (!skb2)
- 				break;
--			dev_queue_xmit(skb2);
--		} else {
--			bool is_target = skb == hold_skb;
--			int rc;
+ 	write_lock_bh(&idev->lock);
+-	if (idev->dead || !(idev->if_flags & IF_READY)) {
+-		write_unlock_bh(&idev->lock);
+-		goto out;
+-	}
 -
--			if (is_target)
--				skb_get(skb);
--			rc = dev_queue_xmit(skb);
--			if (is_target)
--				ret = rc;
-+			skb = skb2;
- 		}
-+		dev_queue_xmit(skb);
- 	}
--
--	return ret;
- }
- 
- /**
+ 	spin_lock(&ifp->lock);
+ 	if (ifp->state == INET6_IFADDR_STATE_DEAD) {
+ 		spin_unlock(&ifp->lock);
 -- 
 2.20.1
 
