@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 006ADE51C6
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A01C2E51C3
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502605AbfJYQ6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 12:58:49 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:52584 "EHLO
+        id S2633165AbfJYQ6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 12:58:43 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:52552 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502697AbfJYQ6s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:58:48 -0400
+        with ESMTP id S2633205AbfJYQ6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:58:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
         :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
         :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
         List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=pk4rypmrAfY4xpILQlQ30a4jf6o0DynBvY1h0NkgB/g=; b=oel9JNQz5B8TNCTzVZREXzveCR
-        cvdyf3ojc7dDg8dqUCKusuhT1dihcGNz2H/9RPmaXUKl76Wagz2zL6ZP8InJD8CPGOQ2A5g41IFg8
-        gNB4wbQx7wbMKLjgGXOchxMTYf1djv0L1ohcukw0vp6zI5iYp641TaE6DVY2m34rwQyK/NnFMjoId
-        SQRb55X60E+RF20fOHc4Rz19ParFmtGjIo+bhEr5E5ZWhZpc7sQJqlQMIeuRfTqSYeydK5DO4CiiA
-        Z1fOE7FKq26EnAurYyiGjXnxs1zg15OxVcphVaaymwCd506ooL21ht8mv5FC19BFTCKXMCso3Tu1I
-        63ZCHSkA==;
+        bh=Wejj4YDuFBieWTfEnryAKtLiguxP06R4UGh792ln0q8=; b=KGyw+Lj0qWElDjjXqqBba5V0MY
+        RzaedsULbE9fxo9msmxp8OzO9LuHY/wzcjMvdR99PAMx4W5Z8kC8SshgeH9GuLdpdUfrs3T6l8uUS
+        2hTqkgeKzQ6e4FnlFeVrkWHmcaJ1eCioHTOw+Xi0+gJ6f7e3ZFsf6GWfyXL6ouYsIdd7CmHlOKDTk
+        r9ESVgxHVvhejo5LZQj+vM2Cf7sz4YGoSKtV4ajEwO2dvGS0LYCljg945zHatLRhKSdKUdXedS1VQ
+        VgI61XFxjBvA1QCr2WmXjckQhr9JXgavFMipFU8AgkRxzwk9ZXXeZ2fKQhmOVGHHcgm547jyuJEW0
+        SB9RVEvQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iO2vB-00061w-J0; Fri, 25 Oct 2019 16:58:41 +0000
+        id 1iO2vB-000620-Jz; Fri, 25 Oct 2019 16:58:41 +0000
 From:   Matthew Wilcox <willy@infradead.org>
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
         dh.herrmann@gmail.com, linux-mm@kvack.org, zhongjiang@huawei.com
 Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 4.9] memfd: Fix locking when tagging pins
-Date:   Fri, 25 Oct 2019 09:58:36 -0700
-Message-Id: <20191025165837.22979-3-willy@infradead.org>
+Subject: [PATCH 4.4] memfd: Fix locking when tagging pins
+Date:   Fri, 25 Oct 2019 09:58:37 -0700
+Message-Id: <20191025165837.22979-4-willy@infradead.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20191025165837.22979-1-willy@infradead.org>
 References: <20191025165837.22979-1-willy@infradead.org>
@@ -84,14 +84,14 @@ Cc: stable@vger.kernel.org
 Reported-by: zhong jiang <zhongjiang@huawei.com>
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- mm/shmem.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ mm/shmem.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
 diff --git a/mm/shmem.c b/mm/shmem.c
-index 944242491059..ac8a5fedc245 100644
+index f11aec40f2e1..62668379623b 100644
 --- a/mm/shmem.c
 +++ b/mm/shmem.c
-@@ -2457,11 +2457,12 @@ static void shmem_tag_pins(struct address_space *mapping)
+@@ -1854,11 +1854,12 @@ static void shmem_tag_pins(struct address_space *mapping)
  	void **slot;
  	pgoff_t start;
  	struct page *page;
@@ -102,12 +102,12 @@ index 944242491059..ac8a5fedc245 100644
 -	rcu_read_lock();
  
 +	spin_lock_irq(&mapping->tree_lock);
+ restart:
  	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
  		page = radix_tree_deref_slot(slot);
- 		if (!page || radix_tree_exception(page)) {
-@@ -2470,18 +2471,19 @@ static void shmem_tag_pins(struct address_space *mapping)
- 				continue;
- 			}
+@@ -1866,19 +1867,20 @@ restart:
+ 			if (radix_tree_deref_retry(page))
+ 				goto restart;
  		} else if (page_count(page) - page_mapcount(page) > 1) {
 -			spin_lock_irq(&mapping->tree_lock);
  			radix_tree_tag_set(&mapping->page_tree, iter.index,
@@ -117,15 +117,17 @@ index 944242491059..ac8a5fedc245 100644
  
 -		if (need_resched()) {
 -			cond_resched_rcu();
--			slot = radix_tree_iter_next(&iter);
+-			start = iter.index + 1;
+-			goto restart;
 -		}
 +		if (++tagged % 1024)
 +			continue;
 +
-+		slot = radix_tree_iter_next(&iter);
 +		spin_unlock_irq(&mapping->tree_lock);
 +		cond_resched();
++		start = iter.index + 1;
 +		spin_lock_irq(&mapping->tree_lock);
++		goto restart;
  	}
 -	rcu_read_unlock();
 +	spin_unlock_irq(&mapping->tree_lock);
