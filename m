@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A37E4D1D
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9FAEE4D2B
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 15:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505443AbfJYN6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
+        id S2505503AbfJYN6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505438AbfJYN6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:00 -0400
+        id S1732654AbfJYN6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2995721E6F;
-        Fri, 25 Oct 2019 13:57:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BCE79222BE;
+        Fri, 25 Oct 2019 13:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011879;
-        bh=kg3I6XAl43kpIssCoiead1gOzFH9ZyHlPFJo5xIoQXg=;
+        s=default; t=1572011892;
+        bh=KWU7BHtW1MjfF5bDFuWkOZ9ClbP7k9UzxG8j4pcmr1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCcQkFu4EPYF2xr/X5h8RbHacTovJY+3f0h8pDfvk2fEfX06TYRnUs8q+QPi26qpc
-         f2URJbj9JS/2h/1foDjGaIAAPfVGn3O+hcZ96OPrH06zaZGLNm97C3h1o24VvWMYwE
-         +nM0pIBdm970U+jmp2T5qHUsQ52qldHEDkTUyaww=
+        b=GVFj28ukSLkya+ZoN4WpxTlOcKHrgBkYK+uhDx6kl3rNsNNwSF7spuw49BZSS+A2Y
+         /Uuyf0rHhcWa2WA6eOlKYlvV92vLSdvRYAgBQq/fulKt/Jsn4pUpMfLqPIt8zD82ph
+         d4t1jWOSLXE5KJl7DP+YqgCzZdyOHkli8ha+KL70=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        AceLan Kao <acelan.kao@canonical.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.14 25/25] bdi: Do not use freezable workqueue
-Date:   Fri, 25 Oct 2019 09:57:13 -0400
-Message-Id: <20191025135715.25468-25-sashal@kernel.org>
+Cc:     Daniel Axtens <dja@axtens.net>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 05/20] powerpc/pseries/hvconsole: Fix stack overread via udbg
+Date:   Fri, 25 Oct 2019 09:57:45 -0400
+Message-Id: <20191025135801.25739-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
-References: <20191025135715.25468-1-sashal@kernel.org>
+In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
+References: <20191025135801.25739-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,84 +43,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Daniel Axtens <dja@axtens.net>
 
-[ Upstream commit a2b90f11217790ec0964ba9c93a4abb369758c26 ]
+[ Upstream commit 934bda59f286d0221f1a3ebab7f5156a996cc37d ]
 
-A removable block device, such as NVMe or SSD connected over Thunderbolt
-can be hot-removed any time including when the system is suspended. When
-device is hot-removed during suspend and the system gets resumed, kernel
-first resumes devices and then thaws the userspace including freezable
-workqueues. What happens in that case is that the NVMe driver notices
-that the device is unplugged and removes it from the system. This ends
-up calling bdi_unregister() for the gendisk which then schedules
-wb_workfn() to be run one more time.
+While developing KASAN for 64-bit book3s, I hit the following stack
+over-read.
 
-However, since the bdi_wq is still frozen flush_delayed_work() call in
-wb_shutdown() blocks forever halting system resume process. User sees
-this as hang as nothing is happening anymore.
+It occurs because the hypercall to put characters onto the terminal
+takes 2 longs (128 bits/16 bytes) of characters at a time, and so
+hvc_put_chars() would unconditionally copy 16 bytes from the argument
+buffer, regardless of supplied length. However, udbg_hvc_putc() can
+call hvc_put_chars() with a single-byte buffer, leading to the error.
 
-Triggering sysrq-w reveals this:
+  ==================================================================
+  BUG: KASAN: stack-out-of-bounds in hvc_put_chars+0xdc/0x110
+  Read of size 8 at addr c0000000023e7a90 by task swapper/0
 
-  Workqueue: nvme-wq nvme_remove_dead_ctrl_work [nvme]
+  CPU: 0 PID: 0 Comm: swapper Not tainted 5.2.0-rc2-next-20190528-02824-g048a6ab4835b #113
   Call Trace:
-   ? __schedule+0x2c5/0x630
-   ? wait_for_completion+0xa4/0x120
-   schedule+0x3e/0xc0
-   schedule_timeout+0x1c9/0x320
-   ? resched_curr+0x1f/0xd0
-   ? wait_for_completion+0xa4/0x120
-   wait_for_completion+0xc3/0x120
-   ? wake_up_q+0x60/0x60
-   __flush_work+0x131/0x1e0
-   ? flush_workqueue_prep_pwqs+0x130/0x130
-   bdi_unregister+0xb9/0x130
-   del_gendisk+0x2d2/0x2e0
-   nvme_ns_remove+0xed/0x110 [nvme_core]
-   nvme_remove_namespaces+0x96/0xd0 [nvme_core]
-   nvme_remove+0x5b/0x160 [nvme]
-   pci_device_remove+0x36/0x90
-   device_release_driver_internal+0xdf/0x1c0
-   nvme_remove_dead_ctrl_work+0x14/0x30 [nvme]
-   process_one_work+0x1c2/0x3f0
-   worker_thread+0x48/0x3e0
-   kthread+0x100/0x140
-   ? current_work+0x30/0x30
-   ? kthread_park+0x80/0x80
-   ret_from_fork+0x35/0x40
+    dump_stack+0x104/0x154 (unreliable)
+    print_address_description+0xa0/0x30c
+    __kasan_report+0x20c/0x224
+    kasan_report+0x18/0x30
+    __asan_report_load8_noabort+0x24/0x40
+    hvc_put_chars+0xdc/0x110
+    hvterm_raw_put_chars+0x9c/0x110
+    udbg_hvc_putc+0x154/0x200
+    udbg_write+0xf0/0x240
+    console_unlock+0x868/0xd30
+    register_console+0x970/0xe90
+    register_early_udbg_console+0xf8/0x114
+    setup_arch+0x108/0x790
+    start_kernel+0x104/0x784
+    start_here_common+0x1c/0x534
 
-This is not limited to NVMes so exactly same issue can be reproduced by
-hot-removing SSD (over Thunderbolt) while the system is suspended.
+  Memory state around the buggy address:
+   c0000000023e7980: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1
+  >c0000000023e7a80: f1 f1 01 f2 f2 f2 00 00 00 00 00 00 00 00 00 00
+                           ^
+   c0000000023e7b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+   c0000000023e7b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  ==================================================================
 
-Prevent this from happening by removing WQ_FREEZABLE from bdi_wq.
+Document that a 16-byte buffer is requred, and provide it in udbg.
 
-Reported-by: AceLan Kao <acelan.kao@canonical.com>
-Link: https://marc.info/?l=linux-kernel&m=138695698516487
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=204385
-Link: https://lore.kernel.org/lkml/20191002122136.GD2819@lahna.fi.intel.com/#t
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/backing-dev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/hvconsole.c |  2 +-
+ drivers/tty/hvc/hvc_vio.c                  | 16 +++++++++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/mm/backing-dev.c b/mm/backing-dev.c
-index 6fa31754eadd9..e38655f1d7794 100644
---- a/mm/backing-dev.c
-+++ b/mm/backing-dev.c
-@@ -246,8 +246,8 @@ static int __init default_bdi_init(void)
+diff --git a/arch/powerpc/platforms/pseries/hvconsole.c b/arch/powerpc/platforms/pseries/hvconsole.c
+index 74da18de853af..73ec15cd27080 100644
+--- a/arch/powerpc/platforms/pseries/hvconsole.c
++++ b/arch/powerpc/platforms/pseries/hvconsole.c
+@@ -62,7 +62,7 @@ EXPORT_SYMBOL(hvc_get_chars);
+  * @vtermno: The vtermno or unit_address of the adapter from which the data
+  *	originated.
+  * @buf: The character buffer that contains the character data to send to
+- *	firmware.
++ *	firmware. Must be at least 16 bytes, even if count is less than 16.
+  * @count: Send this number of characters.
+  */
+ int hvc_put_chars(uint32_t vtermno, const char *buf, int count)
+diff --git a/drivers/tty/hvc/hvc_vio.c b/drivers/tty/hvc/hvc_vio.c
+index b05dc50866279..8bab8b00d47d6 100644
+--- a/drivers/tty/hvc/hvc_vio.c
++++ b/drivers/tty/hvc/hvc_vio.c
+@@ -120,6 +120,14 @@ static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return got;
+ }
+ 
++/**
++ * hvterm_raw_put_chars: send characters to firmware for given vterm adapter
++ * @vtermno: The virtual terminal number.
++ * @buf: The characters to send. Because of the underlying hypercall in
++ *       hvc_put_chars(), this buffer must be at least 16 bytes long, even if
++ *       you are sending fewer chars.
++ * @count: number of chars to send.
++ */
+ static int hvterm_raw_put_chars(uint32_t vtermno, const char *buf, int count)
  {
- 	int err;
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+@@ -232,6 +240,7 @@ static const struct hv_ops hvterm_hvsi_ops = {
+ static void udbg_hvc_putc(char c)
+ {
+ 	int count = -1;
++	unsigned char bounce_buffer[16];
  
--	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_FREEZABLE |
--					      WQ_UNBOUND | WQ_SYSFS, 0);
-+	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
-+				 WQ_SYSFS, 0);
- 	if (!bdi_wq)
- 		return -ENOMEM;
- 
+ 	if (!hvterm_privs[0])
+ 		return;
+@@ -242,7 +251,12 @@ static void udbg_hvc_putc(char c)
+ 	do {
+ 		switch(hvterm_privs[0]->proto) {
+ 		case HV_PROTOCOL_RAW:
+-			count = hvterm_raw_put_chars(0, &c, 1);
++			/*
++			 * hvterm_raw_put_chars requires at least a 16-byte
++			 * buffer, so go via the bounce buffer
++			 */
++			bounce_buffer[0] = c;
++			count = hvterm_raw_put_chars(0, bounce_buffer, 1);
+ 			break;
+ 		case HV_PROTOCOL_HVSI:
+ 			count = hvterm_hvsi_put_chars(0, &c, 1);
 -- 
 2.20.1
 
