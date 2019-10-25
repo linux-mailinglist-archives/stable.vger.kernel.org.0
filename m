@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65302E4D6C
+	by mail.lfdr.de (Postfix) with ESMTP id DDC34E4D6D
 	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505618AbfJYN6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53974 "EHLO mail.kernel.org"
+        id S2505634AbfJYN6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 09:58:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505612AbfJYN6e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:58:34 -0400
+        id S2505583AbfJYN6h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:58:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08C9E222CE;
-        Fri, 25 Oct 2019 13:58:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 669DE21E6F;
+        Fri, 25 Oct 2019 13:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011913;
-        bh=yu2re7QlOLOylGKR+ttvD8dXbCgph8uPZ6I6K2Me1Uk=;
+        s=default; t=1572011916;
+        bh=BT5g7okK7GOY7awUj1RlSha07wwJtV+TgL6wEfrCD0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZutflNzE1EANqJ7jXPIMUOz587O2CQfow4DpptNpSHyFWWoGUEXtVJ00MVuaYtI1X
-         0o+HvhtP9277UiThN/XRbLTV48YrKvPZMUrtYsoL8lxJ9TErOtvm5pf5xeh8JhjpRn
-         7bdpXKDNR3rD7Rec2FoQsQ6Yp/UFNyXepc/+FvJY=
+        b=Stck5q1ZHkjU0IDHxuy5URfrRjszvgxku/x5scNMhlKuCHzuWxEMVcEpuowowHcW2
+         TgRUcSomHVTfItjjx00VQ8PmFDnHCk0WoTpI/yKMmhOuzzJu/CkUKyw0iUCBzWtmCX
+         hU1IwQCu2qpEWZ55XWl0YxPYE832b8Ucgwd1JBEU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 17/20] ubi: ubi_wl_get_peb: Increase the number of attempts while getting PEB
-Date:   Fri, 25 Oct 2019 09:57:57 -0400
-Message-Id: <20191025135801.25739-17-sashal@kernel.org>
+Cc:     Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 18/20] RDMA/iwcm: Fix a lock inversion issue
+Date:   Fri, 25 Oct 2019 09:57:58 -0400
+Message-Id: <20191025135801.25739-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135801.25739-1-sashal@kernel.org>
 References: <20191025135801.25739-1-sashal@kernel.org>
@@ -43,98 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 8615b94f029a4fb4306d3512aaf1c45f5fc24d4b ]
+[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
 
-Running stress test io_paral (A pressure ubi test in mtd-utils) on an
-UBI device with fewer PEBs (fastmap enabled) may cause ENOSPC errors and
-make UBI device read-only, but there are still free PEBs on the UBI
-device. This problem can be easily reproduced by performing the following
-steps on a 2-core machine:
-  $ modprobe nandsim first_id_byte=0x20 second_id_byte=0x33 parts=80
-  $ modprobe ubi mtd="0,0" fm_autoconvert
-  $ ./io_paral /dev/ubi0
+This patch fixes the lock inversion complaint:
 
-We may see the following verbose:
-(output)
-  [io_paral] update_volume():108: failed to write 380 bytes at offset
-  95920 of volume 2
-  [io_paral] update_volume():109: update: 97088 bytes
-  [io_paral] write_thread():227: function pwrite() failed with error 28
-  (No space left on device)
-  [io_paral] write_thread():229: cannot write 15872 bytes to offs 31744,
-  wrote -1
-(dmesg)
-  ubi0 error: ubi_wl_get_peb [ubi]: Unable to get a free PEB from user WL
-  pool
-  ubi0 warning: ubi_eba_write_leb [ubi]: switch to read-only mode
-  CPU: 0 PID: 2027 Comm: io_paral Not tainted 5.3.0-rc2-00001-g5986cd0 #9
-  ubi0 warning: try_write_vid_and_data [ubi]: failed to write VID header
-  to LEB 2:5, PEB 18
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0
-  -0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-    dump_stack+0x85/0xba
-    ubi_eba_write_leb+0xa1e/0xa40 [ubi]
-    vol_cdev_write+0x307/0x520 [ubi]
-    vfs_write+0xfa/0x280
-    ksys_pwrite64+0xc5/0xe0
-    __x64_sys_pwrite64+0x22/0x30
-    do_syscall_64+0xbf/0x440
+============================================
+WARNING: possible recursive locking detected
+5.3.0-rc7-dbg+ #1 Not tainted
+--------------------------------------------
+kworker/u16:6/171 is trying to acquire lock:
+00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
 
-In function ubi_wl_get_peb, the operation of filling the pool
-(ubi_update_fastmap) with free PEBs and fetching a free PEB from the pool
-is not atomic. After thread A filling the pool with free PEB, free PEB may
-be taken away by thread B. When thread A checks the expression again, the
-condition is still unsatisfactory. At this time, there may still be free
-PEBs on UBI that can be filled into the pool.
+but task is already holding lock:
+00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
 
-This patch increases the number of attempts to obtain PEB. An extreme
-case (No free PEBs left after creating test volumes) has been tested on
-different type of machines for 100 times. The biggest number of attempts
-are shown below:
+other info that might help us debug this:
+ Possible unsafe locking scenario:
 
-             x86_64     arm64
-  2-core        4         4
-  4-core        8         4
-  8-core        4         4
+       CPU0
+       ----
+  lock(&id_priv->handler_mutex);
+  lock(&id_priv->handler_mutex);
 
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+3 locks held by kworker/u16:6/171:
+ #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
+ #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
+ #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+
+stack backtrace:
+CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+Call Trace:
+ dump_stack+0x8a/0xd6
+ __lock_acquire.cold+0xe1/0x24d
+ lock_acquire+0x106/0x240
+ __mutex_lock+0x12e/0xcb0
+ mutex_lock_nested+0x1f/0x30
+ rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+ iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
+ cm_work_handler+0xe62/0x1100 [iw_cm]
+ process_one_work+0x56d/0xac0
+ worker_thread+0x7a/0x5d0
+ kthread+0x1bc/0x210
+ ret_from_fork+0x24/0x30
+
+This is not a bug as there are actually two lock classes here.
+
+Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
+Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/ubi/fastmap-wl.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/ubi/fastmap-wl.c b/drivers/mtd/ubi/fastmap-wl.c
-index 69dd21679a30c..99aa30b28e46e 100644
---- a/drivers/mtd/ubi/fastmap-wl.c
-+++ b/drivers/mtd/ubi/fastmap-wl.c
-@@ -205,7 +205,7 @@ static int produce_free_peb(struct ubi_device *ubi)
-  */
- int ubi_wl_get_peb(struct ubi_device *ubi)
- {
--	int ret, retried = 0;
-+	int ret, attempts = 0;
- 	struct ubi_fm_pool *pool = &ubi->fm_pool;
- 	struct ubi_fm_pool *wl_pool = &ubi->fm_wl_pool;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 85d4ef319c905..dcfbf326f45c9 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2119,9 +2119,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
+ 		conn_id->cm_id.iw = NULL;
+ 		cma_exch(conn_id, RDMA_CM_DESTROYING);
+ 		mutex_unlock(&conn_id->handler_mutex);
++		mutex_unlock(&listen_id->handler_mutex);
+ 		cma_deref_id(conn_id);
+ 		rdma_destroy_id(&conn_id->id);
+-		goto out;
++		return ret;
+ 	}
  
-@@ -230,12 +230,12 @@ int ubi_wl_get_peb(struct ubi_device *ubi)
- 
- 	if (pool->used == pool->size) {
- 		spin_unlock(&ubi->wl_lock);
--		if (retried) {
-+		attempts++;
-+		if (attempts == 10) {
- 			ubi_err(ubi, "Unable to get a free PEB from user WL pool");
- 			ret = -ENOSPC;
- 			goto out;
- 		}
--		retried = 1;
- 		up_read(&ubi->fm_eba_sem);
- 		ret = produce_free_peb(ubi);
- 		if (ret < 0) {
+ 	mutex_unlock(&conn_id->handler_mutex);
 -- 
 2.20.1
 
