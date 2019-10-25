@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D3D4E4DD2
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B735E4DCC
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395059AbfJYOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:02:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52344 "EHLO mail.kernel.org"
+        id S2395036AbfJYOCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505340AbfJYN5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:32 -0400
+        id S2505344AbfJYN5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACEA3222C4;
-        Fri, 25 Oct 2019 13:57:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35487222C2;
+        Fri, 25 Oct 2019 13:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011851;
-        bh=D8EbAL6Vy+2xZtIg25ogcasGNd415aUaaVMafaRTSOc=;
+        s=default; t=1572011853;
+        bh=LjaXfOzXjbGolgL5lavCG74WEHxzKaRoSBWdDKMWtVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5fpxBnXuEX6v4BCSmNL2ZfiJr9tIQKSLvhsHjuBSjPPvVJUXZenxvLLKYBmgnuvJ
-         sx7FMSPz9YK0nzYnq+urvr0WoWN6VKkaYIgExbJmgNLNLeEsy8jeq7y7D9goSU0smm
-         ERYuLIO5phKH7c02CNA2hbIUyh8WZ9EYT5gllqyY=
+        b=0ih27qVApl+ccaZv/TklXD0Uk0csf2d1FPpVoTbPLXw6hn4JlGLSHOWjk+L/9ybmS
+         KIfInF3ulY6s6oSKB4l/NndSHqubd3Yb0AVt9OwY+OxIZejYokCEhExL7jOay3CXCN
+         jhOa6erAmybIbAudFHgcnTEe7Fa00w8SWF82s8+8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Rob Clark <robdclark@chromium.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
         Sean Paul <seanpaul@chromium.org>,
         Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
         dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 10/25] drm/msm: stop abusing dma_map/unmap for cache
-Date:   Fri, 25 Oct 2019 09:56:58 -0400
-Message-Id: <20191025135715.25468-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 11/25] drm/msm: Use the correct dma_sync calls in msm_gem
+Date:   Fri, 25 Oct 2019 09:56:59 -0400
+Message-Id: <20191025135715.25468-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
 References: <20191025135715.25468-1-sashal@kernel.org>
@@ -49,81 +47,146 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rob Clark <robdclark@chromium.org>
 
-[ Upstream commit 0036bc73ccbe7e600a3468bf8e8879b122252274 ]
+[ Upstream commit 3de433c5b38af49a5fc7602721e2ab5d39f1e69c ]
 
-Recently splats like this started showing up:
+[subject was: drm/msm: shake fist angrily at dma-mapping]
 
-   WARNING: CPU: 4 PID: 251 at drivers/iommu/dma-iommu.c:451 __iommu_dma_unmap+0xb8/0xc0
-   Modules linked in: ath10k_snoc ath10k_core fuse msm ath mac80211 uvcvideo cfg80211 videobuf2_vmalloc videobuf2_memops vide
-   CPU: 4 PID: 251 Comm: kworker/u16:4 Tainted: G        W         5.2.0-rc5-next-20190619+ #2317
-   Hardware name: LENOVO 81JL/LNVNB161216, BIOS 9UCN23WW(V1.06) 10/25/2018
-   Workqueue: msm msm_gem_free_work [msm]
-   pstate: 80c00005 (Nzcv daif +PAN +UAO)
-   pc : __iommu_dma_unmap+0xb8/0xc0
-   lr : __iommu_dma_unmap+0x54/0xc0
-   sp : ffff0000119abce0
-   x29: ffff0000119abce0 x28: 0000000000000000
-   x27: ffff8001f9946648 x26: ffff8001ec271068
-   x25: 0000000000000000 x24: ffff8001ea3580a8
-   x23: ffff8001f95ba010 x22: ffff80018e83ba88
-   x21: ffff8001e548f000 x20: fffffffffffff000
-   x19: 0000000000001000 x18: 00000000c00001fe
+So, using dma_sync_* for our cache needs works out w/ dma iommu ops, but
+it falls appart with dma direct ops.  The problem is that, depending on
+display generation, we can have either set of dma ops (mdp4 and dpu have
+iommu wired to mdss node, which maps to toplevel drm device, but mdp5
+has iommu wired up to the mdp sub-node within mdss).
+
+Fixes this splat on mdp5 devices:
+
+   Unable to handle kernel paging request at virtual address ffffffff80000000
+   Mem abort info:
+     ESR = 0x96000144
+     Exception class = DABT (current EL), IL = 32 bits
+     SET = 0, FnV = 0
+     EA = 0, S1PTW = 0
+   Data abort info:
+     ISV = 0, ISS = 0x00000144
+     CM = 1, WnR = 1
+   swapper pgtable: 4k pages, 48-bit VAs, pgdp=00000000810e4000
+   [ffffffff80000000] pgd=0000000000000000
+   Internal error: Oops: 96000144 [#1] SMP
+   Modules linked in: btqcomsmd btqca bluetooth cfg80211 ecdh_generic ecc rfkill libarc4 panel_simple msm wcnss_ctrl qrtr_smd drm_kms_helper venus_enc venus_dec videobuf2_dma_sg videobuf2_memops drm venus_core ipv6 qrtr qcom_wcnss_pil v4l2_mem2mem qcom_sysmon videobuf2_v4l2 qmi_helpers videobuf2_common crct10dif_ce mdt_loader qcom_common videodev qcom_glink_smem remoteproc bmc150_accel_i2c bmc150_magn_i2c bmc150_accel_core bmc150_magn snd_soc_lpass_apq8016 snd_soc_msm8916_analog mms114 mc nf_defrag_ipv6 snd_soc_lpass_cpu snd_soc_apq8016_sbc industrialio_triggered_buffer kfifo_buf snd_soc_lpass_platform snd_soc_msm8916_digital drm_panel_orientation_quirks
+   CPU: 2 PID: 33 Comm: kworker/2:1 Not tainted 5.3.0-rc2 #1
+   Hardware name: Samsung Galaxy A5U (EUR) (DT)
+   Workqueue: events deferred_probe_work_func
+   pstate: 80000005 (Nzcv daif -PAN -UAO)
+   pc : __clean_dcache_area_poc+0x20/0x38
+   lr : arch_sync_dma_for_device+0x28/0x30
+   sp : ffff0000115736a0
+   x29: ffff0000115736a0 x28: 0000000000000001
+   x27: ffff800074830800 x26: ffff000011478000
+   x25: 0000000000000000 x24: 0000000000000001
+   x23: ffff000011478a98 x22: ffff800009fd1c10
+   x21: 0000000000000001 x20: ffff800075ad0a00
+   x19: 0000000000000000 x18: ffff0000112b2000
    x17: 0000000000000000 x16: 0000000000000000
-   x15: ffff000015b70068 x14: 0000000000000005
-   x13: 0003142cc1be1768 x12: 0000000000000001
-   x11: ffff8001f6de9100 x10: 0000000000000009
-   x9 : ffff000015b78000 x8 : 0000000000000000
-   x7 : 0000000000000001 x6 : fffffffffffff000
-   x5 : 0000000000000fff x4 : ffff00001065dbc8
-   x3 : 000000000000000d x2 : 0000000000001000
-   x1 : fffffffffffff000 x0 : 0000000000000000
+   x15: 00000000fffffff0 x14: ffff000011455d70
+   x13: 0000000000000000 x12: 0000000000000028
+   x11: 0000000000000001 x10: ffff00001106c000
+   x9 : ffff7e0001d6b380 x8 : 0000000000001000
+   x7 : ffff7e0001d6b380 x6 : ffff7e0001d6b382
+   x5 : 0000000000000000 x4 : 0000000000001000
+   x3 : 000000000000003f x2 : 0000000000000040
+   x1 : ffffffff80001000 x0 : ffffffff80000000
    Call trace:
-    __iommu_dma_unmap+0xb8/0xc0
-    iommu_dma_unmap_sg+0x98/0xb8
-    put_pages+0x5c/0xf0 [msm]
-    msm_gem_free_work+0x10c/0x150 [msm]
-    process_one_work+0x1e0/0x330
-    worker_thread+0x40/0x438
-    kthread+0x12c/0x130
-    ret_from_fork+0x10/0x18
-   ---[ end trace afc0dc5ab81a06bf ]---
+    __clean_dcache_area_poc+0x20/0x38
+    dma_direct_sync_sg_for_device+0xb8/0xe8
+    get_pages+0x22c/0x250 [msm]
+    msm_gem_get_and_pin_iova+0xdc/0x168 [msm]
+    ...
 
-Not quite sure what triggered that, but we really shouldn't be abusing
-dma_{map,unmap}_sg() for cache maint.
+Fixes the combination of two patches:
 
-Cc: Stephen Boyd <sboyd@kernel.org>
-Tested-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Fixes: 0036bc73ccbe (drm/msm: stop abusing dma_map/unmap for cache)
+Fixes: 449fa54d6815 (dma-direct: correct the physical addr in dma_direct_sync_sg_for_cpu/device)
+Tested-by: Stephan Gerhold <stephan@gerhold.net>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
+[seanpaul changed subject to something more desriptive]
 Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190630124735.27786-1-robdclark@gmail.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20190730214633.17820-1-robdclark@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/msm_gem.c | 47 +++++++++++++++++++++++++++++++----
+ 1 file changed, 42 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index f2df718af370d..3a91ccd92c473 100644
+index 3a91ccd92c473..300c4624aa6c0 100644
 --- a/drivers/gpu/drm/msm/msm_gem.c
 +++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -108,7 +108,7 @@ static struct page **get_pages(struct drm_gem_object *obj)
+@@ -43,6 +43,46 @@ static bool use_pages(struct drm_gem_object *obj)
+ 	return !msm_obj->vram_node;
+ }
+ 
++/*
++ * Cache sync.. this is a bit over-complicated, to fit dma-mapping
++ * API.  Really GPU cache is out of scope here (handled on cmdstream)
++ * and all we need to do is invalidate newly allocated pages before
++ * mapping to CPU as uncached/writecombine.
++ *
++ * On top of this, we have the added headache, that depending on
++ * display generation, the display's iommu may be wired up to either
++ * the toplevel drm device (mdss), or to the mdp sub-node, meaning
++ * that here we either have dma-direct or iommu ops.
++ *
++ * Let this be a cautionary tail of abstraction gone wrong.
++ */
++
++static void sync_for_device(struct msm_gem_object *msm_obj)
++{
++	struct device *dev = msm_obj->base.dev->dev;
++
++	if (get_dma_ops(dev)) {
++		dma_sync_sg_for_device(dev, msm_obj->sgt->sgl,
++			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
++	} else {
++		dma_map_sg(dev, msm_obj->sgt->sgl,
++			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
++	}
++}
++
++static void sync_for_cpu(struct msm_gem_object *msm_obj)
++{
++	struct device *dev = msm_obj->base.dev->dev;
++
++	if (get_dma_ops(dev)) {
++		dma_sync_sg_for_cpu(dev, msm_obj->sgt->sgl,
++			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
++	} else {
++		dma_unmap_sg(dev, msm_obj->sgt->sgl,
++			msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
++	}
++}
++
+ /* allocate pages from VRAM carveout, used when no IOMMU: */
+ static struct page **get_pages_vram(struct drm_gem_object *obj, int npages)
+ {
+@@ -108,8 +148,7 @@ static struct page **get_pages(struct drm_gem_object *obj)
  		 * because display controller, GPU, etc. are not coherent:
  		 */
  		if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--			dma_map_sg(dev->dev, msm_obj->sgt->sgl,
-+			dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
- 					msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
+-			dma_sync_sg_for_device(dev->dev, msm_obj->sgt->sgl,
+-					msm_obj->sgt->nents, DMA_BIDIRECTIONAL);
++			sync_for_device(msm_obj);
  	}
  
-@@ -138,7 +138,7 @@ static void put_pages(struct drm_gem_object *obj)
+ 	return msm_obj->pages;
+@@ -138,9 +177,7 @@ static void put_pages(struct drm_gem_object *obj)
  			 * GPU, etc. are not coherent:
  			 */
  			if (msm_obj->flags & (MSM_BO_WC|MSM_BO_UNCACHED))
--				dma_unmap_sg(obj->dev->dev, msm_obj->sgt->sgl,
-+				dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
- 					     msm_obj->sgt->nents,
- 					     DMA_BIDIRECTIONAL);
+-				dma_sync_sg_for_cpu(obj->dev->dev, msm_obj->sgt->sgl,
+-					     msm_obj->sgt->nents,
+-					     DMA_BIDIRECTIONAL);
++				sync_for_cpu(msm_obj);
  
+ 			sg_free_table(msm_obj->sgt);
+ 			kfree(msm_obj->sgt);
 -- 
 2.20.1
 
