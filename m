@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85749E51C5
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2DCDE51C4
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2502621AbfJYQ6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 12:58:46 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:52574 "EHLO
+        id S2633207AbfJYQ6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 12:58:43 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:52556 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502605AbfJYQ6p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:58:45 -0400
+        with ESMTP id S2633204AbfJYQ6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:58:42 -0400
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
-        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=s2WyllO+A0wa9fBl4STGx4ran1+7fS8oBHVUVHKR0CA=; b=KD8Dg2HuBBverjOHGdn2ZNzS8
-        p7C7YlCaRKoJ2DtIMTcylpHPoFMkjBsr9SsQgNW0Bcc2c5saQ05TJz4hnP01rVFt8viI7UsSS/UoW
-        H0p4n4RrT/StDzvx/sSKgFAi3FXgaKFXUYOO4OG4r26W54S+4q2qz6uFi2G4nUIiGVShuokqYJQ5A
-        CG8o6E4gbsq69a9Q07XiA49VSMYc2RnlbB7VPJX80a2b9clQwYxiAOzzVC77UxJ4w4EGQUo5i82Pu
-        hBMuGOO8Pg+wOXLkuYAUz9/Nj8Np66Nm9E8BCEZhPObQoms26lzTqVokueW9h8YiAp9JFQa1ASQfb
-        mbFpFa57A==;
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From
+        :Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=gP2JGvKzjNh4DRJRdqgo/Mwv+VPlYFmZOlrSejzhAvU=; b=oABtkWqeWb9+l5iaSbrwKTj6Em
+        EZmrSLSdnaBNfnHDICFw6d9KlusjzQPM1MxEV2GEq4Y9TXtCLQm/gQdAcdKLbR440N4NXf/4LEnLp
+        rd0wlXCkn2DxNBmcXt0YS2hWqZanjS8E3cvOwpIyV3yanZy4yTI9Jed1ncUVUH2I5sv7/XsOLxPWC
+        8Pii6Yqo1i/lAURiJko41zF9tbd1iQUW0wPQb17cFJkJvbmyZ8bD+affdXlpysB17n2AHidNB1Cih
+        HqORNK1q741fv53IBTn0TSNRDaRz4z8FlEpqOnwG7nBwUgTqT5BQUK9JRhFgeZAkwm4ogl8xK7Yjk
+        5eTJGtBg==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iO2vB-00061p-Gx; Fri, 25 Oct 2019 16:58:41 +0000
+        id 1iO2vB-00061s-I1; Fri, 25 Oct 2019 16:58:41 +0000
 From:   Matthew Wilcox <willy@infradead.org>
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
         dh.herrmann@gmail.com, linux-mm@kvack.org, zhongjiang@huawei.com
 Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 4.19] memfd: Fix locking when tagging pins
-Date:   Fri, 25 Oct 2019 09:58:34 -0700
-Message-Id: <20191025165837.22979-1-willy@infradead.org>
+Subject: [PATCH 4.14] memfd: Fix locking when tagging pins
+Date:   Fri, 25 Oct 2019 09:58:35 -0700
+Message-Id: <20191025165837.22979-2-willy@infradead.org>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20191025165837.22979-1-willy@infradead.org>
+References: <20191025165837.22979-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -82,15 +84,15 @@ Cc: stable@vger.kernel.org
 Reported-by: zhong jiang <zhongjiang@huawei.com>
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- mm/memfd.c | 18 ++++++++++--------
+ mm/shmem.c | 18 ++++++++++--------
  1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/mm/memfd.c b/mm/memfd.c
-index 2bb5e257080e..5859705dafe1 100644
---- a/mm/memfd.c
-+++ b/mm/memfd.c
-@@ -34,11 +34,12 @@ static void memfd_tag_pins(struct address_space *mapping)
- 	void __rcu **slot;
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 037e2ee9ccac..5b2cc9f9b1f1 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2657,11 +2657,12 @@ static void shmem_tag_pins(struct address_space *mapping)
+ 	void **slot;
  	pgoff_t start;
  	struct page *page;
 +	unsigned int tagged = 0;
@@ -99,18 +101,18 @@ index 2bb5e257080e..5859705dafe1 100644
  	start = 0;
 -	rcu_read_lock();
  
-+	xa_lock_irq(&mapping->i_pages);
- 	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
++	spin_lock_irq(&mapping->tree_lock);
+ 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
  		page = radix_tree_deref_slot(slot);
  		if (!page || radix_tree_exception(page)) {
-@@ -47,18 +48,19 @@ static void memfd_tag_pins(struct address_space *mapping)
+@@ -2670,18 +2671,19 @@ static void shmem_tag_pins(struct address_space *mapping)
  				continue;
  			}
  		} else if (page_count(page) - page_mapcount(page) > 1) {
--			xa_lock_irq(&mapping->i_pages);
- 			radix_tree_tag_set(&mapping->i_pages, iter.index,
- 					   MEMFD_TAG_PINNED);
--			xa_unlock_irq(&mapping->i_pages);
+-			spin_lock_irq(&mapping->tree_lock);
+ 			radix_tree_tag_set(&mapping->page_tree, iter.index,
+ 					   SHMEM_TAG_PINNED);
+-			spin_unlock_irq(&mapping->tree_lock);
  		}
  
 -		if (need_resched()) {
@@ -121,12 +123,12 @@ index 2bb5e257080e..5859705dafe1 100644
 +			continue;
 +
 +		slot = radix_tree_iter_resume(slot, &iter);
-+		xa_unlock_irq(&mapping->i_pages);
++		spin_unlock_irq(&mapping->tree_lock);
 +		cond_resched();
-+		xa_lock_irq(&mapping->i_pages);
++		spin_lock_irq(&mapping->tree_lock);
  	}
 -	rcu_read_unlock();
-+	xa_unlock_irq(&mapping->i_pages);
++	spin_unlock_irq(&mapping->tree_lock);
  }
  
  /*
