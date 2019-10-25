@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72479E4DC4
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A14E4DDA
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505301AbfJYN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 09:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
+        id S2395088AbfJYODH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 10:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2505293AbfJYN5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 09:57:20 -0400
+        id S2505299AbfJYN5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 25 Oct 2019 09:57:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B38EE21E6F;
-        Fri, 25 Oct 2019 13:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D683B222C2;
+        Fri, 25 Oct 2019 13:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572011839;
-        bh=JhgiOy7W35cOH2G64kH7kdFPGPQuCkXJeZQQJAg3rA8=;
+        s=default; t=1572011840;
+        bh=pMRvbdDCb4dImnhTz2eaL8s9Wnfeqq0pbrx6tQqzFUM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsAl1KP5EgW+e0tf+JFy7N67cdcwtzL1Obp6f7nLwTLUy6KS0eoMx8ITDJHsNpriX
-         jgB+9wRbvBExKPdGcmRlkSCC0wRtUZSQAeNFv3kKrtEUKdwbKk8eOSWjZsa16SE0dZ
-         J7fNHDdIeQR3hoqZpw5Vqhibcf7v8VkbWB+GGu5s=
+        b=KYxq7FbYJzgNwykN05TYZbuR6U6qLWn4FWGYyJuSWxzeHgzeNgXY7mxGKN4zsltTf
+         lIFZbpFJu1k7w4za9P7TETw7QwT+v8VeeyHsxVxYFcpOMRdC26w9rKTQD0/S19asp/
+         vcS1luzUlbWZuASp06+alZ6xGPmWvZbO2J0NrLxE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Rene Wagner <redhatbugzilla@callerid.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/25] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
-Date:   Fri, 25 Oct 2019 09:56:50 -0400
-Message-Id: <20191025135715.25468-2-sashal@kernel.org>
+Cc:     Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/25] ACPI: video: Use vendor backlight on Sony VPCEH3U1E
+Date:   Fri, 25 Oct 2019 09:56:51 -0400
+Message-Id: <20191025135715.25468-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191025135715.25468-1-sashal@kernel.org>
 References: <20191025135715.25468-1-sashal@kernel.org>
@@ -44,42 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit f8f807441eefddc3c6d8a378421f0ede6361d565 ]
+[ Upstream commit aefa763b18a220f5fc1d5ab02af09158b6cc36ea ]
 
-The Odys Winbook 13 uses a SIPODEV SP1064 touchpad, which does not
-supply descriptors, add this to the DMI descriptor override list, fixing
-the touchpad not working.
+On Sony Vaio VPCEH3U1E, ACPI backlight control does not work, and native
+backlight works. Thus force use vendor backlight control on this system.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
-Reported-by: Rene Wagner <redhatbugzilla@callerid.de>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=202401
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ drivers/acpi/video_detect.c | 8 ++++++++
  1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index cac262a912c12..c5ac23b75143a 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -338,6 +338,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 43587ac680e47..0e0a3929e34e2 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -141,6 +141,14 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "UL30A"),
  		},
- 		.driver_data = (void *)&sipodev_desc
  	},
 +	{
-+		.ident = "Odys Winbook 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "WINBOOK 13"),
++	.callback = video_detect_force_vendor,
++	.ident = "Sony VPCEH3U1E",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "VPCEH3U1E"),
 +		},
-+		.driver_data = (void *)&sipodev_desc
 +	},
- 	{ }	/* Terminate list */
- };
  
+ 	/*
+ 	 * These models have a working acpi_video backlight control, and using
 -- 
 2.20.1
 
