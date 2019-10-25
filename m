@@ -2,121 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B06E50E6
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:13:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3B0E5181
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 18:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2505204AbfJYQND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 12:13:03 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56156 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2505186AbfJYQND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:13:03 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x9PG90jV073595
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 12:13:02 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2vv20ap5nw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 12:13:02 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <bblock@linux.ibm.com>;
-        Fri, 25 Oct 2019 17:13:00 +0100
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
-        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Fri, 25 Oct 2019 17:12:56 +0100
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x9PGCs4q51380416
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 25 Oct 2019 16:12:54 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 78FD74204F;
-        Fri, 25 Oct 2019 16:12:54 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6560442049;
-        Fri, 25 Oct 2019 16:12:54 +0000 (GMT)
-Received: from t480-pf1aa2c2 (unknown [9.152.212.148])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Fri, 25 Oct 2019 16:12:54 +0000 (GMT)
-Received: from bblock by t480-pf1aa2c2 with local (Exim 4.92.3)
-        (envelope-from <bblock@linux.ibm.com>)
-        id 1iO2Cs-00074z-3R; Fri, 25 Oct 2019 18:12:54 +0200
-From:   Benjamin Block <bblock@linux.ibm.com>
-To:     "James E . J . Bottomley" <jejb@linux.ibm.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc:     Benjamin Block <bblock@linux.ibm.com>,
-        Steffen Maier <maier@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Fedor Loshakov <loshakov@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2 11/11] zfcp: trace channel log even for FCP command responses
-Date:   Fri, 25 Oct 2019 18:12:53 +0200
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <cover.1571934247.git.bblock@linux.ibm.com>
-References: <cover.1571934247.git.bblock@linux.ibm.com>
+        id S2387769AbfJYQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 12:45:22 -0400
+Received: from mail-io1-f54.google.com ([209.85.166.54]:38085 "EHLO
+        mail-io1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2633105AbfJYQoY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 12:44:24 -0400
+Received: by mail-io1-f54.google.com with SMTP id u8so3152793iom.5
+        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 09:44:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=FnNCWhzA8wzAQcW3IvtMxmOw0mIYmbzhbuz8jcog3z0=;
+        b=FE/GwmYd89R7oOACf+gouF5/sDJA7KfixcIXlgu0Zy2xBlflmjGhsPtumrOF2/chO7
+         ukgC7RpX2WU0ieTsoaIEsugTNO9IxVY55sHdmI8YDpkuFlrYNj3TJ3Yyh4TkMX3TEZVP
+         euzKnHoQXH1CnnfPJ8ycKy7wwlV1V2ytUcp0U=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=FnNCWhzA8wzAQcW3IvtMxmOw0mIYmbzhbuz8jcog3z0=;
+        b=MHQOQ2Rv/DnIR6sVxx4lUlWaPedF2lK/FOmB6U3xSfmX4x2VXFeBlDZSy+w79X94ZD
+         X3M/hC4AWXXRP1j9vNMcHDV8oTuYerfslvis78LrGrgjt9IbrX/vC7hYKAHG0vm8Irz1
+         Lwg2lFqAn/pPEEB7z/jxNKzNE+Av4CCO/aVNwTXdvLWJSlbMXskcU17OnjQiEPkhUVUK
+         MWrK/aHfhpb9Jcp1tiFsekjdmBY5iQW8vlP4J4UBRDrMr0aNxeKX5NFcpgHCJ3aikbqZ
+         dGyYoxvWobrCbQdcGTlUJ+VqX42HZQz7N5bW8IAWQN1iFAAQuoUoAlMKGYZd4IwtqGqr
+         Telg==
+X-Gm-Message-State: APjAAAX5SFFZ6WxkCLBcQSoyzentuzoB9dicfvZJVM6y822hTLME1xAO
+        OePGP+rXE9+M8FoYFQIKJy3227r+LUQ=
+X-Google-Smtp-Source: APXvYqwGdsE5aUbh7b1e/6uOXowlc/IkNj2RVTViqEg5vn2SwFFtdFQeHWxA35W9FKSkT2wBQRNaww==
+X-Received: by 2002:a05:6638:632:: with SMTP id h18mr4816228jar.55.1572021862317;
+        Fri, 25 Oct 2019 09:44:22 -0700 (PDT)
+Received: from mail-il1-f173.google.com (mail-il1-f173.google.com. [209.85.166.173])
+        by smtp.gmail.com with ESMTPSA id k2sm328453ios.19.2019.10.25.09.44.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 25 Oct 2019 09:44:21 -0700 (PDT)
+Received: by mail-il1-f173.google.com with SMTP id m16so2374748iln.13
+        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 09:44:20 -0700 (PDT)
+X-Received: by 2002:a92:d101:: with SMTP id a1mr5273789ilb.142.1572021860411;
+ Fri, 25 Oct 2019 09:44:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19102516-0008-0000-0000-0000032795E9
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19102516-0009-0000-0000-00004A46CDE6
-Message-Id: <e37597b5c4ae123aaa85fd86c23a9f71e994e4a9.1572018132.git.bblock@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-25_08:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1908290000 definitions=main-1910250148
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Fri, 25 Oct 2019 09:44:09 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=Uui+a6TS85VNv3XVApq7xYifd8m_ZTmShTC2jeGEO4jg@mail.gmail.com>
+Message-ID: <CAD=FV=Uui+a6TS85VNv3XVApq7xYifd8m_ZTmShTC2jeGEO4jg@mail.gmail.com>
+Subject: Please pick ("LSM: SafeSetID: Stop releasing uninitialized ruleset")
+ to 5.3 stable
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Guenter Roeck <groeck@chromium.org>,
+        Micah Morton <mortonm@chromium.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+If you're still taking things for 5.3 stable, I humbly request picking
+up commit 21ab8580b383 ("LSM: SafeSetID: Stop releasing uninitialized
+ruleset").  While bisecting other problems this crash tripped me up
+and I would have been able to bisect faster had the fix been in
+linux-stable.  Only kernel 5.3 is affected.
 
-While v2.6.26 commit b75db73159cc
-("[SCSI] zfcp: Add qtcb dump to hba debug trace")
-is right that we don't want to flood the (payload) trace ring buffer,
-we don't trace successful FCP command responses by default.
-So we can include the channel log for problem determination
-with failed responses of any FSF request type.
+For reference, the crash for me looked like:
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Fixes: b75db73159cc ("[SCSI] zfcp: Add qtcb dump to hba debug trace")
-Fixes: a54ca0f62f95 ("[SCSI] zfcp: Redesign of the debug tracing for HBA records.")
-Cc: <stable@vger.kernel.org> #2.6.38+
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_dbf.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+Call trace:
+ __call_rcu+0x2c/0x1ac
+ call_rcu+0x28/0x34
+ safesetid_file_write+0x344/0x350
+ __vfs_write+0x54/0x18c
+ vfs_write+0xcc/0x18c
+ ksys_write+0x7c/0xe4
+ __arm64_sys_write+0x20/0x2c
+ el0_svc_common+0x9c/0x14c
+ el0_svc_compat_handler+0x28/0x34
+ el0_svc_compat+0x8/0x10
 
-diff --git a/drivers/s390/scsi/zfcp_dbf.c b/drivers/s390/scsi/zfcp_dbf.c
-index dccdb41bed8c..1234294700c4 100644
---- a/drivers/s390/scsi/zfcp_dbf.c
-+++ b/drivers/s390/scsi/zfcp_dbf.c
-@@ -95,11 +95,9 @@ void zfcp_dbf_hba_fsf_res(char *tag, int level, struct zfcp_fsf_req *req)
- 	memcpy(rec->u.res.fsf_status_qual, &q_head->fsf_status_qual,
- 	       FSF_STATUS_QUALIFIER_SIZE);
- 
--	if (q_head->fsf_command != FSF_QTCB_FCP_CMND) {
--		rec->pl_len = q_head->log_length;
--		zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
--				  rec->pl_len, "fsf_res", req->req_id);
--	}
-+	rec->pl_len = q_head->log_length;
-+	zfcp_dbf_pl_write(dbf, (char *)q_pref + q_head->log_start,
-+			  rec->pl_len, "fsf_res", req->req_id);
- 
- 	debug_event(dbf->hba, level, rec, sizeof(*rec));
- 	spin_unlock_irqrestore(&dbf->hba_lock, flags);
--- 
-2.21.0
+Thanks much.
 
+-Doug
