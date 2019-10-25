@@ -2,113 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E41B5E4F0C
-	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 16:28:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54347E4FEC
+	for <lists+stable@lfdr.de>; Fri, 25 Oct 2019 17:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407605AbfJYO2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 10:28:30 -0400
-Received: from mga02.intel.com ([134.134.136.20]:10575 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730064AbfJYO2a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 25 Oct 2019 10:28:30 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Oct 2019 07:28:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,228,1569308400"; 
-   d="scan'208";a="192554858"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga008.jf.intel.com with ESMTP; 25 Oct 2019 07:28:27 -0700
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
-        "# 4 . 15+" <stable@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 3/3] usb: xhci: fix __le32/__le64 accessors in debugfs code
-Date:   Fri, 25 Oct 2019 17:30:29 +0300
-Message-Id: <1572013829-14044-4-git-send-email-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1572013829-14044-1-git-send-email-mathias.nyman@linux.intel.com>
-References: <1572013829-14044-1-git-send-email-mathias.nyman@linux.intel.com>
+        id S2440582AbfJYPRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 11:17:39 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:51654 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2439061AbfJYPRj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 11:17:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=wnD87SJx6lKsZsUrTYB01i6mFsKAYC9XIXrBi0X2yaQ=; b=UpxPiSJ9dKwzMBowzOeApoA9a
+        3A//h++j8jOOZxPe8AAmMhWc3HvHpTPVot8a6Q3cdOayAkc9Rt52E/P2HNwUaohJ7rP+8EGEZgEUG
+        W3s6bD3aS5tEKHOFD3FDXq8CuGjcot3jRq8o0unCNt0eme31janUb3+s8TbdebHbSlUuqOqvDNFJQ
+        BCMNWAKuIayY/bqVVovy8hP23yTNVKic852aDK8XlHoauEc3EFJ+yUUuEwBD7BqjKI9VwiLpp3Yo8
+        7of3k8nb3ByyMbk4hg7Nyc4nrzQWR1J1iLj+eJycz9QRBmg/9AdW39eb/DNK5vFQs6QmLIt+17SGV
+        DyYVudAIQ==;
+Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1iO1LO-00048W-8B; Fri, 25 Oct 2019 15:17:38 +0000
+Date:   Fri, 25 Oct 2019 08:17:38 -0700
+From:   Matthew Wilcox <willy@infradead.org>
+To:     zhong jiang <zhongjiang@huawei.com>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org, vbabka@suse.cz,
+        mhocko@suse.com, linux-mm@kvack.org
+Subject: Re: [RPF STABLE PATCH] mm/memfd: should be lock the radix_tree when
+ iterating its slot
+Message-ID: <20191025151738.GP2963@bombadil.infradead.org>
+References: <1571929400-12147-1-git-send-email-zhongjiang@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1571929400-12147-1-git-send-email-zhongjiang@huawei.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
-
-It looks like some of the xhci debug code is passing u32 to functions
-directly from __le32/__le64 fields.
-Fix this by using le{32,64}_to_cpu() on these to fix the following
-sparse warnings;
-
-xhci-debugfs.c:205:62: warning: incorrect type in argument 1 (different base types)
-xhci-debugfs.c:205:62:    expected unsigned int [usertype] field0
-xhci-debugfs.c:205:62:    got restricted __le32
-xhci-debugfs.c:206:62: warning: incorrect type in argument 2 (different base types)
-xhci-debugfs.c:206:62:    expected unsigned int [usertype] field1
-xhci-debugfs.c:206:62:    got restricted __le32
+On Thu, Oct 24, 2019 at 11:03:20PM +0800, zhong jiang wrote:
+> +	xa_lock_irq(&mapping->i_pages);
 ...
+>  		if (need_resched()) {
+>  			slot = radix_tree_iter_resume(slot, &iter);
+> -			cond_resched_rcu();
+> +			cond_resched_lock(&mapping->i_pages.xa_lock);
 
-[Trim down commit message, sparse warnings were similar -Mathias]
-Cc: <stable@vger.kernel.org> # 4.15+
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
----
- drivers/usb/host/xhci-debugfs.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+Ooh, this isn't right.  We're taking the lock, disabling interrupts,
+then dropping the lock and rescheduling without reenabling interrupts.
+If this ever triggers then we'll get a scheduling-while-atomic error.
 
-diff --git a/drivers/usb/host/xhci-debugfs.c b/drivers/usb/host/xhci-debugfs.c
-index 7ba6afc7ef23..76c3f29562d2 100644
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -202,10 +202,10 @@ static void xhci_ring_dump_segment(struct seq_file *s,
- 		trb = &seg->trbs[i];
- 		dma = seg->dma + i * sizeof(*trb);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_trb(trb->generic.field[0],
--					   trb->generic.field[1],
--					   trb->generic.field[2],
--					   trb->generic.field[3]));
-+			   xhci_decode_trb(le32_to_cpu(trb->generic.field[0]),
-+					   le32_to_cpu(trb->generic.field[1]),
-+					   le32_to_cpu(trb->generic.field[2]),
-+					   le32_to_cpu(trb->generic.field[3])));
+Fortunately (?) need_resched() can almost never be set while we're holding
+a spinlock with interrupts disabled (thanks to peterz for telling me that
+when I asked for a cond_resched_lock_irq() a few years ago).  So we need
+to take this patch further towards the current code.
+
+Here's a version for 4.14.y.  Compile tested only.
+
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 6c10f1d92251..deaea74ec1b3 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2657,11 +2657,12 @@ static void shmem_tag_pins(struct address_space *mapping)
+ 	void **slot;
+ 	pgoff_t start;
+ 	struct page *page;
++	unsigned int tagged = 0;
+ 
+ 	lru_add_drain();
+ 	start = 0;
+-	rcu_read_lock();
+ 
++	spin_lock_irq(&mapping->tree_lock);
+ 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
+ 		page = radix_tree_deref_slot(slot);
+ 		if (!page || radix_tree_exception(page)) {
+@@ -2670,18 +2671,19 @@ static void shmem_tag_pins(struct address_space *mapping)
+ 				continue;
+ 			}
+ 		} else if (page_count(page) - page_mapcount(page) > 1) {
+-			spin_lock_irq(&mapping->tree_lock);
+ 			radix_tree_tag_set(&mapping->page_tree, iter.index,
+ 					   SHMEM_TAG_PINNED);
+-			spin_unlock_irq(&mapping->tree_lock);
+ 		}
+ 
+-		if (need_resched()) {
+-			slot = radix_tree_iter_resume(slot, &iter);
+-			cond_resched_rcu();
+-		}
++		if (++tagged % 1024)
++			continue;
++
++		slot = radix_tree_iter_resume(slot, &iter);
++		spin_unlock_irq(&mapping->tree_lock);
++		cond_resched();
++		spin_lock_irq(&mapping->tree_lock);
  	}
+-	rcu_read_unlock();
++	spin_unlock_irq(&mapping->tree_lock);
  }
  
-@@ -263,10 +263,10 @@ static int xhci_slot_context_show(struct seq_file *s, void *unused)
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
- 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
--		   xhci_decode_slot_context(slot_ctx->dev_info,
--					    slot_ctx->dev_info2,
--					    slot_ctx->tt_info,
--					    slot_ctx->dev_state));
-+		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
-+					    le32_to_cpu(slot_ctx->dev_info2),
-+					    le32_to_cpu(slot_ctx->tt_info),
-+					    le32_to_cpu(slot_ctx->dev_state)));
- 
- 	return 0;
- }
-@@ -286,10 +286,10 @@ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
- 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, dci);
- 		dma = dev->out_ctx->dma + dci * CTX_SIZE(xhci->hcc_params);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_ep_context(ep_ctx->ep_info,
--						  ep_ctx->ep_info2,
--						  ep_ctx->deq,
--						  ep_ctx->tx_info));
-+			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
-+						  le32_to_cpu(ep_ctx->ep_info2),
-+						  le64_to_cpu(ep_ctx->deq),
-+						  le32_to_cpu(ep_ctx->tx_info)));
- 	}
- 
- 	return 0;
--- 
-2.7.4
+ /*
+
 
