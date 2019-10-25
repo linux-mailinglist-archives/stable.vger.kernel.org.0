@@ -2,112 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FACE56C3
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 00:58:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A84E56D3
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 01:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726364AbfJYW6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 25 Oct 2019 18:58:41 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:42492 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725881AbfJYW6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 18:58:41 -0400
-Received: by mail-pf1-f195.google.com with SMTP id 21so2579646pfj.9;
-        Fri, 25 Oct 2019 15:58:39 -0700 (PDT)
+        id S1725897AbfJYXDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 25 Oct 2019 19:03:55 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:33760 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725825AbfJYXDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 25 Oct 2019 19:03:55 -0400
+Received: by mail-ot1-f65.google.com with SMTP id u13so3187140ote.0
+        for <stable@vger.kernel.org>; Fri, 25 Oct 2019 16:03:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
+        b=G3wKSCQ88tzgHBoE7Cj4qn4qQoBOFxzn7kaWhRJSIocrPIwpZZuZsdjOtdxvIUIyr8
+         JPKB2l3nZLwA5NtaJXztsFkRG0Lnorla8IzN/k/3qNBtIuDJS4sWvOJ6nORHRGV0d4oh
+         QuMPecF+G2AeXxHdl79xMCQhgyp2mvB24oOJqMYT4u7p4GoUKygSvHkGxPluUfA4r1t4
+         Wbc3531Q/6regbHQHQBfUR3SPWDFYmzG3cnTlPyVNECvMeOpLOJL+VHkFDqyzppCmglw
+         t6pykT8Tgmz7JQdPJhtk+jjU6UtMB0Cl4ME7L0Jz/V++11GxAw3hdxzyeS3mAQBX3DiX
+         taHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=id3Jag4Ah2PkB7BKapHcKYtTL7WashnqZLKEAmMbsoE=;
-        b=MZScq3UdhvrmlDVe5EBsvK0Lvfrl7WM4JQr+TE/GRKfD4gUaIR0owHKfBgG8w33fOt
-         UIdAGLtdrd9FpbMX9u8jtNA4PA2GJhclvMkpkJBjyHSgOH476+AGX81P8e0qns4ZNjU8
-         pFKFn7vbiu4lmtp/QbrmJagAF4N4P/FbH15/P5DWPH+z+QUjZBEcL6OcFhjkPxvbOe7J
-         ioI9xXQQUfmRDqHVtsSMU9PTkzBxz0ewhrEj1bGlutnRx/w7EfYAP2AEUTlUm0mmzdtG
-         7KiPBusBFv7V/Gqm9rm34EAUuQzMpyqgUCa4/e7xyu4gKOZOdVPqR/8QrY+Hkigu5RSL
-         trvg==
-X-Gm-Message-State: APjAAAUrC/VsFr+B1NF61C8kLAqWUQd6TeXMHIJI2M1eM8IrgIq1RIlq
-        6+0F/YdHNcCZwUUEH/d2+rA=
-X-Google-Smtp-Source: APXvYqxVNh2jQV3Ol7QSf63nwA0BzgNLtjQm8Jc74eJh4xlOySDdcvTkNaZoexKrf+dv3WMptsoYLQ==
-X-Received: by 2002:a63:258:: with SMTP id 85mr7097403pgc.352.1572044318650;
-        Fri, 25 Oct 2019 15:58:38 -0700 (PDT)
-Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
-        by smtp.gmail.com with ESMTPSA id o123sm3243983pfg.161.2019.10.25.15.58.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Oct 2019 15:58:37 -0700 (PDT)
-From:   Bart Van Assche <bvanassche@acm.org>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
-        Bart Van Assche <bvanassche@acm.org>,
-        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
-Subject: [PATCH v2 1/4] RDMA/core: Fix ib_dma_max_seg_size()
-Date:   Fri, 25 Oct 2019 15:58:27 -0700
-Message-Id: <20191025225830.257535-2-bvanassche@acm.org>
-X-Mailer: git-send-email 2.24.0.rc0.303.g954a862665-goog
-In-Reply-To: <20191025225830.257535-1-bvanassche@acm.org>
-References: <20191025225830.257535-1-bvanassche@acm.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=GpNdYRES46RfzpVIgTMPzZ6u6WQI6KIHaSlhSlcg/+c=;
+        b=UEzkynAMw3x/rYma+4tYW6VRo2Zohz41pM8pAN+3+V/P0QPXaTtKoUu+RDqDEXqWGy
+         JUqd2VtR7oJ8+5h1J283o+QyqXCD3RDg1poXDxB9ezKSqRhZqCLQzIHiadr1N7DYYwoW
+         SG0dcSCfEqgiBPsmZPYCtSZAbXiWBwLj/BSVGiny2KJRBMIFKQ1PS7M0hu0fzVZmpECA
+         OCXsDUWYzipZB5GHhj6bWZxhQ+Ym6/neC/0lqpW/rvVUCMYW1pIyQ2il2ycGjVRsfYyf
+         Bj+NZOWu2onsOYMf3BdIkBbGv9SHXofsQDsg196kr/27WYUmEG/vnBJ3uJvcgJWEinht
+         NLVw==
+X-Gm-Message-State: APjAAAVZjwZmSz3njhXs9eaOAi7TnaRMGH4HW87CMDvkfjbXrhlcv4YI
+        XrDzaL7oKwROpAXRuNYpod0tOU6JDFWbqRdmTgI=
+X-Google-Smtp-Source: APXvYqwIYmhzlTh9v9whMfwDHT7jxN4839tFr2C5Dd7Zd65PVThwcw/DyHudZ6NRR/P3vF3gslTgRRjAl/qmqXylOuU=
+X-Received: by 2002:a9d:4e98:: with SMTP id v24mr4778039otk.58.1572044634390;
+ Fri, 25 Oct 2019 16:03:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a9d:23c2:0:0:0:0:0 with HTTP; Fri, 25 Oct 2019 16:03:53
+ -0700 (PDT)
+Reply-To: kylieelizabethwatson2019@gmail.com
+From:   "Sgt. Kylie Elizabeth Watson" <nadiajustin2016@gmail.com>
+Date:   Sat, 26 Oct 2019 03:33:53 +0430
+Message-ID: <CAKshr-=sf7r56H7W3BgK95Ax5fzdTprPhNr47cfKX0vKti8+TA@mail.gmail.com>
+Subject: Assist Request From You
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If dev->dma_device->params == NULL then the maximum DMA segment size is
-64 KB. See also the dma_get_max_seg_size() implementation. This patch
-fixes the following kernel warning:
-
-DMA-API: infiniband rxe0: mapping sg segment longer than device claims to support [len=126976] [max=65536]
-WARNING: CPU: 4 PID: 4848 at kernel/dma/debug.c:1220 debug_dma_map_sg+0x3d9/0x450
-RIP: 0010:debug_dma_map_sg+0x3d9/0x450
-Call Trace:
- srp_queuecommand+0x626/0x18d0 [ib_srp]
- scsi_queue_rq+0xd02/0x13e0 [scsi_mod]
- __blk_mq_try_issue_directly+0x2b3/0x3f0
- blk_mq_request_issue_directly+0xac/0xf0
- blk_insert_cloned_request+0xdf/0x170
- dm_mq_queue_rq+0x43d/0x830 [dm_mod]
- __blk_mq_try_issue_directly+0x2b3/0x3f0
- blk_mq_request_issue_directly+0xac/0xf0
- blk_mq_try_issue_list_directly+0xb8/0x170
- blk_mq_sched_insert_requests+0x23c/0x3b0
- blk_mq_flush_plug_list+0x529/0x730
- blk_flush_plug_list+0x21f/0x260
- blk_mq_make_request+0x56b/0xf20
- generic_make_request+0x196/0x660
- submit_bio+0xae/0x290
- blkdev_direct_IO+0x822/0x900
- generic_file_direct_write+0x110/0x200
- __generic_file_write_iter+0x124/0x2a0
- blkdev_write_iter+0x168/0x270
- aio_write+0x1c4/0x310
- io_submit_one+0x971/0x1390
- __x64_sys_io_submit+0x12a/0x390
- do_syscall_64+0x6f/0x2e0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: <stable@vger.kernel.org>
-Fixes: 0b5cb3300ae5 ("RDMA/srp: Increase max_segment_size")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
----
- include/rdma/ib_verbs.h | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index cca9985b4cbc..0626b62ed107 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -4057,9 +4057,7 @@ static inline void ib_dma_unmap_sg_attrs(struct ib_device *dev,
-  */
- static inline unsigned int ib_dma_max_seg_size(struct ib_device *dev)
- {
--	struct device_dma_parameters *p = dev->dma_device->dma_parms;
--
--	return p ? p->max_segment_size : UINT_MAX;
-+	return dma_get_max_seg_size(dev->dma_device);
- }
- 
- /**
 -- 
-2.24.0.rc0.303.g954a862665-goog
+Accept my greetings to you
 
+Assist Request From You
+
+I am 28 years old single an orphan my parents died when I am five
+years old nobody to help me,I send you my business proposal with tears
+and sorrow,Please let this not be a surprised message to you because I
+decided to contact you on this magnitude and lucrative transaction for
+our present and future survival in life. Moreover, I have laid all the
+solemn trust in you before i decided to disclose this successful and
+confidential transaction to you.
+
+I am  Kylie Elizabeth Watson ,I hope all is well with you? I am female
+soldier working as United Nations peace keeping troop in Afghanistan
+on war against terrorism. I have in my possession the sum of
+$3.5million USD Which I made here in Afghanistan 2014,I deposited this
+money with a Red Cross agent. I want you to stand as my beneficiary
+and receive the fund And keep it safe so that as soon as am through
+with my mission here in Afghanistan.
+
+You will assist me to invest it in a good profitable Venture or you
+keep it for me until I arrive your country, I will give You 40% of the
+total money for your assistance after you have receive The money.
+Please reply back to me if you are willing to work with me so that I
+can send you the information where the money is been deposited, your
+urgent reply is needed in my email address below
+(kylieelizabethwatson2019@gmail.com) so i can send you more details.
+
+Thank Yours
+Sgt,Kylie Elizabeth Watson
