@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EF3E5D57
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC8DE5D58
 	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:36:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726783AbfJZNQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38076 "EHLO mail.kernel.org"
+        id S1727240AbfJZNgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726759AbfJZNQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726777AbfJZNQc (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 26 Oct 2019 09:16:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2588721E6F;
-        Sat, 26 Oct 2019 13:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DFC6222C1;
+        Sat, 26 Oct 2019 13:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095790;
-        bh=txrikZKfy/zqUfENYOJ6HzBdcxX4mTCtb9sHONKfPog=;
+        s=default; t=1572095791;
+        bh=nt28z379L3xzDsUOBtOFpHIW+q40Fn0WeTFOyvoqjeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zFDJa4Ik81zSsBQ5o8xk4CEeGLRkTDk/tvBAy7zfAmuFI3QkpXGbVAvdFQkYyr9tX
-         V0TZ2HwPg7mfF1xRojSLjajnwfjSUFkL58DLltlugaU32QmSvd1t+DN0rgD0l8Cx6/
-         4J539hiYnMkENGhudPboP8XkeC0J1AwayD+8CORM=
+        b=CgOVNQVClacV5MwZ8gnscADhEXZpknX5BVMV08AWc7K0ze9wpTp4CvfHVuCqGrgZo
+         7ADCGSbzo4rDZtGZX0AsJTjxKoUxshQ7GtTZVf37P85eMLtwCcD/0KAZIY7ffO89Cl
+         NItXQ1DCTbV5HURBc7ZN3QUPhfscVYyG2+Ec+E1I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     David Howells <dhowells@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 18/99] rxrpc: Fix trace-after-put looking at the put connection record
-Date:   Sat, 26 Oct 2019 09:14:39 -0400
-Message-Id: <20191026131600.2507-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 19/99] rxrpc: Fix trace-after-put looking at the put call record
+Date:   Sat, 26 Oct 2019 09:14:40 -0400
+Message-Id: <20191026131600.2507-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -45,170 +45,164 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 4c1295dccc0afe0905b6ca4c62ade7f2406f2cfb ]
+[ Upstream commit 48c9e0ec7cbbb7370448f859ccc8e3b7eb69e755 ]
 
-rxrpc_put_*conn() calls trace_rxrpc_conn() after they have done the
-decrement of the refcount - which looks at the debug_id in the connection
-record.  But unless the refcount was reduced to zero, we no longer have the
-right to look in the record and, indeed, it may be deleted by some other
-thread.
+rxrpc_put_call() calls trace_rxrpc_call() after it has done the decrement
+of the refcount - which looks at the debug_id in the call record.  But
+unless the refcount was reduced to zero, we no longer have the right to
+look in the record and, indeed, it may be deleted by some other thread.
 
 Fix this by getting the debug_id out before decrementing the refcount and
 then passing that into the tracepoint.
 
-Fixes: 363deeab6d0f ("rxrpc: Add connection tracepoint and client conn state tracepoint")
+Fixes: e34d4234b0b7 ("rxrpc: Trace rxrpc_call usage")
 Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  include/trace/events/rxrpc.h |  6 +++---
  net/rxrpc/call_accept.c      |  2 +-
- net/rxrpc/conn_client.c      |  6 ++++--
- net/rxrpc/conn_object.c      | 13 +++++++------
- net/rxrpc/conn_service.c     |  2 +-
- 5 files changed, 16 insertions(+), 13 deletions(-)
+ net/rxrpc/call_object.c      | 28 +++++++++++++++++-----------
+ 3 files changed, 21 insertions(+), 15 deletions(-)
 
 diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 45556fe771c36..38a97e890cb67 100644
+index 38a97e890cb67..191fe447f9908 100644
 --- a/include/trace/events/rxrpc.h
 +++ b/include/trace/events/rxrpc.h
-@@ -546,10 +546,10 @@ TRACE_EVENT(rxrpc_peer,
+@@ -606,10 +606,10 @@ TRACE_EVENT(rxrpc_client,
  	    );
  
- TRACE_EVENT(rxrpc_conn,
--	    TP_PROTO(struct rxrpc_connection *conn, enum rxrpc_conn_trace op,
-+	    TP_PROTO(unsigned int conn_debug_id, enum rxrpc_conn_trace op,
- 		     int usage, const void *where),
+ TRACE_EVENT(rxrpc_call,
+-	    TP_PROTO(struct rxrpc_call *call, enum rxrpc_call_trace op,
++	    TP_PROTO(unsigned int call_debug_id, enum rxrpc_call_trace op,
+ 		     int usage, const void *where, const void *aux),
  
--	    TP_ARGS(conn, op, usage, where),
-+	    TP_ARGS(conn_debug_id, op, usage, where),
+-	    TP_ARGS(call, op, usage, where, aux),
++	    TP_ARGS(call_debug_id, op, usage, where, aux),
  
  	    TP_STRUCT__entry(
- 		    __field(unsigned int,	conn		)
-@@ -559,7 +559,7 @@ TRACE_EVENT(rxrpc_conn,
+ 		    __field(unsigned int,		call		)
+@@ -620,7 +620,7 @@ TRACE_EVENT(rxrpc_call,
  			     ),
  
  	    TP_fast_assign(
--		    __entry->conn = conn->debug_id;
-+		    __entry->conn = conn_debug_id;
+-		    __entry->call = call->debug_id;
++		    __entry->call = call_debug_id;
  		    __entry->op = op;
  		    __entry->usage = usage;
  		    __entry->where = where;
 diff --git a/net/rxrpc/call_accept.c b/net/rxrpc/call_accept.c
-index 00c095d74145d..c1b1b7dd29245 100644
+index c1b1b7dd29245..1f778102ed8d7 100644
 --- a/net/rxrpc/call_accept.c
 +++ b/net/rxrpc/call_accept.c
-@@ -84,7 +84,7 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
- 		smp_store_release(&b->conn_backlog_head,
- 				  (head + 1) & (size - 1));
+@@ -97,7 +97,7 @@ static int rxrpc_service_prealloc_one(struct rxrpc_sock *rx,
+ 	call->flags |= (1 << RXRPC_CALL_IS_SERVICE);
+ 	call->state = RXRPC_CALL_SERVER_PREALLOC;
  
--		trace_rxrpc_conn(conn, rxrpc_conn_new_service,
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_service,
- 				 atomic_read(&conn->usage), here);
- 	}
+-	trace_rxrpc_call(call, rxrpc_call_new_service,
++	trace_rxrpc_call(call->debug_id, rxrpc_call_new_service,
+ 			 atomic_read(&call->usage),
+ 			 here, (const void *)user_call_ID);
  
-diff --git a/net/rxrpc/conn_client.c b/net/rxrpc/conn_client.c
-index 3f1da1b49f690..700eb77173fcb 100644
---- a/net/rxrpc/conn_client.c
-+++ b/net/rxrpc/conn_client.c
-@@ -212,7 +212,8 @@ rxrpc_alloc_client_connection(struct rxrpc_conn_parameters *cp, gfp_t gfp)
- 	rxrpc_get_local(conn->params.local);
- 	key_get(conn->params.key);
+diff --git a/net/rxrpc/call_object.c b/net/rxrpc/call_object.c
+index 014548c259ceb..7f862a039eddc 100644
+--- a/net/rxrpc/call_object.c
++++ b/net/rxrpc/call_object.c
+@@ -240,7 +240,8 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
+ 	if (p->intr)
+ 		__set_bit(RXRPC_CALL_IS_INTR, &call->flags);
+ 	call->tx_total_len = p->tx_total_len;
+-	trace_rxrpc_call(call, rxrpc_call_new_client, atomic_read(&call->usage),
++	trace_rxrpc_call(call->debug_id, rxrpc_call_new_client,
++			 atomic_read(&call->usage),
+ 			 here, (const void *)p->user_call_ID);
  
--	trace_rxrpc_conn(conn, rxrpc_conn_new_client, atomic_read(&conn->usage),
-+	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_client,
-+			 atomic_read(&conn->usage),
- 			 __builtin_return_address(0));
- 	trace_rxrpc_client(conn, -1, rxrpc_client_alloc);
- 	_leave(" = %p", conn);
-@@ -985,11 +986,12 @@ rxrpc_put_one_client_conn(struct rxrpc_connection *conn)
- void rxrpc_put_client_conn(struct rxrpc_connection *conn)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = conn->debug_id;
- 	int n;
+ 	/* We need to protect a partially set up call against the user as we
+@@ -290,8 +291,8 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
+ 	if (ret < 0)
+ 		goto error;
  
- 	do {
- 		n = atomic_dec_return(&conn->usage);
--		trace_rxrpc_conn(conn, rxrpc_conn_put_client, n, here);
-+		trace_rxrpc_conn(debug_id, rxrpc_conn_put_client, n, here);
- 		if (n > 0)
- 			return;
- 		ASSERTCMP(n, >=, 0);
-diff --git a/net/rxrpc/conn_object.c b/net/rxrpc/conn_object.c
-index ed05b69221322..38d718e90dc69 100644
---- a/net/rxrpc/conn_object.c
-+++ b/net/rxrpc/conn_object.c
-@@ -269,7 +269,7 @@ bool rxrpc_queue_conn(struct rxrpc_connection *conn)
+-	trace_rxrpc_call(call, rxrpc_call_connected, atomic_read(&call->usage),
+-			 here, NULL);
++	trace_rxrpc_call(call->debug_id, rxrpc_call_connected,
++			 atomic_read(&call->usage), here, NULL);
+ 
+ 	rxrpc_start_call_timer(call);
+ 
+@@ -313,8 +314,8 @@ struct rxrpc_call *rxrpc_new_client_call(struct rxrpc_sock *rx,
+ error:
+ 	__rxrpc_set_call_completion(call, RXRPC_CALL_LOCAL_ERROR,
+ 				    RX_CALL_DEAD, ret);
+-	trace_rxrpc_call(call, rxrpc_call_error, atomic_read(&call->usage),
+-			 here, ERR_PTR(ret));
++	trace_rxrpc_call(call->debug_id, rxrpc_call_error,
++			 atomic_read(&call->usage), here, ERR_PTR(ret));
+ 	rxrpc_release_call(rx, call);
+ 	mutex_unlock(&call->user_mutex);
+ 	rxrpc_put_call(call, rxrpc_call_put);
+@@ -376,7 +377,8 @@ bool rxrpc_queue_call(struct rxrpc_call *call)
  	if (n == 0)
  		return false;
- 	if (rxrpc_queue_work(&conn->processor))
--		trace_rxrpc_conn(conn, rxrpc_conn_queued, n + 1, here);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_queued, n + 1, here);
+ 	if (rxrpc_queue_work(&call->processor))
+-		trace_rxrpc_call(call, rxrpc_call_queued, n + 1, here, NULL);
++		trace_rxrpc_call(call->debug_id, rxrpc_call_queued, n + 1,
++				 here, NULL);
  	else
- 		rxrpc_put_connection(conn);
+ 		rxrpc_put_call(call, rxrpc_call_put_noqueue);
  	return true;
-@@ -284,7 +284,7 @@ void rxrpc_see_connection(struct rxrpc_connection *conn)
- 	if (conn) {
- 		int n = atomic_read(&conn->usage);
+@@ -391,7 +393,8 @@ bool __rxrpc_queue_call(struct rxrpc_call *call)
+ 	int n = atomic_read(&call->usage);
+ 	ASSERTCMP(n, >=, 1);
+ 	if (rxrpc_queue_work(&call->processor))
+-		trace_rxrpc_call(call, rxrpc_call_queued_ref, n, here, NULL);
++		trace_rxrpc_call(call->debug_id, rxrpc_call_queued_ref, n,
++				 here, NULL);
+ 	else
+ 		rxrpc_put_call(call, rxrpc_call_put_noqueue);
+ 	return true;
+@@ -406,7 +409,8 @@ void rxrpc_see_call(struct rxrpc_call *call)
+ 	if (call) {
+ 		int n = atomic_read(&call->usage);
  
--		trace_rxrpc_conn(conn, rxrpc_conn_seen, n, here);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_seen, n, here);
+-		trace_rxrpc_call(call, rxrpc_call_seen, n, here, NULL);
++		trace_rxrpc_call(call->debug_id, rxrpc_call_seen, n,
++				 here, NULL);
  	}
  }
  
-@@ -296,7 +296,7 @@ void rxrpc_get_connection(struct rxrpc_connection *conn)
+@@ -418,7 +422,7 @@ void rxrpc_get_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
  	const void *here = __builtin_return_address(0);
- 	int n = atomic_inc_return(&conn->usage);
+ 	int n = atomic_inc_return(&call->usage);
  
--	trace_rxrpc_conn(conn, rxrpc_conn_got, n, here);
-+	trace_rxrpc_conn(conn->debug_id, rxrpc_conn_got, n, here);
+-	trace_rxrpc_call(call, op, n, here, NULL);
++	trace_rxrpc_call(call->debug_id, op, n, here, NULL);
  }
  
  /*
-@@ -310,7 +310,7 @@ rxrpc_get_connection_maybe(struct rxrpc_connection *conn)
- 	if (conn) {
- 		int n = atomic_fetch_add_unless(&conn->usage, 1, 0);
- 		if (n > 0)
--			trace_rxrpc_conn(conn, rxrpc_conn_got, n + 1, here);
-+			trace_rxrpc_conn(conn->debug_id, rxrpc_conn_got, n + 1, here);
- 		else
- 			conn = NULL;
- 	}
-@@ -333,10 +333,11 @@ static void rxrpc_set_service_reap_timer(struct rxrpc_net *rxnet,
- void rxrpc_put_service_conn(struct rxrpc_connection *conn)
+@@ -445,7 +449,8 @@ void rxrpc_release_call(struct rxrpc_sock *rx, struct rxrpc_call *call)
+ 
+ 	_enter("{%d,%d}", call->debug_id, atomic_read(&call->usage));
+ 
+-	trace_rxrpc_call(call, rxrpc_call_release, atomic_read(&call->usage),
++	trace_rxrpc_call(call->debug_id, rxrpc_call_release,
++			 atomic_read(&call->usage),
+ 			 here, (const void *)call->flags);
+ 
+ 	ASSERTCMP(call->state, ==, RXRPC_CALL_COMPLETE);
+@@ -532,12 +537,13 @@ void rxrpc_put_call(struct rxrpc_call *call, enum rxrpc_call_trace op)
  {
+ 	struct rxrpc_net *rxnet = call->rxnet;
  	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = conn->debug_id;
++	unsigned int debug_id = call->debug_id;
  	int n;
  
- 	n = atomic_dec_return(&conn->usage);
--	trace_rxrpc_conn(conn, rxrpc_conn_put_service, n, here);
-+	trace_rxrpc_conn(debug_id, rxrpc_conn_put_service, n, here);
+ 	ASSERT(call != NULL);
+ 
+ 	n = atomic_dec_return(&call->usage);
+-	trace_rxrpc_call(call, op, n, here, NULL);
++	trace_rxrpc_call(debug_id, op, n, here, NULL);
  	ASSERTCMP(n, >=, 0);
- 	if (n == 1)
- 		rxrpc_set_service_reap_timer(conn->params.local->rxnet,
-@@ -420,7 +421,7 @@ void rxrpc_service_connection_reaper(struct work_struct *work)
- 		 */
- 		if (atomic_cmpxchg(&conn->usage, 1, 0) != 1)
- 			continue;
--		trace_rxrpc_conn(conn, rxrpc_conn_reap_service, 0, NULL);
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_reap_service, 0, NULL);
- 
- 		if (rxrpc_conn_is_client(conn))
- 			BUG();
-diff --git a/net/rxrpc/conn_service.c b/net/rxrpc/conn_service.c
-index b30e13f6d95fd..123d6ceab15cb 100644
---- a/net/rxrpc/conn_service.c
-+++ b/net/rxrpc/conn_service.c
-@@ -134,7 +134,7 @@ struct rxrpc_connection *rxrpc_prealloc_service_connection(struct rxrpc_net *rxn
- 		list_add_tail(&conn->proc_link, &rxnet->conn_proc_list);
- 		write_unlock(&rxnet->conn_lock);
- 
--		trace_rxrpc_conn(conn, rxrpc_conn_new_service,
-+		trace_rxrpc_conn(conn->debug_id, rxrpc_conn_new_service,
- 				 atomic_read(&conn->usage),
- 				 __builtin_return_address(0));
- 	}
+ 	if (n == 0) {
+ 		_debug("call %d dead", call->debug_id);
 -- 
 2.20.1
 
