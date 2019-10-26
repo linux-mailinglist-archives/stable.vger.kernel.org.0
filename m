@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87657E5B2C
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A050E5C1F
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:28:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727655AbfJZNVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42746 "EHLO mail.kernel.org"
+        id S1726920AbfJZN2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:28:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728690AbfJZNVF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:21:05 -0400
+        id S1727634AbfJZNVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:21:06 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 087632070B;
-        Sat, 26 Oct 2019 13:21:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58D8321871;
+        Sat, 26 Oct 2019 13:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096064;
-        bh=ZnS8tGgolHcJyRZ+ULOW9N5wiHI8kazC/jtkn8jFGdY=;
+        s=default; t=1572096065;
+        bh=nkP+P8YBBS9QDsDaMNe3U4+XclMdwFgTQYomNQMcBmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6/RZQPIfx6TwZtMqOxFFYXLFF+y+uQi3MoY0F79lwHDmf5CGmopeTGB+v7INUgyA
-         uRNKgYLobyJ1kWfsBErRZyHN7iKgDd655U/b6g1LTlHBjcAvcLsyfEN1z/4/LUF8XU
-         8BvfzMHJveSXIzPOBF+VM2L3J3h+WKhrVXlBDy/A=
+        b=nKEyCmxnj5McjCL3Q1xyDwJiwxsYRrH1lEqUxwwpmJDM1l4T/CgbvrRrvHHRVLwHy
+         3qS319xW/SsssdBPtWLPgX7BRqmqOEuDiLFm55U+dp85PP+tGFCPsdGx7ypaNuJK5j
+         eXkLrpe2GcLmUfmK8uOkk67aGpbFr44vLfmOhYBw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Colledge <joel.colledge@linbit.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Kieran Bingham <kbingham@kernel.org>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
+Cc:     Chengguang Xu <cgxu519@mykernel.net>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 57/59] scripts/gdb: fix lx-dmesg when CONFIG_PRINTK_CALLER is set
-Date:   Sat, 26 Oct 2019 09:19:08 -0400
-Message-Id: <20191026131910.3435-57-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 58/59] ocfs2: fix error handling in ocfs2_setattr()
+Date:   Sat, 26 Oct 2019 09:19:09 -0400
+Message-Id: <20191026131910.3435-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -47,133 +50,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Colledge <joel.colledge@linbit.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit ca210ba32ef7537b02731bfe255ed8eb1e4e2b59 ]
+[ Upstream commit ce750f43f5790de74c1644c39d78f684071658d1 ]
 
-When CONFIG_PRINTK_CALLER is set, struct printk_log contains an
-additional member caller_id.  This affects the offset of the log text.
-Account for this by using the type information from gdb to determine all
-the offsets instead of using hardcoded values.
+Should set transfer_to[USRQUOTA/GRPQUOTA] to NULL on error case before
+jumping to do dqput().
 
-This fixes following error:
-
-  (gdb) lx-dmesg
-  Python Exception <class 'ValueError'> embedded null character:
-  Error occurred in Python command: embedded null character
-
-The read_u* utility functions now take an offset argument to make them
-easier to use.
-
-Link: http://lkml.kernel.org/r/20191011142500.2339-1-joel.colledge@linbit.com
-Signed-off-by: Joel Colledge <joel.colledge@linbit.com>
-Reviewed-by: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Kieran Bingham <kbingham@kernel.org>
-Cc: Leonard Crestez <leonard.crestez@nxp.com>
+Link: http://lkml.kernel.org/r/20191010082349.1134-1-cgxu519@mykernel.net
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gdb/linux/dmesg.py | 16 ++++++++++++----
- scripts/gdb/linux/utils.py | 25 +++++++++++++------------
- 2 files changed, 25 insertions(+), 16 deletions(-)
+ fs/ocfs2/file.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/scripts/gdb/linux/dmesg.py b/scripts/gdb/linux/dmesg.py
-index 6d2e09a2ad2f9..2fa7bb83885f0 100644
---- a/scripts/gdb/linux/dmesg.py
-+++ b/scripts/gdb/linux/dmesg.py
-@@ -16,6 +16,8 @@ import sys
- 
- from linux import utils
- 
-+printk_log_type = utils.CachedType("struct printk_log")
-+
- 
- class LxDmesg(gdb.Command):
-     """Print Linux kernel log buffer."""
-@@ -42,9 +44,14 @@ class LxDmesg(gdb.Command):
-             b = utils.read_memoryview(inf, log_buf_addr, log_next_idx)
-             log_buf = a.tobytes() + b.tobytes()
- 
-+        length_offset = printk_log_type.get_type()['len'].bitpos // 8
-+        text_len_offset = printk_log_type.get_type()['text_len'].bitpos // 8
-+        time_stamp_offset = printk_log_type.get_type()['ts_nsec'].bitpos // 8
-+        text_offset = printk_log_type.get_type().sizeof
-+
-         pos = 0
-         while pos < log_buf.__len__():
--            length = utils.read_u16(log_buf[pos + 8:pos + 10])
-+            length = utils.read_u16(log_buf, pos + length_offset)
-             if length == 0:
-                 if log_buf_2nd_half == -1:
-                     gdb.write("Corrupted log buffer!\n")
-@@ -52,10 +59,11 @@ class LxDmesg(gdb.Command):
-                 pos = log_buf_2nd_half
-                 continue
- 
--            text_len = utils.read_u16(log_buf[pos + 10:pos + 12])
--            text = log_buf[pos + 16:pos + 16 + text_len].decode(
-+            text_len = utils.read_u16(log_buf, pos + text_len_offset)
-+            text_start = pos + text_offset
-+            text = log_buf[text_start:text_start + text_len].decode(
-                 encoding='utf8', errors='replace')
--            time_stamp = utils.read_u64(log_buf[pos:pos + 8])
-+            time_stamp = utils.read_u64(log_buf, pos + time_stamp_offset)
- 
-             for line in text.splitlines():
-                 msg = u"[{time:12.6f}] {line}\n".format(
-diff --git a/scripts/gdb/linux/utils.py b/scripts/gdb/linux/utils.py
-index 50805874cfc38..802acfee6785a 100644
---- a/scripts/gdb/linux/utils.py
-+++ b/scripts/gdb/linux/utils.py
-@@ -91,15 +91,16 @@ def read_memoryview(inf, start, length):
-     return memoryview(inf.read_memory(start, length))
- 
- 
--def read_u16(buffer):
-+def read_u16(buffer, offset):
-+    buffer_val = buffer[offset:offset + 2]
-     value = [0, 0]
- 
--    if type(buffer[0]) is str:
--        value[0] = ord(buffer[0])
--        value[1] = ord(buffer[1])
-+    if type(buffer_val[0]) is str:
-+        value[0] = ord(buffer_val[0])
-+        value[1] = ord(buffer_val[1])
-     else:
--        value[0] = buffer[0]
--        value[1] = buffer[1]
-+        value[0] = buffer_val[0]
-+        value[1] = buffer_val[1]
- 
-     if get_target_endianness() == LITTLE_ENDIAN:
-         return value[0] + (value[1] << 8)
-@@ -107,18 +108,18 @@ def read_u16(buffer):
-         return value[1] + (value[0] << 8)
- 
- 
--def read_u32(buffer):
-+def read_u32(buffer, offset):
-     if get_target_endianness() == LITTLE_ENDIAN:
--        return read_u16(buffer[0:2]) + (read_u16(buffer[2:4]) << 16)
-+        return read_u16(buffer, offset) + (read_u16(buffer, offset + 2) << 16)
-     else:
--        return read_u16(buffer[2:4]) + (read_u16(buffer[0:2]) << 16)
-+        return read_u16(buffer, offset + 2) + (read_u16(buffer, offset) << 16)
- 
- 
--def read_u64(buffer):
-+def read_u64(buffer, offset):
-     if get_target_endianness() == LITTLE_ENDIAN:
--        return read_u32(buffer[0:4]) + (read_u32(buffer[4:8]) << 32)
-+        return read_u32(buffer, offset) + (read_u32(buffer, offset + 4) << 32)
-     else:
--        return read_u32(buffer[4:8]) + (read_u32(buffer[0:4]) << 32)
-+        return read_u32(buffer, offset + 4) + (read_u32(buffer, offset) << 32)
- 
- 
- target_arch = None
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index 9fa35cb6f6e0b..02fe64ada0dbd 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1240,6 +1240,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
+ 			transfer_to[USRQUOTA] = dqget(sb, make_kqid_uid(attr->ia_uid));
+ 			if (IS_ERR(transfer_to[USRQUOTA])) {
+ 				status = PTR_ERR(transfer_to[USRQUOTA]);
++				transfer_to[USRQUOTA] = NULL;
+ 				goto bail_unlock;
+ 			}
+ 		}
+@@ -1249,6 +1250,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
+ 			transfer_to[GRPQUOTA] = dqget(sb, make_kqid_gid(attr->ia_gid));
+ 			if (IS_ERR(transfer_to[GRPQUOTA])) {
+ 				status = PTR_ERR(transfer_to[GRPQUOTA]);
++				transfer_to[GRPQUOTA] = NULL;
+ 				goto bail_unlock;
+ 			}
+ 		}
 -- 
 2.20.1
 
