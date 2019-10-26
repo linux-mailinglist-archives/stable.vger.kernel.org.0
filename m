@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C98FE5AFD
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C103CE5B08
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728267AbfJZNT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:19:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
+        id S1728430AbfJZNTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728251AbfJZNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:19:26 -0400
+        id S1728415AbfJZNTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:19:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 085C721655;
-        Sat, 26 Oct 2019 13:19:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B355A2070B;
+        Sat, 26 Oct 2019 13:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095965;
-        bh=QpdTIUoHXnQ//a5FIK2xqAkhXc25r9Ym7Ua1sb3vdPw=;
+        s=default; t=1572095983;
+        bh=Le18mKrDHISF0w2bBo9xkGTAETMyYuS8pBBKnu/qdDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrZdBXPDKboFd8M1wzPqeovYIBJC10STc1EFPn5Yifh3Vc5nzWXReoIixd2oyfyCW
-         1nV7jn1wu86HOhsHbNxf8OpwbLxi6V5Bc8nP5JQtyU1wFT4S0S4YQhHG49dj2u7KLN
-         Qf9ikqlemY+lUJCXgjEkLdM2KNXEc1HOt7qb4c8o=
+        b=wK7K2CoOqFwQ7BdhdSLPKzpJvMM1hfQl61zXgkZmcaNg2hXlP62nlr5HEd/jbqMge
+         LKlvOaXxaAXt1wmxSzqSvnoZqwmuhYgKbhh+x4tvxMxufP+4lq/gYZTVq2D9dotAi5
+         cRDhs5ixtsUwuGKMA7kCLdPipHodwTYZ9PSbXzko=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 11/59] rxrpc: Fix trace-after-put looking at the put peer record
-Date:   Sat, 26 Oct 2019 09:18:22 -0400
-Message-Id: <20191026131910.3435-11-sashal@kernel.org>
+Cc:     Eric Biggers <ebiggers@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 19/59] llc: fix another potential sk_buff leak in llc_ui_sendmsg()
+Date:   Sat, 26 Oct 2019 09:18:30 -0400
+Message-Id: <20191026131910.3435-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -44,111 +43,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 55f6c98e3674ce16038a1949c3f9ca5a9a99f289 ]
+[ Upstream commit fc8d5db10cbe1338a52ebc74e7feab9276721774 ]
 
-rxrpc_put_peer() calls trace_rxrpc_peer() after it has done the decrement
-of the refcount - which looks at the debug_id in the peer record.  But
-unless the refcount was reduced to zero, we no longer have the right to
-look in the record and, indeed, it may be deleted by some other thread.
+All callers of llc_conn_state_process() except llc_build_and_send_pkt()
+(via llc_ui_sendmsg() -> llc_ui_send_data()) assume that it always
+consumes a reference to the skb.  Fix this caller to do the same.
 
-Fix this by getting the debug_id out before decrementing the refcount and
-then passing that into the tracepoint.
-
-This can cause the following symptoms:
-
-    BUG: KASAN: use-after-free in __rxrpc_put_peer net/rxrpc/peer_object.c:411
-    [inline]
-    BUG: KASAN: use-after-free in rxrpc_put_peer+0x685/0x6a0
-    net/rxrpc/peer_object.c:435
-    Read of size 8 at addr ffff888097ec0058 by task syz-executor823/24216
-
-Fixes: 1159d4b496f5 ("rxrpc: Add a tracepoint to track rxrpc_peer refcounting")
-Reported-by: syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/rxrpc.h |  6 +++---
- net/rxrpc/peer_object.c      | 11 +++++++----
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ net/llc/af_llc.c   | 34 ++++++++++++++++++++--------------
+ net/llc/llc_conn.c |  2 ++
+ net/llc/llc_if.c   | 12 ++++++++----
+ 3 files changed, 30 insertions(+), 18 deletions(-)
 
-diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
-index 0fe169c6afd84..a08916eb76152 100644
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -527,10 +527,10 @@ TRACE_EVENT(rxrpc_local,
- 	    );
+diff --git a/net/llc/af_llc.c b/net/llc/af_llc.c
+index b99e73a7e7e0f..ce841d59bc72a 100644
+--- a/net/llc/af_llc.c
++++ b/net/llc/af_llc.c
+@@ -113,22 +113,26 @@ static inline u8 llc_ui_header_len(struct sock *sk, struct sockaddr_llc *addr)
+  *
+  *	Send data via reliable llc2 connection.
+  *	Returns 0 upon success, non-zero if action did not succeed.
++ *
++ *	This function always consumes a reference to the skb.
+  */
+ static int llc_ui_send_data(struct sock* sk, struct sk_buff *skb, int noblock)
+ {
+ 	struct llc_sock* llc = llc_sk(sk);
+-	int rc = 0;
  
- TRACE_EVENT(rxrpc_peer,
--	    TP_PROTO(struct rxrpc_peer *peer, enum rxrpc_peer_trace op,
-+	    TP_PROTO(unsigned int peer_debug_id, enum rxrpc_peer_trace op,
- 		     int usage, const void *where),
+ 	if (unlikely(llc_data_accept_state(llc->state) ||
+ 		     llc->remote_busy_flag ||
+ 		     llc->p_flag)) {
+ 		long timeout = sock_sndtimeo(sk, noblock);
++		int rc;
  
--	    TP_ARGS(peer, op, usage, where),
-+	    TP_ARGS(peer_debug_id, op, usage, where),
- 
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,	peer		)
-@@ -540,7 +540,7 @@ TRACE_EVENT(rxrpc_peer,
- 			     ),
- 
- 	    TP_fast_assign(
--		    __entry->peer = peer->debug_id;
-+		    __entry->peer = peer_debug_id;
- 		    __entry->op = op;
- 		    __entry->usage = usage;
- 		    __entry->where = where;
-diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
-index 71547e8673b99..72b4ad210426e 100644
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -386,7 +386,7 @@ struct rxrpc_peer *rxrpc_get_peer(struct rxrpc_peer *peer)
- 	int n;
- 
- 	n = atomic_inc_return(&peer->usage);
--	trace_rxrpc_peer(peer, rxrpc_peer_got, n, here);
-+	trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n, here);
- 	return peer;
+ 		rc = llc_ui_wait_for_busy_core(sk, timeout);
++		if (rc) {
++			kfree_skb(skb);
++			return rc;
++		}
+ 	}
+-	if (unlikely(!rc))
+-		rc = llc_build_and_send_pkt(sk, skb);
+-	return rc;
++	return llc_build_and_send_pkt(sk, skb);
  }
  
-@@ -400,7 +400,7 @@ struct rxrpc_peer *rxrpc_get_peer_maybe(struct rxrpc_peer *peer)
- 	if (peer) {
- 		int n = atomic_fetch_add_unless(&peer->usage, 1, 0);
- 		if (n > 0)
--			trace_rxrpc_peer(peer, rxrpc_peer_got, n + 1, here);
-+			trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n + 1, here);
- 		else
- 			peer = NULL;
- 	}
-@@ -430,11 +430,13 @@ static void __rxrpc_put_peer(struct rxrpc_peer *peer)
- void rxrpc_put_peer(struct rxrpc_peer *peer)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id;
- 	int n;
+ static void llc_ui_sk_init(struct socket *sock, struct sock *sk)
+@@ -900,7 +904,7 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	DECLARE_SOCKADDR(struct sockaddr_llc *, addr, msg->msg_name);
+ 	int flags = msg->msg_flags;
+ 	int noblock = flags & MSG_DONTWAIT;
+-	struct sk_buff *skb;
++	struct sk_buff *skb = NULL;
+ 	size_t size = 0;
+ 	int rc = -EINVAL, copied = 0, hdrlen;
  
- 	if (peer) {
-+		debug_id = peer->debug_id;
- 		n = atomic_dec_return(&peer->usage);
--		trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+		trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
- 		if (n == 0)
- 			__rxrpc_put_peer(peer);
+@@ -909,10 +913,10 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	lock_sock(sk);
+ 	if (addr) {
+ 		if (msg->msg_namelen < sizeof(*addr))
+-			goto release;
++			goto out;
+ 	} else {
+ 		if (llc_ui_addr_null(&llc->addr))
+-			goto release;
++			goto out;
+ 		addr = &llc->addr;
  	}
-@@ -447,10 +449,11 @@ void rxrpc_put_peer(struct rxrpc_peer *peer)
- void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
+ 	/* must bind connection to sap if user hasn't done it. */
+@@ -920,7 +924,7 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 		/* bind to sap with null dev, exclusive. */
+ 		rc = llc_ui_autobind(sock, addr);
+ 		if (rc)
+-			goto release;
++			goto out;
+ 	}
+ 	hdrlen = llc->dev->hard_header_len + llc_ui_header_len(sk, addr);
+ 	size = hdrlen + len;
+@@ -929,12 +933,12 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	copied = size - hdrlen;
+ 	rc = -EINVAL;
+ 	if (copied < 0)
+-		goto release;
++		goto out;
+ 	release_sock(sk);
+ 	skb = sock_alloc_send_skb(sk, size, noblock, &rc);
+ 	lock_sock(sk);
+ 	if (!skb)
+-		goto release;
++		goto out;
+ 	skb->dev      = llc->dev;
+ 	skb->protocol = llc_proto_type(addr->sllc_arphrd);
+ 	skb_reserve(skb, hdrlen);
+@@ -944,29 +948,31 @@ static int llc_ui_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 	if (sk->sk_type == SOCK_DGRAM || addr->sllc_ua) {
+ 		llc_build_and_send_ui_pkt(llc->sap, skb, addr->sllc_mac,
+ 					  addr->sllc_sap);
++		skb = NULL;
+ 		goto out;
+ 	}
+ 	if (addr->sllc_test) {
+ 		llc_build_and_send_test_pkt(llc->sap, skb, addr->sllc_mac,
+ 					    addr->sllc_sap);
++		skb = NULL;
+ 		goto out;
+ 	}
+ 	if (addr->sllc_xid) {
+ 		llc_build_and_send_xid_pkt(llc->sap, skb, addr->sllc_mac,
+ 					   addr->sllc_sap);
++		skb = NULL;
+ 		goto out;
+ 	}
+ 	rc = -ENOPROTOOPT;
+ 	if (!(sk->sk_type == SOCK_STREAM && !addr->sllc_ua))
+ 		goto out;
+ 	rc = llc_ui_send_data(sk, skb, noblock);
++	skb = NULL;
+ out:
+-	if (rc) {
+-		kfree_skb(skb);
+-release:
++	kfree_skb(skb);
++	if (rc)
+ 		dprintk("%s: failed sending from %02X to %02X: %d\n",
+ 			__func__, llc->laddr.lsap, llc->daddr.lsap, rc);
+-	}
+ 	release_sock(sk);
+ 	return rc ? : copied;
+ }
+diff --git a/net/llc/llc_conn.c b/net/llc/llc_conn.c
+index ed2aca12460ca..0b0c6f12153b0 100644
+--- a/net/llc/llc_conn.c
++++ b/net/llc/llc_conn.c
+@@ -55,6 +55,8 @@ int sysctl_llc2_busy_timeout = LLC2_BUSY_TIME * HZ;
+  *	(executing it's actions and changing state), upper layer will be
+  *	indicated or confirmed, if needed. Returns 0 for success, 1 for
+  *	failure. The socket lock has to be held before calling this function.
++ *
++ *	This function always consumes a reference to the skb.
+  */
+ int llc_conn_state_process(struct sock *sk, struct sk_buff *skb)
  {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = peer->debug_id;
- 	int n;
+diff --git a/net/llc/llc_if.c b/net/llc/llc_if.c
+index 8db03c2d5440b..ad6547736c219 100644
+--- a/net/llc/llc_if.c
++++ b/net/llc/llc_if.c
+@@ -38,6 +38,8 @@
+  *	closed and -EBUSY when sending data is not permitted in this state or
+  *	LLC has send an I pdu with p bit set to 1 and is waiting for it's
+  *	response.
++ *
++ *	This function always consumes a reference to the skb.
+  */
+ int llc_build_and_send_pkt(struct sock *sk, struct sk_buff *skb)
+ {
+@@ -46,20 +48,22 @@ int llc_build_and_send_pkt(struct sock *sk, struct sk_buff *skb)
+ 	struct llc_sock *llc = llc_sk(sk);
  
- 	n = atomic_dec_return(&peer->usage);
--	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+	trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
+ 	if (unlikely(llc->state == LLC_CONN_STATE_ADM))
+-		goto out;
++		goto out_free;
+ 	rc = -EBUSY;
+ 	if (unlikely(llc_data_accept_state(llc->state) || /* data_conn_refuse */
+ 		     llc->p_flag)) {
+ 		llc->failed_data_req = 1;
+-		goto out;
++		goto out_free;
+ 	}
+ 	ev = llc_conn_ev(skb);
+ 	ev->type      = LLC_CONN_EV_TYPE_PRIM;
+ 	ev->prim      = LLC_DATA_PRIM;
+ 	ev->prim_type = LLC_PRIM_TYPE_REQ;
+ 	skb->dev      = llc->dev;
+-	rc = llc_conn_state_process(sk, skb);
+-out:
++	return llc_conn_state_process(sk, skb);
++
++out_free:
++	kfree_skb(skb);
+ 	return rc;
+ }
+ 
 -- 
 2.20.1
 
