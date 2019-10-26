@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E52AEE5BD8
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B530E5BDA
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729262AbfJZN0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:26:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43898 "EHLO mail.kernel.org"
+        id S1728095AbfJZN0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:26:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729328AbfJZNWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:22:08 -0400
+        id S1727629AbfJZNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:22:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 778CB222BE;
-        Sat, 26 Oct 2019 13:22:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C980D222C4;
+        Sat, 26 Oct 2019 13:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096127;
-        bh=U6HFSLK8B3LhppeobNpVbWvQmbuqRJyH+5DZKjc7zO0=;
+        s=default; t=1572096128;
+        bh=xda9XpkUkZwWDLO5iVEbaFaS5X5Lcy4XE84oFQtMlGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uE2ssZ7uMywAv3tiKOZwCSGAXIa4hP6Gcm8rGJNkDfylfoH+DL+sEjOosO/29usXq
-         keFfCVVgZOC5jdtoRmteTF6Ax2ShsV/LGhAqBbMvOoJTUvwzyrC+1zDGbcDVRkk2f3
-         yhwyVB0OBhmSqmA6pPYFIJ0uGIlfucUFSgqb42m0=
+        b=AJhAg0FzsDNOxEPWMizmBs/OKW/wxPZ39I/hvjXYSRBRejwfHdIVZobugboNdvFVH
+         MeFSVFgn0EQGcOA6ZPahk8m+8TPJmo0JMJlO6aueqAos3g532Ts/GQCfThpOU+3ovF
+         fnUh19JVCQ0nCmgbrMhT777FUZh25mgYTot/YGL8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Parri <parri.andrea@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Liu <wei.liu@kernel.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 29/33] x86/hyperv: Set pv_info.name to "Hyper-V"
-Date:   Sat, 26 Oct 2019 09:21:06 -0400
-Message-Id: <20191026132110.4026-29-sashal@kernel.org>
+Cc:     Andrew Lunn <andrew@lunn.ch>, Daniel Wagner <dwagner@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 30/33] net: usb: lan78xx: Connect PHY before registering MAC
+Date:   Sat, 26 Oct 2019 09:21:07 -0400
+Message-Id: <20191026132110.4026-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026132110.4026-1-sashal@kernel.org>
 References: <20191026132110.4026-1-sashal@kernel.org>
@@ -46,49 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri <parri.andrea@gmail.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit f7c0f50f1857c1cf013466fcea4dc98d116bf456 ]
+[ Upstream commit 38b4fe320119859c11b1dc06f6b4987a16344fa1 ]
 
-Michael reported that the x86/hyperv initialization code prints the
-following dmesg when running in a VM on Hyper-V:
+As soon as the netdev is registers, the kernel can start using the
+interface. If the driver connects the MAC to the PHY after the netdev
+is registered, there is a race condition where the interface can be
+opened without having the PHY connected.
 
-  [    0.000738] Booting paravirtualized kernel on bare hardware
+Change the order to close this race condition.
 
-Let the x86/hyperv initialization code set pv_info.name to "Hyper-V" so
-dmesg reports correctly:
-
-  [    0.000172] Booting paravirtualized kernel on Hyper-V
-
-[ tglx: Folded build fix provided by Yue ]
-
-Reported-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Andrea Parri <parri.andrea@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Link: https://lkml.kernel.org/r/20191015103502.13156-1-parri.andrea@gmail.com
+Fixes: 92571a1aae40 ("lan78xx: Connect phy early")
+Reported-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Tested-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/lan78xx.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index c0201b11e9e2a..4e7adccf812d4 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -171,6 +171,10 @@ static void __init ms_hyperv_init_platform(void)
- 	int hv_host_info_ecx;
- 	int hv_host_info_edx;
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index 24b994c68bccd..78a12d7b96e86 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -3642,10 +3642,14 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 	/* driver requires remote-wakeup capability during autosuspend. */
+ 	intf->needs_remote_wakeup = 1;
  
-+#ifdef CONFIG_PARAVIRT
-+	pv_info.name = "Hyper-V";
-+#endif
++	ret = lan78xx_phy_init(dev);
++	if (ret < 0)
++		goto out4;
 +
- 	/*
- 	 * Extract the features and hints
- 	 */
+ 	ret = register_netdev(netdev);
+ 	if (ret != 0) {
+ 		netif_err(dev, probe, netdev, "couldn't register the device\n");
+-		goto out4;
++		goto out5;
+ 	}
+ 
+ 	usb_set_intfdata(intf, dev);
+@@ -3658,14 +3662,10 @@ static int lan78xx_probe(struct usb_interface *intf,
+ 	pm_runtime_set_autosuspend_delay(&udev->dev,
+ 					 DEFAULT_AUTOSUSPEND_DELAY);
+ 
+-	ret = lan78xx_phy_init(dev);
+-	if (ret < 0)
+-		goto out5;
+-
+ 	return 0;
+ 
+ out5:
+-	unregister_netdev(netdev);
++	phy_disconnect(netdev->phydev);
+ out4:
+ 	usb_free_urb(dev->urb_intr);
+ out3:
 -- 
 2.20.1
 
