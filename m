@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEAEE5CBD
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85438E5CB8
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbfJZNcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40188 "EHLO mail.kernel.org"
+        id S1727781AbfJZNS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727804AbfJZNS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:18:26 -0400
+        id S1727818AbfJZNS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:18:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 659F721871;
-        Sat, 26 Oct 2019 13:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8480121E6F;
+        Sat, 26 Oct 2019 13:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095906;
-        bh=SdgeleUwGEEy+z0NNe6GfPZ8rgoZzZqSWIh5LtBgLFc=;
+        s=default; t=1572095907;
+        bh=0iAwcky+JaUwmjUqTrzCFVzK906qvUwgob+KWei1srA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAljH+MpzbSNrmSslBMtPWE3byLCscgtfjDzki1kO3TdgPvTegzRfj81+Qehlxkrh
-         o8BlyMiVqiyZOd7HfMpFEM310gSUekMgTKX1v1sjLGydZljJggPDNWLFZrmCG3vG4P
-         ckpAFeqcfW4DQPVxYqbY99NlHqjeoxy3VUbGMXt4=
+        b=muvHD7jqGSYJnLbVfKQ2DhRg1sh6Pdqk9d+HGQ4hU5Li6ufaSA4pulXgEJLvpqMmm
+         5q8xzWtKHrYKOvp0G0f9/XQID4aaezePllj4lSfYXjM2Do5sZacQQTNyCtukLbndsu
+         qOwEki2WWXsxo1x1VY/OFvjRzYrAaJCVsPFdkR98=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Song Liu <songliubraving@fb.com>, NeilBrown <neilb@suse.de>,
-        Ivan Topolsky <doktor.yak@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 81/99] md/raid0: fix warning message for parameter default_layout
-Date:   Sat, 26 Oct 2019 09:15:42 -0400
-Message-Id: <20191026131600.2507-81-sashal@kernel.org>
+Cc:     Biao Huang <biao.huang@mediatek.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 82/99] net: stmmac: disable/enable ptp_ref_clk in suspend/resume flow
+Date:   Sat, 26 Oct 2019 09:15:43 -0400
+Message-Id: <20191026131600.2507-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -43,34 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Biao Huang <biao.huang@mediatek.com>
 
-[ Upstream commit 3874d73e06c9b9dc15de0b7382fc223986d75571 ]
+[ Upstream commit e497c20e203680aba9ccf7bb475959595908ca7e ]
 
-The message should match the parameter, i.e. raid0.default_layout.
+disable ptp_ref_clk in suspend flow, and enable it in resume flow.
 
-Fixes: c84a1372df92 ("md/raid0: avoid RAID0 data corruption due to layout confusion.")
-Cc: NeilBrown <neilb@suse.de>
-Reported-by: Ivan Topolsky <doktor.yak@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Fixes: f573c0b9c4e0 ("stmmac: move stmmac_clk, pclk, clk_ptp_ref and stmmac_rst to platform structure")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid0.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 297bbc0f41f05..c3445d2cedb9d 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -151,7 +151,7 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
- 	} else {
- 		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
- 		       mdname(mddev));
--		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
-+		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
- 		err = -ENOTSUPP;
- 		goto abort;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 5c4408bdc843a..374f9b49bcc14 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4475,8 +4475,10 @@ int stmmac_suspend(struct device *dev)
+ 		stmmac_mac_set(priv, priv->ioaddr, false);
+ 		pinctrl_pm_select_sleep_state(priv->device);
+ 		/* Disable clock in case of PWM is off */
+-		clk_disable(priv->plat->pclk);
+-		clk_disable(priv->plat->stmmac_clk);
++		if (priv->plat->clk_ptp_ref)
++			clk_disable_unprepare(priv->plat->clk_ptp_ref);
++		clk_disable_unprepare(priv->plat->pclk);
++		clk_disable_unprepare(priv->plat->stmmac_clk);
  	}
+ 	mutex_unlock(&priv->lock);
+ 
+@@ -4539,8 +4541,10 @@ int stmmac_resume(struct device *dev)
+ 	} else {
+ 		pinctrl_pm_select_default_state(priv->device);
+ 		/* enable the clk previously disabled */
+-		clk_enable(priv->plat->stmmac_clk);
+-		clk_enable(priv->plat->pclk);
++		clk_prepare_enable(priv->plat->stmmac_clk);
++		clk_prepare_enable(priv->plat->pclk);
++		if (priv->plat->clk_ptp_ref)
++			clk_prepare_enable(priv->plat->clk_ptp_ref);
+ 		/* reset the phy so that it's ready */
+ 		if (priv->mii)
+ 			stmmac_mdio_reset(priv->mii);
 -- 
 2.20.1
 
