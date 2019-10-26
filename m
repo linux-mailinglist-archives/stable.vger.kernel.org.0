@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA571E5D0D
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DCDBE5D09
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727352AbfJZNRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39082 "EHLO mail.kernel.org"
+        id S1727348AbfJZNRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727348AbfJZNR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:29 -0400
+        id S1727385AbfJZNRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 545432070B;
-        Sat, 26 Oct 2019 13:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06947222BD;
+        Sat, 26 Oct 2019 13:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095849;
-        bh=bPFoI/OoIrZWhYtL8URNtW6H/PsvkIBxccGk60w9p8A=;
+        s=default; t=1572095853;
+        bh=Y4a8nZRLPZyWJewIpXd7KkVvD4okkKWNtoDmdd8Yyx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lt+wr5t5+yaOd1AUXvWaf9E56RGbWPZOUHQeme5+QfAh3M5iPSIdjmBiCp3G4LSWI
-         oeNGlHc4iUHiyKYFaZO7dCJRG8ZZBQnrpdngnaHw0CH2LsOJu6zSBNX25pNYclC9o0
-         XhcTuVplxfp1LX9Y1jUdjdImEjRZQEceBl3EqXXg=
+        b=hBd1k3mJVxkmprCFW97mYPgeyD60qsh+2jQ/iKmQGh3Q5VKF5dXgizT8ii7Mo7UnV
+         xNdccLjwxHn6wgqyFpimy5vc+hutdi4fyXHkiGP7ui51Upvj9MjQ/Bi3faA+FwVy+j
+         jDuI+wMcwGH7jUKntDVmRFE6r4r7DTetoYHIQq+Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniele Palmas <dnlplm@gmail.com>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jozsef Kadlecsik <kadlec@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 47/99] net: usb: qmi_wwan: add Telit 0x1050 composition
-Date:   Sat, 26 Oct 2019 09:15:08 -0400
-Message-Id: <20191026131600.2507-47-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 49/99] netfilter: conntrack: avoid possible false sharing
+Date:   Sat, 26 Oct 2019 09:15:10 -0400
+Message-Id: <20191026131600.2507-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,34 +49,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e0ae2c578d3909e60e9448207f5d83f785f1129f ]
+[ Upstream commit e37542ba111f3974dc622ae0a21c1787318de500 ]
 
-This patch adds support for Telit FN980 0x1050 composition
+As hinted by KCSAN, we need at least one READ_ONCE()
+to prevent a compiler optimization.
 
-0x1050: tty, adb, rmnet, tty, tty, tty, tty
+More details on :
+https://github.com/google/ktsan/wiki/READ_ONCE-and-WRITE_ONCE#it-may-improve-performance
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Acked-by: Bjørn Mork <bjorn@mork.no>
+sysbot report :
+BUG: KCSAN: data-race in __nf_ct_refresh_acct / __nf_ct_refresh_acct
+
+read to 0xffff888123eb4f08 of 4 bytes by interrupt on cpu 0:
+ __nf_ct_refresh_acct+0xd4/0x1b0 net/netfilter/nf_conntrack_core.c:1796
+ nf_ct_refresh_acct include/net/netfilter/nf_conntrack.h:201 [inline]
+ nf_conntrack_tcp_packet+0xd40/0x3390 net/netfilter/nf_conntrack_proto_tcp.c:1161
+ nf_conntrack_handle_packet net/netfilter/nf_conntrack_core.c:1633 [inline]
+ nf_conntrack_in+0x410/0xaa0 net/netfilter/nf_conntrack_core.c:1727
+ ipv4_conntrack_in+0x27/0x40 net/netfilter/nf_conntrack_proto.c:178
+ nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
+ nf_hook_slow+0x83/0x160 net/netfilter/core.c:512
+ nf_hook include/linux/netfilter.h:260 [inline]
+ NF_HOOK include/linux/netfilter.h:303 [inline]
+ ip_rcv+0x12f/0x1a0 net/ipv4/ip_input.c:523
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5004
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5118
+ netif_receive_skb_internal+0x59/0x190 net/core/dev.c:5208
+ napi_skb_finish net/core/dev.c:5671 [inline]
+ napi_gro_receive+0x28f/0x330 net/core/dev.c:5704
+ receive_buf+0x284/0x30b0 drivers/net/virtio_net.c:1061
+ virtnet_receive drivers/net/virtio_net.c:1323 [inline]
+ virtnet_poll+0x436/0x7d0 drivers/net/virtio_net.c:1428
+ napi_poll net/core/dev.c:6352 [inline]
+ net_rx_action+0x3ae/0xa50 net/core/dev.c:6418
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+
+write to 0xffff888123eb4f08 of 4 bytes by task 7191 on cpu 1:
+ __nf_ct_refresh_acct+0xfb/0x1b0 net/netfilter/nf_conntrack_core.c:1797
+ nf_ct_refresh_acct include/net/netfilter/nf_conntrack.h:201 [inline]
+ nf_conntrack_tcp_packet+0xd40/0x3390 net/netfilter/nf_conntrack_proto_tcp.c:1161
+ nf_conntrack_handle_packet net/netfilter/nf_conntrack_core.c:1633 [inline]
+ nf_conntrack_in+0x410/0xaa0 net/netfilter/nf_conntrack_core.c:1727
+ ipv4_conntrack_local+0xbe/0x130 net/netfilter/nf_conntrack_proto.c:200
+ nf_hook_entry_hookfn include/linux/netfilter.h:135 [inline]
+ nf_hook_slow+0x83/0x160 net/netfilter/core.c:512
+ nf_hook include/linux/netfilter.h:260 [inline]
+ __ip_local_out+0x1f7/0x2b0 net/ipv4/ip_output.c:114
+ ip_local_out+0x31/0x90 net/ipv4/ip_output.c:123
+ __ip_queue_xmit+0x3a8/0xa40 net/ipv4/ip_output.c:532
+ ip_queue_xmit+0x45/0x60 include/net/ip.h:236
+ __tcp_transmit_skb+0xdeb/0x1cd0 net/ipv4/tcp_output.c:1158
+ __tcp_send_ack+0x246/0x300 net/ipv4/tcp_output.c:3685
+ tcp_send_ack+0x34/0x40 net/ipv4/tcp_output.c:3691
+ tcp_cleanup_rbuf+0x130/0x360 net/ipv4/tcp.c:1575
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 7191 Comm: syz-fuzzer Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: cc16921351d8 ("netfilter: conntrack: avoid same-timeout update")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Jozsef Kadlecsik <kadlec@netfilter.org>
+Cc: Florian Westphal <fw@strlen.de>
+Acked-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netfilter/nf_conntrack_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 3d77cd402ba9c..596428ec71df6 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1327,6 +1327,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x2357, 0x0201, 4)},	/* TP-LINK HSUPA Modem MA180 */
- 	{QMI_FIXED_INTF(0x2357, 0x9000, 4)},	/* TP-LINK MA260 */
- 	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1040, 2)},	/* Telit LE922A */
-+	{QMI_QUIRK_SET_DTR(0x1bc7, 0x1050, 2)},	/* Telit FN980 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1100, 3)},	/* Telit ME910 */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1101, 3)},	/* Telit ME910 dual modem */
- 	{QMI_FIXED_INTF(0x1bc7, 0x1200, 5)},	/* Telit LE920 */
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 81a8ef42b88d3..56b1cf82ed3aa 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -1793,8 +1793,8 @@ void __nf_ct_refresh_acct(struct nf_conn *ct,
+ 	if (nf_ct_is_confirmed(ct))
+ 		extra_jiffies += nfct_time_stamp;
+ 
+-	if (ct->timeout != extra_jiffies)
+-		ct->timeout = extra_jiffies;
++	if (READ_ONCE(ct->timeout) != extra_jiffies)
++		WRITE_ONCE(ct->timeout, extra_jiffies);
+ acct:
+ 	if (do_acct)
+ 		nf_ct_acct_update(ct, ctinfo, skb->len);
 -- 
 2.20.1
 
