@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED73E5BC9
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C405E5B55
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728130AbfJZNWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:22:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
+        id S1728202AbfJZNWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727247AbfJZNWO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:22:14 -0400
+        id S1728105AbfJZNWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:22:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE010222C2;
-        Sat, 26 Oct 2019 13:22:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77C0121E6F;
+        Sat, 26 Oct 2019 13:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096134;
-        bh=lN8HzCNUZgx77G4Tsun541NbCcF5MB2uIzY6UsOyEKM=;
+        s=default; t=1572096136;
+        bh=rXRtwToaCGuYjPFcWlslPVaS9rgJjmE4QAtIj0oVni0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAuPKcyfu/EVJy+LzOSvUp0iDHJ0NpusDAYWmH8upzQLf+0qtmnJ5cSrpD26JerDj
-         PWRZRHFruFX76DzVu6N7DzgmYVi4v7xHSkqadRbcs73++eTUVDQVwO4wembSO6OHUA
-         GKJfOFWkeqxars3oc9ys8/EUhl1K65vKhOPqlCLM=
+        b=hACumDE9ZmHq5/EsEYAFwnjbrl9H+xbYDDagIEtqNYFkI0f71S5C2/jCBXs/n2ZAp
+         lhA/Zl3G6Lbew2+elmjxLi5EZKOcXu4VXkTlth+RPJxa6LF+27h/KYJaP+LVnLevXt
+         zGMPk8ZgMNL8TcJy4YtMigUUTGMfLFTHNLaRurNM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Kieran Bingham <kbingham@kernel.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 32/33] ocfs2: fix error handling in ocfs2_setattr()
-Date:   Sat, 26 Oct 2019 09:21:09 -0400
-Message-Id: <20191026132110.4026-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 33/33] scripts/gdb: fix debugging modules on s390
+Date:   Sat, 26 Oct 2019 09:21:10 -0400
+Message-Id: <20191026132110.4026-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026132110.4026-1-sashal@kernel.org>
 References: <20191026132110.4026-1-sashal@kernel.org>
@@ -50,49 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit ce750f43f5790de74c1644c39d78f684071658d1 ]
+[ Upstream commit 585d730d41120926e3f79a601edad3930fa28366 ]
 
-Should set transfer_to[USRQUOTA/GRPQUOTA] to NULL on error case before
-jumping to do dqput().
+Currently lx-symbols assumes that module text is always located at
+module->core_layout->base, but s390 uses the following layout:
 
-Link: http://lkml.kernel.org/r/20191010082349.1134-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+  +------+  <- module->core_layout->base
+  | GOT  |
+  +------+  <- module->core_layout->base + module->arch->plt_offset
+  | PLT  |
+  +------+  <- module->core_layout->base + module->arch->plt_offset +
+  | TEXT |     module->arch->plt_size
+  +------+
+
+Therefore, when trying to debug modules on s390, all the symbol
+addresses are skewed by plt_offset + plt_size.
+
+Fix by adding plt_offset + plt_size to module_addr in
+load_module_symbols().
+
+Link: http://lkml.kernel.org/r/20191017085917.81791-1-iii@linux.ibm.com
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Kieran Bingham <kbingham@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ scripts/gdb/linux/symbols.py | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index dc455d45a66ae..2a18bd2ceb5a6 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1238,6 +1238,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
- 			transfer_to[USRQUOTA] = dqget(sb, make_kqid_uid(attr->ia_uid));
- 			if (IS_ERR(transfer_to[USRQUOTA])) {
- 				status = PTR_ERR(transfer_to[USRQUOTA]);
-+				transfer_to[USRQUOTA] = NULL;
- 				goto bail_unlock;
- 			}
- 		}
-@@ -1247,6 +1248,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
- 			transfer_to[GRPQUOTA] = dqget(sb, make_kqid_gid(attr->ia_gid));
- 			if (IS_ERR(transfer_to[GRPQUOTA])) {
- 				status = PTR_ERR(transfer_to[GRPQUOTA]);
-+				transfer_to[GRPQUOTA] = NULL;
- 				goto bail_unlock;
- 			}
- 		}
+diff --git a/scripts/gdb/linux/symbols.py b/scripts/gdb/linux/symbols.py
+index 004b0ac7fa72d..d869e588f4ec4 100644
+--- a/scripts/gdb/linux/symbols.py
++++ b/scripts/gdb/linux/symbols.py
+@@ -15,7 +15,7 @@ import gdb
+ import os
+ import re
+ 
+-from linux import modules
++from linux import modules, utils
+ 
+ 
+ if hasattr(gdb, 'Breakpoint'):
+@@ -116,6 +116,12 @@ lx-symbols command."""
+             module_file = self._get_module_file(module_name)
+ 
+         if module_file:
++            if utils.is_target_arch('s390'):
++                # Module text is preceded by PLT stubs on s390.
++                module_arch = module['arch']
++                plt_offset = int(module_arch['plt_offset'])
++                plt_size = int(module_arch['plt_size'])
++                module_addr = hex(int(module_addr, 0) + plt_offset + plt_size)
+             gdb.write("loading @{addr}: {filename}\n".format(
+                 addr=module_addr, filename=module_file))
+             cmdline = "add-symbol-file {filename} {addr}{sections}".format(
 -- 
 2.20.1
 
