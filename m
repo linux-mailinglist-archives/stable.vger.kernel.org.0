@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 686D1E5C3B
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:29:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29A99E5B1E
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727498AbfJZN3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42316 "EHLO mail.kernel.org"
+        id S1728661AbfJZNUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:20:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727127AbfJZNUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:20:34 -0400
+        id S1728657AbfJZNUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:20:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3717222BD;
-        Sat, 26 Oct 2019 13:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E097821E6F;
+        Sat, 26 Oct 2019 13:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096033;
-        bh=0gMrf58nyOQicRuJIsnB9fgJMehx9YiSuKXoMEcGI28=;
+        s=default; t=1572096035;
+        bh=5g2TKYepzOq12HGG1Rs9GxMzREQ/5Jbgm0/GRVwlPGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvT2yo23keVe2VXfZamfI/l28P5t+AkUnBS+mUn4TKR05cpORLtWlk7y4SqRt0GlP
-         6EM5NC6jZLzY5wNCm/0msNPhnBGpAvyOb1DbG1C+bmzeDslCbWZ+GoWMfZrxyJqkhi
-         IKvN6YNW9I5A+kCK/p0fr0L0VaNIiH3/jOdPWSHo=
+        b=FmuGR+KOipW9rnm4/+Qrq3CjkJUl6lEW213N0WzXHTcwj2bndnB379KBXFhhCcTdO
+         BCtr5pxpqMVDCh05mXiDNgJj8CQtMqlpbGBYghNjCdLiY2FQgo36lmZ4P+Lpyibyv2
+         EEqZVxJ5pfHXwcLFa79iQlSmF+NUHFtsIkwyxaJk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <kbusch@kernel.org>,
-        Edmund Nadolski <edmund.nadolski@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 43/59] nvme: Prevent resets during paused controller state
-Date:   Sat, 26 Oct 2019 09:18:54 -0400
-Message-Id: <20191026131910.3435-43-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xtensa@linux-xtensa.org
+Subject: [PATCH AUTOSEL 4.19 44/59] xtensa: fix {get,put}_user() for 64bit values
+Date:   Sat, 26 Oct 2019 09:18:55 -0400
+Message-Id: <20191026131910.3435-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -44,83 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <kbusch@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 4c75f877853cfa81b12374a07208e07b077f39b8 ]
+[ Upstream commit 6595d144decec396bf2e2efee27e50634a4b627f ]
 
-A paused controller is doing critical internal activation work in the
-background. Prevent subsequent controller resets from occurring during
-this period by setting the controller state to RESETTING first. A helper
-function, nvme_try_sched_reset_work(), is introduced for these paths so
-they may continue with scheduling the reset_work after they've completed
-their uninterruptible critical section.
+First of all, on short copies __copy_{to,from}_user() return the amount
+of bytes left uncopied, *not* -EFAULT.  get_user() and put_user() are
+expected to return -EFAULT on failure.
 
-Tested-by: Edmund Nadolski <edmund.nadolski@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
+Another problem is get_user(v32, (__u64 __user *)p); that should
+fetch 64bit value and the assign it to v32, truncating it in process.
+Current code, OTOH, reads 8 bytes of data and stores them at the
+address of v32, stomping on the 4 bytes that follow v32 itself.
+
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ arch/xtensa/include/asm/uaccess.h | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ddd5c72a565ad..95d4f1a6dd795 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -126,6 +126,21 @@ static void nvme_queue_scan(struct nvme_ctrl *ctrl)
- 		queue_work(nvme_wq, &ctrl->scan_work);
- }
- 
-+/*
-+ * Use this function to proceed with scheduling reset_work for a controller
-+ * that had previously been set to the resetting state. This is intended for
-+ * code paths that can't be interrupted by other reset attempts. A hot removal
-+ * may prevent this from succeeding.
-+ */
-+static int nvme_try_sched_reset(struct nvme_ctrl *ctrl)
-+{
-+	if (ctrl->state != NVME_CTRL_RESETTING)
-+		return -EBUSY;
-+	if (!queue_work(nvme_reset_wq, &ctrl->reset_work))
-+		return -EBUSY;
-+	return 0;
-+}
-+
- int nvme_reset_ctrl(struct nvme_ctrl *ctrl)
- {
- 	if (!nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING))
-@@ -3445,13 +3460,13 @@ static void nvme_fw_act_work(struct work_struct *work)
- 		if (time_after(jiffies, fw_act_timeout)) {
- 			dev_warn(ctrl->device,
- 				"Fw activation timeout, reset controller\n");
--			nvme_reset_ctrl(ctrl);
--			break;
-+			nvme_try_sched_reset(ctrl);
-+			return;
- 		}
- 		msleep(100);
- 	}
- 
--	if (ctrl->state != NVME_CTRL_LIVE)
-+	if (!nvme_change_ctrl_state(ctrl, NVME_CTRL_LIVE))
- 		return;
- 
- 	nvme_start_queues(ctrl);
-@@ -3467,7 +3482,13 @@ static void nvme_handle_aen_notice(struct nvme_ctrl *ctrl, u32 result)
- 		nvme_queue_scan(ctrl);
- 		break;
- 	case NVME_AER_NOTICE_FW_ACT_STARTING:
--		queue_work(nvme_wq, &ctrl->fw_act_work);
-+		/*
-+		 * We are (ab)using the RESETTING state to prevent subsequent
-+		 * recovery actions from interfering with the controller's
-+		 * firmware activation.
-+		 */
-+		if (nvme_change_ctrl_state(ctrl, NVME_CTRL_RESETTING))
-+			queue_work(nvme_wq, &ctrl->fw_act_work);
- 		break;
- #ifdef CONFIG_NVME_MULTIPATH
- 	case NVME_AER_NOTICE_ANA:
+diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
+index f1158b4c629cf..b403885dd493a 100644
+--- a/arch/xtensa/include/asm/uaccess.h
++++ b/arch/xtensa/include/asm/uaccess.h
+@@ -101,7 +101,7 @@ do {									\
+ 	case 4: __put_user_asm(x, ptr, retval, 4, "s32i", __cb); break;	\
+ 	case 8: {							\
+ 		     __typeof__(*ptr) __v64 = x;			\
+-		     retval = __copy_to_user(ptr, &__v64, 8);		\
++		     retval = __copy_to_user(ptr, &__v64, 8) ? -EFAULT : 0;	\
+ 		     break;						\
+ 	        }							\
+ 	default: __put_user_bad();					\
+@@ -200,7 +200,16 @@ do {									\
+ 	case 1: __get_user_asm(x, ptr, retval, 1, "l8ui", __cb);  break;\
+ 	case 2: __get_user_asm(x, ptr, retval, 2, "l16ui", __cb); break;\
+ 	case 4: __get_user_asm(x, ptr, retval, 4, "l32i", __cb);  break;\
+-	case 8: retval = __copy_from_user(&x, ptr, 8);    break;	\
++	case 8: {							\
++		u64 __x;						\
++		if (unlikely(__copy_from_user(&__x, ptr, 8))) {		\
++			retval = -EFAULT;				\
++			(x) = 0;					\
++		} else {						\
++			(x) = *(__force __typeof__((ptr)))&__x;		\
++		}							\
++		break;							\
++	}								\
+ 	default: (x) = __get_user_bad();				\
+ 	}								\
+ } while (0)
 -- 
 2.20.1
 
