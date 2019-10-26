@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F68E5CEE
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18993E5CE5
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727580AbfJZNdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
+        id S1726256AbfJZNRx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:17:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727531AbfJZNRv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:51 -0400
+        id S1727550AbfJZNRw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F60A21D80;
-        Sat, 26 Oct 2019 13:17:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66AC021E6F;
+        Sat, 26 Oct 2019 13:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095871;
-        bh=Nw/PIM1BjEYj1uKwxNWpIozPv3bYm3XR3iJqsJno1EI=;
+        s=default; t=1572095872;
+        bh=+M/5ENxP6pEO4TqPPSztdt1841pC45RbxlaBLJurXks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vPu2tHzAruBId00QFJyMfZiEDGO6cPuhHnskQ3wISjBaEULY81dz9QJ6eeB1D/a3
-         +lXSfA27tKgPNGSwEt34fnL+deJK7il+gakcO9EvtAO4OzcCWiQd1s8CbF4JwX4nWE
-         XohtOPLhsAFZ2Eu94IntoSPN0hC/8GDP+fMUmhhs=
+        b=xY7KcvWBD0hJQuvZiakv5ITNmtixPxbo8lj2TQpEmVMeQ/AhNWHyTmdbqn/T2rWQS
+         4503FjBVyD4bNTrrH1nIsG6zX6zoR2mn9LKW1QaXC5+OOFTcXY6Tf/9fguyX44OHuZ
+         nggvF0vGrEv35y9eI6/FJxm8mTDQlCNWtrZPjrZ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miaoqing Pan <miaoqing@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 60/99] ath10k: fix latency issue for QCA988x
-Date:   Sat, 26 Oct 2019 09:15:21 -0400
-Message-Id: <20191026131600.2507-60-sashal@kernel.org>
+Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thellstrom@vmware.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.3 61/99] drm/ttm: fix busy reference in ttm_mem_evict_first
+Date:   Sat, 26 Oct 2019 09:15:22 -0400
+Message-Id: <20191026131600.2507-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,56 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit d79749f7716d9dc32fa2d5075f6ec29aac63c76d ]
+[ Upstream commit 73a88e4ce31055c415f1ddb55e3f08c9393cf4e3 ]
 
-(kvalo: cherry picked from commit 1340cc631bd00431e2f174525c971f119df9efa1 in
-wireless-drivers-next to wireless-drivers as this a frequently reported
-regression)
+The busy BO might actually be already deleted,
+so grab only a list reference.
 
-Bad latency is found on QCA988x, the issue was introduced by
-commit 4504f0e5b571 ("ath10k: sdio: workaround firmware UART
-pin configuration bug"). If uart_pin_workaround is false, this
-change will set uart pin even if uart_print is false.
-
-Tested HW: QCA9880
-Tested FW: 10.2.4-1.0-00037
-
-Fixes: 4504f0e5b571 ("ath10k: sdio: workaround firmware UART pin configuration bug")
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Thomas Hellström <thellstrom@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/332877/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/core.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
-index dc45d16e8d214..383d4fa555a88 100644
---- a/drivers/net/wireless/ath/ath10k/core.c
-+++ b/drivers/net/wireless/ath/ath10k/core.c
-@@ -2118,12 +2118,15 @@ static int ath10k_init_uart(struct ath10k *ar)
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 58c403eda04e7..c2df735a8f82c 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -874,11 +874,11 @@ static int ttm_mem_evict_first(struct ttm_bo_device *bdev,
+ 
+ 	if (!bo) {
+ 		if (busy_bo)
+-			ttm_bo_get(busy_bo);
++			kref_get(&busy_bo->list_kref);
+ 		spin_unlock(&glob->lru_lock);
+ 		ret = ttm_mem_evict_wait_busy(busy_bo, ctx, ticket);
+ 		if (busy_bo)
+-			ttm_bo_put(busy_bo);
++			kref_put(&busy_bo->list_kref, ttm_bo_release_list);
  		return ret;
  	}
  
--	if (!uart_print && ar->hw_params.uart_pin_workaround) {
--		ret = ath10k_bmi_write32(ar, hi_dbg_uart_txpin,
--					 ar->hw_params.uart_pin);
--		if (ret) {
--			ath10k_warn(ar, "failed to set UART TX pin: %d", ret);
--			return ret;
-+	if (!uart_print) {
-+		if (ar->hw_params.uart_pin_workaround) {
-+			ret = ath10k_bmi_write32(ar, hi_dbg_uart_txpin,
-+						 ar->hw_params.uart_pin);
-+			if (ret) {
-+				ath10k_warn(ar, "failed to set UART TX pin: %d",
-+					    ret);
-+				return ret;
-+			}
- 		}
- 
- 		return 0;
 -- 
 2.20.1
 
