@@ -2,96 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE75E5E55
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 20:00:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AB75E5F42
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 21:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726232AbfJZSAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 14:00:51 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53112 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726224AbfJZSAv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 26 Oct 2019 14:00:51 -0400
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iOQMq-0001IR-B5; Sat, 26 Oct 2019 19:00:48 +0100
-Received: from ben by deadeye with local (Exim 4.92.2)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iOQMq-0005oN-4t; Sat, 26 Oct 2019 19:00:48 +0100
-Message-ID: <40999dd0316512f9135040da5160785f79456cb3.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 00/47] 3.16.76-rc1 review
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Date:   Sat, 26 Oct 2019 19:00:37 +0100
-In-Reply-To: <c66efe1b-6a90-aedb-f854-615ec16c85f7@roeck-us.net>
-References: <lsq.1572026581.992411028@decadent.org.uk>
-         <c66efe1b-6a90-aedb-f854-615ec16c85f7@roeck-us.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-g6LJdgVcxBpObCFjkP2b"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1726476AbfJZTll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 15:41:41 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40865 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726342AbfJZTll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Oct 2019 15:41:41 -0400
+Received: by mail-lj1-f194.google.com with SMTP id u22so6999269lji.7
+        for <stable@vger.kernel.org>; Sat, 26 Oct 2019 12:41:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=lEi6jMgH3eOkIIQxg3KFN1FawC0di4EyrdH/s6XHtF0=;
+        b=AkN6ZA47GPlMMM+izkzR1Vk1jO7IIH9q0CCyKFSHEk8tTV1wBOwTWuWma9ZE3lcpqK
+         cgE+G0sRTDrTY4L1gZemH7Jgbhvtedz2hWzj0CX/cqnv/5NTWgYqYJKJ0LQ9sy/Txujs
+         BTrUCRS9w9jCUEZPzokEFQ7HhhkpErj1n3BDaNbZvY8qU2IXbv2zr/OckVkcmRXpYsTj
+         Zn+XKtk1YXPwQxrEXgXstiBWhwiRQy5LptXWkkLuiEgJvgZYU9Ok5oKX7kvZh4ZOsDmO
+         6OSQd86eNuUdpWbZDsGGH9lJ5FS73MQC0rtDeORoRlzTYEITowjYdESB66j0pUnlj6Dx
+         +f+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=lEi6jMgH3eOkIIQxg3KFN1FawC0di4EyrdH/s6XHtF0=;
+        b=TGN7uWahI7EL6cY/VqSLDFK2eppU4kacHRJsLhv+Gpac1SXa0cwBpQTcR9BiyPQtgS
+         Bs5KeQxDYCE0KBlWEzlDxYsnw8pvO7Fjzpj/d4uJrLPaHtTppbO3kiIpX75YsClleXDY
+         ozsT/My231JQb8qOWMZ20B/bDL4tjvNm8WlTNqZyZI0n5vSGZXHZ4ahtdfsGaZRWLEr4
+         kbHONXQ8JMRJBn1NrUKfBccioIFysJ0HUxq0ZTeQSn+dCy1HxjczLOKahdK42D8pIPDM
+         k+PyBrO0hSsNQxAcUotfHCF45pQWE3wBDUQZ43A/CqpF9jsPTwqiGfACUcnHYA+v2ABQ
+         E+lQ==
+X-Gm-Message-State: APjAAAX+GJzb9+WNDeQYnXdU69zBHcJsXxUuQp70B6TBZGnfg6PkAh0s
+        QNIgdMP57mzuykSarc4i5ziBND/tnu+cDlmJrtA1prut
+X-Google-Smtp-Source: APXvYqwqHhiPHQgJE1SsiEVBmUgewLG5CSeziKHwlcmB6rsD74+b/AESdlunLLTPgoboAF6yBv/oQEo0NWxnAoFIZ4o=
+X-Received: by 2002:a2e:350f:: with SMTP id z15mr6993306ljz.185.1572118898122;
+ Sat, 26 Oct 2019 12:41:38 -0700 (PDT)
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+From:   Vincent Fortier <th0ma7@gmail.com>
+Date:   Sat, 26 Oct 2019 15:41:27 -0400
+Message-ID: <CALAySuL6D7_LAK6tpzhBg07664NYFGfhe-A5G0H2vNWvdP=uqA@mail.gmail.com>
+Subject: Request for backporting to 4.4 & 4.9: xenbus: Avoid deadlock during
+ suspend due to open transactions
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi all,
 
---=-g6LJdgVcxBpObCFjkP2b
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+I just found out that there may be a fix for our live-migration issues
+that we have been plagued with for quite a while.  The fix sits under
+5.2 kernel at:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.2.21&id=d10e0cc113c9e1b64b5c6e3db37b5c839794f3df
 
-On Fri, 2019-10-25 at 18:35 -0700, Guenter Roeck wrote:
-> On 10/25/19 11:03 AM, Ben Hutchings wrote:
-> > This is the start of the stable review cycle for the 3.16.76 release.
-> > There are 47 patches in this series, which will be posted as responses
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >=20
-> > Responses should be made by Tue Oct 29 18:00:00 UTC 2019.
-> > Anything received after that time might be too late.
-> >=20
->=20
-> Build results:
-> 	total: 136 pass: 136 fail: 0
-> Qemu test results:
-> 	total: 229 pass: 229 fail: 0
+I believe this is material for the 4.4 & 4.9 stable trees as we've
+been hitting this issue under ubuntu 4.4 kernels.
 
-Great, thanks for checking.
+Thnx in advance!
 
-Ben.
-
---=20
-Ben Hutchings
-Knowledge is power.  France is bacon.
-
-
-
---=-g6LJdgVcxBpObCFjkP2b
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl20icUACgkQ57/I7JWG
-EQlckhAAvwrj6dGb/4/PgEtx1bGYU9WjjJ5VRiVMqrmL9huuLoKoqP91o66eDbSv
-9qetCw6BKFjGzdEe3u7B8M+fM4ETz//BFRaeNqj4Mn4SqiHB0acRxxS6XPqDJ7KP
-/qyaghKOG0e7WZnj+TP8yim1nuj74K2DXCNp23m64XJzQ+pCZYOatrZbvBlPvp6l
-Gvy4LKzxygoZ2cE+tIiKqXydq2gUe6kQje9MiQVmnxr85C+E+iDdZYQ5OaCFiD0e
-6offagwq0hWu4pq0h/23CM5nEDo6ZNZEN2QjdEW0yzZcIR/O4TgN08rNVk8hEuVA
-h7HH3asaWJ/tEjQiZpcWEYHkl09USfFL+LGjnn1u5cu2NV71x34HroaHiQjDCkxc
-jiR3/HbbpCf39ee7ZAheTNXNdonZ08I2+F61YzpiSsSJCRSeFj9x8n7g60whkqce
-p1q0S3rHfCSsPaEhISearXiCGei37+6lRsqjTO9uEFTMv/MZhBdX48xRoF0SAxLo
-adkJvVOuiFiRjRRVakLBdsjsm249Yey+blmOO9r6SaSvhEmM9hz+sEeSyj1Z9BOe
-RdXL6cqqsEkdTNAfoSB11z/vcU6+BbzfP4Zgxrq2JrCsP/+Tst16MiP7zRl5Hple
-8upkabeGntytgicyJLWgKS6gawNz/s68oVOvcYG+SsZc32F6Pi4=
-=fvyw
------END PGP SIGNATURE-----
-
---=-g6LJdgVcxBpObCFjkP2b--
+- vin
