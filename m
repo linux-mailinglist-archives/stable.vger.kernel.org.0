@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9B10E5C8C
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:31:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88F9AE5C8E
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728248AbfJZNTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:19:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
+        id S1728254AbfJZNT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:19:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbfJZNTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:19:24 -0400
+        id S1728238AbfJZNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:19:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9F3B2070B;
-        Sat, 26 Oct 2019 13:19:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4BC321D7F;
+        Sat, 26 Oct 2019 13:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095963;
-        bh=jsZPOx60yyYquX2mfJXeJhv5RdUK3SaV53lgliB4a54=;
+        s=default; t=1572095964;
+        bh=1oQgUWXsnyNQ3oyHEoHZ3MyPQnHIg/LZon8cKAsd5ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRRpU6J3hi7KZyxOzvWjTxPA0mrysX56toY04EIaIadTIqpq3tQWygUXNp/x7PWzG
-         XuKcMyix2OnZ0ieyLEh09JPkhEoq6YVB7Sj4HqgzaFi7mBhHDJMBM8gw1zPdIwxqDS
-         BTIFvvXppEvJPb0AIcbGxAGGC1pD1L4pElorWylM=
+        b=H3Y35YkpgbGlAO4dCf4S8wLzw2qPzlQpF6FiQWLmu97VbOr5N6Bw+h+UapzlY14LO
+         UPI/ieB/Gjmp2EkFfyG0aHF6UOmeFeBXi1m1hIRlK0IJ/L4tsVLx66EA44v5J0mRY2
+         G/Lm3aB7Db+RSGGHSOwqodLQ3d2nDQjfncVQu21I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rander Wang <rander.wang@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 09/59] ALSA: hdac: clear link output stream mapping
-Date:   Sat, 26 Oct 2019 09:18:20 -0400
-Message-Id: <20191026131910.3435-9-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        syzbot+d850c266e3df14da1d31@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/59] rxrpc: Fix call ref leak
+Date:   Sat, 26 Oct 2019 09:18:21 -0400
+Message-Id: <20191026131910.3435-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -43,59 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@linux.intel.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 130bce3afbbbbe585cba8604f2124c28e8d86fb0 ]
+[ Upstream commit c48fc11b69e95007109206311b0187a3090591f3 ]
 
-Fix potential DMA hang upon starting playback on devices in HDA mode
-on Intel platforms (Gemini Lake/Whiskey Lake/Comet Lake/Ice Lake). It
-doesn't affect platforms before Gemini Lake or any Intel device in
-non-HDA mode.
+When sendmsg() finds a call to continue on with, if the call is in an
+inappropriate state, it doesn't release the ref it just got on that call
+before returning an error.
 
-The reset value for the LOSDIV register is all output streams valid.
-Clear this register to invalidate non-existent streams when the bus
-is powered up.
+This causes the following symptom to show up with kasan:
 
-Signed-off-by: Rander Wang <rander.wang@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190930142945.7805-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	BUG: KASAN: use-after-free in rxrpc_send_keepalive+0x8a2/0x940
+	net/rxrpc/output.c:635
+	Read of size 8 at addr ffff888064219698 by task kworker/0:3/11077
+
+where line 635 is:
+
+	whdr.epoch	= htonl(peer->local->rxnet->epoch);
+
+The local endpoint (which cannot be pinned by the call) has been released,
+but not the peer (which is pinned by the call).
+
+Fix this by releasing the call in the error path.
+
+Fixes: 37411cad633f ("rxrpc: Fix potential NULL-pointer exception")
+Reported-by: syzbot+d850c266e3df14da1d31@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/hda_register.h        | 3 +++
- sound/hda/ext/hdac_ext_controller.c | 5 +++++
- 2 files changed, 8 insertions(+)
+ net/rxrpc/sendmsg.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/sound/hda_register.h b/include/sound/hda_register.h
-index 2ab39fb52d7a1..b6bb93a641268 100644
---- a/include/sound/hda_register.h
-+++ b/include/sound/hda_register.h
-@@ -262,6 +262,9 @@ enum { SDI0, SDI1, SDI2, SDI3, SDO0, SDO1, SDO2, SDO3 };
- #define AZX_REG_ML_LOUTPAY		0x20
- #define AZX_REG_ML_LINPAY		0x30
- 
-+/* bit0 is reserved, with BIT(1) mapping to stream1 */
-+#define ML_LOSIDV_STREAM_MASK		0xFFFE
-+
- #define ML_LCTL_SCF_MASK			0xF
- #define AZX_MLCTL_SPA				(0x1 << 16)
- #define AZX_MLCTL_CPA				(0x1 << 23)
-diff --git a/sound/hda/ext/hdac_ext_controller.c b/sound/hda/ext/hdac_ext_controller.c
-index 5bc4a1d587d4f..95cf5cf10ad2e 100644
---- a/sound/hda/ext/hdac_ext_controller.c
-+++ b/sound/hda/ext/hdac_ext_controller.c
-@@ -272,6 +272,11 @@ int snd_hdac_ext_bus_link_get(struct hdac_bus *bus,
- 
- 		ret = snd_hdac_ext_bus_link_power_up(link);
- 
-+		/*
-+		 * clear the register to invalidate all the output streams
-+		 */
-+		snd_hdac_updatew(link->ml_addr, AZX_REG_ML_LOSIDV,
-+				 ML_LOSIDV_STREAM_MASK, 0);
- 		/*
- 		 *  wait for 521usec for codec to report status
- 		 *  HDA spec section 4.3 - Codec Discovery
+diff --git a/net/rxrpc/sendmsg.c b/net/rxrpc/sendmsg.c
+index 5d6ab4f6fd7ab..3e54ead1e921a 100644
+--- a/net/rxrpc/sendmsg.c
++++ b/net/rxrpc/sendmsg.c
+@@ -661,6 +661,7 @@ int rxrpc_do_sendmsg(struct rxrpc_sock *rx, struct msghdr *msg, size_t len)
+ 		case RXRPC_CALL_SERVER_PREALLOC:
+ 		case RXRPC_CALL_SERVER_SECURING:
+ 		case RXRPC_CALL_SERVER_ACCEPTING:
++			rxrpc_put_call(call, rxrpc_call_put);
+ 			ret = -EBUSY;
+ 			goto error_release_sock;
+ 		default:
 -- 
 2.20.1
 
