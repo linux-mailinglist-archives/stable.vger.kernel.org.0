@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B63F5E5D70
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A04AE5D6B
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726592AbfJZNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
+        id S1727818AbfJZNh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:37:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726566AbfJZNQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:16:16 -0400
+        id S1726599AbfJZNQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:16:17 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B83721897;
-        Sat, 26 Oct 2019 13:16:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B4DF214DA;
+        Sat, 26 Oct 2019 13:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095776;
-        bh=NQ0FnJ1VBANMVsMUTfmcHRHbQvXmLQjJYYhHODkSERc=;
+        s=default; t=1572095777;
+        bh=gr1+NPhVim/8WT4tXIGJW3bwKLIyO44ri2y1KKXTKok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p11wgfF/ez48B8UA/kQZYySvqHW6RAwkVFOSTsY3rlUY5sihPg3UiTzBUcp/XJvD/
-         KMzFKYcinGhAQ1NuzMWN0GY9AV/CdVPDERJx/JNxHZa06d65RZOW2HcgZQSl7Zialv
-         QYnBPx7CFfHU7iLJnYEpsy+jg7ZYP0zO0iVKwT54=
+        b=wJj6O8pDdjmKb2i1h8p3TEuW1wxVTYbWve79Fxqz4L5bbhIFIEzOBThNBBMGAtNgk
+         vGDcDSk4pTHyWTXT2k4L1D4M7JB9XbGMRP85SChDRqH06h9pWh7ru+hRgKD3Z0A9JR
+         zAGSjCj8h3A/ILAb+LkLnA4ROGDaw9wshR9fxhgg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Vassernis <michael.vassernis@tandemg.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 07/99] mac80211_hwsim: fix incorrect dev_alloc_name failure goto
-Date:   Sat, 26 Oct 2019 09:14:28 -0400
-Message-Id: <20191026131600.2507-7-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>,
+        Judy Brock <judy.brock@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.3 08/99] nvme: fix possible deadlock when nvme_update_formats fails
+Date:   Sat, 26 Oct 2019 09:14:29 -0400
+Message-Id: <20191026131600.2507-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,36 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Vassernis <michael.vassernis@tandemg.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 313c3fe9c2348e7147eca38bb446f295b45403a0 ]
+[ Upstream commit 6abff1b9f7b8884a46b7bd80b49e7af0b5625aeb ]
 
-If dev_alloc_name fails, hwsim_mon's memory allocated in alloc_netdev
-needs to be freed.
-Change goto command in dev_alloc_name failure to out_free_mon in
-order to perform free_netdev.
+nvme_update_formats may fail to revalidate the namespace and
+attempt to remove the namespace. This may lead to a deadlock
+as nvme_ns_remove will attempt to acquire the subsystem lock
+which is already acquired by the passthru command with effects.
 
-Signed-off-by: Michael Vassernis <michael.vassernis@tandemg.com>
-Link: https://lore.kernel.org/r/20191003073049.3760-1-michael.vassernis@tandemg.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Move the invalid namepsace removal to after the passthru command
+releases the subsystem lock.
+
+Reported-by: Judy Brock <judy.brock@samsung.com>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 772e54f0696fd..141508e01c31f 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -3929,7 +3929,7 @@ static int __init init_mac80211_hwsim(void)
- 	err = dev_alloc_name(hwsim_mon, hwsim_mon->name);
- 	if (err < 0) {
- 		rtnl_unlock();
--		goto out_free_radios;
-+		goto out_free_mon;
- 	}
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index d3d6b7bd69033..7284bee560a0f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1304,8 +1304,6 @@ static void nvme_update_formats(struct nvme_ctrl *ctrl)
+ 		if (ns->disk && nvme_revalidate_disk(ns->disk))
+ 			nvme_set_queue_dying(ns);
+ 	up_read(&ctrl->namespaces_rwsem);
+-
+-	nvme_remove_invalid_namespaces(ctrl, NVME_NSID_ALL);
+ }
  
- 	err = register_netdevice(hwsim_mon);
+ static void nvme_passthru_end(struct nvme_ctrl *ctrl, u32 effects)
+@@ -1321,6 +1319,7 @@ static void nvme_passthru_end(struct nvme_ctrl *ctrl, u32 effects)
+ 		nvme_unfreeze(ctrl);
+ 		nvme_mpath_unfreeze(ctrl->subsys);
+ 		mutex_unlock(&ctrl->subsys->lock);
++		nvme_remove_invalid_namespaces(ctrl, NVME_NSID_ALL);
+ 		mutex_unlock(&ctrl->scan_lock);
+ 	}
+ 	if (effects & NVME_CMD_EFFECTS_CCC)
 -- 
 2.20.1
 
