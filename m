@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5AABE5D54
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7DE1E5D51
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726812AbfJZNQe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:16:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38110 "EHLO mail.kernel.org"
+        id S1726826AbfJZNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726805AbfJZNQd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:16:33 -0400
+        id S1726813AbfJZNQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:16:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52572222C2;
-        Sat, 26 Oct 2019 13:16:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75135222BE;
+        Sat, 26 Oct 2019 13:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095793;
-        bh=i6OBQan2kKE6S0mHWye64Z4OOzcnSu3pGuUf59jIpnk=;
+        s=default; t=1572095794;
+        bh=grgpAxtUB4xIGMyjFZyp1n+8/BUm3kbhNeTqFmwWZoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bcGXzL6cq8pZ6bVAOo8c0vufFvwq1Ikxk3/qZ1RjIFPKPMCW37yWS1lUrIoGS/rF
-         36gANyfgfVzm3BoBj3ULSRy786R/3QZRdz/aPjd05+ATLCQtFRS+K4ThpmNjY6ck14
-         9RZznq7F5yWCymqmzveYRVgve6wqBbLXgiZqQsLY=
+        b=qWUpnamx2zNdam3uFVVcGl9p93l+I7w8tW2jk9hU4mdgsLgo0lBfUhKmHNUN1wquN
+         NZqvOLKuiGc7bMMXjiAMn7JJmJd611RgGVUHJPI30I+l3Z2VlFX4Et99YVn1V4tuw6
+         XQoexIjD7VxrY7HYsjbpyfbjxmj+esxTTtM+Ry3Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Howells <dhowells@redhat.com>,
-        syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 20/99] rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record
-Date:   Sat, 26 Oct 2019 09:14:41 -0400
-Message-Id: <20191026131600.2507-20-sashal@kernel.org>
+Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 21/99] nl80211: fix memory leak in nl80211_get_ftm_responder_stats
+Date:   Sat, 26 Oct 2019 09:14:42 -0400
+Message-Id: <20191026131600.2507-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,72 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 9ebeddef58c41bd700419cdcece24cf64ce32276 ]
+[ Upstream commit 1399c59fa92984836db90538cf92397fe7caaa57 ]
 
-The rxrpc_peer record needs to hold a reference on the rxrpc_local record
-it points as the peer is used as a base to access information in the
-rxrpc_local record.
+In nl80211_get_ftm_responder_stats, a new skb is created via nlmsg_new
+named msg. If nl80211hdr_put() fails, then msg should be released. The
+return statement should be replace by goto to error handling code.
 
-This can cause problems in __rxrpc_put_peer(), where we need the network
-namespace pointer, and in rxrpc_send_keepalive(), where we need to access
-the UDP socket, leading to symptoms like:
-
-    BUG: KASAN: use-after-free in __rxrpc_put_peer net/rxrpc/peer_object.c:411
-    [inline]
-    BUG: KASAN: use-after-free in rxrpc_put_peer+0x685/0x6a0
-    net/rxrpc/peer_object.c:435
-    Read of size 8 at addr ffff888097ec0058 by task syz-executor823/24216
-
-Fix this by taking a ref on the local record for the peer record.
-
-Fixes: ace45bec6d77 ("rxrpc: Fix firewall route keepalive")
-Fixes: 2baec2c3f854 ("rxrpc: Support network namespacing")
-Reported-by: syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 81e54d08d9d8 ("cfg80211: support FTM responder configuration/statistics")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Link: https://lore.kernel.org/r/20191004194220.19412-1-navid.emamdoost@gmail.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rxrpc/peer_object.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
-index b700b7ecaa3d8..64830d8c1fdb5 100644
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -216,7 +216,7 @@ struct rxrpc_peer *rxrpc_alloc_peer(struct rxrpc_local *local, gfp_t gfp)
- 	peer = kzalloc(sizeof(struct rxrpc_peer), gfp);
- 	if (peer) {
- 		atomic_set(&peer->usage, 1);
--		peer->local = local;
-+		peer->local = rxrpc_get_local(local);
- 		INIT_HLIST_HEAD(&peer->error_targets);
- 		peer->service_conns = RB_ROOT;
- 		seqlock_init(&peer->service_conn_lock);
-@@ -307,7 +307,6 @@ void rxrpc_new_incoming_peer(struct rxrpc_sock *rx, struct rxrpc_local *local,
- 	unsigned long hash_key;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index f03459ddc840a..ae937543518ea 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -13518,7 +13518,7 @@ static int nl80211_get_ftm_responder_stats(struct sk_buff *skb,
+ 	hdr = nl80211hdr_put(msg, info->snd_portid, info->snd_seq, 0,
+ 			     NL80211_CMD_GET_FTM_RESPONDER_STATS);
+ 	if (!hdr)
+-		return -ENOBUFS;
++		goto nla_put_failure;
  
- 	hash_key = rxrpc_peer_hash_key(local, &peer->srx);
--	peer->local = local;
- 	rxrpc_init_peer(rx, peer, hash_key);
- 
- 	spin_lock(&rxnet->peer_hash_lock);
-@@ -417,6 +416,7 @@ static void __rxrpc_put_peer(struct rxrpc_peer *peer)
- 	list_del_init(&peer->keepalive_link);
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
- 
-+	rxrpc_put_local(peer->local);
- 	kfree_rcu(peer, rcu);
- }
- 
-@@ -453,6 +453,7 @@ void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
-+		rxrpc_put_local(peer->local);
- 		kfree_rcu(peer, rcu);
- 	}
- }
+ 	if (nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex))
+ 		goto nla_put_failure;
 -- 
 2.20.1
 
