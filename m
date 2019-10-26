@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F832E5CC1
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A415AE5CC0
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727752AbfJZNSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39916 "EHLO mail.kernel.org"
+        id S1727783AbfJZNSX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:18:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726428AbfJZNSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:18:15 -0400
+        id S1727781AbfJZNSW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:18:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9FEDF222C1;
-        Sat, 26 Oct 2019 13:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 74589214DA;
+        Sat, 26 Oct 2019 13:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095894;
-        bh=vynhhrOIgD91jp8ZzJ4jb3KoxhLiUMc3HFR97hqu90M=;
+        s=default; t=1572095901;
+        bh=LqDGJdi5OWBQxcBO1AEODAmneVGL2UOiAb5nGZcb8dM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvepoksP4dQYGP7wo2QWJD/xSUCe3mk0BH7nb5eMzEl7k62rHWTMevb/Qd+Rs4SqH
-         f9zfrzvq6VQ7ITQW9+iL3d5ml6mV+pFh+6s03SZQhgXM1c3xnMPjy3bs2imIwEgp1p
-         8VpSbRG6d0HwuyNhM6FCTc8qoiU/7UrXPIXqc9Lo=
+        b=o6HniNcBFMpFo8mVIRjcsXLLrNEa1VbctpCLW+ValVTmoq0Yt3Hoyxn2zC4Jeti6y
+         TjZAT/TywqIpQfUVbVLBlmEdytAQ+rpBMnVIUA8hEOz77I4A/W2KnsXqelGoTJnZ3r
+         FP1q/bwC//6pjaNlS/Xh5ka7kptPBDlUklvmSFOA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongsheng Yang <dongsheng.yang@easystack.cn>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 76/99] rbd: cancel lock_dwork if the wait is interrupted
-Date:   Sat, 26 Oct 2019 09:15:37 -0400
-Message-Id: <20191026131600.2507-76-sashal@kernel.org>
+Cc:     Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 78/99] net: i82596: fix dma_alloc_attr for sni_82596
+Date:   Sat, 26 Oct 2019 09:15:39 -0400
+Message-Id: <20191026131600.2507-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,81 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongsheng Yang <dongsheng.yang@easystack.cn>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit 25e6be21230d3208d687dad90b6e43419013c351 ]
+[ Upstream commit 61c1d33daf7b5146f44d4363b3322f8cda6a6c43 ]
 
-There is a warning message in my test with below steps:
+Commit 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+switched dma allocation over to dma_alloc_attr, but didn't convert
+the SNI part to request consistent DMA memory. This broke sni_82596
+since driver doesn't do dma_cache_sync for performance reasons.
+Fix this by using different DMA_ATTRs for lasi_82596 and sni_82596.
 
-  # rbd bench --io-type write --io-size 4K --io-threads 1 --io-pattern rand test &
-  # sleep 5
-  # pkill -9 rbd
-  # rbd map test &
-  # sleep 5
-  # pkill rbd
-
-The reason is that the rbd_add_acquire_lock() is interruptable,
-that means, when we kill the waiting on ->acquire_wait, the lock_dwork
-could be still running.
-
-1. do_rbd_add()					2. lock_dwork
-rbd_add_acquire_lock()
-  - queue_delayed_work()
-						lock_dwork queued
-    - wait_for_completion_killable_timeout()  <-- kill happen
-rbd_dev_image_unlock()	<-- UNLOCKED now, nothing to do.
-rbd_dev_device_release()
-rbd_dev_image_release()
-  - ...
-						lock successed here
-     - cancel_delayed_work_sync(&rbd_dev->lock_dwork)
-
-Then when we reach the rbd_dev_free(), WARN_ON is triggered because
-lock_state is not RBD_LOCK_STATE_UNLOCKED.
-
-To fix it, this commit make sure the lock_dwork was finished before
-calling rbd_dev_image_unlock().
-
-On the other hand, this would not happend in do_rbd_remove(), because
-after rbd mapped, lock_dwork will only be queued for IO request, and
-request will continue unless lock_dwork finished. when we call
-rbd_dev_image_unlock() in do_rbd_remove(), all requests are done.
-That means, lock_state should not be locked again after
-rbd_dev_image_unlock().
-
-[ Cancel lock_dwork in rbd_add_acquire_lock(), only if the wait is
-  interrupted. ]
-
-Fixes: 637cd060537d ("rbd: new exclusive lock wait/wake code")
-Signed-off-by: Dongsheng Yang <dongsheng.yang@easystack.cn>
-Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rbd.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/i825xx/lasi_82596.c | 4 +++-
+ drivers/net/ethernet/i825xx/lib82596.c   | 4 ++--
+ drivers/net/ethernet/i825xx/sni_82596.c  | 4 +++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index c8fb886aebd4e..e6369b9f33873 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -6632,10 +6632,13 @@ static int rbd_add_acquire_lock(struct rbd_device *rbd_dev)
- 	queue_delayed_work(rbd_dev->task_wq, &rbd_dev->lock_dwork, 0);
- 	ret = wait_for_completion_killable_timeout(&rbd_dev->acquire_wait,
- 			    ceph_timeout_jiffies(rbd_dev->opts->lock_timeout));
--	if (ret > 0)
-+	if (ret > 0) {
- 		ret = rbd_dev->acquire_err;
--	else if (!ret)
--		ret = -ETIMEDOUT;
-+	} else {
-+		cancel_delayed_work_sync(&rbd_dev->lock_dwork);
-+		if (!ret)
-+			ret = -ETIMEDOUT;
-+	}
+diff --git a/drivers/net/ethernet/i825xx/lasi_82596.c b/drivers/net/ethernet/i825xx/lasi_82596.c
+index 211c5f74b4c86..aec7e98bcc853 100644
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -96,6 +96,8 @@
  
- 	if (ret) {
- 		rbd_warn(rbd_dev, "failed to acquire exclusive lock: %ld", ret);
+ #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
+ 
++#define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
++
+ #define DMA_WBACK(ndev, addr, len) \
+ 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_TO_DEVICE); } while (0)
+ 
+@@ -200,7 +202,7 @@ static int __exit lan_remove_chip(struct parisc_device *pdev)
+ 
+ 	unregister_netdev (dev);
+ 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	free_netdev (dev);
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/i825xx/lib82596.c b/drivers/net/ethernet/i825xx/lib82596.c
+index 1274ad24d6af1..f9742af7f142d 100644
+--- a/drivers/net/ethernet/i825xx/lib82596.c
++++ b/drivers/net/ethernet/i825xx/lib82596.c
+@@ -1065,7 +1065,7 @@ static int i82596_probe(struct net_device *dev)
+ 
+ 	dma = dma_alloc_attrs(dev->dev.parent, sizeof(struct i596_dma),
+ 			      &lp->dma_addr, GFP_KERNEL,
+-			      DMA_ATTR_NON_CONSISTENT);
++			      LIB82596_DMA_ATTR);
+ 	if (!dma) {
+ 		printk(KERN_ERR "%s: Couldn't get shared memory\n", __FILE__);
+ 		return -ENOMEM;
+@@ -1087,7 +1087,7 @@ static int i82596_probe(struct net_device *dev)
+ 	i = register_netdev(dev);
+ 	if (i) {
+ 		dma_free_attrs(dev->dev.parent, sizeof(struct i596_dma),
+-			       dma, lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++			       dma, lp->dma_addr, LIB82596_DMA_ATTR);
+ 		return i;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/i825xx/sni_82596.c b/drivers/net/ethernet/i825xx/sni_82596.c
+index 6eb6c2ff7f099..6436a98c5953f 100644
+--- a/drivers/net/ethernet/i825xx/sni_82596.c
++++ b/drivers/net/ethernet/i825xx/sni_82596.c
+@@ -24,6 +24,8 @@
+ 
+ static const char sni_82596_string[] = "snirm_82596";
+ 
++#define LIB82596_DMA_ATTR	0
++
+ #define DMA_WBACK(priv, addr, len)     do { } while (0)
+ #define DMA_INV(priv, addr, len)       do { } while (0)
+ #define DMA_WBACK_INV(priv, addr, len) do { } while (0)
+@@ -152,7 +154,7 @@ static int sni_82596_driver_remove(struct platform_device *pdev)
+ 
+ 	unregister_netdev(dev);
+ 	dma_free_attrs(dev->dev.parent, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	iounmap(lp->ca);
+ 	iounmap(lp->mpu_port);
+ 	free_netdev (dev);
 -- 
 2.20.1
 
