@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F6EE5ABF
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D13E5AC7
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727399AbfJZNRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:17:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
+        id S1727513AbfJZNRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:17:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727377AbfJZNRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:32 -0400
+        id S1727503AbfJZNRr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D59AD21E6F;
-        Sat, 26 Oct 2019 13:17:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C42B21E6F;
+        Sat, 26 Oct 2019 13:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095851;
-        bh=xsJdWmDimaKeMJFNZnPlF0z0rT2wgQoTu+Oy1fqFb2Y=;
+        s=default; t=1572095867;
+        bh=e8P5zc33e5phKu6LdejVEInb2mZmqaRPq2wqjeZobb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14nigGu+k1scsjRTls/Xbgt6p0pvgE5TG+rpYaOX4QgnI0JEmIUwjphxfoJGnStdA
-         Z6lgqZZILojNCHvM2NOr1KbGdma38kt2z7i6vrqhJHahuevwUXR6k6XAT1prb+OCxv
-         z47NUgiQ4358Cv5kVgkU8JQZ7pqdzt3r+izpWGfE=
+        b=Pnri5QBo6pVruvY3Exmr4YCVsBwqvQCZUYM6XlHlVKJxwCQu4/fQZSnqTpVZ4T8fV
+         2i4bwQICZ9GXK+nwg0xtIigG8xr3ZiLhCyykmXzGojiABhZr2HONNNzNuzqLUM1yoV
+         NPwQUawce1CGjv1k0VouRr6HcY7RWb6jPQfcoV6A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 48/99] netns: fix NLM_F_ECHO mechanism for RTM_NEWNSID
-Date:   Sat, 26 Oct 2019 09:15:09 -0400
-Message-Id: <20191026131600.2507-48-sashal@kernel.org>
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 57/99] vhost/test: stop device before reset
+Date:   Sat, 26 Oct 2019 09:15:18 -0400
+Message-Id: <20191026131600.2507-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,90 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
-[ Upstream commit 993e4c929a073595d22c85f59082f0c387e31c21 ]
+[ Upstream commit 245cdd9fbd396483d501db83047116e2530f245f ]
 
-The flag NLM_F_ECHO aims to reply to the user the message notified to all
-listeners.
-It was not the case with the command RTM_NEWNSID, let's fix this.
+When device stop was moved out of reset, test device wasn't updated to
+stop before reset, this resulted in a use after free.  Fix by invoking
+stop appropriately.
 
-Fixes: 0c7aecd4bde4 ("netns: add rtnl cmd to add and get peer netns ids")
-Reported-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Tested-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: b211616d7125 ("vhost: move -net specific code out")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net_namespace.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/vhost/test.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index a0e0d298c9918..6d3e4821b02d8 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -245,7 +245,8 @@ static int __peernet2id(struct net *net, struct net *peer)
- 	return __peernet2id_alloc(net, peer, &no);
- }
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index 7804869c6a313..056308008288c 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -161,6 +161,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
  
--static void rtnl_net_notifyid(struct net *net, int cmd, int id);
-+static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
-+			      struct nlmsghdr *nlh);
- /* This function returns the id of a peer netns. If no id is assigned, one will
-  * be allocated and returned.
-  */
-@@ -268,7 +269,7 @@ int peernet2id_alloc(struct net *net, struct net *peer)
- 	id = __peernet2id_alloc(net, peer, &alloc);
- 	spin_unlock_bh(&net->nsid_lock);
- 	if (alloc && id >= 0)
--		rtnl_net_notifyid(net, RTM_NEWNSID, id);
-+		rtnl_net_notifyid(net, RTM_NEWNSID, id, 0, NULL);
- 	if (alive)
- 		put_net(peer);
- 	return id;
-@@ -532,7 +533,7 @@ static void unhash_nsid(struct net *net, struct net *last)
- 			idr_remove(&tmp->netns_ids, id);
- 		spin_unlock_bh(&tmp->nsid_lock);
- 		if (id >= 0)
--			rtnl_net_notifyid(tmp, RTM_DELNSID, id);
-+			rtnl_net_notifyid(tmp, RTM_DELNSID, id, 0, NULL);
- 		if (tmp == last)
- 			break;
+ 	vhost_test_stop(n, &private);
+ 	vhost_test_flush(n);
++	vhost_dev_stop(&n->dev);
+ 	vhost_dev_cleanup(&n->dev);
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
+@@ -237,6 +238,7 @@ static long vhost_test_reset_owner(struct vhost_test *n)
  	}
-@@ -764,7 +765,8 @@ static int rtnl_net_newid(struct sk_buff *skb, struct nlmsghdr *nlh,
- 	err = alloc_netid(net, peer, nsid);
- 	spin_unlock_bh(&net->nsid_lock);
- 	if (err >= 0) {
--		rtnl_net_notifyid(net, RTM_NEWNSID, err);
-+		rtnl_net_notifyid(net, RTM_NEWNSID, err, NETLINK_CB(skb).portid,
-+				  nlh);
- 		err = 0;
- 	} else if (err == -ENOSPC && nsid >= 0) {
- 		err = -EEXIST;
-@@ -1051,9 +1053,12 @@ static int rtnl_net_dumpid(struct sk_buff *skb, struct netlink_callback *cb)
- 	return err < 0 ? err : skb->len;
- }
- 
--static void rtnl_net_notifyid(struct net *net, int cmd, int id)
-+static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
-+			      struct nlmsghdr *nlh)
- {
- 	struct net_fill_args fillargs = {
-+		.portid = portid,
-+		.seq = nlh ? nlh->nlmsg_seq : 0,
- 		.cmd = cmd,
- 		.nsid = id,
- 	};
-@@ -1068,7 +1073,7 @@ static void rtnl_net_notifyid(struct net *net, int cmd, int id)
- 	if (err < 0)
- 		goto err_out;
- 
--	rtnl_notify(msg, net, 0, RTNLGRP_NSID, NULL, 0);
-+	rtnl_notify(msg, net, portid, RTNLGRP_NSID, nlh, 0);
- 	return;
- 
- err_out:
+ 	vhost_test_stop(n, &priv);
+ 	vhost_test_flush(n);
++	vhost_dev_stop(&n->dev);
+ 	vhost_dev_reset_owner(&n->dev, umem);
+ done:
+ 	mutex_unlock(&n->dev.mutex);
 -- 
 2.20.1
 
