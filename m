@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F7CE5CB4
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81013E5CAD
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbfJZNc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40332 "EHLO mail.kernel.org"
+        id S1727922AbfJZNSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:18:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbfJZNSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:18:33 -0400
+        id S1727900AbfJZNSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:18:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C9021871;
-        Sat, 26 Oct 2019 13:18:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2C1A21D7F;
+        Sat, 26 Oct 2019 13:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095913;
-        bh=Bw+3inR4gFpPut2zAV1narDpoGAN/nMUFG1hkJV4n28=;
+        s=default; t=1572095915;
+        bh=p0U1Bm6GqTTZpOtW7ZNZSgiM9xHZLo7MuTpmRqE6vHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvLDaU4SS8qITtI5s8HpcULC4RtfaZOjHaRzhiwuxhqFLYc8yzGFeIw+jQX06pB/C
-         B1cQm0Bol8Vt73xi9xFI6dK3IJr/DWF26CaMqqhXZUHdRkIvgQhFbPAngPxEqHk4Vr
-         /z7NMLkStMTimNCN/MVecDx254wR+tDl2uWZqYEc=
+        b=0QL/jmIHxrK/X4UNEoh31kVAKQR7sym+060T/nBqB3hERvg0cmLwzorvlnlXehl4C
+         EgClChVtTINMWapkkvr82AlRyTdS6QuD6mthsugv3gCX1VQoNLpSubaaujhYDDFgZX
+         RMEWmWySuZ2rUg9l06r+pw29qgZbS4o1kqqa33lI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florin Chiculita <florinlaurentiu.chiculita@nxp.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
+Cc:     Marek Vasut <marex@denx.de>, Andrew Lunn <andrew@lunn.ch>,
         "David S . Miller" <davem@davemloft.net>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        George McCollister <george.mccollister@gmail.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Sean Nyekjaer <sean.nyekjaer@prevas.dk>,
+        Tristram Ha <Tristram.Ha@microchip.com>,
+        Woojung Huh <woojung.huh@microchip.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 85/99] dpaa2-eth: add irq for the dpmac connect/disconnect event
-Date:   Sat, 26 Oct 2019 09:15:46 -0400
-Message-Id: <20191026131600.2507-85-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 87/99] net: phy: micrel: Discern KSZ8051 and KSZ8795 PHYs
+Date:   Sat, 26 Oct 2019 09:15:48 -0400
+Message-Id: <20191026131600.2507-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,65 +49,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florin Chiculita <florinlaurentiu.chiculita@nxp.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 8398b375a9e3f5e4bba9bcdfed152a8a247dee01 ]
+[ Upstream commit 8b95599c55ed24b36cf44a4720067cfe67edbcb4 ]
 
-Add IRQ for the DPNI endpoint change event, resolving the issue
-when a dynamically created DPNI gets a randomly generated hw address
-when the endpoint is a DPMAC object.
+The KSZ8051 PHY and the KSZ8794/KSZ8795/KSZ8765 switch share exactly the
+same PHY ID. Since KSZ8051 is higher in the ksphy_driver[] list of PHYs
+in the micrel PHY driver, it is used even with the KSZ87xx switch. This
+is wrong, since the KSZ8051 configures registers of the PHY which are
+not present on the simplified KSZ87xx switch PHYs and misconfigures
+other registers of the KSZ87xx switch PHYs.
 
-Signed-off-by: Florin Chiculita <florinlaurentiu.chiculita@nxp.com>
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Fortunatelly, it is possible to tell apart the KSZ8051 PHY from the
+KSZ87xx switch by checking the Basic Status register Bit 0, which is
+read-only and indicates presence of the Extended Capability Registers.
+The KSZ8051 PHY has those registers while the KSZ87xx switch does not.
+
+This patch implements simple check for the presence of this bit for
+both the KSZ8051 PHY and KSZ87xx switch, to let both use the correct
+PHY driver instance.
+
+Fixes: 9d162ed69f51 ("net: phy: micrel: add support for KSZ8795")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: George McCollister <george.mccollister@gmail.com>
+Cc: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Sean Nyekjaer <sean.nyekjaer@prevas.dk>
+Cc: Tristram Ha <Tristram.Ha@microchip.com>
+Cc: Woojung Huh <woojung.huh@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 6 +++++-
- drivers/net/ethernet/freescale/dpaa2/dpni.h      | 5 ++++-
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/phy/micrel.c | 40 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 36 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 0acb11557ed1c..488e8e446e17d 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -3219,6 +3219,9 @@ static irqreturn_t dpni_irq0_handler_thread(int irq_num, void *arg)
- 	if (status & DPNI_IRQ_EVENT_LINK_CHANGED)
- 		link_state_update(netdev_priv(net_dev));
- 
-+	if (status & DPNI_IRQ_EVENT_ENDPOINT_CHANGED)
-+		set_mac_addr(netdev_priv(net_dev));
-+
- 	return IRQ_HANDLED;
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 2fea5541c35a8..a0444e28c6e7c 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -341,6 +341,35 @@ static int ksz8041_config_aneg(struct phy_device *phydev)
+ 	return genphy_config_aneg(phydev);
  }
  
-@@ -3244,7 +3247,8 @@ static int setup_irqs(struct fsl_mc_device *ls_dev)
- 	}
++static int ksz8051_ksz8795_match_phy_device(struct phy_device *phydev,
++					    const u32 ksz_phy_id)
++{
++	int ret;
++
++	if ((phydev->phy_id & MICREL_PHY_ID_MASK) != ksz_phy_id)
++		return 0;
++
++	ret = phy_read(phydev, MII_BMSR);
++	if (ret < 0)
++		return ret;
++
++	/* KSZ8051 PHY and KSZ8794/KSZ8795/KSZ8765 switch share the same
++	 * exact PHY ID. However, they can be told apart by the extended
++	 * capability registers presence. The KSZ8051 PHY has them while
++	 * the switch does not.
++	 */
++	ret &= BMSR_ERCAP;
++	if (ksz_phy_id == PHY_ID_KSZ8051)
++		return ret;
++	else
++		return !ret;
++}
++
++static int ksz8051_match_phy_device(struct phy_device *phydev)
++{
++	return ksz8051_ksz8795_match_phy_device(phydev, PHY_ID_KSZ8051);
++}
++
+ static int ksz8081_config_init(struct phy_device *phydev)
+ {
+ 	/* KSZPHY_OMSO_FACTORY_TEST is set at de-assertion of the reset line
+@@ -364,6 +393,11 @@ static int ksz8061_config_init(struct phy_device *phydev)
+ 	return kszphy_config_init(phydev);
+ }
  
- 	err = dpni_set_irq_mask(ls_dev->mc_io, 0, ls_dev->mc_handle,
--				DPNI_IRQ_INDEX, DPNI_IRQ_EVENT_LINK_CHANGED);
-+				DPNI_IRQ_INDEX, DPNI_IRQ_EVENT_LINK_CHANGED |
-+				DPNI_IRQ_EVENT_ENDPOINT_CHANGED);
- 	if (err < 0) {
- 		dev_err(&ls_dev->dev, "dpni_set_irq_mask(): %d\n", err);
- 		goto free_irq;
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpni.h b/drivers/net/ethernet/freescale/dpaa2/dpni.h
-index a521242e23537..72cf1258f40fb 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpni.h
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpni.h
-@@ -133,9 +133,12 @@ int dpni_reset(struct fsl_mc_io	*mc_io,
-  */
- #define DPNI_IRQ_INDEX				0
- /**
-- * IRQ event - indicates a change in link state
-+ * IRQ events:
-+ *       indicates a change in link state
-+ *       indicates a change in endpoint
-  */
- #define DPNI_IRQ_EVENT_LINK_CHANGED		0x00000001
-+#define DPNI_IRQ_EVENT_ENDPOINT_CHANGED		0x00000002
- 
- int dpni_set_irq_enable(struct fsl_mc_io	*mc_io,
- 			u32			cmd_flags,
++static int ksz8795_match_phy_device(struct phy_device *phydev)
++{
++	return ksz8051_ksz8795_match_phy_device(phydev, PHY_ID_KSZ8795);
++}
++
+ static int ksz9021_load_values_from_of(struct phy_device *phydev,
+ 				       const struct device_node *of_node,
+ 				       u16 reg,
+@@ -1017,8 +1051,6 @@ static struct phy_driver ksphy_driver[] = {
+ 	.suspend	= genphy_suspend,
+ 	.resume		= genphy_resume,
+ }, {
+-	.phy_id		= PHY_ID_KSZ8051,
+-	.phy_id_mask	= MICREL_PHY_ID_MASK,
+ 	.name		= "Micrel KSZ8051",
+ 	/* PHY_BASIC_FEATURES */
+ 	.driver_data	= &ksz8051_type,
+@@ -1029,6 +1061,7 @@ static struct phy_driver ksphy_driver[] = {
+ 	.get_sset_count = kszphy_get_sset_count,
+ 	.get_strings	= kszphy_get_strings,
+ 	.get_stats	= kszphy_get_stats,
++	.match_phy_device = ksz8051_match_phy_device,
+ 	.suspend	= genphy_suspend,
+ 	.resume		= genphy_resume,
+ }, {
+@@ -1141,13 +1174,12 @@ static struct phy_driver ksphy_driver[] = {
+ 	.suspend	= genphy_suspend,
+ 	.resume		= genphy_resume,
+ }, {
+-	.phy_id		= PHY_ID_KSZ8795,
+-	.phy_id_mask	= MICREL_PHY_ID_MASK,
+ 	.name		= "Micrel KSZ8795",
+ 	/* PHY_BASIC_FEATURES */
+ 	.config_init	= kszphy_config_init,
+ 	.config_aneg	= ksz8873mll_config_aneg,
+ 	.read_status	= ksz8873mll_read_status,
++	.match_phy_device = ksz8795_match_phy_device,
+ 	.suspend	= genphy_suspend,
+ 	.resume		= genphy_resume,
+ }, {
 -- 
 2.20.1
 
