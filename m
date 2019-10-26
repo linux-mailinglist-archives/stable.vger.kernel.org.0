@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7DE1E5D51
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:36:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FB1E5D4B
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:36:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726826AbfJZNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38140 "EHLO mail.kernel.org"
+        id S1726866AbfJZNQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:16:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726813AbfJZNQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:16:34 -0400
+        id S1726846AbfJZNQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:16:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75135222BE;
-        Sat, 26 Oct 2019 13:16:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B3A0222C4;
+        Sat, 26 Oct 2019 13:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095794;
-        bh=grgpAxtUB4xIGMyjFZyp1n+8/BUm3kbhNeTqFmwWZoI=;
+        s=default; t=1572095795;
+        bh=D5MAHeyDcTYlwUrhihOy3TU+/cG5UlEbHY58W5ziSO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWUpnamx2zNdam3uFVVcGl9p93l+I7w8tW2jk9hU4mdgsLgo0lBfUhKmHNUN1wquN
-         NZqvOLKuiGc7bMMXjiAMn7JJmJd611RgGVUHJPI30I+l3Z2VlFX4Et99YVn1V4tuw6
-         XQoexIjD7VxrY7HYsjbpyfbjxmj+esxTTtM+Ry3Y=
+        b=NBxF0+760NuqAo8yDFeGf3FX+66Ngza80PryGU1Oxb5yh77J5q1299PbCPAWJrWUg
+         MLjIvMfw6vJynhvuvg3Oi0G0rP7AczA1GYcFu1IgKp+egGe+u6CFvkDiYhGXyoLwbj
+         hB3Whm4zHg8ZMjZ5hEvCsHS2NwgSvvnw7bWtf4m0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
+Cc:     Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 21/99] nl80211: fix memory leak in nl80211_get_ftm_responder_stats
-Date:   Sat, 26 Oct 2019 09:14:42 -0400
-Message-Id: <20191026131600.2507-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 22/99] cfg80211: fix a bunch of RCU issues in multi-bssid code
+Date:   Sat, 26 Oct 2019 09:14:43 -0400
+Message-Id: <20191026131600.2507-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,36 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 1399c59fa92984836db90538cf92397fe7caaa57 ]
+[ Upstream commit 461c4c2b4c0731d7452bad4e77c0cdbdcea1804c ]
 
-In nl80211_get_ftm_responder_stats, a new skb is created via nlmsg_new
-named msg. If nl80211hdr_put() fails, then msg should be released. The
-return statement should be replace by goto to error handling code.
+cfg80211_update_notlisted_nontrans() leaves the RCU critical session
+too early, while still using nontrans_ssid which is RCU protected. In
+addition, it performs a bunch of RCU pointer update operations such
+as rcu_access_pointer and rcu_assign_pointer.
 
-Fixes: 81e54d08d9d8 ("cfg80211: support FTM responder configuration/statistics")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Link: https://lore.kernel.org/r/20191004194220.19412-1-navid.emamdoost@gmail.com
+The caller, cfg80211_inform_bss_frame_data(), also accesses the RCU
+pointer without holding the lock.
+
+Just wrap all of this with bss_lock.
+
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20191004123706.15768-3-luca@coelho.fi
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/scan.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index f03459ddc840a..ae937543518ea 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -13518,7 +13518,7 @@ static int nl80211_get_ftm_responder_stats(struct sk_buff *skb,
- 	hdr = nl80211hdr_put(msg, info->snd_portid, info->snd_seq, 0,
- 			     NL80211_CMD_GET_FTM_RESPONDER_STATS);
- 	if (!hdr)
--		return -ENOBUFS;
-+		goto nla_put_failure;
+diff --git a/net/wireless/scan.c b/net/wireless/scan.c
+index 27d76c4c5cea1..00f7a4630f45d 100644
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -1691,8 +1691,7 @@ cfg80211_parse_mbssid_frame_data(struct wiphy *wiphy,
+ static void
+ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+ 				   struct cfg80211_bss *nontrans_bss,
+-				   struct ieee80211_mgmt *mgmt, size_t len,
+-				   gfp_t gfp)
++				   struct ieee80211_mgmt *mgmt, size_t len)
+ {
+ 	u8 *ie, *new_ie, *pos;
+ 	const u8 *nontrans_ssid, *trans_ssid, *mbssid;
+@@ -1703,6 +1702,8 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+ 	const struct cfg80211_bss_ies *old;
+ 	u8 cpy_len;
  
- 	if (nla_put_u32(msg, NL80211_ATTR_IFINDEX, dev->ifindex))
- 		goto nla_put_failure;
++	lockdep_assert_held(&wiphy_to_rdev(wiphy)->bss_lock);
++
+ 	ie = mgmt->u.probe_resp.variable;
+ 
+ 	new_ie_len = ielen;
+@@ -1719,23 +1720,22 @@ cfg80211_update_notlisted_nontrans(struct wiphy *wiphy,
+ 	if (!mbssid || mbssid < trans_ssid)
+ 		return;
+ 	new_ie_len -= mbssid[1];
+-	rcu_read_lock();
++
+ 	nontrans_ssid = ieee80211_bss_get_ie(nontrans_bss, WLAN_EID_SSID);
+-	if (!nontrans_ssid) {
+-		rcu_read_unlock();
++	if (!nontrans_ssid)
+ 		return;
+-	}
++
+ 	new_ie_len += nontrans_ssid[1];
+-	rcu_read_unlock();
+ 
+ 	/* generate new ie for nontrans BSS
+ 	 * 1. replace SSID with nontrans BSS' SSID
+ 	 * 2. skip MBSSID IE
+ 	 */
+-	new_ie = kzalloc(new_ie_len, gfp);
++	new_ie = kzalloc(new_ie_len, GFP_ATOMIC);
+ 	if (!new_ie)
+ 		return;
+-	new_ies = kzalloc(sizeof(*new_ies) + new_ie_len, gfp);
++
++	new_ies = kzalloc(sizeof(*new_ies) + new_ie_len, GFP_ATOMIC);
+ 	if (!new_ies)
+ 		goto out_free;
+ 
+@@ -1895,6 +1895,8 @@ cfg80211_inform_bss_frame_data(struct wiphy *wiphy,
+ 	cfg80211_parse_mbssid_frame_data(wiphy, data, mgmt, len,
+ 					 &non_tx_data, gfp);
+ 
++	spin_lock_bh(&wiphy_to_rdev(wiphy)->bss_lock);
++
+ 	/* check if the res has other nontransmitting bss which is not
+ 	 * in MBSSID IE
+ 	 */
+@@ -1909,8 +1911,9 @@ cfg80211_inform_bss_frame_data(struct wiphy *wiphy,
+ 		ies2 = rcu_access_pointer(tmp_bss->ies);
+ 		if (ies2->tsf < ies1->tsf)
+ 			cfg80211_update_notlisted_nontrans(wiphy, tmp_bss,
+-							   mgmt, len, gfp);
++							   mgmt, len);
+ 	}
++	spin_unlock_bh(&wiphy_to_rdev(wiphy)->bss_lock);
+ 
+ 	return res;
+ }
 -- 
 2.20.1
 
