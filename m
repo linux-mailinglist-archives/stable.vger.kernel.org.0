@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7AEE5BE1
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7926EE5B4C
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727792AbfJZN0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43802 "EHLO mail.kernel.org"
+        id S1729292AbfJZNWD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:22:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727207AbfJZNWB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:22:01 -0400
+        id S1729286AbfJZNWC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:22:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7245221E6F;
-        Sat, 26 Oct 2019 13:22:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADE66214DA;
+        Sat, 26 Oct 2019 13:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096121;
-        bh=ISAo5vn+007S4sNbFtUYwHTVpHMeCjtJiDa8U5Y8dL8=;
+        s=default; t=1572096122;
+        bh=3p+USwtJUTtC3toj8T7Yn7zw6NH0GsG2ccFhvAY7IXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb7efpcPlNKIn39U8nnCAbaaT6O/XWCe62FYqZplzk151TUehCyBVzJgcSaCDfqLN
-         e0444okMRshkXySF9FbDzGI/zY1D14uN4Lw6/a0+Q9lETLw1gFao/J+Fw0P/SgGM7N
-         ryqL7G+8IyEj2x5LCpOU2h6nciavcQ4fDTHvpWDM=
+        b=ikBB86cNWegeuvgQmKfpMybQDwtbwPL0joiiwq0do4vJvwJJH7DhAmgvSbqLDDa+e
+         pVNjbO1LT84AuPvbFMLtk/massytk1t3JDSAwcarPKfhd6jPEtPU3665R3ixmojHFz
+         UZqE3cnJmHJadgOvSv2hncuxkOiIXtXJVQMtf718=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 25/33] net: usb: sr9800: fix uninitialized local variable
-Date:   Sat, 26 Oct 2019 09:21:02 -0400
-Message-Id: <20191026132110.4026-25-sashal@kernel.org>
+Cc:     Song Liu <songliubraving@fb.com>, NeilBrown <neilb@suse.de>,
+        Ivan Topolsky <doktor.yak@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-raid@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 26/33] md/raid0: fix warning message for parameter default_layout
+Date:   Sat, 26 Oct 2019 09:21:03 -0400
+Message-Id: <20191026132110.4026-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026132110.4026-1-sashal@kernel.org>
 References: <20191026132110.4026-1-sashal@kernel.org>
@@ -45,34 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 77b6d09f4ae66d42cd63b121af67780ae3d1a5e9 ]
+[ Upstream commit 3874d73e06c9b9dc15de0b7382fc223986d75571 ]
 
-Make sure res does not contain random value if the call to
-sr_read_cmd fails for some reason.
+The message should match the parameter, i.e. raid0.default_layout.
 
-Reported-by: syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c84a1372df92 ("md/raid0: avoid RAID0 data corruption due to layout confusion.")
+Cc: NeilBrown <neilb@suse.de>
+Reported-by: Ivan Topolsky <doktor.yak@gmail.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/sr9800.c | 2 +-
+ drivers/md/raid0.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/sr9800.c b/drivers/net/usb/sr9800.c
-index 35f39f23d8814..8f8c9ede88c26 100644
---- a/drivers/net/usb/sr9800.c
-+++ b/drivers/net/usb/sr9800.c
-@@ -336,7 +336,7 @@ static void sr_set_multicast(struct net_device *net)
- static int sr_mdio_read(struct net_device *net, int phy_id, int loc)
- {
- 	struct usbnet *dev = netdev_priv(net);
--	__le16 res;
-+	__le16 res = 0;
- 
- 	mutex_lock(&dev->phy_mutex);
- 	sr_set_sw_mii(dev);
+diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
+index 28fb717217706..449c4dd060fcd 100644
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -158,7 +158,7 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
+ 	} else {
+ 		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
+ 		       mdname(mddev));
+-		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
++		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
+ 		err = -ENOTSUPP;
+ 		goto abort;
+ 	}
 -- 
 2.20.1
 
