@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7F3E5CA5
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 686EEE5CA7
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:32:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbfJZNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727965AbfJZNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 26 Oct 2019 09:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727947AbfJZNSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:18:41 -0400
+        id S1727880AbfJZNSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:18:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BADD214DA;
-        Sat, 26 Oct 2019 13:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE8F8222CD;
+        Sat, 26 Oct 2019 13:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095920;
-        bh=wKaFh3NjnC8o1ufB2KUd6hwbho16fOZEmMp8akNBREM=;
+        s=default; t=1572095921;
+        bh=lNE/iFYTemrJ0U4ih+mPRuo3i1mqFeCu4YAsb3gOBHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asisGJjbJQFX67UpDMOmp0Gl84Lx9WUNikJ49OR7pqyMM6Kg2nTggOoSA8TNs+0eT
-         RRuZSA6MnEB5Uh6A79WLOUmX/c6xPlsF1/EYqxdAKsHBIdjNOP7NmDHe6nsvM1R30f
-         nL+twHukKOtu3W7m8ECrF/OUEJF/diZs2+rlACLg=
+        b=HIavvMqho5RPGtKrtlv5U4EWr01h8VxyQtRO+GbVJA/tJnMw7NY0RTwSDk8wYaCiw
+         6ZY8koUCBOqmEDg8Ol99xGAw8pKvrYEdfTE+/9QlzKSfrTqqDP9EOWfq8n45bdcymH
+         XNou+TDtD3IXZ55PnwkMqHrdmASPbpfCKZOkcAiw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrea Parri <parri.andrea@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Liu <wei.liu@kernel.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 89/99] x86/hyperv: Set pv_info.name to "Hyper-V"
-Date:   Sat, 26 Oct 2019 09:15:50 -0400
-Message-Id: <20191026131600.2507-89-sashal@kernel.org>
+Cc:     Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 90/99] net: bcmgenet: don't set phydev->link from MAC
+Date:   Sat, 26 Oct 2019 09:15:51 -0400
+Message-Id: <20191026131600.2507-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -46,49 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri <parri.andrea@gmail.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit f7c0f50f1857c1cf013466fcea4dc98d116bf456 ]
+[ Upstream commit 7de48402faa32298c3551ea32c76ccb4f9d3025d ]
 
-Michael reported that the x86/hyperv initialization code prints the
-following dmesg when running in a VM on Hyper-V:
+When commit 28b2e0d2cd13 ("net: phy: remove parameter new_link from
+phy_mac_interrupt()") removed the new_link parameter it set the
+phydev->link state from the MAC before invoking phy_mac_interrupt().
 
-  [    0.000738] Booting paravirtualized kernel on bare hardware
+However, once commit 88d6272acaaa ("net: phy: avoid unneeded MDIO
+reads in genphy_read_status") was added this initialization prevents
+the proper determination of the connection parameters by the function
+genphy_read_status().
 
-Let the x86/hyperv initialization code set pv_info.name to "Hyper-V" so
-dmesg reports correctly:
+This commit removes that initialization to restore the proper
+functionality.
 
-  [    0.000172] Booting paravirtualized kernel on Hyper-V
-
-[ tglx: Folded build fix provided by Yue ]
-
-Reported-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Andrea Parri <parri.andrea@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Cc: YueHaibing <yuehaibing@huawei.com>
-Link: https://lkml.kernel.org/r/20191015103502.13156-1-parri.andrea@gmail.com
+Fixes: 88d6272acaaa ("net: phy: avoid unneeded MDIO reads in genphy_read_status")
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-index 062f77279ce3b..b3f164bf8eefa 100644
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -215,6 +215,10 @@ static void __init ms_hyperv_init_platform(void)
- 	int hv_host_info_ecx;
- 	int hv_host_info_edx;
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index b22196880d6d3..f7359d2271dfa 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -2617,10 +2617,8 @@ static void bcmgenet_irq_task(struct work_struct *work)
+ 	spin_unlock_irq(&priv->lock);
  
-+#ifdef CONFIG_PARAVIRT
-+	pv_info.name = "Hyper-V";
-+#endif
-+
- 	/*
- 	 * Extract the features and hints
- 	 */
+ 	/* Link UP/DOWN event */
+-	if (status & UMAC_IRQ_LINK_EVENT) {
+-		priv->dev->phydev->link = !!(status & UMAC_IRQ_LINK_UP);
++	if (status & UMAC_IRQ_LINK_EVENT)
+ 		phy_mac_interrupt(priv->dev->phydev);
+-	}
+ }
+ 
+ /* bcmgenet_isr1: handle Rx and Tx priority queues */
 -- 
 2.20.1
 
