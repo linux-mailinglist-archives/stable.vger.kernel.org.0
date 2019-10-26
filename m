@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D254E5B21
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B4FAE5C33
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727269AbfJZNUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:20:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42408 "EHLO mail.kernel.org"
+        id S1728669AbfJZNUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726539AbfJZNUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:20:39 -0400
+        id S1728608AbfJZNUp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:20:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19CC620867;
-        Sat, 26 Oct 2019 13:20:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E1EA206DD;
+        Sat, 26 Oct 2019 13:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096038;
-        bh=csRWAztyFgtKu6hrVl88CS566rdxacTIQKhsD+jkpHU=;
+        s=default; t=1572096044;
+        bh=mthu+9IsgOkuPQMnDZv+GRWbBRAqPfBfJ9FHR+O9pv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEw/nFy5gIyxU/9ah8dhiIL3zvXQAagfJgc8t4EgtU5/AfE1VeoQDIxfcRvqFqIuc
-         YWwwU0D9oSToKB8Sj63HA0UDB2NfNREyTZut1hNhgRjdyf24mJUfkzcrZn25i8pEcT
-         SgOk3QGNFj5gSnw2mV7/MtteRWPzGfequ6CYC4aI=
+        b=vh+nPxWm2G3zf0qarXanuHdMi9jzfj5RGLmrZVX5GWIL8HtXtT/pbJyhB6rjxP1XJ
+         CSxt2cN74hytZLSVLy5FW/t5+uEhVagWTQ/YZhAi+97+P2MIBJy8abDrxm8WlKYLck
+         AtgDjNwn2S4fm7Ao3H4bEb7MwqpSf/CFqSZg1BQI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Tatashin <pasha.tatashin@soleen.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 46/59] arm64: hibernate: check pgd table allocation
-Date:   Sat, 26 Oct 2019 09:18:57 -0400
-Message-Id: <20191026131910.3435-46-sashal@kernel.org>
+Cc:     Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 47/59] net: i82596: fix dma_alloc_attr for sni_82596
+Date:   Sat, 26 Oct 2019 09:18:58 -0400
+Message-Id: <20191026131910.3435-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -43,52 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit 8c551f919a73c1dfa690a70a691be1da394145e8 ]
+[ Upstream commit 61c1d33daf7b5146f44d4363b3322f8cda6a6c43 ]
 
-There is a bug in create_safe_exec_page(), when page table is allocated
-it is not checked that table is allocated successfully:
+Commit 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+switched dma allocation over to dma_alloc_attr, but didn't convert
+the SNI part to request consistent DMA memory. This broke sni_82596
+since driver doesn't do dma_cache_sync for performance reasons.
+Fix this by using different DMA_ATTRs for lasi_82596 and sni_82596.
 
-But it is dereferenced in: pgd_none(READ_ONCE(*pgdp)).  Check that
-allocation was successful.
-
-Fixes: 82869ac57b5d ("arm64: kernel: Add support for hibernate/suspend-to-disk")
-Reviewed-by: James Morse <james.morse@arm.com>
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/hibernate.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/i825xx/lasi_82596.c | 4 +++-
+ drivers/net/ethernet/i825xx/lib82596.c   | 4 ++--
+ drivers/net/ethernet/i825xx/sni_82596.c  | 4 +++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/kernel/hibernate.c b/arch/arm64/kernel/hibernate.c
-index 9859e1178e6be..dbeeeffdb9c9e 100644
---- a/arch/arm64/kernel/hibernate.c
-+++ b/arch/arm64/kernel/hibernate.c
-@@ -202,6 +202,7 @@ static int create_safe_exec_page(void *src_start, size_t length,
- 				 gfp_t mask)
- {
- 	int rc = 0;
-+	pgd_t *trans_pgd;
- 	pgd_t *pgdp;
- 	pud_t *pudp;
- 	pmd_t *pmdp;
-@@ -216,7 +217,13 @@ static int create_safe_exec_page(void *src_start, size_t length,
- 	memcpy((void *)dst, src_start, length);
- 	__flush_icache_range(dst, dst + length);
+diff --git a/drivers/net/ethernet/i825xx/lasi_82596.c b/drivers/net/ethernet/i825xx/lasi_82596.c
+index b69c622ba8b2d..6f0e4019adefa 100644
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -96,6 +96,8 @@
  
--	pgdp = pgd_offset_raw(allocator(mask), dst_addr);
-+	trans_pgd = allocator(mask);
-+	if (!trans_pgd) {
-+		rc = -ENOMEM;
-+		goto out;
-+	}
+ #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
+ 
++#define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
 +
-+	pgdp = pgd_offset_raw(trans_pgd, dst_addr);
- 	if (pgd_none(READ_ONCE(*pgdp))) {
- 		pudp = allocator(mask);
- 		if (!pudp) {
+ #define DMA_WBACK(ndev, addr, len) \
+ 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_TO_DEVICE); } while (0)
+ 
+@@ -199,7 +201,7 @@ static int __exit lan_remove_chip(struct parisc_device *pdev)
+ 
+ 	unregister_netdev (dev);
+ 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	free_netdev (dev);
+ 	return 0;
+ }
+diff --git a/drivers/net/ethernet/i825xx/lib82596.c b/drivers/net/ethernet/i825xx/lib82596.c
+index 2f7ae118217fe..d0e8193ca4708 100644
+--- a/drivers/net/ethernet/i825xx/lib82596.c
++++ b/drivers/net/ethernet/i825xx/lib82596.c
+@@ -1065,7 +1065,7 @@ static int i82596_probe(struct net_device *dev)
+ 
+ 	dma = dma_alloc_attrs(dev->dev.parent, sizeof(struct i596_dma),
+ 			      &lp->dma_addr, GFP_KERNEL,
+-			      DMA_ATTR_NON_CONSISTENT);
++			      LIB82596_DMA_ATTR);
+ 	if (!dma) {
+ 		printk(KERN_ERR "%s: Couldn't get shared memory\n", __FILE__);
+ 		return -ENOMEM;
+@@ -1087,7 +1087,7 @@ static int i82596_probe(struct net_device *dev)
+ 	i = register_netdev(dev);
+ 	if (i) {
+ 		dma_free_attrs(dev->dev.parent, sizeof(struct i596_dma),
+-			       dma, lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++			       dma, lp->dma_addr, LIB82596_DMA_ATTR);
+ 		return i;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/i825xx/sni_82596.c b/drivers/net/ethernet/i825xx/sni_82596.c
+index b2c04a789744f..43c1fd18670b0 100644
+--- a/drivers/net/ethernet/i825xx/sni_82596.c
++++ b/drivers/net/ethernet/i825xx/sni_82596.c
+@@ -23,6 +23,8 @@
+ 
+ static const char sni_82596_string[] = "snirm_82596";
+ 
++#define LIB82596_DMA_ATTR	0
++
+ #define DMA_WBACK(priv, addr, len)     do { } while (0)
+ #define DMA_INV(priv, addr, len)       do { } while (0)
+ #define DMA_WBACK_INV(priv, addr, len) do { } while (0)
+@@ -151,7 +153,7 @@ static int sni_82596_driver_remove(struct platform_device *pdev)
+ 
+ 	unregister_netdev(dev);
+ 	dma_free_attrs(dev->dev.parent, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	iounmap(lp->ca);
+ 	iounmap(lp->mpu_port);
+ 	free_netdev (dev);
 -- 
 2.20.1
 
