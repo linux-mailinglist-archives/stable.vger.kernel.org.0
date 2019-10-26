@@ -2,143 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEABFE5C66
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8CE6E5DAE
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 16:26:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728487AbfJZNT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41852 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728477AbfJZNTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:19:55 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F707222BD;
-        Sat, 26 Oct 2019 13:19:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095994;
-        bh=hDikS1awY/0aXNhA0+x0s4YQ+EHE9cfhwP7iUsrcJhg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqAHNFwV1PqCXO8dRKcMj+AhPod2u/A9zfGj6Qn5cgC91Nv11XuzSnAm5BWAzJs7y
-         8PILiLokhVTiNlzrGUI0rMGt/uMP5nL0MLO34a/dBDyKBd9LVDYW6PpcMJuRFJEULr
-         GdBBwPyqHRBidCFve2OJXL2WmrdadmsSA9kjjC6E=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/59] iwlwifi: pcie: fix memory leaks in iwl_pcie_ctxt_info_gen3_init
-Date:   Sat, 26 Oct 2019 09:18:35 -0400
-Message-Id: <20191026131910.3435-24-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
-References: <20191026131910.3435-1-sashal@kernel.org>
+        id S1726186AbfJZO0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 10:26:14 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:28608 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726185AbfJZO0O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 26 Oct 2019 10:26:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572099973;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UeGDnrcYRS03+kbquaBmUlrmohx1QXf8Xm7pVh1ile8=;
+        b=ejyFmhRFI8ju5rMTRJ14XqwFHoR1Gu9PVksAxJcpJl+B2Hg9ev08tOXOKF1soqyIB4UkLn
+        4CcPNC1ym35ZMgPPCpiAwENoe1oa2FiVJfqbYVdxjWFf2uK5hD0vysEIzhJ1oH8J+OthHy
+        Qb763IsOn1kTAGKEmbpp9+AskGI9mlo=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-123-5Wn8LtmPNLmTywE7_GLpdA-1; Sat, 26 Oct 2019 10:26:11 -0400
+Received: by mail-wr1-f69.google.com with SMTP id i10so3018180wrb.20
+        for <stable@vger.kernel.org>; Sat, 26 Oct 2019 07:26:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=cIZRqtN84dQmAniq7BWIQAUQRqocsgrM3ZR72J2Llqk=;
+        b=thfOUQUykRc0xAGmz6DzfFfGDNMuUqELYRrFdwe65PGAymRpZeRHxwWwxN9q5o3VRQ
+         TNuIEIlhnOEzT9kzRKm24SeR+RSQZpxAK0x6zK56GzS7RcyHvwkhamz1xfIOPIp13gSt
+         UQ0aR2QBxYq3WhYdry68wSLqoI/Iy3h+1lnuPp5CMjHr2ZU4Ihaw/JzWztCxEVmvbr4l
+         32jQrsepTbLxEk5ByitJVWM4z7nsEa1H/NFfIwi2XtuiHUBq1LRu+w0OcQUYOl4/Z6HE
+         BvARWF3q64JEzNjgHSzOqRCKuQd98Br0YwD/OSPr5lWPZcOkKTq0Vu+uGxn/crnvjopL
+         BghA==
+X-Gm-Message-State: APjAAAWrRApribJ/SD2Y2p8EmIUkCwyxOQmgu4K17zEkkGhA6b5ouojp
+        WLE8Q7MV2f716/yA+1SM7NRQoM5P+l/H24LnARr8zDz/6IUFQFdxrOjY7g9bVmtvjNW1ldSbnnU
+        BiF1ACY4okgIzkeIn
+X-Received: by 2002:a05:600c:350:: with SMTP id u16mr1057305wmd.160.1572099970123;
+        Sat, 26 Oct 2019 07:26:10 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxlEtzA5sBA1c8Z9+nc6hfadCg120TLLwkC6odT00c6TmZTkQQxwVlXv+e59SfwTSohRxInpQ==
+X-Received: by 2002:a05:600c:350:: with SMTP id u16mr1057298wmd.160.1572099969963;
+        Sat, 26 Oct 2019 07:26:09 -0700 (PDT)
+Received: from shalem.localdomain (2001-1c00-0c14-2800-ec23-a060-24d5-2453.cable.dynamic.v6.ziggo.nl. [2001:1c00:c14:2800:ec23:a060:24d5:2453])
+        by smtp.gmail.com with ESMTPSA id b3sm4607142wrv.40.2019.10.26.07.26.08
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 26 Oct 2019 07:26:09 -0700 (PDT)
+Subject: Re: [PATCH v2 1/3] ACPI / LPSS: Add LNXVIDEO -> BYT I2C7 to
+ lpss_device_links
+To:     Sasha Levin <sashal@kernel.org>,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>
+Cc:     stable@vger.kernel.org
+References: <20191024214248.145429-1-hdegoede@redhat.com>
+ <20191026131048.4FA3E206DD@mail.kernel.org>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <18e64905-f42c-b80e-1475-dc7c981d0048@redhat.com>
+Date:   Sat, 26 Oct 2019 16:26:08 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191026131048.4FA3E206DD@mail.kernel.org>
+Content-Language: en-US
+X-MC-Unique: 5Wn8LtmPNLmTywE7_GLpdA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+Hi,
 
-[ Upstream commit 0f4f199443faca715523b0659aa536251d8b978f ]
+On 26-10-2019 15:10, Sasha Levin wrote:
+> Hi,
+>=20
+> [This is an automated email]
+>=20
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: e6ce0ce34f657 ACPI / LPSS: Add device link for CHT SD card=
+ dependency on I2C.
+>=20
+> The bot has tested the following trees: v5.3.7, v4.19.80.
+>=20
+> v5.3.7: Build OK!
+> v4.19.80: Failed to apply! Possible dependencies:
+>      2d71ee0ce72f2 ("ACPI / LPSS: Add a device link from the GPU to the B=
+YT I2C5 controller")
+>      bd0f4e342e006 ("ACPI / LPSS: Add a device link from the GPU to the C=
+HT I2C7 controller")
+>=20
+>=20
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>=20
+> How should we proceed with this patch?
 
-In iwl_pcie_ctxt_info_gen3_init there are cases that the allocated dma
-memory is leaked in case of error.
+The entire series should be added to 5.3.z and 5.4.z, I do not believe that=
+ backporting
+to 4.19.z is necessary.
 
-DMA memories prph_scratch, prph_info, and ctxt_info_gen3 are allocated
-and initialized to be later assigned to trans_pcie. But in any error case
-before such assignment the allocated memories should be released.
+Regards,
 
-First of such error cases happens when iwl_pcie_init_fw_sec fails.
-Current implementation correctly releases prph_scratch. But in two
-sunsequent error cases where dma_alloc_coherent may fail, such
-releases are missing.
-
-This commit adds release for prph_scratch when allocation for
-prph_info fails, and adds releases for prph_scratch and prph_info when
-allocation for ctxt_info_gen3 fails.
-
-Fixes: 2ee824026288 ("iwlwifi: pcie: support context information for 22560 devices")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- .../intel/iwlwifi/pcie/ctxt-info-gen3.c       | 36 +++++++++++++------
- 1 file changed, 25 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-index 64d976d872b84..6783b20d9681b 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-@@ -102,13 +102,9 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 
- 	/* allocate ucode sections in dram and set addresses */
- 	ret = iwl_pcie_init_fw_sec(trans, fw, &prph_scratch->dram);
--	if (ret) {
--		dma_free_coherent(trans->dev,
--				  sizeof(*prph_scratch),
--				  prph_scratch,
--				  trans_pcie->prph_scratch_dma_addr);
--		return ret;
--	}
-+	if (ret)
-+		goto err_free_prph_scratch;
-+
- 
- 	/* Allocate prph information
- 	 * currently we don't assign to the prph info anything, but it would get
-@@ -116,16 +112,20 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	prph_info = dma_alloc_coherent(trans->dev, sizeof(*prph_info),
- 				       &trans_pcie->prph_info_dma_addr,
- 				       GFP_KERNEL);
--	if (!prph_info)
--		return -ENOMEM;
-+	if (!prph_info) {
-+		ret = -ENOMEM;
-+		goto err_free_prph_scratch;
-+	}
- 
- 	/* Allocate context info */
- 	ctxt_info_gen3 = dma_alloc_coherent(trans->dev,
- 					    sizeof(*ctxt_info_gen3),
- 					    &trans_pcie->ctxt_info_dma_addr,
- 					    GFP_KERNEL);
--	if (!ctxt_info_gen3)
--		return -ENOMEM;
-+	if (!ctxt_info_gen3) {
-+		ret = -ENOMEM;
-+		goto err_free_prph_info;
-+	}
- 
- 	ctxt_info_gen3->prph_info_base_addr =
- 		cpu_to_le64(trans_pcie->prph_info_dma_addr);
-@@ -176,6 +176,20 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	iwl_set_bit(trans, CSR_GP_CNTRL, CSR_AUTO_FUNC_INIT);
- 
- 	return 0;
-+
-+err_free_prph_info:
-+	dma_free_coherent(trans->dev,
-+			  sizeof(*prph_info),
-+			prph_info,
-+			trans_pcie->prph_info_dma_addr);
-+
-+err_free_prph_scratch:
-+	dma_free_coherent(trans->dev,
-+			  sizeof(*prph_scratch),
-+			prph_scratch,
-+			trans_pcie->prph_scratch_dma_addr);
-+	return ret;
-+
- }
- 
- void iwl_pcie_ctxt_info_gen3_free(struct iwl_trans *trans)
--- 
-2.20.1
+Hans
 
