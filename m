@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A99E5B1E
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E19FE5B20
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728661AbfJZNUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:20:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
+        id S1726677AbfJZNUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbfJZNUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:20:36 -0400
+        id S1728662AbfJZNUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:20:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E097821E6F;
-        Sat, 26 Oct 2019 13:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0C2E214DA;
+        Sat, 26 Oct 2019 13:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096035;
-        bh=5g2TKYepzOq12HGG1Rs9GxMzREQ/5Jbgm0/GRVwlPGA=;
+        s=default; t=1572096036;
+        bh=UK7m25F9ZMBaMWRSv7Q+Giy/+sHLZXHNYPoDUZnqReA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FmuGR+KOipW9rnm4/+Qrq3CjkJUl6lEW213N0WzXHTcwj2bndnB379KBXFhhCcTdO
-         BCtr5pxpqMVDCh05mXiDNgJj8CQtMqlpbGBYghNjCdLiY2FQgo36lmZ4P+Lpyibyv2
-         EEqZVxJ5pfHXwcLFa79iQlSmF+NUHFtsIkwyxaJk=
+        b=mgYkX2l7l1I7nPvzxO5v8pnTrxrQvQ6wFf5BTQMtUAy32wW/SKq05NWcJTNH64+Mh
+         V/FkipgYTSKLbRqr1Ai0fsBGazX34UVuno6VQ3Sty/O8QKg16KpUNEUrko12ZhZDFp
+         EWMYUjkYGYPTfpOhwUeBGoJeWfn2L5lEPIkVASbk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xtensa@linux-xtensa.org
-Subject: [PATCH AUTOSEL 4.19 44/59] xtensa: fix {get,put}_user() for 64bit values
-Date:   Sat, 26 Oct 2019 09:18:55 -0400
-Message-Id: <20191026131910.3435-44-sashal@kernel.org>
+Cc:     Jean Delvare <jdelvare@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 45/59] firmware: dmi: Fix unlikely out-of-bounds read in save_mem_devices
+Date:   Sat, 26 Oct 2019 09:18:56 -0400
+Message-Id: <20191026131910.3435-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -43,57 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit 6595d144decec396bf2e2efee27e50634a4b627f ]
+[ Upstream commit 81dde26de9c08bb04c4962a15608778aaffb3cf9 ]
 
-First of all, on short copies __copy_{to,from}_user() return the amount
-of bytes left uncopied, *not* -EFAULT.  get_user() and put_user() are
-expected to return -EFAULT on failure.
+Before reading the Extended Size field, we should ensure it fits in
+the DMI record. There is already a record length check but it does
+not cover that field.
 
-Another problem is get_user(v32, (__u64 __user *)p); that should
-fetch 64bit value and the assign it to v32, truncating it in process.
-Current code, OTOH, reads 8 bytes of data and stores them at the
-address of v32, stomping on the 4 bytes that follow v32 itself.
+It would take a seriously corrupted DMI table to hit that bug, so no
+need to worry, but we should still fix it.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 6deae96b42eb ("firmware, DMI: Add function to look up a handle and return DIMM size")
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Borislav Petkov <bp@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/include/asm/uaccess.h | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/firmware/dmi_scan.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/xtensa/include/asm/uaccess.h b/arch/xtensa/include/asm/uaccess.h
-index f1158b4c629cf..b403885dd493a 100644
---- a/arch/xtensa/include/asm/uaccess.h
-+++ b/arch/xtensa/include/asm/uaccess.h
-@@ -101,7 +101,7 @@ do {									\
- 	case 4: __put_user_asm(x, ptr, retval, 4, "s32i", __cb); break;	\
- 	case 8: {							\
- 		     __typeof__(*ptr) __v64 = x;			\
--		     retval = __copy_to_user(ptr, &__v64, 8);		\
-+		     retval = __copy_to_user(ptr, &__v64, 8) ? -EFAULT : 0;	\
- 		     break;						\
- 	        }							\
- 	default: __put_user_bad();					\
-@@ -200,7 +200,16 @@ do {									\
- 	case 1: __get_user_asm(x, ptr, retval, 1, "l8ui", __cb);  break;\
- 	case 2: __get_user_asm(x, ptr, retval, 2, "l16ui", __cb); break;\
- 	case 4: __get_user_asm(x, ptr, retval, 4, "l32i", __cb);  break;\
--	case 8: retval = __copy_from_user(&x, ptr, 8);    break;	\
-+	case 8: {							\
-+		u64 __x;						\
-+		if (unlikely(__copy_from_user(&__x, ptr, 8))) {		\
-+			retval = -EFAULT;				\
-+			(x) = 0;					\
-+		} else {						\
-+			(x) = *(__force __typeof__((ptr)))&__x;		\
-+		}							\
-+		break;							\
-+	}								\
- 	default: (x) = __get_user_bad();				\
- 	}								\
- } while (0)
+diff --git a/drivers/firmware/dmi_scan.c b/drivers/firmware/dmi_scan.c
+index f2483548cde92..0dc0c78f1fdb2 100644
+--- a/drivers/firmware/dmi_scan.c
++++ b/drivers/firmware/dmi_scan.c
+@@ -407,7 +407,7 @@ static void __init save_mem_devices(const struct dmi_header *dm, void *v)
+ 		bytes = ~0ull;
+ 	else if (size & 0x8000)
+ 		bytes = (u64)(size & 0x7fff) << 10;
+-	else if (size != 0x7fff)
++	else if (size != 0x7fff || dm->length < 0x20)
+ 		bytes = (u64)size << 20;
+ 	else
+ 		bytes = (u64)get_unaligned((u32 *)&d[0x1C]) << 20;
 -- 
 2.20.1
 
