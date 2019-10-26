@@ -2,144 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C5DE5DF2
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 17:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 269E2E5DF3
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 17:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726202AbfJZPeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 11:34:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41370 "EHLO mail.kernel.org"
+        id S1726202AbfJZPkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 11:40:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726189AbfJZPeJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 11:34:09 -0400
+        id S1726189AbfJZPkX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 11:40:23 -0400
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7EF720663;
-        Sat, 26 Oct 2019 15:34:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEB8220863;
+        Sat, 26 Oct 2019 15:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572104049;
-        bh=CD0FgLiNJJZMYaTOlqcJbAFXREYTUTLAITk0cybJ/qw=;
+        s=default; t=1572104422;
+        bh=csiVRgzfJdvrDO/kFREIQsHY9IYXvsWvTm9SYCE8v4I=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=N3uER++UD8qgn1607PWaVghumv0faImnnR0il9iHP9AbJiQm0BoAfbD+k4qbf7SDL
-         A5bI3DLm1rgHmMkesgbNB9x2Z4s854YREBTw/8Qq804u0OrMPCOKa+ZOOm1Cx4k69Y
-         3BWdgB1zm534lgPIpnwq03+E8ewT20WqkTw+Lmc8=
-Date:   Sat, 26 Oct 2019 11:34:07 -0400
+        b=0Mugfw21v1vM3yS3OStpSQqhz7p3BVmPUOkW4TJUvaC0jnRH20XKHL5B+6y7KtiiV
+         Gqv6Tur1q24uraraxkPa94rDrrj6dHDdkw6ujSoqqum/QsMXBnnqplJ+7w1qc3LuTS
+         GhY9oxhyTsN1cbrCGuENe1arxHUtftzumbRtMGIg=
+Date:   Sat, 26 Oct 2019 11:40:20 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     zhong jiang <zhongjiang@huawei.com>
-Cc:     Matthew Wilcox <willy@infradead.org>, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, dh.herrmann@gmail.com, linux-mm@kvack.org
-Subject: Re: [PATCH 4.19] memfd: Fix locking when tagging pins
-Message-ID: <20191026153407.GJ31224@sasha-vm>
-References: <20191025165837.22979-1-willy@infradead.org>
- <5DB3A985.4000903@huawei.com>
+To:     Greg KH <greg@kroah.com>
+Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        stable <stable@vger.kernel.org>, Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH for-stable-4.14 42/48] arm64: Always enable spectre-v2
+ vulnerability detection
+Message-ID: <20191026154020.GK31224@sasha-vm>
+References: <20191024124833.4158-1-ard.biesheuvel@linaro.org>
+ <20191024124833.4158-43-ard.biesheuvel@linaro.org>
+ <b41df418-2e09-ac29-92cd-3910f0c05c50@arm.com>
+ <CAKv+Gu8zW08_TKgvU4yHh=8E4_cnhx7iLoeOrYfmoy4m7ofwsA@mail.gmail.com>
+ <20191025152534.GF31224@sasha-vm>
+ <CAKv+Gu9_BtF2Zd9=9_wDukwKinmSMwes5R7Eu9jx315PQFk8dA@mail.gmail.com>
+ <CAKv+Gu-2LXayWyP=3Eur_toGo4xqhENWeK6n+TCDcEy8xrKmXQ@mail.gmail.com>
+ <20191026080121.GB554748@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
-In-Reply-To: <5DB3A985.4000903@huawei.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191026080121.GB554748@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Oct 26, 2019 at 10:03:49AM +0800, zhong jiang wrote:
->On 2019/10/26 0:58, Matthew Wilcox wrote:
->> From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+On Sat, Oct 26, 2019 at 10:01:21AM +0200, Greg KH wrote:
+>On Fri, Oct 25, 2019 at 05:39:44PM +0200, Ard Biesheuvel wrote:
+>> On Fri, 25 Oct 2019 at 17:28, Ard Biesheuvel <ard.biesheuvel@linaro.org> wrote:
+>> >
+>> > On Fri, 25 Oct 2019 at 17:25, Sasha Levin <sashal@kernel.org> wrote:
+>> > >
+>> > > On Thu, Oct 24, 2019 at 04:37:12PM +0200, Ard Biesheuvel wrote:
+>> > > >On Thu, 24 Oct 2019 at 16:34, Alexandru Elisei <alexandru.elisei@arm.com> wrote:
+>> > > >>
+>> > > >> Hi,
+>> > > >>
+>> > > >> On 10/24/19 1:48 PM, Ard Biesheuvel wrote:
+>> > > >> > From: Jeremy Linton <jeremy.linton@arm.com>
+>> > > >> >
+>> > > >> > [ Upstream commit 8c1e3d2bb44cbb998cb28ff9a18f105fee7f1eb3 ]
+>> > > >> >
+>> > > >> > Ensure we are always able to detect whether or not the CPU is affected
+>> > > >> > by Spectre-v2, so that we can later advertise this to userspace.
+>> > > >> >
+>> > > >> > Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+>> > > >> > Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+>> > > >> > Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+>> > > >> > Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+>> > > >> > Signed-off-by: Will Deacon <will.deacon@arm.com>
+>> > > >> > Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>> > > >> > ---
+>> > > >> >  arch/arm64/kernel/cpu_errata.c | 15 ++++++++-------
+>> > > >> >  1 file changed, 8 insertions(+), 7 deletions(-)
+>> > > >> >
+>> > > >> > diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+>> > > >> > index bf6d8aa9b45a..647c533cfd90 100644
+>> > > >> > --- a/arch/arm64/kernel/cpu_errata.c
+>> > > >> > +++ b/arch/arm64/kernel/cpu_errata.c
+>> > > >> > @@ -76,7 +76,6 @@ cpu_enable_trap_ctr_access(const struct arm64_cpu_capabilities *__unused)
+>> > > >> >       config_sctlr_el1(SCTLR_EL1_UCT, 0);
+>> > > >> >  }
+>> > > >> >
+>> > > >> > -#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
+>> > > >> >  #include <asm/mmu_context.h>
+>> > > >> >  #include <asm/cacheflush.h>
+>> > > >> >
+>> > > >> > @@ -217,11 +216,11 @@ static int detect_harden_bp_fw(void)
+>> > > >> >           ((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR_V1))
+>> > > >> >               cb = qcom_link_stack_sanitization;
+>> > > >> >
+>> > > >> > -     install_bp_hardening_cb(cb, smccc_start, smccc_end);
+>> > > >> > +     if (IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR))
+>> > > >> > +             install_bp_hardening_cb(cb, smccc_start, smccc_end);
+>> > > >> >
+>> > > >> >       return 1;
+>> > > >> >  }
+>> > > >> > -#endif       /* CONFIG_HARDEN_BRANCH_PREDICTOR */
+>> > > >> >
+>> > > >> >  DEFINE_PER_CPU_READ_MOSTLY(u64, arm64_ssbd_callback_required);
+>> > > >> >
+>> > > >> > @@ -457,7 +456,6 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
+>> > > >> >       .type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,                 \
+>> > > >> >       CAP_MIDR_RANGE_LIST(midr_list)
+>> > > >> >
+>> > > >> > -#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
+>> > > >> >  /*
+>> > > >> >   * List of CPUs that do not need any Spectre-v2 mitigation at all.
+>> > > >> >   */
+>> > > >> > @@ -489,6 +487,12 @@ check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
+>> > > >> >       if (!need_wa)
+>> > > >> >               return false;
+>> > > >> >
+>> > > >> > +     if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
+>> > > >> > +             pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
+>> > > >> > +             __hardenbp_enab = false;
+>> > > >>
+>> > > >> This breaks when building, because __hardenbp_enab is declared in the next patch:
+>> > > >>
+>> > > >> $ make -j32 defconfig && make -j32
+>> > > >>
+>> > > >> [..]
+>> > > >> arch/arm64/kernel/cpu_errata.c: In function ‘check_branch_predictor’:
+>> > > >> arch/arm64/kernel/cpu_errata.c:492:3: error: ‘__hardenbp_enab’ undeclared (first
+>> > > >> use in this function)
+>> > > >>    __hardenbp_enab = false;
+>> > > >>    ^~~~~~~~~~~~~~~
+>> > > >> arch/arm64/kernel/cpu_errata.c:492:3: note: each undeclared identifier is reported
+>> > > >> only once for each function it appears in
+>> > > >> make[1]: *** [scripts/Makefile.build:326: arch/arm64/kernel/cpu_errata.o] Error 1
+>> > > >> make[1]: *** Waiting for unfinished jobs....
+>> > > >>
+>> > > >
+>> > > >Indeed, but as discussed, this matches the state of both mainline and
+>> > > >v4.19, which carry these patches in the same [wrong] order as well.
+>> > > >
+>> > > >Greg should confirm, but as I understand it, it is preferred to be
+>> > > >bug-compatible with mainline rather than fixing problems when spotting
+>> > > >them while doing the backport.
+>> > >
+>> > > Is it just patch ordering? If so I'd rather fix it, there's no reason to
+>> > > carry this issue into the stable trees.
+>> > >
+>> > > We reserve "bug compatibility" for functional issues that are not yet
+>> > > fixed upstream, it doesn't seem to be the case here.
+>> > >
+>> >
+>> > The patches don't apply cleanly in the opposite order.
 >>
->> The RCU lock is insufficient to protect the radix tree iteration as
->> a deletion from the tree can occur before we take the spinlock to
->> tag the entry.  In 4.19, this has manifested as a bug with the following
->> trace:
->>
->> kernel BUG at lib/radix-tree.c:1429!
->> invalid opcode: 0000 [#1] SMP KASAN PTI
->> CPU: 7 PID: 6935 Comm: syz-executor.2 Not tainted 4.19.36 #25
->> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
->> RIP: 0010:radix_tree_tag_set+0x200/0x2f0 lib/radix-tree.c:1429
->> Code: 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 44 24 10 e8 a3 29 7e fe 48 8b 44 24 10 48 0f ab 03 e9 d2 fe ff ff e8 90 29 7e fe <0f> 0b 48 c7 c7 e0 5a 87 84 e8 f0 e7 08 ff 4c 89 ef e8 4a ff ac fe
->> RSP: 0018:ffff88837b13fb60 EFLAGS: 00010016
->> RAX: 0000000000040000 RBX: ffff8883c5515d58 RCX: ffffffff82cb2ef0
->> RDX: 0000000000000b72 RSI: ffffc90004cf2000 RDI: ffff8883c5515d98
->> RBP: ffff88837b13fb98 R08: ffffed106f627f7e R09: ffffed106f627f7e
->> R10: 0000000000000001 R11: ffffed106f627f7d R12: 0000000000000004
->> R13: ffffea000d7fea80 R14: 1ffff1106f627f6f R15: 0000000000000002
->> FS:  00007fa1b8df2700(0000) GS:ffff8883e2fc0000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->> CR2: 00007fa1b8df1db8 CR3: 000000037d4d2001 CR4: 0000000000160ee0
->> Call Trace:
->>  memfd_tag_pins mm/memfd.c:51 [inline]
->>  memfd_wait_for_pins+0x2c5/0x12d0 mm/memfd.c:81
->>  memfd_add_seals mm/memfd.c:215 [inline]
->>  memfd_fcntl+0x33d/0x4a0 mm/memfd.c:247
->>  do_fcntl+0x589/0xeb0 fs/fcntl.c:421
->>  __do_sys_fcntl fs/fcntl.c:463 [inline]
->>  __se_sys_fcntl fs/fcntl.c:448 [inline]
->>  __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:448
->>  do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:293
->>
->> The problem does not occur in mainline due to the XArray rewrite which
->> changed the locking to exclude modification of the tree during iteration.
->> At the time, nobody realised this was a bugfix.  Backport the locking
->> changes to stable.
->>
->> Cc: stable@vger.kernel.org
->> Reported-by: zhong jiang <zhongjiang@huawei.com>
->> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
->> ---
->>  mm/memfd.c | 18 ++++++++++--------
->>  1 file changed, 10 insertions(+), 8 deletions(-)
->>
->> diff --git a/mm/memfd.c b/mm/memfd.c
->> index 2bb5e257080e..5859705dafe1 100644
->> --- a/mm/memfd.c
->> +++ b/mm/memfd.c
->> @@ -34,11 +34,12 @@ static void memfd_tag_pins(struct address_space *mapping)
->>  	void __rcu **slot;
->>  	pgoff_t start;
->>  	struct page *page;
->> +	unsigned int tagged = 0;
->>
->>  	lru_add_drain();
->>  	start = 0;
->> -	rcu_read_lock();
->>
->> +	xa_lock_irq(&mapping->i_pages);
->>  	radix_tree_for_each_slot(slot, &mapping->i_pages, &iter, start) {
->>  		page = radix_tree_deref_slot(slot);
->>  		if (!page || radix_tree_exception(page)) {
->> @@ -47,18 +48,19 @@ static void memfd_tag_pins(struct address_space *mapping)
->>  				continue;
->>  			}
->>  		} else if (page_count(page) - page_mapcount(page) > 1) {
->> -			xa_lock_irq(&mapping->i_pages);
->>  			radix_tree_tag_set(&mapping->i_pages, iter.index,
->>  					   MEMFD_TAG_PINNED);
->> -			xa_unlock_irq(&mapping->i_pages);
->>  		}
->>
->> -		if (need_resched()) {
->> -			slot = radix_tree_iter_resume(slot, &iter);
->> -			cond_resched_rcu();
->> -		}
->> +		if (++tagged % 1024)
->> +			continue;
->> +
->> +		slot = radix_tree_iter_resume(slot, &iter);
->> +		xa_unlock_irq(&mapping->i_pages);
->> +		cond_resched();
->> +		xa_lock_irq(&mapping->i_pages);
->>  	}
->> -	rcu_read_unlock();
->> +	xa_unlock_irq(&mapping->i_pages);
->>  }
->>
->>  /*
->The patch looks good to me.   thanks for your review and efforts.
+>> What we could do is squash the two patches together. That way, we
+>> avoid the breakage without having to modify the patches in order to be
+>> able to apply them.
 >
->Sasha,  The patch was correct,  It should go into stable instead of my patch.
+>No, don't do that.  Just take all of the needed commits.
 
-I've queued up this series for all respective branches (fixing up 4.19),
-thanks!
+Right, just make the patches apply in reverse, this shouldn't be more
+than moving some code from the 2nd patch back to the 1st one, right?
+
+We usually don't do this in stable backports, but there are three good
+reasons to do it here:
+
+1. It'll be nice to maintain bisectability.
+2. The end result should be exactly the same, so there's no room for
+error here.
+3. It's a backport for an older kernel to begin with, so there are
+changes from upstream already.
 
 -- 
 Thanks,
