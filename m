@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4B8E5AB7
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F6EE5ABF
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:17:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727260AbfJZNRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
+        id S1727399AbfJZNRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:17:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727259AbfJZNRV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:21 -0400
+        id S1727377AbfJZNRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:32 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4BF4222D3;
-        Sat, 26 Oct 2019 13:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D59AD21E6F;
+        Sat, 26 Oct 2019 13:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095840;
-        bh=i2QENUEsyVGqI429XAOApQlEdyUdFjwYg4+kfW3VV54=;
+        s=default; t=1572095851;
+        bh=xsJdWmDimaKeMJFNZnPlF0z0rT2wgQoTu+Oy1fqFb2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtTivN88qwpGAOrWSZOLbqt9ZKVjptSqsT3Cif2fHAKLVFrPRMGJodxXEGeBUiOVr
-         NSnpBGkajLQUpTTgAjWc4+xUqFZx/fWHi9nlDS/XEhEzUe5BFU5wlBSCICO3NBCXQ6
-         LMD4T6wCu6pg1DB0YgqFXiK8zHyuSasko/ddDRK0=
+        b=14nigGu+k1scsjRTls/Xbgt6p0pvgE5TG+rpYaOX4QgnI0JEmIUwjphxfoJGnStdA
+         Z6lgqZZILojNCHvM2NOr1KbGdma38kt2z7i6vrqhJHahuevwUXR6k6XAT1prb+OCxv
+         z47NUgiQ4358Cv5kVgkU8JQZ7pqdzt3r+izpWGfE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antonio Borneo <antonio.borneo@st.com>,
+Cc:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Guillaume Nault <gnault@redhat.com>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 40/99] net: stmmac: fix length of PTP clock's name string
-Date:   Sat, 26 Oct 2019 09:15:01 -0400
-Message-Id: <20191026131600.2507-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 48/99] netns: fix NLM_F_ECHO mechanism for RTM_NEWNSID
+Date:   Sat, 26 Oct 2019 09:15:09 -0400
+Message-Id: <20191026131600.2507-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -43,49 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antonio Borneo <antonio.borneo@st.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 5da202c88f8c355ad79bc2e8eb582e6d433060e7 ]
+[ Upstream commit 993e4c929a073595d22c85f59082f0c387e31c21 ]
 
-The field "name" in struct ptp_clock_info has a fixed size of 16
-chars and is used as zero terminated string by clock_name_show()
-in drivers/ptp/ptp_sysfs.c
-The current initialization value requires 17 chars to fit also the
-null termination, and this causes overflow to the next bytes in
-the struct when the string is read as null terminated:
-	hexdump -C /sys/class/ptp/ptp0/clock_name
-	00000000  73 74 6d 6d 61 63 5f 70  74 70 5f 63 6c 6f 63 6b  |stmmac_ptp_clock|
-	00000010  a0 ac b9 03 0a                                    |.....|
-where the extra 4 bytes (excluding the newline) after the string
-represent the integer 0x03b9aca0 = 62500000 assigned to the field
-"max_adj" that follows "name" in the same struct.
+The flag NLM_F_ECHO aims to reply to the user the message notified to all
+listeners.
+It was not the case with the command RTM_NEWNSID, let's fix this.
 
-There is no strict requirement for the "name" content and in the
-comment in ptp_clock_kernel.h it's reported it should just be 'A
-short "friendly name" to identify the clock'.
-Replace it with "stmmac ptp".
-
-Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
-Fixes: 92ba6888510c ("stmmac: add the support for PTP hw clock driver")
+Fixes: 0c7aecd4bde4 ("netns: add rtnl cmd to add and get peer netns ids")
+Reported-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Tested-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/net_namespace.c | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-index c48224973a374..3b6b38bb9ddae 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_ptp.c
-@@ -164,7 +164,7 @@ static int stmmac_enable(struct ptp_clock_info *ptp,
- /* structure describing a PTP hardware clock */
- static struct ptp_clock_info stmmac_ptp_clock_ops = {
- 	.owner = THIS_MODULE,
--	.name = "stmmac_ptp_clock",
-+	.name = "stmmac ptp",
- 	.max_adj = 62500000,
- 	.n_alarm = 0,
- 	.n_ext_ts = 0,
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index a0e0d298c9918..6d3e4821b02d8 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -245,7 +245,8 @@ static int __peernet2id(struct net *net, struct net *peer)
+ 	return __peernet2id_alloc(net, peer, &no);
+ }
+ 
+-static void rtnl_net_notifyid(struct net *net, int cmd, int id);
++static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
++			      struct nlmsghdr *nlh);
+ /* This function returns the id of a peer netns. If no id is assigned, one will
+  * be allocated and returned.
+  */
+@@ -268,7 +269,7 @@ int peernet2id_alloc(struct net *net, struct net *peer)
+ 	id = __peernet2id_alloc(net, peer, &alloc);
+ 	spin_unlock_bh(&net->nsid_lock);
+ 	if (alloc && id >= 0)
+-		rtnl_net_notifyid(net, RTM_NEWNSID, id);
++		rtnl_net_notifyid(net, RTM_NEWNSID, id, 0, NULL);
+ 	if (alive)
+ 		put_net(peer);
+ 	return id;
+@@ -532,7 +533,7 @@ static void unhash_nsid(struct net *net, struct net *last)
+ 			idr_remove(&tmp->netns_ids, id);
+ 		spin_unlock_bh(&tmp->nsid_lock);
+ 		if (id >= 0)
+-			rtnl_net_notifyid(tmp, RTM_DELNSID, id);
++			rtnl_net_notifyid(tmp, RTM_DELNSID, id, 0, NULL);
+ 		if (tmp == last)
+ 			break;
+ 	}
+@@ -764,7 +765,8 @@ static int rtnl_net_newid(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	err = alloc_netid(net, peer, nsid);
+ 	spin_unlock_bh(&net->nsid_lock);
+ 	if (err >= 0) {
+-		rtnl_net_notifyid(net, RTM_NEWNSID, err);
++		rtnl_net_notifyid(net, RTM_NEWNSID, err, NETLINK_CB(skb).portid,
++				  nlh);
+ 		err = 0;
+ 	} else if (err == -ENOSPC && nsid >= 0) {
+ 		err = -EEXIST;
+@@ -1051,9 +1053,12 @@ static int rtnl_net_dumpid(struct sk_buff *skb, struct netlink_callback *cb)
+ 	return err < 0 ? err : skb->len;
+ }
+ 
+-static void rtnl_net_notifyid(struct net *net, int cmd, int id)
++static void rtnl_net_notifyid(struct net *net, int cmd, int id, u32 portid,
++			      struct nlmsghdr *nlh)
+ {
+ 	struct net_fill_args fillargs = {
++		.portid = portid,
++		.seq = nlh ? nlh->nlmsg_seq : 0,
+ 		.cmd = cmd,
+ 		.nsid = id,
+ 	};
+@@ -1068,7 +1073,7 @@ static void rtnl_net_notifyid(struct net *net, int cmd, int id)
+ 	if (err < 0)
+ 		goto err_out;
+ 
+-	rtnl_notify(msg, net, 0, RTNLGRP_NSID, NULL, 0);
++	rtnl_notify(msg, net, portid, RTNLGRP_NSID, nlh, 0);
+ 	return;
+ 
+ err_out:
 -- 
 2.20.1
 
