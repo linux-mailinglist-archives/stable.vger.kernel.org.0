@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43D3DE5AFA
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C98FE5AFD
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbfJZNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:19:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41334 "EHLO mail.kernel.org"
+        id S1728267AbfJZNT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:19:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728212AbfJZNTV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:19:21 -0400
+        id S1728251AbfJZNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:19:26 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A81E521D7F;
-        Sat, 26 Oct 2019 13:19:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 085C721655;
+        Sat, 26 Oct 2019 13:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095961;
-        bh=b5S1CimdtMac2CG6pgbspaYcfNtzSd/dAadqA8JChxI=;
+        s=default; t=1572095965;
+        bh=QpdTIUoHXnQ//a5FIK2xqAkhXc25r9Ym7Ua1sb3vdPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+q6gJE1u6/yX3ZttgS9msSgkQBgoHyxFF0DUUOCtwG0Xg5XpYS27+KpXwY/DXvcR
-         6CAm3LU+OGVT9RMmD4BTGOu+8rgAY0d4LqLjDXnFmoR/b1tVaQPgcAjtXG/vsUMP0F
-         TK6a5/fyn6awnHEManfVUzcIySCGlyWgdGZrfmsM=
+        b=jrZdBXPDKboFd8M1wzPqeovYIBJC10STc1EFPn5Yifh3Vc5nzWXReoIixd2oyfyCW
+         1nV7jn1wu86HOhsHbNxf8OpwbLxi6V5Bc8nP5JQtyU1wFT4S0S4YQhHG49dj2u7KLN
+         Qf9ikqlemY+lUJCXgjEkLdM2KNXEc1HOt7qb4c8o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 08/59] ALSA: hda/realtek: Reduce the Headphone static noise on XPS 9350/9360
-Date:   Sat, 26 Oct 2019 09:18:19 -0400
-Message-Id: <20191026131910.3435-8-sashal@kernel.org>
+Cc:     David Howells <dhowells@redhat.com>,
+        syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, linux-afs@lists.infradead.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 11/59] rxrpc: Fix trace-after-put looking at the put peer record
+Date:   Sat, 26 Oct 2019 09:18:22 -0400
+Message-Id: <20191026131910.3435-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -42,98 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 1099f48457d06b816359fb43ac32a4a07e33219b ]
+[ Upstream commit 55f6c98e3674ce16038a1949c3f9ca5a9a99f289 ]
 
-Headphone on XPS 9350/9360 produces a background white noise. The The
-noise level somehow correlates with "Headphone Mic Boost", when it sets
-to 1 the noise disappears. However, doing this has a side effect, which
-also decreases the overall headphone volume so I didn't send the patch
-upstream.
+rxrpc_put_peer() calls trace_rxrpc_peer() after it has done the decrement
+of the refcount - which looks at the debug_id in the peer record.  But
+unless the refcount was reduced to zero, we no longer have the right to
+look in the record and, indeed, it may be deleted by some other thread.
 
-The noise was bearable back then, but after commit 717f43d81afc ("ALSA:
-hda/realtek - Update headset mode for ALC256") the noise exacerbates to
-a point it starts hurting ears.
+Fix this by getting the debug_id out before decrementing the refcount and
+then passing that into the tracepoint.
 
-So let's use the workaround to set "Headphone Mic Boost" to 1 and lock
-it so it's not touchable by userspace.
+This can cause the following symptoms:
 
-Fixes: 717f43d81afc ("ALSA: hda/realtek - Update headset mode for ALC256")
-BugLink: https://bugs.launchpad.net/bugs/1654448
-BugLink: https://bugs.launchpad.net/bugs/1845810
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Link: https://lore.kernel.org/r/20191003043919.10960-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+    BUG: KASAN: use-after-free in __rxrpc_put_peer net/rxrpc/peer_object.c:411
+    [inline]
+    BUG: KASAN: use-after-free in rxrpc_put_peer+0x685/0x6a0
+    net/rxrpc/peer_object.c:435
+    Read of size 8 at addr ffff888097ec0058 by task syz-executor823/24216
+
+Fixes: 1159d4b496f5 ("rxrpc: Add a tracepoint to track rxrpc_peer refcounting")
+Reported-by: syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+ include/trace/events/rxrpc.h |  6 +++---
+ net/rxrpc/peer_object.c      | 11 +++++++----
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index e1b08d6f2a519..53f1bc0cf8b7a 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5250,6 +5250,17 @@ static void alc271_hp_gate_mic_jack(struct hda_codec *codec,
- 	}
+diff --git a/include/trace/events/rxrpc.h b/include/trace/events/rxrpc.h
+index 0fe169c6afd84..a08916eb76152 100644
+--- a/include/trace/events/rxrpc.h
++++ b/include/trace/events/rxrpc.h
+@@ -527,10 +527,10 @@ TRACE_EVENT(rxrpc_local,
+ 	    );
+ 
+ TRACE_EVENT(rxrpc_peer,
+-	    TP_PROTO(struct rxrpc_peer *peer, enum rxrpc_peer_trace op,
++	    TP_PROTO(unsigned int peer_debug_id, enum rxrpc_peer_trace op,
+ 		     int usage, const void *where),
+ 
+-	    TP_ARGS(peer, op, usage, where),
++	    TP_ARGS(peer_debug_id, op, usage, where),
+ 
+ 	    TP_STRUCT__entry(
+ 		    __field(unsigned int,	peer		)
+@@ -540,7 +540,7 @@ TRACE_EVENT(rxrpc_peer,
+ 			     ),
+ 
+ 	    TP_fast_assign(
+-		    __entry->peer = peer->debug_id;
++		    __entry->peer = peer_debug_id;
+ 		    __entry->op = op;
+ 		    __entry->usage = usage;
+ 		    __entry->where = where;
+diff --git a/net/rxrpc/peer_object.c b/net/rxrpc/peer_object.c
+index 71547e8673b99..72b4ad210426e 100644
+--- a/net/rxrpc/peer_object.c
++++ b/net/rxrpc/peer_object.c
+@@ -386,7 +386,7 @@ struct rxrpc_peer *rxrpc_get_peer(struct rxrpc_peer *peer)
+ 	int n;
+ 
+ 	n = atomic_inc_return(&peer->usage);
+-	trace_rxrpc_peer(peer, rxrpc_peer_got, n, here);
++	trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n, here);
+ 	return peer;
  }
  
-+static void alc256_fixup_dell_xps_13_headphone_noise2(struct hda_codec *codec,
-+						      const struct hda_fixup *fix,
-+						      int action)
-+{
-+	if (action != HDA_FIXUP_ACT_PRE_PROBE)
-+		return;
-+
-+	snd_hda_codec_amp_stereo(codec, 0x1a, HDA_INPUT, 0, HDA_AMP_VOLMASK, 1);
-+	snd_hda_override_wcaps(codec, 0x1a, get_wcaps(codec, 0x1a) & ~AC_WCAP_IN_AMP);
-+}
-+
- static void alc269_fixup_limit_int_mic_boost(struct hda_codec *codec,
- 					     const struct hda_fixup *fix,
- 					     int action)
-@@ -5632,6 +5643,7 @@ enum {
- 	ALC298_FIXUP_DELL_AIO_MIC_NO_PRESENCE,
- 	ALC275_FIXUP_DELL_XPS,
- 	ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE,
-+	ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2,
- 	ALC293_FIXUP_LENOVO_SPK_NOISE,
- 	ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY,
- 	ALC255_FIXUP_DELL_SPK_NOISE,
-@@ -6348,6 +6360,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC255_FIXUP_DELL1_MIC_NO_PRESENCE
- 	},
-+	[ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc256_fixup_dell_xps_13_headphone_noise2,
-+		.chained = true,
-+		.chain_id = ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE
-+	},
- 	[ALC293_FIXUP_LENOVO_SPK_NOISE] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc_fixup_disable_aamix,
-@@ -6781,17 +6799,17 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x06de, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
- 	SND_PCI_QUIRK(0x1028, 0x06df, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
- 	SND_PCI_QUIRK(0x1028, 0x06e0, "Dell", ALC293_FIXUP_DISABLE_AAMIX_MULTIJACK),
--	SND_PCI_QUIRK(0x1028, 0x0704, "Dell XPS 13 9350", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE),
-+	SND_PCI_QUIRK(0x1028, 0x0704, "Dell XPS 13 9350", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
- 	SND_PCI_QUIRK(0x1028, 0x0706, "Dell Inspiron 7559", ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER),
- 	SND_PCI_QUIRK(0x1028, 0x0725, "Dell Inspiron 3162", ALC255_FIXUP_DELL_SPK_NOISE),
- 	SND_PCI_QUIRK(0x1028, 0x0738, "Dell Precision 5820", ALC269_FIXUP_NO_SHUTUP),
--	SND_PCI_QUIRK(0x1028, 0x075b, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE),
-+	SND_PCI_QUIRK(0x1028, 0x075b, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
- 	SND_PCI_QUIRK(0x1028, 0x075c, "Dell XPS 27 7760", ALC298_FIXUP_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x1028, 0x075d, "Dell AIO", ALC298_FIXUP_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x1028, 0x07b0, "Dell Precision 7520", ALC295_FIXUP_DISABLE_DAC3),
- 	SND_PCI_QUIRK(0x1028, 0x0798, "Dell Inspiron 17 7000 Gaming", ALC256_FIXUP_DELL_INSPIRON_7559_SUBWOOFER),
- 	SND_PCI_QUIRK(0x1028, 0x080c, "Dell WYSE", ALC225_FIXUP_DELL_WYSE_MIC_NO_PRESENCE),
--	SND_PCI_QUIRK(0x1028, 0x082a, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE),
-+	SND_PCI_QUIRK(0x1028, 0x082a, "Dell XPS 13 9360", ALC256_FIXUP_DELL_XPS_13_HEADPHONE_NOISE2),
- 	SND_PCI_QUIRK(0x1028, 0x084b, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
- 	SND_PCI_QUIRK(0x1028, 0x084e, "Dell", ALC274_FIXUP_DELL_AIO_LINEOUT_VERB),
- 	SND_PCI_QUIRK(0x1028, 0x0871, "Dell Precision 3630", ALC255_FIXUP_DELL_HEADSET_MIC),
+@@ -400,7 +400,7 @@ struct rxrpc_peer *rxrpc_get_peer_maybe(struct rxrpc_peer *peer)
+ 	if (peer) {
+ 		int n = atomic_fetch_add_unless(&peer->usage, 1, 0);
+ 		if (n > 0)
+-			trace_rxrpc_peer(peer, rxrpc_peer_got, n + 1, here);
++			trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n + 1, here);
+ 		else
+ 			peer = NULL;
+ 	}
+@@ -430,11 +430,13 @@ static void __rxrpc_put_peer(struct rxrpc_peer *peer)
+ void rxrpc_put_peer(struct rxrpc_peer *peer)
+ {
+ 	const void *here = __builtin_return_address(0);
++	unsigned int debug_id;
+ 	int n;
+ 
+ 	if (peer) {
++		debug_id = peer->debug_id;
+ 		n = atomic_dec_return(&peer->usage);
+-		trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
++		trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
+ 		if (n == 0)
+ 			__rxrpc_put_peer(peer);
+ 	}
+@@ -447,10 +449,11 @@ void rxrpc_put_peer(struct rxrpc_peer *peer)
+ void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
+ {
+ 	const void *here = __builtin_return_address(0);
++	unsigned int debug_id = peer->debug_id;
+ 	int n;
+ 
+ 	n = atomic_dec_return(&peer->usage);
+-	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
++	trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
+ 	if (n == 0) {
+ 		hash_del_rcu(&peer->hash_link);
+ 		list_del_init(&peer->keepalive_link);
 -- 
 2.20.1
 
