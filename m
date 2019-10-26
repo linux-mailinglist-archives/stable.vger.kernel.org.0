@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E46CE5D1E
+	by mail.lfdr.de (Postfix) with ESMTP id DC54BE5D1F
 	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727268AbfJZNRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:17:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38900 "EHLO mail.kernel.org"
+        id S1726888AbfJZNfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727225AbfJZNRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:20 -0400
+        id S1726262AbfJZNRW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 855AE2070B;
-        Sat, 26 Oct 2019 13:17:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFB5A21D80;
+        Sat, 26 Oct 2019 13:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095839;
-        bh=gulA3tNgyb2dUp3AmieLcpeoFl2ZtpI36NvZRc/TxS4=;
+        s=default; t=1572095841;
+        bh=/jb/StiBkQnNp1GN92R6qCVPT5kDpfSTD9GsgwK4vug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juAJp1iajgIf9H7BQN9eg7L70fOtuTW3a34mHSqyoMMIdEXH3ATwrtXYEkXZYj+5t
-         R0NFYfT1rOKKpAG8AEu2akyR09n1pBxbBhEQuBGbhtrElWicHbYrIHXRkGOf7mZldO
-         WUJzdifJjR/SSXYvJRIPrEQAR7ocj3EvlYTnV/bA=
+        b=IgqgraytvaZULJ/2jzCnez74z5/mqSZf5nT/5isqiOZu1+qEwZX53w7/wvjxzlkC4
+         Tpd8eqOer8lrctUFpNMACssMvo7Xkhy3T7N/hfmA1493AyKu8cqjyPFnDPOrsPTLB7
+         bHlk/VhgavfhGacXeeFRZNXMpLC5Cz57i/fRvOJo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Robert Strube <rstrube@gmail.com>,
-        Evan Quan <evan.quan@amd.com>, Sasha Levin <sashal@kernel.org>,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.3 39/99] drm/amdgpu/powerplay: fix typo in mvdd table setup
-Date:   Sat, 26 Oct 2019 09:15:00 -0400
-Message-Id: <20191026131600.2507-39-sashal@kernel.org>
+Cc:     Antonio Borneo <antonio.borneo@st.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 41/99] net: stmmac: fix disabling flexible PPS output
+Date:   Sat, 26 Oct 2019 09:15:02 -0400
+Message-Id: <20191026131600.2507-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,53 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Antonio Borneo <antonio.borneo@st.com>
 
-[ Upstream commit 598c30dbcc9434706f29a085a8eba4730573bcc2 ]
+[ Upstream commit 520cf6002147281d1e7b522bb338416b623dcb93 ]
 
-Polaris and vegam use count for the value rather than
-level.  This looks like a copy paste typo from when
-the code was adapted from previous asics.
+Accordingly to Synopsys documentation [1] and [2], when bit PPSEN0
+in register MAC_PPS_CONTROL is set it selects the functionality
+command in the same register, otherwise selects the functionality
+control.
+Command functionality is required to either enable (command 0x2)
+and disable (command 0x5) the flexible PPS output, but the bit
+PPSEN0 is currently set only for enabling.
 
-I'm not sure that the SMU actually uses this value, so
-I don't know that it actually is a bug per se.
+Set the bit PPSEN0 to properly disable flexible PPS output.
 
-Bug: https://bugs.freedesktop.org/show_bug.cgi?id=108609
-Reported-by: Robert Strube <rstrube@gmail.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Tested on STM32MP15x, based on dwmac 4.10a.
+
+[1] DWC Ethernet QoS Databook 4.10a October 2014
+[2] DWC Ethernet QoS Databook 5.00a September 2017
+
+Signed-off-by: Antonio Borneo <antonio.borneo@st.com>
+Fixes: 9a8a02c9d46d ("net: stmmac: Add Flexible PPS support")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c | 2 +-
- drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c     | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac5.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c
-index dc754447f0ddc..23c12018dbc18 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/polaris10_smumgr.c
-@@ -655,7 +655,7 @@ static int polaris10_populate_smc_mvdd_table(struct pp_hwmgr *hwmgr,
- 			count = SMU_MAX_SMIO_LEVELS;
- 		for (level = 0; level < count; level++) {
- 			table->SmioTable2.Pattern[level].Voltage =
--				PP_HOST_TO_SMC_US(data->mvdd_voltage_table.entries[count].value * VOLTAGE_SCALE);
-+				PP_HOST_TO_SMC_US(data->mvdd_voltage_table.entries[level].value * VOLTAGE_SCALE);
- 			/* Index into DpmTable.Smio. Drive bits from Smio entry to get this voltage level.*/
- 			table->SmioTable2.Pattern[level].Smio =
- 				(uint8_t) level;
-diff --git a/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c b/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c
-index 7c960b07746fd..ae18fbcb26fb1 100644
---- a/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/smumgr/vegam_smumgr.c
-@@ -456,7 +456,7 @@ static int vegam_populate_smc_mvdd_table(struct pp_hwmgr *hwmgr,
- 			count = SMU_MAX_SMIO_LEVELS;
- 		for (level = 0; level < count; level++) {
- 			table->SmioTable2.Pattern[level].Voltage = PP_HOST_TO_SMC_US(
--					data->mvdd_voltage_table.entries[count].value * VOLTAGE_SCALE);
-+					data->mvdd_voltage_table.entries[level].value * VOLTAGE_SCALE);
- 			/* Index into DpmTable.Smio. Drive bits from Smio entry to get this voltage level.*/
- 			table->SmioTable2.Pattern[level].Smio =
- 				(uint8_t) level;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
+index 3f4f3132e16b3..e436fa160c7d6 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
+@@ -515,6 +515,7 @@ int dwmac5_flex_pps_config(void __iomem *ioaddr, int index,
+ 
+ 	if (!enable) {
+ 		val |= PPSCMDx(index, 0x5);
++		val |= PPSEN0;
+ 		writel(val, ioaddr + MAC_PPS_CONTROL);
+ 		return 0;
+ 	}
 -- 
 2.20.1
 
