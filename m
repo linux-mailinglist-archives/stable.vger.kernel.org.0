@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1E51E5C25
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:28:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66FBCE5C21
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726691AbfJZN2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:28:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42656 "EHLO mail.kernel.org"
+        id S1728761AbfJZNVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728743AbfJZNU6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:20:58 -0400
+        id S1728757AbfJZNU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:20:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B55E21871;
-        Sat, 26 Oct 2019 13:20:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38A3821E6F;
+        Sat, 26 Oct 2019 13:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096057;
-        bh=r3HCFbnfyfQqTLA58/rW6Vt8nTdcXCDjlm9ZJIJV1jc=;
+        s=default; t=1572096059;
+        bh=sT9oGxFDElGkZpBJtg+vMBwQFwRn09b3hp6SSHi9yxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anBD0MZLBGGvv0yKSHYzSMOO46DJDP5nPsrJjQQG23oOAYayOzhVLaBYXCS1PnkhI
-         9t9TjXt1rE5pKufDYh9P3Qh7iiTan6R705csuPeArf/p7iUzu/vz3tMhDyc0NCDeMu
-         hde6ck51im7c7CJn/6lgnK1NInv1XMJgZwmzHmmU=
+        b=KC+N4/aC2kUGG8T18Mvm4CVFxR4hMdeScTQ25YXYSP7giTugnj7PrglAd6ik8gsH/
+         SUdYO4RkRM1drFFHb/eGcdHlKB02/dRzSr+8cQbrNBeiIFjfmcU4L+zQYGe3qT19jI
+         cqFD2oIhHxxRPZT+ZYNLsYZO8AZPL7uNHR6tx0lw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 54/59] net: stmmac: fix argument to stmmac_pcs_ctrl_ane()
-Date:   Sat, 26 Oct 2019 09:19:05 -0400
-Message-Id: <20191026131910.3435-54-sashal@kernel.org>
+Cc:     Andrea Parri <parri.andrea@gmail.com>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wei Liu <wei.liu@kernel.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 55/59] x86/hyperv: Set pv_info.name to "Hyper-V"
+Date:   Sat, 26 Oct 2019 09:19:06 -0400
+Message-Id: <20191026131910.3435-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131910.3435-1-sashal@kernel.org>
 References: <20191026131910.3435-1-sashal@kernel.org>
@@ -43,40 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
+From: Andrea Parri <parri.andrea@gmail.com>
 
-[ Upstream commit c9ad4c1049f7e0e8d59e975963dda002af47d93e ]
+[ Upstream commit f7c0f50f1857c1cf013466fcea4dc98d116bf456 ]
 
-The stmmac_pcs_ctrl_ane() expects a register address as
-argument 1, but for some reason the mac_device_info is
-being passed.
+Michael reported that the x86/hyperv initialization code prints the
+following dmesg when running in a VM on Hyper-V:
 
-Fix the warning (and possible bug) from sparse:
+  [    0.000738] Booting paravirtualized kernel on bare hardware
 
-drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:2613:17: warning: incorrect type in argument 1 (different address spaces)
-drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:2613:17:    expected void [noderef] <asn:2> *ioaddr
-drivers/net/ethernet/stmicro/stmmac/stmmac_main.c:2613:17:    got struct mac_device_info *hw
+Let the x86/hyperv initialization code set pv_info.name to "Hyper-V" so
+dmesg reports correctly:
 
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  [    0.000172] Booting paravirtualized kernel on Hyper-V
+
+[ tglx: Folded build fix provided by Yue ]
+
+Reported-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Andrea Parri <parri.andrea@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: YueHaibing <yuehaibing@huawei.com>
+Link: https://lkml.kernel.org/r/20191015103502.13156-1-parri.andrea@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mshyperv.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 014fe93ed2d82..15d740b6e64eb 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -2558,7 +2558,7 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
- 	}
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 852e74e48890b..1bec5e4bb1fa9 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -207,6 +207,10 @@ static void __init ms_hyperv_init_platform(void)
+ 	int hv_host_info_ecx;
+ 	int hv_host_info_edx;
  
- 	if (priv->hw->pcs)
--		stmmac_pcs_ctrl_ane(priv, priv->hw, 1, priv->hw->ps, 0);
-+		stmmac_pcs_ctrl_ane(priv, priv->ioaddr, 1, priv->hw->ps, 0);
- 
- 	/* set TX and RX rings length */
- 	stmmac_set_rings_length(priv);
++#ifdef CONFIG_PARAVIRT
++	pv_info.name = "Hyper-V";
++#endif
++
+ 	/*
+ 	 * Extract the features and hints
+ 	 */
 -- 
 2.20.1
 
