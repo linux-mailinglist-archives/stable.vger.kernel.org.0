@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DDCE5D26
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00178E5D1D
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728141AbfJZNf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:35:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38760 "EHLO mail.kernel.org"
+        id S1727237AbfJZNRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:17:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727209AbfJZNRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:12 -0400
+        id S1727225AbfJZNRO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 965F321655;
-        Sat, 26 Oct 2019 13:17:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7391D21655;
+        Sat, 26 Oct 2019 13:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095831;
-        bh=2t4kefleT8FFtV7eoVBTsdG7Vg2fUXwzYOT4ZkZ0+lU=;
+        s=default; t=1572095834;
+        bh=P+x0vk8c6GjcSwPpPa+2eiHOdIpm+8+UEleTFKRbyOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/yaQMwH335Y0j7eqlc9BPB80bfBySTbrx9m398LEUzF5MUid/E0Rm0SQmIsUkC/5
-         f8Zt37a+V2/31jZmVJ3Y3bCq9BdJ48og0WjOsIMTJ9proqXVKBwr5phHJZOYfahAm5
-         LxCCFAtX+2TZC5RnjmNvUxHHQxxT2oC8yDNT0E3U=
+        b=EOPwo2t1SG4oE+WymKEDzvlZqzz6xgekMorPGK76/i5viXNCcjSCSzREjWDoFvbLO
+         iAuGi98kJQcL64Z80iTPlfHYLSFcn7SNjo2vYAMStK42GTsk978IjRy7n+GCZq3qp/
+         CwVo5qcbZ0VJLvfkrLVpuqDaU0W6DvKKcYPZRApk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 37/99] iwlwifi: pcie: fix memory leaks in iwl_pcie_ctxt_info_gen3_init
-Date:   Sat, 26 Oct 2019 09:14:58 -0400
-Message-Id: <20191026131600.2507-37-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 38/99] iwlwifi: exclude GEO SAR support for 3168
+Date:   Sat, 26 Oct 2019 09:14:59 -0400
+Message-Id: <20191026131600.2507-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -44,101 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 0f4f199443faca715523b0659aa536251d8b978f ]
+[ Upstream commit 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 ]
 
-In iwl_pcie_ctxt_info_gen3_init there are cases that the allocated dma
-memory is leaked in case of error.
+We currently support two NICs in FW version 29, namely 7265D and 3168.
+Out of these, only 7265D supports GEO SAR, so adjust the function that
+checks for it accordingly.
 
-DMA memories prph_scratch, prph_info, and ctxt_info_gen3 are allocated
-and initialized to be later assigned to trans_pcie. But in any error case
-before such assignment the allocated memories should be released.
-
-First of such error cases happens when iwl_pcie_init_fw_sec fails.
-Current implementation correctly releases prph_scratch. But in two
-sunsequent error cases where dma_alloc_coherent may fail, such
-releases are missing.
-
-This commit adds release for prph_scratch when allocation for
-prph_info fails, and adds releases for prph_scratch and prph_info when
-allocation for ctxt_info_gen3 fails.
-
-Fixes: 2ee824026288 ("iwlwifi: pcie: support context information for 22560 devices")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for GEO_TX_POWER_LIMIT support")
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../intel/iwlwifi/pcie/ctxt-info-gen3.c       | 36 +++++++++++++------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-index 5e86783d616b6..ab48ed258b1d7 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-@@ -107,13 +107,9 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 
- 	/* allocate ucode sections in dram and set addresses */
- 	ret = iwl_pcie_init_fw_sec(trans, fw, &prph_scratch->dram);
--	if (ret) {
--		dma_free_coherent(trans->dev,
--				  sizeof(*prph_scratch),
--				  prph_scratch,
--				  trans_pcie->prph_scratch_dma_addr);
--		return ret;
--	}
-+	if (ret)
-+		goto err_free_prph_scratch;
-+
- 
- 	/* Allocate prph information
- 	 * currently we don't assign to the prph info anything, but it would get
-@@ -121,16 +117,20 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	prph_info = dma_alloc_coherent(trans->dev, sizeof(*prph_info),
- 				       &trans_pcie->prph_info_dma_addr,
- 				       GFP_KERNEL);
--	if (!prph_info)
--		return -ENOMEM;
-+	if (!prph_info) {
-+		ret = -ENOMEM;
-+		goto err_free_prph_scratch;
-+	}
- 
- 	/* Allocate context info */
- 	ctxt_info_gen3 = dma_alloc_coherent(trans->dev,
- 					    sizeof(*ctxt_info_gen3),
- 					    &trans_pcie->ctxt_info_dma_addr,
- 					    GFP_KERNEL);
--	if (!ctxt_info_gen3)
--		return -ENOMEM;
-+	if (!ctxt_info_gen3) {
-+		ret = -ENOMEM;
-+		goto err_free_prph_info;
-+	}
- 
- 	ctxt_info_gen3->prph_info_base_addr =
- 		cpu_to_le64(trans_pcie->prph_info_dma_addr);
-@@ -186,6 +186,20 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 		iwl_set_bit(trans, CSR_GP_CNTRL, CSR_AUTO_FUNC_INIT);
- 
- 	return 0;
-+
-+err_free_prph_info:
-+	dma_free_coherent(trans->dev,
-+			  sizeof(*prph_info),
-+			prph_info,
-+			trans_pcie->prph_info_dma_addr);
-+
-+err_free_prph_scratch:
-+	dma_free_coherent(trans->dev,
-+			  sizeof(*prph_scratch),
-+			prph_scratch,
-+			trans_pcie->prph_scratch_dma_addr);
-+	return ret;
-+
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 8b0b464a1f213..c520f42d165cd 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -887,15 +887,17 @@ static bool iwl_mvm_sar_geo_support(struct iwl_mvm *mvm)
+ 	 * firmware versions.  Unfortunately, we don't have a TLV API
+ 	 * flag to rely on, so rely on the major version which is in
+ 	 * the first byte of ucode_ver.  This was implemented
+-	 * initially on version 38 and then backported to29 and 17.
+-	 * The intention was to have it in 36 as well, but not all
+-	 * 8000 family got this feature enabled.  The 8000 family is
+-	 * the only one using version 36, so skip this version
+-	 * entirely.
++	 * initially on version 38 and then backported to 17.  It was
++	 * also backported to 29, but only for 7265D devices.  The
++	 * intention was to have it in 36 as well, but not all 8000
++	 * family got this feature enabled.  The 8000 family is the
++	 * only one using version 36, so skip this version entirely.
+ 	 */
+ 	return IWL_UCODE_SERIAL(mvm->fw->ucode_ver) >= 38 ||
+-	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 29 ||
+-	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 17;
++	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 17 ||
++	       (IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 29 &&
++		((mvm->trans->hw_rev & CSR_HW_REV_TYPE_MSK) ==
++		 CSR_HW_REV_TYPE_7265D));
  }
  
- void iwl_pcie_ctxt_info_gen3_free(struct iwl_trans *trans)
+ int iwl_mvm_get_sar_geo_profile(struct iwl_mvm *mvm)
 -- 
 2.20.1
 
