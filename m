@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8836E5B44
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D01E5BEC
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:26:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729178AbfJZNVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:21:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
+        id S1728101AbfJZN0o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:26:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729159AbfJZNVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:21:47 -0400
+        id S1729186AbfJZNVt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:21:49 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B2152070B;
-        Sat, 26 Oct 2019 13:21:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBCB7214DA;
+        Sat, 26 Oct 2019 13:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096105;
-        bh=+IWg3EB+R+mCbKZulZ0ut1KEVsnhoJxdoVtemS/pqC0=;
+        s=default; t=1572096108;
+        bh=HtL+lCOZsA0ZW34FVazRHijkWwrTjCjjW+sTlvrtEko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAhFmke6OQCXGXotwSKAwEVXVikWSr7JWh+3wx3xiTteMxgtO2CsM9hAhqgO/r/SM
-         Ku0CuEmwUe9JS3gVK3B8c6Mn0sMvDe1GVMZfy3tipCszgl4tZBL8FktoHv57VsjfMv
-         5GxLrmLZagXmtsJsWVh6QuSaIMO8vfi+ko1dPQug=
+        b=c26+TM7wiZUUuWjtf/GfZqaJnfjDv1kP99y7AqrIVyqxGDxQxxa/It2wBcZqnKg4H
+         FCdmUrcSRN5ixZ1QU9Wx124ZKfatAugeZjUgnUYLeZF5o8voUVuNEpjiBz5AvlTf8W
+         7gza19vssvNFZB6hNbP9NcM3Sm2E6grhmMO1JT70=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 19/33] net: add {READ|WRITE}_ONCE() annotations on ->rskq_accept_head
-Date:   Sat, 26 Oct 2019 09:20:56 -0400
-Message-Id: <20191026132110.4026-19-sashal@kernel.org>
+Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Hai Li <hali@codeaurora.org>, Rob Clark <robdclark@gmail.com>,
+        Sean Paul <sean@poorly.run>, Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 20/33] drm/msm/dsi: Implement reset correctly
+Date:   Sat, 26 Oct 2019 09:20:57 -0400
+Message-Id: <20191026132110.4026-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026132110.4026-1-sashal@kernel.org>
 References: <20191026132110.4026-1-sashal@kernel.org>
@@ -43,74 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit 60b173ca3d1cd1782bd0096dc17298ec242f6fb1 ]
+[ Upstream commit 78e31c42261779a01bc73472d0f65f15378e9de3 ]
 
-reqsk_queue_empty() is called from inet_csk_listen_poll() while
-other cpus might write ->rskq_accept_head value.
+On msm8998, vblank timeouts are observed because the DSI controller is not
+reset properly, which ends up stalling the MDP.  This is because the reset
+logic is not correct per the hardware documentation.
 
-Use {READ|WRITE}_ONCE() to avoid compiler tricks
-and potential KCSAN splats.
+The documentation states that after asserting reset, software should wait
+some time (no indication of how long), or poll the status register until it
+returns 0 before deasserting reset.
 
-Fixes: fff1f3001cc5 ("tcp: add a spinlock to protect struct request_sock_queue")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+wmb() is insufficient for this purpose since it just ensures ordering, not
+timing between writes.  Since asserting and deasserting reset occurs on the
+same register, ordering is already guaranteed by the architecture, making
+the wmb extraneous.
+
+Since we would define a timeout for polling the status register to avoid a
+possible infinite loop, lets just use a static delay of 20 ms, since 16.666
+ms is the time available to process one frame at 60 fps.
+
+Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
+Cc: Hai Li <hali@codeaurora.org>
+Cc: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Reviewed-by: Sean Paul <sean@poorly.run>
+[seanpaul renamed RESET_DELAY to DSI_RESET_TOGGLE_DELAY_MS]
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191011133939.16551-1-jeffrey.l.hugo@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/pvcalls-back.c      | 2 +-
- include/net/request_sock.h      | 4 ++--
- net/ipv4/inet_connection_sock.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi_host.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
-index abd6dbc29ac28..58be15c27b6d6 100644
---- a/drivers/xen/pvcalls-back.c
-+++ b/drivers/xen/pvcalls-back.c
-@@ -792,7 +792,7 @@ static int pvcalls_back_poll(struct xenbus_device *dev,
- 	mappass->reqcopy = *req;
- 	icsk = inet_csk(mappass->sock->sk);
- 	queue = &icsk->icsk_accept_queue;
--	data = queue->rskq_accept_head != NULL;
-+	data = READ_ONCE(queue->rskq_accept_head) != NULL;
- 	if (data) {
- 		mappass->reqcopy.cmd = 0;
- 		ret = 0;
-diff --git a/include/net/request_sock.h b/include/net/request_sock.h
-index 23e22054aa60d..04aa2c7d35c4e 100644
---- a/include/net/request_sock.h
-+++ b/include/net/request_sock.h
-@@ -181,7 +181,7 @@ void reqsk_fastopen_remove(struct sock *sk, struct request_sock *req,
+diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
+index a9a0b56f1fbc5..b9cb7c09e05a6 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi_host.c
++++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
+@@ -34,6 +34,8 @@
+ #include "dsi_cfg.h"
+ #include "msm_kms.h"
  
- static inline bool reqsk_queue_empty(const struct request_sock_queue *queue)
++#define DSI_RESET_TOGGLE_DELAY_MS 20
++
+ static int dsi_get_version(const void __iomem *base, u32 *major, u32 *minor)
  {
--	return queue->rskq_accept_head == NULL;
-+	return READ_ONCE(queue->rskq_accept_head) == NULL;
+ 	u32 ver;
+@@ -906,7 +908,7 @@ static void dsi_sw_reset(struct msm_dsi_host *msm_host)
+ 	wmb(); /* clocks need to be enabled before reset */
+ 
+ 	dsi_write(msm_host, REG_DSI_RESET, 1);
+-	wmb(); /* make sure reset happen */
++	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
+ 	dsi_write(msm_host, REG_DSI_RESET, 0);
  }
  
- static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue *queue,
-@@ -193,7 +193,7 @@ static inline struct request_sock *reqsk_queue_remove(struct request_sock_queue
- 	req = queue->rskq_accept_head;
- 	if (req) {
- 		sk_acceptq_removed(parent);
--		queue->rskq_accept_head = req->dl_next;
-+		WRITE_ONCE(queue->rskq_accept_head, req->dl_next);
- 		if (queue->rskq_accept_head == NULL)
- 			queue->rskq_accept_tail = NULL;
- 	}
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 9d6b172caf6cf..8d48f68e2a772 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -936,7 +936,7 @@ struct sock *inet_csk_reqsk_queue_add(struct sock *sk,
- 		req->sk = child;
- 		req->dl_next = NULL;
- 		if (queue->rskq_accept_head == NULL)
--			queue->rskq_accept_head = req;
-+			WRITE_ONCE(queue->rskq_accept_head, req);
- 		else
- 			queue->rskq_accept_tail->dl_next = req;
- 		queue->rskq_accept_tail = req;
+@@ -1288,7 +1290,7 @@ static void dsi_sw_reset_restore(struct msm_dsi_host *msm_host)
+ 
+ 	/* dsi controller can only be reset while clocks are running */
+ 	dsi_write(msm_host, REG_DSI_RESET, 1);
+-	wmb();	/* make sure reset happen */
++	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
+ 	dsi_write(msm_host, REG_DSI_RESET, 0);
+ 	wmb();	/* controller out of reset */
+ 	dsi_write(msm_host, REG_DSI_CTRL, data0);
 -- 
 2.20.1
 
