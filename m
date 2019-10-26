@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B398E5CE1
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3668BE5CDD
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:33:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727609AbfJZNdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39556 "EHLO mail.kernel.org"
+        id S1726690AbfJZNdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727580AbfJZNRz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:17:55 -0400
+        id S1727588AbfJZNR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:17:57 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C14E221D80;
-        Sat, 26 Oct 2019 13:17:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBE03214DA;
+        Sat, 26 Oct 2019 13:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095875;
-        bh=kmVncfly2vWIeyv7BplJGALq7v22BJfNdF0T4ZWr3zs=;
+        s=default; t=1572095876;
+        bh=ipbw6dH6lL0Urna0nXEc+8jJiysud2Vy0AV+ljGCwr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBVuRVd1vrzaYse+gySNRA6EyN+VfU85vAj3tR2kBG9GsQ6CPUbEvdLseP/7aOQOS
-         ffdIYEq4K0dVPKqMS+65gYsQEPr1+3VV7XxGHizCUC25XxmBZ6bm/sD9pcrc+hfUuU
-         J5+S+i/hrUyLV928CTLlmaxVTbpLZyJbi+W662U8=
+        b=gXGNnhC+lXVBtQWWfl8FvI/+pWQoSbMbPxXf28REOJ4SYZoGyz0rkOQNUlhiWXygl
+         aOKcvYat45j8+yDHv8MB4FFskUBnsB4mlXKdMKUfUgZ1BFhH/ie9KHINjYRlJdAjtR
+         z684yQ5thiJodFHDO6NoX0gb9GaQApeP8JIXAxVo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 64/99] hrtimer: Annotate lockless access to timer->base
-Date:   Sat, 26 Oct 2019 09:15:25 -0400
-Message-Id: <20191026131600.2507-64-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>,
+        Edmund Nadolski <edmund.nadolski@intel.com>,
+        James Smart <james.smart@broadcom.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.3 65/99] nvme-pci: Free tagset if no IO queues
+Date:   Sat, 26 Oct 2019 09:15:26 -0400
+Message-Id: <20191026131600.2507-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -43,73 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit ff229eee3d897f52bd001c841f2d3cce8853ecdc ]
+[ Upstream commit 770597ecb2075390c01c425b8b1f551347f1bd70 ]
 
-Followup to commit dd2261ed45aa ("hrtimer: Protect lockless access
-to timer->base")
+If a controller becomes degraded after a reset, we will not be able to
+perform any IO. We currently teardown previously created request
+queues and namespaces, but we had kept the unusable tagset. Free
+it after all queues using it have been released.
 
-lock_hrtimer_base() fetches timer->base without lock exclusion.
-
-Compiler is allowed to read timer->base twice (even if considered dumb)
-which could end up trying to lock migration_base and return
-&migration_base.
-
-  base = timer->base;
-  if (likely(base != &migration_base)) {
-
-       /* compiler reads timer->base again, and now (base == &migration_base)
-
-       raw_spin_lock_irqsave(&base->cpu_base->lock, *flags);
-       if (likely(base == timer->base))
-            return base; /* == &migration_base ! */
-
-Similarly the write sides must use WRITE_ONCE() to avoid store tearing.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20191008173204.180879-1-edumazet@google.com
+Tested-by: Edmund Nadolski <edmund.nadolski@intel.com>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/hrtimer.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvme/host/pci.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 5ee77f1a8a925..e809868578e0c 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -159,7 +159,7 @@ struct hrtimer_clock_base *lock_hrtimer_base(const struct hrtimer *timer,
- 	struct hrtimer_clock_base *base;
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 48a71909763be..f94cc01e85a66 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2438,14 +2438,20 @@ static void nvme_release_prp_pools(struct nvme_dev *dev)
+ 	dma_pool_destroy(dev->prp_small_pool);
+ }
  
- 	for (;;) {
--		base = timer->base;
-+		base = READ_ONCE(timer->base);
- 		if (likely(base != &migration_base)) {
- 			raw_spin_lock_irqsave(&base->cpu_base->lock, *flags);
- 			if (likely(base == timer->base))
-@@ -239,7 +239,7 @@ switch_hrtimer_base(struct hrtimer *timer, struct hrtimer_clock_base *base,
- 			return base;
++static void nvme_free_tagset(struct nvme_dev *dev)
++{
++	if (dev->tagset.tags)
++		blk_mq_free_tag_set(&dev->tagset);
++	dev->ctrl.tagset = NULL;
++}
++
+ static void nvme_pci_free_ctrl(struct nvme_ctrl *ctrl)
+ {
+ 	struct nvme_dev *dev = to_nvme_dev(ctrl);
  
- 		/* See the comment in lock_hrtimer_base() */
--		timer->base = &migration_base;
-+		WRITE_ONCE(timer->base, &migration_base);
- 		raw_spin_unlock(&base->cpu_base->lock);
- 		raw_spin_lock(&new_base->cpu_base->lock);
- 
-@@ -248,10 +248,10 @@ switch_hrtimer_base(struct hrtimer *timer, struct hrtimer_clock_base *base,
- 			raw_spin_unlock(&new_base->cpu_base->lock);
- 			raw_spin_lock(&base->cpu_base->lock);
- 			new_cpu_base = this_cpu_base;
--			timer->base = base;
-+			WRITE_ONCE(timer->base, base);
- 			goto again;
- 		}
--		timer->base = new_base;
-+		WRITE_ONCE(timer->base, new_base);
+ 	nvme_dbbuf_dma_free(dev);
+ 	put_device(dev->dev);
+-	if (dev->tagset.tags)
+-		blk_mq_free_tag_set(&dev->tagset);
++	nvme_free_tagset(dev);
+ 	if (dev->ctrl.admin_q)
+ 		blk_put_queue(dev->ctrl.admin_q);
+ 	kfree(dev->queues);
+@@ -2564,6 +2570,7 @@ static void nvme_reset_work(struct work_struct *work)
+ 		nvme_kill_queues(&dev->ctrl);
+ 		nvme_remove_namespaces(&dev->ctrl);
+ 		new_state = NVME_CTRL_ADMIN_ONLY;
++		nvme_free_tagset(dev);
  	} else {
- 		if (new_cpu_base != this_cpu_base &&
- 		    hrtimer_check_target(timer, new_base)) {
+ 		nvme_start_queues(&dev->ctrl);
+ 		nvme_wait_freeze(&dev->ctrl);
 -- 
 2.20.1
 
