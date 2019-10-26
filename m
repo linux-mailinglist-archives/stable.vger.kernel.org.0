@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F270E5B96
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57628E5B93
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727992AbfJZNYQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:24:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45218 "EHLO mail.kernel.org"
+        id S1727908AbfJZNYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:24:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729792AbfJZNX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:23:27 -0400
+        id S1729815AbfJZNX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:23:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 585BF2070B;
-        Sat, 26 Oct 2019 13:23:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEF9A214DA;
+        Sat, 26 Oct 2019 13:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572096206;
-        bh=3FfHFvlKqbufPIlxQrPOqxE8ndyp//Hc9cm6l61ka98=;
+        s=default; t=1572096207;
+        bh=PR1cKbuVfWSAfCTQQycFTVQO24le7wxTVHpQTd0UA7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VehVMDUDV3CS4Vr6L8m+u/u+KbMJ/9hHtGX7beDYutiBcxndVhZGvJ2s1GC4/hynU
-         q4L1eaUVEz4Xx2mILvx4b3B8o6Ck2kDbIGOsTdc+Ov/j52u9E5Dknf3Ecqp0sJV/wM
-         1GFFIAKYHMVTMzcIDIrU6hJL6n9UT0cFp6SkF46Y=
+        b=boVyegQlclznhz4VcT5WWexDWQKLUvU38dvNpTeaJb9GRU5kV2JxepvytlEms160T
+         tPtQlI4J9B49BGpKKsbS2Bfi2s0Ylxpo9qVYnUwBkq3iXWPY8UZgjeLTH0fLhvOdGf
+         F/NrcXha5nAj2636vHXxGvT6utaVfIsGetDByiNs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
-        Hai Li <hali@codeaurora.org>, Rob Clark <robdclark@gmail.com>,
-        Sean Paul <sean@poorly.run>, Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 10/17] drm/msm/dsi: Implement reset correctly
-Date:   Sat, 26 Oct 2019 09:22:54 -0400
-Message-Id: <20191026132302.4622-10-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 11/17] hrtimer: Annotate lockless access to timer->base
+Date:   Sat, 26 Oct 2019 09:22:55 -0400
+Message-Id: <20191026132302.4622-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026132302.4622-1-sashal@kernel.org>
 References: <20191026132302.4622-1-sashal@kernel.org>
@@ -45,71 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 78e31c42261779a01bc73472d0f65f15378e9de3 ]
+[ Upstream commit ff229eee3d897f52bd001c841f2d3cce8853ecdc ]
 
-On msm8998, vblank timeouts are observed because the DSI controller is not
-reset properly, which ends up stalling the MDP.  This is because the reset
-logic is not correct per the hardware documentation.
+Followup to commit dd2261ed45aa ("hrtimer: Protect lockless access
+to timer->base")
 
-The documentation states that after asserting reset, software should wait
-some time (no indication of how long), or poll the status register until it
-returns 0 before deasserting reset.
+lock_hrtimer_base() fetches timer->base without lock exclusion.
 
-wmb() is insufficient for this purpose since it just ensures ordering, not
-timing between writes.  Since asserting and deasserting reset occurs on the
-same register, ordering is already guaranteed by the architecture, making
-the wmb extraneous.
+Compiler is allowed to read timer->base twice (even if considered dumb)
+which could end up trying to lock migration_base and return
+&migration_base.
 
-Since we would define a timeout for polling the status register to avoid a
-possible infinite loop, lets just use a static delay of 20 ms, since 16.666
-ms is the time available to process one frame at 60 fps.
+  base = timer->base;
+  if (likely(base != &migration_base)) {
 
-Fixes: a689554ba6ed ("drm/msm: Initial add DSI connector support")
-Cc: Hai Li <hali@codeaurora.org>
-Cc: Rob Clark <robdclark@gmail.com>
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Reviewed-by: Sean Paul <sean@poorly.run>
-[seanpaul renamed RESET_DELAY to DSI_RESET_TOGGLE_DELAY_MS]
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191011133939.16551-1-jeffrey.l.hugo@gmail.com
+       /* compiler reads timer->base again, and now (base == &migration_base)
+
+       raw_spin_lock_irqsave(&base->cpu_base->lock, *flags);
+       if (likely(base == timer->base))
+            return base; /* == &migration_base ! */
+
+Similarly the write sides must use WRITE_ONCE() to avoid store tearing.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20191008173204.180879-1-edumazet@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_host.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ kernel/time/hrtimer.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_host.c b/drivers/gpu/drm/msm/dsi/dsi_host.c
-index 4c49868efcda2..12ddbbb531077 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_host.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_host.c
-@@ -30,6 +30,8 @@
- #include "dsi.xml.h"
- #include "dsi_cfg.h"
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 8c4e27cbfe7ff..df02ea41eafd7 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -147,7 +147,7 @@ struct hrtimer_clock_base *lock_hrtimer_base(const struct hrtimer *timer,
+ 	struct hrtimer_clock_base *base;
  
-+#define DSI_RESET_TOGGLE_DELAY_MS 20
-+
- static int dsi_get_version(const void __iomem *base, u32 *major, u32 *minor)
- {
- 	u32 ver;
-@@ -764,7 +766,7 @@ static void dsi_sw_reset(struct msm_dsi_host *msm_host)
- 	wmb(); /* clocks need to be enabled before reset */
+ 	for (;;) {
+-		base = timer->base;
++		base = READ_ONCE(timer->base);
+ 		if (likely(base != &migration_base)) {
+ 			raw_spin_lock_irqsave(&base->cpu_base->lock, *flags);
+ 			if (likely(base == timer->base))
+@@ -239,7 +239,7 @@ switch_hrtimer_base(struct hrtimer *timer, struct hrtimer_clock_base *base,
+ 			return base;
  
- 	dsi_write(msm_host, REG_DSI_RESET, 1);
--	wmb(); /* make sure reset happen */
-+	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
- 	dsi_write(msm_host, REG_DSI_RESET, 0);
- }
+ 		/* See the comment in lock_hrtimer_base() */
+-		timer->base = &migration_base;
++		WRITE_ONCE(timer->base, &migration_base);
+ 		raw_spin_unlock(&base->cpu_base->lock);
+ 		raw_spin_lock(&new_base->cpu_base->lock);
  
-@@ -1111,7 +1113,7 @@ static void dsi_sw_reset_restore(struct msm_dsi_host *msm_host)
- 
- 	/* dsi controller can only be reset while clocks are running */
- 	dsi_write(msm_host, REG_DSI_RESET, 1);
--	wmb();	/* make sure reset happen */
-+	msleep(DSI_RESET_TOGGLE_DELAY_MS); /* make sure reset happen */
- 	dsi_write(msm_host, REG_DSI_RESET, 0);
- 	wmb();	/* controller out of reset */
- 	dsi_write(msm_host, REG_DSI_CTRL, data0);
+@@ -248,10 +248,10 @@ switch_hrtimer_base(struct hrtimer *timer, struct hrtimer_clock_base *base,
+ 			raw_spin_unlock(&new_base->cpu_base->lock);
+ 			raw_spin_lock(&base->cpu_base->lock);
+ 			new_cpu_base = this_cpu_base;
+-			timer->base = base;
++			WRITE_ONCE(timer->base, base);
+ 			goto again;
+ 		}
+-		timer->base = new_base;
++		WRITE_ONCE(timer->base, new_base);
+ 	} else {
+ 		if (new_cpu_base != this_cpu_base &&
+ 		    hrtimer_check_target(timer, new_base)) {
 -- 
 2.20.1
 
