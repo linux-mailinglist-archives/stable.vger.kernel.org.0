@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B274DE5AE8
-	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58F6E5AEC
+	for <lists+stable@lfdr.de>; Sat, 26 Oct 2019 15:19:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728055AbfJZNSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 26 Oct 2019 09:18:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40702 "EHLO mail.kernel.org"
+        id S1728091AbfJZNS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 26 Oct 2019 09:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726686AbfJZNSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 26 Oct 2019 09:18:51 -0400
+        id S1728066AbfJZNSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 26 Oct 2019 09:18:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23B04222CB;
-        Sat, 26 Oct 2019 13:18:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9011222BE;
+        Sat, 26 Oct 2019 13:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572095930;
-        bh=y43nwI/bGuodC3G6AlXNE1BJKSQq1wvTW5sPpddt0Js=;
+        s=default; t=1572095933;
+        bh=8rI5UOEw6DaLu75RfzL3/QkaHNW9D5ayHlsc7k0R+E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBChgFMgHOd7GFyby1d6JrkNNh3vGQX6Xgq/nOCy9W7X4ivIFDJZKc2tXBfKPrx1e
-         0aYCEKF73OW2adzZ2KhkaYkQfed+xSLh7yf+8r7aG7RhQw3+UXP/6B4ojFjF11Dd/j
-         FzU7d0lph4wp4s1jdaaaIphoDKU57YI7/j2Z+z3Y=
+        b=nB4B6sbpRhydkVitsxmPrMUdY1iJANVh9encbH+CFfStAv0scFnru9QuTLM1+iEy2
+         ReRvXnnOq7pwiJnZLXkL/+mXruBjjhQjrT7kWUWvEgNufqXBubw8fDmjXCTmCh5nxO
+         OT8ujYh7bmcCvEdtdwXYOaoohKNkTsjqZPTC7SuI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
+Cc:     John Hubbard <jhubbard@nvidia.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        kbuild test robot <lkp@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.3 95/99] ocfs2: fix error handling in ocfs2_setattr()
-Date:   Sat, 26 Oct 2019 09:15:56 -0400
-Message-Id: <20191026131600.2507-95-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 96/99] mm/gup_benchmark: add a missing "w" to getopt string
+Date:   Sat, 26 Oct 2019 09:15:57 -0400
+Message-Id: <20191026131600.2507-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191026131600.2507-1-sashal@kernel.org>
 References: <20191026131600.2507-1-sashal@kernel.org>
@@ -50,49 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: John Hubbard <jhubbard@nvidia.com>
 
-[ Upstream commit ce750f43f5790de74c1644c39d78f684071658d1 ]
+[ Upstream commit 6f24c8d30d08f270b54f4c2cb9b08dfccbe59c57 ]
 
-Should set transfer_to[USRQUOTA/GRPQUOTA] to NULL on error case before
-jumping to do dqput().
+Even though gup_benchmark.c has code to handle the -w command-line option,
+the "w" is not part of the getopt string.  It looks as if it has been
+missing the whole time.
 
-Link: http://lkml.kernel.org/r/20191010082349.1134-1-cgxu519@mykernel.net
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
+On my machine, this leads naturally to the following predictable result:
+
+  $ sudo ./gup_benchmark -w
+  ./gup_benchmark: invalid option -- 'w'
+
+...which is fixed with this commit.
+
+Link: http://lkml.kernel.org/r/20191014184639.1512873-2-jhubbard@nvidia.com
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: kbuild test robot <lkp@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/file.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/vm/gup_benchmark.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index 4435df3e5adb9..39c1d85f50904 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1226,6 +1226,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
- 			transfer_to[USRQUOTA] = dqget(sb, make_kqid_uid(attr->ia_uid));
- 			if (IS_ERR(transfer_to[USRQUOTA])) {
- 				status = PTR_ERR(transfer_to[USRQUOTA]);
-+				transfer_to[USRQUOTA] = NULL;
- 				goto bail_unlock;
- 			}
- 		}
-@@ -1235,6 +1236,7 @@ int ocfs2_setattr(struct dentry *dentry, struct iattr *attr)
- 			transfer_to[GRPQUOTA] = dqget(sb, make_kqid_gid(attr->ia_gid));
- 			if (IS_ERR(transfer_to[GRPQUOTA])) {
- 				status = PTR_ERR(transfer_to[GRPQUOTA]);
-+				transfer_to[GRPQUOTA] = NULL;
- 				goto bail_unlock;
- 			}
- 		}
+diff --git a/tools/testing/selftests/vm/gup_benchmark.c b/tools/testing/selftests/vm/gup_benchmark.c
+index c0534e298b512..cb3fc09645c48 100644
+--- a/tools/testing/selftests/vm/gup_benchmark.c
++++ b/tools/testing/selftests/vm/gup_benchmark.c
+@@ -37,7 +37,7 @@ int main(int argc, char **argv)
+ 	char *file = "/dev/zero";
+ 	char *p;
+ 
+-	while ((opt = getopt(argc, argv, "m:r:n:f:tTLUSH")) != -1) {
++	while ((opt = getopt(argc, argv, "m:r:n:f:tTLUwSH")) != -1) {
+ 		switch (opt) {
+ 		case 'm':
+ 			size = atoi(optarg) * MB;
 -- 
 2.20.1
 
