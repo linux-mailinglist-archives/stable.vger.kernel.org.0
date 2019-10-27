@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B27E6901
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81EFFE68C8
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727395AbfJ0VMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59322 "EHLO mail.kernel.org"
+        id S1730574AbfJ0VcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728818AbfJ0VMa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:12:30 -0400
+        id S1730063AbfJ0VPf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:35 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25514208C0;
-        Sun, 27 Oct 2019 21:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68527208C0;
+        Sun, 27 Oct 2019 21:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210749;
+        s=default; t=1572210934;
         bh=e0KjGw4Rm5fqqqiU9czU4vgofrmX3pia851pvyeqFeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBFOVIeJI+NQArNAOxDcAnnUOUrfYHZ04hzi+FXTrd4C2nO+JQVGDx0ikEF0DDs6X
-         QRxIt8emoEHrKS0W84TYlT8WYf1p7I/b9B1Vlz7ETQDL/NcOLpEzbmbdUFdF5x8NKz
-         Ob9OCUDS4XUK27PjjPgbk8jpqgGzUn/IFBsQ1GI0=
+        b=0fOFF1OdF3Y0qMnGX17IBY6KR3+v7hMCAL1jO5qyOxqLM5Nuwze/MBYfU0bey7Drd
+         +JrJfZIaArgG4kNPWYke1opdRdCD/NeZQsxSz5HGFI9kelt2YnFmE+NfhzdalY5nB1
+         rcDCIfVnl39AHgniMJTkksLAxljxi1tmltqPtkZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Rapoport <rppt@linux.vnet.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 102/119] mm/page_owner: dont access uninitialized memmaps when reading /proc/pagetypeinfo
+Subject: [PATCH 4.19 67/93] mm/page_owner: dont access uninitialized memmaps when reading /proc/pagetypeinfo
 Date:   Sun, 27 Oct 2019 22:01:19 +0100
-Message-Id: <20191027203349.061703427@linuxfoundation.org>
+Message-Id: <20191027203307.845806193@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
