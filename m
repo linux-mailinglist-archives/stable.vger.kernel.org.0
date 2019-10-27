@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDCECE679F
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4971AE65D4
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732209AbfJ0VWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43742 "EHLO mail.kernel.org"
+        id S1728855AbfJ0VFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732204AbfJ0VWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:41 -0400
+        id S1727511AbfJ0VFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:05:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB4FA205C9;
-        Sun, 27 Oct 2019 21:22:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 20F06208C0;
+        Sun, 27 Oct 2019 21:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211360;
-        bh=V6ng7xpzLPI3DMpBaiK2pJdhQwz26GI1Xsq0xxxcOA8=;
+        s=default; t=1572210337;
+        bh=VTE3iNMsGVPx5aIFWaap7QbAngR+xbH2tN1CHoJh/kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZi6TzBKl9RbmP5lFhM6s9naaYbrMp018vMR40LfWGLShfZQ43GbXIaj+b+vVBHE6
-         8UQpJO6sGf/FDkYqDrop+u7/ZjTDJlTsyPvIsNLpBFszKFB1P9Y0uhVEWuUFEVmCQG
-         9NhAf6FpUUMGywto9NhzopRgeVJK4iyZQEEPNvB8=
+        b=LkJdXVecpL55Mgo9lUuILKUBxZF/31gUC4l/haqzUoiTrdEZWg+CLvVfh5ifDFYw7
+         gMtEpl+J/qJNTjjBxwOxYRdbpbfgRfGyapakRIT1pSgoBxpfACMwwABevjefAeFc+8
+         o2NJTMbE+rb6Qt2rnciUeP3z7OnmXADt+E2Sr//k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.3 123/197] mac80211: Reject malformed SSID elements
+        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/49] scsi: qla2xxx: Fix unbound sleep in fcport delete path.
 Date:   Sun, 27 Oct 2019 22:00:41 +0100
-Message-Id: <20191027203358.376623458@linuxfoundation.org>
+Message-Id: <20191027203121.970264406@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Quinn Tran <qutran@marvell.com>
 
-commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
+[ Upstream commit c3b6a1d397420a0fdd97af2f06abfb78adc370df ]
 
-Although this shouldn't occur in practice, it's a good idea to bounds
-check the length field of the SSID element prior to using it for things
-like allocations or memcpy operations.
+There are instances, though rare, where a LOGO request cannot be sent out
+and the thread in free session done can wait indefinitely. Fix this by
+putting an upper bound to sleep.
 
-Cc: <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20190912180918.6436-3-hmadhani@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_target.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -2629,7 +2629,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 11f45cb998927..d13e91e164258 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -572,6 +572,7 @@ static void qlt_free_session_done(struct work_struct *work)
  
- 	rcu_read_lock();
- 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
--	if (WARN_ON_ONCE(ssid == NULL))
-+	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
-+		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
- 		ssid_len = 0;
- 	else
- 		ssid_len = ssid[1];
-@@ -5227,7 +5228,7 @@ int ieee80211_mgd_assoc(struct ieee80211
+ 	if (logout_started) {
+ 		bool traced = false;
++		u16 cnt = 0;
  
- 	rcu_read_lock();
- 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
--	if (!ssidie) {
-+	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
- 		rcu_read_unlock();
- 		kfree(assoc_data);
- 		return -EINVAL;
+ 		while (!ACCESS_ONCE(sess->logout_completed)) {
+ 			if (!traced) {
+@@ -581,6 +582,9 @@ static void qlt_free_session_done(struct work_struct *work)
+ 				traced = true;
+ 			}
+ 			msleep(100);
++			cnt++;
++			if (cnt > 200)
++				break;
+ 		}
+ 
+ 		ql_dbg(ql_dbg_tgt_mgt, vha, 0xf087,
+-- 
+2.20.1
+
 
 
