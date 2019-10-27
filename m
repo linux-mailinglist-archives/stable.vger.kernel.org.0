@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66B8FE689F
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:31:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED7F5E689E
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731189AbfJ0VSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38176 "EHLO mail.kernel.org"
+        id S1730188AbfJ0VSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:18:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731205AbfJ0VSE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:18:04 -0400
+        id S1731220AbfJ0VSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:18:07 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00939208C0;
-        Sun, 27 Oct 2019 21:18:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D97C321783;
+        Sun, 27 Oct 2019 21:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211083;
-        bh=KllF1Vd9QjJ+moQw4J7Yv+052X+bzOtxMFBqtCgyhEs=;
+        s=default; t=1572211086;
+        bh=gStethqOG4n+/ABM25A8Yq5Q/DFhR8MKCsnZvf4m0hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmSa8qLk0Mis/iN3/vLQd8zPuuN2homikEB/uIQJU/YHmhePo/2XBFRq+VHyViI/v
-         z3PTckGXaAjCqdcz/WggfXWxNDiG8x6M268cgcuxCCquMuhSxhz+U/XgVujLMPg5cj
-         kfr/G3whOcJW24FJBMKE8E+7hLedq0QFVqL2TPew=
+        b=G3dJR1auGjsjRGUTebgpZj+YmsY/u7NP3c+VrasAL6ActTAi/oi0LMFkoefBARl6D
+         S+KMcL1iLGWNhK+1Q4Yh4LlabDLpDYfFHv3OGSSXQh5xuHWLjaSpmAP9dcxFHCDMhQ
+         Ziz1DchnvKKXP8nJ91Z0Wern7iEBqhOaJky2FyT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Hannes Reinecke <hare@suse.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 026/197] blk-mq: honor IO scheduler for multiqueue devices
-Date:   Sun, 27 Oct 2019 21:59:04 +0100
-Message-Id: <20191027203353.126808171@linuxfoundation.org>
+Subject: [PATCH 5.3 027/197] ieee802154: ca8210: prevent memory leak
+Date:   Sun, 27 Oct 2019 21:59:05 +0100
+Message-Id: <20191027203353.194087339@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -48,56 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit a12de1d42d74ef3c80e9fb9a2da94daaef747869 ]
+[ Upstream commit 6402939ec86eaf226c8b8ae00ed983936b164908 ]
 
-If a device is using multiple queues, the IO scheduler may be bypassed.
-This may hurt performance for some slow MQ devices, and it also breaks
-zoned devices which depend on mq-deadline for respecting the write order
-in one zone.
+In ca8210_probe the allocated pdata needs to be assigned to
+spi_device->dev.platform_data before calling ca8210_get_platform_data.
+Othrwise when ca8210_get_platform_data fails pdata cannot be released.
 
-Don't bypass io scheduler if we have one setup.
-
-This patch can double sequential write performance basically on MQ
-scsi_debug when mq-deadline is applied.
-
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Hannes Reinecke <hare@suse.com>
-Cc: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Javier González <javier@javigon.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Link: https://lore.kernel.org/r/20190917224713.26371-1-navid.emamdoost@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ieee802154/ca8210.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index a79b9ad1aba18..ed41cde93641c 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1998,6 +1998,8 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
- 		}
+diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
+index b188fce3f6410..658b399ac9eac 100644
+--- a/drivers/net/ieee802154/ca8210.c
++++ b/drivers/net/ieee802154/ca8210.c
+@@ -3152,12 +3152,12 @@ static int ca8210_probe(struct spi_device *spi_device)
+ 		goto error;
+ 	}
  
- 		blk_add_rq_to_plug(plug, rq);
-+	} else if (q->elevator) {
-+		blk_mq_sched_insert_request(rq, false, true, true);
- 	} else if (plug && !blk_queue_nomerges(q)) {
- 		/*
- 		 * We do limited plugging. If the bio can be merged, do that.
-@@ -2021,8 +2023,8 @@ static blk_qc_t blk_mq_make_request(struct request_queue *q, struct bio *bio)
- 			blk_mq_try_issue_directly(data.hctx, same_queue_rq,
- 					&cookie);
- 		}
--	} else if ((q->nr_hw_queues > 1 && is_sync) || (!q->elevator &&
--			!data.hctx->dispatch_busy)) {
-+	} else if ((q->nr_hw_queues > 1 && is_sync) ||
-+			!data.hctx->dispatch_busy) {
- 		blk_mq_try_issue_directly(data.hctx, rq, &cookie);
- 	} else {
- 		blk_mq_sched_insert_request(rq, false, true, true);
++	priv->spi->dev.platform_data = pdata;
+ 	ret = ca8210_get_platform_data(priv->spi, pdata);
+ 	if (ret) {
+ 		dev_crit(&spi_device->dev, "ca8210_get_platform_data failed\n");
+ 		goto error;
+ 	}
+-	priv->spi->dev.platform_data = pdata;
+ 
+ 	ret = ca8210_dev_com_init(priv);
+ 	if (ret) {
 -- 
 2.20.1
 
