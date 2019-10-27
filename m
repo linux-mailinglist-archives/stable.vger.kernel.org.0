@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41301E66F1
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3B26E6808
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730873AbfJ0VQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36286 "EHLO mail.kernel.org"
+        id S1732914AbfJ0V0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730868AbfJ0VQj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:16:39 -0400
+        id S1732042AbfJ0V0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:26:23 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 872C921726;
-        Sun, 27 Oct 2019 21:16:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38A3321D7F;
+        Sun, 27 Oct 2019 21:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210998;
-        bh=ErKEsRv1h3UfSN4mtR+TcNlFCFKAYck6UOOahrbSuWs=;
+        s=default; t=1572211582;
+        bh=uPIfQWqLKM5q170ciZ8ZKXKT3PTDtM1DUcLlUr0y/SE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRgsACJexsp6VOKrNnpJSGM7hdEbskqLX+aohUn6qQY1f3KZ+RmxdcSJ8I7oKHu8g
-         5LjWcEwh00p/2Y1jlI6kDGr9rkUOPh8/rDyYTAsrSB0Q/UGVknc6m1SsVUPs343gDj
-         flK3sfG0Mz2QfHwszwYAZnXfpnu1LPOu766dqAHo=
+        b=cqttyMcXbjrAgY5pfRhLB0aJFA1k+movpN7+GmDlXNncBxhmhUhnXKr9tC2SHKWby
+         Erp0vYe528cvR4s5hO+IxyhnotAB4c7HKXvrf76pAnzS/yoJtVLUWsGOuEwV0Q6dLF
+         9h532M/7RhEjYOZAPIdiRqsgYCW3449qk/nLRfOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 91/93] PCI: PM: Fix pci_power_up()
-Date:   Sun, 27 Oct 2019 22:01:43 +0100
-Message-Id: <20191027203317.816432489@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.3 186/197] btrfs: tracepoints: Fix wrong parameter order for qgroup events
+Date:   Sun, 27 Oct 2019 22:01:44 +0100
+Message-Id: <20191027203406.527183420@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 45144d42f299455911cc29366656c7324a3a7c97 upstream.
+commit fd2b007eaec898564e269d1f478a2da0380ecf51 upstream.
 
-There is an arbitrary difference between the system resume and
-runtime resume code paths for PCI devices regarding the delay to
-apply when switching the devices from D3cold to D0.
+[BUG]
+For btrfs:qgroup_meta_reserve event, the trace event can output garbage:
 
-Namely, pci_restore_standard_config() used in the runtime resume
-code path calls pci_set_power_state() which in turn invokes
-__pci_start_power_transition() to power up the device through the
-platform firmware and that function applies the transition delay
-(as per PCI Express Base Specification Revision 2.0, Section 6.6.1).
-However, pci_pm_default_resume_early() used in the system resume
-code path calls pci_power_up() which doesn't apply the delay at
-all and that causes issues to occur during resume from
-suspend-to-idle on some systems where the delay is required.
+  qgroup_meta_reserve: 9c7f6acc-b342-4037-bc47-7f6e4d2232d7: refroot=5(FS_TREE) type=DATA diff=2
 
-Since there is no reason for that difference to exist, modify
-pci_power_up() to follow pci_set_power_state() more closely and
-invoke __pci_start_power_transition() from there to call the
-platform firmware to power up the device (in case that's necessary).
+The diff should always be alinged to sector size (4k), so there is
+definitely something wrong.
 
-Fixes: db288c9c5f9d ("PCI / PM: restore the original behavior of pci_set_power_state()")
-Reported-by: Daniel Drake <drake@endlessm.com>
-Tested-by: Daniel Drake <drake@endlessm.com>
-Link: https://lore.kernel.org/linux-pm/CAD8Lp44TYxrMgPLkHCqF9hv6smEurMXvmmvmtyFhZ6Q4SE+dig@mail.gmail.com/T/#m21be74af263c6a34f36e0fc5c77c5449d9406925
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+[CAUSE]
+For the wrong @diff, it's caused by wrong parameter order.
+The correct parameters are:
+
+  struct btrfs_root, s64 diff, int type.
+
+However the parameters used are:
+
+  struct btrfs_root, int type, s64 diff.
+
+Fixes: 4ee0d8832c2e ("btrfs: qgroup: Update trace events for metadata reservation")
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |   24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ fs/btrfs/qgroup.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -926,19 +926,6 @@ void pci_update_current_state(struct pci
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3617,7 +3617,7 @@ int __btrfs_qgroup_reserve_meta(struct b
+ 		return 0;
+ 
+ 	BUG_ON(num_bytes != round_down(num_bytes, fs_info->nodesize));
+-	trace_qgroup_meta_reserve(root, type, (s64)num_bytes);
++	trace_qgroup_meta_reserve(root, (s64)num_bytes, type);
+ 	ret = qgroup_reserve(root, num_bytes, enforce, type);
+ 	if (ret < 0)
+ 		return ret;
+@@ -3664,7 +3664,7 @@ void __btrfs_qgroup_free_meta(struct btr
+ 	 */
+ 	num_bytes = sub_root_meta_rsv(root, num_bytes, type);
+ 	BUG_ON(num_bytes != round_down(num_bytes, fs_info->nodesize));
+-	trace_qgroup_meta_reserve(root, type, -(s64)num_bytes);
++	trace_qgroup_meta_reserve(root, -(s64)num_bytes, type);
+ 	btrfs_qgroup_free_refroot(fs_info, root->root_key.objectid,
+ 				  num_bytes, type);
  }
- 
- /**
-- * pci_power_up - Put the given device into D0 forcibly
-- * @dev: PCI device to power up
-- */
--void pci_power_up(struct pci_dev *dev)
--{
--	if (platform_pci_power_manageable(dev))
--		platform_pci_set_power_state(dev, PCI_D0);
--
--	pci_raw_set_power_state(dev, PCI_D0);
--	pci_update_current_state(dev, PCI_D0);
--}
--
--/**
-  * pci_platform_power_transition - Use platform to change device power state
-  * @dev: PCI device to handle.
-  * @state: State to put the device into.
-@@ -1117,6 +1104,17 @@ int pci_set_power_state(struct pci_dev *
- EXPORT_SYMBOL(pci_set_power_state);
- 
- /**
-+ * pci_power_up - Put the given device into D0 forcibly
-+ * @dev: PCI device to power up
-+ */
-+void pci_power_up(struct pci_dev *dev)
-+{
-+	__pci_start_power_transition(dev, PCI_D0);
-+	pci_raw_set_power_state(dev, PCI_D0);
-+	pci_update_current_state(dev, PCI_D0);
-+}
-+
-+/**
-  * pci_choose_state - Choose the power state of a PCI device
-  * @dev: PCI device to be suspended
-  * @state: target sleep state for the whole system. This is the value
 
 
