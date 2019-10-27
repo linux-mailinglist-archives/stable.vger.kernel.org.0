@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6485E6626
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BE7E6627
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfJ0VJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:09:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55386 "EHLO mail.kernel.org"
+        id S1729455AbfJ0VJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728951AbfJ0VJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:09:03 -0400
+        id S1727247AbfJ0VJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:09:06 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 08B5A20B7C;
-        Sun, 27 Oct 2019 21:09:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9E562064A;
+        Sun, 27 Oct 2019 21:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210542;
-        bh=qfCF2CBKHLavLO5gpk2z0LNY6BLuAcfk78Lkz8xYQFc=;
+        s=default; t=1572210545;
+        bh=LvaFGmWDLMlpjwhFzvOngmjgOS7bg/Bp9sWp/Ptl0Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHV/LWQHSZKtYdJpI7x12mHZjqLcCNVmGKcBc5GTFQynFwMLLwH8VchJC6CBjHfH7
-         la7WtoTVV09El6uCF/gK9/MxYICvlblo1BIS3qyTHO8HA7uOoHH+G6oqi2peH8VsnE
-         q9j3w/xK5Vq55XZOJw/V1vwWM5o+1w8EBXKgYI6Q=
+        b=ZO0rQOzgdnMxIEuUapKufiXTrrRTlq8dbn/I0nx00V8N8Zb5ay+BXCz1pGnMTfxma
+         Dccshe7XmXYPzZM7AVFQggbjl+8bB5F9HMEgt5DGhvlswtkuS5JOW+YhyaoLAHXGkG
+         IPetE7zcri3LpSw16itpw9azUVhm1fsDGZ60aaN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Paul Burton <paul.burton@mips.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, devicetree@vger.kernel.org,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 008/119] MIPS: dts: ar9331: fix interrupt-controller size
-Date:   Sun, 27 Oct 2019 21:59:45 +0100
-Message-Id: <20191027203301.560229650@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 009/119] xen/efi: Set nonblocking callbacks
+Date:   Sun, 27 Oct 2019 21:59:46 +0100
+Message-Id: <20191027203301.752068958@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -49,40 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Ross Lagerwall <ross.lagerwall@citrix.com>
 
-[ Upstream commit 0889d07f3e4b171c453b2aaf2b257f9074cdf624 ]
+[ Upstream commit df359f0d09dc029829b66322707a2f558cb720f7 ]
 
-It is two registers each of 4 byte.
+Other parts of the kernel expect these nonblocking EFI callbacks to
+exist and crash when running under Xen. Since the implementations of
+xen_efi_set_variable() and xen_efi_query_variable_info() do not take any
+locks, use them for the nonblocking callbacks too.
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: devicetree@vger.kernel.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/qca/ar9331.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/xen/efi.c | 2 ++
+ arch/x86/xen/efi.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/mips/boot/dts/qca/ar9331.dtsi b/arch/mips/boot/dts/qca/ar9331.dtsi
-index efd5f07222060..39b6269610d41 100644
---- a/arch/mips/boot/dts/qca/ar9331.dtsi
-+++ b/arch/mips/boot/dts/qca/ar9331.dtsi
-@@ -99,7 +99,7 @@
- 
- 			miscintc: interrupt-controller@18060010 {
- 				compatible = "qca,ar7240-misc-intc";
--				reg = <0x18060010 0x4>;
-+				reg = <0x18060010 0x8>;
- 
- 				interrupt-parent = <&cpuintc>;
- 				interrupts = <6>;
+diff --git a/arch/arm/xen/efi.c b/arch/arm/xen/efi.c
+index b4d78959cadf0..bc9a37b3cecd6 100644
+--- a/arch/arm/xen/efi.c
++++ b/arch/arm/xen/efi.c
+@@ -31,7 +31,9 @@ void __init xen_efi_runtime_setup(void)
+ 	efi.get_variable             = xen_efi_get_variable;
+ 	efi.get_next_variable        = xen_efi_get_next_variable;
+ 	efi.set_variable             = xen_efi_set_variable;
++	efi.set_variable_nonblocking = xen_efi_set_variable;
+ 	efi.query_variable_info      = xen_efi_query_variable_info;
++	efi.query_variable_info_nonblocking = xen_efi_query_variable_info;
+ 	efi.update_capsule           = xen_efi_update_capsule;
+ 	efi.query_capsule_caps       = xen_efi_query_capsule_caps;
+ 	efi.get_next_high_mono_count = xen_efi_get_next_high_mono_count;
+diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
+index a18703be9ead9..4769a069d5bd8 100644
+--- a/arch/x86/xen/efi.c
++++ b/arch/x86/xen/efi.c
+@@ -77,7 +77,9 @@ static efi_system_table_t __init *xen_efi_probe(void)
+ 	efi.get_variable             = xen_efi_get_variable;
+ 	efi.get_next_variable        = xen_efi_get_next_variable;
+ 	efi.set_variable             = xen_efi_set_variable;
++	efi.set_variable_nonblocking = xen_efi_set_variable;
+ 	efi.query_variable_info      = xen_efi_query_variable_info;
++	efi.query_variable_info_nonblocking = xen_efi_query_variable_info;
+ 	efi.update_capsule           = xen_efi_update_capsule;
+ 	efi.query_capsule_caps       = xen_efi_query_capsule_caps;
+ 	efi.get_next_high_mono_count = xen_efi_get_next_high_mono_count;
 -- 
 2.20.1
 
