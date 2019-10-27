@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0726DE6918
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C698DE69A8
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731260AbfJ0VeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:34:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57702 "EHLO mail.kernel.org"
+        id S1728615AbfJ0VEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbfJ0VLL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:11:11 -0400
+        id S1728612AbfJ0VEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:24 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D3AF21848;
-        Sun, 27 Oct 2019 21:11:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB42B20873;
+        Sun, 27 Oct 2019 21:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210671;
-        bh=G8fdBiczYjP1dj+XAo4W0fgeejN6M3is5d/XqM9NW8A=;
+        s=default; t=1572210263;
+        bh=Nd/69uza/dlZHrUS8k+TlHCzIFVzAvLu8UefKxT4+6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkg8Ctn/yfpSanX5+0UrZ6qI6KmSFCqSW5FpmootWeb03+dq1KS8GCjHfgOLG3UhT
-         V0xYWs+F5URIUVmuYLKL7EITIF6r4aGv0oqjJyLUbx726wxtlwM4XbsvB3c0XofpH/
-         P40rx7qeyuaH4Nh9mYctPy7wsa1svt2bqaOHjY7g=
+        b=QVwBDdJgakdVRKQD2896UH00RKuQ++gKX/Zm1PCNcBc7sY69hELWaDWn5TLUqV9z1
+         6Qsd4057r3lm5L3LN8/r3zjEREziY15q732YycSUp7ALg3Qcm67AyfXMqn0gu2fgtb
+         3OboKrJrupmDyhANQ7EagQAwJSqaw/dr72KXYTig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 094/119] cfg80211: wext: avoid copying malformed SSIDs
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
+        Sven Schnelle <svens@stackframe.org>
+Subject: [PATCH 4.4 33/41] parisc: Fix vmap memory leak in ioremap()/iounmap()
 Date:   Sun, 27 Oct 2019 22:01:11 +0100
-Message-Id: <20191027203348.587555174@linuxfoundation.org>
+Message-Id: <20191027203126.939170710@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Helge Deller <deller@gmx.de>
 
-commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
+commit 513f7f747e1cba81f28a436911fba0b485878ebd upstream.
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field, when copying to userspace.
+Sven noticed that calling ioremap() and iounmap() multiple times leads
+to a vmap memory leak:
+	vmap allocation for size 4198400 failed:
+	use vmalloc=<size> to increase size
 
-Cc: <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
-[adjust commit log a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+It seems we missed calling vunmap() in iounmap().
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Noticed-by: Sven Schnelle <svens@stackframe.org>
+Cc: <stable@vger.kernel.org> # v3.16+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/wext-sme.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/parisc/mm/ioremap.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -202,6 +202,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 			       struct iw_point *data, char *ssid)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	int ret = 0;
+--- a/arch/parisc/mm/ioremap.c
++++ b/arch/parisc/mm/ioremap.c
+@@ -2,7 +2,7 @@
+  * arch/parisc/mm/ioremap.c
+  *
+  * (C) Copyright 1995 1996 Linus Torvalds
+- * (C) Copyright 2001-2006 Helge Deller <deller@gmx.de>
++ * (C) Copyright 2001-2019 Helge Deller <deller@gmx.de>
+  * (C) Copyright 2005 Kyle McMartin <kyle@parisc-linux.org>
+  */
  
- 	/* call only for station! */
- 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
-@@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
- 		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
+@@ -83,7 +83,7 @@ void __iomem * __ioremap(unsigned long p
+ 	addr = (void __iomem *) area->addr;
+ 	if (ioremap_page_range((unsigned long)addr, (unsigned long)addr + size,
+ 			       phys_addr, pgprot)) {
+-		vfree(addr);
++		vunmap(addr);
+ 		return NULL;
  	}
- 	wdev_unlock(wdev);
  
--	return 0;
-+	return ret;
+@@ -91,9 +91,11 @@ void __iomem * __ioremap(unsigned long p
  }
+ EXPORT_SYMBOL(__ioremap);
  
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
+-void iounmap(const volatile void __iomem *addr)
++void iounmap(const volatile void __iomem *io_addr)
+ {
+-	if (addr > high_memory)
+-		return vfree((void *) (PAGE_MASK & (unsigned long __force) addr));
++	unsigned long addr = (unsigned long)io_addr & PAGE_MASK;
++
++	if (is_vmalloc_addr((void *)addr))
++		vunmap((void *)addr);
+ }
+ EXPORT_SYMBOL(iounmap);
 
 
