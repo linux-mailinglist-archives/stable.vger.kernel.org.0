@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A928BE6745
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06626E674C
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730881AbfJ0VTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39796 "EHLO mail.kernel.org"
+        id S1731530AbfJ0VTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731452AbfJ0VT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:19:27 -0400
+        id S1731452AbfJ0VTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:19:36 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D61520717;
-        Sun, 27 Oct 2019 21:19:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A798920717;
+        Sun, 27 Oct 2019 21:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211166;
-        bh=2LmyhbCXVxyjU1oqCpnEO3Teoc6Sz9N58R4YWqEugEQ=;
+        s=default; t=1572211175;
+        bh=RI9MPlO+lvnuqKMcP+8ukZ2/t6jJxYoBzXCL0CCGbsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjC4QtJ3+mPNg4HZmc72oo1eULJ0bAfJj+IBH+Dc328Xom7jNlpsN09RSTOahQr7X
-         vPPgrsCOpW9mlODYy7rSQdy9immpHtDgUHKSCVNtrQDGPVq3OJXatzKzBFo6bkRT9s
-         XPj7E6jZcF0G2EQeBEr86snl3ju6dyaXGJkJ4xKw=
+        b=B9S3hPBSMGYdrun1nTVqFlmz0d2v6EN9WDzaDzQ3jQ7kOxg04dLexgNjRULGlei+k
+         Pzw9nEMXzFQ/NcDTEAyXr/tPru4LtCUHiV/ZUItLMp+IGbaUtCpVvaA2xKcLwMwslB
+         IaqvZa9JL9zPW/X9uULYe4fvVV8DXsnELq4h6Mn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Michal Hocko <mhocko@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 056/197] namespace: fix namespace.pl script to support relative paths
-Date:   Sun, 27 Oct 2019 21:59:34 +0100
-Message-Id: <20191027203354.698291506@linuxfoundation.org>
+Subject: [PATCH 5.3 058/197] elf: dont use MAP_FIXED_NOREPLACE for elf executable mappings
+Date:   Sun, 27 Oct 2019 21:59:36 +0100
+Message-Id: <20191027203354.803599528@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -45,84 +46,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
+[ Upstream commit b212921b13bda088a004328457c5c21458262fe2 ]
 
-The namespace.pl script does not work properly if objtree is not set to
-an absolute path. The do_nm function is run from within the find
-function, which changes directories.
+In commit 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map") we
+changed elf to use MAP_FIXED_NOREPLACE instead of MAP_FIXED for the
+executable mappings.
 
-Because of this, appending objtree, $File::Find::dir, and $source, will
-return a path which is not valid from the current directory.
+Then, people reported that it broke some binaries that had overlapping
+segments from the same file, and commit ad55eac74f20 ("elf: enforce
+MAP_FIXED on overlaying elf segments") re-instated MAP_FIXED for some
+overlaying elf segment cases.  But only some - despite the summary line
+of that commit, it only did it when it also does a temporary brk vma for
+one obvious overlapping case.
 
-This used to work when objtree was set to an absolute path when using
-"make namespacecheck". It appears to have not worked when calling
-./scripts/namespace.pl directly.
+Now Russell King reports another overlapping case with old 32-bit x86
+binaries, which doesn't trigger that limited case.  End result: we had
+better just drop MAP_FIXED_NOREPLACE entirely, and go back to MAP_FIXED.
 
-This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
-for $(objtree)", 2014-05-14)
+Yes, it's a sign of old binaries generated with old tool-chains, but we
+do pride ourselves on not breaking existing setups.
 
-Rather than fixing the Makefile to set objtree to an absolute path, just
-fix namespace.pl to work when srctree and objtree are relative. Also fix
-the script to use an absolute path for these by default.
+This still leaves MAP_FIXED_NOREPLACE in place for the load_elf_interp()
+and the old load_elf_library() use-cases, because nobody has reported
+breakage for those. Yet.
 
-Use the File::Spec module for this purpose. It's been part of perl
-5 since 5.005.
+Note that in all the cases seen so far, the overlapping elf sections
+seem to be just re-mapping of the same executable with different section
+attributes.  We could possibly introduce a new MAP_FIXED_NOFILECHANGE
+flag or similar, which acts like NOREPLACE, but allows just remapping
+the same executable file using different protection flags.
 
-The curdir() function is used to get the current directory when the
-objtree and srctree aren't set in the environment.
+It's not clear that would make a huge difference to anything, but if
+people really hate that "elf remaps over previous maps" behavior, maybe
+at least a more limited form of remapping would alleviate some concerns.
 
-rel2abs() is used to convert possibly relative objtree and srctree
-environment variables to absolute paths.
+Alternatively, we should take a look at our elf_map() logic to see if we
+end up not mapping things properly the first time.
 
-Finally, the catfile() function is used instead of string appending
-paths together, since this is more robust when joining paths together.
+In the meantime, this is the minimal "don't do that then" patch while
+people hopefully think about it more.
 
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reported-by: Russell King <linux@armlinux.org.uk>
+Fixes: 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map")
+Fixes: ad55eac74f20 ("elf: enforce  MAP_FIXED on overlaying elf segments")
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Kees Cook <keescook@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/namespace.pl | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/binfmt_elf.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-diff --git a/scripts/namespace.pl b/scripts/namespace.pl
-index 6135574a6f394..1da7bca201a42 100755
---- a/scripts/namespace.pl
-+++ b/scripts/namespace.pl
-@@ -65,13 +65,14 @@
- use warnings;
- use strict;
- use File::Find;
-+use File::Spec;
+diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
+index f131651502b8a..c62903290f3a5 100644
+--- a/fs/binfmt_elf.c
++++ b/fs/binfmt_elf.c
+@@ -899,7 +899,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
+ 	   the correct location in memory. */
+ 	for(i = 0, elf_ppnt = elf_phdata;
+ 	    i < loc->elf_ex.e_phnum; i++, elf_ppnt++) {
+-		int elf_prot, elf_flags, elf_fixed = MAP_FIXED_NOREPLACE;
++		int elf_prot, elf_flags;
+ 		unsigned long k, vaddr;
+ 		unsigned long total_size = 0;
  
- my $nm = ($ENV{'NM'} || "nm") . " -p";
- my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
--my $srctree = "";
--my $objtree = "";
--$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
--$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
-+my $srctree = File::Spec->curdir();
-+my $objtree = File::Spec->curdir();
-+$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
-+$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
+@@ -931,13 +931,6 @@ static int load_elf_binary(struct linux_binprm *bprm)
+ 					 */
+ 				}
+ 			}
+-
+-			/*
+-			 * Some binaries have overlapping elf segments and then
+-			 * we have to forcefully map over an existing mapping
+-			 * e.g. over this newly established brk mapping.
+-			 */
+-			elf_fixed = MAP_FIXED;
+ 		}
  
- if ($#ARGV != -1) {
- 	print STDERR "usage: $0 takes no parameters\n";
-@@ -231,9 +232,9 @@ sub do_nm
- 	}
- 	($source = $basename) =~ s/\.o$//;
- 	if (-e "$source.c" || -e "$source.S") {
--		$source = "$objtree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
- 	} else {
--		$source = "$srctree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
- 	}
- 	if (! -e "$source.c" && ! -e "$source.S") {
- 		# No obvious source, exclude the object if it is conglomerate
+ 		elf_prot = make_prot(elf_ppnt->p_flags);
+@@ -950,7 +943,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
+ 		 * the ET_DYN load_addr calculations, proceed normally.
+ 		 */
+ 		if (loc->elf_ex.e_type == ET_EXEC || load_addr_set) {
+-			elf_flags |= elf_fixed;
++			elf_flags |= MAP_FIXED;
+ 		} else if (loc->elf_ex.e_type == ET_DYN) {
+ 			/*
+ 			 * This logic is run once for the first LOAD Program
+@@ -986,7 +979,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
+ 				load_bias = ELF_ET_DYN_BASE;
+ 				if (current->flags & PF_RANDOMIZE)
+ 					load_bias += arch_mmap_rnd();
+-				elf_flags |= elf_fixed;
++				elf_flags |= MAP_FIXED;
+ 			} else
+ 				load_bias = 0;
+ 
 -- 
 2.20.1
 
