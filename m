@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D62F6E6686
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C00E6620
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729529AbfJ0VMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59684 "EHLO mail.kernel.org"
+        id S1729420AbfJ0VIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728695AbfJ0VMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:12:46 -0400
+        id S1729407AbfJ0VIv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:08:51 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96339208C0;
-        Sun, 27 Oct 2019 21:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7730A20B7C;
+        Sun, 27 Oct 2019 21:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210766;
-        bh=qhJM50bxO+MG7WrkXdo6i8sZ/JZEPykOMKFr88gZ6t8=;
+        s=default; t=1572210531;
+        bh=0P04B2adEBHzzhOJCXQeGs0nSkHAwogVAekqy2RDdKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNHzLkFCoifjGz4WHdK0Nqx9FZWTDGK6sil2IbLjyQnyhP3HdczuwO3KhmJika3je
-         g/6q2gKKR6F91RCq/a4xuSySJQaB7oWa9F1JQIXfgjz/ZpS3eykvtLxxqO/lSCDdIj
-         E5W4gxVpXRJWfQS0mlw+MTja3H7R3XC9nvbgR/Og=
+        b=MFyovkcd9jlh1mPjpZUS4MOLgiuGUoAwUxGOcEfUimIxTLbWxzQI8FNX/0qNXprxl
+         L0CXmbCQinaQcO1fLOj/xqIU/M1RzLI81e2gRbKl0T+pZpCzjMbuV42sW1yZRrV67e
+         361GUbW/9HhtOXb4+TgHs+o4uIde0oeL6cf03JHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Paul Burton <paul.burton@mips.com>,
-        Rob Herring <robh+dt@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, devicetree@vger.kernel.org,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 10/93] MIPS: dts: ar9331: fix interrupt-controller size
+        Dave Martin <dave.martin@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 045/119] arm64: Introduce sysreg_clear_set()
 Date:   Sun, 27 Oct 2019 22:00:22 +0100
-Message-Id: <20191027203254.069647999@linuxfoundation.org>
+Message-Id: <20191027203317.852806511@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 0889d07f3e4b171c453b2aaf2b257f9074cdf624 ]
+[ Upstream commit 6ebdf4db8fa564a150f46d32178af0873eb5abbb ]
 
-It is two registers each of 4 byte.
+Currently we have a couple of helpers to manipulate bits in particular
+sysregs:
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: devicetree@vger.kernel.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ * config_sctlr_el1(u32 clear, u32 set)
+
+ * change_cpacr(u64 val, u64 mask)
+
+The parameters of these differ in naming convention, order, and size,
+which is unfortunate. They also differ slightly in behaviour, as
+change_cpacr() skips the sysreg write if the bits are unchanged, which
+is a useful optimization when sysreg writes are expensive.
+
+Before we gain yet another sysreg manipulation function, let's
+unify these with a common helper, providing a consistent order for
+clear/set operands, and the write skipping behaviour from
+change_cpacr(). Code will be migrated to the new helper in subsequent
+patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Dave Martin <dave.martin@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/boot/dts/qca/ar9331.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/sysreg.h |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/mips/boot/dts/qca/ar9331.dtsi b/arch/mips/boot/dts/qca/ar9331.dtsi
-index 2bae201aa3651..1c7bf11f8450b 100644
---- a/arch/mips/boot/dts/qca/ar9331.dtsi
-+++ b/arch/mips/boot/dts/qca/ar9331.dtsi
-@@ -99,7 +99,7 @@
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -584,6 +584,17 @@ asm(
+ 	asm volatile("msr_s " __stringify(r) ", %x0" : : "rZ" (__val));	\
+ } while (0)
  
- 			miscintc: interrupt-controller@18060010 {
- 				compatible = "qca,ar7240-misc-intc";
--				reg = <0x18060010 0x4>;
-+				reg = <0x18060010 0x8>;
- 
- 				interrupt-parent = <&cpuintc>;
- 				interrupts = <6>;
--- 
-2.20.1
-
++/*
++ * Modify bits in a sysreg. Bits in the clear mask are zeroed, then bits in the
++ * set mask are set. Other bits are left as-is.
++ */
++#define sysreg_clear_set(sysreg, clear, set) do {			\
++	u64 __scs_val = read_sysreg(sysreg);				\
++	u64 __scs_new = (__scs_val & ~(u64)(clear)) | (set);		\
++	if (__scs_new != __scs_val)					\
++		write_sysreg(__scs_new, sysreg);			\
++} while (0)
++
+ static inline void config_sctlr_el1(u32 clear, u32 set)
+ {
+ 	u32 val;
 
 
