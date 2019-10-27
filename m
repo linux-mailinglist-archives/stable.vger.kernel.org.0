@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88275E6653
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE79E65D0
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729764AbfJ0VKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57216 "EHLO mail.kernel.org"
+        id S1727186AbfJ0VFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:05:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727627AbfJ0VKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:46 -0400
+        id S1727823AbfJ0VFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:05:24 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6E5220873;
-        Sun, 27 Oct 2019 21:10:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1950D2064A;
+        Sun, 27 Oct 2019 21:05:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210645;
-        bh=9wfYJ86MlnnLvv4todEkNfb2aWKG/3Ov7BSF6kFRxJY=;
+        s=default; t=1572210323;
+        bh=wgCt+YZ5RNpB3TdtQz/yGRs20B5SCGe3XuJHby44QTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRsKz0j4xHnM3wx5xUV6gW1be/CVkz2mFE+O4KJK5Sq789qqQNMdpQOfSBu6iGCIs
-         b4yk+R/jxpT3cHqyCasPzTCecbsWU/KMXsv50Y3Jk0FT7P23XZZb1o+Oi/bZBcFf9c
-         EnnJqkf/JRlXGvTbQvjIW9VN4LPSE7vY4sZ5K8+8=
+        b=ujjHoHO83fZPyvrpb2gzSBCuowJ5bZkx9YE1xzp7/gJhFDRFKSXOsghwpLkCytIiR
+         HdHBxc7mNHp6GrpOPLiqET3+dzbDAcYPbOgPwj3LFqe2U/iBH80BQsMmsknk2zKZzZ
+         Taez3RMpXeleeH7XH5hIPadEBnxLl0BrATjPQi7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 4.14 086/119] staging: wlan-ng: fix exit return when sme->key_idx >= NUM_WEPKEYS
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH 4.9 25/49] usb: udc: lpc32xx: fix bad bit shift operation
 Date:   Sun, 27 Oct 2019 22:01:03 +0100
-Message-Id: <20191027203347.229722142@linuxfoundation.org>
+Message-Id: <20191027203138.367796220@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-commit 153c5d8191c26165dbbd2646448ca7207f7796d0 upstream.
+commit b987b66ac3a2bc2f7b03a0ba48a07dc553100c07 upstream.
 
-Currently the exit return path when sme->key_idx >= NUM_WEPKEYS is via
-label 'exit' and this checks if result is non-zero, however result has
-not been initialized and contains garbage.  Fix this by replacing the
-goto with a return with the error code.
+It seems that the right variable to use in this case is *i*, instead of
+*n*, otherwise there is an undefined behavior when right shifiting by more
+than 31 bits when multiplying n by 8; notice that *n* can take values
+equal or greater than 4 (4, 8, 16, ...).
 
-Addresses-Coverity: ("Uninitialized scalar variable")
-Fixes: 0ca6d8e74489 ("Staging: wlan-ng: replace switch-case statements with macro")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191014110201.9874-1-colin.king@canonical.com
+Also, notice that under the current conditions (bl = 3), we are skiping
+the handling of bytes 3, 7, 31... So, fix this by updating this logic
+and limit *bl* up to 4 instead of up to 3.
+
+This fix is based on function udc_stuff_fifo().
+
+Addresses-Coverity-ID: 1454834 ("Bad bit shift operation")
+Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Link: https://lore.kernel.org/r/20191014191830.GA10721@embeddedor
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/wlan-ng/cfg80211.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/lpc32xx_udc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/wlan-ng/cfg80211.c
-+++ b/drivers/staging/wlan-ng/cfg80211.c
-@@ -490,10 +490,8 @@ static int prism2_connect(struct wiphy *
- 	/* Set the encryption - we only support wep */
- 	if (is_wep) {
- 		if (sme->key) {
--			if (sme->key_idx >= NUM_WEPKEYS) {
--				err = -EINVAL;
--				goto exit;
--			}
-+			if (sme->key_idx >= NUM_WEPKEYS)
-+				return -EINVAL;
+--- a/drivers/usb/gadget/udc/lpc32xx_udc.c
++++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
+@@ -1178,11 +1178,11 @@ static void udc_pop_fifo(struct lpc32xx_
+ 			tmp = readl(USBD_RXDATA(udc->udp_baseaddr));
  
- 			result = prism2_domibset_uint32(wlandev,
- 				DIDmib_dot11smt_dot11PrivacyTable_dot11WEPDefaultKeyID,
+ 			bl = bytes - n;
+-			if (bl > 3)
+-				bl = 3;
++			if (bl > 4)
++				bl = 4;
+ 
+ 			for (i = 0; i < bl; i++)
+-				data[n + i] = (u8) ((tmp >> (n * 8)) & 0xFF);
++				data[n + i] = (u8) ((tmp >> (i * 8)) & 0xFF);
+ 		}
+ 		break;
+ 
 
 
