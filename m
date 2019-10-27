@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E59E7E6801
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41301E66F1
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732917AbfJ0V0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
+        id S1730873AbfJ0VQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732303AbfJ0V0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:26:20 -0400
+        id S1730868AbfJ0VQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:39 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBAAF21783;
-        Sun, 27 Oct 2019 21:26:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 872C921726;
+        Sun, 27 Oct 2019 21:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211579;
-        bh=hbpNcqxQDK0OWpfQVYW4AhZUFNc95v1G8MDdnovzsCQ=;
+        s=default; t=1572210998;
+        bh=ErKEsRv1h3UfSN4mtR+TcNlFCFKAYck6UOOahrbSuWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaRpvUvc3Lya9YQE0mh8XKsdviPhAFyCX5L4u3cXX4EpYoh3McPaGfWb3e8XvuN/0
-         InWCoG9rEJt+KVKLdMxjVibjRoJwmy7CI4MsW08kEhXn/36jT1EhKfm4EyDnRbQOVl
-         No1tjY93f+1C6QWtTPQP4/9uq7LMsm7viFkD58nQ=
+        b=cRgsACJexsp6VOKrNnpJSGM7hdEbskqLX+aohUn6qQY1f3KZ+RmxdcSJ8I7oKHu8g
+         5LjWcEwh00p/2Y1jlI6kDGr9rkUOPh8/rDyYTAsrSB0Q/UGVknc6m1SsVUPs343gDj
+         flK3sfG0Mz2QfHwszwYAZnXfpnu1LPOu766dqAHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 185/197] Btrfs: check for the full sync flag while holding the inode lock during fsync
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 91/93] PCI: PM: Fix pci_power_up()
 Date:   Sun, 27 Oct 2019 22:01:43 +0100
-Message-Id: <20191027203406.473024332@linuxfoundation.org>
+Message-Id: <20191027203317.816432489@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,97 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit ba0b084ac309283db6e329785c1dc4f45fdbd379 upstream.
+commit 45144d42f299455911cc29366656c7324a3a7c97 upstream.
 
-We were checking for the full fsync flag in the inode before locking the
-inode, which is racy, since at that that time it might not be set but
-after we acquire the inode lock some other task set it. One case where
-this can happen is on a system low on memory and some concurrent task
-failed to allocate an extent map and therefore set the full sync flag on
-the inode, to force the next fsync to work in full mode.
+There is an arbitrary difference between the system resume and
+runtime resume code paths for PCI devices regarding the delay to
+apply when switching the devices from D3cold to D0.
 
-A consequence of missing the full fsync flag set is hitting the problems
-fixed by commit 0c713cbab620 ("Btrfs: fix race between ranged fsync and
-writeback of adjacent ranges"), BUG_ON() when dropping extents from a log
-tree, hitting assertion failures at tree-log.c:copy_items() or all sorts
-of weird inconsistencies after replaying a log due to file extents items
-representing ranges that overlap.
+Namely, pci_restore_standard_config() used in the runtime resume
+code path calls pci_set_power_state() which in turn invokes
+__pci_start_power_transition() to power up the device through the
+platform firmware and that function applies the transition delay
+(as per PCI Express Base Specification Revision 2.0, Section 6.6.1).
+However, pci_pm_default_resume_early() used in the system resume
+code path calls pci_power_up() which doesn't apply the delay at
+all and that causes issues to occur during resume from
+suspend-to-idle on some systems where the delay is required.
 
-So just move the check such that it's done after locking the inode and
-before starting writeback again.
+Since there is no reason for that difference to exist, modify
+pci_power_up() to follow pci_set_power_state() more closely and
+invoke __pci_start_power_transition() from there to call the
+platform firmware to power up the device (in case that's necessary).
 
-Fixes: 0c713cbab620 ("Btrfs: fix race between ranged fsync and writeback of adjacent ranges")
-CC: stable@vger.kernel.org # 5.2+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: db288c9c5f9d ("PCI / PM: restore the original behavior of pci_set_power_state()")
+Reported-by: Daniel Drake <drake@endlessm.com>
+Tested-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/linux-pm/CAD8Lp44TYxrMgPLkHCqF9hv6smEurMXvmmvmtyFhZ6Q4SE+dig@mail.gmail.com/T/#m21be74af263c6a34f36e0fc5c77c5449d9406925
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/file.c |   36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ drivers/pci/pci.c |   24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2067,25 +2067,7 @@ int btrfs_sync_file(struct file *file, l
- 	struct btrfs_trans_handle *trans;
- 	struct btrfs_log_ctx ctx;
- 	int ret = 0, err;
--	u64 len;
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -926,19 +926,6 @@ void pci_update_current_state(struct pci
+ }
  
--	/*
--	 * If the inode needs a full sync, make sure we use a full range to
--	 * avoid log tree corruption, due to hole detection racing with ordered
--	 * extent completion for adjacent ranges, and assertion failures during
--	 * hole detection.
--	 */
--	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
--		     &BTRFS_I(inode)->runtime_flags)) {
--		start = 0;
--		end = LLONG_MAX;
--	}
+ /**
+- * pci_power_up - Put the given device into D0 forcibly
+- * @dev: PCI device to power up
+- */
+-void pci_power_up(struct pci_dev *dev)
+-{
+-	if (platform_pci_power_manageable(dev))
+-		platform_pci_set_power_state(dev, PCI_D0);
 -
--	/*
--	 * The range length can be represented by u64, we have to do the typecasts
--	 * to avoid signed overflow if it's [0, LLONG_MAX] eg. from fsync()
--	 */
--	len = (u64)end - (u64)start + 1;
- 	trace_btrfs_sync_file(file, datasync);
+-	pci_raw_set_power_state(dev, PCI_D0);
+-	pci_update_current_state(dev, PCI_D0);
+-}
+-
+-/**
+  * pci_platform_power_transition - Use platform to change device power state
+  * @dev: PCI device to handle.
+  * @state: State to put the device into.
+@@ -1117,6 +1104,17 @@ int pci_set_power_state(struct pci_dev *
+ EXPORT_SYMBOL(pci_set_power_state);
  
- 	btrfs_init_log_ctx(&ctx, inode);
-@@ -2112,6 +2094,19 @@ int btrfs_sync_file(struct file *file, l
- 	atomic_inc(&root->log_batch);
- 
- 	/*
-+	 * If the inode needs a full sync, make sure we use a full range to
-+	 * avoid log tree corruption, due to hole detection racing with ordered
-+	 * extent completion for adjacent ranges, and assertion failures during
-+	 * hole detection. Do this while holding the inode lock, to avoid races
-+	 * with other tasks.
-+	 */
-+	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
-+		     &BTRFS_I(inode)->runtime_flags)) {
-+		start = 0;
-+		end = LLONG_MAX;
-+	}
+ /**
++ * pci_power_up - Put the given device into D0 forcibly
++ * @dev: PCI device to power up
++ */
++void pci_power_up(struct pci_dev *dev)
++{
++	__pci_start_power_transition(dev, PCI_D0);
++	pci_raw_set_power_state(dev, PCI_D0);
++	pci_update_current_state(dev, PCI_D0);
++}
 +
-+	/*
- 	 * Before we acquired the inode's lock, someone may have dirtied more
- 	 * pages in the target range. We need to make sure that writeback for
- 	 * any such pages does not start while we are logging the inode, because
-@@ -2138,8 +2133,11 @@ int btrfs_sync_file(struct file *file, l
- 	/*
- 	 * We have to do this here to avoid the priority inversion of waiting on
- 	 * IO of a lower priority task while holding a transaction open.
-+	 *
-+	 * Also, the range length can be represented by u64, we have to do the
-+	 * typecasts to avoid signed overflow if it's [0, LLONG_MAX].
- 	 */
--	ret = btrfs_wait_ordered_range(inode, start, len);
-+	ret = btrfs_wait_ordered_range(inode, start, (u64)end - (u64)start + 1);
- 	if (ret) {
- 		up_write(&BTRFS_I(inode)->dio_sem);
- 		inode_unlock(inode);
++/**
+  * pci_choose_state - Choose the power state of a PCI device
+  * @dev: PCI device to be suspended
+  * @state: target sleep state for the whole system. This is the value
 
 
