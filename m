@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AB4EE6476
+	by mail.lfdr.de (Postfix) with ESMTP id C4B32E6477
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727670AbfJ0RW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:22:59 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:59809 "EHLO
+        id S1727280AbfJ0RXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:23:00 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:38985 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727280AbfJ0RW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:22:59 -0400
+        by vger.kernel.org with ESMTP id S1727667AbfJ0RXA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:00 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 882DA22178;
-        Sun, 27 Oct 2019 13:22:57 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id D2A572218B;
+        Sun, 27 Oct 2019 13:22:58 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:57 -0400
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7LxV1C
-        JIEJEfwvE7Dr/7UN+QEiNNwlAuxlAhk3i1z1A=; b=OZronGqConGmt/z0qi14k0
-        b52RIboW/8qsDzUxddUsbxa7qezzzFblQOz8ZPecPd4U4AdLEJQl+eXIQPlt/Mjx
-        c8dP+U0Te3dpOtS7XE3Y/3yrHVQM6DTynO8Pl1lgMi3YgxEvlWphGkUDEMMPdh9X
-        9wSYrLjugAcam8vs9SGUGq6oNSo5IO057ZQSYRGwgkOAoMHglhpjBC9Y752BxQQF
-        Xee87JuBaidIW87rOLab9uYtjzAUx9e4yBUvZtQ/3AB7B8QMB6Dbt7uFTUmNkwZc
-        8KFFMTvmv3i7qZ5deq1771PaIR5ugRpC790k1WB6+rekys2kTJ8XueKIbfzdKGeg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ivsv6U
+        +G0N+raAcYPyjC5iOI6CDtwQq8uyMFgStx540=; b=I1fRSy+7Zs6ezVfScnsqzR
+        3/iDdIQ0PoEFZrJ+ImryHlCAThttgvgzx9P6doRous+QU1kwld+l1y2pE5s0MoS4
+        IMm5AtM99Akf49oCRmjhr6Q0awL74hE/yR+bIQ1Z0pCCAqA+BklKyng8W7Rh8XAI
+        4x/8EAL8Id7N6eeCY0ey+wv+X3a4kj5xIz+uW4GJltYaY2DuXrO1UFDQNfFKDoSc
+        Lf/VdvSsIEjDf6vJITGhjFV4d+YRQMVSwJ3AQfS/MzohRGr9aAH1/nADbfD0XpLs
+        zTBtVNCxHbuyMQdvoKYOCtneyMThyPvJiXIPZEugCRK/OiCbsPXCMjncNVSJ7r7A
         ==
-X-ME-Sender: <xms:cdK1XZcIC_fqpIkZ2ZsOyuKBN65XkW3M7AZjdAF18YtaXZzrMxeFOA>
+X-ME-Sender: <xms:ctK1XY1foyznGaB4d-cXY4nIowAzzBftNw9GA8HOQAIPMsc0bPldIA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeejjedrudehkedrhedtrddutddtnecurfgrrhgrmhepmhgrihhlfhhroh
     hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeef
-X-ME-Proxy: <xmx:cdK1XVKa10xMpv7DUlmydB2F5uFbHTC9xzThA49knfm7e9I2Y-vKrw>
-    <xmx:cdK1XU2ie8OwjJMZof7kEC0cfoDBuKlRExCisCL-bJLxY5VU1xVb0A>
-    <xmx:cdK1XXijNP0X7V8rrGYTa3Dq2KHUZNWDNwsH7m7xgE-biyogPe3diQ>
-    <xmx:cdK1XVqZ0A-oiAiIycbETSGMcDtf0kN7SXdPuJ0a8h2hMkvM_6G76w>
+X-ME-Proxy: <xmx:ctK1XQo5qBDTKg_umpZB_vQp9qMnuBz7tbJx7nGR82XW0SrK53V8OA>
+    <xmx:ctK1XXWzxgolQqiV1--qExNlZbyQgXnsfjB0ElSC41QPYR9F5_bJAQ>
+    <xmx:ctK1XTZbZkkkKNybZ6I6gD6F6OYMVJ5rpYL0TTtwgZonlP5CVwWnyQ>
+    <xmx:ctK1XcRpSItcIs0ys4PSrbDzFqUuAxTVyyqZN3ubW1-pFY0MzZUiwg>
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3497DD60065;
-        Sun, 27 Oct 2019 13:22:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: qgroup: Always free PREALLOC META reserve in" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7406CD6005A;
+        Sun, 27 Oct 2019 13:22:58 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: qgroup: Always free PREALLOC META reserve in" failed to apply to 5.3-stable tree
 To:     wqu@suse.com, dsterba@suse.com, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 16:47:58 +0100
-Message-ID: <1572191278169210@kroah.com>
+Date:   Sun, 27 Oct 2019 16:48:03 +0100
+Message-ID: <1572191283164109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
