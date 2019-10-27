@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF763E6850
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D57E679B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732084AbfJ0VWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43444 "EHLO mail.kernel.org"
+        id S1732153AbfJ0VW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:22:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732129AbfJ0VWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:24 -0400
+        id S1732146AbfJ0VW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:22:27 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D07921783;
-        Sun, 27 Oct 2019 21:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6320B2070B;
+        Sun, 27 Oct 2019 21:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211344;
-        bh=DE6oLFqWPXUyOeGDl5G6gq5/MeLhyJjImTLVpPE1KSo=;
+        s=default; t=1572211346;
+        bh=2ZPOl9cUdX5/sAga0CKsMxcp69D8i9gJwHMKO1SyhNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUdD4eqoRW8LcVPvPS3R5nX4Nl+WFrYakFKxNWZVuVS1Qu8NSRxm9CbtQPpqn3Tdn
-         iBX94W+D4kllvuMZwLpCSLXDP5xdQkbdM9pNl0rlHNkCt6k4OYyP2PSlzL82KQnyDz
-         2bOqD29oVRNVs8H4AxSFrOuWoosUhlNfaHGXTzVs=
+        b=luGGqku0cGN69QyL+HTLxCVfzOREXwuUimUJRBVd2qxMA446Mn2Q/9kz2zNgcAjTy
+         buWn73PURDvHHZzZoQzuwYskzOpUv5QdoM9j+vJDdBROQyeTB3p1CFXhk/GFD/TSnx
+         cKVi5I4kSwKxwiW2C+nW6hzZlczk5l7asP9ssrOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dixit Parmar <dixitparmar19@gmail.com>,
-        Martin Kepplinger <martink@posteo.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.3 117/197] Input: st1232 - fix reporting multitouch coordinates
-Date:   Sun, 27 Oct 2019 22:00:35 +0100
-Message-Id: <20191027203358.050781046@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Jiada Wang <jiada_wang@mentor.com>,
+        Timo Wischer <twischer@de.adit-jv.com>,
+        Junya Monden <jmonden@jp.adit-jv.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.3 118/197] ASoC: rsnd: Reinitialize bit clock inversion flag for every format setting
+Date:   Sun, 27 Oct 2019 22:00:36 +0100
+Message-Id: <20191027203358.101191673@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,41 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dixit Parmar <dixitparmar19@gmail.com>
+From: Junya Monden <jmonden@jp.adit-jv.com>
 
-commit b1a402e75a5f5127ff1ffff0615249f98df8b7b3 upstream.
+commit 22e58665a01006d05f0239621f7d41cacca96cc4 upstream.
 
-For Sitronix st1633 multi-touch controller driver the coordinates reported
-for multiple fingers were wrong, as it was always taking LSB of coordinates
-from the first contact data.
+Unlike other format-related DAI parameters, rdai->bit_clk_inv flag
+is not properly re-initialized when setting format for new stream
+processing. The inversion, if requested, is then applied not to default,
+but to a previous value, which leads to SCKP bit in SSICR register being
+set incorrectly.
+Fix this by re-setting the flag to its initial value, determined by format.
 
-Signed-off-by: Dixit Parmar <dixitparmar19@gmail.com>
-Reviewed-by: Martin Kepplinger <martink@posteo.de>
-Cc: stable@vger.kernel.org
-Fixes: 351e0592bfea ("Input: st1232 - add support for st1633")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204561
-Link: https://lore.kernel.org/r/1566209314-21767-1-git-send-email-dixitparmar19@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 1a7889ca8aba3 ("ASoC: rsnd: fixup SND_SOC_DAIFMT_xB_xF behavior")
+Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Cc: Jiada Wang <jiada_wang@mentor.com>
+Cc: Timo Wischer <twischer@de.adit-jv.com>
+Cc: stable@vger.kernel.org # v3.17+
+Signed-off-by: Junya Monden <jmonden@jp.adit-jv.com>
+Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20191016124255.7442-1-erosca@de.adit-jv.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/touchscreen/st1232.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/sh/rcar/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -81,8 +81,10 @@ static int st1232_ts_read_data(struct st
- 	for (i = 0, y = 0; i < ts->chip_info->max_fingers; i++, y += 3) {
- 		finger[i].is_valid = buf[i + y] >> 7;
- 		if (finger[i].is_valid) {
--			finger[i].x = ((buf[i + y] & 0x0070) << 4) | buf[i + 1];
--			finger[i].y = ((buf[i + y] & 0x0007) << 8) | buf[i + 2];
-+			finger[i].x = ((buf[i + y] & 0x0070) << 4) |
-+					buf[i + y + 1];
-+			finger[i].y = ((buf[i + y] & 0x0007) << 8) |
-+					buf[i + y + 2];
+--- a/sound/soc/sh/rcar/core.c
++++ b/sound/soc/sh/rcar/core.c
+@@ -761,6 +761,7 @@ static int rsnd_soc_dai_set_fmt(struct s
+ 	}
  
- 			/* st1232 includes a z-axis / touch strength */
- 			if (ts->chip_info->have_z)
+ 	/* set format */
++	rdai->bit_clk_inv = 0;
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
+ 		rdai->sys_delay = 0;
 
 
