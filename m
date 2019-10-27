@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 006E7E66C2
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E80F6E6833
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730572AbfJ0VPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
+        id S1730766AbfJ0VXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730560AbfJ0VO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:14:59 -0400
+        id S1732371AbfJ0VXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:23:52 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA4C320B7C;
-        Sun, 27 Oct 2019 21:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEA9921726;
+        Sun, 27 Oct 2019 21:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210898;
-        bh=kZZgyc4DrtTaXEeJC0XmpsLaMMXypc6EHRuOwyLyH+I=;
+        s=default; t=1572211431;
+        bh=QTc0j71iag6ZSm7a9ZVdtJ4mG3TfhcPEhYId6nEPt3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zjYLxsC8NodJSq17VwtsGhLC88ATC5MozP3gZFMKlSl/pmuVziyw5GIYfIWaRlGwc
-         KEYnbbZNFt/cOkZgvj/8UGLOj9Vk15oNLBLXAh1UWl0N0/4dBGbEHAlANRwcNHzba5
-         VU7+izU+wwW31tsmcKtCLy7gyiT28OYPQK6m5J9A=
+        b=XQaZCiOrrmJ4AwsJuHXz7rox4v6yBr/HHdokBobEApuBATseh7nc3Jf1X8CigerAq
+         JibgEYyUjZFmZVtkBmY4zX185b3KGfSX2VJUpvaql/vyHQaAf+jdKSoEY4OD3lnoxS
+         ZmwYUcV8/IgRTraaeUqO/TcZDBoPWNmXJBhTubE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Jiada Wang <jiada_wang@mentor.com>,
-        Timo Wischer <twischer@de.adit-jv.com>,
-        Junya Monden <jmonden@jp.adit-jv.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.19 55/93] ASoC: rsnd: Reinitialize bit clock inversion flag for every format setting
-Date:   Sun, 27 Oct 2019 22:01:07 +0100
-Message-Id: <20191027203301.949691539@linuxfoundation.org>
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 150/197] mm, compaction: fix wrong pfn handling in __reset_isolation_pfn()
+Date:   Sun, 27 Oct 2019 22:01:08 +0100
+Message-Id: <20191027203359.790853283@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junya Monden <jmonden@jp.adit-jv.com>
+From: Vlastimil Babka <vbabka@suse.cz>
 
-commit 22e58665a01006d05f0239621f7d41cacca96cc4 upstream.
+commit a2e9a5afce080226edbf1882d63d99bf32070e9e upstream.
 
-Unlike other format-related DAI parameters, rdai->bit_clk_inv flag
-is not properly re-initialized when setting format for new stream
-processing. The inversion, if requested, is then applied not to default,
-but to a previous value, which leads to SCKP bit in SSICR register being
-set incorrectly.
-Fix this by re-setting the flag to its initial value, determined by format.
+Florian and Dave reported [1] a NULL pointer dereference in
+__reset_isolation_pfn().  While the exact cause is unclear, staring at
+the code revealed two bugs, which might be related.
 
-Fixes: 1a7889ca8aba3 ("ASoC: rsnd: fixup SND_SOC_DAIFMT_xB_xF behavior")
-Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Cc: Jiada Wang <jiada_wang@mentor.com>
-Cc: Timo Wischer <twischer@de.adit-jv.com>
-Cc: stable@vger.kernel.org # v3.17+
-Signed-off-by: Junya Monden <jmonden@jp.adit-jv.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20191016124255.7442-1-erosca@de.adit-jv.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+One bug is that if zone starts in the middle of pageblock, block_page
+might correspond to different pfn than block_pfn, and then the
+pfn_valid_within() checks will check different pfn's than those accessed
+via struct page.  This might result in acessing an unitialized page in
+CONFIG_HOLES_IN_ZONE configs.
+
+The other bug is that end_page refers to the first page of next
+pageblock and not last page of current pageblock.  The online and valid
+check is then wrong and with sections, the while (page < end_page) loop
+might wander off actual struct page arrays.
+
+[1] https://lore.kernel.org/linux-xfs/87o8z1fvqu.fsf@mid.deneb.enyo.de/
+
+Link: http://lkml.kernel.org/r/20191008152915.24704-1-vbabka@suse.cz
+Fixes: 6b0868c820ff ("mm/compaction.c: correct zone boundary handling when resetting pageblock skip hints")
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+Reported-by: Florian Weimer <fw@deneb.enyo.de>
+Reported-by: Dave Chinner <david@fromorbit.com>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/sh/rcar/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/compaction.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -674,6 +674,7 @@ static int rsnd_soc_dai_set_fmt(struct s
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -270,14 +270,15 @@ __reset_isolation_pfn(struct zone *zone,
+ 
+ 	/* Ensure the start of the pageblock or zone is online and valid */
+ 	block_pfn = pageblock_start_pfn(pfn);
+-	block_page = pfn_to_online_page(max(block_pfn, zone->zone_start_pfn));
++	block_pfn = max(block_pfn, zone->zone_start_pfn);
++	block_page = pfn_to_online_page(block_pfn);
+ 	if (block_page) {
+ 		page = block_page;
+ 		pfn = block_pfn;
  	}
  
- 	/* set format */
-+	rdai->bit_clk_inv = 0;
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
- 		rdai->sys_delay = 0;
+ 	/* Ensure the end of the pageblock or zone is online and valid */
+-	block_pfn += pageblock_nr_pages;
++	block_pfn = pageblock_end_pfn(pfn) - 1;
+ 	block_pfn = min(block_pfn, zone_end_pfn(zone) - 1);
+ 	end_page = pfn_to_online_page(block_pfn);
+ 	if (!end_page)
+@@ -303,7 +304,7 @@ __reset_isolation_pfn(struct zone *zone,
+ 
+ 		page += (1 << PAGE_ALLOC_COSTLY_ORDER);
+ 		pfn += (1 << PAGE_ALLOC_COSTLY_ORDER);
+-	} while (page < end_page);
++	} while (page <= end_page);
+ 
+ 	return false;
+ }
 
 
