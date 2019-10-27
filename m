@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C27C6E6584
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE6FE6642
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbfJ0VCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47970 "EHLO mail.kernel.org"
+        id S1729667AbfJ0VKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:10:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728143AbfJ0VCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:02:50 -0400
+        id S1729659AbfJ0VKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:10:14 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 082DC2064A;
-        Sun, 27 Oct 2019 21:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB7D22064A;
+        Sun, 27 Oct 2019 21:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210169;
-        bh=F/y2DUVem61aq9Sj3NEFmdgWmxXXdL/in4eekdM29Xk=;
+        s=default; t=1572210613;
+        bh=0gr3NY6N99eU/D68NrZCCTp+jlsGqPArsdEQMYjHC6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiDzL22RS8zSzmK9T+R/tq2CWHhYCFs+jcOkSxdqG6eD4Jsy7a7m0HiYDVjxd0zQv
-         L+TVKO8sFtrtod3CmIFHJqfuXB/GePzSINLsOtIcqUUqd+Lqd/9dCctaUp44IxtT8X
-         /ahe0y7b/qUP6csv0WJahJrWk3tT6sTVkOWVraW8=
+        b=AqRnr2WPYjLD38gxjv5lmmo5l+VP08YHmi8HgaFH4FOkC4wNlZCMBWTAZu8VZPcQB
+         XWUWJO5czh4oTbrsQYaPPeQSp6MuAdoETIAghvxSO0Hn6dvQzZuMomrU1boD+XG9Tz
+         90KrFRTcx5y24nnO12Zx8g/t5d597kWmkW9GKHW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 15/41] sctp: change sctp_prot .no_autobind with true
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 076/119] arm64: Provide a command line to disable spectre_v2 mitigation
 Date:   Sun, 27 Oct 2019 22:00:53 +0100
-Message-Id: <20191027203113.091982468@linuxfoundation.org>
+Message-Id: <20191027203342.881904911@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +49,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-[ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
+[ Upstream commit e5ce5e7267ddcbe13ab9ead2542524e1b7993e5a ]
 
-syzbot reported a memory leak:
+There are various reasons, such as benchmarking, to disable spectrev2
+mitigation on a machine. Provide a command-line option to do so.
 
-  BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
-  backtrace:
-
-    [...] slab_alloc mm/slab.c:3319 [inline]
-    [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
-    [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
-    [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
-    [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
-    [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
-    [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
-    [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
-    [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
-    [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
-    [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
-    [...] __do_sys_setsockopt net/socket.c:2100 [inline]
-
-It was caused by when sending msgs without binding a port, in the path:
-inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
-.get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
-not. Later when binding another port by sctp_setsockopt_bindx(), a new
-bucket will be created as bp->port is not set.
-
-sctp's autobind is supposed to call sctp_autobind() where it does all
-things including setting bp->port. Since sctp_autobind() is called in
-sctp_sendmsg() if the sk is not yet bound, it should have skipped the
-auto bind.
-
-THis patch is to avoid calling inet_autobind() in inet_send_prepare()
-by changing sctp_prot .no_autobind with true, also remove the unused
-.get_port.
-
-Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |    8 ++++----
+ arch/arm64/kernel/cpu_errata.c                  |   13 +++++++++++++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -7443,7 +7443,7 @@ struct proto sctp_prot = {
- 	.backlog_rcv =	sctp_backlog_rcv,
- 	.hash        =	sctp_hash,
- 	.unhash      =	sctp_unhash,
--	.get_port    =	sctp_get_port,
-+	.no_autobind =	true,
- 	.obj_size    =  sizeof(struct sctp_sock),
- 	.sysctl_mem  =  sysctl_sctp_mem,
- 	.sysctl_rmem =  sysctl_sctp_rmem,
-@@ -7482,7 +7482,7 @@ struct proto sctpv6_prot = {
- 	.backlog_rcv	= sctp_backlog_rcv,
- 	.hash		= sctp_hash,
- 	.unhash		= sctp_unhash,
--	.get_port	= sctp_get_port,
-+	.no_autobind	= true,
- 	.obj_size	= sizeof(struct sctp6_sock),
- 	.sysctl_mem	= sysctl_sctp_mem,
- 	.sysctl_rmem	= sysctl_sctp_rmem,
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -2745,10 +2745,10 @@
+ 			(bounds check bypass). With this option data leaks
+ 			are possible in the system.
+ 
+-	nospectre_v2	[X86,PPC_FSL_BOOK3E] Disable all mitigations for the Spectre variant 2
+-			(indirect branch prediction) vulnerability. System may
+-			allow data leaks with this option, which is equivalent
+-			to spectre_v2=off.
++	nospectre_v2	[X86,PPC_FSL_BOOK3E,ARM64] Disable all mitigations for
++			the Spectre variant 2 (indirect branch prediction)
++			vulnerability. System may allow data leaks with this
++			option.
+ 
+ 	nospec_store_bypass_disable
+ 			[HW] Disable all mitigations for the Speculative Store Bypass vulnerability
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -181,6 +181,14 @@ static void qcom_link_stack_sanitization
+ 		     : "=&r" (tmp));
+ }
+ 
++static bool __nospectre_v2;
++static int __init parse_nospectre_v2(char *str)
++{
++	__nospectre_v2 = true;
++	return 0;
++}
++early_param("nospectre_v2", parse_nospectre_v2);
++
+ static void
+ enable_smccc_arch_workaround_1(const struct arm64_cpu_capabilities *entry)
+ {
+@@ -192,6 +200,11 @@ enable_smccc_arch_workaround_1(const str
+ 	if (!entry->matches(entry, SCOPE_LOCAL_CPU))
+ 		return;
+ 
++	if (__nospectre_v2) {
++		pr_info_once("spectrev2 mitigation disabled by command line option\n");
++		return;
++	}
++
+ 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
+ 		return;
+ 
 
 
