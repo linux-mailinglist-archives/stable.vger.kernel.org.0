@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 586AFE695D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4990DE6954
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729660AbfJ0Vfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54336 "EHLO mail.kernel.org"
+        id S1727608AbfJ0VI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:08:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728076AbfJ0VIJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:08:09 -0400
+        id S1727225AbfJ0VIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:08:24 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CC602064A;
-        Sun, 27 Oct 2019 21:08:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96AF82064A;
+        Sun, 27 Oct 2019 21:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210488;
-        bh=wgCt+YZ5RNpB3TdtQz/yGRs20B5SCGe3XuJHby44QTA=;
+        s=default; t=1572210503;
+        bh=ZeDfFjrTK0wY0Pvjs0FQCIo/dT7SBq2fX/KyPL6o9GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mt8W1y+gfTu/qZpRGWN2KwhVDulGpR6E0xVYwy2hey3/4z8NZjTHtS7fquyRfkMJA
-         AJQsXMt9Hn2FAq2J5J6EQpHQsHsjBMelBhXHzE5HfZQAMQZ2qQDW9RgdjwaGPDAMmd
-         SkfDZZ9KQQ4uOMl7z5vtk1oZPZ5nnpuqq+17EJPo=
+        b=B9PtUTJhjY/QeQTbG4QCDKPw/f77JbItCmyv1ICQDpz63/2mSf9mMZ9SqjzZHgJ0U
+         lPMlm5pygm3udYefAlnTowQDMoCI5vsP13jnNrS89kg1bgBa4eUacGfToo9EnaEk1T
+         g5O2sb1rFUNAMY0Sqv+buULpIKxYaymAMmXsVuJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH 4.14 032/119] usb: udc: lpc32xx: fix bad bit shift operation
-Date:   Sun, 27 Oct 2019 22:00:09 +0100
-Message-Id: <20191027203310.316790937@linuxfoundation.org>
+        syzbot+6fe95b826644f7f12b0b@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 036/119] USB: ldusb: fix read info leaks
+Date:   Sun, 27 Oct 2019 22:00:13 +0100
+Message-Id: <20191027203311.758225817@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -43,48 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b987b66ac3a2bc2f7b03a0ba48a07dc553100c07 upstream.
+commit 7a6f22d7479b7a0b68eadd308a997dd64dda7dae upstream.
 
-It seems that the right variable to use in this case is *i*, instead of
-*n*, otherwise there is an undefined behavior when right shifiting by more
-than 31 bits when multiplying n by 8; notice that *n* can take values
-equal or greater than 4 (4, 8, 16, ...).
+Fix broken read implementation, which could be used to trigger slab info
+leaks.
 
-Also, notice that under the current conditions (bl = 3), we are skiping
-the handling of bytes 3, 7, 31... So, fix this by updating this logic
-and limit *bl* up to 4 instead of up to 3.
+The driver failed to check if the custom ring buffer was still empty
+when waking up after having waited for more data. This would happen on
+every interrupt-in completion, even if no data had been added to the
+ring buffer (e.g. on disconnect events).
 
-This fix is based on function udc_stuff_fifo().
+Due to missing sanity checks and uninitialised (kmalloced) ring-buffer
+entries, this meant that huge slab info leaks could easily be triggered.
 
-Addresses-Coverity-ID: 1454834 ("Bad bit shift operation")
-Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
-Cc: stable@vger.kernel.org
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Link: https://lore.kernel.org/r/20191014191830.GA10721@embeddedor
+Note that the empty-buffer check after wakeup is enough to fix the info
+leak on disconnect, but let's clear the buffer on allocation and add a
+sanity check to read() to prevent further leaks.
+
+Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Reported-by: syzbot+6fe95b826644f7f12b0b@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191018151955.25135-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/lpc32xx_udc.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/misc/ldusb.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/udc/lpc32xx_udc.c
-+++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
-@@ -1178,11 +1178,11 @@ static void udc_pop_fifo(struct lpc32xx_
- 			tmp = readl(USBD_RXDATA(udc->udp_baseaddr));
+--- a/drivers/usb/misc/ldusb.c
++++ b/drivers/usb/misc/ldusb.c
+@@ -467,7 +467,7 @@ static ssize_t ld_usb_read(struct file *
  
- 			bl = bytes - n;
--			if (bl > 3)
--				bl = 3;
-+			if (bl > 4)
-+				bl = 4;
+ 	/* wait for data */
+ 	spin_lock_irq(&dev->rbsl);
+-	if (dev->ring_head == dev->ring_tail) {
++	while (dev->ring_head == dev->ring_tail) {
+ 		dev->interrupt_in_done = 0;
+ 		spin_unlock_irq(&dev->rbsl);
+ 		if (file->f_flags & O_NONBLOCK) {
+@@ -477,12 +477,17 @@ static ssize_t ld_usb_read(struct file *
+ 		retval = wait_event_interruptible(dev->read_wait, dev->interrupt_in_done);
+ 		if (retval < 0)
+ 			goto unlock_exit;
+-	} else {
+-		spin_unlock_irq(&dev->rbsl);
++
++		spin_lock_irq(&dev->rbsl);
+ 	}
++	spin_unlock_irq(&dev->rbsl);
  
- 			for (i = 0; i < bl; i++)
--				data[n + i] = (u8) ((tmp >> (n * 8)) & 0xFF);
-+				data[n + i] = (u8) ((tmp >> (i * 8)) & 0xFF);
- 		}
- 		break;
+ 	/* actual_buffer contains actual_length + interrupt_in_buffer */
+ 	actual_buffer = (size_t *)(dev->ring_buffer + dev->ring_tail * (sizeof(size_t)+dev->interrupt_in_endpoint_size));
++	if (*actual_buffer > dev->interrupt_in_endpoint_size) {
++		retval = -EIO;
++		goto unlock_exit;
++	}
+ 	bytes_to_read = min(count, *actual_buffer);
+ 	if (bytes_to_read < *actual_buffer)
+ 		dev_warn(&dev->intf->dev, "Read buffer overflow, %zd bytes dropped\n",
+@@ -693,7 +698,9 @@ static int ld_usb_probe(struct usb_inter
+ 		dev_warn(&intf->dev, "Interrupt out endpoint not found (using control endpoint instead)\n");
  
+ 	dev->interrupt_in_endpoint_size = usb_endpoint_maxp(dev->interrupt_in_endpoint);
+-	dev->ring_buffer = kmalloc(ring_buffer_size*(sizeof(size_t)+dev->interrupt_in_endpoint_size), GFP_KERNEL);
++	dev->ring_buffer = kcalloc(ring_buffer_size,
++			sizeof(size_t) + dev->interrupt_in_endpoint_size,
++			GFP_KERNEL);
+ 	if (!dev->ring_buffer)
+ 		goto error;
+ 	dev->interrupt_in_buffer = kmalloc(dev->interrupt_in_endpoint_size, GFP_KERNEL);
 
 
