@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8ABCE6609
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2938E660B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729298AbfJ0VH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54046 "EHLO mail.kernel.org"
+        id S1729292AbfJ0VH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729292AbfJ0VHz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:55 -0400
+        id S1729303AbfJ0VH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:58 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BA8F20B7C;
-        Sun, 27 Oct 2019 21:07:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC5F720873;
+        Sun, 27 Oct 2019 21:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210474;
-        bh=kuX5mAEoLi/OrgOw1uhIk96xDrHkNVQQCDF2B474aFM=;
+        s=default; t=1572210477;
+        bh=H9qPFSXEmi517p5/bsJsJ4u13zprYepTA2/NdxCmPqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gny+0+SXTkJFBh6rgXxnSz6/vKTyRKzkrlfQd8wpkPsw2I6j87EltTCnM9LwLy7hf
-         jVlDwRCPHfoDU1nNLWHzIls65WfudfPetC+4VV+WB4Bh70r54nn+nkgMIDaz+t6VVe
-         jUI0C1cmyQEHjcnr1aOs9HmHz26La5hqiQG5yEqs=
+        b=yfK4CibjNIkmKHRR4BzMYG7CCeqL+aTAYSnbPYwVo1/P5eNYTZ+3jwJUJalPo2kRm
+         Pz0ClHhyazCG8ue27Hg5HKA3Xk8UMWKMmZikwDOaCViqtql4QHHdgQyS9jAyB1PAZQ
+         HVlEnpCKpmPo/F16pJ6fD+1camRguC4OrYIYTRBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Zhuo <mengzhuo1203@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Alessio Balsini <balsini@android.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 027/119] MIPS: elf_hwcap: Export userspace ASEs
-Date:   Sun, 27 Oct 2019 22:00:04 +0100
-Message-Id: <20191027203308.417745883@linuxfoundation.org>
+Subject: [PATCH 4.14 028/119] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+Date:   Sun, 27 Oct 2019 22:00:05 +0100
+Message-Id: <20191027203308.865585869@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -45,93 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit 38dffe1e4dde1d3174fdce09d67370412843ebb5 ]
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-A Golang developer reported MIPS hwcap isn't reflecting instructions
-that the processor actually supported so programs can't apply optimized
-code at runtime.
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-Thus we export the ASEs that can be used in userspace programs.
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
 
-Reported-by: Meng Zhuo <mengzhuo1203@gmail.com>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/uapi/asm/hwcap.h | 11 ++++++++++
- arch/mips/kernel/cpu-probe.c       | 33 ++++++++++++++++++++++++++++++
- 2 files changed, 44 insertions(+)
+ drivers/block/loop.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
-index 600ad8fd68356..2475294c3d185 100644
---- a/arch/mips/include/uapi/asm/hwcap.h
-+++ b/arch/mips/include/uapi/asm/hwcap.h
-@@ -5,5 +5,16 @@
- /* HWCAP flags */
- #define HWCAP_MIPS_R6		(1 << 0)
- #define HWCAP_MIPS_MSA		(1 << 1)
-+#define HWCAP_MIPS_MIPS16	(1 << 3)
-+#define HWCAP_MIPS_MDMX     (1 << 4)
-+#define HWCAP_MIPS_MIPS3D   (1 << 5)
-+#define HWCAP_MIPS_SMARTMIPS (1 << 6)
-+#define HWCAP_MIPS_DSP      (1 << 7)
-+#define HWCAP_MIPS_DSP2     (1 << 8)
-+#define HWCAP_MIPS_DSP3     (1 << 9)
-+#define HWCAP_MIPS_MIPS16E2 (1 << 10)
-+#define HWCAP_LOONGSON_MMI  (1 << 11)
-+#define HWCAP_LOONGSON_EXT  (1 << 12)
-+#define HWCAP_LOONGSON_EXT2 (1 << 13)
- 
- #endif /* _UAPI_ASM_HWCAP_H */
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index 3007ae1bb616a..c38cd62879f4e 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -2080,6 +2080,39 @@ void cpu_probe(void)
- 		elf_hwcap |= HWCAP_MIPS_MSA;
- 	}
- 
-+	if (cpu_has_mips16)
-+		elf_hwcap |= HWCAP_MIPS_MIPS16;
-+
-+	if (cpu_has_mdmx)
-+		elf_hwcap |= HWCAP_MIPS_MDMX;
-+
-+	if (cpu_has_mips3d)
-+		elf_hwcap |= HWCAP_MIPS_MIPS3D;
-+
-+	if (cpu_has_smartmips)
-+		elf_hwcap |= HWCAP_MIPS_SMARTMIPS;
-+
-+	if (cpu_has_dsp)
-+		elf_hwcap |= HWCAP_MIPS_DSP;
-+
-+	if (cpu_has_dsp2)
-+		elf_hwcap |= HWCAP_MIPS_DSP2;
-+
-+	if (cpu_has_dsp3)
-+		elf_hwcap |= HWCAP_MIPS_DSP3;
-+
-+	if (cpu_has_loongson_mmi)
-+		elf_hwcap |= HWCAP_LOONGSON_MMI;
-+
-+	if (cpu_has_loongson_mmi)
-+		elf_hwcap |= HWCAP_LOONGSON_CAM;
-+
-+	if (cpu_has_loongson_ext)
-+		elf_hwcap |= HWCAP_LOONGSON_EXT;
-+
-+	if (cpu_has_loongson_ext)
-+		elf_hwcap |= HWCAP_LOONGSON_EXT2;
-+
- 	if (cpu_has_vz)
- 		cpu_probe_vz(c);
- 
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index 87d7c42affbc4..ec61dd873c93d 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1605,6 +1605,7 @@ static int lo_compat_ioctl(struct block_device *bdev, fmode_t mode,
+ 		arg = (unsigned long) compat_ptr(arg);
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 -- 
 2.20.1
 
