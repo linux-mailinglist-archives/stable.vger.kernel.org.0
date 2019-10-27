@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20873E6858
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C6BE668C
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732030AbfJ0VV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
+        id S1730136AbfJ0VM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:12:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732026AbfJ0VV4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:21:56 -0400
+        id S1730147AbfJ0VM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:12:58 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14F43205C9;
-        Sun, 27 Oct 2019 21:21:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75D49205C9;
+        Sun, 27 Oct 2019 21:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211315;
-        bh=FuV+3NGlIG1r2QypvByxsG4PHLkX1S6gLQQfftQLVLE=;
+        s=default; t=1572210778;
+        bh=WxL+isxSLqVyP/vPvSWCFfVBslLsA4hnCVMimY/E5uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcBeY3DpcJM6TfdvSopCoJfCwqrvVDlfLXLFLnEQMVyo1EF1VM+ij2BKwnUXo+qC8
-         nq+8pqn/WKFxheYlpkGkT5+s7TXWxegvqLIaA+FiTF8zTW5EL1hinyY/pPytE+zI2n
-         Qae15MF5CokN+mDHg3PJBk1ssEUYa5tiss7WPbXc=
+        b=elcjCHWqu3/GDcP+5WvPGX3zRIxW3Ke+TC/8HQwXjnnK7rnDHyHuilyTGYqj2h7qF
+         qg54zgNw7B1wqv2i1fKyM/j0/gpBN8MTycfyAqmdqRx2504h2vQQdH9Gy1LAw9KcrS
+         w42RSEellvM9FEMFiV9lbPXQa1HAQKy0GxzJ+CqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>
-Subject: [PATCH 5.3 108/197] staging: wlan-ng: fix exit return when sme->key_idx >= NUM_WEPKEYS
+        stable@vger.kernel.org, Laura Garcia Liebana <nevola@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 14/93] netfilter: nft_connlimit: disable bh on garbage collection
 Date:   Sun, 27 Oct 2019 22:00:26 +0100
-Message-Id: <20191027203357.583978143@linuxfoundation.org>
+Message-Id: <20191027203254.801058241@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 153c5d8191c26165dbbd2646448ca7207f7796d0 upstream.
+[ Upstream commit 34a4c95abd25ab41fb390b985a08a651b1fa0b0f ]
 
-Currently the exit return path when sme->key_idx >= NUM_WEPKEYS is via
-label 'exit' and this checks if result is non-zero, however result has
-not been initialized and contains garbage.  Fix this by replacing the
-goto with a return with the error code.
+BH must be disabled when invoking nf_conncount_gc_list() to perform
+garbage collection, otherwise deadlock might happen.
 
-Addresses-Coverity: ("Uninitialized scalar variable")
-Fixes: 0ca6d8e74489 ("Staging: wlan-ng: replace switch-case statements with macro")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191014110201.9874-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  nf_conncount_add+0x1f/0x50 [nf_conncount]
+  nft_connlimit_eval+0x4c/0xe0 [nft_connlimit]
+  nft_dynset_eval+0xb5/0x100 [nf_tables]
+  nft_do_chain+0xea/0x420 [nf_tables]
+  ? sch_direct_xmit+0x111/0x360
+  ? noqueue_init+0x10/0x10
+  ? __qdisc_run+0x84/0x510
+  ? tcp_packet+0x655/0x1610 [nf_conntrack]
+  ? ip_finish_output2+0x1a7/0x430
+  ? tcp_error+0x130/0x150 [nf_conntrack]
+  ? nf_conntrack_in+0x1fc/0x4c0 [nf_conntrack]
+  nft_do_chain_ipv4+0x66/0x80 [nf_tables]
+  nf_hook_slow+0x44/0xc0
+  ip_rcv+0xb5/0xd0
+  ? ip_rcv_finish_core.isra.19+0x360/0x360
+  __netif_receive_skb_one_core+0x52/0x70
+  netif_receive_skb_internal+0x34/0xe0
+  napi_gro_receive+0xba/0xe0
+  e1000_clean_rx_irq+0x1e9/0x420 [e1000e]
+  e1000e_poll+0xbe/0x290 [e1000e]
+  net_rx_action+0x149/0x3b0
+  __do_softirq+0xde/0x2d8
+  irq_exit+0xba/0xc0
+  do_IRQ+0x85/0xd0
+  common_interrupt+0xf/0xf
+  </IRQ>
+  RIP: 0010:nf_conncount_gc_list+0x3b/0x130 [nf_conncount]
 
+Fixes: 2f971a8f4255 ("netfilter: nf_conncount: move all list iterations under spinlock")
+Reported-by: Laura Garcia Liebana <nevola@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wlan-ng/cfg80211.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/netfilter/nft_connlimit.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/wlan-ng/cfg80211.c
-+++ b/drivers/staging/wlan-ng/cfg80211.c
-@@ -469,10 +469,8 @@ static int prism2_connect(struct wiphy *
- 	/* Set the encryption - we only support wep */
- 	if (is_wep) {
- 		if (sme->key) {
--			if (sme->key_idx >= NUM_WEPKEYS) {
--				err = -EINVAL;
--				goto exit;
--			}
-+			if (sme->key_idx >= NUM_WEPKEYS)
-+				return -EINVAL;
+diff --git a/net/netfilter/nft_connlimit.c b/net/netfilter/nft_connlimit.c
+index af1497ab94642..69d6173f91e2b 100644
+--- a/net/netfilter/nft_connlimit.c
++++ b/net/netfilter/nft_connlimit.c
+@@ -218,8 +218,13 @@ static void nft_connlimit_destroy_clone(const struct nft_ctx *ctx,
+ static bool nft_connlimit_gc(struct net *net, const struct nft_expr *expr)
+ {
+ 	struct nft_connlimit *priv = nft_expr_priv(expr);
++	bool ret;
  
- 			result = prism2_domibset_uint32(wlandev,
- 				DIDMIB_DOT11SMT_PRIVACYTABLE_WEPDEFAULTKEYID,
+-	return nf_conncount_gc_list(net, &priv->list);
++	local_bh_disable();
++	ret = nf_conncount_gc_list(net, &priv->list);
++	local_bh_enable();
++
++	return ret;
+ }
+ 
+ static struct nft_expr_type nft_connlimit_type;
+-- 
+2.20.1
+
 
 
