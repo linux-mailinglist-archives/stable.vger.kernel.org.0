@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC69E67C3
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D82F1E665F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbfJ0VYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45578 "EHLO mail.kernel.org"
+        id S1727899AbfJ0VLP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:11:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730777AbfJ0VYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:24:06 -0400
+        id S1729860AbfJ0VLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:11:14 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0727A21726;
-        Sun, 27 Oct 2019 21:24:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61E8F20B7C;
+        Sun, 27 Oct 2019 21:11:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211445;
-        bh=ZGKy0LfQM2/wY5dYcXvQFbwuLbdK5gPKL1YPowHNLoM=;
+        s=default; t=1572210673;
+        bh=FmXQsAMYoRFFNGFa1iTYEpJCv+dMzOYBi8XUuX6CirQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsuENh9vddJXKUaXv3cLDhGlYbCshjCZmMpyqfC+xBRbFEd2fff/YFBYVopeGUstz
-         jgSIpSwdpN0v3eZVjL+WSpf71F6VQQmMDpQTH3F01baLBsIJs77dT4a1NniZJwAeKf
-         d8uhjbLMsRF51QWRw0MDXjqtmbwZKQDWLXparITA=
+        b=0rhjx1nAaLnHwDi5AeQ+0QIWS+NjKLPJREzEN19ybiwTBIAH4JZAnenrVzCzcF7th
+         GUth281OBsSjTOaESujmzpl1COIsU7PhTEtOB82S6ixfNUAFiR7zcmCmchfhkF9oKl
+         Bawrpr3jAo2Qi26kCYpyY8h4SIi6LJDFCfuCEDZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 154/197] mm/memory-failure: poison read receives SIGKILL instead of SIGBUS if mmaped more than once
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 095/119] mac80211: Reject malformed SSID elements
 Date:   Sun, 27 Oct 2019 22:01:12 +0100
-Message-Id: <20191027203400.001440568@linuxfoundation.org>
+Message-Id: <20191027203348.650128093@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,114 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Will Deacon <will@kernel.org>
 
-commit 3d7fed4ad8ccb691d217efbb0f934e6a4df5ef91 upstream.
+commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
 
-Mmap /dev/dax more than once, then read the poison location using
-address from one of the mappings.  The other mappings due to not having
-the page mapped in will cause SIGKILLs delivered to the process.
-SIGKILL succeeds over SIGBUS, so user process loses the opportunity to
-handle the UE.
+Although this shouldn't occur in practice, it's a good idea to bounds
+check the length field of the SSID element prior to using it for things
+like allocations or memcpy operations.
 
-Although one may add MAP_POPULATE to mmap(2) to work around the issue,
-MAP_POPULATE makes mapping 128GB of pmem several magnitudes slower, so
-isn't always an option.
-
-Details -
-
-  ndctl inject-error --block=10 --count=1 namespace6.0
-
-  ./read_poison -x dax6.0 -o 5120 -m 2
-  mmaped address 0x7f5bb6600000
-  mmaped address 0x7f3cf3600000
-  doing local read at address 0x7f3cf3601400
-  Killed
-
-Console messages in instrumented kernel -
-
-  mce: Uncorrected hardware memory error in user-access at edbe201400
-  Memory failure: tk->addr = 7f5bb6601000
-  Memory failure: address edbe201: call dev_pagemap_mapping_shift
-  dev_pagemap_mapping_shift: page edbe201: no PUD
-  Memory failure: tk->size_shift == 0
-  Memory failure: Unable to find user space address edbe201 in read_poison
-  Memory failure: tk->addr = 7f3cf3601000
-  Memory failure: address edbe201: call dev_pagemap_mapping_shift
-  Memory failure: tk->size_shift = 21
-  Memory failure: 0xedbe201: forcibly killing read_poison:22434 because of failure to unmap corrupted page
-    => to deliver SIGKILL
-  Memory failure: 0xedbe201: Killing read_poison:22434 due to hardware memory corruption
-    => to deliver SIGBUS
-
-Link: http://lkml.kernel.org/r/1565112345-28754-3-git-send-email-jane.chu@oracle.com
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Suggested-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Michal Hocko <mhocko@kernel.org>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Kees Cook <keescook@chromium.org>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memory-failure.c |   22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ net/mac80211/mlme.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -199,7 +199,6 @@ struct to_kill {
- 	struct task_struct *tsk;
- 	unsigned long addr;
- 	short size_shift;
--	char addr_valid;
- };
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2430,7 +2430,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
  
- /*
-@@ -324,22 +323,27 @@ static void add_to_kill(struct task_stru
- 		}
- 	}
- 	tk->addr = page_address_in_vma(p, vma);
--	tk->addr_valid = 1;
- 	if (is_zone_device_page(p))
- 		tk->size_shift = dev_pagemap_mapping_shift(p, vma);
+ 	rcu_read_lock();
+ 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+-	if (WARN_ON_ONCE(ssid == NULL))
++	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
++		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+ 		ssid_len = 0;
  	else
- 		tk->size_shift = compound_order(compound_head(p)) + PAGE_SHIFT;
+ 		ssid_len = ssid[1];
+@@ -4756,7 +4757,7 @@ int ieee80211_mgd_assoc(struct ieee80211
  
- 	/*
--	 * In theory we don't have to kill when the page was
--	 * munmaped. But it could be also a mremap. Since that's
--	 * likely very rare kill anyways just out of paranoia, but use
--	 * a SIGKILL because the error is not contained anymore.
-+	 * Send SIGKILL if "tk->addr == -EFAULT". Also, as
-+	 * "tk->size_shift" is always non-zero for !is_zone_device_page(),
-+	 * so "tk->size_shift == 0" effectively checks no mapping on
-+	 * ZONE_DEVICE. Indeed, when a devdax page is mmapped N times
-+	 * to a process' address space, it's possible not all N VMAs
-+	 * contain mappings for the page, but at least one VMA does.
-+	 * Only deliver SIGBUS with payload derived from the VMA that
-+	 * has a mapping for the page.
- 	 */
--	if (tk->addr == -EFAULT || tk->size_shift == 0) {
-+	if (tk->addr == -EFAULT) {
- 		pr_info("Memory failure: Unable to find user space address %lx in %s\n",
- 			page_to_pfn(p), tsk->comm);
--		tk->addr_valid = 0;
-+	} else if (tk->size_shift == 0) {
-+		kfree(tk);
-+		return;
- 	}
- 	get_task_struct(tsk);
- 	tk->tsk = tsk;
-@@ -366,7 +370,7 @@ static void kill_procs(struct list_head
- 			 * make sure the process doesn't catch the
- 			 * signal and then access the memory. Just kill it.
- 			 */
--			if (fail || tk->addr_valid == 0) {
-+			if (fail || tk->addr == -EFAULT) {
- 				pr_err("Memory failure: %#lx: forcibly killing %s:%d because of failure to unmap corrupted page\n",
- 				       pfn, tk->tsk->comm, tk->tsk->pid);
- 				do_send_sig_info(SIGKILL, SEND_SIG_PRIV,
+ 	rcu_read_lock();
+ 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+-	if (!ssidie) {
++	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
+ 		rcu_read_unlock();
+ 		kfree(assoc_data);
+ 		return -EINVAL;
 
 
