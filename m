@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10113E6963
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7C9E6884
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727024AbfJ0VHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
+        id S1731209AbfJ0V32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729141AbfJ0VHU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:20 -0400
+        id S1731710AbfJ0VU3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:29 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 214A9214AF;
-        Sun, 27 Oct 2019 21:07:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54F0D2070B;
+        Sun, 27 Oct 2019 21:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210439;
-        bh=3p+USwtJUTtC3toj8T7Yn7zw6NH0GsG2ccFhvAY7IXI=;
+        s=default; t=1572211228;
+        bh=3+6xcR6HMWluZuqTM5picN4Lb40T3NdoJmOQ1JBR3UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPP5thdod2y3opZO/jGJD2D4I0/gEcqVgWveKO/HhgpZX/hlSjdAeGmrmlhCJMVkJ
-         Fa2kROfHOatN+CSRUo3NRq0Tcvg3+ilchHCs8GvkLEmvvOaVqc3Rh1JAg28mEekpPw
-         +HyjyV7mn9RbQaZtMXGejoH+sgilHBCvUSJRzGKc=
+        b=AO9tYzUaEifkQcSuUc98AmhV91KbzKfuL6Cw8QN3o1Tv3Qz2lLpjea8UU6OyHvdHK
+         qMGOJhzDIzgO6XQSKxnH8ljMTlcmQ+I6pnaKhfiaGsShB2khdcY3cNGGAwrNOosAgZ
+         LNvqN8F7N8OuifKZDrqciyV3vdMSM9U0hBCX+apI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Ivan Topolsky <doktor.yak@gmail.com>,
-        Song Liu <songliubraving@fb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 016/119] md/raid0: fix warning message for parameter default_layout
-Date:   Sun, 27 Oct 2019 21:59:53 +0100
-Message-Id: <20191027203304.506871460@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+eb349eeee854e389c36d@syzkaller.appspotmail.com,
+        syzbot+4a0643a653ac375612d1@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Edward Cree <ecree@solarflare.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 076/197] net: ipv6: fix listify ip6_rcv_finish in case of forwarding
+Date:   Sun, 27 Oct 2019 21:59:54 +0100
+Message-Id: <20191027203355.753727115@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +47,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 3874d73e06c9b9dc15de0b7382fc223986d75571 ]
+[ Upstream commit c7a42eb49212f93a800560662d17d5293960d3c3 ]
 
-The message should match the parameter, i.e. raid0.default_layout.
+We need a similar fix for ipv6 as Commit 0761680d5215 ("net: ipv4: fix
+listify ip_rcv_finish in case of forwarding") does for ipv4.
 
-Fixes: c84a1372df92 ("md/raid0: avoid RAID0 data corruption due to layout confusion.")
-Cc: NeilBrown <neilb@suse.de>
-Reported-by: Ivan Topolsky <doktor.yak@gmail.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This issue can be reprocuded by syzbot since Commit 323ebb61e32b ("net:
+use listified RX for handling GRO_NORMAL skbs") on net-next. The call
+trace was:
+
+  kernel BUG at include/linux/skbuff.h:2225!
+  RIP: 0010:__skb_pull include/linux/skbuff.h:2225 [inline]
+  RIP: 0010:skb_pull+0xea/0x110 net/core/skbuff.c:1902
+  Call Trace:
+    sctp_inq_pop+0x2f1/0xd80 net/sctp/inqueue.c:202
+    sctp_endpoint_bh_rcv+0x184/0x8d0 net/sctp/endpointola.c:385
+    sctp_inq_push+0x1e4/0x280 net/sctp/inqueue.c:80
+    sctp_rcv+0x2807/0x3590 net/sctp/input.c:256
+    sctp6_rcv+0x17/0x30 net/sctp/ipv6.c:1049
+    ip6_protocol_deliver_rcu+0x2fe/0x1660 net/ipv6/ip6_input.c:397
+    ip6_input_finish+0x84/0x170 net/ipv6/ip6_input.c:438
+    NF_HOOK include/linux/netfilter.h:305 [inline]
+    NF_HOOK include/linux/netfilter.h:299 [inline]
+    ip6_input+0xe4/0x3f0 net/ipv6/ip6_input.c:447
+    dst_input include/net/dst.h:442 [inline]
+    ip6_sublist_rcv_finish+0x98/0x1e0 net/ipv6/ip6_input.c:84
+    ip6_list_rcv_finish net/ipv6/ip6_input.c:118 [inline]
+    ip6_sublist_rcv+0x80c/0xcf0 net/ipv6/ip6_input.c:282
+    ipv6_list_rcv+0x373/0x4b0 net/ipv6/ip6_input.c:316
+    __netif_receive_skb_list_ptype net/core/dev.c:5049 [inline]
+    __netif_receive_skb_list_core+0x5fc/0x9d0 net/core/dev.c:5097
+    __netif_receive_skb_list net/core/dev.c:5149 [inline]
+    netif_receive_skb_list_internal+0x7eb/0xe60 net/core/dev.c:5244
+    gro_normal_list.part.0+0x1e/0xb0 net/core/dev.c:5757
+    gro_normal_list net/core/dev.c:5755 [inline]
+    gro_normal_one net/core/dev.c:5769 [inline]
+    napi_frags_finish net/core/dev.c:5782 [inline]
+    napi_gro_frags+0xa6a/0xea0 net/core/dev.c:5855
+    tun_get_user+0x2e98/0x3fa0 drivers/net/tun.c:1974
+    tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2020
+
+Fixes: d8269e2cbf90 ("net: ipv6: listify ipv6_rcv() and ip6_rcv_finish()")
+Fixes: 323ebb61e32b ("net: use listified RX for handling GRO_NORMAL skbs")
+Reported-by: syzbot+eb349eeee854e389c36d@syzkaller.appspotmail.com
+Reported-by: syzbot+4a0643a653ac375612d1@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid0.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/ip6_input.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 28fb717217706..449c4dd060fcd 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -158,7 +158,7 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
- 	} else {
- 		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
- 		       mdname(mddev));
--		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
-+		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
- 		err = -ENOTSUPP;
- 		goto abort;
- 	}
--- 
-2.20.1
-
+--- a/net/ipv6/ip6_input.c
++++ b/net/ipv6/ip6_input.c
+@@ -80,8 +80,10 @@ static void ip6_sublist_rcv_finish(struc
+ {
+ 	struct sk_buff *skb, *next;
+ 
+-	list_for_each_entry_safe(skb, next, head, list)
++	list_for_each_entry_safe(skb, next, head, list) {
++		skb_list_del_init(skb);
+ 		dst_input(skb);
++	}
+ }
+ 
+ static void ip6_list_rcv_finish(struct net *net, struct sock *sk,
 
 
