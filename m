@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CE1E66F8
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA1B5E6820
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730907AbfJ0VQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:16:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
+        id S1731647AbfJ0VZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730925AbfJ0VQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:16:53 -0400
+        id S1732654AbfJ0VZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:07 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C6742070B;
-        Sun, 27 Oct 2019 21:16:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F10F2064A;
+        Sun, 27 Oct 2019 21:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211012;
-        bh=3BnMbfPndXojbnIO/KjTzKqKNjsSSST0nsbkX7y7L8M=;
+        s=default; t=1572211506;
+        bh=geCA7WKbHfFDzbjT2Ap1pwSwpmUYXwdqOX48VBY2FyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Af4mmmGRO75jtl5t4QMnrBw8oVAcsXG48ax5ak1s+m9OSnyaqxFehH5UaxLw3Pdyu
-         zQ66BbB4NDNSEFqKAyM9Y8f7De+6cK+/hGt7NKSRJu45mzn7Pblzq5uxOFuKYPZlyB
-         gbGEoDDeleTaZHuX44fNKFEIJIclhuYBgosNE97M=
+        b=cCz0NW3wq/xfKv5GsGGPzk/p3uqjFeEbwxHrPnR9G7Hykx0kSIFFn8dL9cuQr8R8S
+         1dcDrUuDDIlZNJbMfmNon7tqk58s0QzjqbgJ/7eRxqNeTKOhtHbPdeBv+EEA7M/QbM
+         IHJ5L+ztlI37gESWpOKkbu5V7zkdjzQuybCky584=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wahl <steve.wahl@hpe.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Baoquan He <bhe@redhat.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        dimitri.sivanich@hpe.com, Feng Tang <feng.tang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jordan Borgner <mail@jordan-borgner.de>,
-        Juergen Gross <jgross@suse.com>, mike.travis@hpe.com,
-        russ.anderson@hpe.com, Thomas Gleixner <tglx@linutronix.de>,
-        x86-ml <x86@kernel.org>,
-        Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Subject: [PATCH 4.19 79/93] x86/boot/64: Make level2_kernel_pgt pages invalid outside kernel area
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.3 173/197] dm cache: fix bugs when a GFP_NOWAIT allocation fails
 Date:   Sun, 27 Oct 2019 22:01:31 +0100
-Message-Id: <20191027203312.260206025@linuxfoundation.org>
+Message-Id: <20191027203404.309364288@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wahl <steve.wahl@hpe.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 2aa85f246c181b1fa89f27e8e20c5636426be624 upstream.
+commit 13bd677a472d534bf100bab2713efc3f9e3f5978 upstream.
 
-Our hardware (UV aka Superdome Flex) has address ranges marked
-reserved by the BIOS. Access to these ranges is caught as an error,
-causing the BIOS to halt the system.
+GFP_NOWAIT allocation can fail anytime - it doesn't wait for memory being
+available and it fails if the mempool is exhausted and there is not enough
+memory.
 
-Initial page tables mapped a large range of physical addresses that
-were not checked against the list of BIOS reserved addresses, and
-sometimes included reserved addresses in part of the mapped range.
-Including the reserved range in the map allowed processor speculative
-accesses to the reserved range, triggering a BIOS halt.
+If we go down this path:
+  map_bio -> mg_start -> alloc_migration -> mempool_alloc(GFP_NOWAIT)
+we can see that map_bio() doesn't check the return value of mg_start(),
+and the bio is leaked.
 
-Used early in booting, the page table level2_kernel_pgt addresses 1
-GiB divided into 2 MiB pages, and it was set up to linearly map a full
- 1 GiB of physical addresses that included the physical address range
-of the kernel image, as chosen by KASLR.  But this also included a
-large range of unused addresses on either side of the kernel image.
-And unlike the kernel image's physical address range, this extra
-mapped space was not checked against the BIOS tables of usable RAM
-addresses.  So there were times when the addresses chosen by KASLR
-would result in processor accessible mappings of BIOS reserved
-physical addresses.
+If we go down this path:
+  map_bio -> mg_start -> mg_lock_writes -> alloc_prison_cell ->
+  dm_bio_prison_alloc_cell_v2 -> mempool_alloc(GFP_NOWAIT) ->
+  mg_lock_writes -> mg_complete
+the bio is ended with an error - it is unacceptable because it could
+cause filesystem corruption if the machine ran out of memory
+temporarily.
 
-The kernel code did not directly access any of this extra mapped
-space, but having it mapped allowed the processor to issue speculative
-accesses into reserved memory, causing system halts.
+Change GFP_NOWAIT to GFP_NOIO, so that the mempool code will properly
+wait until memory becomes available. mempool_alloc with GFP_NOIO can't
+fail, so remove the code paths that deal with allocation failure.
 
-This was encountered somewhat rarely on a normal system boot, and much
-more often when starting the crash kernel if "crashkernel=512M,high"
-was specified on the command line (this heavily restricts the physical
-address of the crash kernel, in our case usually within 1 GiB of
-reserved space).
-
-The solution is to invalidate the pages of this table outside the kernel
-image's space before the page table is activated. It fixes this problem
-on our hardware.
-
- [ bp: Touchups. ]
-
-Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: dimitri.sivanich@hpe.com
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jordan Borgner <mail@jordan-borgner.de>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: mike.travis@hpe.com
-Cc: russ.anderson@hpe.com
 Cc: stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Link: https://lkml.kernel.org/r/9c011ee51b081534a7a15065b1681d200298b530.1569358539.git.steve.wahl@hpe.com
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/head64.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/md/dm-cache-target.c |   28 ++--------------------------
+ 1 file changed, 2 insertions(+), 26 deletions(-)
 
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -222,13 +222,31 @@ unsigned long __head __startup_64(unsign
- 	 * we might write invalid pmds, when the kernel is relocated
- 	 * cleanup_highmap() fixes this up along with the mappings
- 	 * beyond _end.
-+	 *
-+	 * Only the region occupied by the kernel image has so far
-+	 * been checked against the table of usable memory regions
-+	 * provided by the firmware, so invalidate pages outside that
-+	 * region. A page table entry that maps to a reserved area of
-+	 * memory would allow processor speculation into that area,
-+	 * and on some hardware (particularly the UV platform) even
-+	 * speculative access to some reserved areas is caught as an
-+	 * error, causing the BIOS to halt the system.
- 	 */
+--- a/drivers/md/dm-cache-target.c
++++ b/drivers/md/dm-cache-target.c
+@@ -542,7 +542,7 @@ static void wake_migration_worker(struct
  
- 	pmd = fixup_pointer(level2_kernel_pgt, physaddr);
--	for (i = 0; i < PTRS_PER_PMD; i++) {
-+
-+	/* invalidate pages before the kernel image */
-+	for (i = 0; i < pmd_index((unsigned long)_text); i++)
-+		pmd[i] &= ~_PAGE_PRESENT;
-+
-+	/* fixup pages that are part of the kernel image */
-+	for (; i <= pmd_index((unsigned long)_end); i++)
- 		if (pmd[i] & _PAGE_PRESENT)
- 			pmd[i] += load_delta;
+ static struct dm_bio_prison_cell_v2 *alloc_prison_cell(struct cache *cache)
+ {
+-	return dm_bio_prison_alloc_cell_v2(cache->prison, GFP_NOWAIT);
++	return dm_bio_prison_alloc_cell_v2(cache->prison, GFP_NOIO);
+ }
+ 
+ static void free_prison_cell(struct cache *cache, struct dm_bio_prison_cell_v2 *cell)
+@@ -554,9 +554,7 @@ static struct dm_cache_migration *alloc_
+ {
+ 	struct dm_cache_migration *mg;
+ 
+-	mg = mempool_alloc(&cache->migration_pool, GFP_NOWAIT);
+-	if (!mg)
+-		return NULL;
++	mg = mempool_alloc(&cache->migration_pool, GFP_NOIO);
+ 
+ 	memset(mg, 0, sizeof(*mg));
+ 
+@@ -664,10 +662,6 @@ static bool bio_detain_shared(struct cac
+ 	struct dm_bio_prison_cell_v2 *cell_prealloc, *cell;
+ 
+ 	cell_prealloc = alloc_prison_cell(cache); /* FIXME: allow wait if calling from worker */
+-	if (!cell_prealloc) {
+-		defer_bio(cache, bio);
+-		return false;
 -	}
-+
-+	/* invalidate pages after the kernel image */
-+	for (; i < PTRS_PER_PMD; i++)
-+		pmd[i] &= ~_PAGE_PRESENT;
+ 
+ 	build_key(oblock, end, &key);
+ 	r = dm_cell_get_v2(cache->prison, &key, lock_level(bio), bio, cell_prealloc, &cell);
+@@ -1493,11 +1487,6 @@ static int mg_lock_writes(struct dm_cach
+ 	struct dm_bio_prison_cell_v2 *prealloc;
+ 
+ 	prealloc = alloc_prison_cell(cache);
+-	if (!prealloc) {
+-		DMERR_LIMIT("%s: alloc_prison_cell failed", cache_device_name(cache));
+-		mg_complete(mg, false);
+-		return -ENOMEM;
+-	}
  
  	/*
- 	 * Fixup phys_base - remove the memory encryption mask to obtain
+ 	 * Prevent writes to the block, but allow reads to continue.
+@@ -1535,11 +1524,6 @@ static int mg_start(struct cache *cache,
+ 	}
+ 
+ 	mg = alloc_migration(cache);
+-	if (!mg) {
+-		policy_complete_background_work(cache->policy, op, false);
+-		background_work_end(cache);
+-		return -ENOMEM;
+-	}
+ 
+ 	mg->op = op;
+ 	mg->overwrite_bio = bio;
+@@ -1628,10 +1612,6 @@ static int invalidate_lock(struct dm_cac
+ 	struct dm_bio_prison_cell_v2 *prealloc;
+ 
+ 	prealloc = alloc_prison_cell(cache);
+-	if (!prealloc) {
+-		invalidate_complete(mg, false);
+-		return -ENOMEM;
+-	}
+ 
+ 	build_key(mg->invalidate_oblock, oblock_succ(mg->invalidate_oblock), &key);
+ 	r = dm_cell_lock_v2(cache->prison, &key,
+@@ -1669,10 +1649,6 @@ static int invalidate_start(struct cache
+ 		return -EPERM;
+ 
+ 	mg = alloc_migration(cache);
+-	if (!mg) {
+-		background_work_end(cache);
+-		return -ENOMEM;
+-	}
+ 
+ 	mg->overwrite_bio = bio;
+ 	mg->invalidate_cblock = cblock;
 
 
