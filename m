@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF66E67BE
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 929ABE65BE
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730133AbfJ0VYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:24:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45384 "EHLO mail.kernel.org"
+        id S1728714AbfJ0VEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732411AbfJ0VX6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:23:58 -0400
+        id S1728711AbfJ0VEu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:50 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6DAC21726;
-        Sun, 27 Oct 2019 21:23:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D22720B7C;
+        Sun, 27 Oct 2019 21:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211437;
-        bh=7hY4aOUAT25qZzu5Zp8O4Xw+/lhFo9NIKHCkfDHF/X4=;
+        s=default; t=1572210288;
+        bh=oJ5CUPNbNtT3V+fDsQ5W+ZazwrslLjjgDVeCQQ110oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY8tI9vtur6aqXfarJt/QpbYSSKBDLUIgI8QUN84g1+QwQQFBjwBRTponuW2eSUiT
-         ZIUoZZ/m5jA38NP39uTTNQWzUxxErTF7oRGhic4FKUDYqhMR3nhPG5uqRiUeyeeryc
-         t9w4NQKe59rb2+eD4Xo8zUdI7Ek8qDjc9vK6hUBY=
+        b=gXo/yQm1otlxVlYS/eUBucfK6oPWmykZhDbPIXiAU+2JNeN8F7VRle/Ni7JJBSbcN
+         hiu5iP6QKtDSO83vlu0Uafm8K9Da18spAWO8T2yWmGD4wC7uRi0p2bOfsA+2goiIWw
+         bf9cClkxKEELkBasEiOcqWbcmlvHOyAynUfB2UDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        James Zhu <James.Zhu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.3 134/197] drm/amdgpu/uvd7: fix allocation size in enc ring test (v2)
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 14/49] MIPS: Treat Loongson Extensions as ASEs
 Date:   Sun, 27 Oct 2019 22:00:52 +0100
-Message-Id: <20191027203358.951696366@linuxfoundation.org>
+Message-Id: <20191027203127.430697160@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,133 +46,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-commit 5d230bc91f6c15e5d281f2851502918d98b9e770 upstream.
+[ Upstream commit d2f965549006acb865c4638f1f030ebcefdc71f6 ]
 
-We need to allocate a large enough buffer for the
-session info, otherwise the IB test can overwrite
-other memory.
+Recently, binutils had split Loongson-3 Extensions into four ASEs:
+MMI, CAM, EXT, EXT2. This patch do the samething in kernel and expose
+them in cpuinfo so applications can probe supported ASEs at runtime.
 
-v2: - session info is 128K according to mesa
-    - use the same session info for create and destroy
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=204241
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Tested-by: James Zhu <James.Zhu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Yunqiang Su <ysu@wavecomp.com>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c |   33 ++++++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ arch/mips/include/asm/cpu-features.h | 16 ++++++++++++++++
+ arch/mips/include/asm/cpu.h          |  4 ++++
+ arch/mips/kernel/cpu-probe.c         |  4 ++++
+ arch/mips/kernel/proc.c              |  4 ++++
+ 4 files changed, 28 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/uvd_v7_0.c
-@@ -214,13 +214,14 @@ static int uvd_v7_0_enc_ring_test_ring(s
-  * Open up a stream for HW test
-  */
- static int uvd_v7_0_enc_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
-+				       struct amdgpu_bo *bo,
- 				       struct dma_fence **fence)
- {
- 	const unsigned ib_size_dw = 16;
- 	struct amdgpu_job *job;
- 	struct amdgpu_ib *ib;
- 	struct dma_fence *f = NULL;
--	uint64_t dummy;
-+	uint64_t addr;
- 	int i, r;
+diff --git a/arch/mips/include/asm/cpu-features.h b/arch/mips/include/asm/cpu-features.h
+index e961c8a7ea662..8c8b92b9b1eeb 100644
+--- a/arch/mips/include/asm/cpu-features.h
++++ b/arch/mips/include/asm/cpu-features.h
+@@ -345,6 +345,22 @@
+ #define cpu_has_dsp3		(cpu_data[0].ases & MIPS_ASE_DSP3)
+ #endif
  
- 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
-@@ -228,15 +229,15 @@ static int uvd_v7_0_enc_get_create_msg(s
- 		return r;
- 
- 	ib = &job->ibs[0];
--	dummy = ib->gpu_addr + 1024;
-+	addr = amdgpu_bo_gpu_offset(bo);
- 
- 	ib->length_dw = 0;
- 	ib->ptr[ib->length_dw++] = 0x00000018;
- 	ib->ptr[ib->length_dw++] = 0x00000001; /* session info */
- 	ib->ptr[ib->length_dw++] = handle;
- 	ib->ptr[ib->length_dw++] = 0x00000000;
--	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
--	ib->ptr[ib->length_dw++] = dummy;
-+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
-+	ib->ptr[ib->length_dw++] = addr;
- 
- 	ib->ptr[ib->length_dw++] = 0x00000014;
- 	ib->ptr[ib->length_dw++] = 0x00000002; /* task info */
-@@ -275,13 +276,14 @@ err:
-  * Close up a stream for HW test or if userspace failed to do so
-  */
- static int uvd_v7_0_enc_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
--				struct dma_fence **fence)
-+					struct amdgpu_bo *bo,
-+					struct dma_fence **fence)
- {
- 	const unsigned ib_size_dw = 16;
- 	struct amdgpu_job *job;
- 	struct amdgpu_ib *ib;
- 	struct dma_fence *f = NULL;
--	uint64_t dummy;
-+	uint64_t addr;
- 	int i, r;
- 
- 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
-@@ -289,15 +291,15 @@ static int uvd_v7_0_enc_get_destroy_msg(
- 		return r;
- 
- 	ib = &job->ibs[0];
--	dummy = ib->gpu_addr + 1024;
-+	addr = amdgpu_bo_gpu_offset(bo);
- 
- 	ib->length_dw = 0;
- 	ib->ptr[ib->length_dw++] = 0x00000018;
- 	ib->ptr[ib->length_dw++] = 0x00000001;
- 	ib->ptr[ib->length_dw++] = handle;
- 	ib->ptr[ib->length_dw++] = 0x00000000;
--	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
--	ib->ptr[ib->length_dw++] = dummy;
-+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
-+	ib->ptr[ib->length_dw++] = addr;
- 
- 	ib->ptr[ib->length_dw++] = 0x00000014;
- 	ib->ptr[ib->length_dw++] = 0x00000002;
-@@ -334,13 +336,20 @@ err:
- static int uvd_v7_0_enc_ring_test_ib(struct amdgpu_ring *ring, long timeout)
- {
- 	struct dma_fence *fence = NULL;
-+	struct amdgpu_bo *bo = NULL;
- 	long r;
- 
--	r = uvd_v7_0_enc_get_create_msg(ring, 1, NULL);
-+	r = amdgpu_bo_create_reserved(ring->adev, 128 * 1024, PAGE_SIZE,
-+				      AMDGPU_GEM_DOMAIN_VRAM,
-+				      &bo, NULL, NULL);
-+	if (r)
-+		return r;
++#ifndef cpu_has_loongson_mmi
++#define cpu_has_loongson_mmi		__ase(MIPS_ASE_LOONGSON_MMI)
++#endif
 +
-+	r = uvd_v7_0_enc_get_create_msg(ring, 1, bo, NULL);
- 	if (r)
- 		goto error;
++#ifndef cpu_has_loongson_cam
++#define cpu_has_loongson_cam		__ase(MIPS_ASE_LOONGSON_CAM)
++#endif
++
++#ifndef cpu_has_loongson_ext
++#define cpu_has_loongson_ext		__ase(MIPS_ASE_LOONGSON_EXT)
++#endif
++
++#ifndef cpu_has_loongson_ext2
++#define cpu_has_loongson_ext2		__ase(MIPS_ASE_LOONGSON_EXT2)
++#endif
++
+ #ifndef cpu_has_mipsmt
+ #define cpu_has_mipsmt		(cpu_data[0].ases & MIPS_ASE_MIPSMT)
+ #endif
+diff --git a/arch/mips/include/asm/cpu.h b/arch/mips/include/asm/cpu.h
+index 9a8372484edc0..2cd5ee7463605 100644
+--- a/arch/mips/include/asm/cpu.h
++++ b/arch/mips/include/asm/cpu.h
+@@ -429,5 +429,9 @@ enum cpu_type_enum {
+ #define MIPS_ASE_VZ		0x00000080 /* Virtualization ASE */
+ #define MIPS_ASE_MSA		0x00000100 /* MIPS SIMD Architecture */
+ #define MIPS_ASE_DSP3		0x00000200 /* Signal Processing ASE Rev 3*/
++#define MIPS_ASE_LOONGSON_MMI	0x00000800 /* Loongson MultiMedia extensions Instructions */
++#define MIPS_ASE_LOONGSON_CAM	0x00001000 /* Loongson CAM */
++#define MIPS_ASE_LOONGSON_EXT	0x00002000 /* Loongson EXTensions */
++#define MIPS_ASE_LOONGSON_EXT2	0x00004000 /* Loongson EXTensions R2 */
  
--	r = uvd_v7_0_enc_get_destroy_msg(ring, 1, &fence);
-+	r = uvd_v7_0_enc_get_destroy_msg(ring, 1, bo, &fence);
- 	if (r)
- 		goto error;
+ #endif /* _ASM_CPU_H */
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index 921211bcd2bad..0a7b3e513650f 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1480,6 +1480,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3a");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		case PRID_REV_LOONGSON3B_R1:
+ 		case PRID_REV_LOONGSON3B_R2:
+@@ -1487,6 +1488,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3b");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		}
  
-@@ -352,6 +361,8 @@ static int uvd_v7_0_enc_ring_test_ib(str
+@@ -1826,6 +1828,8 @@ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
+ 		decode_configs(c);
+ 		c->options |= MIPS_CPU_FTLB | MIPS_CPU_TLBINV | MIPS_CPU_LDPTE;
+ 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
++		c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_CAM |
++			MIPS_ASE_LOONGSON_EXT | MIPS_ASE_LOONGSON_EXT2);
+ 		break;
+ 	default:
+ 		panic("Unknown Loongson Processor ID!");
+diff --git a/arch/mips/kernel/proc.c b/arch/mips/kernel/proc.c
+index 4c01ee5b88c99..dd05ec89cc57e 100644
+--- a/arch/mips/kernel/proc.c
++++ b/arch/mips/kernel/proc.c
+@@ -122,6 +122,10 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 	if (cpu_has_eva)	seq_printf(m, "%s", " eva");
+ 	if (cpu_has_htw)	seq_printf(m, "%s", " htw");
+ 	if (cpu_has_xpa)	seq_printf(m, "%s", " xpa");
++	if (cpu_has_loongson_mmi)	seq_printf(m, "%s", " loongson-mmi");
++	if (cpu_has_loongson_cam)	seq_printf(m, "%s", " loongson-cam");
++	if (cpu_has_loongson_ext)	seq_printf(m, "%s", " loongson-ext");
++	if (cpu_has_loongson_ext2)	seq_printf(m, "%s", " loongson-ext2");
+ 	seq_printf(m, "\n");
  
- error:
- 	dma_fence_put(fence);
-+	amdgpu_bo_unreserve(bo);
-+	amdgpu_bo_unref(&bo);
- 	return r;
- }
- 
+ 	if (cpu_has_mmips) {
+-- 
+2.20.1
+
 
 
