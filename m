@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3C5E67FB
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04CB1E6806
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732877AbfJ0V0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48084 "EHLO mail.kernel.org"
+        id S1732871AbfJ0V0M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:26:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732871AbfJ0V0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:26:09 -0400
+        id S1732270AbfJ0V0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:26:11 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D01FE222C5;
-        Sun, 27 Oct 2019 21:26:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9625421D80;
+        Sun, 27 Oct 2019 21:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211568;
-        bh=SuWVog35rq4t9m85OJPt6eblq9oTPRJl2/Qpvf7D4LQ=;
+        s=default; t=1572211571;
+        bh=8zOiwY3KowzDw7wOpnwU1HLCpcB7b8/Mfnq0T6Kahf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmUi6tExTKDorG4EB73CgIzqASzZhsaRgVFTrSz8ILydVSwZbAnY4ap70KsmyJYU+
-         vooFOze1CEYg8GMdMfFvOCxvKLCi/M826kxZfSxw4E3prVGz2pN3vioierR8oZa/Xu
-         pxlBbt7Kib2zVHOCFSdlzG76Ps9OkTZewhPhoUpk=
+        b=rrZzmm8ZMX4J6tUg8GIhOwAN3TZHVC9sOo2/66MOJH+6/NlWOrV7RwSAT4B5BcFCa
+         CjP4fS/A8HgRGI7uUD0lx4KuQmFRlNOIWTAmAuLI1/e+L5XjnecoWEsmXZxeProLlD
+         iqXU3jAana0oG04Xi5Sw80Tkd/QzOT29xezx5JiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 181/197] btrfs: block-group: Fix a memory leak due to missing btrfs_put_block_group()
-Date:   Sun, 27 Oct 2019 22:01:39 +0100
-Message-Id: <20191027203405.822561757@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.3 182/197] Btrfs: add missing extents release on file extent cluster relocation error
+Date:   Sun, 27 Oct 2019 22:01:40 +0100
+Message-Id: <20191027203406.119457603@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,42 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 4b654acdae850f48b8250b9a578a4eaa518c7a6f upstream.
+commit 44db1216efe37bf670f8d1019cdc41658d84baf5 upstream.
 
-In btrfs_read_block_groups(), if we have an invalid block group which
-has mixed type (DATA|METADATA) while the fs doesn't have MIXED_GROUPS
-feature, we error out without freeing the block group cache.
+If we error out when finding a page at relocate_file_extent_cluster(), we
+need to release the outstanding extents counter on the relocation inode,
+set by the previous call to btrfs_delalloc_reserve_metadata(), otherwise
+the inode's block reserve size can never decrease to zero and metadata
+space is leaked. Therefore add a call to btrfs_delalloc_release_extents()
+in case we can't find the target page.
 
-This patch will add the missing btrfs_put_block_group() to prevent
-memory leak.
-
-Note for stable backports: the file to patch in versions <= 5.3 is
-fs/btrfs/extent-tree.c
-
-Fixes: 49303381f19a ("Btrfs: bail out if block group has different mixed flag")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+Fixes: 8b62f87bad9c ("Btrfs: rework outstanding_extents")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/relocation.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -8117,6 +8117,7 @@ int btrfs_read_block_groups(struct btrfs
- 			btrfs_err(info,
- "bg %llu is a mixed block group but filesystem hasn't enabled mixed block groups",
- 				  cache->key.objectid);
-+			btrfs_put_block_group(cache);
- 			ret = -EINVAL;
- 			goto error;
- 		}
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3276,6 +3276,8 @@ static int relocate_file_extent_cluster(
+ 			if (!page) {
+ 				btrfs_delalloc_release_metadata(BTRFS_I(inode),
+ 							PAGE_SIZE, true);
++				btrfs_delalloc_release_extents(BTRFS_I(inode),
++							PAGE_SIZE, true);
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
 
 
