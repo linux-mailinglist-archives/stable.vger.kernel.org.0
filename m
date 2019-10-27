@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2A73E6727
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:18:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83169E6729
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731298AbfJ0VSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:18:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38702 "EHLO mail.kernel.org"
+        id S1731302AbfJ0VSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729771AbfJ0VSd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:18:33 -0400
+        id S1731301AbfJ0VSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:18:35 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5029A20717;
-        Sun, 27 Oct 2019 21:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27D91205C9;
+        Sun, 27 Oct 2019 21:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211111;
-        bh=WxL+isxSLqVyP/vPvSWCFfVBslLsA4hnCVMimY/E5uU=;
+        s=default; t=1572211114;
+        bh=+yNNbeZyOKtQ54YhJ2ztXvrf5KEN+DQ/L5ZZl5rW4UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmm4rxFjhnhVaXTwYxXoynRFyS+e8Ut7ARuoHN9ARuNwRBaVVmuiUuAE9maQN5pst
-         1Ek93tztsuEpM7NorC3Ap5glm/QfEGdc273IBwteSKxZOBtbpK8HG6AlPGR+1HIkIq
-         +x8Tm9QijLdH5IOebteGc8b6mvkg1nnuRQoju5Vk=
+        b=xCNnZmGf+mgzKbFnUMa4wlTyxE/htHWdLzfyB1FbrqytWqTpt8MQf3kUkWgj/XOFH
+         soby4Fb8aVvFNWOCIPCE1DhgkycsafnSwJqLoi/+i7slDTUaeb8lNwo+IDdu4R9NUe
+         FjzHm+43YN/Ohp+Wiwr8p6wpvngvjgImfhcPkaF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Garcia Liebana <nevola@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 035/197] netfilter: nft_connlimit: disable bh on garbage collection
-Date:   Sun, 27 Oct 2019 21:59:13 +0100
-Message-Id: <20191027203353.623742303@linuxfoundation.org>
+Subject: [PATCH 5.3 036/197] net: mscc: ocelot: add missing of_node_put after calling of_get_child_by_name
+Date:   Sun, 27 Oct 2019 21:59:14 +0100
+Message-Id: <20191027203353.674156300@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,68 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit 34a4c95abd25ab41fb390b985a08a651b1fa0b0f ]
+[ Upstream commit d2c50b1cd94528aea8c8e9abb4cce81590f32cc4 ]
 
-BH must be disabled when invoking nf_conncount_gc_list() to perform
-garbage collection, otherwise deadlock might happen.
+of_node_put needs to be called when the device node which is got
+from of_get_child_by_name finished using.
+In both cases of success and failure, we need to release 'ports',
+so clean up the code using goto.
 
-  nf_conncount_add+0x1f/0x50 [nf_conncount]
-  nft_connlimit_eval+0x4c/0xe0 [nft_connlimit]
-  nft_dynset_eval+0xb5/0x100 [nf_tables]
-  nft_do_chain+0xea/0x420 [nf_tables]
-  ? sch_direct_xmit+0x111/0x360
-  ? noqueue_init+0x10/0x10
-  ? __qdisc_run+0x84/0x510
-  ? tcp_packet+0x655/0x1610 [nf_conntrack]
-  ? ip_finish_output2+0x1a7/0x430
-  ? tcp_error+0x130/0x150 [nf_conntrack]
-  ? nf_conntrack_in+0x1fc/0x4c0 [nf_conntrack]
-  nft_do_chain_ipv4+0x66/0x80 [nf_tables]
-  nf_hook_slow+0x44/0xc0
-  ip_rcv+0xb5/0xd0
-  ? ip_rcv_finish_core.isra.19+0x360/0x360
-  __netif_receive_skb_one_core+0x52/0x70
-  netif_receive_skb_internal+0x34/0xe0
-  napi_gro_receive+0xba/0xe0
-  e1000_clean_rx_irq+0x1e9/0x420 [e1000e]
-  e1000e_poll+0xbe/0x290 [e1000e]
-  net_rx_action+0x149/0x3b0
-  __do_softirq+0xde/0x2d8
-  irq_exit+0xba/0xc0
-  do_IRQ+0x85/0xd0
-  common_interrupt+0xf/0xf
-  </IRQ>
-  RIP: 0010:nf_conncount_gc_list+0x3b/0x130 [nf_conncount]
-
-Fixes: 2f971a8f4255 ("netfilter: nf_conncount: move all list iterations under spinlock")
-Reported-by: Laura Garcia Liebana <nevola@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+fixes: a556c76adc05 ("net: mscc: Add initial Ocelot switch support")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Microchip Linux Driver Support <UNGLinuxDriver@microchip.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_connlimit.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot_board.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/net/netfilter/nft_connlimit.c b/net/netfilter/nft_connlimit.c
-index af1497ab94642..69d6173f91e2b 100644
---- a/net/netfilter/nft_connlimit.c
-+++ b/net/netfilter/nft_connlimit.c
-@@ -218,8 +218,13 @@ static void nft_connlimit_destroy_clone(const struct nft_ctx *ctx,
- static bool nft_connlimit_gc(struct net *net, const struct nft_expr *expr)
- {
- 	struct nft_connlimit *priv = nft_expr_priv(expr);
-+	bool ret;
+diff --git a/drivers/net/ethernet/mscc/ocelot_board.c b/drivers/net/ethernet/mscc/ocelot_board.c
+index 2451d4a96490b..041fb9f38ecaa 100644
+--- a/drivers/net/ethernet/mscc/ocelot_board.c
++++ b/drivers/net/ethernet/mscc/ocelot_board.c
+@@ -287,13 +287,14 @@ static int mscc_ocelot_probe(struct platform_device *pdev)
+ 			continue;
  
--	return nf_conncount_gc_list(net, &priv->list);
-+	local_bh_disable();
-+	ret = nf_conncount_gc_list(net, &priv->list);
-+	local_bh_enable();
-+
-+	return ret;
+ 		phy = of_phy_find_device(phy_node);
++		of_node_put(phy_node);
+ 		if (!phy)
+ 			continue;
+ 
+ 		err = ocelot_probe_port(ocelot, port, regs, phy);
+ 		if (err) {
+ 			of_node_put(portnp);
+-			return err;
++			goto out_put_ports;
+ 		}
+ 
+ 		phy_mode = of_get_phy_mode(portnp);
+@@ -321,7 +322,8 @@ static int mscc_ocelot_probe(struct platform_device *pdev)
+ 				"invalid phy mode for port%d, (Q)SGMII only\n",
+ 				port);
+ 			of_node_put(portnp);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto out_put_ports;
+ 		}
+ 
+ 		serdes = devm_of_phy_get(ocelot->dev, portnp, NULL);
+@@ -334,7 +336,8 @@ static int mscc_ocelot_probe(struct platform_device *pdev)
+ 					"missing SerDes phys for port%d\n",
+ 					port);
+ 
+-			goto err_probe_ports;
++			of_node_put(portnp);
++			goto out_put_ports;
+ 		}
+ 
+ 		ocelot->ports[port]->serdes = serdes;
+@@ -346,9 +349,8 @@ static int mscc_ocelot_probe(struct platform_device *pdev)
+ 
+ 	dev_info(&pdev->dev, "Ocelot switch probed\n");
+ 
+-	return 0;
+-
+-err_probe_ports:
++out_put_ports:
++	of_node_put(ports);
+ 	return err;
  }
  
- static struct nft_expr_type nft_connlimit_type;
 -- 
 2.20.1
 
