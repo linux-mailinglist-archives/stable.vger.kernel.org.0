@@ -2,218 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75764E647B
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB7EDE647C
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727674AbfJ0RXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:23:05 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:51141 "EHLO
+        id S1727681AbfJ0RXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:23:06 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:39887 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727667AbfJ0RXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:05 -0400
+        by vger.kernel.org with ESMTP id S1727667AbfJ0RXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:06 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6080422171;
-        Sun, 27 Oct 2019 13:23:04 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:23:04 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 848B322196;
+        Sun, 27 Oct 2019 13:23:05 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:23:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=Yq3aIb0UL528sovC97xaUUSKGf5
+        yKdSEI8He5l9nOEs=; b=LL5IycF3YbADbW7UzzinrqQv0h1Ufs6KX03wTQc6MfZ
+        KNM1nXbSpYyX04BbjwoInfGmf7R+uVzZF+QHwVOMGuYp9TfHER8QZgE76AJHp3Qe
+        r0NqrE6TgeBYtN/5sqerk0fHeMYxABlWr3Ppxva555tkh7M+OpCQ7Cmackl6pL03
+        Sipygv/WSBYGNnQ3pPDPeuXBoxN62ZHwkS2J9GDnf+IHvs7AAhM0xc6QkEEsD0sU
+        NVI+9C9NaxZR58LEXWoWiBAlQrs1Sm9ITPfTlvjoTOFGE2OKgMhdbs6n5TrbO7Ca
+        VBPXX4fSdLEs9/6bWVSej4SdUwM+YEsefTuXzg8Ps4Q==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=i+RTkq
-        VChvhFAsFjS9dmhqaPOv5lHJ8DBF/bfwyBd+s=; b=XJvUkWeYKBnwPQ8N4vBPso
-        0+hCDywMZC9/4/xYJZ1CkYZeiRZhMSAFS2ZlvLBtJQSDspCUHEGBn4Hf5czHncu7
-        X/mdrEPcWC0Rb43pU8bUxiJq6BQTFMl+CVRx718cVwjoYnFVegXv0ldPsyE94nPI
-        z+F0tA0x3O5hPVC4O8MlDHKzKjm2CHjRIqsx3I1glhaMtGl5ymxjCr3hcxWInDwL
-        pfUWNiYNCVx7MzW87TNlz4zoZ5lxeIMUdMvU1oJ628DWl1YkknIZMV2mL+1IXHcc
-        Uv4I6J2WbGL0xDX7rXVc8zVXTZPTXAtlBMzy5OPqwARINQPrGPQFJ6kGpM610Ylw
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Yq3aIb
+        0UL528sovC97xaUUSKGf5yKdSEI8He5l9nOEs=; b=Sy2QZvm5M2akr0HNFTY84y
+        lFVTYYmP6czgZwcMpRs5rKLohEL6c071iYYcYmfANbySG3NP49eF+2rCSEnYcMQb
+        iOwan/5X+TXPJNR4IkGmHnstgOU0FkunlvUCM15keMLePyVaNuTkKG+Q+TDxJTG2
+        m4sd1nDhXncrdUFchaDIMZRGayqY7Z2aUgmj+xSDZ5x2AmKKrKbANU7bwDNEIh5P
+        OZkQXi4zZYqdTCDdbDxVpt38a9app8OWP7eduW6ar7TeHnbWz6d2b0RR11RHsn/r
+        /cogIxxqsoV9YCESETJG2gJPW29mU/ZEBTbP0AkndQM+ym+dqb/v9gzFsQB+CE5Q
         ==
-X-ME-Sender: <xms:eNK1XWwckqX2LjcHM9iB6I2UAwLzAQaDGWh2y_0uhImI_pGSKiOxFg>
+X-ME-Sender: <xms:edK1XYJV10_OdOMxsB5MhWtL6vNa_kdwnK_ReoJbBBxRdgE7GJ-EJQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeejjedrudehkedrhedtrddutddtnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
-X-ME-Proxy: <xmx:eNK1Xd3IYGY5ITlPc2ogl9A85-PPzvwE_wr9OhmED4rZr37maW2Bag>
-    <xmx:eNK1XYWwYisB7iqtAwNsKLe6XfLM2oqqWCDsRJBJ_Rwr4GQuWD9H-g>
-    <xmx:eNK1XReaiTYK_J0U4TpV9e_9cqsBfISjBBeorC8cNUxU2RUluGxP_g>
-    <xmx:eNK1XRz0tO-vpyCELJAzDWfapQgc7_2Rnq1DiNtRzIDsc6Mx_kp1cg>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeejjedrudehkedrhedtrd
+    dutddtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:edK1XRekR-kMF-fZZVOhVBV5TCsuJ3IXBdc1QtlttAaWDKq6xPan_g>
+    <xmx:edK1Xf9Wl07I43s5w-AGo9rkrH2TQe1c1SG18dK3xWjXAWtOxJcOSA>
+    <xmx:edK1XWpD3VJ4AOkGBR-S6Zz9ofKCh73QrNni82Ht9IH59hSwQPDuEg>
+    <xmx:edK1XQElRH1oCpgfjgnIroW8N5sm0QBXYqsOJ5QT4V7SIqvN9OhCBg>
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C3CE2D6005F;
-        Sun, 27 Oct 2019 13:23:03 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] io_uring: fix up O_NONBLOCK handling for sockets" failed to apply to 5.3-stable tree
-To:     axboe@kernel.dk, zeba.hrvoje@gmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 16:53:55 +0100
-Message-ID: <1572191635100175@kroah.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2317280061;
+        Sun, 27 Oct 2019 13:23:05 -0400 (EDT)
+Date:   Sun, 27 Oct 2019 16:58:35 +0100
+From:   Greg KH <greg@kroah.com>
+To:     "Jitindar SIngh, Suraj" <surajjs@amazon.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: stable/4.14.y: kvm: vmx: Basic APIC virtualization controls have
+ three settings
+Message-ID: <20191027155835.GA2311304@kroah.com>
+References: <17bb312d55c6a00e27941e12cf4898fac2d2cb14.camel@amazon.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17bb312d55c6a00e27941e12cf4898fac2d2cb14.camel@amazon.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 24, 2019 at 05:24:44PM +0000, Jitindar SIngh, Suraj wrote:
+> The following patch fixes a bug where the guest is still able to access
+> the apic registers via mmio once the apic has been disabled.
+> 
+> 8d860bbeedef kvm: vmx: Basic APIC virtualization controls have three
+> settings
+> 
+> This causes the x86/apic kvm-unit-test to fail when run on a host
+> missing this patch.
+> 
+> Without:
+> FAIL: apic_disable: *0xfee00030: 50014
+> FAIL: apic_disable: CR8: f
+> PASS: apic_disable: CR8: f
+> FAIL: apic_disable: *0xfee00080: f0
+> With:
+> PASS: apic_disable: *0xfee00030: ffffffff
+> PASS: apic_disable: CR8: 0
+> PASS: apic_disable: CR8: f
+> PASS: apic_disable: *0xfee00080: ffffffff
+> 
+> This patch has been upstream as of v4.18.
+> 
+> This patch has 3 dependencies which introduce no functional
+> change, however they add context which allows the patch listed above to
+> apply cleanly.
+> 
+> c2ba05ccfde2 KVM: X86: introduce invalidate_gpa argument to tlb flush
+> 588716494258 kvm: vmx: Introduce lapic_mode enumeration
+> a468f2dbf921 kvm: apic: Flush TLB after APIC mode/address change if
+> VPIDs are in use
+> 
+> This patch series should be applied against 4.14.y
 
-The patch below does not apply to the 5.3-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 491381ce07ca57f68c49c79a8a43da5b60749e32 Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Thu, 17 Oct 2019 09:20:46 -0600
-Subject: [PATCH] io_uring: fix up O_NONBLOCK handling for sockets
-
-We've got two issues with the non-regular file handling for non-blocking
-IO:
-
-1) We don't want to re-do a short read in full for a non-regular file,
-   as we can't just read the data again.
-2) For non-regular files that don't support non-blocking IO attempts,
-   we need to punt to async context even if the file is opened as
-   non-blocking. Otherwise the caller always gets -EAGAIN.
-
-Add two new request flags to handle these cases. One is just a cache
-of the inode S_ISREG() status, the other tells io_uring that we always
-need to punt this request to async context, even if REQ_F_NOWAIT is set.
-
-Cc: stable@vger.kernel.org
-Reported-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Tested-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d2cb277da2f4..b7d4085d6ffd 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -322,6 +322,8 @@ struct io_kiocb {
- #define REQ_F_FAIL_LINK		256	/* fail rest of links */
- #define REQ_F_SHADOW_DRAIN	512	/* link-drain shadow req */
- #define REQ_F_TIMEOUT		1024	/* timeout request */
-+#define REQ_F_ISREG		2048	/* regular file */
-+#define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
- 	u64			user_data;
- 	u32			result;
- 	u32			sequence;
-@@ -914,26 +916,26 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
- 	return ret;
- }
- 
--static void kiocb_end_write(struct kiocb *kiocb)
-+static void kiocb_end_write(struct io_kiocb *req)
- {
--	if (kiocb->ki_flags & IOCB_WRITE) {
--		struct inode *inode = file_inode(kiocb->ki_filp);
-+	/*
-+	 * Tell lockdep we inherited freeze protection from submission
-+	 * thread.
-+	 */
-+	if (req->flags & REQ_F_ISREG) {
-+		struct inode *inode = file_inode(req->file);
- 
--		/*
--		 * Tell lockdep we inherited freeze protection from submission
--		 * thread.
--		 */
--		if (S_ISREG(inode->i_mode))
--			__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
--		file_end_write(kiocb->ki_filp);
-+		__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
- 	}
-+	file_end_write(req->file);
- }
- 
- static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
- 
--	kiocb_end_write(kiocb);
-+	if (kiocb->ki_flags & IOCB_WRITE)
-+		kiocb_end_write(req);
- 
- 	if ((req->flags & REQ_F_LINK) && res != req->result)
- 		req->flags |= REQ_F_FAIL_LINK;
-@@ -945,7 +947,8 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
- 
--	kiocb_end_write(kiocb);
-+	if (kiocb->ki_flags & IOCB_WRITE)
-+		kiocb_end_write(req);
- 
- 	if ((req->flags & REQ_F_LINK) && res != req->result)
- 		req->flags |= REQ_F_FAIL_LINK;
-@@ -1059,8 +1062,17 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
- 	if (!req->file)
- 		return -EBADF;
- 
--	if (force_nonblock && !io_file_supports_async(req->file))
--		force_nonblock = false;
-+	if (S_ISREG(file_inode(req->file)->i_mode))
-+		req->flags |= REQ_F_ISREG;
-+
-+	/*
-+	 * If the file doesn't support async, mark it as REQ_F_MUST_PUNT so
-+	 * we know to async punt it even if it was opened O_NONBLOCK
-+	 */
-+	if (force_nonblock && !io_file_supports_async(req->file)) {
-+		req->flags |= REQ_F_MUST_PUNT;
-+		return -EAGAIN;
-+	}
- 
- 	kiocb->ki_pos = READ_ONCE(sqe->off);
- 	kiocb->ki_flags = iocb_flags(kiocb->ki_filp);
-@@ -1081,7 +1093,8 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
- 		return ret;
- 
- 	/* don't allow async punt if RWF_NOWAIT was requested */
--	if (kiocb->ki_flags & IOCB_NOWAIT)
-+	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
-+	    (req->file->f_flags & O_NONBLOCK))
- 		req->flags |= REQ_F_NOWAIT;
- 
- 	if (force_nonblock)
-@@ -1382,7 +1395,9 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
- 		 * need async punt anyway, so it's more efficient to do it
- 		 * here.
- 		 */
--		if (force_nonblock && ret2 > 0 && ret2 < read_size)
-+		if (force_nonblock && !(req->flags & REQ_F_NOWAIT) &&
-+		    (req->flags & REQ_F_ISREG) &&
-+		    ret2 > 0 && ret2 < read_size)
- 			ret2 = -EAGAIN;
- 		/* Catch -EAGAIN return for forced non-blocking submission */
- 		if (!force_nonblock || ret2 != -EAGAIN) {
-@@ -1447,7 +1462,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
- 		 * released so that it doesn't complain about the held lock when
- 		 * we return to userspace.
- 		 */
--		if (S_ISREG(file_inode(file)->i_mode)) {
-+		if (req->flags & REQ_F_ISREG) {
- 			__sb_start_write(file_inode(file)->i_sb,
- 						SB_FREEZE_WRITE, true);
- 			__sb_writers_release(file_inode(file)->i_sb,
-@@ -2282,7 +2297,13 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	int ret;
- 
- 	ret = __io_submit_sqe(ctx, req, s, force_nonblock);
--	if (ret == -EAGAIN && !(req->flags & REQ_F_NOWAIT)) {
-+
-+	/*
-+	 * We async punt it if the file wasn't marked NOWAIT, or if the file
-+	 * doesn't support non-blocking read/write attempts
-+	 */
-+	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
-+	    (req->flags & REQ_F_MUST_PUNT))) {
- 		struct io_uring_sqe *sqe_copy;
- 
- 		sqe_copy = kmemdup(s->sqe, sizeof(*sqe_copy), GFP_KERNEL);
-
