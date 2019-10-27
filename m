@@ -2,106 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB7EDE647C
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B927E647D
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727681AbfJ0RXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:23:06 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:39887 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727667AbfJ0RXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:06 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 848B322196;
-        Sun, 27 Oct 2019 13:23:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:23:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=Yq3aIb0UL528sovC97xaUUSKGf5
-        yKdSEI8He5l9nOEs=; b=LL5IycF3YbADbW7UzzinrqQv0h1Ufs6KX03wTQc6MfZ
-        KNM1nXbSpYyX04BbjwoInfGmf7R+uVzZF+QHwVOMGuYp9TfHER8QZgE76AJHp3Qe
-        r0NqrE6TgeBYtN/5sqerk0fHeMYxABlWr3Ppxva555tkh7M+OpCQ7Cmackl6pL03
-        Sipygv/WSBYGNnQ3pPDPeuXBoxN62ZHwkS2J9GDnf+IHvs7AAhM0xc6QkEEsD0sU
-        NVI+9C9NaxZR58LEXWoWiBAlQrs1Sm9ITPfTlvjoTOFGE2OKgMhdbs6n5TrbO7Ca
-        VBPXX4fSdLEs9/6bWVSej4SdUwM+YEsefTuXzg8Ps4Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Yq3aIb
-        0UL528sovC97xaUUSKGf5yKdSEI8He5l9nOEs=; b=Sy2QZvm5M2akr0HNFTY84y
-        lFVTYYmP6czgZwcMpRs5rKLohEL6c071iYYcYmfANbySG3NP49eF+2rCSEnYcMQb
-        iOwan/5X+TXPJNR4IkGmHnstgOU0FkunlvUCM15keMLePyVaNuTkKG+Q+TDxJTG2
-        m4sd1nDhXncrdUFchaDIMZRGayqY7Z2aUgmj+xSDZ5x2AmKKrKbANU7bwDNEIh5P
-        OZkQXi4zZYqdTCDdbDxVpt38a9app8OWP7eduW6ar7TeHnbWz6d2b0RR11RHsn/r
-        /cogIxxqsoV9YCESETJG2gJPW29mU/ZEBTbP0AkndQM+ym+dqb/v9gzFsQB+CE5Q
-        ==
-X-ME-Sender: <xms:edK1XYJV10_OdOMxsB5MhWtL6vNa_kdwnK_ReoJbBBxRdgE7GJ-EJQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeejjedrudehkedrhedtrd
-    dutddtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:edK1XRekR-kMF-fZZVOhVBV5TCsuJ3IXBdc1QtlttAaWDKq6xPan_g>
-    <xmx:edK1Xf9Wl07I43s5w-AGo9rkrH2TQe1c1SG18dK3xWjXAWtOxJcOSA>
-    <xmx:edK1XWpD3VJ4AOkGBR-S6Zz9ofKCh73QrNni82Ht9IH59hSwQPDuEg>
-    <xmx:edK1XQElRH1oCpgfjgnIroW8N5sm0QBXYqsOJ5QT4V7SIqvN9OhCBg>
+        id S1727692AbfJ0RXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53646 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727667AbfJ0RXI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 13:23:08 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2317280061;
-        Sun, 27 Oct 2019 13:23:05 -0400 (EDT)
-Date:   Sun, 27 Oct 2019 16:58:35 +0100
-From:   Greg KH <greg@kroah.com>
-To:     "Jitindar SIngh, Suraj" <surajjs@amazon.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: stable/4.14.y: kvm: vmx: Basic APIC virtualization controls have
- three settings
-Message-ID: <20191027155835.GA2311304@kroah.com>
-References: <17bb312d55c6a00e27941e12cf4898fac2d2cb14.camel@amazon.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9659921726;
+        Sun, 27 Oct 2019 17:23:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572196988;
+        bh=exfw+vnAV2Fh2pDrI/JnNXOfVxHPj8N6yrNMclPo1hA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=v0zh+48oPYqumsWioU+FE6fyRiio76/B6gQ9H5XQhBMfzBXBz34lJutAprcMxqKLe
+         zCFhDKXQZQR8cppTNhClzd1XSrzjasNM3lBFQqZBJn4zKSkXSXCJW9WQ9wKKIKdDmo
+         vIjOJHr3cMIk/66Pv31liXGtp+bEmNz03c7bkl50=
+Date:   Sun, 27 Oct 2019 17:00:26 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zubin Mithra <zsm@chromium.org>
+Cc:     stable@vger.kernel.org, groeck@chromium.org, keescook@chromium.org,
+        davem@davemloft.net
+Subject: Re: [v4.4.y] net: sched: Fix memory exposure from short TCA_U32_SEL
+Message-ID: <20191027160026.GB2311304@kroah.com>
+References: <20191018190647.158575-1-zsm@chromium.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17bb312d55c6a00e27941e12cf4898fac2d2cb14.camel@amazon.com>
+In-Reply-To: <20191018190647.158575-1-zsm@chromium.org>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 24, 2019 at 05:24:44PM +0000, Jitindar SIngh, Suraj wrote:
-> The following patch fixes a bug where the guest is still able to access
-> the apic registers via mmio once the apic has been disabled.
+On Fri, Oct 18, 2019 at 12:06:47PM -0700, Zubin Mithra wrote:
+> From: Kees Cook <keescook@chromium.org>
 > 
-> 8d860bbeedef kvm: vmx: Basic APIC virtualization controls have three
-> settings
+> commit 98c8f125fd8a6240ea343c1aa50a1be9047791b8 upstream
 > 
-> This causes the x86/apic kvm-unit-test to fail when run on a host
-> missing this patch.
+> Via u32_change(), TCA_U32_SEL has an unspecified type in the netlink
+> policy, so max length isn't enforced, only minimum. This means nkeys
+> (from userspace) was being trusted without checking the actual size of
+> nla_len(), which could lead to a memory over-read, and ultimately an
+> exposure via a call to u32_dump(). Reachability is CAP_NET_ADMIN within
+> a namespace.
 > 
-> Without:
-> FAIL: apic_disable: *0xfee00030: 50014
-> FAIL: apic_disable: CR8: f
-> PASS: apic_disable: CR8: f
-> FAIL: apic_disable: *0xfee00080: f0
-> With:
-> PASS: apic_disable: *0xfee00030: ffffffff
-> PASS: apic_disable: CR8: 0
-> PASS: apic_disable: CR8: f
-> PASS: apic_disable: *0xfee00080: ffffffff
-> 
-> This patch has been upstream as of v4.18.
-> 
-> This patch has 3 dependencies which introduce no functional
-> change, however they add context which allows the patch listed above to
-> apply cleanly.
-> 
-> c2ba05ccfde2 KVM: X86: introduce invalidate_gpa argument to tlb flush
-> 588716494258 kvm: vmx: Introduce lapic_mode enumeration
-> a468f2dbf921 kvm: apic: Flush TLB after APIC mode/address change if
-> VPIDs are in use
-> 
-> This patch series should be applied against 4.14.y
+> Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+> Cc: Cong Wang <xiyou.wangcong@gmail.com>
+> Cc: Jiri Pirko <jiri@resnulli.us>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Zubin Mithra <zsm@chromium.org>
+> ---
+> Notes:
+> * Syzkaller triggered an OOB read in u32_change with the following
 
 Now queued up, thanks.
 
