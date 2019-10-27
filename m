@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0D53E692B
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9007EE699F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729595AbfJ0VJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S1727022AbfJ0VDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:03:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729590AbfJ0VJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:09:57 -0400
+        id S1728421AbfJ0VDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:03:43 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC2C42064A;
-        Sun, 27 Oct 2019 21:09:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB0892064A;
+        Sun, 27 Oct 2019 21:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210596;
-        bh=1OvOHMUWN+zQfis1W/kvZd2XpNU2os5/nufc3T6RDOE=;
+        s=default; t=1572210222;
+        bh=7//GOyKEzo7xrJIfyzR+9RrVrjKnqDbQZAYgTiMrUSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwMEgEfWIumdONu9y8k3xVKKytxYeR8vkwrjyeDji8MCB4hM40iLdF0ImX1GcM/7C
-         lSVJNMQ+PaqJ2i8vY0oRBsedejqHJYep0Olg+JIOQpwoS8J+PGvRwhk6uraqzX6r5i
-         UhvLOi97RCbhM83bkIQPkCw+CR9ILv6P6va0IKNk=
+        b=PMFDrB8TX2V358/PWkdLH9c/u8RS+k70V0Q2SGTDk6BeEUxBIQao/BZejW4fQ8Ud1
+         Mt3yRqfTYsmonh3So6pe0jwCdnk4FAxumxUnRb8yvjIndG6INzO5CkgieNnGEDxkFA
+         NofOtwYnzYLZLa/G4FzPagdjUWgrHm3Lz5RPHtDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 070/119] KVM: arm64: Set SCTLR_EL2.DSSBS if SSBD is forcefully disabled and !vhe
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 09/41] namespace: fix namespace.pl script to support relative paths
 Date:   Sun, 27 Oct 2019 22:00:47 +0100
-Message-Id: <20191027203336.044367544@linuxfoundation.org>
+Message-Id: <20191027203106.620485889@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 7c36447ae5a090729e7b129f24705bb231a07e0b ]
+[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
 
-When running without VHE, it is necessary to set SCTLR_EL2.DSSBS if SSBD
-has been forcefully disabled on the kernel command-line.
+The namespace.pl script does not work properly if objtree is not set to
+an absolute path. The do_nm function is run from within the find
+function, which changes directories.
 
-Acked-by: Christoffer Dall <christoffer.dall@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Because of this, appending objtree, $File::Find::dir, and $source, will
+return a path which is not valid from the current directory.
+
+This used to work when objtree was set to an absolute path when using
+"make namespacecheck". It appears to have not worked when calling
+./scripts/namespace.pl directly.
+
+This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
+for $(objtree)", 2014-05-14)
+
+Rather than fixing the Makefile to set objtree to an absolute path, just
+fix namespace.pl to work when srctree and objtree are relative. Also fix
+the script to use an absolute path for these by default.
+
+Use the File::Spec module for this purpose. It's been part of perl
+5 since 5.005.
+
+The curdir() function is used to get the current directory when the
+objtree and srctree aren't set in the environment.
+
+rel2abs() is used to convert possibly relative objtree and srctree
+environment variables to absolute paths.
+
+Finally, the catfile() function is used instead of string appending
+paths together, since this is more robust when joining paths together.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/kvm_host.h |   11 +++++++++++
- arch/arm64/kvm/hyp/sysreg-sr.c    |   11 +++++++++++
- 2 files changed, 22 insertions(+)
+ scripts/namespace.pl | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/include/asm/kvm_host.h
-+++ b/arch/arm64/include/asm/kvm_host.h
-@@ -356,6 +356,8 @@ struct kvm_vcpu *kvm_mpidr_to_vcpu(struc
- void __kvm_set_tpidr_el2(u64 tpidr_el2);
- DECLARE_PER_CPU(kvm_cpu_context_t, kvm_host_cpu_state);
+diff --git a/scripts/namespace.pl b/scripts/namespace.pl
+index a71be6b7cdec5..9a2a32ce8a3b4 100755
+--- a/scripts/namespace.pl
++++ b/scripts/namespace.pl
+@@ -65,13 +65,14 @@
+ require 5;	# at least perl 5
+ use strict;
+ use File::Find;
++use File::Spec;
  
-+void __kvm_enable_ssbs(void);
-+
- static inline void __cpu_init_hyp_mode(phys_addr_t pgd_ptr,
- 				       unsigned long hyp_stack_ptr,
- 				       unsigned long vector_ptr)
-@@ -380,6 +382,15 @@ static inline void __cpu_init_hyp_mode(p
- 		- (u64)kvm_ksym_ref(kvm_host_cpu_state);
+ my $nm = ($ENV{'NM'} || "nm") . " -p";
+ my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+-my $srctree = "";
+-my $objtree = "";
+-$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+-$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
++my $srctree = File::Spec->curdir();
++my $objtree = File::Spec->curdir();
++$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
++$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
  
- 	kvm_call_hyp(__kvm_set_tpidr_el2, tpidr_el2);
-+
-+	/*
-+	 * Disabling SSBD on a non-VHE system requires us to enable SSBS
-+	 * at EL2.
-+	 */
-+	if (!has_vhe() && this_cpu_has_cap(ARM64_SSBS) &&
-+	    arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE) {
-+		kvm_call_hyp(__kvm_enable_ssbs);
-+	}
- }
- 
- static inline void kvm_arch_hardware_unsetup(void) {}
---- a/arch/arm64/kvm/hyp/sysreg-sr.c
-+++ b/arch/arm64/kvm/hyp/sysreg-sr.c
-@@ -188,3 +188,14 @@ void __hyp_text __kvm_set_tpidr_el2(u64
- {
- 	asm("msr tpidr_el2, %0": : "r" (tpidr_el2));
- }
-+
-+void __hyp_text __kvm_enable_ssbs(void)
-+{
-+	u64 tmp;
-+
-+	asm volatile(
-+	"mrs	%0, sctlr_el2\n"
-+	"orr	%0, %0, %1\n"
-+	"msr	sctlr_el2, %0"
-+	: "=&r" (tmp) : "L" (SCTLR_ELx_DSSBS));
-+}
+ if ($#ARGV != -1) {
+ 	print STDERR "usage: $0 takes no parameters\n";
+@@ -229,9 +230,9 @@ sub do_nm
+ 	}
+ 	($source = $basename) =~ s/\.o$//;
+ 	if (-e "$source.c" || -e "$source.S") {
+-		$source = "$objtree$File::Find::dir/$source";
++		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
+ 	} else {
+-		$source = "$srctree$File::Find::dir/$source";
++		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
+ 	}
+ 	if (! -e "$source.c" && ! -e "$source.S") {
+ 		# No obvious source, exclude the object if it is conglomerate
+-- 
+2.20.1
+
 
 
