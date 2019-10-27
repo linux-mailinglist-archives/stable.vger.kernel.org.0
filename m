@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20070E6921
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E0BE69BA
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729670AbfJ0VK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56848 "EHLO mail.kernel.org"
+        id S1728251AbfJ0VDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729701AbfJ0VK0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:26 -0400
+        id S1728216AbfJ0VDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:03:08 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A74702064A;
-        Sun, 27 Oct 2019 21:10:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F4EE20873;
+        Sun, 27 Oct 2019 21:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210625;
-        bh=rM6KJb6cQvAyghTlAAUAHQOK4dd80lB0rRVdNlYI3iM=;
+        s=default; t=1572210187;
+        bh=99Y5+JPsjc5OFuA/1Rpq9820qIfZaSVHVwyJSPxXNgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KyE3z98ShWV2xwQLyw9Di7PBDdz2eo+2uiP6YVG+kZDCC0F4yyN3JxboPUEDw6vuV
-         LbZtEMMCfIbbm0KY1PzPW9YR8xofhBxis/qW/q8dcIJqRnflV1pr1P3YHQW4Ur9kRe
-         uxENPVupRDgrKi0p5g2lF24WSH9enqFKoBeZ45qg=
+        b=Jv1AEcHUvGMdI1BKAYEtW+4MtaHmf5XrI1+uKJcQuv+sd6KjKJnDbXtHJ2XKMYSvO
+         xmJYdU9doaFE4MXamOWDNWchC8qMHJpA+uVujPvbiMUCZqrbM6J3wdwLZ/4bz/Dhjb
+         cqNEhdUrTSihRb6LzrXMC168UbvX3SBT8r2EJmi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 079/119] arm64: add sysfs vulnerability show for spectre-v2
-Date:   Sun, 27 Oct 2019 22:00:56 +0100
-Message-Id: <20191027203344.735962234@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH 4.4 20/41] usb: udc: lpc32xx: fix bad bit shift operation
+Date:   Sun, 27 Oct 2019 22:00:58 +0100
+Message-Id: <20191027203116.981208973@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,89 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit d2532e27b5638bb2e2dd52b80b7ea2ec65135377 ]
+commit b987b66ac3a2bc2f7b03a0ba48a07dc553100c07 upstream.
 
-Track whether all the cores in the machine are vulnerable to Spectre-v2,
-and whether all the vulnerable cores have been mitigated. We then expose
-this information to userspace via sysfs.
+It seems that the right variable to use in this case is *i*, instead of
+*n*, otherwise there is an undefined behavior when right shifiting by more
+than 31 bits when multiplying n by 8; notice that *n* can take values
+equal or greater than 4 (4, 8, 16, ...).
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Also, notice that under the current conditions (bl = 3), we are skiping
+the handling of bytes 3, 7, 31... So, fix this by updating this logic
+and limit *bl* up to 4 instead of up to 3.
+
+This fix is based on function udc_stuff_fifo().
+
+Addresses-Coverity-ID: 1454834 ("Bad bit shift operation")
+Fixes: 24a28e428351 ("USB: gadget driver for LPC32xx")
+Cc: stable@vger.kernel.org
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Link: https://lore.kernel.org/r/20191014191830.GA10721@embeddedor
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/cpu_errata.c |   27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -456,6 +456,10 @@ out_printmsg:
- 	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,			\
- 	CAP_MIDR_RANGE_LIST(midr_list)
+---
+ drivers/usb/gadget/udc/lpc32xx_udc.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/drivers/usb/gadget/udc/lpc32xx_udc.c
++++ b/drivers/usb/gadget/udc/lpc32xx_udc.c
+@@ -1225,11 +1225,11 @@ static void udc_pop_fifo(struct lpc32xx_
+ 			tmp = readl(USBD_RXDATA(udc->udp_baseaddr));
  
-+/* Track overall mitigation state. We are only mitigated if all cores are ok */
-+static bool __hardenbp_enab = true;
-+static bool __spectrev2_safe = true;
-+
- /*
-  * List of CPUs that do not need any Spectre-v2 mitigation at all.
-  */
-@@ -466,6 +470,10 @@ static const struct midr_range spectre_v
- 	{ /* sentinel */ }
- };
+ 			bl = bytes - n;
+-			if (bl > 3)
+-				bl = 3;
++			if (bl > 4)
++				bl = 4;
  
-+/*
-+ * Track overall bp hardening for all heterogeneous cores in the machine.
-+ * We are only considered "safe" if all booted cores are known safe.
-+ */
- static bool __maybe_unused
- check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
- {
-@@ -487,6 +495,8 @@ check_branch_predictor(const struct arm6
- 	if (!need_wa)
- 		return false;
+ 			for (i = 0; i < bl; i++)
+-				data[n + i] = (u8) ((tmp >> (n * 8)) & 0xFF);
++				data[n + i] = (u8) ((tmp >> (i * 8)) & 0xFF);
+ 		}
+ 		break;
  
-+	__spectrev2_safe = false;
-+
- 	if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
- 		pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
- 		__hardenbp_enab = false;
-@@ -496,11 +506,14 @@ check_branch_predictor(const struct arm6
- 	/* forced off */
- 	if (__nospectre_v2) {
- 		pr_info_once("spectrev2 mitigation disabled by command line option\n");
-+		__hardenbp_enab = false;
- 		return false;
- 	}
- 
--	if (need_wa < 0)
-+	if (need_wa < 0) {
- 		pr_warn_once("ARM_SMCCC_ARCH_WORKAROUND_1 missing from firmware\n");
-+		__hardenbp_enab = false;
-+	}
- 
- 	return (need_wa > 0);
- }
-@@ -663,3 +676,15 @@ ssize_t cpu_show_spectre_v1(struct devic
- {
- 	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
- }
-+
-+ssize_t cpu_show_spectre_v2(struct device *dev, struct device_attribute *attr,
-+		char *buf)
-+{
-+	if (__spectrev2_safe)
-+		return sprintf(buf, "Not affected\n");
-+
-+	if (__hardenbp_enab)
-+		return sprintf(buf, "Mitigation: Branch predictor hardening\n");
-+
-+	return sprintf(buf, "Vulnerable\n");
-+}
 
 
