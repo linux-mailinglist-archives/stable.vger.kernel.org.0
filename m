@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EC9E6720
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:18:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51378E672F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731245AbfJ0VSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38380 "EHLO mail.kernel.org"
+        id S1731316AbfJ0VSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:18:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731224AbfJ0VSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:18:14 -0400
+        id S1731336AbfJ0VSq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:18:46 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F26DD20717;
-        Sun, 27 Oct 2019 21:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E96420717;
+        Sun, 27 Oct 2019 21:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211094;
-        bh=KfIBcyEnuRceF3vKSjN16F7+m+qFJm3bdbFB9alfQcw=;
+        s=default; t=1572211125;
+        bh=mqorUQN+cdr1Eu4q/RLzx0/E236qnHRyOfcEwcMOZpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3I9Q4NpD0grjadVLmYkKMlx/5RXW8eUA4E0Fw1S2Owjw6inF+FN0qLmjo3QKLZe5
-         5UupRs3XmSHEL39pEOUf+WuA5Hf4mjqh6JpjPPl3dDkwaf3LvdQn5C01w8BKLdFxrH
-         SS1iFBYIC6i8bdMVkVc1Xi1kl6xAHEgmk+6nSOjg=
+        b=DfVDedHPqBV5pKJJrsM4b5lyLAiOpbATKnkisEJKA03u/JtUcf1snFdkUwgfw9gU4
+         A00kiNal2s+Qwd5Gz3mps/tStn5LYtV2YSVatsjQh3gSB8Mxh3CvCZKbQL1mfPduP8
+         HIDJVR8gHnntOHWs5NBo0sY5E1rDiicC6Zq9Lch8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-clk@vger.kernel.org,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>, Suman Anna <s-anna@ti.com>,
-        Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 003/197] clk: ti: dra7: Fix mcasp8 clock bits
-Date:   Sun, 27 Oct 2019 21:58:41 +0100
-Message-Id: <20191027203351.876536314@linuxfoundation.org>
+Subject: [PATCH 5.3 006/197] scsi: ufs: skip shutdown if hba is not powered
+Date:   Sun, 27 Oct 2019 21:58:44 +0100
+Message-Id: <20191027203352.032337803@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -47,51 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit dd8882a255388ba66175098b1560d4f81c100d30 ]
+[ Upstream commit f51913eef23f74c3bd07899dc7f1ed6df9e521d8 ]
 
-There's a typo for dra7 mcasp clkctrl bit, it should be 22 like the other
-macasp instances, and not 24. And in dra7xx_clks[] we have the bits wrong
-way around.
+In some cases, hba may go through shutdown flow without successful
+initialization and then make system hang.
 
-Fixes: dffa9051d546 ("clk: ti: dra7: add new clkctrl data")
-Cc: linux-clk@vger.kernel.org
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Suman Anna <s-anna@ti.com>
-Cc: Tero Kristo <t-kristo@ti.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+For example, if ufshcd_change_power_mode() gets error and leads to
+ufshcd_hba_exit() to release resources of the host, future shutdown flow
+may hang the system since the host register will be accessed in unpowered
+state.
+
+To solve this issue, simply add checking to skip shutdown for above kind of
+situation.
+
+Link: https://lore.kernel.org/r/1568780438-28753-1-git-send-email-stanley.chu@mediatek.com
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Acked-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ti/clk-7xx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/ti/clk-7xx.c b/drivers/clk/ti/clk-7xx.c
-index b57fe09b428be..9dd6185a4b4e2 100644
---- a/drivers/clk/ti/clk-7xx.c
-+++ b/drivers/clk/ti/clk-7xx.c
-@@ -683,7 +683,7 @@ static const struct omap_clkctrl_reg_data dra7_l4per2_clkctrl_regs[] __initconst
- 	{ DRA7_L4PER2_MCASP2_CLKCTRL, dra7_mcasp2_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0154:22" },
- 	{ DRA7_L4PER2_MCASP3_CLKCTRL, dra7_mcasp3_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:015c:22" },
- 	{ DRA7_L4PER2_MCASP5_CLKCTRL, dra7_mcasp5_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:016c:22" },
--	{ DRA7_L4PER2_MCASP8_CLKCTRL, dra7_mcasp8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0184:24" },
-+	{ DRA7_L4PER2_MCASP8_CLKCTRL, dra7_mcasp8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:0184:22" },
- 	{ DRA7_L4PER2_MCASP4_CLKCTRL, dra7_mcasp4_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:018c:22" },
- 	{ DRA7_L4PER2_UART7_CLKCTRL, dra7_uart7_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:01c4:24" },
- 	{ DRA7_L4PER2_UART8_CLKCTRL, dra7_uart8_bit_data, CLKF_SW_SUP, "l4per2-clkctrl:01d4:24" },
-@@ -828,8 +828,8 @@ static struct ti_dt_clk dra7xx_clks[] = {
- 	DT_CLK(NULL, "mcasp6_aux_gfclk_mux", "l4per2-clkctrl:01f8:22"),
- 	DT_CLK(NULL, "mcasp7_ahclkx_mux", "l4per2-clkctrl:01fc:24"),
- 	DT_CLK(NULL, "mcasp7_aux_gfclk_mux", "l4per2-clkctrl:01fc:22"),
--	DT_CLK(NULL, "mcasp8_ahclkx_mux", "l4per2-clkctrl:0184:22"),
--	DT_CLK(NULL, "mcasp8_aux_gfclk_mux", "l4per2-clkctrl:0184:24"),
-+	DT_CLK(NULL, "mcasp8_ahclkx_mux", "l4per2-clkctrl:0184:24"),
-+	DT_CLK(NULL, "mcasp8_aux_gfclk_mux", "l4per2-clkctrl:0184:22"),
- 	DT_CLK(NULL, "mmc1_clk32k", "l3init-clkctrl:0008:8"),
- 	DT_CLK(NULL, "mmc1_fclk_div", "l3init-clkctrl:0008:25"),
- 	DT_CLK(NULL, "mmc1_fclk_mux", "l3init-clkctrl:0008:24"),
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 029da74bb2f5c..e674f6148f698 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -8095,6 +8095,9 @@ int ufshcd_shutdown(struct ufs_hba *hba)
+ {
+ 	int ret = 0;
+ 
++	if (!hba->is_powered)
++		goto out;
++
+ 	if (ufshcd_is_ufs_dev_poweroff(hba) && ufshcd_is_link_off(hba))
+ 		goto out;
+ 
 -- 
 2.20.1
 
