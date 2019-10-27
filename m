@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90500E687C
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A669DE68DA
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731943AbfJ0VVb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42402 "EHLO mail.kernel.org"
+        id S1728880AbfJ0VNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731938AbfJ0VVa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:21:30 -0400
+        id S1730343AbfJ0VNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:13:50 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A64BD205C9;
-        Sun, 27 Oct 2019 21:21:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B952205C9;
+        Sun, 27 Oct 2019 21:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211290;
-        bh=2DyfP3PmbQXEM8PChsIxEbxnKRdPq7KIWGN4SebMk6M=;
+        s=default; t=1572210828;
+        bh=jaQ1a5oZ215Cx3h26Jqy++OBZ3GCo9SChM6Fjaz6eNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZfgTW3VB+WoOmY8F9A0kxDQRDR6hE2F77Bfxrjt01xEUhQUC2Lm2mxzV1YU8CnSf
-         TVQ6kIFFGqRqgwLsaK6jWYgROo2kQcdybf7/6KDYsc5/0FgsNip3V9EnKC/jR6wWLt
-         Joq1iOlOoXa/Ce9W4SyMKc24c3MldRE+NlM3u3+A=
+        b=yolfUL6ZR67VrA7dUTyfXvOf1Qo713EHRu2YKzb1vbJMZ5LVGpF8gRTVbFNNVQQdr
+         OYMVYYd2LCofMG1ktBlHDA9nE1vRDgcLUdTwIKG9c2ffGhNjlD4eaDBHS9Y1B5SJEr
+         MA9WA3xx9leNgkW1Rgfx3aQG5gYzPOQU0dEd435Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Przemys=C5=82aw=20Kopa?= <prymoo@gmail.com>,
-        Rivera Valdez <riveravaldez@ysinembargo.com>,
-        Lukas Wunner <lukas@wunner.de>,
-        Daniel Drake <dan@reactivated.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.3 100/197] ALSA: hda - Force runtime PM on Nvidia HDMI codecs
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        =?UTF-8?q?Andr=C3=A9=20Roth?= <neolynx@gmail.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Nishanth Menon <nm@ti.com>, Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 06/93] ARM: OMAP2+: Fix warnings with broken omap2_set_init_voltage()
 Date:   Sun, 27 Oct 2019 22:00:18 +0100
-Message-Id: <20191027203357.166902340@linuxfoundation.org>
+Message-Id: <20191027203253.252114567@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +47,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 94989e318b2f11e217e86bee058088064fa9a2e9 upstream.
+[ Upstream commit cf395f7ddb9ebc6b2d28d83b53d18aa4e7c19701 ]
 
-Przemysław Kopa reports that since commit b516ea586d71 ("PCI: Enable
-NVIDIA HDA controllers"), the discrete GPU Nvidia GeForce GT 540M on his
-2011 Samsung laptop refuses to runtime suspend, resulting in a power
-regression and excessive heat.
+This code is currently unable to find the dts opp tables as ti-cpufreq
+needs to set them up first based on speed binning.
 
-Rivera Valdez witnesses the same issue with a GeForce GT 525M (GF108M)
-of the same era, as does another Arch Linux user named "R0AR" with a
-more recent GeForce GTX 1050 Ti (GP107M).
+We stopped initializing the opp tables with platform code years ago for
+device tree based booting with commit 92d51856d740 ("ARM: OMAP3+: do not
+register non-dt OPP tables for device tree boot"), and all of mach-omap2
+is now booting using device tree.
 
-The commit exposes the discrete GPU's HDA controller and all four codecs
-on the controller do not set the CLKSTOP and EPSS bits in the Supported
-Power States Response.  They also do not set the PS-ClkStopOk bit in the
-Get Power State Response.  hda_codec_runtime_suspend() therefore does
-not call snd_hdac_codec_link_down(), which prevents each codec and the
-PCI device from runtime suspending.
+We currently get the following errors on init:
 
-The same issue is present on some AMD discrete GPUs and we addressed it
-by forcing runtime PM despite the bits not being set, see commit
-57cb54e53bdd ("ALSA: hda - Force to link down at runtime suspend on
-ATI/AMD HDMI").
+omap2_set_init_voltage: unable to find boot up OPP for vdd_mpu
+omap2_set_init_voltage: unable to set vdd_mpu
+omap2_set_init_voltage: unable to find boot up OPP for vdd_core
+omap2_set_init_voltage: unable to set vdd_core
+omap2_set_init_voltage: unable to find boot up OPP for vdd_iva
+omap2_set_init_voltage: unable to set vdd_iva
 
-Do the same for Nvidia HDMI codecs.
+Let's just drop the unused code. Nowadays ti-cpufreq should be used to
+to initialize things properly.
 
-Fixes: b516ea586d71 ("PCI: Enable NVIDIA HDA controllers")
-Link: https://bbs.archlinux.org/viewtopic.php?pid=1865512
-Link: https://bugs.freedesktop.org/show_bug.cgi?id=75985#c81
-Reported-by: Przemysław Kopa <prymoo@gmail.com>
-Reported-by: Rivera Valdez <riveravaldez@ysinembargo.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: Daniel Drake <dan@reactivated.net>
-Cc: stable@vger.kernel.org # v5.3+
-Link: https://lore.kernel.org/r/3086bc75135c1e3567c5bc4f3cc4ff5cbf7a56c2.1571324194.git.lukas@wunner.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Adam Ford <aford173@gmail.com>
+Cc: André Roth <neolynx@gmail.com>
+Cc: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Tested-by: Adam Ford <aford173@gmail.com> #logicpd-torpedo-37xx-devkit
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_hdmi.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/mach-omap2/pm.c | 100 ---------------------------------------
+ 1 file changed, 100 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -3307,6 +3307,8 @@ static int patch_nvhdmi(struct hda_codec
- 		nvhdmi_chmap_cea_alloc_validate_get_type;
- 	spec->chmap.ops.chmap_validate = nvhdmi_chmap_validate;
- 
-+	codec->link_down_at_suspend = 1;
-+
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index ca03af8fe43ff..ddf96adf65ab3 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -77,83 +77,6 @@ int omap_pm_clkdms_setup(struct clockdomain *clkdm, void *unused)
  	return 0;
  }
  
+-/*
+- * This API is to be called during init to set the various voltage
+- * domains to the voltage as per the opp table. Typically we boot up
+- * at the nominal voltage. So this function finds out the rate of
+- * the clock associated with the voltage domain, finds out the correct
+- * opp entry and sets the voltage domain to the voltage specified
+- * in the opp entry
+- */
+-static int __init omap2_set_init_voltage(char *vdd_name, char *clk_name,
+-					 const char *oh_name)
+-{
+-	struct voltagedomain *voltdm;
+-	struct clk *clk;
+-	struct dev_pm_opp *opp;
+-	unsigned long freq, bootup_volt;
+-	struct device *dev;
+-
+-	if (!vdd_name || !clk_name || !oh_name) {
+-		pr_err("%s: invalid parameters\n", __func__);
+-		goto exit;
+-	}
+-
+-	if (!strncmp(oh_name, "mpu", 3))
+-		/* 
+-		 * All current OMAPs share voltage rail and clock
+-		 * source, so CPU0 is used to represent the MPU-SS.
+-		 */
+-		dev = get_cpu_device(0);
+-	else
+-		dev = omap_device_get_by_hwmod_name(oh_name);
+-
+-	if (IS_ERR(dev)) {
+-		pr_err("%s: Unable to get dev pointer for hwmod %s\n",
+-			__func__, oh_name);
+-		goto exit;
+-	}
+-
+-	voltdm = voltdm_lookup(vdd_name);
+-	if (!voltdm) {
+-		pr_err("%s: unable to get vdd pointer for vdd_%s\n",
+-			__func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	clk =  clk_get(NULL, clk_name);
+-	if (IS_ERR(clk)) {
+-		pr_err("%s: unable to get clk %s\n", __func__, clk_name);
+-		goto exit;
+-	}
+-
+-	freq = clk_get_rate(clk);
+-	clk_put(clk);
+-
+-	opp = dev_pm_opp_find_freq_ceil(dev, &freq);
+-	if (IS_ERR(opp)) {
+-		pr_err("%s: unable to find boot up OPP for vdd_%s\n",
+-			__func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	bootup_volt = dev_pm_opp_get_voltage(opp);
+-	dev_pm_opp_put(opp);
+-
+-	if (!bootup_volt) {
+-		pr_err("%s: unable to find voltage corresponding to the bootup OPP for vdd_%s\n",
+-		       __func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	voltdm_scale(voltdm, bootup_volt);
+-	return 0;
+-
+-exit:
+-	pr_err("%s: unable to set vdd_%s\n", __func__, vdd_name);
+-	return -EINVAL;
+-}
+-
+ #ifdef CONFIG_SUSPEND
+ static int omap_pm_enter(suspend_state_t suspend_state)
+ {
+@@ -211,25 +134,6 @@ void omap_common_suspend_init(void *pm_suspend)
+ }
+ #endif /* CONFIG_SUSPEND */
+ 
+-static void __init omap3_init_voltages(void)
+-{
+-	if (!soc_is_omap34xx())
+-		return;
+-
+-	omap2_set_init_voltage("mpu_iva", "dpll1_ck", "mpu");
+-	omap2_set_init_voltage("core", "l3_ick", "l3_main");
+-}
+-
+-static void __init omap4_init_voltages(void)
+-{
+-	if (!soc_is_omap44xx())
+-		return;
+-
+-	omap2_set_init_voltage("mpu", "dpll_mpu_ck", "mpu");
+-	omap2_set_init_voltage("core", "l3_div_ck", "l3_main_1");
+-	omap2_set_init_voltage("iva", "dpll_iva_m5x2_ck", "iva");
+-}
+-
+ int __maybe_unused omap_pm_nop_init(void)
+ {
+ 	return 0;
+@@ -249,10 +153,6 @@ int __init omap2_common_pm_late_init(void)
+ 	omap4_twl_init();
+ 	omap_voltage_late_init();
+ 
+-	/* Initialize the voltages */
+-	omap3_init_voltages();
+-	omap4_init_voltages();
+-
+ 	/* Smartreflex device init */
+ 	omap_devinit_smartreflex();
+ 
+-- 
+2.20.1
+
 
 
