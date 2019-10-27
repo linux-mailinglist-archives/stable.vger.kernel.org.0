@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4359E6910
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B1FE696F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729925AbfJ0VLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:11:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
+        id S1727316AbfJ0VGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfJ0VLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:11:37 -0400
+        id S1727099AbfJ0VGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:06:20 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E212420873;
-        Sun, 27 Oct 2019 21:11:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B94E9214AF;
+        Sun, 27 Oct 2019 21:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210697;
-        bh=YcKemW8hN6xN1mCdmzEDpotHmlwhqjkayGEgTz247TY=;
+        s=default; t=1572210380;
+        bh=P5TbDHn4L8lp7SJMwGX8ysHqwlmcFsq8WwQEoWNuwV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1+mIoZz+3ApQZ+rilKn8P+7Jfrd86N6+pZRNywMXkBT4+oJ35CRrlizRXGXCqde6
-         DcPznqKwhUchdDVwmq9KfZYtZB/zInpT1EVZJ5I7o6XnytAYQwAiJSQVDC5OaT68hG
-         PYFoFiqI72euiFo0hnMqEEpw10hxXeIzkzYolETg=
+        b=RQEp1udP1XmstkZoazwqCEE8cFJJgNCUUyfEnOY7uw0QvATCe8fw44ro+nfz49qD6
+         6FHP/E+sJkO1w65t/4jDywNggZrdDAMIiSDUsH+Att9IdOalhGprPvGcV2/mIotMCS
+         dJUnyUWvrc1EpnXqY7nMT0PUT2cQQ8udjSejYqI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 106/119] CIFS: avoid using MID 0xFFFF
-Date:   Sun, 27 Oct 2019 22:01:23 +0100
-Message-Id: <20191027203349.292777908@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Paul Durrant <paul@xen.org>, Wei Liu <wei.liu@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 46/49] xen/netback: fix error path of xenvif_connect_data()
+Date:   Sun, 27 Oct 2019 22:01:24 +0100
+Message-Id: <20191027203203.808402034@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Bergantinos Corpas <rbergant@redhat.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 03d9a9fe3f3aec508e485dd3dcfa1e99933b4bdb upstream.
+commit 3d5c1a037d37392a6859afbde49be5ba6a70a6b3 upstream.
 
-According to MS-CIFS specification MID 0xFFFF should not be used by the
-CIFS client, but we actually do. Besides, this has proven to cause races
-leading to oops between SendReceive2/cifs_demultiplex_thread. On SMB1,
-MID is a 2 byte value easy to reach in CurrentMid which may conflict with
-an oplock break notification request coming from server
+xenvif_connect_data() calls module_put() in case of error. This is
+wrong as there is no related module_get().
 
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Remove the superfluous module_put().
+
+Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
+Cc: <stable@vger.kernel.org> # 3.12
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/smb1ops.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/xen-netback/interface.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/cifs/smb1ops.c
-+++ b/fs/cifs/smb1ops.c
-@@ -181,6 +181,9 @@ cifs_get_next_mid(struct TCP_Server_Info
- 	/* we do not want to loop forever */
- 	last_mid = cur_mid;
- 	cur_mid++;
-+	/* avoid 0xFFFF MID */
-+	if (cur_mid == 0xffff)
-+		cur_mid++;
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -706,7 +706,6 @@ err_unmap:
+ 	xenvif_unmap_frontend_data_rings(queue);
+ 	netif_napi_del(&queue->napi);
+ err:
+-	module_put(THIS_MODULE);
+ 	return err;
+ }
  
- 	/*
- 	 * This nested loop looks more expensive than it is.
 
 
