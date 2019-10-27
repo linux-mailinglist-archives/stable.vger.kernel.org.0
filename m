@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 324B0E657D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C0DE663E
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbfJ0VCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:02:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
+        id S1729627AbfJ0VKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727099AbfJ0VCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:02:39 -0400
+        id S1729606AbfJ0VKF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:10:05 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A0162064A;
-        Sun, 27 Oct 2019 21:02:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E2732064A;
+        Sun, 27 Oct 2019 21:10:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210157;
-        bh=JAjNnovaKiGZ0JEZqWC//3IDhdNyQTZW3xqY1GsT6Hs=;
+        s=default; t=1572210605;
+        bh=1oMNMrK0NmsSeFiB3o1cyKQqEZTPEu/Oc6jImObE9eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUeNj7ki8KBilcan/kdBsFghy+Cne3mI1GaLpvYOwAv7c2GTT7sEob0n0lv1JPG+f
-         kLaOcFS+VehQmjmHMmOkudEeytoQprF5a6nrZr4TmIdk/AWfNKWPjO2+7/pnaSyOP5
-         vyfrQo6hYVcxtKK9QWSEhpqywKbHXoIkDxDJ0Oxk=
+        b=ieDndb3KckUAVpViXEHWp9PwkPUutUmzoAf6wfSC/Gdr0p8Qg3+LIDL0wo8jzEKvp
+         lwhc7ZU5qcc3Cwjpk8gRdKYywL+JpvXopYJKglCJW08Mgtv3vMy9sNCLfnto5fYIKU
+         Ds0JS89nMiRhOQUhdsBZjspVYiTICtX8pe7OZh2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Zhuo <mengzhuo1203@gmail.com>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-mips@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 11/41] MIPS: elf_hwcap: Export userspace ASEs
-Date:   Sun, 27 Oct 2019 22:00:49 +0100
-Message-Id: <20191027203108.951999877@linuxfoundation.org>
+        Jeremy Linton <jeremy.linton@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 073/119] arm64: add sysfs vulnerability show for meltdown
+Date:   Sun, 27 Oct 2019 22:00:50 +0100
+Message-Id: <20191027203339.394733907@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +48,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-[ Upstream commit 38dffe1e4dde1d3174fdce09d67370412843ebb5 ]
+[ Upstream commit 1b3ccf4be0e7be8c4bd8522066b6cbc92591e912 ]
 
-A Golang developer reported MIPS hwcap isn't reflecting instructions
-that the processor actually supported so programs can't apply optimized
-code at runtime.
+We implement page table isolation as a mitigation for meltdown.
+Report this to userspace via sysfs.
 
-Thus we export the ASEs that can be used in userspace programs.
-
-Reported-by: Meng Zhuo <mengzhuo1203@gmail.com>
-Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Paul Burton <paul.burton@mips.com>
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/uapi/asm/hwcap.h | 11 +++++++++++
- arch/mips/kernel/cpu-probe.c       | 25 +++++++++++++++++++++++++
- 2 files changed, 36 insertions(+)
+ arch/arm64/kernel/cpufeature.c |   58 +++++++++++++++++++++++++++++++----------
+ 1 file changed, 44 insertions(+), 14 deletions(-)
 
-diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
-index c7484a7ca686d..2b6f8d569d00f 100644
---- a/arch/mips/include/uapi/asm/hwcap.h
-+++ b/arch/mips/include/uapi/asm/hwcap.h
-@@ -4,5 +4,16 @@
- /* HWCAP flags */
- #define HWCAP_MIPS_R6		(1 << 0)
- #define HWCAP_MIPS_MSA		(1 << 1)
-+#define HWCAP_MIPS_MIPS16	(1 << 3)
-+#define HWCAP_MIPS_MDMX     (1 << 4)
-+#define HWCAP_MIPS_MIPS3D   (1 << 5)
-+#define HWCAP_MIPS_SMARTMIPS (1 << 6)
-+#define HWCAP_MIPS_DSP      (1 << 7)
-+#define HWCAP_MIPS_DSP2     (1 << 8)
-+#define HWCAP_MIPS_DSP3     (1 << 9)
-+#define HWCAP_MIPS_MIPS16E2 (1 << 10)
-+#define HWCAP_LOONGSON_MMI  (1 << 11)
-+#define HWCAP_LOONGSON_EXT  (1 << 12)
-+#define HWCAP_LOONGSON_EXT2 (1 << 13)
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -824,7 +824,7 @@ static bool has_no_fpsimd(const struct a
+ 					ID_AA64PFR0_FP_SHIFT) < 0;
+ }
  
- #endif /* _UAPI_ASM_HWCAP_H */
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index ee71bda53d4e6..3903737e08cc8 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1540,6 +1540,31 @@ void cpu_probe(void)
- 		elf_hwcap |= HWCAP_MIPS_MSA;
+-#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
++static bool __meltdown_safe = true;
+ static int __kpti_forced; /* 0: not forced, >0: forced on, <0: forced off */
+ 
+ static bool unmap_kernel_at_el0(const struct arm64_cpu_capabilities *entry,
+@@ -842,6 +842,16 @@ static bool unmap_kernel_at_el0(const st
+ 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
+ 	};
+ 	char const *str = "command line option";
++	bool meltdown_safe;
++
++	meltdown_safe = is_midr_in_range_list(read_cpuid_id(), kpti_safe_list);
++
++	/* Defer to CPU feature registers */
++	if (has_cpuid_feature(entry, scope))
++		meltdown_safe = true;
++
++	if (!meltdown_safe)
++		__meltdown_safe = false;
+ 
+ 	/*
+ 	 * For reasons that aren't entirely clear, enabling KPTI on Cavium
+@@ -853,6 +863,19 @@ static bool unmap_kernel_at_el0(const st
+ 		__kpti_forced = -1;
  	}
  
-+	if (cpu_has_mips16)
-+		elf_hwcap |= HWCAP_MIPS_MIPS16;
++	/* Useful for KASLR robustness */
++	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE) && kaslr_offset() > 0) {
++		if (!__kpti_forced) {
++			str = "KASLR";
++			__kpti_forced = 1;
++		}
++	}
 +
-+	if (cpu_has_mdmx)
-+		elf_hwcap |= HWCAP_MIPS_MDMX;
++	if (!IS_ENABLED(CONFIG_UNMAP_KERNEL_AT_EL0)) {
++		pr_info_once("kernel page table isolation disabled by kernel configuration\n");
++		return false;
++	}
 +
-+	if (cpu_has_mips3d)
-+		elf_hwcap |= HWCAP_MIPS_MIPS3D;
-+
-+	if (cpu_has_smartmips)
-+		elf_hwcap |= HWCAP_MIPS_SMARTMIPS;
-+
-+	if (cpu_has_dsp)
-+		elf_hwcap |= HWCAP_MIPS_DSP;
-+
-+	if (cpu_has_dsp2)
-+		elf_hwcap |= HWCAP_MIPS_DSP2;
-+
-+	if (cpu_has_loongson_mmi)
-+		elf_hwcap |= HWCAP_LOONGSON_MMI;
-+
-+	if (cpu_has_loongson_ext)
-+		elf_hwcap |= HWCAP_LOONGSON_EXT;
-+
-+
- 	cpu_probe_vmbits(c);
+ 	/* Forced? */
+ 	if (__kpti_forced) {
+ 		pr_info_once("kernel page table isolation forced %s by %s\n",
+@@ -860,18 +883,10 @@ static bool unmap_kernel_at_el0(const st
+ 		return __kpti_forced > 0;
+ 	}
  
- #ifdef CONFIG_64BIT
--- 
-2.20.1
-
+-	/* Useful for KASLR robustness */
+-	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE))
+-		return true;
+-
+-	/* Don't force KPTI for CPUs that are not vulnerable */
+-	if (is_midr_in_range_list(read_cpuid_id(), kpti_safe_list))
+-		return false;
+-
+-	/* Defer to CPU feature registers */
+-	return !has_cpuid_feature(entry, scope);
++	return !meltdown_safe;
+ }
+ 
++#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ static void
+ kpti_install_ng_mappings(const struct arm64_cpu_capabilities *__unused)
+ {
+@@ -896,6 +911,12 @@ kpti_install_ng_mappings(const struct ar
+ 
+ 	return;
+ }
++#else
++static void
++kpti_install_ng_mappings(const struct arm64_cpu_capabilities *__unused)
++{
++}
++#endif	/* CONFIG_UNMAP_KERNEL_AT_EL0 */
+ 
+ static int __init parse_kpti(char *str)
+ {
+@@ -909,7 +930,6 @@ static int __init parse_kpti(char *str)
+ 	return 0;
+ }
+ early_param("kpti", parse_kpti);
+-#endif	/* CONFIG_UNMAP_KERNEL_AT_EL0 */
+ 
+ static void cpu_copy_el2regs(const struct arm64_cpu_capabilities *__unused)
+ {
+@@ -1056,7 +1076,6 @@ static const struct arm64_cpu_capabiliti
+ 		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
+ 		.matches = hyp_offset_low,
+ 	},
+-#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
+ 	{
+ 		.desc = "Kernel page table isolation (KPTI)",
+ 		.capability = ARM64_UNMAP_KERNEL_AT_EL0,
+@@ -1072,7 +1091,6 @@ static const struct arm64_cpu_capabiliti
+ 		.matches = unmap_kernel_at_el0,
+ 		.cpu_enable = kpti_install_ng_mappings,
+ 	},
+-#endif
+ 	{
+ 		/* FP/SIMD is not implemented */
+ 		.capability = ARM64_HAS_NO_FPSIMD,
+@@ -1629,3 +1647,15 @@ static int __init enable_mrs_emulation(v
+ }
+ 
+ core_initcall(enable_mrs_emulation);
++
++ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr,
++			  char *buf)
++{
++	if (__meltdown_safe)
++		return sprintf(buf, "Not affected\n");
++
++	if (arm64_kernel_unmapped_at_el0())
++		return sprintf(buf, "Mitigation: PTI\n");
++
++	return sprintf(buf, "Vulnerable\n");
++}
 
 
