@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBD7E6793
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE460E6696
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732088AbfJ0VWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43148 "EHLO mail.kernel.org"
+        id S1730237AbfJ0VNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732084AbfJ0VWK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:10 -0400
+        id S1730229AbfJ0VNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:13:18 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05A722070B;
-        Sun, 27 Oct 2019 21:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A86214AF;
+        Sun, 27 Oct 2019 21:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211329;
-        bh=qSmlTE+QgmSY9E9tC6knfwegASSxSRMMw6TO5CL9/D8=;
+        s=default; t=1572210797;
+        bh=2LmyhbCXVxyjU1oqCpnEO3Teoc6Sz9N58R4YWqEugEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDLrfVOdUXHauLiQ4cvnPQY9sIkE1W4kmWxWLwxobS2k/UrLrTJwsSXVAvtTQU3Br
-         u1oRefYbt4VeOTpXRL3F9Bc68sRqTB1xA+y2palmlw1Y5/PcRORAxQKoG3nnd+lM2e
-         i0tRhKA66JXCaYkRZokFb/ZIUza/yuRlApgAXEow=
+        b=1mP50oTtWHlWcMwQZ/h5lOzZeE7TGAIrZtcdVJUT6iCQQ5bPpazDCbjoWfXspRet2
+         kYtYuMtmB5hwyGQwTqY/nSQDa9u/E5jDDU3dmhaYVp7tVhROMvW3JDj88SJHjQ+1wj
+         8Nf5idE/1Ur9zHbcL8tVfD4UdddVAda0I7HC5Eoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Rob Turk <robtu@rtist.nl>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.3 113/197] scsi: ch: Make it possible to open a ch device multiple times again
-Date:   Sun, 27 Oct 2019 22:00:31 +0100
-Message-Id: <20191027203357.843173402@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 20/93] namespace: fix namespace.pl script to support relative paths
+Date:   Sun, 27 Oct 2019 22:00:32 +0100
+Message-Id: <20191027203255.620122454@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit 6a0990eaa768dfb7064f06777743acc6d392084b upstream.
+[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
 
-Clearing ch->device in ch_release() is wrong because that pointer must
-remain valid until ch_remove() is called. This patch fixes the following
-crash the second time a ch device is opened:
+The namespace.pl script does not work properly if objtree is not set to
+an absolute path. The do_nm function is run from within the find
+function, which changes directories.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000790
-RIP: 0010:scsi_device_get+0x5/0x60
-Call Trace:
- ch_open+0x4c/0xa0 [ch]
- chrdev_open+0xa2/0x1c0
- do_dentry_open+0x13a/0x380
- path_openat+0x591/0x1470
- do_filp_open+0x91/0x100
- do_sys_open+0x184/0x220
- do_syscall_64+0x5f/0x1a0
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Because of this, appending objtree, $File::Find::dir, and $source, will
+return a path which is not valid from the current directory.
 
-Fixes: 085e56766f74 ("scsi: ch: add refcounting")
-Cc: Hannes Reinecke <hare@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191009173536.247889-1-bvanassche@acm.org
-Reported-by: Rob Turk <robtu@rtist.nl>
-Suggested-by: Rob Turk <robtu@rtist.nl>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This used to work when objtree was set to an absolute path when using
+"make namespacecheck". It appears to have not worked when calling
+./scripts/namespace.pl directly.
 
+This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
+for $(objtree)", 2014-05-14)
+
+Rather than fixing the Makefile to set objtree to an absolute path, just
+fix namespace.pl to work when srctree and objtree are relative. Also fix
+the script to use an absolute path for these by default.
+
+Use the File::Spec module for this purpose. It's been part of perl
+5 since 5.005.
+
+The curdir() function is used to get the current directory when the
+objtree and srctree aren't set in the environment.
+
+rel2abs() is used to convert possibly relative objtree and srctree
+environment variables to absolute paths.
+
+Finally, the catfile() function is used instead of string appending
+paths together, since this is more robust when joining paths together.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ch.c |    1 -
- 1 file changed, 1 deletion(-)
+ scripts/namespace.pl | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/ch.c
-+++ b/drivers/scsi/ch.c
-@@ -579,7 +579,6 @@ ch_release(struct inode *inode, struct f
- 	scsi_changer *ch = file->private_data;
+diff --git a/scripts/namespace.pl b/scripts/namespace.pl
+index 6135574a6f394..1da7bca201a42 100755
+--- a/scripts/namespace.pl
++++ b/scripts/namespace.pl
+@@ -65,13 +65,14 @@
+ use warnings;
+ use strict;
+ use File::Find;
++use File::Spec;
  
- 	scsi_device_put(ch->device);
--	ch->device = NULL;
- 	file->private_data = NULL;
- 	kref_put(&ch->ref, ch_destroy);
- 	return 0;
+ my $nm = ($ENV{'NM'} || "nm") . " -p";
+ my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+-my $srctree = "";
+-my $objtree = "";
+-$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+-$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
++my $srctree = File::Spec->curdir();
++my $objtree = File::Spec->curdir();
++$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
++$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
+ 
+ if ($#ARGV != -1) {
+ 	print STDERR "usage: $0 takes no parameters\n";
+@@ -231,9 +232,9 @@ sub do_nm
+ 	}
+ 	($source = $basename) =~ s/\.o$//;
+ 	if (-e "$source.c" || -e "$source.S") {
+-		$source = "$objtree$File::Find::dir/$source";
++		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
+ 	} else {
+-		$source = "$srctree$File::Find::dir/$source";
++		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
+ 	}
+ 	if (! -e "$source.c" && ! -e "$source.S") {
+ 		# No obvious source, exclude the object if it is conglomerate
+-- 
+2.20.1
+
 
 
