@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81EFFE68C8
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D44B4E69A6
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730574AbfJ0VcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:32:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34966 "EHLO mail.kernel.org"
+        id S1727572AbfJ0VEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730063AbfJ0VPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:15:35 -0400
+        id S1727330AbfJ0VEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:06 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68527208C0;
-        Sun, 27 Oct 2019 21:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFCD7214E0;
+        Sun, 27 Oct 2019 21:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210934;
-        bh=e0KjGw4Rm5fqqqiU9czU4vgofrmX3pia851pvyeqFeg=;
+        s=default; t=1572210245;
+        bh=2Gpk+VlZGFrwkt2V2CFGaV+DomT8opTG+dvLCwcRiQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fOFF1OdF3Y0qMnGX17IBY6KR3+v7hMCAL1jO5qyOxqLM5Nuwze/MBYfU0bey7Drd
-         +JrJfZIaArgG4kNPWYke1opdRdCD/NeZQsxSz5HGFI9kelt2YnFmE+NfhzdalY5nB1
-         rcDCIfVnl39AHgniMJTkksLAxljxi1tmltqPtkZE=
+        b=vUR0IzzEX0ntfD4OXdupBg6BeCGR12H3LsXY4NADReZ7AOQUuP7nbNSzu8L50AiG0
+         N4qbP3aFWmjCgu6COZ2Xd2FyLQa+WMdjLcUTfxXG528qYvoGdhSYbL2aQJGiNpfzcg
+         j3Mqp+P9fYtsELbxA02+UmM4SR4w++YAzgv85ypg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 67/93] mm/page_owner: dont access uninitialized memmaps when reading /proc/pagetypeinfo
+        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.4 41/41] RDMA/cxgb4: Do not dma memory off of the stack
 Date:   Sun, 27 Oct 2019 22:01:19 +0100
-Message-Id: <20191027203307.845806193@linuxfoundation.org>
+Message-Id: <20191027203137.267282361@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,83 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Greg KH <gregkh@linuxfoundation.org>
 
-commit a26ee565b6cd8dc2bf15ff6aa70bbb28f928b773 upstream.
+commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
 
-Uninitialized memmaps contain garbage and in the worst case trigger
-kernel BUGs, especially with CONFIG_PAGE_POISONING.  They should not get
-touched.
+Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
+which is generally considered a very bad thing.  On some architectures it
+could be a security problem, but odds are none of them actually run this
+driver, so it's just a "normal" bug.
 
-For example, when not onlining a memory block that is spanned by a zone
-and reading /proc/pagetypeinfo with CONFIG_DEBUG_VM_PGFLAGS and
-CONFIG_PAGE_POISONING, we can trigger a kernel BUG:
+Resolve this by allocating the memory for a message off of the heap
+instead of the stack.  kmalloc() always will give us a proper memory
+location that DMA will work correctly from.
 
-  :/# echo 1 > /sys/devices/system/memory/memory40/online
-  :/# echo 1 > /sys/devices/system/memory/memory42/online
-  :/# cat /proc/pagetypeinfo > test.file
-   page:fffff2c585200000 is uninitialized and poisoned
-   raw: ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff
-   raw: ffffffffffffffff ffffffffffffffff ffffffffffffffff ffffffffffffffff
-   page dumped because: VM_BUG_ON_PAGE(PagePoisoned(p))
-   There is not page extension available.
-   ------------[ cut here ]------------
-   kernel BUG at include/linux/mm.h:1107!
-   invalid opcode: 0000 [#1] SMP NOPTI
-
-Please note that this change does not affect ZONE_DEVICE, because
-pagetypeinfo_showmixedcount_print() is called from
-mm/vmstat.c:pagetypeinfo_showmixedcount() only for populated zones, and
-ZONE_DEVICE is never populated (zone->present_pages always 0).
-
-[david@redhat.com: move check to outer loop, add comment, rephrase description]
-Link: http://lkml.kernel.org/r/20191011140638.8160-1-david@redhat.com
-Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online") # visible after d0dc12e86b319
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Cc: Miles Chen <miles.chen@mediatek.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>	[4.13+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/page_owner.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/mm/page_owner.c
-+++ b/mm/page_owner.c
-@@ -273,7 +273,8 @@ void pagetypeinfo_showmixedcount_print(s
- 	 * not matter as the mixed block count will still be correct
- 	 */
- 	for (; pfn < end_pfn; ) {
--		if (!pfn_valid(pfn)) {
-+		page = pfn_to_online_page(pfn);
-+		if (!page) {
- 			pfn = ALIGN(pfn + 1, MAX_ORDER_NR_PAGES);
- 			continue;
+--- a/drivers/infiniband/hw/cxgb4/mem.c
++++ b/drivers/infiniband/hw/cxgb4/mem.c
+@@ -254,13 +254,17 @@ static int write_tpt_entry(struct c4iw_r
+ 			   u64 len, u8 page_size, u32 pbl_size, u32 pbl_addr)
+ {
+ 	int err;
+-	struct fw_ri_tpte tpt;
++	struct fw_ri_tpte *tpt;
+ 	u32 stag_idx;
+ 	static atomic_t key;
+ 
+ 	if (c4iw_fatal_error(rdev))
+ 		return -EIO;
+ 
++	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
++	if (!tpt)
++		return -ENOMEM;
++
+ 	stag_state = stag_state > 0;
+ 	stag_idx = (*stag) >> 8;
+ 
+@@ -270,6 +274,7 @@ static int write_tpt_entry(struct c4iw_r
+ 			mutex_lock(&rdev->stats.lock);
+ 			rdev->stats.stag.fail++;
+ 			mutex_unlock(&rdev->stats.lock);
++			kfree(tpt);
+ 			return -ENOMEM;
  		}
-@@ -281,13 +282,13 @@ void pagetypeinfo_showmixedcount_print(s
- 		block_end_pfn = ALIGN(pfn + 1, pageblock_nr_pages);
- 		block_end_pfn = min(block_end_pfn, end_pfn);
+ 		mutex_lock(&rdev->stats.lock);
+@@ -284,28 +289,28 @@ static int write_tpt_entry(struct c4iw_r
  
--		page = pfn_to_page(pfn);
- 		pageblock_mt = get_pageblock_migratetype(page);
+ 	/* write TPT entry */
+ 	if (reset_tpt_entry)
+-		memset(&tpt, 0, sizeof(tpt));
++		memset(tpt, 0, sizeof(*tpt));
+ 	else {
+-		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
++		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
+ 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
+ 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
+ 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
+-		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
++		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
+ 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
+ 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
+ 						      FW_RI_VA_BASED_TO))|
+ 			FW_RI_TPTE_PS_V(page_size));
+-		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
++		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
+ 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
+-		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
+-		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
+-		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
+-		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
+-		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
++		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
++		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
++		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
++		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
++		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
+ 	}
+ 	err = write_adapter_mem(rdev, stag_idx +
+ 				(rdev->lldi.vr->stag.start >> 5),
+-				sizeof(tpt), &tpt);
++				sizeof(*tpt), tpt);
  
- 		for (; pfn < block_end_pfn; pfn++) {
- 			if (!pfn_valid_within(pfn))
- 				continue;
+ 	if (reset_tpt_entry) {
+ 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
+@@ -313,6 +318,7 @@ static int write_tpt_entry(struct c4iw_r
+ 		rdev->stats.stag.cur -= 32;
+ 		mutex_unlock(&rdev->stats.lock);
+ 	}
++	kfree(tpt);
+ 	return err;
+ }
  
-+			/* The pageblock is online, no need to recheck. */
- 			page = pfn_to_page(pfn);
- 
- 			if (page_zone(page) != zone)
 
 
