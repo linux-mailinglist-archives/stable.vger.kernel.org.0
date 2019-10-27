@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09F01E664D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1ACE67B4
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728827AbfJ0VKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57074 "EHLO mail.kernel.org"
+        id S1730419AbfJ0VXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:23:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728797AbfJ0VKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:37 -0400
+        id S1731704AbfJ0VXb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:23:31 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 819A520873;
-        Sun, 27 Oct 2019 21:10:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1ED0205C9;
+        Sun, 27 Oct 2019 21:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210637;
-        bh=yy9iRurEiMd6hM0tViCdcWOujPSbCP1i+PLRyE2P5Ls=;
+        s=default; t=1572211411;
+        bh=txFVa3o1tO0XS4afHK4M0KfRj3uMT4moVpCZDTRCnuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1yjB3Oh61SDImSDfYD9gtE2VDXf62Ee9M5nCgwQeBvj32ErgYLftmU3Ao2p+FDhr
-         8l+c+G/1iTFu5AdjPrppR60oM7UMslaRzuavE+uKjnUeo0/G/aCxklC4g7emDOWx9v
-         LLJlblYA7nsB79B0IucSK70y95YbwA8HNgORibrI=
+        b=toZ10yMHw7FOdT58aXlKPLd4MpdK+BSI+A1ACI8JlWqFzlZI3XSFtY4QlOqBkiqjO
+         SAMFN911EWUz+5uODWqo5Bs0au8VHblTTnv/u6nx/gAS8ETnwZaGLOq5Tj4L+wFXeh
+         eLFp64ddHgq/Cc1qxb+XMmGBD66bYc+PdQ40MX8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 083/119] arm64: Use firmware to detect CPUs that are not affected by Spectre-v2
-Date:   Sun, 27 Oct 2019 22:01:00 +0100
-Message-Id: <20191027203345.935698895@linuxfoundation.org>
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.3 143/197] mmc: sdhci-omap: Fix Tuning procedure for temperatures < -20C
+Date:   Sun, 27 Oct 2019 22:01:01 +0100
+Message-Id: <20191027203359.418304808@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-[ Upstream commit 517953c2c47f9c00a002f588ac856a5bc70cede3 ]
+commit feb40824d78eac5e48f56498dca941754dff33d7 upstream.
 
-The SMCCC ARCH_WORKAROUND_1 service can indicate that although the
-firmware knows about the Spectre-v2 mitigation, this particular
-CPU is not vulnerable, and it is thus not necessary to call
-the firmware on this CPU.
+According to the App note[1] detailing the tuning algorithm, for
+temperatures < -20C, the initial tuning value should be min(largest value
+in LPW - 24, ceil(13/16 ratio of LPW)). The largest value in LPW is
+(max_window + 4 * (max_len - 1)) and not (max_window + 4 * max_len) itself.
+Fix this implementation.
 
-Let's use this information to our benefit.
+[1] http://www.ti.com/lit/an/spraca9b/spraca9b.pdf
 
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Fixes: 961de0a856e3 ("mmc: sdhci-omap: Workaround errata regarding SDR104/HS200 tuning failures (i929)")
+Cc: stable@vger.kernel.org
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/cpu_errata.c |   32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -190,22 +190,36 @@ static int detect_harden_bp_fw(void)
- 	case PSCI_CONDUIT_HVC:
- 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
--		if ((int)res.a0 < 0)
-+		switch ((int)res.a0) {
-+		case 1:
-+			/* Firmware says we're just fine */
-+			return 0;
-+		case 0:
-+			cb = call_hvc_arch_workaround_1;
-+			/* This is a guest, no need to patch KVM vectors */
-+			smccc_start = NULL;
-+			smccc_end = NULL;
-+			break;
-+		default:
- 			return -1;
--		cb = call_hvc_arch_workaround_1;
--		/* This is a guest, no need to patch KVM vectors */
--		smccc_start = NULL;
--		smccc_end = NULL;
-+		}
- 		break;
- 
- 	case PSCI_CONDUIT_SMC:
- 		arm_smccc_1_1_smc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
--		if ((int)res.a0 < 0)
-+		switch ((int)res.a0) {
-+		case 1:
-+			/* Firmware says we're just fine */
-+			return 0;
-+		case 0:
-+			cb = call_smc_arch_workaround_1;
-+			smccc_start = __smccc_workaround_1_smc_start;
-+			smccc_end = __smccc_workaround_1_smc_end;
-+			break;
-+		default:
- 			return -1;
--		cb = call_smc_arch_workaround_1;
--		smccc_start = __smccc_workaround_1_smc_start;
--		smccc_end = __smccc_workaround_1_smc_end;
-+		}
- 		break;
- 
- 	default:
+---
+ drivers/mmc/host/sdhci-omap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/mmc/host/sdhci-omap.c
++++ b/drivers/mmc/host/sdhci-omap.c
+@@ -372,7 +372,7 @@ static int sdhci_omap_execute_tuning(str
+ 	 * on temperature
+ 	 */
+ 	if (temperature < -20000)
+-		phase_delay = min(max_window + 4 * max_len - 24,
++		phase_delay = min(max_window + 4 * (max_len - 1) - 24,
+ 				  max_window +
+ 				  DIV_ROUND_UP(13 * max_len, 16) * 4);
+ 	else if (temperature < 20000)
 
 
