@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F1E8E6922
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0E6E69BF
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729680AbfJ0VKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
+        id S1728158AbfJ0VCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729670AbfJ0VKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:17 -0400
+        id S1728150AbfJ0VCy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:02:54 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6CE6E20873;
-        Sun, 27 Oct 2019 21:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 737372064A;
+        Sun, 27 Oct 2019 21:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210616;
-        bh=KnbIuc4hH1+dOvfd4Ox4/W1RZYw4LgzElBn/oUflloQ=;
+        s=default; t=1572210173;
+        bh=DM4+LY+hEWhFaO1j9NxTeFC6cPV9oXuADt/u6COqIwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyQnBEZXIxXNqnB0MFPJpREY20GHbP1H5l7zMHM6cHAF6EPjHe7yKI6y7Ao3K0YMI
-         fPi00YzHQCspfWovhd+jSiGStI4CMimXTCQ30Tz2bLXcTaHD3ztoOqCJ7o3b77jZH/
-         qLaf3lE4rvWUtel0lvwnf7tg4S9geUiTA53RNa8Y=
+        b=cMs7GlaoXcKFHdLz2of2NprQ4NtgOghMAAuP+OAjjnoL7w/orEojqieGFwlwKugpX
+         IU0g/gVBf3pjTKoCLi+8BIs+nxbKqYeQEBM17KoPTjntyiLiVsToRyCvhOEOqtp/AW
+         EqoQCSryVXpyI52v7HJrO23X/CF6czIg4lUo74e0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 077/119] arm64: Advertise mitigation of Spectre-v2, or lack thereof
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 16/41] net: avoid potential infinite loop in tc_ctl_action()
 Date:   Sun, 27 Oct 2019 22:00:54 +0100
-Message-Id: <20191027203343.582225094@linuxfoundation.org>
+Message-Id: <20191027203113.220664397@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,220 +44,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 73f38166095947f3b86b02fbed6bd592223a7ac8 ]
+[ Upstream commit 39f13ea2f61b439ebe0060393e9c39925c9ee28c ]
 
-We currently have a list of CPUs affected by Spectre-v2, for which
-we check that the firmware implements ARCH_WORKAROUND_1. It turns
-out that not all firmwares do implement the required mitigation,
-and that we fail to let the user know about it.
+tc_ctl_action() has the ability to loop forever if tcf_action_add()
+returns -EAGAIN.
 
-Instead, let's slightly revamp our checks, and rely on a whitelist
-of cores that are known to be non-vulnerable, and let the user know
-the status of the mitigation in the kernel log.
+This special case has been done in case a module needed to be loaded,
+but it turns out that tcf_add_notify() could also return -EAGAIN
+if the socket sk_rcvbuf limit is hit.
 
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+We need to separate the two cases, and only loop for the module
+loading case.
+
+While we are at it, add a limit of 10 attempts since unbounded
+loops are always scary.
+
+syzbot repro was something like :
+
+socket(PF_NETLINK, SOCK_RAW|SOCK_NONBLOCK, NETLINK_ROUTE) = 3
+write(3, ..., 38) = 38
+setsockopt(3, SOL_SOCKET, SO_RCVBUF, [0], 4) = 0
+sendmsg(3, {msg_name(0)=NULL, msg_iov(1)=[{..., 388}], msg_controllen=0, msg_flags=0x10}, ...)
+
+NMI backtrace for cpu 0
+CPU: 0 PID: 1054 Comm: khungtaskd Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ nmi_cpu_backtrace.cold+0x70/0xb2 lib/nmi_backtrace.c:101
+ nmi_trigger_cpumask_backtrace+0x23b/0x28b lib/nmi_backtrace.c:62
+ arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
+ trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
+ check_hung_uninterruptible_tasks kernel/hung_task.c:205 [inline]
+ watchdog+0x9d0/0xef0 kernel/hung_task.c:289
+ kthread+0x361/0x430 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Sending NMI from CPU 0 to CPUs 1:
+NMI backtrace for cpu 1
+CPU: 1 PID: 8859 Comm: syz-executor910 Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/paravirt.h:751 [inline]
+RIP: 0010:lockdep_hardirqs_off+0x1df/0x2e0 kernel/locking/lockdep.c:3453
+Code: 5c 08 00 00 5b 41 5c 41 5d 5d c3 48 c7 c0 58 1d f3 88 48 ba 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c 10 00 0f 85 d3 00 00 00 <48> 83 3d 21 9e 99 07 00 0f 84 b9 00 00 00 9c 58 0f 1f 44 00 00 f6
+RSP: 0018:ffff8880a6f3f1b8 EFLAGS: 00000046
+RAX: 1ffffffff11e63ab RBX: ffff88808c9c6080 RCX: 0000000000000000
+RDX: dffffc0000000000 RSI: 0000000000000000 RDI: ffff88808c9c6914
+RBP: ffff8880a6f3f1d0 R08: ffff88808c9c6080 R09: fffffbfff16be5d1
+R10: fffffbfff16be5d0 R11: 0000000000000003 R12: ffffffff8746591f
+R13: ffff88808c9c6080 R14: ffffffff8746591f R15: 0000000000000003
+FS:  00000000011e4880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffff600400 CR3: 00000000a8920000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ trace_hardirqs_off+0x62/0x240 kernel/trace/trace_preemptirq.c:45
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:108 [inline]
+ _raw_spin_lock_irqsave+0x6f/0xcd kernel/locking/spinlock.c:159
+ __wake_up_common_lock+0xc8/0x150 kernel/sched/wait.c:122
+ __wake_up+0xe/0x10 kernel/sched/wait.c:142
+ netlink_unlock_table net/netlink/af_netlink.c:466 [inline]
+ netlink_unlock_table net/netlink/af_netlink.c:463 [inline]
+ netlink_broadcast_filtered+0x705/0xb80 net/netlink/af_netlink.c:1514
+ netlink_broadcast+0x3a/0x50 net/netlink/af_netlink.c:1534
+ rtnetlink_send+0xdd/0x110 net/core/rtnetlink.c:714
+ tcf_add_notify net/sched/act_api.c:1343 [inline]
+ tcf_action_add+0x243/0x370 net/sched/act_api.c:1362
+ tc_ctl_action+0x3b5/0x4bc net/sched/act_api.c:1410
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5386
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5404
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440939
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |  108 +++++++++++++++++++++--------------------
- 1 file changed, 56 insertions(+), 52 deletions(-)
+ net/sched/act_api.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -98,9 +98,9 @@ static void __copy_hyp_vect_bpi(int slot
- 	flush_icache_range((uintptr_t)dst, (uintptr_t)dst + SZ_2K);
- }
- 
--static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
--				      const char *hyp_vecs_start,
--				      const char *hyp_vecs_end)
-+static void install_bp_hardening_cb(bp_hardening_cb_t fn,
-+				    const char *hyp_vecs_start,
-+				    const char *hyp_vecs_end)
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -946,10 +946,15 @@ static int
+ tcf_action_add(struct net *net, struct nlattr *nla, struct nlmsghdr *n,
+ 	       u32 portid, int ovr)
  {
- 	static int last_slot = -1;
- 	static DEFINE_SPINLOCK(bp_lock);
-@@ -130,7 +130,7 @@ static void __install_bp_hardening_cb(bp
- #define __smccc_workaround_1_smc_start		NULL
- #define __smccc_workaround_1_smc_end		NULL
+-	int ret = 0;
++	int loop, ret;
+ 	LIST_HEAD(actions);
  
--static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
-+static void install_bp_hardening_cb(bp_hardening_cb_t fn,
- 				      const char *hyp_vecs_start,
- 				      const char *hyp_vecs_end)
- {
-@@ -138,23 +138,6 @@ static void __install_bp_hardening_cb(bp
- }
- #endif	/* CONFIG_KVM */
- 
--static void  install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
--				     bp_hardening_cb_t fn,
--				     const char *hyp_vecs_start,
--				     const char *hyp_vecs_end)
--{
--	u64 pfr0;
--
--	if (!entry->matches(entry, SCOPE_LOCAL_CPU))
--		return;
--
--	pfr0 = read_cpuid(ID_AA64PFR0_EL1);
--	if (cpuid_feature_extract_unsigned_field(pfr0, ID_AA64PFR0_CSV2_SHIFT))
--		return;
--
--	__install_bp_hardening_cb(fn, hyp_vecs_start, hyp_vecs_end);
--}
--
- #include <uapi/linux/psci.h>
- #include <linux/arm-smccc.h>
- #include <linux/psci.h>
-@@ -189,31 +172,27 @@ static int __init parse_nospectre_v2(cha
- }
- early_param("nospectre_v2", parse_nospectre_v2);
- 
--static void
--enable_smccc_arch_workaround_1(const struct arm64_cpu_capabilities *entry)
-+/*
-+ * -1: No workaround
-+ *  0: No workaround required
-+ *  1: Workaround installed
-+ */
-+static int detect_harden_bp_fw(void)
- {
- 	bp_hardening_cb_t cb;
- 	void *smccc_start, *smccc_end;
- 	struct arm_smccc_res res;
- 	u32 midr = read_cpuid_id();
- 
--	if (!entry->matches(entry, SCOPE_LOCAL_CPU))
--		return;
--
--	if (__nospectre_v2) {
--		pr_info_once("spectrev2 mitigation disabled by command line option\n");
--		return;
--	}
--
- 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0)
--		return;
-+		return -1;
- 
- 	switch (psci_ops.conduit) {
- 	case PSCI_CONDUIT_HVC:
- 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 		if ((int)res.a0 < 0)
--			return;
-+			return -1;
- 		cb = call_hvc_arch_workaround_1;
- 		/* This is a guest, no need to patch KVM vectors */
- 		smccc_start = NULL;
-@@ -224,23 +203,23 @@ enable_smccc_arch_workaround_1(const str
- 		arm_smccc_1_1_smc(ARM_SMCCC_ARCH_FEATURES_FUNC_ID,
- 				  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 		if ((int)res.a0 < 0)
--			return;
-+			return -1;
- 		cb = call_smc_arch_workaround_1;
- 		smccc_start = __smccc_workaround_1_smc_start;
- 		smccc_end = __smccc_workaround_1_smc_end;
- 		break;
- 
- 	default:
--		return;
-+		return -1;
- 	}
- 
- 	if (((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR) ||
- 	    ((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR_V1))
- 		cb = qcom_link_stack_sanitization;
- 
--	install_bp_hardening_cb(entry, cb, smccc_start, smccc_end);
-+	install_bp_hardening_cb(cb, smccc_start, smccc_end);
- 
--	return;
-+	return 1;
- }
- #endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
- 
-@@ -479,23 +458,48 @@ out_printmsg:
- 	CAP_MIDR_RANGE_LIST(midr_list)
- 
- #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
--
- /*
-- * List of CPUs where we need to issue a psci call to
-- * harden the branch predictor.
-+ * List of CPUs that do not need any Spectre-v2 mitigation at all.
-  */
--static const struct midr_range arm64_bp_harden_smccc_cpus[] = {
--	MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
--	MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
--	MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
--	MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
--	MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
--	MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
--	MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR_V1),
--	MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR),
--	{},
-+static const struct midr_range spectre_v2_safe_list[] = {
-+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A35),
-+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A53),
-+	MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
-+	{ /* sentinel */ }
- };
- 
-+static bool __maybe_unused
-+check_branch_predictor(const struct arm64_cpu_capabilities *entry, int scope)
-+{
-+	int need_wa;
-+
-+	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
-+
-+	/* If the CPU has CSV2 set, we're safe */
-+	if (cpuid_feature_extract_unsigned_field(read_cpuid(ID_AA64PFR0_EL1),
-+						 ID_AA64PFR0_CSV2_SHIFT))
-+		return false;
-+
-+	/* Alternatively, we have a list of unaffected CPUs */
-+	if (is_midr_in_range_list(read_cpuid_id(), spectre_v2_safe_list))
-+		return false;
-+
-+	/* Fallback to firmware detection */
-+	need_wa = detect_harden_bp_fw();
-+	if (!need_wa)
-+		return false;
-+
-+	/* forced off */
-+	if (__nospectre_v2) {
-+		pr_info_once("spectrev2 mitigation disabled by command line option\n");
-+		return false;
+-	ret = tcf_action_init(net, nla, NULL, NULL, ovr, 0, &actions);
++	for (loop = 0; loop < 10; loop++) {
++		ret = tcf_action_init(net, nla, NULL, NULL, ovr, 0, &actions);
++		if (ret != -EAGAIN)
++			break;
 +	}
 +
-+	if (need_wa < 0)
-+		pr_warn_once("ARM_SMCCC_ARCH_WORKAROUND_1 missing from firmware\n");
-+
-+	return (need_wa > 0);
-+}
- #endif
+ 	if (ret)
+ 		goto done;
  
- const struct arm64_cpu_capabilities arm64_errata[] = {
-@@ -639,8 +643,8 @@ const struct arm64_cpu_capabilities arm6
- #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		ERRATA_MIDR_RANGE_LIST(arm64_bp_harden_smccc_cpus),
--		.cpu_enable = enable_smccc_arch_workaround_1,
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-+		.matches = check_branch_predictor,
- 	},
- #endif
- 	{
+@@ -992,10 +997,7 @@ static int tc_ctl_action(struct sk_buff
+ 		 */
+ 		if (n->nlmsg_flags & NLM_F_REPLACE)
+ 			ovr = 1;
+-replay:
+ 		ret = tcf_action_add(net, tca[TCA_ACT_TAB], n, portid, ovr);
+-		if (ret == -EAGAIN)
+-			goto replay;
+ 		break;
+ 	case RTM_DELACTION:
+ 		ret = tca_action_gd(net, tca[TCA_ACT_TAB], n,
 
 
