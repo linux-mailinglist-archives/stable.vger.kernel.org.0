@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF801E68B5
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D1FE685B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731115AbfJ0VRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:17:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37710 "EHLO mail.kernel.org"
+        id S1731322AbfJ0VSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731108AbfJ0VRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:17:44 -0400
+        id S1731316AbfJ0VSl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:18:41 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5CFE2070B;
-        Sun, 27 Oct 2019 21:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 990E2205C9;
+        Sun, 27 Oct 2019 21:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211063;
-        bh=oGHknJ1O/6LAjrtCeIttoLqZwSAoc1U8qXk1HVnDHX4=;
+        s=default; t=1572211120;
+        bh=QSwVlSXf04HQkDaO/JdeqF0RcKB3LgXn1tgaXirBcI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLy0X3hZMa2r6kFjeoSPyUOAhHFW6cg9uyuUxDv+zjAV1GFlxjXkFnSvoW9jJq5ni
-         HfVq/abp5Zih5TWHMoiw4hp6+bPMbWC9c53fW7RlDAY2TvUX2hD8VkA2kFJiEDnW0w
-         TX9agL3kpeHixVyqDA8c9TB1Cz2EtVBZ60zdNHuA=
+        b=WK9XHbLucymbeS847TmAOMccqmBumO9yUcBwdO4MJqtmzqa6fX0PhG9Px2LAMeNKf
+         qC0VJRWagRf38ghP0nRXrI9TpybeHY08QvfMKHyCbjg2g4UlzqjXKdup9GTzBZ7ozH
+         K3iX7qtSFW3f4V86ISaiF9YHK4HpNaL84BmlTNqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Lowry Li (Arm Technology China)" <lowry.li@arm.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        "James Qian Wang (Arm Technology China)" <james.qian.wang@arm.com>,
+        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+        Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 002/197] drm: Clear the fence pointer when writeback job signaled
-Date:   Sun, 27 Oct 2019 21:58:40 +0100
-Message-Id: <20191027203351.823794615@linuxfoundation.org>
+Subject: [PATCH 5.3 004/197] ARM: dts: Fix wrong clocks for dra7 mcasp
+Date:   Sun, 27 Oct 2019 21:58:42 +0100
+Message-Id: <20191027203351.928903827@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -46,77 +45,192 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lowry Li (Arm Technology China) <Lowry.Li@arm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b1066a123538044117f0a78ba8c6a50cf5a04c86 ]
+[ Upstream commit 2d3c8ba3cffa00f76bedb713c8c2126c82d8cd13 ]
 
-During it signals the completion of a writeback job, after releasing
-the out_fence, we'd clear the pointer.
+The ahclkr clkctrl clock bit 28 only exists for mcasp 1 and 2 on dra7.
+This causes the following warning on beagle-x15:
 
-Check if fence left over in drm_writeback_cleanup_job(), release it.
+ti-sysc 48468000.target-module: could not add child clock ahclkr: -19
 
-Signed-off-by: Lowry Li (Arm Technology China) <lowry.li@arm.com>
-Reviewed-by: Brian Starkey <brian.starkey@arm.com>
-Reviewed-by: James Qian Wang (Arm Technology China) <james.qian.wang@arm.com>
-Signed-off-by: james qian wang (Arm Technology China) <james.qian.wang@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1564571048-15029-3-git-send-email-lowry.li@arm.com
+Also the mcasp clkctrl clock bits are wrong:
+
+For mcasp1 and 2 we have four clocks at bits 28, 24, 22 and 0:
+
+bit 28 is ahclkr
+bit 24 is ahclkx
+bit 22 is auxclk
+bit 0 is fck
+
+For mcasp3 to 8 we have three clocks at bits 24, 22 and 0.
+
+bit 24 is ahclkx
+bit 22 is auxclk
+bit 0 is fck
+
+We do not have currently mapped auxclk at bit 22 for the drivers, that can
+be added if needed.
+
+Fixes: 5241ccbf2819 ("ARM: dts: Add missing ranges for dra7 mcasp l3 ports")
+Cc: Suman Anna <s-anna@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_writeback.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ arch/arm/boot/dts/dra7-l4.dtsi | 48 +++++++++++++++-------------------
+ 1 file changed, 21 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_writeback.c b/drivers/gpu/drm/drm_writeback.c
-index ff138b6ec48ba..43d9e3bb3a943 100644
---- a/drivers/gpu/drm/drm_writeback.c
-+++ b/drivers/gpu/drm/drm_writeback.c
-@@ -324,6 +324,9 @@ void drm_writeback_cleanup_job(struct drm_writeback_job *job)
- 	if (job->fb)
- 		drm_framebuffer_put(job->fb);
- 
-+	if (job->out_fence)
-+		dma_fence_put(job->out_fence);
-+
- 	kfree(job);
- }
- EXPORT_SYMBOL(drm_writeback_cleanup_job);
-@@ -366,25 +369,29 @@ drm_writeback_signal_completion(struct drm_writeback_connector *wb_connector,
- {
- 	unsigned long flags;
- 	struct drm_writeback_job *job;
-+	struct dma_fence *out_fence;
- 
- 	spin_lock_irqsave(&wb_connector->job_lock, flags);
- 	job = list_first_entry_or_null(&wb_connector->job_queue,
- 				       struct drm_writeback_job,
- 				       list_entry);
--	if (job) {
-+	if (job)
- 		list_del(&job->list_entry);
--		if (job->out_fence) {
--			if (status)
--				dma_fence_set_error(job->out_fence, status);
--			dma_fence_signal(job->out_fence);
--			dma_fence_put(job->out_fence);
--		}
--	}
-+
- 	spin_unlock_irqrestore(&wb_connector->job_lock, flags);
- 
- 	if (WARN_ON(!job))
- 		return;
- 
-+	out_fence = job->out_fence;
-+	if (out_fence) {
-+		if (status)
-+			dma_fence_set_error(out_fence, status);
-+		dma_fence_signal(out_fence);
-+		dma_fence_put(out_fence);
-+		job->out_fence = NULL;
-+	}
-+
- 	INIT_WORK(&job->cleanup_work, cleanup_work);
- 	queue_work(system_long_wq, &job->cleanup_work);
- }
+diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
+index 21e5914fdd620..099d6fe2a57ad 100644
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -2762,7 +2762,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 129 1>, <&edma_xbar 128 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&ipu_clkctrl DRA7_IPU_MCASP1_CLKCTRL 22>,
++				clocks = <&ipu_clkctrl DRA7_IPU_MCASP1_CLKCTRL 0>,
+ 					 <&ipu_clkctrl DRA7_IPU_MCASP1_CLKCTRL 24>,
+ 					 <&ipu_clkctrl DRA7_IPU_MCASP1_CLKCTRL 28>;
+ 				clock-names = "fck", "ahclkx", "ahclkr";
+@@ -2799,8 +2799,8 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 131 1>, <&edma_xbar 130 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP2_CLKCTRL 22>,
+-					 <&l4per2_clkctrl DRA7_L4PER2_MCASP2_CLKCTRL 24>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP2_CLKCTRL 0>,
++					 <&ipu_clkctrl DRA7_IPU_MCASP1_CLKCTRL 24>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP2_CLKCTRL 28>;
+ 				clock-names = "fck", "ahclkx", "ahclkr";
+ 				status = "disabled";
+@@ -2818,9 +2818,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x68000 0x2000>,
+@@ -2836,7 +2835,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 133 1>, <&edma_xbar 132 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP3_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
+@@ -2854,9 +2853,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x6c000 0x2000>,
+@@ -2872,7 +2870,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 135 1>, <&edma_xbar 134 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP4_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
+@@ -2890,9 +2888,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x70000 0x2000>,
+@@ -2908,7 +2905,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 137 1>, <&edma_xbar 136 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP5_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
+@@ -2926,9 +2923,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x74000 0x2000>,
+@@ -2944,7 +2940,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 139 1>, <&edma_xbar 138 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP6_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
+@@ -2962,9 +2958,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x78000 0x2000>,
+@@ -2980,7 +2975,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 141 1>, <&edma_xbar 140 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP7_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
+@@ -2998,9 +2993,8 @@
+ 					<SYSC_IDLE_SMART>;
+ 			/* Domains (P, C): l4per_pwrdm, l4per2_clkdm */
+ 			clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 0>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 24>,
+-				 <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 28>;
+-			clock-names = "fck", "ahclkx", "ahclkr";
++				 <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 24>;
++			clock-names = "fck", "ahclkx";
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x0 0x7c000 0x2000>,
+@@ -3016,7 +3010,7 @@
+ 				interrupt-names = "tx", "rx";
+ 				dmas = <&edma_xbar 143 1>, <&edma_xbar 142 1>;
+ 				dma-names = "tx", "rx";
+-				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 22>,
++				clocks = <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 0>,
+ 					 <&l4per2_clkctrl DRA7_L4PER2_MCASP8_CLKCTRL 24>;
+ 				clock-names = "fck", "ahclkx";
+ 				status = "disabled";
 -- 
 2.20.1
 
