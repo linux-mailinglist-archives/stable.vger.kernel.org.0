@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D415AE66BB
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B661E6836
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730483AbfJ0VOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33748 "EHLO mail.kernel.org"
+        id S1732366AbfJ0VXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:23:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730514AbfJ0VOp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:14:45 -0400
+        id S1732364AbfJ0VXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:23:34 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 405FC205C9;
-        Sun, 27 Oct 2019 21:14:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2B39205C9;
+        Sun, 27 Oct 2019 21:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210883;
-        bh=bbvKfmQiBiYhnCpebJUu9fNk1IlOgQ8bUXjT4n+ai4U=;
+        s=default; t=1572211414;
+        bh=lKgQpJ6lldb24qjFTVG9e/CiNh4+PFY2l5F0C51r+fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgzEe5JcUYP8GJLqZC5S+U/JSvSbOQ6cYsyDv9QrLKFgz3CiVeb8u2tQkFWiBdvrS
-         zylHY5YsubQDNUbhq0OjyG2psQVImwyu0uWsSbofwkHChVoePNlZMowp3pY4sVBbil
-         kM5LZaks3fILI6Y1AJka8DX+P+8kcepvSjIyCsxU=
+        b=nYeupQGG5I7HIVd303hZcG0mwHvReTW3bNUidNVRS6oxRdeTQEf17lRcmzFRtgqoR
+         OgOCh7P3MvSgRM67qH+0FHqroetx62osIzoKPgSBUe4b5AFIT44G/TX4G7se6N8wUq
+         umR3dlbgm44YTEfZb0K6CGtblkwB/009CrdnW2o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 50/93] scsi: core: save/restore command resid for error handling
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 144/197] mm/memory-failure.c: dont access uninitialized memmaps in memory_failure()
 Date:   Sun, 27 Oct 2019 22:01:02 +0100
-Message-Id: <20191027203300.858365936@linuxfoundation.org>
+Message-Id: <20191027203359.469037864@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: David Hildenbrand <david@redhat.com>
 
-commit 8f8fed0cdbbd6cdbf28d9ebe662f45765d2f7d39 upstream.
+commit 96c804a6ae8c59a9092b3d5dd581198472063184 upstream.
 
-When a non-passthrough command is terminated with CHECK CONDITION, request
-sense is executed by hijacking the command descriptor. Since
-scsi_eh_prep_cmnd() and scsi_eh_restore_cmnd() do not save/restore the
-original command resid, the value returned on failure of the original
-command is lost and replaced with the value set by the execution of the
-request sense command. This value may in many instances be unaligned to the
-device sector size, causing sd_done() to print a warning message about the
-incorrect unaligned resid before the command is retried.
+We should check for pfn_to_online_page() to not access uninitialized
+memmaps.  Reshuffle the code so we don't have to duplicate the error
+message.
 
-Fix this problem by saving the original command residual in struct
-scsi_eh_save using scsi_eh_prep_cmnd() and restoring it in
-scsi_eh_restore_cmnd(). In addition, to make sure that the request sense
-command is executed with a correctly initialized command structure, also
-reset the residual to 0 in scsi_eh_prep_cmnd() after saving the original
-command value in struct scsi_eh_save.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191001074839.1994-1-damien.lemoal@wdc.com
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: http://lkml.kernel.org/r/20191009142435.3975-3-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
+Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.13+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_error.c |    3 +++
- include/scsi/scsi_eh.h    |    1 +
- 2 files changed, 4 insertions(+)
+ mm/memory-failure.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -970,6 +970,7 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd
- 	ses->sdb = scmd->sdb;
- 	ses->next_rq = scmd->request->next_rq;
- 	ses->result = scmd->result;
-+	ses->resid_len = scmd->req.resid_len;
- 	ses->underflow = scmd->underflow;
- 	ses->prot_op = scmd->prot_op;
- 	ses->eh_eflags = scmd->eh_eflags;
-@@ -981,6 +982,7 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd
- 	memset(&scmd->sdb, 0, sizeof(scmd->sdb));
- 	scmd->request->next_rq = NULL;
- 	scmd->result = 0;
-+	scmd->req.resid_len = 0;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1253,17 +1253,19 @@ int memory_failure(unsigned long pfn, in
+ 	if (!sysctl_memory_failure_recovery)
+ 		panic("Memory failure on page %lx", pfn);
  
- 	if (sense_bytes) {
- 		scmd->sdb.length = min_t(unsigned, SCSI_SENSE_BUFFERSIZE,
-@@ -1034,6 +1036,7 @@ void scsi_eh_restore_cmnd(struct scsi_cm
- 	scmd->sdb = ses->sdb;
- 	scmd->request->next_rq = ses->next_rq;
- 	scmd->result = ses->result;
-+	scmd->req.resid_len = ses->resid_len;
- 	scmd->underflow = ses->underflow;
- 	scmd->prot_op = ses->prot_op;
- 	scmd->eh_eflags = ses->eh_eflags;
---- a/include/scsi/scsi_eh.h
-+++ b/include/scsi/scsi_eh.h
-@@ -32,6 +32,7 @@ extern int scsi_ioctl_reset(struct scsi_
- struct scsi_eh_save {
- 	/* saved state */
- 	int result;
-+	unsigned int resid_len;
- 	int eh_eflags;
- 	enum dma_data_direction data_direction;
- 	unsigned underflow;
+-	if (!pfn_valid(pfn)) {
++	p = pfn_to_online_page(pfn);
++	if (!p) {
++		if (pfn_valid(pfn)) {
++			pgmap = get_dev_pagemap(pfn, NULL);
++			if (pgmap)
++				return memory_failure_dev_pagemap(pfn, flags,
++								  pgmap);
++		}
+ 		pr_err("Memory failure: %#lx: memory outside kernel control\n",
+ 			pfn);
+ 		return -ENXIO;
+ 	}
+ 
+-	pgmap = get_dev_pagemap(pfn, NULL);
+-	if (pgmap)
+-		return memory_failure_dev_pagemap(pfn, flags, pgmap);
+-
+-	p = pfn_to_page(pfn);
+ 	if (PageHuge(p))
+ 		return memory_failure_hugetlb(pfn, flags);
+ 	if (TestSetPageHWPoison(p)) {
 
 
