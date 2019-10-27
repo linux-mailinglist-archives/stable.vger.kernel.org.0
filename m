@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6574AE65FB
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:07:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70085E675F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729111AbfJ0VHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
+        id S1731695AbfJ0VUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728037AbfJ0VHL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:11 -0400
+        id S1731686AbfJ0VUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:24 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A122B214E0;
-        Sun, 27 Oct 2019 21:07:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 919F8205C9;
+        Sun, 27 Oct 2019 21:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210431;
-        bh=KSTyBycvaBF6MzT0NdhfrBGaaI+TnTsiPM3uavlCd/I=;
+        s=default; t=1572211223;
+        bh=nahxoAL8GSTQXCaHGCOgcFoMFe3/BO1NoNXYaF9k5EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LnF7LkO4HKOLQgiKX+QISUEY9w19Q0RVGRWU+RtkYPbxG7CsxYeauZM5DesWdm/k
-         0KwnBm7kuirbTDRi10L+tuntE9h2cPH4cyUuxa0e4tC1ktbuNt5F24Ssa6dC7VfF8Z
-         9MH2WR/4WbiYQnugEvO2CGwS9ZJX+ylFmG8T0aeY=
+        b=jwA00tE1W45wN95xrDMDDqCYgapaaeXnG81E4xPQBnroRmrtSBzAZ9HConZ2IFIRa
+         eESQW3adg0dRyLsRF/UqhfE/xvAtOmpaSvMd32Y5XzL7TNOqt5Mszp3lcsQyV+ThCL
+         Xw0uJzHZ4dcBWwrErHygbnnojUOZYh725g0YFUT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 013/119] net: hisilicon: Fix usage of uninitialized variable in function mdio_sc_cfg_reg_write()
-Date:   Sun, 27 Oct 2019 21:59:50 +0100
-Message-Id: <20191027203303.152336287@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 074/197] net: i82596: fix dma_alloc_attr for sni_82596
+Date:   Sun, 27 Oct 2019 21:59:52 +0100
+Message-Id: <20191027203355.636246319@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo <yzhai003@ucr.edu>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit 53de429f4e88f538f7a8ec2b18be8c0cd9b2c8e1 ]
+[ Upstream commit 61c1d33daf7b5146f44d4363b3322f8cda6a6c43 ]
 
-In function mdio_sc_cfg_reg_write(), variable "reg_value" could be
-uninitialized if regmap_read() fails. However, "reg_value" is used
-to decide the control flow later in the if statement, which is
-potentially unsafe.
+Commit 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+switched dma allocation over to dma_alloc_attr, but didn't convert
+the SNI part to request consistent DMA memory. This broke sni_82596
+since driver doesn't do dma_cache_sync for performance reasons.
+Fix this by using different DMA_ATTRs for lasi_82596 and sni_82596.
 
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Fixes: 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns_mdio.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/i825xx/lasi_82596.c |    4 +++-
+ drivers/net/ethernet/i825xx/lib82596.c   |    4 ++--
+ drivers/net/ethernet/i825xx/sni_82596.c  |    4 +++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns_mdio.c b/drivers/net/ethernet/hisilicon/hns_mdio.c
-index baf5cc251f329..9a3bc0994a1db 100644
---- a/drivers/net/ethernet/hisilicon/hns_mdio.c
-+++ b/drivers/net/ethernet/hisilicon/hns_mdio.c
-@@ -156,11 +156,15 @@ static int mdio_sc_cfg_reg_write(struct hns_mdio_device *mdio_dev,
- {
- 	u32 time_cnt;
- 	u32 reg_value;
-+	int ret;
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -96,6 +96,8 @@
  
- 	regmap_write(mdio_dev->subctrl_vbase, cfg_reg, set_val);
+ #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
  
- 	for (time_cnt = MDIO_TIMEOUT; time_cnt; time_cnt--) {
--		regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		ret = regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
-+		if (ret)
-+			return ret;
++#define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
 +
- 		reg_value &= st_msk;
- 		if ((!!check_st) == (!!reg_value))
- 			break;
--- 
-2.20.1
-
+ #define DMA_WBACK(ndev, addr, len) \
+ 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_TO_DEVICE); } while (0)
+ 
+@@ -200,7 +202,7 @@ static int __exit lan_remove_chip(struct
+ 
+ 	unregister_netdev (dev);
+ 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	free_netdev (dev);
+ 	return 0;
+ }
+--- a/drivers/net/ethernet/i825xx/lib82596.c
++++ b/drivers/net/ethernet/i825xx/lib82596.c
+@@ -1065,7 +1065,7 @@ static int i82596_probe(struct net_devic
+ 
+ 	dma = dma_alloc_attrs(dev->dev.parent, sizeof(struct i596_dma),
+ 			      &lp->dma_addr, GFP_KERNEL,
+-			      DMA_ATTR_NON_CONSISTENT);
++			      LIB82596_DMA_ATTR);
+ 	if (!dma) {
+ 		printk(KERN_ERR "%s: Couldn't get shared memory\n", __FILE__);
+ 		return -ENOMEM;
+@@ -1087,7 +1087,7 @@ static int i82596_probe(struct net_devic
+ 	i = register_netdev(dev);
+ 	if (i) {
+ 		dma_free_attrs(dev->dev.parent, sizeof(struct i596_dma),
+-			       dma, lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++			       dma, lp->dma_addr, LIB82596_DMA_ATTR);
+ 		return i;
+ 	}
+ 
+--- a/drivers/net/ethernet/i825xx/sni_82596.c
++++ b/drivers/net/ethernet/i825xx/sni_82596.c
+@@ -24,6 +24,8 @@
+ 
+ static const char sni_82596_string[] = "snirm_82596";
+ 
++#define LIB82596_DMA_ATTR	0
++
+ #define DMA_WBACK(priv, addr, len)     do { } while (0)
+ #define DMA_INV(priv, addr, len)       do { } while (0)
+ #define DMA_WBACK_INV(priv, addr, len) do { } while (0)
+@@ -152,7 +154,7 @@ static int sni_82596_driver_remove(struc
+ 
+ 	unregister_netdev(dev);
+ 	dma_free_attrs(dev->dev.parent, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	iounmap(lp->ca);
+ 	iounmap(lp->mpu_port);
+ 	free_netdev (dev);
 
 
