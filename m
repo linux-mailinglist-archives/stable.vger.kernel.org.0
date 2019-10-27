@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBB5E676F
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5A6E6771
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731817AbfJ0VU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41642 "EHLO mail.kernel.org"
+        id S1731824AbfJ0VVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:21:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731813AbfJ0VU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:57 -0400
+        id S1731838AbfJ0VVD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:21:03 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925B3205C9;
-        Sun, 27 Oct 2019 21:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18A79205C9;
+        Sun, 27 Oct 2019 21:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211257;
-        bh=aYvmwZ8K19xAuz/J4n8ZHtP9meBds7d74/RjbcmdqF0=;
+        s=default; t=1572211262;
+        bh=ffY51uUFwKpkIbitwsoWl4TS9Ry0fSsB7ZSfmqk+0A0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6Q4Q+Y8uPtUTaBRRQ+bVlrukV1wntEmlvvYLlidSzRCFqP0oZURAnQOMY9bjGQBx
-         mBtexYDxO3gKycbGRC7MR4jftH3R+dATFsGd7PPvGnGNy5Ci9Go13HEHMZtBolIRnl
-         GIO6HcH38A0+QVgcGu02WLhXjdAHBRfcY4B1fRrs=
+        b=upV/YwaS+JZlf3vpfAWDCFEeaMHNn5FejeZQLe7/zvU0B5PG+/r/65uBRhOnZogFO
+         qqW8FpMP1EzX4YUN/hLhQhvfZPdFXiimJfh/6s7sVQGSa6du9vdOMUXFNGJYvCZmmo
+         P/APUXIeWF/TQdYSDd71MggvnUS7/a3dmtgvSJC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Palmer Dabbelt <palmer@sifive.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 043/197] RISC-V: Clear load reservations while restoring hart contexts
-Date:   Sun, 27 Oct 2019 21:59:21 +0100
-Message-Id: <20191027203354.035458609@linuxfoundation.org>
+Subject: [PATCH 5.3 045/197] drm/amdgpu: fix multiple memory leaks in acp_hw_init
+Date:   Sun, 27 Oct 2019 21:59:23 +0100
+Message-Id: <20191027203354.136852913@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -45,67 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Palmer Dabbelt <palmer@sifive.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 18856604b3e7090ce42d533995173ee70c24b1c9 ]
+[ Upstream commit 57be09c6e8747bf48704136d9e3f92bfb93f5725 ]
 
-This is almost entirely a comment.  The bug is unlikely to manifest on
-existing hardware because there is a timeout on load reservations, but
-manifests on QEMU because there is no timeout.
+In acp_hw_init there are some allocations that needs to be released in
+case of failure:
 
-Signed-off-by: Palmer Dabbelt <palmer@sifive.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+1- adev->acp.acp_genpd should be released if any allocation attemp for
+adev->acp.acp_cell, adev->acp.acp_res or i2s_pdata fails.
+2- all of those allocations should be released if
+mfd_add_hotplug_devices or pm_genpd_add_device fail.
+3- Release is needed in case of time out values expire.
+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/include/asm/asm.h |  1 +
- arch/riscv/kernel/entry.S    | 21 ++++++++++++++++++++-
- 2 files changed, 21 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c | 34 ++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
 
-diff --git a/arch/riscv/include/asm/asm.h b/arch/riscv/include/asm/asm.h
-index 5a02b7d509408..9c992a88d858f 100644
---- a/arch/riscv/include/asm/asm.h
-+++ b/arch/riscv/include/asm/asm.h
-@@ -22,6 +22,7 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
+index eba42c752bca3..82155ac3288a0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
+@@ -189,7 +189,7 @@ static int acp_hw_init(void *handle)
+ 	u32 val = 0;
+ 	u32 count = 0;
+ 	struct device *dev;
+-	struct i2s_platform_data *i2s_pdata;
++	struct i2s_platform_data *i2s_pdata = NULL;
  
- #define REG_L		__REG_SEL(ld, lw)
- #define REG_S		__REG_SEL(sd, sw)
-+#define REG_SC		__REG_SEL(sc.d, sc.w)
- #define SZREG		__REG_SEL(8, 4)
- #define LGREG		__REG_SEL(3, 2)
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
-diff --git a/arch/riscv/kernel/entry.S b/arch/riscv/kernel/entry.S
-index 9b60878a4469c..2a82e0a5af46e 100644
---- a/arch/riscv/kernel/entry.S
-+++ b/arch/riscv/kernel/entry.S
-@@ -98,7 +98,26 @@ _save_context:
-  */
- 	.macro RESTORE_ALL
- 	REG_L a0, PT_SSTATUS(sp)
--	REG_L a2, PT_SEPC(sp)
-+	/*
-+	 * The current load reservation is effectively part of the processor's
-+	 * state, in the sense that load reservations cannot be shared between
-+	 * different hart contexts.  We can't actually save and restore a load
-+	 * reservation, so instead here we clear any existing reservation --
-+	 * it's always legal for implementations to clear load reservations at
-+	 * any point (as long as the forward progress guarantee is kept, but
-+	 * we'll ignore that here).
-+	 *
-+	 * Dangling load reservations can be the result of taking a trap in the
-+	 * middle of an LR/SC sequence, but can also be the result of a taken
-+	 * forward branch around an SC -- which is how we implement CAS.  As a
-+	 * result we need to clear reservations between the last CAS and the
-+	 * jump back to the new context.  While it is unlikely the store
-+	 * completes, implementations are allowed to expand reservations to be
-+	 * arbitrarily large.
-+	 */
-+	REG_L  a2, PT_SEPC(sp)
-+	REG_SC x0, a2, PT_SEPC(sp)
+@@ -231,20 +231,21 @@ static int acp_hw_init(void *handle)
+ 	adev->acp.acp_cell = kcalloc(ACP_DEVS, sizeof(struct mfd_cell),
+ 							GFP_KERNEL);
+ 
+-	if (adev->acp.acp_cell == NULL)
+-		return -ENOMEM;
++	if (adev->acp.acp_cell == NULL) {
++		r = -ENOMEM;
++		goto failure;
++	}
+ 
+ 	adev->acp.acp_res = kcalloc(5, sizeof(struct resource), GFP_KERNEL);
+ 	if (adev->acp.acp_res == NULL) {
+-		kfree(adev->acp.acp_cell);
+-		return -ENOMEM;
++		r = -ENOMEM;
++		goto failure;
+ 	}
+ 
+ 	i2s_pdata = kcalloc(3, sizeof(struct i2s_platform_data), GFP_KERNEL);
+ 	if (i2s_pdata == NULL) {
+-		kfree(adev->acp.acp_res);
+-		kfree(adev->acp.acp_cell);
+-		return -ENOMEM;
++		r = -ENOMEM;
++		goto failure;
+ 	}
+ 
+ 	switch (adev->asic_type) {
+@@ -341,14 +342,14 @@ static int acp_hw_init(void *handle)
+ 	r = mfd_add_hotplug_devices(adev->acp.parent, adev->acp.acp_cell,
+ 								ACP_DEVS);
+ 	if (r)
+-		return r;
++		goto failure;
+ 
+ 	for (i = 0; i < ACP_DEVS ; i++) {
+ 		dev = get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
+ 		r = pm_genpd_add_device(&adev->acp.acp_genpd->gpd, dev);
+ 		if (r) {
+ 			dev_err(dev, "Failed to add dev to genpd\n");
+-			return r;
++			goto failure;
+ 		}
+ 	}
+ 
+@@ -367,7 +368,8 @@ static int acp_hw_init(void *handle)
+ 			break;
+ 		if (--count == 0) {
+ 			dev_err(&adev->pdev->dev, "Failed to reset ACP\n");
+-			return -ETIMEDOUT;
++			r = -ETIMEDOUT;
++			goto failure;
+ 		}
+ 		udelay(100);
+ 	}
+@@ -384,7 +386,8 @@ static int acp_hw_init(void *handle)
+ 			break;
+ 		if (--count == 0) {
+ 			dev_err(&adev->pdev->dev, "Failed to reset ACP\n");
+-			return -ETIMEDOUT;
++			r = -ETIMEDOUT;
++			goto failure;
+ 		}
+ 		udelay(100);
+ 	}
+@@ -393,6 +396,13 @@ static int acp_hw_init(void *handle)
+ 	val &= ~ACP_SOFT_RESET__SoftResetAud_MASK;
+ 	cgs_write_register(adev->acp.cgs_device, mmACP_SOFT_RESET, val);
+ 	return 0;
 +
- 	csrw CSR_SSTATUS, a0
- 	csrw CSR_SEPC, a2
++failure:
++	kfree(i2s_pdata);
++	kfree(adev->acp.acp_res);
++	kfree(adev->acp.acp_cell);
++	kfree(adev->acp.acp_genpd);
++	return r;
+ }
  
+ /**
 -- 
 2.20.1
 
