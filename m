@@ -2,61 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E4EE624B
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 13:02:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C21CE6260
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 13:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbfJ0MBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 08:01:07 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:47099 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726706AbfJ0MBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 08:01:07 -0400
-Received: by mail-pg1-f193.google.com with SMTP id f19so4602972pgn.13
-        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 05:01:07 -0700 (PDT)
+        id S1726674AbfJ0MG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 08:06:26 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:42298 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726469AbfJ0MG0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 08:06:26 -0400
+Received: by mail-pf1-f193.google.com with SMTP id 21so4731456pfj.9
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 05:06:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
+        h=subject:from:to:cc:references:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=yDbqLx02ji94rlta9aL6spgBmjoZ7cI+VAk2R82pEsg=;
-        b=a+MZS7Wc4kx2geNMDCSXyE7i9uwKcwaJ4xqRlqDbGKjtsiZPrIfFMrBvebfYzyVdFu
-         Mqv1VadWrnTHT1yDEtd5ML6CKIP0E6Tpw0EuboPpmpnz7yytxS423b0ERne6fD1nfRwR
-         qO/kLtGEPYz8HAh04ucNru+7N6ZA3kIYIEq53X1lNYRF2LaxZJ40U8BxHXKEMF+tsOPf
-         aRISUbmSyrudVc2E0LhzKA3XZfiulBnmZvISp2C5Rz/mSFizBJAO9cJ3Jd3MTbx0FYAx
-         ubIrl/f/NcoS8dNwBwCc53N09PSTgV26zJATEErtsxjp1Rsw4Kkii8jLT3N6P4ebyUSC
-         Rjnw==
+        bh=qbGT3k7kbmTIvKilRXtZPhGxYdxoPdbbkjO2kJy3DD4=;
+        b=cmvj1vthJjxWSu57NCDMMpxLHaUXRFe/eHxfw/cpIvxUEt0u5P30gTzmqt0Dvuq1cK
+         Z7OLtAhmCDUoQnOwg2aTGFVfVL3sZyDQYe6Rwdfx67zsFyW/sEwvQ6VUzcktqmCQqOaw
+         ogRESCBIGt7ZdVOkNjR0atZ3l0gj997unQaQvrMxP0Uwuh3mwOK0N4S5CWNHHbrd/BVz
+         CLvpjfbqXsWVP7ShMqvpP1qfmctujlZKrNctoReD08w/sJZZ5812kcvyHi3a5nPyR4Yo
+         ShDGga2HuGOfClsUBNbYXsqjWqYlAql02yJDFpq4LTMZco/uyIbIl5hWODgMovHSiZT8
+         Ylkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=yDbqLx02ji94rlta9aL6spgBmjoZ7cI+VAk2R82pEsg=;
-        b=cLk/kCmp8y9qy9TqFHirh99XBfRURxDrBx04FLWso8GIZHmQTrfXNWO7ja2CBG/TZH
-         Bgfb3ld/AvgXr5O3M6ugKlI4B4Iw7XshTkjsr1PQ8+3TUzIFfN40HtLNBmd9+U9m0+FJ
-         HzbbHI1bMUGIuqjYm69PaHE6KGgAPy7RwM+wfHGE95iZ1NlSZATQn1nox+G1MRPC90G+
-         EJgLwoVEjiOgoFLgcuN91GpHnvgbFrfec00D9NwYkpFbjn1lfHUWBW4WAMnRS07sOI/t
-         C44illKjKNSODLMlhhy0tAjvvGiFfICCm7c7ESXK1+pLIuG8IK8fqCiDe2hcyXzoiEeU
-         l0wA==
-X-Gm-Message-State: APjAAAX6Zf8fys4pLqKfyiqDg93Hm2DBI0hgemeHqlr6ZA0+EhfBw+18
-        fWYj+s5xaJX4hFwqZ5iol2Q4mIQy996sWQ==
-X-Google-Smtp-Source: APXvYqyaU1L2PlDW/yGqgFYj8qvD0rpAGn9vAUvoMSMuMKVUHgbmzPN3m2JLMI5dyvo3NaWGKTzXsw==
-X-Received: by 2002:a63:ec4f:: with SMTP id r15mr14980353pgj.17.1572177665966;
-        Sun, 27 Oct 2019 05:01:05 -0700 (PDT)
+        bh=qbGT3k7kbmTIvKilRXtZPhGxYdxoPdbbkjO2kJy3DD4=;
+        b=lvPFKnqfkc8pNYYNmtQB8p3IVN/9gYopTUNzDlsXAcfgOw/YPPtLuOsuNbNSVZZYEi
+         pmC3Uf5PYedP7bGhMrelLhw7uHQbsaRmDsbcHxhZFyGe0prthOSEyGrm27Ng2lKprrPR
+         sAAFMvA2AC5qRfiDeRLsSOF/jJDXFe7YuDLVaeZNBC8vD4n86sKRRU6O7roITJtpypnT
+         sX0/NwvxWRuKBrEh+pPcUxil4PmPWOZJXOG87TCtiSbG0E17CdcHdYE+dc7Jb7XJVls5
+         AWSjfvFfB07aiEa4/kDSBLLXnQ4E1zNvEy4GnldAiNs6QmHncpytER3gTTrUZYqW8oLC
+         LOMA==
+X-Gm-Message-State: APjAAAUf/aJ42M9VDJGEITSuxFD+ryeZ+P9/C2r1rYnjaCZugb7243H2
+        8tr5SgzznU6Eid/yjyrq3/j1PbQRO9khFQ==
+X-Google-Smtp-Source: APXvYqw4VgN2kSo6dT+SxXLxsjUkA4V0Otuwc9ORmYnoGn56iXq/ag0CWQTha3ewzDE1ZulMHGeeiw==
+X-Received: by 2002:a17:90a:a417:: with SMTP id y23mr15813198pjp.126.1572177984833;
+        Sun, 27 Oct 2019 05:06:24 -0700 (PDT)
 Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id g17sm7459671pgn.37.2019.10.27.05.01.04
+        by smtp.gmail.com with ESMTPSA id q23sm6752888pjd.2.2019.10.27.05.06.23
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 27 Oct 2019 05:01:05 -0700 (PDT)
+        Sun, 27 Oct 2019 05:06:23 -0700 (PDT)
 Subject: Re: io_uring stable 5.3 backports
+From:   Jens Axboe <axboe@kernel.dk>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org
 References: <efc9278b-de72-40b2-9a0a-48df0c64edc1@kernel.dk>
  <20191027085204.GA1560@sasha-vm>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <f90a0bd3-3074-ee14-dea9-63d520bd72a2@kernel.dk>
-Date:   Sun, 27 Oct 2019 06:01:03 -0600
+ <f90a0bd3-3074-ee14-dea9-63d520bd72a2@kernel.dk>
+Message-ID: <a6a6fd4d-a469-43d2-7ea9-1a57e38d62cf@kernel.dk>
+Date:   Sun, 27 Oct 2019 06:06:22 -0600
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <20191027085204.GA1560@sasha-vm>
+In-Reply-To: <f90a0bd3-3074-ee14-dea9-63d520bd72a2@kernel.dk>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -65,63 +66,20 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/27/19 2:52 AM, Sasha Levin wrote:
-> On Sat, Oct 26, 2019 at 05:33:41PM -0600, Jens Axboe wrote:
->> Hi,
+On 10/27/19 6:01 AM, Jens Axboe wrote:
+>> Jens, could you please take a look at my backport of fb5ccc98782f65:
 >>
->> For some reason I forgot to mark these stable, but they should go
->> into stable. In order of applying them, they are:
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-fix-broken-links-with-offloading.patch
 >>
->> bc808bced39f4e4b626c5ea8c63d5e41fce7205a
+>> And 498ccd9eda491:
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-used-cached-copies-of-sq-dropped-and-cq-ove.patch
+>>
+>> And confirm I did the right thing?
 > 
-> This commit says it fixes c576666863b78 ("io_uring: optimize
-> submit_and_wait API") which is not in the stable tree.
-> 
->> ef03681ae8df770745978148a7fb84796ae99cba
-> 
-> This commit doesn't say so, but really it fixes 5262f567987d3
-> ("io_uring: IORING_OP_TIMEOUT support") which is not in the stable tree.
-> 
->> a1f58ba46f794b1168d1107befcf3d4b9f9fd453
-> 
-> Same as the commit above.
+> Of course, I'll take a look right now. Thanks for taking care of these!
 
-Oh man, sorry about that, I always forget to check if all of them are in
-5.3. I blame the fact that I backport everything to our internal tree,
-which is 5.2 based. But yes, you are of course right, those three can be
-dropped.
-
->> 84d55dc5b9e57b513a702fbc358e1b5489651590
->> fb5ccc98782f654778cb8d96ba8a998304f9a51f
-> 
-> This needed some massaging to work around not having 4fe2c963154c3
-> ("io_uring: add support for link with drain"). I've fixed it up and
-> queued it.
-> 
->> 935d1e45908afb8853c497f2c2bbbb685dec51dc
-> 
-> I think that Greg's scripts didn't like how much this code moved around
-> and refused to deal with it. I've verified patching did the right thing
-> and queued it up.
-> 
->> 498ccd9eda49117c34e0041563d0da6ac40e52b8
-> 
-> This one needed massaging to work around missing 75b28affdd6ae
-> ("io_uring: allocate the two rings together") in the stable tree. I've
-> fixed it up and queued it up.
-> 
-> 
-> Jens, could you please take a look at my backport of fb5ccc98782f65:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-fix-broken-links-with-offloading.patch
-> 
-> And 498ccd9eda491:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-used-cached-copies-of-sq-dropped-and-cq-ove.patch
-> 
-> And confirm I did the right thing?
-
-Of course, I'll take a look right now. Thanks for taking care of these!
+Both look good to me.
 
 -- 
 Jens Axboe
