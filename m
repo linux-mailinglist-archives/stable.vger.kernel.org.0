@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70FC0E6659
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:11:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78816E67B9
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729792AbfJ0VK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S1732397AbfJ0VXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:23:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729803AbfJ0VK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:58 -0400
+        id S1732392AbfJ0VXt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:23:49 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68369214AF;
-        Sun, 27 Oct 2019 21:10:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D64BF214E0;
+        Sun, 27 Oct 2019 21:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210657;
-        bh=eYt9bNR4hsgMMTimXo/ASnjAaT0LBoTAxZWzmk/h4+Q=;
+        s=default; t=1572211428;
+        bh=uj/nMk69kdoKs9zEnM+inUkUZGttcH1k8me6Ogxz2RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HBvQq9VRw7ENbDcb7QmNgUi1DFIPBHB6AfbZpmtWC+lIR8kFT+qJTSXS9JyX63sl4
-         8Y/opHd9LVkHw7Et8vP7VZOkB1hscCF763HbMknIDGxsutPUGFxae0ZOL9I1JtrbkW
-         CrBM85bSJ6idx+xhi7tw8CK3klddo/IXCAnTmbnI=
+        b=kti/SFb3U7WAW/aQeu9pRgqA32mUvJtqnYnOK8neTBHc2I+BVSCjMMfUh1nFv3RmD
+         hZvSIUvWnikfzMOPB88yeP/wHmkuNC1Eqp2sBW0ZOspZdcviupIXOv6n0tZUoRZwJc
+         YgoaDiUb2NE4RTWhY8WOdEmD3QPKxawW9aBLrHRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 089/119] scsi: core: try to get module before removing device
-Date:   Sun, 27 Oct 2019 22:01:06 +0100
-Message-Id: <20191027203348.088831528@linuxfoundation.org>
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Shakeel Butt <shakeelb@google.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        David Rientjes <rientjes@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 149/197] mm: memcg/slab: fix panic in __free_slab() caused by premature memcg pointer release
+Date:   Sun, 27 Oct 2019 22:01:07 +0100
+Message-Id: <20191027203359.737613185@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +49,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Roman Gushchin <guro@fb.com>
 
-commit 77c301287ebae86cc71d03eb3806f271cb14da79 upstream.
+commit b749ecfaf6c53ce79d6ab66afd2fc34189a073b1 upstream.
 
-We have a test case like block/001 in blktests, which will create a scsi
-device by loading scsi_debug module and then try to delete the device by
-sysfs interface. At the same time, it may remove the scsi_debug module.
+Karsten reported the following panic in __free_slab() happening on a s390x
+machine:
 
-And getting a invalid paging request BUG_ON as following:
+  Unable to handle kernel pointer dereference in virtual kernel address space
+  Failing address: 0000000000000000 TEID: 0000000000000483
+  Fault in home space mode while using kernel ASCE.
+  AS:00000000017d4007 R3:000000007fbd0007 S:000000007fbff000 P:000000000000003d
+  Oops: 0004 ilc:3 Ý#1¨ PREEMPT SMP
+  Modules linked in: tcp_diag inet_diag xt_tcpudp ip6t_rpfilter ip6t_REJECT nf_reject_ipv6 ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_nat ip6table_mangle ip6table_raw ip6table_security iptable_at nf_nat
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.0-05872-g6133e3e4bada-dirty #14
+  Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
+  Krnl PSW : 0704d00180000000 00000000003cadb6 (__free_slab+0x686/0x6b0)
+             R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
+  Krnl GPRS: 00000000f3a32928 0000000000000000 000000007fbf5d00 000000000117c4b8
+             0000000000000000 000000009e3291c1 0000000000000000 0000000000000000
+             0000000000000003 0000000000000008 000000002b478b00 000003d080a97600
+             0000000000000003 0000000000000008 000000002b478b00 000003d080a97600
+             000000000117ba00 000003e000057db0 00000000003cabcc 000003e000057c78
+  Krnl Code: 00000000003cada6: e310a1400004        lg      %r1,320(%r10)
+             00000000003cadac: c0e50046c286        brasl   %r14,ca32b8
+            #00000000003cadb2: a7f4fe36            brc     15,3caa1e
+            >00000000003cadb6: e32060800024        stg     %r2,128(%r6)
+             00000000003cadbc: a7f4fd9e            brc     15,3ca8f8
+             00000000003cadc0: c0e50046790c        brasl   %r14,c99fd8
+             00000000003cadc6: a7f4fe2c            brc     15,3caa
+             00000000003cadc6: a7f4fe2c            brc     15,3caa1e
+             00000000003cadca: ecb1ffff00d9        aghik   %r11,%r1,-1
+  Call Trace:
+  (<00000000003cabcc> __free_slab+0x49c/0x6b0)
+   <00000000001f5886> rcu_core+0x5a6/0x7e0
+   <0000000000ca2dea> __do_softirq+0xf2/0x5c0
+   <0000000000152644> irq_exit+0x104/0x130
+   <000000000010d222> do_IRQ+0x9a/0xf0
+   <0000000000ca2344> ext_int_handler+0x130/0x134
+   <0000000000103648> enabled_wait+0x58/0x128
+  (<0000000000103634> enabled_wait+0x44/0x128)
+   <0000000000103b00> arch_cpu_idle+0x40/0x58
+   <0000000000ca0544> default_idle_call+0x3c/0x68
+   <000000000018eaa4> do_idle+0xec/0x1c0
+   <000000000018ee0e> cpu_startup_entry+0x36/0x40
+   <000000000122df34> arch_call_rest_init+0x5c/0x88
+   <0000000000000000> 0x0
+  INFO: lockdep is turned off.
+  Last Breaking-Event-Address:
+   <00000000003ca8f4> __free_slab+0x1c4/0x6b0
+  Kernel panic - not syncing: Fatal exception in interrupt
 
-[   34.625854] BUG: unable to handle page fault for address: ffffffffa0016bb8
-[   34.629189] Oops: 0000 [#1] SMP PTI
-[   34.629618] CPU: 1 PID: 450 Comm: bash Tainted: G        W         5.4.0-rc3+ #473
-[   34.632524] RIP: 0010:scsi_proc_hostdir_rm+0x5/0xa0
-[   34.643555] CR2: ffffffffa0016bb8 CR3: 000000012cd88000 CR4: 00000000000006e0
-[   34.644545] Call Trace:
-[   34.644907]  scsi_host_dev_release+0x6b/0x1f0
-[   34.645511]  device_release+0x74/0x110
-[   34.646046]  kobject_put+0x116/0x390
-[   34.646559]  put_device+0x17/0x30
-[   34.647041]  scsi_target_dev_release+0x2b/0x40
-[   34.647652]  device_release+0x74/0x110
-[   34.648186]  kobject_put+0x116/0x390
-[   34.648691]  put_device+0x17/0x30
-[   34.649157]  scsi_device_dev_release_usercontext+0x2e8/0x360
-[   34.649953]  execute_in_process_context+0x29/0x80
-[   34.650603]  scsi_device_dev_release+0x20/0x30
-[   34.651221]  device_release+0x74/0x110
-[   34.651732]  kobject_put+0x116/0x390
-[   34.652230]  sysfs_unbreak_active_protection+0x3f/0x50
-[   34.652935]  sdev_store_delete.cold.4+0x71/0x8f
-[   34.653579]  dev_attr_store+0x1b/0x40
-[   34.654103]  sysfs_kf_write+0x3d/0x60
-[   34.654603]  kernfs_fop_write+0x174/0x250
-[   34.655165]  __vfs_write+0x1f/0x60
-[   34.655639]  vfs_write+0xc7/0x280
-[   34.656117]  ksys_write+0x6d/0x140
-[   34.656591]  __x64_sys_write+0x1e/0x30
-[   34.657114]  do_syscall_64+0xb1/0x400
-[   34.657627]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   34.658335] RIP: 0033:0x7f156f337130
+The kernel panics on an attempt to dereference the NULL memcg pointer.
+When shutdown_cache() is called from the kmem_cache_destroy() context, a
+memcg kmem_cache might have empty slab pages in a partial list, which are
+still charged to the memory cgroup.
 
-During deleting scsi target, the scsi_debug module have been removed. Then,
-sdebug_driver_template belonged to the module cannot be accessd, resulting
-in scsi_proc_hostdir_rm() BUG_ON.
+These pages are released by free_partial() at the beginning of
+shutdown_cache(): either directly or by scheduling a RCU-delayed work
+(if the kmem_cache has the SLAB_TYPESAFE_BY_RCU flag).  The latter case
+is when the reported panic can happen: memcg_unlink_cache() is called
+immediately after shrinking partial lists, without waiting for scheduled
+RCU works.  It sets the kmem_cache->memcg_params.memcg pointer to NULL,
+and the following attempt to dereference it by __free_slab() from the
+RCU work context causes the panic.
 
-To fix the bug, we add scsi_device_get() in sdev_store_delete() to try to
-increase refcount of module, avoiding the module been removed.
+To fix the issue, let's postpone the release of the memcg pointer to
+destroy_memcg_params().  It's called from a separate work context by
+slab_caches_to_rcu_destroy_workfn(), which contains a full RCU barrier.
+This guarantees that all scheduled page release RCU works will complete
+before the memcg pointer will be zeroed.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191015130556.18061-1-yuyufen@huawei.com
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Big thanks for Karsten for the perfect report containing all necessary
+information, his help with the analysis of the problem and testing of the
+fix.
+
+Link: http://lkml.kernel.org/r/20191010160549.1584316-1-guro@fb.com
+Fixes: fb2f2b0adb98 ("mm: memcg/slab: reparent memcg kmem_caches on cgroup removal")
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Reported-by: Karsten Graul <kgraul@linux.ibm.com>
+Tested-by: Karsten Graul <kgraul@linux.ibm.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Karsten Graul <kgraul@linux.ibm.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_sysfs.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ mm/slab_common.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -722,6 +722,14 @@ sdev_store_delete(struct device *dev, st
- 		  const char *buf, size_t count)
- {
- 	struct kernfs_node *kn;
-+	struct scsi_device *sdev = to_scsi_device(dev);
-+
-+	/*
-+	 * We need to try to get module, avoiding the module been removed
-+	 * during delete.
-+	 */
-+	if (scsi_device_get(sdev))
-+		return -ENODEV;
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -178,10 +178,13 @@ static int init_memcg_params(struct kmem
  
- 	kn = sysfs_break_active_protection(&dev->kobj, &attr->attr);
- 	WARN_ON_ONCE(!kn);
-@@ -736,9 +744,10 @@ sdev_store_delete(struct device *dev, st
- 	 * state into SDEV_DEL.
- 	 */
- 	device_remove_file(dev, attr);
--	scsi_remove_device(to_scsi_device(dev));
-+	scsi_remove_device(sdev);
- 	if (kn)
- 		sysfs_unbreak_active_protection(kn);
-+	scsi_device_put(sdev);
- 	return count;
- };
- static DEVICE_ATTR(delete, S_IWUSR, NULL, sdev_store_delete);
+ static void destroy_memcg_params(struct kmem_cache *s)
+ {
+-	if (is_root_cache(s))
++	if (is_root_cache(s)) {
+ 		kvfree(rcu_access_pointer(s->memcg_params.memcg_caches));
+-	else
++	} else {
++		mem_cgroup_put(s->memcg_params.memcg);
++		WRITE_ONCE(s->memcg_params.memcg, NULL);
+ 		percpu_ref_exit(&s->memcg_params.refcnt);
++	}
+ }
+ 
+ static void free_memcg_params(struct rcu_head *rcu)
+@@ -253,8 +256,6 @@ static void memcg_unlink_cache(struct km
+ 	} else {
+ 		list_del(&s->memcg_params.children_node);
+ 		list_del(&s->memcg_params.kmem_caches_node);
+-		mem_cgroup_put(s->memcg_params.memcg);
+-		WRITE_ONCE(s->memcg_params.memcg, NULL);
+ 	}
+ }
+ #else
 
 
