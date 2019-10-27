@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D807E694B
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DFAEE6871
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729252AbfJ0VHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S1731071AbfJ0VUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbfJ0VHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:43 -0400
+        id S1731765AbfJ0VUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:49 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57641214AF;
-        Sun, 27 Oct 2019 21:07:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A6C4205C9;
+        Sun, 27 Oct 2019 21:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210462;
-        bh=MqNYDHsk36krU8V9zN8HmYB742svkN2NSnv3BuaBevE=;
+        s=default; t=1572211248;
+        bh=IswQNomoTlHHAm0FBwOCISP18LNq/Etgz9qumUH61Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lX2qwkYuX/orFICplBM4uLVEMuDdp11v7yJ4fTWnO9pDoEqr5zUyX+LDylFHgfqh3
-         Z1otHN753KkjTMAJWuTm8QJg4oIghHnKvDZqF7LEAyM+0J05wYnweLxWm4fpHHvfot
-         HDzFU3efi4+RoisP7Id3zfLZ0uhVwyvb5Oj/MBzs=
+        b=ffAuIE6rvFWvGwdojsXTIOul5MSDSA8hEKrZjgbriWm+Lut3Ii7Qmk9Ojo5ZHqXGR
+         peQaj3gFJlBQPSSgLxIEUT56Gg0zONDtFKe4xeSbyFOLUnMcZXoqjJfZpMYurKxI0i
+         QaU2j+8LoT4rewpJJCMzbowvmgB/7V7JoKe39IgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
+        stable@vger.kernel.org, Igor Russkikh <igor.russkikh@aquantia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 023/119] net: stmmac: disable/enable ptp_ref_clk in suspend/resume flow
+Subject: [PATCH 5.3 082/197] net: aquantia: when cleaning hw cache it should be toggled
 Date:   Sun, 27 Oct 2019 22:00:00 +0100
-Message-Id: <20191027203306.906234535@linuxfoundation.org>
+Message-Id: <20191027203356.136876729@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +43,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biao Huang <biao.huang@mediatek.com>
+From: Igor Russkikh <Igor.Russkikh@aquantia.com>
 
-[ Upstream commit e497c20e203680aba9ccf7bb475959595908ca7e ]
+[ Upstream commit ed4d81c4b3f28ccf624f11fd66f67aec5b58859c ]
 
-disable ptp_ref_clk in suspend flow, and enable it in resume flow.
+>From HW specification to correctly reset HW caches (this is a required
+workaround when stopping the device), register bit should actually
+be toggled.
 
-Fixes: f573c0b9c4e0 ("stmmac: move stmmac_clk, pclk, clk_ptp_ref and stmmac_rst to platform structure")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
+It was previosly always just set. Due to the way driver stops HW this
+never actually caused any issues, but it still may, so cleaning this up.
+
+Fixes: 7a1bb49461b1 ("net: aquantia: fix potential IOMMU fault after driver unbind")
+Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c           |   16 +++++++-
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c          |   17 +++++++-
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.h          |    7 ++-
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h |   19 ++++++++++
+ 4 files changed, 53 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4402,8 +4402,10 @@ int stmmac_suspend(struct device *dev)
- 		priv->hw->mac->set_mac(priv->ioaddr, false);
- 		pinctrl_pm_select_sleep_state(priv->device);
- 		/* Disable clock in case of PWM is off */
--		clk_disable(priv->plat->pclk);
--		clk_disable(priv->plat->stmmac_clk);
-+		if (priv->plat->clk_ptp_ref)
-+			clk_disable_unprepare(priv->plat->clk_ptp_ref);
-+		clk_disable_unprepare(priv->plat->pclk);
-+		clk_disable_unprepare(priv->plat->stmmac_clk);
- 	}
- 	spin_unlock_irqrestore(&priv->lock, flags);
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+@@ -968,14 +968,26 @@ static int hw_atl_b0_hw_interrupt_modera
  
-@@ -4468,8 +4470,10 @@ int stmmac_resume(struct device *dev)
- 	} else {
- 		pinctrl_pm_select_default_state(priv->device);
- 		/* enable the clk previously disabled */
--		clk_enable(priv->plat->stmmac_clk);
--		clk_enable(priv->plat->pclk);
-+		clk_prepare_enable(priv->plat->stmmac_clk);
-+		clk_prepare_enable(priv->plat->pclk);
-+		if (priv->plat->clk_ptp_ref)
-+			clk_prepare_enable(priv->plat->clk_ptp_ref);
- 		/* reset the phy so that it's ready */
- 		if (priv->mii)
- 			stmmac_mdio_reset(priv->mii);
+ static int hw_atl_b0_hw_stop(struct aq_hw_s *self)
+ {
++	int err;
++	u32 val;
++
+ 	hw_atl_b0_hw_irq_disable(self, HW_ATL_B0_INT_MASK);
+ 
+ 	/* Invalidate Descriptor Cache to prevent writing to the cached
+ 	 * descriptors and to the data pointer of those descriptors
+ 	 */
+-	hw_atl_rdm_rx_dma_desc_cache_init_set(self, 1);
++	hw_atl_rdm_rx_dma_desc_cache_init_tgl(self);
++
++	err = aq_hw_err_from_flags(self);
++
++	if (err)
++		goto err_exit;
++
++	readx_poll_timeout_atomic(hw_atl_rdm_rx_dma_desc_cache_init_done_get,
++				  self, val, val == 1, 1000U, 10000U);
+ 
+-	return aq_hw_err_from_flags(self);
++err_exit:
++	return err;
+ }
+ 
+ static int hw_atl_b0_hw_ring_tx_stop(struct aq_hw_s *self,
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.c
+@@ -606,12 +606,25 @@ void hw_atl_rpb_rx_flow_ctl_mode_set(str
+ 			    HW_ATL_RPB_RX_FC_MODE_SHIFT, rx_flow_ctl_mode);
+ }
+ 
+-void hw_atl_rdm_rx_dma_desc_cache_init_set(struct aq_hw_s *aq_hw, u32 init)
++void hw_atl_rdm_rx_dma_desc_cache_init_tgl(struct aq_hw_s *aq_hw)
+ {
++	u32 val;
++
++	val = aq_hw_read_reg_bit(aq_hw, HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_ADR,
++				 HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_MSK,
++				 HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_SHIFT);
++
+ 	aq_hw_write_reg_bit(aq_hw, HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_ADR,
+ 			    HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_MSK,
+ 			    HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_SHIFT,
+-			    init);
++			    val ^ 1);
++}
++
++u32 hw_atl_rdm_rx_dma_desc_cache_init_done_get(struct aq_hw_s *aq_hw)
++{
++	return aq_hw_read_reg_bit(aq_hw, RDM_RX_DMA_DESC_CACHE_INIT_DONE_ADR,
++				  RDM_RX_DMA_DESC_CACHE_INIT_DONE_MSK,
++				  RDM_RX_DMA_DESC_CACHE_INIT_DONE_SHIFT);
+ }
+ 
+ void hw_atl_rpb_rx_pkt_buff_size_per_tc_set(struct aq_hw_s *aq_hw,
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.h
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh.h
+@@ -313,8 +313,11 @@ void hw_atl_rpb_rx_pkt_buff_size_per_tc_
+ 					    u32 rx_pkt_buff_size_per_tc,
+ 					    u32 buffer);
+ 
+-/* set rdm rx dma descriptor cache init */
+-void hw_atl_rdm_rx_dma_desc_cache_init_set(struct aq_hw_s *aq_hw, u32 init);
++/* toggle rdm rx dma descriptor cache init */
++void hw_atl_rdm_rx_dma_desc_cache_init_tgl(struct aq_hw_s *aq_hw);
++
++/* get rdm rx dma descriptor cache init done */
++u32 hw_atl_rdm_rx_dma_desc_cache_init_done_get(struct aq_hw_s *aq_hw);
+ 
+ /* set rx xoff enable (per tc) */
+ void hw_atl_rpb_rx_xoff_en_per_tc_set(struct aq_hw_s *aq_hw, u32 rx_xoff_en_per_tc,
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_llh_internal.h
+@@ -318,6 +318,25 @@
+ /* default value of bitfield rdm_desc_init_i */
+ #define HW_ATL_RDM_RX_DMA_DESC_CACHE_INIT_DEFAULT 0x0
+ 
++/* rdm_desc_init_done_i bitfield definitions
++ * preprocessor definitions for the bitfield rdm_desc_init_done_i.
++ * port="pif_rdm_desc_init_done_i"
++ */
++
++/* register address for bitfield rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_ADR 0x00005a10
++/* bitmask for bitfield rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_MSK 0x00000001U
++/* inverted bitmask for bitfield rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_MSKN 0xfffffffe
++/* lower bit position of bitfield  rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_SHIFT 0U
++/* width of bitfield rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_WIDTH 1
++/* default value of bitfield rdm_desc_init_done_i */
++#define RDM_RX_DMA_DESC_CACHE_INIT_DONE_DEFAULT 0x0
++
++
+ /* rx int_desc_wrb_en bitfield definitions
+  * preprocessor definitions for the bitfield "int_desc_wrb_en".
+  * port="pif_rdm_int_desc_wrb_en_i"
 
 
