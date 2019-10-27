@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 890AAE694C
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174F1E6872
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729241AbfJ0VHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53874 "EHLO mail.kernel.org"
+        id S1731795AbfJ0VUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729259AbfJ0VHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:46 -0400
+        id S1731789AbfJ0VUv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:51 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07DEC21726;
-        Sun, 27 Oct 2019 21:07:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72126205C9;
+        Sun, 27 Oct 2019 21:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210465;
-        bh=nGNn/6gbznVPvXy1bNaYHhiOgr7e4qFUEXEifg/wh/I=;
+        s=default; t=1572211251;
+        bh=MlG/nRE6rDHiPOrTuZonlQNH0xqLGTMOppwMOOhlxfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWKYXF6nkV6Fr3s2X7TQj6V74sLXdx4TbpoouYHNYf2ghqiUw4/kaea/myW1xM0Jy
-         882lpG3H1rJgxxpiCR8s1TFfaSEASM8AEJ8qvEPrPH8kF5Dxny/6U62Y4YUqyeHn8x
-         qlN8Pseewt6jADsTdq3p9juf5qIrU7rR7BG0lJw4=
+        b=r8H+DouQm4Zae8ydsBRfEYg1CzAOgxLUda8I2wagYE75I+Wkm5fFsXG5wlU7hQZWI
+         5vVy2FgMR5nTHWTYA+lruCjFUC94nad5Pr8IeNVStwnrgKk7OOAkYnIBBfc92ScQBV
+         4FzuWSQvV8NiW8cd5wj6GVINlo2HI87pPi/1k1aM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
+        Igor Russkikh <igor.russkikh@aquantia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with true
+Subject: [PATCH 5.3 083/197] net: aquantia: do not pass lro session with invalid tcp checksum
 Date:   Sun, 27 Oct 2019 22:00:01 +0100
-Message-Id: <20191027203307.303661015@linuxfoundation.org>
+Message-Id: <20191027203356.188185690@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
 
-[ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
+[ Upstream commit d08b9a0a3ebdf71b0aabe576c7dd48e57e80e0f0 ]
 
-syzbot reported a memory leak:
+Individual descriptors on LRO TCP session should be checked
+for CRC errors. It was discovered that HW recalculates
+L4 checksums on LRO session and does not break it up on bad L4
+csum.
 
-  BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
-  backtrace:
+Thus, driver should aggregate HW LRO L4 statuses from all individual
+buffers of LRO session and drop packet if one of the buffers has bad
+L4 checksum.
 
-    [...] slab_alloc mm/slab.c:3319 [inline]
-    [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
-    [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
-    [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
-    [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
-    [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
-    [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
-    [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
-    [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
-    [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
-    [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
-    [...] __do_sys_setsockopt net/socket.c:2100 [inline]
-
-It was caused by when sending msgs without binding a port, in the path:
-inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
-.get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
-not. Later when binding another port by sctp_setsockopt_bindx(), a new
-bucket will be created as bp->port is not set.
-
-sctp's autobind is supposed to call sctp_autobind() where it does all
-things including setting bp->port. Since sctp_autobind() is called in
-sctp_sendmsg() if the sk is not yet bound, it should have skipped the
-auto bind.
-
-THis patch is to avoid calling inet_autobind() in inet_send_prepare()
-by changing sctp_prot .no_autobind with true, also remove the unused
-.get_port.
-
-Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: f38f1ee8aeb2 ("net: aquantia: check rx csum for all packets in LRO session")
+Signed-off-by: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
+Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -8313,7 +8313,7 @@ struct proto sctp_prot = {
- 	.backlog_rcv =	sctp_backlog_rcv,
- 	.hash        =	sctp_hash,
- 	.unhash      =	sctp_unhash,
--	.get_port    =	sctp_get_port,
-+	.no_autobind =	true,
- 	.obj_size    =  sizeof(struct sctp_sock),
- 	.sysctl_mem  =  sysctl_sctp_mem,
- 	.sysctl_rmem =  sysctl_sctp_rmem,
-@@ -8352,7 +8352,7 @@ struct proto sctpv6_prot = {
- 	.backlog_rcv	= sctp_backlog_rcv,
- 	.hash		= sctp_hash,
- 	.unhash		= sctp_unhash,
--	.get_port	= sctp_get_port,
-+	.no_autobind	= true,
- 	.obj_size	= sizeof(struct sctp6_sock),
- 	.sysctl_mem	= sysctl_sctp_mem,
- 	.sysctl_rmem	= sysctl_sctp_rmem,
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -313,6 +313,7 @@ int aq_ring_rx_clean(struct aq_ring_s *s
+ 					break;
+ 
+ 				buff->is_error |= buff_->is_error;
++				buff->is_cso_err |= buff_->is_cso_err;
+ 
+ 			} while (!buff_->is_eop);
+ 
+@@ -320,7 +321,7 @@ int aq_ring_rx_clean(struct aq_ring_s *s
+ 				err = 0;
+ 				goto err_exit;
+ 			}
+-			if (buff->is_error) {
++			if (buff->is_error || buff->is_cso_err) {
+ 				buff_ = buff;
+ 				do {
+ 					next_ = buff_->next,
 
 
