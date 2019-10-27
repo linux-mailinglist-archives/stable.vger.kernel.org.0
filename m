@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7E2E6601
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27B2FE6603
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729186AbfJ0VHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
+        id S1728297AbfJ0VHj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728297AbfJ0VHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:36 -0400
+        id S1729211AbfJ0VHi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3CD1214AF;
-        Sun, 27 Oct 2019 21:07:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D92F4222C9;
+        Sun, 27 Oct 2019 21:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210454;
-        bh=UBso9M+qKYhSGLEwkFSKqdYqM7WurwWRzBBWfdS9tOw=;
+        s=default; t=1572210457;
+        bh=gv1Y2SUXRrBy9F58HbHm7Oba8NO36ODdouYrlrZSFJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUEmqZUPHFZodtcGNs8JQCdf2KVB7MKdGIKpu4Sc9TbOgC6bLCn4wdN2yPZDwV9Fb
-         MxQtZDDkm2cQmeA1HOSt98mzwL86ohYVo6RbNSMzsHz8MPC7/QPu7EGXPLC9BtNcj8
-         T3G8cACGWAFi4w3DTi0gtim5zVNF/VddGFP/p+gE=
+        b=Cl3vYum6OhFLc3FJeDN9AmSVKE6ILzb0rXfjnT9sxzfkEdXncoe6kSntRtH/fF6On
+         3ih7Q3hlZnM2wWS4O4p4WikROA+C4Pqipkg8Y2J9T8nAAY2UJtXxIDnk1kSCWh5e+1
+         7jPKX+xPTZ7cLBZyqbAs8ygOlpWm1CvyqZrW0rzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 021/119] net: bcmgenet: Set phydev->dev_flags only for internal PHYs
-Date:   Sun, 27 Oct 2019 21:59:58 +0100
-Message-Id: <20191027203306.431188966@linuxfoundation.org>
+Subject: [PATCH 4.14 022/119] net: i82596: fix dma_alloc_attr for sni_82596
+Date:   Sun, 27 Oct 2019 21:59:59 +0100
+Message-Id: <20191027203306.580033772@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -44,40 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit 92696286f3bb37ba50e4bd8d1beb24afb759a799 ]
+[ Upstream commit 61c1d33daf7b5146f44d4363b3322f8cda6a6c43 ]
 
-phydev->dev_flags is entirely dependent on the PHY device driver which
-is going to be used, setting the internal GENET PHY revision in those
-bits only makes sense when drivers/net/phy/bcm7xxx.c is the PHY driver
-being used.
+Commit 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+switched dma allocation over to dma_alloc_attr, but didn't convert
+the SNI part to request consistent DMA memory. This broke sni_82596
+since driver doesn't do dma_cache_sync for performance reasons.
+Fix this by using different DMA_ATTRs for lasi_82596 and sni_82596.
 
-Fixes: 487320c54143 ("net: bcmgenet: communicate integrated PHY revision to PHY driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
+Fixes: 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmmii.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/i825xx/lasi_82596.c |    4 +++-
+ drivers/net/ethernet/i825xx/lib82596.c   |    4 ++--
+ drivers/net/ethernet/i825xx/sni_82596.c  |    4 +++-
+ 3 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -296,11 +296,12 @@ int bcmgenet_mii_probe(struct net_device
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	struct device_node *dn = priv->pdev->dev.of_node;
- 	struct phy_device *phydev;
--	u32 phy_flags;
-+	u32 phy_flags = 0;
- 	int ret;
+--- a/drivers/net/ethernet/i825xx/lasi_82596.c
++++ b/drivers/net/ethernet/i825xx/lasi_82596.c
+@@ -96,6 +96,8 @@
  
- 	/* Communicate the integrated PHY revision */
--	phy_flags = priv->gphy_rev;
-+	if (priv->internal_phy)
-+		phy_flags = priv->gphy_rev;
+ #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
  
- 	/* Initialize link state variables that bcmgenet_mii_setup() uses */
- 	priv->old_link = -1;
++#define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
++
+ #define DMA_WBACK(ndev, addr, len) \
+ 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_TO_DEVICE); } while (0)
+ 
+@@ -199,7 +201,7 @@ static int __exit lan_remove_chip(struct
+ 
+ 	unregister_netdev (dev);
+ 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	free_netdev (dev);
+ 	return 0;
+ }
+--- a/drivers/net/ethernet/i825xx/lib82596.c
++++ b/drivers/net/ethernet/i825xx/lib82596.c
+@@ -1065,7 +1065,7 @@ static int i82596_probe(struct net_devic
+ 
+ 	dma = dma_alloc_attrs(dev->dev.parent, sizeof(struct i596_dma),
+ 			      &lp->dma_addr, GFP_KERNEL,
+-			      DMA_ATTR_NON_CONSISTENT);
++			      LIB82596_DMA_ATTR);
+ 	if (!dma) {
+ 		printk(KERN_ERR "%s: Couldn't get shared memory\n", __FILE__);
+ 		return -ENOMEM;
+@@ -1087,7 +1087,7 @@ static int i82596_probe(struct net_devic
+ 	i = register_netdev(dev);
+ 	if (i) {
+ 		dma_free_attrs(dev->dev.parent, sizeof(struct i596_dma),
+-			       dma, lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++			       dma, lp->dma_addr, LIB82596_DMA_ATTR);
+ 		return i;
+ 	}
+ 
+--- a/drivers/net/ethernet/i825xx/sni_82596.c
++++ b/drivers/net/ethernet/i825xx/sni_82596.c
+@@ -23,6 +23,8 @@
+ 
+ static const char sni_82596_string[] = "snirm_82596";
+ 
++#define LIB82596_DMA_ATTR	0
++
+ #define DMA_WBACK(priv, addr, len)     do { } while (0)
+ #define DMA_INV(priv, addr, len)       do { } while (0)
+ #define DMA_WBACK_INV(priv, addr, len) do { } while (0)
+@@ -151,7 +153,7 @@ static int sni_82596_driver_remove(struc
+ 
+ 	unregister_netdev(dev);
+ 	dma_free_attrs(dev->dev.parent, sizeof(struct i596_private), lp->dma,
+-		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
++		       lp->dma_addr, LIB82596_DMA_ATTR);
+ 	iounmap(lp->ca);
+ 	iounmap(lp->mpu_port);
+ 	free_netdev (dev);
 
 
