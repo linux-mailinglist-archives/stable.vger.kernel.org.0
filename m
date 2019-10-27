@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 882BEE67BB
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF540E65B1
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732404AbfJ0VX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:23:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
+        id S1728605AbfJ0VEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730777AbfJ0VXz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:23:55 -0400
+        id S1728591AbfJ0VES (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:18 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4B2A214E0;
-        Sun, 27 Oct 2019 21:23:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9A7020B7C;
+        Sun, 27 Oct 2019 21:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211434;
-        bh=lYS99/PgYPV24YMX4pde23jxpICiG+eXBVwlzD1pm6A=;
+        s=default; t=1572210257;
+        bh=Q2QGoeixAyao06iZG3w3CDwAfiDd57gPkzDt23wFCug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKIww8CRAU5vB+WhJ7W3NqoFg0qhO8QKI7AHhEMtRWeqSRowqjMxOaqqWuzZ66bG6
-         LXJhwOeghGM8kUZlXW7TJG9REW8PVlKwOUN5z9cBxRhDC5bdxBgyRf2oR2UmrYb1KF
-         tavF5+brFHn5hrHU6PDIxp3LBwiMTW8wzFELAhio=
+        b=ba2Wu97ugYaAVjV3Ns4UHj79LlgdE58wp603hrA8nBkP0ZdxZqqKWxLyUcBP50xFL
+         aHAFWOIxfoBwM34BjrVmDfVWODAce83ujQpVvpr9XN1pFD42XmBOimr6/5Q/Qq+d/l
+         0yJk9svafLnrbXFSvvhSSS9KQJR+1khD3ncvE6/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Honglei Wang <honglei.wang@oracle.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
         Michal Hocko <mhocko@suse.com>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Tejun Heo <tj@kernel.org>,
         Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Roman Gushchin <guro@fb.com>, Tejun Heo <tj@kernel.org>,
-        Dave Hansen <dave.hansen@intel.com>,
+        Roman Gushchin <guro@fb.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 151/197] mm: memcg: get number of pages on the LRU list in memcgroup base on lru_zone_size
+Subject: [PATCH 4.4 31/41] mm/slub: fix a deadlock in show_slab_objects()
 Date:   Sun, 27 Oct 2019 22:01:09 +0100
-Message-Id: <20191027203359.841584643@linuxfoundation.org>
+Message-Id: <20191027203126.336544349@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,151 +52,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Honglei Wang <honglei.wang@oracle.com>
+From: Qian Cai <cai@lca.pw>
 
-commit b11edebbc967ebf5c55b8f9e1d5bb6d68ec3a7fd upstream.
+commit e4f8e513c3d353c134ad4eef9fd0bba12406c7c8 upstream.
 
-Commit 1a61ab8038e72 ("mm: memcontrol: replace zone summing with
-lruvec_page_state()") has made lruvec_page_state to use per-cpu counters
-instead of calculating it directly from lru_zone_size with an idea that
-this would be more effective.
+A long time ago we fixed a similar deadlock in show_slab_objects() [1].
+However, it is apparently due to the commits like 01fb58bcba63 ("slab:
+remove synchronous synchronize_sched() from memcg cache deactivation
+path") and 03afc0e25f7f ("slab: get_online_mems for
+kmem_cache_{create,destroy,shrink}"), this kind of deadlock is back by
+just reading files in /sys/kernel/slab which will generate a lockdep
+splat below.
 
-Tim has reported that this is not really the case for their database
-benchmark which is showing an opposite results where lruvec_page_state
-is taking up a huge chunk of CPU cycles (about 25% of the system time
-which is roughly 7% of total cpu cycles) on 5.3 kernels.  The workload
-is running on a larger machine (96cpus), it has many cgroups (500) and
-it is heavily direct reclaim bound.
+Since the "mem_hotplug_lock" here is only to obtain a stable online node
+mask while racing with NUMA node hotplug, in the worst case, the results
+may me miscalculated while doing NUMA node hotplug, but they shall be
+corrected by later reads of the same files.
 
-Tim Chen said:
+  WARNING: possible circular locking dependency detected
+  ------------------------------------------------------
+  cat/5224 is trying to acquire lock:
+  ffff900012ac3120 (mem_hotplug_lock.rw_sem){++++}, at:
+  show_slab_objects+0x94/0x3a8
 
-: The problem can also be reproduced by running simple multi-threaded
-: pmbench benchmark with a fast Optane SSD swap (see profile below).
-:
-:
-: 6.15%     3.08%  pmbench          [kernel.vmlinux]            [k] lruvec_lru_size
-:             |
-:             |--3.07%--lruvec_lru_size
-:             |          |
-:             |          |--2.11%--cpumask_next
-:             |          |          |
-:             |          |           --1.66%--find_next_bit
-:             |          |
-:             |           --0.57%--call_function_interrupt
-:             |                     |
-:             |                      --0.55%--smp_call_function_interrupt
-:             |
-:             |--1.59%--0x441f0fc3d009
-:             |          _ops_rdtsc_init_base_freq
-:             |          access_histogram
-:             |          page_fault
-:             |          __do_page_fault
-:             |          handle_mm_fault
-:             |          __handle_mm_fault
-:             |          |
-:             |           --1.54%--do_swap_page
-:             |                     swapin_readahead
-:             |                     swap_cluster_readahead
-:             |                     |
-:             |                      --1.53%--read_swap_cache_async
-:             |                                __read_swap_cache_async
-:             |                                alloc_pages_vma
-:             |                                __alloc_pages_nodemask
-:             |                                __alloc_pages_slowpath
-:             |                                try_to_free_pages
-:             |                                do_try_to_free_pages
-:             |                                shrink_node
-:             |                                shrink_node_memcg
-:             |                                |
-:             |                                |--0.77%--lruvec_lru_size
-:             |                                |
-:             |                                 --0.76%--inactive_list_is_low
-:             |                                           |
-:             |                                            --0.76%--lruvec_lru_size
-:             |
-:              --1.50%--measure_read
-:                        page_fault
-:                        __do_page_fault
-:                        handle_mm_fault
-:                        __handle_mm_fault
-:                        do_swap_page
-:                        swapin_readahead
-:                        swap_cluster_readahead
-:                        |
-:                         --1.48%--read_swap_cache_async
-:                                   __read_swap_cache_async
-:                                   alloc_pages_vma
-:                                   __alloc_pages_nodemask
-:                                   __alloc_pages_slowpath
-:                                   try_to_free_pages
-:                                   do_try_to_free_pages
-:                                   shrink_node
-:                                   shrink_node_memcg
-:                                   |
-:                                   |--0.75%--inactive_list_is_low
-:                                   |          |
-:                                   |           --0.75%--lruvec_lru_size
-:                                   |
-:                                    --0.73%--lruvec_lru_size
+  but task is already holding lock:
+  b8ff009693eee398 (kn->count#45){++++}, at: kernfs_seq_start+0x44/0xf0
 
-The likely culprit is the cache traffic the lruvec_page_state_local
-generates.  Dave Hansen says:
+  which lock already depends on the new lock.
 
-: I was thinking purely of the cache footprint.  If it's reading
-: pn->lruvec_stat_local->count[idx] is three separate cachelines, so 192
-: bytes of cache *96 CPUs = 18k of data, mostly read-only.  1 cgroup would
-: be 18k of data for the whole system and the caching would be pretty
-: efficient and all 18k would probably survive a tight page fault loop in
-: the L1.  500 cgroups would be ~90k of data per CPU thread which doesn't
-: fit in the L1 and probably wouldn't survive a tight page fault loop if
-: both logical threads were banging on different cgroups.
-:
-: It's just a theory, but it's why I noted the number of cgroups when I
-: initially saw this show up in profiles
+  the existing dependency chain (in reverse order) is:
 
-Fix the regression by partially reverting the said commit and calculate
-the lru size explicitly.
+  -> #2 (kn->count#45){++++}:
+         lock_acquire+0x31c/0x360
+         __kernfs_remove+0x290/0x490
+         kernfs_remove+0x30/0x44
+         sysfs_remove_dir+0x70/0x88
+         kobject_del+0x50/0xb0
+         sysfs_slab_unlink+0x2c/0x38
+         shutdown_cache+0xa0/0xf0
+         kmemcg_cache_shutdown_fn+0x1c/0x34
+         kmemcg_workfn+0x44/0x64
+         process_one_work+0x4f4/0x950
+         worker_thread+0x390/0x4bc
+         kthread+0x1cc/0x1e8
+         ret_from_fork+0x10/0x18
 
-Link: http://lkml.kernel.org/r/20190905071034.16822-1-honglei.wang@oracle.com
-Fixes: 1a61ab8038e72 ("mm: memcontrol: replace zone summing with lruvec_page_state()")
-Signed-off-by: Honglei Wang <honglei.wang@oracle.com>
-Reported-by: Tim Chen <tim.c.chen@linux.intel.com>
-Acked-by: Tim Chen <tim.c.chen@linux.intel.com>
-Tested-by: Tim Chen <tim.c.chen@linux.intel.com>
+  -> #1 (slab_mutex){+.+.}:
+         lock_acquire+0x31c/0x360
+         __mutex_lock_common+0x16c/0xf78
+         mutex_lock_nested+0x40/0x50
+         memcg_create_kmem_cache+0x38/0x16c
+         memcg_kmem_cache_create_func+0x3c/0x70
+         process_one_work+0x4f4/0x950
+         worker_thread+0x390/0x4bc
+         kthread+0x1cc/0x1e8
+         ret_from_fork+0x10/0x18
+
+  -> #0 (mem_hotplug_lock.rw_sem){++++}:
+         validate_chain+0xd10/0x2bcc
+         __lock_acquire+0x7f4/0xb8c
+         lock_acquire+0x31c/0x360
+         get_online_mems+0x54/0x150
+         show_slab_objects+0x94/0x3a8
+         total_objects_show+0x28/0x34
+         slab_attr_show+0x38/0x54
+         sysfs_kf_seq_show+0x198/0x2d4
+         kernfs_seq_show+0xa4/0xcc
+         seq_read+0x30c/0x8a8
+         kernfs_fop_read+0xa8/0x314
+         __vfs_read+0x88/0x20c
+         vfs_read+0xd8/0x10c
+         ksys_read+0xb0/0x120
+         __arm64_sys_read+0x54/0x88
+         el0_svc_handler+0x170/0x240
+         el0_svc+0x8/0xc
+
+  other info that might help us debug this:
+
+  Chain exists of:
+    mem_hotplug_lock.rw_sem --> slab_mutex --> kn->count#45
+
+   Possible unsafe locking scenario:
+
+         CPU0                    CPU1
+         ----                    ----
+    lock(kn->count#45);
+                                 lock(slab_mutex);
+                                 lock(kn->count#45);
+    lock(mem_hotplug_lock.rw_sem);
+
+   *** DEADLOCK ***
+
+  3 locks held by cat/5224:
+   #0: 9eff00095b14b2a0 (&p->lock){+.+.}, at: seq_read+0x4c/0x8a8
+   #1: 0eff008997041480 (&of->mutex){+.+.}, at: kernfs_seq_start+0x34/0xf0
+   #2: b8ff009693eee398 (kn->count#45){++++}, at:
+  kernfs_seq_start+0x44/0xf0
+
+  stack backtrace:
+  Call trace:
+   dump_backtrace+0x0/0x248
+   show_stack+0x20/0x2c
+   dump_stack+0xd0/0x140
+   print_circular_bug+0x368/0x380
+   check_noncircular+0x248/0x250
+   validate_chain+0xd10/0x2bcc
+   __lock_acquire+0x7f4/0xb8c
+   lock_acquire+0x31c/0x360
+   get_online_mems+0x54/0x150
+   show_slab_objects+0x94/0x3a8
+   total_objects_show+0x28/0x34
+   slab_attr_show+0x38/0x54
+   sysfs_kf_seq_show+0x198/0x2d4
+   kernfs_seq_show+0xa4/0xcc
+   seq_read+0x30c/0x8a8
+   kernfs_fop_read+0xa8/0x314
+   __vfs_read+0x88/0x20c
+   vfs_read+0xd8/0x10c
+   ksys_read+0xb0/0x120
+   __arm64_sys_read+0x54/0x88
+   el0_svc_handler+0x170/0x240
+   el0_svc+0x8/0xc
+
+I think it is important to mention that this doesn't expose the
+show_slab_objects to use-after-free.  There is only a single path that
+might really race here and that is the slab hotplug notifier callback
+__kmem_cache_shrink (via slab_mem_going_offline_callback) but that path
+doesn't really destroy kmem_cache_node data structures.
+
+[1] http://lkml.iu.edu/hypermail/linux/kernel/1101.0/02850.html
+
+[akpm@linux-foundation.org: add comment explaining why we don't need mem_hotplug_lock]
+Link: http://lkml.kernel.org/r/1570192309-10132-1-git-send-email-cai@lca.pw
+Fixes: 01fb58bcba63 ("slab: remove synchronous synchronize_sched() from memcg cache deactivation path")
+Fixes: 03afc0e25f7f ("slab: get_online_mems for kmem_cache_{create,destroy,shrink}")
+Signed-off-by: Qian Cai <cai@lca.pw>
 Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Roman Gushchin <guro@fb.com>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Cc: Tejun Heo <tj@kernel.org>
-Cc: Dave Hansen <dave.hansen@intel.com>
-Cc: <stable@vger.kernel.org>	[5.2+]
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmscan.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ mm/slub.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/mm/vmscan.c
-+++ b/mm/vmscan.c
-@@ -354,12 +354,13 @@ unsigned long zone_reclaimable_pages(str
-  */
- unsigned long lruvec_lru_size(struct lruvec *lruvec, enum lru_list lru, int zone_idx)
- {
--	unsigned long lru_size;
-+	unsigned long lru_size = 0;
- 	int zid;
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -4522,7 +4522,17 @@ static ssize_t show_slab_objects(struct
+ 		}
+ 	}
  
--	if (!mem_cgroup_disabled())
--		lru_size = lruvec_page_state_local(lruvec, NR_LRU_BASE + lru);
--	else
-+	if (!mem_cgroup_disabled()) {
-+		for (zid = 0; zid < MAX_NR_ZONES; zid++)
-+			lru_size += mem_cgroup_get_zone_lru_size(lruvec, lru, zid);
-+	} else
- 		lru_size = node_page_state(lruvec_pgdat(lruvec), NR_LRU_BASE + lru);
- 
- 	for (zid = zone_idx + 1; zid < MAX_NR_ZONES; zid++) {
+-	get_online_mems();
++	/*
++	 * It is impossible to take "mem_hotplug_lock" here with "kernfs_mutex"
++	 * already held which will conflict with an existing lock order:
++	 *
++	 * mem_hotplug_lock->slab_mutex->kernfs_mutex
++	 *
++	 * We don't really need mem_hotplug_lock (to hold off
++	 * slab_mem_going_offline_callback) here because slab's memory hot
++	 * unplug code doesn't destroy the kmem_cache->node[] data.
++	 */
++
+ #ifdef CONFIG_SLUB_DEBUG
+ 	if (flags & SO_ALL) {
+ 		struct kmem_cache_node *n;
+@@ -4563,7 +4573,6 @@ static ssize_t show_slab_objects(struct
+ 			x += sprintf(buf + x, " N%d=%lu",
+ 					node, nodes[node]);
+ #endif
+-	put_online_mems();
+ 	kfree(nodes);
+ 	return x + sprintf(buf + x, "\n");
+ }
 
 
