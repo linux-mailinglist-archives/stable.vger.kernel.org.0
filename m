@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24890E67C2
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D334E6668
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732453AbfJ0VYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:24:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45662 "EHLO mail.kernel.org"
+        id S1729930AbfJ0VLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732428AbfJ0VYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:24:08 -0400
+        id S1729895AbfJ0VLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:11:35 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C337621783;
-        Sun, 27 Oct 2019 21:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0044420873;
+        Sun, 27 Oct 2019 21:11:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211448;
-        bh=9bcCU39ZWTggCACE2Egvoc42+x08ORp7iVYCKacHHeo=;
+        s=default; t=1572210694;
+        bh=1RDTg+wxF9xff2h9l1hf3aHceFjA1bsXfc6B1h8PW0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ft6tkr6pUyRRbf/UB/dli8IxNHc59S/CNheYJoeNBlvoH/K7ec+cmK6Bscw7pHDyp
-         5DpKbhbVfY+QfYhqArequ84rtcWNCHkfpL1rdhTnYbKVkbGGTZ8ewD9zxeO8pCQzss
-         LIoOgvp0DjXGLTuG6mMfSTZtR0+z7zsOMtyJOXAU=
+        b=1LELy4t2NmnZV9DLKv/XfERH9guPDhy/x4B0jCOAj0B5oOXEBDJCiR+fR8RTQjM28
+         KMlXr+pYjtue9sHUMmItxNxKt4qhswiaAnX7gHE5pJPARQ7QhDcz88wzqC63p23zC1
+         0lqQTTuxWn4dzJ/LDoHndlrFZrYYFg4xQNqGhsMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenwandun <chenwandun@huawei.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 155/197] zram: fix race between backing_dev_show and backing_dev_store
-Date:   Sun, 27 Oct 2019 22:01:13 +0100
-Message-Id: <20191027203400.055050644@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.14 097/119] drm/amdgpu: Bail earlier when amdgpu.cik_/si_support is not set to 1
+Date:   Sun, 27 Oct 2019 22:01:14 +0100
+Message-Id: <20191027203348.778364312@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chenwandun <chenwandun@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit f7daefe4231e57381d92c2e2ad905a899c28e402 upstream.
+commit 984d7a929ad68b7be9990fc9c5cfa5d5c9fc7942 upstream.
 
-CPU0:				       CPU1:
-backing_dev_show		       backing_dev_store
-    ......				   ......
-    file = zram->backing_dev;
-    down_read(&zram->init_lock);	   down_read(&zram->init_init_lock)
-    file_path(file, ...);		   zram->backing_dev = backing_dev;
-    up_read(&zram->init_lock);		   up_read(&zram->init_lock);
+Bail from the pci_driver probe function instead of from the drm_driver
+load function.
 
-gets the value of zram->backing_dev too early in backing_dev_show, which
-resultin the value being NULL at the beginning, and not NULL later.
+This avoid /dev/dri/card0 temporarily getting registered and then
+unregistered again, sending unwanted add / remove udev events to
+userspace.
 
-backtrace:
-  d_path+0xcc/0x174
-  file_path+0x10/0x18
-  backing_dev_show+0x40/0xb4
-  dev_attr_show+0x20/0x54
-  sysfs_kf_seq_show+0x9c/0x10c
-  kernfs_seq_show+0x28/0x30
-  seq_read+0x184/0x488
-  kernfs_fop_read+0x5c/0x1a4
-  __vfs_read+0x44/0x128
-  vfs_read+0xa0/0x138
-  SyS_read+0x54/0xb4
+Specifically this avoids triggering the (userspace) bug fixed by this
+plymouth merge-request:
+https://gitlab.freedesktop.org/plymouth/plymouth/merge_requests/59
 
-Link: http://lkml.kernel.org/r/1571046839-16814-1-git-send-email-chenwandun@huawei.com
-Signed-off-by: Chenwandun <chenwandun@huawei.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: <stable@vger.kernel.org>	[4.14+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Note that despite that being a userspace bug, not sending unnecessary
+udev events is a good idea in general.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1490490
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/zram/zram_drv.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |   35 ++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |   35 --------------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
 
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -413,13 +413,14 @@ static void reset_bdev(struct zram *zram
- static ssize_t backing_dev_show(struct device *dev,
- 		struct device_attribute *attr, char *buf)
- {
-+	struct file *file;
- 	struct zram *zram = dev_to_zram(dev);
--	struct file *file = zram->backing_dev;
- 	char *p;
- 	ssize_t ret;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -572,6 +572,41 @@ static int amdgpu_pci_probe(struct pci_d
+ 	if (ret == -EPROBE_DEFER)
+ 		return ret;
  
- 	down_read(&zram->init_lock);
--	if (!zram->backing_dev) {
-+	file = zram->backing_dev;
-+	if (!file) {
- 		memcpy(buf, "none\n", 5);
- 		up_read(&zram->init_lock);
- 		return 5;
++#ifdef CONFIG_DRM_AMDGPU_SI
++	if (!amdgpu_si_support) {
++		switch (flags & AMD_ASIC_MASK) {
++		case CHIP_TAHITI:
++		case CHIP_PITCAIRN:
++		case CHIP_VERDE:
++		case CHIP_OLAND:
++		case CHIP_HAINAN:
++			dev_info(&pdev->dev,
++				 "SI support provided by radeon.\n");
++			dev_info(&pdev->dev,
++				 "Use radeon.si_support=0 amdgpu.si_support=1 to override.\n"
++				);
++			return -ENODEV;
++		}
++	}
++#endif
++#ifdef CONFIG_DRM_AMDGPU_CIK
++	if (!amdgpu_cik_support) {
++		switch (flags & AMD_ASIC_MASK) {
++		case CHIP_KAVERI:
++		case CHIP_BONAIRE:
++		case CHIP_HAWAII:
++		case CHIP_KABINI:
++		case CHIP_MULLINS:
++			dev_info(&pdev->dev,
++				 "CIK support provided by radeon.\n");
++			dev_info(&pdev->dev,
++				 "Use radeon.cik_support=0 amdgpu.cik_support=1 to override.\n"
++				);
++			return -ENODEV;
++		}
++	}
++#endif
++
+ 	/* Get rid of things like offb */
+ 	ret = amdgpu_kick_out_firmware_fb(pdev);
+ 	if (ret)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -87,41 +87,6 @@ int amdgpu_driver_load_kms(struct drm_de
+ 	struct amdgpu_device *adev;
+ 	int r, acpi_status;
+ 
+-#ifdef CONFIG_DRM_AMDGPU_SI
+-	if (!amdgpu_si_support) {
+-		switch (flags & AMD_ASIC_MASK) {
+-		case CHIP_TAHITI:
+-		case CHIP_PITCAIRN:
+-		case CHIP_VERDE:
+-		case CHIP_OLAND:
+-		case CHIP_HAINAN:
+-			dev_info(dev->dev,
+-				 "SI support provided by radeon.\n");
+-			dev_info(dev->dev,
+-				 "Use radeon.si_support=0 amdgpu.si_support=1 to override.\n"
+-				);
+-			return -ENODEV;
+-		}
+-	}
+-#endif
+-#ifdef CONFIG_DRM_AMDGPU_CIK
+-	if (!amdgpu_cik_support) {
+-		switch (flags & AMD_ASIC_MASK) {
+-		case CHIP_KAVERI:
+-		case CHIP_BONAIRE:
+-		case CHIP_HAWAII:
+-		case CHIP_KABINI:
+-		case CHIP_MULLINS:
+-			dev_info(dev->dev,
+-				 "CIK support provided by radeon.\n");
+-			dev_info(dev->dev,
+-				 "Use radeon.cik_support=0 amdgpu.cik_support=1 to override.\n"
+-				);
+-			return -ENODEV;
+-		}
+-	}
+-#endif
+-
+ 	adev = kzalloc(sizeof(struct amdgpu_device), GFP_KERNEL);
+ 	if (adev == NULL) {
+ 		return -ENOMEM;
 
 
