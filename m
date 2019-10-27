@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7323E62BF
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 14:53:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2E8EE62C0
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 14:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfJ0NxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 09:53:25 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58375 "EHLO
+        id S1726900AbfJ0Nxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 09:53:38 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:50707 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726900AbfJ0NxZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 09:53:25 -0400
+        by vger.kernel.org with ESMTP id S1726892AbfJ0Nxh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 09:53:37 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D652021C4E;
-        Sun, 27 Oct 2019 09:53:23 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 09:53:23 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id CA5D321C47;
+        Sun, 27 Oct 2019 09:53:36 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 09:53:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=zC0nBa
-        y9Py/xSloaeJY0deWbzOsIZz6mfx8Styfuw6w=; b=N8DfoEwWMIaWUtwJ/nSh5O
-        YvLiL5tW3fTThybuoSDzU7IDP/oyaKiJBcGMx0u4ksTVnpFmaayluvVUGHhjwfbB
-        EpeyqmBW6lK1ygtMnV4T8hkeCmJfNhGZPdfqeXTicXK9v4CkKhWBGcjh3rK6lgTl
-        Reo7SHGisEBCj3UKyMw4jSH+1iVfogKUQd9mpxlMqkff11v894cuDlQDJSe0hR2G
-        7tXC6ssWkoSxCaV7poLEntOfKahvV9HxhpMKYz2UgfIUUEDZRlaNCI64saF4wHRr
-        v/1A3NMlqj8ZqIs19xEeE6p3GojX7DqIVrXfg4xsSWTgKvp5gaG9wlMftLIfVZZQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ivFUpB
+        AczAoGaEqWlkXGoCiU4Z+/vSSuGoVK6wGd9cY=; b=ov3SBwkG87slhVpVvMDhaQ
+        XipSaNtXQYrVgjaxDjHTVj07IZoOz6N3R9lKXv7s3iP6qCBKal9nPH6y1giEWa/+
+        ztAml4Jrna8T6nGe3OJc2UbDqYbB9xQCEoJ0SiaiDC9vr0ipTTlmN2TA48CObOOl
+        pLvKuWOYikGeK6dJdV1i4PH2trn0byylP9/HfDqq4pUSw+IT0ICnyKSN1CzVvJZU
+        AZtmuNpA15nDXnfjWDY1dNrtgqoHHbL4/lfAeL12hhYycNHW+LjJ9xsh5cR00Dnn
+        jSRYIVXOYwbszLU2sMpbDCWI/1GzjPuWvXHhCn1/+rqxXHHJvr48jmNusVOcE54Q
         ==
-X-ME-Sender: <xms:U6G1XQgLGyPwlmMEu94KWtPKCR5Ejc9u1E-e3T0a-9k3STS3WqYEeg>
+X-ME-Sender: <xms:YKG1XR9YyKAfm1ur-QpMY7kXAj8uy5jE9ogg-pOGqWxEPWP9-VuLzQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgdeitdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucfkphepjeejrddvgedurddvvdelrddvfedvnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:U6G1Xf-coVsspVRhP6lv9Koi4H9DEeMvhKzwL7qZxncpEPhD0QkLxw>
-    <xmx:U6G1XRAoZN4mEhjSbTuUhZOJ6aLhyChqyKTzHDD5z4W6-J3IFC28NA>
-    <xmx:U6G1XZFmMdimhnBNLA2rDbZW5Ys_sZyDJWcEBg2EGaru2dPlxhxHtQ>
-    <xmx:U6G1XfKlYzpQkjRBolE7mL3aNLDLfWEi1VQw7jqO0ENx0MaWEyxNmg>
+    qeenucffohhmrghinhepvghnthhrhidrshgsnecukfhppeejjedrvdeguddrvddvledrvd
+    efvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:YKG1Xanuf0YjQ5Tx9WI8z2pF8zfkiju7HIboh196G-8iquLZoe2IvQ>
+    <xmx:YKG1XU4KWgY-K8IWESf0vPfxMHtsvbXVomhMFOTFAfh_kz4PU04Wyw>
+    <xmx:YKG1XX49HYF8_nPZr_UUu3CGFAd0T8bPP5FMQPghqnfPf5USp0s7Pg>
+    <xmx:YKG1XcJBSySLcEjIkvuDXbI1l0f6Kc7vJfsMKRMY4ItVM_m3I_anaw>
 Received: from localhost (unknown [77.241.229.232])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7E56CD6005A;
-        Sun, 27 Oct 2019 09:53:23 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] arm64: KVM: Trap VM ops when" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5A7B28005C;
+        Sun, 27 Oct 2019 09:53:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: Avoid Cavium TX2 erratum 219 when switching TTBR" failed to apply to 4.19-stable tree
 To:     maz@kernel.org, marc.zyngier@arm.com, stable@vger.kernel.org,
         will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 14:53:11 +0100
-Message-ID: <157218439111224@kroah.com>
+Date:   Sun, 27 Oct 2019 14:53:33 +0100
+Message-ID: <157218441316235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,138 +69,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d3ec3a08fa700c8b46abb137dce4e2514a6f9668 Mon Sep 17 00:00:00 2001
+From 9405447ef79bc93101373e130f72e9e6cbf17dbb Mon Sep 17 00:00:00 2001
 From: Marc Zyngier <maz@kernel.org>
-Date: Thu, 7 Feb 2019 16:01:21 +0000
-Subject: [PATCH] arm64: KVM: Trap VM ops when
- ARM64_WORKAROUND_CAVIUM_TX2_219_TVM is set
+Date: Tue, 9 Apr 2019 16:22:24 +0100
+Subject: [PATCH] arm64: Avoid Cavium TX2 erratum 219 when switching TTBR
 
-In order to workaround the TX2-219 erratum, it is necessary to trap
-TTBRx_EL1 accesses to EL2. This is done by setting HCR_EL2.TVM on
-guest entry, which has the side effect of trapping all the other
-VM-related sysregs as well.
-
-To minimize the overhead, a fast path is used so that we don't
-have to go all the way back to the main sysreg handling code,
-unless the rest of the hypervisor expects to see these accesses.
+As a PRFM instruction racing against a TTBR update can have undesirable
+effects on TX2, NOP-out such PRFM on cores that are affected by
+the TX2-219 erratum.
 
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Will Deacon <will@kernel.org>
 
 diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
-index f19fe4b9acc4..e81e0cbd728f 100644
+index e81e0cbd728f..ac1dbca3d0cd 100644
 --- a/arch/arm64/include/asm/cpucaps.h
 +++ b/arch/arm64/include/asm/cpucaps.h
-@@ -52,7 +52,8 @@
- #define ARM64_HAS_IRQ_PRIO_MASKING		42
+@@ -53,7 +53,8 @@
  #define ARM64_HAS_DCPODP			43
  #define ARM64_WORKAROUND_1463225		44
-+#define ARM64_WORKAROUND_CAVIUM_TX2_219_TVM	45
+ #define ARM64_WORKAROUND_CAVIUM_TX2_219_TVM	45
++#define ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM	46
  
--#define ARM64_NCAPS				45
-+#define ARM64_NCAPS				46
+-#define ARM64_NCAPS				46
++#define ARM64_NCAPS				47
  
  #endif /* __ASM_CPUCAPS_H */
-diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
-index 3d3815020e36..799e84a40335 100644
---- a/arch/arm64/kvm/hyp/switch.c
-+++ b/arch/arm64/kvm/hyp/switch.c
-@@ -124,6 +124,9 @@ static void __hyp_text __activate_traps(struct kvm_vcpu *vcpu)
- {
- 	u64 hcr = vcpu->arch.hcr_el2;
- 
-+	if (cpus_have_const_cap(ARM64_WORKAROUND_CAVIUM_TX2_219_TVM))
-+		hcr |= HCR_TVM;
-+
- 	write_sysreg(hcr, hcr_el2);
- 
- 	if (cpus_have_const_cap(ARM64_HAS_RAS_EXTN) && (hcr & HCR_VSE))
-@@ -174,8 +177,10 @@ static void __hyp_text __deactivate_traps(struct kvm_vcpu *vcpu)
- 	 * the crucial bit is "On taking a vSError interrupt,
- 	 * HCR_EL2.VSE is cleared to 0."
- 	 */
--	if (vcpu->arch.hcr_el2 & HCR_VSE)
--		vcpu->arch.hcr_el2 = read_sysreg(hcr_el2);
-+	if (vcpu->arch.hcr_el2 & HCR_VSE) {
-+		vcpu->arch.hcr_el2 &= ~HCR_VSE;
-+		vcpu->arch.hcr_el2 |= read_sysreg(hcr_el2) & HCR_VSE;
-+	}
- 
- 	if (has_vhe())
- 		deactivate_traps_vhe();
-@@ -380,6 +385,61 @@ static bool __hyp_text __hyp_handle_fpsimd(struct kvm_vcpu *vcpu)
- 	return true;
- }
- 
-+static bool __hyp_text handle_tx2_tvm(struct kvm_vcpu *vcpu)
-+{
-+	u32 sysreg = esr_sys64_to_sysreg(kvm_vcpu_get_hsr(vcpu));
-+	int rt = kvm_vcpu_sys_get_rt(vcpu);
-+	u64 val = vcpu_get_reg(vcpu, rt);
-+
-+	/*
-+	 * The normal sysreg handling code expects to see the traps,
-+	 * let's not do anything here.
-+	 */
-+	if (vcpu->arch.hcr_el2 & HCR_TVM)
-+		return false;
-+
-+	switch (sysreg) {
-+	case SYS_SCTLR_EL1:
-+		write_sysreg_el1(val, SYS_SCTLR);
-+		break;
-+	case SYS_TTBR0_EL1:
-+		write_sysreg_el1(val, SYS_TTBR0);
-+		break;
-+	case SYS_TTBR1_EL1:
-+		write_sysreg_el1(val, SYS_TTBR1);
-+		break;
-+	case SYS_TCR_EL1:
-+		write_sysreg_el1(val, SYS_TCR);
-+		break;
-+	case SYS_ESR_EL1:
-+		write_sysreg_el1(val, SYS_ESR);
-+		break;
-+	case SYS_FAR_EL1:
-+		write_sysreg_el1(val, SYS_FAR);
-+		break;
-+	case SYS_AFSR0_EL1:
-+		write_sysreg_el1(val, SYS_AFSR0);
-+		break;
-+	case SYS_AFSR1_EL1:
-+		write_sysreg_el1(val, SYS_AFSR1);
-+		break;
-+	case SYS_MAIR_EL1:
-+		write_sysreg_el1(val, SYS_MAIR);
-+		break;
-+	case SYS_AMAIR_EL1:
-+		write_sysreg_el1(val, SYS_AMAIR);
-+		break;
-+	case SYS_CONTEXTIDR_EL1:
-+		write_sysreg_el1(val, SYS_CONTEXTIDR);
-+		break;
-+	default:
-+		return false;
-+	}
-+
-+	__kvm_skip_instr(vcpu);
-+	return true;
-+}
-+
- /*
-  * Return true when we were able to fixup the guest exit and should return to
-  * the guest, false when we should restore the host state and return to the
-@@ -399,6 +459,11 @@ static bool __hyp_text fixup_guest_exit(struct kvm_vcpu *vcpu, u64 *exit_code)
- 	if (*exit_code != ARM_EXCEPTION_TRAP)
- 		goto exit;
- 
-+	if (cpus_have_const_cap(ARM64_WORKAROUND_CAVIUM_TX2_219_TVM) &&
-+	    kvm_vcpu_trap_get_class(vcpu) == ESR_ELx_EC_SYS64 &&
-+	    handle_tx2_tvm(vcpu))
-+		return true;
-+
- 	/*
- 	 * We trap the first access to the FP/SIMD to save the host context
- 	 * and restore the guest context lazily.
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index d999ca2dd760..a19bb3e4bcfb 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -884,6 +884,11 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		ERRATA_MIDR_RANGE_LIST(tx2_family_cpus),
+ 		.matches = needs_tx2_tvm_workaround,
+ 	},
++	{
++		.desc = "Cavium ThunderX2 erratum 219 (PRFM removal)",
++		.capability = ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM,
++		ERRATA_MIDR_RANGE_LIST(tx2_family_cpus),
++	},
+ #endif
+ 	{
+ 	}
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 84a822748c84..109894bd3194 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -1070,7 +1070,9 @@ alternative_insn isb, nop, ARM64_WORKAROUND_QCOM_FALKOR_E1003
+ #else
+ 	ldr	x30, =vectors
+ #endif
++alternative_if_not ARM64_WORKAROUND_CAVIUM_TX2_219_PRFM
+ 	prfm	plil1strm, [x30, #(1b - tramp_vectors)]
++alternative_else_nop_endif
+ 	msr	vbar_el1, x30
+ 	add	x30, x30, #(1b - tramp_vectors)
+ 	isb
 
