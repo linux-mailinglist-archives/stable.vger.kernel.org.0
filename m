@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 164CBE66FC
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F6FE681D
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730947AbfJ0VRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:17:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36790 "EHLO mail.kernel.org"
+        id S1732704AbfJ0VZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730960AbfJ0VRC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:17:02 -0400
+        id S1732099AbfJ0VZR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:17 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FFA6205C9;
-        Sun, 27 Oct 2019 21:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D9AE222BD;
+        Sun, 27 Oct 2019 21:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211021;
-        bh=RN3J+c2aI3xGWtqzibHTF3WvE8CWzIM6XRDq3Jdbv4c=;
+        s=default; t=1572211517;
+        bh=sBK3e/HJ72aJFPRCV7NuKK2fRBkXmMl86jjjjgNUYbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEDj/AJvAOhNBwdoIswkXEVFDW3DgZ57LFioimSuD1Dpxo/eT8kKOGwVJLHf6YcYS
-         CXsMRtONG8B5GxFFAWKOFM6Pf1SoMwCXMX2FmlmdsamcQrSJ8pCvXW+P7YCiEeyILQ
-         FTr3lktWDhZ5XrNwxYmM/eQDAQuJoQHfWWF63l2g=
+        b=x1l7DicE5Xt5jH5lncunI3pi2KhV55GeXOA7WSWnggczXocKGl/eD+A1mkTvvruVK
+         iBIiE/5B2YMlxmFxsGjlfEif+23o+iJ5xRBYYC0hAYWe/y3sGq2BKD2+5cpwhvHgJq
+         fluc4j11RYLZCrr6xpOZvpB1tzsKgE5YuBTPts0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patrick Williams <alpawi@amazon.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 82/93] pinctrl: armada-37xx: fix control of pins 32 and up
-Date:   Sun, 27 Oct 2019 22:01:34 +0100
-Message-Id: <20191027203313.485974413@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        Roman Kagan <rkagan@virtuozzo.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: [PATCH 5.3 177/197] x86/hyperv: Make vapic support x2apic mode
+Date:   Sun, 27 Oct 2019 22:01:35 +0100
+Message-Id: <20191027203405.081835714@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,100 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Williams <alpawi@amazon.com>
+From: Roman Kagan <rkagan@virtuozzo.com>
 
-commit 20504fa1d2ffd5d03cdd9dc9c9dd4ed4579b97ef upstream.
+commit e211288b72f15259da86eed6eca680758dbe9e74 upstream.
 
-The 37xx configuration registers are only 32 bits long, so
-pins 32-35 spill over into the next register.  The calculation
-for the register address was done, but the bitmask was not, so
-any configuration to pin 32 or above resulted in a bitmask that
-overflowed and performed no action.
+Now that there's Hyper-V IOMMU driver, Linux can switch to x2apic mode
+when supported by the vcpus.
 
-Fix the register / offset calculation to also adjust the offset.
+However, the apic access functions for Hyper-V enlightened apic assume
+xapic mode only.
 
-Fixes: 5715092a458c ("pinctrl: armada-37xx: Add gpio support")
-Signed-off-by: Patrick Williams <alpawi@amazon.com>
-Acked-by: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191001154634.96165-1-alpawi@amazon.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+As a result, Linux fails to bring up secondary cpus when run as a guest
+in QEMU/KVM with both hv_apic and x2apic enabled.
+
+According to Michael Kelley, when in x2apic mode, the Hyper-V synthetic
+apic MSRs behave exactly the same as the corresponding architectural
+x2apic MSRs, so there's no need to override the apic accessors.  The
+only exception is hv_apic_eoi_write, which benefits from lazy EOI when
+available; however, its implementation works for both xapic and x2apic
+modes.
+
+Fixes: 29217a474683 ("iommu/hyper-v: Add Hyper-V stub IOMMU driver")
+Fixes: 6b48cb5f8347 ("X86/Hyper-V: Enlighten APIC access")
+Suggested-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Roman Kagan <rkagan@virtuozzo.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191010123258.16919-1-rkagan@virtuozzo.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/x86/hyperv/hv_apic.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -218,11 +218,11 @@ static const struct armada_37xx_pin_data
- };
+--- a/arch/x86/hyperv/hv_apic.c
++++ b/arch/x86/hyperv/hv_apic.c
+@@ -260,11 +260,21 @@ void __init hv_apic_init(void)
+ 	}
  
- static inline void armada_37xx_update_reg(unsigned int *reg,
--					  unsigned int offset)
-+					  unsigned int *offset)
- {
- 	/* We never have more than 2 registers */
--	if (offset >= GPIO_PER_REG) {
--		offset -= GPIO_PER_REG;
-+	if (*offset >= GPIO_PER_REG) {
-+		*offset -= GPIO_PER_REG;
- 		*reg += sizeof(u32);
+ 	if (ms_hyperv.hints & HV_X64_APIC_ACCESS_RECOMMENDED) {
+-		pr_info("Hyper-V: Using MSR based APIC access\n");
++		pr_info("Hyper-V: Using enlightened APIC (%s mode)",
++			x2apic_enabled() ? "x2apic" : "xapic");
++		/*
++		 * With x2apic, architectural x2apic MSRs are equivalent to the
++		 * respective synthetic MSRs, so there's no need to override
++		 * the apic accessors.  The only exception is
++		 * hv_apic_eoi_write, because it benefits from lazy EOI when
++		 * available, but it works for both xapic and x2apic modes.
++		 */
+ 		apic_set_eoi_write(hv_apic_eoi_write);
+-		apic->read      = hv_apic_read;
+-		apic->write     = hv_apic_write;
+-		apic->icr_write = hv_apic_icr_write;
+-		apic->icr_read  = hv_apic_icr_read;
++		if (!x2apic_enabled()) {
++			apic->read      = hv_apic_read;
++			apic->write     = hv_apic_write;
++			apic->icr_write = hv_apic_icr_write;
++			apic->icr_read  = hv_apic_icr_read;
++		}
  	}
  }
-@@ -373,7 +373,7 @@ static inline void armada_37xx_irq_updat
- {
- 	int offset = irqd_to_hwirq(d);
- 
--	armada_37xx_update_reg(reg, offset);
-+	armada_37xx_update_reg(reg, &offset);
- }
- 
- static int armada_37xx_gpio_direction_input(struct gpio_chip *chip,
-@@ -383,7 +383,7 @@ static int armada_37xx_gpio_direction_in
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	return regmap_update_bits(info->regmap, reg, mask, 0);
-@@ -396,7 +396,7 @@ static int armada_37xx_gpio_get_directio
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int val, mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 	regmap_read(info->regmap, reg, &val);
- 
-@@ -410,7 +410,7 @@ static int armada_37xx_gpio_direction_ou
- 	unsigned int reg = OUTPUT_EN;
- 	unsigned int mask, val, ret;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	ret = regmap_update_bits(info->regmap, reg, mask, mask);
-@@ -431,7 +431,7 @@ static int armada_37xx_gpio_get(struct g
- 	unsigned int reg = INPUT_VAL;
- 	unsigned int val, mask;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 
- 	regmap_read(info->regmap, reg, &val);
-@@ -446,7 +446,7 @@ static void armada_37xx_gpio_set(struct
- 	unsigned int reg = OUTPUT_VAL;
- 	unsigned int mask, val;
- 
--	armada_37xx_update_reg(&reg, offset);
-+	armada_37xx_update_reg(&reg, &offset);
- 	mask = BIT(offset);
- 	val = value ? mask : 0;
- 
 
 
