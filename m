@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF321E6927
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:35:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D83BE68E8
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:33:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729505AbfJ0VJa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:09:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55858 "EHLO mail.kernel.org"
+        id S1730349AbfJ0VdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728976AbfJ0VJa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:09:30 -0400
+        id S1730288AbfJ0VNi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:13:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DB4F20873;
-        Sun, 27 Oct 2019 21:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0689B2064A;
+        Sun, 27 Oct 2019 21:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210568;
-        bh=SaGmG2k4icvDvSDGJ8RyFroeyuRhek0Hlm5Dl/gqCQg=;
+        s=default; t=1572210817;
+        bh=/oL/RoQNIuVhT83hd7l/zJNGamZ3Zguz/sdInK4Jcsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zujfGU8eq8uDTOoWw52Y3jmFn/fIdaUQPI/RZ03eQHgQXi9gh4D5ipe8UAlEL4QfW
-         E92GAi15HX3Y61E8z2kJUtSqQgcWer2Dl2pjFYX/YLvuPgM20TyDUd+nseEjcuwI8h
-         3HVoaMJM/q9x/eq7eJn5pxCVRvKskIbt0D48PdFM=
+        b=mkh0Kqz5A3f3rrB4EJLdGHwaMUpxRA/YWKMglR54LD0Y9141oYqjH8PnN88ziRlPX
+         mcme7uXkRPrzwXODdceeMAwPTugy+Fi6yCFDQtPi/ot7mV/2IsV8CcVTjfoYEhnMWF
+         J/gQk5omP7nrjpqYP7Jujc8CZ2sOCLV4KvTUsFPM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Dave Martin <dave.martin@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 4.14 061/119] arm64: capabilities: Clean up midr range helpers
-Date:   Sun, 27 Oct 2019 22:00:38 +0100
-Message-Id: <20191027203327.195419255@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 27/93] net: avoid potential infinite loop in tc_ctl_action()
+Date:   Sun, 27 Oct 2019 22:00:39 +0100
+Message-Id: <20191027203256.591952459@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,276 +44,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5e7951ce19abf4113645ae789c033917356ee96f ]
+[ Upstream commit 39f13ea2f61b439ebe0060393e9c39925c9ee28c ]
 
-We are about to introduce generic MIDR range helpers. Clean
-up the existing helpers in erratum handling, preparing them
-to use generic version.
+tc_ctl_action() has the ability to loop forever if tcf_action_add()
+returns -EAGAIN.
 
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Reviewed-by: Dave Martin <dave.martin@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+This special case has been done in case a module needed to be loaded,
+but it turns out that tcf_add_notify() could also return -EAGAIN
+if the socket sk_rcvbuf limit is hit.
+
+We need to separate the two cases, and only loop for the module
+loading case.
+
+While we are at it, add a limit of 10 attempts since unbounded
+loops are always scary.
+
+syzbot repro was something like :
+
+socket(PF_NETLINK, SOCK_RAW|SOCK_NONBLOCK, NETLINK_ROUTE) = 3
+write(3, ..., 38) = 38
+setsockopt(3, SOL_SOCKET, SO_RCVBUF, [0], 4) = 0
+sendmsg(3, {msg_name(0)=NULL, msg_iov(1)=[{..., 388}], msg_controllen=0, msg_flags=0x10}, ...)
+
+NMI backtrace for cpu 0
+CPU: 0 PID: 1054 Comm: khungtaskd Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ nmi_cpu_backtrace.cold+0x70/0xb2 lib/nmi_backtrace.c:101
+ nmi_trigger_cpumask_backtrace+0x23b/0x28b lib/nmi_backtrace.c:62
+ arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
+ trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
+ check_hung_uninterruptible_tasks kernel/hung_task.c:205 [inline]
+ watchdog+0x9d0/0xef0 kernel/hung_task.c:289
+ kthread+0x361/0x430 kernel/kthread.c:255
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+Sending NMI from CPU 0 to CPUs 1:
+NMI backtrace for cpu 1
+CPU: 1 PID: 8859 Comm: syz-executor910 Not tainted 5.4.0-rc1+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/paravirt.h:751 [inline]
+RIP: 0010:lockdep_hardirqs_off+0x1df/0x2e0 kernel/locking/lockdep.c:3453
+Code: 5c 08 00 00 5b 41 5c 41 5d 5d c3 48 c7 c0 58 1d f3 88 48 ba 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c 10 00 0f 85 d3 00 00 00 <48> 83 3d 21 9e 99 07 00 0f 84 b9 00 00 00 9c 58 0f 1f 44 00 00 f6
+RSP: 0018:ffff8880a6f3f1b8 EFLAGS: 00000046
+RAX: 1ffffffff11e63ab RBX: ffff88808c9c6080 RCX: 0000000000000000
+RDX: dffffc0000000000 RSI: 0000000000000000 RDI: ffff88808c9c6914
+RBP: ffff8880a6f3f1d0 R08: ffff88808c9c6080 R09: fffffbfff16be5d1
+R10: fffffbfff16be5d0 R11: 0000000000000003 R12: ffffffff8746591f
+R13: ffff88808c9c6080 R14: ffffffff8746591f R15: 0000000000000003
+FS:  00000000011e4880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffff600400 CR3: 00000000a8920000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ trace_hardirqs_off+0x62/0x240 kernel/trace/trace_preemptirq.c:45
+ __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:108 [inline]
+ _raw_spin_lock_irqsave+0x6f/0xcd kernel/locking/spinlock.c:159
+ __wake_up_common_lock+0xc8/0x150 kernel/sched/wait.c:122
+ __wake_up+0xe/0x10 kernel/sched/wait.c:142
+ netlink_unlock_table net/netlink/af_netlink.c:466 [inline]
+ netlink_unlock_table net/netlink/af_netlink.c:463 [inline]
+ netlink_broadcast_filtered+0x705/0xb80 net/netlink/af_netlink.c:1514
+ netlink_broadcast+0x3a/0x50 net/netlink/af_netlink.c:1534
+ rtnetlink_send+0xdd/0x110 net/core/rtnetlink.c:714
+ tcf_add_notify net/sched/act_api.c:1343 [inline]
+ tcf_action_add+0x243/0x370 net/sched/act_api.c:1362
+ tc_ctl_action+0x3b5/0x4bc net/sched/act_api.c:1410
+ rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5386
+ netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
+ rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5404
+ netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
+ netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
+ netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x803/0x920 net/socket.c:2311
+ __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
+ __do_sys_sendmsg net/socket.c:2365 [inline]
+ __se_sys_sendmsg net/socket.c:2363 [inline]
+ __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
+ do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440939
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |  109 +++++++++++++++++++++++------------------
- 1 file changed, 62 insertions(+), 47 deletions(-)
+ net/sched/act_api.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -405,20 +405,38 @@ static bool has_ssbd_mitigation(const st
- }
- #endif	/* CONFIG_ARM64_SSBD */
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -1307,11 +1307,16 @@ static int tcf_action_add(struct net *ne
+ 			  struct netlink_ext_ack *extack)
+ {
+ 	size_t attr_size = 0;
+-	int ret = 0;
++	int loop, ret;
+ 	struct tc_action *actions[TCA_ACT_MAX_PRIO] = {};
  
--#define MIDR_RANGE(model, min, max) \
--	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM, \
--	.matches = is_affected_midr_range, \
--	.midr_model = model, \
--	.midr_range_min = min, \
--	.midr_range_max = max
--
--#define MIDR_ALL_VERSIONS(model) \
--	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM, \
--	.matches = is_affected_midr_range, \
--	.midr_model = model, \
--	.midr_range_min = 0, \
-+#define CAP_MIDR_RANGE(model, v_min, r_min, v_max, r_max)	\
-+	.matches = is_affected_midr_range,			\
-+	.midr_model = model,					\
-+	.midr_range_min = MIDR_CPU_VAR_REV(v_min, r_min),	\
-+	.midr_range_max = MIDR_CPU_VAR_REV(v_max, r_max)
+-	ret = tcf_action_init(net, NULL, nla, NULL, NULL, ovr, 0, actions,
+-			      &attr_size, true, extack);
++	for (loop = 0; loop < 10; loop++) {
++		ret = tcf_action_init(net, NULL, nla, NULL, NULL, ovr, 0,
++				      actions, &attr_size, true, extack);
++		if (ret != -EAGAIN)
++			break;
++	}
 +
-+#define CAP_MIDR_ALL_VERSIONS(model)					\
-+	.matches = is_affected_midr_range,				\
-+	.midr_model = model,						\
-+	.midr_range_min = MIDR_CPU_VAR_REV(0, 0),			\
- 	.midr_range_max = (MIDR_VARIANT_MASK | MIDR_REVISION_MASK)
- 
-+#define MIDR_FIXED(rev, revidr_mask) \
-+	.fixed_revs = (struct arm64_midr_revidr[]){{ (rev), (revidr_mask) }, {}}
-+
-+#define ERRATA_MIDR_RANGE(model, v_min, r_min, v_max, r_max)		\
-+	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,				\
-+	CAP_MIDR_RANGE(model, v_min, r_min, v_max, r_max)
-+
-+/* Errata affecting a range of revisions of  given model variant */
-+#define ERRATA_MIDR_REV_RANGE(m, var, r_min, r_max)	 \
-+	ERRATA_MIDR_RANGE(m, var, r_min, var, r_max)
-+
-+/* Errata affecting a single variant/revision of a model */
-+#define ERRATA_MIDR_REV(model, var, rev)	\
-+	ERRATA_MIDR_RANGE(model, var, rev, var, rev)
-+
-+/* Errata affecting all variants/revisions of a given a model */
-+#define ERRATA_MIDR_ALL_VERSIONS(model)				\
-+	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,			\
-+	CAP_MIDR_ALL_VERSIONS(model)
-+
- const struct arm64_cpu_capabilities arm64_errata[] = {
- #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
- 	defined(CONFIG_ARM64_ERRATUM_827319) || \
-@@ -427,7 +445,7 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A53 r0p[012] */
- 		.desc = "ARM errata 826319, 827319, 824069",
- 		.capability = ARM64_WORKAROUND_CLEAN_CACHE,
--		MIDR_RANGE(MIDR_CORTEX_A53, 0x00, 0x02),
-+		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 2),
- 		.cpu_enable = cpu_enable_cache_maint_trap,
- 	},
- #endif
-@@ -436,7 +454,7 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A53 r0p[01] */
- 		.desc = "ARM errata 819472",
- 		.capability = ARM64_WORKAROUND_CLEAN_CACHE,
--		MIDR_RANGE(MIDR_CORTEX_A53, 0x00, 0x01),
-+		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 1),
- 		.cpu_enable = cpu_enable_cache_maint_trap,
- 	},
- #endif
-@@ -445,9 +463,9 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 832075",
- 		.capability = ARM64_WORKAROUND_DEVICE_LOAD_ACQUIRE,
--		MIDR_RANGE(MIDR_CORTEX_A57,
--			   MIDR_CPU_VAR_REV(0, 0),
--			   MIDR_CPU_VAR_REV(1, 2)),
-+		ERRATA_MIDR_RANGE(MIDR_CORTEX_A57,
-+				  0, 0,
-+				  1, 2),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_834220
-@@ -455,9 +473,9 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A57 r0p0 - r1p2 */
- 		.desc = "ARM erratum 834220",
- 		.capability = ARM64_WORKAROUND_834220,
--		MIDR_RANGE(MIDR_CORTEX_A57,
--			   MIDR_CPU_VAR_REV(0, 0),
--			   MIDR_CPU_VAR_REV(1, 2)),
-+		ERRATA_MIDR_RANGE(MIDR_CORTEX_A57,
-+				  0, 0,
-+				  1, 2),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_845719
-@@ -465,7 +483,7 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A53 r0p[01234] */
- 		.desc = "ARM erratum 845719",
- 		.capability = ARM64_WORKAROUND_845719,
--		MIDR_RANGE(MIDR_CORTEX_A53, 0x00, 0x04),
-+		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
- 	},
- #endif
- #ifdef CONFIG_CAVIUM_ERRATUM_23154
-@@ -473,7 +491,7 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cavium ThunderX, pass 1.x */
- 		.desc = "Cavium erratum 23154",
- 		.capability = ARM64_WORKAROUND_CAVIUM_23154,
--		MIDR_RANGE(MIDR_THUNDERX, 0x00, 0x01),
-+		ERRATA_MIDR_REV_RANGE(MIDR_THUNDERX, 0, 0, 1),
- 	},
- #endif
- #ifdef CONFIG_CAVIUM_ERRATUM_27456
-@@ -481,15 +499,15 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cavium ThunderX, T88 pass 1.x - 2.1 */
- 		.desc = "Cavium erratum 27456",
- 		.capability = ARM64_WORKAROUND_CAVIUM_27456,
--		MIDR_RANGE(MIDR_THUNDERX,
--			   MIDR_CPU_VAR_REV(0, 0),
--			   MIDR_CPU_VAR_REV(1, 1)),
-+		ERRATA_MIDR_RANGE(MIDR_THUNDERX,
-+				  0, 0,
-+				  1, 1),
- 	},
- 	{
- 	/* Cavium ThunderX, T81 pass 1.0 */
- 		.desc = "Cavium erratum 27456",
- 		.capability = ARM64_WORKAROUND_CAVIUM_27456,
--		MIDR_RANGE(MIDR_THUNDERX_81XX, 0x00, 0x00),
-+		ERRATA_MIDR_REV(MIDR_THUNDERX_81XX, 0, 0),
- 	},
- #endif
- #ifdef CONFIG_CAVIUM_ERRATUM_30115
-@@ -497,20 +515,21 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cavium ThunderX, T88 pass 1.x - 2.2 */
- 		.desc = "Cavium erratum 30115",
- 		.capability = ARM64_WORKAROUND_CAVIUM_30115,
--		MIDR_RANGE(MIDR_THUNDERX, 0x00,
--			   (1 << MIDR_VARIANT_SHIFT) | 2),
-+		ERRATA_MIDR_RANGE(MIDR_THUNDERX,
-+				      0, 0,
-+				      1, 2),
- 	},
- 	{
- 	/* Cavium ThunderX, T81 pass 1.0 - 1.2 */
- 		.desc = "Cavium erratum 30115",
- 		.capability = ARM64_WORKAROUND_CAVIUM_30115,
--		MIDR_RANGE(MIDR_THUNDERX_81XX, 0x00, 0x02),
-+		ERRATA_MIDR_REV_RANGE(MIDR_THUNDERX_81XX, 0, 0, 2),
- 	},
- 	{
- 	/* Cavium ThunderX, T83 pass 1.0 */
- 		.desc = "Cavium erratum 30115",
- 		.capability = ARM64_WORKAROUND_CAVIUM_30115,
--		MIDR_RANGE(MIDR_THUNDERX_83XX, 0x00, 0x00),
-+		ERRATA_MIDR_REV(MIDR_THUNDERX_83XX, 0, 0),
- 	},
- #endif
- 	{
-@@ -531,9 +550,7 @@ const struct arm64_cpu_capabilities arm6
- 	{
- 		.desc = "Qualcomm Technologies Falkor erratum 1003",
- 		.capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
--		MIDR_RANGE(MIDR_QCOM_FALKOR_V1,
--			   MIDR_CPU_VAR_REV(0, 0),
--			   MIDR_CPU_VAR_REV(0, 0)),
-+		ERRATA_MIDR_REV(MIDR_QCOM_FALKOR_V1, 0, 0),
- 	},
- 	{
- 		.desc = "Qualcomm Technologies Kryo erratum 1003",
-@@ -547,9 +564,7 @@ const struct arm64_cpu_capabilities arm6
- 	{
- 		.desc = "Qualcomm Technologies Falkor erratum 1009",
- 		.capability = ARM64_WORKAROUND_REPEAT_TLBI,
--		MIDR_RANGE(MIDR_QCOM_FALKOR_V1,
--			   MIDR_CPU_VAR_REV(0, 0),
--			   MIDR_CPU_VAR_REV(0, 0)),
-+		ERRATA_MIDR_REV(MIDR_QCOM_FALKOR_V1, 0, 0),
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_858921
-@@ -557,56 +572,56 @@ const struct arm64_cpu_capabilities arm6
- 	/* Cortex-A73 all versions */
- 		.desc = "ARM erratum 858921",
- 		.capability = ARM64_WORKAROUND_858921,
--		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
- 	},
- #endif
- #ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR_V1),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR_V1),
- 		.cpu_enable = qcom_enable_link_stack_sanitization,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BP_POST_GUEST_EXIT,
--		MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR_V1),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR_V1),
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR),
- 		.cpu_enable = qcom_enable_link_stack_sanitization,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BP_POST_GUEST_EXIT,
--		MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_QCOM_FALKOR),
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
--		MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
-+		ERRATA_MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
- 		.cpu_enable = enable_smccc_arch_workaround_1,
- 	},
- #endif
+ 	if (ret < 0)
+ 		return ret;
+ 	ret = tcf_add_notify(net, n, actions, portid, attr_size, extack);
+@@ -1361,11 +1366,8 @@ static int tc_ctl_action(struct sk_buff
+ 		 */
+ 		if (n->nlmsg_flags & NLM_F_REPLACE)
+ 			ovr = 1;
+-replay:
+ 		ret = tcf_action_add(net, tca[TCA_ACT_TAB], n, portid, ovr,
+ 				     extack);
+-		if (ret == -EAGAIN)
+-			goto replay;
+ 		break;
+ 	case RTM_DELACTION:
+ 		ret = tca_action_gd(net, tca[TCA_ACT_TAB], n,
 
 
