@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3F98E65D3
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:05:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5A9E65AC
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728832AbfJ0VFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51304 "EHLO mail.kernel.org"
+        id S1728560AbfJ0VEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727511AbfJ0VF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:05:29 -0400
+        id S1728556AbfJ0VEI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:08 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F017921726;
-        Sun, 27 Oct 2019 21:05:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A2220B7C;
+        Sun, 27 Oct 2019 21:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210329;
-        bh=vSzc9HsvO8864r7VU+6QocCqs8J+dgGiZwvufdgUIlw=;
+        s=default; t=1572210248;
+        bh=uMocm4+Idqizp2zaiVTkONT4tZfh/ZwZSSAhrI2oUFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWAuzzkFMC3HxeyKEDt4HAs8efXfFCWLYjdDdShsZ7SndB9+Vvbld6U0uiPt61ogd
-         R1ZbtQ+qQ3K+HyvBOaU+BrXm9e6IUgWD1JzPNqmR8MeE3PIt3O0pPHNextVxgHYWyy
-         oGGG1Lf1fYzluwZgudVDuUXMTYRP7yh85vXZJCzQ=
+        b=RYfl1NfNfQxdZigvbs9Vm6iprtWv0Z4N3j8t7PG12EB/vbyXIp53zAo/+8cRqBwdT
+         44GnGNdf2YVS9VO3XFNANkmRBhArYNlewBLcf5U6yrE7wZTmBBQfcQ5qnc/yF4Y/DD
+         xOKnsfgZbtNmY0OeVIfDfyXMAZvirP5JYz98BmSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 27/49] USB: ldusb: fix memleak on disconnect
-Date:   Sun, 27 Oct 2019 22:01:05 +0100
-Message-Id: <20191027203140.678843977@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 28/41] mac80211: Reject malformed SSID elements
+Date:   Sun, 27 Oct 2019 22:01:06 +0100
+Message-Id: <20191027203123.346468408@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Will Deacon <will@kernel.org>
 
-commit b14a39048c1156cfee76228bf449852da2f14df8 upstream.
+commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
 
-If disconnect() races with release() after a process has been
-interrupted, release() could end up returning early and the driver would
-fail to free its driver data.
+Although this shouldn't occur in practice, it's a good idea to bounds
+check the length field of the SSID element prior to using it for things
+like allocations or memcpy operations.
 
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191010125835.27031-2-johan@kernel.org
+Cc: <stable@vger.kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/ldusb.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ net/mac80211/mlme.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -384,10 +384,7 @@ static int ld_usb_release(struct inode *
- 		goto exit;
- 	}
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2431,7 +2431,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
  
--	if (mutex_lock_interruptible(&dev->mutex)) {
--		retval = -ERESTARTSYS;
--		goto exit;
--	}
-+	mutex_lock(&dev->mutex);
+ 	rcu_read_lock();
+ 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+-	if (WARN_ON_ONCE(ssid == NULL))
++	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
++		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+ 		ssid_len = 0;
+ 	else
+ 		ssid_len = ssid[1];
+@@ -4669,7 +4670,7 @@ int ieee80211_mgd_assoc(struct ieee80211
  
- 	if (dev->open_count != 1) {
- 		retval = -ENODEV;
+ 	rcu_read_lock();
+ 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+-	if (!ssidie) {
++	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
+ 		rcu_read_unlock();
+ 		kfree(assoc_data);
+ 		return -EINVAL;
 
 
