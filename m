@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFD2E647A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75764E647B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727677AbfJ0RXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:23:04 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:54739 "EHLO
+        id S1727674AbfJ0RXF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:23:05 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:51141 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727674AbfJ0RXE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:04 -0400
+        by vger.kernel.org with ESMTP id S1727667AbfJ0RXF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:23:05 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id E819922189;
-        Sun, 27 Oct 2019 13:23:02 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 6080422171;
+        Sun, 27 Oct 2019 13:23:04 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:23:02 -0400
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:23:04 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Qg76I+
-        FHib9m9IK9A1TgATaj2mqvr4GrqpHX73y4MVQ=; b=IBMRx8v1t+kPszzlBRdcqi
-        V+h0QK0ZAAhCh4sa6CbQxbnHwI0SzIUuVxq8gpw2wHLH4ZUqSGJDN8hfq2V/vrZJ
-        A0To7ZsuwqahGKVgJl3m2Sg4tVHc+9oRmMcQQUYfIkubPpRfhyd9ztq95rWQNmvz
-        00mvWTtWOLWJn4NwEj6DTXE6IKcX8FDj+JPcWcf1mZYx8VaT7CUKNPI9oYA9FOG2
-        n+v48T89jj02DWcsTBvzSkTf2oHcf1EnSv1lqzdBB8yBC9tdsq1vovQLFLvVsH+c
-        /REwOGmABe2UbNErkd9EZIaAAozJESXa7C4bp197019TTv2Is0pE8vdFbdY8WBmg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=i+RTkq
+        VChvhFAsFjS9dmhqaPOv5lHJ8DBF/bfwyBd+s=; b=XJvUkWeYKBnwPQ8N4vBPso
+        0+hCDywMZC9/4/xYJZ1CkYZeiRZhMSAFS2ZlvLBtJQSDspCUHEGBn4Hf5czHncu7
+        X/mdrEPcWC0Rb43pU8bUxiJq6BQTFMl+CVRx718cVwjoYnFVegXv0ldPsyE94nPI
+        z+F0tA0x3O5hPVC4O8MlDHKzKjm2CHjRIqsx3I1glhaMtGl5ymxjCr3hcxWInDwL
+        pfUWNiYNCVx7MzW87TNlz4zoZ5lxeIMUdMvU1oJ628DWl1YkknIZMV2mL+1IXHcc
+        Uv4I6J2WbGL0xDX7rXVc8zVXTZPTXAtlBMzy5OPqwARINQPrGPQFJ6kGpM610Ylw
         ==
-X-ME-Sender: <xms:dtK1Xdj2kDOcG985eQvBKMOerKahojAq3EauYexyaulRD4K3Psomkw>
+X-ME-Sender: <xms:eNK1XWwckqX2LjcHM9iB6I2UAwLzAQaDGWh2y_0uhImI_pGSKiOxFg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeejjedrudehkedrhedtrddutddtnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:dtK1XTqJrlUwT__uDhRsDkPF_ngyo0eSl1oFvpK5nXwAEr1d_uV1uQ>
-    <xmx:dtK1XbwzBLye2WTl--6SXXzbejk2q1LcDJ6bMhPXHY_W5OHDRfRSpA>
-    <xmx:dtK1XaxGjEUWQE5OCGp--58inghUg9T1vTRrVQIvse2mE-gEzgQoGw>
-    <xmx:dtK1XUFm8frRxvd94Ko2hBy8aJdoqajWwpi7MZm7IJ65quA_fQFfBg>
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpeei
+X-ME-Proxy: <xmx:eNK1Xd3IYGY5ITlPc2ogl9A85-PPzvwE_wr9OhmED4rZr37maW2Bag>
+    <xmx:eNK1XYWwYisB7iqtAwNsKLe6XfLM2oqqWCDsRJBJ_Rwr4GQuWD9H-g>
+    <xmx:eNK1XReaiTYK_J0U4TpV9e_9cqsBfISjBBeorC8cNUxU2RUluGxP_g>
+    <xmx:eNK1XRz0tO-vpyCELJAzDWfapQgc7_2Rnq1DiNtRzIDsc6Mx_kp1cg>
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8A788D6005E;
-        Sun, 27 Oct 2019 13:23:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: PPC: Book3S HV: XIVE: Ensure VP isn't already in use" failed to apply to 4.14-stable tree
-To:     groug@kaod.org, clg@kaod.org, paulus@ozlabs.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id C3CE2D6005F;
+        Sun, 27 Oct 2019 13:23:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] io_uring: fix up O_NONBLOCK handling for sockets" failed to apply to 5.3-stable tree
+To:     axboe@kernel.dk, zeba.hrvoje@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 16:49:21 +0100
-Message-ID: <15721913611172@kroah.com>
+Date:   Sun, 27 Oct 2019 16:53:55 +0100
+Message-ID: <1572191635100175@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,236 +67,153 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 12ade69c1eb9958b13374edf5ef742ea20ccffde Mon Sep 17 00:00:00 2001
-From: Greg Kurz <groug@kaod.org>
-Date: Fri, 27 Sep 2019 13:53:43 +0200
-Subject: [PATCH] KVM: PPC: Book3S HV: XIVE: Ensure VP isn't already in use
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 491381ce07ca57f68c49c79a8a43da5b60749e32 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Thu, 17 Oct 2019 09:20:46 -0600
+Subject: [PATCH] io_uring: fix up O_NONBLOCK handling for sockets
 
-Connecting a vCPU to a XIVE KVM device means establishing a 1:1
-association between a vCPU id and the offset (VP id) of a VP
-structure within a fixed size block of VPs. We currently try to
-enforce the 1:1 relationship by checking that a vCPU with the
-same id isn't already connected. This is good but unfortunately
-not enough because we don't map VP ids to raw vCPU ids but to
-packed vCPU ids, and the packing function kvmppc_pack_vcpu_id()
-isn't bijective by design. We got away with it because QEMU passes
-vCPU ids that fit well in the packing pattern. But nothing prevents
-userspace to come up with a forged vCPU id resulting in a packed id
-collision which causes the KVM device to associate two vCPUs to the
-same VP. This greatly confuses the irq layer and ultimately crashes
-the kernel, as shown below.
+We've got two issues with the non-regular file handling for non-blocking
+IO:
 
-Example: a guest with 1 guest thread per core, a core stride of
-8 and 300 vCPUs has vCPU ids 0,8,16...2392. If QEMU is patched to
-inject at some point an invalid vCPU id 348, which is the packed
-version of itself and 2392, we get:
+1) We don't want to re-do a short read in full for a non-regular file,
+   as we can't just read the data again.
+2) For non-regular files that don't support non-blocking IO attempts,
+   we need to punt to async context even if the file is opened as
+   non-blocking. Otherwise the caller always gets -EAGAIN.
 
-genirq: Flags mismatch irq 199. 00010000 (kvm-2-2392) vs. 00010000 (kvm-2-348)
-CPU: 24 PID: 88176 Comm: qemu-system-ppc Not tainted 5.3.0-xive-nr-servers-5.3-gku+ #38
-Call Trace:
-[c000003f7f9937e0] [c000000000c0110c] dump_stack+0xb0/0xf4 (unreliable)
-[c000003f7f993820] [c0000000001cb480] __setup_irq+0xa70/0xad0
-[c000003f7f9938d0] [c0000000001cb75c] request_threaded_irq+0x13c/0x260
-[c000003f7f993940] [c00800000d44e7ac] kvmppc_xive_attach_escalation+0x104/0x270 [kvm]
-[c000003f7f9939d0] [c00800000d45013c] kvmppc_xive_connect_vcpu+0x424/0x620 [kvm]
-[c000003f7f993ac0] [c00800000d444428] kvm_arch_vcpu_ioctl+0x260/0x448 [kvm]
-[c000003f7f993b90] [c00800000d43593c] kvm_vcpu_ioctl+0x154/0x7c8 [kvm]
-[c000003f7f993d00] [c0000000004840f0] do_vfs_ioctl+0xe0/0xc30
-[c000003f7f993db0] [c000000000484d44] ksys_ioctl+0x104/0x120
-[c000003f7f993e00] [c000000000484d88] sys_ioctl+0x28/0x80
-[c000003f7f993e20] [c00000000000b278] system_call+0x5c/0x68
-xive-kvm: Failed to request escalation interrupt for queue 0 of VCPU 2392
-------------[ cut here ]------------
-remove_proc_entry: removing non-empty directory 'irq/199', leaking at least 'kvm-2-348'
-WARNING: CPU: 24 PID: 88176 at /home/greg/Work/linux/kernel-kvm-ppc/fs/proc/generic.c:684 remove_proc_entry+0x1ec/0x200
-Modules linked in: kvm_hv kvm dm_mod vhost_net vhost tap xt_CHECKSUM iptable_mangle xt_MASQUERADE iptable_nat nf_nat xt_conntrack nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ipt_REJECT nf_reject_ipv4 tun bridge stp llc ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter squashfs loop fuse i2c_dev sg ofpart ocxl powernv_flash at24 xts mtd uio_pdrv_genirq vmx_crypto opal_prd ipmi_powernv uio ipmi_devintf ipmi_msghandler ibmpowernv ib_iser rdma_cm iw_cm ib_cm ib_core iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi ip_tables ext4 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor xor async_tx raid6_pq libcrc32c raid1 raid0 linear sd_mod ast i2c_algo_bit drm_vram_helper ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ahci libahci libata tg3 drm_panel_orientation_quirks [last unloaded: kvm]
-CPU: 24 PID: 88176 Comm: qemu-system-ppc Not tainted 5.3.0-xive-nr-servers-5.3-gku+ #38
-NIP:  c00000000053b0cc LR: c00000000053b0c8 CTR: c0000000000ba3b0
-REGS: c000003f7f9934b0 TRAP: 0700   Not tainted  (5.3.0-xive-nr-servers-5.3-gku+)
-MSR:  9000000000029033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 48228222  XER: 20040000
-CFAR: c000000000131a50 IRQMASK: 0
-GPR00: c00000000053b0c8 c000003f7f993740 c0000000015ec500 0000000000000057
-GPR04: 0000000000000001 0000000000000000 000049fb98484262 0000000000001bcf
-GPR08: 0000000000000007 0000000000000007 0000000000000001 9000000000001033
-GPR12: 0000000000008000 c000003ffffeb800 0000000000000000 000000012f4ce5a1
-GPR16: 000000012ef5a0c8 0000000000000000 000000012f113bb0 0000000000000000
-GPR20: 000000012f45d918 c000003f863758b0 c000003f86375870 0000000000000006
-GPR24: c000003f86375a30 0000000000000007 c0002039373d9020 c0000000014c4a48
-GPR28: 0000000000000001 c000003fe62a4f6b c00020394b2e9fab c000003fe62a4ec0
-NIP [c00000000053b0cc] remove_proc_entry+0x1ec/0x200
-LR [c00000000053b0c8] remove_proc_entry+0x1e8/0x200
-Call Trace:
-[c000003f7f993740] [c00000000053b0c8] remove_proc_entry+0x1e8/0x200 (unreliable)
-[c000003f7f9937e0] [c0000000001d3654] unregister_irq_proc+0x114/0x150
-[c000003f7f993880] [c0000000001c6284] free_desc+0x54/0xb0
-[c000003f7f9938c0] [c0000000001c65ec] irq_free_descs+0xac/0x100
-[c000003f7f993910] [c0000000001d1ff8] irq_dispose_mapping+0x68/0x80
-[c000003f7f993940] [c00800000d44e8a4] kvmppc_xive_attach_escalation+0x1fc/0x270 [kvm]
-[c000003f7f9939d0] [c00800000d45013c] kvmppc_xive_connect_vcpu+0x424/0x620 [kvm]
-[c000003f7f993ac0] [c00800000d444428] kvm_arch_vcpu_ioctl+0x260/0x448 [kvm]
-[c000003f7f993b90] [c00800000d43593c] kvm_vcpu_ioctl+0x154/0x7c8 [kvm]
-[c000003f7f993d00] [c0000000004840f0] do_vfs_ioctl+0xe0/0xc30
-[c000003f7f993db0] [c000000000484d44] ksys_ioctl+0x104/0x120
-[c000003f7f993e00] [c000000000484d88] sys_ioctl+0x28/0x80
-[c000003f7f993e20] [c00000000000b278] system_call+0x5c/0x68
-Instruction dump:
-2c230000 41820008 3923ff78 e8e900a0 3c82ff69 3c62ff8d 7fa6eb78 7fc5f378
-3884f080 3863b948 4bbf6925 60000000 <0fe00000> 4bffff7c fba10088 4bbf6e41
----[ end trace b925b67a74a1d8d1 ]---
-BUG: Kernel NULL pointer dereference at 0x00000010
-Faulting instruction address: 0xc00800000d44fc04
-Oops: Kernel access of bad area, sig: 11 [#1]
-LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
-Modules linked in: kvm_hv kvm dm_mod vhost_net vhost tap xt_CHECKSUM iptable_mangle xt_MASQUERADE iptable_nat nf_nat xt_conntrack nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 ipt_REJECT nf_reject_ipv4 tun bridge stp llc ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter squashfs loop fuse i2c_dev sg ofpart ocxl powernv_flash at24 xts mtd uio_pdrv_genirq vmx_crypto opal_prd ipmi_powernv uio ipmi_devintf ipmi_msghandler ibmpowernv ib_iser rdma_cm iw_cm ib_cm ib_core iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi ip_tables ext4 mbcache jbd2 raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor xor async_tx raid6_pq libcrc32c raid1 raid0 linear sd_mod ast i2c_algo_bit drm_vram_helper ttm drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops drm ahci libahci libata tg3 drm_panel_orientation_quirks [last unloaded: kvm]
-CPU: 24 PID: 88176 Comm: qemu-system-ppc Tainted: G        W         5.3.0-xive-nr-servers-5.3-gku+ #38
-NIP:  c00800000d44fc04 LR: c00800000d44fc00 CTR: c0000000001cd970
-REGS: c000003f7f9938e0 TRAP: 0300   Tainted: G        W          (5.3.0-xive-nr-servers-5.3-gku+)
-MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 24228882  XER: 20040000
-CFAR: c0000000001cd9ac DAR: 0000000000000010 DSISR: 40000000 IRQMASK: 0
-GPR00: c00800000d44fc00 c000003f7f993b70 c00800000d468300 0000000000000000
-GPR04: 00000000000000c7 0000000000000000 0000000000000000 c000003ffacd06d8
-GPR08: 0000000000000000 c000003ffacd0738 0000000000000000 fffffffffffffffd
-GPR12: 0000000000000040 c000003ffffeb800 0000000000000000 000000012f4ce5a1
-GPR16: 000000012ef5a0c8 0000000000000000 000000012f113bb0 0000000000000000
-GPR20: 000000012f45d918 00007ffffe0d9a80 000000012f4f5df0 000000012ef8c9f8
-GPR24: 0000000000000001 0000000000000000 c000003fe4501ed0 c000003f8b1d0000
-GPR28: c0000033314689c0 c000003fe4501c00 c000003fe4501e70 c000003fe4501e90
-NIP [c00800000d44fc04] kvmppc_xive_cleanup_vcpu+0xfc/0x210 [kvm]
-LR [c00800000d44fc00] kvmppc_xive_cleanup_vcpu+0xf8/0x210 [kvm]
-Call Trace:
-[c000003f7f993b70] [c00800000d44fc00] kvmppc_xive_cleanup_vcpu+0xf8/0x210 [kvm] (unreliable)
-[c000003f7f993bd0] [c00800000d450bd4] kvmppc_xive_release+0xdc/0x1b0 [kvm]
-[c000003f7f993c30] [c00800000d436a98] kvm_device_release+0xb0/0x110 [kvm]
-[c000003f7f993c70] [c00000000046730c] __fput+0xec/0x320
-[c000003f7f993cd0] [c000000000164ae0] task_work_run+0x150/0x1c0
-[c000003f7f993d30] [c000000000025034] do_notify_resume+0x304/0x440
-[c000003f7f993e20] [c00000000000dcc4] ret_from_except_lite+0x70/0x74
-Instruction dump:
-3bff0008 7fbfd040 419e0054 847e0004 2fa30000 419effec e93d0000 8929203c
-2f890000 419effb8 4800821d e8410018 <e9230010> e9490008 9b2a0039 7c0004ac
----[ end trace b925b67a74a1d8d2 ]---
+Add two new request flags to handle these cases. One is just a cache
+of the inode S_ISREG() status, the other tells io_uring that we always
+need to punt this request to async context, even if REQ_F_NOWAIT is set.
 
-Kernel panic - not syncing: Fatal exception
+Cc: stable@vger.kernel.org
+Reported-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
+Tested-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-This affects both XIVE and XICS-on-XIVE devices since the beginning.
-
-Check the VP id instead of the vCPU id when a new vCPU is connected.
-The allocation of the XIVE CPU structure in kvmppc_xive_connect_vcpu()
-is moved after the check to avoid the need for rollback.
-
-Cc: stable@vger.kernel.org # v4.12+
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-
-diff --git a/arch/powerpc/kvm/book3s_xive.c b/arch/powerpc/kvm/book3s_xive.c
-index 591bfb4bfd0f..a3f9c665bb5b 100644
---- a/arch/powerpc/kvm/book3s_xive.c
-+++ b/arch/powerpc/kvm/book3s_xive.c
-@@ -1217,6 +1217,7 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
- 	struct kvmppc_xive *xive = dev->private;
- 	struct kvmppc_xive_vcpu *xc;
- 	int i, r = -EBUSY;
-+	u32 vp_id;
- 
- 	pr_devel("connect_vcpu(cpu=%d)\n", cpu);
- 
-@@ -1228,25 +1229,32 @@ int kvmppc_xive_connect_vcpu(struct kvm_device *dev,
- 		return -EPERM;
- 	if (vcpu->arch.irq_type != KVMPPC_IRQ_DEFAULT)
- 		return -EBUSY;
--	if (kvmppc_xive_find_server(vcpu->kvm, cpu)) {
--		pr_devel("Duplicate !\n");
--		return -EEXIST;
--	}
- 	if (cpu >= (KVM_MAX_VCPUS * vcpu->kvm->arch.emul_smt_mode)) {
- 		pr_devel("Out of bounds !\n");
- 		return -EINVAL;
- 	}
--	xc = kzalloc(sizeof(*xc), GFP_KERNEL);
--	if (!xc)
--		return -ENOMEM;
- 
- 	/* We need to synchronize with queue provisioning */
- 	mutex_lock(&xive->lock);
-+
-+	vp_id = kvmppc_xive_vp(xive, cpu);
-+	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
-+		pr_devel("Duplicate !\n");
-+		r = -EEXIST;
-+		goto bail;
-+	}
-+
-+	xc = kzalloc(sizeof(*xc), GFP_KERNEL);
-+	if (!xc) {
-+		r = -ENOMEM;
-+		goto bail;
-+	}
-+
- 	vcpu->arch.xive_vcpu = xc;
- 	xc->xive = xive;
- 	xc->vcpu = vcpu;
- 	xc->server_num = cpu;
--	xc->vp_id = kvmppc_xive_vp(xive, cpu);
-+	xc->vp_id = vp_id;
- 	xc->mfrr = 0xff;
- 	xc->valid = true;
- 
-diff --git a/arch/powerpc/kvm/book3s_xive.h b/arch/powerpc/kvm/book3s_xive.h
-index 955b820ffd6d..fe3ed50e0818 100644
---- a/arch/powerpc/kvm/book3s_xive.h
-+++ b/arch/powerpc/kvm/book3s_xive.h
-@@ -220,6 +220,18 @@ static inline u32 kvmppc_xive_vp(struct kvmppc_xive *xive, u32 server)
- 	return xive->vp_base + kvmppc_pack_vcpu_id(xive->kvm, server);
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d2cb277da2f4..b7d4085d6ffd 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -322,6 +322,8 @@ struct io_kiocb {
+ #define REQ_F_FAIL_LINK		256	/* fail rest of links */
+ #define REQ_F_SHADOW_DRAIN	512	/* link-drain shadow req */
+ #define REQ_F_TIMEOUT		1024	/* timeout request */
++#define REQ_F_ISREG		2048	/* regular file */
++#define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
+ 	u64			user_data;
+ 	u32			result;
+ 	u32			sequence;
+@@ -914,26 +916,26 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
+ 	return ret;
  }
  
-+static inline bool kvmppc_xive_vp_in_use(struct kvm *kvm, u32 vp_id)
-+{
-+	struct kvm_vcpu *vcpu = NULL;
-+	int i;
+-static void kiocb_end_write(struct kiocb *kiocb)
++static void kiocb_end_write(struct io_kiocb *req)
+ {
+-	if (kiocb->ki_flags & IOCB_WRITE) {
+-		struct inode *inode = file_inode(kiocb->ki_filp);
++	/*
++	 * Tell lockdep we inherited freeze protection from submission
++	 * thread.
++	 */
++	if (req->flags & REQ_F_ISREG) {
++		struct inode *inode = file_inode(req->file);
+ 
+-		/*
+-		 * Tell lockdep we inherited freeze protection from submission
+-		 * thread.
+-		 */
+-		if (S_ISREG(inode->i_mode))
+-			__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
+-		file_end_write(kiocb->ki_filp);
++		__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
+ 	}
++	file_end_write(req->file);
+ }
+ 
+ static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
+ {
+ 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
+ 
+-	kiocb_end_write(kiocb);
++	if (kiocb->ki_flags & IOCB_WRITE)
++		kiocb_end_write(req);
+ 
+ 	if ((req->flags & REQ_F_LINK) && res != req->result)
+ 		req->flags |= REQ_F_FAIL_LINK;
+@@ -945,7 +947,8 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
+ {
+ 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
+ 
+-	kiocb_end_write(kiocb);
++	if (kiocb->ki_flags & IOCB_WRITE)
++		kiocb_end_write(req);
+ 
+ 	if ((req->flags & REQ_F_LINK) && res != req->result)
+ 		req->flags |= REQ_F_FAIL_LINK;
+@@ -1059,8 +1062,17 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
+ 	if (!req->file)
+ 		return -EBADF;
+ 
+-	if (force_nonblock && !io_file_supports_async(req->file))
+-		force_nonblock = false;
++	if (S_ISREG(file_inode(req->file)->i_mode))
++		req->flags |= REQ_F_ISREG;
 +
-+	kvm_for_each_vcpu(i, vcpu, kvm) {
-+		if (vcpu->arch.xive_vcpu && vp_id == vcpu->arch.xive_vcpu->vp_id)
-+			return true;
++	/*
++	 * If the file doesn't support async, mark it as REQ_F_MUST_PUNT so
++	 * we know to async punt it even if it was opened O_NONBLOCK
++	 */
++	if (force_nonblock && !io_file_supports_async(req->file)) {
++		req->flags |= REQ_F_MUST_PUNT;
++		return -EAGAIN;
 +	}
-+	return false;
-+}
+ 
+ 	kiocb->ki_pos = READ_ONCE(sqe->off);
+ 	kiocb->ki_flags = iocb_flags(kiocb->ki_filp);
+@@ -1081,7 +1093,8 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
+ 		return ret;
+ 
+ 	/* don't allow async punt if RWF_NOWAIT was requested */
+-	if (kiocb->ki_flags & IOCB_NOWAIT)
++	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
++	    (req->file->f_flags & O_NONBLOCK))
+ 		req->flags |= REQ_F_NOWAIT;
+ 
+ 	if (force_nonblock)
+@@ -1382,7 +1395,9 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
+ 		 * need async punt anyway, so it's more efficient to do it
+ 		 * here.
+ 		 */
+-		if (force_nonblock && ret2 > 0 && ret2 < read_size)
++		if (force_nonblock && !(req->flags & REQ_F_NOWAIT) &&
++		    (req->flags & REQ_F_ISREG) &&
++		    ret2 > 0 && ret2 < read_size)
+ 			ret2 = -EAGAIN;
+ 		/* Catch -EAGAIN return for forced non-blocking submission */
+ 		if (!force_nonblock || ret2 != -EAGAIN) {
+@@ -1447,7 +1462,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
+ 		 * released so that it doesn't complain about the held lock when
+ 		 * we return to userspace.
+ 		 */
+-		if (S_ISREG(file_inode(file)->i_mode)) {
++		if (req->flags & REQ_F_ISREG) {
+ 			__sb_start_write(file_inode(file)->i_sb,
+ 						SB_FREEZE_WRITE, true);
+ 			__sb_writers_release(file_inode(file)->i_sb,
+@@ -2282,7 +2297,13 @@ static int __io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
+ 	int ret;
+ 
+ 	ret = __io_submit_sqe(ctx, req, s, force_nonblock);
+-	if (ret == -EAGAIN && !(req->flags & REQ_F_NOWAIT)) {
 +
- /*
-  * Mapping between guest priorities and host priorities
-  * is as follow.
-diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
-index 248c1ea9e788..78b906ffa0d2 100644
---- a/arch/powerpc/kvm/book3s_xive_native.c
-+++ b/arch/powerpc/kvm/book3s_xive_native.c
-@@ -106,6 +106,7 @@ int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
- 	struct kvmppc_xive *xive = dev->private;
- 	struct kvmppc_xive_vcpu *xc = NULL;
- 	int rc;
-+	u32 vp_id;
++	/*
++	 * We async punt it if the file wasn't marked NOWAIT, or if the file
++	 * doesn't support non-blocking read/write attempts
++	 */
++	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
++	    (req->flags & REQ_F_MUST_PUNT))) {
+ 		struct io_uring_sqe *sqe_copy;
  
- 	pr_devel("native_connect_vcpu(server=%d)\n", server_num);
- 
-@@ -124,7 +125,8 @@ int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
- 
- 	mutex_lock(&xive->lock);
- 
--	if (kvmppc_xive_find_server(vcpu->kvm, server_num)) {
-+	vp_id = kvmppc_xive_vp(xive, server_num);
-+	if (kvmppc_xive_vp_in_use(xive->kvm, vp_id)) {
- 		pr_devel("Duplicate !\n");
- 		rc = -EEXIST;
- 		goto bail;
-@@ -141,7 +143,7 @@ int kvmppc_xive_native_connect_vcpu(struct kvm_device *dev,
- 	xc->vcpu = vcpu;
- 	xc->server_num = server_num;
- 
--	xc->vp_id = kvmppc_xive_vp(xive, server_num);
-+	xc->vp_id = vp_id;
- 	xc->valid = true;
- 	vcpu->arch.irq_type = KVMPPC_IRQ_XIVE;
- 
+ 		sqe_copy = kmemdup(s->sqe, sizeof(*sqe_copy), GFP_KERNEL);
 
