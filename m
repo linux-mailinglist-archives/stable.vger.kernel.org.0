@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE66E65F9
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:07:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9182E6750
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbfJ0VHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
+        id S1730235AbfJ0VTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728045AbfJ0VHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:09 -0400
+        id S1731551AbfJ0VTt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:19:49 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C646520B7C;
-        Sun, 27 Oct 2019 21:07:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D4152070B;
+        Sun, 27 Oct 2019 21:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210428;
-        bh=NPNT9I5o/4emtMTJrnusg3gedRhNDoLKH7IfGRjATXc=;
+        s=default; t=1572211189;
+        bh=D4p/k8K+pcrKKBqKJkh62m+JChkk/cjGS2MuusHjUes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3gosHImcEm0iT+qa9ifehqUWPTqPDO8wO5KTPjX8b+JSZfc7jVitlHt4tfVWm3rb
-         7yYLT5N+ETYULLh2VGyXQyhio1xoy8uBcTCoT4xBeVe9/Xr7vu1KqgRryRthKs9RK1
-         pMdqkqbgNtbGg1o7RpHMpK0ovsVYh4DuiwH528Cs=
+        b=EyaGJm3sBCKSFey5nRaxN/87+ditK11ku9dQ9IaHFCP8FNMiCtF0w/aPHB9360yd7
+         /qlzdbnNZDYer3bP4vOJ/+w8vQDFZzLb/+UABZUTM9fpVjVePHokiCKfoEPkJAHoyZ
+         f8DmKqwa/QktzENvEh6qvLm/KMR3624S9+OXawyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 004/119] ARM: OMAP2+: Fix missing reset done flag for am3 and am43
+Subject: [PATCH 5.3 063/197] net_sched: fix backward compatibility for TCA_ACT_KIND
 Date:   Sun, 27 Oct 2019 21:59:41 +0100
-Message-Id: <20191027203300.767128463@linuxfoundation.org>
+Message-Id: <20191027203355.066356964@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-[ Upstream commit 8ad8041b98c665b6147e607b749586d6e20ba73a ]
+[ Upstream commit 4b793feccae3b06764268377a4030eb774ed924e ]
 
-For ti,sysc-omap4 compatible devices with no sysstatus register, we do have
-reset done status available in the SOFTRESET bit that clears when the reset
-is done. This is documented for example in am437x TRM for DMTIMER_TIOCP_CFG
-register. The am335x TRM just says that SOFTRESET bit value 1 means reset is
-ongoing, but it behaves the same way clearing after reset is done.
+For TCA_ACT_KIND, we have to keep the backward compatibility too,
+and rely on nla_strlcpy() to check and terminate the string with
+a NUL.
 
-With the ti-sysc driver handling this automatically based on no sysstatus
-register defined, we see warnings if SYSC_HAS_RESET_STATUS is missing in the
-legacy platform data:
+Note for TC actions, nla_strcmp() is already used to compare kind
+strings, so we don't need to fix other places.
 
-ti-sysc 48042000.target-module: sysc_flags 00000222 != 00000022
-ti-sysc 48044000.target-module: sysc_flags 00000222 != 00000022
-ti-sysc 48046000.target-module: sysc_flags 00000222 != 00000022
-...
-
-Let's fix these warnings by adding SYSC_HAS_RESET_STATUS. Let's also
-remove the useless parentheses while at it.
-
-If it turns out we do have ti,sysc-omap4 compatible devices without a
-working SOFTRESET bit we can set up additional quirk handling for it.
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 199ce850ce11 ("net_sched: add policy validation for action attributes")
+Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sched/act_api.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-index de06a1d5ffab5..e61c14f590634 100644
---- a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-@@ -966,7 +966,8 @@ static struct omap_hwmod_class_sysconfig am33xx_timer_sysc = {
- 	.rev_offs	= 0x0000,
- 	.sysc_offs	= 0x0010,
- 	.syss_offs	= 0x0014,
--	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET),
-+	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
-+			  SYSC_HAS_RESET_STATUS,
- 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
- 			  SIDLE_SMART_WKUP),
- 	.sysc_fields	= &omap_hwmod_sysc_type2,
+diff --git a/net/sched/act_api.c b/net/sched/act_api.c
+index 2558f00f6b3ed..4e7429c6f8649 100644
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -832,8 +832,7 @@ static struct tc_cookie *nla_memdup_cookie(struct nlattr **tb)
+ }
+ 
+ static const struct nla_policy tcf_action_policy[TCA_ACT_MAX + 1] = {
+-	[TCA_ACT_KIND]		= { .type = NLA_NUL_STRING,
+-				    .len = IFNAMSIZ - 1 },
++	[TCA_ACT_KIND]		= { .type = NLA_STRING },
+ 	[TCA_ACT_INDEX]		= { .type = NLA_U32 },
+ 	[TCA_ACT_COOKIE]	= { .type = NLA_BINARY,
+ 				    .len = TC_COOKIE_MAX_SIZE },
+@@ -865,8 +864,10 @@ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
+ 			NL_SET_ERR_MSG(extack, "TC action kind must be specified");
+ 			goto err_out;
+ 		}
+-		nla_strlcpy(act_name, kind, IFNAMSIZ);
+-
++		if (nla_strlcpy(act_name, kind, IFNAMSIZ) >= IFNAMSIZ) {
++			NL_SET_ERR_MSG(extack, "TC action name too long");
++			goto err_out;
++		}
+ 		if (tb[TCA_ACT_COOKIE]) {
+ 			cookie = nla_memdup_cookie(tb);
+ 			if (!cookie) {
 -- 
 2.20.1
 
