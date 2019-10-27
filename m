@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03455E694D
+	by mail.lfdr.de (Postfix) with ESMTP id EA2E3E694F
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729259AbfJ0VHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53926 "EHLO mail.kernel.org"
+        id S1729278AbfJ0VHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727689AbfJ0VHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:49 -0400
+        id S1729280AbfJ0VHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:53 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5CE6214AF;
-        Sun, 27 Oct 2019 21:07:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8FB720873;
+        Sun, 27 Oct 2019 21:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210468;
-        bh=8zXU2/gmwV2RWoghEhmnpjkleRk3Pzpb5mO9YtgjhpI=;
+        s=default; t=1572210471;
+        bh=eou04PjLENAoWI783C03L1MqFmKysnwxu0zSh56ekWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ik2nWQmU026qeTkyOEkd/p+vNc2Nni/CmzyBqDMb6FxO7+kw909/w5pNyc/X1We+Z
-         ykOaWnpRWb6mMML3A96eDZaxX7Y54EEkP29LXRdoVUkFqKCI4R1LYcZShDTc1LBsLI
-         dtCAXlO6jQi4+zhBfxjdaJN8gb0rbngJhx90SmDQ=
+        b=eRvIaNj3DiSrbEtnetnvx+Ne82fmuybtIxlDn/QjmyRqNZm9w9otrLOUJGaDyO471
+         HPtT3Tla/XVJ7tDb9uq3nm5BPOleqD3OolTuJmeY+5dBiFQ3qf5xyblzKqJ51MhL6M
+         j8PkGX6rWaisavfCnxdTyl+wQ+sMWIoDaiTdVumY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 025/119] net: avoid potential infinite loop in tc_ctl_action()
-Date:   Sun, 27 Oct 2019 22:00:02 +0100
-Message-Id: <20191027203307.855020627@linuxfoundation.org>
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 026/119] MIPS: Treat Loongson Extensions as ASEs
+Date:   Sun, 27 Oct 2019 22:00:03 +0100
+Message-Id: <20191027203307.946766238@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -44,133 +46,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-[ Upstream commit 39f13ea2f61b439ebe0060393e9c39925c9ee28c ]
+[ Upstream commit d2f965549006acb865c4638f1f030ebcefdc71f6 ]
 
-tc_ctl_action() has the ability to loop forever if tcf_action_add()
-returns -EAGAIN.
+Recently, binutils had split Loongson-3 Extensions into four ASEs:
+MMI, CAM, EXT, EXT2. This patch do the samething in kernel and expose
+them in cpuinfo so applications can probe supported ASEs at runtime.
 
-This special case has been done in case a module needed to be loaded,
-but it turns out that tcf_add_notify() could also return -EAGAIN
-if the socket sk_rcvbuf limit is hit.
-
-We need to separate the two cases, and only loop for the module
-loading case.
-
-While we are at it, add a limit of 10 attempts since unbounded
-loops are always scary.
-
-syzbot repro was something like :
-
-socket(PF_NETLINK, SOCK_RAW|SOCK_NONBLOCK, NETLINK_ROUTE) = 3
-write(3, ..., 38) = 38
-setsockopt(3, SOL_SOCKET, SO_RCVBUF, [0], 4) = 0
-sendmsg(3, {msg_name(0)=NULL, msg_iov(1)=[{..., 388}], msg_controllen=0, msg_flags=0x10}, ...)
-
-NMI backtrace for cpu 0
-CPU: 0 PID: 1054 Comm: khungtaskd Not tainted 5.4.0-rc1+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- nmi_cpu_backtrace.cold+0x70/0xb2 lib/nmi_backtrace.c:101
- nmi_trigger_cpumask_backtrace+0x23b/0x28b lib/nmi_backtrace.c:62
- arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
- trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
- check_hung_uninterruptible_tasks kernel/hung_task.c:205 [inline]
- watchdog+0x9d0/0xef0 kernel/hung_task.c:289
- kthread+0x361/0x430 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-Sending NMI from CPU 0 to CPUs 1:
-NMI backtrace for cpu 1
-CPU: 1 PID: 8859 Comm: syz-executor910 Not tainted 5.4.0-rc1+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:arch_local_save_flags arch/x86/include/asm/paravirt.h:751 [inline]
-RIP: 0010:lockdep_hardirqs_off+0x1df/0x2e0 kernel/locking/lockdep.c:3453
-Code: 5c 08 00 00 5b 41 5c 41 5d 5d c3 48 c7 c0 58 1d f3 88 48 ba 00 00 00 00 00 fc ff df 48 c1 e8 03 80 3c 10 00 0f 85 d3 00 00 00 <48> 83 3d 21 9e 99 07 00 0f 84 b9 00 00 00 9c 58 0f 1f 44 00 00 f6
-RSP: 0018:ffff8880a6f3f1b8 EFLAGS: 00000046
-RAX: 1ffffffff11e63ab RBX: ffff88808c9c6080 RCX: 0000000000000000
-RDX: dffffc0000000000 RSI: 0000000000000000 RDI: ffff88808c9c6914
-RBP: ffff8880a6f3f1d0 R08: ffff88808c9c6080 R09: fffffbfff16be5d1
-R10: fffffbfff16be5d0 R11: 0000000000000003 R12: ffffffff8746591f
-R13: ffff88808c9c6080 R14: ffffffff8746591f R15: 0000000000000003
-FS:  00000000011e4880(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffff600400 CR3: 00000000a8920000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- trace_hardirqs_off+0x62/0x240 kernel/trace/trace_preemptirq.c:45
- __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:108 [inline]
- _raw_spin_lock_irqsave+0x6f/0xcd kernel/locking/spinlock.c:159
- __wake_up_common_lock+0xc8/0x150 kernel/sched/wait.c:122
- __wake_up+0xe/0x10 kernel/sched/wait.c:142
- netlink_unlock_table net/netlink/af_netlink.c:466 [inline]
- netlink_unlock_table net/netlink/af_netlink.c:463 [inline]
- netlink_broadcast_filtered+0x705/0xb80 net/netlink/af_netlink.c:1514
- netlink_broadcast+0x3a/0x50 net/netlink/af_netlink.c:1534
- rtnetlink_send+0xdd/0x110 net/core/rtnetlink.c:714
- tcf_add_notify net/sched/act_api.c:1343 [inline]
- tcf_action_add+0x243/0x370 net/sched/act_api.c:1362
- tc_ctl_action+0x3b5/0x4bc net/sched/act_api.c:1410
- rtnetlink_rcv_msg+0x463/0xb00 net/core/rtnetlink.c:5386
- netlink_rcv_skb+0x177/0x450 net/netlink/af_netlink.c:2477
- rtnetlink_rcv+0x1d/0x30 net/core/rtnetlink.c:5404
- netlink_unicast_kernel net/netlink/af_netlink.c:1302 [inline]
- netlink_unicast+0x531/0x710 net/netlink/af_netlink.c:1328
- netlink_sendmsg+0x8a5/0xd60 net/netlink/af_netlink.c:1917
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x803/0x920 net/socket.c:2311
- __sys_sendmsg+0x105/0x1d0 net/socket.c:2356
- __do_sys_sendmsg net/socket.c:2365 [inline]
- __se_sys_sendmsg net/socket.c:2363 [inline]
- __x64_sys_sendmsg+0x78/0xb0 net/socket.c:2363
- do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x440939
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+cf0adbb9c28c8866c788@syzkaller.appspotmail.com
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Yunqiang Su <ysu@wavecomp.com>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_api.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/mips/include/asm/cpu-features.h | 16 ++++++++++++++++
+ arch/mips/include/asm/cpu.h          |  4 ++++
+ arch/mips/kernel/cpu-probe.c         |  4 ++++
+ arch/mips/kernel/proc.c              |  4 ++++
+ 4 files changed, 28 insertions(+)
 
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -1072,10 +1072,16 @@ tcf_add_notify(struct net *net, struct n
- static int tcf_action_add(struct net *net, struct nlattr *nla,
- 			  struct nlmsghdr *n, u32 portid, int ovr)
- {
--	int ret = 0;
-+	int loop, ret;
- 	LIST_HEAD(actions);
+diff --git a/arch/mips/include/asm/cpu-features.h b/arch/mips/include/asm/cpu-features.h
+index 721b698bfe3cf..1befd483d5a3b 100644
+--- a/arch/mips/include/asm/cpu-features.h
++++ b/arch/mips/include/asm/cpu-features.h
+@@ -348,6 +348,22 @@
+ #define cpu_has_dsp3		(cpu_data[0].ases & MIPS_ASE_DSP3)
+ #endif
  
--	ret = tcf_action_init(net, NULL, nla, NULL, NULL, ovr, 0, &actions);
-+	for (loop = 0; loop < 10; loop++) {
-+		ret = tcf_action_init(net, NULL, nla, NULL, NULL, ovr, 0,
-+				      &actions);
-+		if (ret != -EAGAIN)
-+			break;
-+	}
++#ifndef cpu_has_loongson_mmi
++#define cpu_has_loongson_mmi		__ase(MIPS_ASE_LOONGSON_MMI)
++#endif
 +
- 	if (ret)
- 		return ret;
++#ifndef cpu_has_loongson_cam
++#define cpu_has_loongson_cam		__ase(MIPS_ASE_LOONGSON_CAM)
++#endif
++
++#ifndef cpu_has_loongson_ext
++#define cpu_has_loongson_ext		__ase(MIPS_ASE_LOONGSON_EXT)
++#endif
++
++#ifndef cpu_has_loongson_ext2
++#define cpu_has_loongson_ext2		__ase(MIPS_ASE_LOONGSON_EXT2)
++#endif
++
+ #ifndef cpu_has_mipsmt
+ #define cpu_has_mipsmt		(cpu_data[0].ases & MIPS_ASE_MIPSMT)
+ #endif
+diff --git a/arch/mips/include/asm/cpu.h b/arch/mips/include/asm/cpu.h
+index d39324c4adf13..a6fdf13585916 100644
+--- a/arch/mips/include/asm/cpu.h
++++ b/arch/mips/include/asm/cpu.h
+@@ -433,5 +433,9 @@ enum cpu_type_enum {
+ #define MIPS_ASE_MSA		0x00000100 /* MIPS SIMD Architecture */
+ #define MIPS_ASE_DSP3		0x00000200 /* Signal Processing ASE Rev 3*/
+ #define MIPS_ASE_MIPS16E2	0x00000400 /* MIPS16e2 */
++#define MIPS_ASE_LOONGSON_MMI	0x00000800 /* Loongson MultiMedia extensions Instructions */
++#define MIPS_ASE_LOONGSON_CAM	0x00001000 /* Loongson CAM */
++#define MIPS_ASE_LOONGSON_EXT	0x00002000 /* Loongson EXTensions */
++#define MIPS_ASE_LOONGSON_EXT2	0x00004000 /* Loongson EXTensions R2 */
  
-@@ -1122,10 +1128,7 @@ static int tc_ctl_action(struct sk_buff
- 		 */
- 		if (n->nlmsg_flags & NLM_F_REPLACE)
- 			ovr = 1;
--replay:
- 		ret = tcf_action_add(net, tca[TCA_ACT_TAB], n, portid, ovr);
--		if (ret == -EAGAIN)
--			goto replay;
+ #endif /* _ASM_CPU_H */
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index cf3fd549e16d0..3007ae1bb616a 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1478,6 +1478,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3a");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		case PRID_REV_LOONGSON3B_R1:
+ 		case PRID_REV_LOONGSON3B_R2:
+@@ -1485,6 +1486,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3b");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		}
+ 
+@@ -1845,6 +1847,8 @@ static inline void cpu_probe_loongson(struct cpuinfo_mips *c, unsigned int cpu)
+ 		decode_configs(c);
+ 		c->options |= MIPS_CPU_FTLB | MIPS_CPU_TLBINV | MIPS_CPU_LDPTE;
+ 		c->writecombine = _CACHE_UNCACHED_ACCELERATED;
++		c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_CAM |
++			MIPS_ASE_LOONGSON_EXT | MIPS_ASE_LOONGSON_EXT2);
  		break;
- 	case RTM_DELACTION:
- 		ret = tca_action_gd(net, tca[TCA_ACT_TAB], n,
+ 	default:
+ 		panic("Unknown Loongson Processor ID!");
+diff --git a/arch/mips/kernel/proc.c b/arch/mips/kernel/proc.c
+index b2de408a259e4..f8d36710cd581 100644
+--- a/arch/mips/kernel/proc.c
++++ b/arch/mips/kernel/proc.c
+@@ -124,6 +124,10 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 	if (cpu_has_eva)	seq_printf(m, "%s", " eva");
+ 	if (cpu_has_htw)	seq_printf(m, "%s", " htw");
+ 	if (cpu_has_xpa)	seq_printf(m, "%s", " xpa");
++	if (cpu_has_loongson_mmi)	seq_printf(m, "%s", " loongson-mmi");
++	if (cpu_has_loongson_cam)	seq_printf(m, "%s", " loongson-cam");
++	if (cpu_has_loongson_ext)	seq_printf(m, "%s", " loongson-ext");
++	if (cpu_has_loongson_ext2)	seq_printf(m, "%s", " loongson-ext2");
+ 	seq_printf(m, "\n");
+ 
+ 	if (cpu_has_mmips) {
+-- 
+2.20.1
+
 
 
