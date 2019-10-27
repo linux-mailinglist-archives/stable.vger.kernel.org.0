@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 893DBE694A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16591E6886
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729231AbfJ0VHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S1728227AbfJ0V3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:29:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729224AbfJ0VHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:07:40 -0400
+        id S1731576AbfJ0VTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:19:55 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 925E320873;
-        Sun, 27 Oct 2019 21:07:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B95DD205C9;
+        Sun, 27 Oct 2019 21:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210460;
-        bh=RsWxyvsNqS4MVQex/5Iit5lyMZbtGMxsHGAwjyXuaNE=;
+        s=default; t=1572211195;
+        bh=SdgeleUwGEEy+z0NNe6GfPZ8rgoZzZqSWIh5LtBgLFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pYx7fFsw3xO7w6a5EyauqsSFUfwUYz/yp7zdUTWFefq4XRvhgYTcSGM/uaiGm2Zd8
-         WYnha4mf3sx/s2kLF5IwOYfV+OzO8n45pbHGrPZp/KlMI7NiGgvA8psnn3L77NJmdV
-         P8SFx8b+yw7+6aYH8Sa9JF5D8IpXhYHaA1V3hldo=
+        b=R+b/bublo+LjieoUSum4KMaBw91at99qZhKHWR2QgnHsqXm/ZkBVOhjvhSZNgZJxG
+         VWc84cylV4fakgi8gowRWhIB3bup4FInKDHcHxacWJLiZ7aU0GowuPNzu+hVFt6kHz
+         HlxZtqh3/mJEe5zQMueuDosyYYXV9DKrQC1izb8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
+        Ivan Topolsky <doktor.yak@gmail.com>,
+        Song Liu <songliubraving@fb.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 005/119] ieee802154: ca8210: prevent memory leak
-Date:   Sun, 27 Oct 2019 21:59:42 +0100
-Message-Id: <20191027203300.947731233@linuxfoundation.org>
+Subject: [PATCH 5.3 065/197] md/raid0: fix warning message for parameter default_layout
+Date:   Sun, 27 Oct 2019 21:59:43 +0100
+Message-Id: <20191027203355.169486992@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Song Liu <songliubraving@fb.com>
 
-[ Upstream commit 6402939ec86eaf226c8b8ae00ed983936b164908 ]
+[ Upstream commit 3874d73e06c9b9dc15de0b7382fc223986d75571 ]
 
-In ca8210_probe the allocated pdata needs to be assigned to
-spi_device->dev.platform_data before calling ca8210_get_platform_data.
-Othrwise when ca8210_get_platform_data fails pdata cannot be released.
+The message should match the parameter, i.e. raid0.default_layout.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Link: https://lore.kernel.org/r/20190917224713.26371-1-navid.emamdoost@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: c84a1372df92 ("md/raid0: avoid RAID0 data corruption due to layout confusion.")
+Cc: NeilBrown <neilb@suse.de>
+Reported-by: Ivan Topolsky <doktor.yak@gmail.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/ca8210.c | 2 +-
+ drivers/md/raid0.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ieee802154/ca8210.c b/drivers/net/ieee802154/ca8210.c
-index dcd10dba08c72..3a58962babd41 100644
---- a/drivers/net/ieee802154/ca8210.c
-+++ b/drivers/net/ieee802154/ca8210.c
-@@ -3153,12 +3153,12 @@ static int ca8210_probe(struct spi_device *spi_device)
- 		goto error;
+diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
+index 297bbc0f41f05..c3445d2cedb9d 100644
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -151,7 +151,7 @@ static int create_strip_zones(struct mddev *mddev, struct r0conf **private_conf)
+ 	} else {
+ 		pr_err("md/raid0:%s: cannot assemble multi-zone RAID0 with default_layout setting\n",
+ 		       mdname(mddev));
+-		pr_err("md/raid0: please set raid.default_layout to 1 or 2\n");
++		pr_err("md/raid0: please set raid0.default_layout to 1 or 2\n");
+ 		err = -ENOTSUPP;
+ 		goto abort;
  	}
- 
-+	priv->spi->dev.platform_data = pdata;
- 	ret = ca8210_get_platform_data(priv->spi, pdata);
- 	if (ret) {
- 		dev_crit(&spi_device->dev, "ca8210_get_platform_data failed\n");
- 		goto error;
- 	}
--	priv->spi->dev.platform_data = pdata;
- 
- 	ret = ca8210_dev_com_init(priv);
- 	if (ret) {
 -- 
 2.20.1
 
