@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CAEE686A
+	by mail.lfdr.de (Postfix) with ESMTP id E31C4E686B
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731594AbfJ0VT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:19:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40370 "EHLO mail.kernel.org"
+        id S1729996AbfJ0VUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731590AbfJ0VT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:19:58 -0400
+        id S1731589AbfJ0VUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:01 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CD8E205C9;
-        Sun, 27 Oct 2019 21:19:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EA62205C9;
+        Sun, 27 Oct 2019 21:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211198;
-        bh=MpeTyxLdGwSINKCEALywvaWEq2jpjZQmO+9Hqo0R9Hg=;
+        s=default; t=1572211200;
+        bh=yELjqYsgYWWkUaUp6mTbKnm+UbdtTXKVaFyRJcZEp9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WM8svX4GU2RY2NXCOHjaP9bVjOcZPXrC186GnIF6mShSZnMnAuq6+nUYMZTqoaLmE
-         EbEMvVO+qGc85lCcQd1z80KYnqA4Xl2jgDY5I7Uj7+HGZpysuuhSaUReY849M3Gs1d
-         3VXXRHvfaiKWzxo0TN+wG+zW47SFOs0fRU0mbMJM=
+        b=Q6/dG9dsgcdB/O6Q4NVaakbnIWUq5LxdnewbjJhn7TFR9PX/pXw1SvlLNwXVE1Yof
+         Mc/V1DHNgNzF9RYqdtscR0UFga2qwOiYfWwKGhYUVR6+XBwuyGoZaf1h1a4OA1Pe8r
+         83v2os6lOPa0tH9w777kD+jN3oi5qsCa12sIn/c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 066/197] Revert "drm/radeon: Fix EEH during kexec"
-Date:   Sun, 27 Oct 2019 21:59:44 +0100
-Message-Id: <20191027203355.221286144@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Li <yilikernel@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 067/197] ocfs2: fix panic due to ocfs2_wq is null
+Date:   Sun, 27 Oct 2019 21:59:45 +0100
+Message-Id: <20191027203355.275799659@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -43,49 +50,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Yi Li <yilikernel@gmail.com>
 
-[ Upstream commit 8d13c187c42e110625d60094668a8f778c092879 ]
+commit b918c43021baaa3648de09e19a4a3dd555a45f40 upstream.
 
-This reverts commit 6f7fe9a93e6c09bf988c5059403f5f88e17e21e6.
+mount.ocfs2 failed when reading ocfs2 filesystem superblock encounters
+an error.  ocfs2_initialize_super() returns before allocating ocfs2_wq.
+ocfs2_dismount_volume() triggers the following panic.
 
-This breaks some boards.  Maybe just enable this on PPC for
-now?
+  Oct 15 16:09:27 cnwarekv-205120 kernel: On-disk corruption discovered.Please run fsck.ocfs2 once the filesystem is unmounted.
+  Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44): ocfs2_read_locked_inode:537 ERROR: status = -30
+  Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44): ocfs2_init_global_system_inodes:458 ERROR: status = -30
+  Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44): ocfs2_init_global_system_inodes:491 ERROR: status = -30
+  Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44): ocfs2_initialize_super:2313 ERROR: status = -30
+  Oct 15 16:09:27 cnwarekv-205120 kernel: (mount.ocfs2,22804,44): ocfs2_fill_super:1033 ERROR: status = -30
+  ------------[ cut here ]------------
+  Oops: 0002 [#1] SMP NOPTI
+  CPU: 1 PID: 11753 Comm: mount.ocfs2 Tainted: G  E
+        4.14.148-200.ckv.x86_64 #1
+  Hardware name: Sugon H320-G30/35N16-US, BIOS 0SSDX017 12/21/2018
+  task: ffff967af0520000 task.stack: ffffa5f05484000
+  RIP: 0010:mutex_lock+0x19/0x20
+  Call Trace:
+    flush_workqueue+0x81/0x460
+    ocfs2_shutdown_local_alloc+0x47/0x440 [ocfs2]
+    ocfs2_dismount_volume+0x84/0x400 [ocfs2]
+    ocfs2_fill_super+0xa4/0x1270 [ocfs2]
+    ? ocfs2_initialize_super.isa.211+0xf20/0xf20 [ocfs2]
+    mount_bdev+0x17f/0x1c0
+    mount_fs+0x3a/0x160
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205147
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/1571139611-24107-1-git-send-email-yili@winhong.com
+Signed-off-by: Yi Li <yilikernel@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/radeon/radeon_drv.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/ocfs2/journal.c    |    3 ++-
+ fs/ocfs2/localalloc.c |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
-index 5cc0fbb04ab14..7033f3a38c878 100644
---- a/drivers/gpu/drm/radeon/radeon_drv.c
-+++ b/drivers/gpu/drm/radeon/radeon_drv.c
-@@ -380,19 +380,11 @@ radeon_pci_remove(struct pci_dev *pdev)
- static void
- radeon_pci_shutdown(struct pci_dev *pdev)
- {
--	struct drm_device *ddev = pci_get_drvdata(pdev);
--
- 	/* if we are running in a VM, make sure the device
- 	 * torn down properly on reboot/shutdown
- 	 */
- 	if (radeon_device_is_virtual())
- 		radeon_pci_remove(pdev);
--
--	/* Some adapters need to be suspended before a
--	* shutdown occurs in order to prevent an error
--	* during kexec.
--	*/
--	radeon_suspend_kms(ddev, true, true, false);
- }
+--- a/fs/ocfs2/journal.c
++++ b/fs/ocfs2/journal.c
+@@ -217,7 +217,8 @@ void ocfs2_recovery_exit(struct ocfs2_su
+ 	/* At this point, we know that no more recovery threads can be
+ 	 * launched, so wait for any recovery completion work to
+ 	 * complete. */
+-	flush_workqueue(osb->ocfs2_wq);
++	if (osb->ocfs2_wq)
++		flush_workqueue(osb->ocfs2_wq);
  
- static int radeon_pmops_suspend(struct device *dev)
--- 
-2.20.1
-
+ 	/*
+ 	 * Now that recovery is shut down, and the osb is about to be
+--- a/fs/ocfs2/localalloc.c
++++ b/fs/ocfs2/localalloc.c
+@@ -377,7 +377,8 @@ void ocfs2_shutdown_local_alloc(struct o
+ 	struct ocfs2_dinode *alloc = NULL;
+ 
+ 	cancel_delayed_work(&osb->la_enable_wq);
+-	flush_workqueue(osb->ocfs2_wq);
++	if (osb->ocfs2_wq)
++		flush_workqueue(osb->ocfs2_wq);
+ 
+ 	if (osb->local_alloc_state == OCFS2_LA_UNUSED)
+ 		goto out;
 
 
