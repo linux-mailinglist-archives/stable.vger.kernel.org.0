@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 357CAE67F0
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 501DFE6817
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732790AbfJ0VZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47606 "EHLO mail.kernel.org"
+        id S1730237AbfJ0V1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:27:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732184AbfJ0VZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:43 -0400
+        id S1731951AbfJ0VZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:47 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2859721850;
-        Sun, 27 Oct 2019 21:25:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5C3D21D81;
+        Sun, 27 Oct 2019 21:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211542;
-        bh=ZG4fvG6/pBhwAx90RYqOxWzvTqywXWxlTO+YY/Ewd98=;
+        s=default; t=1572211545;
+        bh=ajNWyUIB9j30wVqpM3yEv3nGoOtf1fhGnU0PTi2r/uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjXjskCvp6QpC38mWV9EIN3NScCgyENVqkdzJcmg6Z74m+16I6yzoh+UDZ9pWk0iF
-         NWxG8VBrDsVdphDEd8OJVrPa+Gl43/LwjPJg0h6sAngtsjO+xRmr5zKXPtvh21zth/
-         oyi+tAjjiKGhN2cshYnYigayjR/Zl5EhymfxEMzY=
+        b=GYeb7yIdzLXM4OpttIrCEzCR+i5fCX5xPEtrAa22vM7dVOt9O2b9vCUNhjp6c1CmQ
+         sBNIdQ9NO4RMwbsBVmmlmSx/tEkBYE4vX2ia5/mI2jQIw1WnZRARGWmX+0s2WOZAbT
+         so2lU1oPTS6aHtp3u1/J4X/ra4YKxN/coD0EBkTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.3 189/197] memstick: jmb38x_ms: Fix an error handling path in jmb38x_ms_probe()
-Date:   Sun, 27 Oct 2019 22:01:47 +0100
-Message-Id: <20191027203406.691983355@linuxfoundation.org>
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.3 190/197] cpufreq: Avoid cpufreq_suspend() deadlock on system shutdown
+Date:   Sun, 27 Oct 2019 22:01:48 +0100
+Message-Id: <20191027203406.745335828@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,35 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 28c9fac09ab0147158db0baeec630407a5e9b892 upstream.
+commit 65650b35133ff20f0c9ef0abd5c3c66dbce3ae57 upstream.
 
-If 'jmb38x_ms_count_slots()' returns 0, we must undo the previous
-'pci_request_regions()' call.
+It is incorrect to set the cpufreq syscore shutdown callback pointer
+to cpufreq_suspend(), because that function cannot be run in the
+syscore stage of system shutdown for two reasons: (a) it may attempt
+to carry out actions depending on devices that have already been shut
+down at that point and (b) the RCU synchronization carried out by it
+may not be able to make progress then.
 
-Goto 'err_out_int' to fix it.
+The latter issue has been present since commit 45975c7d21a1 ("rcu:
+Define RCU-sched API in terms of RCU for Tree RCU PREEMPT builds"),
+but the former one has been there since commit 90de2a4aa9f3 ("cpufreq:
+suspend cpufreq governors on shutdown") regardless.
 
-Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix that by dropping cpufreq_syscore_ops altogether and making
+device_shutdown() call cpufreq_suspend() directly before shutting
+down devices, which is along the lines of what system-wide power
+management does.
+
+Fixes: 45975c7d21a1 ("rcu: Define RCU-sched API in terms of RCU for Tree RCU PREEMPT builds")
+Fixes: 90de2a4aa9f3 ("cpufreq: suspend cpufreq governors on shutdown")
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: 4.0+ <stable@vger.kernel.org> # 4.0+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/memstick/host/jmb38x_ms.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/core.c       |    3 +++
+ drivers/cpufreq/cpufreq.c |   10 ----------
+ 2 files changed, 3 insertions(+), 10 deletions(-)
 
---- a/drivers/memstick/host/jmb38x_ms.c
-+++ b/drivers/memstick/host/jmb38x_ms.c
-@@ -941,7 +941,7 @@ static int jmb38x_ms_probe(struct pci_de
- 	if (!cnt) {
- 		rc = -ENODEV;
- 		pci_dev_busy = 1;
--		goto err_out;
-+		goto err_out_int;
- 	}
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -9,6 +9,7 @@
+  */
  
- 	jm = kzalloc(sizeof(struct jmb38x_ms)
+ #include <linux/acpi.h>
++#include <linux/cpufreq.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/fwnode.h>
+@@ -3150,6 +3151,8 @@ void device_shutdown(void)
+ 	wait_for_device_probe();
+ 	device_block_probing();
+ 
++	cpufreq_suspend();
++
+ 	spin_lock(&devices_kset->list_lock);
+ 	/*
+ 	 * Walk the devices list backward, shutting down each in turn.
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -2746,14 +2746,6 @@ int cpufreq_unregister_driver(struct cpu
+ }
+ EXPORT_SYMBOL_GPL(cpufreq_unregister_driver);
+ 
+-/*
+- * Stop cpufreq at shutdown to make sure it isn't holding any locks
+- * or mutexes when secondary CPUs are halted.
+- */
+-static struct syscore_ops cpufreq_syscore_ops = {
+-	.shutdown = cpufreq_suspend,
+-};
+-
+ struct kobject *cpufreq_global_kobject;
+ EXPORT_SYMBOL(cpufreq_global_kobject);
+ 
+@@ -2765,8 +2757,6 @@ static int __init cpufreq_core_init(void
+ 	cpufreq_global_kobject = kobject_create_and_add("cpufreq", &cpu_subsys.dev_root->kobj);
+ 	BUG_ON(!cpufreq_global_kobject);
+ 
+-	register_syscore_ops(&cpufreq_syscore_ops);
+-
+ 	return 0;
+ }
+ module_param(off, int, 0444);
 
 
