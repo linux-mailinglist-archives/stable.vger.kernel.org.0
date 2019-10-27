@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7801FE69A1
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD29E691C
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbfJ0VDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:03:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49214 "EHLO mail.kernel.org"
+        id S1729777AbfJ0VKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728451AbfJ0VDs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:03:48 -0400
+        id S1729770AbfJ0VKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:10:52 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76B50208C0;
-        Sun, 27 Oct 2019 21:03:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52E4A214AF;
+        Sun, 27 Oct 2019 21:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210228;
-        bh=BHaZ0thSrMkWnwFdeveFtEwkntjlCLP6ZJzV+98U+qc=;
+        s=default; t=1572210650;
+        bh=hOIWh6sD8eanVs3fL3OUNBF9iJgLBnjhqtR80HCmals=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wmw9++qlOFzLJfTdNP56cee+jQ2Th7lDRgwGMKWpYudJKrZCQbcgAetqW3sfboglD
-         ZcleJG2k/gfWKqTeuUIPYrJv7OJWser2JmzqGZWDGh49B/VEe6dX73yfaBxoDsgofj
-         5hj8q/OsAZood1VHPqBrOSFAlFl7m3jAVzXbtx7c=
+        b=OYb7nFAvJOHztSbRt97DveTjzWxyDpjD5Z5oh4PD+Jt8TqOjsHkrdlpivDHKqKqGs
+         vgSBsQN1u7LqMhbM19OytTs3TPRYHs26xucEwVO/V8qy4yZIdUjWp3UlVT/Iw1J6rq
+         RiggwOEmLLdII8TtYCH8C0P6Zbib+FmxRBr8gcz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 27/41] cfg80211: wext: avoid copying malformed SSIDs
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 088/119] scsi: core: save/restore command resid for error handling
 Date:   Sun, 27 Oct 2019 22:01:05 +0100
-Message-Id: <20191027203123.034455639@linuxfoundation.org>
+Message-Id: <20191027203347.970364903@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
+commit 8f8fed0cdbbd6cdbf28d9ebe662f45765d2f7d39 upstream.
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field, when copying to userspace.
+When a non-passthrough command is terminated with CHECK CONDITION, request
+sense is executed by hijacking the command descriptor. Since
+scsi_eh_prep_cmnd() and scsi_eh_restore_cmnd() do not save/restore the
+original command resid, the value returned on failure of the original
+command is lost and replaced with the value set by the execution of the
+request sense command. This value may in many instances be unaligned to the
+device sector size, causing sd_done() to print a warning message about the
+incorrect unaligned resid before the command is retried.
 
-Cc: <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
-[adjust commit log a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fix this problem by saving the original command residual in struct
+scsi_eh_save using scsi_eh_prep_cmnd() and restoring it in
+scsi_eh_restore_cmnd(). In addition, to make sure that the request sense
+command is executed with a correctly initialized command structure, also
+reset the residual to 0 in scsi_eh_prep_cmnd() after saving the original
+command value in struct scsi_eh_save.
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191001074839.1994-1-damien.lemoal@wdc.com
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/wext-sme.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_error.c |    3 +++
+ include/scsi/scsi_eh.h    |    1 +
+ 2 files changed, 4 insertions(+)
 
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -225,6 +225,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 			       struct iw_point *data, char *ssid)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	int ret = 0;
+--- a/drivers/scsi/scsi_error.c
++++ b/drivers/scsi/scsi_error.c
+@@ -935,6 +935,7 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd
+ 	ses->sdb = scmd->sdb;
+ 	ses->next_rq = scmd->request->next_rq;
+ 	ses->result = scmd->result;
++	ses->resid_len = scmd->req.resid_len;
+ 	ses->underflow = scmd->underflow;
+ 	ses->prot_op = scmd->prot_op;
+ 	ses->eh_eflags = scmd->eh_eflags;
+@@ -946,6 +947,7 @@ void scsi_eh_prep_cmnd(struct scsi_cmnd
+ 	memset(&scmd->sdb, 0, sizeof(scmd->sdb));
+ 	scmd->request->next_rq = NULL;
+ 	scmd->result = 0;
++	scmd->req.resid_len = 0;
  
- 	/* call only for station! */
- 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
-@@ -242,7 +243,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
- 		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -252,7 +256,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 	}
- 	wdev_unlock(wdev);
- 
--	return 0;
-+	return ret;
- }
- 
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
+ 	if (sense_bytes) {
+ 		scmd->sdb.length = min_t(unsigned, SCSI_SENSE_BUFFERSIZE,
+@@ -999,6 +1001,7 @@ void scsi_eh_restore_cmnd(struct scsi_cm
+ 	scmd->sdb = ses->sdb;
+ 	scmd->request->next_rq = ses->next_rq;
+ 	scmd->result = ses->result;
++	scmd->req.resid_len = ses->resid_len;
+ 	scmd->underflow = ses->underflow;
+ 	scmd->prot_op = ses->prot_op;
+ 	scmd->eh_eflags = ses->eh_eflags;
+--- a/include/scsi/scsi_eh.h
++++ b/include/scsi/scsi_eh.h
+@@ -32,6 +32,7 @@ extern int scsi_ioctl_reset(struct scsi_
+ struct scsi_eh_save {
+ 	/* saved state */
+ 	int result;
++	unsigned int resid_len;
+ 	int eh_eflags;
+ 	enum dma_data_direction data_direction;
+ 	unsigned underflow;
 
 
