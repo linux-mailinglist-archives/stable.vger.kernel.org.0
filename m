@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA63BE6876
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5431BE6877
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731832AbfJ0VVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:21:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41698 "EHLO mail.kernel.org"
+        id S1731250AbfJ0VVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:21:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731824AbfJ0VVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:21:01 -0400
+        id S1731253AbfJ0VVG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:21:06 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AD5F2070B;
-        Sun, 27 Oct 2019 21:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDC49205C9;
+        Sun, 27 Oct 2019 21:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211259;
-        bh=6ONrbi08EMB0YRBly9ROiwhZSMlJi2W3Bul2pRmULnQ=;
+        s=default; t=1572211265;
+        bh=acrx3JS5YrBn+hV9SPGE9+4j06jBjjQtCzlyQCKbF1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8Hfgyi10967sczCuVKzabxmSZaPXZn5hVXKbpQ/dnJptprZ/j0bo5BBfOF28xpCE
-         Y17YkJIQqXN5+XUhs86jZiZ5zzm5kX1iOGbcXcV6CvY8vB2b2H/OwYuGxnrotYSEp3
-         POP4ixNImzaPp3AGGekyverXlt88ZVteNqNl9L44=
+        b=B2uBsA03wC026o+AmZ63H4eTsI/B3lbvoX8qLOiS5+VhSXhrGQqWAuX4yX4T112+K
+         3K4zPGt/LnkqYjME5Pii4QNxdItjIboGAbWU4RsRUDHCoukM1VW/KQNMPsZU7eHEOA
+         nyF960RHBXg1efcXaogyXxu3f/EJvtzN+UJTzRzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Bin Meng <bmeng.cn@gmail.com>,
-        Anup Patel <anup@brainfault.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 044/197] riscv: Fix memblock reservation for device tree blob
-Date:   Sun, 27 Oct 2019 21:59:22 +0100
-Message-Id: <20191027203354.086177321@linuxfoundation.org>
+Subject: [PATCH 5.3 046/197] drm/amd/display: memory leak
+Date:   Sun, 27 Oct 2019 21:59:24 +0100
+Message-Id: <20191027203354.187705006@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -46,100 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Albert Ou <aou@eecs.berkeley.edu>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit 922b0375fc93fb1a20c5617e37c389c26bbccb70 ]
+[ Upstream commit 055e547478a11a6360c7ce05e2afc3e366968a12 ]
 
-This fixes an error with how the FDT blob is reserved in memblock.
-An incorrect physical address calculation exposed the FDT header to
-unintended corruption, which typically manifested with of_fdt_raw_init()
-faulting during late boot after fdt_totalsize() returned a wrong value.
-Systems with smaller physical memory sizes more frequently trigger this
-issue, as the kernel is more likely to allocate from the DMA32 zone
-where bbl places the DTB after the kernel image.
+In dcn*_clock_source_create when dcn20_clk_src_construct fails allocated
+clk_src needs release.
 
-Commit 671f9a3e2e24 ("RISC-V: Setup initial page tables in two stages")
-changed the mapping of the DTB to reside in the fixmap area.
-Consequently, early_init_fdt_reserve_self() cannot be used anymore in
-setup_bootmem() since it relies on __pa() to derive a physical address,
-which does not work with dtb_early_va that is no longer a valid kernel
-logical address.
-
-The reserved[0x1] region shows the effect of the pointer underflow
-resulting from the __pa(initial_boot_params) offset subtraction:
-
-[    0.000000] MEMBLOCK configuration:
-[    0.000000]  memory size = 0x000000001fe00000 reserved size = 0x0000000000a2e514
-[    0.000000]  memory.cnt  = 0x1
-[    0.000000]  memory[0x0]     [0x0000000080200000-0x000000009fffffff], 0x000000001fe00000 bytes flags: 0x0
-[    0.000000]  reserved.cnt  = 0x2
-[    0.000000]  reserved[0x0]   [0x0000000080200000-0x0000000080c2dfeb], 0x0000000000a2dfec bytes flags: 0x0
-[    0.000000]  reserved[0x1]   [0xfffffff080100000-0xfffffff080100527], 0x0000000000000528 bytes flags: 0x0
-
-With the fix applied:
-
-[    0.000000] MEMBLOCK configuration:
-[    0.000000]  memory size = 0x000000001fe00000 reserved size = 0x0000000000a2e514
-[    0.000000]  memory.cnt  = 0x1
-[    0.000000]  memory[0x0]     [0x0000000080200000-0x000000009fffffff], 0x000000001fe00000 bytes flags: 0x0
-[    0.000000]  reserved.cnt  = 0x2
-[    0.000000]  reserved[0x0]   [0x0000000080200000-0x0000000080c2dfeb], 0x0000000000a2dfec bytes flags: 0x0
-[    0.000000]  reserved[0x1]   [0x0000000080e00000-0x0000000080e00527], 0x0000000000000528 bytes flags: 0x0
-
-Fixes: 671f9a3e2e24 ("RISC-V: Setup initial page tables in two stages")
-Signed-off-by: Albert Ou <aou@eecs.berkeley.edu>
-Tested-by: Bin Meng <bmeng.cn@gmail.com>
-Reviewed-by: Anup Patel <anup@brainfault.org>
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/mm/init.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dce100/dce100_resource.c | 1 +
+ drivers/gpu/drm/amd/display/dc/dce110/dce110_resource.c | 1 +
+ drivers/gpu/drm/amd/display/dc/dce112/dce112_resource.c | 1 +
+ drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c | 1 +
+ drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c   | 1 +
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c   | 1 +
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c   | 1 +
+ 7 files changed, 7 insertions(+)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 42bf939693d34..ed9cd9944d4f9 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -11,6 +11,7 @@
- #include <linux/swap.h>
- #include <linux/sizes.h>
- #include <linux/of_fdt.h>
-+#include <linux/libfdt.h>
+diff --git a/drivers/gpu/drm/amd/display/dc/dce100/dce100_resource.c b/drivers/gpu/drm/amd/display/dc/dce100/dce100_resource.c
+index 6248c84553140..45f74219e79ed 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce100/dce100_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dce100/dce100_resource.c
+@@ -668,6 +668,7 @@ struct clock_source *dce100_clock_source_create(
+ 		return &clk_src->base;
+ 	}
  
- #include <asm/fixmap.h>
- #include <asm/tlbflush.h>
-@@ -82,6 +83,8 @@ static void __init setup_initrd(void)
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
  }
- #endif /* CONFIG_BLK_DEV_INITRD */
+diff --git a/drivers/gpu/drm/amd/display/dc/dce110/dce110_resource.c b/drivers/gpu/drm/amd/display/dc/dce110/dce110_resource.c
+index 764329264c3b4..0cb83b0e0e1ee 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce110/dce110_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dce110/dce110_resource.c
+@@ -714,6 +714,7 @@ struct clock_source *dce110_clock_source_create(
+ 		return &clk_src->base;
+ 	}
  
-+static phys_addr_t dtb_early_pa __initdata;
-+
- void __init setup_bootmem(void)
- {
- 	struct memblock_region *reg;
-@@ -117,7 +120,12 @@ void __init setup_bootmem(void)
- 	setup_initrd();
- #endif /* CONFIG_BLK_DEV_INITRD */
- 
--	early_init_fdt_reserve_self();
-+	/*
-+	 * Avoid using early_init_fdt_reserve_self() since __pa() does
-+	 * not work for DTB pointers that are fixmap addresses
-+	 */
-+	memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
-+
- 	early_init_fdt_scan_reserved_mem();
- 	memblock_allow_resize();
- 	memblock_dump_all();
-@@ -393,6 +401,8 @@ asmlinkage void __init setup_vm(uintptr_t dtb_pa)
- 
- 	/* Save pointer to DTB for early FDT parsing */
- 	dtb_early_va = (void *)fix_to_virt(FIX_FDT) + (dtb_pa & ~PAGE_MASK);
-+	/* Save physical address for memblock reservation */
-+	dtb_early_pa = dtb_pa;
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
  }
+diff --git a/drivers/gpu/drm/amd/display/dc/dce112/dce112_resource.c b/drivers/gpu/drm/amd/display/dc/dce112/dce112_resource.c
+index 7a04be74c9cf9..918455caa9a61 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce112/dce112_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dce112/dce112_resource.c
+@@ -687,6 +687,7 @@ struct clock_source *dce112_clock_source_create(
+ 		return &clk_src->base;
+ 	}
  
- static void __init setup_vm_final(void)
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
+diff --git a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
+index ae38c9c7277cf..49f3f0fad7633 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dce120/dce120_resource.c
+@@ -500,6 +500,7 @@ static struct clock_source *dce120_clock_source_create(
+ 		return &clk_src->base;
+ 	}
+ 
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
+diff --git a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
+index 860a524ebcfab..952440893fbb3 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dce80/dce80_resource.c
+@@ -701,6 +701,7 @@ struct clock_source *dce80_clock_source_create(
+ 		return &clk_src->base;
+ 	}
+ 
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
+index a12530a3ab9ca..3f25e8da5396a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_resource.c
+@@ -786,6 +786,7 @@ struct clock_source *dcn10_clock_source_create(
+ 		return &clk_src->base;
+ 	}
+ 
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index b949e202d6cb7..5b7ff6c549f18 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -955,6 +955,7 @@ struct clock_source *dcn20_clock_source_create(
+ 		return &clk_src->base;
+ 	}
+ 
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
 -- 
 2.20.1
 
