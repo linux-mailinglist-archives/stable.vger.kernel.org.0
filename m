@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3612E661A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16024E677D
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727930AbfJ0VIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S1731927AbfJ0VV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728744AbfJ0VId (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:08:33 -0400
+        id S1731925AbfJ0VVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:21:25 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2977A20B7C;
-        Sun, 27 Oct 2019 21:08:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EFE1205C9;
+        Sun, 27 Oct 2019 21:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210511;
-        bh=El9ZsWCJ0ZN4AZBe+Cgor0HJAgaRb2PCeyU5H1wVL+o=;
+        s=default; t=1572211284;
+        bh=szCVL3WGa8C+AIWwGVnSsMk9yNrdZonwa70Sb3Pb0e0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hH+ojIv3KXoOb9g87yvyTE3wrTK+73l5sWKHIozupLvp4OH9KlAxkymQWYdYnKvmC
-         H/z8YGnBduNYWqpR7RnlXTvtwRf7b8JwEqrChA21Ni94Cs2+CYA5oWdtih9zMp/VcZ
-         4gOD7nQkTzVkStTr0qNuOE2h30/0ZIXFc/MJUw3Q=
+        b=CBbJJms5MS5r/Ls7UT2LBxY6lfP59bP1D0U/1m1exbyUOpsg4PeOjs49IUxRXBGhy
+         fWlT9IeM9qw0e2LqPTWgiADdPPlVRd9CkPSz1ni2OJ7Lb5/pBcCQgQ4BubgBmWTSlg
+         zoMxSgoVo3hVTwvUY04ZBvOE3CxbxXwJzmnofZ9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Martin <dave.martin@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 039/119] arm64: Fix the feature type for ID register fields
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 098/197] ALSA: hda/realtek - Enable headset mic on Asus MJ401TA
 Date:   Sun, 27 Oct 2019 22:00:16 +0100
-Message-Id: <20191027203313.723141654@linuxfoundation.org>
+Message-Id: <20191027203357.054427454@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,207 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit 5bdecb7971572a1aef828df507558e7a4dfe25ec ]
+commit 8c8967a7dc01a25f57a0757fdca10987773cd1f2 upstream.
 
-Now that the ARM ARM clearly specifies the rules for inferring
-the values of the ID register fields, fix the types of the
-feature bits we have in the kernel.
+On Asus MJ401TA (with Realtek ALC256), the headset mic is connected to
+pin 0x19, with default configuration value 0x411111f0 (indicating no
+physical connection).
 
-As per ARM ARM DDI0487B.b, section D10.1.4 "Principles of the
-ID scheme for fields in ID registers" lists the registers to
-which the scheme applies along with the exceptions.
+Enable this by quirking the pin. Mic jack detection was also tested and
+found to be working.
 
-This patch changes the relevant feature bits from FTR_EXACT
-to FTR_LOWER_SAFE to select the safer value. This will enable
-an older kernel running on a new CPU detect the safer option
-rather than completely disabling the feature.
+This enables use of the headset mic on this product.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dave Martin <dave.martin@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191017081501.17135-1-drake@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/cpufeature.c |  102 ++++++++++++++++++++---------------------
- 1 file changed, 51 insertions(+), 51 deletions(-)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -107,11 +107,11 @@ cpufeature_pan_not_uao(const struct arm6
-  * sync with the documentation of the CPU feature register ABI.
-  */
- static const struct arm64_ftr_bits ftr_id_aa64isar0[] = {
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR0_DP_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR0_SM4_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR0_SM3_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR0_SHA3_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR0_RDM_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_DP_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_SM4_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_SM3_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_SHA3_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_RDM_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_ATOMICS_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_CRC32_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR0_SHA2_SHIFT, 4, 0),
-@@ -121,36 +121,36 @@ static const struct arm64_ftr_bits ftr_i
- };
- 
- static const struct arm64_ftr_bits ftr_id_aa64isar1[] = {
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR1_LRCPC_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR1_FCMA_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR1_JSCVT_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_EXACT, ID_AA64ISAR1_DPB_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_LRCPC_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_FCMA_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_JSCVT_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_DPB_SHIFT, 4, 0),
- 	ARM64_FTR_END,
- };
- 
- static const struct arm64_ftr_bits ftr_id_aa64pfr0[] = {
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV3_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_CSV2_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64PFR0_GIC_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_GIC_SHIFT, 4, 0),
- 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_ASIMD_SHIFT, 4, ID_AA64PFR0_ASIMD_NI),
- 	S_ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_FP_SHIFT, 4, ID_AA64PFR0_FP_NI),
- 	/* Linux doesn't care about the EL3 */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_AA64PFR0_EL3_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64PFR0_EL2_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64PFR0_EL1_SHIFT, 4, ID_AA64PFR0_EL1_64BIT_ONLY),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64PFR0_EL0_SHIFT, 4, ID_AA64PFR0_EL0_64BIT_ONLY),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL3_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL2_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL1_SHIFT, 4, ID_AA64PFR0_EL1_64BIT_ONLY),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64PFR0_EL0_SHIFT, 4, ID_AA64PFR0_EL0_64BIT_ONLY),
- 	ARM64_FTR_END,
- };
- 
- static const struct arm64_ftr_bits ftr_id_aa64mmfr0[] = {
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN4_SHIFT, 4, ID_AA64MMFR0_TGRAN4_NI),
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN64_SHIFT, 4, ID_AA64MMFR0_TGRAN64_NI),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_TGRAN16_SHIFT, 4, ID_AA64MMFR0_TGRAN16_NI),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL0_SHIFT, 4, 0),
- 	/* Linux shouldn't care about secure memory */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_EXACT, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_BIGENDEL_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR0_ASID_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_SNSMEM_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_BIGENDEL_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR0_ASID_SHIFT, 4, 0),
- 	/*
- 	 * Differing PARange is fine as long as all peripherals and memory are mapped
- 	 * within the minimum PARange of all CPUs
-@@ -161,20 +161,20 @@ static const struct arm64_ftr_bits ftr_i
- 
- static const struct arm64_ftr_bits ftr_id_aa64mmfr1[] = {
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_PAN_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR1_LOR_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR1_HPD_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR1_VHE_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR1_VMIDBITS_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR1_HADBS_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_LOR_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_HPD_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_VHE_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_VMIDBITS_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR1_HADBS_SHIFT, 4, 0),
- 	ARM64_FTR_END,
- };
- 
- static const struct arm64_ftr_bits ftr_id_aa64mmfr2[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR2_LVA_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR2_IESB_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR2_LSM_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR2_UAO_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_AA64MMFR2_CNP_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_LVA_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_IESB_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_LSM_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_UAO_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64MMFR2_CNP_SHIFT, 4, 0),
- 	ARM64_FTR_END,
- };
- 
-@@ -201,14 +201,14 @@ struct arm64_ftr_reg arm64_ftr_reg_ctrel
- };
- 
- static const struct arm64_ftr_bits ftr_id_mmfr0[] = {
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 28, 4, 0xf),	/* InnerShr */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 24, 4, 0),	/* FCSE */
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 28, 4, 0xf),	/* InnerShr */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 24, 4, 0),	/* FCSE */
- 	ARM64_FTR_BITS(FTR_HIDDEN, FTR_NONSTRICT, FTR_LOWER_SAFE, 20, 4, 0),	/* AuxReg */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 16, 4, 0),	/* TCM */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 12, 4, 0),	/* ShareLvl */
--	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 8, 4, 0xf),	/* OuterShr */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 4, 4, 0),	/* PMSA */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 0, 4, 0),	/* VMSA */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 16, 4, 0),	/* TCM */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 12, 4, 0),	/* ShareLvl */
-+	S_ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 8, 4, 0xf),	/* OuterShr */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 4, 4, 0),	/* PMSA */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 0, 4, 0),	/* VMSA */
- 	ARM64_FTR_END,
- };
- 
-@@ -229,8 +229,8 @@ static const struct arm64_ftr_bits ftr_i
- };
- 
- static const struct arm64_ftr_bits ftr_mvfr2[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 4, 4, 0),		/* FPMisc */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 0, 4, 0),		/* SIMDMisc */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 4, 4, 0),		/* FPMisc */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 0, 4, 0),		/* SIMDMisc */
- 	ARM64_FTR_END,
- };
- 
-@@ -242,25 +242,25 @@ static const struct arm64_ftr_bits ftr_d
- 
- 
- static const struct arm64_ftr_bits ftr_id_isar5[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_RDM_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_CRC32_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_SHA2_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_SHA1_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_AES_SHIFT, 4, 0),
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, ID_ISAR5_SEVL_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_RDM_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_CRC32_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_SHA2_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_SHA1_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_AES_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, ID_ISAR5_SEVL_SHIFT, 4, 0),
- 	ARM64_FTR_END,
- };
- 
- static const struct arm64_ftr_bits ftr_id_mmfr4[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 4, 4, 0),		/* ac2 */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 4, 4, 0),	/* ac2 */
- 	ARM64_FTR_END,
- };
- 
- static const struct arm64_ftr_bits ftr_id_pfr0[] = {
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 12, 4, 0),	/* State3 */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 8, 4, 0),		/* State2 */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 4, 4, 0),		/* State1 */
--	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_EXACT, 0, 4, 0),		/* State0 */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 12, 4, 0),		/* State3 */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 8, 4, 0),		/* State2 */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 4, 4, 0),		/* State1 */
-+	ARM64_FTR_BITS(FTR_HIDDEN, FTR_STRICT, FTR_LOWER_SAFE, 0, 4, 0),		/* State0 */
- 	ARM64_FTR_END,
- };
- 
+---
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5868,6 +5868,7 @@ enum {
+ 	ALC225_FIXUP_WYSE_AUTO_MUTE,
+ 	ALC225_FIXUP_WYSE_DISABLE_MIC_VREF,
+ 	ALC286_FIXUP_ACER_AIO_HEADSET_MIC,
++	ALC256_FIXUP_ASUS_HEADSET_MIC,
+ 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC299_FIXUP_PREDATOR_SPK,
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
+@@ -6902,6 +6903,15 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE
+ 	},
++	[ALC256_FIXUP_ASUS_HEADSET_MIC] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
++	},
+ 	[ALC256_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -7098,6 +7108,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
+ 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
 
 
