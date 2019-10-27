@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 605EFE686C
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F534E6968
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731069AbfJ0VUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40872 "EHLO mail.kernel.org"
+        id S1729103AbfJ0VHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731656AbfJ0VUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:20 -0400
+        id S1728045AbfJ0VHO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:14 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C816205C9;
-        Sun, 27 Oct 2019 21:20:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6781D20B7C;
+        Sun, 27 Oct 2019 21:07:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211220;
-        bh=rh7W5OPq+XnPn7mFp/vhye5vyY2W7CQUPc9AMpzsR38=;
+        s=default; t=1572210433;
+        bh=uG3ifd4LdU/S4tdk5jXdV8M3Xx9rLvJA2I7pmFRBINY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSuEGDfvrsK9ZGZaCta3DOmDKTOeSrOrKZuhlfnPag+c0w0LpegQaNIdOBghaSwCQ
-         66sppe6g2kiwOJC4E7sT+xTnUJxK0JoP4xVlGyAL3ylAZ/GWFoA/9UQKrbrxOSCJim
-         hq1NItoEeRJbi2f8wOfUpD7UV85vmGUzKHgmfCas=
+        b=vviwaIO3ZG+79tZ8uou/r8zm38hFBAWOLQ0FnZlka6lgLV6B5IVp7ZHWLVMTFlpF4
+         da904I797NDUJnfuC7N3U/Cgg09f/nDjnHO3jma8DhaunWVmEDBZS8/xuYAtVos5fs
+         gVNnYiYx7gZYeCnU5PY1oBNWXGFJgQpz0+pD5THs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 073/197] net: bcmgenet: Set phydev->dev_flags only for internal PHYs
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 014/119] r8152: Set macpassthru in reset_resume callback
 Date:   Sun, 27 Oct 2019 21:59:51 +0100
-Message-Id: <20191027203355.585233888@linuxfoundation.org>
+Message-Id: <20191027203303.495131878@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 92696286f3bb37ba50e4bd8d1beb24afb759a799 ]
+[ Upstream commit a54cdeeb04fc719e4c7f19d6e28dba7ea86cee5b ]
 
-phydev->dev_flags is entirely dependent on the PHY device driver which
-is going to be used, setting the internal GENET PHY revision in those
-bits only makes sense when drivers/net/phy/bcm7xxx.c is the PHY driver
-being used.
+r8152 may fail to establish network connection after resume from system
+suspend.
 
-Fixes: 487320c54143 ("net: bcmgenet: communicate integrated PHY revision to PHY driver")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
+If the USB port connects to r8152 lost its power during system suspend,
+the MAC address was written before is lost. The reason is that The MAC
+address doesn't get written again in its reset_resume callback.
+
+So let's set MAC address again in reset_resume callback. Also remove
+unnecessary lock as no other locking attempt will happen during
+reset_resume.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmmii.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/usb/r8152.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -277,11 +277,12 @@ int bcmgenet_mii_probe(struct net_device
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
- 	struct device_node *dn = priv->pdev->dev.of_node;
- 	struct phy_device *phydev;
--	u32 phy_flags;
-+	u32 phy_flags = 0;
- 	int ret;
+diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
+index 455eec3c46942..c0964281ab983 100644
+--- a/drivers/net/usb/r8152.c
++++ b/drivers/net/usb/r8152.c
+@@ -4465,10 +4465,9 @@ static int rtl8152_reset_resume(struct usb_interface *intf)
+ 	struct r8152 *tp = usb_get_intfdata(intf);
  
- 	/* Communicate the integrated PHY revision */
--	phy_flags = priv->gphy_rev;
-+	if (priv->internal_phy)
-+		phy_flags = priv->gphy_rev;
+ 	clear_bit(SELECTIVE_SUSPEND, &tp->flags);
+-	mutex_lock(&tp->control);
+ 	tp->rtl_ops.init(tp);
+ 	queue_delayed_work(system_long_wq, &tp->hw_phy_work, 0);
+-	mutex_unlock(&tp->control);
++	set_ethernet_addr(tp);
+ 	return rtl8152_resume(intf);
+ }
  
- 	/* Initialize link state variables that bcmgenet_mii_setup() uses */
- 	priv->old_link = -1;
+-- 
+2.20.1
+
 
 
