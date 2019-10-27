@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE460E6696
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:13:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9687DE6796
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730237AbfJ0VNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60344 "EHLO mail.kernel.org"
+        id S1731271AbfJ0VWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730229AbfJ0VNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:13:18 -0400
+        id S1732094AbfJ0VWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:22:13 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91A86214AF;
-        Sun, 27 Oct 2019 21:13:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEFF620717;
+        Sun, 27 Oct 2019 21:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210797;
-        bh=2LmyhbCXVxyjU1oqCpnEO3Teoc6Sz9N58R4YWqEugEQ=;
+        s=default; t=1572211332;
+        bh=1DqdVSCGOeEaLk2suDyeDQnHxAo6s39gquWznHsssWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mP50oTtWHlWcMwQZ/h5lOzZeE7TGAIrZtcdVJUT6iCQQ5bPpazDCbjoWfXspRet2
-         kYtYuMtmB5hwyGQwTqY/nSQDa9u/E5jDDU3dmhaYVp7tVhROMvW3JDj88SJHjQ+1wj
-         8Nf5idE/1Ur9zHbcL8tVfD4UdddVAda0I7HC5Eoc=
+        b=nhOl0lKtVjZEEy7ENtsvkTj/bs0mWGmmpcp0gAGLn4X9mmVKoDVcMFrhFGJiIhzIv
+         nb5oOhYsz1ypc/yIpgAxsmDDROpvwo5SLHQACCETaRYGdrC3FqkXq6+mp7O40Rfrk7
+         qDSKX7OO3xZOEs42vAreS+HcIOirfzA6uyMd6K7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/93] namespace: fix namespace.pl script to support relative paths
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.3 114/197] Revert "Input: elantech - enable SMBus on new (2018+) systems"
 Date:   Sun, 27 Oct 2019 22:00:32 +0100
-Message-Id: <20191027203255.620122454@linuxfoundation.org>
+Message-Id: <20191027203357.897770970@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
+commit c324345ce89c3cc50226372960619c7ee940f616 upstream.
 
-The namespace.pl script does not work properly if objtree is not set to
-an absolute path. The do_nm function is run from within the find
-function, which changes directories.
+This reverts commit 883a2a80f79ca5c0c105605fafabd1f3df99b34c.
 
-Because of this, appending objtree, $File::Find::dir, and $source, will
-return a path which is not valid from the current directory.
+Apparently use dmi_get_bios_year() as manufacturing date isn't accurate
+and this breaks older laptops with new BIOS update.
 
-This used to work when objtree was set to an absolute path when using
-"make namespacecheck". It appears to have not worked when calling
-./scripts/namespace.pl directly.
+So let's revert this patch.
 
-This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
-for $(objtree)", 2014-05-14)
+There are still new HP laptops still need to use SMBus to support all
+features, but it'll be enabled via a whitelist.
 
-Rather than fixing the Makefile to set objtree to an absolute path, just
-fix namespace.pl to work when srctree and objtree are relative. Also fix
-the script to use an absolute path for these by default.
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191001070845.9720-1-kai.heng.feng@canonical.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Use the File::Spec module for this purpose. It's been part of perl
-5 since 5.005.
-
-The curdir() function is used to get the current directory when the
-objtree and srctree aren't set in the environment.
-
-rel2abs() is used to convert possibly relative objtree and srctree
-environment variables to absolute paths.
-
-Finally, the catfile() function is used instead of string appending
-paths together, since this is more robust when joining paths together.
-
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/namespace.pl | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/input/mouse/elantech.c |   55 +++++++++++++++++++++--------------------
+ 1 file changed, 29 insertions(+), 26 deletions(-)
 
-diff --git a/scripts/namespace.pl b/scripts/namespace.pl
-index 6135574a6f394..1da7bca201a42 100755
---- a/scripts/namespace.pl
-+++ b/scripts/namespace.pl
-@@ -65,13 +65,14 @@
- use warnings;
- use strict;
- use File::Find;
-+use File::Spec;
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1827,31 +1827,6 @@ static int elantech_create_smbus(struct
+ 				  leave_breadcrumbs);
+ }
  
- my $nm = ($ENV{'NM'} || "nm") . " -p";
- my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
--my $srctree = "";
--my $objtree = "";
--$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
--$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
-+my $srctree = File::Spec->curdir();
-+my $objtree = File::Spec->curdir();
-+$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
-+$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
+-static bool elantech_use_host_notify(struct psmouse *psmouse,
+-				     struct elantech_device_info *info)
+-{
+-	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
+-		return true;
+-
+-	switch (info->bus) {
+-	case ETP_BUS_PS2_ONLY:
+-		/* expected case */
+-		break;
+-	case ETP_BUS_SMB_HST_NTFY_ONLY:
+-	case ETP_BUS_PS2_SMB_HST_NTFY:
+-		/* SMbus implementation is stable since 2018 */
+-		if (dmi_get_bios_year() >= 2018)
+-			return true;
+-		/* fall through */
+-	default:
+-		psmouse_dbg(psmouse,
+-			    "Ignoring SMBus bus provider %d\n", info->bus);
+-		break;
+-	}
+-
+-	return false;
+-}
+-
+ /**
+  * elantech_setup_smbus - called once the PS/2 devices are enumerated
+  * and decides to instantiate a SMBus InterTouch device.
+@@ -1871,7 +1846,7 @@ static int elantech_setup_smbus(struct p
+ 		 * i2c_blacklist_pnp_ids.
+ 		 * Old ICs are up to the user to decide.
+ 		 */
+-		if (!elantech_use_host_notify(psmouse, info) ||
++		if (!ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version) ||
+ 		    psmouse_matches_pnp_id(psmouse, i2c_blacklist_pnp_ids))
+ 			return -ENXIO;
+ 	}
+@@ -1891,6 +1866,34 @@ static int elantech_setup_smbus(struct p
+ 	return 0;
+ }
  
- if ($#ARGV != -1) {
- 	print STDERR "usage: $0 takes no parameters\n";
-@@ -231,9 +232,9 @@ sub do_nm
- 	}
- 	($source = $basename) =~ s/\.o$//;
- 	if (-e "$source.c" || -e "$source.S") {
--		$source = "$objtree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
- 	} else {
--		$source = "$srctree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
- 	}
- 	if (! -e "$source.c" && ! -e "$source.S") {
- 		# No obvious source, exclude the object if it is conglomerate
--- 
-2.20.1
-
++static bool elantech_use_host_notify(struct psmouse *psmouse,
++				     struct elantech_device_info *info)
++{
++	if (ETP_NEW_IC_SMBUS_HOST_NOTIFY(info->fw_version))
++		return true;
++
++	switch (info->bus) {
++	case ETP_BUS_PS2_ONLY:
++		/* expected case */
++		break;
++	case ETP_BUS_SMB_ALERT_ONLY:
++		/* fall-through  */
++	case ETP_BUS_PS2_SMB_ALERT:
++		psmouse_dbg(psmouse, "Ignoring SMBus provider through alert protocol.\n");
++		break;
++	case ETP_BUS_SMB_HST_NTFY_ONLY:
++		/* fall-through  */
++	case ETP_BUS_PS2_SMB_HST_NTFY:
++		return true;
++	default:
++		psmouse_dbg(psmouse,
++			    "Ignoring SMBus bus provider %d.\n",
++			    info->bus);
++	}
++
++	return false;
++}
++
+ int elantech_init_smbus(struct psmouse *psmouse)
+ {
+ 	struct elantech_device_info info;
 
 
