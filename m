@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F6FE681D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2DAE67E5
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732704AbfJ0VZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47112 "EHLO mail.kernel.org"
+        id S1732099AbfJ0VZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732099AbfJ0VZR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:17 -0400
+        id S1732715AbfJ0VZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:21 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D9AE222BD;
-        Sun, 27 Oct 2019 21:25:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BE9621D80;
+        Sun, 27 Oct 2019 21:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211517;
-        bh=sBK3e/HJ72aJFPRCV7NuKK2fRBkXmMl86jjjjgNUYbQ=;
+        s=default; t=1572211520;
+        bh=fpFNoSccBHLbv0vrydrZEkMT1fnZ0IAWrJKSOGe1NeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1l7DicE5Xt5jH5lncunI3pi2KhV55GeXOA7WSWnggczXocKGl/eD+A1mkTvvruVK
-         iBIiE/5B2YMlxmFxsGjlfEif+23o+iJ5xRBYYC0hAYWe/y3sGq2BKD2+5cpwhvHgJq
-         fluc4j11RYLZCrr6xpOZvpB1tzsKgE5YuBTPts0w=
+        b=bTcNy0aTJ6qWElLUdfVZdO5xx84gCjyln9hmAaAjB/qeGDRFiSJWD+5ayMsW/Lgzu
+         zr2cEr0milKgJfmqOozuaZG/toW5SfxErV5heOJY3S8rXKkXXpUC6e9tu0Zu+BUYxH
+         AJ14Ev2NLXr/F3UJG53oUecWjkL43PfLKfh7tqBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Roman Kagan <rkagan@virtuozzo.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>
-Subject: [PATCH 5.3 177/197] x86/hyperv: Make vapic support x2apic mode
-Date:   Sun, 27 Oct 2019 22:01:35 +0100
-Message-Id: <20191027203405.081835714@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Levin <levinale@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.3 178/197] pinctrl: cherryview: restore Strago DMI workaround for all versions
+Date:   Sun, 27 Oct 2019 22:01:36 +0100
+Message-Id: <20191027203405.334728832@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -45,69 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Kagan <rkagan@virtuozzo.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit e211288b72f15259da86eed6eca680758dbe9e74 upstream.
+commit 260996c30f4f3a732f45045e3e0efe27017615e4 upstream.
 
-Now that there's Hyper-V IOMMU driver, Linux can switch to x2apic mode
-when supported by the vcpus.
+This is essentially a revert of:
 
-However, the apic access functions for Hyper-V enlightened apic assume
-xapic mode only.
+e3f72b749da2 pinctrl: cherryview: fix Strago DMI workaround
+86c5dd6860a6 pinctrl: cherryview: limit Strago DMI workarounds to version 1.0
 
-As a result, Linux fails to bring up secondary cpus when run as a guest
-in QEMU/KVM with both hv_apic and x2apic enabled.
+because even with 1.1 versions of BIOS there are some pins that are
+configured as interrupts but not claimed by any driver, and they
+sometimes fire up and result in interrupt storms that cause touchpad
+stop functioning and other issues.
 
-According to Michael Kelley, when in x2apic mode, the Hyper-V synthetic
-apic MSRs behave exactly the same as the corresponding architectural
-x2apic MSRs, so there's no need to override the apic accessors.  The
-only exception is hv_apic_eoi_write, which benefits from lazy EOI when
-available; however, its implementation works for both xapic and x2apic
-modes.
+Given that we are unlikely to qualify another firmware version for a
+while it is better to keep the workaround active on all Strago boards.
 
-Fixes: 29217a474683 ("iommu/hyper-v: Add Hyper-V stub IOMMU driver")
-Fixes: 6b48cb5f8347 ("X86/Hyper-V: Enlighten APIC access")
-Suggested-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Roman Kagan <rkagan@virtuozzo.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Reported-by: Alex Levin <levinale@chromium.org>
+Fixes: 86c5dd6860a6 ("pinctrl: cherryview: limit Strago DMI workarounds to version 1.0")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191010123258.16919-1-rkagan@virtuozzo.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Alex Levin <levinale@chromium.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/hyperv/hv_apic.c |   20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/pinctrl/intel/pinctrl-cherryview.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/arch/x86/hyperv/hv_apic.c
-+++ b/arch/x86/hyperv/hv_apic.c
-@@ -260,11 +260,21 @@ void __init hv_apic_init(void)
- 	}
- 
- 	if (ms_hyperv.hints & HV_X64_APIC_ACCESS_RECOMMENDED) {
--		pr_info("Hyper-V: Using MSR based APIC access\n");
-+		pr_info("Hyper-V: Using enlightened APIC (%s mode)",
-+			x2apic_enabled() ? "x2apic" : "xapic");
-+		/*
-+		 * With x2apic, architectural x2apic MSRs are equivalent to the
-+		 * respective synthetic MSRs, so there's no need to override
-+		 * the apic accessors.  The only exception is
-+		 * hv_apic_eoi_write, because it benefits from lazy EOI when
-+		 * available, but it works for both xapic and x2apic modes.
-+		 */
- 		apic_set_eoi_write(hv_apic_eoi_write);
--		apic->read      = hv_apic_read;
--		apic->write     = hv_apic_write;
--		apic->icr_write = hv_apic_icr_write;
--		apic->icr_read  = hv_apic_icr_read;
-+		if (!x2apic_enabled()) {
-+			apic->read      = hv_apic_read;
-+			apic->write     = hv_apic_write;
-+			apic->icr_write = hv_apic_icr_write;
-+			apic->icr_read  = hv_apic_icr_read;
-+		}
- 	}
- }
+--- a/drivers/pinctrl/intel/pinctrl-cherryview.c
++++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
+@@ -1513,7 +1513,6 @@ static const struct dmi_system_id chv_no
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+ 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Intel_Strago"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+ 		},
+ 	},
+ 	{
+@@ -1521,7 +1520,6 @@ static const struct dmi_system_id chv_no
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Setzer"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+ 		},
+ 	},
+ 	{
+@@ -1529,7 +1527,6 @@ static const struct dmi_system_id chv_no
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Cyan"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+ 		},
+ 	},
+ 	{
+@@ -1537,7 +1534,6 @@ static const struct dmi_system_id chv_no
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Celes"),
+-			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
+ 		},
+ 	},
+ 	{}
 
 
