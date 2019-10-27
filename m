@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FFCAE68DF
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E291E699A
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:37:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbfJ0VOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33012 "EHLO mail.kernel.org"
+        id S1731145AbfJ0Vho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:37:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730391AbfJ0VOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:14:07 -0400
+        id S1728687AbfJ0VEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:43 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1AA02064A;
-        Sun, 27 Oct 2019 21:14:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91D4D208C0;
+        Sun, 27 Oct 2019 21:04:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210846;
-        bh=E5SOf4JtBUhudpAnV1eKCgn6mcp3hoOUlmAWiHMcZHU=;
+        s=default; t=1572210283;
+        bh=hnSeWz2y9ujbvz5ZUve2LuVtHb1iD/dO/B3j/VOPyys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzlBMZtpJ0uJiWlu2esoozOIvX5iW/KG8dvYN6ZZAw4OpUSSBugWRu+OmtQV76uJ5
-         OEMI2liEeS1KSD7zklDBkX+JDK7nZysKs6gZqhdcIVSPyn52y85mL/S/b51dJf5Sb5
-         gKYihhvoBrXgaL1MxeyStCqPfOQ++okMSS/FhrIY=
+        b=v4maqkoW2SNdxomJcfMTQ3nF3hP1a8JDJ+h7utd6023vEEcTNTwjjLxZnkYrk8BnC
+         0x39I2UPCVYTxSK4JbbZ4qryQfYkFb84ScnfHIH0WlM2Bn0BbMO2oEHIL1twar95yv
+         0nP7jTOx1Yy9sXDNfXQ8pn/hyEW/NDCJATz7UFIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 38/93] ALSA: hda/realtek - Enable headset mic on Asus MJ401TA
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 12/49] Revert "drm/radeon: Fix EEH during kexec"
 Date:   Sun, 27 Oct 2019 22:00:50 +0100
-Message-Id: <20191027203258.198878626@linuxfoundation.org>
+Message-Id: <20191027203126.453946813@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 8c8967a7dc01a25f57a0757fdca10987773cd1f2 upstream.
+[ Upstream commit 8d13c187c42e110625d60094668a8f778c092879 ]
 
-On Asus MJ401TA (with Realtek ALC256), the headset mic is connected to
-pin 0x19, with default configuration value 0x411111f0 (indicating no
-physical connection).
+This reverts commit 6f7fe9a93e6c09bf988c5059403f5f88e17e21e6.
 
-Enable this by quirking the pin. Mic jack detection was also tested and
-found to be working.
+This breaks some boards.  Maybe just enable this on PPC for
+now?
 
-This enables use of the headset mic on this product.
-
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191017081501.17135-1-drake@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205147
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/radeon/radeon_drv.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5677,6 +5677,7 @@ enum {
- 	ALC225_FIXUP_WYSE_AUTO_MUTE,
- 	ALC225_FIXUP_WYSE_DISABLE_MIC_VREF,
- 	ALC286_FIXUP_ACER_AIO_HEADSET_MIC,
-+	ALC256_FIXUP_ASUS_HEADSET_MIC,
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
- 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
-@@ -6693,6 +6694,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE
- 	},
-+	[ALC256_FIXUP_ASUS_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
-+	},
- 	[ALC256_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -6889,6 +6899,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 3ccf5b28b326e..30bd4a6a9d466 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -366,19 +366,11 @@ radeon_pci_remove(struct pci_dev *pdev)
+ static void
+ radeon_pci_shutdown(struct pci_dev *pdev)
+ {
+-	struct drm_device *ddev = pci_get_drvdata(pdev);
+-
+ 	/* if we are running in a VM, make sure the device
+ 	 * torn down properly on reboot/shutdown
+ 	 */
+ 	if (radeon_device_is_virtual())
+ 		radeon_pci_remove(pdev);
+-
+-	/* Some adapters need to be suspended before a
+-	* shutdown occurs in order to prevent an error
+-	* during kexec.
+-	*/
+-	radeon_suspend_kms(ddev, true, true, false);
+ }
+ 
+ static int radeon_pmops_suspend(struct device *dev)
+-- 
+2.20.1
+
 
 
