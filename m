@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8625BE6747
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B87E6754
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:20:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbfJ0VTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:19:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39908 "EHLO mail.kernel.org"
+        id S1731615AbfJ0VUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731495AbfJ0VTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:19:33 -0400
+        id S1731100AbfJ0VUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:04 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D867220717;
-        Sun, 27 Oct 2019 21:19:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBB2F2070B;
+        Sun, 27 Oct 2019 21:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211172;
-        bh=8cOjqoAtuGZkMYFN0n9rQSvoQnvLaA5rtCuHb8/avY0=;
+        s=default; t=1572211203;
+        bh=wGJG6dgJHfROtZnh12vuDuPwFT13RVooPwWmCpFfzXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEvg70QNDNLOjUJRMQqS6W2/eBASYd37KV5LsySegdGsJky5j635u5Fpepi28qEK0
-         LvvNAJugj6Fn5ICeRGgu2HXmV8gBG8VqAliYcgqW/4Xyj7O1Nx+0uQUYpUeNXUV2F6
-         tNxMjsVeGdpmCVmZsTQ+FYaGcQqZOV2r5uKzXTNo=
+        b=2Dt6Xx1U93mAqk5UF44ekQUj7OIWWbVWLlOf+1/9TuGieFqqfba10Mo2tjR328pwc
+         YsectiRdp6+BkxNGvlbxu+1Lf7OxCxOK3rUwJXkOyDUwan0YXrwltiGpHwh6rn0LO5
+         2Hzb0I+MgEtcm7TQa33XxkCGYMCzn8MPgAfmUnpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jose Abreu <Jose.Abreu@synopsys.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 040/197] net: stmmac: Correctly take timestamp for PTPv2
-Date:   Sun, 27 Oct 2019 21:59:18 +0100
-Message-Id: <20191027203353.879646671@linuxfoundation.org>
+Subject: [PATCH 5.3 041/197] net: stmmac: Do not stop PHY if WoL is enabled
+Date:   Sun, 27 Oct 2019 21:59:19 +0100
+Message-Id: <20191027203353.934280779@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -46,31 +46,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jose Abreu <Jose.Abreu@synopsys.com>
 
-[ Upstream commit 14f347334bf232074616e29e29103dd0c7c54dec ]
+[ Upstream commit 3e2bf04fb0447aa4b967b8000125178f55ae7800 ]
 
-The case for PTPV2_EVENT requires event packets to be captured so add
-this setting to the list of enabled captures.
+If WoL is enabled we can't really stop the PHY, otherwise we will not
+receive the WoL packet. Fix this by telling phylink that only the MAC is
+down and only stop the PHY if WoL is not enabled.
 
-Fixes: 891434b18ec0 ("stmmac: add IEEE PTPv1 and PTPv2 support.")
+Fixes: 74371272f97f ("net: stmmac: Convert to phylink and remove phylib logic")
 Signed-off-by: Jose Abreu <Jose.Abreu@synopsys.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c  | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 5c4408bdc843a..ade85ca9d8c7f 100644
+index ade85ca9d8c7f..69cc9133336fc 100644
 --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
 +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -626,6 +626,7 @@ static int stmmac_hwtstamp_set(struct net_device *dev, struct ifreq *ifr)
- 			config.rx_filter = HWTSTAMP_FILTER_PTP_V2_EVENT;
- 			ptp_v2 = PTP_TCR_TSVER2ENA;
- 			snap_type_sel = PTP_TCR_SNAPTYPSEL_1;
-+			ts_event_en = PTP_TCR_TSEVNTENA;
- 			ptp_over_ipv4_udp = PTP_TCR_TSIPV4ENA;
- 			ptp_over_ipv6_udp = PTP_TCR_TSIPV6ENA;
- 			ptp_over_ethernet = PTP_TCR_TSIPENA;
+@@ -4456,9 +4456,7 @@ int stmmac_suspend(struct device *dev)
+ 
+ 	mutex_lock(&priv->lock);
+ 
+-	rtnl_lock();
+-	phylink_stop(priv->phylink);
+-	rtnl_unlock();
++	phylink_mac_change(priv->phylink, false);
+ 
+ 	netif_device_detach(ndev);
+ 	stmmac_stop_all_queues(priv);
+@@ -4473,6 +4471,10 @@ int stmmac_suspend(struct device *dev)
+ 		stmmac_pmt(priv, priv->hw, priv->wolopts);
+ 		priv->irq_wake = 1;
+ 	} else {
++		rtnl_lock();
++		phylink_stop(priv->phylink);
++		rtnl_unlock();
++
+ 		stmmac_mac_set(priv, priv->ioaddr, false);
+ 		pinctrl_pm_select_sleep_state(priv->device);
+ 		/* Disable clock in case of PWM is off */
+@@ -4563,9 +4565,13 @@ int stmmac_resume(struct device *dev)
+ 
+ 	stmmac_start_all_queues(priv);
+ 
+-	rtnl_lock();
+-	phylink_start(priv->phylink);
+-	rtnl_unlock();
++	if (!device_may_wakeup(priv->device)) {
++		rtnl_lock();
++		phylink_start(priv->phylink);
++		rtnl_unlock();
++	}
++
++	phylink_mac_change(priv->phylink, true);
+ 
+ 	mutex_unlock(&priv->lock);
+ 
 -- 
 2.20.1
 
