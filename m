@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CF1E6974
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D930E68F7
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:33:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727479AbfJ0VGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52552 "EHLO mail.kernel.org"
+        id S1729488AbfJ0VMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbfJ0VGg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:36 -0400
+        id S1729052AbfJ0VMl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:12:41 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71C252184C;
-        Sun, 27 Oct 2019 21:06:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F75B2064A;
+        Sun, 27 Oct 2019 21:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210396;
-        bh=K/Hv0ZNiEvNWDdGPSx+8l53LUVoMSq0p84Lvr/p26sQ=;
+        s=default; t=1572210760;
+        bh=0d5MsTI66IF7v3sAx2BAR91jhVTzfEEYisC3gIb81Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tOEQbl8U0AfxlHlvcAUX5iNuQPEWUuRqzRS6BRshkRSUa9jlxD/zxkeF9583WWiet
-         RGAOIvALn5fcXCxKU4uYT4q3LUXf8/CDXWlmkylk682uEYqs/9Cs3mZrjyf5MytFjL
-         CZWH4H/c41EDw4dM7b44CHUZq3GTKku+HM7C4frA=
+        b=oTYVDAEYpw0gy6QQ+hGUzN+AM5srqnakgKjIUyHaUuv14UtKj3Ay5vCTszlAxCcbR
+         EuHznTTBYvU2M5OSGpwbbAFMZao9EVHSWE3/vxMOnw/VWDQTG1fGR58pP+L+9HENXy
+         E33JPpTU32VkV+Llt3FzuGCMlB+5RrbpvASSMXG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 35/49] cfg80211: wext: avoid copying malformed SSIDs
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 4.14 096/119] drm/edid: Add 6 bpc quirk for SDC panel in Lenovo G50
 Date:   Sun, 27 Oct 2019 22:01:13 +0100
-Message-Id: <20191027203150.939060995@linuxfoundation.org>
+Message-Id: <20191027203348.712894177@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
+commit 11bcf5f78905b90baae8fb01e16650664ed0cb00 upstream.
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field, when copying to userspace.
+Another panel that needs 6BPC quirk.
 
-Cc: <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
-[adjust commit log a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+BugLink: https://bugs.launchpad.net/bugs/1819968
+Cc: <stable@vger.kernel.org> # v4.8+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190402033037.21877-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/wext-sme.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_edid.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -224,6 +224,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 			       struct iw_point *data, char *ssid)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	int ret = 0;
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -164,6 +164,9 @@ static const struct edid_quirk {
+ 	/* Medion MD 30217 PG */
+ 	{ "MED", 0x7b8, EDID_QUIRK_PREFER_LARGE_75 },
  
- 	/* call only for station! */
- 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
-@@ -241,7 +242,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
- 		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -251,7 +255,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 	}
- 	wdev_unlock(wdev);
++	/* Lenovo G50 */
++	{ "SDC", 18514, EDID_QUIRK_FORCE_6BPC },
++
+ 	/* Panel in Samsung NP700G7A-S01PL notebook reports 6bpc */
+ 	{ "SEC", 0xd033, EDID_QUIRK_FORCE_8BPC },
  
--	return 0;
-+	return ret;
- }
- 
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
 
 
