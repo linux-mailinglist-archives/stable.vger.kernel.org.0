@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 360E0E6976
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 723ABE68CA
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727374AbfJ0VGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52650 "EHLO mail.kernel.org"
+        id S1728371AbfJ0VPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727243AbfJ0VGm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:42 -0400
+        id S1729470AbfJ0VP1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:27 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5AFFC2064A;
-        Sun, 27 Oct 2019 21:06:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45B2D208C0;
+        Sun, 27 Oct 2019 21:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210401;
-        bh=ixUWsaP4WJiPRQFe3oIibuX8/s4VDbU5RhyF2FsJ9pc=;
+        s=default; t=1572210926;
+        bh=ghYDmO0EhElmhKIB+3vLcdmH7zUkupfl6sJzekQaNOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFJ7IPeOUkNcPPn3WJS4vqw04/HErsNWBqVu+IL6Y40ZhRV0akSlKlVMyrZEDURvw
-         jk0CRmWtuoq/0N48S9E5y/ytLGPfitAcIuM4VTXzIpLrhBLspyDky/JCR96J4vJU6a
-         FG5MhjNC0UWqfW4lPdVkK4qDi6X7zHdF7viYDS/A=
+        b=AseoX2W2hTk0jfbIgEEAykq7O2tYKGvsbsJTR1NR3AbRFMpyg+jIIJyIev9RmW6nF
+         qqT2y7aeEBX0hrkOsxdiGtORQLxFGbSwaOSGy4T4kJbkxVlSS1SF+WCdioowALAFZE
+         9l/JzzANkj6ueXrqMXzvUKKGojQ5QVVPzBwyGY2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH 4.9 37/49] drm/edid: Add 6 bpc quirk for SDC panel in Lenovo G50
-Date:   Sun, 27 Oct 2019 22:01:15 +0100
-Message-Id: <20191027203154.422199469@linuxfoundation.org>
+        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 64/93] mmc: cqhci: Commit descriptors before setting the doorbell
+Date:   Sun, 27 Oct 2019 22:01:16 +0100
+Message-Id: <20191027203306.631189236@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Faiz Abbas <faiz_abbas@ti.com>
 
-commit 11bcf5f78905b90baae8fb01e16650664ed0cb00 upstream.
+commit c07d0073b9ec80a139d07ebf78e9c30d2a28279e upstream.
 
-Another panel that needs 6BPC quirk.
+Add a write memory barrier to make sure that descriptors are actually
+written to memory, before ringing the doorbell.
 
-BugLink: https://bugs.launchpad.net/bugs/1819968
-Cc: <stable@vger.kernel.org> # v4.8+
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190402033037.21877-1-kai.heng.feng@canonical.com
+Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_edid.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mmc/host/cqhci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_edid.c
-+++ b/drivers/gpu/drm/drm_edid.c
-@@ -160,6 +160,9 @@ static const struct edid_quirk {
- 	/* Medion MD 30217 PG */
- 	{ "MED", 0x7b8, EDID_QUIRK_PREFER_LARGE_75 },
+--- a/drivers/mmc/host/cqhci.c
++++ b/drivers/mmc/host/cqhci.c
+@@ -617,7 +617,8 @@ static int cqhci_request(struct mmc_host
+ 	cq_host->slot[tag].flags = 0;
  
-+	/* Lenovo G50 */
-+	{ "SDC", 18514, EDID_QUIRK_FORCE_6BPC },
-+
- 	/* Panel in Samsung NP700G7A-S01PL notebook reports 6bpc */
- 	{ "SEC", 0xd033, EDID_QUIRK_FORCE_8BPC },
- 
+ 	cq_host->qcnt += 1;
+-
++	/* Make sure descriptors are ready before ringing the doorbell */
++	wmb();
+ 	cqhci_writel(cq_host, 1 << tag, CQHCI_TDBR);
+ 	if (!(cqhci_readl(cq_host, CQHCI_TDBR) & (1 << tag)))
+ 		pr_debug("%s: cqhci: doorbell not set for tag %d\n",
 
 
