@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3636E67EA
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 597EEE664B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732764AbfJ0VZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47430 "EHLO mail.kernel.org"
+        id S1728941AbfJ0VKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732136AbfJ0VZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:32 -0400
+        id S1728709AbfJ0VKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:10:31 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F47C21783;
-        Sun, 27 Oct 2019 21:25:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 900442064A;
+        Sun, 27 Oct 2019 21:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211531;
-        bh=C/mSX7vY8N1eOip8zq49LLoWltaTLCDefQ7EnzLpoiU=;
+        s=default; t=1572210631;
+        bh=ew1OM2lWtU0jh8CRwqRLdZAY2iaRlj+H0EYC7ErADg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqKZ2UTjobWImgtTrpSGXxdcqwkjd+0daEl36Fivifi4AVQbplwdy5GrOvsvXMn5p
-         XWNi9I40X5kPIqIwZALtePv9RIKXLScfJaxpDkp2rKlzHSN/8CzDB+r+ggc9T5dMku
-         jLE+6rhzEivh986/oSsvWDuqxZVzC4Z2sxiV0u3U=
+        b=rk0iv7B5oJIYndKDeZQ4SUXQDWcvCQkf59iWrV7uxeQjXD2g6/tzA2TganCacpIAK
+         5oHanakzaGt4+tFd4At6v8YDv/uW/vEWI6p7vXYqUxcmgZbdEZJlJbSOIK9vZy1rmL
+         67xkat06Pcc4gytzCqM/C+beG0yhSI2O3Rx8L7fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 140/197] io_uring: used cached copies of sq->dropped and cq->overflow
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 081/119] arm64: ssbs: Dont treat CPUs with SSBS as unaffected by SSB
 Date:   Sun, 27 Oct 2019 22:00:58 +0100
-Message-Id: <20191027203359.264971269@linuxfoundation.org>
+Message-Id: <20191027203345.482722429@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit 498ccd9eda49117c34e0041563d0da6ac40e52b8 ]
+[ Upstream commit eb337cdfcd5dd3b10522c2f34140a73a4c285c30 ]
 
-We currently use the ring values directly, but that can lead to issues
-if the application is malicious and changes these values on our behalf.
-Created in-kernel cached versions of them, and just overwrite the user
-side when we update them. This is similar to how we treat the sq/cq
-ring tail/head updates.
+SSBS provides a relatively cheap mitigation for SSB, but it is still a
+mitigation and its presence does not indicate that the CPU is unaffected
+by the vulnerability.
 
-Reported-by: Pavel Begunkov <asml.silence@gmail.com>
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tweak the mitigation logic so that we report the correct string in sysfs.
+
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/cpu_errata.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index d447f43d64a24..3c8906494a8e1 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -221,6 +221,7 @@ struct io_ring_ctx {
- 		unsigned		sq_entries;
- 		unsigned		sq_mask;
- 		unsigned		sq_thread_idle;
-+		unsigned		cached_sq_dropped;
- 		struct io_uring_sqe	*sq_sqes;
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -333,15 +333,17 @@ static bool has_ssbd_mitigation(const st
  
- 		struct list_head	defer_list;
-@@ -237,6 +238,7 @@ struct io_ring_ctx {
- 		/* CQ ring */
- 		struct io_cq_ring	*cq_ring;
- 		unsigned		cached_cq_tail;
-+		atomic_t		cached_cq_overflow;
- 		unsigned		cq_entries;
- 		unsigned		cq_mask;
- 		struct wait_queue_head	cq_wait;
-@@ -431,7 +433,8 @@ static inline bool io_sequence_defer(struct io_ring_ctx *ctx,
- 	if ((req->flags & (REQ_F_IO_DRAIN|REQ_F_IO_DRAINED)) != REQ_F_IO_DRAIN)
- 		return false;
+ 	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
  
--	return req->sequence != ctx->cached_cq_tail + ctx->sq_ring->dropped;
-+	return req->sequence != ctx->cached_cq_tail + ctx->sq_ring->dropped
-+					+ atomic_read(&ctx->cached_cq_overflow);
- }
- 
- static struct io_kiocb *io_get_deferred_req(struct io_ring_ctx *ctx)
-@@ -511,9 +514,8 @@ static void io_cqring_fill_event(struct io_ring_ctx *ctx, u64 ki_user_data,
- 		WRITE_ONCE(cqe->res, res);
- 		WRITE_ONCE(cqe->flags, 0);
- 	} else {
--		unsigned overflow = READ_ONCE(ctx->cq_ring->overflow);
--
--		WRITE_ONCE(ctx->cq_ring->overflow, overflow + 1);
-+		WRITE_ONCE(ctx->cq_ring->overflow,
-+				atomic_inc_return(&ctx->cached_cq_overflow));
++	/* delay setting __ssb_safe until we get a firmware response */
++	if (is_midr_in_range_list(read_cpuid_id(), entry->midr_range_list))
++		this_cpu_safe = true;
++
+ 	if (this_cpu_has_cap(ARM64_SSBS)) {
++		if (!this_cpu_safe)
++			__ssb_safe = false;
+ 		required = false;
+ 		goto out_printmsg;
  	}
- }
  
-@@ -2272,7 +2274,8 @@ static bool io_get_sqring(struct io_ring_ctx *ctx, struct sqe_submit *s)
- 
- 	/* drop invalid entries */
- 	ctx->cached_sq_head++;
--	ring->dropped++;
-+	ctx->cached_sq_dropped++;
-+	WRITE_ONCE(ring->dropped, ctx->cached_sq_dropped);
- 	return false;
- }
- 
--- 
-2.20.1
-
+-	/* delay setting __ssb_safe until we get a firmware response */
+-	if (is_midr_in_range_list(read_cpuid_id(), entry->midr_range_list))
+-		this_cpu_safe = true;
+-
+ 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0) {
+ 		ssbd_state = ARM64_SSBD_UNKNOWN;
+ 		if (!this_cpu_safe)
 
 
