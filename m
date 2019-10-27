@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C0DE663E
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:10:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1140E67EE
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729627AbfJ0VKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56492 "EHLO mail.kernel.org"
+        id S1731756AbfJ0VZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729606AbfJ0VKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:05 -0400
+        id S1732779AbfJ0VZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E2732064A;
-        Sun, 27 Oct 2019 21:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B347421850;
+        Sun, 27 Oct 2019 21:25:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210605;
-        bh=1oMNMrK0NmsSeFiB3o1cyKQqEZTPEu/Oc6jImObE9eI=;
+        s=default; t=1572211537;
+        bh=eRXpJNeQCyyCD23nmN3XQx5ovGSGyho2lmGLOeVxShs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ieDndb3KckUAVpViXEHWp9PwkPUutUmzoAf6wfSC/Gdr0p8Qg3+LIDL0wo8jzEKvp
-         lwhc7ZU5qcc3Cwjpk8gRdKYywL+JpvXopYJKglCJW08Mgtv3vMy9sNCLfnto5fYIKU
-         Ds0JS89nMiRhOQUhdsBZjspVYiTICtX8pe7OZh2Y=
+        b=0T7+Cz2DlLAg90wg2cdVIprHqVdSRtTOjubwZlP5ObUqcjMmJftgEzCSlVeZJBCFI
+         6y5c1PIdLOkKu/QxGOnq+oo/Z3/TWJ+2TR4vy2//47C0ovnQzSkg3PGMg+3u9QW2Sc
+         ju9sUNpwFIarZZkU+t3o5X5QQgoEHM+dgqg8s3H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 073/119] arm64: add sysfs vulnerability show for meltdown
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        James Zhu <James.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.3 132/197] drm/amdgpu/vcn: fix allocation size in enc ring test
 Date:   Sun, 27 Oct 2019 22:00:50 +0100
-Message-Id: <20191027203339.394733907@linuxfoundation.org>
+Message-Id: <20191027203358.845695967@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,146 +45,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit 1b3ccf4be0e7be8c4bd8522066b6cbc92591e912 ]
+commit c81fffc2c9450750dd7a54a36a788a860ab0425d upstream.
 
-We implement page table isolation as a mitigation for meltdown.
-Report this to userspace via sysfs.
+We need to allocate a large enough buffer for the
+session info, otherwise the IB test can overwrite
+other memory.
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+- Session info is 128K according to mesa
+- Use the same session info for create and destroy
+
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=204241
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: James Zhu <James.Zhu@amd.com>
+Tested-by: James Zhu <James.Zhu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/kernel/cpufeature.c |   58 +++++++++++++++++++++++++++++++----------
- 1 file changed, 44 insertions(+), 14 deletions(-)
 
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -824,7 +824,7 @@ static bool has_no_fpsimd(const struct a
- 					ID_AA64PFR0_FP_SHIFT) < 0;
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c |   35 +++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
+
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vcn.c
+@@ -517,13 +517,14 @@ int amdgpu_vcn_enc_ring_test_ring(struct
  }
  
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
-+static bool __meltdown_safe = true;
- static int __kpti_forced; /* 0: not forced, >0: forced on, <0: forced off */
- 
- static bool unmap_kernel_at_el0(const struct arm64_cpu_capabilities *entry,
-@@ -842,6 +842,16 @@ static bool unmap_kernel_at_el0(const st
- 		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
- 	};
- 	char const *str = "command line option";
-+	bool meltdown_safe;
-+
-+	meltdown_safe = is_midr_in_range_list(read_cpuid_id(), kpti_safe_list);
-+
-+	/* Defer to CPU feature registers */
-+	if (has_cpuid_feature(entry, scope))
-+		meltdown_safe = true;
-+
-+	if (!meltdown_safe)
-+		__meltdown_safe = false;
- 
- 	/*
- 	 * For reasons that aren't entirely clear, enabling KPTI on Cavium
-@@ -853,6 +863,19 @@ static bool unmap_kernel_at_el0(const st
- 		__kpti_forced = -1;
- 	}
- 
-+	/* Useful for KASLR robustness */
-+	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE) && kaslr_offset() > 0) {
-+		if (!__kpti_forced) {
-+			str = "KASLR";
-+			__kpti_forced = 1;
-+		}
-+	}
-+
-+	if (!IS_ENABLED(CONFIG_UNMAP_KERNEL_AT_EL0)) {
-+		pr_info_once("kernel page table isolation disabled by kernel configuration\n");
-+		return false;
-+	}
-+
- 	/* Forced? */
- 	if (__kpti_forced) {
- 		pr_info_once("kernel page table isolation forced %s by %s\n",
-@@ -860,18 +883,10 @@ static bool unmap_kernel_at_el0(const st
- 		return __kpti_forced > 0;
- 	}
- 
--	/* Useful for KASLR robustness */
--	if (IS_ENABLED(CONFIG_RANDOMIZE_BASE))
--		return true;
--
--	/* Don't force KPTI for CPUs that are not vulnerable */
--	if (is_midr_in_range_list(read_cpuid_id(), kpti_safe_list))
--		return false;
--
--	/* Defer to CPU feature registers */
--	return !has_cpuid_feature(entry, scope);
-+	return !meltdown_safe;
- }
- 
-+#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- static void
- kpti_install_ng_mappings(const struct arm64_cpu_capabilities *__unused)
+ static int amdgpu_vcn_enc_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
+-			      struct dma_fence **fence)
++					 struct amdgpu_bo *bo,
++					 struct dma_fence **fence)
  {
-@@ -896,6 +911,12 @@ kpti_install_ng_mappings(const struct ar
+ 	const unsigned ib_size_dw = 16;
+ 	struct amdgpu_job *job;
+ 	struct amdgpu_ib *ib;
+ 	struct dma_fence *f = NULL;
+-	uint64_t dummy;
++	uint64_t addr;
+ 	int i, r;
  
- 	return;
+ 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+@@ -531,14 +532,14 @@ static int amdgpu_vcn_enc_get_create_msg
+ 		return r;
+ 
+ 	ib = &job->ibs[0];
+-	dummy = ib->gpu_addr + 1024;
++	addr = amdgpu_bo_gpu_offset(bo);
+ 
+ 	ib->length_dw = 0;
+ 	ib->ptr[ib->length_dw++] = 0x00000018;
+ 	ib->ptr[ib->length_dw++] = 0x00000001; /* session info */
+ 	ib->ptr[ib->length_dw++] = handle;
+-	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
+-	ib->ptr[ib->length_dw++] = dummy;
++	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
++	ib->ptr[ib->length_dw++] = addr;
+ 	ib->ptr[ib->length_dw++] = 0x0000000b;
+ 
+ 	ib->ptr[ib->length_dw++] = 0x00000014;
+@@ -569,13 +570,14 @@ err:
  }
-+#else
-+static void
-+kpti_install_ng_mappings(const struct arm64_cpu_capabilities *__unused)
-+{
-+}
-+#endif	/* CONFIG_UNMAP_KERNEL_AT_EL0 */
  
- static int __init parse_kpti(char *str)
+ static int amdgpu_vcn_enc_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
+-				struct dma_fence **fence)
++					  struct amdgpu_bo *bo,
++					  struct dma_fence **fence)
  {
-@@ -909,7 +930,6 @@ static int __init parse_kpti(char *str)
- 	return 0;
- }
- early_param("kpti", parse_kpti);
--#endif	/* CONFIG_UNMAP_KERNEL_AT_EL0 */
+ 	const unsigned ib_size_dw = 16;
+ 	struct amdgpu_job *job;
+ 	struct amdgpu_ib *ib;
+ 	struct dma_fence *f = NULL;
+-	uint64_t dummy;
++	uint64_t addr;
+ 	int i, r;
  
- static void cpu_copy_el2regs(const struct arm64_cpu_capabilities *__unused)
+ 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
+@@ -583,14 +585,14 @@ static int amdgpu_vcn_enc_get_destroy_ms
+ 		return r;
+ 
+ 	ib = &job->ibs[0];
+-	dummy = ib->gpu_addr + 1024;
++	addr = amdgpu_bo_gpu_offset(bo);
+ 
+ 	ib->length_dw = 0;
+ 	ib->ptr[ib->length_dw++] = 0x00000018;
+ 	ib->ptr[ib->length_dw++] = 0x00000001;
+ 	ib->ptr[ib->length_dw++] = handle;
+-	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
+-	ib->ptr[ib->length_dw++] = dummy;
++	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
++	ib->ptr[ib->length_dw++] = addr;
+ 	ib->ptr[ib->length_dw++] = 0x0000000b;
+ 
+ 	ib->ptr[ib->length_dw++] = 0x00000014;
+@@ -623,13 +625,20 @@ err:
+ int amdgpu_vcn_enc_ring_test_ib(struct amdgpu_ring *ring, long timeout)
  {
-@@ -1056,7 +1076,6 @@ static const struct arm64_cpu_capabiliti
- 		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
- 		.matches = hyp_offset_low,
- 	},
--#ifdef CONFIG_UNMAP_KERNEL_AT_EL0
- 	{
- 		.desc = "Kernel page table isolation (KPTI)",
- 		.capability = ARM64_UNMAP_KERNEL_AT_EL0,
-@@ -1072,7 +1091,6 @@ static const struct arm64_cpu_capabiliti
- 		.matches = unmap_kernel_at_el0,
- 		.cpu_enable = kpti_install_ng_mappings,
- 	},
--#endif
- 	{
- 		/* FP/SIMD is not implemented */
- 		.capability = ARM64_HAS_NO_FPSIMD,
-@@ -1629,3 +1647,15 @@ static int __init enable_mrs_emulation(v
+ 	struct dma_fence *fence = NULL;
++	struct amdgpu_bo *bo = NULL;
+ 	long r;
+ 
+-	r = amdgpu_vcn_enc_get_create_msg(ring, 1, NULL);
++	r = amdgpu_bo_create_reserved(ring->adev, 128 * 1024, PAGE_SIZE,
++				      AMDGPU_GEM_DOMAIN_VRAM,
++				      &bo, NULL, NULL);
++	if (r)
++		return r;
++
++	r = amdgpu_vcn_enc_get_create_msg(ring, 1, bo, NULL);
+ 	if (r)
+ 		goto error;
+ 
+-	r = amdgpu_vcn_enc_get_destroy_msg(ring, 1, &fence);
++	r = amdgpu_vcn_enc_get_destroy_msg(ring, 1, bo, &fence);
+ 	if (r)
+ 		goto error;
+ 
+@@ -641,6 +650,8 @@ int amdgpu_vcn_enc_ring_test_ib(struct a
+ 
+ error:
+ 	dma_fence_put(fence);
++	amdgpu_bo_unreserve(bo);
++	amdgpu_bo_unref(&bo);
+ 	return r;
  }
  
- core_initcall(enable_mrs_emulation);
-+
-+ssize_t cpu_show_meltdown(struct device *dev, struct device_attribute *attr,
-+			  char *buf)
-+{
-+	if (__meltdown_safe)
-+		return sprintf(buf, "Not affected\n");
-+
-+	if (arm64_kernel_unmapped_at_el0())
-+		return sprintf(buf, "Mitigation: PTI\n");
-+
-+	return sprintf(buf, "Vulnerable\n");
-+}
 
 
