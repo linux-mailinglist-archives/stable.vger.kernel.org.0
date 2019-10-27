@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 753D7E6807
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D3CE66F0
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732895AbfJ0V0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
+        id S1730856AbfJ0VQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732891AbfJ0V0O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:26:14 -0400
+        id S1729521AbfJ0VQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:35 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59DE9222C9;
-        Sun, 27 Oct 2019 21:26:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB34A21D7F;
+        Sun, 27 Oct 2019 21:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211573;
-        bh=6nO+AR2fnfay1owM09QIsyt2LwsgCbKrNTQqyfGoboI=;
+        s=default; t=1572210995;
+        bh=adTvinB5qHUTQOXdWUAnUTJQLeswb/Ob77yEnh7asBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8RNtT6BBnF5crZNc+omWp9St6e3QF3CZ1pXt35WdEuGT304XtUL9CXDNWBZwWWon
-         t6G1RNSR9mw4O++XFa20Su5QIgVaIvQvxFDFWZ490DyqqXJ0x05lUo1k7GgVmWpM7w
-         6f915cxXRRX+qj4SNVUkeiHuQO+xS3ob6qE1Btns=
+        b=B4KEKzmlpLr75vuApOTOX4aIRjYfpTM8TW5/Nzc2bPVqJPK1TVqRuswgntbW55Whf
+         gZDNCcWkMLNVNmD3Ng9TU/4gW2A3NINJhiz9Czphd7UlgJSRjXefVy5uKH1nBI22Gq
+         Za8ag0uN2Wg0V2es0lH+R3+C4hgRNc0BmeTRklP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 183/197] btrfs: dont needlessly create extent-refs kernel thread
-Date:   Sun, 27 Oct 2019 22:01:41 +0100
-Message-Id: <20191027203406.352458705@linuxfoundation.org>
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Paul Durrant <paul@xen.org>, Wei Liu <wei.liu@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 90/93] xen/netback: fix error path of xenvif_connect_data()
+Date:   Sun, 27 Oct 2019 22:01:42 +0100
+Message-Id: <20191027203317.530252227@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 80ed4548d0711d15ca51be5dee0ff813051cfc90 upstream.
+commit 3d5c1a037d37392a6859afbde49be5ba6a70a6b3 upstream.
 
-The patch 32b593bfcb58 ("Btrfs: remove no longer used function to run
-delayed refs asynchronously") removed the async delayed refs but the
-thread has been created, without any use. Remove it to avoid resource
-consumption.
+xenvif_connect_data() calls module_put() in case of error. This is
+wrong as there is no related module_get().
 
-Fixes: 32b593bfcb58 ("Btrfs: remove no longer used function to run delayed refs asynchronously")
-CC: stable@vger.kernel.org # 5.2+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Remove the superfluous module_put().
+
+Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
+Cc: <stable@vger.kernel.org> # 3.12
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Paul Durrant <paul@xen.org>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/ctree.h   |    2 --
- fs/btrfs/disk-io.c |    6 ------
- 2 files changed, 8 deletions(-)
+ drivers/net/xen-netback/interface.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -908,8 +908,6 @@ struct btrfs_fs_info {
- 	struct btrfs_workqueue *fixup_workers;
- 	struct btrfs_workqueue *delayed_workers;
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -718,7 +718,6 @@ err_unmap:
+ 	xenvif_unmap_frontend_data_rings(queue);
+ 	netif_napi_del(&queue->napi);
+ err:
+-	module_put(THIS_MODULE);
+ 	return err;
+ }
  
--	/* the extent workers do delayed refs on the extent allocation tree */
--	struct btrfs_workqueue *extent_workers;
- 	struct task_struct *transaction_kthread;
- 	struct task_struct *cleaner_kthread;
- 	u32 thread_pool_size;
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -2036,7 +2036,6 @@ static void btrfs_stop_all_workers(struc
- 	btrfs_destroy_workqueue(fs_info->readahead_workers);
- 	btrfs_destroy_workqueue(fs_info->flush_workers);
- 	btrfs_destroy_workqueue(fs_info->qgroup_rescan_workers);
--	btrfs_destroy_workqueue(fs_info->extent_workers);
- 	/*
- 	 * Now that all other work queues are destroyed, we can safely destroy
- 	 * the queues used for metadata I/O, since tasks from those other work
-@@ -2242,10 +2241,6 @@ static int btrfs_init_workqueues(struct
- 				      max_active, 2);
- 	fs_info->qgroup_rescan_workers =
- 		btrfs_alloc_workqueue(fs_info, "qgroup-rescan", flags, 1, 0);
--	fs_info->extent_workers =
--		btrfs_alloc_workqueue(fs_info, "extent-refs", flags,
--				      min_t(u64, fs_devices->num_devices,
--					    max_active), 8);
- 
- 	if (!(fs_info->workers && fs_info->delalloc_workers &&
- 	      fs_info->submit_workers && fs_info->flush_workers &&
-@@ -2256,7 +2251,6 @@ static int btrfs_init_workqueues(struct
- 	      fs_info->endio_freespace_worker && fs_info->rmw_workers &&
- 	      fs_info->caching_workers && fs_info->readahead_workers &&
- 	      fs_info->fixup_workers && fs_info->delayed_workers &&
--	      fs_info->extent_workers &&
- 	      fs_info->qgroup_rescan_workers)) {
- 		return -ENOMEM;
- 	}
 
 
