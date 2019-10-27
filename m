@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E66E67A3
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08352E6636
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731587AbfJ0VWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
+        id S1726944AbfJ0VJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732245AbfJ0VWw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:52 -0400
+        id S1729551AbfJ0VJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:09:45 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D06F205C9;
-        Sun, 27 Oct 2019 21:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E151F2064A;
+        Sun, 27 Oct 2019 21:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211371;
-        bh=d7BXlQMeshVMcQHLgh1CG8CHXyxlJSuwgcNotI58I5c=;
+        s=default; t=1572210584;
+        bh=uoJolbFr7OvIbu2blQ9jg1khCWXqzO03hk38WiCuQxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjis6Ax6qCzquvNJTrwXm4zHL2t1p8NXeGB7TcdoxtdSUidu85Zl3viI6Fh3S9Lnj
-         jO7dJTjmdOEtbEtmm89TfUYu+RRhTvrjm30f3e+lz/GY8UE7qUeAxh2ZTUyk7d8DiS
-         daidl9dg5UqR61F+sB0/0ogQCrzyjyOQffIgDZIc=
+        b=GvygN+YW3rF832jJj2MHTR56ErBxPAQfHUsuBrPcbKpUhZz5uXSrH4Si1hcr4Fs2Y
+         LD6p8Nen5BOTPZ0jB82voES6imX/CSzj1MBvIgy9Sje5DtcKA4xZ7xPLMk0XIZS0O4
+         lmMwoyz4rqdeFMC7tSWSJ9lYVlGFIhXybjuGxywo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
-        Steven Price <steven.price@arm.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.3 126/197] drm/panfrost: Handle resetting on timeout better
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 067/119] arm64: Get rid of __smccc_workaround_1_hvc_*
 Date:   Sun, 27 Oct 2019 22:00:44 +0100
-Message-Id: <20191027203358.534250985@linuxfoundation.org>
+Message-Id: <20191027203333.787221281@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Price <steven.price@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 5b3ec8134f5f9fa1ed0a538441a495521078bbee upstream.
+[ Upstream commit 22765f30dbaf1118c6ff0fcb8b99c9f2b4d396d5 ]
 
-Panfrost uses multiple schedulers (one for each slot, so 2 in reality),
-and on a timeout has to stop all the schedulers to safely perform a
-reset. However more than one scheduler can trigger a timeout at the same
-time. This race condition results in jobs being freed while they are
-still in use.
+The very existence of __smccc_workaround_1_hvc_* is a thinko, as
+KVM will never use a HVC call to perform the branch prediction
+invalidation. Even as a nested hypervisor, it would use an SMC
+instruction.
 
-When stopping other slots use cancel_delayed_work_sync() to ensure that
-any timeout started for that slot has completed. Also use
-mutex_trylock() to obtain reset_lock. This means that only one thread
-attempts the reset, the other threads will simply complete without doing
-anything (the first thread will wait for this in the call to
-cancel_delayed_work_sync()).
+Let's get rid of it.
 
-While we're here and since the function is already dependent on
-sched_job not being NULL, let's remove the unnecessary checks.
-
-Fixes: aa20236784ab ("drm/panfrost: Prevent concurrent resets")
-Tested-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191009094456.9704-1-steven.price@arm.com
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/panfrost/panfrost_job.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/arm64/kernel/bpi.S        |   12 ++----------
+ arch/arm64/kernel/cpu_errata.c |    9 +++------
+ 2 files changed, 5 insertions(+), 16 deletions(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -384,13 +384,19 @@ static void panfrost_job_timedout(struct
- 		job_read(pfdev, JS_TAIL_LO(js)),
- 		sched_job);
+--- a/arch/arm64/kernel/bpi.S
++++ b/arch/arm64/kernel/bpi.S
+@@ -56,21 +56,13 @@ ENTRY(__bp_harden_hyp_vecs_start)
+ ENTRY(__bp_harden_hyp_vecs_end)
  
--	mutex_lock(&pfdev->reset_lock);
-+	if (!mutex_trylock(&pfdev->reset_lock))
-+		return;
  
--	for (i = 0; i < NUM_JOB_SLOTS; i++)
--		drm_sched_stop(&pfdev->js->queue[i].sched, sched_job);
-+	for (i = 0; i < NUM_JOB_SLOTS; i++) {
-+		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
+-.macro smccc_workaround_1 inst
++ENTRY(__smccc_workaround_1_smc_start)
+ 	sub	sp, sp, #(8 * 4)
+ 	stp	x2, x3, [sp, #(8 * 0)]
+ 	stp	x0, x1, [sp, #(8 * 2)]
+ 	mov	w0, #ARM_SMCCC_ARCH_WORKAROUND_1
+-	\inst	#0
++	smc	#0
+ 	ldp	x2, x3, [sp, #(8 * 0)]
+ 	ldp	x0, x1, [sp, #(8 * 2)]
+ 	add	sp, sp, #(8 * 4)
+-.endm
+-
+-ENTRY(__smccc_workaround_1_smc_start)
+-	smccc_workaround_1	smc
+ ENTRY(__smccc_workaround_1_smc_end)
+-
+-ENTRY(__smccc_workaround_1_hvc_start)
+-	smccc_workaround_1	hvc
+-ENTRY(__smccc_workaround_1_hvc_end)
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -85,8 +85,6 @@ DEFINE_PER_CPU_READ_MOSTLY(struct bp_har
+ #ifdef CONFIG_KVM
+ extern char __smccc_workaround_1_smc_start[];
+ extern char __smccc_workaround_1_smc_end[];
+-extern char __smccc_workaround_1_hvc_start[];
+-extern char __smccc_workaround_1_hvc_end[];
  
--	if (sched_job)
--		drm_sched_increase_karma(sched_job);
-+		drm_sched_stop(sched, sched_job);
-+		if (js != i)
-+			/* Ensure any timeouts on other slots have finished */
-+			cancel_delayed_work_sync(&sched->work_tdr);
-+	}
-+
-+	drm_sched_increase_karma(sched_job);
+ static void __copy_hyp_vect_bpi(int slot, const char *hyp_vecs_start,
+ 				const char *hyp_vecs_end)
+@@ -131,8 +129,6 @@ static void __install_bp_hardening_cb(bp
+ #else
+ #define __smccc_workaround_1_smc_start		NULL
+ #define __smccc_workaround_1_smc_end		NULL
+-#define __smccc_workaround_1_hvc_start		NULL
+-#define __smccc_workaround_1_hvc_end		NULL
  
- 	/* panfrost_core_dump(pfdev); */
+ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
+ 				      const char *hyp_vecs_start,
+@@ -206,8 +202,9 @@ enable_smccc_arch_workaround_1(const str
+ 		if ((int)res.a0 < 0)
+ 			return;
+ 		cb = call_hvc_arch_workaround_1;
+-		smccc_start = __smccc_workaround_1_hvc_start;
+-		smccc_end = __smccc_workaround_1_hvc_end;
++		/* This is a guest, no need to patch KVM vectors */
++		smccc_start = NULL;
++		smccc_end = NULL;
+ 		break;
  
+ 	case PSCI_CONDUIT_SMC:
 
 
