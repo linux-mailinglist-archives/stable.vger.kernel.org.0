@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F9D7E697A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:37:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D47CDE68A6
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727359AbfJ0VGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51844 "EHLO mail.kernel.org"
+        id S1730746AbfJ0VQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727455AbfJ0VF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:05:58 -0400
+        id S1730755AbfJ0VQE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:04 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28450214AF;
-        Sun, 27 Oct 2019 21:05:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B0AE205C9;
+        Sun, 27 Oct 2019 21:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210357;
-        bh=h8lq4nixI4nM9csfCj+ze8GYtJp/yVBqr0i/cifHhj4=;
+        s=default; t=1572210963;
+        bh=YoEztnlNwL6HtikXn8bjI9EGUovjilf4uQ1n7AJus9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4WpUucQ9+IWoEVme0adYHzrXXsuQWTIsMVWzQyUsAravv72Gm+TVPn5McYvt2YFm
-         YeEtEGIEEnMo2U8HbR3Zkq43/HtBT8CdhEjumEr0+XFfJ0eF7lwwxGZXDI2Mflcvd/
-         yQJnyaqvpnxUPgjsA34gbQVTYM6249b4/Zq+Ze8I=
+        b=rHWmvvoDU8gNWOsvujQZQtbI5rox1sOA5+ZUsQZPOVTDXHEbgwwnHO4+mcW7GM+OJ
+         /NOn48z7mLXDCuiXbZGKCcp1u85fJrItk0JV3GjR1Duw9kY+PNbsoxLp3xynwpYC8h
+         i2Wd7YqN4enlBQalvja8lgz4M5/v2HEiJ0CVWdHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/49] mac80211: fix txq null pointer dereference
+        stable@vger.kernel.org,
+        syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 34/93] sctp: change sctp_prot .no_autobind with true
 Date:   Sun, 27 Oct 2019 22:00:46 +0100
-Message-Id: <20191027203124.336462730@linuxfoundation.org>
+Message-Id: <20191027203257.811558591@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 8ed31a264065ae92058ce54aa3cc8da8d81dc6d7 ]
+[ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
 
-If the interface type is P2P_DEVICE or NAN, read the file of
-'/sys/kernel/debug/ieee80211/phyx/netdev:wlanx/aqm' will get a
-NULL pointer dereference. As for those interface type, the
-pointer sdata->vif.txq is NULL.
+syzbot reported a memory leak:
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000011
-CPU: 1 PID: 30936 Comm: cat Not tainted 4.14.104 #1
-task: ffffffc0337e4880 task.stack: ffffff800cd20000
-PC is at ieee80211_if_fmt_aqm+0x34/0xa0 [mac80211]
-LR is at ieee80211_if_fmt_aqm+0x34/0xa0 [mac80211]
-[...]
-Process cat (pid: 30936, stack limit = 0xffffff800cd20000)
-[...]
-[<ffffff8000b7cd00>] ieee80211_if_fmt_aqm+0x34/0xa0 [mac80211]
-[<ffffff8000b7c414>] ieee80211_if_read+0x60/0xbc [mac80211]
-[<ffffff8000b7ccc4>] ieee80211_if_read_aqm+0x28/0x30 [mac80211]
-[<ffffff80082eff94>] full_proxy_read+0x2c/0x48
-[<ffffff80081eef00>] __vfs_read+0x2c/0xd4
-[<ffffff80081ef084>] vfs_read+0x8c/0x108
-[<ffffff80081ef494>] SyS_read+0x40/0x7c
+  BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
+  backtrace:
 
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/1569549796-8223-1-git-send-email-miaoqing@codeaurora.org
-[trim useless data from commit message]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    [...] slab_alloc mm/slab.c:3319 [inline]
+    [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+    [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
+    [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
+    [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
+    [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
+    [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
+    [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
+    [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
+    [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
+    [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
+    [...] __do_sys_setsockopt net/socket.c:2100 [inline]
+
+It was caused by when sending msgs without binding a port, in the path:
+inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
+.get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
+not. Later when binding another port by sctp_setsockopt_bindx(), a new
+bucket will be created as bp->port is not set.
+
+sctp's autobind is supposed to call sctp_autobind() where it does all
+things including setting bp->port. Since sctp_autobind() is called in
+sctp_sendmsg() if the sk is not yet bound, it should have skipped the
+auto bind.
+
+THis patch is to avoid calling inet_autobind() in inet_send_prepare()
+by changing sctp_prot .no_autobind with true, also remove the unused
+.get_port.
+
+Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/debugfs_netdev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ net/sctp/socket.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mac80211/debugfs_netdev.c b/net/mac80211/debugfs_netdev.c
-index bcec1240f41d9..9769db9818d2f 100644
---- a/net/mac80211/debugfs_netdev.c
-+++ b/net/mac80211/debugfs_netdev.c
-@@ -490,9 +490,14 @@ static ssize_t ieee80211_if_fmt_aqm(
- 	const struct ieee80211_sub_if_data *sdata, char *buf, int buflen)
- {
- 	struct ieee80211_local *local = sdata->local;
--	struct txq_info *txqi = to_txq_info(sdata->vif.txq);
-+	struct txq_info *txqi;
- 	int len;
- 
-+	if (!sdata->vif.txq)
-+		return 0;
-+
-+	txqi = to_txq_info(sdata->vif.txq);
-+
- 	spin_lock_bh(&local->fq.lock);
- 	rcu_read_lock();
- 
-@@ -657,7 +662,9 @@ static void add_common_files(struct ieee80211_sub_if_data *sdata)
- 	DEBUGFS_ADD(rc_rateidx_vht_mcs_mask_5ghz);
- 	DEBUGFS_ADD(hw_queues);
- 
--	if (sdata->local->ops->wake_tx_queue)
-+	if (sdata->local->ops->wake_tx_queue &&
-+	    sdata->vif.type != NL80211_IFTYPE_P2P_DEVICE &&
-+	    sdata->vif.type != NL80211_IFTYPE_NAN)
- 		DEBUGFS_ADD(aqm);
- }
- 
--- 
-2.20.1
-
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -8957,7 +8957,7 @@ struct proto sctp_prot = {
+ 	.backlog_rcv =	sctp_backlog_rcv,
+ 	.hash        =	sctp_hash,
+ 	.unhash      =	sctp_unhash,
+-	.get_port    =	sctp_get_port,
++	.no_autobind =	true,
+ 	.obj_size    =  sizeof(struct sctp_sock),
+ 	.useroffset  =  offsetof(struct sctp_sock, subscribe),
+ 	.usersize    =  offsetof(struct sctp_sock, initmsg) -
+@@ -8999,7 +8999,7 @@ struct proto sctpv6_prot = {
+ 	.backlog_rcv	= sctp_backlog_rcv,
+ 	.hash		= sctp_hash,
+ 	.unhash		= sctp_unhash,
+-	.get_port	= sctp_get_port,
++	.no_autobind	= true,
+ 	.obj_size	= sizeof(struct sctp6_sock),
+ 	.useroffset	= offsetof(struct sctp6_sock, sctp.subscribe),
+ 	.usersize	= offsetof(struct sctp6_sock, sctp.initmsg) -
 
 
