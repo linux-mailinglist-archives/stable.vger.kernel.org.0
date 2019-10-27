@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70085E675F
+	by mail.lfdr.de (Postfix) with ESMTP id D92F8E6760
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731695AbfJ0VUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40916 "EHLO mail.kernel.org"
+        id S1731705AbfJ0VU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731686AbfJ0VUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:24 -0400
+        id S1730775AbfJ0VU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:26 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 919F8205C9;
-        Sun, 27 Oct 2019 21:20:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A78B0205C9;
+        Sun, 27 Oct 2019 21:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211223;
-        bh=nahxoAL8GSTQXCaHGCOgcFoMFe3/BO1NoNXYaF9k5EM=;
+        s=default; t=1572211226;
+        bh=dpkgng9xeRaRt0F4oNfxz4++ewDMoAlP1wKnaRG1FoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwA00tE1W45wN95xrDMDDqCYgapaaeXnG81E4xPQBnroRmrtSBzAZ9HConZ2IFIRa
-         eESQW3adg0dRyLsRF/UqhfE/xvAtOmpaSvMd32Y5XzL7TNOqt5Mszp3lcsQyV+ThCL
-         Xw0uJzHZ4dcBWwrErHygbnnojUOZYh725g0YFUT0=
+        b=EvZlq41bOGu+ilB+rGnzKHdrNtQdzn13f9vbwvHdJxVAwob8tBCU9b8mkYq5aoduH
+         d8NfaYjXQ5RcavXBp28VwwSkpQ4nhmGc6TWtLxiY4SR5ZBwRx1X2HFPqc7Nt8JFeZO
+         o80cT69L4y5Q2RGuTPQSBFOhFiVa6izfd1RgvfH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 074/197] net: i82596: fix dma_alloc_attr for sni_82596
-Date:   Sun, 27 Oct 2019 21:59:52 +0100
-Message-Id: <20191027203355.636246319@linuxfoundation.org>
+Subject: [PATCH 5.3 075/197] net/ibmvnic: Fix EOI when running in XIVE mode.
+Date:   Sun, 27 Oct 2019 21:59:53 +0100
+Message-Id: <20191027203355.692991500@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,85 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+From: "Cédric Le Goater" <clg@kaod.org>
 
-[ Upstream commit 61c1d33daf7b5146f44d4363b3322f8cda6a6c43 ]
+[ Upstream commit 11d49ce9f7946dfed4dcf5dbde865c78058b50ab ]
 
-Commit 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
-switched dma allocation over to dma_alloc_attr, but didn't convert
-the SNI part to request consistent DMA memory. This broke sni_82596
-since driver doesn't do dma_cache_sync for performance reasons.
-Fix this by using different DMA_ATTRs for lasi_82596 and sni_82596.
+pSeries machines on POWER9 processors can run with the XICS (legacy)
+interrupt mode or with the XIVE exploitation interrupt mode. These
+interrupt contollers have different interfaces for interrupt
+management : XICS uses hcalls and XIVE loads and stores on a page.
+H_EOI being a XICS interface the enable_scrq_irq() routine can fail
+when the machine runs in XIVE mode.
 
-Fixes: 7f683b920479 ("i825xx: switch to switch to dma_alloc_attrs")
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Fix that by calling the EOI handler of the interrupt chip.
+
+Fixes: f23e0643cd0b ("ibmvnic: Clear pending interrupt after device reset")
+Signed-off-by: CÃ©dric Le Goater <clg@kaod.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/i825xx/lasi_82596.c |    4 +++-
- drivers/net/ethernet/i825xx/lib82596.c   |    4 ++--
- drivers/net/ethernet/i825xx/sni_82596.c  |    4 +++-
- 3 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/i825xx/lasi_82596.c
-+++ b/drivers/net/ethernet/i825xx/lasi_82596.c
-@@ -96,6 +96,8 @@
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2772,12 +2772,10 @@ static int enable_scrq_irq(struct ibmvni
  
- #define OPT_SWAP_PORT	0x0001	/* Need to wordswp on the MPU port */
+ 	if (adapter->resetting &&
+ 	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
+-		u64 val = (0xff000000) | scrq->hw_irq;
++		struct irq_desc *desc = irq_to_desc(scrq->irq);
++		struct irq_chip *chip = irq_desc_get_chip(desc);
  
-+#define LIB82596_DMA_ATTR	DMA_ATTR_NON_CONSISTENT
-+
- #define DMA_WBACK(ndev, addr, len) \
- 	do { dma_cache_sync((ndev)->dev.parent, (void *)addr, len, DMA_TO_DEVICE); } while (0)
- 
-@@ -200,7 +202,7 @@ static int __exit lan_remove_chip(struct
- 
- 	unregister_netdev (dev);
- 	dma_free_attrs(&pdev->dev, sizeof(struct i596_private), lp->dma,
--		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
-+		       lp->dma_addr, LIB82596_DMA_ATTR);
- 	free_netdev (dev);
- 	return 0;
- }
---- a/drivers/net/ethernet/i825xx/lib82596.c
-+++ b/drivers/net/ethernet/i825xx/lib82596.c
-@@ -1065,7 +1065,7 @@ static int i82596_probe(struct net_devic
- 
- 	dma = dma_alloc_attrs(dev->dev.parent, sizeof(struct i596_dma),
- 			      &lp->dma_addr, GFP_KERNEL,
--			      DMA_ATTR_NON_CONSISTENT);
-+			      LIB82596_DMA_ATTR);
- 	if (!dma) {
- 		printk(KERN_ERR "%s: Couldn't get shared memory\n", __FILE__);
- 		return -ENOMEM;
-@@ -1087,7 +1087,7 @@ static int i82596_probe(struct net_devic
- 	i = register_netdev(dev);
- 	if (i) {
- 		dma_free_attrs(dev->dev.parent, sizeof(struct i596_dma),
--			       dma, lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
-+			       dma, lp->dma_addr, LIB82596_DMA_ATTR);
- 		return i;
+-		rc = plpar_hcall_norets(H_EOI, val);
+-		if (rc)
+-			dev_err(dev, "H_EOI FAILED irq 0x%llx. rc=%ld\n",
+-				val, rc);
++		chip->irq_eoi(&desc->irq_data);
  	}
  
---- a/drivers/net/ethernet/i825xx/sni_82596.c
-+++ b/drivers/net/ethernet/i825xx/sni_82596.c
-@@ -24,6 +24,8 @@
- 
- static const char sni_82596_string[] = "snirm_82596";
- 
-+#define LIB82596_DMA_ATTR	0
-+
- #define DMA_WBACK(priv, addr, len)     do { } while (0)
- #define DMA_INV(priv, addr, len)       do { } while (0)
- #define DMA_WBACK_INV(priv, addr, len) do { } while (0)
-@@ -152,7 +154,7 @@ static int sni_82596_driver_remove(struc
- 
- 	unregister_netdev(dev);
- 	dma_free_attrs(dev->dev.parent, sizeof(struct i596_private), lp->dma,
--		       lp->dma_addr, DMA_ATTR_NON_CONSISTENT);
-+		       lp->dma_addr, LIB82596_DMA_ATTR);
- 	iounmap(lp->ca);
- 	iounmap(lp->mpu_port);
- 	free_netdev (dev);
+ 	rc = plpar_hcall_norets(H_VIOCTL, adapter->vdev->unit_address,
 
 
