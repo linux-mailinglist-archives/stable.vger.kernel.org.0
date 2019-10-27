@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EB4E65E9
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:06:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD71DE66CD
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727643AbfJ0VGe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52488 "EHLO mail.kernel.org"
+        id S1730630AbfJ0VPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729015AbfJ0VGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:34 -0400
+        id S1730609AbfJ0VPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:19 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D6FD21726;
-        Sun, 27 Oct 2019 21:06:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4250B214AF;
+        Sun, 27 Oct 2019 21:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210393;
-        bh=l/WXLIXBxK9ewrr0gNrLX93jPViXHepG5+D0tblXfOc=;
+        s=default; t=1572210917;
+        bh=ZxblUBR8xTc4PK25nN++gbyYlqGJxOpexeBfqiMq9xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlU04/V34M/oKW5Ypl3O4pxtriY0oegW7stBoabGWgribBErTqyNl71KB2xS61msc
-         bHe0xioBADqdHoZai0BUJ0llWRGyjkhsKl0DZcET26pCI7n9T5dTskuee/EjiEhr0J
-         ssto9Aq8vQzpgvm2ePnF5/V2s4RrqpTqATHcIjNw=
+        b=JjCDor2lWGJrMkVa9cyrt88Mv3HWxljyJxpAFhFtI4hXA+sMpSbinOK8P1m20rPLW
+         7LZWao8+LOER2102Nua69cBBCFZKdqpePJ36kdimZpp0LTGsr9yehB62fn6R7MwCk8
+         1Iavy436ZkXtTWa9EppopsTRtZwiZHnUnEuHzLUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Jiada Wang <jiada_wang@mentor.com>,
-        Timo Wischer <twischer@de.adit-jv.com>,
-        Junya Monden <jmonden@jp.adit-jv.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.9 34/49] ASoC: rsnd: Reinitialize bit clock inversion flag for every format setting
-Date:   Sun, 27 Oct 2019 22:01:12 +0100
-Message-Id: <20191027203148.024594991@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 61/93] drm/amdgpu: Bail earlier when amdgpu.cik_/si_support is not set to 1
+Date:   Sun, 27 Oct 2019 22:01:13 +0100
+Message-Id: <20191027203305.376070221@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,42 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junya Monden <jmonden@jp.adit-jv.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 22e58665a01006d05f0239621f7d41cacca96cc4 upstream.
+commit 984d7a929ad68b7be9990fc9c5cfa5d5c9fc7942 upstream.
 
-Unlike other format-related DAI parameters, rdai->bit_clk_inv flag
-is not properly re-initialized when setting format for new stream
-processing. The inversion, if requested, is then applied not to default,
-but to a previous value, which leads to SCKP bit in SSICR register being
-set incorrectly.
-Fix this by re-setting the flag to its initial value, determined by format.
+Bail from the pci_driver probe function instead of from the drm_driver
+load function.
 
-Fixes: 1a7889ca8aba3 ("ASoC: rsnd: fixup SND_SOC_DAIFMT_xB_xF behavior")
-Cc: Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Cc: Jiada Wang <jiada_wang@mentor.com>
-Cc: Timo Wischer <twischer@de.adit-jv.com>
-Cc: stable@vger.kernel.org # v3.17+
-Signed-off-by: Junya Monden <jmonden@jp.adit-jv.com>
-Signed-off-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-Acked-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/20191016124255.7442-1-erosca@de.adit-jv.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This avoid /dev/dri/card0 temporarily getting registered and then
+unregistered again, sending unwanted add / remove udev events to
+userspace.
+
+Specifically this avoids triggering the (userspace) bug fixed by this
+plymouth merge-request:
+https://gitlab.freedesktop.org/plymouth/plymouth/merge_requests/59
+
+Note that despite that being a userspace bug, not sending unnecessary
+udev events is a good idea in general.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1490490
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/sh/rcar/core.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |   35 ++++++++++++++++++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |   35 --------------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
 
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -629,6 +629,7 @@ static int rsnd_soc_dai_set_fmt(struct s
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -841,6 +841,41 @@ static int amdgpu_pci_probe(struct pci_d
+ 	if (ret == -EPROBE_DEFER)
+ 		return ret;
  
- 	/* set format */
-+	rdai->bit_clk_inv = 0;
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
- 		rdai->sys_delay = 0;
++#ifdef CONFIG_DRM_AMDGPU_SI
++	if (!amdgpu_si_support) {
++		switch (flags & AMD_ASIC_MASK) {
++		case CHIP_TAHITI:
++		case CHIP_PITCAIRN:
++		case CHIP_VERDE:
++		case CHIP_OLAND:
++		case CHIP_HAINAN:
++			dev_info(&pdev->dev,
++				 "SI support provided by radeon.\n");
++			dev_info(&pdev->dev,
++				 "Use radeon.si_support=0 amdgpu.si_support=1 to override.\n"
++				);
++			return -ENODEV;
++		}
++	}
++#endif
++#ifdef CONFIG_DRM_AMDGPU_CIK
++	if (!amdgpu_cik_support) {
++		switch (flags & AMD_ASIC_MASK) {
++		case CHIP_KAVERI:
++		case CHIP_BONAIRE:
++		case CHIP_HAWAII:
++		case CHIP_KABINI:
++		case CHIP_MULLINS:
++			dev_info(&pdev->dev,
++				 "CIK support provided by radeon.\n");
++			dev_info(&pdev->dev,
++				 "Use radeon.cik_support=0 amdgpu.cik_support=1 to override.\n"
++				);
++			return -ENODEV;
++		}
++	}
++#endif
++
+ 	/* Get rid of things like offb */
+ 	ret = amdgpu_kick_out_firmware_fb(pdev);
+ 	if (ret)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -87,41 +87,6 @@ int amdgpu_driver_load_kms(struct drm_de
+ 	struct amdgpu_device *adev;
+ 	int r, acpi_status;
+ 
+-#ifdef CONFIG_DRM_AMDGPU_SI
+-	if (!amdgpu_si_support) {
+-		switch (flags & AMD_ASIC_MASK) {
+-		case CHIP_TAHITI:
+-		case CHIP_PITCAIRN:
+-		case CHIP_VERDE:
+-		case CHIP_OLAND:
+-		case CHIP_HAINAN:
+-			dev_info(dev->dev,
+-				 "SI support provided by radeon.\n");
+-			dev_info(dev->dev,
+-				 "Use radeon.si_support=0 amdgpu.si_support=1 to override.\n"
+-				);
+-			return -ENODEV;
+-		}
+-	}
+-#endif
+-#ifdef CONFIG_DRM_AMDGPU_CIK
+-	if (!amdgpu_cik_support) {
+-		switch (flags & AMD_ASIC_MASK) {
+-		case CHIP_KAVERI:
+-		case CHIP_BONAIRE:
+-		case CHIP_HAWAII:
+-		case CHIP_KABINI:
+-		case CHIP_MULLINS:
+-			dev_info(dev->dev,
+-				 "CIK support provided by radeon.\n");
+-			dev_info(dev->dev,
+-				 "Use radeon.cik_support=0 amdgpu.cik_support=1 to override.\n"
+-				);
+-			return -ENODEV;
+-		}
+-	}
+-#endif
+-
+ 	adev = kzalloc(sizeof(struct amdgpu_device), GFP_KERNEL);
+ 	if (adev == NULL) {
+ 		return -ENOMEM;
 
 
