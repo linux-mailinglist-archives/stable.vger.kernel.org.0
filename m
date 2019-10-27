@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8433E6904
+	by mail.lfdr.de (Postfix) with ESMTP id 49B0AE6903
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbfJ0VMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:12:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58610 "EHLO mail.kernel.org"
+        id S1729994AbfJ0VMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:12:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729984AbfJ0VL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:11:59 -0400
+        id S1727745AbfJ0VMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:12:01 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE970205C9;
-        Sun, 27 Oct 2019 21:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94B6E20873;
+        Sun, 27 Oct 2019 21:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210718;
-        bh=adTvinB5qHUTQOXdWUAnUTJQLeswb/Ob77yEnh7asBw=;
+        s=default; t=1572210721;
+        bh=Vs217nyuX17JcZ6U8pDY5uQaLoKbNfvaliz945kexRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iAO7N4K9Gkx/P3EW2Ng19Jz5dywotZObGHM4algbQCZ5y3pomiz51evns3/3WaGUN
-         q7raaSaTA/3wB4UB78A5E3B/PXXVKkYa+DOR5cSg7Ky+0ZYPbtEXF/wtZRbbCVQnTt
-         P1W2uctGvSr3wR2yoQ87JoUQuuO54rzGHAFh39rw=
+        b=QpAcUycoWeuGRdI6+W/oGlZR0LWRqpvuNd55LSrLJMO0pxzsfk3NpCijBmQvIj1M1
+         WyYdrOOWvP+KhifB3i9wrBCaq9nVuWEgQBy1tv0SdrsRLzgOa4EWukBs/Sd1pO6Hbc
+         UORCpq80lOVrx0emAYjUZvQ/KTNy178XXhI98yVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Paul Durrant <paul@xen.org>, Wei Liu <wei.liu@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 113/119] xen/netback: fix error path of xenvif_connect_data()
-Date:   Sun, 27 Oct 2019 22:01:30 +0100
-Message-Id: <20191027203349.706116869@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.14 114/119] PCI: PM: Fix pci_power_up()
+Date:   Sun, 27 Oct 2019 22:01:31 +0100
+Message-Id: <20191027203349.766791277@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -44,36 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 3d5c1a037d37392a6859afbde49be5ba6a70a6b3 upstream.
+commit 45144d42f299455911cc29366656c7324a3a7c97 upstream.
 
-xenvif_connect_data() calls module_put() in case of error. This is
-wrong as there is no related module_get().
+There is an arbitrary difference between the system resume and
+runtime resume code paths for PCI devices regarding the delay to
+apply when switching the devices from D3cold to D0.
 
-Remove the superfluous module_put().
+Namely, pci_restore_standard_config() used in the runtime resume
+code path calls pci_set_power_state() which in turn invokes
+__pci_start_power_transition() to power up the device through the
+platform firmware and that function applies the transition delay
+(as per PCI Express Base Specification Revision 2.0, Section 6.6.1).
+However, pci_pm_default_resume_early() used in the system resume
+code path calls pci_power_up() which doesn't apply the delay at
+all and that causes issues to occur during resume from
+suspend-to-idle on some systems where the delay is required.
 
-Fixes: 279f438e36c0a7 ("xen-netback: Don't destroy the netdev until the vif is shut down")
-Cc: <stable@vger.kernel.org> # 3.12
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Paul Durrant <paul@xen.org>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since there is no reason for that difference to exist, modify
+pci_power_up() to follow pci_set_power_state() more closely and
+invoke __pci_start_power_transition() from there to call the
+platform firmware to power up the device (in case that's necessary).
+
+Fixes: db288c9c5f9d ("PCI / PM: restore the original behavior of pci_set_power_state()")
+Reported-by: Daniel Drake <drake@endlessm.com>
+Tested-by: Daniel Drake <drake@endlessm.com>
+Link: https://lore.kernel.org/linux-pm/CAD8Lp44TYxrMgPLkHCqF9hv6smEurMXvmmvmtyFhZ6Q4SE+dig@mail.gmail.com/T/#m21be74af263c6a34f36e0fc5c77c5449d9406925
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/xen-netback/interface.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/pci/pci.c |   24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -718,7 +718,6 @@ err_unmap:
- 	xenvif_unmap_frontend_data_rings(queue);
- 	netif_napi_del(&queue->napi);
- err:
--	module_put(THIS_MODULE);
- 	return err;
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -749,19 +749,6 @@ void pci_update_current_state(struct pci
  }
  
+ /**
+- * pci_power_up - Put the given device into D0 forcibly
+- * @dev: PCI device to power up
+- */
+-void pci_power_up(struct pci_dev *dev)
+-{
+-	if (platform_pci_power_manageable(dev))
+-		platform_pci_set_power_state(dev, PCI_D0);
+-
+-	pci_raw_set_power_state(dev, PCI_D0);
+-	pci_update_current_state(dev, PCI_D0);
+-}
+-
+-/**
+  * pci_platform_power_transition - Use platform to change device power state
+  * @dev: PCI device to handle.
+  * @state: State to put the device into.
+@@ -940,6 +927,17 @@ int pci_set_power_state(struct pci_dev *
+ EXPORT_SYMBOL(pci_set_power_state);
+ 
+ /**
++ * pci_power_up - Put the given device into D0 forcibly
++ * @dev: PCI device to power up
++ */
++void pci_power_up(struct pci_dev *dev)
++{
++	__pci_start_power_transition(dev, PCI_D0);
++	pci_raw_set_power_state(dev, PCI_D0);
++	pci_update_current_state(dev, PCI_D0);
++}
++
++/**
+  * pci_choose_state - Choose the power state of a PCI device
+  * @dev: PCI device to be suspended
+  * @state: target sleep state for the whole system. This is the value
 
 
