@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0338E69A2
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B013FE6975
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbfJ0VDw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49288 "EHLO mail.kernel.org"
+        id S1727601AbfJ0VGn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:06:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728460AbfJ0VDv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:03:51 -0400
+        id S1727702AbfJ0VGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:06:39 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80A3B2064A;
-        Sun, 27 Oct 2019 21:03:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E1042064A;
+        Sun, 27 Oct 2019 21:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210231;
-        bh=ssO/fgfxNpvpT7q/HqGLGpAcTTDrtqgKuanlAZwDpQA=;
+        s=default; t=1572210398;
+        bh=uw4FsbykKvY5mRQRdXpS59+P12ELhRHDs100pawlrWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfKoHQ0MCXJ5xtGEDW5kK/3ky7MN8zeMUF6aeHJbhfVU0zytnLYGQtiS8LuxnNrzs
-         mYPnJayG1rN2QH2DFNS/PBOt+kSBQkixgzDs8FEFFnLBmv/81KZFSydliJWu8IaTZk
-         pdolJU0GHHOBA5FI3/vbnMSgMi84nsmvB4S4BWqU=
+        b=nmsddOP73VcrHXoc6fCyzitqY25qczk0kODTP7XGTAvWCSN6OrtQLMGsxKDgZcbeU
+         bRev7u0V8l0WPPGD9nJUU9ZAZ2Xktv5ZTjTV7xPtjzThhpGRIc/1kXoq8rKD8wYwz7
+         Aew2S0H4Rgdv6Qq3jjaWjaaH8u4FhakEfnWwRxBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 36/41] memstick: jmb38x_ms: Fix an error handling path in jmb38x_ms_probe()
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 36/49] mac80211: Reject malformed SSID elements
 Date:   Sun, 27 Oct 2019 22:01:14 +0100
-Message-Id: <20191027203131.812210192@linuxfoundation.org>
+Message-Id: <20191027203152.366352267@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Will Deacon <will@kernel.org>
 
-commit 28c9fac09ab0147158db0baeec630407a5e9b892 upstream.
+commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
 
-If 'jmb38x_ms_count_slots()' returns 0, we must undo the previous
-'pci_request_regions()' call.
+Although this shouldn't occur in practice, it's a good idea to bounds
+check the length field of the SSID element prior to using it for things
+like allocations or memcpy operations.
 
-Goto 'err_out_int' to fix it.
-
-Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
-Cc: stable@vger.kernel.org
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: <stable@vger.kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/memstick/host/jmb38x_ms.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/mlme.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/memstick/host/jmb38x_ms.c
-+++ b/drivers/memstick/host/jmb38x_ms.c
-@@ -947,7 +947,7 @@ static int jmb38x_ms_probe(struct pci_de
- 	if (!cnt) {
- 		rc = -ENODEV;
- 		pci_dev_busy = 1;
--		goto err_out;
-+		goto err_out_int;
- 	}
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2434,7 +2434,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
  
- 	jm = kzalloc(sizeof(struct jmb38x_ms)
+ 	rcu_read_lock();
+ 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+-	if (WARN_ON_ONCE(ssid == NULL))
++	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
++		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+ 		ssid_len = 0;
+ 	else
+ 		ssid_len = ssid[1];
+@@ -4691,7 +4692,7 @@ int ieee80211_mgd_assoc(struct ieee80211
+ 
+ 	rcu_read_lock();
+ 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+-	if (!ssidie) {
++	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
+ 		rcu_read_unlock();
+ 		kfree(assoc_data);
+ 		return -EINVAL;
 
 
