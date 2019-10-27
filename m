@@ -2,100 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE82DE653A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 21:06:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27356E6555
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 21:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727317AbfJ0UFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 16:05:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43522 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727235AbfJ0UFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 16:05:51 -0400
-Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B71E2070B;
-        Sun, 27 Oct 2019 20:05:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572206750;
-        bh=CUyR3fuoRdKrJf9nZf1t8S4z237j7l+D00ncfqIoSsU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=agxvakRkTOgijn/qKghHaoBmSxLV42tfG+3mDaEYBQaWHZAkmKod8SYfXy4MpEWo6
-         Dprkv23dHk6aJ3UmcpP4M8lhhTvS7xXEaYUcPvmJap/tZyHGkHa2Inqt5Kicypqv4d
-         meAoiKQjcdHD9W3YcUkXv7dyo7Dh3OrLSJTGPLUs=
-Date:   Sun, 27 Oct 2019 21:05:47 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     maowenan <maowenan@huawei.com>
-Cc:     Ajay Kaher <akaher@vmware.com>, davem@davemloft.net,
-        kuznet@ms2.inr.ac.ru, jmorris@namei.org, yoshfuji@linux-ipv6.org,
-        kaber@trash.net, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        srivatsab@vmware.com, srivatsa@csail.mit.edu, amakhalov@vmware.com,
-        srinidhir@vmware.com, bvikas@vmware.com, anishs@vmware.com,
-        vsirnapalli@vmware.com, srostedt@vmware.com
-Subject: Re: [PATCH 4.9.y] Revert "net: sit: fix memory leak in
- sit_init_net()"
-Message-ID: <20191027200547.GB2588299@kroah.com>
-References: <1571216634-44834-1-git-send-email-akaher@vmware.com>
- <20191016183027.GC801860@kroah.com>
- <d0cbd39d-9fb7-dad8-b951-12aa299f13e8@huawei.com>
+        id S1727977AbfJ0UWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 16:22:11 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:33398 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727121AbfJ0UWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 16:22:11 -0400
+Received: by mail-pg1-f193.google.com with SMTP id u23so5096461pgo.0
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 13:22:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=LIB5NQNKD9523j+L9amoI/eFJfVAotXndN3TnZUgyws=;
+        b=noS1gtpMiLCvdgRUF0aQrwIl8qRciafWXGJHJorZ2rwgt2zYbt5ar4T5aE+Ne+Y4lT
+         h28dsjoeWjdQ2YAitzSDWVcRP+7np7kdk1/FydAaD6dxD4XXSXoSf1q4nuMEhLXIWeP+
+         DRDAlJ5xb3FhqeBWWRH5bG0lpTNQw9iC1IMbUZEmBEJYuvXKfK6ANqWOKwZtgtvElqSD
+         CFv1mMr2n/1QA7mSAC6dJPQxgZw8pvJc0Ep5wCCdfcaHBaCwyX9meqH+jJ5TogRCIvRK
+         DMAjKh9+skzl8t4MDvFyENwPj6oVJPQ2RzgRRLtXtH75aKjQJYYdgtlQkrqgqMq3GQ3U
+         1agA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=LIB5NQNKD9523j+L9amoI/eFJfVAotXndN3TnZUgyws=;
+        b=MFCHVrQ489JATBrka1zAALItsiloYkqUuLtEF/5po3DSBHdGMRgGs6lJ4ZKuZuELHg
+         Ji9dvM3cJnrgzg1VwjPFNzPaCGdAj4eqQ64RFunol6x225UWLznx4DmCl+p5/HZEGg3W
+         6p+Gsr3iNbTYS538lgNSzDX2sWyx1VG+DUwxFeQsmlBK8MOtJg/F6Atad6ZleJvvihTc
+         qLqMb2qz7i+ft+/i+5aPHfoOFakB1hPqSvd5eJNP9Wcp+yp9ddSCReA6o5R5reN3/dEG
+         CxdoHcICzPdhPUdTKbhzMFj7FpF3maBqGfkQEV+yWlV1Y/aElTVhXLHHiWw4uHP28qiY
+         FKsw==
+X-Gm-Message-State: APjAAAVsfhK4SCAdsXzpg8PelUN0LBWxRlqL1RFT8KjnhbnZIl6rMEUY
+        OlMCMoIjnR26P6RIRcGRKONHeg==
+X-Google-Smtp-Source: APXvYqwRnOdkNFFptbnpJ7n/N+ihgFVFkhcxmQNP2gW14ERnuPkKHJtN0GNkl4rCy0y7k80nto2LiA==
+X-Received: by 2002:a63:b60b:: with SMTP id j11mr5559622pgf.116.1572207728703;
+        Sun, 27 Oct 2019 13:22:08 -0700 (PDT)
+Received: from [192.168.1.188] ([66.219.217.79])
+        by smtp.gmail.com with ESMTPSA id k32sm8447050pje.10.2019.10.27.13.22.07
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 27 Oct 2019 13:22:07 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: fix up O_NONBLOCK handling for
+ sockets" failed to apply to 5.3-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     zeba.hrvoje@gmail.com, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+References: <1572191635100175@kroah.com>
+ <da7d616b-a7e1-5cf5-5b38-75ecf8843ccb@kernel.dk>
+ <20191027200020.GB2587661@kroah.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <b9a4a9f8-2588-b13e-b010-916895d7a8dc@kernel.dk>
+Date:   Sun, 27 Oct 2019 14:22:06 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d0cbd39d-9fb7-dad8-b951-12aa299f13e8@huawei.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191027200020.GB2587661@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 18, 2019 at 09:48:05AM +0800, maowenan wrote:
+On 10/27/19 2:00 PM, Greg KH wrote:
+> On Sun, Oct 27, 2019 at 12:58:14PM -0600, Jens Axboe wrote:
+>> On 10/27/19 9:53 AM, gregkh@linuxfoundation.org wrote:
+>>>
+>>> The patch below does not apply to the 5.3-stable tree.
+>>> If someone wants it applied there, or to any other stable or longterm
+>>> tree, then please email the backport, including the original git commit
+>>> id to <stable@vger.kernel.org>.
+>>
+>> I can fix this up, but I probably need to see Sasha's queue first for
+>> the io_uring patches. I need to base it against that.
 > 
-> 
-> On 2019/10/17 2:30, Greg KH wrote:
-> > On Wed, Oct 16, 2019 at 02:33:54PM +0530, Ajay Kaher wrote:
-> >> This reverts commit 375d6d454a95ebacb9c6eb0b715da05a4458ffef which is
-> >> commit 07f12b26e21ab359261bf75cfcb424fdc7daeb6d upstream.
-> >>
-> >> Unnecessarily calling free_netdev() from sit_init_net().
-> >> ipip6_dev_free() of 4.9.y called free_netdev(), so no need
-> >> to call again after ipip6_dev_free().
-> >>
-> >> Cc: Mao Wenan <maowenan@huawei.com>
-> >> Cc: David S. Miller <davem@davemloft.net>
-> >> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >> Signed-off-by: Ajay Kaher <akaher@vmware.com>
-> >> ---
-> >>  net/ipv6/sit.c | 1 -
-> >>  1 file changed, 1 deletion(-)
-> >>
-> >> diff --git a/net/ipv6/sit.c b/net/ipv6/sit.c
-> >> index 47ca2a2..16eba7b 100644
-> >> --- a/net/ipv6/sit.c
-> >> +++ b/net/ipv6/sit.c
-> >> @@ -1856,7 +1856,6 @@ static int __net_init sit_init_net(struct net *net)
-> >>  
-> >>  err_reg_dev:
-> >>  	ipip6_dev_free(sitn->fb_tunnel_dev);
-> >> -	free_netdev(sitn->fb_tunnel_dev);
-> >>  err_alloc_dev:
-> >>  	return err;
-> >>  }
-> >> -- 
-> >> 2.7.4
-> >>
-> > 
-> > Mao, are you ok with this change?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Greg, ipip6_dev_free has already called free_netdev in stable 4.9.
-> 
-> Reviewed-by: Mao Wenan <maowenan@huawei.com>
+> Ok, wait for the next 5.3.y release in a few days and send stuff off of
+> that if you can.
 
-Thanks, now queued up.
+Is there no "current" or similar tree to work of off? Would be a shame
+to miss the next one, especially since the newer fixes are already in.
 
-greg k-h
+If not, I'll just wait for the next one.
+
+-- 
+Jens Axboe
+
